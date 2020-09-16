@@ -43,7 +43,6 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
@@ -413,7 +412,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 			// File path is a complete file name: just set this in the bean
 			bean.setFilePath(filePath);
 		} else {
-			bean.setFilePath(getNexusFilePath(filePath, req.getSampleData()));
+			bean.setFilePath(getNexusFilePath(filePath));
 		}
 		logger.debug("Nexus file path set to {}", bean.getFilePath());
 	}
@@ -432,16 +431,15 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		return lastElement.matches(filenameRegex);
 	}
 
-	private static String getNexusFilePath(String filePath, SampleData sampleData) throws EventException {
+	private static String getNexusFilePath(String filePath) throws EventException {
 		final IFilePathService fservice = Services.getFilePathService();
 		if (fservice == null) {
 			// It is allowable to run a scan without a nexus file
 			return null;
 		}
 		// Set the file path to the next scan file path from the service which manages scan names.
-		final String template = sampleData != null ? sampleData.getName() : null;
 		try {
-			return filePath == null ? fservice.getNextPath(template) : fservice.getNextPath(filePath, template);
+			return filePath == null ? fservice.getNextPath(null) : fservice.getNextPath(filePath, null);
 		} catch (Exception e) {
 			throw new EventException(e);
 		}

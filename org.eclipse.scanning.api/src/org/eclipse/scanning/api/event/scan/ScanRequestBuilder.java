@@ -45,7 +45,6 @@ public class ScanRequestBuilder {
 	public static final String DETECTORS = "detectors";
 	public static final String MONITOR_NAMES_PER_POINT = "monitorNamesPerPoint";
 	public static final String MONITOR_NAMES_PER_SCAN = "monitorNamesPerScan";
-	public static final String SAMPLE_DATA = "sampleData";
 	public static final String SCAN_METADATA = "scanMetadata";
 	public static final String FILE_PATH = "filePath";
 	public static final String TEMPLATE_FILE_PATHS = "templateFilePaths";
@@ -63,8 +62,6 @@ public class ScanRequestBuilder {
 
 	private Collection<String> monitorNamesPerPoint = Collections.emptyList();
 	private Collection<String> monitorNamesPerScan = Collections.emptyList();
-
-	private SampleData sampleData = null;
 
 	private List<ScanMetadata> scanMetadata = Collections.emptyList();
 
@@ -104,8 +101,6 @@ public class ScanRequestBuilder {
 				withMonitorNamesPerPoint((Collection<String>) value);
 			} else if (field.equals(MONITOR_NAMES_PER_SCAN)) {
 				withMonitorNamesPerScan((Collection<String>) value);
-			} else if (field.equals(SAMPLE_DATA)) {
-				withSampleData((SampleData) value);
 			} else if (field.equals(SCAN_METADATA)) {
 				withScanMetadata((List<ScanMetadata>) value);
 			} else if (field.equals(FILE_PATH)) {
@@ -145,11 +140,6 @@ public class ScanRequestBuilder {
 
 	public ScanRequestBuilder withMonitorNamesPerScan(Collection<String> monitorNamesPerScan) {
 		this.monitorNamesPerScan = monitorNamesPerScan;
-		return this;
-	}
-
-	public ScanRequestBuilder withSampleData(SampleData sampleData) {
-		this.sampleData = sampleData;
 		return this;
 	}
 
@@ -209,7 +199,6 @@ public class ScanRequestBuilder {
 		request.setDetectors(detectors);
 		request.setMonitorNamesPerPoint(monitorNamesPerPoint);
 		request.setMonitorNamesPerScan(monitorNamesPerScan);
-		request.setSampleData(sampleData);
 		request.setScanMetadata(scanMetadata);
 		request.setFilePath(filePath);
 		request.setTemplateFilePaths(templateFilePaths);

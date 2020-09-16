@@ -28,7 +28,6 @@ import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.IGNORE_PREP
 import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.MONITOR_NAMES_PER_POINT;
 import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.MONITOR_NAMES_PER_SCAN;
 import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.PROCESSING_REQUEST;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.SAMPLE_DATA;
 import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.SCAN_METADATA;
 import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.START_POSITION;
 import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.TEMPLATE_FILE_PATHS;
@@ -47,7 +46,6 @@ import java.util.Set;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
-import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequestBuilder;
 import org.eclipse.scanning.api.points.IPosition;
@@ -64,7 +62,6 @@ public class ScanRequestBuilderTest {
 	private IDetectorModel model2;
 	private Map<String, IDetectorModel> detectors;
 
-	private SampleData sampleData;
 	private List<String> monitorNamesPerPoint;
 	private List<String> monitorNamesPerScan;
 	private List<ScanMetadata> scanMetadata;
@@ -83,7 +80,6 @@ public class ScanRequestBuilderTest {
 		detectors.put("Detector1", model1);
 		detectors.put("Detector2", model2);
 
-		sampleData = mock(SampleData.class);
 		monitorNamesPerPoint = Arrays.asList("pointmonitor1", "pointmonitor2");
 		monitorNamesPerScan = Arrays.asList("scanmonitor1", "scanmonitor2", "scanmonitor3");
 		scanMetadata = Arrays.asList(mock(ScanMetadata.class), mock(ScanMetadata.class));
@@ -102,7 +98,6 @@ public class ScanRequestBuilderTest {
 		assertTrue(scanRequest.getDetectors().isEmpty());
 		assertTrue(scanRequest.getMonitorNamesPerPoint().isEmpty());
 		assertTrue(scanRequest.getMonitorNamesPerScan().isEmpty());
-		assertNull(scanRequest.getSampleData());
 		assertTrue(scanRequest.getScanMetadata().isEmpty());
 		assertNull(scanRequest.getFilePath());
 		assertTrue(scanRequest.getTemplateFilePaths().isEmpty());
@@ -122,7 +117,6 @@ public class ScanRequestBuilderTest {
 			.withDetectors(detectors)
 			.withMonitorNamesPerPoint(monitorNamesPerPoint)
 			.withMonitorNamesPerScan(monitorNamesPerScan)
-			.withSampleData(sampleData)
 			.withScanMetadata(scanMetadata)
 			.withFilePath(DATA_DIRECTORY)
 			.withTemplateFilePaths(templateFiles)
@@ -143,7 +137,6 @@ public class ScanRequestBuilderTest {
 		values.put(DETECTORS, detectors);
 		values.put(MONITOR_NAMES_PER_POINT, monitorNamesPerPoint);
 		values.put(MONITOR_NAMES_PER_SCAN, monitorNamesPerScan);
-		values.put(SAMPLE_DATA, sampleData);
 		values.put(SCAN_METADATA, scanMetadata);
 		values.put(FILE_PATH, DATA_DIRECTORY);
 		values.put(TEMPLATE_FILE_PATHS, templateFiles);
@@ -177,7 +170,6 @@ public class ScanRequestBuilderTest {
 
 		assertTrue(scanRequest.getMonitorNamesPerPoint() == monitorNamesPerPoint);
 		assertTrue(scanRequest.getMonitorNamesPerScan() == monitorNamesPerScan);
-		assertTrue(scanRequest.getSampleData() == sampleData);
 		assertTrue(scanRequest.getScanMetadata() == scanMetadata);
 		assertEquals(DATA_DIRECTORY, scanRequest.getFilePath());
 		assertTrue(scanRequest.getTemplateFilePaths() == templateFiles);

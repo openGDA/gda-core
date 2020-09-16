@@ -72,11 +72,6 @@ public class ScanRequest implements Serializable {
 	private Collection<String> monitorNamesPerScan = Collections.emptyList();
 
 	/**
-	 * The sample data which the user entered (if any) which determines
-	 */
-	private SampleData sampleData;
-
-	/**
 	 * Scan metadata that is not produced by a particular device, e.g.
 	 * scan command, chemical formula etc., grouped by type.
 	 */
@@ -156,14 +151,6 @@ public class ScanRequest implements Serializable {
 		this.processingRequest = processingRequest;
 	}
 
-	public SampleData getSampleData() {
-		return sampleData;
-	}
-
-	public void setSampleData(SampleData sampleData) {
-		this.sampleData = sampleData;
-	}
-
 	public Collection<String> getMonitorNamesPerPoint() {
 		return monitorNamesPerPoint;
 	}
@@ -213,7 +200,6 @@ public class ScanRequest implements Serializable {
 		result = prime * result + ((monitorNamesPerPoint == null) ? 0 : monitorNamesPerPoint.hashCode());
 		result = prime * result + ((monitorNamesPerScan == null) ? 0 : monitorNamesPerScan.hashCode());
 		result = prime * result + ((processingRequest == null) ? 0 : processingRequest.hashCode());
-		result = prime * result + ((sampleData == null) ? 0 : sampleData.hashCode());
 		result = prime * result + ((scanMetadata == null) ? 0 : scanMetadata.hashCode());
 		result = prime * result + ((startPosition == null) ? 0 : startPosition.hashCode());
 		result = prime * result + ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
@@ -278,11 +264,6 @@ public class ScanRequest implements Serializable {
 				return false;
 		} else if (!processingRequest.equals(other.processingRequest))
 			return false;
-		if (sampleData == null) {
-			if (other.sampleData != null)
-				return false;
-		} else if (!sampleData.equals(other.sampleData))
-			return false;
 		if (scanMetadata == null) {
 			if (other.scanMetadata != null)
 				return false;
@@ -304,7 +285,7 @@ public class ScanRequest implements Serializable {
 	@Override
 	public String toString() {
 		return "ScanRequest [compoundModel=" + compoundModel + ", detectors=" + detectors + ", monitorNamesPerPoint="
-				+ monitorNamesPerPoint + ", monitorNamesPerScan=" + monitorNamesPerScan + ", sampleData=" + sampleData
+				+ monitorNamesPerPoint + ", monitorNamesPerScan=" + monitorNamesPerScan
 				+ ", scanMetadata=" + scanMetadata + ", filePath=" + filePath + ", templateFilePaths="
 				+ templateFilePaths + ", startPosition=" + startPosition + ", beforeScript=" + beforeScript
 				+ ", endPosition=" + endPosition + ", afterScript=" + afterScript + ", alwaysRunAfterScript="

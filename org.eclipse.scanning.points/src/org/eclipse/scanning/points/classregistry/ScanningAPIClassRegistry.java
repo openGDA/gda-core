@@ -21,7 +21,6 @@ import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
 import org.eclipse.scanning.api.event.scan.PositionerRequest;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
-import org.eclipse.scanning.api.event.scan.SampleData;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -85,7 +84,6 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, AcquireRequest.class);
 		registerClass(tmp, ScanBean.class);
 		registerClass(tmp, ScanEvent.class);
-		registerClass(tmp, SampleData.class);
 		registerClass(tmp, ScanRequest.class);
 		registerClass(tmp, ScanMetadata.class);
 		registerClass(tmp, DeviceValueMultiPosition.class);
