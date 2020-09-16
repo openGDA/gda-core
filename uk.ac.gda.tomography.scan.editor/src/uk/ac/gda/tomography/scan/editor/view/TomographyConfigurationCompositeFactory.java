@@ -70,6 +70,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
@@ -557,12 +558,16 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 		name.addModifyListener(modifyNameListener);
 
-		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "imageCalibration.beforeAcquisition", getAcquisitionConfiguration());
-		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "imageCalibration.afterAcquisition", getAcquisitionConfiguration());
-		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "imageCalibration.numberDark", getAcquisitionConfiguration());
-		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "imageCalibration.numberFlat", getAcquisitionConfiguration());
-		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "imageCalibration.darkExposure", getAcquisitionConfiguration());
-		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "imageCalibration.flatExposure", getAcquisitionConfiguration());
+		ImageCalibration ic = getAcquisitionConfiguration().getImageCalibration();
+		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "darkCalibration.beforeAcquisition", ic);
+		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "darkCalibration.afterAcquisition", ic);
+		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "darkCalibration.numberExposures", ic);
+		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "darkCalibration.detectorDocument.exposure", ic);
+
+		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "flatCalibration.beforeAcquisition", ic);
+		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "flatCalibration.afterAcquisition", ic);
+		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "flatCalibration.numberExposures", ic);
+		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "flatCalibration.detectorDocument.exposure", ic);
 	}
 
 	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
@@ -594,8 +599,10 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		updateAngularStep();
 
 		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
-		forceFocusOnEmpty(numberDark, Integer.toString(getAcquisitionConfiguration().getImageCalibration().getNumberDark()));
-		forceFocusOnEmpty(numberFlat, Integer.toString(getAcquisitionConfiguration().getImageCalibration().getNumberFlat()));
+		forceFocusOnEmpty(numberDark, Integer.toString(getAcquisitionConfiguration().getImageCalibration()
+				.getDarkCalibration().getNumberExposures()));
+		forceFocusOnEmpty(numberFlat, Integer.toString(getAcquisitionConfiguration().getImageCalibration()
+				.getFlatCalibration().getNumberExposures()));
 		updateMultipleScan();
 	}
 
