@@ -18,21 +18,22 @@
 
 package uk.ac.gda.api.acquisition.configuration.calibration;
 
+import static gda.TestHelpers.deserialiseDocument;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.parameters.ScannablePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
 
 public class ImageCalibrationDocumentTest {
@@ -45,7 +46,10 @@ public class ImageCalibrationDocumentTest {
 	    assertEquals(2, document.getFlatCalibration().getNumberExposures(), 0);
 	    assertTrue(document.getDarkCalibration().isBeforeAcquisition());
 	    assertFalse(document.getFlatCalibration().isBeforeAcquisition());
-	    assertNull(document.getFlatCalibration().getDetectorDocument());
+	    assertEquals(2.4, document.getFlatCalibration().getDetectorDocument().getExposure(), 0);
+	    assertEquals("motor_x", document.getFlatCalibration().getDetectorDocument().getName());
+	    List<ScannablePositionDocument> position = document.getFlatCalibration().getPosition();
+	    assertEquals(2, position.size(), 0);
 	}
 
 	@Test
@@ -65,16 +69,7 @@ public class ImageCalibrationDocumentTest {
 		imageCalibrationBuilder.withFlatCalibration(builderFlat.build());
 
 	    String json = new ObjectMapper().writeValueAsString(imageCalibrationBuilder.build());
-	    assertThat(json, containsString("\"darkCalibration\":{\"detectorDocument\":null,\"numberExposures\":1,\"beforeAcquisition\":true,\"afterAcquisition\":false}"));
-	    assertThat(json, containsString("\"flatCalibration\":{\"detectorDocument\":null,\"numberExposures\":2,\"beforeAcquisition\":false,\"afterAcquisition\":false}"));
-	}
-
-	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {
-		File resource = new File(resourcePath);
-		try {
-			return  new ObjectMapper().readValue(resource.toURI().toURL(), clazz);
-		} catch (IOException e) {
-			throw new GDAException(e);
-		}
+	    assertThat(json, containsString("\"darkCalibration\":{\"position\":null,\"detectorDocument\":null,\"numberExposures\":1,\"beforeAcquisition\":true,\"afterAcquisition\":false}"));
+	    assertThat(json, containsString("\"flatCalibration\":{\"position\":null,\"detectorDocument\":null,\"numberExposures\":2,\"beforeAcquisition\":false,\"afterAcquisition\":false}"));
 	}
 }

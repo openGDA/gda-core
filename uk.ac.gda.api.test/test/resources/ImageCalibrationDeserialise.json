@@ -1,6 +1,25 @@
 {
 	"flatCalibration": {
-		"detectorDocument": null,
+		"position": [
+			{
+				"scannable": "motor_x",
+				"axis": "X",
+				"valueType": "NUMERIC",
+				"position": 2.4,
+				"labelledPosition": null
+			},
+			{
+				"scannable": "shutter_motor",
+				"axis": "shutter",
+				"valueType": "LABELLED",
+				"position": null,
+				"labelledPosition": "CLOSE"
+			}
+		],
+		"detectorDocument": {
+			"name": "motor_x",
+			"exposure": 2.4
+		},
 		"numberExposures": 2,
 		"beforeAcquisition": false,
 		"afterAcquisition": false
