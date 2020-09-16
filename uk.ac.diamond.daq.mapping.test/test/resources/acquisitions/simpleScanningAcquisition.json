@@ -7,7 +7,6 @@
 	"acquisitionLocation": null,
 	"acquisitionConfiguration": {
 		"acquisitionParameters": {
-			"shapeType": "POINT",
 			"detector": null,
 			"scanpathDocument": null
 		},

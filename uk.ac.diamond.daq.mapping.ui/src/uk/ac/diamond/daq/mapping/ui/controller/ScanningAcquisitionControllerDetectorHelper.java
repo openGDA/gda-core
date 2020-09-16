@@ -157,7 +157,6 @@ class ScanningAcquisitionControllerDetectorHelper {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toList());
-
 		return camerasControls;
 	}
 
