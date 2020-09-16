@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -28,17 +30,18 @@ import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent;
+import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
-import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
-import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
+import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
@@ -69,7 +72,7 @@ public class ScanningAcquisitionController
 
 	@SuppressWarnings("unused") // to be used for dark/flat field acquisition in the near future
 	@Autowired
-	private IStageController stageController;
+	private StageController stageController;
 
 	private ScanningAcquisition acquisition;
 
@@ -79,6 +82,7 @@ public class ScanningAcquisitionController
 
 	private AcquisitionPropertyType acquisitionType;
 
+	private ImageCalibrationHelper imageCalibrationHelper;
 	private ScanningAcquisitionControllerDetectorHelper detectorsHelper;
 
 	public ScanningAcquisitionController() {
@@ -106,7 +110,7 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
-		// StageConfiguration sc = generateStageConfiguration(getAcquisition());
+		updateImageCalibration();
 		try {
 			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()));
 		} catch (GDAException e) {
@@ -116,6 +120,7 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void runAcquisition() throws AcquisitionControllerException {
+		updateImageCalibration();
 		publishRun(createScanningMessage());
 	}
 
@@ -127,8 +132,12 @@ public class ScanningAcquisitionController
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		setAcquisition(acquisition);
+		publishAcquisitionConfigurationResourceLoadEvent();
+	}
+
+	private void publishAcquisitionConfigurationResourceLoadEvent() {
 		SpringApplicationContextProxy.publishEvent(
-				new AcquisitionConfigurationResourceLoadEvent(this, acquisition.getAcquisitionLocation()));
+				new AcquisitionConfigurationResourceLoadEvent(this, getAcquisition().getAcquisitionLocation()));
 	}
 
 	@Override
@@ -148,13 +157,12 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void createNewAcquisition() {
-		try {
-			// load the new acquisition in the controller
-			loadAcquisitionConfiguration(getDefaultNewAcquisitionSupplier().get());
-		} catch (AcquisitionControllerException e) {
-			// We do not expect this to happen
-			logger.error("Could not create new acquisition configuration");
-		}
+		// creates and sets the new acquisition
+		setAcquisition(getDefaultNewAcquisitionSupplier().get());
+		// injects acquisition engine and detector documents
+		getDetectorsHelper().applyAcquisitionPropertiesDocument();
+		// load the new acquisition in the controller
+		publishAcquisitionConfigurationResourceLoadEvent();
 	}
 
 	@Override
@@ -225,29 +233,62 @@ public class ScanningAcquisitionController
 	}
 
 	/**
-	 * Verifies if a {@link Positions#OUT_OF_BEAM} is present, if the user wants to acquire flat images.
-	 *
-	 * @param sc
-	 *            the stage configuration
-	 * @return true if the stage configuration is consistent, false otherwise
+	 * There are two elements FlatCalibration and DarkCalibration.
+	 * For the FlatCalibration
+	 * <ol>
+	 * <li>
+	 * open the shutter
+	 * </li>
+	 * <li>
+	 * move to the predefined OUT_OF_BEAM position
+	 * </li>
+	 * </ol>
+	 * For the DarkCalibration
+	 * <ol>
+	 * <li>
+	 * close the shutter
+	 * </li>
+	 * </ol>
 	 */
-	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
-		FlatCalibrationDocument flatCalibration = sc.getAcquisition().getAcquisitionConfiguration().getImageCalibration().getFlatCalibration();
-		return ((flatCalibration.getNumberExposures() > 0
-					&& (flatCalibration.isAfterAcquisition() || flatCalibration.isBeforeAcquisition()))
-				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
+	private void updateImageCalibration() {
+		ImageCalibration ic = getAcquisition().getAcquisitionConfiguration().getImageCalibration();
+		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
+			Set<DevicePositionDocument> position = stageController.getPositionDocuments(Position.OUT_OF_BEAM);
+			position.add(stageController.createShutterOpenRequest());
+			imageCalibrationHelper.updateFlatDetectorPositionDocument(position);
+		}
+
+		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
+			Set<DevicePositionDocument> position = new HashSet<>();
+			position.add(stageController.createShutterClosedRequest());
+			imageCalibrationHelper.updateDarkDetectorPositionDocument(position);
+		}
 	}
 
-	private StageConfiguration generateStageConfiguration(ScanningAcquisition acquisition)
-			throws AcquisitionControllerException {
-		stageController.savePosition(Position.START);
-		StageConfiguration sc = new StageConfiguration(acquisition, stageController.getStageDescription(),
-				stageController.getMotorsPositions());
-		if (requiresOutOfBeamPosition(sc)) {
-			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
-		}
-		return sc;
-	}
+//	/**
+//	 * Verifies if a {@link Positions#OUT_OF_BEAM} is present, if the user wants to acquire flat images.
+//	 *
+//	 * @param sc
+//	 *            the stage configuration
+//	 * @return true if the stage configuration is consistent, false otherwise
+//	 */
+//	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
+//		FlatCalibrationDocument flatCalibration = sc.getAcquisition().getAcquisitionConfiguration().getImageCalibration().getFlatCalibration();
+//		return ((flatCalibration.getNumberExposures() > 0
+//					&& (flatCalibration.isAfterAcquisition() || flatCalibration.isBeforeAcquisition()))
+//				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
+//	}
+
+//	private StageConfiguration generateStageConfiguration(ScanningAcquisition acquisition)
+//			throws AcquisitionControllerException {
+//		stageController.savePosition(Position.START);
+//		StageConfiguration sc = new StageConfiguration(acquisition, stageController.getStageDescription(),
+//				stageController.getMotorsPositions());
+//		if (requiresOutOfBeamPosition(sc)) {
+//			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
+//		}
+//		return sc;
+//	}
 
 	public ScanningParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
@@ -272,7 +313,6 @@ public class ScanningAcquisitionController
 	}
 
 	private ScanningAcquisitionFileService getFileService() {
-
 		if (fileService == null) {
 			fileService = new ScanningAcquisitionFileService();
 		}
@@ -291,14 +331,22 @@ public class ScanningAcquisitionController
 		// eventually release already acquired resources, eventually
 		releaseResources();
 		this.acquisition = acquisition;
-		// associate a new helper with the new acquisition
-		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
-				this::getAcquisition);
+		createHelpers();
 	}
 
 	@Override
 	public void releaseResources() {
 		// DO NOTHING
+	}
+
+	private void createHelpers() {
+		detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
+				this::getAcquisition);
+		imageCalibrationHelper = new ImageCalibrationHelper(this.getAcquisition()::getAcquisitionConfiguration);
+	}
+
+	private ScanningAcquisitionControllerDetectorHelper getDetectorsHelper() {
+		return detectorsHelper;
 	}
 
 	// --- temporary solution ---//

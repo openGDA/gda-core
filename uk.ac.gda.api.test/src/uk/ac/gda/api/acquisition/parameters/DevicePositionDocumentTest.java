@@ -32,53 +32,53 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.gda.api.exception.GDAException;
 
-public class ScannablePositionDocumentTest {
+public class DevicePositionDocumentTest {
 
 	private static final String MOTOR_X = "motor_x";
 	private static final String CLOSE = "CLOSE";
 
 	@Test
-	public void deserialiseScannablePositionDocumentOnlyType() throws GDAException {
-		ScannablePositionDocument document = deserialiseDocument(
-				"test/resources/ScannablePositionDocumentTypeOnly.json", ScannablePositionDocument.class);
+	public void deserialiseDevicePositionDocumentOnlyType() throws GDAException {
+		DevicePositionDocument document = deserialiseDocument(
+				"test/resources/DevicePositionDocumentTypeOnly.json", DevicePositionDocument.class);
 
 		assertEquals(0.0, document.getPosition(), 0);
-		assertNull(document.getScannable());
+		assertNull(document.getDevice());
 		assertNull(document.getAxis());
 		assertNull(document.getLabelledPosition());
-		assertEquals(ScannablePositionDocument.ValueType.NUMERIC, document.getValueType());
+		assertEquals(DevicePositionDocument.ValueType.NUMERIC, document.getValueType());
 	}
 
 	@Test(expected = GDAException.class)
-	public void deserialiseScannablePositionDocumentWrongType() throws GDAException {
+	public void deserialiseDevicePositionDocumentWrongType() throws GDAException {
 		deserialiseDocument(
-				"test/resources/ScannablePositionDocumentWrongType.json", ScannablePositionDocument.class);
+				"test/resources/DevicePositionDocumentWrongType.json", DevicePositionDocument.class);
 	}
 
 	@Test
-	public void deserialiseScannablePositionDocumentNoType() throws GDAException {
-		ScannablePositionDocument document = deserialiseDocument(
-				"test/resources/ScannablePositionDocumentNoType.json", ScannablePositionDocument.class);
+	public void deserialiseDevicePositionDocumentNoType() throws GDAException {
+		DevicePositionDocument document = deserialiseDocument(
+				"test/resources/DevicePositionDocumentNoType.json", DevicePositionDocument.class);
 
 		assertEquals(2.0, document.getPosition(), 0);
-		assertEquals("motor_y", document.getScannable());
+		assertEquals("motor_y", document.getDevice());
 		assertEquals("Y", document.getAxis());
 		assertEquals(CLOSE, document.getLabelledPosition());
 		assertNull(document.getValueType());
 	}
 
 	@Test
-	public void serialiseScannablePositionDocumentWithPosition() throws IOException {
+	public void serialiseDevicePositionDocumentWithPosition() throws IOException {
 
-		ScannablePositionDocument.Builder builder = new ScannablePositionDocument.Builder();
-		builder.withScannable(MOTOR_X);
+		DevicePositionDocument.Builder builder = new DevicePositionDocument.Builder();
+		builder.withDevice(MOTOR_X);
 		builder.withAxis("X");
 		builder.withPosition(2.0);
 		builder.withLabelledPosition(CLOSE);
 
 		String json = new ObjectMapper().writeValueAsString(builder.build());
 
-		assertThat(json, containsString("\"scannable\":\"motor_x\""));
+		assertThat(json, containsString("\"device\":\"motor_x\""));
 		assertThat(json, containsString("\"axis\":\"X\""));
 		assertThat(json, containsString("\"position\":2.0"));
 		assertThat(json, containsString("\"labelledPosition\":\"CLOSE\""));

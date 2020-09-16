@@ -33,6 +33,13 @@ public enum Stage {
 	/**
 	 * A test rig
 	 */
-	TR6;
-
+	TR6,
+	/**
+	 * The shutter
+	 */
+	SHUTTER,
+	/**
+	 * The baseX
+	 */
+	BASEX;
 }

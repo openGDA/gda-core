@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.client.gui.camera;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,12 +31,25 @@ import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { CameraHelperTestConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class CameraHelperTest {
+
+	@Autowired
+	private FinderService finder;
 
 	@Test
 	public void emptyDetectorConfigurationTest() {
@@ -71,6 +87,8 @@ public class CameraHelperTest {
 
 	@Test
 	public void stringReadoutDetectorConfigurationTest() throws Exception {
+		when(finder.getFindableObject("pco_cam_config")).thenReturn(Optional.of(mock(CameraControl.class)));
+
 		File properties = new File("test/resources/stringReadoutDetectorConfiguration.properties");
 		readProperties(properties);
 

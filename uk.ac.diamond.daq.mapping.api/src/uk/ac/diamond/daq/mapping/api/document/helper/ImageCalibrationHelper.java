@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.api.document.helper;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
@@ -26,6 +27,7 @@ import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
  * Utility class to update {@link ImageCalibration} documents
@@ -56,6 +58,10 @@ public class ImageCalibrationHelper extends ConfigurationHelperBase {
 		updateScanningParameters(getDarkCalibrationBuilder().withDetectorDocument(detectorDocument));
 	}
 
+	public void updateDarkDetectorPositionDocument(Set<DevicePositionDocument> position) {
+		updateScanningParameters(getDarkCalibrationBuilder().withPosition(position));
+	}
+
 	// FlatCalibrationDocument fields
 
 	public void updateFlatNumberExposures(int numberExposures) {
@@ -72,6 +78,10 @@ public class ImageCalibrationHelper extends ConfigurationHelperBase {
 
 	public void updateFlatDetectorDocument(DetectorDocument detectorDocument) {
 		updateScanningParameters(getFlatCalibrationBuilder().withDetectorDocument(detectorDocument));
+	}
+
+	public void updateFlatDetectorPositionDocument(Set<DevicePositionDocument> position) {
+		updateScanningParameters(getFlatCalibrationBuilder().withPosition(position));
 	}
 
 	/**

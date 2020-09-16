@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
-import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionEvent;
@@ -44,7 +43,6 @@ import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocume
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
@@ -86,6 +84,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 	 * camera, as BeamSelector scan in DIAD (K11)
 	 */
 	private List<CameraControl> camerasControls = new ArrayList<>();
+	private final AcquisitionPropertyType acquisitionType;
 
 	/**
 	 * Constructs an object to handle detectors for specific {@code AcquisitionType}. See
@@ -99,68 +98,49 @@ class ScanningAcquisitionControllerDetectorHelper {
 	ScanningAcquisitionControllerDetectorHelper(AcquisitionPropertyType acquisitionType,
 			Supplier<ScanningAcquisition> acquisitionSupplier) {
 		this.acquisitionSupplier = acquisitionSupplier;
-		Optional.ofNullable(AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(acquisitionType))
-				.ifPresent(acquisitionPropertiesDocuments::addAll);
-		camerasControls = setCamerasControls();
+		this.acquisitionType = acquisitionType;
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
-
-		// may happens if the controller still has no acquisition document
-		if (getAcquisition().getAcquisitionConfiguration() == null) {
-			logger.warn("There is no AcquisitionConfiguration document");
-			return;
-		}
-		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters() == null) {
-			logger.warn("There is no AcquisitionParameters document");
-			return;
-		}
-
-		loadDetectorDocument();
-		createAcquisitionEngineDocumentIfMissing();
 	}
 
-	private void loadDetectorDocument() {
-		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getDetector() != null) {
-			camerasControls.stream().forEach(this::updateDetector);
-		} else {
-			createDetectorDocument();
+	private List<AcquisitionPropertiesDocument> getAcquisitionPropertiesDocuments() {
+		if (acquisitionPropertiesDocuments.isEmpty()) {
+			Optional.ofNullable(AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(getAcquisitionType()))
+				.ifPresent(acquisitionPropertiesDocuments::addAll);
+		}
+		return acquisitionPropertiesDocuments;
+	}
+
+	public AcquisitionPropertyType getAcquisitionType() {
+		return acquisitionType;
+	}
+
+	/**
+	 * Used by the parent {@code ScanningAcquisitionController} to set in a new {@code ScanningAcquisition},
+	 * {@code AcquisitionEngineDocument} and {@code DetectorDocument}
+	 */
+	void applyAcquisitionPropertiesDocument() {
+		AcquisitionEngineDocument aed = createNewAcquisitionEngineDocument();
+		getAcquisition().setAcquisitionEngine(aed);
+
+		if (getCamerasControls().isEmpty()) {
+			return;
 		}
 		applyImageCalibrationDocument();
-	}
-
-	private DetectorDocument createDetectorDocument(CameraControl cc) throws DeviceException {
-		return new DetectorDocument(cc.getName(), cc.getAcquireTime());
 	}
 
 	private void applyImageCalibrationDocument() {
 		getAcquisition().getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument());
 	}
 
-	private void createAcquisitionEngineDocumentIfMissing() {
-		// This condition usually happens with a new ScanningAcquisition
-		if (getAcquisition().getAcquisitionEngine() == null) {
-			AcquisitionEngineDocument aed = createNewAcquisitionEngineDocument();
-			getAcquisition().setAcquisitionEngine(aed);
-		}
-		applyImageCalibrationDocument();
-	}
+	private List<CameraControl>  getCamerasControls() {
+		if (!camerasControls.isEmpty())
+			return camerasControls;
 
-	private void createDetectorDocument() {
-		camerasControls.stream().forEach(cc -> {
-			try {
-				ScanningParameters tp = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-				tp.setDetector(createDetectorDocument(cc));
-			} catch (DeviceException e) {
-				logger.warn("Cannot read exposure time. {}", e.getMessage());
-			}
-		});
-	}
-
-	private List<CameraControl> setCamerasControls() {
 		AcquisitionPropertiesDocument dp = getAcquisitionPropertiesDocument();
 		if (dp == null)
-			return new ArrayList<>();
+			return camerasControls;
 
-		return dp.getCameras().stream()
+		camerasControls = dp.getCameras().stream()
 			.map(CameraHelper::getCameraPropertiesByID)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -169,22 +149,8 @@ class ScanningAcquisitionControllerDetectorHelper {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toList());
-	}
 
-	private void updateDetector(CameraControl cameraControl) {
-		DetectorDocument detector = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()
-				.getDetector();
-		if (detector == null)
-			return;
-
-		if (cameraControl.getName().equals(detector.getName()) && detector.getExposure() > 0) {
-			// If the DetectorDocument has name and exposure, sets the CameraControl
-			try {
-				cameraControl.setAcquireTime(detector.getExposure());
-			} catch (DeviceException e) {
-				UIHelper.showError("Cannot update detector camera exposure time.", e, logger);
-			}
-		}
+		return camerasControls;
 	}
 
 	private AcquisitionEngineDocument createNewAcquisitionEngineDocument() {
@@ -215,11 +181,11 @@ class ScanningAcquisitionControllerDetectorHelper {
 	}
 
 	private AcquisitionPropertiesDocument getAcquisitionPropertiesDocument() {
-		if (acquisitionPropertiesDocuments.isEmpty()) {
+		if (getAcquisitionPropertiesDocuments().isEmpty()) {
 			return null;
 		}
 		int index = 0; // in future may be parametrised
-		return acquisitionPropertiesDocuments.get(index);
+		return getAcquisitionPropertiesDocuments().get(index);
 	}
 
 	// At the moment is not possible to use anonymous lambda expression because it
@@ -227,10 +193,10 @@ class ScanningAcquisitionControllerDetectorHelper {
 	private ApplicationListener<CameraControlSpringEvent> listenToExposureChange = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			camerasControls.stream()
-				.map(CameraControl::getName)
-				.filter(detectorControlName -> detectorControlName.equals(event.getName()))
-				.forEach(detectorControlName -> updateDetectorDocument(detectorControlName, event.getAcquireTime()));
+			getCamerasControls().stream()
+					.map(CameraControl::getName)
+					.filter(cameraName -> cameraName.equals(event.getName()))
+					.forEach(cameraName -> updateDetectorDocument(cameraName, event.getAcquireTime()));
 		}
 
 		private void updateDetectorDocument(String detectorControlName, double acquireTime) {

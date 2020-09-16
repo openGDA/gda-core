@@ -16,13 +16,30 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
+package uk.ac.gda.ui.tool.spring;
+
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import gda.factory.Findable;
+import gda.factory.Finder;
 
 /**
- * A collection of standard position definitions
+ * Provides a service to retrieve {@link Findable} objects.
+ *
+ * @author Maurizio Nagni
  */
-public enum Position {
+@Service
+public class FinderService {
 
-	DEFAULT, OUT_OF_BEAM, START, END, OPEN, CLOSE;
+	/**
+	 * @param <T> the expected class extending {@code Findable}
+	 * @param findableId the findable object identificator
+	 * @return the required object oherwise {@link Optional#empty()}
+	 */
+	public synchronized <T extends Findable> Optional<T> getFindableObject(String findableId) {
+		return Finder.findOptional(findableId);
+	}
 
 }

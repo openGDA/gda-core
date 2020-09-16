@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.controller;
+package uk.ac.diamond.daq.mapping.ui.service;
 
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -26,14 +26,21 @@ import org.springframework.context.annotation.FilterType;
 
 import uk.ac.gda.ui.tool.spring.FinderService;
 
+/**
+ * Configure the spring environment for ScannablePositionHelperTest
+ *
+ * @author Maurizio Nagni
+ */
 @Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui"},
-excludeFilters = {
-		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class) })
-public class ScanningAcquisitionControllerConfiguration {
+@ComponentScan(basePackages = { "uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui.services",
+		"uk.ac.diamond.daq.mapping.api.document" },
+				excludeFilters = {
+						@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class) })
+public class DevicePositionServiceTestConfiguration {
 
 	@Bean
 	public FinderService finderService() {
 		return Mockito.mock(FinderService.class);
 	}
+
 }

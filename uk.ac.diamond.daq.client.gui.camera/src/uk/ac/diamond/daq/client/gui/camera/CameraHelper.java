@@ -31,16 +31,16 @@ import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
  * Hides the configuration structural design. A typical configuration defining a
@@ -146,11 +146,11 @@ public final class CameraHelper {
 	}
 
 	public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
-		return FinderHelper.getFindableDevice(getCameraConfigurationInstance(cameraIndex));
+		return createICameraConfiguration(cameraIndex).getCameraConfiguration();	
 	}
-
+	
 	public static Optional<CameraControl> getCameraControl(int cameraIndex) {
-		return FinderHelper.getFindableDevice(getCameraControlProperty(cameraIndex));
+		return createICameraConfiguration(cameraIndex).getCameraControl();				
 	}
 
 	/**
@@ -214,7 +214,7 @@ public final class CameraHelper {
 		ICameraConfigurationImpl.class.cast(createICameraConfiguration(cameraIndex)).setBeamCameraMap(beamCameraMap);
 		// resets the status to mark the end of the mapping
 		BeamCameraMappingEvent cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
-		SpringApplicationContextProxy.publishEvent(cmEvent);
+		SpringApplicationContextFacade.publishEvent(cmEvent);
 	}
 
 	private static void createCameraComboItems() {
@@ -371,7 +371,7 @@ public final class CameraHelper {
 
 		@Override
 		public Optional<CameraConfiguration> getCameraConfiguration() {
-			return FinderHelper.getFindableDevice(getCameraConfigurationInstance(cameraIndex));
+			return getCameraConfiguration(cameraIndex);
 		}
 
 		@Override
@@ -381,7 +381,7 @@ public final class CameraHelper {
 
 		@Override
 		public Optional<CameraControl> getCameraControl() {
-			return FinderHelper.getFindableDevice(getCameraControlProperty(cameraIndex));
+			return getCameraControl(cameraIndex);
 		}
 
 		@Override
@@ -411,6 +411,34 @@ public final class CameraHelper {
 
 		public void setBeamCameraMap(BeamCameraMap beamCameraMap) {
 			this.beamCameraMap = Optional.ofNullable(beamCameraMap);
+		}
+		
+		private Optional<CameraControl> getCameraControl(int cameraIndex) {
+			String findableName = getCameraControlProperty(cameraIndex);
+			if (findableName != null) {
+				return getCameraConfiguration(findableName, CameraControl.class);
+			}
+			return Optional.empty();
+		}
+		
+		public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
+			String findableName = getCameraConfigurationInstance(cameraIndex);
+			if (findableName != null) {
+				return getCameraConfiguration(findableName, CameraConfiguration.class);
+			}
+			return Optional.empty();
+		}
+		
+		private static <T> Optional<T> getCameraConfiguration(String findableName, Class<T> clazz) {	
+			return Optional.ofNullable(getFinderService())
+					.map(f -> f.getFindableObject(findableName))
+					.filter(Optional::isPresent)
+					.map(Optional::get)
+					.map(clazz::cast);
+		}
+		
+		private static FinderService getFinderService() {
+			return SpringApplicationContextFacade.getBean(FinderService.class);
 		}
 	}
 	

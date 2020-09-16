@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.controller;
+package uk.ac.diamond.daq.client.gui.camera;
 
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +30,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 @ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui"},
 excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class) })
-public class ScanningAcquisitionControllerConfiguration {
+public class CameraHelperTestConfiguration {
 
 	@Bean
 	public FinderService finderService() {
