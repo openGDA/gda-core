@@ -28,6 +28,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
+import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,10 +58,12 @@ import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.MultipleScansHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
@@ -72,6 +75,7 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
@@ -130,6 +134,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private final IStageController stageController;
 	private ScanpathDocumentHelper dataHelper;
 	private MultipleScansHelper configurationHelper;
+	private ImageCalibrationHelper imageCalibrationHelper;
 
 	private Composite mainComposite;
 	private ScrolledComposite scrolledComposite;
@@ -141,6 +146,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		this.stageController = stageController;
 		this.dataHelper = new ScanpathDocumentHelper(this::getAcquisitionParameters);
 		this.configurationHelper = new MultipleScansHelper(this::getAcquisitionConfiguration);
+		this.imageCalibrationHelper = new ImageCalibrationHelper(this::getAcquisitionConfiguration);
 	}
 
 	@Override
@@ -519,6 +525,36 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		configurationHelper.updateMultipleScanWaitingTime(wTime);
 	}
 
+	private void beforeAcquisitionListener(SelectionEvent event) {
+		if (!event.getSource().equals(beforeAcquisition))
+			return;
+		imageCalibrationHelper.updateDarkBeforeAcquisitionExposures(beforeAcquisition.getSelection());
+		imageCalibrationHelper.updateFlatBeforeAcquisitionExposures(beforeAcquisition.getSelection());
+	}
+
+	private void afterAcquisitionListener(SelectionEvent event) {
+		if (!event.getSource().equals(afterAcquisition))
+			return;
+		imageCalibrationHelper.updateDarkAfterAcquisitionExposures(afterAcquisition.getSelection());
+		imageCalibrationHelper.updateFlatAfterAcquisitionExposures(afterAcquisition.getSelection());
+	}
+
+	private void setNumberFlat(Widget widget) {
+		Optional.ofNullable(widget)
+			.map(Text.class::cast)
+			.map(Text::getText)
+			.map(Integer::parseInt)
+			.ifPresent(imageCalibrationHelper::updateFlatNumberExposures);
+	}
+
+	private void setNumberDark(Widget widget) {
+		Optional.ofNullable(widget)
+		.map(Text.class::cast)
+		.map(Text::getText)
+		.map(Integer::parseInt)
+		.ifPresent(imageCalibrationHelper::updateDarkNumberExposures);
+	}
+
 	private void switchbackScanTypeListener(SelectionEvent event) {
 		if (!event.getSource().equals(switchbackMultipleScansType))
 			return;
@@ -537,12 +573,18 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		flyScanType.addSelectionListener(scanTypeListener);
 		stepScanType.addSelectionListener(scanTypeListener);
 
+		// Range fields
 		startAngleText.addModifyListener(this::startAngleTextListener);
 		customAngle.addModifyListener(this::customAngleTextListener);
 		customAngle.addFocusListener(FocusListener.focusLostAdapter(c -> updateAngularStep()));
 		currentAngleButton.addSelectionListener(predefinedAngleListener);
-
 		endGroupsListeners();
+
+		// Calibration fields
+		addWidgetDisposableListener(beforeAcquisition, SelectionListener.widgetSelectedAdapter(this::beforeAcquisitionListener));
+		addWidgetDisposableListener(afterAcquisition, SelectionListener.widgetSelectedAdapter(this::afterAcquisitionListener));
+		addWidgetDisposableListener(numberDark, SWT.Modify, event -> setNumberDark(event.widget));
+		addWidgetDisposableListener(numberFlat, SWT.Modify, event -> setNumberFlat(event.widget));
 
 		totalProjections.addModifyListener(this::totalProjectionsListener);
 
@@ -557,17 +599,6 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		bindMultipleScanType(dbc);
 
 		name.addModifyListener(modifyNameListener);
-
-		ImageCalibration ic = getAcquisitionConfiguration().getImageCalibration();
-		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "darkCalibration.beforeAcquisition", ic);
-		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "darkCalibration.afterAcquisition", ic);
-		ClientBindingElements.bindText(dbc, numberDark, Integer.class, "darkCalibration.numberExposures", ic);
-		ClientBindingElements.bindText(dbc, darkExposure, Integer.class, "darkCalibration.detectorDocument.exposure", ic);
-
-		ClientBindingElements.bindCheckBox(dbc, beforeAcquisition, "flatCalibration.beforeAcquisition", ic);
-		ClientBindingElements.bindCheckBox(dbc, afterAcquisition, "flatCalibration.afterAcquisition", ic);
-		ClientBindingElements.bindText(dbc, numberFlat, Integer.class, "flatCalibration.numberExposures", ic);
-		ClientBindingElements.bindText(dbc, flatExposure, Integer.class, "flatCalibration.detectorDocument.exposure", ic);
 	}
 
 	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
@@ -597,6 +628,8 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		initializeAngleRange();
 		initializeEndAngle();
 		updateAngularStep();
+
+		initializeImageCalibration();
 
 		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 		forceFocusOnEmpty(numberDark, Integer.toString(getAcquisitionConfiguration().getImageCalibration()
@@ -643,6 +676,31 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 			customAngle.setEnabled(true);
 		}
 		customAngle.setText(customAngleString);
+	}
+
+	private void initializeImageCalibration() {
+		ImageCalibration ic = getAcquisitionConfiguration().getImageCalibration();
+		Optional.ofNullable(ic.getDarkCalibration().getNumberExposures())
+			.ifPresent(exposure -> numberDark.setText(Integer.toString(exposure)));
+
+		Optional.ofNullable(ic.getDarkCalibration().getDetectorDocument())
+			.map(DetectorDocument::getExposure)
+			.ifPresent(exposure -> darkExposure.setText(Double.toString(exposure)));
+
+		// For the moment dark and flat have the same boolean values
+		Optional.ofNullable(ic.getDarkCalibration().isBeforeAcquisition())
+			.ifPresent(selected -> beforeAcquisition.setSelection(selected));
+
+		// For the moment dark and flat have the same boolean values
+		Optional.ofNullable(ic.getDarkCalibration().isAfterAcquisition())
+		.ifPresent(selected -> afterAcquisition.setSelection(selected));
+
+		Optional.ofNullable(ic.getFlatCalibration().getNumberExposures())
+			.ifPresent(exposure ->	numberFlat.setText(Integer.toString(exposure)));
+
+		Optional.ofNullable(ic.getFlatCalibration().getDetectorDocument())
+			.map(DetectorDocument::getExposure)
+			.ifPresent(exposure -> flatExposure.setText(Double.toString(exposure)));
 	}
 
 	private void updateMultipleScan() {
