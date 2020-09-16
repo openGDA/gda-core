@@ -46,7 +46,7 @@ public class SpringApplicationContextProxy {
 
 	/**
 	 * @param event
-	 * @deprecated use {@link SpringApplicationContextProxy#publishEvent(ApplicationEvent)}
+	 * @deprecated use {@link SpringApplicationContextFacade#publishEvent(ApplicationEvent)}
 	 */
 	@Deprecated
 	public static final void publishEvent(ApplicationEvent event) {
@@ -67,7 +67,7 @@ public class SpringApplicationContextProxy {
 	 *             if no bean of the given type was found
 	 * @throws NoUniqueBeanDefinitionException
 	 *             if more than one bean of the given type was found
-	 * @deprecated use {@link SpringApplicationContextProxy#getBean(Class)}
+	 * @deprecated use {@link SpringApplicationContextFacade#getBean(Class)}
 	 */
 	@Deprecated
 	public static <T> T getBean(Class<T> requiredType) {
@@ -90,7 +90,7 @@ public class SpringApplicationContextProxy {
 	 *             if there is no such bean definition
 	 * @throws BeanDefinitionStoreException
 	 *             if arguments have been given but the affected bean isn't a prototype
-	 * @deprecated Use {@link SpringApplicationContextProxy#getBean(String, Object...)}
+	 * @deprecated Use {@link SpringApplicationContextFacade#getBean(String, Object...)}
 	 */
 	@Deprecated
 	public static Object getBean(String name, Object... args) {
@@ -101,7 +101,7 @@ public class SpringApplicationContextProxy {
 	/**
 	 * @param bean
 	 * @return an optional instance
-	 * @deprecated Use {@link SpringApplicationContextProxy#getOptionalBean(Class)}
+	 * @deprecated Use {@link SpringApplicationContextFacade#getOptionalBean(Class)}
 	 */
 	@Deprecated
 	public static <T> Optional<T> getOptionalBean(Class<T> bean) {
@@ -136,7 +136,7 @@ public class SpringApplicationContextProxy {
 	 *            the element publishing the dispose event which causes {@code listener} to be removed
 	 * @param listener
 	 *            the application lister to
-	 * @deprecated use {@link SpringApplicationContextProxy#addDisposableApplicationListener(Object, ApplicationListener)}
+	 * @deprecated use {@link SpringApplicationContextFacade#addDisposableApplicationListener(Object, ApplicationListener)}
 	 */
 	@Deprecated
 	public static final void addDisposableApplicationListener(Object object, ApplicationListener<?> listener) {

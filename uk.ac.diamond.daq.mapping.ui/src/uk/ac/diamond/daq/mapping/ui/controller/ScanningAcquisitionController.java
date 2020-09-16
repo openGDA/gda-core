@@ -35,8 +35,10 @@ import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.Acqu
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
+import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
+import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
@@ -220,6 +222,31 @@ public class ScanningAcquisitionController
 		} catch (ScanningException e) {
 			logger.error("Canot create scanRequest", e);
 		}
+	}
+
+	/**
+	 * Verifies if a {@link Positions#OUT_OF_BEAM} is present, if the user wants to acquire flat images.
+	 *
+	 * @param sc
+	 *            the stage configuration
+	 * @return true if the stage configuration is consistent, false otherwise
+	 */
+	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
+		FlatCalibrationDocument flatCalibration = sc.getAcquisition().getAcquisitionConfiguration().getImageCalibration().getFlatCalibration();
+		return ((flatCalibration.getNumberExposures() > 0
+					&& (flatCalibration.isAfterAcquisition() || flatCalibration.isBeforeAcquisition()))
+				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
+	}
+
+	private StageConfiguration generateStageConfiguration(ScanningAcquisition acquisition)
+			throws AcquisitionControllerException {
+		stageController.savePosition(Position.START);
+		StageConfiguration sc = new StageConfiguration(acquisition, stageController.getStageDescription(),
+				stageController.getMotorsPositions());
+		if (requiresOutOfBeamPosition(sc)) {
+			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
+		}
+		return sc;
 	}
 
 	public ScanningParameters getAcquisitionParameters() {

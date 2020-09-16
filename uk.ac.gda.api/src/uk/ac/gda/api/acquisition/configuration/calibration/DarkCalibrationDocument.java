@@ -55,13 +55,6 @@ public class DarkCalibrationDocument {
 		this.afterAcquisition = afterAcquisition;
 	}
 
-	public DarkCalibrationDocument(DarkCalibrationDocument darkCalibrationDocument) {
-		this.detectorDocument = darkCalibrationDocument.getDetectorDocument();
-		this.numberExposures = darkCalibrationDocument.getNumberExposures();
-		this.beforeAcquisition = darkCalibrationDocument.isBeforeAcquisition();
-		this.afterAcquisition = darkCalibrationDocument.isAfterAcquisition();
-	}
-
 	public DetectorDocument getDetectorDocument() {
 		return detectorDocument;
 	}
@@ -86,6 +79,16 @@ public class DarkCalibrationDocument {
 		private int numberExposures;
 		private boolean beforeAcquisition;
 		private boolean afterAcquisition;
+
+		public Builder() {
+		}
+
+		public Builder(DarkCalibrationDocument document) {
+			this.detectorDocument = document.getDetectorDocument();
+			this.numberExposures = document.getNumberExposures();
+			this.beforeAcquisition = document.isBeforeAcquisition();
+			this.afterAcquisition = document.isAfterAcquisition();
+		}
 
 	    public Builder withDetectorDocument(DetectorDocument detectorDocument) {
 	        this.detectorDocument = detectorDocument;
