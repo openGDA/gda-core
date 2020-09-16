@@ -202,7 +202,7 @@ public class TomographyConfigurationView extends ViewPart {
 
 			newConfiguration.setName("Default name");
 			ScanningParameters acquisitionParameters = new ScanningParameters();
-			configuration.setImageCalibration(new ImageCalibration());
+			configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
 			// *-------------------------------
 			ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
