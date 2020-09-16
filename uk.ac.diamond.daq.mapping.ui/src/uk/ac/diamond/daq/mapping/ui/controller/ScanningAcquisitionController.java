@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -48,7 +50,6 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -136,7 +137,7 @@ public class ScanningAcquisitionController
 	}
 
 	private void publishAcquisitionConfigurationResourceLoadEvent() {
-		SpringApplicationContextProxy.publishEvent(
+		publishEvent(
 				new AcquisitionConfigurationResourceLoadEvent(this, getAcquisition().getAcquisitionLocation()));
 	}
 
@@ -198,8 +199,7 @@ public class ScanningAcquisitionController
 	private void save(String fileName, String acquisitionDocument) {
 		try {
 			Path path = getPath(fileName, acquisitionDocument);
-			SpringApplicationContextProxy
-					.publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
+				publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
 			publishScanRequestSavedEvent(fileName);
 		} catch (IOException e) {
 			UIHelper.showError("Cannot save the configuration", e);
@@ -226,7 +226,7 @@ public class ScanningAcquisitionController
 		try {
 			ScanRequestFactory srf = new ScanRequestFactory(getAcquisition());
 			ScanRequest scanRequest = srf.createScanRequest(getIRunnableDeviceService());
-			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
+			publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
 		} catch (ScanningException e) {
 			logger.error("Canot create scanRequest", e);
 		}
@@ -252,43 +252,18 @@ public class ScanningAcquisitionController
 	 */
 	private void updateImageCalibration() {
 		ImageCalibration ic = getAcquisition().getAcquisitionConfiguration().getImageCalibration();
+		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, detectorsHelper.getOutOfBeamScannables());
 		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
-			Set<DevicePositionDocument> position = stageController.getPositionDocuments(Position.OUT_OF_BEAM);
-			position.add(stageController.createShutterOpenRequest());
-			imageCalibrationHelper.updateFlatDetectorPositionDocument(position);
+			flatPosition.add(stageController.createShutterOpenRequest());
+			imageCalibrationHelper.updateFlatDetectorPositionDocument(flatPosition);
 		}
 
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
-			Set<DevicePositionDocument> position = new HashSet<>();
-			position.add(stageController.createShutterClosedRequest());
-			imageCalibrationHelper.updateDarkDetectorPositionDocument(position);
+			Set<DevicePositionDocument> darkPosition = new HashSet<>();
+			darkPosition.add(stageController.createShutterClosedRequest());
+			imageCalibrationHelper.updateDarkDetectorPositionDocument(darkPosition);
 		}
 	}
-
-//	/**
-//	 * Verifies if a {@link Positions#OUT_OF_BEAM} is present, if the user wants to acquire flat images.
-//	 *
-//	 * @param sc
-//	 *            the stage configuration
-//	 * @return true if the stage configuration is consistent, false otherwise
-//	 */
-//	private boolean requiresOutOfBeamPosition(StageConfiguration sc) {
-//		FlatCalibrationDocument flatCalibration = sc.getAcquisition().getAcquisitionConfiguration().getImageCalibration().getFlatCalibration();
-//		return ((flatCalibration.getNumberExposures() > 0
-//					&& (flatCalibration.isAfterAcquisition() || flatCalibration.isBeforeAcquisition()))
-//				&& !sc.getMotorsPositions().containsKey(Position.OUT_OF_BEAM));
-//	}
-
-//	private StageConfiguration generateStageConfiguration(ScanningAcquisition acquisition)
-//			throws AcquisitionControllerException {
-//		stageController.savePosition(Position.START);
-//		StageConfiguration sc = new StageConfiguration(acquisition, stageController.getStageDescription(),
-//				stageController.getMotorsPositions());
-//		if (requiresOutOfBeamPosition(sc)) {
-//			throw new AcquisitionControllerException("Acquisition needs a OutOfBeam position to acquire flat images");
-//		}
-//		return sc;
-//	}
 
 	public ScanningParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
@@ -320,11 +295,11 @@ public class ScanningAcquisitionController
 	}
 
 	private void publishSave(String name, String acquisition) {
-		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
+		publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
 	}
 
 	private void publishRun(ScanningAcquisitionMessage tomographyRunMessage) {
-		SpringApplicationContextProxy.publishEvent(new ScanningAcquisitionRunEvent(this, tomographyRunMessage));
+		publishEvent(new ScanningAcquisitionRunEvent(this, tomographyRunMessage));
 	}
 
 	private void setAcquisition(ScanningAcquisition acquisition) {

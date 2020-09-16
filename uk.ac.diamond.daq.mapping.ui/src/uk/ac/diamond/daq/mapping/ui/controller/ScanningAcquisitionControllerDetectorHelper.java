@@ -19,8 +19,10 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -108,6 +110,12 @@ class ScanningAcquisitionControllerDetectorHelper {
 				.ifPresent(acquisitionPropertiesDocuments::addAll);
 		}
 		return acquisitionPropertiesDocuments;
+	}
+
+	Set<String> getOutOfBeamScannables() {
+		return Optional.ofNullable(getAcquisitionPropertiesDocument())
+				.map(AcquisitionPropertiesDocument::getOutOfBeamScannables)
+				.orElseGet(HashSet::new);
 	}
 
 	public AcquisitionPropertyType getAcquisitionType() {

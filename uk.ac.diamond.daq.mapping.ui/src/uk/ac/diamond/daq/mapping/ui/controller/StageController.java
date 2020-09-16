@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,12 +30,12 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import uk.ac.diamond.daq.mapping.ui.properties.stages.StagesPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.services.position.DevicePositionDocumentService;
 import uk.ac.diamond.daq.mapping.ui.stage.CommonStage;
 import uk.ac.diamond.daq.mapping.ui.stage.DevicePosition;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -101,8 +102,12 @@ public class StageController implements IStageController {
 		return devicesPosition.put(position, reportPositions());
 	}
 
-	public Set<DevicePositionDocument> getPositionDocuments(Position position) {
-		return devicesPosition.getOrDefault(position, new HashSet<>());
+	public Set<DevicePositionDocument> getPositionDocuments(Position position, Set<String> scannables) {
+		if (scannables == null)
+			return new HashSet<>();
+		return devicesPosition.getOrDefault(position, new HashSet<>()).stream()
+				.filter(d -> scannables.contains(d.getDevice()))
+				.collect(Collectors.toSet());
 	}
 
 
@@ -120,7 +125,7 @@ public class StageController implements IStageController {
 
 	private DevicePositionDocument createShutterRequest(String position) {
 		// The "device" string has to be linked to a property
-		String device = Stage.SHUTTER.toString();
+		String device = StagesPropertiesHelper.getShutter();
 		DevicePositionDocument shutter = devicePositionDocumentService.devicePositionAsDocument(device);
 		if (shutter == null)
 			return null;
@@ -132,10 +137,11 @@ public class StageController implements IStageController {
 	private Set<DevicePositionDocument> reportPositions() {
 		return getDevices().stream()
 				.map(devicePositionDocumentService::devicePositionAsDocument)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 	}
 
 	private Set<String> getDevices() {
-		return new HashSet<>();
+		return StagesPropertiesHelper.getScannables();
 	}
 }

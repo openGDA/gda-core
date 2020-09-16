@@ -36,4 +36,5 @@ public class ScanningAcquisitionControllerConfiguration {
 	public FinderService finderService() {
 		return Mockito.mock(FinderService.class);
 	}
+
 }

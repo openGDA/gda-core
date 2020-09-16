@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.services.position;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,10 @@ public class DevicePositionDocumentService {
 	@Autowired
 	private List<DeviceHandler> handlers;
 
+	/**
+	 * The chain first element. If {@code null} means either no handlers or the class
+	 * still has not created the responsibility chain.
+	 */
 	private DeviceHandler deviceHandler;
 
 	/**
@@ -61,7 +67,6 @@ public class DevicePositionDocumentService {
 	 * @return the document otherwise {@code null} if the device is not available
 	 */
 	public final DevicePositionDocument devicePositionAsDocument(String device) {
-		initaliseService();
 		return finder.getFindableObject(device)
 			.map(deviceHandler::handleDevice).orElseGet(() -> null);
 	}
@@ -69,6 +74,7 @@ public class DevicePositionDocumentService {
 	/**
 	 * Creates the responsibility chain with the handlers
 	 */
+	@PostConstruct
 	private void initaliseService() {
 		if (deviceHandler == null) {
 			deviceHandler = handlers.get(0);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannablePropertiesDocument;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.client.properties.CameraProperties;
 
@@ -37,13 +38,20 @@ public class AcquisitionPropertiesDocument {
 	 */
 	private final Set<String> cameras;
 
+	/**
+	 * A collection of {@link ScannablePropertiesDocument#getScannable()} associated with this acquisition type
+	 * defining the out of beam
+	 */
+	private final Set<String> outOfBeamScannables;
+
 	AcquisitionPropertiesDocument(int index, AcquisitionPropertyType type, AcquisitionEngineDocument engine,
-			Set<String> cameras) {
+			Set<String> cameras, Set<String> outOfBeamScannables) {
 		super();
 		this.index = index;
 		this.type = type;
 		this.engine = engine;
 		this.cameras = cameras;
+		this.outOfBeamScannables = outOfBeamScannables;
 	}
 
 	/**
@@ -82,12 +90,17 @@ public class AcquisitionPropertiesDocument {
 		return cameras;
 	}
 
+	public Set<String> getOutOfBeamScannables() {
+		return outOfBeamScannables;
+	}
+
 	@JsonPOJOBuilder
 	public static class Builder {
 		private int index;
 		private AcquisitionPropertyType type;
 		private AcquisitionEngineDocument engine;
 		private Set<String> cameras;
+		private Set<String> outOfBeamScannables;
 
 		public Builder() {
 		}
@@ -97,6 +110,7 @@ public class AcquisitionPropertiesDocument {
 			this.type = parent.getType();
 			this.engine = parent.getEngine();
 			this.cameras = parent.getCameras();
+			this.outOfBeamScannables = parent.getOutOfBeamScannables();
 		}
 
 		public Builder withIndex(int index) {
@@ -119,8 +133,13 @@ public class AcquisitionPropertiesDocument {
 			return this;
 		}
 
+		public Builder withOutOfBeamScannables(Set<String> outOfBeamScannables) {
+			this.outOfBeamScannables = outOfBeamScannables;
+			return this;
+		}
+
 		public AcquisitionPropertiesDocument build() {
-			return new AcquisitionPropertiesDocument(index, type, engine, cameras);
+			return new AcquisitionPropertiesDocument(index, type, engine, cameras, outOfBeamScannables);
 		}
 	}
 }

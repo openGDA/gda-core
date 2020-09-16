@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import uk.ac.gda.api.acquisition.AcquisitionTestUtils;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
@@ -40,7 +41,7 @@ public class ImageCalibrationDocumentTest {
 
 	@Test
 	public void deserialiseImageCalibrations() throws GDAException  {
-		ImageCalibration document = deserialiseDocument("test/resources/ImageCalibrationDeserialise.json",
+		ImageCalibration document = AcquisitionTestUtils.deserialiseDocument("test/resources/ImageCalibrationDeserialise.json",
 				ImageCalibration.class);
 
 	    assertEquals(2, document.getFlatCalibration().getNumberExposures(), 0);

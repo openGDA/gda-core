@@ -1,0 +1,6 @@
+{
+	"scannable": "motor_y",
+	"axis": "Y",
+	"position": 2.0,
+	"labelledPosition": "CLOSE"
+}
