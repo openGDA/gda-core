@@ -54,6 +54,10 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xCentre, radius), SWT.LEFT);
 		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yCentre, radius), SWT.LEFT);
 
+		bindUnitsCombo(xCentre, X_CENTRE);
+		bindUnitsCombo(yCentre, Y_CENTRE);
+		bindUnitsCombo(radius, RADIUS);
+
 		return composite;
 	}
 

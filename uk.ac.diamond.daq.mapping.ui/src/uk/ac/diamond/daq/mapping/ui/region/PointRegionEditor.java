@@ -42,6 +42,9 @@ public class PointRegionEditor extends AbstractRegionEditor {
 		grabHorizontalSpace.applyTo(yPosition);
 		binder.bind(yPosition, Y_POSITION, getModel());
 
+		bindUnitsCombo(xPosition, X_POSITION);
+		bindUnitsCombo(yPosition, Y_POSITION);
+
 		return composite;
 	}
 

@@ -186,4 +186,6 @@ public interface IMappingExperimentBean {
 	String getAlternativeDirectory();
 
 	void setAlternativeDirectory(String directory);
+
+	Map<String, String> getMappingRegionUnits();
 }

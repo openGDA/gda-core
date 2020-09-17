@@ -24,6 +24,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -536,6 +537,10 @@ public class RegionAndPathController extends AbstractMappingController {
 		checkInitialised();
 		getRegionSelectorListener().handleValueChange(
 				new ValueChangeEvent<IMappingScanRegionShape>(observableValue, null));
+	}
+
+	public Map<String, String> getMappingRegionUnits() {
+		return getMappingBean().getMappingRegionUnits();
 	}
 
 	/**

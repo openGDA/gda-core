@@ -76,6 +76,11 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStart), SWT.LEFT);
 		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStop), SWT.LEFT);
 
+		bindUnitsCombo(xStart, X_START);
+		bindUnitsCombo(xStop, X_STOP);
+		bindUnitsCombo(yStart, Y_START);
+		bindUnitsCombo(yStop, Y_STOP);
+
 		IObservableValue<Double> targetXStart = binder.getObservableValue(xStart);
 		IObservableValue<Double> targetXStop  = binder.getObservableValue(xStop);
 		IObservableValue<Double> targetYStart = binder.getObservableValue(yStart);
@@ -93,7 +98,5 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		};
 
 		ControlDecorationSupport.create(lengthValidator, SWT.LEFT);
-
 	}
-
 }

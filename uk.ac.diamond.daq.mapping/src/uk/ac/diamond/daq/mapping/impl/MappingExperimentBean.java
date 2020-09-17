@@ -35,10 +35,19 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private boolean useAlternativeDirectory = false;
 	private String alternativeDirectory = "";
 
+	/**
+	 * Units for elements of the mapping region (e.g. xCentre, xRange) that the user has changed from the defaults.
+	 * <p>
+	 * Note that these are the units that are used for display purposes only. The values stored elsewhere in this class
+	 * are in the canonical units of the relevant scannables.
+	 */
+	private Map<String, String> mappingRegionUnits;
+
 	public MappingExperimentBean() {
 		sampleMetadata = new SimpleSampleMetadata();
 		scanDefinition = new MappingScanDefinition();
-		processingConfigs = new ArrayList<ConfigWrapper>();
+		processingConfigs = new ArrayList<>();
+		mappingRegionUnits = new HashMap<>();
 	}
 
 	@Override
@@ -206,6 +215,11 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
+	public Map<String, String> getMappingRegionUnits() {
+		return mappingRegionUnits;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -214,6 +228,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		result = prime * result + ((detectorParameters == null) ? 0 : detectorParameters.hashCode());
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((mappingRegionUnits == null) ? 0 : mappingRegionUnits.hashCode());
 		result = prime * result + ((perPointMonitorNames == null) ? 0 : perPointMonitorNames.hashCode());
 		result = prime * result + ((perScanMonitorNames == null) ? 0 : perScanMonitorNames.hashCode());
 		result = prime * result + ((processingConfigs == null) ? 0 : processingConfigs.hashCode());
@@ -256,6 +271,11 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		} else if (!displayName.equals(other.displayName))
 			return false;
 		if (id != other.id)
+			return false;
+		if (mappingRegionUnits == null) {
+			if (other.mappingRegionUnits != null)
+				return false;
+		} else if (!mappingRegionUnits.equals(other.mappingRegionUnits))
 			return false;
 		if (perPointMonitorNames == null) {
 			if (other.perPointMonitorNames != null)
@@ -306,10 +326,10 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	public String toString() {
 		return "MappingExperimentBean [id=" + id + ", displayName=" + displayName + ", sampleMetadata=" + sampleMetadata
 				+ ", detectorParameters=" + detectorParameters + ", beamlineConfiguration=" + beamlineConfiguration
-				+ ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles + ", perScanMonitorNames="
-				+ perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames + ", stageInfoSnapshot="
-				+ stageInfoSnapshot + ", processingConfigs=" + processingConfigs + ", templateFilePaths="
-				+ templateFilePaths + ", useAlternativeDirectory=" + useAlternativeDirectory + ", alternativeDirectory="
-				+ alternativeDirectory + "]";
+				+ ", scanDefinition=" + scanDefinition + ", mappingRegionUnits=" + mappingRegionUnits + ", scriptFiles="
+				+ scriptFiles + ", perScanMonitorNames=" + perScanMonitorNames + ", perPointMonitorNames="
+				+ perPointMonitorNames + ", stageInfoSnapshot=" + stageInfoSnapshot + ", processingConfigs="
+				+ processingConfigs + ", templateFilePaths=" + templateFilePaths + ", useAlternativeDirectory="
+				+ useAlternativeDirectory + ", alternativeDirectory=" + alternativeDirectory + "]";
 	}
 }

@@ -57,6 +57,11 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 		bind(getXAxisName(), xStart, X_START, xStop, X_STOP);
 		bind(getYAxisName(), yStart, Y_START, yStop, Y_STOP);
 
+		bindUnitsCombo(xStart, X_START);
+		bindUnitsCombo(xStop, X_STOP);
+		bindUnitsCombo(yStart, Y_START);
+		bindUnitsCombo(yStop, Y_STOP);
+
 		return composite;
 	}
 

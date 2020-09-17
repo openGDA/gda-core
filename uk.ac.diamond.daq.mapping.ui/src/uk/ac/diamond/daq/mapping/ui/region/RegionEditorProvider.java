@@ -65,10 +65,11 @@ public final class RegionEditorProvider {
 	 * 			  The IEclipseContext used in ContextInjectionFactory::make
 	 * @return An editor for editing the requested region
 	 */
-	public static AbstractRegionEditor createRegionEditor(IMappingScanRegionShape mappingScanRegion, IEclipseContext bundleContext) {
+	public static AbstractRegionEditor createRegionEditor(IMappingScanRegionShape mappingScanRegion, Map<String, String> regionUnits, IEclipseContext bundleContext) {
 		Class<? extends AbstractRegionEditor> editorClass = regionToEditor.get(mappingScanRegion.getClass());
 		AbstractRegionEditor editor = ContextInjectionFactory.make(editorClass, bundleContext);
 		editor.setModel(mappingScanRegion);
+		editor.setRegionUnits(regionUnits);
 		return editor;
 	}
 

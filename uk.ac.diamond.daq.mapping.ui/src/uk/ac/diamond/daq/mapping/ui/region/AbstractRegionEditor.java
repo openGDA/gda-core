@@ -18,20 +18,30 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import java.util.Map;
 import java.util.Objects;
+
+import javax.measure.Unit;
+import javax.measure.quantity.Length;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
+import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
  * Base class for all region editors in RegionAndPathSection.
@@ -39,6 +49,8 @@ import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
 public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor<IMappingScanRegionShape> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionEditor.class);
+
+	private Map<String, String> regionUnits;
 
 	/**
 	 * @param scannableName
@@ -145,4 +157,36 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 		};
 	}
 
+	/**
+	 * Handle units in region elements that may have be/have been changed from their default values.
+	 * <ul>
+	 * <li>if units are specified in the {@link MappingExperimentBean}, change the combo box now</li>
+	 * <li>set a listener to handle any changes the user makes</li>
+	 * </ul>
+	 *
+	 * @param widget
+	 *            the {@link NumberAndUnitsComposite} whose combo box we are tracking
+	 * @param comboName
+	 *            the name of the widget (used as key to the units map)
+	 */
+	protected void bindUnitsCombo(NumberAndUnitsComposite<Length> widget, String comboName) {
+		final ComboViewer unitsCombo = widget.getUnitsCombo();
+
+		// If units have been changed from the default, select the appropriate units in the combo box
+		if (regionUnits != null && regionUnits.containsKey(comboName)) {
+			final Unit<Length> unit = QuantityFactory.createUnitFromString(regionUnits.get(comboName));
+			final ISelection selection = new StructuredSelection(unit);
+			unitsCombo.setSelection(selection);
+		}
+
+		// Add a listener for future changes
+		unitsCombo.addSelectionChangedListener(event -> {
+			final String newUnit = ((StructuredSelection) unitsCombo.getSelection()).getFirstElement().toString();
+			regionUnits.put(comboName, newUnit);
+		});
+	}
+
+	void setRegionUnits(Map<String, String> mappingRegionUnits) {
+		this.regionUnits = mappingRegionUnits;
+	}
 }

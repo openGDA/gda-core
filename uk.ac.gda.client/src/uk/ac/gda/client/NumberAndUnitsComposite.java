@@ -206,6 +206,10 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		}
 	}
 
+	public ComboViewer getUnitsCombo() {
+		return unitsCombo;
+	}
+
 	@Override
 	public String toString() {
 		return "NumberAndUnitsComposite [text=" + text + ", modelUnit=" + modelUnit + ", currentUnit=" + currentUnit

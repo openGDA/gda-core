@@ -57,6 +57,11 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		createValidatedBindings(getXAxisName(), xCentre, X_CENTRE, xRange, X_RANGE);
 		createValidatedBindings(getYAxisName(), yCentre, Y_CENTRE, yRange, Y_RANGE);
 
+		bindUnitsCombo(xCentre, X_CENTRE);
+		bindUnitsCombo(xRange, X_RANGE);
+		bindUnitsCombo(yCentre, Y_CENTRE);
+		bindUnitsCombo(yRange, Y_RANGE);
+
 		return composite;
 	}
 
@@ -90,7 +95,5 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 			}
 		};
 		ControlDecorationSupport.create(limitsValidator, SWT.LEFT);
-
 	}
-
 }

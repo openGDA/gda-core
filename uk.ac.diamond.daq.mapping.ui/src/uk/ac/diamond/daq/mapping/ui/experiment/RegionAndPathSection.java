@@ -240,7 +240,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			return; // We can't build a UI to edit null
 		}
 
-		regionEditor = RegionEditorProvider.createRegionEditor(mappingScanRegion, getEclipseContext());
+		regionEditor = RegionEditorProvider.createRegionEditor(mappingScanRegion, controller.getMappingRegionUnits(), getEclipseContext());
 		regionEditor.createEditorPart(regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionAndPathComposite);
 
