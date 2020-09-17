@@ -49,25 +49,25 @@ public class MappingRegionUnitsTest {
 	@Test
 	public void testUnitsSetInMap() {
 		final MappingRegionUnits lengthUnits = new MappingRegionUnits(unitsMap);
-		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
-		assertEquals("μm", lengthUnits.getDefaultUnit("yStart", DEFAULT_VALUE));
-		assertEquals("nm", lengthUnits.getDefaultUnit("xAxisStep", DEFAULT_VALUE));
-		assertEquals("nm", lengthUnits.getDefaultUnit("yAxisStep", DEFAULT_VALUE));
+		assertEquals("μm", lengthUnits.getUnits("xStart", DEFAULT_VALUE));
+		assertEquals("μm", lengthUnits.getUnits("yStart", DEFAULT_VALUE));
+		assertEquals("nm", lengthUnits.getUnits("xAxisStep", DEFAULT_VALUE));
+		assertEquals("nm", lengthUnits.getUnits("yAxisStep", DEFAULT_VALUE));
 	}
 
 	@Test
 	public void testDefaultToLocalProperty() {
 		LocalProperties.set(GDA_INITIAL_LENGTH_UNITS, "cm");
 		final MappingRegionUnits lengthUnits = new MappingRegionUnits(unitsMap);
-		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
-		assertEquals("cm", lengthUnits.getDefaultUnit("zStart", DEFAULT_VALUE));
+		assertEquals("μm", lengthUnits.getUnits("xStart", DEFAULT_VALUE));
+		assertEquals("cm", lengthUnits.getUnits("zStart", DEFAULT_VALUE));
 		LocalProperties.clearProperty(GDA_INITIAL_LENGTH_UNITS);
 	}
 
 	@Test
 	public void testDefaultToMillimetres() {
 		final MappingRegionUnits lengthUnits = new MappingRegionUnits(unitsMap);
-		assertEquals("μm", lengthUnits.getDefaultUnit("xStart", DEFAULT_VALUE));
-		assertEquals("mm", lengthUnits.getDefaultUnit("zStart", DEFAULT_VALUE));
+		assertEquals("μm", lengthUnits.getUnits("xStart", DEFAULT_VALUE));
+		assertEquals("mm", lengthUnits.getUnits("zStart", DEFAULT_VALUE));
 	}
 }

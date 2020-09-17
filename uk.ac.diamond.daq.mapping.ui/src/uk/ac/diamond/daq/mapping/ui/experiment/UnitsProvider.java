@@ -115,7 +115,7 @@ public class UnitsProvider {
 	public Unit<? extends Quantity<?>> getInitialUnit(String scannableName, String propertyName) {
 		Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
 		if (scannableUnit.isCompatible(METRE)) {
-			String initialUnitString = getLengthUnitsService().getDefaultUnit(propertyName, getScannableUnitString(scannableName));
+			String initialUnitString = getLengthUnitsService().getUnits(propertyName, getScannableUnitString(scannableName));
 			return QuantityFactory.createUnitFromString(initialUnitString);
 		}
 		return scannableUnit;

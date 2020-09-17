@@ -54,13 +54,13 @@ public class MappingRegionUnits {
 		this.units = units;
 	}
 
-	public String getDefaultUnit(String propertyName, String defaultValue) {
+	public String getUnits(String propertyName, String defaultValue) {
 		if (units.containsKey(propertyName)) {
 			return units.get(propertyName);
 		}
 
-		final String defaultUnits = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, defaultValue).toLowerCase();
-		logger.debug("No initial unit set for {}, using default ({})", propertyName, defaultUnits);
-		return defaultUnits;
+		final String result = LocalProperties.get(GDA_INITIAL_LENGTH_UNITS, defaultValue).toLowerCase();
+		logger.debug("No initial units set for {}, using default ({})", propertyName, result);
+		return result;
 	}
 }
