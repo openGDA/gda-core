@@ -33,6 +33,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -219,17 +220,20 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 		public void monitorChanged(MonitorEvent arg0) {
 			// extract the value and confirm its type
 			DBR dbr = arg0.getDBR();
+			double lastValue = latestValue;
 			if (dbr.isDOUBLE()) {
 				// update the latest value
-				double lastValue = latestValue;
 				latestValue = ((DBR_Double) dbr).getDoubleValue()[0];
+			} else if (dbr.isINT()) {
+				latestValue = ((DBR_Int) dbr).getIntValue()[0];
+			}
 
 				// if the percentage change has been great enough, then inform
 				// IObservers
 				if (Math.abs((lastValue - latestValue) / lastValue) * 100.0 >= sensitivity) {
 					notifyIObservers(this, latestValue);
 				}
-			}
+
 		}
 	}
 
