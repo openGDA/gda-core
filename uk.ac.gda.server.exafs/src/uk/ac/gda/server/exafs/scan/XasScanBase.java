@@ -563,11 +563,11 @@ public abstract class XasScanBase implements XasScan {
 	private String determineDetectorFilename() {
 		String xmlFileName = "";
 		if (detectorBean.getExperimentType().equalsIgnoreCase("Fluorescence")) {
-			FluorescenceParameters fluoresenceParameters = detectorBean.getFluorescenceParameters();
-			xmlFileName = fluoresenceParameters.getConfigFileName();
+			FluorescenceParameters fluorescenceParameters = detectorBean.getFluorescenceParameters();
+			xmlFileName = fluorescenceParameters.getConfigFileName();
 		} else if (detectorBean.getExperimentType().equals("XES")) {
-			FluorescenceParameters fluoresenceParameters = detectorBean.getXesParameters();
-			xmlFileName = fluoresenceParameters.getConfigFileName();
+			FluorescenceParameters fluorescenceParameters = detectorBean.getXesParameters();
+			xmlFileName = fluorescenceParameters.getConfigFileName();
 		}
 		return xmlFileName;
 	}
