@@ -68,6 +68,11 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	 */
 	private Scannable cameraResetScannable;
 
+	/**
+	 * Allow to set exposure time while camera is Acquiring
+	 */
+	private boolean changeExposureWhileCameraAcquiring = false;
+
 	public LiveStreamViewCameraControls(CameraControl cameraControl) {
 		Objects.requireNonNull(cameraControl, "Camera control must not be null");
 		this.cameraControl = cameraControl;
@@ -79,7 +84,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 		GridLayoutFactory.fillDefaults().numColumns(4 + extensions.size()).applyTo(mainComposite);
 
 		// Exposure control
-		final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl);
+		final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
 		GridDataFactory.swtDefaults().applyTo(exposureTimeComposite);
 
 		// Start/stop acquisition
@@ -153,5 +158,9 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	public void setExtension(LiveStreamViewCameraControlsExtension extension) {
 		this.extensions = Arrays.asList(extension);
+	}
+
+	public void setChangeExposureWhileCameraAcquiring(boolean changeExposureWhileCameraAcquiring) {
+		this.changeExposureWhileCameraAcquiring = changeExposureWhileCameraAcquiring;
 	}
 }

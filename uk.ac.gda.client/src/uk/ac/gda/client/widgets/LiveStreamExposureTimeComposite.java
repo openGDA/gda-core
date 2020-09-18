@@ -69,7 +69,9 @@ public class LiveStreamExposureTimeComposite extends Composite {
 
 	private final DataBindingContext dataBindingContext;
 
-	public LiveStreamExposureTimeComposite(Composite parent, int style, CameraControl cameraControl) {
+	private final boolean changeExposureWhileCameraAcquiring;
+
+	public LiveStreamExposureTimeComposite(Composite parent, int style, CameraControl cameraControl, boolean changeExposureWhileCameraAcquiring) {
 		super(parent, style);
 		Objects.requireNonNull(cameraControl, "Camera control must not be null");
 		this.cameraControl = cameraControl;
@@ -77,6 +79,7 @@ public class LiveStreamExposureTimeComposite extends Composite {
 
 		dataBindingContext = new DataBindingContext();
 		cameraControlBinding = new CameraControlBinding();
+		this.changeExposureWhileCameraAcquiring = changeExposureWhileCameraAcquiring;
 
 		final Label label = new Label(this, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(label);
@@ -170,10 +173,14 @@ public class LiveStreamExposureTimeComposite extends Composite {
 
 		public void setAcquireTime(double acquireTime) {
 			try {
-				if (cameraControl.getAcquireState() == CameraState.IDLE) {
-					cameraControl.setAcquireTime(acquireTime);
+				if(!changeExposureWhileCameraAcquiring) {
+					if (cameraControl.getAcquireState() == CameraState.IDLE) {
+						cameraControl.setAcquireTime(acquireTime);
+					} else {
+						displayError("Cannot set exposure time\n- camera is busy");
+					}
 				} else {
-					displayError("Cannot set exposure time\n- camera is busy");
+					cameraControl.setAcquireTime(acquireTime);
 				}
 			} catch (Exception e) {
 				final String message = String.format("Error setting acquire time on camera %s", cameraControl.getName());
