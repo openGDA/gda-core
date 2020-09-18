@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is the abstract base class of all classes which define the delegated functionality of an
- * AreaDetectorRunnableDeviceProxy object.
+ * RunnableDeviceProxy object.
  * <P>
  * Since this defines all functions through inheritance rather than through annotations, and it doesn't depend on
  * interface default methods, it can be used as a base class for delegates defined in Jython.
@@ -50,13 +50,13 @@ import org.slf4j.LoggerFactory;
  * Example of use:
  * </P>
  * <pre>{@code
-areaDetectorRunnableDeviceProxyFinder = finder.find("areaDetectorRunnableDeviceProxyFinder")
-areaDetectorRunnableDeviceProxy = areaDetectorRunnableDeviceProxyFinder.getRunnableDevice()
+runnableDeviceProxyFinder = finder.find("runnableDeviceProxyFinder")
+runnableDeviceProxy = runnableDeviceProxyFinder.getRunnableDevice()
 
-from jythonAreaDetectorRunnableDeviceDelegate import JythonAreaDetectorRunnableDeviceDelegate
-jythonAreaDetectorRunnableDeviceDelegate = JythonAreaDetectorRunnableDeviceDelegate(areaDetectorRunnableDeviceProxy)
-areaDetectorRunnableDeviceProxy.setDelegate(jythonAreaDetectorRunnableDeviceDelegate)
-areaDetectorRunnableDeviceProxy.register()
+from jythonRunnableDeviceDelegate import JythonRunnableDeviceDelegate
+jythonRunnableDeviceDelegate = JythonRunnableDeviceDelegate(runnableDeviceProxy)
+runnableDeviceProxy.setDelegate(jythonRunnableDeviceDelegate)
+runnableDeviceProxy.register()
  * }</pre>
  */
 public abstract class AbstractRunnableDeviceDelegate {
@@ -73,21 +73,21 @@ public abstract class AbstractRunnableDeviceDelegate {
 		return runnableDeviceProxy;
 	}
 
-	// Delegated AbstractRunnableDevice<AreaDetectorRunnableDeviceModel> methods
+	// Delegated AbstractRunnableDevice<T> methods
 
 	@SuppressWarnings("unused")
 	public void configure(Object model) throws ScanningException {
 		logger.trace("configure({}) on {}", model, runnableDeviceProxy.getName());
 	}
 
-	// Delegated interface IRunnableDevice<AreaDetectorRunnableDeviceModel> methods
+	// Delegated interface IRunnableDevice<T> methods
 
 	@SuppressWarnings("unused")
 	public void run(IPosition position) throws ScanningException, InterruptedException {
 		logger.trace("run({}) on {}", position, runnableDeviceProxy.getName());
 	}
 
-	// Delegated interface IWritableDetector<AreaDetectorRunnableDeviceModel> methods
+	// Delegated interface IWritableDetector<T> methods
 
 	@SuppressWarnings("unused")
 	public boolean write(IPosition position) throws ScanningException {
