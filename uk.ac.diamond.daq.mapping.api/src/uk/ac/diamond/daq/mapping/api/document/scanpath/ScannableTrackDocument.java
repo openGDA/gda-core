@@ -55,6 +55,10 @@ public class ScannableTrackDocument {
 	 */
 	private final String scannable;
 	/**
+	 * A label to identify uniquely the role of this scannable
+	 */
+	private final String axis;
+	/**
 	 * The interval starting point
 	 */
 	private final double start;
@@ -83,9 +87,10 @@ public class ScannableTrackDocument {
 	 * @param step
 	 *            the step length for each movement from {@code start} to {@code stop}
 	 */
-	ScannableTrackDocument(String scannable, double start, double stop, int points, double step) {
+	ScannableTrackDocument(String scannable, String axis, double start, double stop, int points, double step) {
 		super();
 		this.scannable = scannable;
+		this.axis = axis;
 		this.start = start;
 		this.stop = stop;
 		this.points = points;
@@ -94,6 +99,10 @@ public class ScannableTrackDocument {
 
 	public String getScannable() {
 		return scannable;
+	}
+
+	public String getAxis() {
+		return axis;
 	}
 
 	public double getStart() {
@@ -130,14 +139,15 @@ public class ScannableTrackDocument {
 	@Override
 	@JsonIgnore
 	public String toString() {
-		return "ScannableTrackDocument [scannable=" + scannable + ", start=" + start + ", stop=" + stop + ", step="
-				+ step + ", points=" + points + "]";
+		return "ScannableTrackDocument [scannable=" + scannable + ", axis=" + axis + ", start=" + start + ", stop="
+				+ stop + ", step=" + step + ", points=" + points + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((axis == null) ? 0 : axis.hashCode());
 		result = prime * result + points;
 		result = prime * result + ((scannable == null) ? 0 : scannable.hashCode());
 		long temp;
@@ -159,6 +169,11 @@ public class ScannableTrackDocument {
 		if (getClass() != obj.getClass())
 			return false;
 		ScannableTrackDocument other = (ScannableTrackDocument) obj;
+		if (axis == null) {
+			if (other.axis != null)
+				return false;
+		} else if (!axis.equals(other.axis))
+			return false;
 		if (points != other.points)
 			return false;
 		if (scannable == null) {
@@ -175,11 +190,10 @@ public class ScannableTrackDocument {
 		return true;
 	}
 
-
-
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String scannable;
+		private String axis;
 		private double start;
 		private double stop;
 		private double step = Double.MIN_VALUE;
@@ -190,6 +204,7 @@ public class ScannableTrackDocument {
 
 		public Builder(final ScannableTrackDocument parent) {
 			this.scannable = parent.getScannable();
+			this.axis = parent.getAxis();
 			this.start = parent.getStart();
 			this.stop = parent.getStop();
 			this.step = parent.getStep();
@@ -198,6 +213,11 @@ public class ScannableTrackDocument {
 
 		public Builder withScannable(String scannable) {
 			this.scannable = scannable;
+			return this;
+		}
+
+		public Builder withAxis(String axis) {
+			this.axis = axis;
 			return this;
 		}
 
@@ -228,7 +248,7 @@ public class ScannableTrackDocument {
 		}
 
 		public ScannableTrackDocument build() {
-			return new ScannableTrackDocument(scannable, start, stop, points, step);
+			return new ScannableTrackDocument(scannable, axis, start, stop, points, step);
 		}
 	}
 }

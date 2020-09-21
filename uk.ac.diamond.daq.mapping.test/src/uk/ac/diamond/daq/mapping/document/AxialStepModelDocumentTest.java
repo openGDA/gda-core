@@ -59,6 +59,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
 		builder.withScannable("motor_x");
+		builder.withAxis("x");
 		builder.withStart(2.0);
 		builder.withStop(2.0);
 		builder.withPoints(5);
@@ -69,6 +70,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 				scannableTrackDocuments, mutators);
 		String document = serialiseDocument(modelDocument);
 		assertThat(document, containsString("motor_x"));
+		assertThat(document, containsString("\"axis\" : \"x\""));
 		assertThat(document, containsString("\"alternating\" : [ 1, 2 ]"));
 	}
 
