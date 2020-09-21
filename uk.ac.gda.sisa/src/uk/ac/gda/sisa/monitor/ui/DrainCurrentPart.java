@@ -19,13 +19,13 @@ public class DrainCurrentPart extends MonitorPartsBase {
 		logger.trace("postConstruct called");
 		ScrolledComposite scroller = new ScrolledComposite(parent, SWT.V_SCROLL);
 		Composite scrollerContent = new Composite(scroller, SWT.NONE);
-		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
+		RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, "SM5", monitorConfig.getDrainCurrentControls(), 1);
-		addControlGroup(scrollerContent, "HM3", monitorConfig.getDrainCurrentControls(), 1);
-		addControlGroup(scrollerContent, "Sample", monitorConfig.getDrainCurrentControls(), 1);
+		addControlGroup(scrollerContent, "SM5", monitorConfig.getDrainCurrentControls(), 2);
+		addControlGroup(scrollerContent, "HM3", monitorConfig.getDrainCurrentControls(), 2);
+		addControlGroup(scrollerContent, "Sample", monitorConfig.getDrainCurrentControls(), 2);
 		setScrollingComposite(scrollerContent, scroller);
 	}
 	
