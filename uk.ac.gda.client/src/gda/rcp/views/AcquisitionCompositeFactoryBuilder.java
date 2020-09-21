@@ -18,6 +18,8 @@
 
 package gda.rcp.views;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+
 import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -65,7 +67,7 @@ public class AcquisitionCompositeFactoryBuilder {
 
 		return (parent, style) -> {
 				Composite composite = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-				ClientSWTElements.createGridDataFactory().align(SWT.FILL, SWT.FILL).applyTo(composite);
+				createClientGridDataFactory().align(SWT.FILL, SWT.FILL).applyTo(composite);
 
 				top.ifPresent(factory -> createTop(factory, composite));
 
