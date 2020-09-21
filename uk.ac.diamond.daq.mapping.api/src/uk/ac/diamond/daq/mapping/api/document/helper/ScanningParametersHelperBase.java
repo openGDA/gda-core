@@ -70,7 +70,9 @@ public class ScanningParametersHelperBase {
 	 * A {@code ScannableTrackDocument.Builder} which can be used to update a {@link ScannableTrackDocument} from the inner {@link ScanpathDocument}
 	 * @param index the {@code ScanpathDocument#getScannableTrackDocuments()} index to retrieve.
 	 * @return {@code ScannableTrackDocument.Builder}
+	 * @deprecated use {@link ScannableTrackDocumentHelper#getScannableTrackDocumentBuilder(String)}
 	 */
+	@Deprecated
 	public ScannableTrackDocument.Builder getScannableTrackDocumentBuilder(int index) {
 		return Optional.ofNullable(getScanningParameters().getScanpathDocument())
 				.map(scanpath -> findOrCreateScannableTrackDocument(scanpath, index))
@@ -83,11 +85,46 @@ public class ScanningParametersHelperBase {
 	 * @param index the position of the required {@code ScannableTrackDocument}
 	 * @return a builder or null if the index does not exist
 	 */
+	@Deprecated
 	private ScannableTrackDocument.Builder findOrCreateScannableTrackDocument(ScanpathDocument scanpathDocument, int index) {
 		if (index <= scanpathDocument.getScannableTrackDocuments().size() - 1) {
 			return new ScannableTrackDocument.Builder(scanpathDocument.getScannableTrackDocuments().get(index));
 		}
 		return null;
+	}
+
+	/**
+	 * A {@code ScannableTrackDocument.Builder} created cloning the underlying {@link ScannableTrackDocument}
+	 * with the given {@code axis}.
+	 * @param axis the {@code ScanpathDocument#getScannableTrackDocuments()} axis to retrieve.
+	 * @return {@code ScannableTrackDocument.Builder}, otherwise {@code null} if the axis odes not already exist
+	 */
+	public ScannableTrackDocument.Builder getScannableTrackDocumentBuilder(String axis) {
+		return Optional.ofNullable(getScanningParameters().getScanpathDocument().getScannableTrackDocuments())
+				.map(tracks -> getScannableTrackDocumentPerAxisBuilder(tracks, axis))
+				.orElseGet(() -> null);
+	}
+
+	/**
+	 * Returns the {@link ScannableTrackDocument} associated with the given axis
+	 * @param axis
+	 * @return a {@code ScannableTrackDocument}, otherwise {@code null} if the axis does not exist
+	 */
+	public  ScannableTrackDocument getScannableTrackDocumentPerAxis(String axis) {
+		List<ScannableTrackDocument> scannableTrackDocuments = Optional.ofNullable(getScanningParameters().getScanpathDocument().getScannableTrackDocuments())
+				.orElseGet(() -> null);
+		return scannableTrackDocuments.stream()
+				.filter(t -> t.getAxis().equals(axis))
+				.findFirst()
+				.orElseGet(() -> null);
+	}
+
+	private ScannableTrackDocument.Builder getScannableTrackDocumentPerAxisBuilder(List<ScannableTrackDocument> scannableTrackDocuments, String axis) {
+		return scannableTrackDocuments.stream()
+				.filter(t -> t.getAxis().equals(axis))
+				.findFirst()
+				.map(ScannableTrackDocument.Builder::new)
+				.orElseGet(() -> null);
 	}
 
 	/**

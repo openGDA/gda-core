@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.api.document.helper;
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -54,9 +55,10 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 		if (starts.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
+		List<String> axes = getAxes();
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
 				.assembleScannableTracks(IntStream.of(starts.length)
-					.mapToObj(index -> getScannableTrackDocumentBuilder(index).withStart(starts[index]))
+					.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withStart(starts[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
 	}
@@ -77,9 +79,10 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 		if (stops.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
+		List<String> axes = getAxes();
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
 				.assembleScannableTracks(IntStream.of(stops.length)
-					.mapToObj(index -> getScannableTrackDocumentBuilder(index).withStop(stops[index]))
+					.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withStop(stops[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
 	}
@@ -100,10 +103,10 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 		if (points.length != getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
-		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
-				.assembleScannableTracks(IntStream.range(0, points.length)
-					.mapToObj(index -> getScannableTrackDocumentBuilder(index).withPoints(points[index]))
-					.toArray(ScannableTrackDocument.Builder[]::new));
+		List<String> axes = getAxes();
+		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase.assembleScannableTracks(IntStream.range(0, points.length)
+						.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withPoints(points[index]))
+						.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
 	}
 
@@ -123,10 +126,17 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 		if (steps.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
+		List<String> axes = getAxes();
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
 				.assembleScannableTracks(IntStream.of(steps.length)
-					.mapToObj(index -> getScannableTrackDocumentBuilder(index).withStep(steps[index]))
+					.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withStep(steps[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
+	}
+
+	private List<String> getAxes() {
+		return getScanningParameters().getScanpathDocument().getScannableTrackDocuments().stream()
+				.map(ScannableTrackDocument::getAxis)
+				.collect(Collectors.toList());
 	}
 }
