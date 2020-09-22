@@ -20,7 +20,6 @@ package gda.device.detector.areadetector.v17.impl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2023,32 +2022,12 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		this.status = getAcquireState();
 	}
 
-	class GreaterThanOrEqualTo implements Predicate<Integer> {
-
-		private final int value;
-
-		public GreaterThanOrEqualTo(int value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean test(Integer object) {
-			return (object >= value);
-		}
-
-	}
-
 	@Override
 	public void waitForArrayCounterToReach(final int exposureNumber, double timeoutS) throws InterruptedException,
 			Exception, java.util.concurrent.TimeoutException {
 
 		pvArrayCounter_RBV.setValueMonitoring(true);
-		pvArrayCounter_RBV.waitForValue(new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer object) {
-				return (object >= exposureNumber);
-			}
-		}, timeoutS);
+		pvArrayCounter_RBV.waitForValue(i -> i >= exposureNumber, timeoutS);
 	}
 
 	@Override
@@ -2056,12 +2035,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			Exception, java.util.concurrent.TimeoutException {
 
 		pvDetectorState_RBV.setValueMonitoring(true);
-		pvDetectorState_RBV.waitForValue(new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer object) {
-				return (object == 0);
-			}
-		}, timeoutS);
+		pvDetectorState_RBV.waitForValue(object -> object == 0, timeoutS);
 	}
 
 	private String getChannelName(String pvElementName, String... args) {

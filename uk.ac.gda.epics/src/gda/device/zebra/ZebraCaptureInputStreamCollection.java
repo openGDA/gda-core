@@ -102,7 +102,7 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 			//numDownloadedPV.setValueMonitoring(true);
 			final int numDownloaded = numDownloadedPV.get(); // force numDownloadedPV to go and get a new value
 			logger.info("{} numDownloadedPV: {}, desiredPoint {}", numDownloadedPV.getPvName(), numDownloaded, desiredPoint);
-			numPointsAvailable = numDownloadedPV.waitForValue(new GreaterThanOrEqualTo(desiredPoint), -1);
+			numPointsAvailable = numDownloadedPV.waitForValue(nDownloaded -> nDownloaded >= desiredPoint, -1);
 			logger.info("{} numPointsAvailable: {} Finished waiting", numDownloadedPV.getPvName(), numPointsAvailable);
 		} catch (InterruptedException e) {
 			throw new InterruptedException("Interupted while waiting for point: " + desiredPoint);
