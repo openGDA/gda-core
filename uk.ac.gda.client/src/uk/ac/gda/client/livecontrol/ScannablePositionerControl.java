@@ -45,6 +45,8 @@ public class ScannablePositionerControl extends LiveControlBase {
 	private int incrementTextWidth = 60; // Passed down to NudgePositionerComposite
 	private Boolean showIncrement;
 	private boolean boldLabel;
+	private boolean horizontalLayout = false;
+	private int displayNameWidth;
 
 	public Boolean isShowIncrement() {
 		return showIncrement;
@@ -110,6 +112,14 @@ public class ScannablePositionerControl extends LiveControlBase {
 
 	public void setBoldLabel(boolean boldLabel) {
 		this.boldLabel = boldLabel;
+	}
+
+	public void setDisplayNameWidth(int displayNameWidth) {
+		this.displayNameWidth = displayNameWidth;
+	}
+
+	public void setHorizontalLayout(boolean horizontalLayout) {
+		this.horizontalLayout = horizontalLayout;
 	}
 
 	@Override
@@ -189,15 +199,18 @@ public class ScannablePositionerControl extends LiveControlBase {
 		}
 		final Scannable scannable = optionalScannable.get();
 
+		int layoutStyle = horizontalLayout ? SWT.HORIZONTAL : SWT.NONE;
+
 		if (scannable instanceof EnumPositioner) {
-			positionerComposite = new EnumPositionerComposite(composite, SWT.NONE);
+			positionerComposite = new EnumPositionerComposite(composite, layoutStyle);
 			if (boldLabel) {
 				((EnumPositionerComposite)positionerComposite).setLabelToBold();
 			}
 		} else {
-		// Create the NudgePositionerComposite and set the scannable
-		positionerComposite = new NudgePositionerComposite(composite, SWT.NONE);
-		NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
+			// Create the NudgePositionerComposite and set the scannable
+			positionerComposite = new NudgePositionerComposite(composite, layoutStyle);
+			NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
+
 			if (getUserUnits() != null) {
 				npc.setUserUnits(getUserUnits());
 			}
@@ -212,6 +225,11 @@ public class ScannablePositionerControl extends LiveControlBase {
 				npc.setLabelToBold();
 			}
 		}
+
+		if (displayNameWidth > 0) {
+			positionerComposite.setDisplayNameWidth(displayNameWidth);
+		}
+
 		positionerComposite.setScannable(scannable);
 
 		// Configure the NPC with additional settings if provided
@@ -223,6 +241,7 @@ public class ScannablePositionerControl extends LiveControlBase {
 			positionerComposite.hideStopButton();
 		}
 	}
+
 	/**
 	 * show or hide increment control composite in the Live Control view
 	 */

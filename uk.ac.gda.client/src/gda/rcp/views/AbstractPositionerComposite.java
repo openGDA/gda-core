@@ -349,6 +349,12 @@ public abstract class AbstractPositionerComposite extends Composite {
 		return scannable;
 	}
 
+	public void setDisplayNameWidth(int width) {
+		if (!displayNameLabel.isDisposed()) {
+			((RowData) displayNameLabel.getLayoutData()).width = width;
+		}
+	}
+
 	/**
 	 * Sets a different name to be used in the GUI instead of the default which is the scannable name
 	 * <p>
