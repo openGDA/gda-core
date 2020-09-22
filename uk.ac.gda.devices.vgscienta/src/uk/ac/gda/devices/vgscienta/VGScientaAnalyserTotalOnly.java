@@ -122,6 +122,7 @@ public class VGScientaAnalyserTotalOnly extends DetectorBase implements NexusDet
 		data.addData(getName(), "kinetic_energy_start", new NexusGroupData(controller.getStartEnergy()), "eV", null);
 		data.addData(getName(), "kinetic_energy_center", new NexusGroupData(controller.getCentreEnergy()), "eV", null);
 		data.addData(getName(), "kinetic_energy_end", new NexusGroupData(controller.getEndEnergy()), "eV", null);
+		data.addData(getName(), "kinetic_energy_step", new NexusGroupData(controller.getEnergyStep()), "eV", null);
 		data.addData(getName(), "time_per_channel", new NexusGroupData(controller.getExposureTime()), "s", null, null, true);
 		data.addData(getName(), "lens_mode", new NexusGroupData(controller.getLensMode()), null, null);
 		data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);

@@ -143,6 +143,8 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 			nxDetector.setAttribute("kinetic_energy_end", UNITS, "eV");
 			nxDetector.setField("kinetic_energy_center", analyser.getCentreEnergy());
 			nxDetector.setAttribute("kinetic_energy_center", UNITS, "eV");
+			nxDetector.setField("kinetic_energy_step", analyser.getEnergyStep());
+			nxDetector.setAttribute("kinetic_energy_step", UNITS, "eV");
 			// PSU Mode
 			nxDetector.setField("psu_mode", analyser.getPsuMode());
 
