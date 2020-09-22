@@ -69,6 +69,15 @@ public class SequentialScannable extends CoupledScannable {
 
 	@Override
 	protected void moveUnderlyingScannables(List<? extends Object> targets) throws DeviceException {
+		// Check for limits violations before moving anything
+		for (int i = 0; i < theScannables.size(); i++) {
+			final String report = theScannables.get(i).checkPositionValid(targets.get(i));
+			if (report != null) {
+				throw new DeviceException(report);
+			}
+		}
+
+		// Start moving the first scannable
 		this.targets = targets;
 		forwards = isScanInForwardsOrder(theScannables.get(0), targets.get(0));
 		if (forwards) {
