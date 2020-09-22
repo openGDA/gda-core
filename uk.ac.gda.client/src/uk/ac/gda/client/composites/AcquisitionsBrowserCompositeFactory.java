@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.composites;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
@@ -27,7 +29,6 @@ import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * A factory to generate a browser for {@link AcquisitionConfigurationResourceType} objects.
@@ -46,7 +47,7 @@ public class AcquisitionsBrowserCompositeFactory<T> implements CompositeFactory 
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite container = ClientSWTElements.createComposite(parent, style);
+		Composite container = createClientCompositeWithGridLayout(parent,style, 1);
 		TreeViewerBuilder<AcquisitionConfigurationResource<T>> builder = browser.getTreeViewBuilder();
 		browser.addColumns(builder);
 		builder.addContentProvider(browser.getContentProvider());
