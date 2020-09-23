@@ -368,7 +368,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			throw new NexusException("No writer found for scannable " + scannableName);
 		}
 
-		scannableNexusDevices.get(scannableName).write(position, scanSlice);
+		scannableNexusDevices.get(scannableName).writePosition(position, scanSlice);
 	}
 
 	@Override

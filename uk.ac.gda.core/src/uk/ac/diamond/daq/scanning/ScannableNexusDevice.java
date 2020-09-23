@@ -41,6 +41,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -476,21 +477,11 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 	public Object writePosition(Object demandPosition, IPosition scanPosition) throws Exception {
 		if (writableDatasets == null) return null; // TODO, this should never happen??
 
-		final Object position = scannable.getPosition();
-		write(demandPosition, position, scanPosition);
-		return position;
-	}
-
-	/**
-	 * Write the given positions of the {@link Scannable}
-	 * @param demandPosition the demand value of the scannable
-	 * @param actualPosition the actual position of the scannable
-	 * @param scanPosition the position of the overall scan
-	 * @throws Exception if the position cannot be written for any reason
-	 */
-	private void write(Object demandPosition, Object actualPosition, IPosition scanPosition) throws Exception {
+		final Object actualPosition = scannable.getPosition();
 		final SliceND sliceND = getSliceForPosition(scanPosition); // the location in each dataset to write to
-		write(demandPosition, actualPosition, sliceND, scanPosition.getIndex(getName()));
+		writeActualPosition(actualPosition, sliceND);
+		writeDemandPosition(demandPosition, scanPosition.getIndex(getName()));
+		return actualPosition;
 	}
 
 	/**
@@ -499,19 +490,17 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 	 * @param scanSlice the scan slice, i.e. where to write in the datasets
 	 * @throws Exception if the position cannot be written for any reason
 	 */
-	public void write(Object position, SliceND scanSlice) throws Exception {
-		write(null, position, scanSlice, -1);
+	public void writePosition(Object position, SliceND scanSlice) throws Exception {
+		writeActualPosition(position, scanSlice);
 	}
 
 	/**
 	 * Write the given {@link SliceND} at the given point.
-	 * @param demandPosition the demand position of the scannable , may be <code>null</code>
 	 * @param actualPosition the actual position of the scannable
 	 * @param scanSlice the scan slice, i.e. where to write in the datasets
-	 * @param index the index of this position of the scannable
 	 * @throws Exception if the position cannot be written for any reason
 	 */
-	public void write(Object demandPosition, Object actualPosition, SliceND scanSlice, int index) throws Exception {
+	public void writeActualPosition(Object actualPosition, SliceND scanSlice) throws Exception {
 		final Object[] positionArray = getPositionArray(actualPosition);
 		if (positionArray.length < writableDatasets.size()) {
 			throw new NexusException(MessageFormat.format("getPosition() of scannable ''{0}'' must be an array of length at least: {1}",
@@ -526,7 +515,9 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 			dataset.setSlice(null, value, scanSlice);
 			fieldIndex++;
 		}
+	}
 
+	private void writeDemandPosition(Object demandPosition, int index) throws NexusException, DatasetException {
 		// write the demand position to the demand dataset
 		if (demandPosition != null && demandValueDataset != null) {
 			if (index < 0) {
