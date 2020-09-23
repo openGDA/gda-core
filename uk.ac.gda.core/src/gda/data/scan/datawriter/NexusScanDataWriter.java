@@ -50,6 +50,7 @@ import gda.data.NumTracker;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
+import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
@@ -103,7 +104,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private NexusScanFile nexusScanFile = null;
 
-	private final Map<String, ScannableNexusDevice<? extends NXobject>> scannableNexusDevices = new HashMap<>();
+	private final Map<String, IWritableNexusDevice<? extends NXobject>> scannableNexusDevices = new HashMap<>();
 
 	private int currentPointNumber = -1;
 
@@ -301,6 +302,10 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				.map(this::createNexusDevice).collect(toList());
 	}
 
+	private List<INexusDevice<?>> getNexusDetectors(IScanDataPoint point) {
+		return point.getDetectors().stream().map(this::createNexusDevice).collect(toList());
+	}
+
 	private INexusDevice<?> createNexusDevice(Scannable scannable) {
 		final ScannableNexusDevice<?> nexusDevice = new ScannableNexusDevice<>(scannable);
 		nexusDevice.setWriteDemandValue(false); // we don't have access to demand values at present, see DAQ-
@@ -308,9 +313,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return nexusDevice;
 	}
 
-	private List<INexusDevice<?>> getNexusDetectors(IScanDataPoint point) {
-		// TODO get detectors
-		return Collections.emptyList();
+	private INexusDevice<?> createNexusDevice(Detector detector) {
+		// if the detector already is a nexus device, just return it
+		if (detector instanceof INexusDevice<?>) {
+			return (INexusDevice<?>) detector;
+		}
+
+		throw new UnsupportedOperationException("This nexus data writer does not yet support for your detector:" + detector.getName());
 	}
 
 	private List<INexusDevice<?>> getPerScanMonitors() {
@@ -329,14 +338,20 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		// We can't use ScannableNexusWrapper for this as it will also write to the underlying scannable.
 		// need a new wrapper(?)
 		final int[] scanPosition = getScanPosition(point);
+		final SliceND sliceND = createScanSlice(scanPosition);
+
+		writeScannables(point, sliceND);
+		writeDetectors(point, sliceND); // TODO just use int[] for slice? or create new class
+	}
+
+	private void writeScannables(IScanDataPoint point, final SliceND sliceND) throws Exception {
+		// note, this includes scannables that are being scanned and those that aren't (i.e. monitors)
 		final List<String> scannableNames = point.getScannableNames();
 		final List<Object> scannablePositions = point.getScannablePositions();
-
 		if (scannableNames.size() != scannablePositions.size()) {
 			throw new NexusException("Scannables name and position list have different sizes");
 		}
 
-		final SliceND sliceND = createScanSlice(scanPosition);
 		for (int i = 0; i < scannableNames.size(); i++) {
 			writeScannablePosition(scannableNames.get(i), scannablePositions.get(i), sliceND);
 		}
@@ -346,8 +361,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final int[] scanShape = scanPositionIter.getShape();
 		final int[] start = scanPosition;
 		final int[] stop = Arrays.stream(start).map(pos -> pos + 1).toArray();
-		final SliceND sliceND = new SliceND(scanShape, start, stop, null);
-		return sliceND;
+		return new SliceND(scanShape, start, stop, null);
 	}
 
 	private int[] getScanPosition(IScanDataPoint point) throws NexusException {
@@ -369,6 +383,23 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		}
 
 		scannableNexusDevices.get(scannableName).writePosition(position, scanSlice);
+	}
+
+	private void writeDetectors(IScanDataPoint point, final SliceND scanSlice) throws Exception {
+		final List<Detector> detectors = point.getDetectors();
+		final List<Object> detectorData = point.getDetectorData();
+		if (detectors.size() != detectorData.size()) {
+			throw new NexusException("Detector and data lists have different sizes");
+		}
+
+		for (int i = 0; i < detectors.size(); i++) {
+			// if the detector already is an IWritableNexusDevice, call it's write position method
+			if (detectors.get(i) instanceof IWritableNexusDevice<?>) {
+				((IWritableNexusDevice<?>) detectors.get(i)).writePosition(detectorData.get(i), scanSlice);
+			} else {
+				throw new UnsupportedOperationException("Detector not supported:" + detectors.get(i).getName());
+			}
+		}
 	}
 
 	@Override

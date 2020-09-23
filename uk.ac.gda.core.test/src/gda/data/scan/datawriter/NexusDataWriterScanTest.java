@@ -164,6 +164,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	@Override
 	protected void checkDataGroups(NXentry entry) {
+		// NexusDataWriter creates a single NXdata group
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 		assertThat(dataGroups.keySet(), contains(DATA_GROUP_NAME));
 		final NXdata data = dataGroups.get(DATA_GROUP_NAME);

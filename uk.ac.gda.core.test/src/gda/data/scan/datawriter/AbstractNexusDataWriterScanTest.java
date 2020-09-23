@@ -38,9 +38,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -53,6 +56,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IndexIterator;
+import org.eclipse.january.dataset.PositionIterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +64,7 @@ import org.junit.Test;
 import com.google.common.collect.Streams;
 
 import gda.TestHelpers;
+import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.monitor.DummyMonitor;
@@ -107,6 +112,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected Scannable[] scannables;
 	protected Monitor monitor;
 
+	protected Detector detector;
+
+	private Object[] scanArguments;
+
 	public AbstractNexusDataWriterScanTest(int scanRank) {
 		this.scanRank = scanRank;
 		final int[] scanDimensions = new int[scanRank];
@@ -152,12 +161,16 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	@Test
-	public void concurrentScan() throws Exception {
+	public void concurrentScanNoDetector() throws Exception {
+		concurrentScan(null);
+	}
+
+	protected void concurrentScan(Detector detector) throws Exception {
 		setUpTest(); // create test dir and initialize properties
 
 		// create the scan
-		final Object[] scanArgs = getScanArguments();
-		final ConcurrentScan scan = new ConcurrentScan(scanArgs);
+		scanArguments = createScanArguments(detector);
+		final ConcurrentScan scan = new ConcurrentScan(scanArguments);
 		assertEquals(-1, scan.getScanNumber());
 
 		// run the scan
@@ -179,7 +192,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 	}
 
-	private Object[] getScanArguments() {
+	private Object[] createScanArguments(Detector detector) {
 		final List<Object> scanArgs = new ArrayList<>();
 
 		// add scannables
@@ -193,6 +206,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 		// add monitor
 		scanArgs.add(monitor);
 
+		// add detector if present
+		if (detector != null) {
+			scanArgs.add(detector);
+		}
+
 		return scanArgs.toArray();
 	}
 
@@ -201,7 +219,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected String getExpectedScanCommand() {
-		return "scan " + String.join(" ", Arrays.stream(getScanArguments())
+		return "scan " + String.join(" ", Arrays.stream(scanArguments)
 			.map(arg -> arg instanceof Scannable ? ((Scannable) arg).getName() : arg.toString())
 			.toArray(String[]::new));
 	}
@@ -235,10 +253,16 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(instrument, is(notNullValue()));
 
 		checkInstrumentGroupMetadata(instrument); // check no of nodes, etc
+		checkScannablesAndMonitors(instrument);
+		checkDetector(instrument);
+	}
 
+	private void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
 		final Map<String, NXpositioner> positioners = instrument.getAllPositioner();
 		assertThat(positioners.size(), is(scannables.length + 1));
 		assertThat(positioners.keySet(), containsInAnyOrder(getScannableAndMonitorNames()));
+
+		// check the scannables have been written correctly
 		for (int i = 0; i < scanRank; i++) {
 			final String scannableName = scannables[i].getName();
 			final NXpositioner scannablePos = positioners.get(scannableName);
@@ -247,7 +271,36 @@ public abstract class AbstractNexusDataWriterScanTest {
 			checkScannablePositioner(scannablePos, i);
 		}
 
-		final NXpositioner monitorPos = positioners.get(MONITOR_NAME);
+		checkMonitor(instrument);
+	}
+
+	private void checkDetector(NXinstrument instrument) throws Exception {
+		if (detector == null) return;
+
+		// check that the NXdetector group for the detector is as expected
+		final NXdetector nxDetector = instrument.getDetector(detector.getName());
+		assertThat(nxDetector, is(notNullValue()));
+
+		final DataNode dataNode = nxDetector.getDataNode(NXdata.NX_DATA);
+		assertThat(dataNode, is(notNullValue()));
+
+		final IDataset dataset = dataNode.getDataset().getSlice();
+		final int[] shape = dataset.getShape();
+		assertThat(shape.length, is(scanRank + 2));
+		assertThat(Arrays.copyOfRange(shape, 0, scanRank), is(equalTo(scanDimensions)));
+
+		// Make sure none of the numbers are NaNs. The detector
+		// is expected to fill this scan with non-nulls.
+		final PositionIterator it = new PositionIterator(shape);
+		while (it.hasNext()) {
+			int[] pos = it.getPos();
+			assertThat(Double.isNaN(dataset.getDouble(pos)), is(false));
+		}
+	}
+
+	private void checkMonitor(NXinstrument instrument) throws Exception {
+		// check the monitor has been written correctly
+		final NXpositioner monitorPos = instrument.getPositioner(monitor.getName());
 		assertThat(monitorPos, is(notNullValue()));
 		checkMonitorPositioner(monitorPos);
 	}
