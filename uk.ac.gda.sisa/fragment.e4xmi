@@ -62,5 +62,38 @@
         </children>
       </children>
     </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_iawTgPzZEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.perspective.feedback" label="Feedback">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_uY0oAPzZEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.10">
+        <children xsi:type="basic:PartSashContainer" xmi:id="__c2e0PzbEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.11" containerData="">
+          <children xsi:type="basic:PartSashContainer" xmi:id="_34rtUPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.14" containerData="8000" horizontal="true">
+            <children xsi:type="basic:PartStack" xmi:id="_JwQy4PzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.16" containerData="4000">
+              <children xsi:type="basic:Part" xmi:id="_Lnk50PzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:xbpm#MJPEG" containerData="3000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="XBPM"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_KfDLgPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.17" containerData="4000">
+              <children xsi:type="basic:Part" xmi:id="_MFbTcPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:sd3#MJPEG" containerData="3000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="SD3"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_LEjsUPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.18" containerData="2000">
+              <children xsi:type="basic:Part" xmi:id="_MlCnoPzdEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.gatevalves" containerData="4000" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.GateValvesPart" label="Gate valves"/>
+            </children>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_7DomYPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.15" containerData="2000">
+            <children xsi:type="basic:Part" xmi:id="_9JuwMPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.ringstatus" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.RingStatusPart" label="Ring status"/>
+          </children>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_GT_VwPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.12" containerData="" horizontal="true">
+          <children xsi:type="basic:PartStack" xmi:id="_OZSB4PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.12" containerData="8000">
+            <children xsi:type="basic:Part" xmi:id="_nB4vUPzcEeqjtpaok2q8XQ" elementId="gda.rcp.jythonterminalview" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Jython console"/>
+          </children>
+          <children xsi:type="basic:PartSashContainer" xmi:id="_Y2Ew4PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partsashcontainer.13" containerData="2000">
+            <children xsi:type="basic:PartStack" xmi:id="_a22V0PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.13">
+              <children xsi:type="basic:Part" xmi:id="_dDoWcPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.pressures" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.PressuresPart" label="Pressures"/>
+            </children>
+            <children xsi:type="basic:PartStack" xmi:id="_cgcJ0PzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.partstack.14">
+              <children xsi:type="basic:Part" xmi:id="_dpLTgPzcEeqjtpaok2q8XQ" elementId="uk.ac.gda.sisa.part.sampletemperature" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.feedback.ui.TemperaturesPart" label="Sample temperature"/>
+            </children>
+          </children>
+        </children>
+      </children>
+    </elements>
   </fragments>
 </fragment:ModelFragments>
