@@ -329,7 +329,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		if (firstReadoutInScan) { // place in entry1/instrument/analyser(NXdetector) group.
 			data.addData(getName(), "kinetic_energy_start", new NexusGroupData(getStartEnergy()), "eV", null);
 			data.addData(getName(), "kinetic_energy_center", new NexusGroupData((Double) centre_energy.getPosition()), "eV", null);
-			data.addData(getName(), "kinetic_energy_end", new NexusGroupData(getEndEnergy()), "eV", null);
+			data.addData(getName(), "kinetic_energy_step", new NexusGroupData(getEnergyStep()), "eV", null);
 
 			String aunit, aname;
 			if ("Transmission".equals(getLensMode())) {
