@@ -12,7 +12,8 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
  org.objenesis,
- org.hamcrest.core;bundle-version="[1.3.0,2.0.0)"
+ org.hamcrest.core;bundle-version="[1.3.0,2.0.0)",
+ uk.ac.diamond.daq.client.gui.camera
 Import-Package: org.springframework.beans.factory;version="3.0.4",
  uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.simulator.connector,
