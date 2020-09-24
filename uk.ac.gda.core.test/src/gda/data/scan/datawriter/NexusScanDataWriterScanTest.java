@@ -53,7 +53,6 @@ import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
@@ -164,36 +163,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		@Override
 		public void writePosition(Object data, SliceND scanSlice) throws NexusException {
-			final IDataset dataset = (IDataset) data;
 			try {
-				int[] datasetShape = dataset.getShape();
-
-				// TODO append image dims to scanSlice - add method to ScanRankService or SliceND
-				final int[] oldStart = scanSlice.getStart();
-				final int[] oldStop = scanSlice.getStop();
-				final int[] oldStep = scanSlice.getStep();
-
-				final int[] newStart = new int[oldStart.length + dataset.getRank()];
-				System.arraycopy(oldStart, 0, newStart, 0, oldStart.length);
-				// keep last two elements as 0
-
-				final int[] newStop = new int[oldStop.length + dataset.getRank()];
-				System.arraycopy(oldStop, 0, newStop, 0, oldStop.length); // TODO use streams?
-				System.arraycopy(datasetShape, 0, newStop, oldStop.length, datasetShape.length);
-
-				final int[] newStep = new int[oldStep.length + dataset.getRank()];
-				System.arraycopy(oldStep, 0, newStep, 0, oldStep.length);
-
-				final SliceND datasetSlice = new SliceND(imageDataset.getShape(), imageDataset.getMaxShape(),
-						newStart, newStop, null);
-				imageDataset.setSlice(null, dataset, datasetSlice);
-
-
+				IWritableNexusDevice.writeDataset(imageDataset, data, scanSlice);
 			} catch (DatasetException e) {
 				throw new NexusException("Could not write data for detector: " + getName());
 			}
 		}
-
 	}
 
 	@Test
