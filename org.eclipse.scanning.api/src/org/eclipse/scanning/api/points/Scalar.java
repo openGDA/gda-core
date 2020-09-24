@@ -51,7 +51,7 @@ public class Scalar<T> extends AbstractPosition {
 
 	@Override
 	public List<String> getNames() {
-	    return Arrays.asList(new String[]{name});
+	    return Arrays.asList(name);
 	}
 
 	@Override

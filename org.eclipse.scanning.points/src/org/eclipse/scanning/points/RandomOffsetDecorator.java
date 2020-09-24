@@ -14,7 +14,6 @@ package org.eclipse.scanning.points;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 
@@ -66,7 +65,7 @@ public class RandomOffsetDecorator implements Iterator<IPosition> {
 				throw new IllegalStateException("Cannot apply a random offset to a non-numeric position");
 			}
 		}
-		offsetPosition.setDimensionNames(((AbstractPosition)position).getDimensionNames());
+		offsetPosition.setDimensionNames(position.getDimensionNames());
 		return offsetPosition;
 	}
 

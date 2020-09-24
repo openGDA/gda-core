@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.points;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 
@@ -203,5 +204,14 @@ public interface IPosition {
 	 * @return
 	 */
 	public void setExposureTime(double time);
+
+
+	/**
+	 * This method makes dimensionNames if they are null.
+	 * Dimensions may contain 1-N axes, e.g. when a Mapping scan is bounded by a 2d region of interest.
+	 */
+	List<Set<String>> getDimensionNames();
+
+	void setDimensionNames(List<Set<String>> dimensionNames);
 
 }

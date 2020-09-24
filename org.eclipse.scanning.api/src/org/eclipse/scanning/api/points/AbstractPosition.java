@@ -13,10 +13,10 @@ package org.eclipse.scanning.api.points;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 
 	private int stepIndex = -1;
 	private double exposureTime;
-	protected List<Set<String>> dimensionNames; // Dimension->Names@dimension
+	private List<Set<String>> dimensionNames; // Dimension->Names@dimension
 
 	@Override
 	public IPosition compound(IPosition parent) {
@@ -44,10 +44,10 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 		ret.setStepIndex(getStepIndex());
 		ret.setExposureTime(getExposureTime());
 
-		List<Set<String>> dimensionNames = new ArrayList<>();
-		dimensionNames.addAll(((AbstractPosition) parent).getDimensionNames());
-		dimensionNames.addAll(getDimensionNames());
-		ret.setDimensionNames(dimensionNames);
+		List<Set<String>> dNames = new ArrayList<>();
+		dNames.addAll(parent.getDimensionNames());
+		dNames.addAll(getDimensionNames());
+		ret.setDimensionNames(dNames);
 
 		return ret;
 	}
@@ -86,39 +86,34 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 		if (this == obj)
 			return true;
 
-		if (obj == null)
+		if (!(obj instanceof IPosition))
 			return false;
 
+		final IPosition pos = (IPosition) obj;
+
 		if (checkStep) {
-			if (stepIndex != ((IPosition)obj).getStepIndex())
+			if (stepIndex != pos.getStepIndex())
 				return false;
-			if (exposureTime != ((IPosition)obj).getExposureTime())
+			if (exposureTime != pos.getExposureTime())
 				return false;
 		}
 
 		final List<String> ours = new ArrayList<>(getNames());
-		final List<String> theirs = new ArrayList<>(((IPosition)obj).getNames());
+		final List<String> theirs = new ArrayList<>(pos.getNames());
 		Collections.sort(ours);
 		Collections.sort(theirs);
 		if (!equals(ours, theirs)) return false;
 		for (String name : ours) {
 			Object val1 = get(name);
-			Object val2 = ((IPosition)obj).get(name);
-			if (val1==null && val2!=null) return false;
-			if (val1!=null && val2==null) return false;
+			Object val2 = pos.get(name);
+			if (val1 == null && val2 == null) continue;
+			if (val1 == null || val2 == null) return false;
 			if (!val1.equals(val2)) return false;
 		}
 
 		final Map<String, Integer> iours   = getIndices();
-		final Map<String, Integer> itheirs = getIndices((IPosition)obj);
+		final Map<String, Integer> itheirs = pos.getIndices();
 		return (iours.equals(itheirs));
-	}
-
-	private Map<String, Integer> getIndices(IPosition pos) {
-		if (pos instanceof AbstractPosition) return ((AbstractPosition)pos).getIndices(); // Might be null
-		Map<String, Integer> ret = new LinkedHashMap<>(pos.getNames().size());
-		for (String name : pos.getNames()) ret.put(name,  pos.getIndex(name));
-		return ret;
 	}
 
 	/**
@@ -211,8 +206,12 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 	 * tests because of this issue. Be careful when creating
 	 * member data in this class that things are thread safe.
 	 *
-	 * @return
+	 * @return dimensionNames- a List with an entry for each
+	 * dimension, where each entry is a Set of the axes in
+	 * that dimension
 	 */
+
+	@Override
 	public synchronized List<Set<String>> getDimensionNames() {
 		if (dimensionNames==null||dimensionNames.isEmpty())  {
 			dimensionNames = new ArrayList<>();
@@ -223,8 +222,13 @@ public abstract class AbstractPosition implements IPosition, Serializable {
 		return new ArrayList<>(dimensionNames);
 	}
 
-	public void setDimensionNames(List<Set<String>> dNames) {
+	@Override
+	public synchronized void setDimensionNames(List<Set<String>> dNames) {
 		this.dimensionNames = dNames;
+	}
+
+	protected Set<String> setOf(String... names) {
+		return new LinkedHashSet<>(Arrays.asList(names));
 	}
 
 	@Override

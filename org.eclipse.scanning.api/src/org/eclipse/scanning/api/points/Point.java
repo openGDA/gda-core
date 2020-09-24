@@ -14,10 +14,8 @@ package org.eclipse.scanning.api.points;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.scanning.api.annotation.UiHidden;
 
@@ -79,14 +77,11 @@ public final class Point extends AbstractPosition {
 
 		setStepIndex(stepIndex);
 
-		this.dimensionNames = is2D
+		setDimensionNames(is2D
                 ? Arrays.asList(setOf(yName), setOf(xName))
-                : Arrays.asList(setOf(yName, xName));
+                : Arrays.asList(setOf(yName, xName)));
 	}
 
-	private Set<String> setOf(String... names) {
-		return new LinkedHashSet<>(Arrays.asList(names));
-	}
 
 	public double getX() {
 		return x;
@@ -118,8 +113,8 @@ public final class Point extends AbstractPosition {
 
 	@Override
 	public int getIndex(String name) {
-		if (xName.equalsIgnoreCase(name)) return xIndex;
-		if (yName.equalsIgnoreCase(name)) return yIndex;
+		if (xName.equals(name)) return xIndex;
+		if (yName.equals(name)) return yIndex;
 		return -1;
 	}
 
