@@ -126,6 +126,9 @@ class GeneratorWrapper(PPointGenerator):
     def getNames(self):
         return [name for dimension in self.generator.dimensions for name in dimension.axes]
     
+    def getDimensionNames(self):
+        return [set([str(name) for name in dimension.axes]) for dimension in self.generator.dimensions]
+    
     def getInitialBounds(self):
         return MapPosition(self.generator.get_point(0).lower)
     def getFinalBounds(self):

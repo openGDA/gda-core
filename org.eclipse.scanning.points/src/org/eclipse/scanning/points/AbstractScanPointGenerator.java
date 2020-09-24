@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -117,6 +118,12 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	}
 
 	@Override
+	public List<Set<String>> getDimensionNames(){
+		return pointGenerator.getDimensionNames();
+	}
+
+
+	@Override
 	public PyDictionary toDict() {
 		return pointGenerator.toDict();
 	}
@@ -177,5 +184,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	    return compoundGeneratorFactory.createObject(
 	    		generators, excluders, mutators, duration, continuous);
 	}
+
+
 
 }
