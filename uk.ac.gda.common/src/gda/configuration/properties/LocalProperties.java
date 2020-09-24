@@ -347,9 +347,24 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_SHOW_VISIT_NAME_AS_DATA_FOLDER_NAME = "gda.show.visit.name.as.data.folder.name";
 
+	/**
+	 * Location of the server status port
+	 */
+	public static final String GDA_SERVER_HOST = "gda.server.host";
+
+	/**
+	 * Port number on which client can obtain status information from the GDA server
+	 */
+	public static final String GDA_SERVER_STATUS_PORT = "gda.server.statusPort";
+
+	/**
+	 * Default value for {@link #GDA_SERVER_STATUS_PORT}
+	 */
+	public static final int GDA_SERVER_STATUS_PORT_DEFAULT = 19999;
+
 	public static String getActiveMQBrokerURI() {
 		return get(GDA_ACTIVEMQ_BROKER_URI,
-				String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3", get("gda.server.host", "localhost"), 61616));
+				String.format("failover:(tcp://%s:%d?daemon=true)?startupMaxReconnectAttempts=3", get(GDA_SERVER_HOST, "localhost"), 61616));
 	}
 
 	public static void setActiveMQBrokerURI(final String brokerURI) {
