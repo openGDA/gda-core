@@ -92,7 +92,8 @@ public class TomographyConfigurationView extends ViewPart {
 	}
 
 	private ScanningAcquisitionController getPerspectiveController() {
-		return (ScanningAcquisitionController)SpringApplicationContextProxy.getBean("scanningAcquisitionController", AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
+		return (ScanningAcquisitionController) SpringApplicationContextProxy.getBean("scanningAcquisitionController",
+				AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
 	}
 
 	private StageController getStageController() {
@@ -150,23 +151,29 @@ public class TomographyConfigurationView extends ViewPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent event) {
+				Optional.ofNullable(getOutputPath()).ifPresent(this::runAcquisition);
+			}
+
+			private URL getOutputPath() {
+				return SpringApplicationContextProxy.getOptionalBean(ExperimentController.class).map(this::prepareAcquisition).orElseGet(null);
+			}
+
+			private URL prepareAcquisition(ExperimentController exCont) {
 				try {
-					getController().getAcquisition().setAcquisitionLocation(getOutputPath());
-					getController().runAcquisition();
-				} catch (AcquisitionControllerException e) {
-					UIHelper.showError("Run Acquisition", e.getMessage());
-					logger.error("Cannot run the acquisition", e);
+					return exCont.prepareAcquisition(controller.getAcquisition().getName());
 				} catch (ExperimentControllerException e) {
-					UIHelper.showError("Run Acquisition", e.getMessage());
-					logger.error(e.getMessage(), e);
+					UIHelper.showError("Run Acquisition", e, logger);
+					return null;
 				}
 			}
 
-			private URL getOutputPath() throws ExperimentControllerException {
-				if (getExperimentController().isPresent()) {
-					return getExperimentController().get().prepareAcquisition(controller.getAcquisition().getName());
+			private void runAcquisition(URL path) {
+				getController().getAcquisition().setAcquisitionLocation(path);
+				try {
+					getController().runAcquisition();
+				} catch (AcquisitionControllerException e) {
+					UIHelper.showError("Run Acquisition", e, logger);
 				}
-				return null;
 			}
 
 			@Override
@@ -176,17 +183,14 @@ public class TomographyConfigurationView extends ViewPart {
 		};
 	}
 
-	private Optional<ExperimentController> getExperimentController() {
-		return SpringApplicationContextProxy.getOptionalBean(ExperimentController.class);
-	}
-
 	private AcquisitionController<ScanningAcquisition> getController() {
 		return controller;
 	}
 
 	/**
-	 * Creates a new {@link ScanningAcquisition} for a tomography acquisition.
-	 * Note that the Detectors set by the {@link ScanningAcquisitionController#createNewAcquisition()}
+	 * Creates a new {@link ScanningAcquisition} for a tomography acquisition. Note that the Detectors set by the
+	 * {@link ScanningAcquisitionController#createNewAcquisition()}
+	 *
 	 * @return
 	 */
 	private Supplier<ScanningAcquisition> newScanningAcquisition() {
@@ -207,8 +211,7 @@ public class TomographyConfigurationView extends ViewPart {
 			scannableTrackBuilder.withStart(0.0);
 			scannableTrackBuilder.withStop(180.0);
 			scannableTrackBuilder.withPoints(1);
-			IScannableMotor ism = getStageController().getStageDescription().getMotors()
-					.get(StageDevice.MOTOR_STAGE_ROT_Y);
+			IScannableMotor ism = getStageController().getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y);
 			scannableTrackBuilder.withScannable(ism.getName());
 			List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
 			scannableTrackDocuments.add(scannableTrackBuilder.build());
