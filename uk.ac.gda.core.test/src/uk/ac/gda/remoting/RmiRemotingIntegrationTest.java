@@ -18,6 +18,7 @@
 
 package uk.ac.gda.remoting;
 
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.isA;
@@ -77,7 +78,7 @@ public class RmiRemotingIntegrationTest {
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set properties
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
-		LocalProperties.set("gda.server.host", "localhost");
+		LocalProperties.set(GDA_SERVER_HOST, "localhost");
 		// Ensure no previous tests have left factories attached to the Finder
 		Finder.removeAllFactories();
 	}
@@ -87,7 +88,7 @@ public class RmiRemotingIntegrationTest {
 		// Cleanup properties set
 		LocalProperties.unsetActiveMQBrokerURI();
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
-		LocalProperties.clearProperty("gda.server.host");
+		LocalProperties.clearProperty(GDA_SERVER_HOST);
 	}
 
 	@SuppressWarnings("unused") // As the RmiProxyFactory adds itself to the Finder

@@ -18,6 +18,10 @@
 
 package gda.rcp;
 
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_STATUS_PORT;
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_STATUS_PORT_DEFAULT;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -52,9 +56,9 @@ public final class ServerAvailableWatchdog {
 	private static final Logger logger = LoggerFactory.getLogger(ServerAvailableWatchdog.class);
 
 	/** The location of the server status port */
-	private static final String SERVER_HOST = LocalProperties.get("gda.server.host");
-	/** Server status port default 19999 */
-	private static final int SERVER_STATUS_PORT = LocalProperties.getAsInt("gda.server.statusPort", 19999);
+	private static final String SERVER_HOST = LocalProperties.get(GDA_SERVER_HOST);
+	/** Server status port */
+	private static final int SERVER_STATUS_PORT = LocalProperties.getAsInt(GDA_SERVER_STATUS_PORT, GDA_SERVER_STATUS_PORT_DEFAULT);
 	/** Number of consecutive failed connection attempts before taking action */
 	private static final int FAILURES_BEFORE_ASSUMING_SERVER_DEAD = 5;
 	/** Time between attempts to connect to the server status port in sec */

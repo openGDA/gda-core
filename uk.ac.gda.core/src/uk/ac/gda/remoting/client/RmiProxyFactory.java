@@ -18,6 +18,7 @@
 
 package uk.ac.gda.remoting.client;
 
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.AUTO_EXPORT_RMI_PREFIX;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.REMOTE_OBJECT_PROVIDER;
 import static uk.ac.gda.remoting.server.RmiAutomatedExporter.RMI_PORT_PROPERTY;
@@ -70,7 +71,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	private static final Logger logger = LoggerFactory.getLogger(RmiProxyFactory.class);
 
 	/** The location of the GDA server */
-	private final String serverHost = LocalProperties.get("gda.server.host");
+	private final String serverHost = LocalProperties.get(GDA_SERVER_HOST);
 	/** The RMI port used to export by the server */
 	private final int rmiPort = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
 	/** The URL which prefixes the objects names to access the RMI service */

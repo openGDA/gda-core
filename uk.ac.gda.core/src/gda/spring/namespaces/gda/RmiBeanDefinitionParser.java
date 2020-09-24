@@ -18,6 +18,7 @@
 
 package gda.spring.namespaces.gda;
 
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
 import static uk.ac.gda.remoting.server.GdaRmiServiceExporter.RMI_PREFIX;
 
 import org.springframework.beans.factory.config.BeanReference;
@@ -40,7 +41,7 @@ import uk.ac.gda.remoting.server.GdaRmiServiceExporter;
  * importing.
  */
 public class RmiBeanDefinitionParser {
-	private static final String HOST_NAME = LocalProperties.get("gda.server.host", "localhost");
+	private static final String HOST_NAME = LocalProperties.get(GDA_SERVER_HOST, "localhost");
 
 	/** Return a bean reference to the named bean */
 	private BeanReference service(String serviceBeanName) {

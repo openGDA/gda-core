@@ -18,6 +18,7 @@
 
 package uk.ac.gda.remoting.client;
 
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -94,7 +95,7 @@ public class RmiProxyFactoryTest {
 		registry = LocateRegistry.createRegistry(portForTesting);
 		// Set the property this is used by the RmiAutomatedExporter
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
-		LocalProperties.set("gda.server.host", "localhost");
+		LocalProperties.set(GDA_SERVER_HOST, "localhost");
 		// Ensure no previous tests have left factories attached to the Finder
 		Finder.removeAllFactories();
 	}
@@ -104,7 +105,7 @@ public class RmiProxyFactoryTest {
 		// Cleanup properties set
 		LocalProperties.unsetActiveMQBrokerURI();
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
-		LocalProperties.clearProperty("gda.server.host");
+		LocalProperties.clearProperty(GDA_SERVER_HOST);
 
 		// Close the RMI registry
 		UnicastRemoteObject.unexportObject(registry, true);

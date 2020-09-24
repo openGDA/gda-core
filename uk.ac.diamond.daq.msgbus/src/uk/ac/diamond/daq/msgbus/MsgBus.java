@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.msgbus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -414,7 +415,7 @@ public enum MsgBus {
 
 	// Using a java property here as the formatting may be easier to handle than for a Spring property
 	public static final String KEY_GETSTATUS_ACTIVE_URI = "gda.activemq.broker.status.uri";
-	public static final String GETSTATUS_ACTIVE_URI_DEFAULT = String.join("", "http://", LocalProperties.get("gda.server.host"), ":8161");
+	public static final String GETSTATUS_ACTIVE_URI_DEFAULT = String.join("", "http://", LocalProperties.get(GDA_SERVER_HOST), ":8161");
 	public static final String KEY_GETSTATUS_ACTIVE_PROPERTY = "gda.activemq.broker.status.key.active";
 	public static final String KEY_GETSTATUS_ACTIVE_DEFAULT = "activemq.apache.org";
 	public static final String KEY_GETSTATUS_ACTIVE = LocalProperties.get(KEY_GETSTATUS_ACTIVE_PROPERTY, KEY_GETSTATUS_ACTIVE_DEFAULT);
