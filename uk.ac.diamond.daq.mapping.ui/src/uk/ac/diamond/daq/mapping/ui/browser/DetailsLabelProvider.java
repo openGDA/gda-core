@@ -62,21 +62,39 @@ class DetailsLabelProvider extends LabelProvider implements IComparableStyledLab
 	private String getGridDetails(ScanpathDocument scanpathDocument) {
 		ScannableTrackDocument track1 = scanpathDocument.getScannableTrackDocuments().get(0);
 		ScannableTrackDocument track2 = scanpathDocument.getScannableTrackDocuments().get(1);
-		return String.format("%d x %d points; (%.1f, %.1f) to (%.1f, %.1f)",
-				track1.getPoints(), track2.getPoints(), track1.getStart(), track2.getStart(), track1.getStop(), track2.getStop());
+		String axes = getAxesString(track1, track2);
+		return String.format("%s%d x %d points; (%.1f, %.1f) to (%.1f, %.1f)",
+				axes,
+				track1.getPoints(), track2.getPoints(),
+				track1.getStart(), track2.getStart(),
+				track1.getStop(), track2.getStop());
 	}
 
 	private String getLineDetails(ScanpathDocument scanpathDocument) {
 		ScannableTrackDocument track1 = scanpathDocument.getScannableTrackDocuments().get(0);
 		ScannableTrackDocument track2 = scanpathDocument.getScannableTrackDocuments().get(1);
-		return String.format("%d points; (%.1f, %.1f) to (%.1f, %.1f)",
-				track1.getPoints(), track1.getStart(), track2.getStart(), track1.getStop(), track2.getStop());
+		String axes = getAxesString(track1, track2);
+		return String.format("%s%d points; (%.1f, %.1f) to (%.1f, %.1f)",
+				axes,
+				track1.getPoints(),
+				track1.getStart(), track2.getStart(),
+				track1.getStop(), track2.getStop());
 	}
 
 	private String getPointDetails(ScanpathDocument scanpathDocument) {
 		ScannableTrackDocument track1 = scanpathDocument.getScannableTrackDocuments().get(0);
 		ScannableTrackDocument track2 = scanpathDocument.getScannableTrackDocuments().get(1);
-		return String.format("(%.1f, %.1f)", track1.getStart(), track2.getStart());
+		String axes = getAxesString(track1, track2);
+		return String.format("%s(%.1f, %.1f)",
+				axes,
+				track1.getStart(), track2.getStart());
+	}
+
+	private String getAxesString(ScannableTrackDocument track1, ScannableTrackDocument track2) {
+		if (track1.getAxis() != null && track2.getAxis()!= null) {
+			return String.format("Axes: [%s,%s],", track1.getAxis(), track2.getAxis());
+		}
+		return "";
 	}
 
 	/** Sorts by number of points along first axis */
