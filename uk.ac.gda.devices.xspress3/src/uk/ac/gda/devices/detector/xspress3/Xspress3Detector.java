@@ -787,6 +787,10 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return MAX_ROI_PER_CHANNEL;
 	}
 
+	public void setMaxNumberOfRois(int maxNumberOfRois) {
+		MAX_ROI_PER_CHANNEL = maxNumberOfRois;
+	}
+
 	@Override
 	public FluorescenceDetectorParameters getConfigurationParameters() {
 

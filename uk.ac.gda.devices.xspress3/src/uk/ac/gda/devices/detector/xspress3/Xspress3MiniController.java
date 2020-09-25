@@ -18,28 +18,9 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-public enum TRIGGER_MODE {
+import gda.device.DeviceException;
 
-	//Both standard and mini
-	IDC,
-	TTL_Both,
-	LVDS_Veto_Only,
-	LVDS_Both,
+public interface Xspress3MiniController extends Xspress3Controller{
 
-	// standard only
-	Fixed,
-	Internal,
-	TTl_Veto_Only,
-
-	// mini only
-	Software,
-	Hardware,
-	Burst,
-	TTL_Veto_Only,
-	Software_Start_Stop {
-		@Override
-		public String toString() {
-			return "Software_Start/Stop";
-		}
-	}
+	void waitForDetector(boolean shouldBeBusy, long timeout) throws DeviceException;
 }

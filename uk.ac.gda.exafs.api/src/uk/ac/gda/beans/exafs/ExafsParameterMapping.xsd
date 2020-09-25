@@ -133,11 +133,12 @@
 				<xsd:element name="scannableName" type="xsd:string"
 					maxOccurs="1" minOccurs="1" />
 				<xsd:element name="element" type="xsd:string" maxOccurs="1"
-					minOccurs="1" />
+					minOccurs="0" />
 
-				<xsd:element name="edge" maxOccurs="1" minOccurs="1">
+				<xsd:element name="edge" maxOccurs="1" minOccurs="0">
 					<xsd:simpleType>
 						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="" />
 							<xsd:enumeration value="K" />
 							<xsd:enumeration value="L1" />
 							<xsd:enumeration value="L2" />
