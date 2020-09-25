@@ -34,8 +34,10 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.device.Scannable;
 import gda.factory.Finder;
+
+import gda.rcp.views.ScannableDisplayComposite;
+
 public class ImageStatsDisplayPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImageStatsDisplayPart.class);
