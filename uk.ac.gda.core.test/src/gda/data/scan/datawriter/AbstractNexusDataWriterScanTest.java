@@ -19,12 +19,15 @@
 package gda.data.scan.datawriter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
@@ -36,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -51,10 +55,12 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.PositionIterator;
 import org.junit.After;
@@ -67,6 +73,7 @@ import gda.TestHelpers;
 import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
+import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyScannable;
 import gda.jython.InterfaceProvider;
@@ -75,7 +82,11 @@ import gda.scan.IScanDataPoint;
 
 public abstract class AbstractNexusDataWriterScanTest {
 
-	protected static final int MAX_SCAN_RANK = 5;
+	public enum DetectorType {
+		NONE, NEXUS_DEVICE, COUNTER_TIMER;
+	}
+
+	protected static final int MAX_SCAN_RANK = 3; // larger scans take too long
 
 	protected static final int[] EMPTY_SHAPE = new int[0];
 	protected static final int[] SINGLE_VALUE_SHAPE = new int[] { 1 };
@@ -113,6 +124,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected Monitor monitor;
 
 	protected Detector detector;
+
+	protected DetectorType detectorType; // the type of detector we're testing, in terms of nexus writing, e.g. counter timer
 
 	private Object[] scanArguments;
 
@@ -162,10 +175,29 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	@Test
 	public void concurrentScanNoDetector() throws Exception {
-		concurrentScan(null);
+		concurrentScan(null, DetectorType.NONE);
 	}
 
-	protected void concurrentScan(Detector detector) throws Exception {
+	@Test
+	public void concurrentScanCounterTimer() throws Exception {
+		final DummyCounterTimer detector = new DummyCounterTimer();
+		detector.setName("counterTimer");
+		detector.setDataDecimalPlaces(3);
+		detector.setUseGaussian(true);
+		detector.setInputNames(new String[0]);
+		final String[] names = new String[] { "one", "two", "three", "four" };
+		detector.setExtraNames(names);
+		detector.setTotalChans(names.length);
+		detector.configure();
+		detector.setCollectionTime(10.0);
+
+		concurrentScan(detector, DetectorType.COUNTER_TIMER);
+	}
+
+	protected void concurrentScan(Detector detector, DetectorType detectorType) throws Exception {
+		this.detector = detector;
+		this.detectorType = detectorType;
+
 		setUpTest(); // create test dir and initialize properties
 
 		// create the scan
@@ -230,6 +262,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 			.toArray(String[]::new);
 	}
 
+	protected int getNumDevices() {
+		return scanRank + (monitor != null ? 1 : 0) + (detector != null ? 1 : 0);
+	}
+
 	private NexusFile openNexusFile(String filePath) throws NexusException {
 		final NexusFile nexusFile = nexusFileFactory.newNexusFile(filePath);
 		nexusFile.openToRead();
@@ -275,26 +311,57 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	private void checkDetector(NXinstrument instrument) throws Exception {
-		if (detector == null) return;
+		final Set<String> detectorGroupNames = instrument.getAllDetector().keySet();
+
+		if (detector == null) {
+			assertThat(detectorGroupNames, is(empty()));
+			return; // no detector in this scan, so no NXdetector group to check
+		}
+
+		assertThat(detectorGroupNames, is(not(empty())));
+		assertThat(detectorGroupNames, contains(detector.getName()));
 
 		// check that the NXdetector group for the detector is as expected
-		final NXdetector nxDetector = instrument.getDetector(detector.getName());
-		assertThat(nxDetector, is(notNullValue()));
+		final NXdetector detectorGroup = instrument.getDetector(detector.getName());
+		assertThat(detectorGroup, is(notNullValue()));
 
-		final DataNode dataNode = nxDetector.getDataNode(NXdata.NX_DATA);
+		switch (detectorType) {
+			case NONE:
+				break; // detector == null, so this case is not reached
+			case NEXUS_DEVICE:
+				checkNexusDeviceDetector(detectorGroup);
+				break;
+			case COUNTER_TIMER:
+				checkCounterTimerDetector(detectorGroup);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown detector type: " + detectorType);
+		}
+	}
+
+	private void checkNexusDeviceDetector(final NXdetector detGroup) throws DatasetException {
+		final DataNode dataNode = detGroup.getDataNode(NXdata.NX_DATA);
 		assertThat(dataNode, is(notNullValue()));
 
-		final IDataset dataset = dataNode.getDataset().getSlice();
+		final ILazyDataset dataset = dataNode.getDataset();
 		final int[] shape = dataset.getShape();
 		assertThat(shape.length, is(scanRank + 2));
 		assertThat(Arrays.copyOfRange(shape, 0, scanRank), is(equalTo(scanDimensions)));
+		checkDatasetWritten(dataset);
+	}
 
-		// Make sure none of the numbers are NaNs. The detector
-		// is expected to fill this scan with non-nulls.
-		final PositionIterator it = new PositionIterator(shape);
-		while (it.hasNext()) {
-			int[] pos = it.getPos();
-			assertThat(Double.isNaN(dataset.getDouble(pos)), is(false));
+	private void checkCounterTimerDetector(NXdetector detGroup) throws DatasetException {
+		final String[] extraNames = detector.getExtraNames();
+		assertThat(detGroup.getNumberOfDataNodes(), is(extraNames.length + 3));
+
+		assertThat(detGroup.getDescriptionScalar(), is(equalTo("Dummy Counter Timer")));
+		assertThat(detGroup.getTypeScalar(), is(equalTo("DUMMY")));
+		assertThat(detGroup.getDataNode("id").getString(), is(equalTo("dumdum-2")));
+
+		for (String name : detector.getExtraNames()) {
+			final DataNode dataNode = detGroup.getDataNode(name);
+			assertThat(dataNode, is(notNullValue()));
+			checkDatasetWritten(dataNode.getDataset());
 		}
 	}
 
@@ -339,6 +406,20 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 		assertThat(dateTime, is(lessThan(LocalDateTime.now())));
 		assertThat(dateTime, is(greaterThan(LocalDateTime.now().minus(5, ChronoUnit.MINUTES))));
+	}
+
+	protected void checkDatasetWritten(ILazyDataset dataset) throws DatasetException {
+		checkDatasetWritten(dataset.getSlice());
+	}
+
+	protected void checkDatasetWritten(IDataset dataset) {
+		// Make sure none of the numbers are NaNs. The detector
+		// is expected to fill this scan with non-nulls.
+		final PositionIterator posIter = new PositionIterator(dataset.getShape());
+		while (posIter.hasNext()) {
+			int[] pos = posIter.getPos();
+			assertThat(Double.isNaN(dataset.getDouble(pos)), is(false));
+		}
 	}
 
 	protected abstract String getEntryName();

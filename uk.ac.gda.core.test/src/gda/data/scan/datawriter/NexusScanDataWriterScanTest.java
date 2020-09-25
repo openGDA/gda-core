@@ -175,7 +175,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	public void concurrentScanNexusDeviceDetector() throws Exception {
 		detector = new DummyNexusDeviceDetector();
 		detector.setName("det");
-		concurrentScan(detector);
+		concurrentScan(detector, DetectorType.NEXUS_DEVICE);
 	}
 
 	@Override
@@ -207,10 +207,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 //		final NXuser user = users.get(EXPECTED_USER_NAME);
 //		assertThat(user, is(notNullValue()));
 //		assertThat(user.getNumberOfNodelinks(), is(0));  // note that the created NXuser group is empty
-	}
-
-	private int getNumDevices() {
-		return scanRank + (monitor != null ? 1 : 0) + (detector != null ? 1 : 0);
 	}
 
 	@Override
@@ -284,7 +280,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 
 		final String dataDeviceName = detector != null ? detector.getName() : monitor.getName();
-		final String signalFieldName = detector != null ? NXdetector.NX_DATA : monitor.getName();
+		final String signalFieldName = detector != null ? getDetectorPrimaryFieldName() : monitor.getName();
 		assertThat(dataGroups.keySet(), contains(dataDeviceName)); // An NXdata group is created for the monitor as this scan has no detectors
 		final NXdata data = dataGroups.get(dataDeviceName);
 		assertThat(data, is(notNullValue()));
@@ -292,7 +288,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// check that the value field of the monitor and scannable have been linked to
 		assertThat(data.getNumberOfDataNodes(), is(getNumDevices()));
 		assertThat(data.getDataNode(signalFieldName), is(both(notNullValue()).and(sameInstance(detector != null ?
-				entry.getInstrument().getDetector(dataDeviceName).getDataNode(NXdetector.NX_DATA) :
+				entry.getInstrument().getDetector(dataDeviceName).getDataNode(getDetectorPrimaryFieldName()) :
 				entry.getInstrument().getPositioner(dataDeviceName).getDataNode(NXpositioner.NX_VALUE)))));
 
 		// check that the attributes have been added according to the 2014 NXdata format
@@ -307,6 +303,15 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			assertThat(data.getDataNode(scannableName), is(both(notNullValue()).and(sameInstance(
 					entry.getInstrument().getPositioner(scannableName).getDataNode(NXpositioner.NX_VALUE)))));
 			assertIndices(data, scannableName, expectedIndices);
+		}
+	}
+
+	private String getDetectorPrimaryFieldName() {
+		switch (detectorType) {
+			case NONE: throw new IllegalArgumentException(); // this method is not called in this case
+			case NEXUS_DEVICE: return NXdetector.NX_DATA;
+			case COUNTER_TIMER: return detector.getExtraNames()[0];
+			default: throw new IllegalArgumentException("Unknown detector type: " + detectorType);
 		}
 	}
 
