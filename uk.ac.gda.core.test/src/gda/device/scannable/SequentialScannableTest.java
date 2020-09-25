@@ -21,6 +21,7 @@ package gda.device.scannable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -58,6 +59,7 @@ public class SequentialScannableTest {
 		scannable3 = new DummyScannableForTest("scannable3", 0.0);
 
 		sequentialScannable = new SequentialScannable();
+		sequentialScannable.setName("Sequential_Scannable");
 		sequentialScannable.setScannables(Arrays.asList(scannable1, scannable2, scannable3));
 		sequentialScannable.setFunctions(Arrays.asList(function1, function2, function3));
 		sequentialScannable.configure();
@@ -128,6 +130,33 @@ public class SequentialScannableTest {
 		assertEquals(4.0, (double) scannable2.getPosition(), FP_TOLERANCE);
 		assertEquals(6.0, (double) scannable3.getPosition(), FP_TOLERANCE);
 		checkOrderOfMove(scannable1, scannable2, scannable3);
+	}
+
+	@Test
+	public void testLimitsViolation() throws Exception {
+		testLimitsViolationOnScannable(scannable1);
+		testLimitsViolationOnScannable(scannable2);
+		testLimitsViolationOnScannable(scannable3);
+	}
+
+	/**
+	 * Attempting to move any one of the scannables beyond its limits should fail and no scannables should be moved
+	 *
+	 * @param scannable
+	 *            the scannable whole limits we attempt to violate
+	 * @throws Exception
+	 */
+	private void testLimitsViolationOnScannable(DummyScannableForTest scannable) throws Exception {
+		scannable.setLowerGdaLimits(-1.0);
+		scannable.setUpperGdaLimits(1.0);
+		try {
+			sequentialScannable.moveTo(4.0);
+			fail("Expected DeviceException when limits violated");
+		} catch (DeviceException e) {
+			assertEquals(0.0, (double) scannable1.getPosition(), FP_TOLERANCE);
+			assertEquals(0.0, (double) scannable2.getPosition(), FP_TOLERANCE);
+			assertEquals(0.0, (double) scannable3.getPosition(), FP_TOLERANCE);
+		}
 	}
 
 	/**
