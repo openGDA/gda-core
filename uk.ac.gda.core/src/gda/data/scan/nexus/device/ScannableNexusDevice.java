@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.scanning;
+package gda.data.scan.nexus.device;
 
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
@@ -52,21 +51,20 @@ import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
-import gda.data.scan.datawriter.IWritableNexusDevice;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.diamond.daq.scanning.ScannableNexusWrapper;
 
 /**
  * An instance of this type adapts a {@link Scannable} to {@link INexusDevice}.
  *
  * @param <N>
  */
-public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusDevice<N>, IMultipleNexusDevice {
+public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDeviceAdapter<N> implements IMultipleNexusDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
 
@@ -107,14 +105,6 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 	 */
 	public static final String FIELD_NAME_VALUE_SET = "value_set";
 
-	private static final List<String> SPECIAL_ATTRIBUTES =
-			Collections.unmodifiableList(Arrays.asList(Scannable.ATTR_NX_CLASS, Scannable.ATTR_NEXUS_CATEGORY));
-
-	/**
-	 * The scannable being wrapped.
-	 */
-	private final Scannable scannable;
-
 	/**
 	 * The writable datasets, ordered by field name with same iteration order as
 	 * values in getPositionArray(). The size of this map should be the same as the position
@@ -151,7 +141,11 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 	private N nexusObject = null;
 
 	public ScannableNexusDevice(Scannable scannable) {
-		this.scannable = scannable;
+		super(scannable);
+	}
+
+	protected Scannable getScannable() {
+		return super.getDevice();
 	}
 
 	public void setWriteDemandValue(boolean writeDemandValue) {
@@ -159,6 +153,7 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 	}
 
 	protected void calculateFieldNames() {
+		final Scannable scannable = getScannable();
 		final String[] inputNames = scannable.getInputNames();
 		final String[] extraNames = scannable.getExtraNames();
 		inputFieldNames = new ArrayList<>(inputNames.length + extraNames.length);
@@ -181,41 +176,39 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
-		if (scannable instanceof INexusDevice) {
-			return ((INexusDevice<N>)scannable).getNexusProvider(info);
+	protected void configureNexusWrapper(NexusObjectWrapper<N> nexusWrapper, NexusScanInfo info) throws NexusException {
+		super.configureNexusWrapper(nexusWrapper, info);
+
+		if (!outputFieldNames.isEmpty()) {
+			nexusWrapper.setDefaultAxisDataFieldName(outputFieldNames.get(0));
 		}
 
-		calculateFieldNames();
-
-		nexusObject = createNexusObject(info);
-
-		final String defaultDataFieldName = outputFieldNames.isEmpty() ? null : outputFieldNames.get(0);
-		final NexusObjectWrapper<N> nexusDelegate = new NexusObjectWrapper<>(
-						scannable.getName(), nexusObject, defaultDataFieldName);
 		try {
-			final Object categoryStr = scannable.getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY);
+			final Object categoryStr = getDevice().getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY);
 			if (categoryStr instanceof String) {
-				nexusDelegate.setCategory(NexusBaseClass.getBaseClassForName((String) categoryStr));
+				nexusWrapper.setCategory(NexusBaseClass.getBaseClassForName((String) categoryStr));
 			}
 		} catch (Exception e) { // DeviceException, ClassCastException or IllegalArgumentException (from Enum.valueOf)
 			throw new NexusException("Error getting Nexus category for device: " + getName(), e);
 		}
 
 		if (info.getScanRole(getName()) == ScanRole.SCANNABLE) {
-			nexusDelegate.setDefaultAxisDataFieldName(writeDemandValue ? FIELD_NAME_VALUE_SET : defaultDataFieldName);
+			nexusWrapper.setDefaultAxisDataFieldName(writeDemandValue ? FIELD_NAME_VALUE_SET : getPrimaryDataFieldName());
 		}
 		if (hasLocationMapEntry()) {
-			nexusDelegate.setCollectionName(COLLECTION_NAME_SCANNABLES);
+			nexusWrapper.setCollectionName(COLLECTION_NAME_SCANNABLES);
 		}
+	}
 
-		return nexusDelegate;
+	@Override
+	protected String getPrimaryDataFieldName() {
+		return outputFieldNames.isEmpty() ? null : outputFieldNames.get(0);
 	}
 
 	@Override
 	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		final Scannable scannable = getScannable();
 		if (scannable instanceof IMultipleNexusDevice) {
 			return ((IMultipleNexusDevice)scannable).getNexusProviders(info);
 		}
@@ -226,7 +219,10 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 		return NexusDataWriter.getLocationmap().containsKey(getName());
 	}
 
-	private N createNexusObject(NexusScanInfo info) throws NexusException {
+	@Override
+	protected N createNexusObject(NexusScanInfo info) throws NexusException {
+		calculateFieldNames();
+
 		final NexusBaseClass nexusBaseClass = getNexusBaseClass();
 		final String scannableName = getName();
 
@@ -252,24 +248,18 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 	public CustomNexusEntryModification getCustomNexusModification() {
 		if (!hasLocationMapEntry()) return null;
 
-		final String name = scannable.getName();
-		ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(name);
+		final ScannableWriter writer = ServiceHolder.getNexusDataWriterConfiguration().getLocationMap().get(getName());
 		if (writer instanceof SingleScannableWriter) {
 			if (!writer.getClass().equals(SingleScannableWriter.class)) {
-				logger.warn("NexusDataWriter location map entry for device {} is not fully supported: {}",  name, writer.getClass());
+				logger.warn("NexusDataWriter location map entry for device {} is not fully supported: {}", getName(), writer.getClass());
 			}
 
 			return new LegacyNexusWriter<N>(this, (SingleScannableWriter) writer);
 		} else {
 			logger.warn("Cannot use NexusDataWriter location map to write device {}. "
-					+ "Writer is not an instanceof of {}", name, SingleScannableWriter.class);
+					+ "Writer is not an instanceof of {}", getName(), SingleScannableWriter.class);
 			return null;
 		}
-	}
-
-	@Override
-	public String getName() {
-		return scannable.getName();
 	}
 
 	public List<String> getInputFieldNames() {
@@ -290,7 +280,7 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 
 	private NexusBaseClass getNexusBaseClass() throws NexusException {
 		try {
-			Object nxClass = scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
+			Object nxClass = getScannable().getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
 			if (nxClass != null) {
 				return NexusBaseClass.getBaseClassForName((String) nxClass);
 			}
@@ -343,7 +333,7 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 			final String outputFieldName = outputFieldNames.get(i);
 			if (i >= positionArray.length) {
 				logger.warn("Field {} from scannable '{}' ({}/{}) missing from positionArray {}",
-						i, scannable.getName(), inputFieldName, outputFieldName, positionArray);
+						i, getName(), inputFieldName, outputFieldName, positionArray);
 				continue;
 			}
 			final Object value = positionArray[i];
@@ -376,25 +366,6 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 		return lazyWritableDataset;
 	}
 
-	private static Object getFillValue(Class<?> clazz) {
-		if (clazz.equals(Double.class)) {
-			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
-			return floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill);
-		} else if (clazz.equals(Float.class)) {
-			String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan");
-			return floatFill.equalsIgnoreCase("nan") ? Float.NaN : Float.parseFloat(floatFill);
-		} else if (clazz.equals(Byte.class)) {
-			return (byte) 0;
-		} else if (clazz.equals(Short.class)) {
-			return (short) 0;
-		} else if (clazz.equals(Integer.class)) {
-			return 0;
-		} else if (clazz.equals(Long.class)) {
-			return (long) 0;
-		}
-		return null;
-	}
-
 	/**
 	 * Converts the position of the wrapped {@link Scannable} (as returned by
 	 * {@link Scannable#getPosition()}) as an array.
@@ -411,7 +382,7 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 	 */
 	private Object[] getPositionArray(Object position) throws NexusException {
 		try {
-			if (position==null) position = scannable.getPosition();
+			if (position==null) position = getScannable().getPosition();
 
 			if (position instanceof List) {
 				final List<?> positionList = (List<?>)position;
@@ -439,46 +410,11 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 		}
 	}
 
-	/**
-	 * Add the attributes for the given attribute container into the given nexus object.
-	 *
-	 * @param positioner
-	 * @param container
-	 * @throws NexusException
-	 *             if the attributes could not be added for any reason
-	 * @throws DeviceException
-	 */
-	private void registerAttributes(NXobject nexusObject) throws NexusException {
-		// We create the attributes, if any
-		nexusObject.setField("name", scannable.getName());
-
-		try {
-			Set<String> attributeNames = scannable.getScanMetadataAttributeNames();
-			for (String attrName : attributeNames) {
-				addAttribute(nexusObject, scannable, attrName);
-			}
-		} catch (DeviceException e) {
-			throw new NexusException("Could not get attributes of device: " + getName());
-		}
-	}
-
-	private void addAttribute(NXobject nexusObject, final Scannable scannable, String attrName) throws NexusException {
-		if (!SPECIAL_ATTRIBUTES.contains(attrName)) {
-			try {
-				nexusObject.setField(attrName, scannable.getScanMetadataAttribute(attrName));
-			} catch (Exception e) {
-				throw new NexusException(
-						MessageFormat.format("An exception occurred attempting to get the value of the attribute ''{0}'' for the device ''{1}''",
-								scannable.getName(), attrName));
-			}
-		}
-	}
-
 	// TODO move this method to ScannableNexusWrapper??
 	public Object writePosition(Object demandPosition, IPosition scanPosition) throws Exception {
 		if (writableDatasets == null) return null; // TODO, this should never happen??
 
-		final Object actualPosition = scannable.getPosition();
+		final Object actualPosition = getScannable().getPosition();
 		final SliceND sliceND = getSliceForPosition(scanPosition); // the location in each dataset to write to
 		writeActualPosition(actualPosition, sliceND);
 		writeDemandPosition(demandPosition, scanPosition.getIndex(getName()));
@@ -570,7 +506,7 @@ public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusD
 
 	@Override
 	public String toString() {
-		return "ScannableNexusDevice [scannable=" + scannable + "]";
+		return "ScannableNexusDevice [scannable=" + getName() + "]";
 	}
 
 }

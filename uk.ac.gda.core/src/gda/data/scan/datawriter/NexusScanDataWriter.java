@@ -50,6 +50,8 @@ import gda.data.NumTracker;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
+import gda.data.scan.nexus.device.CounterTimerNexusDevice;
+import gda.data.scan.nexus.device.ScannableNexusDevice;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -57,7 +59,6 @@ import gda.device.detector.NexusDetector;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
-import uk.ac.diamond.daq.scanning.ScannableNexusDevice;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
