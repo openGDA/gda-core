@@ -601,12 +601,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			if (detector instanceof NexusDetector) {
 				writeNexusDetector((NexusDetector) detector);
 			} else if (detector.getExtraNames() != null && detector.getExtraNames().length > 0) {
-				double[] data = extractDoubleData(detector.getName());
-				if (data != null) {
-					writeCounterTimer(detector, data);
-				} else {
-					writeCounterTimer(detector);
-				}
+				writeCounterTimer(detector);
 			} else {
 				writeGenericDetector(detector.getName(), detector.getDataDimensions(),
 						extractDoubleData(detector.getName()));
@@ -1870,33 +1865,29 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		}
 	}
 
-	private void writeCounterTimer(Detector detector, double[] newData) throws NexusException {
-		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
-		int[] stop = generateDataStop(startPos, null);
-		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
+	private void writeCounterTimer(Detector detector) throws NexusException {
+		final double[] newData = extractDoubleData(detector.getName());
+		final int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
+		final int[] stop = generateDataStop(startPos, null);
+		final int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
 		logger.debug("Writing data for Detector ({}) to NeXus file.", detector.getName());
 
 		// Navigate to correct location in the file.
-		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		final StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
-		GroupNode group = file.getGroup(path.toString(), true);
+		final GroupNode group = file.getGroup(path.toString(), true);
 
 		for (int j = 0; j < detector.getExtraNames().length; j++) {
-			DataNode data = file.getData(group, detector.getExtraNames()[j]);
+			final DataNode data = file.getData(group, detector.getExtraNames()[j]);
 			try {
-				ILazyWriteableDataset lazy = data.getWriteableDataset();
+				final ILazyWriteableDataset lazy = data.getWriteableDataset();
 				lazy.setSlice(null, DatasetFactory.createFromObject(newData[j]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				throw new NexusException("Error writing data for " + detector.getName(), e);
 			}
 		}
-	}
-
-	private void writeCounterTimer(Detector detector) throws NexusException {
-		double[] newData = extractDoubleData(detector.getName());
-		writeCounterTimer(detector, newData);
 	}
 
 	@Override
