@@ -246,9 +246,10 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * Update the mapping stage scannable names based on the given detector.
 	 * This method will only make any changes if the given detector is a malcolm device,
 	 * and the value of the {@code axesToMove} attribute of that malcolm device is
-	 * a {@link StringArrayAttribute} with a length of exactly 2.
+	 * a {@link StringArrayAttribute} with a length of 2 or greater.
 	 * In this case the fast and slow axes will be changed to the
-	 * first and second elements of that array.
+	 * first and second elements of that array, and if the array is of length 3 or greater,
+	 * the associated axis is set to the third element.
 	 *
 	 * @param wrapper detetor model wrapper of the selected detector
 	 */
