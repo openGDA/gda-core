@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.device.IScannableMotor;
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
@@ -48,12 +47,10 @@ import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
@@ -237,17 +234,10 @@ public class TomographyConfigurationView extends ViewPart {
 			configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
 			// *-------------------------------
-			ScanpathDocument.Builder scanpathBuilder = new ScanpathDocument.Builder();
-			scanpathBuilder.withModelDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE);
-			ScannableTrackDocument.Builder scannableTrackBuilder = new ScannableTrackDocument.Builder();
-			scannableTrackBuilder.withStart(0.0);
-			scannableTrackBuilder.withStop(180.0);
-			scannableTrackBuilder.withPoints(1);
-			IScannableMotor ism = getStageController().getStageDescription().getMotors().get(StageDevice.MOTOR_STAGE_ROT_Y);
-			scannableTrackBuilder.withScannable(ism.getName());
-			List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
-			scannableTrackDocuments.add(scannableTrackBuilder.build());
-			scanpathBuilder.withScannableTrackDocuments(scannableTrackDocuments);
+			// When a new acquisitionType is selected, replaces the acquisition scanPathDocument
+			ScanpathDocument.Builder scanpathBuilder = Optional.ofNullable(AcquisitionTemplateType.ONE_DIMENSION_LINE)
+				.map(TomographyAcquisitionTypeProperties::createScanpathDocument)
+				.orElseGet(ScanpathDocument.Builder::new);
 			acquisitionParameters.setScanpathDocument(scanpathBuilder.build());
 
 			MultipleScans.Builder multipleScanBuilder = new MultipleScans.Builder();
