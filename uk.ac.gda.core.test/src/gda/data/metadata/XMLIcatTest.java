@@ -79,8 +79,9 @@ public class XMLIcatTest {
 	}
 
 	@After
-	public void cleanUpFinder() {
+	public void cleanUp() {
 		Finder.removeAllFactories();
+		GDAMetadataProvider.setInstanceForTesting(null);
 	}
 
 	/**
