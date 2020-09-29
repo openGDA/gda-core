@@ -42,15 +42,27 @@ import uk.ac.diamond.daq.osgi.OsgiService;
 public class NexusDataWriterConfiguration extends FindableBase {
 
 	// note, we can't use Collections.emptySet, etc as some client code may expect these collections to be mutable
-	private Set<String> metadataScannables = new HashSet<>();
+	private Set<String> metadataScannables;
 
-	private Map<String, ScannableWriter> locationMap = new HashMap<>();
+	private Map<String, ScannableWriter> locationMap;
 
-	private Map<String, Set<String>> metadataScannablesPerDetectorMap = new HashMap<>();
+	private Map<String, Set<String>> metadataScannablesPerDetectorMap;
 
-	private List<String> nexusTemplateFiles = new ArrayList<>();
+	private List<String> nexusTemplateFiles;
 
-	private Map<String, String> metadata = new HashMap<>();
+	private Map<String, String> metadata;
+
+	public NexusDataWriterConfiguration() {
+		initializeEmptyConfiguration();
+	}
+
+	private void initializeEmptyConfiguration() {
+		metadataScannables = new HashSet<>();
+		locationMap = new HashMap<>();
+		metadataScannablesPerDetectorMap = new HashMap<>();
+		nexusTemplateFiles = new ArrayList<>();
+		metadata = new HashMap<>();
+	}
 
 	/**
 	 * Returns the names of the configured metadata scannables. These will be added to the nexus file for all scans on this beamline.
@@ -136,6 +148,10 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	public void setMetadata(Map<String, String> metadata) {
 		requireNonNull(metadata);
 		this.metadata = metadata;
+	}
+
+	public void clear() {
+		initializeEmptyConfiguration();
 	}
 
 }

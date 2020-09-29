@@ -363,6 +363,7 @@ public class NexusDataWriterTest {
 	public void tearDown() {
 		new File(nexusDataWriter.getCurrentFileName()).delete();
 		new File(testScratchDirectoryName).delete();
+		NexusDataWriter.clearConfiguration();
 	}
 
 	@Test

@@ -2146,6 +2146,14 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		return getConfiguration().getNexusTemplateFiles();
 	}
 
+	/**
+	 * Clears the {@link NexusDataWriterConfiguration}. This method should be called in the
+	 * {@code @After} or {@code AfterClass} method of tests that set the configuration.
+	 */
+	public static void clearConfiguration() {
+		getConfiguration().clear();
+	}
+
 	@Override
 	public String getNexusFileName() {
 		return nexusFileName;
