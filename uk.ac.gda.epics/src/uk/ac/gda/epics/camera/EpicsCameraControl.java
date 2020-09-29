@@ -272,6 +272,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		try {
 			final EpicsController epicsController = EpicsController.getInstance();
 			ADBaseImpl adbaseImpl = (ADBaseImpl) adBase;
+			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.StatusMessage_RBV), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.AcquireTime), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinX), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinY), this::onMonitorChanged);
