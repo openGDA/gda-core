@@ -146,9 +146,9 @@ public class NeXusUtils {
 	 */
 	public static void writeXESraw(NexusFile file, String entryName) throws NexusException, IOException {
 
-		String beamline = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "base");
-		NumTracker runNumber = new NumTracker(beamline);
 		Metadata metadata = GDAMetadataProvider.getInstance();
+		String beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "base");
+		NumTracker runNumber = new NumTracker(beamline);
 
 		// First lets check to see if the entry exists
 		GroupNode group = file.getGroup(entryName, false);
