@@ -135,7 +135,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 			BinningFormat bf = cameraControl.getBinningPixels();
 			updateGUI(bf);
 		} catch (DeviceException e) {
-			UIHelper.showError("Error reading detector binning", e, logger);
+			logger.warn("Error reading detector binning {}", e.getMessage());
 		}
 	}
 

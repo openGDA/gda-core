@@ -53,6 +53,12 @@ public enum ClientImages {
 	// --- ENERGY IMAGES ---
 	BEAM_16(ClientImagesGroup.ENERGY, "beam_16.png"),
 
+	// --- STATE IMAGES ---
+	STATE_ERROR(ClientImagesGroup.STATE, "unavailable_16.png"),
+	STATE_WARNING(ClientImagesGroup.STATE, "warning_16.png"),
+	STATE_IDLE(ClientImagesGroup.STATE, "idle_16.png"),
+	STATE_ACTIVE(ClientImagesGroup.STATE, "active_16.png"),
+
 	// --- TOMOGRAPHY IMAGES ---
 	SINOGRAM_50(ClientImagesGroup.TOMOGRAPHY, "sinogram-50.png");
 
@@ -97,7 +103,10 @@ public enum ClientImages {
 	 */
 	enum ClientImagesGroup {
 
-		GENERAL(""), ENERGY("energy/"), TOMOGRAPHY("tomography/");
+		GENERAL(""),
+		ENERGY("energy/"),
+		STATE("state/"),
+		TOMOGRAPHY("tomography/");
 
 		private final String path;
 

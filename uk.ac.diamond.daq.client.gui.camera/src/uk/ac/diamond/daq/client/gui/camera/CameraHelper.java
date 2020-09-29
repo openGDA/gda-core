@@ -24,10 +24,13 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
+import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
+import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
@@ -238,6 +241,10 @@ public final class CameraHelper {
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::addIObserverToCameraControl));
 	}
 	
+	private static void monitorCameraAvailability() {
+		new CameraAvailabilityMonitor();
+	}
+	
 	private static void removeObserverCameraProperties() {
 		cameraProperties.stream()
 			.map(CameraProperties::getIndex)
@@ -430,5 +437,6 @@ public final class CameraHelper {
 		parseCameraProperties();
 		observeCameraProperties();
 		createCameraComboItems();
+		monitorCameraAvailability();
 	}
 }
