@@ -1,6 +1,9 @@
 package uk.ac.diamond.daq.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,17 +11,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gda.beamline.health.BeamlineHealthMonitor;
+import gda.beamline.health.BeamlineHealthResult;
+import gda.factory.Finder;
 import gda.jython.GDAJythonClassLoader;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.util.ObjectServer;
 import gda.util.SpringObjectServer;
 import gda.util.Version;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectServerCommand;
 import uk.ac.diamond.daq.services.PropertyService;
@@ -36,6 +46,7 @@ public class GDAServerApplication implements IApplication {
 	private final Map<String, ObjectServer> objectServers = new HashMap<>();
 
 	private ServerSocket statusPort;
+	private BeamlineHealthMonitor beamlineHealthMonitor;
 
 	/**
 	 * Application start method invoked when it is launched. Loads the required configuration via  the external OSGI configuration service.
@@ -69,6 +80,8 @@ public class GDAServerApplication implements IApplication {
 			clearUp();
 		}
 
+		beamlineHealthMonitor = Finder.findOptionalSingleton(BeamlineHealthMonitor.class).orElse(null);
+
 		if (!objectServers.isEmpty()) {
 			// Once we are here all the servers have started
 			openStatusPort();
@@ -100,17 +113,25 @@ public class GDAServerApplication implements IApplication {
 	private void acceptStatusPortConnections() {
 		while (!statusPort.isClosed()) {
 			try {
-				final Socket s = statusPort.accept();
-				s.close();
+				final Socket clientSocket = statusPort.accept();
+				Async.execute(new ClientConnectionRunnable(clientSocket));
 			} catch (IOException e) {
-				if (statusPort.isClosed()) {
-					// Normal shutdown case. The port is closed while waiting to accept
-					logger.debug("Stopping accepting status port connections");
-					break;
-				}
-				logger.error("Exception occurred while accepting status port connection", e);
+				handleIOException(e);
 			}
 		}
+	}
+	
+	private void handleIOException(IOException e) {
+		if (statusPort.isClosed()) {
+			// Normal shutdown case. The port is closed while waiting to accept
+			logger.debug("Stopping accepting status port connections");
+		} else {
+			logger.error("Exception occurred while accepting status port connection", e);
+		}
+	}
+
+	private synchronized BeamlineHealthResult getBeamlineState() {
+		return beamlineHealthMonitor.getState();
 	}
 
 	/**
@@ -184,5 +205,36 @@ public class GDAServerApplication implements IApplication {
 	private PropertyService getPropertyService() {
 		return GDAServerActivator.getService(PropertyService.class)
 				.orElseThrow(() -> new IllegalStateException("No PropertyService is available"));
+	}
+
+	/**
+	 * Runnable to handle a single client connection
+	 */
+	private class ClientConnectionRunnable implements Runnable {
+		private final Socket clientSocket;
+
+		public ClientConnectionRunnable(Socket clientSocket) {
+			this.clientSocket = clientSocket;
+		}
+
+		@Override
+		public void run() {
+			try {
+				try (final PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+						final BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+					String inputLine;
+					while ((inputLine = in.readLine()) != null) {
+						if (inputLine.equalsIgnoreCase(BeamlineHealthResult.COMMAND) && beamlineHealthMonitor != null) {
+							out.println(new ObjectMapper().writeValueAsString(getBeamlineState()));
+						} else {
+							out.println(String.format("You sent: %s", inputLine));
+						}
+					}
+					clientSocket.close();
+				}
+			} catch (IOException e) {
+				handleIOException(e);
+			}
+		}
 	}
 }
