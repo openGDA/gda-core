@@ -54,16 +54,16 @@ class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModificat
 
 	private static final Logger logger = LoggerFactory.getLogger(LegacyNexusWriter.class);
 
-	private final ScannableNexusWrapper<N> scannableNexusWrapper;
+	private final ScannableNexusDevice<N> scannableNexusWrapper;
 	private final SingleScannableWriter scannableWriter;
 
 	private boolean entryModified = false;
 
 	private NXentry entry = null;
 
-	public LegacyNexusWriter(ScannableNexusWrapper<N> scannableNexusWrapper,
+	public LegacyNexusWriter(ScannableNexusDevice<N> scannableNexusDevice,
 			SingleScannableWriter scannableWriter) {
-		this.scannableNexusWrapper = scannableNexusWrapper;
+		this.scannableNexusWrapper = scannableNexusDevice;
 		this.scannableWriter = scannableWriter;
 	}
 
