@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +96,11 @@ public class MultiScanTest {
 		final ConstantVelocityScanLine cvls = new ConstantVelocityScanLine(new Object[]{scannableMotor, 0, 10, 1, htd, .1});
 		final MultiScan ms = new MultiScan(Arrays.asList(new ScanBase[]{scan1, cvls}));
 		ms.runScan();
+	}
+
+	@After
+	public void cleanup() {
+		LocalProperties.clearProperty(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
 	}
 
 	//-----------------------------------------------------------------------------------------------
