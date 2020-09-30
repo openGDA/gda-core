@@ -24,16 +24,22 @@ import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.apres.ui.config.MonitoringViewConfiguration;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
 import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
@@ -105,6 +111,18 @@ public class MonitoringView extends ViewPart {
 			temperaturesGroup.setLayout(new FillLayout(SWT.VERTICAL));
 			viewConfiguration.getTemperatureControls().getControls().stream().forEach(c -> c.createControl(temperaturesGroup));
 		}
+
+		// Beamline shutter button
+		Button closeShutterButton = new Button(controlsComposite, SWT.NONE);
+		closeShutterButton.setText("Close Shutter");
+		closeShutterButton.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		closeShutterButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				logger.info("Closing beamline shutter");
+				InterfaceProvider.getCommandRunner().runCommand("hr_shutter('Close')");
+			}
+		});
 	}
 
 	@Override
