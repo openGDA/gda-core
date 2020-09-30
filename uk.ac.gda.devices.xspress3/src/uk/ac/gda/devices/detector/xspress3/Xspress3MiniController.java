@@ -23,4 +23,6 @@ import gda.device.DeviceException;
 public interface Xspress3MiniController extends Xspress3Controller{
 
 	void waitForDetector(boolean shouldBeBusy, long timeout) throws DeviceException;
+
+	public void setAcquireTime(double time) throws DeviceException;
 }

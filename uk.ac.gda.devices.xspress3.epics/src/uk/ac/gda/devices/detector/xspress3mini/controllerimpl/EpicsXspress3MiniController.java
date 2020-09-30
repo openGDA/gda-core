@@ -27,6 +27,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.XSPRESS3_MINI_TRIGGER_MODE;
@@ -48,7 +49,6 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 		if (isConfigured()) {
 			return;
 		}
-		setUseNewEpicsInterface(true);
 		super.configure();
 	}
 
@@ -180,7 +180,7 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 
 	@Override
 	protected void updateArrays() throws DeviceException {
-		updateArrayState(ACQUIRE_STATE.Acquire);
+		// not needed in the XSP3M
 	}
 
 	@Override
@@ -203,27 +203,6 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting ROI limits", e);
 		}
-	}
-
-	@Override
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
-			throws DeviceException {
-		updateArrayState(ACQUIRE_STATE.Acquire);
-
-		try {
-			getPvProvider().pvAcquire.putNoWait(ACQUIRE_STATE.Acquire);
-		} catch (IOException e) {
-			throw new DeviceException("IOException whilst setting acquire PV", e);
-		}
-
-		waitForDetector(true, waitForBusyTimeout);
-		waitForDetector(false, waitForBusyTimeout);
-
-		Double[][] value = readDoubleWaveform(getPvProvider().pvsScalerWindow1, startFrame, finalFrame, startChannel, finalChannel);
-
-		updateArrayState(ACQUIRE_STATE.Done);
-
-		return value;
 	}
 
 	@Override
@@ -269,6 +248,54 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while reseting Xspress3 Mini arrays", e);
+		}
+	}
+
+	@Override
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
+		updateArrays();
+
+		EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+
+		// there are seven types of scaler values to return
+		Integer[][][] returnValuesWrongOrder = new Integer[7][][]; // scaler
+																	// values,
+																	// frame,
+																	// channel
+		returnValuesWrongOrder[0] = readIntegerArray(pvProvider.pvsTime, startChannel, finalChannel);
+		returnValuesWrongOrder[1] = readIntegerArray(pvProvider.pvsResetTicks, startChannel, finalChannel);
+		returnValuesWrongOrder[2] = readIntegerArray(pvProvider.pvsResetCount, startChannel, finalChannel);
+		returnValuesWrongOrder[3] = readIntegerArray(pvProvider.pvsAllEvent, startChannel, finalChannel);
+		returnValuesWrongOrder[4] = readIntegerArray(pvProvider.pvsAllGood, startChannel, finalChannel);
+		returnValuesWrongOrder[5] = readIntegerArray(pvProvider.pvsPileup, startChannel, finalChannel);
+		returnValuesWrongOrder[6] = readIntegerArray(pvProvider.pvsTotalTime, startChannel, finalChannel);
+
+		return reorderScalerValues(returnValuesWrongOrder);
+	}
+
+
+	protected Integer[][] readIntegerArray(ReadOnlyPV<Integer[]>[] pvs, int startChannel, int finalChannel) throws DeviceException {
+		Integer[][] returnValuesWrongOrder = new Integer[finalChannel - startChannel + 1][];
+		for (int i = startChannel; i <= finalChannel; i++) {
+			try {
+				returnValuesWrongOrder[i] = pvs[i].get();
+			} catch (IOException e) {
+				throw new DeviceException("IOException while fetching data", e);
+			}
+		}
+		return invertIntegerArray(returnValuesWrongOrder);
+	}
+
+
+	@Override
+	public void setAcquireTime(double time) throws DeviceException {
+		try {
+			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+			PV<Double> acquireTime = pvProvider.pvAcquireTime;
+			acquireTime.putWait(time);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting Acquire Time", e);
 		}
 	}
 }
