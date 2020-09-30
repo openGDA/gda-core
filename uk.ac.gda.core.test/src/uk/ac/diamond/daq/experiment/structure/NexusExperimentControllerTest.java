@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -79,9 +80,17 @@ public class NexusExperimentControllerTest {
 	}
 
 	@Test
-	public void testExperimentName() throws ExperimentControllerException {
+	public void testExperimentName() throws ExperimentControllerException, IOException {
 		URL experimentFolder = controller.startExperiment(EXPERIMENT_NAME);
 		assertTrue("Experiment URL is malformed", extractBase(experimentFolder).startsWith(EXPERIMENT_NAME));
+
+		File experimentFile = new File(experimentFolder.getPath());
+		File experimentDir = experimentFile.getParentFile();
+		File experimentsDir = experimentDir.getParentFile();
+		File visitDir = experimentsDir.getParentFile();
+
+		// Experiments directory has to live under $VISIT folder
+		assertEquals("Experiment URL is malformed", filePathService.getVisitDir(), visitDir.getPath());
 	}
 
 	@Test
@@ -223,8 +232,14 @@ public class NexusExperimentControllerTest {
 	}
 
 	private void prepareFilesystem() throws IOException {
-		Path experimentDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
-		doReturn(experimentDir.toAbsolutePath().toString()).when(filePathService).getProcessingDir();
+		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
+		File visitDir = new File(testTmpDir.toFile(), "visit");
+		File processingDir = new File(visitDir, "processing");
+		File xmlDir = new File(visitDir, "xml");
+
+		doReturn(visitDir.getPath()).when(filePathService).getVisitDir();
+		doReturn(processingDir.getPath()).when(filePathService).getProcessingDir();
+		doReturn(xmlDir.getPath()).when(filePathService).getVisitConfigDir();
 		ServiceHolder sh = new ServiceHolder();
 		sh.setFilePathService(filePathService);
 	}
