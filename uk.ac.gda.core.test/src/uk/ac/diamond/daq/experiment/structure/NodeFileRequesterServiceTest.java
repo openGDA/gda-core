@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -149,8 +150,18 @@ public class NodeFileRequesterServiceTest {
 	}
 
 	private void prepareFilesystem() throws IOException {
-		Path experimentDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
-		doReturn(experimentDir.toAbsolutePath().toString()).when(filePathService).getProcessingDir();
+		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
+		File visitDir = new File(testTmpDir.toFile(), "visit");
+		File processingDir = new File(visitDir, "processing");
+		File xmlDir = new File(visitDir, "xml");
+		File tmpDir = new File(visitDir, "tmp");
+
+
+		doReturn(visitDir.getPath()).when(filePathService).getVisitDir();
+		doReturn(processingDir.getPath()).when(filePathService).getProcessingDir();
+		doReturn(xmlDir.getPath()).when(filePathService).getVisitConfigDir();
+		doReturn(tmpDir.getPath()).when(filePathService).getTempDir();
+
 		ServiceHolder sh = new ServiceHolder();
 		sh.setFilePathService(filePathService);
 	}

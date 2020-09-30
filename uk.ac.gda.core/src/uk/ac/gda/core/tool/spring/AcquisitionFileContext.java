@@ -58,7 +58,7 @@ public class AcquisitionFileContext {
 	public static final String ACQUISITION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT = "calibration";
 
 	public static final String ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY = "acquisition.experiment.directory";
-	public static final String ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY_DEFAULT = "experiment";
+	public static final String ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY_DEFAULT = "experiments";
 
 	public static final String ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY = "acquisition.configuration.directory";
 	public static final String ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT = "configuration";
@@ -100,7 +100,7 @@ public class AcquisitionFileContext {
 	private void initializeExperimentDir() {
 		URL url = null;
 		try {
-			url = getCustomDirectory(AcquisitionFileContextHelper.getProcessingDir(),
+			url = getCustomDirectory(AcquisitionFileContextHelper.getVisitDir(),
 					ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY, ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY_DEFAULT);
 			bindContextFile(url, ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
 		} catch (GDAException e) {

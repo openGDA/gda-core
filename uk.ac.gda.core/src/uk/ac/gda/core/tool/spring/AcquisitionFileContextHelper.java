@@ -108,6 +108,13 @@ class AcquisitionFileContextHelper {
 				.orElseThrow(gdaException("Configuration"));
 	}
 
+	static URL getVisitDir() throws GDAException {
+		return getFilePathService()
+				.map(IFilePathService::getVisitDir)
+				.map(AcquisitionFileContextHelper::generateURL)
+				.orElseThrow(gdaException("Visit"));
+	}
+
 	static URL getProcessingDir() throws GDAException {
 		return getFilePathService()
 				.map(IFilePathService::getProcessingDir)

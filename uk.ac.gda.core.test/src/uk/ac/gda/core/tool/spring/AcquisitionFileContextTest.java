@@ -152,17 +152,23 @@ public class AcquisitionFileContextTest {
 	}
 
 	private void prepareFilesystem() throws IOException {
-		experimentDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
-		visitDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
-		tempDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
+		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
+		File visitDir = new File(testTmpDir.toFile(), "visit");
+		File processingDir = new File(visitDir, "processing");
+		File xmlDir = new File(visitDir, "xml");
+		File tmpDir = new File(visitDir, "tmp");
 
-		doReturn(experimentDir.toAbsolutePath().toString()).when(filePathServiceMock).getProcessingDir();
-		doReturn(visitDir.toAbsolutePath().toString()).when(filePathServiceMock).getVisitConfigDir();
-		doReturn(tempDir.toAbsolutePath().toString()).when(filePathServiceMock).getTempDir();
+
+		doReturn(visitDir.getPath()).when(filePathServiceMock).getVisitDir();
+		doReturn(processingDir.getPath()).when(filePathServiceMock).getProcessingDir();
+		doReturn(xmlDir.getPath()).when(filePathServiceMock).getVisitConfigDir();
+		doReturn(tmpDir.getPath()).when(filePathServiceMock).getTempDir();
 
 		ServiceHolder sh = new ServiceHolder();
 		sh.setFilePathService(filePathServiceMock);
 	}
+
+
 
 	private void loadProperties(String resourcePath) {
 		File resource = new File(resourcePath);
