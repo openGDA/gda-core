@@ -27,13 +27,12 @@ import static uk.ac.gda.ui.tool.ClientMessages.MOTOR_OUT_OF_RANGE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.findParentUUID;
 import static uk.ac.gda.ui.tool.ClientSWTElements.updateButton;
 import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.addDisposableApplicationListener;
 import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.getBean;
 
 import java.util.Objects;
-import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -60,6 +59,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
@@ -94,35 +94,26 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  */
 public class BeamCameraCalibrationComposite implements CompositeFactory {
 	private Button doCalibration;
-	private UUID uuidRoot;
 	private ICameraConfiguration cameraConfiguration;
 	private CameraMappingTable mappingTable;
 	private IPlottingSystem<Composite> plottingSystem;
+	private Composite container;
 
 	private static final Logger logger = LoggerFactory.getLogger(BeamCameraCalibrationComposite.class);
 
-	// At the moment is not possible to use anonymous lambda expression because it
-	// generates a class cast exception
-	private ApplicationListener<ChangeActiveCameraEvent> changeCameraListener = new ApplicationListener<ChangeActiveCameraEvent>() {
-		@Override
-		public void onApplicationEvent(ChangeActiveCameraEvent event) {
-			// if the event arrives from a component with a different common parent, rejects
-			// the event
-			if (!event.getRootComposite().orElse(UUID.randomUUID()).equals(uuidRoot)) {
-				return;
-			}
-			updateCamera(event.getActiveCamera().getIndex());
-		}
+	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
+		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
+	}
+
+	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
+		updateCamera(event.getActiveCamera().getIndex());
 	};
 
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
 		Composite container = createClientCompositeWithGridLayout(parent, style, 1);
-
 		doCalibration = createClientButton(container, style, BEAM_CAMERA_MAPPING, BEAM_CAMERA_MAPPING_TP);
 		createClientGridDataFactory().applyTo(doCalibration);
-
-		uuidRoot = findParentUUID(parent).orElse(null);
 		updateCamera(getDefaultCameraProperties().getIndex());
 		mappingTable = new CameraMappingTable(container);
 		mappingTable.createComposite();
@@ -137,7 +128,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 		};
 		doCalibration.addSelectionListener(listener);
 		try {
-			addDisposableApplicationListener(container, changeCameraListener);
+			addDisposableApplicationListener(container, getChangeActiveCameraListener(parent));
 			addDisposableApplicationListener(container, cameraMappingEventListener);
 			addDisposableApplicationListener(container, plottingSystemUpdateListener);
 		} catch (GDAClientException e) {
@@ -181,7 +172,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	private ApplicationListener<PlottingSystemUpdateEvent> plottingSystemUpdateListener = new ApplicationListener<PlottingSystemUpdateEvent>() {
 		@Override
 		public void onApplicationEvent(PlottingSystemUpdateEvent event) {
-			if (!event.getRootComposite().map(id -> id.equals(uuidRoot)).orElse(false)) {
+			if (!event.haveSameParent(container)) {
 				return;
 			}
 			plottingSystem = event.getPlottingSystem();
