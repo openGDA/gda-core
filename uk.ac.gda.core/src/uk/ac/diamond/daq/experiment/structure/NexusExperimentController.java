@@ -18,12 +18,18 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.status.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,29 +39,16 @@ import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
 /**
- * Controls the Experiment workflow.
+ * {@link ExperimentController} implementation for use with NeXus-based acquisitions.
+ * <p>
+ * The controller generates URLs for measurements and sub-measurements acquired during
+ * the experiment. At the end of an experiment, a single overarching NeXus files is
+ * created which links to every acquisition file generated.
+ * <p>
+ * The life-cycle of this controller is managed by Spring. Clients may therefore obtain it via
+ * {@code SpringApplicationContextFacade.getBean(ExperimentController.class)}.
  *
- * <p>
- * The file structure of an experiment is
- * <a href="https://confluence.diamond.ac.uk/display/DIAD/File+System#experiments">described in Confluence</a>
- * </p>
- * <p>
- * This class uses Spring to load from a property file the following properties
- * <ul>
- * <li><i>experiment.structure.job.request.topic</i>
- * <ul>
- * <li>Used to configure the request topic of the internal {@code IRequester}.</li>
- * <li>Default <i>uk.ac.diamond.daq.experiment.structure.job.request.topic</i></li>
- * </ul>
- * </li>
- * <li><i>experiment.structure.job.response.topic</i>
- * <ul>
- * <li>Used to configure the response topic of the internal {@code IRequester}.</li>
- * <li>Default <i>uk.ac.diamond.daq.experiment.structure.job.response.topic</i></li>
- * </ul>
- * </li>
- * </ul>
- * </p>
+ * @see NodeFileRequesterService
  */
 @Component
 public class NexusExperimentController implements ExperimentController {
@@ -63,23 +56,37 @@ public class NexusExperimentController implements ExperimentController {
 	public static final String DEFAULT_EXPERIMENT_PREFIX = "UntitledExperiment";
 	public static final String DEFAULT_ACQUISITION_PREFIX = "UntitledAcquisition";
 
+	private static final Logger logger = LoggerFactory.getLogger(NexusExperimentController.class);
+
 	private static final String FILE_EXTENSION = "nxs";
 
-	private TreeNavigator tree;
 
+	/** Represents all the acquisitions within the experiment as a tree data structure */
+	private ExperimentTree tree;
+
+	/** Backs up the state of the experiment every time it is modified */
+	@Autowired
+	private ExperimentTreeCache experimentTreeCache;
+
+	/** Used to generate URLs in a consistent fashion */
 	private URLFactory urlFactory = new URLFactory();
 
-	private final NodeFileRequesterService nodeFileRequesterService;
+	/** Creates node NeXus files for the experiment and for multipart acquisitions */
+	@Autowired
+	private NodeFileRequesterService nodeFileRequesterService;
 
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
 
-	/**
-	 * Default constructor for Spring
-	 */
-	@Autowired
-	public NexusExperimentController(NodeFileRequesterService nodeFileRequesterService) {
-		this.nodeFileRequesterService = nodeFileRequesterService;
+	private NexusExperimentController() {}
+
+	@PostConstruct
+	private void restoreState() {
+		try {
+			experimentTreeCache.restore().ifPresent(this::setTree);
+		} catch (IOException e) {
+			logger.error("Could not restore previous open experiment", e);
+		}
 	}
 
 	@Override
@@ -88,8 +95,21 @@ public class NexusExperimentController implements ExperimentController {
 			throw new ExperimentControllerException("An experiment is already running");
 		}
 
-		tree = new TreeNavigator(createNode(experimentName, DEFAULT_EXPERIMENT_PREFIX, null));
-		return tree.getCurrentNode().getFileLocation();
+		setTree(new ExperimentTree.Builder()
+					.withExperimentName(experimentName)
+					.withActiveNode(createNode(experimentName, DEFAULT_EXPERIMENT_PREFIX))
+					.build());
+		return tree.getActiveNode().getLocation();
+	}
+
+	private void setTree(ExperimentTree tree) {
+		this.tree = tree;
+		cacheState();
+	}
+
+	@Override
+	public String getExperimentName() {
+		return isExperimentInProgress() ? tree.getExperimentName() : null;
 	}
 
 	@Override
@@ -98,8 +118,8 @@ public class NexusExperimentController implements ExperimentController {
 		while (isMultipartAcquisitionInProgress()) {
 			stopMultipartAcquisition();
 		}
-		closeNode(tree.getCurrentNode());
-		tree = null;
+		closeNode(tree.getActiveNode());
+		setTree(null);
 	}
 
 	@Override
@@ -122,36 +142,54 @@ public class NexusExperimentController implements ExperimentController {
 	 */
 	private URL prepareAcquisition(String name, boolean multipart) throws ExperimentControllerException {
 		ensureExperimentIsRunning();
-		ExperimentNode acquisition = createNode(name, DEFAULT_ACQUISITION_PREFIX, tree.getCurrentNode());
-		tree.getCurrentNode().addChild(acquisition);
+		ExperimentNode acquisition = createNode(name, DEFAULT_ACQUISITION_PREFIX, tree.getActiveNode());
+		tree.addChild(acquisition);
 		if (multipart)
-			tree.moveDown(acquisition);
-		return acquisition.getFileLocation();
+			tree.moveDown(acquisition.getId());
+		cacheState();
+		return acquisition.getLocation();
 	}
 
 	private boolean isMultipartAcquisitionInProgress() {
-		return !tree.getCurrentNode().isRoot();
+		return !tree.getActiveNode().isRoot();
 	}
 
 	@Override
 	public void stopMultipartAcquisition() throws ExperimentControllerException {
 		if (isMultipartAcquisitionInProgress()) {
-			closeNode(tree.getCurrentNode());
+			closeNode(tree.getActiveNode());
 			tree.moveUp();
+			cacheState();
 		} else {
 			throw new ExperimentControllerException("No multipart acquisition to stop");
 		}
 	}
 
-	private ExperimentNode createNode(String name, String defaultName, ExperimentNode parent)
-			throws ExperimentControllerException {
+	/**
+	 * For creating the root node
+	 */
+	private ExperimentNode createNode(String name, String defaultName) throws ExperimentControllerException {
 		try {
-			URL root = parent == null ? getRootDir() : urlFactory.getParent(parent.getFileLocation());
-			URL file = urlFactory.generateUniqueFile(root, name, defaultName, FILE_EXTENSION);
-			return new ExperimentNode(file, parent);
+			return createNode(getNodeUrl(getRootDir(), name, defaultName), null);
 		} catch (MalformedURLException e) {
 			throw new ExperimentControllerException("Could not create experiment node", e);
 		}
+	}
+
+	private ExperimentNode createNode(String name, String defaultName, ExperimentNode parent) throws ExperimentControllerException {
+		try {
+			return createNode(getNodeUrl(urlFactory.getParent(parent.getLocation()), name, defaultName), parent.getId());
+		} catch (MalformedURLException e) {
+			throw new ExperimentControllerException("Could not create experiment node", e);
+		}
+	}
+
+	private URL getNodeUrl(URL root, String name, String defaultName) throws MalformedURLException {
+		return urlFactory.generateUniqueFile(root, name, defaultName, FILE_EXTENSION);
+	}
+
+	private ExperimentNode createNode(URL location, UUID parentId) {
+		return new ExperimentNode(location, parentId);
 	}
 
 	private void ensureExperimentIsRunning() throws ExperimentControllerException {
@@ -173,7 +211,7 @@ public class NexusExperimentController implements ExperimentController {
 			if (job.getStatus() == Status.FAILED) {
 				throw new ExperimentControllerException(job.getMessage());
 			}
-		} catch (EventException | InterruptedException e) {
+		} catch (EventException | InterruptedException e) { // NOSONAR please, since we are rethrowing
 			throw new ExperimentControllerException(e);
 		}
 		return job;
@@ -181,8 +219,11 @@ public class NexusExperimentController implements ExperimentController {
 
 	private NodeFileCreationRequest createNodeFileCreationRequestJob(ExperimentNode node) {
 		NodeFileCreationRequest job = new NodeFileCreationRequest();
-		job.setNodeLocation(node.getFileLocation());
-		job.setChildren(node.getChildren().stream().map(ExperimentNode::getFileLocation).collect(Collectors.toSet()));
+		job.setNodeLocation(node.getLocation());
+		job.setChildren(node.getChildren().stream()
+										.map(tree::getNode)
+										.map(ExperimentNode::getLocation)
+										.collect(Collectors.toSet()));
 		return job;
 	}
 
@@ -191,6 +232,14 @@ public class NexusExperimentController implements ExperimentController {
 			return getAcquisitionFileContext().getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
 		}
 		throw new ExperimentControllerException("GDAContext not available");
+	}
+
+	private void cacheState() {
+		try {
+			experimentTreeCache.store(tree);
+		} catch (IOException e) {
+			logger.error("Could not cache experiment state", e);
+		}
 	}
 
 	private AcquisitionFileContext getAcquisitionFileContext() {

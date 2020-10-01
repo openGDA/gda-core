@@ -1,75 +1,66 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.structure;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
-import uk.ac.diamond.daq.experiment.structure.requester.NodeFileRequesterServiceTestConfiguration;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContextTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { NodeFileRequesterServiceTestConfiguration.class })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class NodeFileRequesterServiceTest {
-
-	@Autowired
-	private ExperimentController controller;
+/**
+ * Tests regarding the {@link NexusExperimentController}'s use of {@link NodeFileRequesterService}.
+ */
+public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimentControllerTestBase {
 
 	@Autowired
 	private NodeFileRequesterService nodeFileRequesterService;
 
-	private IFilePathService filePathService;
-
-	private static final String EXPERIMENT_NAME = "MyExperiment";
-	private static final String ACQUISITION_NAME = "MyMeasurement";
+	private ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
 
 	@Before
-	public void before() throws Exception {
-		filePathService = mock(IFilePathService.class);
+	public void mockServiceResponse() throws Exception {
 		NodeFileCreationRequest response = new NodeFileCreationRequest();
 		response.setStatus(Status.COMPLETE);
 		doReturn(response).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
-
-		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY);
-		prepareFilesystem();
 	}
 
 	@Test
 	public void stopExperimentCallsIndexFileCreator() throws Exception {
 
-		URL experimentRoot = controller.startExperiment("My experiment!");
+		URL experimentRoot = controller.startExperiment(EXPERIMENT_NAME);
 		URL firstUrl = controller.prepareAcquisition(ACQUISITION_NAME + "1");
 		URL secondUrl = controller.prepareAcquisition(ACQUISITION_NAME + "2");
 
@@ -79,7 +70,6 @@ public class NodeFileRequesterServiceTest {
 		nxsUrls.add(firstUrl);
 		nxsUrls.add(secondUrl);
 
-		ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
 		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
 		NodeFileCreationRequest job = jobCaptor.getValue();
@@ -98,7 +88,6 @@ public class NodeFileRequesterServiceTest {
 
 		controller.stopMultipartAcquisition();
 
-		ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
 		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
 		NodeFileCreationRequest job = jobCaptor.getValue();
@@ -126,7 +115,6 @@ public class NodeFileRequesterServiceTest {
 
 		controller.stopExperiment();
 
-		ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
 		verify(nodeFileRequesterService, times(3)).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
 		Set<URL> nodeFiles = jobCaptor.getAllValues().stream()
@@ -149,20 +137,4 @@ public class NodeFileRequesterServiceTest {
 		verifyNoMoreInteractions(nodeFileRequesterService);
 	}
 
-	private void prepareFilesystem() throws IOException {
-		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
-		File visitDir = new File(testTmpDir.toFile(), "visit");
-		File processingDir = new File(visitDir, "processing");
-		File xmlDir = new File(visitDir, "xml");
-		File tmpDir = new File(visitDir, "tmp");
-
-
-		doReturn(visitDir.getPath()).when(filePathService).getVisitDir();
-		doReturn(processingDir.getPath()).when(filePathService).getProcessingDir();
-		doReturn(xmlDir.getPath()).when(filePathService).getVisitConfigDir();
-		doReturn(tmpDir.getPath()).when(filePathService).getTempDir();
-
-		ServiceHolder sh = new ServiceHolder();
-		sh.setFilePathService(filePathService);
-	}
 }

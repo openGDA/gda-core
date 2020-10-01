@@ -3,7 +3,7 @@ package uk.ac.diamond.daq.experiment.api.structure;
 import java.net.URL;
 
 /**
- * An experiment represents a collection of acquisitions performed dURLng a
+ * An experiment represents a collection of acquisitions performed during a
  * defined period of time. When called, {@link #startExperiment(String)} defines
  * or creates a location where all the following acquisitions will be stored.
  */
@@ -22,6 +22,12 @@ public interface ExperimentController {
 	 *                                       experiment location
 	 */
 	URL startExperiment(String experimentName) throws ExperimentControllerException;
+
+
+	/**
+	 * Returns the experiment name, or {@code null} if no experiment is running
+	 */
+	String getExperimentName();
 
 
 	/**
