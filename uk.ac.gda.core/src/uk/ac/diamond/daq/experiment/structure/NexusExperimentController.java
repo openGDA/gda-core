@@ -31,7 +31,6 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Controls the Experiment workflow.
@@ -71,6 +70,9 @@ public class NexusExperimentController implements ExperimentController {
 	private URLFactory urlFactory = new URLFactory();
 
 	private final NodeFileRequesterService nodeFileRequesterService;
+
+	@Autowired
+	private AcquisitionFileContext acquisitionFileContext;
 
 	/**
 	 * Default constructor for Spring
@@ -185,15 +187,13 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	private URL getRootDir() throws ExperimentControllerException {
-		AcquisitionFileContext gdaContext = getAcquisitionFileContext();
-		if (gdaContext != null) {
-			return gdaContext.getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
+		if (getAcquisitionFileContext() != null) {
+			return getAcquisitionFileContext().getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
 		}
 		throw new ExperimentControllerException("GDAContext not available");
-
 	}
 
 	private AcquisitionFileContext getAcquisitionFileContext() {
-		return SpringApplicationContextFacade.getBean(AcquisitionFileContext.class);
+		return acquisitionFileContext;
 	}
 }
