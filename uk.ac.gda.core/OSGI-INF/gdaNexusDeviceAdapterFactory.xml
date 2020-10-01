@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="uk.ac.gda.core">
+   <implementation class="gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory"/>
+   <service>
+      <provide interface="org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory"/>
+   </service>
+</scr:component>
