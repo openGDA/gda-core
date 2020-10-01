@@ -1,0 +1,253 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.gda.views.status;
+
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_STATUS_PORT;
+import static gda.configuration.properties.LocalProperties.GDA_SERVER_STATUS_PORT_DEFAULT;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gda.beamline.health.BeamlineHealthMonitor;
+import gda.beamline.health.BeamlineHealthResult;
+import gda.beamline.health.BeamlineHealthScannableResult;
+import gda.beamline.health.BeamlineHealthState;
+import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.concurrent.Async.ListeningScheduledFuture;
+import uk.ac.gda.client.viewer.ThreeStateDisplay;
+
+/**
+ * Show the current status of the GDA server
+ * <p>
+ * This view polls the server status port for the server status, as configured in the {@link BeamlineHealthMonitor} for
+ * the beamline.
+ */
+public class ServerStatusView {
+	private static final Logger logger = LoggerFactory.getLogger(ServerStatusView.class);
+
+	/** The location of the server status port */
+	private static final String SERVER_HOST = LocalProperties.get(GDA_SERVER_HOST);
+	/** Server status port */
+	private static final int SERVER_STATUS_PORT = LocalProperties.getAsInt(GDA_SERVER_STATUS_PORT, GDA_SERVER_STATUS_PORT_DEFAULT);
+
+	/** Time between attempts to get server status in sec */
+	private static final long POLLING_INTERVAL_SEC = 2;
+
+	/** Shows the time the status was last updated */
+	private Label lastUpdateTime;
+
+	/** Overall beamline state */
+	private ThreeStateDisplay beamlineStatusDisplay;
+
+	/** Managers for each configured scannable */
+	private Map<String, ScannableIndicatorManager> scannableIndicatorManagers;
+
+	private SimpleDateFormat timeFormatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+
+	private ListeningScheduledFuture<?> pollingFuture;
+
+	@PostConstruct
+	public void createView(Composite parent) {
+		logger.debug("Creating server status view");
+
+		GridLayoutFactory.fillDefaults().applyTo(parent);
+		GridDataFactory.fillDefaults().applyTo(parent);
+		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
+		parent.setBackgroundMode(SWT.INHERIT_FORCE);
+
+		// Show the time the status was last updated
+		final Composite lastUpdateComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(lastUpdateComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(lastUpdateComposite);
+
+		final Label lastUpdateLabel = new Label(lastUpdateComposite, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(lastUpdateLabel);
+		lastUpdateLabel.setText("Last updated:");
+
+		lastUpdateTime = new Label(lastUpdateComposite, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(lastUpdateTime);
+
+		// Show status of beamline
+		final Composite statusComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(statusComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(statusComposite);
+
+		final Label beamlineStatusLabel = new Label(statusComposite, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(beamlineStatusLabel);
+		beamlineStatusLabel.setText("Beamline:");
+
+		beamlineStatusDisplay = new ThreeStateDisplay(statusComposite, null, null, null);
+
+		// Show status of each configured scannable
+		try {
+			createScannableIndicators(parent);
+		} catch (Exception e) {
+			final String message = "Error getting server status";
+			lastUpdateTime.setText(message);
+			logger.error(message, e);
+			return;
+		}
+
+		// Start polling for server status
+		pollingFuture = Async.scheduleWithFixedDelay(this::showServerStatus, 0, POLLING_INTERVAL_SEC, TimeUnit.SECONDS, "Server status");
+	}
+
+	// Show status of scannables
+	private void createScannableIndicators(Composite parent) throws IOException {
+		final BeamlineHealthResult beamlineHealthResult = getServerStatus();
+		final List<BeamlineHealthScannableResult> scannableResults = beamlineHealthResult.getScannableResults();
+		scannableIndicatorManagers = new HashMap<>(scannableResults.size());
+
+		final Composite indicatorsComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(indicatorsComposite);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(indicatorsComposite);
+
+		// For each scannable show name, position & state relative to the configured condition
+		for (BeamlineHealthScannableResult scannableResult : scannableResults) {
+			final String scannableName = scannableResult.getScannableName();
+			createLabel(indicatorsComposite, SWT.DEFAULT, scannableName);
+			final Label positionLabel = createLabel(indicatorsComposite, 75, scannableResult.getPosition());
+			final ThreeStateDisplay statusIndicator = new ThreeStateDisplay(indicatorsComposite, "", "", "");
+			scannableIndicatorManagers.put(scannableName, new ScannableIndicatorManager(positionLabel, statusIndicator));
+		}
+	}
+
+	/**
+	 * Display the overall status of the beamline, and the status of each relevant scannable.
+	 */
+	private void showServerStatus() {
+		try {
+			final BeamlineHealthResult beamlinehealthResult = getServerStatus();
+			Display.getDefault().asyncExec(() -> updateStatusDisplay(beamlinehealthResult));
+		} catch (Exception e) {
+			logger.error("Error getting server input stream", e);
+		}
+	}
+
+	/**
+	 * Get beamline status from the server
+	 *
+	 * @return beamline status from the server status socket
+	 * @throws IOException
+	 */
+	private BeamlineHealthResult getServerStatus() throws IOException {
+		try (final Socket statusSocket = new Socket(SERVER_HOST, SERVER_STATUS_PORT);
+				final PrintWriter out = new PrintWriter(statusSocket.getOutputStream(), true);
+				final BufferedReader in = new BufferedReader(new InputStreamReader(statusSocket.getInputStream()))) {
+			out.println(BeamlineHealthResult.COMMAND);
+			return new ObjectMapper().readValue(in.readLine(), BeamlineHealthResult.class);
+		}
+	}
+
+	/**
+	 * Update status of the beamline and each scannable from server status result
+	 *
+	 * @param beamlineHealthResult
+	 *            status as returned by server
+	 */
+	private void updateStatusDisplay(BeamlineHealthResult beamlineHealthResult) {
+		// Update the overall server status
+		final BeamlineHealthState healthState = beamlineHealthResult.getBeamlineHealthState();
+		final String message = beamlineHealthResult.getMessage();
+		if (healthState == BeamlineHealthState.OK) {
+			beamlineStatusDisplay.setGreen(message);
+		} else if (healthState == BeamlineHealthState.WARNING) {
+			beamlineStatusDisplay.setYellow(message);
+		} else {
+			beamlineStatusDisplay.setRed(message);
+		}
+
+		// Update the status of the individual scannables
+		for (BeamlineHealthScannableResult scannableResult : beamlineHealthResult.getScannableResults()) {
+			final String scannableName = scannableResult.getScannableName();
+			final ScannableIndicatorManager indicatorManager = scannableIndicatorManagers.get(scannableName);
+			if (indicatorManager == null) {
+				logger.warn("No indicator found for {}", scannableName);
+			} else {
+				indicatorManager.updateScannableDisplay(scannableResult);
+			}
+		}
+
+		lastUpdateTime.setText(timeFormatter.format(System.currentTimeMillis()));
+	}
+
+	private static Label createLabel(Composite parent, int widthHint, String message) {
+		final Label label = new Label(parent, SWT.NONE);
+		GridDataFactory.swtDefaults().hint(widthHint, SWT.DEFAULT).applyTo(label);
+		label.setText(message);
+		return label;
+	}
+
+	@PreDestroy
+	public void onDispose() {
+		if (pollingFuture != null) {
+			pollingFuture.cancel(true);
+		}
+	}
+
+	/**
+	 * Class to manage the GUI for a single scannable<br>
+	 * This allows us to update the GUI elements every time the server is polled.
+	 */
+	private static class ScannableIndicatorManager {
+		private final Label positionLabel;
+		private final ThreeStateDisplay statusIndicator;
+
+		public ScannableIndicatorManager(Label positionLabel, ThreeStateDisplay statusIndicator) {
+			this.positionLabel = positionLabel;
+			this.statusIndicator = statusIndicator;
+		}
+
+		public void updateScannableDisplay(BeamlineHealthScannableResult scannableResult) {
+			final BeamlineHealthState healthState = scannableResult.getScannableHealthState();
+			if (healthState == BeamlineHealthState.OK) {
+				statusIndicator.setGreen();
+			} else if (healthState == BeamlineHealthState.WARNING) {
+				statusIndicator.setYellow(scannableResult.getErrorMessage());
+			} else {
+				statusIndicator.setRed(scannableResult.getErrorMessage());
+			}
+			positionLabel.setText(scannableResult.getPosition());
+		}
+	}
+}

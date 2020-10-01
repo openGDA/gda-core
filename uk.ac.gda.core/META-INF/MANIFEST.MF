@@ -63,6 +63,7 @@ Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
 Eclipse-BuddyPolicy: registered
 Export-Package: gda.beamline.beam,
  gda.beamline.beamline,
+ gda.beamline.health,
  gda.beamline.video,
  gda.commandqueue,
  gda.data,

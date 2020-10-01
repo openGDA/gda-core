@@ -74,7 +74,9 @@ Require-Bundle: org.eclipse.help.ui,
  tec.units.indriya,
  uk.ac.diamond.daq.persistence.classloader,
  uk.ac.diamond.org.springframework,
- org.apache.commons.lang3
+ org.apache.commons.lang3,
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="2.6.2",
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2"
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,

@@ -14,9 +14,7 @@
          </run>
       </application>
    </extension>
-   
-   
-   
+
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
@@ -69,7 +67,7 @@
             id="gda.rcp.jythonterminalview"
             name="Jython Console"
             restorable="true">
-      </view>      
+      </view>
       <view
             category="uk.ac.gda.client.general.category"
             class="gda.rcp.views.PeripheralView"
@@ -169,12 +167,16 @@
                name="Sample and Scan Information"
                restorable="true">
          </view>
+      <e4view
+            class="uk.ac.gda.views.status.ServerStatusView"
+            icon="icons/application_view_list.png"
+            id="uk.ac.gda.views.status.serverStatusView"
+            name="Server status"
+            restorable="true">
+      </e4view>
    </extension>
-   
- 
-   
+
    <extension
-    
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
