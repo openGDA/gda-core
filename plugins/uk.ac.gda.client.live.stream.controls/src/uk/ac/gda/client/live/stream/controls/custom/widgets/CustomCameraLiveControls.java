@@ -76,7 +76,7 @@ public class CustomCameraLiveControls extends AbstractLiveStreamViewCustomUi {
 		}
 
 		// support additional custom UI
-		customUIs.stream().forEach(e -> e.createUi(composite));
+		customUIs.stream().forEach(e -> setupCustomUi(e, composite));
 
 		// if present, synchronise camera state in GDA with EPICS control outside GDA
 		if (cameraState != null) {
@@ -90,6 +90,14 @@ public class CustomCameraLiveControls extends AbstractLiveStreamViewCustomUi {
 				logger.info("Camera state is already connected.");
 			}
 		}
+	}
+
+	private void setupCustomUi(LiveStreamViewCustomUi customUi, Composite composite) {
+		customUi.setPlottingSystem(getPlottingSystem());
+		customUi.setLiveStreamConnection(getLiveStreamConnection());
+		customUi.setImageTrace(getImageTrace());
+		customUi.setActionBars(getActionBars());
+		customUi.createUi(composite);
 	}
 
 	@Override
