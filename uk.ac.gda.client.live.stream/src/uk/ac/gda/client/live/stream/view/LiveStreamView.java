@@ -408,7 +408,22 @@ public class LiveStreamView extends ViewPart {
 		if (plottingComposite != null) {
 			plottingComposite.dispose();
 		}
+		if (liveStreamConnection.isConnected()) {
+			try {
+				liveStreamConnection.disconnect();
+			} catch (LiveStreamException e) {
+				logger.error("Problem trying to close live stream connection for {} view", getTitle(), e);
+			}
+		}
 		super.dispose();
+	}
+
+	/**
+	 * Reopen the currently displayed live stream view by calling {@link #openViewWithSecondaryId(String, boolean)}
+	 *
+	 */
+	public void reopenView() {
+		openViewWithSecondaryId(getViewSite().getSecondaryId(), true);
 	}
 
 	/**
