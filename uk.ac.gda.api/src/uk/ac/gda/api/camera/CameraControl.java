@@ -161,4 +161,15 @@ public interface CameraControl extends Findable, IObservable {
 	 * Resets the filter
 	 */
 	void resetFilter() throws Exception;
+
+	/**
+	 * Gets the X dimension of image
+	 */
+	public int getImageSizeX() throws DeviceException;
+
+	/**
+	 *
+	 * Gets the Y dimension of image
+	 */
+	public int getImageSizeY() throws DeviceException;
 }
