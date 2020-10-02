@@ -30,8 +30,10 @@ import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 @Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui.controller",
-		"uk.ac.diamond.daq.mapping.ui.services.position", "uk.ac.diamond.daq.mapping.api.document"},
+@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.gda.ui.tool.spring",
+		"uk.ac.diamond.daq.mapping.ui.controller",
+		"uk.ac.diamond.daq.mapping.ui.services.position",
+		"uk.ac.diamond.daq.mapping.api.document"},
 excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class),
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = IStageController.class)})

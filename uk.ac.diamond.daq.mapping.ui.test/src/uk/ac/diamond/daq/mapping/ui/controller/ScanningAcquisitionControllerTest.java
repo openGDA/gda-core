@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.controller;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -47,8 +44,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
-import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
-import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -105,31 +100,6 @@ public class ScanningAcquisitionControllerTest {
 		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
 		controller.createNewAcquisition();
 		Assert.assertNull(controller.getAcquisition().getAcquisitionConfiguration().getImageCalibration());
-
-		removeProperties(properties);
-	}
-
-	/**
-	 * The new scanning acquisition without configured cameras has an ImageCalibration document
-	 * @throws IOException
-	 */
-	@Test
-	public void testControllerWithNewScanningAcquisitionSupplier() throws IOException {
-		CameraControl cameraControl = mock(CameraControl.class);
-		doReturn("imaging_camera_control").when(cameraControl).getName();
-		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
-
-		File properties = new File("test/resources/acquisitionsAndCameras.properties");
-		readProperties(properties);
-
-		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
-		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
-		controller.createNewAcquisition();
-		ImageCalibration ic = controller.getAcquisition().getAcquisitionConfiguration().getImageCalibration();
-		Assert.assertNotNull(ic);
-		Assert.assertNotNull(ic.getDarkCalibration());
-		Assert.assertNotNull(ic.getDarkCalibration());
-		Assert.assertNotNull(ic.getFlatCalibration());
 
 		removeProperties(properties);
 	}
