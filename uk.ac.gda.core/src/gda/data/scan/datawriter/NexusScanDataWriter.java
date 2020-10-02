@@ -40,6 +40,7 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.january.dataset.PositionIterator;
@@ -52,7 +53,6 @@ import gda.data.NumTracker;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
-import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
@@ -337,11 +337,23 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private INexusDevice<?> createNexusDevice(Scannable device) {
 		try {
-			final INexusDevice<?> nexusDevice = GDANexusDeviceAdapterFactory.getInstance().createNexusDevice(device);
-			// TODO: might it be useful to let a device implement INexusDevice but not IWritableNexusDevice? If so, it
-			// would have be responsible for writing its dataset at the appropriate point in the scan, e.g. in acquireData
+			final String deviceName = device.getName();
+			final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
+			final INexusDevice<?> nexusDevice;
+			if (nexusDeviceService.hasNexusDevice(deviceName)) {
+				nexusDevice = nexusDeviceService.getNexusDevice(deviceName);
+			} else {
+				nexusDevice = nexusDeviceService.getNexusDevice(device);
+			}
+
+			if (nexusDevice == null) {
+				throw new IllegalArgumentException("Could not find or create a nexus device: " + deviceName);
+			}
+
 			if (!(nexusDevice instanceof IWritableNexusDevice<?>)) {
-				throw new IllegalArgumentException("device must be an IWritableNexusDevice: " + device.getName());
+				// TODO: might it be useful to let a device implement INexusDevice but not IWritableNexusDevice? If so, it
+				// would have be responsible for writing its dataset at the appropriate point in the scan, e.g. in acquireData
+				throw new IllegalArgumentException("device must be an IWritableNexusDevice: " + deviceName);
 			}
 
 			nexusDevices.put(device.getName(), (IWritableNexusDevice<?>) nexusDevice);
@@ -434,6 +446,19 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		try {
 			if (nexusScanFile != null) {
 				nexusScanFile.scanFinished();
+			}
+			// call scanEnd on all the devices
+			Exception exception = null;
+			for (IWritableNexusDevice<?> nexusDevice : nexusDevices.values()) {
+				try {
+					nexusDevice.scanEnd();
+				} catch (Exception e) {
+					if (exception == null)
+						exception = e;
+				}
+			}
+			if (exception != null) {
+				throw exception;
 			}
 		} finally {
 			super.completeCollection();

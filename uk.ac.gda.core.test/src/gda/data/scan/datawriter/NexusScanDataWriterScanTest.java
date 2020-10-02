@@ -50,6 +50,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.january.DatasetException;
@@ -66,6 +67,7 @@ import org.junit.runners.Parameterized.Parameters;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
@@ -75,8 +77,106 @@ import gda.factory.Finder;
 @RunWith(value=Parameterized.class)
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
-	private static final String CLASS_NAME_NEXUS_SCAN_DATA_WRITER = NexusScanDataWriter.class.getSimpleName();
+	/**
+	 * An implementation of adapting it to an {@link IWritableNexusDevice}. Used to test
+	 * picking up a registered nexus device for a detector from the {@link INexusDeviceService}.
+	 */
+	private static class DummyDetectorNexusDevice implements IWritableNexusDevice<NXdetector> {
 
+		private ILazyWriteableDataset imageDataset;
+
+		private String name;
+
+		public DummyDetectorNexusDevice(String name) {
+			// Note: because writePosition passes us the position to write at each point of the scan
+			// we don't actually need to wrap the detector itself, although we do still need a name
+			this.name = name;
+		}
+
+		@Override
+		public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
+			final NXdetector det = NexusNodeFactory.createNXdetector();
+			final int scanRank = info.getRank();
+			// We add 2 to the scan rank to include the image
+			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
+
+			return new NexusObjectWrapper<>(getName(), det, NXdetector.NX_DATA);
+		}
+
+		@Override
+		public void writePosition(Object data, SliceND scanSlice) throws NexusException {
+			try {
+				IWritableNexusDevice.writeDataset(imageDataset, data, scanSlice);
+			} catch (DatasetException e) {
+				throw new NexusException("Could not write data for detector: " + getName());
+			}
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public void scanEnd() throws NexusException {
+			imageDataset = null;
+		}
+	}
+
+	/**
+	 * Extends DummyDetector to return an image rather than an array of doubles.
+	 */
+	private static class DummyImageDetector extends DummyDetector {
+
+		private static final int[] IMAGE_SIZE = new int[] { 8, 8 }; // small image size for tests
+
+		@Override
+		protected Object acquireData() {
+			// The default implementation returns an array of doubles, one for each extraName (i.e. each field has a scalar value)
+			// This implementation instead returns a double array, which it also writes to the dataset
+			return Random.rand(IMAGE_SIZE);
+		}
+
+	}
+
+	/**
+	 * Extends {@link DummyDetector} to implement {@link IWritableNexusDevice}.
+	 */
+	private static class DummyNexusDeviceDetector extends DummyImageDetector implements IWritableNexusDevice<NXdetector> {
+
+		private ILazyWriteableDataset imageDataset;
+
+		@Override
+		public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
+			final NXdetector det = NexusNodeFactory.createNXdetector();
+			final int scanRank = info.getRank();
+			// We add 2 to the scan rank to include the image
+			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
+
+			return new NexusObjectWrapper<>(getName(), det, NXdetector.NX_DATA);
+		}
+
+		@Override
+		public void atScanEnd() throws DeviceException {
+			imageDataset = null;
+		}
+
+		@Override
+		public void writePosition(Object data, SliceND scanSlice) throws NexusException {
+			try {
+				IWritableNexusDevice.writeDataset(imageDataset, data, scanSlice);
+			} catch (DatasetException e) {
+				throw new NexusException("Could not write data for detector: " + getName());
+			}
+		}
+
+		@Override
+		public void scanEnd() throws NexusException {
+			imageDataset = null;
+		}
+	}
+
+	private static final String CLASS_NAME_NEXUS_SCAN_DATA_WRITER = NexusScanDataWriter.class.getSimpleName();
 	private static final String ATTRIBUTE_NAME_GDA_FIELD_NAME = "gda_field_name";
 	private static final String ATTRIBUTE_NAME_LOCAL_NAME = "local_name";
 	private static final String ATTRIBUTE_NAME_TARGET = "target";
@@ -105,6 +205,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
+		gdaDataServiceHolder.setNexusDeviceService(new NexusDeviceService());
 
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(new NexusDeviceService());
@@ -112,6 +213,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
+		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 	}
 
 	@Override
@@ -134,53 +236,19 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
 	}
 
-	private static class DummyNexusDeviceDetector extends DummyDetector implements IWritableNexusDevice<NXdetector> {
-
-		private static final int[] IMAGE_SIZE = new int[] { 8, 8 }; // small image size for tests
-
-		private ILazyWriteableDataset imageDataset;
-
-		@Override
-		protected Object acquireData() {
-			// The default implementation returns an array of doubles, one for each extraName (i.e. each field has a scalar value)
-			// This implementation instead returns a double array, which it also writes to the dataset
-			return Random.rand(IMAGE_SIZE);
-		}
-
-		@Override
-		public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
-			final NXdetector det = NexusNodeFactory.createNXdetector();
-			final int scanRank = info.getRank();
-			// We add 2 to the scan rank to include the image
-			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
-
-			return new NexusObjectWrapper<NXdetector>(getName(), det, NXdetector.NX_DATA);
-		}
-
-		@Override
-		public void atScanEnd() throws DeviceException {
-			imageDataset = null;
-		}
-
-		@Override
-		public void writePosition(Object data, SliceND scanSlice) throws NexusException {
-			try {
-				IWritableNexusDevice.writeDataset(imageDataset, data, scanSlice);
-			} catch (DatasetException e) {
-				throw new NexusException("Could not write data for detector: " + getName());
-			}
-		}
-
-		@Override
-		public void scanEnd() throws NexusException {
-			imageDataset = null;
-		}
-	}
-
 	@Test
 	public void concurrentScanNexusDeviceDetector() throws Exception {
 		detector = new DummyNexusDeviceDetector();
 		detector.setName("det");
+		concurrentScan(detector, DetectorType.NEXUS_DEVICE);
+	}
+
+	@Test
+	public void concurrentScanRegisteredNexusDevice() throws Exception {
+		detector = new DummyImageDetector();
+		detector.setName("det");
+		final IWritableNexusDevice<NXdetector> nexusDevice = new DummyDetectorNexusDevice(detector.getName());
+		ServiceHolder.getNexusDeviceService().register(nexusDevice);
 		concurrentScan(detector, DetectorType.NEXUS_DEVICE);
 	}
 

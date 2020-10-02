@@ -150,7 +150,6 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		if (device instanceof INexusDevice<?>) {
 			return (INexusDevice<N>) device;
 		}
-
 		for (INexusDeviceAdapterFactory<? extends Scannable> adapterFactory : adapterFactories) {
 			if (adapterFactory.canAdapt(device)) {
 				return ((INexusDeviceAdapterFactory<Scannable>)adapterFactory).createNexusDevice(device);
