@@ -187,6 +187,24 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	}
 
 	@Override
+	public int getImageSizeX() throws DeviceException {
+		try {
+			return adBase.getArraySizeX_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Unable to get X dimension of image", e);
+		}
+	}
+
+	@Override
+	public int getImageSizeY() throws DeviceException {
+		try {
+			return adBase.getArraySizeY_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Unable to get Y dimension of image", e);
+		}
+	}
+
+	@Override
 	public int[] getFrameSize() throws DeviceException {
 		try {
 			return new int[] { ndRoi.getMaxSizeX_RBV(), ndRoi.getMaxSizeY_RBV() };
