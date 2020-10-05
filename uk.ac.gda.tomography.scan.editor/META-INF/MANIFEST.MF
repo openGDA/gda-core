@@ -7,6 +7,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: uk.ac.gda.tomography.browser,
+ uk.ac.gda.tomography.browser.provider,
  uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.editor.view,
  uk.ac.gda.tomography.scan.presentation,

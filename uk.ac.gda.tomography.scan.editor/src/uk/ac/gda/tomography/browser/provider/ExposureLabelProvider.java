@@ -18,6 +18,8 @@
 
 package uk.ac.gda.tomography.browser.provider;
 
+import java.util.Optional;
+
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -28,6 +30,9 @@ import org.eclipse.swt.SWT;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Shows the detector exposure in a resource's {@link ScanningParameters}
@@ -36,6 +41,10 @@ public class ExposureLabelProvider extends LabelProvider implements ComparableSt
 
 	@Override
 	public StyledString getStyledText(Object element) {
+		double exposure =  getDetectorExposure(element);
+		if (exposure == Double.MIN_VALUE) {
+			return new StyledString(ClientMessagesUtility.getMessage(ClientMessages.NOT_AVAILABLE));
+		}
 		return new StyledString(String.valueOf(getDetectorExposure(element)));
 	}
 
@@ -55,8 +64,11 @@ public class ExposureLabelProvider extends LabelProvider implements ComparableSt
 	}
 
 	private double getDetectorExposure(Object resource) {
-		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(resource);
-		return parameters.getDetector().getExposure();
+		return Optional.ofNullable(resource)
+				.map(ScanningAcquisitionBrowserBase::getAcquisitionParameters)
+				.map(ScanningParameters::getDetector)
+				.map(DetectorDocument::getExposure)
+				.orElseGet(() -> Double.MIN_VALUE);
 	}
 
 }
