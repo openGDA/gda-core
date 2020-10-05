@@ -38,6 +38,7 @@ import gda.observable.ObservableComponent;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR_Int;
 
 /**
  * The EPICS controller class for operating SPECS Phoibos electron analysers. The class interact only with the CAM
@@ -214,7 +215,9 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 			logger.debug("Adding monitor to: {}", CURRENT_CHANNEL_RBV);
 			epicsController.setMonitor(getChannel(CURRENT_CHANNEL_RBV), evt -> {
 				logger.trace("Received event: {}", evt);
-				notifyListeners(evt);
+				DBR_Int dbr = (DBR_Int) evt.getDBR();
+				int point = dbr.getIntValue()[0];
+				notifyListeners(point);
 			});
 
 			// Setup an ADBase for interacting with common PVs
