@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -39,8 +38,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.python.core.Py;
-import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +46,7 @@ import gda.data.nexus.INeXusInfoWriteable;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.util.TypeConverters;
 
 /**
  * An instance of this class wraps a {@link Detector} to implement {@link INexusDevice}, for detectors where
@@ -166,8 +164,7 @@ class CounterTimerNexusDevice implements IWritableNexusDevice<NXdetector> {
 	public void writePosition(Object data, SliceND scanSlice) throws NexusException {
 		// TODO: this code is very similar to ScannableNexusDevice.writeActualPosition,
 		// refactor it to common superclass to remove duplication
-		final double[] dataArray = getDataAsArray(getName(), data);
-
+		final double[] dataArray = TypeConverters.toDoubleArray(data);
 		int fieldIndex = 0;
 		for (ILazyWriteableDataset dataset : writableDatasets.values()) {
 			// we rely on predictable iteration order for LinkedHashSet of writableDataset
@@ -179,79 +176,6 @@ class CounterTimerNexusDevice implements IWritableNexusDevice<NXdetector> {
 			}
 			fieldIndex++;
 		}
-	}
-
-	/**
-	 * Converts the data object for a detector into a double array, if possible. Copied from
-	 * NexusDataWriter.extractDoubleData TODO: move to some utils class?
-	 *
-	 * @param detectorName
-	 * @param object
-	 * @return the data read from the detector
-	 * @throws NumberFormatException
-	 */
-	private double[] getDataAsArray(String detectorName, Object object) {
-		final double[] data;
-		if (object instanceof double[]) {
-			data = (double[]) object;
-		} else if (object instanceof PyList) {
-			// coerce PyList into double array.
-			int length = ((PyList) object).__len__();
-			data = new double[length];
-			for (int i = 0; i < length; i++) {
-				try {
-					// This deals properly with Double, Long & Integer etc. but not BigInteger
-					data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
-				} catch (NumberFormatException nfe) {
-					try {
-						// This deals with Double, BigInteger & Long literal etc. but not Long
-						data[i] = Py.py2double(((PyList) object).__getitem__(i));
-					} catch (Exception e) {
-						logger.error(
-								"extractDoubleData({}, {}) Exception extracting element {}, data={} (object types={})",
-								detectorName, object, i, Arrays.toString(data),
-								((PyList) object).stream().map(o -> o.getClass()).collect(Collectors.toList()), e);
-						throw e;
-					}
-				}
-			}
-		} else if (object instanceof int[]) {
-			int[] idata = (int[]) object; // convert array from int[] to double[]
-			data = new double[idata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = idata[i];
-			}
-		} else if (object instanceof long[]) {
-			long[] ldata = (long[]) object; // convert array from long[] to double[]
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i];
-			}
-		} else if (object instanceof String[]) {
-			String[] sdata = (String[]) object;
-			data = new double[sdata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = Double.valueOf(sdata[i]);
-			}
-			Arrays.stream(sdata).mapToDouble(Double::valueOf).toArray();
-		} else if (object instanceof Number[]) {
-			Number[] ldata = (Number[]) object;
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i].doubleValue();
-			}
-		} else if (object instanceof Double) {
-			data = new double[] { (Double) object };
-		} else if (object instanceof Integer) {
-			data = new double[] { (Integer) object };
-		} else if (object instanceof Long) {
-			data = new double[] { (Long) object };
-		} else {
-			logger.error("cannot handle data of type {} from detector: {}. NO DATA WILL BE WRITTEN TO NEXUS FILE!",
-					object.getClass().getName(), detectorName);
-			data = null;
-		}
-		return data;
 	}
 
 }

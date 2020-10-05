@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -67,8 +66,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.InterfaceUtils;
 import org.eclipse.january.dataset.SliceND;
-import org.python.core.Py;
-import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -97,6 +94,7 @@ import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
 import gda.util.QuantityFactory;
+import gda.util.TypeConverters;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 
 /**
@@ -883,8 +881,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	}
 
 	private double[] extractDoubleData(String detectorName) {
-		Object object = extractDetectorObject(detectorName);
-		return extractDoubleData(detectorName, object);
+		final Object object = extractDetectorObject(detectorName);
+		return TypeConverters.toDoubleArray(object);
 	}
 
 	private String extractFileName(String detectorName) {
@@ -893,75 +891,6 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	private INexusTree extractNexusTree(String detectorName) {
 		return ((NexusTreeProvider) extractDetectorObject(detectorName)).getNexusTree();
-	}
-
-	/**
-	 * @param detectorName
-	 * @param object
-	 * @return the data read from the detector
-	 * @throws NumberFormatException
-	 */
-	private double[] extractDoubleData(String detectorName, Object object) {
-		double[] data = null;
-		if (object instanceof double[]) {
-			data = (double[]) object;
-		} else if (object instanceof PyList) {
-			// coerce PyList into double array.
-			int length = ((PyList) object).__len__();
-			data = new double[length];
-			for (int i = 0; i < length; i++) {
-				try {
-					// This deals properly with Double, Long & Integer etc. but not BigInteger
-					data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
-				}
-				catch (NumberFormatException nfe){
-					try {
-						// This deals with Double, BigInteger & Long literal etc. but not Long
-						data[i] = Py.py2double(((PyList) object).__getitem__(i));
-					}
-					catch (Exception e) {
-						logger.error("extractDoubleData({}, {}) Exception extracting element {}, data={} (object types={})",
-							detectorName, object, i, Arrays.toString(data),
-							((PyList) object).stream().map(o -> o.getClass()).collect(Collectors.toList()), e);
-						throw e;
-					}
-				}
-			}
-		} else if (object instanceof int[]) {
-			int[] idata = (int[]) object;
-			data = new double[idata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = idata[i];
-			}
-		} else if (object instanceof long[]) {
-			long[] ldata = (long[]) object;
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i];
-			}
-		} else if (object instanceof String[]) {
-			String[] sdata = (String[]) object;
-			data = new double[sdata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = Double.valueOf(sdata[i]);
-			}
-		} else if (object instanceof Number[]) {
-			Number[] ldata = (Number[]) object;
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i].doubleValue();
-			}
-		} else if (object instanceof Double) {
-			data = new double[] { (Double) object };
-		} else if (object instanceof Integer) {
-			data = new double[] { (Integer) object };
-		} else if (object instanceof Long) {
-			data = new double[] { (Long) object };
-		} else {
-			logger.error("cannot handle data of type {} from detector: {}. NO DATA WILL BE WRITTEN TO NEXUS FILE!",
-					object.getClass().getName(), detectorName);
-		}
-		return data;
 	}
 
 	private Double[] extractDoublePositions(String scannableName) {
