@@ -19,42 +19,38 @@
 
 package gda.scan;
 
-import gda.util.TypeConverters;
+import java.util.List;
 
-import java.util.Vector;
+import gda.util.TypeConverters;
 
 
 /**
  *
  */
 public class ScanStepId implements IScanStepId {
-	@Override
-	public String asLabel() {
-		return toString();
-	}
-
-	String scannableId;
-	Object value;
+	private String scannableId;
+	private Object value;
 
 	/**
 	 * @param scannableId
 	 * @param value
 	 */
-	public ScanStepId(String scannableId, Object value)
-	{
+	public ScanStepId(String scannableId, Object value) {
 		this.scannableId = scannableId;
 		this.value = value;
 	}
 
 	@Override
+	public String asLabel() {
+		return toString();
+	}
+
+	@Override
 	public String toString() {
 		String stepIdAsString = scannableId + "=";
-		if( value != null){
-			Vector<String>vals = new Vector<String>();
-			TypeConverters.makeStringsFromObject(vals, value);
-			for(String d : vals){
-				stepIdAsString += d + ",";
-			}
+		if (value != null) {
+			final List<String> vals = TypeConverters.toStringList(value);
+			stepIdAsString += String.join(",", vals);
 		} else {
 			stepIdAsString += "unknown";
 		}
