@@ -56,7 +56,7 @@ public class LiveStreamExposureTimeComposite extends Composite {
 	/**
 	 * Width of {@link #exposureTimeText}
 	 */
-	private static final int TEXT_WIDTH = 70;
+	private static final int TEXT_WIDTH = 35;
 
 	/**
 	 * Text box to edit the exposure time
