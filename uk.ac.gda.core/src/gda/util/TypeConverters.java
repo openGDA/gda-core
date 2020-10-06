@@ -19,10 +19,13 @@
 
 package gda.util;
 
-import java.lang.reflect.Array;
-import java.util.Vector;
+import static java.util.stream.Collectors.toList;
 
-import org.python.core.PyList;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
@@ -31,60 +34,35 @@ import org.python.core.PySequence;
  * Class with static members used to convert between various objects
  */
 public class TypeConverters {
-//	/**
-//	 * @param dataList
-//	 * @param output
-//	 */
-//	static public void makeDoublesFromObjects(List<Object> dataList, Vector<Double> output) {
-//		for (Object element : dataList) {
-//			makeDoublesFromObject(output, element);
-//		}
-//	}
 
 	/**
-	 * @param output
-	 * @param element
+	 * Attempts to convert the given object into a list of strings.
+	 * @param element element to convert
 	 */
-	static public void makeStringsFromObject(Vector<String> output, Object element) {
+	public static List<String> toStringList(Object element) {
 		if (element instanceof String) {
-			output.add((String)element);
+			return Arrays.asList((String)element);
 		} else if (element instanceof Number) {
-			output.add(((Number) element).toString());
-		} else if( element instanceof Number[]){
-			Number[] dd = (Double[])element;
-			for( Number d : dd){
-				output.add(d.toString());
-			}
+			return Arrays.asList(((Number) element).toString());
+		} else if (element instanceof Number[]) {
+			return Arrays.stream((Number[]) element).map(Object::toString).collect(toList());
 		} else if (element.getClass().isArray()) {
-			for (int i = 0; i < Array.getLength(element); i++) {
-				output.add(Array.get(element, i).toString());
+			final int length = Array.getLength(element);
+			final List<String> result = new ArrayList<>(length);
+			for (int i = 0; i < length; i++) {
+				result.add(Array.get(element, i).toString());
 			}
+			return result;
 		} else if (element instanceof PySequence) {
-			int length = ((PySequence) element).__len__();
+			final int length = ((PySequence) element).__len__();
+			final List<String> result = new ArrayList<>(length);
 			for (int i = 0; i < length; i++) {
-
-				PyObject item = ((PySequence) element).__finditem__(i);
-
-				if (item instanceof PyNone) {
-					output.add("none");
-				} else {
-					output.add(item.toString());
-				}
+				final PyObject item = ((PySequence) element).__finditem__(i);
+				result.add(item instanceof PyNone ? "none" : item.toString());
 			}
-		} else if (element instanceof PyList) {
-			int length = ((PyList) element).__len__();
-			for (int i = 0; i < length; i++) {
-
-				PyObject item = ((PyList) element).__finditem__(i);
-
-				if (item instanceof PyNone) {
-					output.add("none");
-				} else {
-					output.add(item.toString());
-				}
-			}
+			return result;
 		} else {
-			output.add(element.toString());
+			return Arrays.asList(element.toString());
 		}
 	}
 }
