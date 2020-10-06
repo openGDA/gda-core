@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -36,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.scan.datawriter.IWritableNexusDevice;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;

@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;

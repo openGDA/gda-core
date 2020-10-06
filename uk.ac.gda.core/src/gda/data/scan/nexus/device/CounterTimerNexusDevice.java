@@ -130,4 +130,9 @@ public class CounterTimerNexusDevice extends AbstractNexusDeviceAdapter<NXdetect
 		}
 	}
 
+	@Override
+	public void scanEnd() throws NexusException {
+		writableDatasets = null;
+	}
+
 }
