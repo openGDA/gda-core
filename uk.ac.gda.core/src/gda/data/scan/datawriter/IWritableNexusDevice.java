@@ -18,10 +18,18 @@
 
 package gda.data.scan.datawriter;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.IntStream;
+
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 
 
@@ -46,5 +54,32 @@ public interface IWritableNexusDevice<N extends NXobject> extends INexusDevice<N
 	 * @throws NexusException
 	 */
 	public void writePosition(Object data, SliceND scanSlice) throws NexusException;
+
+	/**
+	 * A convenience method useful for implementing classes to write a value to a dataset at the position in
+	 * the scan represented by the given {@link SliceND} scanSlice. Call this from {@link #writePosition(Object, SliceND)}
+	 * with the {@link SliceND} passed in.
+	 * @param toWrite the dataset to write to
+	 * @param data the data to write, can be any object or already a dataset
+	 * @param scanSlice specifying where to write to in the scan
+	 * @throws DatasetException if an error occurs writing to the dataset
+	 */
+	public static void writeDataset(ILazyWriteableDataset toWrite, Object data, SliceND scanSlice) throws DatasetException {
+		final Dataset dataset = data instanceof Dataset ? (Dataset) data : DatasetFactory.createFromObject(data);
+
+		final SliceND sliceND;
+		if (dataset.getRank() == 0) {
+			sliceND = scanSlice;
+		} else {
+			// append zeros to the start array, and the dataset shape to the stop array
+			final int[] dataShape = dataset.getShape();
+			final int[] start = IntStream.concat(Arrays.stream(scanSlice.getStart()),
+					Collections.nCopies(dataShape.length, 0).stream().mapToInt(Integer::valueOf)).toArray();
+			final int[] stop = IntStream.concat(Arrays.stream(scanSlice.getStop()), Arrays.stream(dataShape)).toArray();
+			sliceND = new SliceND(toWrite.getShape(), toWrite.getMaxShape(), start, stop, null);
+		}
+
+		toWrite.setSlice(null, dataset, sliceND);
+	}
 
 }
