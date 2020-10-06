@@ -31,20 +31,34 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
+import org.eclipse.january.dataset.Random;
+import org.eclipse.january.dataset.SliceND;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -52,7 +66,9 @@ import org.junit.runners.Parameterized.Parameters;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.detector.DummyDetector;
 import gda.factory.Factory;
 import gda.factory.Finder;
 
@@ -118,6 +134,75 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
 	}
 
+	private static class DummyNexusDeviceDetector extends DummyDetector implements IWritableNexusDevice<NXdetector> {
+
+		private static final int[] IMAGE_SIZE = new int[] { 8, 8 }; // small image size for tests
+
+		private ILazyWriteableDataset imageDataset;
+
+		@Override
+		protected Object acquireData() {
+			// The default implementation returns an array of doubles, one for each extraName (i.e. each field has a scalar value)
+			// This implementation instead returns a double array, which it also writes to the dataset
+			return Random.rand(IMAGE_SIZE);
+		}
+
+		@Override
+		public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
+			final NXdetector det = NexusNodeFactory.createNXdetector();
+			final int scanRank = info.getRank();
+			// We add 2 to the scan rank to include the image
+			imageDataset = det.initializeLazyDataset(NXdetector.NX_DATA, scanRank + 2, Double.class);
+
+			return new NexusObjectWrapper<NXdetector>(getName(), det, NXdetector.NX_DATA);
+		}
+
+		@Override
+		public void atScanEnd() throws DeviceException {
+			imageDataset = null;
+		}
+
+		@Override
+		public void writePosition(Object data, SliceND scanSlice) throws NexusException {
+			final IDataset dataset = (IDataset) data;
+			try {
+				int[] datasetShape = dataset.getShape();
+
+				// TODO append image dims to scanSlice - add method to ScanRankService or SliceND
+				final int[] oldStart = scanSlice.getStart();
+				final int[] oldStop = scanSlice.getStop();
+				final int[] oldStep = scanSlice.getStep();
+
+				final int[] newStart = new int[oldStart.length + dataset.getRank()];
+				System.arraycopy(oldStart, 0, newStart, 0, oldStart.length);
+				// keep last two elements as 0
+
+				final int[] newStop = new int[oldStop.length + dataset.getRank()];
+				System.arraycopy(oldStop, 0, newStop, 0, oldStop.length); // TODO use streams?
+				System.arraycopy(datasetShape, 0, newStop, oldStop.length, datasetShape.length);
+
+				final int[] newStep = new int[oldStep.length + dataset.getRank()];
+				System.arraycopy(oldStep, 0, newStep, 0, oldStep.length);
+
+				final SliceND datasetSlice = new SliceND(imageDataset.getShape(), imageDataset.getMaxShape(),
+						newStart, newStop, null);
+				imageDataset.setSlice(null, dataset, datasetSlice);
+
+
+			} catch (DatasetException e) {
+				throw new NexusException("Could not write data for detector: " + getName());
+			}
+		}
+
+	}
+
+	@Test
+	public void concurrentScanNexusDeviceDetector() throws Exception {
+		detector = new DummyNexusDeviceDetector();
+		detector.setName("det");
+		concurrentScan(detector);
+	}
+
 	@Override
 	protected String getEntryName() {
 		return ENTRY_NAME;
@@ -149,6 +234,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 //		assertThat(user.getNumberOfNodelinks(), is(0));  // note that the created NXuser group is empty
 	}
 
+	private int getNumDevices() {
+		return scanRank + (monitor != null ? 1 : 0) + (detector != null ? 1 : 0);
+	}
+
 	@Override
 	protected void checkInstrumentGroupMetadata(final NXinstrument instrument) {
 		// TODO add instrument name (DAQ-3151), when this is same as NexusDataWriter, move this method up to superclass
@@ -156,7 +245,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 //		assertThat(instrument.getNumberOfDataNodes(), is(1));
 //		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
-		assertThat(instrument.getNumberOfGroupNodes(), is(scanRank + 1));
+		assertThat(instrument.getNumberOfGroupNodes(), is(getNumDevices()));
 		checkSource(instrument);
 	}
 
@@ -219,18 +308,23 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void checkDataGroups(NXentry entry) {
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 
-		assertThat(dataGroups.keySet(), contains(MONITOR_NAME)); // An NXdata group is created for the monitor as this scan has no detectors
-		final NXdata data = dataGroups.get(MONITOR_NAME);
+		final String dataDeviceName = detector != null ? detector.getName() : monitor.getName();
+		final String signalFieldName = detector != null ? NXdetector.NX_DATA : monitor.getName();
+		assertThat(dataGroups.keySet(), contains(dataDeviceName)); // An NXdata group is created for the monitor as this scan has no detectors
+		final NXdata data = dataGroups.get(dataDeviceName);
 		assertThat(data, is(notNullValue()));
 
 		// check that the value field of the monitor and scannable have been linked to
-		assertThat(data.getNumberOfDataNodes(), is(scanRank + 1));
-		assertThat(data.getDataNode(MONITOR_NAME), is(both(notNullValue()).and(sameInstance(
-				entry.getInstrument().getPositioner(MONITOR_NAME).getDataNode(NXpositioner.NX_VALUE)))));
+		assertThat(data.getNumberOfDataNodes(), is(getNumDevices()));
+		assertThat(data.getDataNode(signalFieldName), is(both(notNullValue()).and(sameInstance(detector != null ?
+				entry.getInstrument().getDetector(dataDeviceName).getDataNode(NXdetector.NX_DATA) :
+				entry.getInstrument().getPositioner(dataDeviceName).getDataNode(NXpositioner.NX_VALUE)))));
+
 		// check that the attributes have been added according to the 2014 NXdata format
-		assertThat(data.getNumberOfAttributes(), is(scanRank + 3)); // each scannable, signal, axes, NXclass
-		assertSignal(data, MONITOR_NAME);
-		assertAxes(data, Arrays.stream(scannables).map(Scannable::getName).toArray(String[]::new));
+		assertThat(data.getNumberOfAttributes(), is(scanRank + 3 + (detector != null ? 1 : 0))); // each scannable, monitor (if signal field not from monitor), signal, axes, NXclass
+		assertSignal(data, signalFieldName);
+		assertAxes(data, Stream.concat(Arrays.stream(scannables).map(Scannable::getName),
+				Collections.nCopies(data.getDataNode(signalFieldName).getRank() - scanRank, ".").stream()).toArray(String[]::new));
 
 		final int[] expectedIndices = IntStream.range(0, scanRank).toArray();
 		for (int i = 0; i < scanRank; i++) {

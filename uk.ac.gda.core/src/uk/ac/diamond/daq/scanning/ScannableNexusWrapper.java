@@ -368,4 +368,5 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	public String toString() {
 		return "ScannableNexusWrapper [scannable=" + getScannable() + "]";
 	}
+
 }

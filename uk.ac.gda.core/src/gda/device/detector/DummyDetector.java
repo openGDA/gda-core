@@ -114,7 +114,7 @@ public class DummyDetector extends DetectorBase {
 		future = Async.schedule(this::acquireData, collectionTimeMillis, MILLISECONDS);
 	}
 
-	private Object acquireData() {
+	protected Object acquireData() {
 		// Generate data. Return an array of size extraNames.length containing random doubles between 0 and maxDataValue
 		return random.doubles(extraNames.length, 0, maxDataValue).toArray();
 	}

@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.data.scan.datawriter.IWritableNexusDevice;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -65,7 +66,7 @@ import gda.device.Scannable;
  *
  * @param <N>
  */
-public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>, IMultipleNexusDevice {
+public class ScannableNexusDevice<N extends NXobject> implements IWritableNexusDevice<N>, IMultipleNexusDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
 
@@ -488,10 +489,17 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 	 * Write the given position at the given slice.
 	 * @param position the position to write
 	 * @param scanSlice the scan slice, i.e. where to write in the datasets
-	 * @throws Exception if the position cannot be written for any reason
+	 * @throws NexusException if the position cannot be written for any reason
 	 */
-	public void writePosition(Object position, SliceND scanSlice) throws Exception {
-		writeActualPosition(position, scanSlice);
+	@Override
+	public void writePosition(Object position, SliceND scanSlice) throws NexusException {
+		try {
+			writeActualPosition(position, scanSlice);
+		} catch(NexusException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new NexusException("Could not write position " + Arrays.toString(scanSlice.getStart()), e);
+		}
 	}
 
 	/**
@@ -500,10 +508,10 @@ public class ScannableNexusDevice<N extends NXobject> implements INexusDevice<N>
 	 * @param scanSlice the scan slice, i.e. where to write in the datasets
 	 * @throws Exception if the position cannot be written for any reason
 	 */
-	public void writeActualPosition(Object actualPosition, SliceND scanSlice) throws Exception {
+	private void writeActualPosition(Object actualPosition, SliceND scanSlice) throws Exception {
 		final Object[] positionArray = getPositionArray(actualPosition);
 		if (positionArray.length < writableDatasets.size()) {
-			throw new NexusException(MessageFormat.format("getPosition() of scannable ''{0}'' must be an array of length at least: {1}",
+			throw new NexusException(MessageFormat.format("getPosition() of ''{0}'' must be an array of length at least: {1}",
 					getName(), writableDatasets.size()));
 		}
 
