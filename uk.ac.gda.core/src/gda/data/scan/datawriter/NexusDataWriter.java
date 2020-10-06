@@ -1410,13 +1410,10 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			makeNexusDetectorGroups(detector); // a nexus detector may make multiple groups as some subclasses can control multiple actual detectors
 			detectorGroup = null;
 		} else if (detector.createsOwnFiles()) {
-			logger.debug("Creating File Creator Detector entry in NeXus file.");
-			detectorGroup = makeFileCreatorDetector(detector.getName(), detector.getDataDimensions(), detector);
+			detectorGroup = makeFileCreatorDetector(detector);
 		} else if (detector.getExtraNames().length > 0) {
-			logger.debug("Creating Detector entry in NeXus file.");
 			detectorGroup = makeCounterTimer(detector);
 		} else {
-			logger.debug("Creating Generic Detector entry in NeXus file.");
 			detectorGroup = makeGenericDetector(detector.getName(), detector.getDataDimensions(), Double.class, detector, null);
 		}
 
@@ -1489,12 +1486,13 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		NexusUtils.writeIntegerAttribute(file, group, "data_filename", 1);
 	}
 
-	private GroupNode makeFileCreatorDetector(String detectorName, @SuppressWarnings("unused") int[] dataDimensions,
-			Object detector) throws NexusException {
+	private GroupNode makeFileCreatorDetector(Detector detector) throws NexusException {
+		logger.debug("Creating File Creator Detector entry for {} in NeXus file.", detector.getName());
+
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
-		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
+		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
 		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
 
 		// Metadata items
@@ -1522,7 +1520,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		// Make and open NXdata
 		path.setLength(0);
 		NexusUtils.addToAugmentPath(path, entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDataClassName);
+		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDataClassName);
 		final GroupNode dataGroup = file.getGroup(path.toString(), true);
 
 		makeAxesLinks(dataGroup);
@@ -1535,6 +1533,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 */
 	private GroupNode makeGenericDetector(String detectorName, int[] dataDimensions, Class<?> clazz, Detector detector,
 			INexusTree detectorData) throws NexusException {
+		logger.debug("Creating Generic Detector entry for {} in NeXus file.", detector.getName());
+
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
@@ -1640,6 +1640,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 * Creates an NXdetector for a CounterTimer.
 	 */
 	private GroupNode makeCounterTimer(Detector detector) throws NexusException, DeviceException {
+		logger.debug("Creating Detector entry for {} in NeXus file.", detector.getName());
 		SelfCreatingLink detectorID;
 
 		// Navigate to the relevant section in file...
