@@ -43,12 +43,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import gda.configuration.properties.LocalProperties;
+
 @RunWith(value=Parameterized.class)
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final String DATASET_NAME_SCAN_COMMAND = "scan_command";
 	private static final String DATASET_NAME_SCAN_DIMENSIONS = "scan_dimensions";
-	private static final String DATA_GROUP_NAME = "default";
+	private static final String DATA_GROUP_NAME_DEFAULT = "default";
 
 	private static final String ATTRIBUTE_NAME_AXIS = "axis";
 	private static final String ATTRIBUTE_NAME_LABEL = "label";
@@ -71,6 +73,12 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@BeforeClass
 	public static void setUpServices() {
 		AbstractNexusDataWriterScanTest.setUpServices();
+	}
+
+	@Override
+	protected void setUpTest() throws Exception {
+		super.setUpTest();
+		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "false");
 	}
 
 	@Override
@@ -109,7 +117,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(instrument.getNumberOfDataNodes(), is(1));
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
-		assertThat(instrument.getNumberOfGroupNodes(), is(scanRank + 2)); // an NXposition for each scannable and the monitor, plus the NXsource
+		final int expectedGroupNodes = getNumDevices() + 1; // group node for each scannable plus monitor, detector and source
+		assertThat(instrument.getNumberOfGroupNodes(), is(expectedGroupNodes));
 		checkSource(instrument);
 	}
 
@@ -165,19 +174,40 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkDataGroups(NXentry entry) {
 		// NexusDataWriter creates a single NXdata group
+		final String expectedDataGroupName = detectorType == DetectorType.NONE ? DATA_GROUP_NAME_DEFAULT : detector.getName();
 		final Map<String, NXdata> dataGroups = entry.getAllData();
-		assertThat(dataGroups.keySet(), contains(DATA_GROUP_NAME));
-		final NXdata data = dataGroups.get(DATA_GROUP_NAME);
+		assertThat(dataGroups.keySet(), contains(expectedDataGroupName));
+		final NXdata data = dataGroups.get(expectedDataGroupName);
 		assertThat(data, is(notNullValue()));
 
-		assertThat(data.getNumberOfDataNodes(), is(scanRank + 1));
-		for (int i = 0; i < scanRank; i++) {
-			final String scannableName = scannables[i].getName();
-			assertThat(data.getDataNode(scannableName), is(both(notNullValue()).and(sameInstance(
-					entry.getInstrument().getPositioner(scannableName).getDataNode(scannableName)))));
+		final String[] scannableAndMonitorNames = getScannableAndMonitorNames();
+		int expectedNumDataNodes = scannableAndMonitorNames.length;
+		switch (detectorType) {
+			case NONE: break;
+			case NEXUS_DEVICE: break;
+			case COUNTER_TIMER:
+				final String[] extraNames = detector.getExtraNames();
+				expectedNumDataNodes += extraNames.length;
+				for (String name : extraNames) {
+					assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(
+							entry.getInstrument().getDetector(detector.getName()).getDataNode(name)))));
+				}
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown detector type " + detectorType);
 		}
-		assertThat(data.getDataNode(NXpositioner.NX_VALUE), is(both(notNullValue()).and(sameInstance(
-				entry.getInstrument().getPositioner(MONITOR_NAME).getDataNode(NXpositioner.NX_VALUE)))));
+
+		assertThat(data.getNumberOfDataNodes(), is(expectedNumDataNodes));
+		for (int i = 0; i < scanRank; i++) {
+			final String scannableName = scannableAndMonitorNames[i];
+			if (i < scanRank) {
+				assertThat(data.getDataNode(scannableName), is(both(notNullValue()).and(sameInstance(
+						entry.getInstrument().getPositioner(scannableName).getDataNode(scannableName)))));
+			} else {
+				assertThat(data.getDataNode(NXpositioner.NX_VALUE), is(both(notNullValue()).and(sameInstance(
+						entry.getInstrument().getPositioner(MONITOR_NAME).getDataNode(NXpositioner.NX_VALUE)))));
+			}
+		}
 	}
 
 }

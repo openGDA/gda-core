@@ -51,7 +51,9 @@ import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.detector.NexusDetector;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -105,6 +107,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private NexusScanFile nexusScanFile = null;
 
 	private final Map<String, IWritableNexusDevice<? extends NXobject>> scannableNexusDevices = new HashMap<>();
+
+	private final Map<String, IWritableNexusDevice<?>> detectorNexusDevices = new HashMap<>();
 
 	private int currentPointNumber = -1;
 
@@ -313,13 +317,33 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return nexusDevice;
 	}
 
-	private INexusDevice<?> createNexusDevice(Detector detector) {
+	private IWritableNexusDevice<?> createNexusDevice(Detector detector) {
 		// if the detector already is a nexus device, just return it
-		if (detector instanceof INexusDevice<?>) {
-			return (INexusDevice<?>) detector;
+		final IWritableNexusDevice<?> nexusDevice;
+		try {
+			if (detector instanceof IWritableNexusDevice<?>) { // the detetor already is a nexus device
+				nexusDevice = (IWritableNexusDevice<?>) detector;
+			} else if (detector instanceof NexusDetector) {
+				// TODO implement support for NexusDetector, see NexusDataWriter.makeNexusDetectorGroups
+				throw new UnsupportedOperationException("Detectors of type NexusDetector are not yet supported: " + detector.getName());
+			} else if (detector.createsOwnFiles()) {
+				// TODO implement support for file creator detector, see NexusDataWriter.makeFileCreatorDetector
+				throw new UnsupportedOperationException("Detectors that create their own files are not yet support: " + detector.getName());
+			} else if (detector.getExtraNames().length > 0) {
+				nexusDevice = new CounterTimerNexusDevice(detector);
+			} else {
+				// TODO implement support for generic detector, see NexusDataWriter.makeGenericDetector
+				throw new UnsupportedOperationException("Generic detectors are not yet supported: " + detector.getName());
+			}
+		} catch (DeviceException e) {
+			throw new RuntimeException(e);
 		}
 
-		throw new UnsupportedOperationException("This nexus data writer does not yet support for your detector:" + detector.getName());
+		// TODO: might it be useful to let a detector implement INexusDevice but not IWritableNexusDevice? If so, it
+		// would have be responsible for writing its dataset at the appropriate point in the scan, e.g. in acquireData
+		detectorNexusDevices.put(detector.getName(), nexusDevice);
+
+		return nexusDevice;
 	}
 
 	private List<INexusDevice<?>> getPerScanMonitors() {
@@ -386,19 +410,17 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private void writeDetectors(IScanDataPoint point, final SliceND scanSlice) throws Exception {
-		final List<Detector> detectors = point.getDetectors();
+		final List<String> detectorNames = point.getDetectorNames();
 		final List<Object> detectorData = point.getDetectorData();
-		if (detectors.size() != detectorData.size()) {
-			throw new NexusException("Detector and data lists have different sizes");
+		if (detectorNames.size() != detectorData.size()) {
+			throw new NexusException("Detector name and data lists have different sizes");
 		}
 
-		for (int i = 0; i < detectors.size(); i++) {
-			// if the detector already is an IWritableNexusDevice, call it's write position method
-			if (detectors.get(i) instanceof IWritableNexusDevice<?>) {
-				((IWritableNexusDevice<?>) detectors.get(i)).writePosition(detectorData.get(i), scanSlice);
-			} else {
-				throw new UnsupportedOperationException("Detector not supported:" + detectors.get(i).getName());
-			}
+		for (int i = 0; i < detectorNames.size(); i++) {
+			final IWritableNexusDevice<?> detNexusDevice = detectorNexusDevices.get(detectorNames.get(i));
+			if (detNexusDevice == null)
+				throw new IllegalArgumentException("No nexus device for detector: " + detectorNames.get(i));
+			detNexusDevice.writePosition(detectorData.get(i), scanSlice);
 		}
 	}
 
