@@ -18,6 +18,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
@@ -573,7 +575,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private List<IRunnableDevice<? extends IDetectorModel>> getDetectors(Map<String, IDetectorModel> detectors) throws EventException {
 		if (detectors == null) {
-			return null;
+			return Collections.emptyList();
 		}
 		try {
 			final List<IRunnableDevice<? extends IDetectorModel>> ret = new ArrayList<>(3);
@@ -601,14 +603,23 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private List<INexusDevice<?>> getNexusDevices(Collection<String> nexusDeviceNames) {
 		if (nexusDeviceNames == null) return null;
-		return nexusDeviceNames.stream().map(Services.getNexusDeviceService()::getNexusDevice).collect(toList());
+		return nexusDeviceNames.stream().map(this::getNexusDevice).collect(toList());
 	}
 
 	private IScannable<?> getScannable(String name) {
-		// ScanningExceptions are wrapped in a RuntimeException so we this method with streams
+		// ScanningExceptions are wrapped in a RuntimeException so that we use this method with streams
 		try {
 			return Services.getConnector().getScannable(name);
 		} catch (ScanningException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private INexusDevice<?> getNexusDevice(String name) {
+		// NexusExceptions are wrapped in a RuntimeException so that we can use this method with streams
+		try {
+			return Services.getNexusDeviceService().getNexusDevice(name);
+		} catch (NexusException e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -45,6 +45,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.device.NexusMetadataDevice;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
@@ -334,7 +335,7 @@ public class PerScanMonitorTest extends NexusTest {
 		assertEquals(expectedValue, dataset.getElementDoubleAbs(0), 1e-15);
 	}
 
-	private void checkUser(NXuser user, String perScanMonitorName) {
+	private void checkUser(NXuser user, String perScanMonitorName) throws NexusException {
 		final NexusMetadataDevice<NXuser> metadataDevice =
 				(NexusMetadataDevice<NXuser>) ServiceHolder.getNexusDeviceService().<NXuser>getNexusDevice(perScanMonitorName);
 		final Map<String, Object> metadata = metadataDevice.getNexusMetadata();

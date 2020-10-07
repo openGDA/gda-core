@@ -30,6 +30,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.appender.NexusMetadataAppender;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
@@ -87,7 +88,7 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 		}
 	}
 
-	private void checkMalcolmDetectorMetadata(NXinstrument instrument, String name) {
+	private void checkMalcolmDetectorMetadata(NXinstrument instrument, String name) throws NexusException {
 		final NXdetector detector = instrument.getDetector(name);
 		assertNotNull(detector);
 		NexusMetadataAppender<?> metadataAppender = (NexusMetadataAppender<?>) ServiceHolder.getNexusDeviceService().getDecorator(name);
