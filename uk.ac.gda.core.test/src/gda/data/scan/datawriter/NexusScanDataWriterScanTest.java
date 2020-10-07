@@ -70,7 +70,6 @@ import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
-import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.device.BeamNexusDevice;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
@@ -145,22 +144,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		public void scanEnd() throws NexusException {
 			imageDataset = null;
 		}
-	}
-
-	/**
-	 * Extends DummyDetector to return an image rather than an array of doubles.
-	 */
-	private static class DummyImageDetector extends DummyDetector {
-
-		private static final int[] IMAGE_SIZE = new int[] { 8, 8 }; // small image size for tests
-
-		@Override
-		protected Object acquireData() {
-			// The default implementation returns an array of doubles, one for each extraName (i.e. each field has a scalar value)
-			// This implementation instead returns a double array, which it also writes to the dataset
-			return Random.rand(IMAGE_SIZE);
-		}
-
 	}
 
 	/**
@@ -627,6 +610,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			case NONE: throw new IllegalArgumentException(); // this method is not called in this case
 			case NEXUS_DEVICE: return NXdetector.NX_DATA;
 			case COUNTER_TIMER: return detector.getExtraNames()[0];
+			case GENERIC_DETECTOR: return NXdetector.NX_DATA;
 			default: throw new IllegalArgumentException("Unknown detector type: " + detectorType);
 		}
 	}

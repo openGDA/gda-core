@@ -91,10 +91,10 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 			return device instanceof Detector;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public <N extends NXobject> INexusDevice<N> createNexusDevice(Detector detector) throws NexusException {
-			// TODO DAQ-3179: implement support for generic detector, see NexusDataWriter.makeGenericDetector
-			throw new UnsupportedOperationException("Generic detectors are not yet supported:" + detector.getName());
+		public INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
+			return new GenericDetectorNexusDevice(detector);
 		}
 
 	}

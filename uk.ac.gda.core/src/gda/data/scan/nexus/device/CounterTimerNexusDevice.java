@@ -21,49 +21,28 @@ package gda.data.scan.nexus.device;
 import java.util.LinkedHashMap;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.util.TypeConverters;
 
 /**
  * An instance of this class wraps a {@link Detector} to implement {@link INexusDevice}, for detectors where
  * {@link Detector#getExtraNames()} is not empty. This code is derived from {@link NexusDataWriter}.makeCounterTimer.
  */
-public class CounterTimerNexusDevice extends AbstractNexusDeviceAdapter<NXdetector> {
-
-	private static final Logger logger = LoggerFactory.getLogger(CounterTimerNexusDevice.class);
+public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter {
 
 	private LinkedHashMap<String, ILazyWriteableDataset> writableDatasets = null;
 
 	public CounterTimerNexusDevice(Detector detector) {
 		super(detector);
-	}
-
-	private Detector getDetector() {
-		return (Detector) super.getDevice();
-	}
-
-	@Override
-	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
-		logger.debug("Creating nexus object for detector {}", getName());
-		final NXdetector detGroup = createNexusObject(info);
-		return new NexusObjectWrapper<NXdetector>(getName(), detGroup, getDataFieldName());
 	}
 
 	@Override
@@ -72,33 +51,7 @@ public class CounterTimerNexusDevice extends AbstractNexusDeviceAdapter<NXdetect
 	}
 
 	@Override
-	protected NXdetector createNexusObject(NexusScanInfo info) throws NexusException {
-		final NXdetector detGroup = NexusNodeFactory.createNXdetector();
-
-		final Detector detector = getDetector();
-		try {
-			detGroup.setDescriptionScalar(detector.getDescription());
-			detGroup.setTypeScalar(detector.getDetectorType());
-			detGroup.setDataset("id", DatasetFactory.createFromObject(detector.getDetectorID()));
-		} catch (DeviceException e) {
-			throw new NexusException("Error reading device metadata", e);
-		}
-
-		// Note: unlike NexusDataWriter, we do not support INeXusInfoWriteable
-		// this seems to be little used in practise
-		if (detector instanceof INeXusInfoWriteable) {
-			logger.warn("INeXusInfoWriteable is not supported by data writer {}", getClass().getSimpleName());
-		}
-
-		writeDataFields(info, detGroup);
-
-		// add fields for attributes, e.g. name, description. This allows custom metadata to be added
-		registerAttributes(detGroup);
-
-		return detGroup;
-	}
-
-	private void writeDataFields(NexusScanInfo info, final NXdetector detGroup) {
+	protected void writeDataFields(NexusScanInfo info, final NXdetector detGroup) {
 		writableDatasets = new LinkedHashMap<>();
 		for (String fieldName : getDetector().getExtraNames()) {
 			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getRank(), Double.class);
@@ -109,10 +62,6 @@ public class CounterTimerNexusDevice extends AbstractNexusDeviceAdapter<NXdetect
 		}
 	}
 
-	private String getDataFieldName() {
-		return getDetector().getExtraNames()[0];
-	}
-
 	@Override
 	public void writePosition(Object data, SliceND scanSlice) throws NexusException {
 		final double[] dataArray = TypeConverters.toDoubleArray(data);
@@ -120,9 +69,8 @@ public class CounterTimerNexusDevice extends AbstractNexusDeviceAdapter<NXdetect
 		int fieldIndex = 0;
 		for (ILazyWriteableDataset dataset : writableDatasets.values()) {
 			// we rely on predictable iteration order for LinkedHashSet of writableDataset
-			final IDataset value = DatasetFactory.createFromObject(dataArray[fieldIndex]);
 			try {
-				dataset.setSlice(null, value, scanSlice);
+				IWritableNexusDevice.writeDataset(dataset, dataArray[fieldIndex], scanSlice);
 			} catch (DatasetException e) {
 				throw new NexusException("Could not write data for detector " + getName());
 			}
