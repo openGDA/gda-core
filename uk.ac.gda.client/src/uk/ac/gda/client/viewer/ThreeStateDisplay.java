@@ -77,27 +77,48 @@ public class ThreeStateDisplay {
 	}
 
 	/**
-	 * Display green icon and corresponding message
+	 * Display green icon and default message
 	 */
 	public void setGreen() {
-		icon.setImage(ICON_GREEN);
-		setMessage(messageGreen);
+		setGreen(messageGreen);
 	}
 
 	/**
-	 * Display yellow icon and corresponding message
+	 * Display green icon and specified message
+	 */
+	public void setGreen(String message) {
+		icon.setImage(ICON_GREEN);
+		setMessage(message);
+	}
+
+	/**
+	 * Display yellow icon and default message
 	 */
 	public void setYellow() {
-		icon.setImage(ICON_YELLOW);
-		setMessage(messageYellow);
+		setYellow(messageYellow);
 	}
 
 	/**
-	 * Display red icon and corresponding message
+	 * Display yellow icon and specified message
+	 */
+	public void setYellow(String message) {
+		icon.setImage(ICON_YELLOW);
+		setMessage(message);
+	}
+
+	/**
+	 * Display red icon and default message
 	 */
 	public void setRed() {
+		setRed(messageRed);
+	}
+
+	/**
+	 * Display red icon and specified message
+	 */
+	public void setRed(String message) {
 		icon.setImage(ICON_RED);
-		setMessage(messageRed);
+		setMessage(message);
 	}
 
 	/**
