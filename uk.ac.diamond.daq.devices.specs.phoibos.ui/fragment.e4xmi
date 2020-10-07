@@ -46,12 +46,23 @@
     </elements>
     <elements xsi:type="advanced:Perspective" xmi:id="_QSp7wGK0Eeqa878JuBK7lQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.perspective.alignment" label="Alignment" iconURI="platform:/plugin/uk.ac.diamond.daq.devices.specs.phoibos.ui/icons/liveAlign.png">
       <children xsi:type="basic:PartSashContainer" xmi:id="_0j7gAGK1Eeqa878JuBK7lQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.3" horizontal="true">
-        <children xsi:type="basic:PartSashContainer" xmi:id="_5aK2MGK1Eeqa878JuBK7lQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.4">
-          <children xsi:type="basic:Part" xmi:id="_BhHvMGK2Eeqa878JuBK7lQ" elementId="uk.ac.gda.client.livecontrol.LiveControlsView" containerData="7000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Live Controls"/>
-          <children xsi:type="basic:Part" xmi:id="_M7fiADOpEequh-BNi-2a_Q" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.alignmentcontrol" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.control.SpecsAlignmentView" label="Alignment Controls" closeable="true"/>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_5aK2MGK1Eeqa878JuBK7lQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.4" containerData="4000">
+          <children xsi:type="basic:PartStack" xmi:id="_DLzwcAfrEeuG1ItS5RK17g" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.6">
+            <children xsi:type="basic:Part" xmi:id="_BhHvMGK2Eeqa878JuBK7lQ" elementId="uk.ac.gda.client.livecontrol.LiveControlsView" containerData="7000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Live Controls"/>
+          </children>
         </children>
-        <children xsi:type="basic:PartStack" xmi:id="_7luHwGK1Eeqa878JuBK7lQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.4">
-          <children xsi:type="basic:Part" xmi:id="_n518oDh8EeqsWNnG9P9aDg" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.alignmentspectrum" containerData="8000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Alignment Spectrum" closeable="true"/>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_DrmyAAfDEeuatOovFPTZIQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.5" containerData="4000">
+          <children xsi:type="basic:PartStack" xmi:id="_cW-fkAfDEeuatOovFPTZIQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.4">
+            <children xsi:type="basic:Part" xmi:id="_n518oDh8EeqsWNnG9P9aDg" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.alignmentspectrum" containerData="8000" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Alignment Spectrum" closeable="true"/>
+          </children>
+        </children>
+        <children xsi:type="basic:PartSashContainer" xmi:id="_Rxh5IAfqEeuG1ItS5RK17g" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.6" containerData="4000">
+          <children xsi:type="basic:PartStack" xmi:id="_fwojAAfDEeuatOovFPTZIQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.5">
+            <children xsi:type="basic:Part" xmi:id="_MtAhEAfDEeuatOovFPTZIQ" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:d22c_cam1#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="D22C"/>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_luVJUAfrEeuG1ItS5RK17g" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.7">
+            <children xsi:type="basic:Part" xmi:id="_M7fiADOpEequh-BNi-2a_Q" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.alignmentcontrol" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.control.SpecsAlignmentView" label="Alignment Controls" closeable="true"/>
+          </children>
         </children>
       </children>
     </elements>
