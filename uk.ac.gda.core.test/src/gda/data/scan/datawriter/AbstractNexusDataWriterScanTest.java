@@ -66,6 +66,7 @@ import org.eclipse.january.dataset.PositionIterator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.Streams;
@@ -76,6 +77,7 @@ import gda.data.metadata.StoredMetadataEntry;
 import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
+import gda.device.detector.DummyDetector;
 import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyScannable;
@@ -86,7 +88,7 @@ import gda.scan.IScanDataPoint;
 public abstract class AbstractNexusDataWriterScanTest {
 
 	public enum DetectorType {
-		NONE, NEXUS_DEVICE, COUNTER_TIMER;
+		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC_DETECTOR
 	}
 
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
@@ -187,13 +189,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 		monitor = null;
 	}
 
-	protected void setUpTest() throws Exception {
-		testDir = TestHelpers.setUpTest(this.getClass(), "concurrentScan", true);
+	protected void setUpTest(String testName) throws Exception {
+		testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
 	}
 
 	@Test
 	public void concurrentScanNoDetector() throws Exception {
-		concurrentScan(null, DetectorType.NONE);
+		concurrentScan(null, DetectorType.NONE, "NoDetector");
 	}
 
 	@Test
@@ -209,14 +211,24 @@ public abstract class AbstractNexusDataWriterScanTest {
 		detector.configure();
 		detector.setCollectionTime(10.0);
 
-		concurrentScan(detector, DetectorType.COUNTER_TIMER);
+		concurrentScan(detector, DetectorType.COUNTER_TIMER, "CounterTimer");
 	}
 
-	protected void concurrentScan(Detector detector, DetectorType detectorType) throws Exception {
+	@Test
+	@Ignore
+	public void concurrentScanGenericDetector() throws Exception {
+		final DummyDetector det = new DummyDetector();
+		det.setName("det1");
+		det.setRandomSeed(34l);
+
+		concurrentScan(det, DetectorType.GENERIC_DETECTOR, "GenericDetector");
+	}
+
+	protected void concurrentScan(Detector detector, DetectorType detectorType, String testSuffix) throws Exception {
 		this.detector = detector;
 		this.detectorType = detectorType;
 
-		setUpTest(); // create test dir and initialize properties
+		setUpTest("concurrentScan" + testSuffix); // create test dir and initialize properties
 
 		// create the scan
 		scanArguments = createScanArguments(detector);

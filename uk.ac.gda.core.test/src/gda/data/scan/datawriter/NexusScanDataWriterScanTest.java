@@ -231,8 +231,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected void setUpTest() throws Exception {
-		super.setUpTest();
+	protected void setUpTest(String testName) throws Exception {
+		super.setUpTest(testName);
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
 	}
 
@@ -240,7 +240,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	public void concurrentScanNexusDeviceDetector() throws Exception {
 		detector = new DummyNexusDeviceDetector();
 		detector.setName("det");
-		concurrentScan(detector, DetectorType.NEXUS_DEVICE);
+		concurrentScan(detector, DetectorType.NEXUS_DEVICE, "NexusDeviceDetector");
 	}
 
 	@Test
@@ -249,7 +249,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		detector.setName("det");
 		final IWritableNexusDevice<NXdetector> nexusDevice = new DummyDetectorNexusDevice(detector.getName());
 		ServiceHolder.getNexusDeviceService().register(nexusDevice);
-		concurrentScan(detector, DetectorType.NEXUS_DEVICE);
+		concurrentScan(detector, DetectorType.NEXUS_DEVICE, "RegisteredNexusDevice");
 	}
 
 	@Override
