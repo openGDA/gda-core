@@ -20,6 +20,7 @@
 package gda.device.scannable;
 
 import static gda.device.scannable.ScannableUtils.objectToArray;
+import static gda.device.scannable.ScannableUtils.objectToDouble;
 import static java.lang.Double.NaN;
 import static java.util.stream.Stream.of;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,10 +29,12 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static tec.units.indriya.quantity.Quantities.getQuantity;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -46,7 +49,6 @@ import javax.measure.quantity.Speed;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.python.core.Py;
 import org.python.core.PyList;
@@ -56,6 +58,7 @@ import org.python.core.PyTuple;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
+import tec.units.indriya.AbstractUnit;
 import tec.units.indriya.quantity.Quantities;
 import tec.units.indriya.unit.Units;
 
@@ -494,6 +497,33 @@ public class ScannableUtilsTest {
 	}
 
 	@Test
+	public void singleObjectToDouble() {
+		assertEquals("double from double", objectToDouble(1.2), 1.2, 1e-6);
+		assertEquals("double from int", objectToDouble(1), 1.0, 1e-6);
+		assertEquals("double from long", objectToDouble(1L), 1.0, 1e-6);
+		assertEquals("double from string", objectToDouble("12.34"), 12.34, 1e-6);
+		assertEquals("double from PyInteger", objectToDouble(Py.newInteger(23)), 23.0, 1e-6);
+		assertEquals("double from PyLong", objectToDouble(Py.newLong(42)), 42.0, 1e-6);
+		assertEquals("double from PyString", objectToDouble(Py.newString("87.65")), 87.65, 1e-6);
+		assertEquals("double from PyDecimal", objectToDouble(Py.newDecimal("76.54")), 76.54, 1e-6);
+		assertEquals("double from distance", objectToDouble(getQuantity(12.2, Units.METRE)), 12.2, 1e-6);
+		assertEquals("double from unitless quantity", objectToDouble(getQuantity(19.1, AbstractUnit.ONE)), 19.1, 1e-6);
+		assertEquals("double from Arbitrary object string", objectToDouble(new NumberString("34.89")), 34.89, 1e-6);
+		assertEquals("double from quantity string", objectToDouble("17.34 m"), 17.34, 1e-6);
+		assertEquals("double from quantity PyString", objectToDouble(Py.newString("14.65 cm")), 14.65, 1e-6);
+
+		assertThat("NaN from NaN value", objectToDouble(NaN), is(NaN));
+		assertThat("NaN from NaN string", objectToDouble("NaN"), is(NaN));
+		assertThat("NaN from Py NaN", objectToDouble(Py.newFloat(NaN)), is(NaN));
+		assertThat("NaN from Py NaN string", objectToDouble(Py.newString("NaN")), is(NaN));
+
+		assertNull("null from null", objectToDouble(null));
+		assertNull("null from non number string", objectToDouble("not a number"));
+		assertNull("null from non number", objectToDouble(new Object()));
+		assertNull("null from non number PyObject", objectToDouble(Py.Ellipsis));
+	}
+
+	@Test
 	public void doubleArrayObjectToArray() {
 		// The most basic conversion - an object to itself
 		Double[] input = new Double[] {1.0, 2.0, 3.0};
@@ -541,19 +571,19 @@ public class ScannableUtilsTest {
 		PyTuple inputTuple = new PyTuple(Py.newInteger(17),
 				Py.newFloat(2.3),
 				Py.newFloat(3.4f),
-//				Py.newDecimal("3.4"), // Can't convert Decimal
+				Py.newDecimal("3.4"),
 				Py.newString("7.2"));
 		Double[] outputTuple = objectToArray(inputTuple);
-		assertDoubleArrayEquals(outputTuple, 17.0, 2.3, 3.4, 7.2);
+		assertDoubleArrayEquals(outputTuple, 17.0, 2.3, 3.4, 3.4, 7.2);
 
 		PyList inputList = new PyList(new PyObject[] {
 				Py.newInteger(17),
 				Py.newFloat(2.3),
 				Py.newFloat(3.4f),
-//				Py.newDecimal("3.4"), // Can't convert Decimal
+				Py.newDecimal("3.4"),
 				Py.newString("7.2")});
 		Double[] outputList = objectToArray(inputList);
-		assertDoubleArrayEquals(outputList, 17.0, 2.3, 3.4, 7.2);
+		assertDoubleArrayEquals(outputList, 17.0, 2.3, 3.4, 3.4, 7.2);
 	}
 
 	@Test
@@ -598,7 +628,6 @@ public class ScannableUtilsTest {
 	}
 
 	@Test
-	@Ignore // Currently throws NPE
 	public void nullToArray() {
 		Object input = null;
 		Double[] output = objectToArray(input);
@@ -615,7 +644,7 @@ public class ScannableUtilsTest {
 	public void arrayOfArbitraryObjectsToArray() {
 		Object[] input = new Object[] { new NumberString(2), new NumberString(3)};
 		Double[] output = objectToArray(input);
-		assertDoubleArrayEquals(output, null, null);
+		assertDoubleArrayEquals(output, 2.0, 3.0);
 	}
 
 	@Test(expected = NumberFormatException.class)
@@ -624,7 +653,6 @@ public class ScannableUtilsTest {
 	}
 
 	@Test
-	@Ignore // treats string as a sequence
 	public void singleJythonStringToArray() {
 		Object input = Py.newString("12345");
 		Double[] output = objectToArray(input);

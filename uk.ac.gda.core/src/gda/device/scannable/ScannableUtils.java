@@ -18,6 +18,8 @@
 
 package gda.device.scannable;
 
+import static java.util.stream.IntStream.range;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -29,6 +31,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import javax.measure.Quantity;
 
@@ -712,80 +715,101 @@ public final class ScannableUtils {
 	}
 
 	/**
-	 * Converts a position object to an array of doubles. It position is an Angle quantity it is converted to degrees,
-	 * if a linear quantity it is converted to mm, else it is just treated as a number.
+	 * Convert an object to a Double
+	 * <dl>
+	 * <dt>Number</dt>
+	 *     <dd>🡆 Result of doubleValue()</dd>
+	 * <dt>String</dt>
+	 *     <dd>🡆 Try parsing as either double or quantity</dd>
+	 * <dt>Quantity</dt>
+	 *     <dd>🡆 Value component - no unit conversions are made</dd>
+	 * <dt>PyObject</dt>
+	 *     <dd>🡆 Attempt conversion to number or string and try again</dd>
+	 * <dt>Object</dt>
+	 *     <dd>🡆 Call toString and try to parse the result</dd>
+	 * <dt>null</dt>
+	 *     <dd>🡆 null</dd>
+	 * <dl>
+	 * If no conversion is possible return null to differentiate the case where
+	 * "NaN" or {@link Double#NaN} is passed in.
+	 * @param value Anything that might be useful as a number
+	 * @return Some kind of double value - null if no conversion is possible
+	 */
+	public static Double objectToDouble(Object value) {
+		if (value == null) {
+			return null;
+		} else if (value instanceof Number) {
+			return ((Number)value).doubleValue();
+		} else if (value instanceof String) {
+			try {
+				return Double.parseDouble((String)value);
+			} catch (NumberFormatException e) {
+				// either quantity or null - either can be handled
+				return objectToDouble(QuantityFactory.createFromString((String)value));
+			}
+		} else if (value instanceof PyObject) {
+			Object pynumber = ((PyObject)value).__tojava__(Double.class);
+			if (pynumber instanceof Number) {
+				return ((Number)pynumber).doubleValue();
+			} // else fallback to string version below
+		} else if (value instanceof Quantity<?>) {
+			return ((Quantity<?>)value).getValue().doubleValue();
+		}
+
+		// last attempt, see if it looks like a double if you squint
+		return objectToDouble(value.toString());
+	}
+
+	/**
+	 * Converts an object to an array of Doubles.
+	 * <br/>
+	 * If it is an array or list, each value is converted according to
+	 * {@link #objectToDouble(Object)} and returned in an array. Otherwise,
+	 * attempt to convert the object to a single double and return an array of
+	 * a single value.
 	 *
-	 * @param position
-	 * @return array of doubles
+	 * @param position Any object representing a double or sequence of doubles
+	 * @return array of Doubles
 	 */
 	public static Double[] objectToArray(Object position) {
 		if (position instanceof Double[]) {
 			return (Double[]) position;
+		} else if (position == null) {
+			return new Double[0];
 		}
 
-		Double[] posArray = new Double[0];
-		if (position instanceof Number[]) {
-			int length = ArrayUtils.getLength(position);
-			posArray = new Double[length];
-			for (int i = 0; i < length; i++) {
-				posArray[i] = ((Number[]) position)[i].doubleValue();
+		if (position instanceof Object[]) {
+			// Object array
+			return Stream.of((Object[])position)
+					.map(ScannableUtils::objectToDouble)
+					.toArray(Double[]::new);
+		} else if (position.getClass().isArray()) {
+			// primitive array
+			return range(0, Array.getLength(position))
+					.mapToObj(i -> Array.get(position, i))
+					.map(ScannableUtils::objectToDouble)
+					.toArray(Double[]::new);
+		} else if (position instanceof String || position instanceof PyString) {
+			// Single String value
+			return new Double[] { objectToDouble(position.toString()) };
+		} else if (position instanceof PySequence) {
+			// Python Tuple/List etc
+			PySequence seq = (PySequence)position;
+			return range(0, seq.__len__())
+					.mapToObj(seq::__getitem__)
+					.map(ScannableUtils::objectToDouble)
+					.toArray(Double[]::new);
+		} else if (position instanceof List<?>) {
+			return ((List<?>)position).stream()
+					.map(ScannableUtils::objectToDouble)
+					.toArray(Double[]::new);
+		} else { // Try and get a single value out of it
+			Double value = objectToDouble(position);
+			if (value == null) {
+				throw new NumberFormatException("Cannot convert " + position.getClass() + " to double");
 			}
-			return posArray;
-		} else if (position instanceof Object[]) {
-			int length = ((Object[]) position).length;
-			posArray = new Double[length];
-			for (int i = 0; i < length; i++) {
-				Object obj = ((Object[]) position)[i];
-				Double val = null;
-				if (obj instanceof String) {
-					val = Double.parseDouble((String) obj);
-				} else if (obj instanceof Number) {
-					val = ((Number) obj).doubleValue();
-				} else if (obj instanceof PyObject) {
-					val = (Double) ((PyObject) obj).__tojava__(Double.class);
-				}
-				posArray[i] = val;
-			}
-			return posArray;
+			return new Double[] { value };
 		}
-		// if it's a Java array
-		else if (position.getClass().isArray()) {
-			int length = ArrayUtils.getLength(position);
-			for (int i = 0; i < length; i++) {
-				posArray = (Double[]) ArrayUtils.add(posArray, Array.getDouble(position, i));
-			}
-			return posArray;
-		}
-		// if it's a Jython sequence
-		else if (position instanceof PySequence) {
-			int length = ((PySequence) position).__len__();
-			for (int i = 0; i < length; i++) {
-				posArray = (Double[]) ArrayUtils.add(posArray, getDouble(position, i));
-			}
-		}
-		// if it's a Java List
-		else if (position instanceof List) {
-			@SuppressWarnings("rawtypes")
-			int length = ((List) position).size();
-			for (int i = 0; i < length; i++) {
-				posArray = (Double[]) ArrayUtils.add(posArray, getDouble(position, i));
-			}
-		}
-		// if it's a Quantity
-		else if (position instanceof Quantity) {
-			posArray = (Double[]) ArrayUtils.add(posArray, ((Quantity<?>) position).getValue().doubleValue());
-		}
-		// if it's a String, then try to convert to a double
-		else if (position instanceof String) {
-			Quantity<? extends Quantity<?>> posAsQ = QuantityFactory.createFromString((String) position);
-			Double posAsDouble = posAsQ != null ? posAsQ.getValue().doubleValue() : Double.parseDouble((String) position);
-			posArray = (Double[]) ArrayUtils.add(posArray, posAsDouble);
-		}
-		// else assume it's some object whose toString() method returns a String which can be converted
-		else {
-			posArray = (Double[]) ArrayUtils.add(posArray, Double.parseDouble(position.toString()));
-		}
-		return posArray;
 	}
 
 	/**
