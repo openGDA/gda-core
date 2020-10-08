@@ -208,14 +208,17 @@ public class JythonInterpreterManager {
 	 */
 	private static File getBundleLocation(final String bundleName) {
 
-		try {
+		if (Platform.isRunning()) {
 			final Bundle bundle = Platform.getBundle(bundleName);
-			if (bundle == null) {
-				throw new IOException();
+			if (bundle != null) {
+				try {
+					return FileLocator.getBundleFile(bundle);
+				} catch (IOException e) {
+					logger.error("Error resolving bundle File", e);
+				}
 			}
-			return FileLocator.getBundleFile(bundle);
 		}
-		catch (IOException e) {
+		else {
 			File dir = new File("../"+bundleName);
 			if (dir.exists()) return dir;
 
