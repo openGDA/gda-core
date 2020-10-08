@@ -90,6 +90,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
+	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
 
 	protected static final int MAX_SCAN_RANK = 3; // larger scans take too long
 
@@ -111,7 +112,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String EXPECTED_ENTRY_IDENTIFER = "1";
 	protected static final String EXPECTED_PROGRAM_NAME = "GDA 7.11.0";
 	protected static final String EXPECTED_USER_GROUP_NAME = "user01";
-	protected static final String EXPECTED_INSTRUMENT_NAME = "base";
+	protected static final String EXPECTED_INSTRUMENT_NAME = "i99";
 	protected static final String EXPECTED_USER_NAME = "abc12345";
 
 	protected static final double START_VALUE = 0.0;
@@ -153,6 +154,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(
 				METADATA_KEY_FEDERAL_ID, EXPECTED_USER_NAME));
+		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(
+				METADATA_KEY_INSTRUMENT, EXPECTED_INSTRUMENT_NAME));
 	}
 
 	@AfterClass
