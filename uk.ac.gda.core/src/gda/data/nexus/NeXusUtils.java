@@ -196,8 +196,8 @@ public class NeXusUtils {
 	 * @throws NexusException
 	 */
 	public static void write_NXinstrument(NexusFile file, GroupNode group) throws NexusException {
-
-		String beamline = LocalProperties.get(LocalProperties.GDA_INSTRUMENT, "base");
+		Metadata metadata = GDAMetadataProvider.getInstance();
+		String beamline = metadata.getMetadataValue("instrument", LocalProperties.GDA_INSTRUMENT, "base");
 
 		// Make instrument if it's not there.
 		group = file.getGroup(group, "instrument", NexusExtractor.NXInstrumentClassName, true);
