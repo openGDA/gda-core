@@ -64,12 +64,15 @@ import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.PositionIterator;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Streams;
 
 import gda.TestHelpers;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.StoredMetadataEntry;
 import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
@@ -86,7 +89,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 		NONE, NEXUS_DEVICE, COUNTER_TIMER;
 	}
 
+	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
+
 	protected static final int MAX_SCAN_RANK = 3; // larger scans take too long
+
 
 	protected static final int[] EMPTY_SHAPE = new int[0];
 	protected static final int[] SINGLE_VALUE_SHAPE = new int[] { 1 };
@@ -104,8 +110,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final int EXPECTED_SCAN_NUMBER = 1;
 	protected static final String EXPECTED_ENTRY_IDENTIFER = "1";
 	protected static final String EXPECTED_PROGRAM_NAME = "GDA 7.11.0";
-	protected static final String EXPECTED_USER_NAME = "user01";
+	protected static final String EXPECTED_USER_GROUP_NAME = "user01";
 	protected static final String EXPECTED_INSTRUMENT_NAME = "base";
+	protected static final String EXPECTED_USER_NAME = "abc12345";
 
 	protected static final double START_VALUE = 0.0;
 	protected static final double STEP_SIZE = 1.0;
@@ -143,6 +150,14 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public static void setUpServices() {
 		// must be called from @BeforeClass method of subclasses
 		nexusFileFactory = new NexusFileFactoryHDF5();
+
+		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(
+				METADATA_KEY_FEDERAL_ID, EXPECTED_USER_NAME));
+	}
+
+	@AfterClass
+	public static void tearDownServices() {
+		GDAMetadataProvider.setInstanceForTesting(null);
 	}
 
 	@Before

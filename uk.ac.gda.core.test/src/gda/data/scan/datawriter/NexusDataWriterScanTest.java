@@ -48,9 +48,10 @@ import gda.configuration.properties.LocalProperties;
 @RunWith(value=Parameterized.class)
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
-	private static final String DATASET_NAME_SCAN_COMMAND = "scan_command";
-	private static final String DATASET_NAME_SCAN_DIMENSIONS = "scan_dimensions";
-	private static final String DATA_GROUP_NAME_DEFAULT = "default";
+	private static final String FIELD_NAME_SCAN_COMMAND = "scan_command";
+	private static final String FIELD_NAME_SCAN_DIMENSIONS = "scan_dimensions";
+	private static final String FIELD_NAME_USER_NAME = "username";
+	private static final String GROUP_NAME_DEFAULT = "default";
 
 	private static final String ATTRIBUTE_NAME_AXIS = "axis";
 	private static final String ATTRIBUTE_NAME_LABEL = "label";
@@ -95,9 +96,9 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		// program_name
 		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
 		// scan_command
-		assertThat(entry.getDataset(DATASET_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
 		// scan_dimensions
-		assertThat(entry.getDataset(DATASET_NAME_SCAN_DIMENSIONS), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_DIMENSIONS), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
 		// title
 		assertThat(entry.getTitleScalar(), is(equalTo(getExpectedScanCommand()))); // title seems to be same as scan command(!)
 	}
@@ -106,10 +107,11 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	protected void checkUsers(NXentry entry) {
 		// user group
 		final Map<String, NXuser> users = entry.getAllUser();
-		assertThat(users.keySet(), Matchers.contains(EXPECTED_USER_NAME));
-		final NXuser user = users.get(EXPECTED_USER_NAME);
+		assertThat(users.keySet(), Matchers.contains(EXPECTED_USER_GROUP_NAME));
+		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
 		assertThat(user, is(notNullValue()));
-		assertThat(user.getNumberOfNodelinks(), is(0));  // note that the created NXuser group is empty
+		assertThat(user.getNumberOfNodelinks(), is(1));
+		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_NAME)));
 	}
 
 	@Override
@@ -174,7 +176,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkDataGroups(NXentry entry) {
 		// NexusDataWriter creates a single NXdata group
-		final String expectedDataGroupName = detectorType == DetectorType.NONE ? DATA_GROUP_NAME_DEFAULT : detector.getName();
+		final String expectedDataGroupName = detectorType == DetectorType.NONE ? GROUP_NAME_DEFAULT : detector.getName();
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 		assertThat(dataGroups.keySet(), contains(expectedDataGroupName));
 		final NXdata data = dataGroups.get(expectedDataGroupName);
