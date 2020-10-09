@@ -42,4 +42,9 @@ public class Xspress3MiniDetector extends Xspress3Detector implements Xspress3Mi
 		((Xspress3MiniController)controller).waitForDetector(true, waitForBusyTimeout);
 		((Xspress3MiniController)controller).waitForDetector(false, waitForBusyTimeout);
 	}
+
+	@Override
+	public void setCollectionTime(double collectionTime) throws DeviceException {
+		((Xspress3MiniController)controller).setAcquireTime(collectionTime);
+	}
 }

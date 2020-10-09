@@ -175,12 +175,12 @@ public class EpicsXspress3ControllerPvProvider {
 	public ReadOnlyPV<Double[]>[] pvsScalerWindow1;
 	protected PV<UPDATE_CTRL>[] pvsSCA5UpdateArrays;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow2;
-	protected ReadOnlyPV<Integer[]>[] pvsTime;
-	protected ReadOnlyPV<Integer[]>[] pvsResetTicks;
-	protected ReadOnlyPV<Integer[]>[] pvsResetCount;
-	protected ReadOnlyPV<Integer[]>[] pvsAllEvent;
-	protected ReadOnlyPV<Integer[]>[] pvsAllGood;
-	protected ReadOnlyPV<Integer[]>[] pvsPileup;
+	public ReadOnlyPV<Integer[]>[] pvsTime;
+	public ReadOnlyPV<Integer[]>[] pvsResetTicks;
+	public ReadOnlyPV<Integer[]>[] pvsResetCount;
+	public ReadOnlyPV<Integer[]>[] pvsAllEvent;
+	public ReadOnlyPV<Integer[]>[] pvsAllGood;
+	public ReadOnlyPV<Integer[]>[] pvsPileup;
 	protected ReadOnlyPV<Integer>[] pvsGoodEventGradient;
 	protected ReadOnlyPV<Integer>[] pvsGoodEventOffset;
 	protected ReadOnlyPV<Integer>[] pvsInWinEventGradient;
@@ -193,7 +193,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected ReadOnlyPV<Integer>[] pvsScaWin2LowRBV;
 	protected PV<Integer>[] pvsScaWin2High;
 	protected ReadOnlyPV<Integer>[] pvsScaWin2HighRBV;
-	protected ReadOnlyPV<Double[]>[] pvsLatestMCA; //[channel]
+	public ReadOnlyPV<Double[]>[] pvsLatestMCA; //[channel]
 	protected ReadOnlyPV<Double[]>[] pvsLatestMCASummed; //[channel]
 	public PV<Integer>[][] pvsROILLM;// [roi][channel]
 	protected PV<Integer>[][] pvsROIHLM;// [roi][channel]

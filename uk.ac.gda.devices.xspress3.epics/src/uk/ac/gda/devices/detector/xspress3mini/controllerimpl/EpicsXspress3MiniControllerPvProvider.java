@@ -45,9 +45,13 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	private static final String SCA_UPDATE_ARRAY_TEMPLATE = ":C%d_SCAS:TS:TSAcquire"; // channel (1-2),
 	private static final String SCA_ATTR_NAME_TEMPLATE = ":C%d_SCAS:%d:AttrName_RBV"; // channel (1-2),
 
+	private static final String SCA_TEMPLATE = ":C%d_SCA%d:Value_RBV";
+	private static final String ACQUIRE_TIME_TEMPLATE = ":AcquireTime";
+
 	// the shared PVs with the Controller which uses this object
 	protected ReadOnlyPV<Double> pvGetRoiCalcMini;
 	protected PV<ACQUIRE_STATE>[] pvsSCA5UpdateArraysMini;
+	protected ReadOnlyPV<Integer[]>[] pvsTotalTime;
 	protected PV<Integer> pvEraseMini;
 	protected PV<Integer>[][] pvsROISize;// [roi][channel]
 
@@ -55,6 +59,8 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 
 	protected PV<XSPRESS3_MINI_TRIGGER_MODE> pvSetTrigModeMini;
 	protected ReadOnlyPV<XSPRESS3_MINI_TRIGGER_MODE> pvGetTrigModeMini;
+
+	protected PV<Double> pvAcquireTime;
 
 	/**
 	 * Scaler index to use for different data types (new Xspress3Mini Epics interface)
@@ -71,7 +77,7 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 		TOTAL_TIME;
 
 		public int getIndex() {
-			return ordinal() + 1;
+			return ordinal();
 		}
 	}
 
@@ -131,7 +137,7 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 		pvGetRoiCalcMini = LazyPVFactory.newReadOnlyDoublePV(generatePVName(getRoiCalcRbvSuffix()));
 		pvSetTrigModeMini = LazyPVFactory.newEnumPV(generatePVName(getTrigModeSuffix()), XSPRESS3_MINI_TRIGGER_MODE.class);
 		pvGetTrigModeMini = LazyPVFactory.newReadOnlyEnumPV(generatePVName(getTrigModeRbvSuffix()), XSPRESS3_MINI_TRIGGER_MODE.class);
-
+		pvAcquireTime = LazyPVFactory.newDoublePV(generatePVName(getAcquireTimeTemplate()));
 	}
 
 	@Override
@@ -140,9 +146,21 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 		super.createReadoutPVs();
 
 		pvsSCA5UpdateArraysMini = new PV[numberOfDetectorChannels];
+		pvsTotalTime = new ReadOnlyPV[numberOfDetectorChannels];
 
 		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
 			pvsSCA5UpdateArraysMini[channel-1] = LazyPVFactory.newEnumPV(generatePVName(getScaUpdateArrayTemplate(), channel), ACQUIRE_STATE.class);
+
+			pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV (generatePVName(getScaTemplate(), channel, getScalerIndexWindow1Index()));
+			pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV (generatePVName(getScaTemplate(), channel, getScalerIndexWindow2Index()));
+
+			pvsTime[channel-1]          = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexTimeIndex()));
+			pvsResetTicks[channel-1]    = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexResetTicksIndex()));
+			pvsResetCount[channel-1]    = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexResetCountsIndex()));
+			pvsAllEvent[channel-1]      = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexAllEventIndex()));
+			pvsAllGood[channel-1]       = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexAllGoodIndex()));
+			pvsPileup[channel-1]        = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexPileupIndex()));
+			pvsTotalTime[channel-1]     = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaTemplate(), channel, getScalerIndexTotalTimeIndex()));
 		}
 	}
 
@@ -217,5 +235,14 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	@Override
 	protected int getScalerIndexLength() {
 		return ScalerIndex.values().length;
+	}
+
+
+	public String getScaTemplate() {
+		return SCA_TEMPLATE;
+	}
+
+	protected String getAcquireTimeTemplate() {
+		return ACQUIRE_TIME_TEMPLATE;
 	}
 }

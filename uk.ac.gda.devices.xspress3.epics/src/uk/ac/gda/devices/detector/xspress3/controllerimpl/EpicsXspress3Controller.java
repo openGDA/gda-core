@@ -530,7 +530,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		return reorderScalerValues(returnValuesWrongOrder);
 	}
 
-	private Integer[][][] reorderScalerValues(Integer[][][] returnValuesWrongOrder) {
+	protected Integer[][][] reorderScalerValues(Integer[][][] returnValuesWrongOrder) {
 
 		int numScalers = returnValuesWrongOrder.length;
 		int numFrames = returnValuesWrongOrder[0].length;
@@ -774,7 +774,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		return correctedArray;
 	}
 
-	private Integer[][] readIntegerWaveform(ReadOnlyPV<Integer[]>[] pvs, int startFrame, int finalFrame,
+	protected Integer[][] readIntegerWaveform(ReadOnlyPV<Integer[]>[] pvs, int startFrame, int finalFrame,
 			int startChannel, int finalChannel) throws DeviceException {
 		Integer[][] returnValuesWrongOrder = new Integer[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
@@ -788,7 +788,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		return invertIntegerArray(returnValuesWrongOrder);
 	}
 
-	private Integer[][] invertIntegerArray(Integer[][] returnValuesWrongOrder) {
+	protected Integer[][] invertIntegerArray(Integer[][] returnValuesWrongOrder) {
 		int numChannels = returnValuesWrongOrder.length;
 		int numFrames = returnValuesWrongOrder[0].length;
 
