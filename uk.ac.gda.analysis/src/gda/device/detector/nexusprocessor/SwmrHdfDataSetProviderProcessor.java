@@ -34,6 +34,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.swmr.SwmrFileReader;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
+import gda.jython.InterfaceProvider;
 
 /**
  * Dataset provider which reads a dataset from a SWMR hdf5 file. The nexus processor uses a
@@ -48,7 +49,8 @@ import gda.device.detector.NXDetectorData;
 public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(SwmrHdfDataSetProviderProcessor.class);
-	private static final int[] SINGLE_DATASET_STEP = new int[] {1, 1, 1};
+	private static final int[] SINGLE_FRAME_STEP = new int[] {1, 1, 1};
+	private static final int[] SINGLE_UID_STEP = new int[] {1};
 
 	/**	This is the name of the dataset in the detector's Nexus tree
 	 * that contains the associated frame number with the current point.
@@ -64,6 +66,10 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 	private int detectorHeight;
 	private int detectorWidth;
 	private int[] detectorDatasetShape;
+	private int numberScanPoints;
+	private boolean useUidDataset;
+	/** Name of the UID Dataset	 */
+	private String uidName = "uid";
 
 
 	public SwmrHdfDataSetProviderProcessor(String detName, String dataName, String className,
@@ -113,6 +119,9 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 		swmrReader = new SwmrFileReader();
 		swmrReader.openFile(hdfFilePath);
 		swmrReader.addDatasetToRead(getDetName(), hdfDataEntry);
+		if (useUidDataset) {
+			swmrReader.addDatasetToRead(getDetName() + "uid", "uid");
+		}
 	}
 
 	private void setDatafileParameters(NexusGroupData dataFileGroup) throws URISyntaxException {
@@ -129,13 +138,58 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 	 * libraries is not known.
 	 */
 	private synchronized Dataset readDatasetFromFile(int frameNo) throws InterruptedException, NexusException {
-		while (swmrReader.getNumAvailableFrames() < frameNo) {
-			Thread.sleep(10);
+		if (useUidDataset) {
+			waitOnUidDataset(frameNo);
+		} else {
+			waitOnExpandingFrameDataset(frameNo);
 		}
+		Dataset dataset = swmrReader.readDataset(hdfDataEntry, new int[] { frameNo - 1, 0, 0 }, detectorDatasetShape,
+				SINGLE_FRAME_STEP);
+		return dataset.squeeze();
+	}
 
-		List<Dataset> datasets = swmrReader.readDatasets(new int[] { frameNo - 1, 0, 0 }, detectorDatasetShape,
-				SINGLE_DATASET_STEP);
-		return datasets.get(0).squeeze();
+	/**
+	 * Block until the desired frame number is available for reading
+	 * in the file.
+	 * <p>
+	 * Poll the frame dataset until
+	 * it contains the expected number of frames
+	 * @throws InterruptedException
+	 * @throws NexusException
+	 */
+	private void waitOnExpandingFrameDataset(int frameNo)  throws InterruptedException, NexusException{
+		try {
+			while (swmrReader.getNumAvailableFrames() < frameNo) {
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			logger.error("Interrupted whilst waiting for frames - wanted: {}, available: {}",
+					swmrReader.getNumAvailableFrames(), frameNo);
+			throw e;
+		}
+	}
+
+	/**
+	 * Block until the desired frame number is available for reading
+	 * in the file.
+	 * <p>
+	 * Read the uid dataset and wait until the expected uid for the frame has been written
+	 * @throws InterruptedException
+	 * @throws NexusException
+	 */
+	private void waitOnUidDataset(int frameNo)  throws InterruptedException, NexusException{
+		final int[] uidShape = new int[] { numberScanPoints };
+		Dataset uidDataset;
+		try {
+			do {
+				swmrReader.getNumAvailableFrames(); // This is just to refresh the file
+				uidDataset = swmrReader.readDataset(uidName, new int[] { 0 }, uidShape, SINGLE_UID_STEP);
+				Thread.sleep(100);
+			} while (uidDataset.getInt(frameNo - 1) != frameNo);
+		} catch (InterruptedException e) {
+			logger.error("Interrupted whilst waiting for uid - waiting for: {}", frameNo);
+			throw e;
+		}
 	}
 
 	public void closeFile() {
@@ -144,7 +198,7 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 				swmrReader.releaseFile();
 			}
 		} catch (ScanFileHolderException e) {
-			logger.error("Error closing file: " + hdfFilePath, e);
+			logger.error("Error closing file: {}", hdfFilePath, e);
 		} finally {
 			hdfDataEntry = null;
 			hdfFilePath = null;
@@ -153,6 +207,7 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 
 	@Override
 	public void atScanStart() {
+		numberScanPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
 		getProcessors().forEach(DataSetProcessor::atScanStart);
 	}
 
@@ -184,6 +239,14 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 	public void setDetectorWidth(int detectorWidth) {
 		this.detectorWidth = detectorWidth;
 		detectorDatasetShape = new int[] {1, this.detectorHeight, this.detectorWidth};
+	}
+
+	public boolean isUseUidDataset() {
+		return useUidDataset;
+	}
+
+	public void setUseUidDataset(boolean useUidDataset) {
+		this.useUidDataset = useUidDataset;
 	}
 
 }
