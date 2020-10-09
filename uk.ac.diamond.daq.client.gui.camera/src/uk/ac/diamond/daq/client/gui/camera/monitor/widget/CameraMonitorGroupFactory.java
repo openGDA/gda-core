@@ -56,6 +56,7 @@ public class CameraMonitorGroupFactory implements CompositeFactory {
 		createClientGridDataFactory().align(SWT.CENTER, SWT.BEGINNING).span(cols, 1).applyTo(labelName);
 
 		CameraHelper.getAllCameraProperties().stream()
+			.filter(p -> p.getId().map(CameraHelper.getCameraMonitors()::contains).orElseGet(() -> false))
 			.map(CameraProperties::getIndex)
 			.map(CameraHelper::createICameraConfiguration)
 			.forEach(this::createButton);

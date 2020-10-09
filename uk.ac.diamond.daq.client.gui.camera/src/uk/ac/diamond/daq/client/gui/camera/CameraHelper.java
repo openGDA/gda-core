@@ -6,8 +6,11 @@ import static uk.ac.gda.client.properties.ClientPropertiesHelper.getConfiguratio
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getId;
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getNameProperty;
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getProperty;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getStringArrayProperty;
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,13 +27,11 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
-import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -122,6 +123,7 @@ public final class CameraHelper {
 	private static final Logger logger = LoggerFactory.getLogger(CameraHelper.class);
 	
 	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
+	private static final List<String> cameraMonitors = new ArrayList<>();
 	private static final Map<String, CameraProperties> cameraPropertiesByID = new HashMap<>();
 	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
 
@@ -135,6 +137,11 @@ public final class CameraHelper {
 	 * The prefix used in the property files to identify a camera configuration.
 	 */
 	private static final String CAMERA_CONFIGURATION_PREFIX = "client.cameraConfiguration";
+	
+	/**
+	 * The prefix used in the properties file to identify which cameras are associated with a monitor button.
+	 */
+	private static final String CAMERA_MONITORS_PREFIX = "client.cameraMonitors";
 
 	private CameraHelper() {
 	}
@@ -177,6 +184,14 @@ public final class CameraHelper {
 		return Collections.unmodifiableList(cameraProperties);
 	}
 
+	/**
+	 * Returns the IDs of the camera requiring a camera monitoring button
+	 * @return a list of camera IDs
+	 */
+	public static List<String> getCameraMonitors() {
+		return Collections.unmodifiableList(cameraMonitors);
+	}
+	
 	public static CameraProperties getCameraProperties(int cameraIndex) {
 		return cameraProperties.get(cameraIndex);
 	}
@@ -214,7 +229,7 @@ public final class CameraHelper {
 		ICameraConfigurationImpl.class.cast(createICameraConfiguration(cameraIndex)).setBeamCameraMap(beamCameraMap);
 		// resets the status to mark the end of the mapping
 		BeamCameraMappingEvent cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
-		SpringApplicationContextFacade.publishEvent(cmEvent);
+		publishEvent(cmEvent);
 	}
 
 	private static void createCameraComboItems() {
@@ -234,6 +249,10 @@ public final class CameraHelper {
 		cameraProperties.sort((c1, c2) -> Integer.compare(c1.getIndex(), c2.getIndex()));
 	}
 
+	private static void parseCameraMonitors() {
+		cameraMonitors.addAll(getMonitoredCameras());
+	}
+	
 	private static void observeCameraProperties() {
 		cameraProperties.stream()
 			.map(CameraProperties::getIndex)
@@ -313,6 +332,17 @@ public final class CameraHelper {
 		return Boolean.parseBoolean(getProperty(CAMERA_CONFIGURATION_PREFIX, index, "pixelBinningEditable", "false"));
 	}
 
+	/**
+	 * Extracts properties formatted like
+	 * "client.cameraConfiguration.INDEX.monitored"
+	 * 
+	 * @param index the camera index
+	 * @return
+	 */
+	private static List<String> getMonitoredCameras() {
+		return Arrays.asList(getStringArrayProperty(CAMERA_MONITORS_PREFIX));
+	}
+	
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.readoutTime"
@@ -457,14 +487,17 @@ public final class CameraHelper {
 	 */
 	public static final void loadAllProperties() {
 		removeObserverCameraProperties();
-		Optional.ofNullable(cameraProperties).ifPresent(List::clear);
-		Optional.ofNullable(cameraPropertiesByID).ifPresent(Map::clear);
-		Optional.ofNullable(cameraConfigurations).ifPresent(Map::clear);
-		Optional.ofNullable(cameraComboItems).ifPresent(List::clear);
+		cameraProperties.clear();
+		cameraMonitors.clear();
+		cameraPropertiesByID.clear();
+		cameraConfigurations.clear();
+		cameraComboItems.clear();
 		
 		parseCameraProperties();
+		parseCameraMonitors();
 		observeCameraProperties();
 		createCameraComboItems();
 		monitorCameraAvailability();
+		
 	}
 }

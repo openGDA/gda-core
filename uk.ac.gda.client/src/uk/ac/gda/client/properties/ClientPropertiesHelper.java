@@ -19,6 +19,7 @@
 package uk.ac.gda.client.properties;
 
 import java.util.List;
+import java.util.Optional;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -120,6 +121,17 @@ public final class ClientPropertiesHelper {
 	 */
 	public static String[] getStringArrayProperty(String prefix, int index, String property) {
 		return LocalProperties.getStringArray(String.format(PROPERTY_FORMAT, prefix, index, property));
+	}
+
+	/**
+	 * Returns an array, from a comma separated value, of a property key
+	 *
+	 * @param key
+	 *            the property key
+	 * @return the values as an array, eventually empty
+	 */
+	public static String[] getStringArrayProperty(String key) {
+		return Optional.ofNullable(LocalProperties.getStringArray(key)).orElseGet(() -> new String[] {});
 	}
 
 	/**
