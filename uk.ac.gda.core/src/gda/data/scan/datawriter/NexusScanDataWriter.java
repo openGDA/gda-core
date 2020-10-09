@@ -72,6 +72,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	 */
 	public static final String PROPERTY_NAME_BEAMLINE_PREFIX = "gda.nexus.beamlinePrefix";
 
+	/**
+	 * Boolean property specifying whether to enable SWMR mode (Single Write Multiple Read). If enabled,
+	 * it is not possible to change the structure of the Nexus file after SWMR mode is enabled - this is
+	 * done when the file is created by the first call to {@link #addData(IScanDataPoint)}.
+	 */
+	public static final String PROPERTY_NAME_WRITE_SWMR = "gda.nexus.writeSwmr";
+
 	private static final String DEFAULT_FILENAME_TEMPLATE = "%d.nxs";
 
 	private static final String METADATA_ENTRY_NAME_INSTRUMENT = "instrument";
@@ -109,10 +116,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private PositionIterator scanPositionIter = null;
 
+	private final boolean useSwmr;
+
 	public NexusScanDataWriter() {
 		outputDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		beamlineName = GDAMetadataProvider.getInstance().getMetadataValue(METADATA_ENTRY_NAME_INSTRUMENT,
 					LocalProperties.GDA_INSTRUMENT, DEFAULT_BEAMLINE_NAME);
+		useSwmr = LocalProperties.check(PROPERTY_NAME_WRITE_SWMR, false);
 	}
 
 	@Override
@@ -172,7 +182,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	@Override
 	public SwmrStatus getSwmrStatus() {
-		return currentPointNumber > 0 ? SwmrStatus.ACTIVE : SwmrStatus.ENABLED;
+		if (!useSwmr) {
+			return SwmrStatus.DISABLED;
+		} else if (currentPointNumber > 0) {
+			return SwmrStatus.ACTIVE;
+		} else {
+			return SwmrStatus.ENABLED;
+		}
 	}
 
 	@Override
@@ -232,7 +248,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		// This is where we create NexusScanModel
 		final NexusScanModel nexusScanModel = createNexusScanModel(point);
 		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
-		nexusScanFile.createNexusFile(false); // TODO, set to true, see DAQ-3124
+
+		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 	}
 
 	private NexusScanModel createNexusScanModel(IScanDataPoint point) {
