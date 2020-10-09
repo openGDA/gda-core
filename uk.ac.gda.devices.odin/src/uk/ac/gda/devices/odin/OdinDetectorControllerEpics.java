@@ -56,6 +56,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private PV<Integer> startDataWriter;
 	private PV<String> acquiring;
 	private PV<String> imageMode;
+	private PV<Integer> numImages;
 	private PV<String> triggerMode;
 	private PV<String> timeoutDataWriter;
 	private PV<Integer> timeoutDataWriterPeriod;
@@ -68,6 +69,8 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private PV<String> counterDepth;
 	private PV<Integer> odinOffset;
 	private PV<Integer> odinUid;
+	private PV<Integer> framesPerBlock;
+	private PV<String> odinCompression;
 
 	/** The most recent file written by this detector */
 	private String latestFilename;
@@ -91,6 +94,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 					LazyPVFactory.newReadOnlyDoublePV(basePv + "CAM:AcquirePeriod_RBV"));
 			acquiring = LazyPVFactory.newEnumPV(basePv + "CAM:Acquire", String.class);
 			imageMode = LazyPVFactory.newEnumPV(basePv + "CAM:ImageMode", String.class);
+			numImages = LazyPVFactory.newIntegerPV(basePv + "CAM:NumImages");
 			triggerMode = LazyPVFactory.newEnumPV(basePv + "CAM:TriggerMode", String.class);
 			counterDepth = LazyPVFactory.newEnumPV(basePv + "CAM:CounterDepth", String.class);
 
@@ -110,9 +114,11 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:CloseFileTimeout_RBV"));
 			odDataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
 			captured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
+			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize_RBV");
 			errorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
+			odinCompression = LazyPVFactory.newEnumPV(basePv + "OD:CompressionMode", String.class);
 		}
 		configured = true;
 	}
@@ -220,10 +226,10 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 		setImageMode(imageMode);
 		setTriggerMode(triggerMode);
-		logger.debug("Set image and trigger modes");
 
 		double acquisition = requestedLiveTime + requestedDeadTime;
 		try {
+			numImages.putWait(1);
 			acquireTime.putWait(requestedLiveTime);
 			acquirePeriod.putWait(acquisition);
 			logger.debug("Set exposure times: {} x {}/{}ms", frames, requestedLiveTime, requestedDeadTime);
@@ -319,12 +325,14 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			fileWriterDataType = odDataType.get(); // Record this in case we need it later e.g. vds
 			// Ensure that the datawriter is set to receive frames of the correct size
 			odinFrameCount.putWait(frames);
+			framesPerBlock.putWait(frames);
 			timeoutDataWriterPeriod.putWait(fileWritingTimeout, ODIN_TIMEOUT);
+			// disable compression
+			odinCompression.putWait("off");
 		} catch (IOException e) {
 			throw new DeviceException("Could not set data writer frame size", e);
 		}
-		// TODO Ensure that no compression is in use - BL07I-EA-EXCBR-01:OD:Mode and
-		// BL07I-EA-EXCBR-01:OD:Compression
+		// TODO need to set BL07I-EA-EXCBR-01:OD:Mode and BL07I-EA-EXCBR-01:OD:Compression as well?
 	}
 
 	@Override

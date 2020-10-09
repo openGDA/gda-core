@@ -38,7 +38,7 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 
 	private static final String COUNT_TIME_NAME = "count_time";
 
-	private static final String FRAME_NO_NAME = "frame_no";
+	private static final String FRAME_NO_NAME = "frameNo";
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
@@ -65,10 +65,15 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 		controller.startRecording();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Use zero-based frame number for Odin offset as expected by the filewriter. For
+	 * Uid use one-based indexing to allow SWMR processing to determine when frames are written.
+	 */
 	@Override
 	public void prepareWriterForPoint(int pointNumber) throws DeviceException {
-		int offsetAndUid = pointNumber - 1;
-		controller.setOffsetAndUid(offsetAndUid, offsetAndUid);
+		controller.setOffsetAndUid(pointNumber - 1, pointNumber);
 		controller.startCollection();
 	}
 
