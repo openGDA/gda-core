@@ -60,6 +60,7 @@ import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -107,7 +108,7 @@ import gda.scan.IScanDataPoint;
 public abstract class AbstractNexusDataWriterScanTest {
 
 	public enum DetectorType {
-		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC_DETECTOR
+		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC, FILE_CREATOR
 	}
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
@@ -144,6 +145,47 @@ public abstract class AbstractNexusDataWriterScanTest {
 		@Override
 		public String getDetectorType() throws DeviceException {
 			return "generic";
+		}
+
+	}
+
+	/**
+	 * A detector that write its own data (or rather claims to by {@link #createsOwnFiles()} returning true),
+	 * meaning that its data doesn't need to be written by the data writer. Used by
+	 * {@link AbstractNexusDataWriterScanTest#concurrentScanFileCreatorDetector()}
+	 */
+	protected static class DummyFileCreatorDetector extends DummyDetector {
+
+		private int fileNum = 1;
+
+		@Override
+		public boolean createsOwnFiles() throws DeviceException {
+			return true;
+		}
+
+		@Override
+		protected Object acquireData() {
+			return "file" + (fileNum++) + ".tif";
+		}
+
+		@Override
+		public int[] getDataDimensions() throws DeviceException {
+			return EMPTY_SHAPE;
+		}
+
+		@Override
+		public String getDescription() throws DeviceException {
+			return "File Creating Detector";
+		}
+
+		@Override
+		public String getDetectorID() throws DeviceException {
+			return "fileDet1";
+		}
+
+		@Override
+		public String getDetectorType() throws DeviceException {
+			return "file creator";
 		}
 
 	}
@@ -394,7 +436,14 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public void concurrentScanGenericDetector() throws Exception {
 		detector = new DummyGenericDetector();
 		detector.setName("Generic Detector");
-		concurrentScan(detector, DetectorType.GENERIC_DETECTOR, "GenericDetector");
+		concurrentScan(detector, DetectorType.GENERIC, "GenericDetector");
+	}
+
+	@Test
+	public void concurrentScanFileCreatorDetector() throws Exception {
+		detector = new DummyFileCreatorDetector();
+		detector.setName("fileCreatorDetector");
+		concurrentScan(detector, DetectorType.FILE_CREATOR, "FileCreatorDetector");
 	}
 
 	protected void concurrentScan(Detector detector, DetectorType detectorType, String testSuffix) throws Exception {
@@ -584,8 +633,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 			case COUNTER_TIMER:
 				checkCounterTimerDetector(detectorGroup);
 				break;
-			case GENERIC_DETECTOR:
+			case GENERIC:
 				checkGenericDetector(detectorGroup);
+				break;
+			case FILE_CREATOR:
+				checkFileCreatorDetector(detectorGroup);
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type: " + detectorType);
@@ -627,6 +679,33 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final DataNode dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
 		assertThat(dataNode, is(notNullValue()));
 		checkDatasetWritten(dataNode.getDataset(), DummyGenericDetector.DATA_DIMENSIONS);
+	}
+
+	private void checkFileCreatorDetector(NXdetector detGroup) throws DatasetException {
+		assertThat(detGroup.getNumberOfDataNodes(), is(2));
+		// TODO: DAQ 3180 - NexusDataWriter writes these hard coded values instead of calling
+		// detector.getDescription() and detector.getType(), also it doesn't write ID. Why not? should the new writer change this
+		assertThat(detGroup.getDescriptionScalar(), is(equalTo("Generic GDA Detector - External Files")));
+		assertThat(detGroup.getTypeScalar(), is(equalTo("Detector")));
+//		assertThat(detGroup.getDataNode("id").getString(), is(equalTo("fileDet1")));
+
+		assertThat(detGroup.getNumberOfGroupNodes(), is(1));
+		final NXnote dataFileGroup = detGroup.getData_file();
+		assertThat(dataFileGroup, is(notNullValue()));
+
+		assertThat(dataFileGroup.getNumberOfDataNodes(), is(1));
+		final DataNode fileNameDataNode = dataFileGroup.getDataNode(NXnote.NX_FILE_NAME);
+		assertThat(fileNameDataNode, is(notNullValue()));
+
+		final IDataset dataset = fileNameDataNode.getDataset().getSlice();
+		assertThat(dataset.getShape(), is(equalTo(scanDimensions)));
+
+		int expectedFileNum = 1;
+		final PositionIterator posIter = new PositionIterator(dataset.getShape());
+		while (posIter.hasNext()) {
+			int[] pos = posIter.getPos();
+			assertThat(dataset.getString(pos), is(equalTo("file" + (expectedFileNum++) + ".tif")));
+		}
 	}
 
 	private void checkMonitor(NXinstrument instrument) throws Exception {

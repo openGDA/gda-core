@@ -291,11 +291,14 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 							entry.getInstrument().getDetector(detector.getName()).getDataNode(name)))));
 				}
 				break;
-			case GENERIC_DETECTOR:
+			case GENERIC:
 				// a single data node is added
 				expectedNumDataNodes++;
 				assertThat(data.getDataNode(NXdata.NX_DATA), is(both(notNullValue()).and(sameInstance(
 						entry.getInstrument().getDetector(detector.getName()).getDataNode(NXdetector.NX_DATA)))));
+				break;
+			case FILE_CREATOR:
+				// nothing to do in this case, no data node is added to the NXdata group for the detector
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type " + detectorType);

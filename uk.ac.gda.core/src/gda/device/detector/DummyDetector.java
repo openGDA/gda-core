@@ -77,12 +77,10 @@ public class DummyDetector extends DetectorBase {
 		}
 	}
 
-
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return false;
 	}
-
 
 	@Override
 	public void reconfigure() throws FactoryException {

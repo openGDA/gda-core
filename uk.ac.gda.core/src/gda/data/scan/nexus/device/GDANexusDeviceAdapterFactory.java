@@ -59,10 +59,10 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public <N extends NXobject> INexusDevice<N> createNexusDevice(Detector device) throws NexusException {
-			// TODO DAQ-3178: implement support for file creator detector, see NexusDataWriter.makeFileCreatorDetector
-			throw new UnsupportedOperationException("Detectors that create their own files are not yet supported:" + device.getName());
+		public INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
+			return new FileCreatorDetectorNexusDevice(detector);
 		}
 
 	}
