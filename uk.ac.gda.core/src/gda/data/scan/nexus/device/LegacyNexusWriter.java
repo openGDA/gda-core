@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.scanning;
+package gda.data.scan.nexus.device;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
+import uk.ac.diamond.daq.scanning.ScannableNexusWrapper;
 
 /**
  * This class is responsible for linking the datasets for a GDA8 scannable to the

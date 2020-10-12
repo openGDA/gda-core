@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.scan.event.PositionDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.scan.nexus.device.ScannableNexusDevice;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
