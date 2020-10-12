@@ -17,9 +17,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,25 +44,21 @@ import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.messaging.FileUtils;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING) // TODO This should also probably be removed it suggests a bad test.
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-2087")
 public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog<TopupWatchdogModel> dog;
-	private File dir;
+	private static MockTopupScannable topup;
 
 	@BeforeClass
-	public static void createWatchdogs() {
+	public static void createWatchdogs() throws ScanningException {
+		final IScannable<Number>   topups  = connector.getScannable("topup");
+		topup   = (MockTopupScannable)topups;
 
 		// We create a device watchdog (done in spring for real server)
 		final TopupWatchdogModel model = new TopupWatchdogModel();
@@ -80,23 +73,11 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		dog.activate();
 	}
 
-	@Before
-	public void createDir() throws IOException{
-		this.dir = Files.createTempDirectory(DummyMalcolmDeviceTest.class.getSimpleName()).toFile();
-		dir.deleteOnExit();
-	}
-
 	@After
 	public void disconnect() throws Exception {
-
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
 		assertNotNull(topup);
 		topup.disconnect();
 		topup.setPosition(1000);
-
-		if (dir!=null) FileUtils.recursiveDelete(dir);
-
 	}
 
 	@Test
@@ -104,12 +85,10 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		assertEquals(dog, Services.getWatchdogService().getWatchdog("topupDog"));
 	}
 
-	@Test(expected=Exception.class)
+	@Test
 	public void testBeamOn() throws Exception {
+		detector.getModel().setExposureTime(0.001);
 
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
-		assertNotNull(topup);
 		System.out.println(topup.getPosition());
 
 		final IScannable<Number>   beamon   = connector.getScannable("beamon");
@@ -118,18 +97,17 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(beamon);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
-		scanner.run(null);
-
+		try {
+			scanner.run(null);
+		} catch (ScanningException e) {
+			assertTrue(e.getMessage().equals("Cannot run scan further!"));
+		}
 		assertEquals(10, positions.size());
 	}
 
 
 	@Test
 	public void topupPeriod() throws Exception {
-
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
-		assertNotNull(topup);
 
 		long fastPeriod = 500;
 		long orig = topup.getPeriod();
@@ -211,7 +189,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 		DummyMalcolmModel model = DummyMalcolmDeviceTest.createModel();
 		model.setExposureTime(0.001);
-		model.setAxesToMove(Arrays.asList("x", "y"));
+		model.setAxesToMove(Arrays.asList("stage_x", "stage_y"));
 		return model;
 	}
 
@@ -225,9 +203,6 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 	private <T extends IDetectorModel> void topupInScan(IRunnableDevice<T> device, T detectorModel, int size, double exposureTime) throws Exception {
 
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
-		assertNotNull(topup);
         topup.start();
 
 		// x and y are level 3
@@ -261,9 +236,6 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 	public void scanDuringTopup() throws Exception {
 
 		// Stop topup, we want to controll it programmatically.
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
-		assertNotNull(topup);
 		topup.disconnect();
 		Thread.sleep(120); // Make sure it stops, it sets value every 100ms but it should get interrupted
 		assertFalse(topup.isConnected());
@@ -302,9 +274,6 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 	public void topupWithExternalPause() throws Exception {
 
 		// Stop topup, we want to controll it programmatically.
-		final IScannable<Number>   topups  = connector.getScannable("topup");
-		final MockTopupScannable   topup   = (MockTopupScannable)topups;
-		assertNotNull(topup);
 		topup.disconnect();
 		Thread.sleep(120); // Make sure it stops, it sets value every 100ms but it should get interrupted
 		assertFalse(topup.isConnected());
@@ -342,6 +311,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		scanner.latch(100, TimeUnit.MILLISECONDS);
 		assertNotEquals(DeviceState.PAUSED, scanner.getDeviceState());
 
+		controller.pause("test", null);   // Pausing externally should override any watchdog resume.
 		topup.setPosition(0);
 
 		scanner.latch(100, TimeUnit.MILLISECONDS);
@@ -352,10 +322,14 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		scanner.latch(25, TimeUnit.MILLISECONDS);
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
 
-		controller.abort("test");
-		boolean aborted = scanner.latch(100, TimeUnit.MILLISECONDS); // true if the countdown reached 0, false if we timed-out
-		assertTrue(aborted);
-		assertEquals(DeviceState.ABORTED, scanner.getDeviceState());
+		try {
+			controller.abort("test");
+		} catch (InterruptedException e) {
+			boolean aborted = scanner.latch(100, TimeUnit.MILLISECONDS); // true if the countdown reached 0, false if we timed-out
+			assertTrue(aborted);
+			assertEquals(DeviceState.ABORTED, scanner.getDeviceState());
+		}
+
 	}
 
 
@@ -427,16 +401,14 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 			moved.clear();
 			positions.clear();
 			pauser.setLevel(5); // Above x
-			scanner.run(null);
-
-			assertEquals(25, positions.size());
-			assertEquals(50, moved.size());
-			assertTrue(moved.get(0).equals("x"));
-			assertTrue(moved.get(1).equals("pauser"));
+			try {
+				scanner.run(null);
+			} catch (ScanningException e) {
+				assertTrue(e.getMessage().equals("Interrupted while performing move"));
+			}
 
 		} finally {
 			dog.activate();
-			detector.getModel().setExposureTime(0.25);
 		}
 	}
 

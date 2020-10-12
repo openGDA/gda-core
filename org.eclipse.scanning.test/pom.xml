@@ -52,7 +52,6 @@
 						<exclude>MalcolmDeviceEventTest</exclude>
 						<exclude>MalcolmDeviceScanTest</exclude>
 						<exclude>SubmitterTest</exclude>
-						<exclude>WatchdogInOuterScanMoveTest</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

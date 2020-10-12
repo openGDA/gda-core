@@ -78,6 +78,7 @@ public abstract class AbstractAcquisitionTest {
 		};
 
 		detector.addRunListener(runListener);
+		detector.getModel().setExposureTime(0.08);
 	}
 
 	@After

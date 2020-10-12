@@ -49,8 +49,8 @@ public class MockTopupScannable extends MockScannable implements IConnection {
 			isRunning = true;
 			try {
 				while(isRunning && !Thread.interrupted()) {
-					MockTopupScannable.this.position = nextPosition();
-				    delegate.firePositionChanged(getLevel(), new Scalar(getName(), -1, position));
+					position = nextPosition();
+				    delegate.firePositionChanged(getLevel(), new Scalar<Number>(getName(), -1, position));
 				    Thread.sleep(100);
 				}
 			} catch (InterruptedException e) {
