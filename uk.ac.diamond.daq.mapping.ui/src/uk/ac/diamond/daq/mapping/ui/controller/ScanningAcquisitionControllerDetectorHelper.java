@@ -38,6 +38,9 @@ import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionPropertiesDocument;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
+import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
+import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
@@ -100,8 +103,14 @@ class ScanningAcquisitionControllerDetectorHelper {
 		camerasControls = setCamerasControls();
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
 		// may happens if the controller still has no acquisition document
-		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters() == null)
+		if (getAcquisition().getAcquisitionConfiguration() == null) {
+			logger.warn("There is no AcquisitionConfiguration document");
 			return;
+		}
+		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters() == null) {
+			logger.warn("There is no AcquisitionParameters document");
+			return;
+		}
 
 		loadDetectorDocument();
 		createAcquisitionEngineDocumentIfMissing();
@@ -113,6 +122,16 @@ class ScanningAcquisitionControllerDetectorHelper {
 		} else {
 			createDetectorDocument();
 		}
+
+		applyImageCalibrationDocument(getAcquisition());
+	}
+
+	private DetectorDocument createDetectorDocument(CameraControl cc) throws DeviceException {
+		return new DetectorDocument(cc.getName(), cc.getAcquireTime());
+	}
+
+	private void applyImageCalibrationDocument(ScanningAcquisition acquisition) {
+		acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument());
 	}
 
 	private void createAcquisitionEngineDocumentIfMissing() {
@@ -127,7 +146,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		camerasControls.stream().forEach(cc -> {
 			try {
 				ScanningParameters tp = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-				tp.setDetector(new DetectorDocument(cc.getName(), cc.getAcquireTime()));
+				tp.setDetector(createDetectorDocument(cc));
 			} catch (DeviceException e) {
 				logger.warn("Cannot read exposure time. {}", e.getMessage());
 			}
@@ -174,6 +193,24 @@ class ScanningAcquisitionControllerDetectorHelper {
 			engineBuilder.withType(dp.getEngine().getType());
 		}
 		return engineBuilder.build();
+	}
+
+	private ImageCalibration createNewImageCalibrationDocument() {
+		ImageCalibration imageCalibration = new ImageCalibration();
+
+		DetectorDocument detectorDocument = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getDetector();
+
+		DarkCalibrationDocument.Builder darkBuilder = new DarkCalibrationDocument.Builder()
+				.withNumberExposures(0)
+				.withDetectorDocument(detectorDocument);
+		imageCalibration.setDarkCalibration(darkBuilder.build());
+
+		FlatCalibrationDocument.Builder flatBuilder = new FlatCalibrationDocument.Builder()
+				.withNumberExposures(0)
+				.withDetectorDocument(detectorDocument);
+		imageCalibration.setFlatCalibration(flatBuilder.build());
+
+		return imageCalibration;
 	}
 
 	private AcquisitionPropertiesDocument getAcquisitionPropertiesDocument() {

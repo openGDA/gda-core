@@ -71,9 +71,10 @@ public final class AcquisitionsPropertiesHelper {
 			AcquisitionPropertyType.class);
 
 	static {
-		parseAcquisitionProperties();
-		aggreagateByAcquisitionType();
+		reloadProperties();
 	}
+
+
 
 	/**
 	 * The prefix used in the property files to identify a camera configuration.
@@ -91,6 +92,7 @@ public final class AcquisitionsPropertiesHelper {
 	 * @return an list of possible acquisitions configuration engines. May return {@code null}
 	 */
 	public static List<AcquisitionPropertiesDocument> getAcquistionPropertiesDocument(AcquisitionPropertyType acquisitionPropertyType) {
+
 		if (acquisitionsMap.get(acquisitionPropertyType).isEmpty()) {
 			return null;
 		}
@@ -136,5 +138,12 @@ public final class AcquisitionsPropertiesHelper {
 			.filter(b -> acquisitionType.equals(b.getType()))
 			.forEach(detectorsProperties::add);
 		acquisitionsMap.putIfAbsent(acquisitionType, detectorsProperties);
+	}
+
+	public static final void reloadProperties() {
+		acquisitionProperties.clear();
+		acquisitionsMap.clear();
+		parseAcquisitionProperties();
+		aggreagateByAcquisitionType();
 	}
 }

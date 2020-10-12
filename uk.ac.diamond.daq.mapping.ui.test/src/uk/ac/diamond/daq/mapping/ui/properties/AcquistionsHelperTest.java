@@ -18,10 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.properties;
 
-import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,10 +37,9 @@ public class AcquistionsHelperTest {
 
 	@Before
 	public void before() {
-		File resource = new File("test/resources/acquisitions.properties");
-		Optional.ofNullable(resource)
-				.ifPresent(r -> System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath()));
+		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, "test/resources/acquisitions.properties");
 		LocalProperties.reloadAllProperties();
+		AcquisitionsPropertiesHelper.reloadProperties();
 	}
 
 	/**
