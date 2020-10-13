@@ -101,18 +101,6 @@ public class QuantityFactory {
 	}
 
 	/**
-	 * Similar to {@link #createFromObject(Object, Unit)}, but with an untyped unit
-	 *
-	 * @param value
-	 * @param unit
-	 * @return the Quantity created (or null)
-	 */
-	@SuppressWarnings("unchecked")
-	public static <Q extends Quantity<Q>> Quantity<Q> createFromObjectUnknownUnit(Object value, Unit<? extends Quantity<?>> unit) {
-		return createFromObject(value, (Unit<Q>) unit);
-	}
-
-	/**
 	 * Creates a Quantity from a single string specifying value and units. This should be useful, for example, in
 	 * creating Quantities from scripts.
 	 *
