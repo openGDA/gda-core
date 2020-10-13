@@ -57,10 +57,15 @@ public class CoupledScannableTest {
 	private MockFunction mockFunction2;
 	private MockFunction mockFunction3;
 
+	private CoupledScannable coupled;
+
 	private final IdentityFunction identityFunction = new IdentityFunction();
 
 	@Before
 	public void setUp() throws Exception {
+		coupled = new CoupledScannable();
+		coupled.setName("tesCoupledScannable");
+
 		dummyScannable1 = new DummyUnitsScannable<>("s1", 0, "mm", "mm");
 		dummyScannable2 = new DummyUnitsScannable<>("s2", 0, "nm", "nm");
 		dummyScannable3 = new DummyScannable("s3", 15.3);
@@ -75,39 +80,35 @@ public class CoupledScannableTest {
 	 */
 	@Test
 	public void testUseFirstScannableUnits() throws DeviceException, FactoryException {
-		final CoupledScannable scannable = new CoupledScannable();
-		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
-		scannable.setFunctions(asList(identityFunction, identityFunction));
-		scannable.setName("test");
-		scannable.configure();
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(identityFunction, identityFunction));
+		coupled.configure();
 
 		dummyScannable1.moveTo(1.0);
-		final double posWithUserUnits_mm = (double) scannable.getPosition();
+		final double posWithUserUnits_mm = (double) coupled.getPosition();
 		assertEquals("Should have same value as position of scannable1 as user unit set to that of scannable1", 1.0, posWithUserUnits_mm, FP_TOLERANCE);
 
 		dummyScannable1.setUserUnits("m");
 
-		final double posWithUserUnits_m = (double) scannable.getPosition();
+		final double posWithUserUnits_m = (double) coupled.getPosition();
 
 		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, FP_TOLERANCE);
 	}
 
 	@Test
 	public void testUseFirstScannableUnitsButWithInitialUnitsSet() throws DeviceException, FactoryException {
-		final CoupledScannable scannable = new CoupledScannable();
-		scannable.setScannables(asList(dummyScannable1, dummyScannable2));
-		scannable.setFunctions(asList(identityFunction, identityFunction));
-		scannable.setName("test");
-		scannable.setInitialUserUnits("µm");
-		scannable.configure();
+		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
+		coupled.setFunctions(asList(identityFunction, identityFunction));
+		coupled.setInitialUserUnits("µm");
+		coupled.configure();
 
 		dummyScannable1.moveTo(1.0);
-		final double posWithUserUnits_mm = (double) scannable.getPosition();
+		final double posWithUserUnits_mm = (double) coupled.getPosition();
 		assertEquals("Should have value of 1000 user unit set to micro whilst scannable1 is mm", 1000.0, posWithUserUnits_mm, FP_TOLERANCE);
 
 		dummyScannable1.setUserUnits("m");
 
-		final double posWithUserUnits_m = (double) scannable.getPosition();
+		final double posWithUserUnits_m = (double) coupled.getPosition();
 
 		assertEquals(posWithUserUnits_mm, posWithUserUnits_m, FP_TOLERANCE);
 	}
@@ -119,8 +120,6 @@ public class CoupledScannableTest {
 	 */
 	@Test
 	public void testPassCorrectUnits() throws DeviceException, FactoryException {
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("eV");
 		coupled.setScannables(asList(dummyScannable1));
 		coupled.setFunctions(asList(mockFunction1));
@@ -140,8 +139,6 @@ public class CoupledScannableTest {
 
 	@Test
 	public void testSetScannablesDirectly() throws Exception {
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.setFunctions(asList(mockFunction1, mockFunction2));
@@ -168,8 +165,6 @@ public class CoupledScannableTest {
 
 	@Test(expected = FactoryException.class)
 	public void testNoFunctionsThrowsException() throws Exception {
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.configure();
@@ -177,8 +172,6 @@ public class CoupledScannableTest {
 
 	@Test
 	public void testIdentityFunctionMovesAllScannableToSamePositionRespectingUnits() throws Exception {
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.setFunctions(asList(identityFunction, identityFunction));
@@ -196,8 +189,6 @@ public class CoupledScannableTest {
 
 	@Test
 	public void testScannableWithoutUnits() throws Exception {
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable3));
 		coupled.setFunctions(asList(identityFunction, mockFunction3));
@@ -215,8 +206,6 @@ public class CoupledScannableTest {
 	public void testThrowsExceptionIfMoveFails() throws Exception {
 		dummyScannable1.setUpperGdaLimits(120.0); // so move to 123.0 will fail
 
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.setFunctions(asList(mockFunction1, mockFunction2));
@@ -229,8 +218,6 @@ public class CoupledScannableTest {
 	public void testNotifiesObservers() throws Exception {
 		final IObserver observer = mock(IObserver.class);
 
-		final CoupledScannable coupled = new CoupledScannable();
-		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.setFunctions(asList(identityFunction, identityFunction));
