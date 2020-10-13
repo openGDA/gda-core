@@ -1,37 +1,59 @@
 package uk.ac.gda.api.acquisition.configuration;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 
 /**
  * Defines how many and how the calibration images will be acquired
  */
+@JsonDeserialize(builder = ImageCalibration.Builder.class)
 public class ImageCalibration {
 
-	private FlatCalibrationDocument flatCalibration;
-	private DarkCalibrationDocument darkCalibration;
+	private final FlatCalibrationDocument flatCalibration;
+	private final DarkCalibrationDocument darkCalibration;
 
-	public ImageCalibration() {
-	}
-
-	public ImageCalibration(ImageCalibration imageCalibration) {
-		this.flatCalibration = imageCalibration.getFlatCalibration();
-		this.darkCalibration = imageCalibration.getDarkCalibration();
+	private ImageCalibration(FlatCalibrationDocument flatCalibration, DarkCalibrationDocument darkCalibration) {
+		this.flatCalibration = flatCalibration;
+		this.darkCalibration = darkCalibration;
 	}
 
 	public FlatCalibrationDocument getFlatCalibration() {
 		return flatCalibration;
 	}
 
-	public void setFlatCalibration(FlatCalibrationDocument flatCalibration) {
-		this.flatCalibration = flatCalibration;
-	}
-
 	public DarkCalibrationDocument getDarkCalibration() {
 		return darkCalibration;
 	}
 
-	public void setDarkCalibration(DarkCalibrationDocument darkCalibration) {
-		this.darkCalibration = darkCalibration;
+	@JsonPOJOBuilder
+	public static class Builder {
+
+		private FlatCalibrationDocument flatCalibration;
+		private DarkCalibrationDocument darkCalibration;
+
+		public Builder() {
+		}
+
+		public Builder(ImageCalibration document) {
+			this.flatCalibration = document.getFlatCalibration();
+			this.darkCalibration = document.getDarkCalibration();
+		}
+
+	    public Builder withFlatCalibration(FlatCalibrationDocument flatCalibration) {
+	        this.flatCalibration = flatCalibration;
+	        return this;
+	    }
+
+	    public Builder withDarkCalibration(DarkCalibrationDocument darkCalibration) {
+	        this.darkCalibration = darkCalibration;
+	        return this;
+	    }
+
+	    public ImageCalibration build() {
+	        return new ImageCalibration(flatCalibration, darkCalibration);
+	    }
 	}
 }
