@@ -56,14 +56,6 @@ public class FlatCalibrationDocument {
 		this.afterAcquisition = afterAcquisition;
 	}
 
-	public FlatCalibrationDocument(FlatCalibrationDocument darkCalibrationDocument) {
-		super();
-		this.detectorDocument = darkCalibrationDocument.getDetectorDocument();
-		this.numberExposures = darkCalibrationDocument.getNumberExposures();
-		this.beforeAcquisition = darkCalibrationDocument.isBeforeAcquisition();
-		this.afterAcquisition = darkCalibrationDocument.isAfterAcquisition();
-	}
-
 	public DetectorDocument getDetectorDocument() {
 		return detectorDocument;
 	}
@@ -88,6 +80,16 @@ public class FlatCalibrationDocument {
 		private int numberExposures;
 		private boolean beforeAcquisition;
 		private boolean afterAcquisition;
+
+		public Builder() {
+		}
+
+		public Builder(FlatCalibrationDocument document) {
+			this.detectorDocument = document.getDetectorDocument();
+			this.numberExposures = document.getNumberExposures();
+			this.beforeAcquisition = document.isBeforeAcquisition();
+			this.afterAcquisition = document.isAfterAcquisition();
+		}
 
 	    public Builder withDetectorDocument(DetectorDocument detectorDocument) {
 	        this.detectorDocument = detectorDocument;

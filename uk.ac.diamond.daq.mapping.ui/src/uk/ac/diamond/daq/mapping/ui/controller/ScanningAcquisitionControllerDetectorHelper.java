@@ -32,6 +32,7 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionEvent;
+import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionPropertiesDocument;
@@ -122,16 +123,15 @@ class ScanningAcquisitionControllerDetectorHelper {
 		} else {
 			createDetectorDocument();
 		}
-
-		applyImageCalibrationDocument(getAcquisition());
+		applyImageCalibrationDocument();
 	}
 
 	private DetectorDocument createDetectorDocument(CameraControl cc) throws DeviceException {
 		return new DetectorDocument(cc.getName(), cc.getAcquireTime());
 	}
 
-	private void applyImageCalibrationDocument(ScanningAcquisition acquisition) {
-		acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument());
+	private void applyImageCalibrationDocument() {
+		getAcquisition().getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument());
 	}
 
 	private void createAcquisitionEngineDocumentIfMissing() {
@@ -140,6 +140,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 			AcquisitionEngineDocument aed = createNewAcquisitionEngineDocument();
 			getAcquisition().setAcquisitionEngine(aed);
 		}
+		applyImageCalibrationDocument();
 	}
 
 	private void createDetectorDocument() {
@@ -209,7 +210,6 @@ class ScanningAcquisitionControllerDetectorHelper {
 				.withNumberExposures(0)
 				.withDetectorDocument(detectorDocument);
 		imageCalibration.setFlatCalibration(flatBuilder.build());
-
 		return imageCalibration;
 	}
 
@@ -237,7 +237,12 @@ class ScanningAcquisitionControllerDetectorHelper {
 			// The acquisition configuration may not include this detector
 			if (!detectorControlName.equals(acquisitionParameters.getDetector().getName()))
 				return;
-			acquisitionParameters.setDetector(new DetectorDocument(acquisitionParameters.getDetector().getName(), acquireTime));
+			ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(() -> getAcquisition().getAcquisitionConfiguration());
+			DetectorDocument detectorDocument = new DetectorDocument(detectorControlName, acquireTime);
+
+			acquisitionParameters.setDetector(detectorDocument);
+			imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);
+			imageCalibrationHelper.updateFlatDetectorDocument(detectorDocument);
 			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionEvent(getAcquisition()));
 		}
 	};
