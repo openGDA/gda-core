@@ -14,15 +14,13 @@ package org.eclipse.scanning.test.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.richbeans.test.utilities.ui.ShellTest;
-import org.eclipse.scanning.api.ISpringParser;
+import org.eclipse.scanning.api.scan.ui.ControlGroup;
+import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.device.scannable.ControlTreeViewer;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.swt.SWT;
@@ -58,7 +56,7 @@ public class ControlTreeViewerTest extends ShellTest {
 	@Override
 	protected Shell createShell(Display display) throws Exception {
 
-		this.controlTree = getControlTree("control_tree.xml");
+		this.controlTree = getControlTree1();
 
 		this.viewer = new ControlTreeViewer(controlTree, Services.getConnector());
 		viewer.setUseFilteredTree(false);
@@ -76,12 +74,12 @@ public class ControlTreeViewerTest extends ShellTest {
 	}
 
 	@Test
-	public void checkShell() throws Exception {
+	public void checkShell() {
 		assertNotNull(bot.shell("Control Tree"));
 	}
 
 	@Test
-	public void checkTree() throws Exception {
+	public void checkTree() {
 		assertNotNull(bot.tree(0));
 	}
 
@@ -116,7 +114,7 @@ public class ControlTreeViewerTest extends ShellTest {
 	@Test
 	public void checkValuesTree2() throws Exception {
 
-		ControlTree ct = getControlTree("control_tree2.xml");
+		ControlTree ct = getControlTree2();
 		bot.getDisplay().syncExec(()->viewer.setControlTree(ct));
 
 		assertEquals(2, bot.tree(0).columnCount());
@@ -147,7 +145,7 @@ public class ControlTreeViewerTest extends ShellTest {
 	@Test
 	public void checkValuesTree3() throws Exception {
 
-		ControlTree ct = getControlTree("control_tree3.xml");
+		ControlTree ct = getControlTree3();
 		bot.getDisplay().syncExec(()->viewer.setControlTree(ct));
 
 		assertEquals(2, bot.tree(0).columnCount());
@@ -166,7 +164,7 @@ public class ControlTreeViewerTest extends ShellTest {
 	@Test
 	public void checkValuesTree4() throws Exception {
 
-		ControlTree ct = getControlTree("control_tree4.xml");
+		ControlTree ct = getControlTree4();
 		bot.getDisplay().syncExec(()->viewer.setControlTree(ct));
 
 		assertEquals(2, bot.tree(0).columnCount());
@@ -321,18 +319,118 @@ public class ControlTreeViewerTest extends ShellTest {
 	}
 
 
-	/**
-     *
-     * @param path
-     * @throws Exception
-     * @throws UnsupportedOperationException
-     */
-	public ControlTree getControlTree(String name) throws UnsupportedOperationException, Exception {
-		InputStream in = getClass().getResourceAsStream(name);
-		ISpringParser parser = ServiceHolder.getSpringParser();
-		Map<String, Object> map = parser.parse(in);
-		if (!map.isEmpty()) return (ControlTree)map.get("Control_Factory");
-		return null;
+	private ControlTree getControlTree1() {
+
+		ControlTree controlFactory = new ControlTree();
+		controlFactory.setName("Control Factory");
+		controlFactory.globalize();
+
+		ControlNode stageX = new ControlNode();
+		stageX.setDisplayName("Stage X");
+		stageX.setScannableName("stage_x");
+		stageX.setIncrement(0.1);
+		stageX.add();
+		ControlNode stageY = new ControlNode();
+		stageY.setDisplayName("Stage Y");
+		stageY.setScannableName("stage_y");
+		stageY.setIncrement(0.1);
+		stageY.add();
+		ControlNode stageZ = new ControlNode();
+		stageZ.setDisplayName("Stage Z");
+		stageZ.setScannableName("stage_z");
+		stageZ.setIncrement(0.1);
+		stageZ.add();
+		ControlNode temp = new ControlNode();
+		temp.setDisplayName("Temperature");
+		temp.setScannableName("temp");
+		temp.setIncrement(1);
+		temp.add();
+
+		ControlGroup translations = new ControlGroup();
+		translations.setName("Translations");
+		translations.setControls(Arrays.asList(stageX, stageY, stageZ));
+		translations.add();
+		ControlGroup expConditions = new ControlGroup();
+		expConditions.setName("Experimental Conditions");
+		expConditions.setControls(Arrays.asList(temp));
+		expConditions.add();
+
+		return controlFactory;
+	}
+
+
+	private ControlTree getControlTree2() {
+		ControlTree controlFactory = new ControlTree();
+		controlFactory.setName("Control Factory");
+		controlFactory.globalize();
+
+		ControlNode stageX = new ControlNode();
+		stageX.setDisplayName("X");
+		stageX.setScannableName("a");
+		stageX.setIncrement(0.1);
+		stageX.add();
+		ControlNode stageY = new ControlNode();
+		stageY.setDisplayName("Y");
+		stageY.setScannableName("b");
+		stageY.setIncrement(0.1);
+		stageY.add();
+		ControlNode stageZ = new ControlNode();
+		stageZ.setDisplayName("Z");
+		stageZ.setScannableName("c");
+		stageZ.setIncrement(0.1);
+		stageZ.add();
+		ControlNode temp = new ControlNode();
+		temp.setDisplayName("Temperature");
+		temp.setScannableName("temp");
+		temp.setIncrement(1);
+		temp.add();
+
+		ControlGroup translations = new ControlGroup();
+		translations.setName("Translations");
+		translations.setControls(Arrays.asList(stageX, stageY, stageZ));
+		translations.add();
+		ControlGroup expConditions = new ControlGroup();
+		expConditions.setName("Experimental Conditions");
+		expConditions.setControls(Arrays.asList(temp));
+		expConditions.add();
+
+		return controlFactory;
+	}
+	private ControlTree getControlTree3() {
+		ControlTree controlFactory = new ControlTree();
+		controlFactory.setName("Control Factory");
+		controlFactory.globalize();
+
+		ControlNode current = new ControlNode();
+		current.setDisplayName("Current");
+		current.setScannableName("beamcurrent");
+		current.setIncrement(0.1);
+		current.add();
+
+		ControlGroup machine = new ControlGroup();
+		machine.setName("Machine");
+		machine.setControls(Arrays.asList(current));
+		machine.add();
+
+		return controlFactory;
+	}
+	private ControlTree getControlTree4() {
+		ControlTree controlFactory = new ControlTree();
+		controlFactory.setName("Control Factory");
+		controlFactory.globalize();
+
+		ControlNode shutter = new ControlNode();
+		shutter.setDisplayName("Port Shutter");
+		shutter.setScannableName("portshutter");
+		shutter.setIncrement(0.1);
+		shutter.add();
+
+		ControlGroup hutch = new ControlGroup();
+		hutch.setName("Hutch");
+		hutch.setControls(Arrays.asList(shutter));
+		hutch.add();
+
+		return controlFactory;
 	}
 
 }

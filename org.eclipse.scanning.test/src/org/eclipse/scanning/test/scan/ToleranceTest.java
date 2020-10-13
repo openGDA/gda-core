@@ -6,8 +6,9 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
-import org.eclipse.scanning.server.application.PseudoSpringParser;
+import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,11 +27,15 @@ public class ToleranceTest {
 	}
 
     @Before
-	public void beforeTest() throws Exception {
+	public void beforeTest() throws ScanningException {
 
 		// Make a few detectors and models...
-		PseudoSpringParser parser = new PseudoSpringParser();
-		parser.parse(ToleranceTest.class.getResourceAsStream("test_tolerance.xml"));
+		MockScannable bnd = new MockScannable();
+		bnd.setName("bnd");
+		bnd.setActivated(false);
+		bnd.setTolerance(1.0);
+		bnd.setPosition(3.14);
+		bnd.register();
 	}
 
 	@Test

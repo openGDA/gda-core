@@ -28,7 +28,6 @@ import org.eclipse.scanning.api.filter.IFilter;
 import org.eclipse.scanning.api.filter.IFilterService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -50,8 +49,15 @@ public class FilterTest {
 	@Before
 	public void parseSpring() throws Exception {
 		fservice.clear();
-		PseudoSpringParser parser = new PseudoSpringParser();
-		parser.parse(FilterTest.class.getResourceAsStream("test_filters.xml"));
+		Filter filter = new Filter();
+		filter.setName("org.eclipse.scanning.scannableFilter");
+		filter.setExcludes(Arrays.asList("qvach", // Should not match anything
+				"monitor1", // The later include will override this
+				"a", "b", "c", "beam.*", "neXusScannable.*"));
+		filter.setIncludes(Arrays.asList("monitor.*", "beamcurrent", "neXusScannable2",
+				"neXusScannable", // Should not match anything
+				"rubbish")); // Should not match anything
+		filter.register();
 	}
 
 	@Test

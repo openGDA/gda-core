@@ -36,7 +36,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.INamedNode;
-import org.eclipse.scanning.api.ISpringParser;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
@@ -53,6 +52,7 @@ import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.ui.ControlFileNode;
+import org.eclipse.scanning.api.scan.ui.ControlGroup;
 import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
 import org.eclipse.scanning.event.util.JsonUtil;
@@ -60,7 +60,6 @@ import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
-import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Before;
@@ -334,9 +333,7 @@ public class SerializationTest {
 	@Test
 	public void testControlFactorySerialize() throws Exception {
 
-		ISpringParser parser = new PseudoSpringParser();
-		InputStream in = getClass().getResourceAsStream("client-test.xml");
-		parser.parse(in);
+		initializeControlTree();
 
 		assertTrue(!ControlTree.getInstance().isEmpty());
 
@@ -373,9 +370,7 @@ public class SerializationTest {
 	@Test
 	public void testControlFactoryToPosition() throws Exception {
 
-		ISpringParser parser = new PseudoSpringParser();
-		InputStream in = getClass().getResourceAsStream("client-test.xml");
-		parser.parse(in);
+		initializeControlTree();
 
 		ControlTree tree = ControlTree.getInstance();
 		assertTrue(!tree.isEmpty());
@@ -542,5 +537,41 @@ public class SerializationTest {
 
         if (!ret.equals(sent)) throw new Exception("Cannot deserialize "+DeviceRequest.class.getName());
         if (!ret.getDeviceValue().equals(sent.getDeviceValue())) throw new Exception("Cannot deserialize "+DeviceRequest.class.getName());
+	}
+
+	private void initializeControlTree() {
+		ControlTree controlFactory = new ControlTree();
+		controlFactory.setName("Control Factory");
+		controlFactory.globalize();
+
+		ControlNode stageX = new ControlNode();
+		stageX.setDisplayName("Stage X");
+		stageX.setScannableName("stage_x");
+		stageX.setIncrement(0.1);
+		stageX.add();
+		ControlNode stageY = new ControlNode();
+		stageY.setDisplayName("Stage Y");
+		stageY.setScannableName("stage_y");
+		stageY.setIncrement(0.1);
+		stageY.add();
+		ControlNode stageZ = new ControlNode();
+		stageZ.setDisplayName("Stage Z");
+		stageZ.setScannableName("stage_z");
+		stageZ.setIncrement(0.1);
+		stageZ.add();
+		ControlNode temp = new ControlNode();
+		temp.setDisplayName("Temperature");
+		temp.setScannableName("temp");
+		temp.setIncrement(1);
+		temp.add();
+
+		ControlGroup translations = new ControlGroup();
+		translations.setName("Translations");
+		translations.setControls(Arrays.asList(stageX, stageY, stageZ));
+		translations.add();
+		ControlGroup expConditions = new ControlGroup();
+		expConditions.setName("Experimental Conditions");
+		expConditions.setControls(Arrays.asList(temp));
+		expConditions.add();
 	}
 }

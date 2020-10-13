@@ -15,7 +15,6 @@ import java.net.URI;
 
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
-import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerDelegate;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -39,7 +38,6 @@ public class UITestServicesSetup {
 
 		final org.eclipse.scanning.device.ui.ServiceHolder serviceHolder = new org.eclipse.scanning.device.ui.ServiceHolder();
 		serviceHolder.setExpressionService(new ServerExpressionService());
-		serviceHolder.setSpringParser(new PseudoSpringParser());
 		serviceHolder.setEventService(new EventServiceImpl());
 
 		ServiceTestHelper.setupServices();

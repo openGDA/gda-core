@@ -40,8 +40,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- PsuedoSpringParser to be removed -->
-						<exclude>PseudoSpringParserTest</exclude>
 						<!-- Powermock issues -->
 						<exclude>QueuePersistenceTest</exclude>
 						<!-- Flaky new-scanning tests, currently excluded -->

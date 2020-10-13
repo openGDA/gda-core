@@ -64,10 +64,10 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.example.scannable.MockNeXusSlit;
 import org.eclipse.scanning.example.scannable.MockScannableConfiguration;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.eclipse.scanning.server.application.PseudoSpringParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,8 +77,16 @@ public class PerScanMonitorTest extends NexusTest {
 	@Before
 	public void beforeTest() throws Exception {
 		// Make a few detectors and models...
-		PseudoSpringParser parser = new PseudoSpringParser();
-		parser.parse(PerScanMonitorTest.class.getResourceAsStream("test_scannables.xml"));
+		MockScannableConfiguration dcsModel = new MockScannableConfiguration();
+		dcsModel.setXGapName("s1gapX");
+		dcsModel.setYGapName("s1gapY");
+		dcsModel.setXCentreName("s1cenX");
+		dcsModel.setYCentreName("s1cenY");
+		MockNeXusSlit dummyConfiguredScannable = new MockNeXusSlit();
+		dummyConfiguredScannable.setName("dcs");
+		dummyConfiguredScannable.setModel(dcsModel);
+		dummyConfiguredScannable.setActivated(true);
+		dummyConfiguredScannable.register();
 
 		((MockScannableConnector) connector).setCreateIfNotThere(false);
 		// TODO See this scannable which is a MockNeXusSlit

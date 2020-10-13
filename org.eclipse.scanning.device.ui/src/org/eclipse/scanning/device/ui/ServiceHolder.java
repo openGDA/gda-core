@@ -18,7 +18,6 @@ import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.plotting.api.IPlottingService;
-import org.eclipse.scanning.api.ISpringParser;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
@@ -39,7 +38,6 @@ public class ServiceHolder {
 	private static IValidatorService      validatorService;
 	private static IExpressionService     expressionService;
 	private static ILoaderService         loaderService;
-	private static ISpringParser          springParser;
 	private static IMarshallerService     marshallerService;
 	private static IPlottingService       plottingService;
 	private static IRemoteDatasetService  remoteDatasetService;
@@ -120,15 +118,6 @@ public class ServiceHolder {
 
 	public void setValidatorService(IValidatorService validatorService) {
 		ServiceHolder.validatorService = validatorService;
-	}
-
-	public static ISpringParser getSpringParser() {
-		if (springParser==null) springParser = getService(ISpringParser.class);
-		return springParser;
-	}
-
-	public void setSpringParser(ISpringParser springParser) {
-		ServiceHolder.springParser = springParser;
 	}
 
 	public static IMarshallerService getMarshallerService() {
