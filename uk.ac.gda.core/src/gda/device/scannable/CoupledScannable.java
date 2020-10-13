@@ -154,7 +154,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase {
 		}
 
 		// loop through all functions, calculate and send command to Scannable
-		final Quantity<? extends Quantity<?>> sourceQuantity = QuantityFactory.createFromObjectUnknownUnit(position, unitsComponent.getUserUnit());
+		final Quantity<? extends Quantity<?>> sourceQuantity = QuantityFactory.createFromObject(position, unitsComponent.getUserUnit());
 		final List<Quantity<?>> targets = theFunctions.stream()
 			.map(f -> f.apply(sourceQuantity))
 			.collect(Collectors.toCollection(ArrayList::new));
