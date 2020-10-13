@@ -18,10 +18,14 @@
 
 package gda.data.scan.nexus.device;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -30,10 +34,105 @@ import gda.device.detector.NexusDetector;
 
 public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<Scannable> {
 
+	private static class NexusDetectorAdapterFactory implements INexusDeviceAdapterFactory<Detector> {
+
+		@Override
+		public boolean canAdapt(Object device) {
+			return device instanceof NexusDetector;
+		}
+
+		@Override
+		public <N extends NXobject> INexusDevice<N> createNexusDevice(Detector detector) throws NexusException {
+			throw new UnsupportedOperationException("Detectors of type NexusDetector are not yet supported:" + detector.getName());
+		}
+
+	}
+
+	private static class DetectorCreatesOwnFilesAdapterFactory implements INexusDeviceAdapterFactory<Detector> {
+
+		@Override
+		public boolean canAdapt(Object device) {
+			try {
+				return device instanceof Detector && ((Detector) device).createsOwnFiles();
+			} catch (DeviceException e) {
+				throw new RuntimeException("Error calling createsOwnFiles on detector: " + ((Scannable) device).getName());
+			}
+		}
+
+		@Override
+		public <N extends NXobject> INexusDevice<N> createNexusDevice(Detector device) throws NexusException {
+			// TODO DAQ-3178: implement support for file creator detector, see NexusDataWriter.makeFileCreatorDetector
+			throw new UnsupportedOperationException("Detectors that create their own files are not yet supported:" + device.getName());
+		}
+
+	}
+
+	private static class CounterTimerAdapterFactory implements INexusDeviceAdapterFactory<Detector> {
+
+		@Override
+		public boolean canAdapt(Object device) {
+			return device instanceof Detector &&
+					((Detector) device).getExtraNames() != null &&
+					((Detector) device).getExtraNames().length > 0;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
+			return new CounterTimerNexusDevice(detector);
+		}
+
+	}
+
+	private static class GenericDetectorAdapterFactory implements INexusDeviceAdapterFactory<Detector> {
+
+		@Override
+		public boolean canAdapt(Object device) {
+			return device instanceof Detector;
+		}
+
+		@Override
+		public <N extends NXobject> INexusDevice<N> createNexusDevice(Detector detector) throws NexusException {
+			// TODO DAQ-3179: implement support for generic detector, see NexusDataWriter.makeGenericDetector
+			throw new UnsupportedOperationException("Generic detectors are not yet supported:" + detector.getName());
+		}
+
+	}
+
+	private static class ScannableAdapterFactory implements INexusDeviceAdapterFactory<Scannable> {
+
+		@Override
+		public boolean canAdapt(Object device) {
+			return device instanceof Scannable && !(device instanceof Detector);
+		}
+
+		@Override
+		public <N extends NXobject> INexusDevice<N> createNexusDevice(Scannable device) throws NexusException {
+			final ScannableNexusDevice<N> nexusDevice = new ScannableNexusDevice<N>(device);
+			nexusDevice.setWriteDemandValue(false);
+			return nexusDevice;
+		}
+
+	}
+
 	private static final GDANexusDeviceAdapterFactory INSTANCE = new GDANexusDeviceAdapterFactory();
 
-	private GDANexusDeviceAdapterFactory() {
-		// private constructor to prevent instantiation
+	private final List<INexusDeviceAdapterFactory<? extends Scannable>> adapterFactories;
+
+	public GDANexusDeviceAdapterFactory() {
+		// private constructor to prevent external instantiation
+
+		// create the list of adapter factories.
+		// The way this is used is very similar to the Chain of Responsibility
+		// design pattern, except that we are using a list rather than each element referring to the next.
+		// Note: the order of the elements is very important, as each are tried in turn. This emulates the
+		// logic in NexusDataWrite.makeDetectorEntry
+		adapterFactories = new ArrayList<>();
+		adapterFactories.add(new NexusDetectorAdapterFactory());
+		adapterFactories.add(new DetectorCreatesOwnFilesAdapterFactory());
+		adapterFactories.add(new CounterTimerAdapterFactory());
+		adapterFactories.add(new GenericDetectorAdapterFactory());
+		adapterFactories.add(new ScannableAdapterFactory());
 	}
 
 	public static GDANexusDeviceAdapterFactory getInstance() {
@@ -41,8 +140,8 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 	}
 
 	@Override
-	public boolean canAdapt(Scannable device) {
-		return true;
+	public boolean canAdapt(Object device) {
+		return device instanceof Scannable;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -52,36 +151,15 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 			return (INexusDevice<N>) device;
 		}
 
-		if (device instanceof Detector) {
-			return (INexusDevice<N>) createNexusDevice((Detector) device);
+		for (INexusDeviceAdapterFactory<? extends Scannable> adapterFactory : adapterFactories) {
+			if (adapterFactory.canAdapt(device)) {
+				return ((INexusDeviceAdapterFactory<Scannable>)adapterFactory).createNexusDevice(device);
+			}
 		}
 
 		final ScannableNexusDevice<N> nexusWrapper = new ScannableNexusDevice<>(device);
 		nexusWrapper.setWriteDemandValue(false);
 		return nexusWrapper;
-	}
-
-	private INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
-		if (detector instanceof NexusDetector) {
-			// TODO DAQ-3177: implement support for NexusDetector, see NexusDataWriter.makeNexusDetectorGroups
-			throw new UnsupportedOperationException("Detectors of type NexusDetector are not yet supported:" + detector.getName());
-		} else if (canCreateOwnFiles(detector)) {
-			// TODO DAQ-3178: implement support for file creator detector, see NexusDataWriter.makeFileCreatorDetector
-			throw new UnsupportedOperationException("Detectors that create their own files are not yet supported:" + detector.getName());
-		} else if (detector.getExtraNames().length > 0) {
-			return new CounterTimerNexusDevice(detector);
-		} else {
-			// TODO DAQ-3179: implement support for generic detector, see NexusDataWriter.makeGenericDetector
-			throw new UnsupportedOperationException("Generic detectors are not yet supported:" + detector.getName());
-		}
-	}
-
-	private boolean canCreateOwnFiles(Detector detector) throws NexusException {
-		try {
-			return detector.createsOwnFiles();
-		} catch (DeviceException e) {
-			throw new NexusException(e);
-		}
 	}
 
 }

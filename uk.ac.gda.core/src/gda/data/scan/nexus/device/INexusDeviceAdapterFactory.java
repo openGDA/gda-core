@@ -39,7 +39,7 @@ public interface INexusDeviceAdapterFactory<T> {
 	 * @param device the device object to adapt
 	 * @return <code>true</code> if an adapter can be created for the given device object, <code>false</code> otherwise
 	 */
-	public boolean canAdapt(T device);
+	public boolean canAdapt(Object device);
 
 	/**
 	 * Creates and returns an adapter implementing {@link INexusDevice} for the given device object,
