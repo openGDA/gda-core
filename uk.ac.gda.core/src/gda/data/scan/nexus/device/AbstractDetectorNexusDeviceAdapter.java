@@ -18,6 +18,7 @@
 
 package gda.data.scan.nexus.device;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -79,9 +80,16 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 	}
 
 	protected void writeMetaDataFields(final NXdetector detGroup, final Detector detector) throws DeviceException {
-		detGroup.setDescriptionScalar(detector.getDescription());
-		detGroup.setTypeScalar(detector.getDetectorType());
-		detGroup.setDataset(FIELD_NAME_ID, DatasetFactory.createFromObject(detector.getDetectorID()));
+		if (StringUtils.isNotEmpty(detector.getDescription())) {
+			detGroup.setDescriptionScalar(detector.getDescription());
+		}
+		if (StringUtils.isNotEmpty(detector.getDetectorType())) {
+			detGroup.setTypeScalar(detector.getDetectorType());
+		}
+		if (StringUtils.isNotEmpty(detector.getDetectorID())) {
+			detGroup.setDataset(FIELD_NAME_ID, DatasetFactory.createFromObject(detector.getDetectorID()));
+		}
+		// TODO DAQ-8203 add any metadata added by appenders. See NexusDataWriter.addDeviceMetadata
 	}
 
 	protected abstract void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException;
