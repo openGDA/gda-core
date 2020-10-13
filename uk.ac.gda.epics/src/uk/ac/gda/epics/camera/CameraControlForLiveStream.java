@@ -36,6 +36,10 @@ public class CameraControlForLiveStream extends EpicsCameraControl {
 		this.adBase = adBase;
 	}
 
+	public CameraControlForLiveStream(ADBase adBase) {
+		this(adBase, null);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * <p>

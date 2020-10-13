@@ -60,6 +60,10 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		this.ndRoi = ndRoi;
 	}
 
+	public EpicsCameraControl(ADBase adBase) {
+		this(adBase, null);
+	}
+
 	@Override
 	public void configure() throws FactoryException {
 		if (useAcquireTimeMonitor) {
