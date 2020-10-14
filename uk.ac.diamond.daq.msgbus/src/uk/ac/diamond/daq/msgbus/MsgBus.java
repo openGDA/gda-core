@@ -20,25 +20,16 @@ package uk.ac.diamond.daq.msgbus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
-import static gda.configuration.properties.LocalProperties.GDA_SERVER_HOST;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
-import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -48,7 +39,6 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +52,7 @@ import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 
 /**
  * Eagerly-initialised singleton (per-process but linked by JMS destination).
@@ -88,13 +78,6 @@ public enum MsgBus {
 		}
 	};
 
-	// JMS
-	private Connection connection;
-	private final ExceptionListener connectionExceptionListener = new ExceptionListener() {
-		@Override public synchronized void onException(JMSException e) {
-			logger.error("connection problem", e);
-		}
-	};
 	private Session session;
 	private MessageConsumer consumer;
 	private MessageProducer producer;
@@ -111,19 +94,9 @@ public enum MsgBus {
 			eventBus = new AsyncEventBus(threadPool, subscriberExceptionHandler);
 //			eventBus = new EventBus(subscriberExceptionHandler);
 
-			// Connection
-			final String brokerUri = LocalProperties.getActiveMQBrokerURI();
-			logger.debug("connecting to ActiveMQ broker {}", brokerUri);
-			final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUri);
-			connectionFactory.setTrustAllPackages(true);
-			connection = connectionFactory.createConnection();
-//			connection.setClientID("TODO");
-			connection.start();
-			connection.setExceptionListener(connectionExceptionListener);
-
 			// All published messages will be sent to all topic consumers,
 			// i.e. MsgBus instances, including this
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			session = ServiceHolder.getSessionService().getSession();
 			String topic = MsgBus.class.getName(); //FIXME something shorter like GDA:MsgBus
 			Destination destination = session.createTopic(topic);
 
@@ -383,20 +356,10 @@ public enum MsgBus {
 		logger.debug("stopping...");
 
 		try {
-//			consumer.setMessageListener(null);
-
-//			if (consumer != null) consumer.close();
-//			if (producer != null) producer.close();
-//			if (session != null) session.close();
-			if (connection != null) connection.close(); //((ActiveMQConnection) connection).close();
-//			if (connection != null) connection.stop();
-
-//			consumer = null;
-//			postsPublished = null;
-//			producer = null;
-//			session = null;
+			if (session != null) session.close();
+			session = null;
 		} catch (JMSException e) {
-			logger.error("problem shutting down broker connection", e);
+			logger.error("problem shutting down MsgBus session {}", session, e);
 		}
 
 //		try {
@@ -411,35 +374,6 @@ public enum MsgBus {
 //		}
 
 		logger.debug("stopped");
-	}
-
-	// Using a java property here as the formatting may be easier to handle than for a Spring property
-	public static final String KEY_GETSTATUS_ACTIVE_URI = "gda.activemq.broker.status.uri";
-	public static final String GETSTATUS_ACTIVE_URI_DEFAULT = String.join("", "http://", LocalProperties.get(GDA_SERVER_HOST), ":8161");
-	public static final String KEY_GETSTATUS_ACTIVE_PROPERTY = "gda.activemq.broker.status.key.active";
-	public static final String KEY_GETSTATUS_ACTIVE_DEFAULT = "activemq.apache.org";
-	public static final String KEY_GETSTATUS_ACTIVE = LocalProperties.get(KEY_GETSTATUS_ACTIVE_PROPERTY, KEY_GETSTATUS_ACTIVE_DEFAULT);
-
-	/** @return raw status response string for parsing */
-	public static String fetchActiveMQStatus() throws IOException {
-		final String brokerUri = LocalProperties.get(KEY_GETSTATUS_ACTIVE_URI, GETSTATUS_ACTIVE_URI_DEFAULT);
-		final URL url = new URL(brokerUri);
-		URLConnection  conn = url.openConnection();
-		try (final BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"))) {
-			return reader.lines().collect(Collectors.joining());
-		}
-	}
-
-	/** @return flag for ActiveMQ response indicating whether server is active */
-	public static boolean isActiveMQ() {
-		boolean response = false;
-		try {
-			String status = fetchActiveMQStatus();
-			response = status.contains(KEY_GETSTATUS_ACTIVE);
-		} catch (IOException e) {
-			MsgBus.INSTANCE.logger.error("FAIL to verify ActiveMQ status", e);
-		}
-		return response;
 	}
 
 	public static void main(String[] args) {

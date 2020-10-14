@@ -55,8 +55,7 @@ Require-Bundle: org.aopalliance,
  com.fasterxml.jackson.core.jackson-core,
  org.eclipse.dawnsci.nexus.template,
  org.apache.sshd.osgi;bundle-version="[2.2.0,2.3.0)",
- uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0",
- uk.ac.diamond.daq.msgbus
+ uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api,
  uk.ac.diamond.org.springframework
@@ -150,6 +149,7 @@ Export-Package: gda.beamline.beam,
  gda.util.osgi,
  gda.util.userOptions,
  gda.util.xml,
+ uk.ac.diamond.daq.activemq,
  uk.ac.diamond.daq.beamcondition,
  uk.ac.diamond.daq.concurrent,
  uk.ac.diamond.daq.experiment.structure,

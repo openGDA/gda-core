@@ -26,6 +26,8 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
+import uk.ac.diamond.daq.activemq.ActiveMQSessionService;
+import uk.ac.diamond.daq.activemq.ISessionService;
 
 /**
  * Holds the IRunnableDeviceService which the file registrar uses
@@ -116,6 +118,24 @@ public class ServiceHolder {
 		}
 
 		return nexusDataWriterConfiguration;
+	}
+
+	private static volatile ISessionService sessionService;
+
+	public static ISessionService getSessionService() {
+		if (sessionService == null) {
+			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
+				if (sessionService == null) {
+					sessionService = new ActiveMQSessionService();
+				}
+			}
+		}
+
+		return sessionService;
+	}
+
+	public void setSessionService(ISessionService sessionService) {
+		ServiceHolder.sessionService = sessionService;
 	}
 
 }

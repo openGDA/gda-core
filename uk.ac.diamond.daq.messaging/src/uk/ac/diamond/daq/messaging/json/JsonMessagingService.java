@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.messaging.json;
 
 import static javax.jms.DeliveryMode.NON_PERSISTENT;
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,15 +26,14 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
@@ -76,18 +74,19 @@ public class JsonMessagingService implements MessagingService {
 
 	@Activate
 	public void activate() {
-		final String jmsBrokerUri = LocalProperties.getActiveMQBrokerURI();
-		final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(jmsBrokerUri);
-		Connection connection;
 		try {
-			connection = factory.createConnection();
-		} catch (JMSException e) {
-			throw new RuntimeException("Failed to connect to ActiveMQ, is it running?", e);
-		}
-		try {
-			session = connection.createSession(false, AUTO_ACKNOWLEDGE);
+			session = ServiceHolder.getSessionService().getSession();
 		} catch (JMSException e) {
 			throw new RuntimeException("Unable to create Session on ActiveMQ connection ", e);
+		}
+	}
+
+	@Deactivate
+	public void deactivate() {
+		try {
+			session.close();
+		} catch (JMSException e) {
+			throw new RuntimeException("Unable to close Session on ActiveMQConnection ", e);
 		}
 	}
 
