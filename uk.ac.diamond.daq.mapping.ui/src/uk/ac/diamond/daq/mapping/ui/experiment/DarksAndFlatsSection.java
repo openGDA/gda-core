@@ -41,6 +41,16 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 	 */
 	private String flatFieldCollectorName;
 
+	/**
+	 * Controls whether the "collect dark field" option is set by default
+	 */
+	private boolean collectDarkByDefault;
+
+	/**
+	 * Controls whether the "collect flat field" option is set by default
+	 */
+	private boolean collectFlatByDefault;
+
 	@Override
 	public void createControls(Composite parent) {
 		final Composite main = new Composite(parent, SWT.NONE);
@@ -53,22 +63,22 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 		dark.setText("Collect dark field");
 		stretch.applyTo(dark);
 
-
 		if (darkFieldCollectorName == null || darkFieldCollectorName.isEmpty()) {
 			dark.setEnabled(false);
 		} else {
 			dark.addListener(SWT.Selection, event -> toggle(dark.getSelection(), darkFieldCollectorName));
-			dark.setSelection(getMonitors().contains(darkFieldCollectorName));
+			dark.setSelection(getInitialSelectionState(darkFieldCollectorName, collectDarkByDefault));
 		}
 
 		final Button flat = new Button(main, SWT.CHECK);
 		flat.setText("Collect flat field");
 		stretch.applyTo(flat);
+
 		if (flatFieldCollectorName == null || flatFieldCollectorName.isEmpty()) {
 			flat.setEnabled(false);
 		} else {
 			flat.addListener(SWT.Selection, event -> toggle(flat.getSelection(), flatFieldCollectorName));
-			flat.setSelection(getMonitors().contains(flatFieldCollectorName));
+			flat.setSelection(getInitialSelectionState(flatFieldCollectorName, collectFlatByDefault));
 		}
 	}
 
@@ -77,16 +87,38 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 		return true;
 	}
 
+	/**
+	 * Get the initial selection state for one of the checkboxes
+	 *
+	 * @param collectorName
+	 *            name of the collector (as set in property)
+	 * @param collectByDefault
+	 *            the "collect by default" property for this collector
+	 * @return <code>true</code> if the the collector was already set, or has been set by this function,
+	 *         <code>false</code> otherwise
+	 */
+	private boolean getInitialSelectionState(String collectorName, boolean collectByDefault) {
+		final Set<String> monitors = getMonitors();
+
+		if (monitors.contains(collectorName)) {
+			return true;
+		}
+		if (!collectByDefault) {
+			return false;
+		}
+		add(collectorName, monitors);
+		return true;
+	}
+
 	private void toggle(boolean acquire, String collectorName) {
 		if (acquire) {
-			add(collectorName);
+			add(collectorName, getMonitors());
 		} else {
 			remove(collectorName);
 		}
 	}
 
-	private void add(String collectorName) {
-		final Set<String> monitors = getMonitors();
+	private void add(String collectorName, Set<String> monitors) {
 		monitors.add(collectorName);
 		getMappingBean().setPerScanMonitorNames(monitors);
 	}
@@ -111,5 +143,13 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 
 	public void setFlatFieldCollectorName(String flatFieldCollectorName) {
 		this.flatFieldCollectorName = flatFieldCollectorName;
+	}
+
+	public void setCollectDarkByDefault(boolean collectDarkByDefault) {
+		this.collectDarkByDefault = collectDarkByDefault;
+	}
+
+	public void setCollectFlatByDefault(boolean collectFlatByDefault) {
+		this.collectFlatByDefault = collectFlatByDefault;
 	}
 }
