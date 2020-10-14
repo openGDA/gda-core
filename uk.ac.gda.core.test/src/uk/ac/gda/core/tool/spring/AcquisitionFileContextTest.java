@@ -36,28 +36,15 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext.ContextFile;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+
 public class AcquisitionFileContextTest {
 
-	@Autowired
-	private AcquisitionFileContext acquisitionFileContext;
-
-	private Path experimentDir;
-	private Path visitDir;
-	private Path tempDir;
+	private AcquisitionFileContext acquisitionFileContext = new AcquisitionFileContext();
 
 	private IFilePathService filePathServiceMock;
 
@@ -71,11 +58,9 @@ public class AcquisitionFileContextTest {
 
 	/**
 	 * If {@link IFilePathService#getProcessingDir()} is not absolute, cannot get the experiment directory
-	 *
-	 * @throws IOException
 	 */
 	@Test
-	public void acquisitionExperimentDoesNotExistTest() throws IOException {
+	public void acquisitionExperimentDoesNotExistTest() {
 		doReturn("dummyProcessingDir").when(filePathServiceMock).getProcessingDir();
 		doReturn("dummyVisitDir").when(filePathServiceMock).getVisitConfigDir();
 		ServiceHolder sh = new ServiceHolder();

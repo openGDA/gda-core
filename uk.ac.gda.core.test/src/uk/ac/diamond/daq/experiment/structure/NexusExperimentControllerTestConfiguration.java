@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.experiment.structure.requester;
+package uk.ac.diamond.daq.experiment.structure;
 
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -24,11 +24,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
-import uk.ac.diamond.daq.experiment.structure.NodeFileRequesterService;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContextTestConfiguration;
 
 /**
- * Configure the spring environment for NodeFileRequesterServiceTest
+ * Configure the spring environment for testing {@link NexusExperimentController}
  * @author Maurizio Nagni
  */
 @Configuration
@@ -36,15 +35,22 @@ import uk.ac.gda.core.tool.spring.AcquisitionFileContextTestConfiguration;
 				excludeFilters = {
 						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
 								value = NodeFileRequesterService.class),
+						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
+								value = ExperimentTreeCache.class),
 						// As the class below is annotated with @ComponentScan AND lives in a package
 						// scanned by this configuration, it causes NodeFileRequesterService to be loaded
 						// instead of the mock below. Here is the reason to add it here.
 						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
 								value = AcquisitionFileContextTestConfiguration.class)})
-public class NodeFileRequesterServiceTestConfiguration {
+public class NexusExperimentControllerTestConfiguration {
 
 	@Bean
 	public NodeFileRequesterService nodeFileRequesterService() {
 		return Mockito.mock(NodeFileRequesterService.class);
+	}
+
+	@Bean
+	public ExperimentTreeCache experimentTreeCache() {
+		return Mockito.mock(ExperimentTreeCache.class);
 	}
 }

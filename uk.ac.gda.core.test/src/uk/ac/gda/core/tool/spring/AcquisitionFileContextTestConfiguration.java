@@ -18,15 +18,28 @@
 
 package uk.ac.gda.core.tool.spring;
 
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+
+import uk.ac.diamond.daq.experiment.structure.ExperimentTreeCache;
 
 /**
  * Configure the spring environment for NexusExperimentControllerTest
  * @author Maurizio Nagni
  */
 @Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.experiment.structure"})
+@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.experiment.structure"},
+								excludeFilters = {
+										@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
+												value = ExperimentTreeCache.class)})
 public class AcquisitionFileContextTestConfiguration {
+
+	@Bean
+	public ExperimentTreeCache experimentTreeCache() {
+		return Mockito.mock(ExperimentTreeCache.class);
+	}
 
 }

@@ -30,8 +30,19 @@ import org.springframework.stereotype.Service;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.Activator;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 
+/**
+ * Service through which the {@link ExperimentController} requests the creation of node files
+ * at the end of multipart acquisitions and the overall experiment.
+ * <p>
+ * The ActiveMQ topics through which the requests operate can be modified by setting the properties
+ * <ul>
+ * <li>{@code experiment.structure.job.request.topic}, and</li>
+ * <li>{@code experiment.structure.job.response.topic}</li>
+ * </ul>
+ */
 @Service
 public class NodeFileRequesterService {
 

@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.experiment.structure;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -5,8 +23,6 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_ACQUISITION_PREFIX;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX;
 
@@ -14,52 +30,22 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.scanning.api.scan.IFilePathService;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
-import uk.ac.diamond.daq.experiment.structure.requester.NodeFileRequesterServiceTestConfiguration;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContextTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { NodeFileRequesterServiceTestConfiguration.class })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class NexusExperimentControllerTest {
 
-	@Autowired
-	private ExperimentController controller;
+public class NexusExperimentControllerTest extends NexusExperimentControllerTestBase {
 
 	@Autowired
 	private AcquisitionFileContext context;
-
-	private IFilePathService filePathService;
-
-	private static final String EXPERIMENT_NAME = "MyExperiment";
-	private static final String ACQUISITION_NAME = "MyMeasurement";
-
-	@Before
-	public void before() throws Exception {
-		filePathService = mock(IFilePathService.class);
-
-		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY);
-		prepareFilesystem();
-	}
 
 	private String extractBase(URL url) {
 		return FilenameUtils.getBaseName(FilenameUtils.getFullPathNoEndSeparator(url.getPath()));
@@ -231,22 +217,11 @@ public class NexusExperimentControllerTest {
 		assertThat(experimentPath, containsString("some/subpath"));
 	}
 
-	private void prepareFilesystem() throws IOException {
-		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
-		File visitDir = new File(testTmpDir.toFile(), "visit");
-		File processingDir = new File(visitDir, "processing");
-		File xmlDir = new File(visitDir, "xml");
-
-		doReturn(visitDir.getPath()).when(filePathService).getVisitDir();
-		doReturn(processingDir.getPath()).when(filePathService).getProcessingDir();
-		doReturn(xmlDir.getPath()).when(filePathService).getVisitConfigDir();
-		ServiceHolder sh = new ServiceHolder();
-		sh.setFilePathService(filePathService);
-	}
-
 	private void loadProperties(String resourcePath) {
 		File resource = new File(resourcePath);
 		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath());
 		LocalProperties.reloadAllProperties();
 	}
+
+
 }
