@@ -21,6 +21,8 @@ package gda;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +40,8 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ShapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.INeXusInfoWriteable;
@@ -60,6 +64,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.TestUtils;
+import uk.ac.gda.api.exception.GDAException;
 
 /**
  * Collection of utility functions to assist testing.
@@ -186,6 +191,24 @@ public class TestHelpers {
 	 */
 	public static Factory createTestFactory() {
 		return new TestFactory();
+	}
+
+	/**
+	 * Deserialise a simple class from a JSON document. The class <b>should not require custom deserialiser</b>.
+	 *
+	 * @param <T> the {@code Class} of the object to deserialise
+	 * @param resourcePath the source relative path where the file is
+	 * @param documentClass the {@code Class} representing the document to deserialise
+	 * @return the deserialised object class
+	 * @throws GDAException if an {@link IOException} occours
+	 */
+	public static final <T> T deserialiseDocument(String resourcePath, Class<T> documentClass) throws GDAException {
+		File resource = new File(resourcePath);
+		try {
+			return  new ObjectMapper().readValue(resource.toURI().toURL(), documentClass);
+		} catch (IOException e) {
+			throw new GDAException(e);
+		}
 	}
 }
 
