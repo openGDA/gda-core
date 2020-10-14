@@ -31,28 +31,25 @@ import org.eclipse.swt.widgets.Composite;
  * UI to toggle dark/flat field collection for mapping scan.
  */
 public class DarksAndFlatsSection extends AbstractMappingSection {
-
-	private final String darkFieldCollectorName;
-	private final String flatFieldCollectorName;
+	/**
+	 * Name of the dark-field collector to include as a per-scan monitor in a mapping scan. Can be null.
+	 */
+	private String darkFieldCollectorName;
 
 	/**
-	 * Takes the names of the dark/flat-field collectors (if any) which can be included
-	 * as per-scan monitors in a mapping scan.
+	 * Name of the flat-field collector to include as a per-scan monitor in a mapping scan. Can be null.
 	 */
-	public DarksAndFlatsSection(String darkFieldCollectorName, String flatFieldCollectorName) {
-		this.darkFieldCollectorName = darkFieldCollectorName;
-		this.flatFieldCollectorName = flatFieldCollectorName;
-	}
+	private String flatFieldCollectorName;
 
 	@Override
 	public void createControls(Composite parent) {
-		Composite main = new Composite(parent, SWT.NONE);
+		final Composite main = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).applyTo(main);
 
 		GridDataFactory stretch = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 		stretch.applyTo(main);
 
-		Button dark = new Button(main, SWT.CHECK);
+		final Button dark = new Button(main, SWT.CHECK);
 		dark.setText("Collect dark field");
 		stretch.applyTo(dark);
 
@@ -64,7 +61,7 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 			dark.setSelection(getMonitors().contains(darkFieldCollectorName));
 		}
 
-		Button flat = new Button(main, SWT.CHECK);
+		final Button flat = new Button(main, SWT.CHECK);
 		flat.setText("Collect flat field");
 		stretch.applyTo(flat);
 		if (flatFieldCollectorName == null || flatFieldCollectorName.isEmpty()) {
@@ -89,13 +86,13 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 	}
 
 	private void add(String collectorName) {
-		Set<String> monitors = getMonitors();
+		final Set<String> monitors = getMonitors();
 		monitors.add(collectorName);
 		getMappingBean().setPerScanMonitorNames(monitors);
 	}
 
 	private void remove(String collectorName) {
-		Set<String> monitors = getMonitors();
+		final Set<String> monitors = getMonitors();
 		monitors.remove(collectorName);
 		getMappingBean().setPerScanMonitorNames(monitors);
 	}
@@ -108,4 +105,11 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 		return monitors;
 	}
 
+	public void setDarkFieldCollectorName(String darkFieldCollectorName) {
+		this.darkFieldCollectorName = darkFieldCollectorName;
+	}
+
+	public void setFlatFieldCollectorName(String flatFieldCollectorName) {
+		this.flatFieldCollectorName = flatFieldCollectorName;
+	}
 }
