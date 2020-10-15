@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 /**
  * Used to annotate methods as participating in a scan.
  *
- * Called before configure.
+ * Called after configure.
  *
  * @author Matthew Gerring
  * @see DeviceAnnotations
