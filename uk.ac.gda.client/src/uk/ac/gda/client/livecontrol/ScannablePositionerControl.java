@@ -47,6 +47,17 @@ public class ScannablePositionerControl extends LiveControlBase {
 	private boolean boldLabel;
 	private boolean horizontalLayout = false;
 	private int displayNameWidth;
+	private boolean nonEditableIncrement;
+	private boolean readOnly;
+
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
+
+	public void setNonEditableIncrement(boolean nonEditableIncrement) {
+		this.nonEditableIncrement = nonEditableIncrement;
+	}
 
 	public Boolean isShowIncrement() {
 		return showIncrement;
@@ -201,6 +212,10 @@ public class ScannablePositionerControl extends LiveControlBase {
 
 		int layoutStyle = horizontalLayout ? SWT.HORIZONTAL : SWT.NONE;
 
+		if (readOnly) {
+			layoutStyle = SWT.READ_ONLY;
+		}
+
 		if (scannable instanceof EnumPositioner) {
 			positionerComposite = new EnumPositionerComposite(composite, layoutStyle);
 			if (boldLabel) {
@@ -223,6 +238,9 @@ public class ScannablePositionerControl extends LiveControlBase {
 			}
 			if (boldLabel) {
 				npc.setLabelToBold();
+			}
+			if (nonEditableIncrement) {
+				npc.setFixedIncrementInput();
 			}
 		}
 

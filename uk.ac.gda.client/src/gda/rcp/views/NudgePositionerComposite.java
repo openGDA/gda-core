@@ -251,6 +251,11 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		incrementValue = Double.parseDouble(incrementText);
 	}
 
+	public void setFixedIncrementInput() {
+		incrementText.setEnabled(false);
+		incrementText.setEditable(false);
+	}
+
 	private void determineUserUnits() {
 		try {
 			if (getScannable() instanceof ScannableMotionUnits) {
