@@ -86,21 +86,25 @@ public class SpecsAlignmentView implements IObserver {
 		kineticEnergy.setText("Ekin");
 		kineticEnergyText = new Text(controlsArea, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(kineticEnergyText);
+		kineticEnergyText.setText("500");
 
 		Label passEnergy = new Label(controlsArea, SWT.NONE);
 		passEnergy.setText("Epass");
 		passEnergyText = new Text(controlsArea, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(passEnergyText);
+		passEnergyText.setText("40");
 
 		Label valuesLabel = new Label(controlsArea, SWT.NONE);
 		valuesLabel.setText("Values");
 		valuesText = new Text(controlsArea, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(valuesText);
+		valuesText.setText("1000");
 
 		Label exposureLabel = new Label(controlsArea, SWT.NONE);
 		exposureLabel.setText("Dwell");
 		exposureText = new Text(controlsArea, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(exposureText);
+		exposureText.setText("1");
 
 		Composite buttonsArea = new Composite(child, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(buttonsArea);
@@ -111,7 +115,6 @@ public class SpecsAlignmentView implements IObserver {
 		setButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		setButton.setText("Set");
 		setButton.setToolTipText("Set Analyser");
-		setButton.setEnabled(false);
 		setButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -132,7 +135,6 @@ public class SpecsAlignmentView implements IObserver {
 		startButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		startButton.setText("Start");
 		startButton.setToolTipText("Start alignment process");
-		startButton.setEnabled(false);
 		startButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -146,7 +148,6 @@ public class SpecsAlignmentView implements IObserver {
 		stopButton.setLayoutData(new GridData(100, SWT.DEFAULT));
 		stopButton.setText("Stop");
 		stopButton.setToolTipText("End alignment process");
-		stopButton.setEnabled(false);
 		stopButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -168,8 +169,9 @@ public class SpecsAlignmentView implements IObserver {
 		countsText.setEditable(false);
 		countsText.setEnabled(false);
 		FontData fdtext = countsText.getFont().getFontData()[0];
-		fdtext.setHeight(20);
+		fdtext.setHeight(25);
 		countsText.setFont(new Font(countsText.getDisplay(), fdtext));
+		countsText.setForeground(countsText.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 		GridDataFactory.swtDefaults().grab(true, false).hint(220, SWT.DEFAULT).applyTo(countsText);
 
 		// Check all fields have been completed
@@ -242,6 +244,7 @@ public class SpecsAlignmentView implements IObserver {
 		}
 		if (!('0' <= e.character && e.character <= '9')) {
 			e.doit = false;
+			return;
 		}
 		if(((Text)e.widget).getText().length() >= 5) {
 			e.doit = false;
