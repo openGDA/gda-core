@@ -100,10 +100,6 @@ public class ServiceHolder {
 
 	private static volatile NexusDataWriterConfiguration nexusDataWriterConfiguration;
 
-	public static NexusDataWriterConfiguration getNexusWriterConfiguration() {
-		return nexusDataWriterConfiguration;
-	}
-
 	public void setNexusWriterConfiguration(NexusDataWriterConfiguration nexusDataWriterConfiguration) {
 		ServiceHolder.nexusDataWriterConfiguration = nexusDataWriterConfiguration;
 	}
