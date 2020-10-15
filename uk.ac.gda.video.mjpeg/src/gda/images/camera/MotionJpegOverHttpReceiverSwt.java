@@ -36,12 +36,8 @@ import gda.images.camera.mjpeg.SwtFrameCaptureTask;
 
 public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBase<ImageData> implements Findable {
 
-	public static class LatestDecoderserviceFactory implements ExecutorServiceFactory {
-
-		@Override
-		public ExecutorService create(ThreadFactory decoderThreadFactory) {
-			return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS,	new LatestLinkedBlockingQueue<Runnable>(), decoderThreadFactory);
-		}
+	public static final ExecutorService latestDecoderServiceFactory(ThreadFactory factory) {
+		return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LatestLinkedBlockingQueue<>(), factory);
 	}
 
 	private String name;
@@ -50,7 +46,7 @@ public class MotionJpegOverHttpReceiverSwt extends MotionJpegOverHttpReceiverBas
 		super();
 		//we are only interested in decoding and processing the lastest image
 		setImageQueue(new LatestImageDataBlockingQueue());
-		setExecutiveServiceFactory( new LatestDecoderserviceFactory());
+		setExecutiveServiceFactory(MotionJpegOverHttpReceiverSwt::latestDecoderServiceFactory);
 	}
 
 

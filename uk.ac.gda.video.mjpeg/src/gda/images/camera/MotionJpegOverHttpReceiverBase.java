@@ -30,6 +30,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +144,7 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 			imageDecodingService = new ThreadPoolExecutor(NUM_DECODER_THREADS, NUM_DECODER_THREADS, 1, TimeUnit.SECONDS,
 					new LinkedBlockingQueue<Runnable>(), decoderThreadFactory);
 		} else {
-			imageDecodingService = executiveServiceFactory.create(decoderThreadFactory);
+			imageDecodingService = executiveServiceFactory.apply(decoderThreadFactory);
 		}
 
 		captureTask = createFrameCaptureTask(urlSpec, imageDecodingService, receivedImages);
@@ -156,9 +157,9 @@ public abstract class MotionJpegOverHttpReceiverBase<E> extends ConfigurableBase
 	/** Service that will manage decoding of frames. */
 	private ExecutorService imageDecodingService;
 
-	private ExecutorServiceFactory executiveServiceFactory=null;
+	private Function<ThreadFactory, ExecutorService> executiveServiceFactory=null;
 
-	public void setExecutiveServiceFactory(ExecutorServiceFactory executiveServiceFactory) {
+	public void setExecutiveServiceFactory(Function<ThreadFactory, ExecutorService> executiveServiceFactory) {
 		this.executiveServiceFactory = executiveServiceFactory;
 	}
 
