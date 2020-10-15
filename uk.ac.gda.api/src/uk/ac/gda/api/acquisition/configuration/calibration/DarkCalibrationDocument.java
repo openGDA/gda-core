@@ -18,10 +18,13 @@
 
 package uk.ac.gda.api.acquisition.configuration.calibration;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.ScannablePositionDocument;
 
 /**
  * Describes a dark calibration acquisition.
@@ -32,6 +35,9 @@ import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
  */
 @JsonDeserialize(builder = DarkCalibrationDocument.Builder.class)
 public class DarkCalibrationDocument {
+
+	private final List<ScannablePositionDocument> position;
+
 	private final DetectorDocument detectorDocument;
 
 	/**
@@ -48,11 +54,12 @@ public class DarkCalibrationDocument {
 	private final boolean afterAcquisition;
 
 	private DarkCalibrationDocument(DetectorDocument detectorDocument, int numberExposures, boolean beforeAcquisition,
-			boolean afterAcquisition) {
+			boolean afterAcquisition, List<ScannablePositionDocument> position) {
 		this.detectorDocument = detectorDocument;
 		this.numberExposures = numberExposures;
 		this.beforeAcquisition = beforeAcquisition;
 		this.afterAcquisition = afterAcquisition;
+		this.position = position;
 	}
 
 	public DetectorDocument getDetectorDocument() {
@@ -71,9 +78,13 @@ public class DarkCalibrationDocument {
 		return afterAcquisition;
 	}
 
+	public List<ScannablePositionDocument> getPosition() {
+		return position;
+	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
+		private List<ScannablePositionDocument> position;
 		private DetectorDocument detectorDocument;
 
 		private int numberExposures;
@@ -88,6 +99,7 @@ public class DarkCalibrationDocument {
 			this.numberExposures = document.getNumberExposures();
 			this.beforeAcquisition = document.isBeforeAcquisition();
 			this.afterAcquisition = document.isAfterAcquisition();
+			this.position = document.getPosition();
 		}
 
 	    public Builder withDetectorDocument(DetectorDocument detectorDocument) {
@@ -110,8 +122,14 @@ public class DarkCalibrationDocument {
 	        return this;
 	    }
 
+	    public Builder withPosition(List<ScannablePositionDocument> position) {
+	        this.position = position;
+	        return this;
+	    }
+
 	    public DarkCalibrationDocument build() {
-	        return new DarkCalibrationDocument(detectorDocument, numberExposures, beforeAcquisition, afterAcquisition);
+	        return new DarkCalibrationDocument(detectorDocument, numberExposures, beforeAcquisition,
+	        		afterAcquisition, position);
 	    }
 	}
 }

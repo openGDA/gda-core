@@ -31,7 +31,7 @@ import gda.factory.Finder;
  * Describes how an acquisition should move along a {@code Scannable} values.
  *
  * <p>
- * The {@codeScannable} is assumed one-dimensional and its boundaries defined by {@code start} and {@code stop} values.
+ * The {@code Scannable} is assumed one-dimensional and its boundaries defined by {@code start} and {@code stop} values.
  * <p>
  *
  * <p>

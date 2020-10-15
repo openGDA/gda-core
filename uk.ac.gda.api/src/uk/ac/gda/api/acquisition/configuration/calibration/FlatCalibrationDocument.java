@@ -18,10 +18,13 @@
 
 package uk.ac.gda.api.acquisition.configuration.calibration;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.ScannablePositionDocument;
 
 /**
  * Describes a flat calibration acquisition.
@@ -32,6 +35,9 @@ import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
  */
 @JsonDeserialize(builder = FlatCalibrationDocument.Builder.class)
 public class FlatCalibrationDocument {
+
+	private final List<ScannablePositionDocument> position;
+
 	private final DetectorDocument detectorDocument;
 
 	/**
@@ -48,12 +54,13 @@ public class FlatCalibrationDocument {
 	private final boolean afterAcquisition;
 
 	private FlatCalibrationDocument(DetectorDocument detectorDocument, int numberExposures, boolean beforeAcquisition,
-			boolean afterAcquisition) {
+			boolean afterAcquisition, List<ScannablePositionDocument> position) {
 		super();
 		this.detectorDocument = detectorDocument;
 		this.numberExposures = numberExposures;
 		this.beforeAcquisition = beforeAcquisition;
 		this.afterAcquisition = afterAcquisition;
+		this.position = position;
 	}
 
 	public DetectorDocument getDetectorDocument() {
@@ -72,9 +79,13 @@ public class FlatCalibrationDocument {
 		return afterAcquisition;
 	}
 
+	public List<ScannablePositionDocument> getPosition() {
+		return position;
+	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
+		private List<ScannablePositionDocument> position;
 		private DetectorDocument detectorDocument;
 
 		private int numberExposures;
@@ -89,6 +100,7 @@ public class FlatCalibrationDocument {
 			this.numberExposures = document.getNumberExposures();
 			this.beforeAcquisition = document.isBeforeAcquisition();
 			this.afterAcquisition = document.isAfterAcquisition();
+			this.position = document.getPosition();
 		}
 
 	    public Builder withDetectorDocument(DetectorDocument detectorDocument) {
@@ -111,8 +123,14 @@ public class FlatCalibrationDocument {
 	        return this;
 	    }
 
+	    public Builder withPosition(List<ScannablePositionDocument> position) {
+	        this.position = position;
+	        return this;
+	    }
+
 	    public FlatCalibrationDocument build() {
-	        return new FlatCalibrationDocument(detectorDocument, numberExposures, beforeAcquisition, afterAcquisition);
+	        return new FlatCalibrationDocument(detectorDocument, numberExposures,
+	        		beforeAcquisition, afterAcquisition, position);
 	    }
 	}
 }
