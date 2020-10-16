@@ -36,24 +36,6 @@ public final class EpicsGlobals {
 
 	// private final static int BUFFERSIZE = 131072; //128k
 
-	// Identifier strings that need to be read from the java.properties
-	// file.
-	private final static String DEVICES_XML_FILE = "gda.epics.devices.xml";
-
-	private final static String TYPES_XML_FILE = "gda.epics.types.xml";
-
-	private final static String DEVICES_XML_SCHEMA_FILE = "gda.epics.devices.schema";
-
-	private final static String TYPES_XML_SCHEMA_FILE = "gda.epics.types.schema";
-
-	// Name of any classes that are initialized using Castor (via XML
-	// configuration).
-	private final static String CASTOR_CODE_GENERATOR_CLASS = "org.exolab.castor.builder.SourceGenerator";
-
-	private final static String CASTOR_CODE_GENERATOR_BINDING_FILE = "gda.epics.binding.xml";
-
-	private final static String CASTOR_CODE_GENERATOR_SRC_DEST_DIR = "gda.epics.generated";
-
 	// Set the debug level for the EPICS package.
 	private final static String DEBUG_LEVEL = "d2";
 
@@ -77,70 +59,6 @@ public final class EpicsGlobals {
 	 */
 	public static int getBUFFERSIZE() {
 		return BUFFERSIZE;
-	}
-
-	/**
-	 * Name of the configuration class for the DDH (ie. that used by <code>DdhMonitor</code>, and which is normally
-	 * specified in java.properties).
-	 *
-	 * @return String
-	 */
-	public static String getCASTOR_CODE_GENERATOR_CLASS() {
-		return CASTOR_CODE_GENERATOR_CLASS;
-	}
-
-	/**
-	 * Name of the Meta data configuration class for files. (This is normally specified in java.properties file.)
-	 *
-	 * @return String
-	 */
-	public static String getCASTOR_CODE_GENERATOR_BINDING_FILE() {
-		return CASTOR_CODE_GENERATOR_BINDING_FILE;
-	}
-
-	/**
-	 * Name of the Nexus file configuration class. (This is normally specified in java.properties file.)
-	 *
-	 * @return String
-	 */
-	public static String getCASTOR_CODE_GENERATOR_SRC_DEST_DIR() {
-		return CASTOR_CODE_GENERATOR_SRC_DEST_DIR;
-	}
-
-	/**
-	 * Identifier string for EPICS Devices XML file specified in java.properties.
-	 *
-	 * @return String
-	 */
-	public static String getDEVICES_XML_FILE() {
-		return DEVICES_XML_FILE;
-	}
-
-	/**
-	 * Identifier string for EPICS Device Types XML file specified in java.properties.
-	 *
-	 * @return String
-	 */
-	public static String getTYPES_XML_FILE() {
-		return TYPES_XML_FILE;
-	}
-
-	/**
-	 * The minimum time allowed between the creation of a file and any copy operation on that file.
-	 *
-	 * @return long
-	 */
-	public static String getDEVICES_XML_SCHEMA_FILE() {
-		return DEVICES_XML_SCHEMA_FILE;
-	}
-
-	/**
-	 * The minimum frequency allowed for polling.
-	 *
-	 * @return long
-	 */
-	public static String getTYPES_XML_SCHEMA_FILE() {
-		return TYPES_XML_SCHEMA_FILE;
 	}
 
 	/**

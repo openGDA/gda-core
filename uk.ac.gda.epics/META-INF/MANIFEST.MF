@@ -30,8 +30,7 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.epics.pvaccess,
  org.epics.pvdata,
  uk.ac.diamond.org.springframework
-Export-Package: gda.configuration.epics,
- gda.data.metadata,
+Export-Package: gda.data.metadata,
  gda.device,
  gda.device.adc,
  gda.device.attenuator,
@@ -78,18 +77,9 @@ Export-Package: gda.configuration.epics,
  gda.epics,
  gda.epics.cmdline,
  gda.epics.connection,
- gda.epics.generated,
- gda.epics.generated.types,
- gda.epics.interfaceSpec,
- gda.epics.interfaces,
- gda.epics.interfaces.descriptors,
  gda.epics.util,
- gda.epics.xml,
  gda.spring,
  uk.ac.diamond.daq.epics.connector
-Bundle-ClassPath: .,
- jars/epics.jar,
- jars/epics-5.3.14.jar
 Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
