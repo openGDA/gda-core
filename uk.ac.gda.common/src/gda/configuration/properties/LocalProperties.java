@@ -339,9 +339,16 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_GUI_STOP_ALL_COMMAND_ID = "gda.gui.stop.all.command.id";
 
+	/**
+	 * Client properties to be checked for locating the STOP ALL button on the status line
+	 */
+	public static final String GDA_GUI_FORCE_LEFT_STOP_ALL = "gda.gui.statusline.forceStopAllLeft";
+	public static final String GDA_GUI_STATUS_HIDE_STOP_ALL = "gda.gui.statusline.hideStopAll";
+
 	public static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
 	public static final String GDA_ACTIVEMQ_BROKER_URI = "gda.activemq.broker.uri";
+
 	/**
 	 * Option to display visit name as data folder name in Data Project
 	 */
