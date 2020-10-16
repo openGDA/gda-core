@@ -18,6 +18,8 @@
 
 package gda.rcp;
 
+import static gda.configuration.properties.LocalProperties.GDA_GUI_FORCE_LEFT_STOP_ALL;
+import static gda.configuration.properties.LocalProperties.GDA_GUI_STATUS_HIDE_STOP_ALL;
 import static gda.configuration.properties.LocalProperties.GDA_GUI_STOP_ALL_COMMAND_ID;
 
 import java.net.URI;
@@ -532,7 +534,8 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	@Override
 	protected void fillStatusLine(IStatusLineManager manager) {
-		manager.add(buildLogStatus());
+		StatusLineContributionItem buildLogStatus = buildLogStatus();
+		manager.add(buildLogStatus);
 
 		LinkContributionItem batonStatus = buildBatonStatus();
 		manager.add(batonStatus);
@@ -543,8 +546,17 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		StatusLineContributionItem scriptStatus = buildScriptStatus();
 		manager.add(scriptStatus);
 
-		// Stop all
-		createStopAllButton(manager);
+		if (!LocalProperties.check(GDA_GUI_STATUS_HIDE_STOP_ALL)) {
+			LinkContributionItem stopAllButton = createStopAllButton();
+			if (LocalProperties.check(GDA_GUI_FORCE_LEFT_STOP_ALL)) {
+				manager.insertBefore(buildLogStatus.getId(), stopAllButton);
+			} else {
+				manager.add(stopAllButton);
+			}
+			// Add a bit of space after the button so it is not too close to the end marker
+			StatusLineContributionItem spacer = new StatusLineContributionItem("uk.ac.diamond.daq.stopall.spacer", true, 0);
+			manager.insertAfter(stopAllButton.getId(), spacer);
+		}
 
 		addQueueStatusContribution(manager);
 
@@ -575,10 +587,9 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 
 		ApplicationWorkbenchAdvisor.addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(serverObserver));
-
 	}
 
-	private void createStopAllButton(IStatusLineManager manager) {
+	private LinkContributionItem createStopAllButton() {
 		LinkContributionItem stopAll = new LinkContributionItem("uk.ac.diamond.daq.stopall", new LinkContributionButton(), 15);
 		stopAll.setText(STOP_ALL_TEXT);
 		stopAll.setToolTipText(STOP_ALL_TOOLTIP);
@@ -596,13 +607,10 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				}
 			}
 		});
-		manager.add(stopAll);
-
-		// Add a bit of space after the button so it is not too close to the end marker
-		StatusLineContributionItem spacer = new StatusLineContributionItem("uk.ac.diamond.daq.stopall.spacer", true, 0);
-		manager.add(spacer);
+		return stopAll;
 	}
-    protected URI getActiveMqUri() throws URISyntaxException {
+
+	protected URI getActiveMqUri() throws URISyntaxException {
 		return new URI(LocalProperties.getActiveMQBrokerURI());
 	}
 
