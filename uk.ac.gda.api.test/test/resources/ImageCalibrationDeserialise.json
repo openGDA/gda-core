@@ -2,14 +2,14 @@
 	"flatCalibration": {
 		"position": [
 			{
-				"scannable": "motor_x",
+				"device": "motor_x",
 				"axis": "X",
 				"valueType": "NUMERIC",
 				"position": 2.4,
 				"labelledPosition": null
 			},
 			{
-				"scannable": "shutter_motor",
+				"device": "shutter_motor",
 				"axis": "shutter",
 				"valueType": "LABELLED",
 				"position": null,

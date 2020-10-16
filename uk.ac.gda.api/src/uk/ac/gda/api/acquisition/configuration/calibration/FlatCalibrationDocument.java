@@ -18,13 +18,13 @@
 
 package uk.ac.gda.api.acquisition.configuration.calibration;
 
-import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
-import uk.ac.gda.api.acquisition.parameters.ScannablePositionDocument;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
  * Describes a flat calibration acquisition.
@@ -36,7 +36,7 @@ import uk.ac.gda.api.acquisition.parameters.ScannablePositionDocument;
 @JsonDeserialize(builder = FlatCalibrationDocument.Builder.class)
 public class FlatCalibrationDocument {
 
-	private final List<ScannablePositionDocument> position;
+	private final Set<DevicePositionDocument> position;
 
 	private final DetectorDocument detectorDocument;
 
@@ -54,8 +54,7 @@ public class FlatCalibrationDocument {
 	private final boolean afterAcquisition;
 
 	private FlatCalibrationDocument(DetectorDocument detectorDocument, int numberExposures, boolean beforeAcquisition,
-			boolean afterAcquisition, List<ScannablePositionDocument> position) {
-		super();
+			boolean afterAcquisition, Set<DevicePositionDocument> position) {
 		this.detectorDocument = detectorDocument;
 		this.numberExposures = numberExposures;
 		this.beforeAcquisition = beforeAcquisition;
@@ -79,13 +78,13 @@ public class FlatCalibrationDocument {
 		return afterAcquisition;
 	}
 
-	public List<ScannablePositionDocument> getPosition() {
+	public Set<DevicePositionDocument> getPosition() {
 		return position;
 	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
-		private List<ScannablePositionDocument> position;
+		private Set<DevicePositionDocument> position;
 		private DetectorDocument detectorDocument;
 
 		private int numberExposures;
@@ -123,7 +122,7 @@ public class FlatCalibrationDocument {
 	        return this;
 	    }
 
-	    public Builder withPosition(List<ScannablePositionDocument> position) {
+	    public Builder withPosition(Set<DevicePositionDocument> position) {
 	        this.position = position;
 	        return this;
 	    }

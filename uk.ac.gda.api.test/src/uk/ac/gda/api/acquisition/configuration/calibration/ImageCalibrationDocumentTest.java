@@ -26,14 +26,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
-import uk.ac.gda.api.acquisition.parameters.ScannablePositionDocument;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
 
 public class ImageCalibrationDocumentTest {
@@ -48,7 +48,7 @@ public class ImageCalibrationDocumentTest {
 	    assertFalse(document.getFlatCalibration().isBeforeAcquisition());
 	    assertEquals(2.4, document.getFlatCalibration().getDetectorDocument().getExposure(), 0);
 	    assertEquals("motor_x", document.getFlatCalibration().getDetectorDocument().getName());
-	    List<ScannablePositionDocument> position = document.getFlatCalibration().getPosition();
+	    Set<DevicePositionDocument> position = document.getFlatCalibration().getPosition();
 	    assertEquals(2, position.size(), 0);
 	}
 

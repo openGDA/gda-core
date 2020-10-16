@@ -22,18 +22,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Describes the required position for a {@code Scannable} .
+ * Describes the required position for a displaceable device.
  *
  * <p>
- * The {@code Scannable} is assumed one-dimensional.
- * Having a limited number of cases, instead define two separate documents, this class uses a {@link ScannablePositionDocument.ValueType}
+ * The device is assumed one-dimensional.
+ * Having a limited number of cases, instead define two separate documents, this class uses a {@link DevicePositionDocument.ValueType}
  * to discriminate between a numeric position ( {@link #getPosition()}) and a predefined, labelled one ({@link #getLabelledPosition()}).
  * <p>
  *
  * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = ScannablePositionDocument.Builder.class)
-public class ScannablePositionDocument {
+@JsonDeserialize(builder = DevicePositionDocument.Builder.class)
+public class DevicePositionDocument {
 
 	/**
 	 * Defines the position value type represented by this document
@@ -51,18 +51,18 @@ public class ScannablePositionDocument {
 
 	/**
 	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
-	 * scannable
+	 * device
 	 */
-	private final String scannable;
+	private final String device;
 	/**
-	 * A label to identify uniquely the role of this scannable
+	 * A label to identify uniquely the role of this device
 	 */
 	private final String axis;
 
 	private final ValueType valueType;
 
 	/**
-	 * The required position for the scannable
+	 * The required position for the device
 	 */
 	private final double position;
 	/**
@@ -70,17 +70,17 @@ public class ScannablePositionDocument {
 	 */
 	private final String labelledPosition;
 
-	private ScannablePositionDocument(String scannable, String axis, ValueType valueType, double position, String labelledPosition) {
+	private DevicePositionDocument(String scannable, String axis, ValueType valueType, double position, String labelledPosition) {
 		super();
-		this.scannable = scannable;
+		this.device = scannable;
 		this.axis = axis;
 		this.valueType = valueType;
 		this.position = position;
 		this.labelledPosition = labelledPosition;
 	}
 
-	public String getScannable() {
-		return scannable;
+	public String getDevice() {
+		return device;
 	}
 
 	public String getAxis() {
@@ -101,14 +101,14 @@ public class ScannablePositionDocument {
 
 	@Override
 	public String toString() {
-		return "ScannablePositionDocument [scannable=" + scannable + ", axis=" + axis + ", position=" + position
+		return "ScannablePositionDocument [device=" + device + ", axis=" + axis + ", position=" + position
 				+ ", labelledPosition=" + labelledPosition + "]";
 	}
 
 
 	@JsonPOJOBuilder
 	public static class Builder {
-		private String scannable;
+		private String device;
 		private String axis;
 		private ValueType valueType;
 		private double position;
@@ -117,16 +117,16 @@ public class ScannablePositionDocument {
 		public Builder() {
 		}
 
-		public Builder(final ScannablePositionDocument parent) {
-			this.scannable = parent.getScannable();
+		public Builder(final DevicePositionDocument parent) {
+			this.device = parent.getDevice();
 			this.axis = parent.getAxis();
 			this.valueType = parent.getValueType();
 			this.position = parent.getPosition();
 			this.labelledPosition = parent.getLabelledPosition();
 		}
 
-		public Builder withScannable(String scannable) {
-			this.scannable = scannable;
+		public Builder withDevice(String device) {
+			this.device = device;
 			return this;
 		}
 
@@ -141,7 +141,7 @@ public class ScannablePositionDocument {
 		}
 
 		/**
-		 * Define the scannable position.
+		 * Define the device position.
 		 * @param position the expected position
 		 * @return the class builder
 		 */
@@ -151,7 +151,7 @@ public class ScannablePositionDocument {
 		}
 
 		/**
-		 * Define the scannable position as label, i.e. from an enumeration.
+		 * Define the device position as label, i.e. from an enumeration.
 		 * @param position the expected label position
 		 * @return the class builder
 		 */
@@ -160,8 +160,8 @@ public class ScannablePositionDocument {
 			return this;
 		}
 
-		public ScannablePositionDocument build() {
-			return new ScannablePositionDocument(scannable, axis, valueType, position, labelledPosition);
+		public DevicePositionDocument build() {
+			return new DevicePositionDocument(device, axis, valueType, position, labelledPosition);
 		}
 	}
 }

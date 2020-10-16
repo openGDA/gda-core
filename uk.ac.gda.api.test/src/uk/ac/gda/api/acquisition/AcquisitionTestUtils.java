@@ -16,13 +16,22 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
+package uk.ac.gda.api.acquisition;
 
-/**
- * A collection of standard position definitions
- */
-public enum Position {
+import java.io.File;
+import java.io.IOException;
 
-	DEFAULT, OUT_OF_BEAM, START, END, OPEN, CLOSE;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import uk.ac.gda.api.exception.GDAException;
+
+public class AcquisitionTestUtils {
+	public static final <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {
+		File resource = new File(resourcePath);
+		try {
+			return  new ObjectMapper().readValue(resource.toURI().toURL(), clazz);
+		} catch (IOException e) {
+			throw new GDAException(e);
+		}
+	}
 }
