@@ -31,16 +31,20 @@ public class Xspress3MiniDetector extends Xspress3Detector implements Xspress3Mi
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3MiniDetector.class);
 
-	private int waitForBusyTimeout = LocalProperties.getAsInt("gda.xsp3m.fluorescence.waitForBusyTimeout", 5) * 1000;
+	private int waitForBusyTimeout = LocalProperties.getAsInt("gda.xsp3m.fluorescence.waitForBusyTimeout", 5);
 
 	@Override
 	public void collectData() throws DeviceException {
 		logger.info("collecting data from Xspress3Mini Fluorescence Detector");
+		Xspress3MiniController miniController = (Xspress3MiniController)controller;
+
+		long collectionTimeout = (Math.round(miniController.getAcquireTime()) + waitForBusyTimeout) * 1000;
+
 		controller.setTriggerMode(TRIGGER_MODE.Burst);
 		controller.doErase();
 		controller.doStart();
 		((Xspress3MiniController)controller).waitForDetector(true, waitForBusyTimeout);
-		((Xspress3MiniController)controller).waitForDetector(false, waitForBusyTimeout);
+		((Xspress3MiniController)controller).waitForDetector(false, collectionTimeout);
 	}
 
 	@Override
