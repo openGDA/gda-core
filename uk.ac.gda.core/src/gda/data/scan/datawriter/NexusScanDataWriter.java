@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -78,6 +79,16 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	 * done when the file is created by the first call to {@link #addData(IScanDataPoint)}.
 	 */
 	public static final String PROPERTY_NAME_WRITE_SWMR = "gda.nexus.writeSwmr";
+
+	/**
+	 * The name of the {@link NXentry}. By default the name 'entry' is used. {@link NexusDataWriter}
+	 * uses the name 'entry1'. Setting this property to 'entry1' will allow the use of scripts and tools
+	 * with that value hard-coded. This should be a temporary measure, the name 'entry' should be considered
+	 * to be the Diamond standard.
+	 */
+	public static final String PROPERTY_NAME_ENTRY_NAME = "gda.nexus.entryName";
+
+	public static final String DEFAULT_ENTRY_NAME = "entry";
 
 	private static final String DEFAULT_FILENAME_TEMPLATE = "%d.nxs";
 
@@ -254,6 +265,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private NexusScanModel createNexusScanModel(IScanDataPoint point) {
 		final NexusScanModel nexusScanModel = new NexusScanModel();
+		nexusScanModel.setEntryName(LocalProperties.get(PROPERTY_NAME_ENTRY_NAME, DEFAULT_ENTRY_NAME));
 		nexusScanModel.setFilePath(getCurrentFileName());
 		nexusScanModel.setNexusDevices(getNexusDevices(point));
 		nexusScanModel.setDimensionNamesByIndex(getDimensionNamesByIndex(point));
