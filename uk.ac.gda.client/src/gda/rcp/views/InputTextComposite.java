@@ -321,8 +321,13 @@ public class InputTextComposite extends Composite {
 		final IObserver iObserver = (source, arg) -> {
 			Object[] argArray;
 			if (arg instanceof ScannablePositionChangeEvent) {
-				Display.getDefault().asyncExec(
-						() -> positionText.setText(String.format(scannable.getOutputFormat()[0], (Double)((ScannablePositionChangeEvent) arg).newPosition)));
+				Display.getDefault().asyncExec(() -> {
+				if (isTextInput()) {
+					positionText.setText(((ScannablePositionChangeEvent)arg).newPosition.toString());
+				} else {
+					positionText.setText(String.format(scannable.getOutputFormat()[0], (Double)((ScannablePositionChangeEvent) arg).newPosition));
+				}
+			});
 			} else if (arg.getClass().isArray()) {
 				// EPICS monitor by default always sending array
 				argArray = (Object[]) arg;
