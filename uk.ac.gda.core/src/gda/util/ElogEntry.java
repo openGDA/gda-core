@@ -281,8 +281,10 @@ public class ElogEntry {
 	 * @throws ElogException if file does not exist
 	 */
 	public ElogEntry addImages(String[] fileURIs) throws ElogException {
-		for (String file : fileURIs) {
-			addImage(file, null);
+		if (fileURIs != null) {
+			for (String file : fileURIs) {
+				addImage(file, null);
+			}
 		}
 		return this;
 	}
