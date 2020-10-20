@@ -46,6 +46,12 @@ public class ScannableValueControl extends LiveControlBase {
 	private Double upperlimit;
 
 	private boolean boldLabel;
+	private boolean textInput;
+
+
+	public void setTextInput(boolean textInput) {
+		this.textInput = textInput;
+	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -112,6 +118,9 @@ public class ScannableValueControl extends LiveControlBase {
 		}
 		if (boldLabel) {
 			itc.setLabelToBold();
+		}
+		if (textInput) {
+			itc.setTextInput(true);
 		}
 	}
 
