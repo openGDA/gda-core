@@ -40,7 +40,7 @@ public class ImageCalibrationHelper extends ConfigurationHelperBase {
 		super(scanningConfigurationSupplier);
 	}
 
-	// FlatCalibrationDocument fields
+	// DarkCalibrationDocument fields
 
 	public void updateDarkNumberExposures(int numberExposures) {
 		updateScanningParameters(getDarkCalibrationBuilder().withNumberExposures(numberExposures));

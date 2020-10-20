@@ -25,6 +25,7 @@ import uk.ac.gda.client.properties.CameraProperties;
  * client.acquisition.0.engine.type=MALCOLM
  * client.acquisition.0.engine.id=${client.host}-ML-SCAN-01
  * client.acquisition.0.detectors=PILATUS
+ * client.acquisition.0.out_of_beam=simx, simy
  * </code>
  *
  * where
@@ -127,6 +128,11 @@ public final class AcquisitionsPropertiesHelper {
 		Arrays.asList(getStringArrayProperty(ACQUISITION_PROPERTIES_PREFIX, index, "detectors")).stream().map(String::trim)
 				.filter(s -> !s.isEmpty()).forEach(cameras::add);
 		builder.withCameras(cameras);
+
+		HashSet<String> outOfBeamScannables = new HashSet<>();
+		Arrays.asList(getStringArrayProperty(ACQUISITION_PROPERTIES_PREFIX, index, "out_of_beam")).stream().map(String::trim)
+				.filter(s -> !s.isEmpty()).forEach(outOfBeamScannables::add);
+		builder.withOutOfBeamScannables(outOfBeamScannables);
 
 		AcquisitionPropertiesDocument cp = builder.build();
 		acquisitionProperties.add(cp);

@@ -56,5 +56,4 @@ class IScannableMotorHandler extends DeviceHandler {
 			throw new GDAException("Cannot get position for device " + device.getName(), e);
 		}
 	}
-
 }
