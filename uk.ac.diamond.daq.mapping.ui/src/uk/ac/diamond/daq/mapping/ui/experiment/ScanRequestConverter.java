@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,6 +69,7 @@ import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
+import uk.ac.diamond.daq.mapping.api.TemplateFileWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
@@ -182,12 +184,14 @@ public class ScanRequestConverter {
 		scanRequest.setProcessingRequest(r);
 
 		// Add template files
-		List<String> templateFilePaths = mappingBean.getTemplateFilePaths();
-		if (templateFilePaths != null && !templateFilePaths.isEmpty()) {
-			Set<String> existingTemplateFilePaths = scanRequest.getTemplateFilePaths();
+		final List<TemplateFileWrapper> templateFiles = mappingBean.getTemplateFiles();
+		if (templateFiles != null && !templateFiles.isEmpty()) {
+			final Set<String> existingTemplateFilePaths = scanRequest.getTemplateFilePaths();
 			final Set<String> allTemplateFilePaths = new TreeSet<>();
 			Optional.ofNullable(existingTemplateFilePaths).ifPresent(allTemplateFilePaths::addAll);
-			allTemplateFilePaths.addAll(templateFilePaths);
+			templateFiles.stream()
+				.filter(TemplateFileWrapper::isActive)
+				.forEach(fp -> allTemplateFilePaths.add(fp.getFilePath()));
 			scanRequest.setTemplateFilePaths(allTemplateFilePaths);
 		}
 
@@ -335,11 +339,46 @@ public class ScanRequestConverter {
 		// recreate the sample metadata from the metadata in the scan request
 		mergeSampleMetadata(scanRequest, mappingBean);
 
-		final Set<String> templateFilePaths = scanRequest.getTemplateFilePaths();
-		mappingBean.setTemplateFilePaths(templateFilePaths == null ? null :
-				new ArrayList<>(scanRequest.getTemplateFilePaths()));
+		mergeTemplateFiles(scanRequest, mappingBean);
 
 		mergeProcessingRequest(scanRequest, mappingBean);
+	}
+
+	/**
+	 * For each template files in the ScanRequest, add to the mapping bean, or ensure it is active if it is already
+	 * there. Deactive any template files that are not in the ScanRequest, but do not remove them from the mapping bean.
+	 */
+	private void mergeTemplateFiles(ScanRequest scanRequest, IMappingExperimentBean mappingBean) {
+		final Set<String> scanRequestTemplateFiles = scanRequest.getTemplateFilePaths();
+		final List<TemplateFileWrapper> mappingBeanTemplateFiles = mappingBean.getTemplateFiles();
+		if (scanRequestTemplateFiles == null && mappingBeanTemplateFiles == null) {
+			return;
+		}
+
+		// We cannot assume that the list in the mapping bean is mutable
+		final List<TemplateFileWrapper> templateFiles = mappingBeanTemplateFiles == null
+				? new ArrayList<>() : new ArrayList<>(mappingBeanTemplateFiles);
+
+		if (scanRequestTemplateFiles == null) {
+			templateFiles.stream().forEach(f -> f.setActive(false));
+		} else {
+			// For each file already in the mapping bean, activate it iff it is in the scan request
+			final Set<String> extraFiles = new HashSet<>(scanRequestTemplateFiles);
+			for (TemplateFileWrapper templateFile : templateFiles) {
+				final String filePath = templateFile.getFilePath();
+				if (extraFiles.contains(filePath)) {
+					templateFile.setActive(true);
+					extraFiles.remove(filePath);
+				} else {
+					templateFile.setActive(false);
+				}
+			}
+			// Add any file that wasn't already in the mapping bean
+			for (String extraFile : extraFiles) {
+				templateFiles.add(new TemplateFileWrapper(extraFile, true));
+			}
+		}
+		mappingBean.setTemplateFiles(templateFiles);
 	}
 
 	private void mergeProcessingRequest(ScanRequest scanRequest, IMappingExperimentBean mappingBean) {

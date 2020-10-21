@@ -18,32 +18,40 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static java.util.stream.Collectors.toList;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.ListViewer;
-import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.CheckboxCellEditor;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Table;
 
+import uk.ac.diamond.daq.mapping.api.TemplateFileWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
 /**
@@ -52,9 +60,14 @@ import uk.ac.diamond.daq.mapping.ui.Activator;
  */
 public class NexusTemplatesSection extends AbstractMappingSection {
 
-	private static final String NO_TEMPLATES_SELECTED = "<no template files selected>";
+	private String initialPath;
 
-	private Label templatesLabel;
+	private static final Image ticked = Activator.getImage("icons/ticked.png");
+	private static final Image unticked = Activator.getImage("icons/unticked.gif");
+
+	private Composite fileTableComposite;
+
+	private TableViewer fileTableViewer;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -62,162 +75,216 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 
 		// create the composite
 		final Composite templatesComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(templatesComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(templatesComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(templatesComposite);
+		GridLayoutFactory.swtDefaults().applyTo(templatesComposite);
 
-		// create the label
-		new Label(templatesComposite, SWT.NONE).setText("Template Files:");
+		// create the title & Add button
+		createTitleRow(templatesComposite);
 
-		// create the read only text field showing the template files
-		templatesLabel = new Label(templatesComposite, SWT.NONE);
-		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(300, SWT.DEFAULT).grab(true, false).applyTo(templatesLabel);
-		updateTemplatesLabel();
-
-		// create the edit button
-		final Button editTemplatesButton = new Button(templatesComposite, SWT.NONE);
-		editTemplatesButton.setImage(getImage("icons/pencil.png"));
-		editTemplatesButton.setToolTipText("Select Nexus Template Files");
-		editTemplatesButton.addListener(SWT.Selection, event -> editTemplateFiles());
-		GridDataFactory.swtDefaults().align(SWT.TRAIL, SWT.CENTER).applyTo(editTemplatesButton);
+		// create table containing file names and activation state
+		createFileTable(templatesComposite);
 	}
 
-	private void updateTemplatesLabel() {
-		final String labelText = getTemplateLabel();
+	/**
+	 * Title and button to add a template file
+	 */
+	private void createTitleRow(Composite parent) {
+		final Composite titleRowComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(titleRowComposite);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(titleRowComposite);
 
-		templatesLabel.setText(labelText);
-		templatesLabel.setToolTipText(labelText);
+		final Label titleLabel = new Label(titleRowComposite, SWT.NONE);
+		titleLabel.setText("Template files");
+		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(titleLabel);
+
+		final Button addFileButton = new Button(titleRowComposite, SWT.PUSH);
+		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(addFileButton);
+		addFileButton.setText("Add file...");
+		addFileButton.setToolTipText("Add a Nexus template file");
+		addFileButton.addSelectionListener(widgetSelectedAdapter(e -> addTemplateFile()));
 	}
 
-	private String getTemplateLabel() {
-		final List<String> templateFilePaths = getMappingBean().getTemplateFilePaths();
-		if (templateFilePaths == null || templateFilePaths.isEmpty()) {
-			return NO_TEMPLATES_SELECTED;
-		}
+	/**
+	 * Table of files that are defined, with a check box to indicate whether each one is active.
+	 */
+	private void createFileTable(Composite parent) {
+		fileTableComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(fileTableComposite);
+		GridLayoutFactory.fillDefaults().applyTo(fileTableComposite);
 
-		return String.join(", ", templateFilePaths.stream()
-				.map(NexusTemplatesSection::getFileName)
-				.collect(toList()));
-	}
+		fileTableViewer = new TableViewer(fileTableComposite, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
+		final Table fileTable = fileTableViewer.getTable();
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(fileTable);
+		fileTable.setHeaderVisible(true);
+		ColumnViewerToolTipSupport.enableFor(fileTableViewer);
+		fileTableViewer.setContentProvider(new ArrayContentProvider());
 
-	private static String getFileName(String filePath) {
-		return Paths.get(filePath).getFileName().toString();
-	}
+		// Check box column
+		final TableViewerColumn checkboxColumn = new TableViewerColumn(fileTableViewer, SWT.CENTER, 0);
+		checkboxColumn.setEditingSupport(new CheckBoxEditSupport());
+		checkboxColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return "";
+			}
 
-	private void editTemplateFiles() {
-		final List<String> templateFilePaths = new ArrayList<>(getMappingBean().getTemplateFilePaths());
-		final TemplateFilesSelectionDialog dialog = new TemplateFilesSelectionDialog(getShell(), templateFilePaths);
+			@Override
+			public Image getImage(Object element) {
+				return ((TemplateFileWrapper) element).isActive() ? ticked : unticked;
+			}
 
-		if (dialog.open() == Window.OK) {
-			getMappingBean().setTemplateFilePaths(dialog.getTemplateFilePaths());
-			updateTemplatesLabel();
-		}
+		});
+		checkboxColumn.getColumn().setWidth(28);
+
+		// File name column
+		final TableViewerColumn fileNameColumn = new TableViewerColumn(fileTableViewer, SWT.LEFT);
+		fileNameColumn.getColumn().setText("Name");
+		fileNameColumn.getColumn().setWidth(200);
+		fileNameColumn.setLabelProvider(new ColumnLabelProvider() {
+
+			@Override
+			public String getText(Object element) {
+				final String filePathString = ((TemplateFileWrapper) element).getFilePath();
+				return Paths.get(filePathString).getFileName().toString();
+			}
+
+			@Override
+			public String getToolTipText(Object element) {
+				return ((TemplateFileWrapper) element).getFilePath();
+			}
+		});
+
+		// Context menu to remove a row from the table
+		final MenuManager menuManager = new MenuManager();
+		menuManager.add(new Action("Remove") {
+			@Override
+			public void run() {
+				final ISelection selection = fileTableViewer.getSelection();
+				if (selection instanceof StructuredSelection) {
+					final List<TemplateFileWrapper> filesToRemove = new ArrayList<>();
+					@SuppressWarnings({ "unchecked" })
+					final Iterator<StructuredSelection> iterator = ((StructuredSelection) selection).iterator();
+					while (iterator.hasNext()) {
+						final Object nextSelection = iterator.next();
+						if (nextSelection instanceof TemplateFileWrapper) {
+							filesToRemove.add((TemplateFileWrapper) nextSelection);
+						}
+					}
+					if (!filesToRemove.isEmpty()) {
+						getMappingBean().getTemplateFiles().removeAll(filesToRemove);
+					}
+
+					getMappingView().updateControls();
+				}
+			}
+		});
+
+		final Menu menu = menuManager.createContextMenu(fileTableViewer.getControl());
+		fileTableViewer.getTable().setMenu(menu);
+
+		// Initialise from mapping bean
+		final List<TemplateFileWrapper> files = getMappingBean().getTemplateFiles();
+		fileTableViewer.setInput(files.toArray());
+		setTableSize();
 	}
 
 	@Override
 	public void updateControls() {
-		updateTemplatesLabel();
+		List<TemplateFileWrapper> templateFiles = getMappingBean().getTemplateFiles();
+		if (templateFiles == null) {
+			templateFiles = Collections.emptyList();
+		}
+
+		fileTableViewer.setInput(templateFiles);
+		fileTableViewer.refresh();
+
+		setTableSize();
+		fileTableComposite.getParent().layout(true, true);
+		relayoutMappingView();
 	}
 
 	/**
-	 * A dialog to select template files.
+	 * Show a pop-up dialog to add a template file
 	 */
-	private static final class TemplateFilesSelectionDialog extends Dialog {
-
-		private List<String> templateFilePaths;
-		private ListViewer filesListViewer;
-
-		public TemplateFilesSelectionDialog(Shell shell, List<String> templateFilePaths) {
-			super(shell);
-			setShellStyle(SWT.RESIZE | SWT.APPLICATION_MODAL);
-			this.templateFilePaths = new ArrayList<>(templateFilePaths);
+	private void addTemplateFile() {
+		final FileDialog dialog = new FileDialog(Display.getDefault().getActiveShell(), SWT.OPEN);
+		dialog.setFilterExtensions(new String[] { "*.yaml" });
+		dialog.setFilterNames(new String[] { "YAML files(*.yaml)" });
+		if (initialPath != null) {
+			dialog.setFilterPath(initialPath);
 		}
 
-		@Override
-		public void configureShell(Shell shell) {
-			super.configureShell(shell);
-			shell.setText("Select Template Files");
+		final String result = dialog.open();
+		if (result == null) {
+			return;
 		}
+		initialPath = Paths.get(result).getParent().toString();
 
-		@Override
-		public Control createDialogArea(Composite parent) {
-			final Composite composite = (Composite) super.createDialogArea(parent);
-			GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
-
-			filesListViewer = new ListViewer(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
-			filesListViewer.setContentProvider(ArrayContentProvider.getInstance());
-			filesListViewer.setLabelProvider(new LabelProvider() {
-				@Override
-				public Image getImage(Object element) {
-					return null;
-				}
-
-				@Override
-				public String getText(Object element) {
-					return getFileName((String) element);
-				}
-
-			});
-
-			GridDataFactory.fillDefaults().grab(true, true).hint(300, 200).applyTo(filesListViewer.getControl());
-			filesListViewer.setInput(templateFilePaths);
-
-			final int buttonWidth = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
-			GridDataFactory buttonGridDataFactory = GridDataFactory.swtDefaults()
-					.align(SWT.FILL, SWT.CENTER).hint(buttonWidth, SWT.DEFAULT);
-
-			final Composite buttonArea = new Composite(composite, SWT.NONE);
-			GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.TOP).applyTo(buttonArea);
-			GridLayoutFactory.swtDefaults().applyTo(buttonArea);
-
-			final Button addButton = new Button(buttonArea, SWT.PUSH);
-			addButton.setText("Add...");
-			addButton.addListener(SWT.Selection, event -> addTemplateFile());
-			buttonGridDataFactory.applyTo(addButton);
-
-			final Button removeButton = new Button(buttonArea, SWT.PUSH);
-			removeButton.setText("Remove");
-			removeButton.addListener(SWT.Selection, event -> removeTemplateFiles());
-			buttonGridDataFactory.applyTo(removeButton);
-
-			final Button removeAllButton = new Button(buttonArea, SWT.PUSH);
-			removeAllButton.setText("Remove All");
-			removeAllButton.addListener(SWT.Selection, event -> removeAllTemplateFiles());
-			buttonGridDataFactory.applyTo(removeAllButton);
-
-			return composite;
+		// Add file if it does not already exist
+		if (getMappingBean().getTemplateFiles().stream().anyMatch(f -> f.getFilePath().equals(result))) {
+			return;
 		}
-
-		private void addTemplateFile() {
-			final FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL | SWT.MULTI);
-			dialog.setFilterNames(new String[] { "Template Files (YAML)" });
-			dialog.setFilterExtensions(new String[] { "*.yaml" });
-			final IFilePathService filePathService = Activator.getService(IFilePathService.class);
-			final String templatesDir = filePathService.getPersistenceDir();
-			dialog.setFilterPath(templatesDir);
-
-			if (dialog.open() != null) {
-				final String dir = dialog.getFilterPath() + IPath.SEPARATOR;
-				Arrays.stream(dialog.getFileNames())
-					.forEach(name -> templateFilePaths.add(dir + name));
-				filesListViewer.refresh();
-			}
-		}
-
-		private void removeTemplateFiles() {
-			final Object[] selectedItems = filesListViewer.getStructuredSelection().toArray();
-			templateFilePaths.removeAll(Arrays.asList(selectedItems));
-			filesListViewer.refresh();
-		}
-
-		private void removeAllTemplateFiles() {
-			templateFilePaths.clear();
-			filesListViewer.refresh();
-		}
-
-		private List<String> getTemplateFilePaths() {
-			return templateFilePaths;
-		}
-
+		getMappingBean().addTemplateFile(new TemplateFileWrapper(result, true));
+		getMappingView().updateControls();
+		getMappingView().showControl(fileTableComposite.getParent());
 	}
 
+	/**
+	 * Resize the table to fit the data, subject to a maximum size: table will scroll to view all items
+	 */
+	private void setTableSize() {
+		final int maxItems = 5;
+		if (fileTableComposite.getLayoutData() instanceof GridData) {
+			final int itemCount = Math.min(fileTableViewer.getTable().getItemCount(), maxItems);
+			final int itemHeight = fileTableViewer.getTable().getItemHeight();
+			final int headerHeight = fileTableViewer.getTable().getHeaderHeight();
+
+			final GridData gd = (GridData) fileTableComposite.getLayoutData();
+			final int h = (1 + itemCount) * itemHeight + headerHeight;
+			gd.minimumHeight = h;
+			gd.heightHint = h;
+		}
+	}
+
+	public void setInitialPath(String initialPath) {
+		this.initialPath = initialPath;
+	}
+
+	/**
+	 * Control the editing of a file's active state
+	 */
+	private class CheckBoxEditSupport extends EditingSupport {
+
+		public CheckBoxEditSupport() {
+			super(fileTableViewer);
+		}
+
+		@Override
+		protected CellEditor getCellEditor(Object element) {
+			final CheckboxCellEditor edit = new CheckboxCellEditor(fileTableViewer.getTable());
+			edit.setValue(((TemplateFileWrapper) element).isActive());
+			return edit;
+		}
+
+		@Override
+		protected boolean canEdit(Object element) {
+			return true;
+		}
+
+		@Override
+		protected Object getValue(Object element) {
+			if (element instanceof TemplateFileWrapper) {
+				return ((TemplateFileWrapper) element).isActive();
+			}
+			return null;
+		}
+
+		@Override
+		protected void setValue(Object element, Object value) {
+			if (element instanceof TemplateFileWrapper && value instanceof Boolean) {
+				((TemplateFileWrapper) element).setActive((Boolean) value);
+			}
+			getViewer().refresh();
+		}
+	}
 }
