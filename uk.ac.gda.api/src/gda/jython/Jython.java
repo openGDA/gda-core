@@ -445,6 +445,12 @@ public interface Jython extends Findable, IObservable {
 	public boolean hasAlias(String command, String jsfIdentifier);
 
 	/**
+	 * Remove an alias
+	 * @param command to remove
+	 */
+	public void removeAlias(String command, String jsfIdentifier);
+
+	/**
 	 * Returns the contents of the top-level Jython namespace.
 	 *
 	 * @return Map

@@ -78,23 +78,6 @@ public class GeneralTranslator extends TranslatorBase {
 				return prefix + thisGroup;
 			}
 
-			// assume first element in 'args' is the method, second is the name of the object and rest are the arguments
-			// of the method
-
-			// dynamically add a function to the extended syntax
-			else if (args[0].equals("alias")) {
-				// assume next arg is the name of the function
-				if (args.length == 2) {
-					addAliasedCommand(args[1]);
-					thisGroup = "";
-				}
-			} else if (args[0].equals("vararg_alias")) {
-				// assume next arg is the name of the function
-				if (args.length == 2) {
-					addAliasedVarargCommand(args[1]);
-					thisGroup = "";
-				}
-			}
 			// else test for a dynamically added commands
 			else if (aliases.contains(args[0]) && args.length >= 1) {
 				args = splitGroup(removeTrailingComment(thisGroup));

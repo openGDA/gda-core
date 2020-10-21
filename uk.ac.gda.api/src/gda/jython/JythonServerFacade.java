@@ -651,6 +651,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		commandServer.addAliasedVarargCommand(commandName, name);
 	}
 
+	public void removeAliasedCommand(String commandName) {
+		commandServer.removeAlias(commandName, name);
+	}
+
 	@Override
 	public boolean requestBaton() {
 		return commandServer.requestBaton(name);

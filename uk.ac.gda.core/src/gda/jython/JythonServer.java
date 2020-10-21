@@ -791,6 +791,13 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	}
 
 	@Override
+	public void removeAlias(String command, String jsfIdentifier) {
+		if (this.batonManager.isJSFRegistered(jsfIdentifier)) {
+			GDAJythonInterpreter.getTranslator().removeAlias(command);
+		}
+	}
+
+	@Override
 	public Collection<Scannable> getDefaultScannables() {
 		return Collections.unmodifiableSet(defaultScannables);
 	}
