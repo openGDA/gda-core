@@ -112,6 +112,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		updateImageCalibration();
+
 		try {
 			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()));
 		} catch (GDAException e) {
@@ -122,6 +123,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void runAcquisition() throws AcquisitionControllerException {
 		updateImageCalibration();
+		updateStartPosition();
 		publishRun(createScanningMessage());
 	}
 
@@ -263,6 +265,20 @@ public class ScanningAcquisitionController
 			darkPosition.add(stageController.createShutterClosedRequest());
 			imageCalibrationHelper.updateDarkDetectorPositionDocument(darkPosition);
 		}
+	}
+
+	private void updateStartPosition() {
+		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters() == null)
+			return;
+		// Saves ALL the devices position and mark this set as Position.Start
+		// This collection is stored in the stage controller as it is responsible
+		// for uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position values
+		stageController.savePosition(Position.START);
+		// Filters out from the Position.START positions, the position document from AcquisitionPropertiesDocument::getOutOfBeamScannables
+		// See AcquisitionPropertiesDocument#outOfBeamScannables
+		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, detectorsHelper.getOutOfBeamScannables());
+		// Updates the acquistion document
+		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().setPosition(startPosition);
 	}
 
 	public ScanningParameters getAcquisitionParameters() {

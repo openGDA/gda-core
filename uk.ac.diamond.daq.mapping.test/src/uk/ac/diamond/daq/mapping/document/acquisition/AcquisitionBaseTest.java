@@ -69,6 +69,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		ScanningParameters dp = ScanningParameters.class
 				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
 		assertEquals(ShapeType.POINT, dp.getShapeType());
+		assertTrue(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getPosition().isEmpty());
 	}
 
 	@Test

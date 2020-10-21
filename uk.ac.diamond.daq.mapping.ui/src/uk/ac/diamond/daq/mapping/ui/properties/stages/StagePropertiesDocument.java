@@ -32,7 +32,6 @@ public class StagePropertiesDocument {
 
 
 	private StagePropertiesDocument(String id, List<ScannablePropertiesDocument> scannables, String label) {
-		super();
 		this.id = id;
 		this.scannables = scannables;
 		this.label = label;

@@ -1,11 +1,16 @@
 package uk.ac.diamond.daq.mapping.api.document.scanning;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
- * The base class for describe a diffraction acquisition.
+ * The base class for describe a scanning acquisition.
  *
  * @author Maurzio Nagni
  */
@@ -17,6 +22,15 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	private ScanpathDocument scanpathDocument;
 
+	/**
+	 * Defines the acquisition starting position. It could be extracted by the {@link ScanpathDocument#getScannableTrackDocuments()}
+	 * but there are cases where motors others than the one involved in the scan should position the sample.
+	 * It is assumed that any engine can move the sample where {@link ScanpathDocument#getScannableTrackDocuments()}  command,
+	 * consequently the motors here may or may not include those last ones.
+	 * @see AcquisitionParameters#getPosition()
+	 */
+	private Set<DevicePositionDocument> position = new HashSet<>();
+
 	public ScanningParameters() {
 		super();
 	}
@@ -27,6 +41,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 		this.detector = configuration.getDetector();
 
 		this.scanpathDocument = configuration.getScanpathDocument();
+		this.position = configuration.getPosition();
 	}
 
 	@Override
@@ -57,8 +72,17 @@ public class ScanningParameters implements AcquisitionParametersBase {
 	}
 
 	@Override
+	public Set<DevicePositionDocument> getPosition() {
+		return position;
+	}
+
+	public void setPosition(Set<DevicePositionDocument> position) {
+		this.position = position;
+	}
+
+	@Override
 	public String toString() {
-		return "DiffractionParameters [" + ", shapeType=" + shapeType + ", detector=" + detector
-				+ ", scanpathDocument=" + scanpathDocument + "]";
+		return "ScanningParameters [shapeType=" + shapeType + ", detector=" + detector + ", scanpathDocument="
+				+ scanpathDocument + ", position=" + position + "]";
 	}
 }

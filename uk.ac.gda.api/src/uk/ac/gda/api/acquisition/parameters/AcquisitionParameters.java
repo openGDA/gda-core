@@ -18,6 +18,10 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
+import java.util.Set;
+
+import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
+
 /**
  * Defines an acquisition geometry and detectors
  *
@@ -25,6 +29,28 @@ package uk.ac.gda.api.acquisition.parameters;
  */
 public interface AcquisitionParameters {
 
+	/**
+	 * The detector involved in the acquisition
+	 * @return the detector configuration
+	 */
 	DetectorDocument getDetector();
+
+	/**
+	 * Defines, per device, the position where the acquisition starts. Note that this position
+	 * <ul>
+	 * <li>
+	 *   is optional
+	 * </li>
+	 * <li>
+	 *   when not empty, is strictly true only for the first acquisition
+	 * </li>
+	 * <li>
+	 *   when not empty and {@link AcquisitionConfiguration#getMultipleScans()} is not null, acquisitions after the first may be overridden it
+	 * </li>
+	 * </ul>
+	 * may be overridden by multiple acquisition logic
+	 * @return a set of position documents, otherwise an empty set.
+	 */
+	Set<DevicePositionDocument> getPosition();
 
 }
