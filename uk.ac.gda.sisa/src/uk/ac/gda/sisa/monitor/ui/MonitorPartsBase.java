@@ -18,7 +18,7 @@ public class MonitorPartsBase {
 	public MonitorPartsBase() {
 		
 		try {
-			monitorConfig = Finder.findSingleton(MonitorConfiguration.class);
+			monitorConfig = Finder.findLocalSingleton(MonitorConfiguration.class);
 		} catch (IllegalArgumentException exception) {
 			String msg = "No MonitorConfiguration was found! (Or more than 1)";
 			logger.error(msg);

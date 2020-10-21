@@ -19,7 +19,7 @@ public class FeedbackPartsBase {
 	public FeedbackPartsBase() {
 		
 		try {
-			feedbackControls = Finder.findSingleton(FeedbackControls.class);
+			feedbackControls = Finder.findLocalSingleton(FeedbackControls.class);
 		} catch (IllegalArgumentException exception) {
 			String msg = "No FeedbackControls was found! (Or more than 1)";
 			logger.error(msg);

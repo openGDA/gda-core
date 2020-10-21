@@ -51,7 +51,7 @@ public class ImageStatsDisplayPart {
 		logger.trace("Constructor called");
 		
 		try {
-			alignmentConfig = Finder.findSingleton(AlignmentConfiguration.class);
+			alignmentConfig = Finder.findLocalSingleton(AlignmentConfiguration.class);
 		} catch (IllegalArgumentException exception) {
 			String msg = "No AlignmentConfiguration was found! (Or more than 1)";
 			logger.error(msg);
