@@ -210,7 +210,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		private void updateDetectorDocument(String detectorControlName, double acquireTime) {
 			ScanningParameters acquisitionParameters = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 			// The acquisition configuration may not include this detector
-			if (!detectorControlName.equals(acquisitionParameters.getDetector().getName()))
+			if (acquisitionParameters.getDetector() != null && !detectorControlName.equals(acquisitionParameters.getDetector().getName()))
 				return;
 
 			ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(() -> getAcquisition().getAcquisitionConfiguration());
