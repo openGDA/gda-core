@@ -22,7 +22,7 @@ public class TemperaturesPart extends FeedbackPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, feedbackControls.getTemperatureControls(), 1);
+		drawControls(scrollerContent, feedbackControls.getTemperatureControls(), 1);
 		setScrollerContentAndSize(scrollerContent, scroller);
 	}
 }

@@ -22,7 +22,7 @@ public class PressuresPart extends FeedbackPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, feedbackControls.getPressureControls(), 1);
+		drawControls(scrollerContent, feedbackControls.getPressureControls(), 1);
 		setScrollerContentAndSize(scrollerContent, scroller);
 	}
 	

@@ -23,9 +23,7 @@ public class DrainCurrentPart extends MonitorPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, "SM5", monitorConfig.getDrainCurrentControls(), 2);
-		addControlGroup(scrollerContent, "HM3", monitorConfig.getDrainCurrentControls(), 2);
-		addControlGroup(scrollerContent, "Sample", monitorConfig.getDrainCurrentControls(), 2);
+		drawGroupedControls(scrollerContent, monitorConfig.getDrainCurrentControls(), 2);
 		setScrollingComposite(scrollerContent, scroller);
 	}
 	

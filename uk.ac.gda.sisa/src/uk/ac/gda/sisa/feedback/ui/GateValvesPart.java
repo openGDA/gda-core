@@ -17,9 +17,7 @@ public class GateValvesPart extends FeedbackPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, "radiation shutter" ,feedbackControls.getGateValveControls(), 2);
-		addControlGroup(scrollerContent, "gate valve V10" ,feedbackControls.getGateValveControls(), 2);
-		addControlGroup(scrollerContent, "fast shutter" ,feedbackControls.getGateValveControls(), 2);
+		drawGroupedControls(scrollerContent,feedbackControls.getGateValveControls(), 2);
 		setScrollerContentAndSize(scrollerContent, scroller);
 	}
 

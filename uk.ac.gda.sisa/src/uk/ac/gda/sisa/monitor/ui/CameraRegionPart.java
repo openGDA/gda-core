@@ -23,8 +23,7 @@ public class CameraRegionPart extends MonitorPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, "X", monitorConfig.getCameraRegionControls(), 3);
-		addControlGroup(scrollerContent, "Y", monitorConfig.getCameraRegionControls(), 3);
+		drawGroupedControls(scrollerContent, monitorConfig.getCameraRegionControls(), 3);
 		setScrollingComposite(scrollerContent, scroller);
 	}
 	

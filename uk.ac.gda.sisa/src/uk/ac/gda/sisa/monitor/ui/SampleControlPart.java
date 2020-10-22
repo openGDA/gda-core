@@ -23,7 +23,7 @@ public class SampleControlPart extends MonitorPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, monitorConfig.getSampleControls(), 6);
+		drawControls(scrollerContent, monitorConfig.getSampleControls(), 6);
 		setScrollingComposite(scrollerContent, scroller);
 	}
 	

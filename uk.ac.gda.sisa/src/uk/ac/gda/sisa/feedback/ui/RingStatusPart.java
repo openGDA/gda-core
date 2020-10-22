@@ -17,7 +17,7 @@ public class RingStatusPart extends FeedbackPartsBase {
 		//rowLayout.fill = true;
 		//rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		addControlGroup(scrollerContent, feedbackControls.getRingStatusControls(), 5);
+		drawControls(scrollerContent, feedbackControls.getRingStatusControls(), 5);
 		setScrollerContentAndSize(scrollerContent, scroller);
 	}
 
