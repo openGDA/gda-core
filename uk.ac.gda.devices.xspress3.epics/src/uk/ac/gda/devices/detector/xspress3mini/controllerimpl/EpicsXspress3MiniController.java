@@ -42,7 +42,7 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 
 	private boolean useErasePv = true;
 
-	private int waitForBusyTimeout = LocalProperties.getAsInt("gda.xsp3m.fluorescence.waitForBusyTimeout", 5) * 1000;
+	private int loopWaitTimer = LocalProperties.getAsInt("gda.xsp3m.fluorescence.loopWaitTimer.ms", 500);
 
 	@Override
 	public void configure() throws FactoryException {
@@ -212,10 +212,10 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 		while (!isDetectorInDesireState(shouldBeBusy)) {
 			final long elapsedTime = (System.currentTimeMillis() - startTime);
 			if (elapsedTime > timeout) {
-				throw new DeviceException(String.format("Detector has not reached desired state after %d ms", timeout));
+				throw new DeviceException(String.format("Detector has not reached %s state after %d ms", shouldBeBusy ? "busy" : "unbusy", timeout));
 			}
 			try {
-				Thread.sleep(500);
+				Thread.sleep(loopWaitTimer);
 			} catch (InterruptedException e) {
 				throw new DeviceException("Interrupted while waiting for detector to be busy", e);
 			}
@@ -296,6 +296,17 @@ public class EpicsXspress3MiniController extends EpicsXspress3Controller impleme
 			acquireTime.putWait(time);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting Acquire Time", e);
+		}
+	}
+
+	@Override
+	public double getAcquireTime() throws DeviceException {
+		try {
+			EpicsXspress3MiniControllerPvProvider pvProvider = (EpicsXspress3MiniControllerPvProvider)getPvProvider();
+			PV<Double> acquireTime = pvProvider.pvAcquireTime;
+			return acquireTime.get();
+		} catch (IOException e) {
+			throw new DeviceException("IOException while getting Acquire Time", e);
 		}
 	}
 }
