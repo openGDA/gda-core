@@ -17,6 +17,7 @@ import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
+import uk.ac.diamond.daq.mapping.api.TemplateFileWrapper;
 
 public class MappingExperimentBean implements IMappingExperimentBean {
 
@@ -31,7 +32,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	private Set<String> perPointMonitorNames = null;
 	private MappingStageInfo stageInfoSnapshot;
 	private List<ConfigWrapper> processingConfigs;
-	private List<String> templateFilePaths;
+	private List<TemplateFileWrapper> templateFiles;
 	private boolean useAlternativeDirectory = false;
 	private String alternativeDirectory = "";
 
@@ -47,6 +48,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		sampleMetadata = new SimpleSampleMetadata();
 		scanDefinition = new MappingScanDefinition();
 		processingConfigs = new ArrayList<>();
+		templateFiles = new ArrayList<>();
 		mappingRegionUnits = new HashMap<>();
 	}
 
@@ -169,13 +171,20 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	}
 
 	@Override
-	public List<String> getTemplateFilePaths() {
-		return templateFilePaths;
+	public List<TemplateFileWrapper> getTemplateFiles() {
+		return templateFiles;
 	}
 
 	@Override
-	public void setTemplateFilePaths(List<String> templateFilePaths) {
-		this.templateFilePaths = templateFilePaths;
+	public void setTemplateFiles(List<TemplateFileWrapper> templateFiles) {
+		this.templateFiles = templateFiles;
+	}
+
+	@Override
+	public void addTemplateFile(TemplateFileWrapper templateFile) {
+		if (templateFile != null) {
+			templateFiles.add(templateFile);
+		}
 	}
 
 	@Override
@@ -236,7 +245,7 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 		result = prime * result + ((scanDefinition == null) ? 0 : scanDefinition.hashCode());
 		result = prime * result + ((scriptFiles == null) ? 0 : scriptFiles.hashCode());
 		result = prime * result + ((stageInfoSnapshot == null) ? 0 : stageInfoSnapshot.hashCode());
-		result = prime * result + ((templateFilePaths == null) ? 0 : templateFilePaths.hashCode());
+		result = prime * result + ((templateFiles == null) ? 0 : templateFiles.hashCode());
 		result = prime * result + (useAlternativeDirectory ? 1231 : 1237);
 		return result;
 	}
@@ -312,10 +321,10 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 				return false;
 		} else if (!stageInfoSnapshot.equals(other.stageInfoSnapshot))
 			return false;
-		if (templateFilePaths == null) {
-			if (other.templateFilePaths != null)
+		if (templateFiles == null) {
+			if (other.templateFiles != null)
 				return false;
-		} else if (!templateFilePaths.equals(other.templateFilePaths))
+		} else if (!templateFiles.equals(other.templateFiles))
 			return false;
 		if (useAlternativeDirectory != other.useAlternativeDirectory)
 			return false;
@@ -326,10 +335,10 @@ public class MappingExperimentBean implements IMappingExperimentBean {
 	public String toString() {
 		return "MappingExperimentBean [id=" + id + ", displayName=" + displayName + ", sampleMetadata=" + sampleMetadata
 				+ ", detectorParameters=" + detectorParameters + ", beamlineConfiguration=" + beamlineConfiguration
-				+ ", scanDefinition=" + scanDefinition + ", mappingRegionUnits=" + mappingRegionUnits + ", scriptFiles="
-				+ scriptFiles + ", perScanMonitorNames=" + perScanMonitorNames + ", perPointMonitorNames="
-				+ perPointMonitorNames + ", stageInfoSnapshot=" + stageInfoSnapshot + ", processingConfigs="
-				+ processingConfigs + ", templateFilePaths=" + templateFilePaths + ", useAlternativeDirectory="
-				+ useAlternativeDirectory + ", alternativeDirectory=" + alternativeDirectory + "]";
+				+ ", scanDefinition=" + scanDefinition + ", scriptFiles=" + scriptFiles + ", perScanMonitorNames="
+				+ perScanMonitorNames + ", perPointMonitorNames=" + perPointMonitorNames + ", stageInfoSnapshot="
+				+ stageInfoSnapshot + ", processingConfigs=" + processingConfigs + ", templateFiles=" + templateFiles
+				+ ", useAlternativeDirectory=" + useAlternativeDirectory + ", alternativeDirectory="
+				+ alternativeDirectory + ", mappingRegionUnits=" + mappingRegionUnits + "]";
 	}
 }

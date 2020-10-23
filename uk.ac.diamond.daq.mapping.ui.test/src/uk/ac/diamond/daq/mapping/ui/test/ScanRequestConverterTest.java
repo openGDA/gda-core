@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.test;
 
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -30,7 +31,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -71,6 +73,7 @@ import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.IScriptFiles;
+import uk.ac.diamond.daq.mapping.api.TemplateFileWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
@@ -555,22 +558,75 @@ public class ScanRequestConverterTest {
 
 	@Test
 	public void testTemplateFilesAdded() throws Exception {
+		final String first = "first.yaml";
+		final String second = "second.yaml";
+		final String third = "third.yaml";
+		final String fourth = "fourth.yaml";
+
+		final TemplateFileWrapper firstWrapper = new TemplateFileWrapper(first, true);
+		final TemplateFileWrapper secondWrapper = new TemplateFileWrapper(second, true);
+		final TemplateFileWrapper thirdWrapper = new TemplateFileWrapper(third, false);
+		final TemplateFileWrapper fourthWrapper = new TemplateFileWrapper(fourth, true);
+
 		// Arrange
-		final String[] templateFilePaths = { "first.yaml", "second.yaml" };
-		mappingBean.setTemplateFilePaths(Arrays.asList(templateFilePaths));
+		final TemplateFileWrapper[] templateFiles = { firstWrapper, secondWrapper, thirdWrapper };
+		mappingBean.setTemplateFiles(Arrays.asList(templateFiles));
 
 		// Act
 		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
 
-		// Assert
-		assertThat(scanRequest.getTemplateFilePaths(), contains(templateFilePaths));
+		// Assert: only active files should be in scan request
+		final Set<String> scanRequestTemplateFiles = scanRequest.getTemplateFilePaths();
+		assertThat(scanRequestTemplateFiles, contains(first, second));
 
 		// Arrange again - to convert back to mapping bean
-		mappingBean.setTemplateFilePaths(null);
-		assertThat(mappingBean.getTemplateFilePaths(), is(nullValue()));
+		mappingBean.setTemplateFiles(Arrays.asList(secondWrapper, fourthWrapper));
+
+		// Act
+		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
+
+		// Assert: the merge should add any files that were not already in the mapping bean and deactivate any that were
+		// not in the scan request.
+		final List<TemplateFileWrapper> mappingBeanTemplateFiles = mappingBean.getTemplateFiles();
+		assertEquals(3, mappingBeanTemplateFiles.size());
+		assertContainsWrapper(mappingBeanTemplateFiles, first, true);
+		assertContainsWrapper(mappingBeanTemplateFiles, second, true);
+		assertContainsWrapper(mappingBeanTemplateFiles, fourth, false);
+	}
+
+	@Test
+	public void testNullTemplateListInScanRequest() {
+		final String first = "first.yaml";
+		final String second = "second.yaml";
+
+		final TemplateFileWrapper firstWrapper = new TemplateFileWrapper(first, true);
+		final TemplateFileWrapper secondWrapper = new TemplateFileWrapper(second, true);
+
+		mappingBean.setTemplateFiles(Arrays.asList(firstWrapper, secondWrapper));
+
+		final ScanRequest scanRequest = scanRequestConverter.convertToScanRequest(mappingBean);
+		scanRequest.setTemplateFilePaths(null);
+		assertNull(scanRequest.getTemplateFilePaths());
 
 		scanRequestConverter.mergeIntoMappingBean(scanRequest, mappingBean);
-		assertThat(mappingBean.getTemplateFilePaths(), contains(templateFilePaths));
+
+		// Merging a null list of file paths should deactivate (but not delete) all files in the mapping bean
+		final List<TemplateFileWrapper> templateFiles = mappingBean.getTemplateFiles();
+		assertEquals(2, templateFiles.size());
+		assertContainsWrapper(templateFiles, first, false);
+		assertContainsWrapper(templateFiles, second, false);
+	}
+
+	/**
+	 * Check that a list of {@link TemplateFileWrapper} contains just one wrapper for the specified file path, and that
+	 * it is in the required activation state.
+	 */
+	private static void assertContainsWrapper(List<TemplateFileWrapper> templateFiles, String filePath, boolean active) {
+		final Set<TemplateFileWrapper> wrappers = templateFiles.stream()
+				.filter(f -> f.getFilePath().equals(filePath))
+				.filter(f -> f.isActive() == active)
+				.collect(Collectors.toSet());
+		assertEquals(1, wrappers.size());
 	}
 
 	@Test
