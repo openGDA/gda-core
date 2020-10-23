@@ -24,6 +24,7 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -123,15 +124,23 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private void setAcquireTime(Widget widget) {
-		cameraControl.ifPresent(c -> {
-			try {
-				c.setAcquireTime(Double.parseDouble(Text.class.cast(widget).getText()) / 1000);
-			} catch (NumberFormatException | DeviceException e) {
-				UIHelper.showError("Cannot update acquisition time", e, logger);
-			}
-		});
+		cameraControl.ifPresent(c -> 
+			setAcquireTime(c, Double.parseDouble(Text.class.cast(widget).getText()) / 1000)
+		);
 	}
 
+	private void setAcquireTime(CameraControl cc, double exposure) {
+		try {
+			cc.setAcquireTime(exposure);
+			if (CameraState.ACQUIRING.equals(cc.getAcquireState())) {
+				cc.stopAcquiring();
+				cc.startAcquiring();				
+			}
+		} catch (NumberFormatException | DeviceException e) {
+			UIHelper.showError("Cannot update acquisition time", e, logger);
+		}
+	}
+	
 	private void updateGUI(int exposure) {
 		exposureText.setText(Integer.toString(exposure));
 		updateReadOut(exposure);
