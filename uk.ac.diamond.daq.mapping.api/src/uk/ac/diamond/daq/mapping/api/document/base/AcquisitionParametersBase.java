@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document.base;
 
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 
@@ -28,8 +27,6 @@ import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
  * @author Maurizio Nagni
  */
 public interface AcquisitionParametersBase extends AcquisitionParameters {
-
-	ShapeType getShapeType();
 
 	ScanpathDocument getScanpathDocument();
 

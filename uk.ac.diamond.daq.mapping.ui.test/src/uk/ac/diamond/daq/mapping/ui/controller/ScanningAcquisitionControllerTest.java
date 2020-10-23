@@ -45,6 +45,7 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.camera.CameraControl;
@@ -60,6 +61,9 @@ public class ScanningAcquisitionControllerTest {
 
 	@Autowired
 	FinderService finderService;
+
+	@Autowired
+	IScanningAcquisitionService scanningAcquisitionService;
 
 	@Before
 	public void before() {

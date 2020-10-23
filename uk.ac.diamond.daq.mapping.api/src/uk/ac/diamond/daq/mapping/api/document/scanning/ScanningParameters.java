@@ -16,8 +16,6 @@ import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
  */
 public class ScanningParameters implements AcquisitionParametersBase {
 
-	private ShapeType shapeType;
-
 	private DetectorDocument detector;
 
 	private ScanpathDocument scanpathDocument;
@@ -37,20 +35,10 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	public ScanningParameters(ScanningParameters configuration) {
 		super();
-		this.shapeType = configuration.getShapeType();
 		this.detector = configuration.getDetector();
 
 		this.scanpathDocument = configuration.getScanpathDocument();
 		this.position = configuration.getPosition();
-	}
-
-	@Override
-	public ShapeType getShapeType() {
-		return shapeType;
-	}
-
-	public void setShapeType(ShapeType shapeType) {
-		this.shapeType = shapeType;
 	}
 
 	@Override
@@ -82,7 +70,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	@Override
 	public String toString() {
-		return "ScanningParameters [shapeType=" + shapeType + ", detector=" + detector + ", scanpathDocument="
+		return "ScanningParameters [detector=" + detector + ", scanpathDocument="
 				+ scanpathDocument + ", position=" + position + "]";
 	}
 }

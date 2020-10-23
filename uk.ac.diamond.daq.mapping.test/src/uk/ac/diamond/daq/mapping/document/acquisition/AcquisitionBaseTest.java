@@ -19,8 +19,8 @@
 package uk.ac.diamond.daq.mapping.document.acquisition;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -30,7 +30,6 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ShapeType;
 import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.exception.GDAException;
@@ -68,8 +67,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
 		ScanningParameters dp = ScanningParameters.class
 				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
-		assertEquals(ShapeType.POINT, dp.getShapeType());
-		assertTrue(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getPosition().isEmpty());
+		assertTrue(dp.getPosition().isEmpty());
 	}
 
 	@Test
@@ -81,9 +79,6 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		assertEquals(ScanningConfiguration.class, modelDocument.getAcquisitionConfiguration().getClass());
 		assertEquals(ScanningParameters.class,
 				modelDocument.getAcquisitionConfiguration().getAcquisitionParameters().getClass());
-		ScanningParameters dp = ScanningParameters.class
-				.cast(modelDocument.getAcquisitionConfiguration().getAcquisitionParameters());
-		assertEquals(ShapeType.POINT, dp.getShapeType());
 	}
 
 	@Test
