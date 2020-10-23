@@ -20,12 +20,13 @@ package gda.commandqueue;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import com.google.common.collect.ImmutableList;
 
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
@@ -41,11 +42,17 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(IFindableQueueProcessor.class)
 public class FindableProcessorQueue extends FindableBase implements IFindableQueueProcessor, Runnable, IObserver, InitializingBean {
-	private final ObservableComponent obsComp = new ObservableComponent();
-
 	private static final Logger logger = LoggerFactory.getLogger(FindableProcessorQueue.class);
 
 	enum COMMAND { NONE, START, STOP, PAUSE}
+
+	/*
+	 * As the object can be called in many threads we need to synchronize access
+	 * to fields used to communicate with the managerThread
+	 */
+	final Object lock=new Object();
+
+	private final ObservableComponent obsComp = new ObservableComponent();
 
 	/*
 	 * Thread that actually calls the run method of the indivudal Commands
@@ -58,16 +65,11 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	 */
 	Queue queue;
 
-	Boolean running=false;
+	private boolean running=false;
+
 	private boolean waitingForCommandOrQueue=false;
 
 	Processor.STATE state=Processor.STATE.WAITING_START;
-
-	/*
-	 * As the object can be called in many threads we need to synchronize access
-	 * to fields used to communicate with the managerThread
-	 */
-	Object lock=new Object();
 
 	/*
 	 * The last Command removed from the Queue for processing and has not
@@ -83,20 +85,20 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	/*
 	 * Flag to signal to managerThread that a queueChange event has occurred
 	 */
-	Boolean queueChanged=false;
+	Boolean queueChanged = false;
 
 	/*
 	 * Flag to signal to managerThread that the current Command has had its skip method
 	 * call
 	 */
-	Boolean skip=false;
+	Boolean skip = false;
 
 	/*
 	 * Allows a mode where the users expect to always have to manually start the queue
 	 */
 	boolean pauseWhenQueueEmpty = false;
 
-	boolean startImmediately=false;
+	boolean startImmediately = false;
 
 	public void setQueue(Queue queue) {
 		if(this.queue != null)
@@ -106,7 +108,7 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	}
 
 	void sendCommandToManagerThread(long timeout_ms, COMMAND cmd) throws Exception {
-		synchronized(lock){
+		synchronized(lock) {
 			if(cmd.equals(COMMAND.PAUSE) ){
 				if( cmdBeingProcessed != null)
 					cmdBeingProcessed.pause();
@@ -138,8 +140,8 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 					lock.notifyAll();
 				}
 			}
-
 		}
+
 		if(cmd.equals(COMMAND.START) ){
 			long time_ms=0;
 			while((commandToBeProcessed.equals(cmd)) && time_ms<=timeout_ms){
@@ -349,7 +351,6 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 				 */
 				setState();
 				notifyListeners();
-
 			}
 		}
 	}
@@ -510,7 +511,7 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	 * @param logFilePath The logFilePath to set.
 	 */
 	public void setLogFilePath(@SuppressWarnings("unused") String logFilePath) {
-		final String className = getClass().getSimpleName();
+		String className = getClass().getSimpleName();
 		logger.warn(String.format("Please remove the 'logFilePath' property from your %s bean definition - it is no longer used", className));
 		logger.warn(String.format("%s now logs using an SLF4J logger, instead of writing its own file", className));
 	}
@@ -552,8 +553,7 @@ public class FindableProcessorQueue extends FindableBase implements IFindableQue
 	public void stopAfterCurrent() throws Exception {
 		//add Command to Top of queue that will stop the processor
 		CommandId addToTail = queue.addToTail(new StopCommand(this, 50));
-		List<CommandId> ids = new Vector<CommandId>();
-		ids.add(addToTail);
+		ImmutableList<CommandId> ids = ImmutableList.of(addToTail);
 		queue.moveToHead(ids);
 	}
 

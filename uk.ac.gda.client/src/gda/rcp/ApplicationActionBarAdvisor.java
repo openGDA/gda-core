@@ -18,6 +18,8 @@
 
 package gda.rcp;
 
+import static gda.configuration.properties.LocalProperties.GDA_GUI_FORCE_LEFT_STOP_ALL;
+import static gda.configuration.properties.LocalProperties.GDA_GUI_STATUS_HIDE_STOP_ALL;
 import static gda.configuration.properties.LocalProperties.GDA_GUI_STOP_ALL_COMMAND_ID;
 
 import java.net.URI;
@@ -105,7 +107,8 @@ import uk.ac.gda.views.baton.BatonView;
 // The suppress warnings is because we are using some provisional API (IActionBarConfigurer2)
 // and need access to IDEWorkbenchMessages
 @SuppressWarnings("restriction")
-public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
+public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
+
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationActionBarAdvisor.class);
 
 	private static final String NEW_GDA_EXT = "new.gda.ext";
@@ -118,8 +121,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	/** Flag to add a developer test item to the File menu. The Action can be modified below. */
 	private static final boolean USE_TEST_ACTION = false;
 
-	private IWorkbenchWindow window;
-	private ActionSetRegistry registry;
+	private final RateLimiter scanEventRateLimiter = RateLimiter.create(20); // 20 refreshes per sec max
+
+	private final IWorkbenchWindow window;
+	private final ActionSetRegistry registry;
 
 	// predefined actions
 	private IWorkbenchAction closeAction;
@@ -158,8 +163,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private IWorkbenchAction exportWizardAction;
 	private IWorkbenchAction importWizardAction;
 
-	private final RateLimiter scanEventRateLimiter = RateLimiter.create(20); // 20 refreshes per sec max
-
 	/**
 	 * @param configurer
 	 */
@@ -169,14 +172,15 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		registry = WorkbenchPlugin.getDefault().getActionSetRegistry();
 	}
 
+	/**
+	 * Creates the actions and registers them.<br>
+	 * Registering is needed to ensure that key bindings work.<br>
+	 * The corresponding commands key bindings are defined in the plugin.xml file.<br>
+	 * Registering also provides automatic disposal of the actions when<br>
+	 *  the window is closed.
+	 */
 	@Override
-	protected void makeActions(final IWorkbenchWindow window) {
-		// Creates the actions and registers them.
-		// Registering is needed to ensure that key bindings work.
-		// The corresponding commands keybindings are defined in the plugin.xml file.
-		// Registering also provides automatic disposal of the actions when
-		// the window is closed.
-
+	protected void makeActions(IWorkbenchWindow window) {
 		makeFileActions(window);
 		makeEditActions(window);
 		makeWindowActions(window);
@@ -203,7 +207,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		return useActionSet;
 	}
 
-	private void makeHelpActions(final IWorkbenchWindow window) {
+	private void makeHelpActions(IWorkbenchWindow window) {
 		IntroDescriptor introDescriptor = ((Workbench) window.getWorkbench()).getIntroDescriptor();
 		if (introDescriptor == null)
 			logger.debug("The Intro Action is not available. There doesn't appear to be a product/intro binding using the org.eclipse.ui.intro");
@@ -219,7 +223,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(aboutAction);
 	}
 
-	private void makeEditActions(final IWorkbenchWindow window) {
+	private void makeEditActions(IWorkbenchWindow window) {
 		undoAction = ActionFactory.UNDO.create(window);
 		register(undoAction);
 
@@ -230,7 +234,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(perspectiveCustomizeAction);
 	}
 
-	private void makeFileActions(final IWorkbenchWindow window) {
+	private void makeFileActions(IWorkbenchWindow window) {
 		closeAction = ActionFactory.CLOSE.create(window);
 		register(closeAction);
 
@@ -262,31 +266,33 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(newWizardAction);
 	}
 
+	private void testMessageGeneration(Display display) {
+		// Help determine where properties are coming from
+		String yyyVal = System.getProperty("yyy", "Not found");
+		String zzzVal = System.getProperty("zzz", "Not found");
+		// Generate the message
+		String msg = "GDA_dev development version";
+		msg += "\nzzz=" + zzzVal;
+		msg += "\nyyy=" + yyyVal;
+		// Bring up a MessageDialog
+		MessageDialog.openInformation(display.getActiveShell(), "Information", msg);
+	}
+
 	private void makeTestActions() {
 		// Action to use for testing. Modify it as needed.
 		if (USE_TEST_ACTION) {
-			final Display display = window.getShell().getDisplay();
+			Display display = window.getShell().getDisplay();
 			testAction = new Action() {
 				@Override
 				public void run() {
-					display.asyncExec(() -> {
-						// Help determine where properties are coming from
-						String yyyVal = System.getProperty("yyy", "Not found");
-						String zzzVal = System.getProperty("zzz", "Not found");
-						// Generate the message
-						String msg = "GDA_dev development version";
-						msg += "\nzzz=" + zzzVal;
-						msg += "\nyyy=" + yyyVal;
-						// Bring up a MessageDialog
-						MessageDialog.openInformation(display.getActiveShell(), "Information", msg);
-					});
+					display.asyncExec(() -> ApplicationActionBarAdvisor.this.testMessageGeneration(display));
 				}
 			};
 			testAction.setText("Test...");
 		}
 	}
 
-	private void makeWindowActions(final IWorkbenchWindow window) {
+	private void makeWindowActions(IWorkbenchWindow window) {
 		newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(getWindow());
 		newWindowAction.setText("New Window");
 		register(newWindowAction);
@@ -321,10 +327,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// File Group
 		IToolBarManager fileToolBar = actionBarConfigurer.createToolBarManager();
 		fileToolBar.add(new Separator(IWorkbenchActionConstants.NEW_GROUP));
-		/*
-		 * we need to ensure a wizard is on the menu otherwise we expose a NPE in CustomisePerpespective
-		 * perspective.setNewWizardActionIds(getVisibleIDs(wizards));
-		 */
+
 		fileToolBar.add(newWizardAction);
 		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.NEW_EXT));
 		fileToolBar.add(new GroupMarker(IWorkbenchActionConstants.SAVE_GROUP));
@@ -361,40 +364,42 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menuBar.add(createHelpMenu());
 	}
 
-	@Override
-	protected void fillStatusLine(final IStatusLineManager manager) {
-
-		final StatusLineContributionItem logStatus = new StatusLineContributionItem("GDA-LoggedInUser", true, 15);
+	private StatusLineContributionItem buildLogStatus() {
+		StatusLineContributionItem logStatus = new StatusLineContributionItem("GDA-LoggedInUser", true, 15);
 		logStatus.setText(UserAuthentication.getUsername());
 		logStatus.setImage(GdaImages.getImage("user_gray.png"));
-		manager.add(logStatus);
+		return logStatus;
+	}
 
-		final LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status", new LinkContributionLabel(), 18);
+	private LinkContributionItem buildBatonStatus() {
+		LinkContributionItem batonStatus = new LinkContributionItem("uk.ac.gda.baton.status", new LinkContributionLabel(), 18);
 		batonStatus.setToolTipText("Double click status to bring up baton manager.");
 		batonStatus.setText("GDA-Baton");
-		manager.add(batonStatus);
 
 		batonStatus.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				try {
-					final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 					page.showView(BatonView.ID);
 				} catch (Exception ne) {
 					logger.error("Cannot open baton manager", ne);
 				}
 			}
 		});
+		return batonStatus;
+	}
 
-		final StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 55);
+	private StatusLineContributionItem buildScanStatus() {
+		StatusLineContributionItem scanStatus = new StatusLineContributionItem("GDA-ScanStatus", true, 55);
 
 		IEventService service = ServiceHolder.getEventService();
 
 		try  {
 			ISubscriber<IBeanListener<StatusBean>> statusTopicSubscriber = service.createSubscriber(getActiveMqUri(), EventConstants.STATUS_TOPIC);
-			statusTopicSubscriber.addListener(evt -> {
-				if (evt.getBean() instanceof ScanBean) {
-					updateScanDetails(scanStatus, (ScanBean)evt.getBean());
+			statusTopicSubscriber.addListener(event -> {
+				if (event.getBean() instanceof ScanBean) {
+					updateScanDetails(scanStatus, (ScanBean)event.getBean());
 				}
 			});
 
@@ -417,116 +422,145 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		} catch (Exception e2) {
 			logger.error("Error adding listener to STATUS_TOPIC", e2);
 		}
+		return scanStatus;
+	}
 
+	private StatusLineContributionItem buildScriptStatus() {
+		return new StatusLineContributionItem("GDA-ScriptStatus", true, 20);
+	}
 
-		manager.add(scanStatus);
+	private Runnable updateGuiBasedOnProcessorState(Processor.STATE stateIn, ProcessorCurrentItem item, LinkContributionItem queueStatus, Processor processor) {
+		return new Runnable() {
 
-		final StatusLineContributionItem scriptStatus = new StatusLineContributionItem("GDA-ScriptStatus", true, 20);
-		manager.add(scriptStatus);
+			@Override
+			public void run() {
+				Processor.STATE state = stateIn;
+				if (state == null)
+					state = getProcessorState();
 
-		// Stop all
-		createStopAllButton(manager);
+				queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+				switch (state) {
+				case PROCESSING_ITEMS:
+					queueStatus.setText("Running " + (item != null ? item.getDescription() : ""));
+					queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+					break;
+				case UNKNOWN:
+					queueStatus.setText("Queue - unknown");
+					queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_MAGENTA));
+					break;
+				case WAITING_QUEUE:
+					queueStatus.setText("Queue - waiting");
+					queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+					break;
+				case WAITING_START:
+					queueStatus.setText("Queue - paused");
+					queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+					break;
+				}
+			}
 
+			private Processor.STATE getProcessorState() {
+				try {
+					return processor.getState();
+				} catch (Exception e) {
+					logger.error("Error getting processor state", e);
+				}
+				return Processor.STATE.UNKNOWN;
+			}
+		};
+	}
+
+	private void addQueueStatusContribution(IStatusLineManager manager) {
 		/*
 		 * add contribution to show the state of the queue if one exists
 		 */
 		Queue queue = CommandQueueViewFactory.getQueue();
-		final Processor processor = CommandQueueViewFactory.getProcessor();
-		if (queue != null && processor != null) {
-			final LinkContributionItem queueStatus = new LinkContributionItem("uk.ac.gda.queue.status", new LinkContributionLabel(), 20);
-			queueStatus.setToolTipText("Double click status to bring up command queue.");
-			queueStatus.setText("GDA-QueueStatus");
-			manager.add(queueStatus);
-			queueStatus.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent e) {
-					try {
-						final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-								.getActivePage();
-						page.showView(CommandQueueViewFactory.ID);
-					} catch (Exception ne) {
-						logger.error("Cannot open command queue view", ne);
-					}
+		if(queue == null) return;
+		Processor processor = CommandQueueViewFactory.getProcessor();
+		if(processor == null) return;
+
+		LinkContributionItem queueStatus = new LinkContributionItem("uk.ac.gda.queue.status", new LinkContributionLabel(), 20);
+		queueStatus.setToolTipText("Double click status to bring up command queue.");
+		queueStatus.setText("GDA-QueueStatus");
+		manager.add(queueStatus);
+		queueStatus.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				try {
+					IWorkbenchPage page = PlatformUI.getWorkbench()
+													.getActiveWorkbenchWindow()
+													.getActivePage();
+					page.showView(CommandQueueViewFactory.ID);
+				} catch (Exception exception) {
+					logger.error("Cannot open command queue view", exception);
 				}
-			});
-			IObserver queueObserver = new IObserver() {
-
-				private ProcessorCurrentItem getProcessorCurrentItem() {
-					try {
-						return processor.getCurrentItem();
-					} catch (Exception e) {
-						logger.error("Error getting processor current item", e);
-					}
-					return null;
-				}
-
-
-				// update the GUI based on state of processor
-				void updateStatus(final Processor.STATE stateIn, final ProcessorCurrentItem item) {
-					Display.getDefault().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							Processor.STATE state = stateIn;
-							if (state == null)
-								state = getProcessorState();
-
-							queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-							switch (state) {
-							case PROCESSING_ITEMS:
-								queueStatus.setText("Running " + (item != null ? item.getDescription() : ""));
-								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
-								break;
-							case UNKNOWN:
-								queueStatus.setText("Queue - unknown");
-								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_MAGENTA));
-								break;
-							case WAITING_QUEUE:
-								queueStatus.setText("Queue - waiting");
-								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
-								break;
-							case WAITING_START:
-								queueStatus.setText("Queue - paused");
-								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-								break;
-							}
-						}
-
-						private Processor.STATE getProcessorState() {
-							try {
-								return processor.getState();
-							} catch (Exception e) {
-								logger.error("Error getting processor state", e);
-							}
-							return Processor.STATE.UNKNOWN;
-						}
-
-					});
-
-				}
-
-				@Override
-				public void update(Object source, Object arg) {
-					ProcessorCurrentItem item=null;
-					if ( arg instanceof Processor.STATE) {
-						if( ((Processor.STATE)arg) == Processor.STATE.PROCESSING_ITEMS){
-							 item = getProcessorCurrentItem();
-						}
-						updateStatus((Processor.STATE) arg, item);
-					}
-
-				}
-
-			};
-			CommandQueueViewFactory.getProcessor().addIObserver(queueObserver);
-			try {
-				queueObserver.update(null, processor.getState());
-			} catch (Exception e1) {
-				logger.error("Error getting state of processor",e1);
 			}
+		});
+		IObserver queueObserver = new IObserver() {
+
+			private ProcessorCurrentItem getProcessorCurrentItem() {
+				try {
+					return processor.getCurrentItem();
+				} catch (Exception e) {
+					logger.error("Error getting processor current item", e);
+				}
+				return null;
+			}
+
+			// update the GUI based on state of processor
+			void updateStatus(Processor.STATE stateIn, ProcessorCurrentItem item) {
+				Display.getDefault().asyncExec( () -> updateGuiBasedOnProcessorState(stateIn,item,queueStatus,processor) );
+			}
+
+			@Override
+			public void update(Object source, Object arg) {
+				ProcessorCurrentItem item=null;
+				if ( arg instanceof Processor.STATE) {
+					if( ((Processor.STATE)arg) == Processor.STATE.PROCESSING_ITEMS){
+						 item = getProcessorCurrentItem();
+					}
+					updateStatus((Processor.STATE) arg, item);
+				}
+			}
+
+		};
+		CommandQueueViewFactory.getProcessor().addIObserver(queueObserver);
+		try {
+			queueObserver.update(null, processor.getState());
+		} catch (Exception e1) {
+			logger.error("Error getting state of processor",e1);
+		}
+	}
+
+	@Override
+	protected void fillStatusLine(IStatusLineManager manager) {
+		StatusLineContributionItem buildLogStatus = buildLogStatus();
+		manager.add(buildLogStatus);
+
+		LinkContributionItem batonStatus = buildBatonStatus();
+		manager.add(batonStatus);
+
+		StatusLineContributionItem scanStatus = buildScanStatus();
+		manager.add(scanStatus);
+
+		StatusLineContributionItem scriptStatus = buildScriptStatus();
+		manager.add(scriptStatus);
+
+		if (!LocalProperties.check(GDA_GUI_STATUS_HIDE_STOP_ALL)) {
+			LinkContributionItem stopAllButton = createStopAllButton();
+			if (LocalProperties.check(GDA_GUI_FORCE_LEFT_STOP_ALL)) {
+				manager.insertBefore(buildLogStatus.getId(), stopAllButton);
+			} else {
+				manager.add(stopAllButton);
+			}
+			// Add a bit of space after the button so it is not too close to the end marker
+			StatusLineContributionItem spacer = new StatusLineContributionItem("uk.ac.diamond.daq.stopall.spacer", true, 0);
+			manager.insertAfter(stopAllButton.getId(), spacer);
 		}
 
-		final IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> {
+		addQueueStatusContribution(manager);
+
+		IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> {
 			if (changeCode instanceof BatonChanged) {
 				updateBatonStatus(batonStatus);
 			} else if (changeCode instanceof JythonServerStatus) {
@@ -555,8 +589,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		ApplicationWorkbenchAdvisor.addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(serverObserver));
 	}
 
-	private void createStopAllButton(final IStatusLineManager manager) {
-		final LinkContributionItem stopAll = new LinkContributionItem("uk.ac.diamond.daq.stopall", new LinkContributionButton(), 15);
+	private LinkContributionItem createStopAllButton() {
+		LinkContributionItem stopAll = new LinkContributionItem("uk.ac.diamond.daq.stopall", new LinkContributionButton(), 15);
 		stopAll.setText(STOP_ALL_TEXT);
 		stopAll.setToolTipText(STOP_ALL_TOOLTIP);
 		stopAll.setImage(GdaImages.getImage("stop.png"));
@@ -565,21 +599,18 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			@Override
 			public void mouseUp(MouseEvent ev) {
 				try {
-					final String stopAllCommandId = LocalProperties.get(GDA_GUI_STOP_ALL_COMMAND_ID, DEFAULT_STOP_ALL_COMMAND_ID);
-					final IHandlerService handlerService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
+					String stopAllCommandId = LocalProperties.get(GDA_GUI_STOP_ALL_COMMAND_ID, DEFAULT_STOP_ALL_COMMAND_ID);
+					IHandlerService handlerService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
 					handlerService.executeCommand(stopAllCommandId, null);
 				} catch (Exception e) {
 					logger.error("Error executing Stop All command", e);
 				}
 			}
 		});
-		manager.add(stopAll);
-
-		// Add a bit of space after the button so it is not too close to the end marker
-		final StatusLineContributionItem spacer = new StatusLineContributionItem("uk.ac.diamond.daq.stopall.spacer", true, 0);
-		manager.add(spacer);
+		return stopAll;
 	}
-    protected URI getActiveMqUri() throws URISyntaxException {
+
+	protected URI getActiveMqUri() throws URISyntaxException {
 		return new URI(LocalProperties.getActiveMQBrokerURI());
 	}
 
@@ -651,7 +682,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		updateStatus(status, jythonStatus.scriptStatus, "Script");
 	}
 
-	private void updateStatus(StatusLineContributionItem status, JythonStatus scan, final String postFix) {
+	private void updateStatus(StatusLineContributionItem status, JythonStatus scan, String postFix) {
 		switch (scan) {
 		case IDLE:
 			setStatusLineText(status, "No " + postFix + " running");
@@ -668,12 +699,12 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	}
 
 	private void updateBatonStatus(LinkContributionItem batonStatus) {
-		final String text;
-		final String tooltip;
-		final Image image;
+		String text;
+		String tooltip;
+		Image image;
 		if (InterfaceProvider.getBatonStateProvider().isBatonHeld()) {
-			final ClientDetails holder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
-			final boolean isHolder = InterfaceProvider.getBatonStateProvider().amIBatonHolder();
+			ClientDetails holder = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+			boolean isHolder = InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 			if (isHolder) {
 				text = "Baton held";
 				image = null;
@@ -703,14 +734,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		});
 	}
 
-	private void setStatusLineText(final StatusLineContributionItem status, final String text) {
+	private void setStatusLineText(StatusLineContributionItem status, String text) {
 		setStatusLineText(status, text, null);
 	}
 
-	private void setStatusLineText(final StatusLineContributionItem status, final String text, final String imageName) {
+	private void setStatusLineText(StatusLineContributionItem status, String text, String imageName) {
 
-		final Image image = GdaImages.getImage(imageName);
-		final IStatusLineManager man = getActionBarConfigurer().getStatusLineManager();
+		Image image = GdaImages.getImage(imageName);
+		IStatusLineManager man = getActionBarConfigurer().getStatusLineManager();
 
 		// Update the GUI this needs to be in the UI thread
 		window.getShell().getDisplay().asyncExec(() -> {
@@ -931,33 +962,33 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	}
 
     private IContributionItem getCutItem() {
-		return getItem(
-				ActionFactory.CUT.getId(),
+		return getItem(ActionFactory.CUT.getId(),
 				ActionFactory.CUT.getCommandId(),
 				ISharedImages.IMG_TOOL_CUT,
 				ISharedImages.IMG_TOOL_CUT_DISABLED,
 				WorkbenchMessages.Workbench_cut,
-				WorkbenchMessages.Workbench_cutToolTip, null);
+				WorkbenchMessages.Workbench_cutToolTip,
+				null);
 	}
 
     private IContributionItem getCopyItem() {
-		return getItem(
-				ActionFactory.COPY.getId(),
+		return getItem(ActionFactory.COPY.getId(),
 				ActionFactory.COPY.getCommandId(),
 				ISharedImages.IMG_TOOL_COPY,
 				ISharedImages.IMG_TOOL_COPY_DISABLED,
 				WorkbenchMessages.Workbench_copy,
-				WorkbenchMessages.Workbench_copyToolTip, null);
+				WorkbenchMessages.Workbench_copyToolTip,
+				null);
 	}
 
     private IContributionItem getPasteItem() {
-		return getItem(
-				ActionFactory.PASTE.getId(),
+		return getItem(ActionFactory.PASTE.getId(),
 				ActionFactory.PASTE.getCommandId(),
 				ISharedImages.IMG_TOOL_PASTE,
 				ISharedImages.IMG_TOOL_PASTE_DISABLED,
 				WorkbenchMessages.Workbench_paste,
-				WorkbenchMessages.Workbench_pasteToolTip, null);
+				WorkbenchMessages.Workbench_pasteToolTip,
+				null);
 	}
 
     private IContributionItem getDeleteItem() {
@@ -971,27 +1002,38 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     }
 
     private IContributionItem getSelectAllItem() {
-		return getItem(
-				ActionFactory.SELECT_ALL.getId(),
+		return getItem(ActionFactory.SELECT_ALL.getId(),
 				ActionFactory.SELECT_ALL.getCommandId(),
-				null, null, WorkbenchMessages.Workbench_selectAll,
-				WorkbenchMessages.Workbench_selectAllToolTip, null);
+				null,
+				null,
+				WorkbenchMessages.Workbench_selectAll,
+				WorkbenchMessages.Workbench_selectAllToolTip,
+				null);
 	}
 
-    private IContributionItem getItem(String actionId, String commandId,
-    		String image, String disabledImage, String label, String tooltip, String helpContextId) {
-		ISharedImages sharedImages = getWindow().getWorkbench()
-				.getSharedImages();
+    private IContributionItem getItem(String actionId,
+    									String commandId,
+    									String image,
+    									String disabledImage,
+    									String label,
+    									String tooltip,
+    									String helpContextId) {
 
-		IActionCommandMappingService acms = getWindow()
-				.getService(IActionCommandMappingService.class);
+    	ISharedImages sharedImages = getWindow().getWorkbench()
+												.getSharedImages();
+
+		IActionCommandMappingService acms =
+				getWindow().getService(IActionCommandMappingService.class);
+
 		acms.map(actionId, commandId);
 
 		CommandContributionItemParameter commandParm = new CommandContributionItemParameter(
-				getWindow(), actionId, commandId, null, sharedImages
-						.getImageDescriptor(image), sharedImages
-						.getImageDescriptor(disabledImage), null, label, null,
-				tooltip, CommandContributionItem.STYLE_PUSH, helpContextId, false);
+				getWindow(), actionId, commandId, null,
+				sharedImages.getImageDescriptor(image),
+				sharedImages.getImageDescriptor(disabledImage),
+				null, label, null, tooltip,
+				CommandContributionItem.STYLE_PUSH, helpContextId, false );
+
 		return new CommandContributionItem(commandParm);
 	}
 
