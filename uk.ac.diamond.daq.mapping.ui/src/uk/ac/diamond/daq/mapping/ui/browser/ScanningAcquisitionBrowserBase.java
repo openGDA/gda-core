@@ -92,6 +92,10 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 		protected void save(URL configuration) {
 			if (configurationIsRelevant(configuration)) {
 				logger.debug("Adding resource at '{}'", configuration);
+
+				// if overwriting, remove old version
+				removeOldConfiguration(configuration);
+
 				try {
 					resources.add(controller.parseAcquisitionConfiguration(configuration));
 					updateContents();
@@ -99,6 +103,12 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 					logger.error("Could not add new resource to browser list - '{}'", configuration, e);
 				}
 			}
+		}
+
+		private void removeOldConfiguration(URL configuration) {
+			resources.stream()
+				.filter(resource -> resource.getLocation().equals(configuration))
+				.findFirst().ifPresent(resources::remove);
 		}
 
 		@Override
