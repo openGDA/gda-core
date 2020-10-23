@@ -28,36 +28,30 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gda.device.DeviceException;
-import gda.device.Scannable;
 import gda.factory.FindableBase;
 
 /**
- * Returns the {@link BeamlineHealthState} of each scannable that is configured as relevant to the health of the
+ * Returns the {@link BeamlineHealthState} of each component that is configured as relevant to the health of the
  * beamline, and the overall beamline state. <br>
- * The most serious state amongst the conditions for individual scannables determines the overall state of the beamline.
+ * The most serious state amongst the conditions for individual components determines the overall state of the beamline.
  */
 public class BeamlineHealthMonitor extends FindableBase {
-	private static final Logger logger = LoggerFactory.getLogger(BeamlineHealthMonitor.class);
 
-	/** The condition of each scannable that is configured as relevant to the overall health of the beamline. */
-	private Collection<BeamlineHealthCondition> conditions;
+	/** The condition of each component that is configured as relevant to the overall health of the beamline. */
+	private Collection<ComponentHealthCondition> conditions;
 
 	public BeamlineHealthResult getState() {
 		// Convert each condition to a form that can be (de)serialised.
-		final List<BeamlineHealthScannableResult> scannableResults = new ArrayList<>(conditions.size());
-		for (BeamlineHealthCondition condition : conditions) {
-			scannableResults.add(new BeamlineHealthScannableResult(condition.getDescription(),
-					getScannablePosition(condition.getScannable()), condition.getHealthState(),
+		final List<BeamlineHealthComponentResult> scannableResults = new ArrayList<>(conditions.size());
+		for (ComponentHealthCondition condition : conditions) {
+			scannableResults.add(new BeamlineHealthComponentResult(condition.getDescription(),
+					condition.getCurrentState(), condition.getHealthState(),
 					condition.getErrorMessage()));
 		}
 		// Find the most serious scannable condition
 		for (BeamlineHealthState state : Arrays.asList(ERROR, WARNING)) {
-			final Optional<BeamlineHealthScannableResult> result = 	scannableResults.stream()
-					.filter(r -> r.getScannableHealthState() == state)
+			final Optional<BeamlineHealthComponentResult> result = 	scannableResults.stream()
+					.filter(r -> r.getComponentHealthState() == state)
 					.findFirst();
 			if (result.isPresent()) {
 				return new BeamlineHealthResult(state, result.get().getErrorMessage(), scannableResults);
@@ -66,16 +60,7 @@ public class BeamlineHealthMonitor extends FindableBase {
 		return new BeamlineHealthResult(OK, "Beamline is ready", scannableResults);
 	}
 
-	private static String getScannablePosition(Scannable scannable) {
-		try {
-			return scannable.getPosition().toString();
-		} catch (DeviceException e) {
-			logger.error("Error getting position of {}", scannable.getName(), e);
-			return "(error)";
-		}
-	}
-
-	public void setConditions(Collection<BeamlineHealthCondition> conditions) {
+	public void setConditions(Collection<ComponentHealthCondition> conditions) {
 		this.conditions = conditions;
 	}
 

@@ -61,6 +61,10 @@ public class ScannableThresholdCheck extends BeamConditionBase implements IObser
 		updateName();
 	}
 
+	public Scannable getScannable() {
+		return scannable;
+	}
+
 	public void setLowerLimit(double limit) {
 		lowerLimit = limit;
 		updateBeamStatus();

@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import gda.beamline.health.BeamlineHealthComponentResult;
 import gda.beamline.health.BeamlineHealthMonitor;
 import gda.beamline.health.BeamlineHealthResult;
-import gda.beamline.health.BeamlineHealthScannableResult;
 import gda.beamline.health.BeamlineHealthState;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.concurrent.Async;
@@ -79,8 +79,8 @@ public class ServerStatusView {
 	/** Overall beamline state */
 	private ThreeStateDisplay beamlineStatusDisplay;
 
-	/** Managers for each configured scannable */
-	private Map<String, ScannableIndicatorManager> scannableIndicatorManagers;
+	/** Managers for each configured component */
+	private Map<String, ComponentIndicatorManager> componentIndicatorManagers;
 
 	private SimpleDateFormat timeFormatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
@@ -118,9 +118,9 @@ public class ServerStatusView {
 
 		beamlineStatusDisplay = new ThreeStateDisplay(statusComposite, null, null, null);
 
-		// Show status of each configured scannable
+		// Show status of each configured component
 		try {
-			createScannableIndicators(parent);
+			createComponentIndicators(parent);
 		} catch (Exception e) {
 			final String message = "Error getting server status";
 			lastUpdateTime.setText(message);
@@ -132,28 +132,28 @@ public class ServerStatusView {
 		pollingFuture = Async.scheduleWithFixedDelay(this::showServerStatus, 0, POLLING_INTERVAL_SEC, TimeUnit.SECONDS, "Server status");
 	}
 
-	// Show status of scannables
-	private void createScannableIndicators(Composite parent) throws IOException {
+	// Show status of components
+	private void createComponentIndicators(Composite parent) throws IOException {
 		final BeamlineHealthResult beamlineHealthResult = getServerStatus();
-		final List<BeamlineHealthScannableResult> scannableResults = beamlineHealthResult.getScannableResults();
-		scannableIndicatorManagers = new HashMap<>(scannableResults.size());
+		final List<BeamlineHealthComponentResult> componentResults = beamlineHealthResult.getComponentResults();
+		componentIndicatorManagers = new HashMap<>(componentResults.size());
 
 		final Composite indicatorsComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(indicatorsComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(indicatorsComposite);
 
-		// For each scannable show name, position & state relative to the configured condition
-		for (BeamlineHealthScannableResult scannableResult : scannableResults) {
-			final String scannableName = scannableResult.getScannableName();
-			createLabel(indicatorsComposite, SWT.DEFAULT, scannableName);
-			final Label positionLabel = createLabel(indicatorsComposite, 75, scannableResult.getPosition());
+		// For each component show name, position & state relative to the configured condition
+		for (BeamlineHealthComponentResult componentResult : componentResults) {
+			final String componentName = componentResult.getComponentName();
+			createLabel(indicatorsComposite, SWT.DEFAULT, componentName);
+			final Label positionLabel = createLabel(indicatorsComposite, 75, componentResult.getCurrentState());
 			final ThreeStateDisplay statusIndicator = new ThreeStateDisplay(indicatorsComposite, "", "", "");
-			scannableIndicatorManagers.put(scannableName, new ScannableIndicatorManager(positionLabel, statusIndicator));
+			componentIndicatorManagers.put(componentName, new ComponentIndicatorManager(positionLabel, statusIndicator));
 		}
 	}
 
 	/**
-	 * Display the overall status of the beamline, and the status of each relevant scannable.
+	 * Display the overall status of the beamline, and the status of each relevant component.
 	 */
 	private void showServerStatus() {
 		try {
@@ -180,7 +180,7 @@ public class ServerStatusView {
 	}
 
 	/**
-	 * Update status of the beamline and each scannable from server status result
+	 * Update status of the beamline and each component from server status result
 	 *
 	 * @param beamlineHealthResult
 	 *            status as returned by server
@@ -197,14 +197,14 @@ public class ServerStatusView {
 			beamlineStatusDisplay.setRed(message);
 		}
 
-		// Update the status of the individual scannables
-		for (BeamlineHealthScannableResult scannableResult : beamlineHealthResult.getScannableResults()) {
-			final String scannableName = scannableResult.getScannableName();
-			final ScannableIndicatorManager indicatorManager = scannableIndicatorManagers.get(scannableName);
+		// Update the status of the individual components
+		for (BeamlineHealthComponentResult componentResult : beamlineHealthResult.getComponentResults()) {
+			final String componentName = componentResult.getComponentName();
+			final ComponentIndicatorManager indicatorManager = componentIndicatorManagers.get(componentName);
 			if (indicatorManager == null) {
-				logger.warn("No indicator found for {}", scannableName);
+				logger.warn("No indicator found for {}", componentName);
 			} else {
-				indicatorManager.updateScannableDisplay(scannableResult);
+				indicatorManager.updateComponentDisplay(componentResult);
 			}
 		}
 
@@ -226,28 +226,28 @@ public class ServerStatusView {
 	}
 
 	/**
-	 * Class to manage the GUI for a single scannable<br>
+	 * Class to manage the GUI for a single component<br>
 	 * This allows us to update the GUI elements every time the server is polled.
 	 */
-	private static class ScannableIndicatorManager {
+	private static class ComponentIndicatorManager {
 		private final Label positionLabel;
 		private final ThreeStateDisplay statusIndicator;
 
-		public ScannableIndicatorManager(Label positionLabel, ThreeStateDisplay statusIndicator) {
+		public ComponentIndicatorManager(Label positionLabel, ThreeStateDisplay statusIndicator) {
 			this.positionLabel = positionLabel;
 			this.statusIndicator = statusIndicator;
 		}
 
-		public void updateScannableDisplay(BeamlineHealthScannableResult scannableResult) {
-			final BeamlineHealthState healthState = scannableResult.getScannableHealthState();
+		public void updateComponentDisplay(BeamlineHealthComponentResult componentResult) {
+			final BeamlineHealthState healthState = componentResult.getComponentHealthState();
 			if (healthState == BeamlineHealthState.OK) {
 				statusIndicator.setGreen();
 			} else if (healthState == BeamlineHealthState.WARNING) {
-				statusIndicator.setYellow(scannableResult.getErrorMessage());
+				statusIndicator.setYellow(componentResult.getErrorMessage());
 			} else {
-				statusIndicator.setRed(scannableResult.getErrorMessage());
+				statusIndicator.setRed(componentResult.getErrorMessage());
 			}
-			positionLabel.setText(scannableResult.getPosition());
+			positionLabel.setText(componentResult.getCurrentState());
 		}
 	}
 }
