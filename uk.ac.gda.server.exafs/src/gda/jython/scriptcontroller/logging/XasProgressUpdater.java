@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
@@ -98,6 +100,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 	public void atScanStart() throws DeviceException {
 		timeOfLastReport = 0;
 		atEndCalled = false;
+		uniqueName = "";
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 		timeStarted = System.currentTimeMillis();
 		XasLoggingMessage msg = getLogMessage("Started", getElapsedTime(), 0);
@@ -160,7 +163,7 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint && !atEndCalled) {
 			ScanDataPoint sdp = (ScanDataPoint) arg;
-			if (uniqueName == null || uniqueName.equals(sdp.getUniqueName())) {
+			if (StringUtils.isEmpty(uniqueName) || uniqueName.equals(sdp.getUniqueName())) {
 				uniqueName = sdp.getUniqueName();
 				// always update as it probably was not set before getting any SDPs via this method
 				scanNumber = sdp.getScanIdentifier();
