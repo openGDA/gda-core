@@ -93,6 +93,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
+import gda.scan.ScanDataPoint;
 import gda.util.QuantityFactory;
 import gda.util.TypeConverters;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -1116,65 +1117,91 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 */
 	private void makeScannablesAndMonitors() {
 		scannableID = new Vector<>();
-		Collection<Scannable> scannablesAndMonitors = new ArrayList<>();
+		final Collection<Scannable> scannablesAndMonitors = new ArrayList<>();
 		scannablesAndMonitors.addAll(thisPoint.getScannables());
-		scannablesAndMonitors = makeConfiguredScannablesAndMonitors(scannablesAndMonitors);
-		makeScannablesAndMonitors(scannablesAndMonitors);
+		// writes scannables and monitors that have an entry in the location map, returns those that don't
+		final Collection<Scannable> remainingScannablesAndMonitors = makeConfiguredScannablesAndMonitors(scannablesAndMonitors);
+		makeScannablesAndMonitors(remainingScannablesAndMonitors);
 	}
 
 	/**
-	 * this is run when processing the first ScanDataPoint
-	 * the file is in the root node
-	 * we add all the one off metadata here
+	 * Writes configured scannables and monitors, and calculates and writes metadata scannables. The scannables
+	 * and monitors list passed in (expected to retrieved by calling {@link ScanDataPoint#getScannables()} consists
+	 * only of those scannables and monitors written at each point of the scan. This metadata scannables to be
+	 * written are calculated as below.
+	 * Specifically this method does the following:<ul>
+	 * <li>creates the nexus objects (nodes and datasets) for the list of scannables and monitors passed in that have
+	 * entries in the locationmap, according to those entries (whose values are actually writer objects rather than
+	 * configured with the paths to write to);</li>
+	 * <li>returns a collection of the scannables passed in that do not have entries in the location map;</li>
+	 * <li>calculates the metadata scannables to write into the nexus file, and writes their nexus struture, calculated as:
+	 *	<ul>
+	 *	  <li>The metadata scannables set by calling {@link NexusDataWriter#setMetadatascannables(Set)};</li>
+	 *	  <li>The metadata scannables for each detector in the scan, according to the map set by {@link #setMetadataScannablesPerDetector(Map)}</li>
+	 *    <li>The prerequisite scannables names for each scannable or monitor in the given list passed-in,
+	 *        according to the {@link ScannableWriter} entry in the location map for that scannable;</li>
+	 *    <li>The prerequisite scannables for all the metadata scannables added so far, and their
+	 *      prerequisities, and so on, until all prerequisities have been found;</li>
+	 *    <li>removing any metadata scannable that is a (non-metadata) scannable or monitor in the list passed in.</li>
+	 *  </ul>
+	 * </ul>
+	 *
+	 * The properties mentioned above are usually declared in the spring configuration for the beamline.
+	 * <p>
+	 * This method is run as part of {@code prepareFileAndStructure()}, called when the first {@link ScanDataPoint} is written.
+	 * <p>
+	 *
+	 * @param scannablesAndMonitors set of scannables and monitors whose value is recorded at each point of the scan
+	 * @return a collection of the scannables and monitors in the scan (not a metadata scannables) that were
+	 *    <em>not</em> written by this method
 	 */
 	protected Collection<Scannable> makeConfiguredScannablesAndMonitors(Collection<Scannable> scannablesAndMonitors) {
-		Set<String> metadatascannablestowrite = new HashSet<>(getMetadatascannables());
+		final Set<String> metadataScannablesToWrite = new HashSet<>(getMetadatascannables());
 
-		for (Detector det : thisPoint.getDetectors()) {
-			logger.info("found detector named: {}", det.getName());
-			String detname = det.getName();
-			metadatascannablestowrite.addAll(getMetadataScannablesForDetector(detname));
+		for (Detector detector : thisPoint.getDetectors()) {
+			logger.info("found detector named: {}", detector.getName());
+			final String detname = detector.getName();
+			metadataScannablesToWrite.addAll(getMetadataScannablesForDetector(detname));
 		}
 
 		try {
-			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
-
-			Set<Scannable> wehavewritten = new HashSet<>();
+			final GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
+			final Set<Scannable> writtenScannables = new HashSet<>();
 			boolean isFirstScannable = true;
 			for (Scannable scannable : scannablesAndMonitors) {
-				String scannableName = scannable.getName();
+				final String scannableName = scannable.getName();
 				final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
 				if (optScannableWriter.isPresent()) {
-					wehavewritten.add(scannable);
+					writtenScannables.add(scannable);
 					final ScannableWriter writer = optScannableWriter.get();
 					final Collection<String> prerequisites = writer.getPrerequisiteScannableNames();
 					if (prerequisites != null) {
-						metadatascannablestowrite.addAll(prerequisites);
+						metadataScannablesToWrite.addAll(prerequisites);
 					}
-					scannableID.addAll(writer.makeScannable(file, g, scannable, getSDPositionFor(scannableName),
+					scannableID.addAll(writer.makeScannable(file, group, scannable, getSDPositionFor(scannableName),
 							generateDataDim(false, scanDimensions, null), isFirstScannable));
 				}
 				isFirstScannable = false; // The first scannable was not in the locationMap so allow the primary tag to be handled by makeScannablesAndMonitors
 			}
 
-			Set<String> aux = new HashSet<>();
+			final Set<String> newPrerequisites = new HashSet<>();
 			do { // add dependencies of metadata scannables
-				aux.clear();
-				for (String s : metadatascannablestowrite) {
+				newPrerequisites.clear();
+				for (String s : metadataScannablesToWrite) {
 					final Collection<String> prerequisites = getWriterForScannable(s)
 							.map(ScannableWriter::getPrerequisiteScannableNames).orElse(emptySet());
-					aux.addAll(prerequisites);
+					newPrerequisites.addAll(prerequisites);
 				}
-			} while (metadatascannablestowrite.addAll(aux));
+			} while (metadataScannablesToWrite.addAll(newPrerequisites));
 
 			// remove the ones in the scan, as they are not metadata
 			for (Scannable scannable : scannablesAndMonitors) {
-				metadatascannablestowrite.remove(scannable.getName());
+				metadataScannablesToWrite.remove(scannable.getName());
 			}
 			// only use default writing for the ones we haven't written yet
-			scannablesAndMonitors.removeAll(wehavewritten);
+			scannablesAndMonitors.removeAll(writtenScannables);
 
-			makeMetadataScannables(g, metadatascannablestowrite);
+			makeMetadataScannables(group, metadataScannablesToWrite);
 		} catch (NexusException e) {
 			// FIXME NexusDataWriter should allow exceptions to be thrown
 			logger.error("Error making configured scannables and monitors", e);
@@ -1927,8 +1954,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		addDeviceMetadata(scannable.getName(), groupNode);
 	}
 
-	private void makeMetadataScannables(GroupNode group, Set<String> metadatascannablestowrite) throws NexusException {
-		for (String scannableName : metadatascannablestowrite) {
+	private void makeMetadataScannables(GroupNode group, Set<String> metadataScannables) throws NexusException {
+		for (String scannableName : metadataScannables) {
 			try {
 				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 				if (scannable == null) {
