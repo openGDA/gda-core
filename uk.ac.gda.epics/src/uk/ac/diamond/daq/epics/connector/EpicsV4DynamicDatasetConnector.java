@@ -459,7 +459,8 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 				if (attribMap.containsKey("ColorMode")) {
 					return attribMap.get("ColorMode").get();
 				} else {
-					throw new IllegalStateException("No ColorMode attribute found");
+					// No ColorMode attribute found assume mono
+					return 0;
 				}
 			}
 			throw new IllegalStateException("PV Structure does not contain attributes");
