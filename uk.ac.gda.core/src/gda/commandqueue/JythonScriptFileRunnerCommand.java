@@ -39,12 +39,13 @@ public class JythonScriptFileRunnerCommand extends CommandBase {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonScriptFileRunnerCommand.class);
 
+	final Object abortRequestedLock = new Object();
+
 	protected String scriptFile;
 	protected String settingsFile; // file to be returned in get details if null return scriptFile
 	protected boolean hasAlreadyBeenRun = false;
 
 	boolean abortedRequested = false;
-	Object abortRequestedLock = new Object();
 
 	/**
 	 * do not return until script and scan state are both IDLE
