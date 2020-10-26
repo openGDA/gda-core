@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -168,6 +169,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			} catch (DatasetException e) {
 				throw new NexusException("Could not write data for detector: " + getName());
 			}
+		}
+
+		@Override
+		public void scanEnd() throws NexusException {
+			imageDataset = null;
 		}
 	}
 

@@ -509,4 +509,14 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		return "ScannableNexusDevice [scannable=" + getName() + "]";
 	}
 
+	@Override
+	public void scanEnd() throws NexusException {
+		inputFieldNames = null;
+		outputFieldNames = null;
+
+		nexusObject = null;
+		demandValueDataset = null;
+		writableDatasets = null;
+	}
+
 }
