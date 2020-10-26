@@ -553,7 +553,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		}
 	}
 
-	private void writeGenericDetector(String detectorName, int[] dataDimensions, Object newData) throws NexusException {
+	private void writeGenericDetector(String detectorName, int[] dataDimensions, double[] newData) throws NexusException {
 
 		// Navigate to correct location in the file.
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
@@ -561,33 +561,25 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		GroupNode g = file.getGroup(path.toString(), false);
 
-		if (newData instanceof INexusTree) {
-			INexusTree detectorData = (INexusTree) newData;
-			for (INexusTree subTree : detectorData) {
-				writeHere(file, g, subTree, false, false, null);
-			}
+		int[] startPos = generateDataStartPos(dataStartPosPrefix, dataDimensions);
+		int[] dimArray = generateDataDim(false, dataDimPrefix, dataDimensions);
+		int[] stop = generateDataStop(startPos, dataDimensions);
+
+		// Open data array.
+		DataNode d = file.getData(g, "data");
+		ILazyWriteableDataset lazy;
+		if (d == null) {
+			lazy = NexusUtils.createLazyWriteableDataset("data", Double.class, dimArray, null, null);
+			lazy.setFillValue(getFillValue(Double.class));
+			file.createData(g, lazy);
 		} else {
-
-			int[] startPos = generateDataStartPos(dataStartPosPrefix, dataDimensions);
-			int[] dimArray = generateDataDim(false, dataDimPrefix, dataDimensions);
-			int[] stop = generateDataStop(startPos, dataDimensions);
-
-			// Open data array.
-			DataNode d = file.getData(g, "data");
-			ILazyWriteableDataset lazy;
-			if (d == null) {
-				lazy = NexusUtils.createLazyWriteableDataset("data", Double.class, dimArray, null, null);
-				lazy.setFillValue(getFillValue(Double.class));
-				file.createData(g, lazy);
-			} else {
-				lazy = d.getWriteableDataset();
-			}
-			Dataset ds = DatasetFactory.createFromObject(newData).reshape(dimArray);
-			try {
-				lazy.setSlice(null, ds, SliceND.createSlice(lazy, startPos, stop));
-			} catch (DatasetException e) {
-				throw new NexusException("Error writing data from " + detectorName, e);
-			}
+			lazy = d.getWriteableDataset();
+		}
+		Dataset ds = DatasetFactory.createFromObject(newData).reshape(dimArray);
+		try {
+			lazy.setSlice(null, ds, SliceND.createSlice(lazy, startPos, stop));
+		} catch (DatasetException e) {
+			throw new NexusException("Error writing data from " + detectorName, e);
 		}
 	}
 
