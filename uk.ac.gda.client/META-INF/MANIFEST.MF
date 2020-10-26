@@ -76,7 +76,9 @@ Require-Bundle: org.eclipse.help.ui,
  uk.ac.diamond.org.springframework,
  org.apache.commons.lang3,
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.6.2",
- com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2"
+ com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2",
+ org.apache.httpcomponents.httpcore,
+ org.apache.httpcomponents.httpclient
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,
