@@ -91,6 +91,9 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	/** The values per reading for the detector while the detector is not in a scan */
 	private int idleValuesPerReading = 10;
 
+	/** The minimum number of readings that can be summed to give a single reading */
+	private int minimumValuesPerReading = 5;
+
 	/** The format the filewriter should use for its file path building */
 	private String filenameFormat = "%s/%s.h5";
 
@@ -194,6 +197,9 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 
 	@Override
 	public void setValuesPerReading(int values) throws DeviceException {
+		if (values < getMinimumValuesPerReading()) {
+			throw new IllegalArgumentException("Samples per reading is below minimum: " + getMinimumValuesPerReading());
+		}
 		set(valuesPerReadingPV, values, "values per reading");
 	}
 
@@ -408,5 +414,16 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 
 	public void setCollectionRange(TetramRange collectionRange) {
 		this.collectionRange = collectionRange;
+	}
+
+	public int getMinimumValuesPerReading() {
+		return minimumValuesPerReading;
+	}
+
+	public void setMinimumValuesPerReading(int minimumValuesPerReading) {
+		if (minimumValuesPerReading < 1) {
+			throw new IllegalArgumentException("Minimum samples per reading must be > 0");
+		}
+		this.minimumValuesPerReading = minimumValuesPerReading;
 	}
 }
