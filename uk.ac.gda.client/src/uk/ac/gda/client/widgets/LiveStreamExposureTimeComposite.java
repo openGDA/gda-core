@@ -25,11 +25,11 @@ import java.util.Objects;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -102,7 +102,7 @@ public class LiveStreamExposureTimeComposite extends Composite {
 		}
 
 		// Check the value entered for exposure time
-		final UpdateValueStrategy setAcquireTimeStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<String, Double> setAcquireTimeStrategy = new UpdateValueStrategy<>();
 		setAcquireTimeStrategy.setBeforeSetValidator(value -> {
 			try {
 				final double exposureTime = Double.parseDouble(exposureTimeText.getText());
@@ -113,12 +113,10 @@ public class LiveStreamExposureTimeComposite extends Composite {
 		});
 
 		// Nothing particular to check when binding from hardware value to text box
-		final UpdateValueStrategy setTextBoxStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<Double, String> setTextBoxStrategy = new UpdateValueStrategy<>();
 
 		// Set up data binding to keep camera and text box in sync
-		@SuppressWarnings("unchecked")
-		final IObservableValue<Double> cameraControlObservable = BeanProperties.value(CameraControlBinding.class, "acquireTime").observe(cameraControlBinding);
-		@SuppressWarnings("unchecked")
+		final IObservableValue<Double> cameraControlObservable = BeanProperties.value(CameraControlBinding.class, "acquireTime", Double.class).observe(cameraControlBinding);
 		final IObservableValue<String> exposureTimeObservable = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 		final Binding exposureTimeBinding = dataBindingContext.bindValue(exposureTimeObservable, cameraControlObservable, setAcquireTimeStrategy, setTextBoxStrategy);
 		ControlDecorationSupport.create(exposureTimeBinding, SWT.LEFT | SWT.TOP);
