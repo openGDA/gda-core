@@ -36,23 +36,31 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext.ContextFile;
 
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AcquisitionFileContextTest {
 
-	private AcquisitionFileContext acquisitionFileContext = new AcquisitionFileContext();
+	@Autowired
+	private AcquisitionFileContext acquisitionFileContext;
 
 	private IFilePathService filePathServiceMock;
 
 	@Before
 	public void before() {
-		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY);
-		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_CALIBRATION_DIRECTORY_PROPERTY);
-		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY);
+		LocalProperties.clearProperty(ExperimentFileContext.EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY);
+		LocalProperties.clearProperty(DiffractionFileContext.DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY);
+		LocalProperties.clearProperty(DiffractionFileContext.DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY);
 		filePathServiceMock = mock(IFilePathService.class);
 	}
 
@@ -66,9 +74,9 @@ public class AcquisitionFileContextTest {
 		ServiceHolder sh = new ServiceHolder();
 		sh.setFilePathService(filePathServiceMock);
 
-		URL url = acquisitionFileContext.getContextFile(ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
+		URL url = acquisitionFileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		Assert.assertNull(url);
-		url = acquisitionFileContext.getContextFile(ContextFile.ACQUISITION_CONFIGURATION_DIRECTORY);
+		url = acquisitionFileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 		Assert.assertNull(url);
 	}
 
@@ -82,13 +90,13 @@ public class AcquisitionFileContextTest {
 		prepareFilesystem();
 		loadProperties("test/resources/gdaContext/defaultExperimentContext.properties");
 
-		URL url = acquisitionFileContext.getContextFile(ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
+		URL url = acquisitionFileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith(AcquisitionFileContext.ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY_DEFAULT));
+		assertTrue(url.getPath().endsWith(ExperimentFileContext.EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT));
 
-		url = acquisitionFileContext.getContextFile(ContextFile.ACQUISITION_CONFIGURATION_DIRECTORY);
+		url = acquisitionFileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 		Assert.assertNotNull(url);
-		assertTrue(url.getPath().endsWith(AcquisitionFileContext.ACQUISITION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT));
+		assertTrue(url.getPath().endsWith(DiffractionFileContext.DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT));
 	}
 
 	/**
@@ -101,11 +109,11 @@ public class AcquisitionFileContextTest {
 		prepareFilesystem();
 		loadProperties("test/resources/gdaContext/customExperimentContext.properties");
 
-		URL url = acquisitionFileContext.getContextFile(ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
+		URL url = acquisitionFileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		Assert.assertNotNull(url);
 		assertTrue(url.getPath().endsWith("customExperiment"));
 
-		url = acquisitionFileContext.getContextFile(ContextFile.ACQUISITION_CONFIGURATION_DIRECTORY);
+		url = acquisitionFileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 		Assert.assertNotNull(url);
 		assertTrue(url.getPath().endsWith("customConfiguration"));
 	}
@@ -122,7 +130,7 @@ public class AcquisitionFileContextTest {
 		prepareFilesystem();
 		loadProperties("test/resources/gdaContext/directoryWithPermissions.properties");
 
-		URL url = acquisitionFileContext.getContextFile(ContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
+		URL url = acquisitionFileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
 		File file = new File(url.toURI());
 		Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(file.toPath(), LinkOption.NOFOLLOW_LINKS);
 		Assert.assertTrue(permissions.contains(PosixFilePermission.OWNER_READ));

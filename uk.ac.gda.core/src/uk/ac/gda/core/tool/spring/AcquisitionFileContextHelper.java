@@ -139,7 +139,7 @@ class AcquisitionFileContextHelper {
 	 * <li>if {@code rootDir} is {@code null} and the property defines an absolute path (starts with backslash), returns
 	 * the last</li>
 	 * <li>if {@code rootDir} is not {@code null} and the property is {@code null}, returns the first</li>
-	 * <li>if {@code rootDir} is {@code null} and the property defines a relative path throws a MalformedURLException
+	 * <li>if {@code rootDir} is {@code null} and the property defines a relative path throws a GDAException
 	 * </li>
 	 * </ul>
 	 * </p>
@@ -155,7 +155,7 @@ class AcquisitionFileContextHelper {
 	 *             if both the parameters are {@code null} or their value is malformed
 	 */
 	static URL getCustomDirectory(URL rootDir, String propertyKey, String defaultValue) throws GDAException {
-		if (rootDir == null && propertyKey == null) {
+		if (propertyKey == null) {
 			throw new GDAException("Cannot getDirectory with null parameters");
 		}
 
@@ -168,11 +168,13 @@ class AcquisitionFileContextHelper {
 			propertyValue = defaultValue;
 		}
 
-		propertyValue = propertyValue.isEmpty() ? defaultValue : propertyValue;
 		if (new File(propertyValue).isAbsolute()) {
 			// property describes an absolute path
 			return generateURL(propertyValue);
 		} else {
+			if (rootDir == null) {
+				throw new GDAException("Cannot set a relative path for " + propertyKey + " without a root path");
+			}
 			// property describes a relative path
 			return generateURL(rootDir, propertyValue);
 		}

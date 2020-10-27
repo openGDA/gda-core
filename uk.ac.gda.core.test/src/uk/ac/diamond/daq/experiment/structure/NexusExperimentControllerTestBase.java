@@ -37,7 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.ExperimentFileContext;
 
 /**
  * Base class for {@link NexusExperimentController} tests,
@@ -63,7 +63,7 @@ public abstract class NexusExperimentControllerTestBase {
 	public void prepareFileSystem() throws IOException {
 		filePathService = mock(IFilePathService.class);
 
-		LocalProperties.clearProperty(AcquisitionFileContext.ACQUISITION_EXPERIMENT_DIRECTORY_PROPERTY);
+		LocalProperties.clearProperty(ExperimentFileContext.EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY);
 
 		doReturn(testDirectory.newFolder("visit").getAbsolutePath()).when(filePathService).getVisitDir();
 		doReturn(testDirectory.newFolder("processing").getAbsolutePath()).when(filePathService).getProcessingDir();
