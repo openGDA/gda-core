@@ -151,6 +151,7 @@ public class SpringObjectServer extends ObjectServer {
 	private void dumpListOfBeans() {
 		logger.debug("{} bean(s) defined in the application context. Beans by name:", applicationContext.getBeanDefinitionCount());
 		final String[] names = applicationContext.getBeanDefinitionNames().clone();
+
 		Arrays.sort(names, String.CASE_INSENSITIVE_ORDER);
 		final TreeMap<String, TreeSet<String>> beansByLocation = new TreeMap<>();
 		for (int i=0; i<names.length; i++) {
@@ -160,7 +161,7 @@ public class SpringObjectServer extends ObjectServer {
 			if (location == null) {
 				location = "unknown";
 			}
-			logger.debug("  {}. {} (location: {})", i+1, name, location);
+			logger.debug("  {}. {} class {} (location: {})", i+1, name, beanDef.getBeanClassName(), location);
 			if (!beansByLocation.containsKey(location)) {
 				beansByLocation.put(location, new TreeSet<String>(String.CASE_INSENSITIVE_ORDER));
 			}
@@ -169,11 +170,8 @@ public class SpringObjectServer extends ObjectServer {
 		}
 		logger.debug("Beans by location:");
 		for (String location : beansByLocation.keySet()) {
-			logger.debug("    {}", location);
 			TreeSet<String> beansForThisLocation = beansByLocation.get(location);
-			for (String name : beansForThisLocation) {
-				logger.debug("        {}", name);
-			}
+			logger.debug("    {} defines {} beans: {}", location, beansForThisLocation.size(), String.join(", ", beansForThisLocation));
 		}
 
 		// Log which classes Spring is instantiating

@@ -54,7 +54,12 @@ public class StreamViewUtility {
 		s.append("\n").append(errorMessage);
 		if (throwable != null) {
 			s.append("\n\t").append(throwable.getMessage());
+			if (throwable.getCause() != null) {
+				s.append("\n\t\t").append(throwable.getCause().getMessage());
+			}
 		}
 		errorText.setText(s.toString());
+		errorText.setBounds(parent.getBounds());
+		parent.layout(true);
 	}
 }
