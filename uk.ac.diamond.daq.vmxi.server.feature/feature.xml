@@ -134,14 +134,7 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.gda.eventbus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="uk.ac.gda.eventbus.api"
+         id="uk.ac.gda.message.api"
          download-size="0"
          install-size="0"
          version="0.0.0"
