@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -121,6 +122,11 @@ public class NexusDataWriterConfiguration extends FindableBase {
 
 	public Set<String> getMetadataScannablesForDetector(String detectorName) {
 		return metadataScannablesPerDetectorMap.getOrDefault(detectorName, emptySet());
+	}
+
+	public Set<String> getMetadataScannablesForScannable(String scannableName) {
+		final ScannableWriter writer = locationMap.get(scannableName);
+		return writer == null ? Collections.emptySet() : writer.getPrerequisiteScannableNames();
 	}
 
 	/**

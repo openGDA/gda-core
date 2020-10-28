@@ -19,6 +19,7 @@
 package gda.data.scan.datawriter.scannablewriter;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -34,13 +35,13 @@ import gda.device.Scannable;
 public interface ScannableWriter {
 
 	/**
-	 * Retrieve a list of other Scannables that need to have their position recorded in order for this Scannable
+	 * Retrieve a set of other Scannables that need to have their position recorded in order for this Scannable
 	 * position to be valid. This is mostly the case for motion dependencies, like in diffractometers where the location
 	 * of an axis depends on other prior motors.
 	 *
-	 * @return list of Scannable names
+	 * @return set of prequisites scannable names, never <code>null</code>
 	 */
-	public Collection<String> getPrerequisiteScannableNames();
+	public Set<String> getPrerequisiteScannableNames();
 
 	/**
 	 * This is the call to generate the structure in the file If only

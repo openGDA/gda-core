@@ -21,7 +21,6 @@ package gda.data.scan.datawriter;
 
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.io.File;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -1150,61 +1148,18 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			// only use default writing for the scannables that don't have a ScannableWriter configured
 			makeDefaultScannables(scannables.getOrDefault(false, emptyList()));
 
-			final Set<String> metadataScannablesToWrite = calculateMetadataScannables(thisPoint.getScannables());
-			makeMetadataScannables(metadataScannablesToWrite);
+			makeMetadataScannables();
 		} catch (NexusException e) {
 			// FIXME NexusDataWriter should allow exceptions to be thrown
 			logger.error("Error making configured scannables and monitors", e);
 		}
 	}
 
-	/**
-	 * Calculates the metadata scannables to write into the nexus file, in the following manner:
-	 * <ul>
-	 * 	<li>The metadata scannables set by calling {@link NexusDataWriter#setMetadatascannables(Set)};</li>
-	 *	<li>The metadata scannables for each detector in the scan, according to the map set by {@link #setMetadataScannablesPerDetector(Map)}</li>
-	 *  <li>The prerequisite scannables names for each scannable or monitor in the given list passed-in,
-	 *        according to the {@link ScannableWriter} entry in the location map for that scannable;</li>
-	 *  <li>The prerequisite scannables for all the metadata scannables added so far, and their
-	 *      prerequisities, and so on, until all prerequisities have been found;</li>
-	 *  <li>removing any metadata scannable that is a (non-metadata) scannable or monitor in the list passed in.</li>
-	 * </ul>
-	 * <p>Note: The properties mentioned above are usually declared in the spring configuration for the beamline.
-	 */
-	private Set<String> calculateMetadataScannables(Collection<Scannable> scannablesAndMonitors) {
-		final Set<String> metadataScannablesToWrite = new HashSet<>(getMetadatascannables());
-		for (Detector detector : thisPoint.getDetectors()) {
-			final String detname = detector.getName();
-			metadataScannablesToWrite.addAll(getMetadataScannablesForDetector(detname));
-		}
-
-		for (Scannable scannable : scannablesAndMonitors) {
-			final String scannableName = scannable.getName();
-			final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
-			if (optScannableWriter.isPresent()) {
-				final ScannableWriter writer = optScannableWriter.get();
-				final Collection<String> prerequisites = writer.getPrerequisiteScannableNames();
-				if (prerequisites != null) {
-					metadataScannablesToWrite.addAll(prerequisites);
-				}
-			}
-		}
-
-		final Set<String> newPrerequisites = new HashSet<>();
-		do { // add dependencies of metadata scannables
-			newPrerequisites.clear();
-			for (String s : metadataScannablesToWrite) {
-				final Collection<String> prerequisites = getWriterForScannable(s)
-						.map(ScannableWriter::getPrerequisiteScannableNames).orElse(emptySet());
-				newPrerequisites.addAll(prerequisites);
-			}
-		} while (metadataScannablesToWrite.addAll(newPrerequisites));
-
-		// remove the ones in the scan, as they are not metadata
-		for (Scannable scannable : scannablesAndMonitors) {
-			metadataScannablesToWrite.remove(scannable.getName());
-		}
-		return metadataScannablesToWrite;
+	private void makeMetadataScannables() throws NexusException {
+		final MetadataScannableCalculator metadataScannableCalculator = new MetadataScannableCalculator(
+				thisPoint.getDetectorNames(), thisPoint.getScannableNames());
+		final Set<String> metadataScannableNames = metadataScannableCalculator.calculateMetadataScannableNames();
+		makeMetadataScannables(metadataScannableNames);
 	}
 
 	/**
@@ -1982,9 +1937,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		addDeviceMetadata(scannable.getName(), groupNode);
 	}
 
-	private void makeMetadataScannables(Set<String> metadataScannables) throws NexusException {
+	private void makeMetadataScannables(Set<String> metadataScannableNames) throws NexusException {
 		final GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
-		for (String scannableName : metadataScannables) {
+		for (String scannableName : metadataScannableNames) {
 			try {
 				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 				if (scannable == null) {
@@ -1997,15 +1952,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 						writeNexusDevice(group, nexusDevice);
 					}
 				} else {
-					logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
-					Object position = scannable.getPosition();
-					final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
-					if (optScannableWriter.isPresent()) {
-						optScannableWriter.get().makeScannable(file, group, scannable, position, new int[] {1}, false);
-					} else {
-						// put in default location (NXcollection with name metadata)
-						makeMetadataScannableFallback(group, scannable, position);
-					}
+					makeMetadataScannable(group, scannableName, scannable);
 				}
 			} catch (NexusException e) {
 				logger.error("Nexus error while adding '{}' metadata to NeXus file at '{}'.", scannableName, file.getPath(group), e);
@@ -2013,6 +1960,19 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			} catch (Exception e) {
 				logger.error("Error writing '{}' to NeXus file.", scannableName, e);
 			}
+		}
+	}
+
+	private void makeMetadataScannable(final GroupNode entry, String scannableName, final Scannable scannable)
+			throws DeviceException, NexusException {
+		logger.debug("Getting scannable '{}' data for writing to NeXus file.", scannable.getName());
+		final Object position = scannable.getPosition();
+		final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
+		if (optScannableWriter.isPresent()) {
+			optScannableWriter.get().makeScannable(file, entry, scannable, position, new int[] {1}, false);
+		} else {
+			// put in default location (NXcollection with name metadata)
+			makeMetadataScannableFallback(entry, scannable, position);
 		}
 	}
 

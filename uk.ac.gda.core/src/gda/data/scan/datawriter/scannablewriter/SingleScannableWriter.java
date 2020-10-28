@@ -20,8 +20,11 @@ package gda.data.scan.datawriter.scannablewriter;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -44,7 +47,7 @@ public class SingleScannableWriter implements ScannableWriter {
 
 	private String[] paths;
 	private String[] units;
-	private Collection<String> prerequisiteScannableNames;
+	private Set<String> prerequisiteScannableNames = Collections.emptySet();
 	private final Map<String, ComponentWriter> cwriter = new HashMap<String, ComponentWriter>();
 
 	private final int componentsFor(final Scannable s) {
@@ -192,11 +195,12 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	public final void setPrerequisiteScannableNames(final Collection<String> prerequisiteScannableNames) {
-		this.prerequisiteScannableNames = prerequisiteScannableNames;
+		this.prerequisiteScannableNames = prerequisiteScannableNames == null ?
+				Collections.emptySet() : new HashSet<>(prerequisiteScannableNames);
 	}
 
 	@Override
-	public Collection<String> getPrerequisiteScannableNames() {
+	public Set<String> getPrerequisiteScannableNames() {
 		return prerequisiteScannableNames;
 	}
 
