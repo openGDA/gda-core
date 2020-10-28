@@ -1,4 +1,4 @@
-package uk.ac.gda.eventbus.api.message;
+package uk.ac.gda.message.api;
 
 import java.io.Serializable;
 

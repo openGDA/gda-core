@@ -90,8 +90,7 @@
 		<module>uk.ac.gda.edxd.common</module>
 		<module>uk.ac.gda.edxd.detector</module>
 		<module>uk.ac.gda.epics.dxp.client</module>
-		<module>uk.ac.gda.eventbus</module>
-		<module>uk.ac.gda.eventbus.api</module>
+		<module>uk.ac.gda.message.api</module>
 		<module>uk.ac.gda.example</module>
 		<module>uk.ac.gda.example.server</module>
 		<module>uk.ac.gda.logging.dependencies.fragment</module>
