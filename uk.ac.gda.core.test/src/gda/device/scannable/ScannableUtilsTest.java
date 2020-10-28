@@ -19,23 +19,48 @@
 
 package gda.device.scannable;
 
+import static gda.device.scannable.ScannableUtils.objectToArray;
+import static gda.device.scannable.ScannableUtils.objectToDouble;
+import static java.lang.Double.NaN;
+import static java.util.stream.Stream.of;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.array;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static tec.units.indriya.quantity.Quantities.getQuantity;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import javax.measure.Quantity;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Speed;
+
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.python.core.Py;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyTuple;
 
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
+import tec.units.indriya.AbstractUnit;
+import tec.units.indriya.quantity.Quantities;
+import tec.units.indriya.unit.Units;
 
 
 /**
@@ -469,5 +494,190 @@ public class ScannableUtilsTest {
 		assertArrayEquals(in.outputFormat, out.outputFormat);
 		assertArrayEquals(in.units, out.units);
 		assertArrayEquals((Object[]) in.lastPosition, (Object[]) out.lastPosition);
+	}
+
+	@Test
+	public void singleObjectToDouble() {
+		assertEquals("double from double", objectToDouble(1.2), 1.2, 1e-6);
+		assertEquals("double from int", objectToDouble(1), 1.0, 1e-6);
+		assertEquals("double from long", objectToDouble(1L), 1.0, 1e-6);
+		assertEquals("double from string", objectToDouble("12.34"), 12.34, 1e-6);
+		assertEquals("double from PyInteger", objectToDouble(Py.newInteger(23)), 23.0, 1e-6);
+		assertEquals("double from PyLong", objectToDouble(Py.newLong(42)), 42.0, 1e-6);
+		assertEquals("double from PyString", objectToDouble(Py.newString("87.65")), 87.65, 1e-6);
+		assertEquals("double from PyDecimal", objectToDouble(Py.newDecimal("76.54")), 76.54, 1e-6);
+		assertEquals("double from distance", objectToDouble(getQuantity(12.2, Units.METRE)), 12.2, 1e-6);
+		assertEquals("double from unitless quantity", objectToDouble(getQuantity(19.1, AbstractUnit.ONE)), 19.1, 1e-6);
+		assertEquals("double from Arbitrary object string", objectToDouble(new NumberString("34.89")), 34.89, 1e-6);
+		assertEquals("double from quantity string", objectToDouble("17.34 m"), 17.34, 1e-6);
+		assertEquals("double from quantity PyString", objectToDouble(Py.newString("14.65 cm")), 14.65, 1e-6);
+
+		assertThat("NaN from NaN value", objectToDouble(NaN), is(NaN));
+		assertThat("NaN from NaN string", objectToDouble("NaN"), is(NaN));
+		assertThat("NaN from Py NaN", objectToDouble(Py.newFloat(NaN)), is(NaN));
+		assertThat("NaN from Py NaN string", objectToDouble(Py.newString("NaN")), is(NaN));
+
+		assertNull("null from null", objectToDouble(null));
+		assertNull("null from non number string", objectToDouble("not a number"));
+		assertNull("null from non number", objectToDouble(new Object()));
+		assertNull("null from non number PyObject", objectToDouble(Py.Ellipsis));
+	}
+
+	@Test
+	public void doubleArrayObjectToArray() {
+		// The most basic conversion - an object to itself
+		Double[] input = new Double[] {1.0, 2.0, 3.0};
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(input, output);
+	}
+
+	@Test
+	public void numberArrayObjectToArray() {
+		Integer[] input = new Integer[] {1,2,3,4};
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 1.0, 2.0, 3.0, 4.0);
+	}
+
+	@Test
+	public void mixedObjectArrayToArray() {
+		Object[] input = new Object[] {"1.2", 2.3, 4, 3L, 2.3f,
+				Py.newInteger(42),
+				Py.newLong(2L),
+				Py.newFloat(87.65),
+				new Object(), // unknown objects map to null
+				new BigDecimal("34.56"),
+				BigInteger.valueOf(1234)};
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 1.2, 2.3, 4.0, 3.0, 2.3, 42.0, 2.0,
+				87.65, null, 34.56, 1234.0);
+	}
+
+	@Test
+	public void primitiveDoubleArrayToArray() {
+		double[] input = new double[] {1.2, 2.3, 3.4, 4.5};
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 1.2, 2.3, 3.4, 4.5);
+	}
+
+	@Test
+	public void primitiveIntArrayToArray() {
+		int[] input = new int[] {1, 2, 3, 4, 5};
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 1.0, 2.0, 3.0, 4.0, 5.0);
+	}
+
+	@Test
+	public void jythonSequenceToArray() {
+		PyTuple inputTuple = new PyTuple(Py.newInteger(17),
+				Py.newFloat(2.3),
+				Py.newFloat(3.4f),
+				Py.newDecimal("3.4"),
+				Py.newString("7.2"));
+		Double[] outputTuple = objectToArray(inputTuple);
+		assertDoubleArrayEquals(outputTuple, 17.0, 2.3, 3.4, 3.4, 7.2);
+
+		PyList inputList = new PyList(new PyObject[] {
+				Py.newInteger(17),
+				Py.newFloat(2.3),
+				Py.newFloat(3.4f),
+				Py.newDecimal("3.4"),
+				Py.newString("7.2")});
+		Double[] outputList = objectToArray(inputList);
+		assertDoubleArrayEquals(outputList, 17.0, 2.3, 3.4, 3.4, 7.2);
+	}
+
+	@Test
+	public void listToArray() {
+		List<Double> inputDouble = Arrays.asList(1.2, 2.3, 3.4);
+		Double[] outputDouble = objectToArray(inputDouble);
+		assertDoubleArrayEquals(outputDouble, 1.2, 2.3, 3.4);
+
+		List<Integer> inputInteger = Arrays.asList(1, 2, 3, 4, 5);
+		Double[] outputInteger = objectToArray(inputInteger);
+		assertDoubleArrayEquals(outputInteger, 1., 2., 3., 4., 5.);
+
+		List<String> inputString = Arrays.asList("1", "2", "3.4");
+		Double[] outputString = objectToArray(inputString);
+		assertDoubleArrayEquals(outputString, 1., 2., 3.4);
+	}
+
+	@Test
+	public void quantityToArray() {
+		Quantity<Length> distanceMetre = Quantities.getQuantity(12.2, Units.METRE);
+		Double[] outputDistanceMetre = objectToArray(distanceMetre);
+		assertDoubleArrayEquals(outputDistanceMetre, 12.2);
+
+		Quantity<Speed> speed = Quantities.getQuantity(10.4, Units.METRE_PER_SECOND);
+		Double[] outputSpeed = objectToArray(speed);
+		assertDoubleArrayEquals(outputSpeed, 10.4);
+	}
+
+	@Test
+	public void stringToArray() {
+		String input = "12.4";
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 12.4);
+
+		String inputQuantity = "1.23m";
+		Double[] outputQuantity = objectToArray(inputQuantity);
+		assertDoubleArrayEquals(outputQuantity, 1.23);
+
+		String inputEmpty = "NaN";
+		Double[] outputEmpty = objectToArray(inputEmpty);
+		assertDoubleArrayEquals(outputEmpty, NaN);
+	}
+
+	@Test
+	public void nullToArray() {
+		Object input = null;
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output);
+	}
+
+	@Test
+	public void arbitraryObjectToArray() {
+		Double[] output = objectToArray(new NumberString(12.4));
+		assertDoubleArrayEquals(output, 12.4);
+	}
+
+	@Test
+	public void arrayOfArbitraryObjectsToArray() {
+		Object[] input = new Object[] { new NumberString(2), new NumberString(3)};
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 2.0, 3.0);
+	}
+
+	@Test(expected = NumberFormatException.class)
+	public void unknownObjectToArray() {
+		assertDoubleArrayEquals(objectToArray(new Object()));
+	}
+
+	@Test
+	public void singleJythonStringToArray() {
+		Object input = Py.newString("12345");
+		Double[] output = objectToArray(input);
+		assertDoubleArrayEquals(output, 12345.0);
+	}
+
+	@SuppressWarnings("unchecked") // can't create array of Matcher<Double>
+	private void assertDoubleArrayEquals(Double[] actual, Double... expected) {
+		assertThat(actual, is(array(of(expected)
+				.map(this::doubleMatcher)
+				.toArray(Matcher[]::new))));
+	}
+
+	/** Get an appropriate matcher to match any type of Double */
+	private Matcher<Double> doubleMatcher(Double target) {
+		if (target == null) return is((Double)null);
+		if (Double.isNaN(target)) return is(NaN);
+		return closeTo(target, 1e-6);
+	}
+
+	/** Class to represent arbitrary objects that might look like numbers */
+	class NumberString {
+		private Object value;
+		public NumberString(Object i) { value = i;	}
+		@Override
+		public String toString() { return String.valueOf(value); }
 	}
 }
