@@ -1,15 +1,18 @@
-from gda.jython import InterfaceProvider
+from gda.jython import InterfaceProvider, JythonServerFacade
 from gda.factory import Finder
-from gdascripts.scannable.detector.dummy.ImageReadingDummyDetector import ImageReadingDummyDetector
+from gda.observable import IObserver
+from gda.data.metadata import GDAMetadataProvider
+from gda.jython.batoncontrol import BatonChanged
 import os
 import gov.aps.jca.TimeoutException  # @UnresolvedImport
 import java.lang.IllegalStateException
+from __builtin__ import isinstance
 
-class VisitSetter():
+class VisitSetter(IObserver):
     
     def __init__(self, detector_adapters = []):
         self.detector_adapters = list(detector_adapters)
-        
+        JythonServerFacade.getInstance().addBatonChangedObserver(self)
         
     def datadir(self, *args):
         if len(args) > 0:
@@ -52,6 +55,14 @@ class VisitSetter():
                 s+= '%12s : %s\n' % (det.detector.name, directory)
         return s
 
+    def update(self, source, data):
+        """The visit can be changed when a client connects and acquires the baton
+        the detector directories should be updated when this happens"""
+        if isinstance(data, BatonChanged):
+            current_visit = GDAMetadataProvider.getInstance().getMetadataEntry("visit")
+            if current_visit is not None:
+                print("Setting det dirs after baton change event")
+                self.setDetectorDirectories()
 
 
 class DetectorAdapter():
