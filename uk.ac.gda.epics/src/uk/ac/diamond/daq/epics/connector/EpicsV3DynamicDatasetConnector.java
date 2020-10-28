@@ -72,7 +72,6 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private static final String NUMBER_OF_DIMENSIONS_SUFFIX = ":NDimensions_RBV";
 	private static final String COLOUR_MODE_SUFFIX = ":ColorMode_RBV";
 	private static final String DATA_TYPE_SUFFIX = ":DataType_RBV";
-	private static final String MONO_COLOUR_MODE = "Mono";
 	private static final String UINT8_DATA_TYPE = "UInt8";
 
 	private final RateLimiter frameRateLimiter = RateLimiter.create(20);
@@ -100,7 +99,7 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private int rgbChannels = 0;
 	private int dataSize; // = height * width * rgbChannels
 	private int numDimensions = 0;
-	private String colourMode = "";
+	private NTNDArrayColorMode colourMode;
 	private String dataTypeStr = "";
 
 	private final String arrayBasePv;
@@ -113,7 +112,6 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	private final String dataTypePV;
 
 	private IDataset dataset;
-	private String[] colourModes;
 
 	private Monitor dim0ChMonitor;
 	private Monitor dim1ChMonitor;
@@ -224,10 +222,9 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			dim1 = EPICS_CONTROLLER.cagetInt(dim1Ch);
 			dim2 = EPICS_CONTROLLER.cagetInt(dim2Ch);
 			numDimensions = EPICS_CONTROLLER.cagetInt(numDimCh);
-			colourMode = EPICS_CONTROLLER.cagetString(colourModeCh);
-			dataTypeStr = EPICS_CONTROLLER.cagetString(dataTypeCh);
 
-			colourModes = EPICS_CONTROLLER.cagetLabels(colourModeCh);
+			colourMode = NTNDArrayColorMode.valueOf(EPICS_CONTROLLER.cagetString(colourModeCh).toUpperCase());
+			dataTypeStr = EPICS_CONTROLLER.cagetString(dataTypeCh);
 
 			calculateAndUpdateDataSize();
 
@@ -304,8 +301,8 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 		String currentHeightPV;
 		String rgbChannelsPV;
 
-		if (colourMode.equals(MONO_COLOUR_MODE)) {
-
+		switch (colourMode) {
+		case MONO:
 			width = dim0;
 			height = dim1;
 			rgbChannels = 1;
@@ -313,38 +310,34 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 			currentWidthPV = dim0PV;
 			currentHeightPV = dim1PV;
 			rgbChannelsPV = dim2PV;
+			break;
+		case RGB2:
+			width = dim0;
+			height = dim2;
+			rgbChannels = dim1;
 
-		} else {
-			if (colourMode.equals("RGB2")) {
+			currentWidthPV = dim0PV;
+			currentHeightPV = dim2PV;
+			rgbChannelsPV = dim1PV;
+			break;
+		case RGB3:
+			width = dim0;
+			height = dim1;
+			rgbChannels = dim2;
 
-				width = dim0;
-				height = dim2;
-				rgbChannels = dim1;
+			currentWidthPV = dim0PV;
+			currentHeightPV = dim1PV;
+			rgbChannelsPV = dim2PV;
+			break;
+		default:
+			width = dim1;
+			height = dim2;
+			rgbChannels = dim0;
 
-				currentWidthPV = dim0PV;
-				currentHeightPV = dim2PV;
-				rgbChannelsPV = dim1PV;
-
-			} else if (colourMode.equals("RGB3")) {
-
-				width = dim0;
-				height = dim1;
-				rgbChannels = dim2;
-
-				currentWidthPV = dim0PV;
-				currentHeightPV = dim1PV;
-				rgbChannelsPV = dim2PV;
-
-			} else {
-
-				width = dim1;
-				height = dim2;
-				rgbChannels = dim0;
-
-				currentWidthPV = dim1PV;
-				currentHeightPV = dim2PV;
-				rgbChannelsPV = dim0PV;
-			}
+			currentWidthPV = dim1PV;
+			currentHeightPV = dim2PV;
+			rgbChannelsPV = dim0PV;
+			break;
 		}
 		// Ensure that we never return a data size less than 1.
 
@@ -390,11 +383,11 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 				Dataset flatDataset = DatasetFactory.createFromObject(data);
 				Dataset reshaped;
 				switch (colourMode) {
-				case "RGB2":
+				case RGB2:
 					reshaped = flatDataset.reshape(height, 3, width);
 					reshaped = reshaped.swapAxes(1, 2);
 					break;
-				case "RGB3":
+				case RGB3:
 					reshaped = flatDataset.reshape(3, height, width);
 					reshaped = reshaped.swapAxes(0, 1);
 					reshaped = reshaped.swapAxes(1, 2);
@@ -422,7 +415,7 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 	}
 
 	private boolean isRgb() {
-		return !MONO_COLOUR_MODE.equalsIgnoreCase(colourMode);
+		return NTNDArrayColorMode.MONO.equals(colourMode);
 	}
 
 	private boolean isUnsigned() {
@@ -476,11 +469,11 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 					updateDataChannelMonitor();
 				}
 			} else if (channelName.equalsIgnoreCase(colourModePV)) {
-				DBR_Enum dbrs = (DBR_Enum) dbr;
-				short value = dbrs.getEnumValue()[0];
-				if (colourMode != colourModes[value]) {
-					colourMode = colourModes[value];
-					logger.debug("New colourModePV value '{} 'from {}", colourModes[value], colourMode);
+				short value = ((DBR_Enum) dbr).getEnumValue()[0];
+				NTNDArrayColorMode newColourMode = NTNDArrayColorMode.valueOf(value);
+				if (colourMode != newColourMode) {
+					colourMode = newColourMode;
+					logger.debug("New colourModePV value '{} 'from {}", newColourMode, colourMode);
 					updateDataChannelMonitor();
 				}
 			} else {
