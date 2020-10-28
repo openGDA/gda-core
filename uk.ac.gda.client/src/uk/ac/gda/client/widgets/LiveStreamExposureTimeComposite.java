@@ -25,11 +25,11 @@ import java.util.Objects;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -88,21 +88,8 @@ public class LiveStreamExposureTimeComposite extends Composite {
 		exposureTimeText = new Text(this, SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(TEXT_WIDTH, SWT.DEFAULT).applyTo(exposureTimeText);
 
-		// Get the initial exposure time from the camera and display in the page
-		try {
-			final double acquireTime = cameraControl.getAcquireTime();
-			exposureTimeText.setText(Double.toString(acquireTime));
-			cameraControlBinding.setAcquireTime(acquireTime);
-			logger.debug("Acquire time set initially to {}", acquireTime);
-		} catch (DeviceException e) {
-			final String message = String.format("Error getting exposure time from camera %s", cameraControl.getName());
-			logger.error(message, e);
-			exposureTimeText.setText("#ERR");
-			displayError(message);
-		}
-
 		// Check the value entered for exposure time
-		final UpdateValueStrategy setAcquireTimeStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<String, Double> setAcquireTimeStrategy = new UpdateValueStrategy<>();
 		setAcquireTimeStrategy.setBeforeSetValidator(value -> {
 			try {
 				final double exposureTime = Double.parseDouble(exposureTimeText.getText());
@@ -113,15 +100,16 @@ public class LiveStreamExposureTimeComposite extends Composite {
 		});
 
 		// Nothing particular to check when binding from hardware value to text box
-		final UpdateValueStrategy setTextBoxStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<Double, String> setTextBoxStrategy = new UpdateValueStrategy<>();
 
 		// Set up data binding to keep camera and text box in sync
-		@SuppressWarnings("unchecked")
-		final IObservableValue<Double> cameraControlObservable = BeanProperties.value(CameraControlBinding.class, "acquireTime").observe(cameraControlBinding);
-		@SuppressWarnings("unchecked")
+		final IObservableValue<Double> cameraControlObservable = BeanProperties.value(CameraControlBinding.class, "acquireTime", Double.class).observe(cameraControlBinding);
 		final IObservableValue<String> exposureTimeObservable = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
 		final Binding exposureTimeBinding = dataBindingContext.bindValue(exposureTimeObservable, cameraControlObservable, setAcquireTimeStrategy, setTextBoxStrategy);
 		ControlDecorationSupport.create(exposureTimeBinding, SWT.LEFT | SWT.TOP);
+
+		// Initialise exposure time
+		cameraControlBinding.getAcquireTime();
 
 		// cameraControlBinding needs to listen for changes from the hardware
 		cameraControl.addIObserver(cameraControlBinding);
@@ -158,7 +146,6 @@ public class LiveStreamExposureTimeComposite extends Composite {
 	        changeSupport.removePropertyChangeListener(listener);
 	    }
 
-	    @SuppressWarnings("unused")
 		public double getAcquireTime() {
 			try {
 				// Always refresh acquireTime from the hardware
@@ -171,16 +158,17 @@ public class LiveStreamExposureTimeComposite extends Composite {
 			return acquireTime;
 		}
 
-		public void setAcquireTime(double acquireTime) {
+		@SuppressWarnings("unused")
+		public void setAcquireTime(double newAcquireTime) {
 			try {
-				if(!changeExposureWhileCameraAcquiring) {
+				if (!changeExposureWhileCameraAcquiring) {
 					if (cameraControl.getAcquireState() == CameraState.IDLE) {
-						cameraControl.setAcquireTime(acquireTime);
+						cameraControl.setAcquireTime(newAcquireTime);
 					} else {
 						displayError("Cannot set exposure time\n- camera is busy");
 					}
 				} else {
-					cameraControl.setAcquireTime(acquireTime);
+					cameraControl.setAcquireTime(newAcquireTime);
 				}
 			} catch (Exception e) {
 				final String message = String.format("Error setting acquire time on camera %s", cameraControl.getName());
