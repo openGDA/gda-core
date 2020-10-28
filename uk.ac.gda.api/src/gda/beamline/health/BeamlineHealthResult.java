@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * This class indicates the overall health state of the beamline.<br>
- * This will typically have been determined from the state of the individual scannables that are configured.
+ * This will typically have been determined from the state of the individual components that are configured.
  */
 public class BeamlineHealthResult {
 	/** Command to send to server status port to retrieve beamline health result. */
@@ -35,16 +35,16 @@ public class BeamlineHealthResult {
 	private String message;
 
 	/** Results for the individual scannables that are configured as relevant for the beamline's health */
-	private List<BeamlineHealthScannableResult> scannableResults;
+	private List<BeamlineHealthComponentResult> componentResults;
 
 	public BeamlineHealthResult() {
 		// required for JSON deserialisation
 	}
 
-	public BeamlineHealthResult(BeamlineHealthState beamlineHealthState, String message, List<BeamlineHealthScannableResult> scannableResults) {
+	public BeamlineHealthResult(BeamlineHealthState beamlineHealthState, String message, List<BeamlineHealthComponentResult> componentResults) {
 		this.beamlineHealthState = beamlineHealthState;
 		this.message = message;
-		this.scannableResults = scannableResults;
+		this.componentResults = componentResults;
 	}
 
 	public BeamlineHealthState getBeamlineHealthState() {
@@ -63,17 +63,17 @@ public class BeamlineHealthResult {
 		this.message = message;
 	}
 
-	public List<BeamlineHealthScannableResult> getScannableResults() {
-		return scannableResults;
+	public List<BeamlineHealthComponentResult> getComponentResults() {
+		return componentResults;
 	}
 
-	public void setScannableResults(List<BeamlineHealthScannableResult> scannableResults) {
-		this.scannableResults = scannableResults;
+	public void setComponentResults(List<BeamlineHealthComponentResult> componentResults) {
+		this.componentResults = componentResults;
 	}
 
 	@Override
 	public String toString() {
 		return "BeamlineHealthResult [beamlineHealthState=" + beamlineHealthState + ", message=" + message
-				+ ", scannableResults=" + scannableResults + "]";
+				+ ", componentResults=" + componentResults + "]";
 	}
 }

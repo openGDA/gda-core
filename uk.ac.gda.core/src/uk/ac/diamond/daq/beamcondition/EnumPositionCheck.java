@@ -94,6 +94,10 @@ public class EnumPositionCheck extends BeamConditionBase implements IObserver {
 		updateName();
 	}
 
+	public EnumPositioner getPositioner() {
+		return positioner;
+	}
+
 	public void setAllowedPositions(String... positions) {
 		mode = Mode.ALLOW;
 		setPositions(positions);
