@@ -115,8 +115,6 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 
 	}
 
-	private static final GDANexusDeviceAdapterFactory INSTANCE = new GDANexusDeviceAdapterFactory();
-
 	private final List<INexusDeviceAdapterFactory<? extends Scannable>> adapterFactories;
 
 	public GDANexusDeviceAdapterFactory() {
@@ -133,10 +131,6 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		adapterFactories.add(new CounterTimerAdapterFactory());
 		adapterFactories.add(new GenericDetectorAdapterFactory());
 		adapterFactories.add(new ScannableAdapterFactory());
-	}
-
-	public static GDANexusDeviceAdapterFactory getInstance() {
-		return INSTANCE;
 	}
 
 	@Override
