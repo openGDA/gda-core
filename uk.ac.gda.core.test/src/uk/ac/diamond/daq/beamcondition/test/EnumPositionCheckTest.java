@@ -29,17 +29,13 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.device.EnumPositioner;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.beamcondition.EnumPositionCheck;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
-@RunWith(PowerMockRunner.class)
-public class EnumPositionCheckTest extends PowerMockBase {
+public class EnumPositionCheckTest {
 	EnumPositioner scannable;
 
 	private EnumPositionCheck condition;

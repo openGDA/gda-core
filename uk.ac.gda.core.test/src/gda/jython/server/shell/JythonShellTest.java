@@ -18,6 +18,7 @@
 
 package gda.jython.server.shell;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,7 +32,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
 
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -52,30 +52,28 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LocalProperties.class,
-	JythonServerFacade.class,
-	Highlighters.class,
-	LineReaderBuilder.class,
-	JythonShell.class,
-	})
-public class JythonShellTest extends PowerMockBase {
+
+public class JythonShellTest {
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock JythonServerFacade jsf;
 	@Mock Terminal terminal;
@@ -84,24 +82,22 @@ public class JythonShellTest extends PowerMockBase {
 	@Mock LineReaderImpl reader;
 	@Mock JythonShellParser parser;
 	JythonShell shell;
+	@Mock MockedConstruction<JythonShellParser> jythonShellParserMock;
+	@Mock MockedStatic<LocalProperties> localPropertiesMock;
+	@Mock MockedStatic<JythonServerFacade> jythonServerFacadeMock;
+	@Mock MockedStatic<Highlighters> highlightersMock;
+	@Mock MockedStatic<LineReaderBuilder> lineReaderBuilderMock;
 
 	@Before
 	public void setup() throws Exception {
-		PowerMockito.mockStatic(LocalProperties.class);
-		PowerMockito.when(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).thenReturn("example");
-		PowerMockito.when(LocalProperties.get(anyString(), anyString())).thenAnswer(i -> i.getArgument(1, String.class));
+		Mockito.when(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).thenReturn("example");
+		Mockito.when(LocalProperties.get(anyString(), anyString())).thenAnswer(i -> i.getArgument(1, String.class));
 
 		// For running commands
-		PowerMockito.mockStatic(JythonServerFacade.class);
-		PowerMockito.when(JythonServerFacade.getCurrentInstance()).thenReturn(jsf);
-
-		PowerMockito.mockStatic(Highlighters.class);
-		PowerMockito.mockStatic(LineReaderBuilder.class);
-
-		PowerMockito.whenNew(JythonShellParser.class).withAnyArguments().thenReturn(parser);
+		Mockito.when(JythonServerFacade.getCurrentInstance()).thenReturn(jsf);
 
 		LineReaderBuilder builder = mock(LineReaderBuilder.class, new SelfReturningAnswer(c -> LineReaderBuilder.class == c));
-		PowerMockito.when(LineReaderBuilder.builder()).thenReturn(builder);
+		Mockito.when(LineReaderBuilder.builder()).thenReturn(builder);
 		doReturn(reader).when(builder).build();
 		Map<String, KeyMap<Binding>> maps = new HashMap<>();
 		maps.put("main", keymap);
@@ -119,15 +115,15 @@ public class JythonShellTest extends PowerMockBase {
 
 	@Test
 	public void testCreation() throws Exception {
-		PowerMockito.verifyStatic(Highlighters.class, times(1));
+		Mockito.verify(Highlighters.class, times(1));
 		Highlighters.getHighlighter(null);
-		PowerMockito.verifyNoMoreInteractions(Highlighters.class);
+		Mockito.verifyNoMoreInteractions(Highlighters.class);
 
-		PowerMockito.verifyStatic(JythonServerFacade.class, times(1));
+		Mockito.verify(JythonServerFacade.class, times(1));
 		JythonServerFacade.getCurrentInstance();
-		PowerMockito.verifyNoMoreInteractions(JythonServerFacade.class);
+		Mockito.verifyNoMoreInteractions(JythonServerFacade.class);
 
-		PowerMockito.verifyNew(JythonShellParser.class).withArguments(any());
+		assertEquals(1, jythonShellParserMock.constructed().size());
 	}
 
 	@Test
@@ -136,7 +132,7 @@ public class JythonShellTest extends PowerMockBase {
 		env.put("GDA_THEME", "user_theme");
 		new JythonShell(terminal, env).close();
 
-		PowerMockito.verifyStatic(Highlighters.class, times(1));
+		Mockito.verify(Highlighters.class, times(1));
 		Highlighters.getHighlighter("user_theme");
 	}
 
@@ -232,7 +228,7 @@ public class JythonShellTest extends PowerMockBase {
 				.thenThrow(new IllegalStateException()); // Should not be called again
 
 		shell.run();
-		verifyZeroInteractions(jsf); // null command should not be run
+		Mockito.verifyNoInteractions(jsf); // null command should not be run
 	}
 
 	@Test

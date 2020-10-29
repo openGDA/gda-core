@@ -45,13 +45,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.jython.ICurrentScanController;
 import gda.jython.IJythonServerStatusProvider;
@@ -62,11 +63,12 @@ import gda.jython.JythonServerStatus;
 import uk.ac.diamond.daq.beamcondition.BeamCondition;
 import uk.ac.diamond.daq.beamcondition.BeamMonitor;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Async.class)
-public class BeamMonitorTest extends PowerMockBase {
+
+public class BeamMonitorTest {
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock private ITerminalPrinter printer;
 	@Mock private IJythonServerStatusProvider jythonServerStatus;
@@ -75,14 +77,15 @@ public class BeamMonitorTest extends PowerMockBase {
 
 	@Mock private BeamCondition condition1;
 	@Mock private BeamCondition condition2;
+	@Mock private MockedStatic<Async> asyncMock;
 
 	private BeamMonitor monitor;
 	private MockFuture<Object> future;
 
+
 	@Before
 	public void setUp() throws Exception {
-		PowerMockito.mockStatic(Async.class);
-		PowerMockito.when(Async.scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class)))
+		Mockito.when(Async.scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class)))
 			.thenAnswer(i -> {
 				future = new MockFuture<Object>(i);
 				return future;
@@ -116,7 +119,7 @@ public class BeamMonitorTest extends PowerMockBase {
 
 	@Test
 	public void testProcessNotStartedOnConstruction() throws Exception {
-		PowerMockito.verifyZeroInteractions(Async.class);
+		Mockito.verifyNoInteractions(Async.class);
 	}
 
 	@Test
@@ -126,9 +129,9 @@ public class BeamMonitorTest extends PowerMockBase {
 		monitor.on();
 		monitor.off();
 
-		PowerMockito.verifyStatic(Async.class, times(1));
+		Mockito.verify(Async.class, times(1));
 		Async.scheduleWithFixedDelay(any(), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
-		PowerMockito.verifyNoMoreInteractions(Async.class);
+		Mockito.verifyNoMoreInteractions(Async.class);
 	}
 
 	@Test
@@ -136,9 +139,9 @@ public class BeamMonitorTest extends PowerMockBase {
 		monitor = new BeamMonitor();
 		monitor.on();
 
-		PowerMockito.verifyStatic(Async.class, times(1));
+		Mockito.verify(Async.class, times(1));
 		Async.scheduleWithFixedDelay(any(), eq(100L), eq(100L), eq(TimeUnit.MILLISECONDS));
-		PowerMockito.verifyNoMoreInteractions(Async.class);
+		Mockito.verifyNoMoreInteractions(Async.class);
 	}
 
 	@Test

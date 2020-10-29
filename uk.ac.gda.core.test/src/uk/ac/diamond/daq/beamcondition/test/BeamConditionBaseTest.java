@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.beamcondition.test;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,45 +25,23 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import uk.ac.diamond.daq.beamcondition.BeamCondition;
 import uk.ac.diamond.daq.beamcondition.BeamConditionBase;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(BeamConditionBase.class)
-public class BeamConditionBaseTest extends PowerMockBase {
+public class BeamConditionBaseTest {
 	BeamCondition condition = spy(BeamConditionBase.class);
 
 	@Before
 	public void setup() throws Exception {
-		PowerMockito.mockStatic(Thread.class);
-		PowerMockito.doNothing().when(Thread.class);
-		Thread.sleep(anyLong());
+
+		//Thread.sleep(anyLong());
 
 		when(condition.beamOn())
 				.thenReturn(false)
 				.thenReturn(false)
 				.thenReturn(false)
-				.thenReturn(false)
-				.thenReturn(false)
-				.thenReturn(false)
-				.thenReturn(false)
-				.thenReturn(false)
 				.thenReturn(true);
-	}
-
-	// Remove the timeout temporarily to investigate why this test is sometimes timing out.
-	@Test//(timeout = 100) // Shouldn't actually wait
-	public void testWaitForBeam() throws Exception {
-		condition.waitForBeam();
-		verify(condition, times(9)).beamOn();
-		PowerMockito.verifyStatic(Thread.class, times(8));
-		Thread.sleep(50);
 	}
 
 	@Test
@@ -72,13 +49,18 @@ public class BeamConditionBaseTest extends PowerMockBase {
 		when(condition.beamOn()).thenReturn(true);
 		condition.waitForBeam();
 		verify(condition, times(1)).beamOn();
-		PowerMockito.verifyNoMoreInteractions(Thread.class);
 	}
 
 	@Test(expected = InterruptedException.class)
 	public void testInterruptionsAreRaised() throws Exception {
-		PowerMockito.doThrow(new InterruptedException()).when(Thread.class);
-		Thread.sleep(anyLong());
+		Thread.currentThread().interrupt();
 		condition.waitForBeam();
+	}
+
+	@Test
+	public void testWaitForBeam() throws Exception {
+		// This isn't ideal as it actually waits but should be < 1s
+		condition.waitForBeam();
+		verify(condition, times(4)).beamOn();
 	}
 }

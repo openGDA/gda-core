@@ -18,6 +18,8 @@
 
 package gda.jython.server.shell;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.jline.reader.Parser.ParseContext.ACCEPT_LINE;
 import static org.jline.reader.Parser.ParseContext.COMPLETE;
 import static org.junit.Assert.assertEquals;
@@ -32,42 +34,49 @@ import java.util.function.Function;
 
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
 
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
+public class JythonShellParserTest {
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Py.class,
-})
-public class JythonShellParserTest extends PowerMockBase {
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock private Function<String, String> translate;
+	@Mock MockedStatic<Py> pyMock;
 
 	private JythonShellParser parser;
+
+	private MockedConstruction<GdaJythonLine> mockedLine;
 
 	@Before
 	public void setup() throws Exception {
 		when(translate.apply(anyString())).thenAnswer(i -> i.getArgument(0));
 		parser = new JythonShellParser(translate);
-		PowerMockito.whenNew(GdaJythonLine.class)
-				.withAnyArguments()
-				.thenAnswer(i -> {
-					GdaJythonLine line = mock(GdaJythonLine.class);
-					when(line.line()).thenReturn(i.getArgument(0));
-					when(line.cursor()).thenReturn(i.getArgument(1));
-					return line;
-				});
-		PowerMockito.mockStatic(Py.class);
+
+		mockedLine = Mockito.mockConstruction(GdaJythonLine.class, (mock, context) -> {
+			when(mock.line()).thenReturn((String) context.arguments().get(0));
+			when(mock.cursor()).thenReturn((Integer) context.arguments().get(1));
+		});
+
+	}
+
+	@After
+	public void closeMock() {
+		mockedLine
+		.close();
 	}
 
 	@Test
@@ -142,10 +151,7 @@ public class JythonShellParserTest extends PowerMockBase {
 	public void testTranslationUsed() throws Exception {
 		when(translate.apply("abcd")).thenReturn("dcba");
 		parser.parse("abcd", 4, ACCEPT_LINE);
-
-		PowerMockito.verifyStatic(Py.class);
-		Py.compile_command_flags(eq("dcba"), anyString(), any(), any(), anyBoolean());
-		PowerMockito.verifyNoMoreInteractions(Py.class);
+		pyMock.verify(() -> Py.compile_command_flags(eq("dcba"), anyString(), any(), any(), anyBoolean()));
 	}
 
 	@Test
@@ -154,8 +160,8 @@ public class JythonShellParserTest extends PowerMockBase {
 
 		parser = new JythonShellParser();
 		parser.parse("abcd", 4, ACCEPT_LINE);
-		PowerMockito.verifyStatic(Py.class);
-		Py.compile_command_flags(eq("abcd"), anyString(), any(), any(), anyBoolean());
+		pyMock.verify(() -> Py.compile_command_flags(eq("abcd"), anyString(), any(), any(), anyBoolean()));
+
 	}
 
 	private void validPython() {
@@ -168,7 +174,6 @@ public class JythonShellParserTest extends PowerMockBase {
 				.thenReturn(mockPy);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void invalidPython() {
 		when(Py.compile_command_flags(anyString(), anyString(), any(), any(), anyBoolean()))
 				.thenThrow(PyException.class);

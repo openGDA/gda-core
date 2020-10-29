@@ -18,13 +18,15 @@
 
 package gda.jython.server.shell;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.jline.utils.AttributedString.fromAnsi;
 import static org.junit.Assert.assertSame;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.AdditionalAnswers.returnsElementsOf;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.jline.reader.Highlighter;
@@ -35,49 +37,43 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.python.core.PyException;
 import org.python.core.PyObject;
-import org.python.core.PySystemState;
 import org.python.core.PyUnicode;
 import org.python.util.InteractiveInterpreter;
 
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
+@RunWith(MockitoJUnitRunner.class)
+public class HighlightersTest {
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({AttributedString.class,
-	Highlighters.class,
-})
-public class HighlightersTest extends PowerMockBase{
-
-	@Mock private InteractiveInterpreter interpreter;
 	@Mock private PyObject highlighter;
 	@Mock private LineReader reader;
+	private MockedConstruction<InteractiveInterpreter> mockInterpreter;
+
+	/** Answer used whenever an InterativeInterpreter's eval method is called */
+	private Answer<PyObject> evalResponse = inv -> highlighter;
 
 	@Before
 	public void setup() throws Exception {
-		PowerMockito.whenNew(InteractiveInterpreter.class)
-				.withAnyArguments()
-				.thenAnswer(i -> interpreter);
-
-		PowerMockito.mockStatic(AttributedString.class);
-		when(interpreter.eval(anyString())).thenReturn(highlighter);
+		mockInterpreter = Mockito.mockConstruction(InteractiveInterpreter.class, (mock, ctx) -> {
+			when(mock.eval(anyString())).thenAnswer(evalResponse);
+		});
 	}
 
 	@After
 	public void clearup() throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		Highlighters.resetCache();
+		mockInterpreter.closeOnDemand();
 	}
 
 	@Test
 	public void testNullHighlighter() throws Exception {
-		PowerMockito.whenNew(AttributedString.class).withArguments("abcd").thenAnswer(i -> AttributedString.fromAnsi("abdc"));
 		Highlighter nullHighlight = Highlighters.getHighlighter(null);
-		nullHighlight.highlight(reader, "abcd");
-
-		PowerMockito.verifyNew(AttributedString.class).withArguments("abcd");
+		AttributedString string = nullHighlight.highlight(reader, "abcd");
+		assertThat(string, is(equalTo(new AttributedString("abcd"))));
 	}
 
 	@Test
@@ -91,13 +87,10 @@ public class HighlightersTest extends PowerMockBase{
 
 	@Test
 	public void testValidTheme() throws Exception {
-		when(highlighter.__call__(new PyUnicode("abcd"))).thenReturn(new PyUnicode("abcd"));
+		when(highlighter.__call__(new PyUnicode("abcd"))).thenReturn(new PyUnicode("efgh"));
 		Highlighter high = Highlighters.getHighlighter("theme");
 
-		high.highlight(reader, "abcd");
-
-		PowerMockito.verifyStatic(AttributedString.class);
-		AttributedString.fromAnsi("abcd");
+		assertThat(high.highlight(reader, "abcd"), is(fromAnsi("efgh")));
 	}
 
 	@Test
@@ -106,55 +99,40 @@ public class HighlightersTest extends PowerMockBase{
 		Highlighter high2 = Highlighters.getHighlighter("theme_one");
 
 		assertSame(high1, high2);
-		verify(interpreter, times(1)).eval(anyString());
+		assertThat(mockInterpreter.constructed().size(), is(1));
 	}
 
 	@Test
 	public void testRetriesIfPygmentsNotAvailable() throws Exception {
-		doThrow(new PyException()).when(interpreter).exec(anyString());
+		evalResponse = inv -> {throw new PyException();};
 
 		Highlighters.getHighlighter("theme_one");
 		Highlighters.getHighlighter("theme_one");
-
-		PowerMockito.verifyNew(InteractiveInterpreter.class, times(2)).withArguments(any(), any());
+		assertThat(mockInterpreter.constructed().size(), is(2));
 	}
 
 	@Test
 	public void testNullIfInvalidTheme() throws Exception {
-		doThrow(new Highlighters.InvalidThemeException())
-				.when(interpreter).exec(anyString());
-
+		evalResponse = inv -> {throw new Highlighters.InvalidThemeException();};
 		Highlighter high1 = Highlighters.getHighlighter("theme_one");
 		Highlighter high2 = Highlighters.getHighlighter("theme_one");
 
-		PowerMockito.verifyNew(InteractiveInterpreter.class, times(1)).withArguments(any(), any());
+		assertThat(mockInterpreter.constructed().size(), is(1));
 		assertSame(high1, high2);
 	}
 
 	@Test
 	public void testDifferentThemesHaveDifferentHighlighters() throws Exception {
-		InteractiveInterpreter iI1 = mock(InteractiveInterpreter.class);
-		InteractiveInterpreter iI2 = mock(InteractiveInterpreter.class);
-		PowerMockito.whenNew(InteractiveInterpreter.class)
-				.withArguments(any(PyObject.class), any(PySystemState.class))
-				.thenReturn(iI1)
-				.thenReturn(iI2);
 		PyObject h1 = mock(PyObject.class);
 		PyObject h2 = mock(PyObject.class);
 		when(h1.__call__(new PyUnicode("abcd"))).thenReturn(new PyUnicode("theme1"));
 		when(h2.__call__(new PyUnicode("abcd"))).thenReturn(new PyUnicode("theme2"));
-		when(iI1.eval(anyString())).thenReturn(h1);
-		when(iI2.eval(anyString())).thenReturn(h2);
+		evalResponse = returnsElementsOf(asList(h1, h2));
 
 		Highlighter high1 = Highlighters.getHighlighter("theme_one");
 		Highlighter high2 = Highlighters.getHighlighter("theme_two");
 
-		high1.highlight(reader, "abcd");
-		high2.highlight(reader, "abcd");
-
-		PowerMockito.verifyStatic(AttributedString.class);
-		AttributedString.fromAnsi("theme1");
-		PowerMockito.verifyStatic(AttributedString.class);
-		AttributedString.fromAnsi("theme2");
+		assertThat(high1.highlight(reader, "abcd"), is(AttributedString.fromAnsi("theme1")));
+		assertThat(high2.highlight(reader, "abcd"), is(AttributedString.fromAnsi("theme2")));
 	}
 }

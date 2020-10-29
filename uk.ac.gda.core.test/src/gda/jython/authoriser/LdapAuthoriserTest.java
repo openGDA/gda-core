@@ -33,21 +33,17 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.authenticator.LdapMixin;
 import gda.util.TestUtils;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LdapAuthoriser.class)
-public class LdapAuthoriserTest extends PowerMockBase {
+public class LdapAuthoriserTest {
 
 	private static final String STAFF_FED_ID = "staffFedID";
 	private static final String NON_STAFF_FED_ID = "nonStaffFedID";
@@ -57,24 +53,24 @@ public class LdapAuthoriserTest extends PowerMockBase {
 	private static String testScratchDirectoryName;
 	private static FileAuthoriser fileAuthoriser;
 
-	private static LdapMixin mockLdap;
+	private static MockedConstruction<LdapMixin> ldapMixinMock;
 
 	/**
 	 * @throws Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		mockLdap = mock(LdapMixin.class);
-		PowerMockito.whenNew(LdapMixin.class)
-			.withNoArguments()
-			.thenReturn(mockLdap);
 
-		makeLocalStaff(STAFF_FED_ID);
-		makeNonStaff(NON_STAFF_FED_ID);
+		NamingEnumeration<SearchResult> localStaffResults = mockResultsForGroup(STAFF_GROUP);
+		NamingEnumeration<SearchResult> nonStaffResults = mockResultsForGroup(NON_STAFF_GROUP);
+		ldapMixinMock = Mockito.mockConstruction(LdapMixin.class, (mock, context) -> {
+			when(mock.searchLdapForUser(eq(STAFF_FED_ID), any())).thenReturn(localStaffResults);
+			when(mock.searchLdapForUser(eq(NON_STAFF_FED_ID), any())).thenReturn(nonStaffResults);
+		});
 
-		//create the underlying xml file
-		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(LdapAuthoriserTest.class
-				.getCanonicalName());
+		// create the underlying xml file
+		testScratchDirectoryName = TestUtils
+				.generateDirectorynameFromClassname(LdapAuthoriserTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName + "xml");
 		System.setProperty(LocalProperties.GDA_CONFIG, testScratchDirectoryName);
 		LocalProperties.set(Authoriser.AUTHORISERCLASS_PROPERTY, "gda.jython.authoriser.FileAuthoriser");
@@ -85,29 +81,26 @@ public class LdapAuthoriserTest extends PowerMockBase {
 		LocalProperties.set(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, "5");
 		LocalProperties.set(LdapAuthoriser.LDAPSTAFF_PROPERTY, STAFF_GROUP);
 
-		//then switch to using ldap
+		// then switch to using ldap
 		LocalProperties.set(Authoriser.AUTHORISERCLASS_PROPERTY, "gda.jython.authoriser.LdapAuthoriser");
 		authoriser = new LdapAuthoriser();
 
 	}
 
-	private static void makeLocalStaff(String username) throws Exception {
-		mockLdapUser(username, STAFF_GROUP);
+	@AfterClass
+	public static void closeMock() {
+		ldapMixinMock.close();
 	}
 
-	private static void makeNonStaff(String username) throws Exception {
-		mockLdapUser(username, NON_STAFF_GROUP);
-	}
-
-	private static void mockLdapUser(String username, String group) throws NamingException {
+	private static NamingEnumeration<SearchResult> mockResultsForGroup(String group) throws NamingException {
 		@SuppressWarnings("unchecked")
 		NamingEnumeration<SearchResult> results = mock(NamingEnumeration.class);
 		SearchResult user = mock(SearchResult.class);
 		Attributes atts = new BasicAttributes("memberOf", group);
 		when(user.getAttributes()).thenReturn(atts);
-		when(mockLdap.searchLdapForUser(eq(username), any())).thenReturn(results);
 		when(results.hasMore()).thenReturn(true);
 		when(results.next()).thenReturn(user);
+		return results;
 	}
 
 	@Test

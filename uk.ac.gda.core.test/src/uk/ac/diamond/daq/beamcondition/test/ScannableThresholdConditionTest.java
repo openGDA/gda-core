@@ -27,19 +27,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.device.Scannable;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.beamcondition.ScannableThresholdCheck;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
-@RunWith(PowerMockRunner.class)
-public class ScannableThresholdConditionTest extends PowerMockBase {
+public class ScannableThresholdConditionTest {
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
 	@Mock Scannable scannable;
 
 	private ScannableThresholdCheck condition;

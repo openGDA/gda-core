@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,15 +41,15 @@ import java.util.Map.Entry;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -66,11 +65,8 @@ import org.w3c.dom.Node;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.scannable.ScannableMotor;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ParserContext.class, LocalProperties.class, XmlReaderContext.class})
-public class SpringMotorDefinitionParserTest extends PowerMockBase {
+public class SpringMotorDefinitionParserTest {
 	private static final String LIVE = "live";
 	private static final String DUMMY = "dummy";
 	private static final String EPICS_MOTOR = "gda.device.motor.EpicsMotor";
@@ -79,6 +75,9 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	private static final String DEFAULT_LIVE_MOTOR_PROPERTY = DEFAULT_MOTOR_CLASS_PROPERTY_BASE + LIVE;
 
 	private BeanDefinitionParser parser;
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock Element element;
 	@Mock ParserContext context;
@@ -89,6 +88,7 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	@Captor private ArgumentCaptor<BeanDefinition> beans;
 
 	private Map<String, String> attrs = new HashMap<>();
+	@Mock private MockedStatic<LocalProperties> localPropertiesMock;
 
 	@Before
 	public void setup() {
@@ -399,7 +399,6 @@ public class SpringMotorDefinitionParserTest extends PowerMockBase {
 	}
 
 	private void init(String mode, String live, String dummy) {
-		PowerMockito.mockStatic(LocalProperties.class, RETURNS_SMART_NULLS);
 		when(LocalProperties.get(anyString())).thenCallRealMethod();
 		when(LocalProperties.get(eq("gda.mode"))).thenReturn(mode);
 		when(LocalProperties.get(eq(DEFAULT_DUMMY_MOTOR_PROPERTY), anyString())).then(answerProperty(dummy));

@@ -28,17 +28,21 @@ import static org.mockito.Mockito.when;
 import java.util.function.BooleanSupplier;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import uk.ac.diamond.daq.beamcondition.BeamConditionWrapper;
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
-@RunWith(PowerMockRunner.class)
-public class BeamConditionWrapperTest extends PowerMockBase {
+
+public class BeamConditionWrapperTest {
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
 	@Mock BooleanSupplier function;
 
 	private BeamConditionWrapper condition;

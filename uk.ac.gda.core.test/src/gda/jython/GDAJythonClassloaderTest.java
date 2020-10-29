@@ -31,7 +31,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.EXPORT_PACKAGE;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -43,15 +42,14 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PyString;
@@ -59,8 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-
-import uk.ac.diamond.daq.test.powermock.PowerMockBase;
 
 
 /**
@@ -70,9 +66,8 @@ import uk.ac.diamond.daq.test.powermock.PowerMockBase;
  * way to compare instances of a class loaded by different ClassLoaders is piecemeal using reflection as below.
  */
 @Ignore("DAQ-1032 DAQ-2618 GDAJythonClassloader class doesn't do any class loading itself anymore")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(LoggerFactory.class)
-public class GDAJythonClassloaderTest extends PowerMockBase {
+
+public class GDAJythonClassloaderTest {
 
 	private static final String PKG_1 = "bbc.python.monty.lumberjack";
 	private static final String PKG_2 = "bbc.python.monty.gumby";
@@ -108,6 +103,7 @@ public class GDAJythonClassloaderTest extends PowerMockBase {
 	private Dictionary<String, String> headers3;
 
 	private static Logger logger;
+	private static MockedStatic<LoggerFactory> loggerFactoryMock;
 
 	private PyList sysPath;
 	private GDAJythonClassLoader loader;
@@ -117,7 +113,7 @@ public class GDAJythonClassloaderTest extends PowerMockBase {
 
 	@BeforeClass
 	public static void classSetup() {
-		mockStatic(LoggerFactory.class);
+		loggerFactoryMock = Mockito.mockStatic(LoggerFactory.class);
 		logger = mock(Logger.class);
 		when(LoggerFactory.getLogger(GDAJythonClassLoader.class)).thenReturn(logger);
 	}
@@ -152,6 +148,11 @@ public class GDAJythonClassloaderTest extends PowerMockBase {
 		GDAJythonClassLoader.initialize(bundles, scriptFolders, included);
 		loader = new GDAJythonClassLoader(this.getClass().getClassLoader());
 		sysPath = mock(PyList.class);
+	}
+
+	@AfterClass
+	public void closeMock() {
+		loggerFactoryMock.close();
 	}
 
 	@After
