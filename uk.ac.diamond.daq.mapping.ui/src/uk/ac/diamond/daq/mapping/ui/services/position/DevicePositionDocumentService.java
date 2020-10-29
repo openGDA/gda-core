@@ -23,12 +23,15 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
@@ -46,6 +49,8 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  */
 @Service
 public class DevicePositionDocumentService {
+
+	static final Logger logger = LoggerFactory.getLogger(DevicePositionDocumentService.class);
 
 	@Autowired
 	private FinderService finder;
@@ -78,6 +83,17 @@ public class DevicePositionDocumentService {
 		return scannable
 				.map(deviceHandler::handleDevice)
 				.orElse(null);
+	}
+
+	/**
+	 * Returns the type of a device
+	 * @param device the device to interrogate
+	 * @return the value type otherwise {@code null} if the device is not available
+	 */
+	public final ValueType devicePositionType(String device) {
+		return Optional.ofNullable(devicePositionAsDocument(device))
+				.map(DevicePositionDocument::getValueType)
+				.orElseGet(() -> null);
 	}
 
 	/**
