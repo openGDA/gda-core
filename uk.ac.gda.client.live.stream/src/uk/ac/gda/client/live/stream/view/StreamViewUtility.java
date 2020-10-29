@@ -27,10 +27,9 @@ import org.slf4j.Logger;
 
 public class StreamViewUtility {
 
-
 	private StreamViewUtility() {
-	    throw new IllegalStateException("Utility class");
-	  }
+		throw new IllegalStateException("Utility class");
+	}
 
 	public static void displayAndLogError(Logger logger, final Composite parent, final String errorMessage) {
 		displayAndLogError(logger, parent, errorMessage, null);
@@ -61,5 +60,36 @@ public class StreamViewUtility {
 		errorText.setText(s.toString());
 		errorText.setBounds(parent.getBounds());
 		parent.layout(true);
+	}
+
+	/**
+	 * Generate the secondary id of the view associated with a {@link CameraConfiguration}
+	 */
+	public static String getSecondaryId(CameraConfiguration cameraConfiguration) {
+		return getSecondaryId(cameraConfiguration, getStreamType(cameraConfiguration));
+	}
+
+	/**
+	 * Generate the secondary id of the view associated with a {@link CameraConfiguration} when we already know the
+	 * {@link StreamType}
+	 */
+	public static String getSecondaryId(CameraConfiguration cameraConfiguration, StreamType streamType) {
+		return cameraConfiguration.getName() + streamType.secondaryIdSuffix();
+	}
+
+	/**
+	 * Get the stream type for a {@link CameraConfiguration}
+	 */
+	public static StreamType getStreamType(CameraConfiguration cameraConfiguration) {
+		if (cameraConfiguration.getUrl() != null) {
+			return StreamType.MJPEG;
+		}
+		if (cameraConfiguration.getArrayPv() != null) {
+			return StreamType.EPICS_ARRAY;
+		}
+		if (cameraConfiguration.getPvAccessPv() != null) {
+			return StreamType.EPICS_PVA;
+		}
+		return StreamType.UNKNOWN;
 	}
 }

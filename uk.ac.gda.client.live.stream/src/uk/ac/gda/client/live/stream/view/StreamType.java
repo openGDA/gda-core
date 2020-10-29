@@ -19,12 +19,13 @@
 package uk.ac.gda.client.live.stream.view;
 
 /**
- * Enum containing all the known stream types
+ * Enum containing all the known stream types (plus UNKNOWN)
  */
 public enum StreamType {
 	MJPEG("MJPEG"),
 	EPICS_ARRAY("EPICS Array"),
-	EPICS_PVA("EPICS PV Access");
+	EPICS_PVA("EPICS PV Access"),
+	UNKNOWN("Unknown stream type");
 
 	final String displayName;
 

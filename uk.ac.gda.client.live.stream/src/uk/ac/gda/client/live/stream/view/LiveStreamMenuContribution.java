@@ -18,6 +18,9 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import static uk.ac.gda.client.live.stream.view.StreamViewUtility.getSecondaryId;
+import static uk.ac.gda.client.live.stream.view.StreamViewUtility.getStreamType;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,17 +84,19 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 		final Map<String, CameraConfiguration> pvaCameras = new TreeMap<>();
 
 		for (Entry<String, CameraConfiguration> cam : cameraMap.entrySet()) {
-			// If a URL is set add to MJPEG map
-			if (cam.getValue().getUrl() != null) {
-				mjpegCameras.put(cam.getKey(), cam.getValue());
-			}
-			// If PV is set add to EPICS map
-			if (cam.getValue().getArrayPv() != null) {
-				epicsCameras.put(cam.getKey(), cam.getValue());
-			}
-			// If PVA PV is set add to PVA map
-			if (cam.getValue().getPvAccessPv() != null) {
-				pvaCameras.put(cam.getKey(), cam.getValue());
+			final CameraConfiguration cameraConfig = cam.getValue();
+			switch (getStreamType(cameraConfig)) {
+			case MJPEG:
+				mjpegCameras.put(cam.getKey(), cameraConfig);
+				break;
+			case EPICS_ARRAY:
+				epicsCameras.put(cam.getKey(), cameraConfig);
+				break;
+			case EPICS_PVA:
+				pvaCameras.put(cam.getKey(), cameraConfig);
+				break;
+			default:
+				logger.warn("Camera configuration {} has unknown stream type", cameraConfig.getName());
 			}
 		}
 
@@ -175,7 +180,7 @@ public class LiveStreamMenuContribution extends ExtensionContributionFactory {
 				try {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(
 							viewId,
-							cameraConfig.getValue().getName() + streamType.secondaryIdSuffix(),
+							getSecondaryId(cameraConfig.getValue(), streamType),
 							IWorkbenchPage.VIEW_ACTIVATE);
 				} catch (PartInitException e) {
 					logger.error("Error opening Stream view for {} {}", cameraConfig.getKey(), streamType.displayName, e);

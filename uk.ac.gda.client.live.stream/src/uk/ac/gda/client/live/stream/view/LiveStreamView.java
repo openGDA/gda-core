@@ -19,6 +19,7 @@
 package uk.ac.gda.client.live.stream.view;
 
 import static uk.ac.gda.client.live.stream.view.StreamViewUtility.displayAndLogError;
+import static uk.ac.gda.client.live.stream.view.StreamViewUtility.getSecondaryId;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -145,8 +146,7 @@ public class LiveStreamView extends ViewPart {
 			cameraSelector.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDoubleClick(MouseEvent e) {
-					openViewWithSecondaryId(
-							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName(), false);
+					openViewWithSecondaryId(getSecondaryId(getSelectedCameraConfiguration(cameraMap, cameraSelector)), false);
 				}
 			});
 
@@ -156,9 +156,7 @@ public class LiveStreamView extends ViewPart {
 			connectButton.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					// Get the cameras ID for the secondary ID
-					openViewWithSecondaryId(
-							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName(), false);
+					openViewWithSecondaryId(getSecondaryId(getSelectedCameraConfiguration(cameraMap, cameraSelector)), false);
 				}
 			});
 
@@ -168,9 +166,7 @@ public class LiveStreamView extends ViewPart {
 			connectCloseButton.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					// Get the cameras ID for the secondary ID
-					openViewWithSecondaryId(
-							cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex())).getName(), true);
+					openViewWithSecondaryId(getSecondaryId(getSelectedCameraConfiguration(cameraMap, cameraSelector)), true);
 				}
 			});
 
@@ -179,7 +175,15 @@ public class LiveStreamView extends ViewPart {
 		}
 	}
 
-	private String cameraIdFromSecondaryId(String secondaryId) {
+	/**
+	 * Get the configuration for the currently-selected camera
+	 */
+	private static CameraConfiguration getSelectedCameraConfiguration(Map<String, CameraConfiguration> cameraMap,
+			org.eclipse.swt.widgets.List cameraSelector) {
+		return cameraMap.get(cameraSelector.getItem(cameraSelector.getSelectionIndex()));
+	}
+
+	private static String cameraIdFromSecondaryId(String secondaryId) {
 		if (secondaryId.endsWith(StreamType.MJPEG.secondaryIdSuffix())) {
 			return secondaryId.substring(0, secondaryId.lastIndexOf(StreamType.MJPEG.secondaryIdSuffix()));
 		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
@@ -191,7 +195,7 @@ public class LiveStreamView extends ViewPart {
 		}
 	}
 
-	private StreamType streamTypeFromSecondaryId(String secondaryId) {
+	private static StreamType streamTypeFromSecondaryId(String secondaryId) {
 		if (secondaryId.endsWith(StreamType.MJPEG.secondaryIdSuffix())) {
 			return StreamType.MJPEG;
 		} else if (secondaryId.endsWith(StreamType.EPICS_ARRAY.secondaryIdSuffix())) {
@@ -199,7 +203,7 @@ public class LiveStreamView extends ViewPart {
 		} else if (secondaryId.endsWith(StreamType.EPICS_PVA.secondaryIdSuffix())) {
 			return StreamType.EPICS_PVA;
 		} else {
-			return null;
+			return StreamType.UNKNOWN;
 		}
 	}
 
