@@ -21,7 +21,7 @@ package uk.ac.gda.server.exafs.scan;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
+import org.mockito.Mockito;
 
 import gda.data.metadata.NXMetaDataProvider;
 import gda.device.CounterTimer;
@@ -54,22 +54,22 @@ public class MapFactoryTest {
 	@Before
 	public void setup() {
 		// mock all the objects which would be used to create the XasScan objects
-		beamlinePreparer = PowerMockito.mock(BeamlinePreparer.class);
-		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
-		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
-		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
+		beamlinePreparer = Mockito.mock(BeamlinePreparer.class);
+		detectorPreparer = Mockito.mock(DetectorPreparer.class);
+		samplePreparer = Mockito.mock(SampleEnvironmentPreparer.class);
+		outputPreparer = Mockito.mock(OutputPreparer.class);
+		XASLoggingScriptController = Mockito.mock(LoggingScriptController.class);
 //		original_header = new ArrayList<AsciiMetadataConfig>();
-		energyScannable = PowerMockito.mock(Scannable.class);
-		metashop = PowerMockito.mock(NXMetaDataProvider.class);
-		counterTimer = PowerMockito.mock(CounterTimer.class);
-		xScan = PowerMockito.mock(Scannable.class);
-		yScan = PowerMockito.mock(Scannable.class);
-		zScan = PowerMockito.mock(Scannable.class);
-		elementListScriptController = PowerMockito.mock(ScriptControllerBase.class);
+		energyScannable = Mockito.mock(Scannable.class);
+		metashop = Mockito.mock(NXMetaDataProvider.class);
+		counterTimer = Mockito.mock(CounterTimer.class);
+		xScan = Mockito.mock(Scannable.class);
+		yScan = Mockito.mock(Scannable.class);
+		zScan = Mockito.mock(Scannable.class);
+		elementListScriptController = Mockito.mock(ScriptControllerBase.class);
 
-		trajectoryMotor = PowerMockito.mock(ContinuouslyScannable.class);
-		positionReader = PowerMockito.mock(RealPositionReader.class);
+		trajectoryMotor = Mockito.mock(ContinuouslyScannable.class);
+		positionReader = Mockito.mock(RealPositionReader.class);
 	}
 
 	@Test

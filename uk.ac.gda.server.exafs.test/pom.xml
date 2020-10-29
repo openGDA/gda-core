@@ -40,17 +40,6 @@
 					</dependency-resolution>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-surefire-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<configuration>
-					<excludes>
-						<!-- Powermock -->
-						<exclude>EnergyScanTest</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
+			</plugins>
 	</build>
 </project>

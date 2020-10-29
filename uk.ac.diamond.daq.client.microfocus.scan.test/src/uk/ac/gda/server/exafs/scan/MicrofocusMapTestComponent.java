@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
@@ -97,7 +96,7 @@ public class MicrofocusMapTestComponent {
 		ClientDetails details = Mockito.mock(ClientDetails.class);
 		Mockito.when(details.getVisitID()).thenReturn("0-0");
 
-		ionchambers = PowerMockito.mock(TfgScalerWithFrames.class);
+		ionchambers = Mockito.mock(TfgScalerWithFrames.class);
 		Mockito.when(ionchambers.getName()).thenReturn("ionchambers");
 		Mockito.when(ionchambers.readout()).thenReturn(new double[] { 1.0, 2.0, 3.0 });
 		Mockito.when(ionchambers.getExtraNames()).thenReturn(new String[] { "i0", "it", "iref" });
@@ -122,14 +121,14 @@ public class MicrofocusMapTestComponent {
 		InterfaceProvider.setScanDataPointProviderForTesting(jythonserverfacade);
 
 		// create the preparers
-		beamlinepreparer = PowerMockito.mock(BeamlinePreparer.class);
-		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
-		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
-		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		commandQueueProcessor = PowerMockito.mock(Processor.class);
+		beamlinepreparer = Mockito.mock(BeamlinePreparer.class);
+		detectorPreparer = Mockito.mock(DetectorPreparer.class);
+		samplePreparer = Mockito.mock(SampleEnvironmentPreparer.class);
+		outputPreparer = Mockito.mock(OutputPreparer.class);
+		commandQueueProcessor = Mockito.mock(Processor.class);
 		datawriterconfig = new AsciiDataWriterConfiguration();
 		metashop = new NXMetaDataProvider();
-		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
+		XASLoggingScriptController = Mockito.mock(LoggingScriptController.class);
 
 		energy_scannable = createMockMotorScannable("energy_scannable");
 		energy_nogap_scannable = createMockMotorScannable("energy_nogap_scannable");
@@ -174,11 +173,11 @@ public class MicrofocusMapTestComponent {
 		detParams.setDetectorGroups(detectorGroups);
 
 		// sampleParams = new SampleParametersTestImpl();
-		sampleParams = PowerMockito.mock(ISampleParameters.class);
+		sampleParams = Mockito.mock(ISampleParameters.class);
 		Mockito.when(sampleParams.getName()).thenReturn("My Sample");
 		Mockito.when(sampleParams.getDescriptions()).thenReturn(new ArrayList<String>());
 
-		outputParams = PowerMockito.mock(IOutputParameters.class);
+		outputParams = Mockito.mock(IOutputParameters.class);
 		Mockito.when(outputParams.getAsciiFileName()).thenReturn("");
 		Mockito.when(outputParams.getAsciiDirectory()).thenReturn("ascii");
 		Mockito.when(outputParams.getNexusDirectory()).thenReturn("nexus");
@@ -198,7 +197,7 @@ public class MicrofocusMapTestComponent {
 	}
 
 	public Scannable createMockScannable(String name, Class<? extends Scannable> clazz) throws DeviceException {
-		Scannable newMock = PowerMockito.mock(clazz);
+		Scannable newMock = Mockito.mock(clazz);
 		Mockito.when(newMock.getName()).thenReturn(name);
 		Mockito.when(newMock.getInputNames()).thenReturn(new String[] { name });
 		Mockito.when(newMock.getExtraNames()).thenReturn(new String[] {});

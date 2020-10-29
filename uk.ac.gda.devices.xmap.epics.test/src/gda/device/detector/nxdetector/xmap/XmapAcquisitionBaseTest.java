@@ -23,20 +23,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.Mockito;
 
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayerImpl;
 import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
 import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayerImpl;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"com.cosylab.*", "gov.aps.*"})
-@PrepareForTest({XmapAcquisitionBaseEpicsLayer.class})
 public class XmapAcquisitionBaseTest {
 	private String basePVname;
 	private XmapMappingModeEpicsLayer xmapAcquisitionEpicsLayer;
@@ -45,7 +38,7 @@ public class XmapAcquisitionBaseTest {
 	@Before
 	public void setUp() {
 		basePVname = "basePV:";
-		xmapAcquisitionEpicsLayer = PowerMockito.mock(XmapMappingModeEpicsLayerImpl.class);
+		xmapAcquisitionEpicsLayer = Mockito.mock(XmapMappingModeEpicsLayerImpl.class);
 		xmapAcquisitionEpicsLayerwithMapping = new XmapAcquisitionBaseEpicsLayerImpl(basePVname, xmapAcquisitionEpicsLayer);
 
 	}

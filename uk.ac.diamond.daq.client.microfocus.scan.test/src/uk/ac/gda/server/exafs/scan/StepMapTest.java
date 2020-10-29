@@ -18,20 +18,17 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import java.lang.reflect.Method;
+import static org.mockito.ArgumentMatchers.any;
+
 import java.util.ArrayList;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.api.support.membermodification.MemberModifier;
-import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.device.CounterTimer;
 import gda.device.Detector;
@@ -44,8 +41,6 @@ import gda.scan.ScanPlotSettings;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ ScannableCommands.class, ConcurrentScan.class })
 public class StepMapTest {
 
 	private ConcurrentScan mockScan;
@@ -53,9 +48,12 @@ public class StepMapTest {
 	private XasScanBase mapscan;
 	private MicrofocusMapTestComponent testHelper;
 	private ScanPlotSettings mockPlotSettings;
+	private MockedStatic<ScannableCommands> scannableCommandsMock;
 
 	@Before
 	public void setup() throws Exception {
+
+		scannableCommandsMock = Mockito.mockStatic(ScannableCommands.class);
 
 		testHelper = new MicrofocusMapTestComponent();
 		testHelper.setup();
@@ -64,10 +62,10 @@ public class StepMapTest {
 
 		{
 			// create mock scan
-			mockScan = PowerMockito.mock(ConcurrentScan.class);
+			mockScan = Mockito.mock(ConcurrentScan.class);
 
 			// runScan is a void method, so have to make an Answer for just that method
-			PowerMockito.doAnswer(new org.mockito.stubbing.Answer<Void>() {
+			Mockito.doAnswer(new org.mockito.stubbing.Answer<Void>() {
 				@Override
 				public Void answer(InvocationOnMock invocation) throws Throwable {
 					return null;
@@ -75,14 +73,17 @@ public class StepMapTest {
 
 			}).when(mockScan).runScan();
 
-			mockPlotSettings = PowerMockito.mock(ScanPlotSettings.class);
+			mockPlotSettings = Mockito.mock(ScanPlotSettings.class);
 			Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
 
 			// then stub the factory method and make sure that it always retruns the stub
-			Method staticMethod = ScannableCommands.class.getMethod("createConcurrentScan", Object[].class);
-			MethodStubStrategy<Object> stubbedMethod = MemberModifier.stub(staticMethod);
-			stubbedMethod.toReturn(mockScan);
+			Mockito.when(ScannableCommands.createConcurrentScan(any())).thenReturn(mockScan);
 		}
+	}
+
+	@After
+	public void closeMock() {
+		scannableCommandsMock.close();
 	}
 
 	@Test
@@ -166,7 +167,7 @@ public class StepMapTest {
 	}
 
 	protected SampleEnvironmentIterator createSingleScanIterator() {
-		SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
+		SampleEnvironmentIterator it = Mockito.mock(SampleEnvironmentIterator.class);
 		Mockito.when(it.getNumberOfRepeats()).thenReturn(1);
 		Mockito.when(it.getNextSampleName()).thenReturn("My sample");
 		Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());

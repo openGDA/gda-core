@@ -7,7 +7,6 @@ Fragment-Host: uk.ac.gda.devices.hidenrga;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: javassist,
  org.junit;bundle-version="[4.12.0,5.0.0)",
- uk.ac.diamond.org.powermock,
  org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent

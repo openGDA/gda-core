@@ -6,14 +6,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -41,18 +38,18 @@ import uk.ac.gda.api.io.PathConstructor;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("org.python.*")
-@PrepareForTest({ HidenRGAController.class, PathConstructor.class, LocalProperties.class })
 public class HidenRGATest {
 
 	private int[] masses;
 	private LinkedHashSet<Integer> massesSet;
 	private HidenRGAScannable rga;
 	private HidenRGAController mockedController;
+	private MockedStatic<LocalProperties> localPropertiesMock;
 
 	@Before
 	public void setup() throws DeviceException, IOException {
+
+		localPropertiesMock = Mockito.mockStatic(LocalProperties.class);
 
 		JythonServerFacade jythonserverfacade = Mockito.mock(JythonServerFacade.class);
 		InterfaceProvider.setTerminalPrinterForTesting(jythonserverfacade);
@@ -66,23 +63,28 @@ public class HidenRGATest {
 		rga = new HidenRGAScannable();
 		rga.setName("rga");
 
-		mockedController = PowerMockito.mock(HidenRGAController.class);
+		mockedController = Mockito.mock(HidenRGAController.class);
 
-		PowerMockito.when(mockedController.readout()).thenReturn(new double[]{12.5,177.7, 145.2});
-		PowerMockito.when(mockedController.readValve()).thenReturn(0.7);
-		PowerMockito.when(mockedController.readtemp()).thenReturn(20.0);
+		Mockito.when(mockedController.readout()).thenReturn(new double[]{12.5,177.7, 145.2});
+		Mockito.when(mockedController.readValve()).thenReturn(0.7);
+		Mockito.when(mockedController.readtemp()).thenReturn(20.0);
 
 
 		IPathConstructor pathConstructor = Mockito.mock(PathConstructor.class);
 		InterfaceProvider.setPathConstructorForTesting(pathConstructor);
-		PowerMockito.when(pathConstructor.createFromDefaultProperty()).thenReturn("/tmp");
+		Mockito.when(pathConstructor.createFromDefaultProperty()).thenReturn("/tmp");
 
-		PowerMockito.mockStatic(LocalProperties.class);
-		PowerMockito.when(LocalProperties.get(LocalProperties.GDA_VAR_DIR)).thenReturn("/tmp");
+		Mockito.when(LocalProperties.get(LocalProperties.GDA_VAR_DIR)).thenReturn("/tmp");
 
 
 		rga.setController(mockedController);
 	}
+
+	@After
+	public void tearDown() {
+		localPropertiesMock.close();
+	}
+
 
 	@Test
 	public void testExtraNamesAfterSettingsMasses() {

@@ -26,18 +26,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.UseClassPathAdjuster;
-import org.powermock.core.classloader.javassist.ClassPathAdjuster;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.python.core.Py;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
@@ -55,8 +50,6 @@ import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ConcurrentScan;
 import gda.scan.ScanPlotSettings;
-import javassist.ClassPool;
-import javassist.LoaderClassPath;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -69,23 +62,7 @@ import uk.ac.gda.beans.exafs.TransmissionParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
-@RunWith(PowerMockRunner.class)
-@UseClassPathAdjuster(EnergyScanTest.JythonCPAdjuster.class)
-@PrepareForTest({ ScannableCommands.class})
 public class EnergyScanTest {
-
-	/**
-	 * Required for PowerMock to find classes in Tycho OSGi environment
-	 */
-	public static class JythonCPAdjuster implements ClassPathAdjuster {
-
-		@Override
-		public void adjustClassPath(ClassPool classPool) {
-			classPool.insertClassPath(new LoaderClassPath(Py.class.getClassLoader()));
-
-		}
-
-	}
 
 
 	private BeamlinePreparer beamlinePreparer;
@@ -104,6 +81,7 @@ public class EnergyScanTest {
 	private final String experimentalFullPath = "/scratch/test/xml/path/";
 	private ConcurrentScan mockScan;
 	private ScanPlotSettings mockPlotSettings;
+	private MockedStatic<ScannableCommands> scannableCommandsMock;
 
 	private Set<IonChamberParameters> makeIonChamberParameters() {
 		IonChamberParameters ionParams = new IonChamberParameters();
@@ -136,6 +114,8 @@ public class EnergyScanTest {
 	public void setup() throws DeviceException {
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 
+		scannableCommandsMock = Mockito.mockStatic(ScannableCommands.class);
+
 		ionchambers = Mockito.mock(TfgScalerWithFrames.class);
 		Mockito.when(ionchambers.getName()).thenReturn("ionchambers");
 		Mockito.when(ionchambers.readout()).thenReturn(new double[] { 1.0, 2.0, 3.0 });
@@ -155,7 +135,7 @@ public class EnergyScanTest {
 		InterfaceProvider.setScanStatusHolderForTesting(jythonserverfacade);
 		Mockito.when(jythonserverfacade.getFromJythonNamespace("ionchambers")).thenReturn(ionchambers);
 
-		JythonServer jythonserver = PowerMockito.mock(JythonServer.class);
+		JythonServer jythonserver = Mockito.mock(JythonServer.class);
 		InterfaceProvider.setDefaultScannableProviderForTesting(jythonserver);
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(jythonserver);
 		InterfaceProvider.setJythonServerNotiferForTesting(jythonserver);
@@ -236,6 +216,11 @@ public class EnergyScanTest {
 
 	}
 
+	@After
+	public void closeMock() {
+		scannableCommandsMock.close();
+	}
+
 	@Test
 	public void testSingleXanesScan() {
 
@@ -303,8 +288,7 @@ public class EnergyScanTest {
 		mockPlotSettings = Mockito.mock(ScanPlotSettings.class);
 		Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
 
-		PowerMockito.mockStatic(ScannableCommands.class);
-		PowerMockito.when(ScannableCommands.createConcurrentScan(ArgumentMatchers.any())).thenReturn(mockScan);
+		Mockito.when(ScannableCommands.createConcurrentScan(ArgumentMatchers.any())).thenReturn(mockScan);
 
 	}
 
