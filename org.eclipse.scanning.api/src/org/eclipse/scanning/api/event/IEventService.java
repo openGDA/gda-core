@@ -26,7 +26,7 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 /**
  *
  * The scanning event service allows one to subscribe to
- * and broadcast events. It may be backed by the EventBus or
+ * and broadcast events. It may be backed by the MsgBus or
  * plain JMS queues and topics depending on the service implementor.
  *
  * <ul>
