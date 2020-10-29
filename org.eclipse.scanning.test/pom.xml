@@ -40,8 +40,6 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<excludes>
-						<!-- Powermock issues -->
-						<exclude>QueuePersistenceTest</exclude>
 						<!-- Flaky new-scanning tests, currently excluded -->
 						<exclude>PosDetectorScanTest</exclude>
 						<exclude>JmsQueueReaderTest</exclude>

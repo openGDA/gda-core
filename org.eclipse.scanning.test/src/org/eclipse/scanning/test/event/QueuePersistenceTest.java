@@ -24,10 +24,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,13 +49,11 @@ import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.h2.mvstore.MVStore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(MVStore.class)
 public class QueuePersistenceTest extends AbstractJobQueueTest {
+
 
 	@Test
 	public void testQueuePersistence() throws Exception {
@@ -115,31 +112,34 @@ public class QueuePersistenceTest extends AbstractJobQueueTest {
 		assertThat(queueFilePath.toFile().exists(), is(false));
 		queueFilePath.toFile().deleteOnExit();
 
-		final MVStore mockMvStore = mock(MVStore.class);
 
-		mockStatic(MVStore.class);
-		when(MVStore.open(anyString())).thenReturn(mockMvStore).thenCallRealMethod();
-		when(mockMvStore.openMap(anyString())).thenThrow(IllegalArgumentException.class);
+		try (MockedStatic<MVStore> staticMock = mockStatic(MVStore.class)) {
 
-		assertThat(queueFilePath.toFile().exists(), is(false));
-		final Instant startTime = Instant.now();
+			final MVStore mockMvStore = Mockito.mock(MVStore.class);
 
-		final IJobQueue<StatusBean> jobQueue = new JobQueueImpl<>(uri, "testQueue",
-				EventConstants.STATUS_TOPIC, EventConstants.QUEUE_STATUS_TOPIC,
-				EventConstants.CMD_TOPIC,
-				EventConstants.ACK_TOPIC, eventConnectorService, eventService);
+			when(MVStore.open(anyString())).thenReturn(mockMvStore).thenCallRealMethod();
+			when(mockMvStore.openMap(anyString())).thenThrow(IllegalArgumentException.class);
 
-		verify(mockMvStore).closeImmediately();
+			assertThat(queueFilePath.toFile().exists(), is(false));
+			final Instant startTime = Instant.now();
 
-		// verify that a new file was created
-		assertThat(queueFilePath.toFile().exists(), is(true));
-		final Instant fileCreationTime = Files.readAttributes(queueFilePath, BasicFileAttributes.class).creationTime().toInstant();
-		assertThat(fileCreationTime, is(greaterThanOrEqualTo(startTime.truncatedTo(ChronoUnit.SECONDS))));
+			final IJobQueue<StatusBean> jobQueue = new JobQueueImpl<>(uri, "testQueue", EventConstants.STATUS_TOPIC,
+					EventConstants.QUEUE_STATUS_TOPIC, EventConstants.CMD_TOPIC, EventConstants.ACK_TOPIC,
+					eventConnectorService, eventService);
 
-		assertThat(jobQueue.getSubmissionQueue(), is(empty()));
-		assertThat(jobQueue.getRunningAndCompleted(), is(empty()));
+			verify(mockMvStore).closeImmediately();
 
-		jobQueue.close();
+			// verify that a new file was created
+			assertThat(queueFilePath.toFile().exists(), is(true));
+			final Instant fileCreationTime = Files.readAttributes(queueFilePath, BasicFileAttributes.class)
+					.creationTime().toInstant();
+			assertThat(fileCreationTime, is(greaterThanOrEqualTo(startTime.truncatedTo(ChronoUnit.SECONDS))));
+
+			assertThat(jobQueue.getSubmissionQueue(), is(empty()));
+			assertThat(jobQueue.getRunningAndCompleted(), is(empty()));
+
+			jobQueue.close();
+		}
 	}
 
 	/**
