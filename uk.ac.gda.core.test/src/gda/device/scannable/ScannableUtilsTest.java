@@ -505,7 +505,6 @@ public class ScannableUtilsTest {
 		assertEquals("double from PyInteger", objectToDouble(Py.newInteger(23)), 23.0, 1e-6);
 		assertEquals("double from PyLong", objectToDouble(Py.newLong(42)), 42.0, 1e-6);
 		assertEquals("double from PyString", objectToDouble(Py.newString("87.65")), 87.65, 1e-6);
-		assertEquals("double from PyDecimal", objectToDouble(Py.newDecimal("76.54")), 76.54, 1e-6);
 		assertEquals("double from distance", objectToDouble(getQuantity(12.2, Units.METRE)), 12.2, 1e-6);
 		assertEquals("double from unitless quantity", objectToDouble(getQuantity(19.1, AbstractUnit.ONE)), 19.1, 1e-6);
 		assertEquals("double from Arbitrary object string", objectToDouble(new NumberString("34.89")), 34.89, 1e-6);
@@ -520,7 +519,6 @@ public class ScannableUtilsTest {
 		assertNull("null from null", objectToDouble(null));
 		assertNull("null from non number string", objectToDouble("not a number"));
 		assertNull("null from non number", objectToDouble(new Object()));
-		assertNull("null from non number PyObject", objectToDouble(Py.Ellipsis));
 	}
 
 	@Test
@@ -571,19 +569,17 @@ public class ScannableUtilsTest {
 		PyTuple inputTuple = new PyTuple(Py.newInteger(17),
 				Py.newFloat(2.3),
 				Py.newFloat(3.4f),
-				Py.newDecimal("3.4"),
 				Py.newString("7.2"));
 		Double[] outputTuple = objectToArray(inputTuple);
-		assertDoubleArrayEquals(outputTuple, 17.0, 2.3, 3.4, 3.4, 7.2);
+		assertDoubleArrayEquals(outputTuple, 17.0, 2.3, 3.4, 7.2);
 
 		PyList inputList = new PyList(new PyObject[] {
 				Py.newInteger(17),
 				Py.newFloat(2.3),
 				Py.newFloat(3.4f),
-				Py.newDecimal("3.4"),
 				Py.newString("7.2")});
 		Double[] outputList = objectToArray(inputList);
-		assertDoubleArrayEquals(outputList, 17.0, 2.3, 3.4, 3.4, 7.2);
+		assertDoubleArrayEquals(outputList, 17.0, 2.3, 3.4, 7.2);
 	}
 
 	@Test
