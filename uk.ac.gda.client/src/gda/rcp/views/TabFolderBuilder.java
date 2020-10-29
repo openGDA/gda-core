@@ -13,7 +13,12 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  * Helps the creation of a tab composite. This tab composite provides also a functionality which allows a tab to acquire
@@ -23,6 +28,8 @@ import org.springframework.beans.factory.InitializingBean;
  *
  */
 public class TabFolderBuilder {
+
+	private static final Logger logger = LoggerFactory.getLogger(TabFolderBuilder.class);
 
 	/**
 	 * Identifies a property in the composite data created by {@link CompositeFactory#createComposite(Composite, int)}.
@@ -49,7 +56,16 @@ public class TabFolderBuilder {
 	}
 
 	public CompositeFactory build() {
-		return new TabFolderCompositeFactory(builder.build(), selectionListener);
+		try {
+			return new TabFolderCompositeFactory(builder.build(), selectionListener);
+		} catch (GDAClientException e) {
+			logger.error("Cannot build the Tab", e);
+			return missingCompositeFactory();
+		}
+	}
+
+	private TabFolderCompositeFactory missingCompositeFactory() {
+		return new TabFolderCompositeFactory(new TabCompositeFactory[] {missingTab()}, null) ;
 	}
 
 	public class TabFolderCompositeFactory implements CompositeFactory, InitializingBean {
@@ -108,7 +124,7 @@ public class TabFolderBuilder {
 			tabs = new HashMap<>();
 			for (int i = 0; i < availableModes.length; i++) {
 				TabCompositeFactory mode = availableModes[i];
-				if (mode.isEnabled()) {
+				if (mode.isEnabled() || !mode.isVisible()) {
 					CTabItem cTab = new CTabItem(tabFolder, SWT.NONE);
 					Image tabImage = mode.getImage();
 					if (tabImage != null) {
@@ -159,5 +175,44 @@ public class TabFolderBuilder {
 				}
 			};
 		}
+	}
+
+	private TabCompositeFactory missingTab() {
+		return new TabCompositeFactory() {
+
+			@Override
+			public Composite createComposite(Composite parent, int style) {
+				Composite container = ClientSWTElements.createComposite(parent, SWT.NONE, 1);
+				ClientSWTElements.createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
+						.indent(5, SWT.DEFAULT).applyTo(container);
+				ClientSWTElements.createClientLabel(container, SWT.NONE, getLabel());
+				return container;
+			}
+
+			@Override
+			public boolean isEnabled() {
+				return false;
+			}
+
+			@Override
+			public boolean isVisible() {
+				return true;
+			}
+
+			@Override
+			public String getTooltip() {
+				return "This tab is incomplete";
+			}
+
+			@Override
+			public String getLabel() {
+				return "Crashed tab";
+			}
+
+			@Override
+			public Image getImage() {
+				return null;
+			}
+		};
 	}
 }

@@ -52,5 +52,7 @@ public interface TabCompositeFactory extends CompositeFactory{
 
 	public abstract boolean isEnabled();
 
-
+	default boolean isVisible() {
+		return true;
+	}
 }

@@ -22,6 +22,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.gda.client.exception.GDAClientException;
+
 /**
  * Helps to assembles {@link CompositeFactory}
  * @author Maurizio Nagni
@@ -35,9 +37,13 @@ public class CompositeFactoriesBuilder<T extends CompositeFactory> {
 		return this;
 	}
 
-	public final T[] build() {
+	/**
+	 * @return an array of composites
+	 * @throws GDAClientException if the builder is empty
+	 */
+	public final T[] build() throws GDAClientException {
 		if (composites.isEmpty()) {
-			return (T[]) composites.toArray();
+			throw new GDAClientException("Empty composite. Cannot create any CompositeFactory");
 		}
 		return composites.toArray((T[]) Array.newInstance(composites.get(0).getClass(), 0));
 	}

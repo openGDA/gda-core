@@ -51,7 +51,7 @@ public class TR6Stage extends CommonStage {
 	private StageCompositeDefinition[] createMotorAxesComposite() {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
 		builder.assemble(StageDevice.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
-		builder.assemble(StageDevice.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
+		builder.assemble(StageDevice.MOTOR_STAGE_ROT_Y, ClientMessages.AXIS_THETA);
 		return builder.build();
 	}
 }

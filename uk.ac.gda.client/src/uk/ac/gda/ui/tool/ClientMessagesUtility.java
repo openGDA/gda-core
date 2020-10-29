@@ -53,6 +53,21 @@ public class ClientMessagesUtility {
 		return getMessage(null, message);
 	}
 
+	/**
+	 * Return a ClientMessage constant however the value is passed as string.
+	 * This feature may be useful when the configuration is done externally to the code (XML, JSON, properties).
+	 * Protects against {@link ClientMessages#valueOf(String)} exceptions
+	 * @param messageKey the required {@code ClientMessage} constant to search
+	 * @return the value of an existing {@code ClientMessages} constant if exists, or
+	 */
+	public static final ClientMessages getClientMessageByString(String messageKey) {
+		try {
+			return ClientMessages.valueOf(messageKey);
+		} catch (NullPointerException | IllegalArgumentException e) {
+			return ClientMessages.MISSING_MESSAGE;
+		}
+	}
+
 	public static final String getMessage(Locale locale, ClientMessages message) {
 		if (Objects.isNull(message)) {
 			return MESSAGE_UNDEFINED;
