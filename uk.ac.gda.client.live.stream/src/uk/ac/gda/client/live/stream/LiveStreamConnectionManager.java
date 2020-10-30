@@ -72,13 +72,7 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionManager
 		if (optional.isPresent()) {
 			return optional.get();
 		}
-		optional = liveStreamConnections.stream().filter(s -> s.similarConfiguration(cameraConfig, streamType))
-				.findFirst();
-		// Same StreamType, different Configuration
-		if (optional.isPresent()) {
-			return doIStreamConnection(cameraConfig, optional.get());
-		}
-		// Not existing Configuration and StreamType
+		// Create new connection
 		return doIStreamConnection(cameraConfig, streamType);
 	}
 
@@ -94,20 +88,6 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionManager
 		LiveStreamConnection liveStream = new LiveStreamConnection(cameraConfig, streamType);
 		liveStream.connect();
 		liveStreamConnections.add(liveStream);
-		return liveStream;
-	}
-
-	/**
-	 * Clones an existing connection using a different CameraConfiguration but same {@link StreamType}
-	 *
-	 * @param cameraConfig
-	 * @param liveStream
-	 * @return
-	 */
-	private LiveStreamConnection doIStreamConnection(CameraConfiguration cameraConfig,
-			LiveStreamConnection liveStream) {
-		LiveStreamConnection newLiveStream = new LiveStreamConnection(cameraConfig, liveStream);
-		liveStreamConnections.add(newLiveStream);
 		return liveStream;
 	}
 
