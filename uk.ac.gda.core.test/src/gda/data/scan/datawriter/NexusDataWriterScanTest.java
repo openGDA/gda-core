@@ -200,7 +200,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		}
 
 		assertThat(data.getNumberOfDataNodes(), is(expectedNumDataNodes));
-		for (int i = 0; i < scanRank; i++) {
+		for (int i = 0; i < scannableAndMonitorNames.length; i++) {
 			final String scannableName = scannableAndMonitorNames[i];
 			if (i < scanRank) {
 				assertThat(data.getDataNode(scannableName), is(both(notNullValue()).and(sameInstance(
