@@ -18,15 +18,14 @@
 
 package gda.spring;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
-import gda.configuration.epics.EpicsConfiguration;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import gda.factory.FactoryException;
 
 /**
  * Base {@link FactoryBean} for creating objects that rely on configuration
@@ -49,36 +48,6 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 		this.name = name;
 	}
 
-	protected EpicsConfiguration epicsConfiguration;
-
-	/**
-	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 *
-	 * @param epicsConfiguration the EpicsConfiguration
-	 */
-	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
-		this.epicsConfiguration = epicsConfiguration;
-	}
-
-	/**
-	 * Retrieves the {@link EpicsConfiguration} from the application context.
-	 *
-	 * @return the EPICS configuration
-	 */
-	protected EpicsConfiguration getEpicsConfiguration() {
-		String[] epicsConfigBeans = applicationContext.getBeanNamesForType(EpicsConfiguration.class);
-		if (epicsConfigBeans.length == 0) {
-			throw new RuntimeException("You have not defined an EpicsConfiguration bean");
-		} else if (epicsConfigBeans.length > 1) {
-			if (epicsConfiguration != null) {
-				return epicsConfiguration;
-			}
-			throw new RuntimeException("You have defined multiple EpicsConfiguration beans but not defined which one to use");
-		} else {
-			return (EpicsConfiguration) applicationContext.getBean(epicsConfigBeans[0]);
-		}
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		createObject();
@@ -87,10 +56,8 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 	/**
 	 * Creates the object managed by this factory.
 	 *
-	 * @throws ConfigurationNotFoundException if configuration information
-	 *         cannot be found for the device
 	 */
-	protected abstract void createObject() throws ConfigurationNotFoundException;
+	protected abstract void createObject() throws FactoryException;
 
 	@Override
 	public boolean isSingleton() {

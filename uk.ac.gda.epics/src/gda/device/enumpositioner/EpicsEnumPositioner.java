@@ -30,9 +30,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.STSHandler;
 import gda.epics.util.JCAUtils;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.event.ConnectionEvent;
@@ -63,10 +61,6 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 
 	private Channel stopChnl;
 
-	private EpicsRecord epicsRecord;
-
-	private String epicsRecordName;
-
 	private HashSet<Channel> monitorInstalledSet;
 
 	private EpicsChannelManager channelManager;
@@ -85,11 +79,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 
 		if (!isConfigured()) {
 			if (pvBase == null) {
-				if ((epicsRecord = Finder.find(epicsRecordName)) != null) {
-					pvBase = epicsRecord.getFullRecordName();
-				} else {
-					return;
-				}
+				throw new FactoryException("pvBase must be set");
 			}
 			monitorInstalledSet = new HashSet<>();
 
@@ -138,24 +128,6 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 
 			setConfigured(true);
 		}// end of if(!configured)
-	}
-
-	/**
-	 * Returns the name of the Epics Positioner template this object is using
-	 *
-	 * @return the name of the Epics Positioner template
-	 */
-	public String getEpicsRecordName() {
-		return epicsRecordName;
-	}
-
-	/**
-	 * Sets the name of the Epics Positioner template to use.
-	 *
-	 * @param recordName
-	 */
-	public void setEpicsRecordName(String recordName) {
-		this.epicsRecordName = recordName;
 	}
 
 	@Override

@@ -20,10 +20,10 @@ package gda.spring;
 
 import org.springframework.beans.factory.FactoryBean;
 
-import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsEnumPositioner;
 import gda.device.enumpositioner.EpicsPneumaticCallback;
+import gda.factory.FactoryException;
 
 /**
  * A {@link FactoryBean} for creating {@link EpicsPneumaticCallback} objects.
@@ -41,7 +41,7 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 	private EpicsEnumPositioner epicsEnumPositioner;
 
 	@Override
-	protected void createObject() throws ConfigurationNotFoundException {
+	protected void createObject() throws FactoryException {
 		epicsEnumPositioner = new EpicsEnumPositioner();
 		epicsEnumPositioner.setName(name);
 		epicsEnumPositioner.setPvBase(pvBase);
@@ -49,7 +49,7 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 			if (protectionLevel != null)
 					epicsEnumPositioner.setProtectionLevel(protectionLevel);
 		} catch (DeviceException e) {
-			throw new ConfigurationNotFoundException("cannot set protection level for "+name);
+			throw new FactoryException("cannot set protection level for "+ name);
 		}
 	}
 
