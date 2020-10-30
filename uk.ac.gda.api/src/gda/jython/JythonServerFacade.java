@@ -19,22 +19,20 @@
 
 package gda.jython;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 import org.python.core.PyException;
-import org.python.core.PyFile;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,7 +327,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public CommandThreadEvent runScript(File script) {
 		try {
 			String commands;
-			commands = slurp(script);
+			commands = Files.readAllLines(script.toPath()).stream().collect(Collectors.joining("\n"));
 			logger.debug("Running script {}", script.getAbsolutePath());
 			String scriptName = script.getName();
 			final CommandThreadEvent event = commandServer.runScript(commands, scriptName, name);
@@ -571,76 +569,6 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	public String getStartupOutput() {
 		return commandServer.getStartupOutput(name);
-	}
-
-	/**
-	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
-	 * you're interested).
-	 *
-	 * @param pyFile
-	 * @return contents of the file as a string
-	 */
-	public static String slurp(PyFile pyFile) {
-		String contents = "";
-		try {
-			String str;
-			while ((str = pyFile.readline().asString()).compareTo("") != 0) {
-				contents += str;
-			}
-			return contents;
-		} finally {
-			pyFile.close();
-		}
-	}
-
-	/**
-	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
-	 * you're interested).
-	 *
-	 * @param file
-	 *            File
-	 * @return String
-	 * @throws IOException
-	 */
-	public static String slurp(File file) throws IOException {
-		String contents = "";
-		BufferedReader in = new BufferedReader(new FileReader(file));
-		try {
-			String str;
-			while ((str = in.readLine()) != null) {
-				contents += str;
-				contents += System.getProperty("line.separator");
-			}
-			return contents;
-		} finally {
-			in.close();
-		}
-	}
-
-	/**
-	 * Places the contents of a file into a string. Careful what you give this method! Named after the Perl command (if
-	 * you're interested).
-	 *
-	 * @param file
-	 *            File
-	 * @return String
-	 */
-	public static String slurp(InputStream file) {
-		String contents = "";
-		try {
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(file));
-			String str;
-			while ((str = in.readLine()) != null) {
-				contents += str;
-				contents += System.getProperty("line.separator");
-			}
-			in.close();
-		} catch (IOException e) {
-			logger.warn("Error while JythonServerFacade reading InputStream " + file.toString());
-			return "";
-		}
-		return contents;
 	}
 
 	public void addAliasedCommand(String commandName) {

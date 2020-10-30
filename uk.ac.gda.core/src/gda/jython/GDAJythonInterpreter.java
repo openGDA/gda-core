@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -565,13 +566,12 @@ public class GDAJythonInterpreter {
 		// import the station startup script
 		// run this last as it may use variables set up above
 		String gdaStationScript = getGdaStationScript();
-		// File localStation = new File(getGdaScriptDir() + "localStation.py");
 		if (StringUtils.hasText(gdaStationScript)) {
 			logger.info("Running startupScript: {}", gdaStationScript);
 			final Stopwatch localStationStopwatch = Stopwatch.createStarted();
 			try {
-				File localStation = new File(gdaStationScript);
-				final String lines = JythonServerFacade.slurp(localStation);
+				Path localStation = Paths.get(gdaStationScript);
+				final String lines = Files.readAllLines(localStation).stream().collect(Collectors.joining("\n"));
 				this.runscript(lines);
 				logger.info("Completed startupScript. Took {} seconds", localStationStopwatch.elapsed(SECONDS));
 			} catch (Exception e) {
