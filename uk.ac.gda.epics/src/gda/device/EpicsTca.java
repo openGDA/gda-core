@@ -28,11 +28,7 @@ import org.slf4j.LoggerFactory;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.util.QuantityFactory;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
@@ -48,7 +44,6 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTca.class);
 
-	private String epicsTcaRecordName;
 	private String tcaRecordName;
 	private Channel scaler1HighChannel;
 	private Channel scaler1LowChannel;
@@ -238,18 +233,11 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
 			try {
-				if (epicsTcaRecordName != null) {
-					EpicsRecord epicsTcaRecord = (EpicsRecord) Finder.find(epicsTcaRecordName);
-					if (epicsTcaRecord != null) {
-						configure(epicsTcaRecord.getFullRecordName());
-					}
-				} else if (getDeviceName() != null) {
-					configure(getPV());
-				} else if (tcaRecordName != null) {
+				if (tcaRecordName != null) {
 					configure(tcaRecordName);
 				}
-			} catch (Exception e) {
-				throw new FactoryException("Error initialising device " + getDeviceName(), e);
+			} catch (CAException e) {
+				throw new FactoryException("Error initialising device " + getName(), e);
 			}
 		}
 		setConfigured(true);
@@ -765,20 +753,6 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 	}
 
 	/**
-	 * @return the epics record name
-	 */
-	public String getEpicsTcaRecordName() {
-		return epicsTcaRecordName;
-	}
-
-	/**
-	 * @param epicsTcaRecordName
-	 */
-	public void setEpicsTcaRecordName(String epicsTcaRecordName) {
-		this.epicsTcaRecordName = epicsTcaRecordName;
-	}
-
-	/**
 	 * @return converter name
 	 */
 	public String getCalibrationName() {
@@ -792,27 +766,4 @@ public class EpicsTca extends DeviceBase implements InitializationListener {
 		this.converterName = calibrationName;
 	}
 
-	private String deviceName;
-
-	/**
-	 * @return device name
-	 */
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	/**
-	 * @param deviceName
-	 */
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
-
-	/**
-	 * @return PV
-	 * @throws InterfaceException
-	 */
-	public String getPV() throws InterfaceException {
-		return GDAEpicsInterfaceReader.getPVFromSimplePVType(getDeviceName());
-	}
 }
