@@ -30,7 +30,6 @@ import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaces.PositionerType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -104,8 +103,6 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 
 	private Object lock = new Object();
 
-	protected PositionerType configuration;
-
 	/**
 	 * Constructor
 	 */
@@ -135,13 +132,6 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
 		setRecordNamesUsingBasePv(recordName);
-	}
-
-	/**
-	 * Sets the configuration for this positioner.
-	 */
-	public void setConfiguration(PositionerType configuration) {
-		this.configuration = configuration;
 	}
 
 	@Override
