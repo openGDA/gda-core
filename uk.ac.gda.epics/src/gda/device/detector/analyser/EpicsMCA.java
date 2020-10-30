@@ -33,11 +33,7 @@ import gda.device.MCAStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.interfaceSpec.InterfaceException;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.util.QuantityFactory;
 import gda.util.converters.CoupledConverterHolder;
 import gda.util.converters.IQuantitiesConverter;
@@ -307,19 +303,12 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
+			if (pvName == null) {
+				throw new FactoryException("pvName must be set");
+			}
 			try {
-				if (pvName == null) {
-					if (epicsMcaRecordName != null) {
-						EpicsRecord epicsRecord = (EpicsRecord) Finder.find(epicsMcaRecordName);
-						if (epicsRecord != null) {
-							pvName = epicsRecord.getFullRecordName();
-						}
-					} else if (getDeviceName() != null) {
-						pvName = getPV();
-					}
-				}
 				configure(pvName);
-			} catch (Exception e) {
+			} catch (CAException e) {
 				throw new FactoryException("Error initialising device " + getDeviceName(), e);
 			}
 		}
@@ -1240,11 +1229,10 @@ public class EpicsMCA extends AnalyserBase implements IEpicsMCA, InitializationL
 	}
 
 	/**
-	 * @return PV
-	 * @throws InterfaceException
+	 * @return PV Name
 	 */
-	public String getPV() throws InterfaceException {
-		return GDAEpicsInterfaceReader.getPVFromSimplePVType(getDeviceName());
+	public String getPvName() {
+		return pvName;
 	}
 
 	@Override
