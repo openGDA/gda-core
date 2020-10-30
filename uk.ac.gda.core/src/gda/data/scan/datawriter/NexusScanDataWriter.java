@@ -284,7 +284,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusDevices.put(ScanRole.DETECTOR, getNexusDetectors(point));
 		nexusDevices.put(ScanRole.SCANNABLE, getScannables(point));
 		nexusDevices.put(ScanRole.MONITOR_PER_POINT, getPerPointMonitors(point));
-		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, getPerScanMonitors());
+		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, getPerScanMonitors(point));
 		nexusDevices.put(ScanRole.NONE, Collections.emptyList());
 
 		return nexusDevices;
@@ -363,9 +363,32 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		}
 	}
 
-	private List<INexusDevice<?>> getPerScanMonitors() {
-		// TODO get per scan monitors
-		return Collections.emptyList();
+	private INexusDevice<?> createNexusDevice(String scannableName) {
+		final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		if (scannable == null) {
+			// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
+			// metadata to be added without having to create a scannable.
+			INexusDevice<? extends NXobject> nexusDevice = null;
+			try {
+				nexusDevice = ServiceHolder.getNexusDeviceService().getNexusDevice(scannableName);
+			} catch (NexusException e) {
+				logger.error("An error occurred getting a nexus device with the name '{}'. It will not be written.", scannableName, e);
+			}
+			if (nexusDevice == null) {
+				logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
+			}
+			return null;
+		}
+
+		return createNexusDevice(scannable);
+	}
+
+	private List<INexusDevice<?>> getPerScanMonitors(IScanDataPoint point) {
+		final MetadataScannableCalculator calculator = new MetadataScannableCalculator(
+				point.getDetectorNames(), point.getScannableNames());
+		final Set<String> metadataScannableNames = calculator.calculateMetadataScannableNames();
+
+		return metadataScannableNames.stream().map(this::createNexusDevice).collect(toList());
 	}
 
 	private Set<String> getTemplateFilePaths() {
@@ -382,7 +405,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final SliceND sliceND = createScanSlice(scanPosition);
 
 		writeScannables(point, sliceND);
-		writeDetectors(point, sliceND); // TODO just use int[] for slice? or create new class
+		writeDetectors(point, sliceND);
 	}
 
 	private void writeScannables(IScanDataPoint point, final SliceND sliceND) throws Exception {

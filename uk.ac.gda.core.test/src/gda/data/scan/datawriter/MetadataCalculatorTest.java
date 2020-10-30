@@ -42,20 +42,6 @@ public class MetadataCalculatorTest {
 		return writer;
 	}
 
-	@Test
-	public void testCalculateMetadataScannableNames() {
-		configureMetadataScannables();
-
-		final Set<String> detectorNames = Sets.newHashSet("det1", "det2", "det3"); // TODO when we can use Java 9+, use Set.of(...)
-		final Set<String> scannableNames = Sets.newHashSet("energy", "stage_y", "stage_x");
-		final MetadataScannableCalculator metadataScannableCalculator =
-				new MetadataScannableCalculator(detectorNames, scannableNames);
-
-		final Set<String> metadataScannables = metadataScannableCalculator.calculateMetadataScannableNames();
-		assertThat(metadataScannables, containsInAnyOrder("m1", "m2", "m3", "m4", "m5",
-				"m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15"));
-	}
-
 	private void configureMetadataScannables() {
 		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
 		config.setMetadataScannables(Sets.newHashSet("m1", "m2"));
@@ -74,6 +60,20 @@ public class MetadataCalculatorTest {
 		locationMap.put("m6", createScannableWriter("m15"));
 
 		config.setLocationMap(locationMap);
+	}
+
+	@Test
+	public void testCalculateMetadataScannableNames() {
+		configureMetadataScannables();
+
+		final Set<String> detectorNames = Sets.newHashSet("det1", "det2", "det3"); // TODO when we can use Java 9+, use Set.of(...)
+		final Set<String> scannableNames = Sets.newHashSet("energy", "stage_y", "stage_x");
+		final MetadataScannableCalculator metadataScannableCalculator =
+				new MetadataScannableCalculator(detectorNames, scannableNames);
+
+		final Set<String> metadataScannables = metadataScannableCalculator.calculateMetadataScannableNames();
+		assertThat(metadataScannables, containsInAnyOrder("m1", "m2", "m3", "m4", "m5",
+				"m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15"));
 	}
 
 }

@@ -47,6 +47,8 @@ public class NexusDataWriterConfiguration extends FindableBase {
 
 	private Map<String, ScannableWriter> locationMap;
 
+	private Map<String, Set<String>> scannableDepencenciesMap;
+
 	private Map<String, Set<String>> metadataScannablesPerDetectorMap;
 
 	private List<String> nexusTemplateFiles;

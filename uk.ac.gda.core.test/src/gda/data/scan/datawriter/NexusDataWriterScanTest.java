@@ -48,6 +48,8 @@ import gda.configuration.properties.LocalProperties;
 @RunWith(value=Parameterized.class)
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
+	private static final int[] METADATA_DATASET_SHAPE = new int[] { 1 };
+
 	private static final String FIELD_NAME_SCAN_COMMAND = "scan_command";
 	private static final String FIELD_NAME_SCAN_DIMENSIONS = "scan_dimensions";
 	private static final String FIELD_NAME_USER_NAME = "username";
@@ -60,7 +62,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private static final String ENTRY_NAME = "entry1";
 
 	private static final int NUM_SCANNABLE_VALUE_ATTRIBUTES = 5;
-	private static final int NUM_MONITOR_VALUE_ATTRIBUTES = 3;
+	private static final int NUM_MONITOR_VALUE_ATTRIBUTES = 5;
+	private static final int NUM_METADATA_SCANNABLE_VALUE_ATTRIBUTES = 3;
 
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
@@ -119,7 +122,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(instrument.getNumberOfDataNodes(), is(1));
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
-		final int expectedGroupNodes = getNumDevices() + 1; // group node for each scannable plus monitor, detector and source
+		final int expectedGroupNodes = getNumDevices() + 1; // group for each device, plus source group
 		assertThat(instrument.getNumberOfGroupNodes(), is(expectedGroupNodes));
 		checkSource(instrument);
 	}
@@ -137,14 +140,14 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected void checkScannablePositioner(NXpositioner scannablePos, int i) throws Exception {
+	protected void checkDefaultScannablePositioner(NXpositioner scannablePos, int i) throws Exception {
 		final String scannableName = scannables[i].getName();
 		final DataNode scannableValueDataNode = scannablePos.getDataNode(scannableName);
 		final String expectedAxes = String.join(",", IntStream.range(0, scanRank).map(j->j+1).mapToObj(Integer::toString).toArray(String[]::new));
 		assertThat(scannableValueDataNode, is(notNullValue()));
 		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(NUM_SCANNABLE_VALUE_ATTRIBUTES));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo(expectedAxes)));
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LABEL).getFirstElement(), is(Integer.toString(i+1)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LABEL).getFirstElement(), is(Integer.toString(i)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_PRIMARY).getFirstElement(), is(equalTo(("1"))));
@@ -155,6 +158,30 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 		assertThat(scannablePos.getSoft_limit_minScalar(), is(equalTo(SCANNABLE_LOWER_BOUND)));
 		assertThat(scannablePos.getSoft_limit_maxScalar(), is(equalTo(SCANNABLE_UPPER_BOUND)));
+	}
+
+	@Override
+	protected void checkConfiguredScannablePositioner(String scannableName, NXpositioner positioner)
+			throws Exception {
+		assertThat(positioner.getNumberOfDataNodes(), is(1));
+		assertThat(positioner.getDataNodeMap().keySet(), contains(scannableName));
+
+		final DataNode scannableValueDataNode = positioner.getDataNode(scannableName);
+		assertThat(scannableValueDataNode, is(notNullValue()));
+
+		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(5));
+		final String expectedAxes = String.join(",", IntStream.range(0, scanRank).map(j->j+1).mapToObj(Integer::toString).toArray(String[]::new));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo(expectedAxes)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
+				is(equalTo(scannableName + "." + scannableName)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(
+				"/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + scannableName + "/" + scannableName)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_PRIMARY).getFirstElement(), is(equalTo("1")));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
+				is(equalTo("mm")));
+
+		assertThat(scannableValueDataNode.getDataset().getSlice(),
+				is(equalTo(DatasetFactory.createFromObject(getExpectedScannableDataset(0))))); // check values
 	}
 
 	@Override
@@ -169,8 +196,25 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				is(equalTo(MONITOR_NAME + "." + NXpositioner.NX_VALUE)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
 				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + NXpositioner.NX_VALUE)));
+		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_PRIMARY).getFirstElement(), is(equalTo("1")));
 		assertThat(monitorValueDataNode.getDataset().getSlice(),
 				is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MONITOR_VALUE)))); // check values
+	}
+
+	@Override
+	protected void checkMetadataScannablePositioner(NXpositioner positioner, int index) throws Exception {
+		final String scannableName = METADATA_SCANNABLE_NAMES[index];
+		assertThat(positioner.getNumberOfDataNodes(), is(1));
+		final DataNode valueDataNode = positioner.getDataNode(scannableName);
+		assertThat(valueDataNode, is(notNullValue()));
+		assertThat(valueDataNode.getNumberOfAttributes(), is(NUM_METADATA_SCANNABLE_VALUE_ATTRIBUTES));
+		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo("1")));
+		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
+				is(equalTo(scannableName + "." + scannableName)));
+		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
+
+		assertThat(valueDataNode.getDataset().getShape(), is(equalTo(METADATA_DATASET_SHAPE)));
+		assertThat(valueDataNode.getDataset().getSlice().getDouble(0), is(equalTo((double) index)));
 	}
 
 	@Override

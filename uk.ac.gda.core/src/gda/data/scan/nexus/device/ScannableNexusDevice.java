@@ -57,7 +57,6 @@ import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import uk.ac.diamond.daq.scanning.ScannableNexusWrapper;
 
 /**
  * An instance of this type adapts a {@link Scannable} to {@link INexusDevice}.
@@ -66,7 +65,7 @@ import uk.ac.diamond.daq.scanning.ScannableNexusWrapper;
  */
 public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDeviceAdapter<N> implements IMultipleNexusDevice {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusDevice.class);
 
 	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8

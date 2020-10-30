@@ -18,6 +18,8 @@
 
 package gda.data.scan.datawriter;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -29,6 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -37,9 +40,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -69,11 +76,17 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 
 import gda.TestHelpers;
+import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
+import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
+import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Detector;
 import gda.device.Monitor;
 import gda.device.Scannable;
@@ -94,8 +107,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
 	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
 
-	protected static final int MAX_SCAN_RANK = 3; // larger scans take too long
+	protected static final String[] METADATA_SCANNABLE_NAMES = // names start from 0, so they match the index
+			IntStream.rangeClosed(0, 8).mapToObj(i -> "meta"+i).toArray(String[]::new);
 
+	protected static final int MAX_SCAN_RANK = 3; // larger scans take too long
 
 	protected static final int[] EMPTY_SHAPE = new int[0];
 	protected static final int[] SINGLE_VALUE_SHAPE = new int[] { 1 };
@@ -105,6 +120,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final String ATTRIBUTE_NAME_LOCAL_NAME = "local_name";
 	protected static final String ATTRIBUTE_NAME_TARGET = "target";
+	protected static final String ATTRIBUTE_NAME_UNITS = "units";
 
 	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
@@ -132,6 +148,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected final int[] scanDimensions;
 	protected Scannable[] scannables;
 	protected Monitor monitor;
+	protected Set<String> expectedMetadataScannableNames;
 
 	protected Detector detector;
 
@@ -187,10 +204,73 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public void tearDown() {
 		scannables = null;
 		monitor = null;
+		new ServiceHolder().setNexusWriterConfiguration(null);
 	}
 
 	protected void setUpTest(String testName) throws Exception {
 		testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
+		setupMetadataScannables();
+	}
+
+	private void setupMetadataScannables() throws Exception {
+		final Multimap<Integer, Integer> dependencies = ArrayListMultimap.create();
+		dependencies.put(1, 5);
+		dependencies.putAll(2, Arrays.asList(0, 7));
+		dependencies.putAll(4, Arrays.asList(1, 6, 7));
+		dependencies.put(5, 6);
+		dependencies.put(7, 8);
+
+		// add dependencies between scannables using the location map
+		final Map<String, ScannableWriter> locationMap = new HashMap<>();
+		for (int i = 0; i < METADATA_SCANNABLE_NAMES.length; i++) {
+			final String name = METADATA_SCANNABLE_NAMES[i];
+			final DummyScannable metadataScannable = new DummyScannable(name);
+			metadataScannable.moveTo(Double.valueOf(i));
+			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, metadataScannable);
+
+			final List<String> prerequisites = dependencies.get(i).stream().map(j -> METADATA_SCANNABLE_NAMES[j]).collect(toList());
+			if (i == 0) prerequisites.add(scannables[0].getName());
+			locationMap.put(name, createScannableWriter(name, prerequisites));
+		}
+
+		locationMap.put(scannables[0].getName(), createScannableWriter(scannables[0].getName(),
+				Arrays.asList(METADATA_SCANNABLE_NAMES[5])));
+
+		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
+		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1]));
+		config.setLocationMap(locationMap);
+
+		final Map<String, Collection<String>> metadataScannablesPerDetectorMap = new HashMap<>();
+		if (detector != null) {
+			metadataScannablesPerDetectorMap.put(detector.getName(),
+					Arrays.asList(METADATA_SCANNABLE_NAMES[2], METADATA_SCANNABLE_NAMES[4]));
+		}
+		config.setMetadataScannablesPerDetectorMap(metadataScannablesPerDetectorMap);
+
+		// create the set of expected metadata scannable names
+		createExpectedMetadataScannableNames();
+	}
+
+	private void createExpectedMetadataScannableNames() {
+		final Set<Integer> includedMetadataScannableIndices = new HashSet<>();
+		includedMetadataScannableIndices.addAll(Sets.newHashSet(0, 1, 5, 6)); // included in all scans
+		if (detector != null) {
+			includedMetadataScannableIndices.addAll(Sets.newHashSet(2, 4, 7, 8));
+		}
+
+		expectedMetadataScannableNames = IntStream.range(0, METADATA_SCANNABLE_NAMES.length)
+				.filter(includedMetadataScannableIndices::contains)
+				.mapToObj(i -> METADATA_SCANNABLE_NAMES[i])
+				.collect(toSet());
+	}
+
+	private ScannableWriter createScannableWriter(String scannableName, List<String> prerequisiteNames) {
+		final SingleScannableWriter writer = new SingleScannableWriter();
+		writer.setPaths(new String[] { String.format(
+				"instrument:NXinstrument/%s:NXpositioner/%s", scannableName, scannableName ) });
+		writer.setUnits(new String[] { "mm" });
+		writer.setPrerequisiteScannableNames(prerequisiteNames);
+		return writer;
 	}
 
 	@Test
@@ -292,8 +372,26 @@ public abstract class AbstractNexusDataWriterScanTest {
 			.toArray(String[]::new);
 	}
 
-	protected int getNumDevices() {
+	protected String[] getExpectedPositionerNames() {
+		return Streams.concat(Arrays.stream(getScannableAndMonitorNames()),
+				getExpectedMetadataScannableNames().stream())
+				.toArray(String[]::new);
+	}
+
+	protected int getNumScannedDevices() { // scannables, per-point monitors and detectors
 		return scanRank + (monitor != null ? 1 : 0) + (detector != null ? 1 : 0);
+	}
+
+	protected int getNumDevices() { // includes metadata scannables
+		return getNumScannedDevices() + getNumMetadataScannables();
+	}
+
+	protected int getNumMetadataScannables() {
+		return getExpectedMetadataScannableNames().size();
+	}
+
+	protected Set<String> getExpectedMetadataScannableNames() {
+		return expectedMetadataScannableNames;
 	}
 
 	private NexusFile openNexusFile(String filePath) throws NexusException {
@@ -323,21 +421,43 @@ public abstract class AbstractNexusDataWriterScanTest {
 		checkDetector(instrument);
 	}
 
-	private void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
+	protected void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
 		final Map<String, NXpositioner> positioners = instrument.getAllPositioner();
-		assertThat(positioners.size(), is(scannables.length + 1));
-		assertThat(positioners.keySet(), containsInAnyOrder(getScannableAndMonitorNames()));
+		assertThat(positioners.size(), is(scannables.length + getNumMetadataScannables() + 1)); // extra 1 is for monitor
+		assertThat(positioners.keySet(), containsInAnyOrder(getExpectedPositionerNames()));
 
-		// check the scannables have been written correctly
-		for (int i = 0; i < scanRank; i++) {
+		checkScannables(positioners);
+		checkMonitor(instrument);
+		checkMetadataScannables(positioners);
+	}
+
+	private void checkScannables(final Map<String, NXpositioner> positioners) throws Exception {
+		// the NXpositioner for the first scannable is written differently as it has a
+		// ScannableWriter configured in the location map
+		final String firstScannableName = scannables[0].getName();
+		checkConfiguredScannablePositioner(firstScannableName, positioners.get(firstScannableName));
+
+		// check the remaining scannables have been written correctly
+		for (int i = 1; i < scanRank; i++) {
 			final String scannableName = scannables[i].getName();
 			final NXpositioner scannablePos = positioners.get(scannableName);
 			assertThat(scannablePos, is(notNullValue()));
-
-			checkScannablePositioner(scannablePos, i);
+			checkDefaultScannablePositioner(scannablePos, i);
 		}
+	}
 
-		checkMonitor(instrument);
+	private void checkMetadataScannables(final Map<String, NXpositioner> positioners) throws Exception {
+		final Set<String> expectedMetadataScannableNames = getExpectedMetadataScannableNames();
+		for (int i = 0; i < METADATA_SCANNABLE_NAMES.length; i++) {
+			final String metadataScannableName = METADATA_SCANNABLE_NAMES[i];
+			final NXpositioner positioner = positioners.get(metadataScannableName);
+			if (expectedMetadataScannableNames.contains(metadataScannableName)) {
+				assertThat(positioner, is(notNullValue()));
+				checkMetadataScannablePositioner(positioner, i);
+			} else {
+				assertThat(positioner, is(nullValue()));
+			}
+		}
 	}
 
 	private void checkDetector(NXinstrument instrument) throws Exception {
@@ -402,13 +522,17 @@ public abstract class AbstractNexusDataWriterScanTest {
 		checkMonitorPositioner(monitorPos);
 	}
 
-	protected abstract void checkScannablePositioner(NXpositioner positioner, int scanIndex) throws Exception;
+	protected abstract void checkConfiguredScannablePositioner(String scannableName, NXpositioner positioner) throws Exception;
+
+	protected abstract void checkDefaultScannablePositioner(NXpositioner positioner, int scanIndex) throws Exception;
 
 	protected abstract void checkMonitorPositioner(NXpositioner positioner) throws Exception;
 
 	protected abstract void checkInstrumentGroupMetadata(NXinstrument instrument);
 
 	protected abstract void checkDataGroups(NXentry entry) throws Exception;
+
+	protected abstract void checkMetadataScannablePositioner(NXpositioner positioner, int index) throws Exception;
 
 	protected void checkNexusMetadata(NXentry entry) {
 		// start_time
