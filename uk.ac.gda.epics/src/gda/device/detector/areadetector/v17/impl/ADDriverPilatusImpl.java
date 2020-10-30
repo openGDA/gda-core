@@ -31,7 +31,6 @@ import gda.epics.LazyPVFactory;
 import gda.epics.NoCallbackPV;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
-import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -145,20 +144,6 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
 		//TODO: handle ADPilatusType (the config the other pvs use)
 		pvSoftTrigger = LazyPVFactory.newIntegerPV(fullname(SoftTrigger));
-	}
-
-	private String getRoPvName(ElementType elementType) {
-		if (elementType.getRo() != true) {
-			logger.error("The pv '{}' was expected to be read-only but is not", elementType.getPv());
-		}
-		return elementType.getPv();
-	}
-
-	private String getPvName(ElementType elementType) {
-		if (elementType.getRo() != false) {
-			logger.error("The pv '{}' was expected to be writable but is not", elementType.getPv());
-		}
-		return elementType.getPv();
 	}
 
 	private String fullname(String pvElementName, String... args) {
