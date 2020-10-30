@@ -18,10 +18,7 @@
 
 package gda.device.epicsdevice;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.python.core.PyString;
@@ -32,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.Detector;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.epics.interfaceSpec.Field;
-import gda.epics.interfaceSpec.GDAEpicsInterfaceReader;
-import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -64,8 +58,6 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 	private static final Logger logger = LoggerFactory.getLogger(FindableEpicsDevice.class);
 
 	private EpicsDevice epicsDevice;
-	private List<String> epicsRecordNames = new ArrayList<>();
-	private String deviceName;
 	private Map<String, String> recordPVs = new HashMap<>();
 	protected boolean dummy = false;
 
@@ -83,45 +75,16 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 	@Override
 	public void configure() throws FactoryException {
 		if (!isConfigured()) {
-			gda.epics.interfaceSpec.Device device = null;
-			if (!epicsRecordNames.isEmpty()) {
-				for (String epicsRecordName : epicsRecordNames) {
-					EpicsRecord epicsRecord = Finder.find(epicsRecordName);
-					if (epicsRecord == null)
-						throw new IllegalArgumentException("EpicsDevice:" + getName() + " unable to find record  "
-								+ epicsRecordName);
-					String fullRecordName = epicsRecord.getFullRecordName();
-					String shortName = epicsRecord.getShortName();
-					if (shortName == null || shortName.equals(""))
-						throw new IllegalArgumentException("EpicsDevice:" + getName() + " shortName is not set for  "
-								+ epicsRecordName);
-					recordPVs.put(shortName, fullRecordName);
-				}
-			} else if (getDeviceName() != null) {
-				try {
-					device = GDAEpicsInterfaceReader.getDeviceFromType(null, deviceName);
-					for (Iterator<String> fieldName = device.getFieldNames(); fieldName.hasNext();) {
-						Field field = device.getField(fieldName.next());
-						recordPVs.put(field.getName(), field.getPV());
-					}
-				} catch (Exception e) {
-					throw new IllegalArgumentException("configure failed for FindableEpicsDevice " + getName(), e);
-				}
 
+			if (recordPVs.size() == 0 && !dummy) {
+				throw new FactoryException("EpicsDevice:" + getName() + " no recordPVs set and not in dummy mode");
 			}
-			if (recordPVs.size() == 0 && !dummy)
-				throw new IllegalArgumentException("EpicsDevice:" + getName()
-						+ " no epicsRecordNames, deviceConfig and not in dummy mode ");
 
 			try {
 				epicsDevice = new EpicsDevice(getName(), recordPVs, dummy);
-				if (device != null){
-					epicsDevice.setAttribute("gda.epics.interfaceSpec.Device", device);
-					epicsDevice.setDocString(device.getDescription());
-				}
 				setConfigured(true);
 			} catch (DeviceException e) {
-				throw new IllegalArgumentException("configure failed for FindableEpicsDevice " + getName(), e);
+				throw new FactoryException("configure failed for FindableEpicsDevice " + getName(), e);
 			}
 		}
 	}
@@ -151,14 +114,6 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 		if (!isConfigured()) {
 			throw new DeviceException("EpicsDevice:" + getName() + " not yet configured");
 		}
-	}
-
-	public void setEpicsRecordNames(List<String> epicsRecordNames) {
-		this.epicsRecordNames = epicsRecordNames;
-	}
-
-	public List<String> getEpicsRecordNames() {
-		return epicsRecordNames;
 	}
 
 	@Override
@@ -337,14 +292,6 @@ public class FindableEpicsDevice extends DeviceBase implements IFindableEpicsDev
 					+ " does not return EpicsCtrlEnum");
 		}
 		return channel;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	@Override

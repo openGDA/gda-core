@@ -19,11 +19,11 @@
 package gda.spring;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.StringUtils;
 
 import gda.device.epicsdevice.EpicsDevice;
 import gda.device.epicsdevice.FindableEpicsDevice;
@@ -43,17 +43,6 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 	}
 
 	protected HashMap<String, String> recordPvs;
-	private String deviceName;
-
-	boolean local=false;
-
-	public boolean isLocal() {
-		return local;
-	}
-
-	public void setLocal(boolean local) {
-		this.local = local;
-	}
 
 	protected boolean dummyMode;
 
@@ -64,10 +53,6 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 	 */
 	public void setRecordPvs(HashMap<String, String> recordPvs) {
 		this.recordPvs = recordPvs;
-	}
-
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
 	}
 
 	/**
@@ -83,25 +68,14 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (recordPvs == null && deviceName == null) {
-			throw new IllegalStateException("Neither recordPVs nor deviceName have been set for EPICS device " + StringUtils.quote(name));
-		}
-		if (recordPvs != null && deviceName != null) {
-			throw new IllegalStateException("Both recordPVs and deviceName have been set for EPICS device " + StringUtils.quote(name));
-		}
+		Objects.requireNonNull(recordPvs, "recordPVs have not been set for EPICS device \" + StringUtils.quote(name)");
 
 		String safeName = name.replace(".", "_");
-		if (deviceName != null) {
-			findableEpicsDevice = new FindableEpicsDevice();
-			findableEpicsDevice.setName(safeName);
-			findableEpicsDevice.setDeviceName(deviceName);
-			findableEpicsDevice.setDummy(dummyMode);
-		}
-		if (recordPvs != null) {
-			EpicsDevice epicsDevice = new EpicsDevice(name, recordPvs, dummyMode);
-			findableEpicsDevice = new FindableEpicsDevice(safeName, epicsDevice);
-			findableEpicsDevice.setRecordPVs(this.recordPvs);
-		}
+
+		EpicsDevice epicsDevice = new EpicsDevice(name, recordPvs, dummyMode);
+		findableEpicsDevice = new FindableEpicsDevice(safeName, epicsDevice);
+		findableEpicsDevice.setRecordPVs(this.recordPvs);
+
 	}
 
 	@Override
