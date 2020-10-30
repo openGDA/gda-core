@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -55,8 +57,14 @@ public class ScanRequestBuilder {
 	public static final String ALWAYS_RUN_AFTER_SCRIPT = "alwaysRunAfterScript";
 	public static final String IGNORE_PREPROCESS = "ignorePreprocess";
 	public static final String PROCESSING_REQUEST = "processingRequest";
+	public static final String PATHANDREGION = "pathAndRegion";
+	public static final String PATHREGIONANDMUTATORS = "pathRegionAndMutators";
+	public static final String COMPOUNDMODEL = "compoundModel";
+	public static final String SCANPATHMODEL = "scanPathModel";
+	public static final String REGION = "region";
+	public static final String MUTATORS = "mutators";
 
-	private IScanPointGeneratorModel model;
+	private CompoundModel model;
 
 	private Map<String, IDetectorModel> detectors = new HashMap<>();
 
@@ -81,46 +89,75 @@ public class ScanRequestBuilder {
 
 	private ProcessingRequest processingRequest = null;
 
+	public ScanRequestBuilder() {
+	}
+
 	// Construct setting just the model
 	public ScanRequestBuilder(IScanPointGeneratorModel model) {
-		this.model = model;
+		this.model = new CompoundModel(model);
 	}
 
 	// Construct setting model and arbitrary other values
 	public ScanRequestBuilder(IScanPointGeneratorModel model, Map<String, Object> values) {
-		this.model = model;
+		this(model);
 		values.entrySet().stream().forEach(entry -> setValue(entry.getKey(), entry.getValue()));
 	}
 
 	@SuppressWarnings("unchecked")
 	private void setValue(String field, Object value) {
 		try {
-			if (field.equals(DETECTORS)) {
+			switch(field) {
+			case DETECTORS:
 				withDetectors((Map<String, IDetectorModel>) value);
-			} else if (field.equals(MONITOR_NAMES_PER_POINT)) {
+				break;
+			case MONITOR_NAMES_PER_POINT:
 				withMonitorNamesPerPoint((Collection<String>) value);
-			} else if (field.equals(MONITOR_NAMES_PER_SCAN)) {
+				break;
+			case MONITOR_NAMES_PER_SCAN:
 				withMonitorNamesPerScan((Collection<String>) value);
-			} else if (field.equals(SCAN_METADATA)) {
+				break;
+			case SCAN_METADATA:
 				withScanMetadata((List<ScanMetadata>) value);
-			} else if (field.equals(FILE_PATH)) {
+				break;
+			case FILE_PATH:
 				withFilePath((String) value);
-			} else if (field.equals(TEMPLATE_FILE_PATHS)) {
+				break;
+			case TEMPLATE_FILE_PATHS:
 				withTemplateFilePaths((Set<String>) value);
-			} else if (field.equals(START_POSITION)) {
+				break;
+			case START_POSITION:
 				withStartPosition((IPosition) value);
-			} else if (field.equals(END_POSITION)) {
+				break;
+			case END_POSITION:
 				withEndPosition((IPosition) value);
-			} else if (field.equals(BEFORE_SCRIPT)) {
+				break;
+			case BEFORE_SCRIPT:
 				withBeforeScript((ScriptRequest) value);
-			} else if (field.equals(AFTER_SCRIPT)) {
+				break;
+			case AFTER_SCRIPT:
 				withAfterScript((ScriptRequest) value);
-			} else if (field.equals(ALWAYS_RUN_AFTER_SCRIPT)) {
+				break;
+			case ALWAYS_RUN_AFTER_SCRIPT:
 				alwaysRunAfterScript((boolean) value);
-			} else if (field.equals(IGNORE_PREPROCESS)) {
+				break;
+			case IGNORE_PREPROCESS:
 				ignorePreprocess((boolean) value);
-			} else if (field.equals(PROCESSING_REQUEST)) {
+				break;
+			case PROCESSING_REQUEST:
 				withProcessingRequest((ProcessingRequest) value);
+				break;
+			case PATHANDREGION:
+				Map<String, Object> prMap = (Map<String, Object>) value;
+				withPathAndRegion((IScanPointGeneratorModel) prMap.get(SCANPATHMODEL), (IROI) prMap.get(REGION));
+				break;
+			case PATHREGIONANDMUTATORS:
+				Map<String, Object> prmMap = (Map<String, Object>) value;
+				withPathRegionAndMutators((IScanPointGeneratorModel) prmMap.get(SCANPATHMODEL), (IROI) prmMap.get(REGION), (List<IMutator>) prmMap.get(MUTATORS));
+				break;
+			case COMPOUNDMODEL:
+				withCompoundModel((CompoundModel) value);
+				break;
+			default:
 			}
 		} catch (ClassCastException e) {
 			logger.error("'{}' is not a valid value for {}", value, field);
@@ -193,9 +230,30 @@ public class ScanRequestBuilder {
 		return this;
 	}
 
+	public ScanRequestBuilder withPathAndRegion(IScanPointGeneratorModel scanPathModel, IROI region) {
+		this.model = new CompoundModel(scanPathModel, region);
+		return this;
+	}
+
+	public ScanRequestBuilder withPathRegionAndMutators(IScanPointGeneratorModel scanPathModel, IROI region, List<IMutator> mutators) {
+		this.model = new CompoundModel(scanPathModel, region);
+		this.model.setMutators(mutators);
+		return this;
+	}
+
+	public ScanRequestBuilder withCompoundModel(CompoundModel model) {
+		this.model = model;
+		return this;
+	}
+
+	public ScanRequestBuilder withParameters(Map<String, Object> values) {
+		values.entrySet().stream().forEach(entry -> setValue(entry.getKey(), entry.getValue()));
+		return this;
+	}
+
 	public ScanRequest build() {
 		final ScanRequest request = new ScanRequest();
-		request.setCompoundModel(new CompoundModel(model));
+		request.setCompoundModel(model);
 		request.setDetectors(detectors);
 		request.setMonitorNamesPerPoint(monitorNamesPerPoint);
 		request.setMonitorNamesPerScan(monitorNamesPerScan);
