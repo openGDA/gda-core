@@ -3,7 +3,7 @@ Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.core plugin
 Bundle-SymbolicName: uk.ac.gda.core;singleton:=true
-Bundle-Version: 9.19.0.qualifier
+Bundle-Version: 9.20.0.qualifier
 Require-Bundle: org.aopalliance,
  javax.measure.unit-api;bundle-version="1.0.0",
  si.uom.si-quantity;bundle-version="0.9.0",

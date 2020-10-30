@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.ac.diamond</groupId>
 	<artifactId>uk.ac.gda.api.test</artifactId>
-	<version>9.19.0-SNAPSHOT</version>
+	<version>9.20.0-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<parent>
