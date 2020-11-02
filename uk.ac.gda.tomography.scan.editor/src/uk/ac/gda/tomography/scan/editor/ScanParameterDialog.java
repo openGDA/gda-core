@@ -32,15 +32,18 @@ import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
@@ -69,7 +72,6 @@ public class ScanParameterDialog extends Dialog {
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
-	//private TomographyParametersAcquisitionController controller;
 
 	/**
 	 * This constructor assumes 1) no controller 2) the model is stored in IDialogSettings
@@ -87,23 +89,49 @@ public class ScanParameterDialog extends Dialog {
 
 	@Override
 	public Control createDialogArea(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
+		final Composite mainComposite = (Composite) super.createDialogArea(parent);
+		mainComposite.setLayout(new FillLayout());
+		mainComposite.setBackgroundMode(SWT.INHERIT_FORCE);
+
 		if (Objects.isNull(getModel())) {
 			logger.error("No data model available: cannot create dialog");
-			return comp;
+			return mainComposite;
 		}
 
-		GridDataFactory.fillDefaults().applyTo(comp);
-		comp.setLayout(new GridLayout());
+		final ScrolledComposite scrolledComposite = new ScrolledComposite(mainComposite, SWT.V_SCROLL | SWT.H_SCROLL);
+		GridLayoutFactory.swtDefaults().applyTo(scrolledComposite);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
 
-		ParametersComposite editor = new ParametersComposite(comp, SWT.NONE);
-		editor.setLayoutData(new GridData());
+		final ParametersComposite editor = new ParametersComposite(scrolledComposite, SWT.NONE);
 		createBindings(editor);
 
 		editor.getSendDataToTempDirectory().addListener(SWT.Selection, event ->	updateOutputPath(editor));
 		updateOutputPath(editor);
 
-		return comp;
+		scrolledComposite.setContent(editor);
+		scrolledComposite.setMinSize(editor.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+
+		return mainComposite;
+	}
+
+	@Override
+	protected Point getInitialSize() {
+		final Point size = super.getInitialSize();
+		final Monitor monitor = getShell().getDisplay().getPrimaryMonitor();
+		if (monitor != null) {
+			// Ensure that the dialog is not larger than the screen
+			final Rectangle bounds = monitor.getBounds();
+			size.x = Math.min(size.x, bounds.width);
+			size.y = Math.min(size.y, bounds.height);
+		}
+		return size;
+	}
+
+	@Override
+	protected boolean isResizable() {
+		return true;
 	}
 
 	private void updateOutputPath(ParametersComposite editor) {
