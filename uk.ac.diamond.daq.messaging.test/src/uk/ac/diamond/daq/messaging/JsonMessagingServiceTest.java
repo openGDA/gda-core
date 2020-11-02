@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.CountDownLatch;
 
-import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -33,12 +32,12 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.messaging.json.JsonMessagingService;
@@ -112,16 +111,12 @@ public class JsonMessagingServiceTest {
 	}
 
 	private TestMessageListener setupListener(String topic) {
-		final String jmsBrokerUri = LocalProperties.getActiveMQBrokerURI();
-		final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(jmsBrokerUri);
 		try {
-			Connection connection = factory.createConnection();
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			Session session = ServiceHolder.getSessionService().getSession();
 			Topic jmsTopic = session.createTopic(topic);
 			MessageConsumer consumer = session.createConsumer(jmsTopic);
 			TestMessageListener listener = new TestMessageListener();
 			consumer.setMessageListener(listener);
-			connection.start();
 			return listener;
 		} catch (JMSException e) {
 			throw new RuntimeException("Failed to connect to ActiveMQ, is it running?", e);

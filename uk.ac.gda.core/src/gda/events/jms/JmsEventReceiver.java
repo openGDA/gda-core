@@ -66,18 +66,6 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 	 */
 	private final List<MessageConsumer> consumers = new CopyOnWriteArrayList<>();
 
-	/**
-	 * Creates a JMS event receiver.
-	 */
-	public JmsEventReceiver() {
-		logger.info("Created new session: '{}'", session);
-		try {
-			connection.start();
-		} catch (JMSException e) {
-			throw new RuntimeException("Unable to create JMS event receiver", e);
-		}
-	}
-
 	@Override
 	public void subscribe(final EventSubscriber eventSubscriber, final String name) {
 		try {

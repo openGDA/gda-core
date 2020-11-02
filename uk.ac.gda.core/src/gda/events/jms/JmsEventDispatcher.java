@@ -66,14 +66,6 @@ public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
 	private final ExecutorService executorService = ExecutorFactory.singleThread(JmsEventDispatcher.class.getSimpleName());
 
 	/**
-	 * Creates a JMS event dispatcher
-	 */
-	public JmsEventDispatcher() {
-		// If the super constructor succeeds then we know the session was created
-		logger.info("Created new session: {}", session);
-	}
-
-	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>
