@@ -40,13 +40,13 @@ import org.eclipse.scanning.api.scan.event.LocationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class _Scannable<T> extends _AbstractRemoteDevice<T> implements IScannable<T>, IPositionListenable, ITerminatable, ILocationListener {
+class ScannableProxy<T> extends AbstractRemoteDeviceProxy<T> implements IScannable<T>, IPositionListenable, ITerminatable, ILocationListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(_Scannable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScannableProxy.class);
 
 	private final ISubscriber<ILocationListener> subscriber;
 
-	_Scannable(DeviceRequest req, URI uri, ISubscriber<ILocationListener> positionListener, IEventService eservice) throws EventException, InterruptedException {
+	ScannableProxy(DeviceRequest req, URI uri, ISubscriber<ILocationListener> positionListener, IEventService eservice) throws EventException, InterruptedException {
 		super(req,
 			  Long.getLong("org.eclipse.scanning.event.remote.scannableTimeout", 250),
 			  uri,
@@ -205,7 +205,7 @@ class _Scannable<T> extends _AbstractRemoteDevice<T> implements IScannable<T>, I
 		final Location      loc  = evt.getLocation();
 		if (loc.getType()==null) return;
 
-		final PositionEvent evnt = new PositionEvent(loc.getPosition(), _Scannable.this);
+		final PositionEvent evnt = new PositionEvent(loc.getPosition(), ScannableProxy.this);
 		evnt.setLevel(loc.getLevel());
 
 		IPositionListener[] ls = listeners.toArray(new IPositionListener[listeners.size()]);

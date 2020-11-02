@@ -60,8 +60,8 @@ public class RemoteServiceFactory {
 	private static final Map<Class<?>, Class<?>> remotes;
 	static {
 		Map<Class<?>, Class<?>> tmp = new HashMap<>(7);
-		tmp.put(IScannableDeviceService.class, _ScannableDeviceService.class);
-		tmp.put(IRunnableDeviceService.class,  _RunnableDeviceService.class);
+		tmp.put(IScannableDeviceService.class, ScannableDeviceServiceProxy.class);
+		tmp.put(IRunnableDeviceService.class,  RunnableDeviceServiceProxy.class);
 		remotes = Collections.unmodifiableMap(tmp);
 	}
 

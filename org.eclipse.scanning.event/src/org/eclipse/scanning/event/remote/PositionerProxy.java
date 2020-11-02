@@ -30,16 +30,16 @@ import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class _Positioner extends AbstractRemoteService implements IPositioner {
+class PositionerProxy extends AbstractRemoteService implements IPositioner {
 
-	private static final Logger logger = LoggerFactory.getLogger(_Positioner.class);
+	private static final Logger logger = LoggerFactory.getLogger(PositionerProxy.class);
 
 	private IRequester<PositionerRequest> requester;
 
 	// We use the uniqueid of the request to get a kind of 'session'
 	private PositionerRequest             request;
 
-	public _Positioner(URI uri, IEventService eservice) throws EventException {
+	public PositionerProxy(URI uri, IEventService eservice) throws EventException {
 		setUri(uri);
 		setEventService(eservice);
 		init();

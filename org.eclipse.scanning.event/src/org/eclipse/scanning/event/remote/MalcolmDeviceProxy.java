@@ -40,7 +40,7 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 
-public class _MalcolmDevice extends _RunnableDevice<IMalcolmModel> implements IMalcolmDevice {
+public class MalcolmDeviceProxy extends RunnableDeviceProxy<IMalcolmModel> implements IMalcolmDevice {
 
 	private static final long MALCOLM_TIMEOUT_MS = Duration.ofSeconds(5).toMillis();
 
@@ -48,7 +48,7 @@ public class _MalcolmDevice extends _RunnableDevice<IMalcolmModel> implements IM
 	// We should try to fix this. Some methods probably shouldn't be declared on IMalcolmDevice, e.g setFileDir
 	// but on MalcolmDevice, and others, e.g. fire... methods should not be part of the API.
 
-	_MalcolmDevice(DeviceInformation<IMalcolmModel> info, URI uri, IEventService eventService) throws EventException {
+	MalcolmDeviceProxy(DeviceInformation<IMalcolmModel> info, URI uri, IEventService eventService) throws EventException {
 		super(info, MALCOLM_TIMEOUT_MS, uri, eventService); // use a longer timeout as the server needs to communicate over EPICS with the actual malcolm device
 		if (info.getDeviceRole() != DeviceRole.MALCOLM)
 			throw new IllegalArgumentException("Not a malcolm device: " + info.getName());

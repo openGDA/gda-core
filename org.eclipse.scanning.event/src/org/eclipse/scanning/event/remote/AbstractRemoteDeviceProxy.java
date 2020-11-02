@@ -25,41 +25,41 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class _AbstractRemoteDevice<M> extends AbstractRemoteService {
+abstract class AbstractRemoteDeviceProxy<M> extends AbstractRemoteService {
 
-	private static final Logger logger = LoggerFactory.getLogger(_AbstractRemoteDevice.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractRemoteDeviceProxy.class);
 
 	protected String name;
 	protected DeviceInformation<M> info;
 	protected final IRequester<DeviceRequest> requester;
 
-	private _AbstractRemoteDevice(URI uri, IEventService eservice) throws EventException {
+	private AbstractRemoteDeviceProxy(URI uri, IEventService eservice) throws EventException {
 		setEventService(eservice);
 		setUri(uri);
 		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 	}
 
-	_AbstractRemoteDevice(DeviceRequest req, URI uri, IEventService eservice) throws EventException, InterruptedException {
+	AbstractRemoteDeviceProxy(DeviceRequest req, URI uri, IEventService eservice) throws EventException, InterruptedException {
 		this(uri, eservice);
 		logger.debug("Setting timeout {} {}", RemoteServiceFactory.getTime(), RemoteServiceFactory.getTimeUnit());
 		requester.setTimeout(RemoteServiceFactory.getTime(), RemoteServiceFactory.getTimeUnit()); // Useful for debugging testing
 		connect(req);
 	}
 
-	_AbstractRemoteDevice(DeviceRequest req, long timeoutMs, URI uri, IEventService eservice) throws EventException, InterruptedException {
+	AbstractRemoteDeviceProxy(DeviceRequest req, long timeoutMs, URI uri, IEventService eservice) throws EventException, InterruptedException {
 		this(uri, eservice);
 		logger.debug("Setting  {} {}", timeoutMs, "ms");
 		requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS);
 		connect(req);
 	}
 
-	_AbstractRemoteDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
+	AbstractRemoteDeviceProxy(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
 		this(uri, eventService);
 		this.info = info;
 		this.name = info.getName();
 	}
 
-	_AbstractRemoteDevice(DeviceInformation<M> info, long timeoutMs, URI uri, IEventService eventService) throws EventException {
+	AbstractRemoteDeviceProxy(DeviceInformation<M> info, long timeoutMs, URI uri, IEventService eventService) throws EventException {
 		this(uri, eventService);
 		this.info = info;
 		requester.setTimeout(timeoutMs, TimeUnit.MILLISECONDS);

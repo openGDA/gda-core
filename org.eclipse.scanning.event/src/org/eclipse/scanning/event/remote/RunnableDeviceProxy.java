@@ -31,25 +31,25 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class _RunnableDevice<M> extends _AbstractRemoteDevice<M> implements IRunnableDevice<M>, IActivatable {
+class RunnableDeviceProxy<M> extends AbstractRemoteDeviceProxy<M> implements IRunnableDevice<M>, IActivatable {
 
-	private static final Logger logger = LoggerFactory.getLogger(_RunnableDevice.class);
+	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceProxy.class);
 
-	_RunnableDevice(DeviceRequest req, URI uri, IEventService eservice) throws EventException, InterruptedException {
+	RunnableDeviceProxy(DeviceRequest req, URI uri, IEventService eservice) throws EventException, InterruptedException {
 		super(req,
 			  Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceTimeout", 1000),
 			  uri,
 			  eservice);
 	}
 
-	_RunnableDevice(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
+	RunnableDeviceProxy(DeviceInformation<M> info, URI uri, IEventService eventService) throws EventException {
 		super(info,
 			  Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceTimeout", 1000),
 			  uri,
 			  eventService);
 	}
 
-	_RunnableDevice(DeviceInformation<M> info, long timeoutMs, URI uri, IEventService eventService) throws EventException {
+	RunnableDeviceProxy(DeviceInformation<M> info, long timeoutMs, URI uri, IEventService eventService) throws EventException {
 		super(info, timeoutMs, uri, eventService);
 	}
 
