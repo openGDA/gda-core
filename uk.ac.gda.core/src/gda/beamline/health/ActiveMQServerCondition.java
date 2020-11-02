@@ -20,7 +20,7 @@ package gda.beamline.health;
 
 import java.util.Date;
 
-import uk.ac.diamond.daq.msgbus.MsgBus;
+import gda.data.ServiceHolder;
 
 /**
  * A beamline health condition that checks whether ActiveMQ is active
@@ -41,7 +41,7 @@ public class ActiveMQServerCondition extends ServerCondition {
 	protected synchronized boolean isRunning() {
 		final long currentTime = new Date().getTime();
 		if (currentTime - lastUpdate > minCheckTime) {
-			running = MsgBus.isActiveMQ();
+			running = ServiceHolder.getSessionService().defaultConnectionActive();
 			lastUpdate = currentTime;
 		}
 		return running;
