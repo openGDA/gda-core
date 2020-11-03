@@ -20,8 +20,8 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_ACQUISITION_PREFIX;
 import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX;
@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 
 
 public class NexusExperimentControllerTest extends NexusExperimentControllerTestBase {
@@ -213,7 +214,7 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	public void relativeRootDirFromProperty() throws Exception {
 		loadProperties("test/resources/gdaContext/nexusExperimentRelativeContext.properties");
 		String experimentPath = controller.startExperiment(EXPERIMENT_NAME).getPath();
-		assertThat(experimentPath, startsWith(context.getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY).getPath()));
+		assertThat(experimentPath, startsWith(context.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY).getPath()));
 		assertThat(experimentPath, containsString("some/subpath"));
 	}
 
