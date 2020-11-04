@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
+import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.exception.GDAException;
@@ -34,14 +35,14 @@ import uk.ac.gda.api.exception.GDAException;
 @Component
 class IScannableMotorHandler extends DeviceHandler {
 	@Override
-	DevicePositionDocument devicePositionAsDocument(Object device) throws GDAException {
-		if (IScannableMotor.class.isInstance(device)) {
-			return createDocument(IScannableMotor.class.cast(device));
-		}
-		return null;
+	DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException {
+		if (device instanceof IScannableMotor) {
+			return createDocument(device);
+	}
+	return null;
 	}
 
-	private DevicePositionDocument createDocument(IScannableMotor device) throws GDAException {
+	private DevicePositionDocument createDocument(Scannable device) throws GDAException {
 		return new DevicePositionDocument.Builder()
 			.withDevice(device.getName())
 			.withValueType(ValueType.NUMERIC)
@@ -49,7 +50,7 @@ class IScannableMotorHandler extends DeviceHandler {
 			.build();
 	}
 
-	private double getPosition(IScannableMotor device) throws GDAException {
+	private double getPosition(Scannable device) throws GDAException {
 		try {
 			return (double) device.getPosition();
 		} catch (DeviceException e) {

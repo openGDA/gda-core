@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 
 /**
@@ -38,13 +39,13 @@ public class ConfigurationHelperBase {
 	/**
 	 * The scanning acquisition acquisition configuration data
 	 */
-	private final Supplier<ScanningConfiguration> scanningConfigurationSupplier;
+	private final Supplier<? extends AcquisitionConfigurationBase<?>> scanningConfigurationSupplier;
 
-	protected ConfigurationHelperBase(Supplier<ScanningConfiguration> scanningConfigurationSupplier) {
+	protected ConfigurationHelperBase(Supplier<? extends AcquisitionConfigurationBase<?>> scanningConfigurationSupplier) {
 		this.scanningConfigurationSupplier = scanningConfigurationSupplier;
 	}
 
-	protected ScanningConfiguration getScanningParameters() {
+	protected AcquisitionConfigurationBase<?> getScanningParameters() {
 		return scanningConfigurationSupplier.get();
 	}
 

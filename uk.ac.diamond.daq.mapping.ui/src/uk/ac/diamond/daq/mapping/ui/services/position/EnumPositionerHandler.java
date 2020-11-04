@@ -23,7 +23,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
-import gda.device.enumpositioner.EnumPositionerBase;
+import gda.device.EnumPositioner;
+import gda.device.Scannable;
 import gda.device.enumpositioner.EpicsEnumPositioner;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
@@ -35,16 +36,16 @@ import uk.ac.gda.api.exception.GDAException;
  * @author Maurizio Nagni
  */
 @Component
-class EnumPositionerBaseHandler extends DeviceHandler {
+class EnumPositionerHandler extends DeviceHandler {
 	@Override
-	DevicePositionDocument devicePositionAsDocument(Object device) throws GDAException {
-		if (EnumPositionerBase.class.isInstance(device)) {
-			return createDocument(EnumPositionerBase.class.cast(device));
+	DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException {
+		if (device instanceof EnumPositioner) {
+			return createDocument(device);
 		}
 		return null;
 	}
 
-	private DevicePositionDocument createDocument(EnumPositionerBase positioner) throws GDAException {
+	private DevicePositionDocument createDocument(Scannable positioner) throws GDAException {
 		return new DevicePositionDocument.Builder()
 			.withDevice(positioner.getName())
 			.withValueType(ValueType.LABELLED)
@@ -52,7 +53,7 @@ class EnumPositionerBaseHandler extends DeviceHandler {
 			.build();
 	}
 
-	private String getPosition(EnumPositionerBase positioner) throws GDAException {
+	private String getPosition(Scannable positioner) throws GDAException {
 		Object position = null;
 		try {
 			position = positioner.getPosition();

@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.services.position;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -67,8 +69,15 @@ public class DevicePositionDocumentService {
 	 * @return the document otherwise {@code null} if the device is not available
 	 */
 	public final DevicePositionDocument devicePositionAsDocument(String device) {
-		return finder.getFindableObject(device)
-			.map(deviceHandler::handleDevice).orElseGet(() -> null);
+		Optional<Scannable> scannable = Optional.empty();
+		try {
+			scannable = finder.getFindableObject(device);
+		} catch (ClassCastException e) {
+			// If the device is of an un-castable class, does nothing
+		}
+		return scannable
+				.map(deviceHandler::handleDevice)
+				.orElse(null);
 	}
 
 	/**
