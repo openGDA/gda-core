@@ -81,6 +81,7 @@ public class ScannableCommands {
 
 	@GdaJythonBuiltin("Print the position of the given scannables")
 	public static void pos(Scannable... scannables) {
+		logger.debug("Called 'pos(Scannable...)' with args: {}", Arrays.asList(scannables));
 		String positions = Stream.of(scannables)
 				.map(Scannable::toFormattedString)
 				.collect(joining("\n"));
@@ -106,7 +107,7 @@ public class ScannableCommands {
 			+ "Multiple scannables can be moved at once by passing alternating scannables and positions, eg\n"
 			+ ">>> pos motor_x 1 motor_y 2 motor_z 3")
 	public static void pos(Object... args) throws Exception {
-		logger.debug("Called 'pos' with args: {}", Arrays.asList(args));
+		logger.debug("Called 'pos(Object...)' with args: {}", Arrays.asList(args));
 		if (args.length == 1) {
 			if (args[0] == null) {// example: pos None, Jython command: pos([None])
 				throw new Exception(
@@ -159,10 +160,12 @@ public class ScannableCommands {
 					// asynchronousMoveTo()
 					for (Scannable scn1 : currentLevelScannables.getValue()) {
 						if (scn1 instanceof DetectorSnapper) {
+							logger.debug("DetectorSnapper instance: {} used in pos command", scn1);
 							Double collectionTime = PositionConvertorFunctions.toDouble(positionMap.get(scn1));
 							((DetectorSnapper) scn1).prepareForAcquisition(collectionTime);
 							((DetectorSnapper) scn1).acquire();
 						} else if (scn1 instanceof Detector) {
+							logger.debug("Detector instance: {} used in pos command", scn1);
 							Double collectionTime = PositionConvertorFunctions.toDouble(positionMap.get(scn1));
 							((Detector) scn1).setCollectionTime(collectionTime);
 							((Detector) scn1).prepareForCollection();
