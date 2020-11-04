@@ -68,6 +68,10 @@ public abstract class MapperBasedEnumPositionerBase<T> extends EnumPositionerBas
 		this.monitor = monitor;
 	}
 
+	public Scannable getMonitor() {
+		return monitor;
+	}
+
 	/**
 	 * @param control
 	 *            Scannable whose moveTo accepts an Integer
@@ -117,7 +121,7 @@ public abstract class MapperBasedEnumPositionerBase<T> extends EnumPositionerBas
 
 	@Override
 	public EnumPositionerStatus getStatus() throws DeviceException {
-		return EnumPositionerStatus.IDLE; // the move completes in rawAsynchronousMoveTo
+		return monitor.isBusy() ? EnumPositionerStatus.MOVING : EnumPositionerStatus.IDLE;
 	}
 
 	@Override

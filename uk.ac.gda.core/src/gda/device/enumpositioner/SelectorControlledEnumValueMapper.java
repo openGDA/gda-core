@@ -18,14 +18,14 @@
 
 package gda.device.enumpositioner;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
 
 
 /**
@@ -91,7 +91,7 @@ public class SelectorControlledEnumValueMapper<T> implements EnumValueMapper<T>,
 	}
 
 	@Override
-	public Boolean isExternalValueValid(String externalValueToCheck) {
+	public boolean isExternalValueValid(String externalValueToCheck) {
 		try {
 			return getMapper().isExternalValueValid(externalValueToCheck);
 		} catch( IllegalArgumentException e){

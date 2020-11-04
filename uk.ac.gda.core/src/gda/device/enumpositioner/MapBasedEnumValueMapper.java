@@ -60,7 +60,7 @@ public class MapBasedEnumValueMapper<T> implements EnumValueMapper<T>, Initializ
 	}
 
 	@Override
-	public Boolean isExternalValueValid(String externalValueToCheck) {
+	public boolean isExternalValueValid(String externalValueToCheck) {
 		return externalToInternalMap.containsKey(externalValueToCheck);
 	}
 

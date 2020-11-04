@@ -20,6 +20,13 @@ package gda.device.enumpositioner;
 
 import gda.device.DeviceException;
 
+/**
+ * Interface used by objects that provide conversion between external and internal values.
+ *  e.g. to convert from 'external' values specified by a user, to 'internal' values to be used for applying to an enum positioner.
+ * Used as part of {@link MapperBasedEnumPositionerBase}..
+ *
+ * @param <T>
+ */
 public interface EnumValueMapper<T> {
 
 	/**
@@ -28,7 +35,7 @@ public interface EnumValueMapper<T> {
 	 * @return External representation of internalValue
 	 * @throws IllegalArgumentException - if there is no external representation for internalValue
 	 */
-	String getExternalValue(T internalValue) throws IllegalArgumentException;
+	String getExternalValue(T internalValue);
 
 	/**
 	 *
@@ -36,7 +43,7 @@ public interface EnumValueMapper<T> {
 	 * @return Internal representation of externalValue
 	 * @throws IllegalArgumentException - if there is no internal representation for externalValue
 	 */
-	T getInternalValue(String externalValue) throws IllegalArgumentException;
+	T getInternalValue(String externalValue);
 
 	/**
 	 *
@@ -44,7 +51,7 @@ public interface EnumValueMapper<T> {
 	 * @return true if valid, false if not
 	 * @throws IllegalArgumentException - if not valid
 	 */
-	Boolean isExternalValueValid(String externalValueToCheck);
+	boolean isExternalValueValid(String externalValueToCheck);
 
 	String[] getExternalValues() throws DeviceException;
 
