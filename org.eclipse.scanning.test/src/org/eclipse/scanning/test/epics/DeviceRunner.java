@@ -2,6 +2,7 @@ package org.eclipse.scanning.test.epics;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
+import java.util.UUID;
 
 import org.eclipse.scanning.example.malcolm.EPICSv4ExampleDevice;
 import org.eclipse.scanning.example.malcolm.IEPICSv4Device;
@@ -54,7 +55,7 @@ public class DeviceRunner {
 		else if (env.containsKey("HOSTNAME"))
 			deviceName = env.get("HOSTNAME");
 
-		return deviceName.replace('.', ':') + ":malcolmTest";
+		return deviceName.replace('.', ':') + ":malcolmTest:" + UUID.randomUUID();
 	}
 
 }
