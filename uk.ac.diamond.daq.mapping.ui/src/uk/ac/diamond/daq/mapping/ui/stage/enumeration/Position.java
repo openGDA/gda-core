@@ -23,6 +23,6 @@ package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
  */
 public enum Position {
 
-	DEFAULT, OUT_OF_BEAM, START, END, OPEN, CLOSE;
+	DEFAULT, OUT_OF_BEAM, START, END, Open, Close;
 
 }
