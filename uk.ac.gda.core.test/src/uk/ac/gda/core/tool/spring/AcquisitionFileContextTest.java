@@ -146,6 +146,7 @@ public class AcquisitionFileContextTest {
 
 	private void prepareFilesystem() throws IOException {
 		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTest.class.getName());
+		testTmpDir.toFile().deleteOnExit();
 		File visitDir = new File(testTmpDir.toFile(), "visit");
 		File processingDir = new File(visitDir, "processing");
 		File xmlDir = new File(visitDir, "xml");
