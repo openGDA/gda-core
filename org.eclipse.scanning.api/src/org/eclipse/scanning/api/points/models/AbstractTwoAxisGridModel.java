@@ -33,6 +33,27 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 	@FieldDescriptor(label="Orientation")
 	private Orientation orientation = Orientation.HORIZONTAL;
 
+
+	/**
+	 * Only relevant when scanning with an outer axis i.e. a CompoundGenerator has been created with this model
+	 * and another model outside of it, when this model is set to Alternating, the alternating should be on both axes:
+	 * so that the first point after moving the outer axis is the final point visited, optimising travel of the inner motors
+	 *
+	 * a->b    a<-b
+	 *    v       ^
+	 * d<-c    d->c
+	 *
+	 * If set to false, instead alternating is only set on the innermost axis, which is necessary for Odin rewinding.
+	 * As with both axes set to alternate, the resulting pattern is odd in the outer axis if the slow axis of the grid
+	 * if of an odd length.
+	 * a->b    a<-b
+	 *    v    v
+	 * d<-c    d->c
+	 * v          v
+	 * e->f    e<-f
+	 */
+	private boolean alternateBothAxes = true;
+
 	public enum Orientation {
 		HORIZONTAL("Horizontal"), VERTICAL("Vertical");
 
@@ -158,6 +179,14 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 		pointsModel.setBoundingBox(copy);
 
 		return pointsModel;
+	}
+
+	public boolean isAlternateBothAxes() {
+		return alternateBothAxes;
+	}
+
+	public void setAlternateBothAxes(boolean alternateBothAxes) {
+		this.alternateBothAxes = alternateBothAxes;
 	}
 
 }

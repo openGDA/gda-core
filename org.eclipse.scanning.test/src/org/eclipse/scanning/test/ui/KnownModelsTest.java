@@ -110,8 +110,8 @@ public class KnownModelsTest extends ShellTest{
 		models.add(new ModelTest(new AxialStepModel("x", 0, 10, 1), 8));
 		models.add(new ModelTest(new AxialCollatedStepModel(0, 10, 1, "x1", "y1"), 9));
 		models.add(new ModelTest(new AxialArrayModel(0,1,2,3,4,5,6,7,8,9), 4));
-		models.add(new ModelTest(new TwoAxisGridPointsModel("x", "y"), 11));
-		models.add(new ModelTest(new TwoAxisGridStepModel("x", "y"), 11));
+		models.add(new ModelTest(new TwoAxisGridPointsModel("x", "y"), 12));
+		models.add(new ModelTest(new TwoAxisGridStepModel("x", "y"), 12));
 		models.add(new ModelTest(new TwoAxisSpiralModel("x", "y", 2, null), 10));
 		models.add(new ModelTest(new TwoAxisLissajousModel(), 11));
 		return models;

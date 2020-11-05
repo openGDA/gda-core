@@ -48,9 +48,12 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final boolean continuous = model.isContinuous();
 
 		final PPointGenerator yLine = lineGeneratorFactory.createObject(
-				yName, yUnits, minY, minY + (rows - 1) * yStep, rows, alternating);
+				yName, yUnits, minY, minY + (rows - 1) * yStep, rows,
+				// If !model.isAlternateBothAxes(), we only want to alternate the innermost axis
+				alternating && (model.isAlternateBothAxes() || model.isVerticalOrientation()));
 		final PPointGenerator xLine = lineGeneratorFactory.createObject(
-				xName, xUnits, minX, minX + (columns - 1) * xStep, columns, alternating);
+				xName, xUnits, minX, minX + (columns - 1) * xStep, columns,
+				alternating && (model.isAlternateBothAxes() || !model.isVerticalOrientation()));
 
 		final PPointGenerator[] generators = new PPointGenerator[2];
 		generators[0] = model.isVerticalOrientation() ? xLine : yLine;

@@ -14,6 +14,7 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,10 +26,12 @@ import java.util.Set;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
@@ -548,4 +551,51 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(new Point(2, 2.5, 1, 1.5, 3), pointList.get(3));
 		assertEquals(new Point(1, 1.5, 2, 2.5, 7), pointList.get(7));
 	}
+
+	/**
+	 * Odin detector requires that when a scan is alternating, only the innermost axis is alternating, while
+	 * otherwise we want the inner 2 axes to alternate to so that we don't have to move those axes while the
+	 * outer axis is moving.
+	 * @throws GeneratorException
+	 */
+	@Test
+	public void testAlternatingBothAxes() throws GeneratorException {
+
+		// Create a grid scan path
+		TwoAxisGridPointsModel model = new TwoAxisGridPointsModel("x", "y");
+		model.setBoundingBox(new BoundingBox(0, 0, 5, 5));
+		model.setyAxisPoints(3);
+		model.setxAxisPoints(3);
+		model.setAlternating(true);
+
+		// Create an outer axis
+		AxialArrayModel outerModel = new AxialArrayModel("z", 1, 2, 3);
+		CompoundModel compoundModel = new CompoundModel(outerModel, model);
+
+		// 1->2->3 z-move 9<-8<-7 z-move 1->2->3
+		// 6<-5<-4        4->5->6        6<-5<-4
+		// 7->8->9        3<-2<-1        7->8->9
+		List<IPosition> pointListBothAlternating = service.createGenerator(compoundModel).createPoints();
+		model.setAlternateBothAxes(false);
+		// 1->2->3 z-move 3<-2<-1 z-move 1->2->3
+		// 6<-5<-4        4->5->6        6<-5<-4
+		// 7->8->9        9<-8<-7        7->8->9
+		// L-> R @ end => R->L @ start
+		List<IPosition> pointListInnerAlternating = service.createGenerator(compoundModel).createPoints();
+		List<IPosition> expected = new ArrayList<>();
+
+		for (int i : new int[] {15, 16, 17, 12, 13, 14, 9, 10, 11}) {
+			expected.add(pointListInnerAlternating.get(i));
+		}
+
+		for (int i = 0; i < 27; i++) {
+			// First 9  and last 9 points same
+			if (i > 8 && i < 18) {
+				// StepIndex won't match
+				assertTrue(((AbstractPosition) pointListBothAlternating.get(i)).equals(expected.get(i - 9), false));
+			}
+			else assertTrue(pointListBothAlternating.get(i).equals(pointListInnerAlternating.get(i)));
+		}
+	}
+
 }
