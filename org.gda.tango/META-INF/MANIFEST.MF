@@ -5,32 +5,16 @@ Bundle-SymbolicName: org.gda.tango
 Bundle-Version: 1.0.0
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.nexus;bundle-version="1.0.0",
- org.apache.commons.io;bundle-version="2.4.0",
- uk.ac.gda.common;bundle-version="1.0.0",
- uk.ac.gda.api;bundle-version="1.0.0",
- uk.ac.gda.devices.xspress2;bundle-version="1.0.0",
- uk.ac.diamond.scisoft.analysis;bundle-version="1.3.0",
- uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="2.6.0",
- org.eclipse.january;bundle-version="1.0.0",
- org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
- org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
- uk.ac.gda.exafs.api,
- uk.ac.gda.devices.xmap;bundle-version="1.0.0",
- uk.ac.gda.devices.xspress3;bundle-version="1.0.0"
+ org.apache.commons.io
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: fr.esrf.Tango,
  gda.device,
  gda.device.base,
- gda.device.detector.xmap,
  gda.device.frelon,
  gda.device.frelon.impl,
  gda.device.lima,
- gda.device.lima.impl,
- gda.device.maxipix2,
- gda.device.scannable
+ gda.device.lima.impl
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Bundle-ClassPath: jars/TangORB-7.0.3.jar,

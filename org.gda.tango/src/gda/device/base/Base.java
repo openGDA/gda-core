@@ -20,8 +20,6 @@ package gda.device.base;
 
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
-import gda.device.Scannable;
-import gda.factory.FactoryException;
 
 public interface Base {
 	/*
@@ -38,6 +36,5 @@ public interface Base {
 	 * Single, Accumulation, Concatenation
 	 */
 	String[] getAttrStringValueList(String attributeName) throws DevFailed;
-	
-	Scannable getControlScannable(String name, String attributeName, String format) throws FactoryException;	
+
 }

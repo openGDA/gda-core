@@ -18,19 +18,13 @@
 
 package gda.device.base.impl;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.DeviceData;
-import gda.device.Scannable;
 import gda.device.TangoDeviceProxy;
 import gda.device.base.Base;
-import gda.device.scannable.TangoScannable;
-import gda.factory.FactoryException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.InitializingBean;
 
 public class BaseImpl implements Base, InitializingBean {
 
@@ -71,7 +65,7 @@ public class BaseImpl implements Base, InitializingBean {
 	public DevState getState() throws DevFailed {
 		return getTangoDeviceProxy().state();
 	}
-	
+
 	@Override
 	public String getStatus() throws DevFailed {
 		return getTangoDeviceProxy().status();
@@ -84,62 +78,4 @@ public class BaseImpl implements Base, InitializingBean {
 		DeviceData command_inout = getTangoDeviceProxy().command_inout("getAttrStringValueList", argin);
 		return command_inout.extractStringArray();
 	}
-
-	Map<String, TangoScannable> tangoScannableMap = null; 
-
-	@Override
-	public Scannable getControlScannable(String name, String attributeName, String format) throws FactoryException {
-		if( tangoScannableMap == null){
-			tangoScannableMap = new HashMap<String, TangoScannable>();
-		}
-		if( format == null)
-			format="";
-		String key= name+":"+attributeName+":"+format;
-		TangoScannable tangoScannable;
-		if( ( tangoScannable = tangoScannableMap.get(key)) == null){
-			tangoScannable = new TangoScannable();
-			tangoScannable.setTangoDeviceProxy(getTangoDeviceProxy());
-			tangoScannable.setAttributeName(attributeName);
-			tangoScannable.setName(name);
-			tangoScannable.setInputNames(new String[]{name});
-			if( !format.isEmpty())
-				tangoScannable.setOutputFormat(new String[]{format});
-			tangoScannable.configure();
-			tangoScannableMap.put(key, tangoScannable);
-		}
-		return tangoScannable;
-	}
-	/*
-	 * public String getAttributeAsString(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsString(attributeName); } public void setAttribute(String attributeName,
-	 * String value) throws DevFailed { getTangoDeviceProxy().setAttribute(attributeName, value); } public double
-	 * getAttributeAsDouble(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsDouble(attributeName); } public void setAttribute(String attributeName,
-	 * double value) throws DevFailed { getTangoDeviceProxy().setAttribute(attributeName, value); } public boolean
-	 * getAttributeAsBoolean(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsBoolean(attributeName); } public void setAttribute(String attributeName,
-	 * boolean value) throws DevFailed { getTangoDeviceProxy().setAttribute(attributeName, value); } public int
-	 * getAttributeAsInt(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsInt(attributeName); } public long getAttributeAsLong(String attributeName)
-	 * throws DevFailed { return getTangoDeviceProxy().getAttributeAsLong(attributeName); } public void
-	 * setAttribute(String attributeName, long value) throws DevFailed {
-	 * getTangoDeviceProxy().setAttribute(attributeName, value); } public String[] getAttributeAsStringArray(String
-	 * attributeName) throws DevFailed { return getTangoDeviceProxy().getAttributeAsStringArray(attributeName); } public
-	 * void setAttribute(String attributeName, String[] value, int dim_x, int dim_y) throws DevFailed {
-	 * getTangoDeviceProxy().setAttribute(attributeName, value, dim_x, dim_y); } public int[]
-	 * getAttributeAsIntArray(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsIntArray(attributeName); } public long[] getAttributeAsULongArray(String
-	 * attributeName) throws DevFailed { return getTangoDeviceProxy().getAttributeAsLongArray(attributeName); } public
-	 * void setAttribute(String attributeName, int[] value, int dim_x, int dim_y) throws DevFailed {
-	 * getTangoDeviceProxy().setAttribute(attributeName, value, dim_x, dim_y); } public void setAttribute(String
-	 * attributeName, long[] value, int dim_x, int dim_y) throws DevFailed {
-	 * getTangoDeviceProxy().setAttribute(attributeName, value, dim_x, dim_y); } public double[]
-	 * getAttributeAsDoubleArray(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsDoubleArray(attributeName); } public void setAttribute(String attributeName,
-	 * double[] value, int dim_x, int dim_y) throws DevFailed { getTangoDeviceProxy().setAttribute(attributeName, value,
-	 * dim_x, dim_y); } public boolean[] getAttributeAsBooleanArray(String attributeName) throws DevFailed { return
-	 * getTangoDeviceProxy().getAttributeAsBooleanArray(attributeName); } public void setAttribute(String attributeName,
-	 * boolean[] value, int dim_x, int dim_y) throws DevFailed { getTangoDeviceProxy().setAttribute(attributeName,
-	 * value, dim_x, dim_y); }
-	 */
 }

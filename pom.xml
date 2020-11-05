@@ -16,6 +16,5 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 <modules>
 <module>org.gda.tango</module>
-<module>org.gda.tango.test</module>
 </modules>
 </project>
