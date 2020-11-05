@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.stage;
 
+import static uk.ac.gda.client.composites.FinderHelper.getIScannableMotor;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createComposite;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,11 +51,10 @@ import gda.rcp.views.TabFolderBuilder;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
-import uk.ac.gda.ui.tool.ClientSWTElements;
+
 
 /**
  * Implements common methods for a {@link StageDescription}
@@ -107,7 +110,7 @@ public abstract class CommonStage implements StageDescription {
 				Double position = (Double) entry.getValue().getPosition();
 				positions.add(new DevicePosition<>(entry.getKey(), position));
 			} catch (DeviceException e) {
-				logger.error("TODO put description of error here", e);
+				logger.error("Cannot get the position of {}", entry.getKey());
 			}
 		}
 		return Collections.unmodifiableSet(positions);
@@ -141,7 +144,7 @@ public abstract class CommonStage implements StageDescription {
 
 	private void loadMotor(Entry<StageDevice, String> entry) {
 		try {
-			FinderHelper.getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
+			getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
 		} catch (LoadException e) {
 			String errMsg = String.format("Cannot load motor %s", entry.getKey());
 			UIHelper.showError(errMsg, e);
@@ -165,7 +168,8 @@ public abstract class CommonStage implements StageDescription {
 
 	private Composite getStageControls(Composite parent) {
 		if (Objects.isNull(stageControls) || stageControls.isDisposed()) {
-			stageControls = ClientSWTElements.createComposite(parent, SWT.NONE, 4);
+			stageControls = createComposite(parent, SWT.NONE, 4);
+			createClientGridDataFactory().grab(true, false).applyTo(stageControls);
 			createStageControls();
 			stageControls.pack();
 		}
@@ -192,7 +196,7 @@ public abstract class CommonStage implements StageDescription {
 			throw new StageException(String.format("Device %s not found", device));
 		}
 		scd.setStepSize(1);
-		scd.setDecimalPlaces(0);
+		scd.setDecimalPlaces(2);
 		scd.setLabel(ClientMessagesUtility.getMessage(label));
 		return scd;
 	}
