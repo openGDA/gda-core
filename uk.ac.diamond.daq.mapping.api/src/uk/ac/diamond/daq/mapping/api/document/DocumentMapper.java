@@ -21,16 +21,18 @@ package uk.ac.diamond.daq.mapping.api.document;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
@@ -57,13 +59,19 @@ import uk.ac.gda.api.exception.GDAException;
 @Component("documentMapper")
 public class DocumentMapper {
 
+	private Class<?>[] subtypes = {
+			ScanningAcquisition.class,
+			SavuProcessingRequest.class
+			};
+
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	static {
-		objectMapper.registerSubtypes(new NamedType(ScanningAcquisition.class));
+	private DocumentMapper() {
 	}
 
-	private DocumentMapper() {
+	@PostConstruct
+	private void registerSubtypes() {
+		objectMapper.registerSubtypes(subtypes);
 	}
 
 	/**

@@ -45,6 +45,7 @@ import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
+import uk.ac.diamond.daq.mapping.api.document.handlers.processing.ProcessingRequestHandlerService;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionConfigurationReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionEngineReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionParametersReader;
@@ -57,6 +58,7 @@ import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * A helper class to generate a {@link ScanRequest} from a {@link ScanRequestDocument}.
@@ -247,7 +249,16 @@ public class ScanRequestFactory {
 	}
 
 	private ProcessingRequest parseProcessingRequest() {
-		return new ProcessingRequest();
+		Map<String, Collection<Object>> requests = new HashMap<>();
+		getAcquisitionConfiguration().getProcessingRequest()
+			.forEach(p -> requests.put(p.getKey(), getProcessingRequestHandlerService().translateToCollection(p)));
+		ProcessingRequest pr = new ProcessingRequest();
+		pr.setRequest(requests);
+		return pr;
+	}
+
+	private ProcessingRequestHandlerService getProcessingRequestHandlerService() {
+		return SpringApplicationContextFacade.getBean(ProcessingRequestHandlerService.class);
 	}
 
 	private AcquisitionReader getAcquisition() {
