@@ -113,13 +113,13 @@ public class StageController implements IStageController {
 
 	public DevicePositionDocument createShutterClosedRequest() {
 		// The "CLOSED" string has to be linked to a property
-		String position = Position.CLOSE.toString();
+		String position = Position.Close.toString();
 		return createShutterRequest(position);
 	}
 
 	public DevicePositionDocument createShutterOpenRequest() {
 		// The "OPEN" string has to be linked to a property
-		String position = Position.OPEN.toString();
+		String position = Position.Open.toString();
 		return createShutterRequest(position);
 	}
 
