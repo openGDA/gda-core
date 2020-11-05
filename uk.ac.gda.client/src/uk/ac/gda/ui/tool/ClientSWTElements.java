@@ -18,7 +18,6 @@
 
 package uk.ac.gda.ui.tool;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -90,16 +89,6 @@ public final class ClientSWTElements {
 	}
 
 	/**
-	 * @deprecated use {@link #createClientCompositeWithGridLayout(Composite, int, int)}. This has been done to support
-	 *             a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final GridDataFactory createGridDataFactory() {
-		return GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.END);
-	}
-
-	/**
 	 * @deprecated use {@link #createGridDataFactory()}. This has been done to support a more consistent approach
 	 *             described in
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
@@ -117,131 +106,6 @@ public final class ClientSWTElements {
 	@Deprecated
 	public static final Composite createComposite(final Composite parent, int style) {
 		return createComposite(parent, style, 1);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGroup(Composite, int, int, ClientMessages)}. This has been done to support a
-	 *             more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Group createGroup(final Composite parent, int columns, final ClientMessages message) {
-		return createGroup(parent, columns, message, true);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGroup(Composite, int, int, ClientMessages)}. This has been done to support a
-	 *             more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Group createGroup(final Composite parent, int columns, final ClientMessages message,
-			boolean equalWidth) {
-		GridLayoutFactory glf = getGroupDefaultGridLayoutFactory(columns, equalWidth);
-		GridDataFactory gdf = GridDataFactory.fillDefaults();
-		if (columns == 1) {
-			gdf = GridDataFactory.fillDefaults();
-		}
-		gdf.grab(true, true).align(SWT.FILL, SWT.TOP);
-		return createGroup(parent, columns, message, glf, gdf);
-	}
-
-	@Deprecated
-	private static final GridLayoutFactory getGroupDefaultGridLayoutFactory(int columns, boolean equalWidth) {
-		GridLayoutFactory glf = GridLayoutFactory.swtDefaults();
-		if (columns == 1) {
-			glf = GridLayoutFactory.fillDefaults();
-		}
-		glf.equalWidth(equalWidth);
-		return glf;
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGroup(Composite, int, int, ClientMessages)}. This has been done to support a
-	 *             more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Group createGroup(final Composite parent, int columns, final ClientMessages message,
-			GridLayoutFactory glf, GridDataFactory gdf) {
-		Group group = new Group(parent, SWT.NONE);
-		group.setFont(ClientResourceManager.getInstance().getGroupDefaultFont());
-		if (glf == null) {
-			glf = getGroupDefaultGridLayoutFactory(columns, true);
-		}
-		glf.numColumns(columns).applyTo(group);
-		gdf.indent(5, 5);
-		gdf.applyTo(group);
-		if (message != null) {
-			group.setText(ClientMessagesUtility.getMessage(message));
-		}
-		return group;
-	}
-
-	/**
-	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Label createLabel(final Composite parent, int labelStyle) {
-		return createLabel(parent, labelStyle, ClientMessages.EMPTY_MESSAGE, null);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Label createLabel(final Composite parent, int labelStyle, final ClientMessages message,
-			final Point span) {
-		return createLabel(parent, labelStyle, message, span, null);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Label createLabel(final Composite parent, int labelStyle, final ClientMessages message) {
-		return createLabel(parent, labelStyle, ClientMessagesUtility.getMessage(message), DEFAULT_SPAN, null);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Label createLabel(final Composite parent, int labelStyle, final ClientMessages message,
-			final Point span, final FontDescriptor fontDescriptor) {
-		return createLabel(parent, labelStyle, ClientMessagesUtility.getMessage(message), span, fontDescriptor);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientLabel(Composite, int, ClientMessages, Optional)}. This has been done to
-	 *             support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Label createLabel(final Composite parent, int labelStyle, String message, final Point span,
-			final FontDescriptor fontDescriptor) {
-		Label label = new Label(parent, labelStyle);
-		label.setText(message);
-		if (Objects.isNull(fontDescriptor)) {
-			label.setFont(ClientResourceManager.getInstance().getLabelDefaultFont());
-		} else {
-			label.setFont(ClientResourceManager.getInstance().getFont(fontDescriptor));
-		}
-		GridDataFactory gdf = GridDataFactory.swtDefaults();
-		gdf.align(SWT.BEGINNING, SWT.CENTER);
-		if (Objects.nonNull(span)) {
-			gdf.span(span);
-		}
-		gdf.applyTo(label);
-		return label;
 	}
 
 	/**
@@ -382,42 +246,6 @@ public final class ClientSWTElements {
 			if (old == null) {
 				return Optional.empty();
 			}
-		}
-	}
-
-	/**
-	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
-	 *             consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static GridDataFactory applySpan(final Control control, final Optional<Point> span,
-			final Optional<Point> minSize, GridDataFactory gdf) {
-		if (gdf == null) {
-			gdf = GridDataFactory.swtDefaults().grab(true, false).align(SWT.BEGINNING, SWT.BEGINNING);
-		}
-		gdf.span(span.orElse(DEFAULT_SPAN));
-		gdf.minSize(minSize.orElse(DEFAULT_BUTTON_SIZE));
-		gdf.applyTo(control);
-		return gdf;
-	}
-
-	/**
-	 * Change a {@link Composite} item minSize using its existing {@link GridDataFactory}
-	 *
-	 * @param composite
-	 * @param width
-	 * @param height
-	 * @deprecated use {@link #createClientGridDataFactory()} to define the layout. This has been done to support a more
-	 *             consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static void gridMargin(final Composite composite, final int width, final int height) {
-		if (GridLayoutFactory.class.isInstance(composite.getLayout())) {
-			GridLayoutFactory glf = GridLayoutFactory.class.cast(composite.getLayout());
-			glf.margins(width, height);
-			glf.applyTo(composite);
 		}
 	}
 
