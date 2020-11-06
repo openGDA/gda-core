@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  * @author Maurizio Nagni
  */
 @Component
-class TomographyFileContext extends AcquisitionFileBaseContext<TomographyContextFile>{
+public class TomographyFileContext extends AcquisitionFileBaseContext<TomographyContextFile>{
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyFileContext.class);
 

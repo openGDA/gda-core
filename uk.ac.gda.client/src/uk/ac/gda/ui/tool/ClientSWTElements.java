@@ -461,13 +461,30 @@ public final class ClientSWTElements {
 	 * @param listener
 	 *            a listener to validate the text
 	 * @return a new Text component
-	 * @deprecated Please use {@link #createClientText(Composite, int, ClientMessages, VerifyListener)}
+	 * @deprecated Please use either {@link #createClientText(Composite, int, ClientMessages, VerifyListener)} or {@link #createClientText(Composite, int, ClientMessages)}
 	 */
 	@Deprecated
 	public static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
 			final Optional<VerifyListener> listener) {
 		VerifyListener vl = listener.isPresent() ? listener.get() : null;
 		return createClientText(parent, style, tooltip, vl);
+	}
+
+	/**
+	 * Creates a basic {@link Text} component. No validation is done on he text.
+	 * This supports the approach described in
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param style
+	 *            the style to apply to the the button. If SWT.NONE applies SWT.RIGHT | SWT.BORDER.
+	 * @param tooltip
+	 *            the tooltip to display. May be {@code null}
+	 * @return a new Text component
+	 */
+	public static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip) {
+		return createClientText(parent, style, tooltip, Optional.empty());
 	}
 
 	/**
