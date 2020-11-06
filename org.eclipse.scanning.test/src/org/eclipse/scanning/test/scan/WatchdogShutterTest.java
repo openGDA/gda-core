@@ -34,10 +34,16 @@ import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+/**
+ * TODO DAQ-3295 this test has issues when running in CI system
+ * due to its highly concurrent nature, it should be rewritten e.g. with
+ * {@link WaitingAnswer}
+ */
 public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog<ExpressionWatchdogModel> dog;
@@ -61,11 +67,19 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Before
 	public void before() throws Exception {
-		assertNotNull(connector.getScannable("beamcurrent"));
-		assertNotNull(connector.getScannable("portshutter"));
-
-		connector.getScannable("beamcurrent").setPosition(5d);
-		connector.getScannable("portshutter").setPosition("Open");
+		IScannable<Object> beamCurrent = connector.getScannable("beamcurrent");
+		IScannable<Object> portShutter = connector.getScannable("portshutter");
+		assertNotNull(beamCurrent);
+		assertNotNull(portShutter);
+		try {
+			beamCurrent.setPosition(5d);
+			portShutter.setPosition("Open");
+		} catch (NullPointerException e) {
+			// This is to provide context as NPE stack traces are
+			// often omitted due to a JVM optimisation
+			e.printStackTrace(System.out);
+			throw e;
+		}
 	}
 
 
@@ -163,6 +177,8 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Test
 	public void scanDuringShutterClosed() throws Exception {
+		// Set a longer exposure to that scanner remains Running for longer, to prevent race conditions
+		detector.getModel().setExposureTime(1.0);
 
 		// Stop topup, we want to control it programmatically.
 		final IScannable<String>   mon  = connector.getScannable("portshutter");
@@ -189,6 +205,8 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Test
 	public void monitorWithExternalPauseSimple() throws Exception {
+		// Set a longer exposure to that scanner remains Running for longer, to prevent race conditions
+		detector.getModel().setExposureTime(1.0);
 
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(null);
@@ -221,6 +239,8 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Test
 	public void monitorWithExternalPauseComplex() throws Exception {
+		// Set a longer exposure to that scanner remains Running for longer, to prevent race conditions
+		detector.getModel().setExposureTime(1.0);
 
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(null);
