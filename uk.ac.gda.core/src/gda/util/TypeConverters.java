@@ -25,12 +25,14 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.python.core.Py;
 import org.python.core.PyList;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
+import org.python.core.PyString;
 
 /**
  * Class with static members used to convert between various objects
@@ -51,61 +53,31 @@ public class TypeConverters {
 		// Note: this method is similar to ScannableUtils.objectToArray, but that
 		// method has many flaws and should be rewritten see DAQ-3180
 
-		final double[] data;
 		if (object instanceof double[]) {
-			data = (double[]) object;
+			return (double[]) object;
 		} else if (object instanceof PyList) {
 			// coerce PyList into double array.
-			int length = ((PyList) object).__len__();
-			data = new double[length];
-			for (int i = 0; i < length; i++) {
-				try {
-					// This deals properly with Double, Long & Integer etc. but not BigInteger
-					data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
-				} catch (NumberFormatException nfe) {
-					try {
-						// This deals with Double, BigInteger & Long literal etc. but not Long
-						data[i] = Py.py2double(((PyList) object).__getitem__(i));
-					} catch (Exception e) {
-						throw new IllegalArgumentException("Error extracting from PyList item element: " + data[i]);
-					}
-				}
-			}
+			final PyList list = (PyList)object;
+		    return IntStream.range(0, list.__len__())
+		            .mapToObj(list::pyget)
+		            .map(pyo -> pyo instanceof PyString
+		                    ? Double.valueOf(pyo.toString())
+		                    : Py.tojava(pyo, Number.class))
+		            .mapToDouble(Number::doubleValue)
+		            .toArray();
 		} else if (object instanceof int[]) {
-			int[] idata = (int[]) object; // convert array from int[] to double[]
-			data = new double[idata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = idata[i];
-			}
+			return Arrays.stream((int[]) object).mapToDouble(Double::valueOf).toArray();
 		} else if (object instanceof long[]) {
-			long[] ldata = (long[]) object; // convert array from long[] to double[]
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i];
-			}
+			return Arrays.stream((long[]) object).mapToDouble(Double::valueOf).toArray();
 		} else if (object instanceof String[]) {
-			String[] sdata = (String[]) object;
-			data = new double[sdata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = Double.valueOf(sdata[i]);
-			}
-			Arrays.stream(sdata).mapToDouble(Double::valueOf).toArray();
+			return Arrays.stream((String[]) object).mapToDouble(Double::valueOf).toArray();
 		} else if (object instanceof Number[]) {
-			Number[] ldata = (Number[]) object;
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i].doubleValue();
-			}
-		} else if (object instanceof Double) {
-			data = new double[] { (Double) object };
-		} else if (object instanceof Integer) {
-			data = new double[] { (Integer) object };
-		} else if (object instanceof Long) {
-			data = new double[] { (Long) object };
-		} else {
-			throw new IllegalArgumentException("Object cannot be converted to a double array: " + object);
+			return Arrays.stream((Number[]) object).mapToDouble(Number::doubleValue).toArray();
+		} else if (object instanceof Number) {
+			return new double[] { ((Number) object).doubleValue() };
 		}
-		return data;
+
+		throw new IllegalArgumentException("Object cannot be converted to a double array: " + object);
 	}
 
 	/**
