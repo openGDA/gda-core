@@ -588,18 +588,15 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	}
 
 	private void writeDetector(Detector detector) throws DeviceException, NexusException {
-
-		if (detector.createsOwnFiles()) {
+		if (detector instanceof NexusDetector) {
+			writeNexusDetector((NexusDetector) detector);
+		} else if (detector.createsOwnFiles()) {
 			writeFileCreatorDetector(detector.getName(), extractFileName(detector.getName()));
+		} else if (detector.getExtraNames() != null && detector.getExtraNames().length > 0) {
+			writeCounterTimer(detector);
 		} else {
-			if (detector instanceof NexusDetector) {
-				writeNexusDetector((NexusDetector) detector);
-			} else if (detector.getExtraNames() != null && detector.getExtraNames().length > 0) {
-				writeCounterTimer(detector);
-			} else {
-				writeGenericDetector(detector.getName(), detector.getDataDimensions(),
-						extractDoubleData(detector.getName()));
-			}
+			writeGenericDetector(detector.getName(), detector.getDataDimensions(),
+					extractDoubleData(detector.getName()));
 		}
 	}
 
