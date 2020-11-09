@@ -1,8 +1,9 @@
 package org.eclipse.scanning.jython;
 
+import static java.util.Arrays.stream;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -156,19 +157,13 @@ public class JythonInterpreterManager {
 	private static void setJythonPaths(PySystemState state) {
 
 		try {
-			// Search for the Libs directory which should have been expanded out either
-			// directly into the bundle or into the 'jython2.7' folder.
 			String jythonBundleName = getJythonBundleName();
-
 			File loc = getBundleLocation(jythonBundleName); // TODO Name the jython OSGi bundle without Diamond in it!
-			File lib = null;
-			Iterator<Object> it = state.path.iterator();
-			while (it.hasNext()) {
-				Object ob = it.next();
-				if (ob instanceof String && ((String) ob).endsWith(File.separator + "Lib")) {
-					lib = new File((String) ob);
-				}
-			}
+
+			// Search for the Lib directory in existing PySystemState, only accept if absolute path
+			File lib = stream(state.path.toArray()).filter(String.class::isInstance).map(String.class::cast)
+					.filter(str -> str.endsWith(File.separator + "Lib"))
+					.map(File::new).filter(File::isAbsolute).findFirst().orElse(null);
 
 			if (lib == null) {
 				logger.debug("Jython Lib not found on PySystemState path");
@@ -185,6 +180,9 @@ public class JythonInterpreterManager {
 
 			if (lib != null) {
 				File site = find(lib, "site-packages");
+				if (site == null) {
+					throw new IllegalStateException("site-packages could not be found within Jython");
+				}
 				state.path.add(new PyString(site.getAbsolutePath())); // Resolves the collections
 
 				File[] fa = site.listFiles();
