@@ -210,4 +210,13 @@ public class CameraConfiguration extends FindableBase {
 		}
 		return Collections.unmodifiableList(streamTypes);
 	}
+
+	@Override
+	public String toString() {
+		return "CameraConfiguration [displayName=" + displayName + ", url=" + url + ", arrayPv=" + arrayPv
+				+ ", pvAccessPv=" + pvAccessPv + ", streamTypes=" + streamTypes + ", rgb=" + rgb + ", sleepTime="
+				+ sleepTime + ", cacheSize=" + cacheSize + ", roiProvider=" + roiProvider + ", calibratedAxesProvider="
+				+ calibratedAxesProvider + ", withHistogram=" + withHistogram + ", topUi=" + topUi + ", bottomUi="
+				+ bottomUi + "]";
+	}
 }

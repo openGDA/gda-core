@@ -345,4 +345,12 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "LiveStreamConnection [id=" + id + ", cameraConfig=" + cameraConfig + ", streamType=" + streamType
+				+ ", stream=" + stream + ", connected=" + connected + ", xAxisDataset=" + xAxisDataset
+				+ ", yAxisDataset=" + yAxisDataset + ", axesUpdater=" + axesUpdater + ", logger=" + logger
+				+ ", axisChangeListeners=" + axisChangeListeners + ", connectionCount=" + connectionCount + "]";
+	}
 }
