@@ -117,12 +117,16 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 	private Set<DevicePositionDocument> createDevicePositionDocuments() {
 		Set<DevicePositionDocument> devicePositionDocuments = new HashSet<>();
+		devicePositionDocuments.add(createDevicePositionDocument());
+		return devicePositionDocuments;
+	}
+
+	private DevicePositionDocument createDevicePositionDocument() {
 		DevicePositionDocument.Builder builder = new DevicePositionDocument.Builder();
 		builder.withValueType(ValueType.NUMERIC);
 		builder.withDevice(motor_x);
 		builder.withPosition(2.3);
-		devicePositionDocuments.add(builder.build());
-		return devicePositionDocuments;
+		return builder.build();
 	}
 
 	/**
@@ -136,6 +140,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		doReturn("imaging_camera_control").when(cameraControl).getName();
 		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
 
+		doReturn(createDevicePositionDocument()).when(stageController).createShutterOpenRequest();
 		doReturn(createDevicePositionDocuments()).when(stageController)
 			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());
 
@@ -160,7 +165,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 				long positions = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getPosition().stream()
 					.filter(p -> p.getDevice().equals(motor_x))
 					.count();
-				Assert.assertEquals(1 ,  positions);
+				Assert.assertEquals(2 ,  positions);
 			} catch (GDAException e) {
 				Assert.fail(e.getMessage());
 			}

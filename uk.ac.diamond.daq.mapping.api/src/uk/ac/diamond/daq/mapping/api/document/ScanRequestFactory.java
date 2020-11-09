@@ -179,8 +179,9 @@ public class ScanRequestFactory {
 		}
 
 		// Acquisition
+		final IPosition startPos = createPositionMap(getAcquisitionParameters().getPosition());
 		multiScanModel.addModel(acquisitionTemplate.getIScanPointGeneratorModel());
-		// Initial position -- TBD
+		interpolationPositions.add(startPos);
 
 		// Flat After Acquisition
 		if (getFlatCalibration().isAfterAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
