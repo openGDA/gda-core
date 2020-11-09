@@ -205,6 +205,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	// the data-type map of the MalcolmTable describing the detectors controlled by this malcolm device
 	private LinkedHashMap<String, Class<?>> detectorsTableTypesMap = null;
 
+	private static boolean resetAfterScan = true;
+
 //	// TODO: We currently get the detector table type map from MalcolmTable returned by malcolm. This is
 //	// because the 'enable' column is only present for malcolm v4.2 onwards. Once all malcolm devices have
 //  // been upgraded this table should be made static with the using the static initializer commented out below
@@ -873,6 +875,10 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		return getAttributeValue(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
 	}
 
+	public static void setResetAfterScan(boolean resetAfterScan) {
+		MalcolmDevice.resetAfterScan = resetAfterScan;
+	}
+
 	/**
 	 * At the end of a scan, Malcolm remains in a FINISHED state
 	 * until reset() is called. Only at this point will Malcolm
@@ -880,7 +886,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 */
 	@ScanFinally
 	public void closeFile() throws MalcolmDeviceException {
-		if (getDeviceState() == DeviceState.FINISHED) { // TODO remove check when all beamlines are on Malcolm 4+
+		if (resetAfterScan) {
 			reset();
 		}
 	}

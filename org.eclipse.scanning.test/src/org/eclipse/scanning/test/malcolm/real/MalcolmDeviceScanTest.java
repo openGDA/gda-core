@@ -54,7 +54,6 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.attributes.ChoiceAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.NumberAttribute;
 import org.eclipse.scanning.api.malcolm.attributes.StringArrayAttribute;
@@ -66,7 +65,6 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
@@ -198,31 +196,28 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 			// tests aborting the scan during the second inner-scan
 			testAbortScan(scanner, run2Answer);
 		} else {
-			final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
-			when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
-					createExpectedMalcolmStateReply(DeviceState.ARMED));
+			final MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
+			when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
 			// now release run and make sure the scan has finished
 			run2Answer.resume();
 
+			// Wait for the scan to finish. NOTE: increase this timeout to allow debugging
 			boolean scanCompleted = scanner.latch(10, TimeUnit.SECONDS);
 			assertThat(scanCompleted, is(true));
 
 			// Assert
 			verify(malcolmConnection).send(malcolmDevice, expectedRunMessage1);
 			verify(malcolmConnection).send(malcolmDevice, expectedRunMessage2);
+			verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
 			assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		}
+
 	}
 
-	private void testAbortScan(final IRunnableDevice<ScanModel> scanner, final WaitingAnswer<MalcolmMessage> run2Answer)
-			throws MalcolmDeviceException, ScanningException, InterruptedException {
+	private void testAbortScan(final IRunnableDevice<ScanModel> scanner, final WaitingAnswer<MalcolmMessage> run2Answer) throws Exception {
 		final MalcolmMessage expectedAbortMessage = createExpectedCallMessage(id++, MalcolmMethod.ABORT, null);
 		when(malcolmConnection.send(malcolmDevice, expectedAbortMessage)).thenReturn(createExpectedMalcolmOkReply(null));
-
-		final MalcolmMessage expectedGetStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
-		when(malcolmConnection.send(malcolmDevice, expectedGetStateMessage)).thenReturn(
-				createExpectedMalcolmStateReply(DeviceState.ABORTED));
 
 		scanner.abort();
 
@@ -237,6 +232,11 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 			fail("Scan finished with exception: " + e.getMessage());
 		}
 
+		verify(malcolmConnection).send(malcolmDevice, expectedAbortMessage);
+
+		final MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
+		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+
 		// now release run and make sure the scan has finished
 		run2Answer.resume();
 
@@ -248,6 +248,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		}
 
 		assertThat(scanner.getDeviceState(), is(DeviceState.ABORTED));
+		verify(malcolmConnection).send(malcolmDevice, expectedResetMessage);
 	}
 
 	private void checkCompletedSteps(BeanCollectingAnswer<ScanBean> beanCaptor)
