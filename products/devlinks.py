@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """ This script is only run when exporting a GDA Server product using Maven
@@ -54,7 +54,7 @@ def write_link(root, path, exported_path, depth):
     target_match = up_one * 2 + path                                            # make the matcher for the basic workspace script folder path relative to here
     target_test = glob.glob(target_match)                                       # resolve any wildcards, e.g. to include the git repo name for plugins
     if len(target_test) == 0:
-        print "WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(path)  # handle plugins not in workspace_git e.g. TP ones
+        print("WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(path))  # handle plugins not in workspace_git e.g. TP ones
         return
 
     target_test = target_test[0]                                                # get the matching entry
@@ -68,19 +68,22 @@ def write_link(root, path, exported_path, depth):
         if os.path.islink(lfrom):                                               # in case it wasn't there get rid of any links that might be instead:
              os.remove(lfrom)
         os.symlink(link_target, lfrom)                                          # make the replacement symlink
-        print "\nLink written from: {0}\n             to:   {1}".format(lfrom, link_target)
+        print("\nLink written from: {0}\n             to:   {1}".format(lfrom, link_target))
     else:
-        print "WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(target_test[6:])     # handle bad path resolution
+        print("WARNING: could not find {0} in workspace, this script folder will be in the exported product".format(target_test[6:]))     # handle bad path resolution
 
 if len(sys.argv) != 2:                                                          # script name plus plugins path
-    print "ERROR: plugins.dir argument must be supplied"
+    print("ERROR: plugins.dir argument must be supplied")
     sys.exit(1)
 
 plugins_folder = sys.argv[1]
 roots = [plugins_folder, plugins_folder + os.sep + up_one + "utilities"]
 
 # Grep for the plugin.xml files of all the bundles that define script locations via the corresponding extension point
-process = subprocess.Popen('grep -Rl --include="plugin.xml" --exclude-dir=daq-platform.git "jython.api.scriptLocations" ' + 2 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+# universal_newlines=True means that stdout is opened as a text stream and split('\n') works
+# in Python 3. This flag was kept for backwards compatibility with Python2 but
+# should be changed to text=True when Python 2 is no longer supported.
+process = subprocess.Popen('grep -Rl --include="plugin.xml" --exclude-dir=daq-platform.git "jython.api.scriptLocations" ' + 2 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
 stdout, stderr = process.communicate()
 plugins_file_list = stdout.split('\n')
 
