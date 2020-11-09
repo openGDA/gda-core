@@ -24,11 +24,11 @@ import java.util.Objects;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.conversion.NumberToStringConverter;
 import org.eclipse.core.databinding.conversion.StringToNumberConverter;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -68,7 +68,7 @@ public class ScanParameterDialog extends Dialog {
 	/**
 	 * Used for converter in bindings to doubles
 	 */
-	private static final int 	DECIMAL_PLACES = 4;
+	private static final int DECIMAL_PLACES = 4;
 
 	private TomoScanParameters model;
 	private DataBindingContext ctx;
@@ -111,7 +111,6 @@ public class ScanParameterDialog extends Dialog {
 
 		scrolledComposite.setContent(editor);
 		scrolledComposite.setMinSize(editor.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-
 
 		return mainComposite;
 	}
@@ -181,25 +180,25 @@ public class ScanParameterDialog extends Dialog {
 	}
 
 	private void bindCombo(Combo combo, String property) {
-		ctx.bindValue(WidgetProperties.selection().observe(combo),
+		ctx.bindValue(WidgetProperties.comboSelection().observe(combo),
 				PojoProperties.value(property).observe(getModel()));
 	}
 
 	private void bindButton(Button button, String property) {
-		ctx.bindValue(WidgetProperties.selection().observe(button),
+		ctx.bindValue(WidgetProperties.buttonSelection().observe(button),
 				PojoProperties.value(property).observe(getModel()));
 	}
 
 	private void bindText(Text text, String property) {
-		NumberFormat fourDecimalPlacesFormat = NumberFormat.getNumberInstance();
+		final NumberFormat fourDecimalPlacesFormat = NumberFormat.getNumberInstance();
 		fourDecimalPlacesFormat.setMaximumFractionDigits(DECIMAL_PLACES);
-		IConverter targetToModelConverter = StringToNumberConverter.toDouble(fourDecimalPlacesFormat, true);
-		IConverter modelToTargetConverter = NumberToStringConverter.fromDouble(fourDecimalPlacesFormat, true);
+		final IConverter<Object, Double> targetToModelConverter = StringToNumberConverter.toDouble(fourDecimalPlacesFormat, true);
+		final IConverter<Object, String> modelToTargetConverter = NumberToStringConverter.fromDouble(fourDecimalPlacesFormat, true);
 		ctx.bindValue(
 				WidgetProperties.text(SWT.Modify).observe(text),
 				PojoProperties.value(property).observe(getModel()),
-				new UpdateValueStrategy().setConverter(targetToModelConverter),
-				new UpdateValueStrategy().setConverter(modelToTargetConverter));
+				new UpdateValueStrategy<String, Object>().setConverter(targetToModelConverter),
+				new UpdateValueStrategy<Object, String>().setConverter(modelToTargetConverter));
 	}
 
 	/**
@@ -217,14 +216,12 @@ public class ScanParameterDialog extends Dialog {
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
 		// create OK and Cancel buttons by default
-		createButton(parent, IDialogConstants.OK_ID, "Run",
-				false);
-		createButton(parent, IDialogConstants.CANCEL_ID,
-				IDialogConstants.CANCEL_LABEL, false);
+		createButton(parent, IDialogConstants.OK_ID, "Run", false);
+		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 
 	private String getModelFilePath() {
-		String gdaVar = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
+		final String gdaVar = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
 		return gdaVar + "/" + DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL + ".json";
 	}
 
@@ -272,9 +269,8 @@ public class ScanParameterDialog extends Dialog {
 	/**
 	 * This approach is used typically by I13
 	 * @return
-	 * @throws Exception
 	 */
-	private TomoScanParameters getIDialogModel() throws Exception {
+	private TomoScanParameters getIDialogModel() {
 		final IDialogSettings dialogSettings = Activator.getDefault().getDialogSettings();
 		final String modelJson = dialogSettings.get(DIALOG_SETTINGS_KEY_TOMOGRAPHY_SCAN_MODEL);
 		if (modelJson != null) {
