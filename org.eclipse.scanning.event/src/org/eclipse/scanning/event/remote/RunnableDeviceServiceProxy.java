@@ -40,9 +40,9 @@ import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class _RunnableDeviceService extends AbstractRemoteService implements IRunnableDeviceService {
+public class RunnableDeviceServiceProxy extends AbstractRemoteService implements IRunnableDeviceService {
 
-	private static final Logger logger = LoggerFactory.getLogger(_RunnableDeviceService.class);
+	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceServiceProxy.class);
 
 	private IRequester<DeviceRequest> requester;
 	private IScannableDeviceService   cservice;
@@ -71,7 +71,7 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 	@Override
 	public IPositioner createPositioner(INameable parent) throws ScanningException {
 		try {
-			return new _Positioner(uri, eservice);
+			return new PositionerProxy(uri, eservice);
 		} catch (EventException e) {
 			throw new ScanningException("Cannot create a positioner!", e);
 		}
@@ -80,7 +80,7 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 	@Override
 	public IPositioner createPositioner(String name) throws ScanningException {
 		try {
-			return new _Positioner(uri, eservice);
+			return new PositionerProxy(uri, eservice);
 		} catch (EventException e) {
 			throw new ScanningException("Cannot create a positioner!", e);
 		}
@@ -94,7 +94,7 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 	@Override
 	public <T> IRunnableDevice<T> createRunnableDevice(T model, boolean configure) throws ScanningException {
 		try {
-			return new _RunnableDevice<>(new DeviceRequest(model, configure), uri, eservice);
+			return new RunnableDeviceProxy<>(new DeviceRequest(model, configure), uri, eservice);
 		} catch (EventException | InterruptedException e) {
 			throw new ScanningException(e);
 		}
@@ -135,12 +135,12 @@ public class _RunnableDeviceService extends AbstractRemoteService implements IRu
 			final DeviceInformation<T> info = (DeviceInformation<T>) response.getDeviceInformation();
 			if (info.getDeviceRole() == DeviceRole.MALCOLM) {
 				@SuppressWarnings("resource")
-				IMalcolmDevice malcolmDevice = new _MalcolmDevice((DeviceInformation<IMalcolmModel>) info, uri, eservice);
+				IMalcolmDevice malcolmDevice = new MalcolmDeviceProxy((DeviceInformation<IMalcolmModel>) info, uri, eservice);
 				@SuppressWarnings("unchecked")
 				IRunnableDevice<T> device = (IRunnableDevice<T>) malcolmDevice;
 				return device;
 			} else {
-				return new _RunnableDevice<>(info, uri, eservice);
+				return new RunnableDeviceProxy<>(info, uri, eservice);
 			}
 		} catch (EventException | InterruptedException e) {
 			throw new RuntimeException(new ScanningException(e));

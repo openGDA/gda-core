@@ -33,9 +33,9 @@ import org.eclipse.scanning.api.scan.event.ILocationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class _ScannableDeviceService extends AbstractRemoteService implements IScannableDeviceService {
+class ScannableDeviceServiceProxy extends AbstractRemoteService implements IScannableDeviceService {
 
-	private static final Logger logger = LoggerFactory.getLogger(_ScannableDeviceService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScannableDeviceServiceProxy.class);
 	private IRequester<DeviceRequest>  requester;
 	private Map<String, IScannable<?>> scannables;
 	private ISubscriber<ILocationListener> subscriber;
@@ -92,7 +92,7 @@ class _ScannableDeviceService extends AbstractRemoteService implements IScannabl
 
 		if (scannables.containsKey(name)) return (IScannable<T>)scannables.get(name);
 		try {
-			_Scannable<T> ret = new _Scannable<T>(new DeviceRequest(name, DeviceType.SCANNABLE), uri, subscriber, eservice);
+			ScannableProxy<T> ret = new ScannableProxy<T>(new DeviceRequest(name, DeviceType.SCANNABLE), uri, subscriber, eservice);
 			scannables.put(name, ret);
 			return ret;
 		} catch (EventException | InterruptedException e) { // If no Scannable
