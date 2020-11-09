@@ -60,9 +60,6 @@ public class GuiGeneratorService implements IGuiGeneratorService {
 	}
 
 	// Use OGSi to register inspectors to provide GUI metadata
-	// This is a workaround to get metadata from annotations and beans in org.eclipse.scanning.api, when we are not
-	// allowed a dependency in either direction between the richbeans and scanning projects. Somewhere else in the GDA
-	// codebase we will need a metawidget inspector to register as an OSGi service and inspect the scanning beans.
 	public synchronized void addDomInspector(DomInspector<?> inspector) {
 		DOM_INSPECTORS.add(inspector);
 		updateCompositeInspector();
