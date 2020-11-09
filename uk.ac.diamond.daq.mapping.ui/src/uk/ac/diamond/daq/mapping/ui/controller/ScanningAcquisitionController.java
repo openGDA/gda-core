@@ -277,7 +277,7 @@ public class ScanningAcquisitionController
 		// Filters out from the Position.START positions, the position document from AcquisitionPropertiesDocument::getOutOfBeamScannables
 		// See AcquisitionPropertiesDocument#outOfBeamScannables
 		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, detectorsHelper.getOutOfBeamScannables());
-		// Updates the acquistion document
+		startPosition.add(stageController.createShutterOpenRequest());
 		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().setPosition(startPosition);
 	}
 
