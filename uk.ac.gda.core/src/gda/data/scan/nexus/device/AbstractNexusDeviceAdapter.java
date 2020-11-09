@@ -58,7 +58,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 
 	private final Scannable device;
 
-	private N nexusObject = null;
+	protected N nexusObject = null; // set by getNexusProvider
 
 	public AbstractNexusDeviceAdapter(final Scannable device) {
 		this.device = device;

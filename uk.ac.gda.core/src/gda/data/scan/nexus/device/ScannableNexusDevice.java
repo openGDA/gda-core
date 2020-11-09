@@ -134,11 +134,6 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 	 */
 	private List<String> outputFieldNames = null;
 
-	/**
-	 * The Nexus object created.
-	 */
-	private N nexusObject = null;
-
 	public ScannableNexusDevice(Scannable scannable) {
 		super(scannable);
 	}
