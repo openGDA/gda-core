@@ -20,6 +20,7 @@ package uk.ac.gda.bimorph.ui;
 
 import static org.eclipse.jface.dialogs.MessageDialog.openError;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.richbeans.api.event.ValueListener;
 import org.eclipse.richbeans.widgets.FieldComposite;
@@ -121,6 +122,8 @@ public final class BimorphParametersComposite extends Composite {
 	private BooleanWrapper btnGroupElectrodesTogether;
 	private Label scanDirectory;
 	private String selectedDir;
+	
+	private GridDataFactory groupGridData = GridDataFactory.fillDefaults().grab(true, false);
 	
 	public BimorphParametersComposite(Composite parent, int style) {
 		super(parent, SWT.NONE);
@@ -436,8 +439,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createSlitsGroup() {
 		Group slitsGroup = new Group(this, SWT.NONE);
-		GridData gd_slitsGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		slitsGroup.setLayoutData(gd_slitsGroup);
+		groupGridData.applyTo(slitsGroup);
 		slitsGroup.setLayout(new GridLayout(6, false));
 		slitsGroup.setText("Slits");
 		label = new Label(slitsGroup, SWT.NONE);
@@ -474,8 +476,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createOtherSlitsGroup() {
 		Group otherSlitsGroup = new Group(this, SWT.NONE);
-		GridData gd_otherSlitsGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		otherSlitsGroup.setLayoutData(gd_otherSlitsGroup);
+		groupGridData.applyTo(otherSlitsGroup);
 		otherSlitsGroup.setLayout(new GridLayout(4, false));
 		otherSlitsGroup.setText("Other Slits");
 		label = new Label(otherSlitsGroup, SWT.NONE);
@@ -500,8 +501,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createDetectorGroup() {
 		Group detectorGroup = new Group(this, SWT.NONE);
-		GridData gd_detectorGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		detectorGroup.setLayoutData(gd_detectorGroup);
+		groupGridData.applyTo(detectorGroup);
 		detectorGroup.setLayout(new GridLayout(4, false));
 		detectorGroup.setText("Detector");
 		lblName = new Label(detectorGroup, SWT.NONE);
@@ -534,8 +534,7 @@ public final class BimorphParametersComposite extends Composite {
 	public void createMirrorGroup() {
 
 		Group mirrorGroup = new Group(this, SWT.NONE);
-		GridData gd_mirrorGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		mirrorGroup.setLayoutData(gd_mirrorGroup);
+		groupGridData.applyTo(mirrorGroup);
 		mirrorGroup.setLayout(new GridLayout(4, false));
 		mirrorGroup.setText("Mirror");
 
@@ -566,7 +565,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblBimorphVoltages.setText("Current Voltages");
 
 		bimorphVoltages = new TextWrapper(mirrorGroup, SWT.BORDER);
-		GridData gd_bimorphVoltages = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
+		GridData gd_bimorphVoltages = new GridData(SWT.FILL, SWT.CENTER, false, true, 3, 1);
 		bimorphVoltages.setLayoutData(gd_bimorphVoltages);
 		
 		btnGroupElectrodesTogether = new BooleanWrapper(mirrorGroup, SWT.CHECK);
@@ -576,7 +575,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblElectrodeGroups.setText("Electrode Groups");
 		
 		bimorphGroups = new TextWrapper(mirrorGroup, SWT.BORDER);
-		GridData gd_bimorphGroups = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+		GridData gd_bimorphGroups = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
 		bimorphGroups.setLayoutData(gd_bimorphGroups);
 	}
 
@@ -599,6 +598,7 @@ public final class BimorphParametersComposite extends Composite {
 		GridData gd_label_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		label_1.setLayoutData(gd_label_1);
 		Group grpEllipseCalculation = new Group(this, SWT.NONE);
+		groupGridData.applyTo(grpEllipseCalculation);
 		grpEllipseCalculation.setText("Ellipse Calculation");
 		grpEllipseCalculation.setLayout(new GridLayout(1, false));
 
@@ -642,6 +642,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createPresentMirrorSettingsGroup() {
 		grpPresentMirrorSettings = new Group(this, SWT.NONE);
+		groupGridData.applyTo(grpPresentMirrorSettings);
 		grpPresentMirrorSettings.setText("Present Mirror Settings");
 		grpPresentMirrorSettings.setLayout(new GridLayout(1, false));
 		
@@ -706,6 +707,7 @@ public final class BimorphParametersComposite extends Composite {
 
 	public void createNewMirrorSettingsGroup() {
 		grpNewMirrorSettings = new Group(this, SWT.NONE);
+		groupGridData.applyTo(grpNewMirrorSettings);
 		grpNewMirrorSettings.setText("New Mirror Settings");
 		grpNewMirrorSettings.setLayout(new GridLayout(3, false));
 
@@ -732,12 +734,12 @@ public final class BimorphParametersComposite extends Composite {
 	public void createScanDataGroup() {
 		
 		scanDataGroup = new Group(this, SWT.NONE);
+		groupGridData.applyTo(scanDataGroup);
 		scanDataGroup.setText("Scan Data");
 		scanDataGroup.setLayout(new GridLayout(1, false));
 
 		Composite comp = new Composite(scanDataGroup, SWT.NONE);
-		GridData gd_comp = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		comp.setLayoutData(gd_comp);
+		groupGridData.applyTo(comp);
 		comp.setLayout(new GridLayout(4, false));
 		
 		lblScanNumbers = new Label(comp, SWT.NONE);
@@ -750,7 +752,7 @@ public final class BimorphParametersComposite extends Composite {
 		lblErrorFile = new Label(comp, SWT.NONE);
 		lblErrorFile.setText("Error File");
 		errorFile = new TextWrapper(comp, SWT.BORDER);
-		GridData gd_errorFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		GridData gd_errorFile = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		errorFile.setLayoutData(gd_errorFile);
 
 		Composite comp2 = new Composite(scanDataGroup, SWT.NONE);
@@ -782,13 +784,11 @@ public final class BimorphParametersComposite extends Composite {
 				scanDirectory.setText("Scan file directory = " + selectedDir == null ? "current data directory" : selectedDir);
 			}
 		});
-		
 	}
 
 	public void createBeamGroup() {
 		beamOffsetGroup = new Group(this, SWT.NONE);
-		GridData gd_beamOffsetGroup = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		beamOffsetGroup.setLayoutData(gd_beamOffsetGroup);
+		groupGridData.applyTo(beamOffsetGroup);
 		beamOffsetGroup.setLayout(new GridLayout(3, false));
 		beamOffsetGroup.setText("Beam");
 		btnAutoOffset = new BooleanWrapper(beamOffsetGroup, SWT.CHECK);
