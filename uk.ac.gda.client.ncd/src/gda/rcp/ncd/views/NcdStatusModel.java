@@ -101,7 +101,6 @@ public class NcdStatusModel implements IObserver {
 		if (meta != null) {
 			meta.addIObserver(this);
 		}
-		MsgBus.subscribe(this);
 		MsgBus.publish(saxsCalMsg.refresh());
 		MsgBus.publish(waxsCalMsg.refresh());
 		MsgBus.publish(saxsMaskMsg.refresh());

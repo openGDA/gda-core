@@ -16,25 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.eventbus.api;
+package uk.ac.gda.message.api;
 
-import gda.factory.Findable;
+public enum GDAMessageCategory {
 
-import java.io.Serializable;
-
-public interface IGDAEventBus extends Findable {
-
-	String identifier();
-
-	void post(Object event);
-
-	/**
-	 * Forwards messages to interprocess bus
-	 */
-	void publish(Serializable event);
-
-	void register(Object handler);
-
-	void unregister(Object handler);
+	COMMAND,
+	INTERRUPT,
+	ERROR,
+	NOTIFY,
+	QUERY
 
 }
