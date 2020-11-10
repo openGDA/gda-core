@@ -193,16 +193,6 @@ public final class BimorphParametersComposite extends Composite {
 
 		String elec = JythonServerFacade.getInstance().evaluateCommand(mirror + ".numOfChans");
 		noOfElectrodes = Integer.parseInt(elec);
-
-		int currentScanNumber = determineCurrentScanFileNumber();
-		errorFile.setValue(currentScanNumber);
-		String scanNumbers = "";
-		for (int i = currentScanNumber; i <= noOfElectrodes + currentScanNumber; i++) {
-			scanNumbers += i;
-			if (i != noOfElectrodes + currentScanNumber)
-				scanNumbers += ",";
-		}
-		scanNumberInputs.setValue(scanNumbers);
 	}
 
 	public void calculateErrorFile() {
@@ -379,8 +369,6 @@ public final class BimorphParametersComposite extends Composite {
 				Thread.currentThread().interrupt();
 				return;
 			}
-			errorFile.setValue(determineCurrentScanFileNumber());
-			error_file = errorFile.getValue().toString();
 		}
 
 		if (selectedDir == null)
@@ -413,11 +401,6 @@ public final class BimorphParametersComposite extends Composite {
 		JythonServerFacade.getInstance().runCommand(command);
 	}
 
-	private int determineCurrentScanFileNumber(){
-		int currentScanNumber = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getScanIdentifier();
-		return currentScanNumber;
-	}
-	
 	public void setEllipseEnabled(boolean enabled) {
 		lblISign.setEnabled(enabled);
 		lblPresentSourcemirrorDistance.setEnabled(enabled);
