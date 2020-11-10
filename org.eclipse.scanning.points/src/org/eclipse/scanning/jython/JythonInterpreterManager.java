@@ -4,6 +4,7 @@ import static java.util.Arrays.stream;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -121,6 +122,14 @@ public class JythonInterpreterManager {
 			props.setProperty("python.verbose", "warning");
 
 			Properties preprops = System.getProperties();
+
+			// When initialising in the client ensure that Jython cache is set to location
+			// within the instance location (this is specifed by WORKSPACE in gdaclient script)
+			if (!preprops.containsKey("python.cachedir") && Platform.isRunning()) {
+				// This is location passed in via -data option
+				String instanceLoc = Paths.get(Platform.getInstanceLocation().getURL().toURI()).toString();
+				props.setProperty("python.cachedir", Paths.get(instanceLoc, "jythonCache").toString());
+			}
 
 			PySystemState.initialize(preprops, props, new String[] {}, loader);
 
