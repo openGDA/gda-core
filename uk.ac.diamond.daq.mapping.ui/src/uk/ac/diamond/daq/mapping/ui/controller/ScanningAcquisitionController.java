@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -43,6 +45,8 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
+import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
@@ -50,6 +54,8 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.TomographyContextFile;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -70,6 +76,9 @@ import uk.ac.gda.client.UIHelper;
 public class ScanningAcquisitionController
 		implements AcquisitionController<ScanningAcquisition> {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionController.class);
+
+	@Autowired
+	private AcquisitionFileContext fileContext;
 
 	@SuppressWarnings("unused") // to be used for dark/flat field acquisition in the near future
 	@Autowired
@@ -112,7 +121,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		updateImageCalibration();
-
+		updateProcessingRequest();
 		try {
 			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()));
 		} catch (GDAException e) {
@@ -123,6 +132,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void runAcquisition() throws AcquisitionControllerException {
 		updateImageCalibration();
+		updateProcessingRequest();
 		updateStartPosition();
 		publishRun(createScanningMessage());
 	}
@@ -264,6 +274,22 @@ public class ScanningAcquisitionController
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
 			darkPosition.add(stageController.createShutterClosedRequest());
 			imageCalibrationHelper.updateDarkDetectorPositionDocument(darkPosition);
+		}
+	}
+
+	private void updateProcessingRequest() {
+		if (acquisitionType.equals(AcquisitionPropertyType.TOMOGRAPHY)) {
+			URL processingFile = fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
+			if (processingFile == null)
+				return;
+			List<URL> urls = new ArrayList<>();
+			urls.add(processingFile);
+			SavuProcessingRequest request = new SavuProcessingRequest.Builder()
+					.withValue(urls)
+					.build();
+			List<ProcessingRequestPair<?>> requests = new ArrayList<>();
+			requests.add(request);
+			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
 		}
 	}
 

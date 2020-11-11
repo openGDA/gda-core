@@ -8,4 +8,6 @@ Fragment-Host: uk.ac.diamond.daq.mapping.api
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.api.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.google.guava,
- org.junit
+ org.junit,
+ uk.ac.diamond.org.springframework.spring-test
+Import-Package: org.springframework.test.context

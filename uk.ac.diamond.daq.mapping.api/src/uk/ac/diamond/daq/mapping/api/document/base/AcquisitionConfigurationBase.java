@@ -18,11 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.api.document.base;
 
+import java.util.List;
 import java.util.Map;
 
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 
 public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> implements AcquisitionConfiguration<T> {
 
@@ -30,6 +32,7 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	private Map<String, String> metadata;
 	private ImageCalibration imageCalibration;
 	private MultipleScans multipleScans;
+	private List<ProcessingRequestPair<?>> processingRequest;
 
 	@Override
 	public T getAcquisitionParameters() {
@@ -58,5 +61,12 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	}
 	public void setMultipleScans(MultipleScans multipleScans) {
 		this.multipleScans = multipleScans;
+	}
+	@Override
+	public List<ProcessingRequestPair<?>> getProcessingRequest() {
+		return processingRequest;
+	}
+	public void setProcessingRequest(List<ProcessingRequestPair<?>> processingRequest) {
+		this.processingRequest = processingRequest;
 	}
 }

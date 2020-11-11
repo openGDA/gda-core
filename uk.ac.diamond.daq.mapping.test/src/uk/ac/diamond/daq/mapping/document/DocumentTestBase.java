@@ -21,9 +21,18 @@ package uk.ac.diamond.daq.mapping.document;
 import java.io.File;
 import java.net.MalformedURLException;
 
+import org.junit.runner.RunWith;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.exception.GDAException;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { DocumentTestBaseConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class DocumentTestBase {
 
 	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {

@@ -18,9 +18,11 @@
 
 package uk.ac.gda.api.acquisition.configuration;
 
+import java.util.List;
 import java.util.Map;
 
 import uk.ac.gda.api.acquisition.Acquisition;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 
 
@@ -54,5 +56,16 @@ public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
 	 * @return a dictionary of text data
 	 */
 	Map<String, String> getMetadata();
+
+	/**
+	 * The configuration for pre/post processing requests.
+	 * <p>
+	 * Because the value mapped to each key is a {@link String}, complex structures can be encoded using formats like XML or JSON.
+	 * Consequence of this is that either the acquisition engine or the client submitting a request to the acquisition engine
+	 * should be aware of the format sent with the specific key. By default the value should be assumed to be a JSON document
+	 * </p>
+	 * @return a map of key, value.
+	 */
+	List<ProcessingRequestPair<?>> getProcessingRequest();
 
 }
