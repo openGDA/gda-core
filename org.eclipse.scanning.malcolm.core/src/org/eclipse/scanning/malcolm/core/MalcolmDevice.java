@@ -876,6 +876,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	public static void setResetAfterScan(boolean resetAfterScan) {
+		logger.info("Malcolm Devices {} be reset at the end of a scan.", (resetAfterScan ? "will" : "will not"));
 		MalcolmDevice.resetAfterScan = resetAfterScan;
 	}
 
