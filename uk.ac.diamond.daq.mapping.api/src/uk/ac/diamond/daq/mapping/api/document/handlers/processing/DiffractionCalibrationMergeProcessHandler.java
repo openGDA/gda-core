@@ -27,27 +27,27 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.springframework.stereotype.Component;
 
+import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeProcess;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
-import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
- * Handler for {@link SavuProcessingRequest} devices
+ * Handler for {@link DiffractionCalibrationMergeProcess} devices
  *
  * @author Maurizio Nagni
  */
 @Component
-class SavuProcessingRequestHandler extends ProcessingRequestHandler {
+class DiffractionCalibrationMergeProcessHandler extends ProcessingRequestHandler {
 	@Override
 	Collection<Object> translateToCollection(ProcessingRequestPair<?> processingRequest) throws GDAException {
 		return Optional.ofNullable(processingRequest)
-			.filter(SavuProcessingRequest.class::isInstance)
-			.map(SavuProcessingRequest.class::cast)
+			.filter(DiffractionCalibrationMergeProcess.class::isInstance)
+			.map(DiffractionCalibrationMergeProcess.class::cast)
 			.map(this::translateValue)
 			.orElse(Collections.emptyList());
 	}
 
-	private Collection<Object> translateValue(SavuProcessingRequest request) {
+	private Collection<Object> translateValue(DiffractionCalibrationMergeProcess request) {
 		return request.getValue().stream()
 			.map(URL::toString)
 			.collect(Collectors.toList());
@@ -55,7 +55,7 @@ class SavuProcessingRequestHandler extends ProcessingRequestHandler {
 
 	@Override
 	ScriptRequest createScriptRequest(ProcessingRequestPair<?> processingRequest) throws GDAException {
+		// To Be Done
 		return null;
 	}
-
 }

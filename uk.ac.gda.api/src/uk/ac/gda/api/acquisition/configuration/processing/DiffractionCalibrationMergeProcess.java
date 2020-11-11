@@ -28,15 +28,20 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-@JsonTypeName("savuProcessingRequest")
-@JsonDeserialize(builder = SavuProcessingRequest.Builder.class)
-public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
+/**
+ * Diffraction Calibration file merge
+ *
+ *  @author Maurizio Nagni
+ */
+@JsonTypeName("diffractionCalibrationMerge")
+@JsonDeserialize(builder = DiffractionCalibrationMergeProcess.Builder.class)
+public class DiffractionCalibrationMergeProcess implements ProcessingRequestPair<URL>{
 
-	private static final String key = "savu";
-	private final List<URL> processingFiles;
+	private static final String KEY = "diffractionCalibrationMerge";
+	private final List<URL> calibrationFiles;
 
-	private SavuProcessingRequest(List<URL> processingFiles) {
-		this.processingFiles = processingFiles;
+	private DiffractionCalibrationMergeProcess(List<URL> processingFiles) {
+		this.calibrationFiles = processingFiles;
 	}
 
 	/**
@@ -46,30 +51,30 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	@Override
 	@JsonIgnore
 	public String getKey() {
-		return key;
+		return KEY;
 	}
 
 	/**
-	 * The savu processing files
-	 * @return the processing files
+	 * The diffraction calibration files
+	 * @return the calibration files
 	 */
 	@Override
 	public List<URL> getValue() {
-		return Collections.unmodifiableList(processingFiles);
+		return Collections.unmodifiableList(calibrationFiles);
 	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
-		private final List<URL> processingFiles = new ArrayList<>();
+		private final List<URL> calibrationFiles = new ArrayList<>();
 
 	    public Builder withValue(List<URL> processingFiles) {
-	    	this.processingFiles.clear();
-	        this.processingFiles.addAll(processingFiles);
+	    	this.calibrationFiles.clear();
+	        this.calibrationFiles.addAll(processingFiles);
 	        return this;
 	    }
 
-	    public SavuProcessingRequest build() {
-	        return new SavuProcessingRequest(processingFiles);
+	    public DiffractionCalibrationMergeProcess build() {
+	        return new DiffractionCalibrationMergeProcess(calibrationFiles);
 	    }
 	}
 

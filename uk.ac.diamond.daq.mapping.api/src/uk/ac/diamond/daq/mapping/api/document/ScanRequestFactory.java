@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.script.ScriptRequest;
 
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
@@ -95,6 +96,8 @@ public class ScanRequestFactory {
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
 		scanRequest.setTemplateFilePaths(parseTemplateFilePaths());
 		scanRequest.setProcessingRequest(parseProcessingRequest());
+		Optional.ofNullable(parseBeforeScriptProcessingRequest())
+			.ifPresent(scanRequest::setBeforeScript);
 		return scanRequest;
 	}
 
@@ -256,6 +259,22 @@ public class ScanRequestFactory {
 		ProcessingRequest pr = new ProcessingRequest();
 		pr.setRequest(requests);
 		return pr;
+	}
+
+	/**
+	 * As the ProcessingRequest has no concept of before/after acquisition is impossible to discriminate where the generated script should go.
+	 * At the same time is not good practice to select here the handler type in order to bind this method to the single implementation.
+	 * Consequently the decision to add the first generated ScriptRequest is clearly forced.
+	 * This however is mitigated by the fact the the
+	 * {@link ProcessingRequestHandlerService#generateScriptRequest(uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair)}
+	 * is deprecated and consequently any implementation relying on this method should be avoided
+	 * @return
+	 */
+	private ScriptRequest parseBeforeScriptProcessingRequest() {
+		return getAcquisitionConfiguration().getProcessingRequest().stream()
+			.map(p -> getProcessingRequestHandlerService().generateScriptRequest(p))
+			.findFirst()
+			.orElse(null);
 	}
 
 	private ProcessingRequestHandlerService getProcessingRequestHandlerService() {

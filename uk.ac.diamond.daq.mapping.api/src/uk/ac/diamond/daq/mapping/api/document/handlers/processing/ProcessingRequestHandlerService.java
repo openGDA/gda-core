@@ -25,6 +25,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
+import org.eclipse.scanning.api.script.ScriptRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -64,11 +65,25 @@ public class ProcessingRequestHandlerService {
 	/**
 	 * Returns a collection suitable for a processing request element.
 	 * @param processingRequest the request to translate
-	 * @return the document otherwise {@code null} if the device is not available
+	 * @return the collection otherwise {@code null} if the handler is not available
 	 */
 	public final Collection<Object> translateToCollection(ProcessingRequestPair<?> processingRequest) {
 		return Optional.ofNullable(processingRequest)
-				.map(handler::handleDevice)
+				.map(handler::handleProcess)
+				.orElse(null);
+	}
+
+	/**
+	 * Returns the first ScriptRequest.
+	 * @param processingRequest the request to translate
+	 * @return the script request otherwise {@code null} if the handler is not available
+	 * @deprecated The use of script should be avoided as it may execute operations without the required control (on user, resource, other).
+	 * However some processes in GDA, i.e. DiffractionCalibrationMergeProcess, are possible only through a script.
+	 */
+	@Deprecated
+	public final ScriptRequest generateScriptRequest(ProcessingRequestPair<?> processingRequest) {
+		return Optional.ofNullable(processingRequest)
+				.map(handler::generateScriptRequest)
 				.orElse(null);
 	}
 

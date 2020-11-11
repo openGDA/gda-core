@@ -45,6 +45,7 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeProcess;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -55,6 +56,7 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
 
 /**
@@ -294,6 +296,19 @@ public class ScanningAcquisitionController
 			List<URL> urls = new ArrayList<>();
 			urls.add(processingFile);
 			SavuProcessingRequest request = new SavuProcessingRequest.Builder()
+					.withValue(urls)
+					.build();
+			List<ProcessingRequestPair<?>> requests = new ArrayList<>();
+			requests.add(request);
+			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
+		}
+		if (acquisitionType.equals(AcquisitionPropertyType.DIFFRACTION)) {
+			URL processingFile = fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
+			if (processingFile == null)
+				return;
+			List<URL> urls = new ArrayList<>();
+			urls.add(processingFile);
+			DiffractionCalibrationMergeProcess request = new DiffractionCalibrationMergeProcess.Builder()
 					.withValue(urls)
 					.build();
 			List<ProcessingRequestPair<?>> requests = new ArrayList<>();
