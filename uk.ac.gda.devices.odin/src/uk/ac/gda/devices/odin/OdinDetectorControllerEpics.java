@@ -114,7 +114,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:CloseFileTimeout_RBV"));
 			odDataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
 			captured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
-			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize_RBV");
+			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize");
 			errorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
