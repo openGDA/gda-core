@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.services.position;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,5 +80,10 @@ abstract class DeviceHandler {
 		}
 		logger.error("No suitable handler found for device {} ", device);
 		return null;
+	}
+
+	protected boolean isExpectedClass(Scannable device, Class<?> expectedClass) {
+		return Arrays.stream(device.getClass().getInterfaces())
+				.anyMatch(expectedClass::isAssignableFrom);
 	}
 }

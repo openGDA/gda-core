@@ -262,14 +262,23 @@ public class ScanningAcquisitionController
 	 * </li>
 	 * </ol>
 	 */
-	private void updateImageCalibration() {
+	private void updateImageCalibration() throws AcquisitionControllerException {
 		ImageCalibration ic = getAcquisition().getAcquisitionConfiguration().getImageCalibration();
-		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, detectorsHelper.getOutOfBeamScannables());
-		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
-			flatPosition.add(stageController.createShutterOpenRequest());
-			imageCalibrationHelper.updateFlatDetectorPositionDocument(flatPosition);
-		}
+		validateFlatCalibrationParameters(ic);
+		validateDarkCalibrationParameters(ic);
+	}
 
+	private void validateFlatCalibrationParameters(ImageCalibration ic) throws AcquisitionConfigurationException {
+		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, detectorsHelper.getOutOfBeamScannables());
+		if ((ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition())
+				&& flatPosition.isEmpty()) {
+			throw new AcquisitionConfigurationException("Save an OutOfBeam position to acquire flat images");
+		}
+		flatPosition.add(stageController.createShutterOpenRequest());
+		imageCalibrationHelper.updateFlatDetectorPositionDocument(flatPosition);
+	}
+
+	private void validateDarkCalibrationParameters(ImageCalibration ic) throws AcquisitionConfigurationException {
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
 			darkPosition.add(stageController.createShutterClosedRequest());

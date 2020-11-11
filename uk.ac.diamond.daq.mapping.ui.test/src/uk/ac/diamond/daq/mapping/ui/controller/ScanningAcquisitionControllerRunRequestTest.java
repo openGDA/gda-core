@@ -24,7 +24,6 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addAppli
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -47,6 +46,7 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
+import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -131,11 +131,10 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 	/**
 	 * Run an acquisition which includes start positions
-	 * @throws IOException
 	 * @throws AcquisitionControllerException
 	 */
 	@Test
-	public void testRunScanningAcquisition() throws IOException, AcquisitionControllerException {
+	public void testRunScanningAcquisition() throws AcquisitionControllerException {
 		CameraControl cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
 		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
@@ -150,6 +149,31 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
 		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
 		controller.createNewAcquisition();
+
+		controller.runAcquisition();
+	}
+
+	/**
+	 * Request a flat calibration without OutOfBeam, consequently throws a {@link AcquisitionConfigurationException}
+	 * @throws AcquisitionControllerException
+	 */
+	@Test(expected = AcquisitionConfigurationException.class)
+	public void testRunScanningAcquisitionNoOutOfBeam() throws AcquisitionControllerException {
+		CameraControl cameraControl = mock(CameraControl.class);
+		doReturn("imaging_camera_control").when(cameraControl).getName();
+		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
+
+		doReturn(new HashSet<>()).when(stageController)
+			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());
+
+		File properties = new File("test/resources/acquisitionsAndCameras.properties");
+		readProperties(properties);
+
+		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
+		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
+		controller.createNewAcquisition();
+		ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(controller.getAcquisition()::getAcquisitionConfiguration);
+		imageCalibrationHelper.updateFlatAfterAcquisitionExposures(true);
 
 		controller.runAcquisition();
 	}
