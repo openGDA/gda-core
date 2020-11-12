@@ -212,6 +212,9 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 				logger.warn("Did not collect expected number of frames. {} expected, {} written.", imagesExpected,
 						imagesCaptured);
 			}
+			// Here zero frames per block means infinite/all frames in single block
+			framesPerBlock.putWait(0);
+			odinOffset.putWait(0);
 		} catch (IOException e) {
 			logger.warn("Could not stop data writer", e);
 		} catch (InterruptedException e) {
