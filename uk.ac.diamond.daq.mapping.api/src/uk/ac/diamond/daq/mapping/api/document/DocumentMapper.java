@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeProcess;
+import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.exception.GDAException;
 
@@ -63,7 +63,7 @@ public class DocumentMapper {
 	private Class<?>[] subtypes = {
 			ScanningAcquisition.class,
 			SavuProcessingRequest.class,
-			DiffractionCalibrationMergeProcess.class
+			DiffractionCalibrationMergeRequest.class
 			};
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();

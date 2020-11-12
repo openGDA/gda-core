@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -34,14 +33,16 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *  @author Maurizio Nagni
  */
 @JsonTypeName("diffractionCalibrationMerge")
-@JsonDeserialize(builder = DiffractionCalibrationMergeProcess.Builder.class)
-public class DiffractionCalibrationMergeProcess implements ProcessingRequestPair<URL>{
+@JsonDeserialize(builder = DiffractionCalibrationMergeRequest.Builder.class)
+public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair<URL>{
 
 	private static final String KEY = "diffractionCalibrationMerge";
 	private final List<URL> calibrationFiles;
+	private final String deviceName;
 
-	private DiffractionCalibrationMergeProcess(List<URL> processingFiles) {
+	private DiffractionCalibrationMergeRequest(List<URL> processingFiles, String deviceName) {
 		this.calibrationFiles = processingFiles;
+		this.deviceName = deviceName;
 	}
 
 	/**
@@ -49,14 +50,16 @@ public class DiffractionCalibrationMergeProcess implements ProcessingRequestPair
 	 * @return the identifier for this process
 	 */
 	@Override
-	@JsonIgnore
 	public String getKey() {
 		return KEY;
 	}
 
+	public String getDeviceName() {
+		return deviceName;
+	}
+
 	/**
-	 * The diffraction calibration files
-	 * @return the calibration files
+	 * The diffraction calibration file
 	 */
 	@Override
 	public List<URL> getValue() {
@@ -66,15 +69,41 @@ public class DiffractionCalibrationMergeProcess implements ProcessingRequestPair
 	@JsonPOJOBuilder
 	public static class Builder {
 		private final List<URL> calibrationFiles = new ArrayList<>();
+		private String deviceName;
 
+	    /**
+	     * A list containing a single calibration file url
+	     */
 	    public Builder withValue(List<URL> processingFiles) {
 	    	this.calibrationFiles.clear();
 	        this.calibrationFiles.addAll(processingFiles);
 	        return this;
 	    }
 
-	    public DiffractionCalibrationMergeProcess build() {
-	        return new DiffractionCalibrationMergeProcess(calibrationFiles);
+	    /**
+	     * The name of the device (and NeXus node)
+	     * the calibration data will be merged to
+	     */
+	    public Builder withDeviceName(String deviceName) {
+	    	this.deviceName = deviceName;
+	    	return this;
+	    }
+
+	    /**
+	     * @deprecated The 'key' property is currently serialised but set internally.
+	     * This method is only here to satisfy the deserialiser
+	     */
+	    @Deprecated
+	    public Builder withKey(String key) {
+	    	/*
+	    	 * FIXME At some point the key should be read if we are to justify writing it.
+	    	 */
+	    	return this;
+
+	    }
+
+	    public DiffractionCalibrationMergeRequest build() {
+	        return new DiffractionCalibrationMergeRequest(calibrationFiles, deviceName);
 	    }
 	}
 

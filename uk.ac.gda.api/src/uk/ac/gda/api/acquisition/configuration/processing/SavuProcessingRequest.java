@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -32,7 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SavuProcessingRequest.Builder.class)
 public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 
-	private static final String key = "savu";
+	private static final String KEY = "savu";
 	private final List<URL> processingFiles;
 
 	private SavuProcessingRequest(List<URL> processingFiles) {
@@ -44,9 +43,8 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	 * @return the identifier for this process
 	 */
 	@Override
-	@JsonIgnore
 	public String getKey() {
-		return key;
+		return KEY;
 	}
 
 	/**
@@ -66,6 +64,18 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	    	this.processingFiles.clear();
 	        this.processingFiles.addAll(processingFiles);
 	        return this;
+	    }
+
+	    /**
+	     * @deprecated The 'key' property is currently serialised but set internally.
+	     * This method is only here to satisfy the deserialiser
+	     */
+	    @Deprecated
+	    public Builder withKey(String key) {
+	    	/*
+	    	 * FIXME At some point the key should be read if we are to justify writing it.
+	    	 */
+	    	return this;
 	    }
 
 	    public SavuProcessingRequest build() {
