@@ -88,7 +88,9 @@ public class SpreadsheetViewComposite {
 			}
 			Entry<String, SpreadsheetViewConfig> config = spreadSheetConfigs.entrySet().iterator().next();
 			logger.info("Using spreadsheet configuration called '{}'.", config.getKey());
-			viewConfig = config.getValue();
+			viewConfig = new SpreadsheetViewConfig();
+			viewConfig.getParameters().addAll(config.getValue().getParameters());
+			viewConfig.getParameterTypes().addAll(config.getValue().getParameterTypes());
 		}
 		viewConfigForSampleParameterMotors = new SpreadsheetViewConfig();
 	}
