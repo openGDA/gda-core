@@ -73,8 +73,14 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Findable;
+import gda.factory.Finder;
 import gda.rcp.GDAClientActivator;
+import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
@@ -153,14 +159,105 @@ public class SpreadsheetViewTable {
 			contextMenu.add(new Action("Copy values to rows...") {
 				@Override
 				public void run() {
-					//get value to be edited
 					copySettingsToRows(selectedColumn, selectedRow);
 				}
 			});
+
+			// Get ParameterValue object for current selected cell :
+			ParameterValue value = getParameterValueFromIndex(selectedColumn, selectedRow);
+			logger.info("value = {}", value.getFullPathToGetter());
+			Optional<Scannable> scn = getScannable(value);
+
+			if (scn.isPresent()) {
+				contextMenu.add(new Action("Get latest position") {
+					@Override
+					public String getText() {
+						return "Get latest position from "+scn.get().getName();
+					}
+					@Override
+					public void run() {
+						getLatestPosition(value, scn);
+					}
+				});
+
+				contextMenu.add(new Action("Go to selected position") {
+					@Override
+					public String getText() {
+						return "Move "+scn.get().getName()+" to selected position";
+					}
+					@Override
+					public void run() {
+						goToSelectedPosition(value, scn);
+					}
+				});
+			}
 		});
 
 		Menu menu = contextMenu.createContextMenu(tableViewer.getControl());
 		tableViewer.getControl().setMenu(menu);
+	}
+
+	/**
+	 * Get position from scannable and set the newValue of the ParameterValue to it
+	 * @param value
+	 * @param scannable
+	 */
+	private void getLatestPosition(ParameterValue value, Optional<Scannable> scannable) {
+		logger.info("value = {}", value.getFullPathToGetter());
+		scannable.ifPresent(scn -> {
+			try {
+				value.setNewValue(scn.getPosition());
+				viewer.refresh();
+			} catch (DeviceException e) {
+				logger.error("Problem setting parameter {} to current position of {}", value.getFullPathToGetter(), scn.getName(), e);
+			}
+		});
+	}
+
+	/**
+	 * Move the scannable to position of the ParameterValue
+	 * @param value
+	 * @param scannable
+	 */
+	private void goToSelectedPosition(ParameterValue value, Optional<Scannable> scannable) {
+		scannable.ifPresent( scn -> {
+			try {
+				Object newPosition = value.getNewValue();
+				scn.moveTo(newPosition);
+			} catch (DeviceException e) {
+				logger.error("Problem moving {} to {}", scn.getName(), value.getNewValue(), e);
+			}
+		});
+	}
+
+	private ParameterValue getParameterValueFromIndex(int column, int row) {
+		ParametersForScan scanParams = parameterValuesForScanFiles.get(row);
+		Pair<Integer, Integer> paramIndices = scanParams.getParameterValueByIndex(column-1); // Data start at index=1 due to row index column...
+		ParameterValuesForBean beanParams = scanParams.getParameterValuesForScanBeans().get(paramIndices.getFirst());
+		return beanParams.getParameterValue(paramIndices.getSecond());
+	}
+
+	/**
+	 * Get scannable to be moved from ParameterValue : i.e. scannable to be moved by a {@link SampleParameterMotorPosition} setting
+	 * @param ParameterValue
+	 * @return Scannable to be moved (optional)
+	 */
+	private Optional<Scannable> getScannable(ParameterValue v) {
+		Optional<Scannable> scannable = Optional.empty();
+		// Split the getter string at () and . symbols
+		// (getter string format is : getSampleParameterMotorPosition(<name of scannable>).getDemandPosition() )
+		String[] splitString = v.getFullPathToGetter().split("[().]+");
+		if (splitString != null && splitString.length == 3 &&
+				splitString[0].equals(ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME) &&
+				splitString[2].equals(SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME) ) {
+			String scannableName = splitString[1];
+			logger.info("Getting position of scannable {}", scannableName);
+			Optional<Findable> f = Finder.findOptional(scannableName);
+			if (f.isPresent() && f.get() instanceof Scannable) {
+				scannable = Optional.of((Scannable)f.get());
+			}
+		}
+		return scannable;
 	}
 
 	/**
