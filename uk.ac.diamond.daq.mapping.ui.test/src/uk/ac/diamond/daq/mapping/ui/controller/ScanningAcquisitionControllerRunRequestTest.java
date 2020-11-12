@@ -18,19 +18,22 @@
 
 package uk.ac.diamond.daq.mapping.ui.controller;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -43,7 +46,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
@@ -94,8 +96,21 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	@Autowired
 	StageController stageController;
 
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTest");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/scanningAcquisitionControllerTest/properties/_common/common_instance_java.properties");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_CONFIG);
+        System.clearProperty(GDA_PROPERTIES_FILE);
+	}
+
 	@Before
 	public void before() {
+		LocalProperties.reloadAllProperties();
 		controller = ScanningAcquisitionController.class
 				.cast(getBean("scanningAcquisitionController",AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY));
 	}
@@ -111,14 +126,6 @@ public class ScanningAcquisitionControllerRunRequestTest {
 			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 			return newConfiguration;
 		};
-	}
-
-	private void readProperties(File resource) {
-		Optional.ofNullable(resource)
-				.ifPresent(r -> System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath()));
-		LocalProperties.reloadAllProperties();
-		CameraHelper.loadAllProperties();
-		AcquisitionsPropertiesHelper.reloadProperties();
 	}
 
 	private Set<DevicePositionDocument> createDevicePositionDocuments() {
@@ -157,10 +164,6 @@ public class ScanningAcquisitionControllerRunRequestTest {
 				.build();
 		ResponseEntity<RunAcquisitionResponse> mockResponseEntity = new ResponseEntity<>(mockResponse, HttpStatus.OK);
 
-
-		File properties = new File("test/resources/acquisitionsAndCameras.properties");
-		readProperties(properties);
-
 		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
 		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
 		controller.createNewAcquisition();
@@ -184,9 +187,6 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 		doReturn(new HashSet<>()).when(stageController)
 			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());
-
-		File properties = new File("test/resources/acquisitionsAndCameras.properties");
-		readProperties(properties);
 
 		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
 		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);

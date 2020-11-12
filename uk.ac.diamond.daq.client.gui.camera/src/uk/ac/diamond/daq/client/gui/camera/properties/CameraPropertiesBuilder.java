@@ -26,14 +26,16 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.api.camera.TriggerMode;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
  * Builder for {@link CameraProperties} objects
  *
  * @see CameraHelper
  * @author Maurizio Nagni
- *
+ * @deprecated This class has been replaced by {@link CameraConfigurationProperties}. To be deleted on GDA 9.21
  */
+@Deprecated
 public class CameraPropertiesBuilder {
 
 	private final CameraPropertiesImpl cameraProperties = new CameraPropertiesImpl();

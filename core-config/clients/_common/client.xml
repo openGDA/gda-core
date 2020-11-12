@@ -15,6 +15,7 @@
 	<context:component-scan base-package="uk.ac.diamond.daq.experiment.structure"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.mapping.api.document"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.mapping.ui"></context:component-scan>
-		
+	<context:component-scan base-package="uk.ac.gda.client.properties"></context:component-scan>
+	
 	<context:property-placeholder />
 </beans>

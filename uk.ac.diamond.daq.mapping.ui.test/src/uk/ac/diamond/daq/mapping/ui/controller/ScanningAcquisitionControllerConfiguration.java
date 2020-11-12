@@ -34,6 +34,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 @Configuration
 @ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring",
 		"uk.ac.gda.ui.tool.spring",
+		"uk.ac.gda.client.properties",
 		"uk.ac.diamond.daq.mapping.ui.controller",
 		"uk.ac.diamond.daq.mapping.ui.services.position",
 		"uk.ac.diamond.daq.mapping.api.document"},

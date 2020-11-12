@@ -16,24 +16,18 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.client.gui.camera;
+package uk.ac.gda.client.properties;
 
-import org.mockito.Mockito;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 
-import uk.ac.gda.ui.tool.spring.FinderService;
-
+/**
+ * Configures various tests related to properties parsing.
+ *
+ * @author Maurizio Nagni
+ */
 @Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui"},
-excludeFilters = {
-		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class) })
-public class CameraHelperTestConfiguration {
+@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.gda.client.properties", "uk.ac.gda.ui.tool.spring"})
+public class ConfigurationPropertiesTestConfiguration {
 
-	@Bean
-	public FinderService finderService() {
-		return Mockito.mock(FinderService.class);
-	}
 }
