@@ -7,7 +7,11 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import java.util.UUID;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
@@ -37,6 +41,8 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  */
 public class CameraConfigurationFactory implements CompositeFactory {
 
+	private static final Logger logger = LoggerFactory.getLogger(CameraConfigurationFactory.class);
+	
 	protected CameraImageComposite cameraImageComposite;
 
 	// The overall container for this components
@@ -81,22 +87,44 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	    createClientGridDataFactory().applyTo(container);
 	    container.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
 
-		menuBar = createClientGroup(container, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
+	    // -- TOP MENU --
+		menuBar = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
 		createClientGridDataFactory().span(100, 1).applyTo(menuBar);
 		CompositeFactory cf = new StreamControlCompositeFactory(streamController);
 		cf.createComposite(menuBar, SWT.HORIZONTAL);
 
-		viewStream = createClientCompositeWithGridLayout(container, style, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(100, 1).applyTo(viewStream);
+	    // -- SPLITS VERTIALLY THE CONTAINER --
+		SashForm centralForm = new SashForm(container, SWT.HORIZONTAL);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(100, 1).applyTo(centralForm);
+		
+	    // -- DEFINES THE LEFT COLUMN --
+		Composite leftColumn = createClientCompositeWithGridLayout(centralForm, SWT.BORDER, 1);
+		createClientGridDataFactory().applyTo(leftColumn);
+		
+		viewStream = createClientCompositeWithGridLayout(leftColumn, style, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(1, 85).applyTo(viewStream);
 
-		viewStats = createClientGroup(container, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).span(100, 3).applyTo(viewStats);
+		viewStats = createClientGroup(leftColumn, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(1, 15).applyTo(viewStats);
 
-		viewHisto = createClientCompositeWithGridLayout(container, style, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).span(40, 30).applyTo(viewHisto);
-
-		tabsContainer = createClientCompositeWithGridLayout(container, style, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).span(60, 30).applyTo(tabsContainer);
+	    // -- DEFINES THE RIGHT COLUMN --
+		Composite rightColumn = createClientCompositeWithGridLayout(centralForm, SWT.NONE, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(rightColumn);
+		
+	    // -- SPLITS HORIZONTALLY THE RIGHT COLUMN --
+		SashForm verticalForm = new SashForm(rightColumn, SWT.VERTICAL | SWT.BORDER);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(verticalForm);
+		
+		viewHisto = createClientCompositeWithGridLayout(verticalForm, SWT.BORDER, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(viewHisto);
+		
+		tabsContainer = createClientCompositeWithGridLayout(verticalForm, SWT.BORDER, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(tabsContainer);
+		
+		// SETS THE LEFT/RIGHT WEIGHTS
+		centralForm.setWeights(new int[]{5, 3});
+		// SETS THE LEFT COLUMN TOP/BOTTOM WEIGHTS
+		verticalForm.setWeights(new int[]{7, 2});
 	}
 
 	private void createCameraImageComposite(Composite panel) throws Exception {

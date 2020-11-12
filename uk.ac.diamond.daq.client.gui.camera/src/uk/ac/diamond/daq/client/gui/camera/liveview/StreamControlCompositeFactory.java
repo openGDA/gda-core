@@ -1,5 +1,9 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.*;
+import static uk.ac.gda.ui.tool.ClientMessages.*;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +31,7 @@ import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.widgets.SmartCombo;
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
-import uk.ac.gda.ui.tool.ClientSWTElements;
+
 
 /**
  * 
@@ -55,30 +57,28 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(parent, style, 3);
-		ClientSWTElements.createClientGridDataFactory().grab(true, false).applyTo(container);
+		Composite container = createClientCompositeWithGridLayout(parent, style, 3);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(container);
 
 		// -- Headers --
-		Label label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.CAMERA,
-				Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
+		Label label = createClientLabel(container, SWT.NONE, CAMERA);
+		createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
 		
-		label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.STREAM, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).span(2, 1).applyTo(label);
+		label = createClientLabel(container, SWT.NONE, STREAM);
+		createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).span(2, 1).applyTo(label);
 		
 		// -- Controls --
-		cameraCombo = ClientSWTElements.createCombo(container, SWT.READ_ONLY, getCameras(),
-				ClientMessages.STAGE_TP);
-		ClientSWTElements.createClientGridDataFactory().indent(5, 0).applyTo(cameraCombo);
+		cameraCombo = createCombo(container, SWT.READ_ONLY, getCameras(),
+				STAGE_TP);
+		createClientGridDataFactory().indent(5, 0).applyTo(cameraCombo);
 		
-		streamTypeCombo = new SmartCombo<>(container, style, Optional.of(ClientMessages.STAGE_TP),
+		streamTypeCombo = new SmartCombo<>(container, style, Optional.of(STAGE_TP),
 				Optional.of(this::changeStreamController));
-		ClientSWTElements.createClientGridDataFactory().indent(5, 0).applyTo(streamTypeCombo);
+		createClientGridDataFactory().indent(5, 0).applyTo(streamTypeCombo);
 		
-		streamActivationButton = ClientSWTElements.createClientButton(container, SWT.NONE,
-				ClientMessages.START_STREAM, ClientMessages.START_STREAM, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().indent(5, 0).applyTo(streamActivationButton);
-		streamActivationButton.setData(ClientMessages.START_STREAM);
+		streamActivationButton = createClientButton(container, SWT.NONE, START_STREAM, START_STREAM);
+		createClientGridDataFactory().indent(5, 0).applyTo(streamActivationButton);
+		streamActivationButton.setData(START_STREAM);
 		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
 		// ---------------------------------
 		
@@ -94,7 +94,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	private List<ImmutablePair<String, StreamType>> streamTypeItems(int cameraIndex) {
 		List<ImmutablePair<String, StreamType>> ip = new ArrayList<>();
 		CameraHelper.getCameraStreamTypes(cameraIndex).ifPresent(
-				types -> types.forEach(type -> ip.add(new ImmutablePair<String, StreamType>(type.toString(), type))));
+				types -> types.forEach(type -> ip.add(new ImmutablePair<>(type.toString(), type))));
 		return ip;
 	}
 
@@ -139,9 +139,9 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 
 	private void updateStreamActivationButton() {
 		if (ListeningState.class.isInstance(streamController.getState())) {
-			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.STOP_STREAM));
+			streamActivationButton.setText(getMessage(STOP_STREAM));
 		} else {
-			streamActivationButton.setText(ClientMessagesUtility.getMessage(ClientMessages.START_STREAM));
+			streamActivationButton.setText(	getMessage(START_STREAM));
 		}
 	}
 
