@@ -3,6 +3,8 @@ package uk.ac.diamond.daq.client.gui.camera.exposure;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+import static uk.ac.gda.ui.tool.ClientSWTElements.*;
+import static uk.ac.gda.ui.tool.ClientMessages.*;
 
 import java.util.Optional;
 
@@ -27,9 +29,9 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientResourceManager;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.ClientVerifyListener;
 import uk.ac.gda.ui.tool.WidgetUtilities;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
@@ -67,46 +69,52 @@ public class ExposureDurationComposite implements CompositeFactory {
 	 */
 	private Label readOut;
 	private Optional<CameraControl> cameraControl;
+	
+	private Composite container;
 
+	private static final String SECOND = ClientMessagesUtility.getMessage(SECOND_SYMBOL); 
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExposureDurationComposite.class);
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
-		createClientGridDataFactory().applyTo(composite);
+		container = createClientCompositeWithGridLayout(parent, style, 1);
+		createClientGridDataFactory().applyTo(container);
 
-		createElements(composite, style);
+		createElements(container, style);
 		cameraControl = CameraHelper.getCameraControl(CameraHelper.getDefaultCameraProperties().getIndex());
 		cameraControl.ifPresent(this::initialiseElements);
 		bindElements();
-		SpringApplicationContextProxy.addDisposableApplicationListener(this, cameraControlSpringEventListener);		
-		return composite;
+		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);		
+		return container;
 	}
 
 	private void createElements(Composite parent, int style) {
-		Group group = createClientGroup(parent, SWT.NONE, 1, ClientMessages.EXPOSURE);
+		Group group = createClientGroup(parent, SWT.NONE, 3, EXPOSURE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 
-		exposureText = ClientSWTElements.createClientText(group, style, ClientMessages.EMPTY_MESSAGE,
-				Optional.ofNullable(ClientVerifyListener.verifyOnlyIntegerText));
+		exposureText = createClientText(group, style, EMPTY_MESSAGE,	ClientVerifyListener.verifyOnlyDoubleText);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
-				.hint(ClientSWTElements.DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
-
-		readOut = ClientSWTElements.createClientLabel(group, SWT.LEFT, ClientMessages.EMPTY_MESSAGE, Optional
-				.ofNullable(FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont())));
+				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);	
+		Label unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL, 
+				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).span(2,1).applyTo(unit);
+		
+		
+		readOut = createClientLabel(group, SWT.LEFT, EMPTY_MESSAGE, 
+				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
 
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(group, getChangeActiveCameraListener(group));
 		} catch (GDAClientException e) {
-			UIHelper.showError(ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER, e, logger);
+			UIHelper.showError(CANNOT_LISTEN_CAMERA_PUBLISHER, e, logger);
 		}
 	}
 
 	private void initialiseElements(CameraControl cameraControl) {
 		try {
-			int exposure = (int) (cameraControl.getAcquireTime() * 1000);
-			updateGUI(exposure);
+			updateGUI(cameraControl.getAcquireTime());
 		} catch (DeviceException e) {
 			logger.warn("Error reading detector exposure {}", e.getMessage());
 		}
@@ -125,7 +133,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 
 	private void setAcquireTime(Widget widget) {
 		cameraControl.ifPresent(c -> 
-			setAcquireTime(c, Double.parseDouble(Text.class.cast(widget).getText()) / 1000)
+			setAcquireTime(c, Double.parseDouble(Text.class.cast(widget).getText()))
 		);
 	}
 
@@ -141,23 +149,17 @@ public class ExposureDurationComposite implements CompositeFactory {
 		}
 	}
 	
-	private void updateGUI(int exposure) {
-		exposureText.setText(Integer.toString(exposure));
-		updateReadOut(exposure);
-	}
-
-	private void updateReadOut(int exposure) {
-		String unit = "ms";
-		String strExposure = Integer.toString(exposure);
-		if (exposure > 1000) {
-			strExposure = Double.toString(exposure / 1000.);
-			unit = "s";
+	private void updateGUI(double exposure) {
+		if (exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
+			return;
 		}
-		readOut.setText(String.format("ReadOut: %s %s", strExposure, unit));
+		exposureText.setText(Double.toString(exposure));
+		updateReadOut(exposure);
+		container.layout(true, true);
 	}
 
-	private void updateModelToGUI(CameraControlSpringEvent e) {
-		updateGUI((int) (e.getAcquireTime() * 1000));
+	private void updateReadOut(double exposure) {
+		readOut.setText(String.format("ReadOut: %s %s", exposure, SECOND));
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
@@ -184,6 +186,10 @@ public class ExposureDurationComposite implements CompositeFactory {
 					Display.getDefault().asyncExec(() -> updateModelToGUI(event));
 				}
 			});
+		}
+		
+		private void updateModelToGUI(CameraControlSpringEvent e) {
+			updateGUI(e.getAcquireTime());
 		}
 	};
 }
