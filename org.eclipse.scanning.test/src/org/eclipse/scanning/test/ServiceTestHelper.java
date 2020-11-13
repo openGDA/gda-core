@@ -105,7 +105,7 @@ public final class ServiceTestHelper {
 	private static IScannableDeviceService scannableDeviceService;
 	private static NexusScanFileService nexusScanFileService;
 	private static INexusDeviceService nexusDeviceService;
-	private static RunnableDeviceServiceImpl runnableDeviceServiceImpl;
+	private static RunnableDeviceServiceImpl runnableDeviceService;
 	private static IPointGeneratorService pointGeneratorService;
 	private static ValidatorService validatorService;
 	private static MockScriptService scriptService;
@@ -138,7 +138,7 @@ public final class ServiceTestHelper {
 		activemqConnectorService = createActivemqConnectorService();
 		eventServiceImpl = new EventServiceImpl(activemqConnectorService);
 		scannableDeviceService = createScannableConnectorService(remote);
-		runnableDeviceServiceImpl = new RunnableDeviceServiceImpl(scannableDeviceService);
+		runnableDeviceService = new RunnableDeviceServiceImpl(scannableDeviceService);
 		pointGeneratorService = new PointGeneratorService();
 		nexusScanFileService = new NexusScanFileServiceImpl();
 		nexusDeviceService = new NexusDeviceService();
@@ -166,6 +166,7 @@ public final class ServiceTestHelper {
 		setupOESEServices();
 		setupOESCServices();
 		setupOESSSServices();
+		setupOESMCServices();
 	}
 
 	private static void setupOESSSServices() {
@@ -176,7 +177,7 @@ public final class ServiceTestHelper {
 		services.setFilePathService(filePathService);
 		services.setGeneratorService(pointGeneratorService);
 		services.setMessagingService(activemqConnectorService);
-		services.setRunnableDeviceService(runnableDeviceServiceImpl);
+		services.setRunnableDeviceService(runnableDeviceService);
 		services.setScriptService(scriptService);
 		services.setValidatorService(validatorService);
 		services.setWatchdogService(watchdogService);
@@ -186,15 +187,22 @@ public final class ServiceTestHelper {
 		final org.eclipse.scanning.command.Services services = new org.eclipse.scanning.command.Services();
 		services.setEventService(eventServiceImpl);
 		services.setGeneratorService(pointGeneratorService);
-		services.setRunnableDeviceService(runnableDeviceServiceImpl);
+		services.setRunnableDeviceService(runnableDeviceService);
 		services.setScannableDeviceService(scannableDeviceService);
+	}
+
+	private static void setupOESMCServices() {
+		final org.eclipse.scanning.malcolm.core.Services services = new org.eclipse.scanning.malcolm.core.Services();
+		services.setFilePathService(filePathService);
+		services.setPointGeneratorService(pointGeneratorService);
+		services.setRunnableDeviceService(runnableDeviceService);
 	}
 
 	private static void setupOESEServices() {
 		final org.eclipse.scanning.example.Services services = new org.eclipse.scanning.example.Services();
 		services.setEventService(eventServiceImpl);
 		services.setPointGeneratorService(pointGeneratorService);
-		services.setRunnableDeviceService(runnableDeviceServiceImpl);
+		services.setRunnableDeviceService(runnableDeviceService);
 		services.setScannableDeviceService(scannableDeviceService);
 	}
 
@@ -221,7 +229,7 @@ public final class ServiceTestHelper {
 		serviceHolder.setMarshallerService(marshallerService);
 		serviceHolder.setOperationService(operationService);
 		serviceHolder.setParserService(parserService);
-		serviceHolder.setRunnableDeviceService(runnableDeviceServiceImpl);
+		serviceHolder.setRunnableDeviceService(runnableDeviceService);
 		serviceHolder.setWatchdogService(watchdogService);
 	}
 
@@ -240,30 +248,30 @@ public final class ServiceTestHelper {
 	 *             if setup fails
 	 */
 	public static void registerTestDevices() throws ScanningException, IOException {
-		runnableDeviceServiceImpl._register(MockDetectorModel.class, MockWritableDetector.class);
-		runnableDeviceServiceImpl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		runnableDeviceServiceImpl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		runnableDeviceServiceImpl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
-		runnableDeviceServiceImpl._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
-		runnableDeviceServiceImpl._register(DarkImageModel.class, DarkImageDetector.class);
-		runnableDeviceServiceImpl._register(RandomLineModel.class, RandomLineDevice.class);
-		runnableDeviceServiceImpl._register(PosDetectorModel.class, PosDetector.class);
-		runnableDeviceServiceImpl._register(AnnotatedMockDetectorModel.class, AnnotatedMockWritableDetector.class);
+		runnableDeviceService._register(MockDetectorModel.class, MockWritableDetector.class);
+		runnableDeviceService._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
+		runnableDeviceService._register(MandelbrotModel.class, MandelbrotDetector.class);
+		runnableDeviceService._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
+		runnableDeviceService._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
+		runnableDeviceService._register(DarkImageModel.class, DarkImageDetector.class);
+		runnableDeviceService._register(RandomLineModel.class, RandomLineDevice.class);
+		runnableDeviceService._register(PosDetectorModel.class, PosDetector.class);
+		runnableDeviceService._register(AnnotatedMockDetectorModel.class, AnnotatedMockWritableDetector.class);
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setName("detector");
 		dmodel.setExposureTime(0.000001);
-		runnableDeviceServiceImpl.createRunnableDevice(dmodel);
+		runnableDeviceService.createRunnableDevice(dmodel);
 
 		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.00001);
-		runnableDeviceServiceImpl.createRunnableDevice(model);
+		runnableDeviceService.createRunnableDevice(model);
 
 		model = new MandelbrotModel("xNex", "yNex");
 		model.setName("m");
 		model.setExposureTime(0.00001);
-		runnableDeviceServiceImpl.createRunnableDevice(model);
+		runnableDeviceService.createRunnableDevice(model);
 
 		final DummyMalcolmDevice dummyMalcolm = new DummyMalcolmDevice();
 		final DeviceInformation<IMalcolmModel> malcInfo = new DeviceInformation<>();
@@ -272,7 +280,7 @@ public final class ServiceTestHelper {
 		malcInfo.setDescription("Example malcolm device");
 		malcInfo.setId("org.eclipse.scanning.example.malcolm.dummyMalcolmDevice");
 		dummyMalcolm.setDeviceInformation(malcInfo);
-		runnableDeviceServiceImpl._register("malcolm", dummyMalcolm);
+		runnableDeviceService._register("malcolm", dummyMalcolm);
 
 		MandelbrotDetector mandelbrotDetector = new MandelbrotDetector();
 		// This comes from extension point or spring in the real world.
@@ -284,7 +292,7 @@ public final class ServiceTestHelper {
 		info.setIcon("org.eclipse.scanning.example/icon/mandelbrot.png");
 		mandelbrotDetector.setDeviceInformation(info);
 		mandelbrotDetector.setName("mandelbrot");
-		runnableDeviceServiceImpl._register("mandelbrot", mandelbrotDetector);
+		runnableDeviceService._register("mandelbrot", mandelbrotDetector);
 	}
 
 	private static ActivemqConnectorService createActivemqConnectorService() {
@@ -298,7 +306,7 @@ public final class ServiceTestHelper {
 		final ValidatorService validator = new ValidatorService();
 		validator.setEventService(eventServiceImpl);
 		validator.setPointGeneratorService(pointGeneratorService);
-		validator.setRunnableDeviceService(runnableDeviceServiceImpl);
+		validator.setRunnableDeviceService(runnableDeviceService);
 		return validator;
 	}
 
@@ -320,7 +328,7 @@ public final class ServiceTestHelper {
 	}
 
 	public static IRunnableDeviceService getRunnableDeviceService() {
-		return runnableDeviceServiceImpl;
+		return runnableDeviceService;
 	}
 
 	public static IScannableDeviceService getScannableDeviceService() {
@@ -336,7 +344,7 @@ public final class ServiceTestHelper {
 	}
 
 	public static IScanService getScanService() {
-		return runnableDeviceServiceImpl;
+		return runnableDeviceService;
 	}
 
 	public static IDeviceWatchdogService getDeviceWatchdogService() {

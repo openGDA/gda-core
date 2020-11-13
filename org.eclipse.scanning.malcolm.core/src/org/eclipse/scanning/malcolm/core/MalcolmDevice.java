@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -72,8 +71,6 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
-import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
@@ -616,29 +613,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		final MalcolmTable detectorTable = detectorModelsToTable(model.getDetectorModels());
 
 		// create the EpicsMalcolmModel with all the arguments that malcolm's configure and validate methods require
-		final int[] breakpoints = calculateBreakpoints();
+		final int[] breakpoints = getBreakpoints();
 		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen, detectorTable, breakpoints);
-	}
-
-	private int[] calculateBreakpoints() throws MalcolmDeviceException {
-		if (scanModel == null) return null;
-
-		final Optional<InterpolatedMultiScanModel> multiScanModel = getMultiScanModel(scanModel.getScanPathModel());
-		if (!multiScanModel.isPresent()) return null;
-
-		final List<IScanPointGeneratorModel> models = multiScanModel.get().getModels();
-		final int[] sizes = new int[models.size()];
-		for (int i = 0; i < models.size(); i++) {
-			try {
-				// TODO is it necessary to create the point generator to get the size
-				final IPointGenerator<?> modelPointGen = Services.getPointGeneratorService().createGenerator(models.get(i));
-				sizes[i] = modelPointGen.size();
-			} catch (GeneratorException e) {
-				throw new MalcolmDeviceException("Cannot create point generator for model: " + models.get(i));
-			}
-		}
-
-		return sizes;
 	}
 
 	/**

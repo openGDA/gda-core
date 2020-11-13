@@ -31,24 +31,56 @@ import org.eclipse.scanning.api.points.StaticPosition;
  */
 public class InterpolatedMultiScanModel extends ConsecutiveMultiModel {
 
-	public static final String PROPERTY_NAME_BETWEEN_SCAN_POSITIONS = "interpolatedPositions";
+	/**
+	 * An enumeration of the types of image in a tomograpy scan. The values of the
+	 * image key are as specified in the
+	 * <a href="https://manual.nexusformat.org/classes/applications/NXtomo.html#nxtomo">
+	 * NXtomo application definition</a> for the <code>image_key</code> field of the
+	 * <code>NXdetector</code> and should not be changed.
+	 */
+	public enum ImageType {
+		NORMAL(0), FLAT(1), DARK(2), INVALID(3);
 
-	private List<IPosition> interpolationPositions = new ArrayList<>();
+		int imageKey;
 
-	public List<IPosition> getInterpolationPositions() {
-		return normalize(interpolationPositions);
+		private ImageType(int imageKey) {
+			this.imageKey = imageKey;
+		}
+
+		public int getImageKey() {
+			return imageKey;
+		}
 	}
 
-	public void setInterpolationPositions(List<IPosition> interpolationPositions) {
-		pcs.firePropertyChange(PROPERTY_NAME_BETWEEN_SCAN_POSITIONS, this.interpolationPositions, interpolationPositions);
-		this.interpolationPositions = interpolationPositions;
+	public static final String PROPERTY_NAME_INTERPOLATED_POSITIONS = "interpolatedPositions";
+
+	private List<IPosition> interpolatedPositions = new ArrayList<>();
+
+	private List<ImageType> imageTypes = new ArrayList<>();
+
+	public List<IPosition> getInterpolatedPositions() {
+		return normalize(interpolatedPositions);
 	}
 
-	public void addInterpolationPosition(IPosition position) {
-		final List<IPosition> newInterpolationPositions = new ArrayList<>(interpolationPositions);
-		newInterpolationPositions.add(position);
-		pcs.firePropertyChange(PROPERTY_NAME_BETWEEN_SCAN_POSITIONS, interpolationPositions, newInterpolationPositions);
-		interpolationPositions = newInterpolationPositions;
+	public void setInterpolatedPositions(List<IPosition> interpolatedPositions) {
+		pcs.firePropertyChange(PROPERTY_NAME_INTERPOLATED_POSITIONS, this.interpolatedPositions, interpolatedPositions);
+		this.interpolatedPositions = interpolatedPositions;
+	}
+
+	public void addInterpolatedPosition(IPosition position) {
+		final List<IPosition> newInterpolatedPositions = new ArrayList<>(interpolatedPositions);
+		newInterpolatedPositions.add(position);
+		setInterpolatedPositions(newInterpolatedPositions);
+	}
+
+	public void setInterpolatedPosition(int index, IPosition position) {
+		if (index < 0 || index >= getModels().size()) {
+			throw new IndexOutOfBoundsException("Index must be between 0 and " + getModels().size());
+		}
+
+		final List<IPosition> newPositions = normalize(interpolatedPositions);
+		newPositions.set(index, position);
+		setInterpolatedPositions(newPositions);
 	}
 
 	private List<IPosition> normalize(List<IPosition> positions) {
@@ -70,22 +102,39 @@ public class InterpolatedMultiScanModel extends ConsecutiveMultiModel {
 		return newPositions;
 	}
 
-	public void setInterpolationPosition(int index, IPosition position) {
+	public List<ImageType> getImageTypes() {
+		if (imageTypes.size() != getModels().size()) {
+			throw new IllegalStateException("The image types list must be the same size ");
+		}
+		return imageTypes;
+	}
+
+	public void setImageTypes(List<ImageType> imageTypes) {
+		this.imageTypes = imageTypes;
+	}
+
+	public void addImageType(ImageType imageType) {
+		imageTypes.add(imageType);
+	}
+
+	public void setImageType(ImageType imageType, int index) {
 		if (index < 0 || index >= getModels().size()) {
 			throw new IndexOutOfBoundsException("Index must be between 0 and " + getModels().size());
 		}
 
-		final List<IPosition> newPositions = normalize(interpolationPositions);
-		newPositions.set(index, position);
-		pcs.firePropertyChange(PROPERTY_NAME_BETWEEN_SCAN_POSITIONS, interpolationPositions, newPositions);
-		interpolationPositions = newPositions;
+		if (index == imageTypes.size()) {
+			addImageType(imageType);
+		} else {
+			imageTypes.set(index, imageType);
+		}
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((interpolationPositions == null) ? 0 : interpolationPositions.hashCode());
+		result = prime * result + ((interpolatedPositions == null) ? 0 : interpolatedPositions.hashCode());
+		result = prime * result + ((imageTypes == null) ? 0 : imageTypes.hashCode());
 		return result;
 	}
 
@@ -98,18 +147,27 @@ public class InterpolatedMultiScanModel extends ConsecutiveMultiModel {
 		if (getClass() != obj.getClass())
 			return false;
 		InterpolatedMultiScanModel other = (InterpolatedMultiScanModel) obj;
-		if (interpolationPositions == null) {
-			if (other.interpolationPositions != null)
+		if (interpolatedPositions == null) {
+			if (other.interpolatedPositions != null)
 				return false;
-		} else if (!interpolationPositions.equals(other.interpolationPositions))
+		} else if (!interpolatedPositions.equals(other.interpolatedPositions))
 			return false;
+		if (imageTypes == null) {
+			if (other.imageTypes != null)
+				return false;
+		} else if (!imageTypes.equals(other.imageTypes)) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [interpolationPositions=" + interpolationPositions + ", getModels()="
-				+ getModels() + "]";
+		return getClass().getSimpleName() +
+				" [interpolationPositions=" + interpolatedPositions +
+				", [imageTypes=" + imageTypes +
+				", getModels()=" + getModels() +
+				"]";
 	}
 
 }

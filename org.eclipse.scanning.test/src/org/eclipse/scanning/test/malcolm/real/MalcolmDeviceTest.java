@@ -400,9 +400,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		multiScanModel.addModel(mainScanModel);
 		multiScanModel.addModel(createStaticAxialModel("theta", posAfterMainScan, 3));
 
-		multiScanModel.addInterpolationPosition(new Scalar<String>("portshutter", "Closed"));
-		multiScanModel.addInterpolationPosition(new Scalar<String>("portshutter", "Open"));
-		multiScanModel.addInterpolationPosition(new Scalar<String>("portshutter", "Closed"));
+		multiScanModel.addInterpolatedPosition(new Scalar<String>("portshutter", "Closed"));
+		multiScanModel.addInterpolatedPosition(new Scalar<String>("portshutter", "Open"));
+		multiScanModel.addInterpolatedPosition(new Scalar<String>("portshutter", "Closed"));
 		final CompoundModel compoundModel = new CompoundModel(Arrays.asList(multiScanModel));
 
 		testConfigure(false, compoundModel);

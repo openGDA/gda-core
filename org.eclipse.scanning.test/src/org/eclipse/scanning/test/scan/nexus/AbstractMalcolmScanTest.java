@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.scanning.example.malcolm.DummyMalcolmDevice.FILE_EXTENSION_HDF5;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertDataNodesEqual;
@@ -44,6 +45,7 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -188,132 +190,148 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final DummyMalcolmModel dummyMalcolmModel = malcolmDevice.getModel();
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
 
 		// check that the scan points have been written correctly
-		List<String> expectedExternalFiles = getExpectedExternalFiles(dummyMalcolmModel);
+		final List<String> expectedExternalFiles = getExpectedExternalFiles(dummyMalcolmModel);
 		assertSolsticeScanGroup(entry, true, snake, false, expectedExternalFiles, sizes);
 
 		// map from detector name -> primary data fields
-		Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();
-		Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
-		assertEquals(primaryDataFieldNamesPerDetector.values().stream().flatMap(list -> list.stream()).count(),
+		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();
+		final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
+		assertEquals(primaryDataFieldNamesPerDetector.values().stream().flatMap(Collection::stream).count(),
 				nxDataGroups.size());
 
 		for (IMalcolmDetectorModel detectorModel : dummyMalcolmModel.getDetectorModels()) {
-			String detectorName = detectorModel.getName();
-			NXdetector detector = instrument.getDetector(detectorName);
-			assertEquals(detectorModel.getExposureTime(), detector.getCount_timeScalar().doubleValue(), 1e-15);
+			final String detectorName = detectorModel.getName();
+			final NXdetector detector = instrument.getDetector(detectorName);
+			assertNotNull(detector);
 
-			List<String> primaryDataFieldNames = primaryDataFieldNamesPerDetector.get(detectorName);
-			Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream().collect(Collectors.toMap(
-					Function.identity(),
-					fieldName -> detectorName + (fieldName.equals(NXdetector.NX_DATA) ? "" : "_" + fieldName)));
-
-			assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
-
-			boolean isFirst = true;
-			for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
-				String fieldName = datasetModel.getName();
-				String nxDataGroupName = isFirst ? detectorName : detectorName + "_" + fieldName;
-				NXdata nxData = entry.getData(nxDataGroupName);
-
-				String sourceFieldName = fieldName.equals(detectorName) ? NXdetector.NX_DATA :
-					fieldName.substring(fieldName.indexOf('_') + 1);
-
-				assertSignal(nxData, sourceFieldName);
-				// check the nxData's signal field is a link to the appropriate source data node of the detector
-				DataNode dataNode = detector.getDataNode(sourceFieldName);
-				IDataset dataset = dataNode.getDataset().getSlice();
-				// test the data nodes for equality instead of identity as they both come from external links
-				assertDataNodesEqual("/entry/instrument/"+detectorName+"/"+sourceFieldName,
-						dataNode, nxData.getDataNode(sourceFieldName));
-//				assertTarget(nxData, sourceFieldName, rootNode, "/entry/instrument/" + detectorName
-//						+ "/" + sourceFieldName);
-
-				// check that other primary data fields of the detector haven't been added to this NXdata
-				for (String primaryDataFieldName : primaryDataFieldNames) {
-					if (!primaryDataFieldName.equals(sourceFieldName)) {
-						assertNull(nxData.getDataNode(primaryDataFieldName));
-					}
-				}
-
-				int[] shape = dataset.getShape();
-				for (int i = 0; i < sizes.length; i++)
-					assertEquals(sizes[i], shape[i]);
-
-				// Make sure none of the numbers are NaNs. The detector is expected
-				// to fill this scan with non-nulls
-				final PositionIterator it = new PositionIterator(shape);
-				while (it.hasNext()) {
-					int[] next = it.getPos();
-					assertFalse(Double.isNaN(dataset.getDouble(next)));
-				}
-
-				// Check axes
-				final IPosition pos = scanModel.getPointGenerator().iterator().next();
-				final Collection<String> axisNames = pos.getNames();
-
-				// Append _value_set to each name in list, then add detector axes fields to result
-				// stage_y doesn't have _value_set as to mimic the real i18 malcolm device
-				// malcolm doesn't know this value (as instead it has three jacks j1,j2,j3 for the y position)
-				int additionalRank = datasetModel.getRank(); // i.e. rank per position, e.g. 2 for images
-				List<String> expectedAxesNames = Stream.concat(
-						axisNames.stream().map(axisName -> axisName +
-								(!axisName.equals("stage_y") ? "_value_set" : "")),
-						Collections.nCopies(additionalRank, ".").stream()).collect(Collectors.toList());
-				if (sizes.length == 0) {
-					// prepend "." for scans of rank 0. A scan with a single StaticModel of size 1
-					// produces datasets of rank 1 and shape { 1 } due to a limitation of area detector
-					expectedAxesNames = new ArrayList<>(expectedAxesNames);
-					expectedAxesNames.add(0, ".");
-				}
-				assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
-
-				int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
-				int i = -1;
-				for (String axisName : axisNames) {
-					i++;
-					NXpositioner positioner = instrument.getPositioner(axisName);
-					assertNotNull(positioner);
-
-					dataNode = positioner.getDataNode("value_set");
-					dataset = dataNode.getDataset().getSlice();
-					shape = dataset.getShape();
-					assertEquals(1, shape.length);
-					assertEquals(sizes[i], shape[0]);
-
-					String nxDataFieldName = axisName + (!axisName.equals("stage_y") ? "_value_set" : "");
-					assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
-					assertIndices(nxData, nxDataFieldName, i);
-					// The value of the target attribute seems to come from the external file
-//					assertTarget(nxData, nxDataFieldName, rootNode,
-//							"/entry/" + firstDetectorName + "/" + nxDataFieldName);
-
-					// value field (a.k.a rbv) only created if in list of positioners in model
-					if (dummyMalcolmModel.getPositionerNames().contains(axisName)) {
-						// Actual values should be scanD
-						dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
-						assertNotNull(dataNode);
-						dataset = dataNode.getDataset().getSlice();
-						shape = dataset.getShape();
-						assertArrayEquals(sizes, shape);
-
-						nxDataFieldName = axisName + "_" + NXpositioner.NX_VALUE;
-//						assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
-						assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
-						assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
-	//					assertTarget(nxData, nxDataFieldName, rootNode,
-	//							"/entry/instrument/" + axisName + "/" + NXpositioner.NX_VALUE);
-					}
-				}
-				isFirst = false;
-			}
+			final List<String> primaryDataFieldNames = primaryDataFieldNamesPerDetector.get(detectorName);
+			checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, entry,
+					primaryDataFieldNames, nxDataGroups, sizes);
 		}
 
 		return rootNode;
+	}
+
+	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
+			IMalcolmDetectorModel detectorModel, ScanModel scanModel, NXentry entry,
+			List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes)
+			throws DatasetException {
+		assertEquals(detectorModel.getExposureTime(), detector.getCount_timeScalar().doubleValue(), 1e-15);
+
+		final String detectorName = detectorModel.getName();
+		final Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream().collect(Collectors.toMap(
+				Function.identity(),
+				fieldName -> detectorName + (fieldName.equals(NXdetector.NX_DATA) ? "" : "_" + fieldName)));
+
+		assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
+
+		boolean isFirst = true;
+		for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
+			final String fieldName = datasetModel.getName();
+			final String nxDataGroupName = isFirst ? detectorName : detectorName + "_" + fieldName;
+			final NXdata nxData = entry.getData(nxDataGroupName);
+
+			final String sourceFieldName = fieldName.equals(detectorName) ? NXdetector.NX_DATA :
+				fieldName.substring(fieldName.indexOf('_') + 1);
+
+			assertSignal(nxData, sourceFieldName);
+			// check the nxData's signal field is a link to the appropriate source data node of the detector
+			DataNode dataNode = detector.getDataNode(sourceFieldName);
+			IDataset dataset = dataNode.getDataset().getSlice();
+			// test the data nodes for equality instead of identity as they both come from external links
+			assertDataNodesEqual("/entry/instrument/"+detectorName+"/"+sourceFieldName,
+					dataNode, nxData.getDataNode(sourceFieldName));
+//				assertTarget(nxData, sourceFieldName, rootNode, "/entry/instrument/" + detectorName
+//						+ "/" + sourceFieldName);
+
+			// check that other primary data fields of the detector haven't been added to this NXdata
+			for (String primaryDataFieldName : primaryDataFieldNames) {
+				if (!primaryDataFieldName.equals(sourceFieldName)) {
+					assertNull(nxData.getDataNode(primaryDataFieldName));
+				}
+			}
+
+			int[] shape = dataset.getShape();
+			for (int i = 0; i < sizes.length; i++)
+				assertEquals(sizes[i], shape[i]);
+
+			// Make sure none of the numbers are NaNs. The detector is expected
+			// to fill this scan with non-nulls
+			final PositionIterator it = new PositionIterator(shape);
+			while (it.hasNext()) {
+				int[] next = it.getPos();
+				assertFalse(Double.isNaN(dataset.getDouble(next)));
+			}
+
+			// Check axes
+			final IPosition pos = scanModel.getPointGenerator().iterator().next();
+			final List<String> axisNames = pos.getNames();
+
+			// Append _value_set to each name in list, then add detector axes fields to result
+			// stage_y doesn't have _value_set as to mimic the real i18 malcolm device
+			// malcolm doesn't know this value (as instead it has three jacks j1,j2,j3 for the y position)
+			int additionalRank = datasetModel.getRank(); // i.e. rank per position, e.g. 2 for images
+			final List<String> expectedAxesNames = Stream.concat(
+					axisNames.stream().map(axisName -> axisName +
+							(!axisName.equals("stage_y") ? "_value_set" : "")),
+					Collections.nCopies(additionalRank, ".").stream()).collect(toList());
+			if (sizes.length == 0) {
+				// prepend "." for scans of rank 0. A scan with a single StaticModel of size 1
+				// produces datasets of rank 1 and shape { 1 } due to a limitation of area detector
+				expectedAxesNames.add(0, ".");
+			}
+			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
+
+			int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+			for (int axisIndex = 0; axisIndex < axisNames.size(); axisIndex++) {
+				final String axisName = axisNames.get(axisIndex);
+				final NXpositioner positioner = entry.getInstrument().getPositioner(axisName);
+				assertNotNull(positioner);
+
+				checkPositioner(positioner, dummyMalcolmModel, nxData, defaultDimensionMappings,
+						axisIndex, axisName, sizes);
+			}
+			isFirst = false;
+		}
+	}
+
+	private void checkPositioner(final NXpositioner positioner, DummyMalcolmModel dummyMalcolmModel,
+			final NXdata nxData, int[] defaultDimensionMappings, int axisIndex, String axisName, int[] sizes)
+			throws DatasetException {
+		DataNode dataNode = positioner.getDataNode("value_set");
+		IDataset dataset = dataNode.getDataset().getSlice();
+		int[] shape = dataset.getShape();
+		assertEquals(1, shape.length);
+		assertEquals(sizes[axisIndex], shape[0]);
+
+		String nxDataFieldName = axisName + (!axisName.equals("stage_y") ? "_value_set" : "");
+		assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
+		assertIndices(nxData, nxDataFieldName, axisIndex);
+		// The value of the target attribute seems to come from the external file
+//					assertTarget(nxData, nxDataFieldName, rootNode,
+//							"/entry/" + firstDetectorName + "/" + nxDataFieldName);
+
+		// value field (a.k.a rbv) only created if in list of positioners in model
+		if (dummyMalcolmModel.getPositionerNames().contains(axisName)) {
+			// Actual values should be scanD
+			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
+			assertNotNull(dataNode);
+			dataset = dataNode.getDataset().getSlice();
+			shape = dataset.getShape();
+			assertArrayEquals(sizes, shape);
+
+			nxDataFieldName = axisName + "_" + NXpositioner.NX_VALUE;
+//						assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+			assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
+			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
+//					assertTarget(nxData, nxDataFieldName, rootNode,
+//							"/entry/instrument/" + axisName + "/" + NXpositioner.NX_VALUE);
+		}
 	}
 
 	protected IRunnableDevice<ScanModel> createMalcolmGridScan(final IMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {

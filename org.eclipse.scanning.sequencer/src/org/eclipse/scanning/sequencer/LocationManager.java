@@ -108,7 +108,7 @@ public final class LocationManager {
 		// interpolated multi-scans are a special case, as the overall point gen model generated doesn't include
 		// the interpolation points. This is necessary because malcolm doesn't move these positions, GDA does.
 		if (isInterpolatedMultiScan) {
-			return getMultiScanModel().get().getInterpolationPositions().iterator();
+			return getMultiScanModel().get().getInterpolatedPositions().iterator();
 		}
 		return outerPointGenerator.iterator();
 	}

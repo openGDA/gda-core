@@ -33,10 +33,10 @@ import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -61,6 +61,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	protected IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator;
 	protected String outputDir;
 	protected boolean isMultiScan = false;
+	private int[] breakpoints = null;
 
 	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
@@ -85,13 +86,16 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	}
 
 	@PreConfigure
-	public void configureScan(ScanModel scanModel) {
+	public void configureScan(ScanModel scanModel) throws MalcolmDeviceException {
 		if (scanModel == null) return;
 
 		logger.debug("Configuring malcolm device {} for scan", getName());
 		this.scanModel = scanModel;
 		setPointGenerator(scanModel.getPointGenerator());
-		this.isMultiScan = getMultiScanModel(scanModel.getScanPathModel()).isPresent();
+
+		final Optional<InterpolatedMultiScanModel> multiModel = getMultiScanModel();
+		isMultiScan = getMultiScanModel().isPresent();
+		breakpoints = calculateBreakpoints(multiModel);
 
 		String outputDir = null;
 		if (scanModel.getFilePath() != null) {
@@ -103,12 +107,44 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		logger.debug("Finished configuring malcolm device {} for scan, output dir set to {}", getName(), getOutputDir());
 	}
 
+	private int[] calculateBreakpoints(Optional<InterpolatedMultiScanModel> multiScanModel) {
+		if (!multiScanModel.isPresent()) return null; // malcolm expected null rather than empty array if no breakpoints
+		return multiScanModel.get().getModels().stream() // TODO when we can use Java 9+ use Optional.map().orElse(null);
+				.mapToInt(AbstractMalcolmDevice::getModelSize)
+				.toArray();
+	}
+
+	private static int getModelSize(IScanPointGeneratorModel model) {
+		try {
+			return Services.getPointGeneratorService().createGenerator(model).size();
+		} catch (GeneratorException e) {
+			throw new IllegalStateException("Cannot create point generator for model: " + model);
+		}
+	}
+
+	/**
+	 * The breakpoints array to pass to malcolm, only used with {@link InterpolatedMultiScanModel},
+	 * otherwise <code>null</code>. The array has the same size as the number of models in the
+	 * {@link InterpolatedMultiScanModel}, where each value is the number of points in the scan
+	 * for that model
+	 * @return breakpoints array
+	 */
+	protected int[] getBreakpoints() {
+		return breakpoints;
+	}
+
+	public ScanModel getConfiguredScan() {
+		return scanModel;
+	}
+
 	@Override
 	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		this.pointGenerator = pointGenerator;
 	}
 
-	protected static Optional<InterpolatedMultiScanModel> getMultiScanModel(IScanPathModel scanPathModel) {
+	protected Optional<InterpolatedMultiScanModel> getMultiScanModel() {
+		if (scanModel == null) return Optional.empty(); // this should only be the case in unit tests
+		final IScanPointGeneratorModel scanPathModel = scanModel.getScanPathModel();
 		if (scanPathModel instanceof InterpolatedMultiScanModel) {
 			return Optional.of((InterpolatedMultiScanModel) scanPathModel);
 		} else if (scanPathModel instanceof CompoundModel) {
@@ -154,6 +190,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		this.pointGenerator = null;
 		this.outputDir = null;
 		this.isMultiScan = false;
+		this.breakpoints = null;
 	}
 
 	@Override

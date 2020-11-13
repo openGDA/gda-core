@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXmonitor;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -34,11 +35,17 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
+import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
+import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +58,17 @@ import org.slf4j.LoggerFactory;
  */
 class MalcolmNexusObjectBuilder {
 
+	private static final Map<MalcolmDatasetType, NexusBaseClass> NEXUS_CLASS_FOR_DATASET_TYPE;
+
 	private static final String PROPERTY_NAME_UNIQUE_KEYS = "uniqueKeys";
 
-	private static final Map<MalcolmDatasetType, NexusBaseClass> NEXUS_CLASS_FOR_DATASET_TYPE;
+	private static final String FIELD_NAME_IMAGE_KEY = "image_key";
 
 	private static final Logger logger = LoggerFactory.getLogger(MalcolmNexusObjectBuilder.class);
 
-	private final IMalcolmDevice malcolmDevice;
+	private final AbstractMalcolmDevice malcolmDevice;
+
+	private final Optional<InterpolatedMultiScanModel> tomoModel;
 
 	// The name (last segment only) of the malcolm output dir. This is used to create the relative path, as the main
 	// scan file is in the parent directory of the malcolm output dir.
@@ -76,10 +87,11 @@ class MalcolmNexusObjectBuilder {
 		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_MAX, NexusBaseClass.NX_POSITIONER);
 	}
 
-	MalcolmNexusObjectBuilder(IMalcolmDevice malcolmDevice) {
+	MalcolmNexusObjectBuilder(AbstractMalcolmDevice malcolmDevice) {
 		this.malcolmDevice = malcolmDevice;
 		nexusWrappers = new HashMap<>();
 		malcolmOutputDirName = new File(malcolmDevice.getOutputDir()).getName();
+		tomoModel = malcolmDevice.getMultiScanModel();
 	}
 
 	/**
@@ -121,6 +133,9 @@ class MalcolmNexusObjectBuilder {
 
 				if (uniqueIdPath != null && !uniqueIdPath.isEmpty()) {
 					nexusWrapper.setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS, uniqueIdPath);
+				}
+				if (datasetType == MalcolmDatasetType.PRIMARY && tomoModel.isPresent()) {
+					writeImageKey((NXdetector) nexusObject, tomoModel.get());
 				}
 
 				// configure the nexus wrapper for the dataset
@@ -217,6 +232,33 @@ class MalcolmNexusObjectBuilder {
 		// malcolm device exposure time as a default.
 		logger.warn("No detector model for detector: {}", detectorName);
 		return malcolmDevice.getModel().getExposureTime();
+	}
+
+	private void writeImageKey(NXdetector detector, InterpolatedMultiScanModel tomoModel) {
+		final ScanModel scanModel = malcolmDevice.getConfiguredScan();
+		final int[] shape = scanModel.getScanInformation().getShape();
+
+		final DataNode imageKeyDataNode = NexusNodeFactory.createDataNode();
+		final IntegerDataset imageKeyDataset = DatasetFactory.zeros(IntegerDataset.class, shape);
+		imageKeyDataNode.setDataset(imageKeyDataset);
+		detector.addDataNode(FIELD_NAME_IMAGE_KEY, imageKeyDataNode);
+
+		final int[] breakpoints = malcolmDevice.getBreakpoints();
+		final List<ImageType> imageTypes = tomoModel.getImageTypes();
+		if (breakpoints.length != imageTypes.size()) {
+			throw new IllegalArgumentException(String.format("Num of imageTypes was " + imageTypes.size() + ", but num of breakpoints was " + breakpoints.length));
+		}
+
+		final PositionIterator posIter = new PositionIterator(shape);
+
+		for (int scanIndex = 0; scanIndex < breakpoints.length; scanIndex++) {
+			final int imageKey = imageTypes.get(scanIndex).getImageKey();
+			for (int pointIndex = 0; pointIndex < breakpoints[scanIndex]; pointIndex++) {
+				if (!posIter.hasNext()) throw new IllegalStateException("No points left!"); // posIter.hasNext actually increments the position!
+				imageKeyDataset.setItem(imageKey, posIter.getPos());
+			}
+		}
+
 	}
 
 
