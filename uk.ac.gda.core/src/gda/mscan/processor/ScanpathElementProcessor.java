@@ -22,6 +22,7 @@ import java.util.List;
 
 import gda.device.Scannable;
 import gda.mscan.ClausesContext;
+import gda.mscan.element.RegionShape;
 import gda.mscan.element.Scanpath;
 
 /**
@@ -48,10 +49,16 @@ public class ScanpathElementProcessor extends ElementProcessorBase<Scanpath> {
 	@Override
 	public void process(final ClausesContext context,
 			final List<IClauseElementProcessor> clauseProcessors, final int index) {
-		rejectIfFirstElement(index);
+		if (!isStatic()) rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
+			if (isStatic()) context.setRegionShape(RegionShape.STATIC);
 			context.setScanpath(enclosed);
 		}
+	}
+
+	@Override
+	public boolean isStatic() {
+		return enclosed == Scanpath.STATIC;
 	}
 
 	/**

@@ -143,9 +143,6 @@ public class MScanSubmitter extends ValidationUtils {
 
 		final ScanClausesResolver resolver = validateCommand(args);
 		final CompoundModel scanModel = new CompoundModel();
-		scanModel.setModels(new ArrayList<>());
-		scanModel.setRegions(new ArrayList<>());
-		scanModel.setMutators(new ArrayList<>());
 
 		// Find the distinct clauses within the MScan command and return a list of the list of
 		// typed processors for each clause.
@@ -164,7 +161,7 @@ public class MScanSubmitter extends ValidationUtils {
 			throwIf(clauseProcessors.isEmpty() || clauseProcessors.contains(null),
 					"clause resolution returned an empty or invalid processor list for a clause");
 			context.wipe();
-			IClauseElementProcessor initialScannableProc = withNullProcessorCheck(clauseProcessors.get(0));
+			IClauseElementProcessor initialProc = withNullProcessorCheck(clauseProcessors.get(0));
 
 			// within each clauseProcessors list, the first element is always some type of Scannable for which the
 			// appropriate type of processor has already been selected. If it is a pure Scannable in a clause of length
@@ -176,10 +173,10 @@ public class MScanSubmitter extends ValidationUtils {
 				}
 				// Handle single element Detector or Monitor clauses
 				if (clauseProcessors.size() == 1) {
-					throwIf(!context.isScanPathSeen(), "No scan path defined - SPEC style scans not yet supported");
-					if (initialScannableProc instanceof ScannableElementProcessor) {
+					throwIf(!context.isScanPathSeen() && !clauseProcessors.get(0).isStatic(), "No scan path defined - SPEC style scans not yet supported");
+					if (initialProc instanceof ScannableElementProcessor) {
 						clauseProcessors.set(0, new ScannableReadoutElementProcessor(
-														(Scannable)initialScannableProc.getElement()));
+														(Scannable)initialProc.getElement()));
 					}
 				}
 				clauseProcessors.get(index).process(context, clauseProcessors, index);
@@ -213,10 +210,11 @@ public class MScanSubmitter extends ValidationUtils {
 	}
 
 	/**
-	 * Checks that the MScan command has parameters and that the first one is a Scannable. Providing this is the
-	 * case, the validity of the type of each arg is checked by confirming that there is a corresponding
-	 * {@link IClauseElementProcessBuilder} in the {@link processorBuilders} static map. Assuming this is the
-	 * case for all args, corresponding processors are added to the {@link processors} list.
+	 * Checks that the MScan command has parameters and that the first one is valid- either a Scannable or
+	 * the Static {@link RegionShape}. Providing this is the case, the validity of the type of each arg is
+	 * checked by confirming that there is a corresponding {@link IClauseElementProcessBuilder} in the
+	 * {@link processorBuilders} static map. Assuming this is the case for all args, corresponding processors
+	 * are added to the {@link processors} list.
 	 *
 	 * @param args		The arguments that constitute the elements of the incoming MScan command
 	 * @return			A {@link ScanClauseResolver} initialised with processors that correspond to the elements
@@ -226,14 +224,16 @@ public class MScanSubmitter extends ValidationUtils {
 	 * 			the {@code args} array is empty.
 	 */
 	private ScanClausesResolver validateCommand(final Object[] args) {
-		if (args.length < 1 || !(args[0] instanceof Scannable)) {
+		if (args.length < 1 || !(args[0] instanceof Scannable || args[0].equals(Scanpath.STATIC))) {
 			throw new IllegalArgumentException(
-			"You must specify at least one argument in your mscan command and your first argument must be a Scannable");
+			"You must specify at least one argument in your mscan command and your first argument must be a Scannable or the Static Scanpath");
 		}
 
 		// Adjust for point scan syntax which doesn't require both region and scanpath. This loop must run
 		// first as it potentially popoulates the list to be used in subsequent checks.
 		List<Object> params = new ArrayList<>();
+		// Prepend with Static region if only detectors provided
+		if (onlyDetectorsAndParams(args)) params.add(0, Scanpath.STATIC);
 		for (int i = 0; i < args.length; i++) {
 			params.addAll(resolveNumericTuples(args[i]));
 			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
@@ -297,6 +297,15 @@ public class MScanSubmitter extends ValidationUtils {
 			processors.add(processorBuilders.get(type).apply(params.get(i)));
 		}
 		return resolverFactory.getResolver(processors);
+	}
+
+	private boolean onlyDetectorsAndParams(Object[] args) {
+		for (Object arg : args) {
+			if (!(arg instanceof Number || arg instanceof Detector)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

@@ -1029,7 +1029,7 @@ public class ClausesContextTest {
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsPointWithNonMatchingScanpath() throws Exception {
 		thrown.expect(IllegalStateException.class);
-		expectMessageContents("POINT cannot be combined with SPIRAL");
+		expectMessageContents("Point cannot be combined with Spiral");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.POINT);

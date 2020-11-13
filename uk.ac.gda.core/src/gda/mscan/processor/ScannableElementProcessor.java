@@ -46,7 +46,7 @@ public class ScannableElementProcessor extends ElementProcessorBase<Scannable> {
 	@Override
 	public void process(final ClausesContext context,
 			final List<IClauseElementProcessor> clauseProcessors, final int index) {
-		if (clauseProcessors.size() < 7 && withNullProcessorCheck(clauseProcessors.get(1)).hasNumber()){
+		if (!context.isStatic() && clauseProcessors.size() < 7 && withNullProcessorCheck(clauseProcessors.get(1)).hasNumber()){
 			throw new IllegalArgumentException("SPEC style scans not yet supported.");
 		}
 		if(isValidElement(context, this.getClass().getName(), Scannable.class)) {

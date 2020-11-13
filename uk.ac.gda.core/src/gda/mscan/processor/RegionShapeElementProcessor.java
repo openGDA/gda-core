@@ -22,6 +22,7 @@ import java.util.List;
 
 import gda.mscan.ClausesContext;
 import gda.mscan.element.RegionShape;
+import gda.mscan.element.Scanpath;
 
 /**
  * A Clause Element Processor for {@link RegionShape} elements
@@ -47,15 +48,21 @@ public class RegionShapeElementProcessor extends ElementProcessorBase<RegionShap
 	@Override
 	public void process(final ClausesContext context,
 			final List<IClauseElementProcessor> clauseProcessors, final int index) {
-		rejectIfFirstElement(index);
+		if (!isStatic()) rejectIfFirstElement(index);
 		if(isValidElement(context, this.getClass().getName())) {
 			context.setRegionShape(enclosed);
+			if (isStatic()) context.setScanpath(Scanpath.STATIC);
 		}
 	}
 
 	@Override
 	public boolean hasRoi() {
 		return true;
+	}
+
+	@Override
+	public boolean isStatic() {
+		return enclosed == RegionShape.STATIC;
 	}
 
 	/**

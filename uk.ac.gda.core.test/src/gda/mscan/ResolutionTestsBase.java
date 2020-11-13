@@ -87,6 +87,7 @@ public class ResolutionTestsBase {
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(false);
 		when(proc.hasScannableGroup()).thenReturn(true);
+		when(proc.isValidFirstElement()).thenReturn(true);
 		when(proc.hasDetector()).thenReturn(false);
 		when(proc.hasMonitor()).thenReturn(false);
 		when(proc.hasScanDataConsumer()).thenReturn(false);
@@ -116,6 +117,7 @@ public class ResolutionTestsBase {
 		IClauseElementProcessor proc = mock(ScannableElementProcessor.class);
 		when(proc.getElement()).thenReturn(scannable);
 		when(proc.hasScannable()).thenReturn(true);
+		when(proc.isValidFirstElement()).thenReturn(true);
 		when(proc.hasRoi()).thenReturn(false);
 		when(proc.hasNumber()).thenReturn(false);
 		when(proc.hasScanDataConsumer()).thenReturn(false);

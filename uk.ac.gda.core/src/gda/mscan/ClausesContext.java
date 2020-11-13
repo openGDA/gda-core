@@ -94,12 +94,14 @@ import gda.mscan.processor.IClauseElementProcessor;
 public class ClausesContext extends ValidationUtils {
 
 	// The grammar of allowed next types used to validate the scanpath clause keyed on the type of the current element
-	private static final ImmutableMap<Class<?>, List<Class<?>>> grammar = ImmutableMap.of(
-			Scannable.class,    Arrays.asList(Scannable.class, RegionShape.class, Number.class),
-			RegionShape.class,  Arrays.asList(Number.class),
-			Scanpath.class,     Arrays.asList(Number.class),
-			Number.class,       Arrays.asList(Number.class, Scanpath.class, Mutator.class),
-			Mutator.class,      Arrays.asList(Number.class, Mutator.class));
+	private static final ImmutableMap<Class<?>, List<Class<?>>> grammar = ImmutableMap.<Class<?>, List<Class<?>>>builder()
+			.put(Object.class,		Arrays.asList(Scannable.class, Scanpath.class)) // Valid first elements
+			.put(Scannable.class,	Arrays.asList(Scannable.class, RegionShape.class, Number.class))
+			.put(RegionShape.class,	Arrays.asList(Number.class))
+			.put(Scanpath.class,	Arrays.asList(Number.class))
+			.put(Number.class,		Arrays.asList(Number.class, Scanpath.class, Mutator.class))
+			.put(Mutator.class,		Arrays.asList(Number.class, Mutator.class))
+			.build();
 
 	private static final ImmutableMap<RegionShape, List<Scanpath>> VALID_COMBINATIONS =
 			new ImmutableMap.Builder<RegionShape, List<Scanpath>>()
@@ -109,7 +111,8 @@ public class ClausesContext extends ValidationUtils {
 			.put(POLYGON,           Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
 			.put(LINE,              Arrays.asList(LINE_POINTS, LINE_STEP))
 			.put(AXIAL,             Arrays.asList(AXIS_POINTS, AXIS_STEP))
-			.put(POINT,             Arrays.asList(SINGLE_POINT)).build();
+			.put(POINT,             Arrays.asList(SINGLE_POINT))
+			.put(RegionShape.STATIC,Arrays.asList(Scanpath.STATIC)).build();
 
 	// Mapping of ScanDataConsumer Handlers
 	private ImmutableMap<ScanDataConsumer, Consumer<String>> CONSUMER_HANDLERS = ImmutableMap.of(
@@ -155,6 +158,7 @@ public class ClausesContext extends ValidationUtils {
 	private boolean detectorClauseSeen = false;
 	private boolean acceptingTemplates = true;
 	private boolean acceptingProcessors = true;
+	private boolean isStatic = false;
 
 
 	public ClausesContext(IRunnableDeviceService runnableDeviceService) {
@@ -178,8 +182,9 @@ public class ClausesContext extends ValidationUtils {
 		paramNullCheckValid = true;
 		pathClauseValidated = false;
 		paramsToFill = null;
-		previousType = Scannable.class;		// Initial value; every non-consumer Clause starts with a Scannable
+		previousType = Object.class; // Initial value; non-consumer clauses may begin with a Scannable or a the Static Scanpath
 		clauseProcessed = false;
+		isStatic = false;
 	}
 
 	// Update methods that fill in the context for a path definition clause. Each of these  will (at least) set the
@@ -238,6 +243,7 @@ public class ClausesContext extends ValidationUtils {
 		requiredParamCount = supplied.valueCount();
 		previousType = RegionShape.class;
 		resetParamList();
+		if (supplied == RegionShape.STATIC) isStatic = true;
 	}
 
 	/**
@@ -263,6 +269,7 @@ public class ClausesContext extends ValidationUtils {
 		requiredParamCount = supplied.valueCount();
 		previousType = Scanpath.class;
 		resetParamList();
+		if (supplied == Scanpath.STATIC) isStatic = true;
 	}
 
 	/**
@@ -272,8 +279,8 @@ public class ClausesContext extends ValidationUtils {
 	 * @param supplied		The {@link Mutator} to be added to the context
 	 */
 	public void addMutator(final Mutator supplied) {
-		areaScanMustHaveRegionShapePlusScanpath();
 		nullCheck(supplied, Mutator.class.getSimpleName());
+		scanMustHaveRegionShapePlusScanpath();
 		if (!scanpath.get().supports(supplied)) {
 			throw new UnsupportedOperationException(String.format(
 					"%s is not supported by the current scan path", supplied.toString()));
@@ -302,7 +309,7 @@ public class ClausesContext extends ValidationUtils {
 	 * @throws IllegalArgumentException			if the supplied param is null or has an invalid value.
 	 */
 	public boolean addParam(final Number supplied) {
-		if (scannables.isEmpty()) {
+		if (scannables.isEmpty() && !isStatic()) {
 			throw new IllegalStateException("Invalid Scan clause: must contain at least 1 scannable");
 		}
 		nullCheck(supplied, Number.class.getSimpleName());
@@ -371,11 +378,13 @@ public class ClausesContext extends ValidationUtils {
 			ArrayList<Number> boundingBoxParams = new ArrayList<>();
 
 			IROI roi = getRegionShape().createIROI(getBounds());
-			IRectangularROI boundingRoi = roi.getBounds();
-			boundingBoxParams.add(boundingRoi.getPointX());
-			boundingBoxParams.add(boundingRoi.getPointY());
-			boundingBoxParams.add(boundingRoi.getLength(0));
-			boundingBoxParams.add(boundingRoi.getLength(1));
+			if (roi != null) {
+				IRectangularROI boundingRoi = roi.getBounds();
+				boundingBoxParams.add(boundingRoi.getPointX());
+				boundingBoxParams.add(boundingRoi.getPointY());
+				boundingBoxParams.add(boundingRoi.getLength(0));
+				boundingBoxParams.add(boundingRoi.getLength(1));
+			}
 			scanModel.setData(scanpath.get().createModel(scannables,
 					getModelPathParams(), boundingBoxParams, mutatorUses), roi);
 			scanPathSeen = true;
@@ -547,14 +556,23 @@ public class ClausesContext extends ValidationUtils {
 	 * Validates that the context is consistent.
 	 */
 	public boolean validateAndAdjustPathClause() {
+		if (isStatic()) return validateStaticPathClause();
 		if (scannables.isEmpty() || scannables.size() > REQUIRED_SCANNABLES_FOR_AREA) {
 			throw new IllegalStateException("Invalid Scan clause: scan must have the required number of Scannables");
 		}
-		areaScanMustHaveRegionShapePlusScanpath();
+		scanMustHaveRegionShapePlusScanpath();
 		areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndScanpath();
 		forPointRegionShapeScanpathMustBePointAlsoAndParamsMustMatch();
 		checkRequiredMutatorParameters();
 
+		//post validate the default case
+		pathClauseValidated = true;
+		return pathClauseValidated;
+	}
+
+	private boolean validateStaticPathClause() {
+		staticScanMustHaveRegionShapePlusScanpath();
+		staticScanMustHaveCorrectNumberOfParametersForRegionShapeAndScanpath();
 		//post validate the default case
 		pathClauseValidated = true;
 		return pathClauseValidated;
@@ -718,6 +736,10 @@ public class ClausesContext extends ValidationUtils {
 		return clauseProcessed;
 	}
 
+	public boolean isStatic() {
+		return isStatic;
+	}
+
 	// input validation methods
 
 	/**
@@ -725,22 +747,36 @@ public class ClausesContext extends ValidationUtils {
 	 *
 	 *@throws IllegalStateException if either {@link Scanpath} or {@link RegionShape} are not set
 	 */
-	private void areaScanMustHaveRegionShapePlusScanpath() {
-		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA
-				&& (!regionShape.isPresent() || !scanpath.isPresent())) {
-			throw new IllegalStateException("Invalid Scan clause: area scan must have both RegionShape and Scanpath");
+	private void scanMustHaveRegionShapePlusScanpath() {
+		if (!scanPathAndRegionShapeArePresent()) {
+			throw new IllegalStateException("Invalid Scan clause: scan must have both RegionShape and Scanpath");
 		}
+	}
+
+	/**
+	 *Checks that both {@link RegionShape} and {@link Scanpath} are set for an static (no scannable) scan
+	 *
+	 *@throws IllegalStateException if either {@link Scanpath} or {@link RegionShape} are not set to their Static option
+	 */
+	private void staticScanMustHaveRegionShapePlusScanpath() {
+		scanMustHaveRegionShapePlusScanpath();
+		if (regionShape.get() != RegionShape.STATIC || scanpath.get() != Scanpath.STATIC)
+			throw new IllegalStateException("Invalid Scan clause: Static scan must use only the Static RegionShape or Scanpath");
+	}
+
+	private boolean scanPathAndRegionShapeArePresent() {
+		return regionShape.isPresent() && scanpath.isPresent();
 	}
 
 	/**
 	 * Checks that the correct number of parameters have been set for the specified {@link Scanpath}
 	 * and {@link RegionShape} whether bounded or not.
 	 *
-	 * @throws  IllegalStateException if and incorrect number of parameters has be supplied for either the
+	 * @throws  IllegalStateException if an incorrect number of parameters has be supplied for either the
 	 * 			{@link Scanpath} or {@link RegionShape}
 	 */
 	private void areaScanMustHaveCorrectNumberOfParametersForRegionShapeAndScanpath() {
-		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && regionShape.isPresent() && scanpath.isPresent()) {
+		if (scannables.size() == REQUIRED_SCANNABLES_FOR_AREA && scanPathAndRegionShapeArePresent()) {
 			if (regionShape.get().hasFixedValueCount()) {
 				if (regionShape.get().valueCount() != shapeParams.size()
 						|| scanpath.get().valueCount() != pathParams.size()) {
@@ -754,6 +790,20 @@ public class ClausesContext extends ValidationUtils {
 			} else if (regionShape.get() == POLYGON && (shapeParams.size() & 1) > 0) {
 				throw new IllegalStateException("Invalid Scan clause: Polygon requires an even number of params");
 			}
+		}
+	}
+
+	/**
+	 * Checks that the correct number of parameters have been set for the Static scanpath and {@link RegionShape}
+	 * Bounding for Static is opposite of Polygon (Polygon may have > minimum args, Static may have min args or 0),
+	 * so cannot easily combine with Area scan validation
+	 * @throws  IllegalStateException if an incorrect number of parameters has be supplied for either the
+	 * 			{@link Scanpath} or {@link RegionShape}
+	 */
+	private void staticScanMustHaveCorrectNumberOfParametersForRegionShapeAndScanpath() {
+		if (scannables.isEmpty() && scanPathAndRegionShapeArePresent() &&
+				(!shapeParams.isEmpty() || pathParams.size() > 1)) {
+			throw new IllegalStateException("Invalid Scan clause: clause must have correct no of params for RegionShape and Scanpath");
 		}
 	}
 
@@ -829,8 +879,8 @@ public class ClausesContext extends ValidationUtils {
 	private void rejectIncorrectNumberOfScannables(final IMScanDimensionalElementEnum element) {
 		if (scannables.size() != element.getAxisCount()) {
 			throw new UnsupportedOperationException(String.format(
-				"Invalid Scan clause: Scan with %s requires %d scannables",
-				element.getClass().getSimpleName(), element.getAxisCount()));
+				"Invalid Scan clause: Scan with %s %s requires %d scannables",
+				element.toString(), element.getClass().getSimpleName(), element.getAxisCount()));
 		}
 	}
 

@@ -13,7 +13,10 @@ A friendly interface to mapping scans.
 
 Basic Syntax is of the form:
 
-mscan <axes> <RegionShape> <RegionShape Params> <Scanpath> <Scanpath Params> <Detectors/Monitors>
+mscan [<axes> <RegionShape> <RegionShape Params>]* [<Scanpath> <Scanpath Params>]^ <Detectors/Monitors>
+
+* When defining a Static/Acquire scan, these arguments should be excluded
+^ When defining a Static/Acquire scan, these arguments are optional (unless requiring multiple exposures)
 
 where:
 
@@ -36,6 +39,7 @@ where:
                       poin (point)
                       axst (axis_step)
                       axno (axis_points)
+                      stat (static/acquire) [a scan in which no motors are moved, only exposures taken]
     N.B. the full name or abbreviation can be used, other aliases are also provided see below)
     
     In order to try to be consistent and standardised and move away from poorly chose pathnames
@@ -68,6 +72,19 @@ mscan sc1 sc2 rect 0,0 5,5 rast 0.5,0.5 d1
 commas are not required but may be added between axis params to improve 
 readability.
 
+If no non-detector Scannables are passed, and the default Scanpath is instead a Static scan with a single exposure, 
+e.g.
+
+mscan det <det_params>
+mscan static det <det_params>
+mscan static 1 det <det params>
+
+are all the same. 
+
+mscan static <size> det <det_params> 
+
+Would take <size> exposures with det, and requires calling the static scanpath explicitly.
+
 To enable the functionality:
 1. Make sure any references to importing "mapping_scan_commands.py" are removed
 from your localstation.py or any other scripts
@@ -98,6 +115,7 @@ step = angl = angle = Scanpath.LINE_STEP
 nopt = pts = noofpoints = points = proj = projections = Scanpath.LINE_POINTS
 axst = axisstep = Scanpath.AXIS_STEP
 axno = axispoints = Scanpath.AXIS_POINTS
+stat = static = acq = acquire = Scanpath.STATIC
 
 # Register the commands with the Translator
 alias('grid')
@@ -120,6 +138,10 @@ alias('axst')
 alias('axisstep')
 alias('axno')
 alias('axispoints')
+alias('stat')
+alias('static')
+alias('acq')
+alias('acquire')
 
 
 # Set up functions that return the RegionShape Enum instances and assign them to

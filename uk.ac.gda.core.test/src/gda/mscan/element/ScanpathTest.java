@@ -28,6 +28,7 @@ import static gda.mscan.element.Scanpath.LINE_STEP;
 import static gda.mscan.element.Scanpath.LISSAJOUS;
 import static gda.mscan.element.Scanpath.SINGLE_POINT;
 import static gda.mscan.element.Scanpath.SPIRAL;
+import static gda.mscan.element.Scanpath.STATIC;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -107,6 +108,7 @@ public class ScanpathTest {
 		correctLengthPathData.put(SINGLE_POINT, new Double[] {6.0, 6.0});
 		correctLengthPathData.put(AXIS_STEP, new Double[] {5.0});
 		correctLengthPathData.put(AXIS_POINTS, new Double[] {5.0});
+		correctLengthPathData.put(STATIC, new Double[] {1.0});
 	}
 
 	@Before
@@ -133,6 +135,7 @@ public class ScanpathTest {
 		assertThat(SINGLE_POINT.valueCount(), is(2));
 		assertThat(AXIS_POINTS.valueCount(), is(1));
 		assertThat(AXIS_STEP.valueCount(), is(1));
+		assertThat(STATIC.valueCount(), is(1));
 	}
 
 	@Test
@@ -213,12 +216,13 @@ public class ScanpathTest {
 		tooMany.put(SINGLE_POINT, new Double[] {6.0, 6.0, 6.0});
 		tooMany.put(AXIS_POINTS, new Double[] {3.0, 3.0});
 		tooMany.put(AXIS_STEP, new Double[] {3.0, 3.0});
+		tooMany.put(STATIC, new Double[] {1.0, 1.0});
 
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany, blankArray);
 	}
 
 	@Test
-	public void createModelRejectsTooFewPathParamsForAllInstances() throws Exception {
+	public void createModelRejectsTooFewPathParamsForAllInstancesExceptStatic() throws Exception {
 		Map<Scanpath, Double[]> tooFew = new EnumMap<>(Scanpath.class);
 		tooFew.put(GRID_POINTS, new Double[] {3.0});
 		tooFew.put(GRID_STEP, new Double[] {4.0});
@@ -229,6 +233,7 @@ public class ScanpathTest {
 		tooFew.put(SINGLE_POINT, new Double[] {6.0});
 		tooFew.put(AXIS_POINTS, blankArray);
 		tooFew.put(AXIS_STEP, blankArray);
+		tooFew.put(STATIC, blankArray);
 
 		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooFew, blankArray);
 	}
