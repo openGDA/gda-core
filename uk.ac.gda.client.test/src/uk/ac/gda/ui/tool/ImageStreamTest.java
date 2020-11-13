@@ -21,7 +21,7 @@ package uk.ac.gda.ui.tool;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Optional;
 
 import org.eclipse.january.dataset.IDatasetConnector;
@@ -75,8 +75,8 @@ public class ImageStreamTest {
 		ImageStream is = new ImageStream(dataConnector);
 		streamThread = Optional.of(new Thread(is));
 		streamThread.get().start();
-		URL resource = ImageStreamTest.class.getResource("/resources/test_icon.png");
-		Image image = new Image(device, resource.getPath());
+		InputStream resource = ImageStreamTest.class.getResourceAsStream("/resources/test_icon.png");
+		Image image = new Image(device, resource);
 		is.setImage(image);
 		while (is.getDataset().getSize() != 256) {
 

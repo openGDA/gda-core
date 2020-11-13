@@ -30,20 +30,14 @@
 								<id>org.hamcrest</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
+							<!-- This is required until split packages have been resolved -->
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>uk.ac.diamond.daq.splitpackagesresolver</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-surefire-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<configuration>
-					<excludes>
-						<!-- Tests read files -->
-						<exclude>ImageDatasetConnectorTest</exclude>
-						<exclude>ImageStreamTest</exclude>
-					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>

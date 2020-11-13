@@ -20,7 +20,7 @@ package uk.ac.gda.ui.tool;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.eclipse.january.DatasetException;
@@ -58,16 +58,16 @@ public class ImageDatasetConnectorTest {
 	@Test
 	public void doubleImageStreamTest() throws DatasetException {
 		dataConnector.connect();
-		URL resource = ImageStreamTest.class.getResource("/resources/test_icon.png");
-		Image image = new Image(device, resource.getPath());
+		InputStream resource = ImageStreamTest.class.getResourceAsStream("/resources/test_icon.png");
+		Image image = new Image(device, resource);
 		dataConnector.setImage(image);
 		while (dataConnector.getDataset().getSize() < 256) {
 
 		}
 		assertEquals(256, dataConnector.getDataset().getSize());
 
-		resource = ImageStreamTest.class.getResource("/resources/icon_32.gif");
-		image = new Image(device, resource.getPath());
+		resource = ImageStreamTest.class.getResourceAsStream("/resources/icon_32.gif");
+		image = new Image(device, resource);
 		dataConnector.setImage(image);
 		while (dataConnector.getDataset().getSize() < 1024) {
 
@@ -89,8 +89,8 @@ public class ImageDatasetConnectorTest {
 
 		dataConnector.addDataListener(listener);
 		dataConnector.connect();
-		URL resource = ImageStreamTest.class.getResource("/resources/test_icon.png");
-		Image image = new Image(device, resource.getPath());
+		InputStream resource = ImageStreamTest.class.getResourceAsStream("/resources/test_icon.png");
+		Image image = new Image(device, resource);
 		dataConnector.setImage(image);
 
 		synchronized (lock) {
@@ -111,8 +111,8 @@ public class ImageDatasetConnectorTest {
 			}
 		};
 		dataConnector.addDataListener(listener);
-		resource = ImageStreamTest.class.getResource("/resources/icon_32.gif");
-		image = new Image(device, resource.getPath());
+		resource = ImageStreamTest.class.getResourceAsStream("/resources/icon_32.gif");
+		image = new Image(device, resource);
 		dataConnector.setImage(image);
 
 		synchronized (lock) {
