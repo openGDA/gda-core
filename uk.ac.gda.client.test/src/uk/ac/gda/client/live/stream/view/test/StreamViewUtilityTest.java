@@ -19,6 +19,7 @@
 package uk.ac.gda.client.live.stream.view.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class StreamViewUtilityTest {
 		// view) is: MJPEG, EPICS array, EPICS PVA
 		final CameraConfiguration cameraConfig = new CameraConfiguration();
 
-		assertEquals(StreamType.UNKNOWN, StreamViewUtility.getStreamType(cameraConfig));
+		assertNull(StreamViewUtility.getStreamType(cameraConfig));
 
 		cameraConfig.setPvAccessPv("BLXXI-EA-DET-01:PVA:Image");
 		assertEquals(StreamType.EPICS_PVA, StreamViewUtility.getStreamType(cameraConfig));
@@ -68,7 +69,7 @@ public class StreamViewUtilityTest {
 		final CameraConfiguration cameraConfig = new CameraConfiguration();
 		cameraConfig.setName("CAM01");
 
-		assertEquals("CAM01#UNKNOWN", StreamViewUtility.getSecondaryId(cameraConfig, StreamType.UNKNOWN));
+		assertEquals("CAM01#UNKNOWN", StreamViewUtility.getSecondaryId(cameraConfig, null));
 		assertEquals("CAM01#EPICS_PVA", StreamViewUtility.getSecondaryId(cameraConfig, StreamType.EPICS_PVA));
 		assertEquals("CAM01#EPICS_ARRAY", StreamViewUtility.getSecondaryId(cameraConfig, StreamType.EPICS_ARRAY));
 		assertEquals("CAM01#MJPEG", StreamViewUtility.getSecondaryId(cameraConfig, StreamType.MJPEG));

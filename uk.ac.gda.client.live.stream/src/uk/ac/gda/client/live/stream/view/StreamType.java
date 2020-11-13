@@ -24,8 +24,7 @@ package uk.ac.gda.client.live.stream.view;
 public enum StreamType {
 	MJPEG("MJPEG"),
 	EPICS_ARRAY("EPICS Array"),
-	EPICS_PVA("EPICS PV Access"),
-	UNKNOWN("Unknown stream type");
+	EPICS_PVA("EPICS PV Access");
 
 	final String displayName;
 

@@ -203,7 +203,8 @@ public class LiveStreamView extends ViewPart {
 		} else if (secondaryId.endsWith(StreamType.EPICS_PVA.secondaryIdSuffix())) {
 			return StreamType.EPICS_PVA;
 		} else {
-			return StreamType.UNKNOWN;
+			logger.warn("Secondary id specifies illegal stream type: {}", secondaryId);
+			return null;
 		}
 	}
 
@@ -235,7 +236,7 @@ public class LiveStreamView extends ViewPart {
 		}
 
 		if (streamType == null) {
-			// If no type specifed from the view id then default to MJPEG (and then Epics Array) if defined
+			// If no type specified from the view id then default to MJPEG (and then Epics Array) if defined
 			if (camConfig.getUrl() != null) {
 				streamType = StreamType.MJPEG;
 			}

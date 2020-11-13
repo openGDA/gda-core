@@ -74,7 +74,8 @@ public class StreamViewUtility {
 	 * {@link StreamType}
 	 */
 	public static String getSecondaryId(CameraConfiguration cameraConfiguration, StreamType streamType) {
-		return cameraConfiguration.getName() + streamType.secondaryIdSuffix();
+		final String suffix = (streamType == null) ? "#UNKNOWN" : streamType.secondaryIdSuffix();
+		return cameraConfiguration.getName() + suffix;
 	}
 
 	/**
@@ -90,6 +91,6 @@ public class StreamViewUtility {
 		if (cameraConfiguration.getPvAccessPv() != null) {
 			return StreamType.EPICS_PVA;
 		}
-		return StreamType.UNKNOWN;
+		return null;
 	}
 }
