@@ -19,16 +19,16 @@
 package gda.rcp.views;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
 import java.util.Optional;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -56,6 +56,8 @@ import uk.ac.gda.ui.tool.images.ClientImages;
  */
 public class AcquisitionCompositeFactoryBuilder {
 
+	private static final Logger logger = LoggerFactory.getLogger(AcquisitionCompositeFactoryBuilder.class);
+
 	private Optional<CompositeFactory> top = Optional.empty();
 	private Optional<CompositeFactory> bottom = Optional.empty();
 
@@ -63,59 +65,68 @@ public class AcquisitionCompositeFactoryBuilder {
 	private Optional<SelectionListener> newListener = Optional.empty();
 	private Optional<SelectionListener> saveListener = Optional.empty();
 
+	private Composite container;
+	private Composite topContainer;
+	private Composite bottomContainer;
+
 	public CompositeFactory build() {
 
 		return (parent, style) -> {
-				Composite composite = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-				createClientGridDataFactory().align(SWT.FILL, SWT.FILL).applyTo(composite);
+			logger.debug("Creating {}", this);
+			// The main container
+			container = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+			standardMarginHeight(container.getLayout());
+			standardMarginWidth(container.getLayout());
 
-				top.ifPresent(factory -> createTop(factory, composite));
+			// The top area
+			topContainer = ClientSWTElements.createClientCompositeWithGridLayout(container, SWT.NONE, 1);
+			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(topContainer);
 
-				buttonsGroup(composite);
+			top.ifPresent(factory -> createTop(factory, topContainer));
 
-				bottom.ifPresent(factory -> factory.createComposite(composite, style));
-
-				return parent;
+			// The bottom area. The grab/vertical is false because this composite vertical size should be constant
+			bottomContainer = ClientSWTElements.createClientCompositeWithGridLayout(container, SWT.NONE, 1);
+			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(bottomContainer);
+			buttonsGroup(bottomContainer);
+			bottom.ifPresent(factory -> factory.createComposite(bottomContainer, style));
+			logger.debug("Created {}", this);
+			return container;
 		};
 	}
 
 	public AcquisitionCompositeFactoryBuilder addTopArea(CompositeFactory compositeFactory) {
 		this.top = Optional.of(compositeFactory);
+		logger.debug("Adding topArea {}", this.top);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addBottomArea(CompositeFactory compositeFactory) {
 		this.bottom = Optional.of(compositeFactory);
+		logger.debug("Adding bottomArea {}", this.bottom);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addRunSelectionListener(SelectionListener selectionListener) {
 		this.runListener = Optional.of(selectionListener);
+		logger.debug("Adding runListener {}", this.runListener);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addNewSelectionListener(SelectionListener selectionListener) {
 		this.newListener = Optional.of(selectionListener);
+		logger.debug("Adding newListener {}", this.newListener);
 		return this;
 	}
 
 	public AcquisitionCompositeFactoryBuilder addSaveSelectionListener(SelectionListener selectionListener) {
 		this.saveListener = Optional.of(selectionListener);
+		logger.debug("Adding saveListener {}", this.saveListener);
 		return this;
 	}
 
 	private void createTop(CompositeFactory factory, Composite parent) {
-		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-
-		GridLayoutFactory.fillDefaults().applyTo(scrolledComposite);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(scrolledComposite);
-		final Composite container = new Composite(scrolledComposite, SWT.NONE);
-		container.setLayout(new GridLayout());
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(container);
-		factory.createComposite(container, SWT.NONE);
-		scrolledComposite.setContent(container);
+		factory.createComposite(parent, SWT.NONE);
 	}
 
 	private void buttonsGroup(Composite parent) {
@@ -130,5 +141,4 @@ public class AcquisitionCompositeFactoryBuilder {
 
 		builder.build().createComposite(parent, SWT.NONE);
 	}
-
 }

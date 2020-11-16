@@ -18,12 +18,13 @@
 
 package gda.rcp.views;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.IContentProvider;
@@ -47,6 +48,7 @@ import org.springframework.context.ApplicationListener;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -97,8 +99,12 @@ public abstract class TreeViewerBuilder<T> {
 	}
 
 	public TreeViewer build(Composite parent) {
-		FilteredTree tree = new FilteredTree(parent, SWT.V_SCROLL, new PatternFilter(), true);
-		GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, FOUR_ROWS).applyTo(tree);
+		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+
+		FilteredTree tree = new FilteredTree(container, SWT.V_SCROLL, new PatternFilter(), true);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, FOUR_ROWS).applyTo(tree);
+
 		viewer = tree.getViewer();
 		viewer.getTree().setHeaderVisible(true);
 		viewer.setContentProvider(contentProvider);
@@ -183,6 +189,7 @@ public abstract class TreeViewerBuilder<T> {
 		TreeViewerColumn column = new TreeViewerColumn(viewer, SWT.NONE);
 		column.getColumn().setText(intColumn.getName());
 		column.getColumn().setWidth(intColumn.getWidth());
+		column.getColumn().setResizable(true);
 		column.setLabelProvider(new DelegatingStyledCellLabelProvider(intColumn.getProvider()));
 		column.getColumn().addSelectionListener(new SelectionAdapter() {
 			@Override

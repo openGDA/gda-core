@@ -19,10 +19,16 @@
 package uk.ac.gda.client.composites;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.Browser;
 import gda.rcp.views.CompositeFactory;
@@ -38,6 +44,8 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
  */
 public class AcquisitionsBrowserCompositeFactory<T> implements CompositeFactory {
 
+	private static final Logger logger = LoggerFactory.getLogger(AcquisitionsBrowserCompositeFactory.class);
+
 	private final Browser<T> browser;
 
 	public AcquisitionsBrowserCompositeFactory(Browser<T> browser) {
@@ -47,7 +55,12 @@ public class AcquisitionsBrowserCompositeFactory<T> implements CompositeFactory 
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite container = createClientCompositeWithGridLayout(parent,style, 1);
+		logger.debug("Creating {}", this);
+		Composite container = createClientCompositeWithGridLayout(parent, style, 1);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+		standardMarginHeight(container.getLayout());
+		standardMarginWidth(container.getLayout());
+
 		TreeViewerBuilder<AcquisitionConfigurationResource<T>> builder = browser.getTreeViewBuilder();
 		browser.addColumns(builder);
 		builder.addContentProvider(browser.getContentProvider());
@@ -57,6 +70,7 @@ public class AcquisitionsBrowserCompositeFactory<T> implements CompositeFactory 
 		builder.addMenuManager(contextMenu);
 		builder.addSelectionListener(browser.getISelectionChangedListener(contextMenu));
 		builder.build(container);
+		logger.debug("Created {}", this);
 		return container;
 	}
 }

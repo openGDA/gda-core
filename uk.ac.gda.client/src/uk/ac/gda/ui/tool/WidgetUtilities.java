@@ -33,6 +33,7 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 
@@ -138,5 +139,14 @@ public class WidgetUtilities {
 		return Optional.ofNullable(widget.getData(dataKey))
 				.map(clazz::cast)
 				.orElseGet(() -> null);
+	}
+
+	/**
+	 * Utility which set the selection of a buttons notify its listeners.
+	 * @param button
+	 */
+	public static void selectAndNotify(Button button, boolean selection) {
+		button.setSelection(selection);
+		button.notifyListeners(SWT.Selection, new Event());
 	}
 }

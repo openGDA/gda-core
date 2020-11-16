@@ -19,8 +19,10 @@
 package uk.ac.gda.client.composites;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +33,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -62,6 +66,8 @@ import uk.ac.gda.ui.tool.images.ClientImages;
  * @author Maurizio Nagni
  */
 public class ButtonGroupFactoryBuilder {
+
+	private static final Logger logger = LoggerFactory.getLogger(ButtonGroupFactoryBuilder.class);
 
 	private final List<ButtonElements> buttonElements = new ArrayList<>();
 
@@ -100,9 +106,14 @@ public class ButtonGroupFactoryBuilder {
 
 		@Override
 		public Composite createComposite(Composite parent, int style) {
-			container = createClientGroup(parent, SWT.NONE, buttonElements.size(), ClientMessages.EMPTY_MESSAGE);
-			createClientGridDataFactory().applyTo(container);
+			logger.trace("Creating {}", this);
+			// The main container
+			container = createClientCompositeWithGridLayout(parent, SWT.NONE, buttonElements.size());
+			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+			standardMarginHeight(container.getLayout());
+			standardMarginWidth(container.getLayout());
 			buttonElements.stream().forEachOrdered(this::createButton);
+			logger.trace("Created {}", this);
 			return container;
 		}
 
@@ -128,7 +139,9 @@ public class ButtonGroupFactoryBuilder {
 
 		public void buildButton(Composite parent) {
 			Button button = createClientButton(parent, SWT.NONE, message, tooltip, image);
+			createClientGridDataFactory().applyTo(button);
 			WidgetUtilities.addWidgetDisposableListener(button, listener);
+			logger.trace("Adding button {}", button);
 		}
 	}
 }

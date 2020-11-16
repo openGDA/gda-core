@@ -25,16 +25,19 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Text;
 
 import gda.rcp.GDAClientActivator;
@@ -53,6 +56,8 @@ public final class ClientSWTElements {
 	public static final Point SMALL_BUTTON_SIZE = new Point(60, 30);
 	public static final Point DEFAULT_TEXT_SIZE = new Point(80, SWT.DEFAULT);
 	public static final Point DEFAULT_SPAN = new Point(1, 1);
+	public static final int DEFAULT_MARGIN_HEIGHT = 5;
+	public static final int DEFAULT_MARGIN_WIDTH = 5;
 
 	private ClientSWTElements() {
 	}
@@ -557,5 +562,35 @@ public final class ClientSWTElements {
 		}
 		glf.applyTo(group);
 		return group;
+	}
+
+	/**
+	 * Creates a standard  {@link ScrolledComposite} with a border and horizontal/vertical bars
+	 * @param parent where the composite will belong
+	 * @return a scrolled composite
+	 */
+	public static final ScrolledComposite createScrolledComposite(Composite parent) {
+		ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		GridLayoutFactory.fillDefaults().applyTo(scrolledComposite);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(scrolledComposite);
+		return scrolledComposite;
+	}
+
+	/**
+	 * Adds a {@link #DEFAULT_MARGIN_HEIGHT} to a {@link GridLayout}
+	 * @param layout the layout to amend
+	 */
+	public static final void standardMarginHeight(Layout layout) {
+		((GridLayout)layout).marginHeight = DEFAULT_MARGIN_HEIGHT;
+	}
+
+	/**
+	 * Adds a {@link #DEFAULT_MARGIN_WIDTH} to a {@link GridLayout}
+	 * @param layout the layout to amend
+	 */
+	public static final void standardMarginWidth(Layout layout) {
+		((GridLayout)layout).marginWidth = DEFAULT_MARGIN_WIDTH;
 	}
 }
