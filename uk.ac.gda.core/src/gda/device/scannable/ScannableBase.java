@@ -64,6 +64,8 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	public static final String DEFAULT_INPUT_NAME = "value";
 
+	public static final String DEFAULT_OUTPUT_FORMAT = "%5.5g";
+
 	/**
 	 * This is the Jython documentation. Use it in the GDA Jython via the help command.
 	 */
@@ -141,7 +143,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * Array of strings which specify the format to output when getting the position of this Scannable.
 	 */
-	protected String[] outputFormat = new String[] { "%5.5g" };
+	protected String[] outputFormat = new String[] { DEFAULT_OUTPUT_FORMAT };
 
 	/**
 	 * Map of scan attribute names to values. Scan attributes are attributes that should be written to the scan output (e.g. NeXus file). Note that some

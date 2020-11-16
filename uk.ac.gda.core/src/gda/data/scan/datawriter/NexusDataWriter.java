@@ -138,7 +138,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private static final int MAX_DATAFILENAME = 255;
 
 	/** Default SRS writing */
-	private static final boolean CREATE_SRS_FILE_BY_DEFAULT = true;
+	public static final boolean CREATE_SRS_FILE_BY_DEFAULT = true;
 
 	/** Property that if enabled writes a measurement group that contains the data printed to the console during the scan */
 	private static final String GDA_NEXUS_CREATE_MEASUREMENT_GROUP = "gda.nexus.writeMeasurementGroup";

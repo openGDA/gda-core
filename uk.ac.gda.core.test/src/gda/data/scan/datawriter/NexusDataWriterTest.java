@@ -375,7 +375,7 @@ public class NexusDataWriterTest {
 		serviceHolder.setNexusFileAppenderService(new NexusFileAppenderService());
 
 		// create and configure the NexusDataWriter
-		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "false");
+		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "true");
 		nexusDataWriter = new NexusDataWriter();
 		nexusDataWriter.configureScanNumber(1);
 		nexusDataWriter.setNexusFileNameTemplate("scan-%d.nxs");

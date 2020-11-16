@@ -96,6 +96,7 @@ import gda.device.detector.DummyDetector;
 import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyScannable;
+import gda.device.scannable.ScannableBase;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.IScanDataPoint;
@@ -295,10 +296,17 @@ public abstract class AbstractNexusDataWriterScanTest {
 		detector.setUseGaussian(true);
 		detector.setInputNames(new String[0]);
 		final String[] names = new String[] { "one", "two", "three", "four" };
+
 		detector.setExtraNames(names);
 		detector.setTotalChans(names.length);
 		detector.configure();
 		detector.setCollectionTime(10.0);
+
+		final String[] outputFormat = new String[4];
+		Arrays.fill(outputFormat, ScannableBase.DEFAULT_OUTPUT_FORMAT);
+		detector.setOutputFormat(outputFormat);
+//		detector.setOutputFormat(Collections.nCopies( // only works for Java 11+
+//				names.length, ScannableBase.DEFAULT_OUTPUT_FORMAT).toArray(String[]::new));
 
 		concurrentScan(detector, DetectorType.COUNTER_TIMER, "CounterTimer");
 	}
@@ -327,20 +335,25 @@ public abstract class AbstractNexusDataWriterScanTest {
 		// run the scan
 		scan.runScan();
 
-		final File expectedNexusFile = new File(testDir + "/Data/1.nxs");
-		final String expectedNexusFilePath = expectedNexusFile.getAbsolutePath();
-
-		assertThat(expectedNexusFile.exists(), is(true));
 		assertThat(scan.getScanNumber(), is(EXPECTED_SCAN_NUMBER));
 		final IScanDataPoint lastPoint = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertThat(lastPoint.getScanIdentifier(), is(EXPECTED_SCAN_NUMBER));
 
+		// check the nexus file was written with the expected name
+		final File expectedNexusFile = new File(testDir + "/Data/1.nxs");
+		final String expectedNexusFilePath = expectedNexusFile.getAbsolutePath();
+		assertThat(expectedNexusFile.exists(), is(true));
 		assertThat(lastPoint.getCurrentFilename(), is(equalTo(expectedNexusFilePath)));
 		assertThat(scan.getDataWriter().getCurrentFileName(), is(equalTo(expectedNexusFilePath)));
 
+		// check the content of the nexus file
 		try (final NexusFile nexusFile = openNexusFile(expectedNexusFilePath)) {
 			checkNexusFile(nexusFile);
 		}
+
+		// check an SRS file was created
+		final File expectedSrsFile = new File(testDir + "/Data/1.dat");
+		assertThat(expectedSrsFile.exists(), is(true));
 	}
 
 	private Object[] createScanArguments(Detector detector) {

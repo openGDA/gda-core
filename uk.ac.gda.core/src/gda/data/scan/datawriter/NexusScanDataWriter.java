@@ -18,6 +18,8 @@
 
 package gda.data.scan.datawriter;
 
+import static gda.data.scan.datawriter.NexusDataWriter.CREATE_SRS_FILE_BY_DEFAULT;
+import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_SRS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -131,11 +133,17 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private final boolean useSwmr;
 
+	private SrsDataFile srsFile = null;
+
 	public NexusScanDataWriter() {
 		outputDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		beamlineName = GDAMetadataProvider.getInstance().getMetadataValue(METADATA_ENTRY_NAME_INSTRUMENT,
 					LocalProperties.GDA_INSTRUMENT, DEFAULT_BEAMLINE_NAME);
 		useSwmr = LocalProperties.check(PROPERTY_NAME_WRITE_SWMR, false);
+
+		if (LocalProperties.check(GDA_NEXUS_CREATE_SRS, CREATE_SRS_FILE_BY_DEFAULT)) {
+			srsFile = new SrsDataFile();
+		}
 	}
 
 	@Override
@@ -158,6 +166,14 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	@Override
 	public void configureScanNumber(int scanNumber) {
 		this.scanNumber = scanNumber;
+
+		if (srsFile != null) {
+			try {
+				srsFile.configureScanNumber(scanNumber);
+			} catch (Exception e) {
+				throw new IllegalStateException("Error configuring scan number for SRS file");
+			}
+		}
 
 		// since we already know the scan number we can update the file name
 		calculateFileName();
@@ -229,6 +245,16 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 					throw new GDAException("Could not create nexus file: " + e.getMessage(), e);
 				}
 			}
+
+
+			if (srsFile != null) {
+				try {
+					srsFile.addData(point);
+				} catch (Exception e) {
+					logger.error("An error occurred writing to the srs file", e);
+				}
+			}
+
 
 			try {
 				writePoint(point);
@@ -480,9 +506,6 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	@Override
 	public void completeCollection() throws Exception {
 		try {
-			if (nexusScanFile != null) {
-				nexusScanFile.scanFinished();
-			}
 			// call scanEnd on all the devices
 			Exception exception = null;
 			for (IWritableNexusDevice<?> nexusDevice : nexusDevices.values()) {
@@ -493,6 +516,14 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 						exception = e;
 				}
 			}
+
+			if (nexusScanFile != null) {
+				nexusScanFile.scanFinished();
+			}
+			if (srsFile != null) {
+				srsFile.releaseFile();
+			}
+
 			if (exception != null) {
 				throw exception;
 			}
