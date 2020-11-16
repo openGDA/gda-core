@@ -131,6 +131,9 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	private transient SpecsPhoibosConfigurableScannable configurablePhotonEnergyScannable;
 	private final transient List<SpecsPhoibosConfigurableScannable> additionalConfigurableScannables = new ArrayList<>();
 
+	private boolean shouldCheckExperimentalShutter = true;
+	private boolean shouldCheckPrelensValve = true;
+
 
 	@Override
 	public void configure() throws FactoryException {
@@ -671,8 +674,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	public void startAcquiring() {
 		logger.trace("startAcquiring called");
 		// Check that the prelens valve is open
-		checkPrelensValve();
-		checkExperimentalShutter();
+		checkPrelensValveIfRequired();
+		checkExperimentalShutterIfRequired();
 
 		logger.info("Starting single acquisition");
 		try {
@@ -689,9 +692,9 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
-	private void checkPrelensValve() {
-		if (prelensValve == null) {
-			return; // No prelens valve is present.
+	private void checkPrelensValveIfRequired() {
+		if (prelensValve == null || !shouldCheckPrelensValve) {
+			return; // No prelens valve is present or no check required
 		}
 
 		final String prelensValvePosition = getPrelensValvePosition();
@@ -713,9 +716,9 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
-	private void checkExperimentalShutter() {
-		if (experimentalShutter == null) {
-			return; // No shutter is present.
+	private void checkExperimentalShutterIfRequired() {
+		if (experimentalShutter == null || !shouldCheckExperimentalShutter) {
+			return; // No shutter is present or no check required
 		}
 
 		final String experimentalShutterPosition = getExperimentalShutterPosition();
@@ -1227,5 +1230,45 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void stopAfterCurrentIteration() {
 		throw new UnsupportedOperationException("This implementation of ISpecsPhoibosAnalyser is unable to stop early. Please use SpecsPhoibosAnalyserSeparateIterations");
+	}
+
+	@Override
+	public boolean getShouldCheckExperimentalShutter() {
+		return shouldCheckExperimentalShutter;
+	}
+
+	@Override
+	public void setShouldCheckExperimentalShutter(boolean shouldCheckExperimentalShutter) {
+		this.shouldCheckExperimentalShutter = shouldCheckExperimentalShutter;
+	}
+
+	@Override
+	public boolean getShouldCheckPrelensValve() {
+		return shouldCheckPrelensValve;
+	}
+
+	@Override
+	public void setShouldCheckPrelensValve(boolean shouldCheckPrelensValve) {
+		this.shouldCheckPrelensValve = shouldCheckPrelensValve;
+	}
+
+	@Override
+	public void enableExperimentalShutterCheck() {
+		setShouldCheckExperimentalShutter(true);
+	}
+
+	@Override
+	public void disableExperimentalShutterCheck() {
+		setShouldCheckExperimentalShutter(false);
+	}
+
+	@Override
+	public void enablePrelensValveCheck() {
+		setShouldCheckPrelensValve(true);
+	}
+
+	@Override
+	public void disablePrelensValveCheck() {
+		setShouldCheckPrelensValve(false);
 	}
 }

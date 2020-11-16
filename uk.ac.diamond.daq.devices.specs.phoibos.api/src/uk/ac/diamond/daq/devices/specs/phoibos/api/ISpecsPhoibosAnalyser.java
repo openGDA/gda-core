@@ -175,4 +175,14 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	List<SpecsPhoibosConfigurableScannableInfo> getAdditionalConfigurableScannablesInfo();
 
 	void stopAfterCurrentIteration();
+
+	void setShouldCheckExperimentalShutter(boolean shouldCheckExperimentalShutter);
+	boolean getShouldCheckExperimentalShutter();
+	void setShouldCheckPrelensValve(boolean shouldCheckPrelensValve);
+	boolean getShouldCheckPrelensValve();
+
+	void enableExperimentalShutterCheck();
+	void disableExperimentalShutterCheck();
+	void enablePrelensValveCheck();
+	void disablePrelensValveCheck();
 }
