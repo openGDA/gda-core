@@ -74,6 +74,8 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
+import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
@@ -86,10 +88,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ExpandEvent;
 import org.eclipse.swt.events.ExpandListener;
 import org.eclipse.swt.events.FocusListener;
@@ -108,10 +107,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
-import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.MultipleScansHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
@@ -135,6 +135,7 @@ import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.selectable.NamedComposite;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -142,7 +143,9 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  *
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationCompositeFactory implements CompositeFactory {
+public class TomographyConfigurationCompositeFactory implements NamedComposite {
+
+	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationCompositeFactory.class);
 
 	/** Scan prefix **/
 	private Text name;
@@ -184,15 +187,12 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private Composite multipleGroup;
 	private Composite selectProcessingFile;
 
-
 	protected final AcquisitionController<ScanningAcquisition> controller;
 	private final IStageController stageController;
 	private ScanpathDocumentHelper dataHelper;
 	private MultipleScansHelper configurationHelper;
 	private ImageCalibrationHelper imageCalibrationHelper;
 
-	private Composite mainComposite;
-	private ScrolledComposite scrolledComposite;
 	private DataBindingContext dbc = new DataBindingContext();
 
 	public TomographyConfigurationCompositeFactory(AcquisitionController<ScanningAcquisition> controller, IStageController stageController) {
@@ -206,15 +206,11 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		scrolledComposite = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-
-		GridLayoutFactory.fillDefaults().applyTo(scrolledComposite);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(scrolledComposite);
-
-		mainComposite = createClientCompositeWithGridLayout(scrolledComposite, SWT.NONE, 3);
-		scrolledComposite.setContent(mainComposite);
+		logger.debug("Creating {}", this);
+		Composite mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(mainComposite);
+		standardMarginHeight(mainComposite.getLayout());
+		standardMarginWidth(mainComposite.getLayout());
 
 		createElements(mainComposite, SWT.NONE, SWT.BORDER);
 		bindElements();
@@ -225,7 +221,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 		} catch (GDAClientException e) {
 			UIHelper.showWarning("Loading a file will not refresh the gui", "Spring application listener not registered");
 		}
-		scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		logger.debug("Created {}", this);
 		return mainComposite;
 	}
 
@@ -420,8 +416,8 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 	private void multipleScansContent(Composite parent, int labelStyle, int textStyle) {
 		ExpandBar customBar = createExpandBar(parent);
-		Composite container = createClientCompositeWithGridLayout(customBar, SWT.NONE, 5);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).grab(true, true).applyTo(container);
+		Composite container = createClientCompositeWithGridLayout(customBar, SWT.NONE | SWT.BORDER, 5);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, true).applyTo(container);
 
 		Label label = createClientLabel(container, SWT.NONE, NUM_REPETITIONS);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
@@ -835,7 +831,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private ExpandItem expandBar(ExpandBar parent, Composite group, Button radio) {
 		ExpandItem item0 = new ExpandItem(parent, SWT.NONE, 0);
 		item0.setText(ClientMessagesUtility.getMessage(ClientMessages.MULTIPLE_SCANS));
-		item0.setHeight(parent.computeSize(SWT.DEFAULT, 300).y);
+		item0.setHeight(parent.computeSize(SWT.DEFAULT, 100).y);
 		item0.setControl(group);
 		// item0.setImage(group.getDisplay().getSystemImage(SWT.ICON_QUESTION));
 		return item0;
@@ -854,7 +850,7 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 
 	private ExpandBar createExpandBar(Composite parent) {
 		ExpandBar bar = new ExpandBar(parent, SWT.V_SCROLL);
-		createClientGridDataFactory().grab(true, true).applyTo(bar);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(bar);
 		return bar;
 	}
 
@@ -905,5 +901,15 @@ public class TomographyConfigurationCompositeFactory implements CompositeFactory
 	private void setDefaultProcessingFile(URL defaultProcessingFile) {
 		getClientContext().getTomographyContext()
 			.putFileInContext(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE, defaultProcessingFile);
+	}
+
+	@Override
+	public ClientMessages getName() {
+		return ClientMessages.TOMOGRAPHY;
+	}
+
+	@Override
+	public ClientMessages getTooltip() {
+		return ClientMessages.TOMOGRAPHY_TP;
 	}
 }

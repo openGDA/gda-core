@@ -18,6 +18,9 @@
 
 package uk.ac.gda.tomography.view;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
 import java.net.URL;
@@ -34,6 +37,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import gda.device.IScannableMotor;
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
@@ -56,13 +61,27 @@ import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.browser.TomoBrowser;
+import uk.ac.gda.tomography.scan.editor.view.RadiographyConfigurationCompositeFactory;
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationCompositeFactory;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.selectable.NamedComposite;
+import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 
 /**
- * This Composite allows to edit a {@link ScanningParameters} object.
+ * This {@link ViewPart} allows to create, edit and run a {@link ScanningParameters} object for tomography related acquisitions.
  *
+ * <p>
+ * It is based on the {@link AcquisitionCompositeFactoryBuilder} consequently has two elements
+ * <ul>
+ * <li>
+ *  A top composite for the acquisition configuration managed by a {@link SelectableContainedCompositeFactory}
+ * </li>
+ * <li>
+ *  A bottom composite with a group of button to save/load/run operation and a browser containing the saved {@link ScanningAcquisition}s managed by a {@link AcquisitionsBrowserCompositeFactory} instance
+ * </li>
+ * </ul>
+ * </p>
  * @author Maurizio Nagni
  */
 public class TomographyConfigurationView extends ViewPart {
@@ -74,6 +93,12 @@ public class TomographyConfigurationView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
+		logger.debug("Creating {}", this);
+		// The overall container
+		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		createClientGridDataFactory().applyTo(container);
+		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+
 		controller = getPerspectiveController();
 		getController().setDefaultNewAcquisitionSupplier(newScanningAcquisition());
 		controller.createNewAcquisition();
@@ -84,7 +109,8 @@ public class TomographyConfigurationView extends ViewPart {
 		builder.addNewSelectionListener(getNewConfigurationListener());
 		builder.addSaveSelectionListener(getSaveListener());
 		builder.addRunSelectionListener(getRunListener());
-		builder.build().createComposite(parent, SWT.NONE);
+		builder.build().createComposite(container, SWT.NONE);
+		logger.debug("Created {}", this);
 	}
 
 	@Override
@@ -93,16 +119,21 @@ public class TomographyConfigurationView extends ViewPart {
 	}
 
 	private ScanningAcquisitionController getPerspectiveController() {
-		return (ScanningAcquisitionController) SpringApplicationContextFacade.getBean("scanningAcquisitionController",
+		return (ScanningAcquisitionController) getBean("scanningAcquisitionController",
 				AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
 	}
 
 	private StageController getStageController() {
-		return SpringApplicationContextFacade.getBean(StageController.class);
+		return getBean(StageController.class);
 	}
 
 	private CompositeFactory getTopArea() {
-		return new TomographyConfigurationCompositeFactory(getController(), getStageController());
+		// Theses are the on-demand composites for the specific acquisition configurations
+		List<NamedComposite> configurations = new ArrayList<>();
+		configurations.add(new TomographyConfigurationCompositeFactory(getController(), getStageController()));
+		configurations.add(new RadiographyConfigurationCompositeFactory());
+
+		return new SelectableContainedCompositeFactory(configurations, ClientMessages.ACQUISITIONS);
 	}
 
 	private CompositeFactory getBottomArea() {
