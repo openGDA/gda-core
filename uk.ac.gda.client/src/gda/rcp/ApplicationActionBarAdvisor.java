@@ -509,7 +509,7 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 			// update the GUI based on state of processor
 			void updateStatus(Processor.STATE stateIn, ProcessorCurrentItem item) {
-				Display.getDefault().asyncExec( () -> updateGuiBasedOnProcessorState(stateIn,item,queueStatus,processor) );
+				Display.getDefault().asyncExec(updateGuiBasedOnProcessorState(stateIn, item, queueStatus, processor));
 			}
 
 			@Override
