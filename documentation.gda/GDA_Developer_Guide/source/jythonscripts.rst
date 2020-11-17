@@ -179,7 +179,7 @@ Observers of this object and receive events through the update(Object,Object) me
 would send these messages by retrieving this object from the finder and sending messages via the
 ScriptController's update() method::
 
-	controller = Finder.getInstance().find("MyScriptObserver")
+	controller = Finder.find("MyScriptObserver")
 	controller.update(None,ScriptProgressEvent("I have got to this point in the script"))
 	
 Although the IObserver/IObservable interfaces allow any serializable object to be passed to the GUI,

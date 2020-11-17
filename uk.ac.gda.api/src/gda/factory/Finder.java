@@ -57,21 +57,6 @@ public enum Finder {
 	private final Set<Factory> localFactories = new CopyOnWriteArraySet<>();
 
 	/**
-	 * Getter to construct and/or return single instance of the finder.
-	 * <p>
-	 * This can be used in unit tests independently of the rest of the GDA framework.
-	 * <p>
-	 * @deprecated No longer needed because all functions are now static. Will be removed in GDA 9.20.
-	 *
-	 * @return the instance of finder.
-	 */
-	@Deprecated
-	public static Finder getInstance() {
-		logger.warn("getInstance() is deprecated and will be removed in GDA 9.20. Please use static access to all Finder functions");
-		return INSTANCE;
-	}
-
-	/**
 	 * Return a named object from any of the factories known to the finder.
 	 *
 	 * @param <T>

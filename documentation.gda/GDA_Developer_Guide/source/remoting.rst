@@ -190,7 +190,7 @@ Once the CORBA work has been done, the object can be used like this:
 
 .. code-block:: java 
 
-   MyObject myObject = Finder.getInstance().find("My_Object_Name");
+   MyObject myObject = Finder.find("My_Object_Name");
    myObject.myMethod("foobar");
 
 The way this is handled is as follows: 

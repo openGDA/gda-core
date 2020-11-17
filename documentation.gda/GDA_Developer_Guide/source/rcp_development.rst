@@ -85,7 +85,7 @@ In the client, use the Finder as it would be exported using CORBA:
 
 .. code-block:: java
 
-   controller = Finder.getInstance().find("MyScriptController")
+   controller = Finder.find("MyScriptController")
    controller.update("MyScript","<message you want to send>")
 
 See the exampleScriptControllerScript.py and the configuration file scriptController.xml for a running example in the example-config.
