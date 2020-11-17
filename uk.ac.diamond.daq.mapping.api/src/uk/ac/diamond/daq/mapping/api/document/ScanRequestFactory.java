@@ -165,7 +165,7 @@ public class ScanRequestFactory {
 
 		// --- Positions List ---
 		final List<IPosition> interpolationPositions = new ArrayList<>();
-		multiScanModel.setInterpolationPositions(interpolationPositions);
+		multiScanModel.setInterpolatedPositions(interpolationPositions);
 
 
 
