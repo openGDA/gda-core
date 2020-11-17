@@ -156,7 +156,7 @@ public class LivePlottingComposite extends Composite {
 
 			// Disable auto rescale as the live stream is constantly refreshing
 			plottingSystem.setRescale(false);
-			if (this.liveStreamConnection != null && this.liveStreamConnection.isConnected()) {
+			if (liveStreamConnection != null) {
 				activatePlottingSystem();
 			}
 
