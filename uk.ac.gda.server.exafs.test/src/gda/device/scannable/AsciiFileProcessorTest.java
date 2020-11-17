@@ -80,7 +80,7 @@ public class AsciiFileProcessorTest {
 
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(dataWriterConfig);
-		Finder.getInstance().addFactory(factory);
+		Finder.addFactory(factory);
 
 		processor = new AsciiFileProcessor();
 		processor.setName("processor");
