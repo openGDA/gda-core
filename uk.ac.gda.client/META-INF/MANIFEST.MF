@@ -121,6 +121,7 @@ Export-Package: com.swtdesigner,
  uk.ac.gda.views.baton.action,
  uk.ac.gda.views.baton.dialogs
 Import-Package: com.google.gson.annotations;version="2.2.4",
+ javax.annotation;version="1.2.0",
  org.apache.commons.io;version="2.4.0",
  org.dawb.common.ui.plot,
  org.eclipse.dawnsci.plotting.api,

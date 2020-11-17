@@ -33,4 +33,5 @@ Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.ecli
  uk.ac.diamond.daq.mapping.api.document.service.message
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.api
 Import-Package: 
+ javax.annotation;version="1.2.0",
  org.slf4j
