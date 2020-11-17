@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 
@@ -76,8 +77,12 @@ public class DatasetStats extends DataSetProcessorBase {
 		if (!enable)
 			return null;
 		NXDetectorData res = new NXDetectorData(extraNames.stream().toArray(String[]::new), outputFormats.stream().toArray(String[]::new), dataName);
+		// Cast to larger type otherwise stats can overflow due to InterfaceUtils#toBiggestNumber in AbstractDataset#sum
+		Class<? extends Dataset> safeType = DTypeUtils.getLargestDataset(dataset.getClass());
+		Dataset promotedDataset = dataset.cast(safeType);
+
 		for (Statistic stat : enabledStats) {
-			Number statistic = stat.applyFunction(dataset);
+			Number statistic = stat.applyFunction(promotedDataset);
 			String statName = statsNames.get(stat);
 			// Convert to dataset here because there is no NexusGroupData constructor for general Number type
 			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));

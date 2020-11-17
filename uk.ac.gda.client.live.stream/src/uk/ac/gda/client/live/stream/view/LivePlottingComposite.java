@@ -156,7 +156,7 @@ public class LivePlottingComposite extends Composite {
 
 			// Disable auto rescale as the live stream is constantly refreshing
 			plottingSystem.setRescale(false);
-			if (this.liveStreamConnection != null && this.liveStreamConnection.isConnected()) {
+			if (liveStreamConnection != null) {
 				activatePlottingSystem();
 			}
 
@@ -285,8 +285,10 @@ public class LivePlottingComposite extends Composite {
 			if (dataset != null) {
 				dataset.removeDataListener(dataShapeChangeListener);
 				dataShapeChangeListener = null;
-				dataset.removeDataListener(titleUpdateListener);
-				titleUpdateListener = null;
+				if (titleUpdateListener != null) {
+					dataset.removeDataListener(titleUpdateListener);
+					titleUpdateListener = null;
+				}
 				dataset = null;
 			}
 			liveStreamConnection.removeAxisMoveListener(axisChangeListener);
