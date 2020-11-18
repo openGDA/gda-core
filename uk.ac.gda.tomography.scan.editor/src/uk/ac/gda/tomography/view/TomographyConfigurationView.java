@@ -18,6 +18,8 @@
 
 package uk.ac.gda.tomography.view;
 
+import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import gda.device.IScannableMotor;
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
@@ -55,9 +56,9 @@ import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.browser.TomoBrowser;
 import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationCompositeFactory;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * This Composite allows to edit a {@link ScanningParameters} object.
@@ -92,12 +93,12 @@ public class TomographyConfigurationView extends ViewPart {
 	}
 
 	private ScanningAcquisitionController getPerspectiveController() {
-		return (ScanningAcquisitionController) SpringApplicationContextProxy.getBean("scanningAcquisitionController",
+		return (ScanningAcquisitionController) SpringApplicationContextFacade.getBean("scanningAcquisitionController",
 				AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
 	}
 
 	private StageController getStageController() {
-		return SpringApplicationContextProxy.getBean(StageController.class);
+		return SpringApplicationContextFacade.getBean(StageController.class);
 	}
 
 	private CompositeFactory getTopArea() {
@@ -155,12 +156,12 @@ public class TomographyConfigurationView extends ViewPart {
 			}
 
 			private URL getOutputPath() {
-				return SpringApplicationContextProxy.getOptionalBean(ExperimentController.class).map(this::prepareAcquisition).orElseGet(null);
+				return prepareAcquisition();
 			}
 
-			private URL prepareAcquisition(ExperimentController exCont) {
+			private URL prepareAcquisition() {
 				try {
-					return exCont.prepareAcquisition(controller.getAcquisition().getName());
+					return getExperimentController().prepareAcquisition(controller.getAcquisition().getName());
 				} catch (ExperimentControllerException e) {
 					UIHelper.showError("Run Acquisition", e, logger);
 					return null;
