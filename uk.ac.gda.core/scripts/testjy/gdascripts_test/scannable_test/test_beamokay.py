@@ -3,8 +3,6 @@ from gdascripts.scannable.beamokay import WaitWhileScannableBelowThreshold,\
 from gda.device import Scannable, DeviceException
 from mock import Mock
 import unittest
-from nose.tools import eq_
-
 
 
 class TestWaitWhileScannableBelowThreshold(unittest.TestCase):
@@ -17,10 +15,10 @@ class TestWaitWhileScannableBelowThreshold(unittest.TestCase):
         self.ws = WaitWhileScannableBelowThreshold('ws', self.scn_to_monitor, 1, .1, 1)
         
     def test__init__(self):
-        eq_(self.ws.name, 'ws')
-        eq_(list(self.ws.inputNames), [])
-        eq_(list(self.ws.extraNames), ['beamok'])
-        eq_(list(self.ws.outputFormat), ['%.0f'])
+        self.assertEqual(self.ws.name, 'ws')
+        self.assertEqual(list(self.ws.inputNames), [])
+        self.assertEqual(list(self.ws.extraNames), ['beamok'])
+        self.assertEqual(list(self.ws.outputFormat), ['%.0f'])
         
     def test_isBusy(self):
         self.ws.isBusy()
@@ -29,11 +27,11 @@ class TestWaitWhileScannableBelowThreshold(unittest.TestCase):
     def test_getStatus(self):
         self.ws.minimumThreshold = 2
         self.scn_to_monitor.getPosition.return_value = 3
-        eq_(self.ws._getStatus(), True)
+        self.assertEqual(self.ws._getStatus(), True)
         self.scn_to_monitor.getPosition.return_value = 1
-        eq_(self.ws._getStatus(), False)
+        self.assertEqual(self.ws._getStatus(), False)
         self.scn_to_monitor.getPosition.return_value = 2
-        eq_(self.ws._getStatus(), True)
+        self.assertEqual(self.ws._getStatus(), True)
     
     def testHandleStatusChangeGoodGood(self):
         self.ws.handleStatusChange(True)
@@ -61,16 +59,16 @@ class TestWaitForScannableState(unittest.TestCase):
         self.ws = WaitForScannableState('ws', self.scn_to_monitor, .1, None, ['Open'], ['Fault'])
         
     def test__init__(self):
-        eq_(self.ws.name, 'ws')
-        eq_(list(self.ws.inputNames), [])
-        eq_(list(self.ws.extraNames), [])
-        eq_(list(self.ws.outputFormat), [])
+        self.assertEqual(self.ws.name, 'ws')
+        self.assertEqual(list(self.ws.inputNames), [])
+        self.assertEqual(list(self.ws.extraNames), [])
+        self.assertEqual(list(self.ws.outputFormat), [])
         
     def test_getStatus(self):
         self.scn_to_monitor.getPosition.return_value = 'Open'
-        eq_(self.ws._getStatus(), True)
+        self.assertEqual(self.ws._getStatus(), True)
         self.scn_to_monitor.getPosition.return_value = 'Other'
-        eq_(self.ws._getStatus(), False)
+        self.assertEqual(self.ws._getStatus(), False)
         
     def test_getFaultStatus(self):
         self.scn_to_monitor.getPosition.return_value = 'Fault'
@@ -78,7 +76,7 @@ class TestWaitForScannableState(unittest.TestCase):
             self.ws._getStatus()
             self.fail("DeviceException expected")
         except DeviceException, e:
-            eq_(e.message, "ws found shutter to be in state: Fault")
+            self.assertEqual(e.message, "ws found shutter to be in state: Fault")
     
     def testHandleStatusChangeGoodGood(self):
         self.ws.handleStatusChange(True)
