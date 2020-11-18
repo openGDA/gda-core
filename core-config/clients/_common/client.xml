@@ -14,6 +14,7 @@
                               	expression="uk.ac.gda.core.tool.spring.SpringWebInitializer"/>
 	</context:component-scan>
 	<context:component-scan base-package="uk.ac.gda.ui.tool.spring"></context:component-scan>
+	<context:component-scan base-package="uk.ac.gda.ui.tool.rest"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.client.gui.camera"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.experiment.structure"></context:component-scan>
 	<context:component-scan base-package="uk.ac.diamond.daq.mapping.api.document"></context:component-scan>
