@@ -79,7 +79,8 @@ Require-Bundle: org.eclipse.help.ui,
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2",
  org.apache.httpcomponents.httpcore,
  org.apache.httpcomponents.httpclient,
- uk.ac.diamond.daq.experiment.api
+ uk.ac.diamond.daq.experiment.api,
+ uk.ac.diamond.daq.mapping.api
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,

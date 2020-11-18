@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Primary;
 
 import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
+import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 @Configuration
@@ -47,6 +48,14 @@ public class ScanningAcquisitionControllerConfiguration {
 	public IScanningAcquisitionService scanningAcquisitionService() {
 		return Mockito.mock(IScanningAcquisitionService.class);
 	}
+
+	@Bean(name = "scanningAcquisitionRestServiceClient")
+	public ScanningAcquisitionRestServiceClient getScanningAcquisitionRestServiceClient() {
+		return Mockito.mock(ScanningAcquisitionRestServiceClient.class);
+	}
+
+
+
 
 	@Bean
 	public StageController stageController() {

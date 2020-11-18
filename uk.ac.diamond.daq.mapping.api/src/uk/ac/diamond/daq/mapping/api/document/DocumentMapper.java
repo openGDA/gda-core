@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.api.document;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -60,32 +61,36 @@ import uk.ac.gda.api.exception.GDAException;
 @Component("documentMapper")
 public class DocumentMapper {
 
-	private Class<?>[] subtypes = {
+	private static Class<?>[] subtypes = {
 			ScanningAcquisition.class,
 			SavuProcessingRequest.class,
 			DiffractionCalibrationMergeRequest.class
 			};
 
-	private static final ObjectMapper objectMapper = new ObjectMapper();
+	private static ObjectMapper objectMapper;
 
 	private DocumentMapper() {
-	}
-
-	@PostConstruct
-	private void registerSubtypes() {
-		objectMapper.registerSubtypes(subtypes);
 	}
 
 	/**
 	 * @return a mapper for mapping.api.document classes
 	 */
+	public ObjectMapper getJacksonObjectMapper() {
+		return getStaticObjectMapper();
+	}
+
+	/**
+	 * @return a mapper for mapping.api.document classes
+	 * @deprecated use when possible {@link #getJacksonObjectMapper()}
+	 */
+	@Deprecated
 	public static ObjectMapper getObjectMapper() {
-		return objectMapper;
+		return getStaticObjectMapper();
 	}
 
 	public static final String toJSON(Object value) throws GDAException {
 		try {
-			return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+			return getStaticObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
 		} catch (JsonProcessingException e) {
 			throw new GDAException("Cannot create json document", e);
 		}
@@ -93,7 +98,7 @@ public class DocumentMapper {
 
 	public static final <T> T fromJSON(String content, Class<T> clazz) throws GDAException {
 		try {
-			return objectMapper.readValue(content, clazz);
+			return getStaticObjectMapper().readValue(content, clazz);
 		} catch (JsonProcessingException e) {
 			throw new GDAException("Cannot create json document", e);
 		} catch (IOException e) {
@@ -103,11 +108,23 @@ public class DocumentMapper {
 
 	public static final <T> T fromJSON(URL content, Class<T> clazz) throws GDAException {
 		try {
-			return objectMapper.readValue(content, clazz);
+			return getStaticObjectMapper().readValue(content, clazz);
 		} catch (JsonProcessingException e) {
 			throw new GDAException("Cannot create json document", e);
 		} catch (IOException e) {
 			throw new GDAException("Cannot read json document", e);
 		}
+	}
+
+	private static ObjectMapper getStaticObjectMapper() {
+		return Optional.ofNullable(objectMapper)
+				.orElseGet(DocumentMapper::createObjectMapper);
+	}
+
+	@PostConstruct
+	private static ObjectMapper createObjectMapper() {
+		objectMapper = new ObjectMapper();
+		objectMapper.registerSubtypes(subtypes);
+		return objectMapper;
 	}
 }

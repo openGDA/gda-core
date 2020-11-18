@@ -16,63 +16,40 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.services;
+package uk.ac.diamond.daq.service;
+
+import static org.eclipse.scanning.server.servlet.Services.getEventService;
+import static org.eclipse.scanning.server.servlet.Services.getRunnableDeviceService;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
 
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
-import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
-import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
-import uk.ac.gda.api.exception.GDAException;
 
 /**
  * @author Maurizio Nagni
  */
 @Component("scanningAcquisitionService")
-public class ScanningAcquisitionService implements IScanningAcquisitionService {
+public class ScanningAcquisitionService {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionService.class);
 
-	@Autowired
-	private DocumentMapper documentMapper;
-
-	@Override
-	public void onApplicationEvent(ScanningAcquisitionRunEvent event) {
-		try {
-			runAcquisition(event.getScanningMessage());
-		} catch (ScanningAcquisitionServiceException e) {
-			logger.error(String.format("Cannot run ScanningAcquisitionRunEvent %s", event), e);
-		}
-	}
-
-	private AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> deserializeAcquisition(
-			ScanningAcquisitionMessage message) throws ScanningAcquisitionServiceException {
-		try {
-			return documentMapper.fromJSON((String) message.getAcquisition(), AcquisitionBase.class);
-		} catch (GDAException e) {
-			throw new ScanningAcquisitionServiceException("Json error", e);
-		}
-	}
+	private ISubmitter<ScanBean> scanBeanSubmitter;
 
 	/**
 	 * Submits the acquisition request to an {@link IScanBeanSubmitter}
@@ -83,12 +60,8 @@ public class ScanningAcquisitionService implements IScanningAcquisitionService {
 	 *             if not {@link IRunnableDeviceService} is available or if {@link ISubmitter#submit(Object)} raises an
 	 *             {@link EventException}
 	 */
-	@Override
-	public void runAcquisition(ScanningAcquisitionMessage message) throws ScanningAcquisitionServiceException {
-		final IScanBeanSubmitter submitter = PlatformUI.getWorkbench().getService(IScanBeanSubmitter.class);
+	public void run(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) throws ScanningAcquisitionServiceException {
 		try {
-			AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition = deserializeAcquisition(
-					message);
 			// default path name
 			String pathName = "ScanningAcquisition";
 			final ScanBean scanBean = new ScanBean();
@@ -98,25 +71,17 @@ public class ScanningAcquisitionService implements IScanningAcquisitionService {
 
 			ScanRequestFactory tsr = new ScanRequestFactory(acquisition);
 			scanBean.setScanRequest(tsr.createScanRequest(getRunnableDeviceService()));
-			submitter.submitScan(scanBean);
+			getScanBeanSubmitter().submit(scanBean);
 		} catch (Exception e) {
 			throw new ScanningAcquisitionServiceException("Cannot submit acquisition", e);
 		}
 	}
-
-	private IRunnableDeviceService getRunnableDeviceService() throws ScanningException {
-		return getRemoteService(IRunnableDeviceService.class);
-	}
-
-	private <T> T getRemoteService(Class<T> klass) throws ScanningException {
-		IEclipseContext injectionContext = PlatformUI.getWorkbench().getService(IEclipseContext.class);
-		IEventService eventService = injectionContext.get(IEventService.class);
-		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			return eventService.createRemoteService(jmsURI, klass);
-		} catch (Exception e) {
-			logger.error("Error getting remote service {}", klass, e);
-			throw new ScanningException(e);
+	
+	private ISubmitter<ScanBean> getScanBeanSubmitter() throws URISyntaxException {
+		if (Objects.isNull(scanBeanSubmitter)) {
+			URI queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			scanBeanSubmitter = getEventService().createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);			
 		}
+		return scanBeanSubmitter;
 	}
 }

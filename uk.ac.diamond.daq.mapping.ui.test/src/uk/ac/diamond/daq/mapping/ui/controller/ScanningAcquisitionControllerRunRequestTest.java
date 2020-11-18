@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addApplicationListener;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
 import java.io.File;
@@ -36,7 +35,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,25 +45,25 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
+import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
-import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionService;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
  * Tests how the {@link Acquisition} published by the {@link ScanningAcquisitionController}
- * is received by the {@link ScanningAcquisitionService}
+ * is received by the Acquisition Service
  *
  * @see #testRunScanningAcquisition()
  *
@@ -74,9 +74,12 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScanningAcquisitionControllerRunRequestTest {
 
-	private static final String motor_x = "motor_x";
+	private static final String MOTOR_X = "motor_x";
 
 	private ScanningAcquisitionController controller;
+
+	@Autowired
+	private ScanningAcquisitionRestServiceClient scanningAcquisitionServer;
 
 	@Autowired
 	private FinderService finderService;
@@ -91,7 +94,6 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	public void before() {
 		controller = ScanningAcquisitionController.class
 				.cast(getBean("scanningAcquisitionController",AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY));
-		addApplicationListener(scanningAcquisitionRunEventListener);
 	}
 
 	private Supplier<ScanningAcquisition> getScanningAcquisitionSupplier() {
@@ -124,17 +126,18 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	private DevicePositionDocument createDevicePositionDocument() {
 		DevicePositionDocument.Builder builder = new DevicePositionDocument.Builder();
 		builder.withValueType(ValueType.NUMERIC);
-		builder.withDevice(motor_x);
+		builder.withDevice(MOTOR_X);
 		builder.withPosition(2.3);
 		return builder.build();
 	}
 
 	/**
-	 * Run an acquisition which includes start positions
+	 * Submit an acquisition to the service which includes start positions
 	 * @throws AcquisitionControllerException
+	 * @throws ScanningAcquisitionServiceException
 	 */
 	@Test
-	public void testRunScanningAcquisition() throws AcquisitionControllerException {
+	public void testRunScanningAcquisition() throws AcquisitionControllerException, ScanningAcquisitionServiceException {
 		CameraControl cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
 		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
@@ -143,6 +146,14 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		doReturn(createDevicePositionDocuments()).when(stageController)
 			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());
 
+		String responseText = "Done";
+		RunAcquisitionResponse mockResponse = new RunAcquisitionResponse.Builder()
+				.withMessage(responseText)
+				.withSubmitted(true)
+				.build();
+		ResponseEntity<RunAcquisitionResponse> mockResponseEntity = new ResponseEntity<>(mockResponse, HttpStatus.OK);
+
+
 		File properties = new File("test/resources/acquisitionsAndCameras.properties");
 		readProperties(properties);
 
@@ -150,7 +161,11 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
 		controller.createNewAcquisition();
 
-		controller.runAcquisition();
+		doReturn(mockResponseEntity).when(scanningAcquisitionServer).run(controller.getAcquisition());
+
+		RunAcquisitionResponse response = controller.runAcquisition();
+		Assert.assertEquals(responseText, response.getMessage());
+		Assert.assertTrue(response.isSubmitted());
 	}
 
 	/**
@@ -177,22 +192,4 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 		controller.runAcquisition();
 	}
-
-	// At the moment is not possible to use anonymous lambda expression because it
-	// generates a class cast exception
-	private ApplicationListener<ScanningAcquisitionRunEvent> scanningAcquisitionRunEventListener = new ApplicationListener<ScanningAcquisitionRunEvent>() {
-		@Override
-		public void onApplicationEvent(ScanningAcquisitionRunEvent event) {
-			try {
-				ScanningAcquisition acquisition = DocumentMapper.fromJSON((String)event.getScanningMessage().getAcquisition(), ScanningAcquisition.class);
-				Assert.assertFalse(acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getPosition().isEmpty());
-				long positions = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getPosition().stream()
-					.filter(p -> p.getDevice().equals(motor_x))
-					.count();
-				Assert.assertEquals(2 ,  positions);
-			} catch (GDAException e) {
-				Assert.fail(e.getMessage());
-			}
-		}
-	};
 }

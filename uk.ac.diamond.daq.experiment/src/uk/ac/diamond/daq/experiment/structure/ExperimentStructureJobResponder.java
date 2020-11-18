@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 
 /**
@@ -22,12 +23,16 @@ public class ExperimentStructureJobResponder extends AbstractResponderServlet<No
 	public ExperimentStructureJobResponder(
 			@Value("${experiment.structure.job.request.topic:uk.ac.diamond.daq.experiment.structure.job.request.topic}") String requestTopic,
 			@Value("${experiment.structure.job.response.topic:uk.ac.diamond.daq.experiment.structure.job.response.topic}") String responseTopic) {
-		super(requestTopic, responseTopic);
+		super(requestTopic, responseTopic, getInternalBroker());
 	}
 
 	@Override
 	public IRequestHandler<NodeFileCreationRequest> createResponder(NodeFileCreationRequest request,
 			IPublisher<NodeFileCreationRequest> publisher) throws EventException {
 		return new NodeFileCreator(request, publisher);
+	}
+	
+	private static String getInternalBroker() {
+		return LocalProperties.get("gda.activemq.broker.uri", "");
 	}
 }
