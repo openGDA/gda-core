@@ -23,6 +23,7 @@ import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
@@ -46,6 +47,16 @@ public class ServiceHolder {
 
 	public void setRunnableDeviceService(IRunnableDeviceService runnableDeviceService) {
 		ServiceHolder.runnableDeviceService = runnableDeviceService;
+	}
+
+	private static IScannableDeviceService scannableDeviceService;
+
+	public static IScannableDeviceService getScannableDeviceService() {
+		return scannableDeviceService;
+	}
+
+	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
+		ServiceHolder.scannableDeviceService = scannableDeviceService;
 	}
 
     private static IFilePathService filePathService;
