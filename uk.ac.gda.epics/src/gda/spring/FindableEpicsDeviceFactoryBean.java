@@ -24,6 +24,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 import gda.device.epicsdevice.EpicsDevice;
 import gda.device.epicsdevice.FindableEpicsDevice;
@@ -68,7 +69,7 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Objects.requireNonNull(recordPvs, "recordPVs have not been set for EPICS device \" + StringUtils.quote(name)");
+		Objects.requireNonNull(recordPvs, "recordPVs have not been set for EPICS device " + StringUtils.quote(name));
 
 		String safeName = name.replace(".", "_");
 
