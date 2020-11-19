@@ -18,27 +18,19 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
-import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.scan.ScanningException;
-
-import gda.data.ServiceHolder;
 
 /**
  * TODO javadoc
  *
  * TODO is this the right package for this class?
  */
-public class InsertionDeviceNexusDevice implements INexusDevice<NXinsertion_device> {
-
-	// TODO should this be a scannable or just an INexusDevice
+public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXinsertion_device> {
 
 	public enum InsertionDeviceType {
 		UNDULATOR, WIGGLER;
@@ -53,8 +45,6 @@ public class InsertionDeviceNexusDevice implements INexusDevice<NXinsertion_devi
 		}
 	}
 
-	private String name;
-
 	private InsertionDeviceType type;
 
 	private String gapScannableName;
@@ -64,21 +54,12 @@ public class InsertionDeviceNexusDevice implements INexusDevice<NXinsertion_devi
 	private String harmonicScannableName;
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public NexusObjectProvider<NXinsertion_device> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final NXinsertion_device insertionDevice = NexusNodeFactory.createNXinsertion_device();
 		insertionDevice.setTypeScalar(getType().toString());
-		writeScannableValue(insertionDevice, gapScannableName, NXinsertion_device.NX_GAP);
-		writeScannableValue(insertionDevice, taperScannableName, NXinsertion_device.NX_TAPER);
-		writeScannableValue(insertionDevice, harmonicScannableName, NXinsertion_device.NX_HARMONIC);
+		writeScannableValue(insertionDevice, NXinsertion_device.NX_GAP, gapScannableName);
+		writeScannableValue(insertionDevice, NXinsertion_device.NX_TAPER, taperScannableName);
+		writeScannableValue(insertionDevice, NXinsertion_device.NX_HARMONIC, harmonicScannableName);
 
 		return new NexusObjectWrapper<>(getName(), insertionDevice);
 	}
@@ -101,24 +82,6 @@ public class InsertionDeviceNexusDevice implements INexusDevice<NXinsertion_devi
 
 	public void setHarmonicScannableName(String harmonicScannableName) {
 		this.harmonicScannableName = harmonicScannableName;
-	}
-
-	public void writeScannableValue(NXobject object, String scannableName, String fieldName) throws NexusException {
-		// TODO move to abstract superclass?
-
-		if (scannableName == null) {
-			// TODO all fields required at present, this may change
-			throw new NexusException(String.format("No scannable set for field %s of %s", fieldName, object.getClass().getSimpleName()));
-		}
-
-		try {
-			final IScannable<?> scannable = ServiceHolder.getScannableDeviceService().getScannable(scannableName);
-			final Object scannableValue = scannable.getPosition();
-			object.setField(fieldName, scannableValue);
-			// TODO write units?
-		} catch (ScanningException e) {
-			throw new NexusException("Could not find scannable with name: " + scannableName);
-		}
 	}
 
 }
