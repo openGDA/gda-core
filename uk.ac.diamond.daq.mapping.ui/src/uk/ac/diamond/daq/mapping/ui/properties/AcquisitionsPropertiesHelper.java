@@ -134,6 +134,8 @@ public final class AcquisitionsPropertiesHelper {
 				.filter(s -> !s.isEmpty()).forEach(outOfBeamScannables::add);
 		builder.withOutOfBeamScannables(outOfBeamScannables);
 
+		builder.withPrimaryDataset(getProperty(ACQUISITION_PROPERTIES_PREFIX, index, "dataset", null));
+
 		AcquisitionPropertiesDocument cp = builder.build();
 		acquisitionProperties.add(cp);
 	}

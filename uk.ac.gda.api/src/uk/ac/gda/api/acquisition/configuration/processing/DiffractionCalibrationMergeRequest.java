@@ -27,15 +27,22 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-@JsonTypeName("savuProcessingRequest")
-@JsonDeserialize(builder = SavuProcessingRequest.Builder.class)
-public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
+/**
+ * Diffraction Calibration file merge
+ *
+ *  @author Maurizio Nagni
+ */
+@JsonTypeName("diffractionCalibrationMerge")
+@JsonDeserialize(builder = DiffractionCalibrationMergeRequest.Builder.class)
+public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair<URL>{
 
-	private static final String KEY = "savu";
-	private final List<URL> processingFiles;
+	private static final String KEY = "diffractionCalibrationMerge";
+	private final List<URL> calibrationFiles;
+	private final String deviceName;
 
-	private SavuProcessingRequest(List<URL> processingFiles) {
-		this.processingFiles = processingFiles;
+	private DiffractionCalibrationMergeRequest(List<URL> processingFiles, String deviceName) {
+		this.calibrationFiles = processingFiles;
+		this.deviceName = deviceName;
 	}
 
 	/**
@@ -47,23 +54,39 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 		return KEY;
 	}
 
+	public String getDeviceName() {
+		return deviceName;
+	}
+
 	/**
-	 * The savu processing files
-	 * @return the processing files
+	 * The diffraction calibration file
 	 */
 	@Override
 	public List<URL> getValue() {
-		return Collections.unmodifiableList(processingFiles);
+		return Collections.unmodifiableList(calibrationFiles);
 	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
-		private final List<URL> processingFiles = new ArrayList<>();
+		private final List<URL> calibrationFiles = new ArrayList<>();
+		private String deviceName;
 
+	    /**
+	     * A list containing a single calibration file url
+	     */
 	    public Builder withValue(List<URL> processingFiles) {
-	    	this.processingFiles.clear();
-	        this.processingFiles.addAll(processingFiles);
+	    	this.calibrationFiles.clear();
+	        this.calibrationFiles.addAll(processingFiles);
 	        return this;
+	    }
+
+	    /**
+	     * The name of the device (and NeXus node)
+	     * the calibration data will be merged to
+	     */
+	    public Builder withDeviceName(String deviceName) {
+	    	this.deviceName = deviceName;
+	    	return this;
 	    }
 
 	    /**
@@ -76,10 +99,11 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	    	 * FIXME At some point the key should be read if we are to justify writing it.
 	    	 */
 	    	return this;
+
 	    }
 
-	    public SavuProcessingRequest build() {
-	        return new SavuProcessingRequest(processingFiles);
+	    public DiffractionCalibrationMergeRequest build() {
+	        return new DiffractionCalibrationMergeRequest(calibrationFiles, deviceName);
 	    }
 	}
 

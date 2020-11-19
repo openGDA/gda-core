@@ -38,6 +38,7 @@ import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
+import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
@@ -45,6 +46,7 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -55,6 +57,7 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
 
 /**
@@ -278,6 +281,7 @@ public class ScanningAcquisitionController
 		imageCalibrationHelper.updateFlatDetectorPositionDocument(flatPosition);
 	}
 
+	@SuppressWarnings("unused")
 	private void validateDarkCalibrationParameters(ImageCalibration ic) throws AcquisitionConfigurationException {
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
@@ -286,7 +290,7 @@ public class ScanningAcquisitionController
 		}
 	}
 
-	private void updateProcessingRequest() {
+	private void updateProcessingRequest() throws AcquisitionControllerException {
 		if (acquisitionType.equals(AcquisitionPropertyType.TOMOGRAPHY)) {
 			URL processingFile = fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
 			if (processingFile == null)
@@ -300,6 +304,27 @@ public class ScanningAcquisitionController
 			requests.add(request);
 			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
 		}
+		if (acquisitionType.equals(AcquisitionPropertyType.DIFFRACTION)) {
+			URL processingFile = fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
+			if (processingFile == null)
+				return;
+			List<URL> urls = new ArrayList<>();
+			urls.add(processingFile);
+			DiffractionCalibrationMergeRequest request = new DiffractionCalibrationMergeRequest.Builder()
+					.withValue(urls)
+					.withDeviceName(Optional.ofNullable(getDatasetName())
+											.orElseThrow(() -> new AcquisitionConfigurationException("Dataset name property not configured for diffraction scans")))
+					.build();
+			List<ProcessingRequestPair<?>> requests = new ArrayList<>();
+			requests.add(request);
+			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
+		}
+	}
+
+	private String getDatasetName() {
+		return AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(acquisitionType)
+				// should only have one document per acquisition type:
+				.iterator().next().getPrimaryDataset();
 	}
 
 	private void updateStartPosition() {

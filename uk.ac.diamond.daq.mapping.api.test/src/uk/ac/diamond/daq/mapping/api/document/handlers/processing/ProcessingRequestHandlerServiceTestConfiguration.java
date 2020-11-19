@@ -20,15 +20,16 @@ package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 
-/**
- * Configure the spring environment for ScannablePositionHelperTest
- *
- * @author Maurizio Nagni
- */
+import uk.ac.gda.core.tool.spring.SpringWebInitializer;
+
 @Configuration
 @ComponentScan(basePackages = { "uk.ac.gda.core.tool.spring",
-		"uk.ac.diamond.daq.mapping.api.document" })
+		"uk.ac.diamond.daq.mapping.api.document",
+		"uk.ac.diamond.daq.mapping.api.document.handlers.processing"},
+excludeFilters = {
+				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = SpringWebInitializer.class)})
 public class ProcessingRequestHandlerServiceTestConfiguration {
 
 }

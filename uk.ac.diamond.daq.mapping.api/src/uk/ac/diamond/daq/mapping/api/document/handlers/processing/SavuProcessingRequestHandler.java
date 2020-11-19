@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.script.ScriptRequest;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
@@ -51,4 +52,10 @@ class SavuProcessingRequestHandler extends ProcessingRequestHandler {
 			.map(URL::toString)
 			.collect(Collectors.toList());
 	}
+
+	@Override
+	ScriptRequest createScriptRequest(ProcessingRequestPair<?> processingRequest) throws GDAException {
+		return null;
+	}
+
 }

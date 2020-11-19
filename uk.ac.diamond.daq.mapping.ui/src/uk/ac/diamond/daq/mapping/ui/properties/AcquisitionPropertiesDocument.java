@@ -44,14 +44,22 @@ public class AcquisitionPropertiesDocument {
 	 */
 	private final Set<String> outOfBeamScannables;
 
+	/**
+	 * The name of the primary dataset; typically the name of the detector.
+	 * Used to identify a NeXus appender corresponding to this acquisition
+	 * e.g. a calibration merger
+	 */
+	private final String primaryDataset;
+
 	AcquisitionPropertiesDocument(int index, AcquisitionPropertyType type, AcquisitionEngineDocument engine,
-			Set<String> cameras, Set<String> outOfBeamScannables) {
+			Set<String> cameras, Set<String> outOfBeamScannables, String primaryDataset) {
 		super();
 		this.index = index;
 		this.type = type;
 		this.engine = engine;
 		this.cameras = cameras;
 		this.outOfBeamScannables = outOfBeamScannables;
+		this.primaryDataset = primaryDataset;
 	}
 
 	/**
@@ -94,6 +102,10 @@ public class AcquisitionPropertiesDocument {
 		return outOfBeamScannables;
 	}
 
+	public String getPrimaryDataset() {
+		return primaryDataset;
+	}
+
 	@JsonPOJOBuilder
 	public static class Builder {
 		private int index;
@@ -101,6 +113,7 @@ public class AcquisitionPropertiesDocument {
 		private AcquisitionEngineDocument engine;
 		private Set<String> cameras;
 		private Set<String> outOfBeamScannables;
+		private String primaryDataset;
 
 		public Builder() {
 		}
@@ -138,8 +151,13 @@ public class AcquisitionPropertiesDocument {
 			return this;
 		}
 
+		public Builder withPrimaryDataset(String primaryDataset) {
+			this.primaryDataset = primaryDataset;
+			return this;
+		}
+
 		public AcquisitionPropertiesDocument build() {
-			return new AcquisitionPropertiesDocument(index, type, engine, cameras, outOfBeamScannables);
+			return new AcquisitionPropertiesDocument(index, type, engine, cameras, outOfBeamScannables, primaryDataset);
 		}
 	}
 }
