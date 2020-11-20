@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
@@ -35,7 +53,7 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Composes instantiates the Composites for the Camera Configuration
- * 
+ *
  * @author Maurizio Nagni
  *
  */
@@ -47,13 +65,13 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	// The overall container for this components
 	private Composite container;
-	
+
 	private Composite menuBar;
 	private Composite viewStream;
 	private Composite viewStats;
 	private Composite viewHisto;
 	private Composite tabsContainer;
-	
+
 	private StreamController streamController;
 
 	@Override
@@ -133,7 +151,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	private void createHistogramComposite(Composite parent) throws Exception {
 		new HistogramComposite(cameraImageComposite.getPlottingSystem()).createComposite(parent, SWT.NONE);
-		
+
 	}
 
 	private CompositeFactory createTabFactory() throws GDAClientException {
@@ -169,7 +187,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.POSITIONING));
 		return group;
 	}
-	
+
 	private final TabCompositeFactory createAbsorptionCompositeFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		group.setCompositeFactory(new AbsorptionComposite(cameraImageComposite));
@@ -180,7 +198,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 
 	/**
 	 * Adds the Beam-Camera Mapping tab.
-	 * 
+	 *
 	 * @return
 	 */
 	private final TabCompositeFactory createCalibrationFactory() {

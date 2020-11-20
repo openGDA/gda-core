@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import java.util.UUID;
@@ -13,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  Creates an {@link Action} into the {@link IPlottingSystem} context menu to draw ROI. 
+ *  Creates an {@link Action} into the {@link IPlottingSystem} context menu to draw ROI.
  */
 public class DrawableRegion {
 	private static final Logger log = LoggerFactory.getLogger(DrawableRegion.class);
@@ -33,7 +51,7 @@ public class DrawableRegion {
 
 	/**
 	 * @param plottingSystem the plotting system where append the new action
-	 * @param color the 
+	 * @param color the
 	 * @param name
 	 * @param roiListener
 	 * @param regionID
@@ -49,7 +67,7 @@ public class DrawableRegion {
 
 		regionAction = new RegionAction(name, regionID);
 	}
-	
+
 	public UUID getRegionID() {
 		return regionID;
 	}
@@ -82,7 +100,7 @@ public class DrawableRegion {
 
 	private class RegionAction extends Action {
 		private RegionActionMode mode;
-		private final String name;		
+		private final String name;
 
 		private RegionAction(String name, UUID actionID) {
 			this.setId(actionID.toString());
@@ -121,7 +139,7 @@ public class DrawableRegion {
 				remove(true);
 			}
 		}
-		
+
 		private void create(boolean newRegion) {
 			try {
 				remove(newRegion);

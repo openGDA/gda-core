@@ -1,5 +1,26 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.binning;
 
+import static uk.ac.gda.ui.tool.ClientMessages.BINNING;
+import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER;
+import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
@@ -37,7 +58,6 @@ import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientBindingElements;
-import static uk.ac.gda.ui.tool.ClientMessages.*;
 import uk.ac.gda.ui.tool.ClientResourceManager;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
@@ -54,18 +74,18 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * This widget dynamically change the {@code cameraControl} it is attached
  * listening to {@link ChangeActiveCameraEvent} events.
  * </p>
- * 
+ *
  * <p>
  * At the start the component points at the camera defined by
  * {@link CameraHelper#getDefaultCameraProperties()}
  * </p>
- * 
+ *
  * <p>
  * <b>NOTE:</b> To works correctly this widget requires that the
- * {@code useAcquireTimeMonitor} property in the {@link EpicsCameraControl} bean
+ * {@code useAcquireTimeMonitor} property in the EpicsCameraControl bean
  * is set to {@code true} (usually in the configuration file).
  * </p>
- * 
+ *
  * @author Maurizio Nagni
  */
 public class BinningCompositeFactory implements CompositeFactory {

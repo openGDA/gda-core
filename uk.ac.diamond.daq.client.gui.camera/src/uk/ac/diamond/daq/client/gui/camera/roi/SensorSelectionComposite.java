@@ -1,6 +1,25 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.roi;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.*;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +70,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 /**
  * A Composite which draws a region on an {@link IPlottingSystem} to define the
  * camera ROI
- * 
+ *
  * @author Maurizio Nagni
  */
 public class SensorSelectionComposite implements CompositeFactory {
@@ -101,7 +120,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 
 	/**
 	 * Creates the Camera frame sizes row
-	 * 
+	 *
 	 * @param table
 	 */
 	private void createCameraRow(Table table) {
@@ -117,7 +136,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 
 	/**
 	 * Creates the Camera ROI sizes row
-	 * 
+	 *
 	 * @param table
 	 */
 	private void createROIRow(Table table) {

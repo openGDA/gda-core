@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.absorption;
 
 import java.util.function.Supplier;
@@ -40,7 +58,7 @@ class AbsorptionAction extends Action implements IRegionListener {
 		/**
 		 * The region can be drawn
 		 */
-		READY 
+		READY
 	}
 
 	/**
@@ -56,15 +74,15 @@ class AbsorptionAction extends Action implements IRegionListener {
 	/**
 	 * A listener builder parametrized on the newly created region
 	 */
-	private final ActionRegionROIListenerBuilder roiListenerBuilder;	
+	private final ActionRegionROIListenerBuilder roiListenerBuilder;
 	/**
 	 * Using a supplier allows a dynamic link to the plotting system, i.e. the stream still not started
 	 */
 	private final Supplier<IPlottingSystem<Composite>> plottingSystem;
 
-	
+
 	/**
-	 * The region drawn 
+	 * The region drawn
 	 */
 	private IRegion region;
 	/**
@@ -73,7 +91,7 @@ class AbsorptionAction extends Action implements IRegionListener {
 	private IROIListener roiListener;
 
 	/**
-	 * Keep the state of the action 
+	 * Keep the state of the action
 	 */
 	private ActionState state = ActionState.READY;
 

@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.liveview.state;
 
 import java.util.Optional;
@@ -10,7 +28,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Control the state of a stream connection
- * 
+ *
  * @author Maurizio Nagni
  *
  */
@@ -24,11 +42,11 @@ public class StreamController {
 	 * The connection state
 	 */
 	private StreamControlState state;
-	
+
 	private final UUID rootUUID;
 
 	/**
-	 * @param controlData The connection data 
+	 * @param controlData The connection data
 	 * @param rootUUID The container managing the connection
 	 */
 	public StreamController(StreamControlData controlData, UUID rootUUID) {
@@ -57,17 +75,17 @@ public class StreamController {
 		getState().sameState(this);
 		publishCameraChange();
 	}
-	
+
 	public void idle() throws LiveStreamException {
 		getState().idleState(this);
 		publishCameraChange();
 	}
-	
+
 	public void listen() throws LiveStreamException {
 		getState().listeningState(this);
 		publishCameraChange();
 	}
-	
+
 	private void publishCameraChange() {
 		SpringApplicationContextProxy.publishEvent(
 				new ChangeActiveCameraEvent(getState(), getControlData().getCamera(), Optional.ofNullable(rootUUID)));

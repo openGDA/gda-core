@@ -1,8 +1,34 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.*;
-import static uk.ac.gda.ui.tool.ClientMessages.*;
-import static uk.ac.gda.ui.tool.ClientMessagesUtility.*;
+import static uk.ac.gda.ui.tool.ClientMessages.CAMERA;
+import static uk.ac.gda.ui.tool.ClientMessages.STAGE_TP;
+import static uk.ac.gda.ui.tool.ClientMessages.START_STREAM;
+import static uk.ac.gda.ui.tool.ClientMessages.STOP_STREAM;
+import static uk.ac.gda.ui.tool.ClientMessages.STREAM;
+import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createCombo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +60,7 @@ import uk.ac.gda.client.widgets.SmartCombo;
 
 
 /**
- * 
+ *
  * @author Maurizio Nagni
  */
 public class StreamControlCompositeFactory implements CompositeFactory {
@@ -63,25 +89,25 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		// -- Headers --
 		Label label = createClientLabel(container, SWT.NONE, CAMERA);
 		createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
-		
+
 		label = createClientLabel(container, SWT.NONE, STREAM);
 		createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).span(2, 1).applyTo(label);
-		
+
 		// -- Controls --
 		cameraCombo = createCombo(container, SWT.READ_ONLY, getCameras(),
 				STAGE_TP);
 		createClientGridDataFactory().indent(5, 0).applyTo(cameraCombo);
-		
+
 		streamTypeCombo = new SmartCombo<>(container, style, Optional.of(STAGE_TP),
 				Optional.of(this::changeStreamController));
 		createClientGridDataFactory().indent(5, 0).applyTo(streamTypeCombo);
-		
+
 		streamActivationButton = createClientButton(container, SWT.NONE, START_STREAM, START_STREAM);
 		createClientGridDataFactory().indent(5, 0).applyTo(streamActivationButton);
 		streamActivationButton.setData(START_STREAM);
 		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
 		// ---------------------------------
-		
+
 		// initialise composite
 		initialiseComposite(parent);
 

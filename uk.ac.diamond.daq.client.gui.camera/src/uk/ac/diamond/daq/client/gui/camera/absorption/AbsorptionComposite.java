@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.absorption;
 
 import static uk.ac.gda.ui.tool.ClientMessages.ABSORPTION;
@@ -22,17 +40,16 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Allows to compare the intensities of two regions from a camera stream.
- * 
+ *
  * <p>
- * Creates a context {@link MenuAction} named <i>Absorption</i> which contains
- * other two other menu {@link MenuAction}: <i>Bright</i> and <i>Dark</i> For
- * each section, the user can select, then draw, different shapes: <i>Box</i>,
+ * Creates a context {@link MenuAction} named <i>Absorption</i> which contains other two other menu {@link MenuAction}:
+ * <i>Bright</i> and <i>Dark</i> For each section, the user can select, then draw, different shapes: <i>Box</i>,
  * <i>Point</i> and <i>Circle</i>
  * </p>
  *
  * <p>
- * Creates also a two rows {@link Table}, one per region implemented as
- * {@link ROIStatisticRow} Each row contains four columns:
+ * Creates also a two rows {@link Table}, one per region implemented as {@link ROIStatisticRow} Each row contains four
+ * columns:
  * <ul>
  * <li>A check box to lock the calculated intensity ratio</li>
  * <li>The region name</li>
@@ -40,9 +57,10 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * <li>The ratio with the other region, if existing</li>
  * </ul>
  * </p>
- * 
+ *
  * @author Maurizio Nagni
- * @see ROIStatisticRow, AbsorptionElement
+ * @see ROIStatisticRow
+ * @see AbsorptionElement
  *
  */
 public class AbsorptionComposite implements CompositeFactory {

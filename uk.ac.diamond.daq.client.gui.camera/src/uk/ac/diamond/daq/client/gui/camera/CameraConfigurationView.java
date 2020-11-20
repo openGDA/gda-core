@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
@@ -23,7 +41,7 @@ import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * Displays the CameraConfiguration as view.
- * 
+ *
  * @author Maurizio Nagni
  *
  */
@@ -48,22 +66,22 @@ public class CameraConfigurationView extends ViewPart {
 	 * Creates a {@link Button} to open a CameraConfigurationView. This elements
 	 * standardises the look and feel how the view is open. The listener attached to
 	 * the button opens the view using the Eclipse generic viewId
-	 * 
+	 *
 	 * <pre>
 	 * {@link #CAMERA_CONTROLLER_VIEW}:secondaryId
 	 * </pre>
-	 * 
+	 *
 	 * where the secondaryId is generated internally as random string. This makes
 	 * the button suitable to be used to open multiple instances of the
 	 * CameraConfigurationView
-	 * 
+	 *
 	 * @param parent the button container
 	 * @return a {@link Button} instance
 	 */
 	public static final Button openCameraConfigurationViewButton(Composite parent) {
 		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 2);
 		ClientSWTElements.createClientGridDataFactory().grab(true, false).applyTo(container);
-		
+
 		Button cameras = ClientSWTElements.createClientButton(container, SWT.None, ClientMessages.CAMERAS,
 				ClientMessages.CAMERA_TP, ClientImages.CAMERA);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.BOTTOM).indent(5, SWT.DEFAULT).applyTo(cameras);
@@ -78,7 +96,7 @@ public class CameraConfigurationView extends ViewPart {
 				logger.error(errMsg, e);
 			}
 		});
-		
+
 		CameraMonitorGroupFactory cameraMonitors = new CameraMonitorGroupFactory();
 		Composite composite = cameraMonitors.createComposite(container, SWT.None);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(composite);

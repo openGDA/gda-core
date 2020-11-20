@@ -36,9 +36,6 @@ import uk.ac.gda.ui.tool.ClientMessages;
  */
 public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4530246537809378671L;
 	/**
 	 * The UUID to use as name for the region to be created
@@ -55,12 +52,12 @@ public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 
 	/**
 	 * Creates an instance for this class
-	 * 
+	 *
 	 * @param source  the Object which published this event
 	 * @param color   the colour to use when drawing the region
 	 * @param regionName how the region is identified both in the GUI and the plotting system
 	 * @param rootComposite the parent unique ID. Used to filter cross components messages
-	 * @param regionID the identificator to use for the region to be created 
+	 * @param regionID the identificator to use for the region to be created
 	 */
 	public RegisterDrawableRegionEvent(Object source, Color color, ClientMessages regionName, Optional<UUID> rootComposite, UUID regionID) {
 		super(source, rootComposite);
@@ -78,7 +75,7 @@ public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 	}
 
 	/**
-	 * Returns the string identifying the region both in the GUI and the plotting system 
+	 * Returns the string identifying the region both in the GUI and the plotting system
 	 * @return a string
 	 */
 	public ClientMessages getName() {
@@ -86,8 +83,7 @@ public class RegisterDrawableRegionEvent extends RootCompositeEvent {
 	}
 
 	/**
-	 * The unique id to be used when creating the region
-	 * @return
+	 * @return the unique id to be used when creating the region
 	 */
 	public UUID getRegionID() {
 		return regionID;

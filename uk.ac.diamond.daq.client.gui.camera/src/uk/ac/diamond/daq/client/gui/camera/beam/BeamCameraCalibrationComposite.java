@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
 import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createICameraConfiguration;
@@ -64,13 +82,13 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * "https://confluence.diamond.ac.uk/display/DIAD/Camera+Configuration+View">Camera
  * Configuration</a> in Confluence.
  * </p>
- * 
+ *
  * <p>
  * See <a href=
  * "https://confluence.diamond.ac.uk/display/DIAD/BeamCameraMapping">CameraBeamMapping</a>
  * in Confluence
  * </p>
- * 
+ *
  * @author Maurizio Nagni
  *
  */
@@ -100,10 +118,10 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
 		Composite container = createClientCompositeWithGridLayout(parent, style, 1);
-		
+
 		doCalibration = createClientButton(container, style, BEAM_CAMERA_MAPPING, BEAM_CAMERA_MAPPING_TP);
 		createClientGridDataFactory().applyTo(doCalibration);
-		
+
 		uuidRoot = findParentUUID(parent).orElse(null);
 		updateCamera(getDefaultCameraProperties().getIndex());
 		mappingTable = new CameraMappingTable(container);
@@ -118,7 +136,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 			}
 		};
 		doCalibration.addSelectionListener(listener);
-		try {			
+		try {
 			addDisposableApplicationListener(container, changeCameraListener);
 			addDisposableApplicationListener(container, cameraMappingEventListener);
 			addDisposableApplicationListener(container, plottingSystemUpdateListener);
@@ -169,7 +187,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 			plottingSystem = event.getPlottingSystem();
 			clickEvents(plottingSystem);
 		}
-		
+
 		private void clickEvents(IPlottingSystem<Composite> plottingSystem) {
 			plottingSystem.addClickListener(new IClickListener() {
 
@@ -190,18 +208,18 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 				}
 			});
 		}
-		
+
 		private void onClickEvent(ClickEvent event) {
 			moveBeam(cameraConfiguration, event);
 		}
-		
+
 		private void moveBeam(ICameraConfiguration iConfiguration, ClickEvent event) {
 			if (Objects.isNull(iConfiguration.getBeamCameraMap())) {
 				return;
 			}
 			iConfiguration.getBeamCameraMap().ifPresent(bcm -> moveMotors(bcm, event));
 		}
-		
+
 		private void moveMotors(BeamCameraMap bcm, ClickEvent event) {
 			RealMatrix transformation = bcm.getAffineTransformation();
 			LUDecomposition luDecompositionBeamToCamera = new LUDecomposition(transformation);
@@ -212,7 +230,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 			} catch (SingularMatrixException e) {
 				e.printStackTrace();
 			} catch (GDAClientException e) {
-				Display.getDefault().asyncExec(() -> UIHelper.showError(MOTOR_OUT_OF_RANGE, e));			
+				Display.getDefault().asyncExec(() -> UIHelper.showError(MOTOR_OUT_OF_RANGE, e));
 			}
 		}
 	};

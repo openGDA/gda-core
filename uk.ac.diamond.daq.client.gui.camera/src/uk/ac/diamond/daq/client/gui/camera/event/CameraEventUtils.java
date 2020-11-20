@@ -1,8 +1,23 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.event;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -17,11 +32,11 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public final class CameraEventUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraEventUtils.class);
-	
+
 	private CameraEventUtils() {}
-	
+
 	/**
-	 * Provides a listener of a handy method to observe and consume an {@link CameraControlEvent}. 
+	 * Provides a listener of a handy method to observe and consume an {@link CameraControlEvent}.
 	 * @param consumer
 	 * @return
 	 */
@@ -32,11 +47,11 @@ public final class CameraEventUtils {
 			}
 		};
 	}
-	
+
 	/**
-	 * Attaches an observer to a {@code CameraControl} so to publish a {@code CameraControlSpringEvent} 
+	 * Attaches an observer to a {@code CameraControl} so to publish a {@code CameraControlSpringEvent}
 	 * if a {@code CameraControllerEvent} arrives.
-	 * 
+	 *
 	 * @param cameraControl the camera controller to monitor
 	 */
 	public static void addIObserverToCameraControl(CameraControl cameraControl) {
@@ -47,8 +62,8 @@ public final class CameraEventUtils {
 	}
 	private static Consumer<CameraControllerEvent> cameraControlEventConsumer = event -> {
 		SpringApplicationContextProxy.publishEvent(new CameraControlSpringEvent(CameraHelper.class, event));
-		logger.debug("{}", event);			
+		logger.debug("{}", event);
 	};
 	private static final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(cameraControlEventConsumer);
-	
+
 }

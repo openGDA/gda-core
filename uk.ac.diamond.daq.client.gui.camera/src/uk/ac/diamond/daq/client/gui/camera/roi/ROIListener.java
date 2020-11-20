@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.roi;
 
 import java.util.UUID;
@@ -9,8 +27,6 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.client.gui.camera.event.ROIChangeEvent;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
@@ -18,7 +34,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * Listen to {@link ROIEvent} messages and republishes as {@link ROIChangeEvent}
  * messages using Spring. On receiving {@link ROIEvent}, the listener does not
  * propagate any message not matching the original roi name.
- * 
+ *
  * @author Maurizio Nagni
  *
  */
@@ -29,7 +45,7 @@ public class ROIListener implements IROIListener {
 	private final UUID regionID;
 
 	/**
-	 * 
+	 *
 	 * @param parent                the Composite containing the ROI element. This
 	 *                              parent is used as reference to discriminate
 	 *                              between multiple {@link ROIChangeEvent}
@@ -55,7 +71,7 @@ public class ROIListener implements IROIListener {
 	 */
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.dawnsci.plotting.api.region.IROIListener#roiChanged(org.eclipse.
 	 * dawnsci.plotting.api.region.ROIEvent)

@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera;
 
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.SIMPLE_FORMAT;
@@ -27,11 +45,13 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
+import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -46,12 +66,12 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 /**
  * Hides the configuration structural design. A typical configuration defining a
  * camera would look like below
- * 
+ *
  * <pre>
  * {@code
  * client.cameraConfiguration.0=d2_cam_config
  * client.cameraConfiguration.0.name=Camera Zero
- * client.cameraConfiguration.0.id=PCO_CAMERA 
+ * client.cameraConfiguration.0.id=PCO_CAMERA
  * client.cameraConfiguration.0.cameraControl=imaging_camera_control
  * client.cameraConfiguration.0.beam_mapping_active=true
  * client.cameraConfiguration.0.motor.0.controller = stagez
@@ -60,9 +80,9 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * client.cameraConfiguration.0.motor.1.name = Camera Axis Y
  * }
  * </pre>
- * 
+ *
  * where the fields meaning represent
- * 
+ *
  * <ul>
  * <li><i>client.cameraConfiguration.INDEX</i>
  * <ul>
@@ -99,29 +119,29 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * </ul>
  * </li>
  * </ul>
- * 
+ *
  * <p>
- * As this class is aware of all the available cameras, it easily intercept all {@link CameraControllerEvent} 
- * from the existing {@link CameraControl}s and republish them in the Spring context as {@link CameraControlSpringEvent} 
- * so any object interested in a {@code CameraControlEvent} property can use spring to be notified when a new 
+ * As this class is aware of all the available cameras, it easily intercept all {@link CameraControllerEvent}
+ * from the existing {@link CameraControl}s and republish them in the Spring context as {@link CameraControlSpringEvent}
+ * so any object interested in a {@code CameraControlEvent} property can use spring to be notified when a new
  * {@link CameraControlSpringEvent} is published.
  * </p>
- * 
+ *
  * <p>
  * For mor information read in Confluence about the <a href=
  * "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">Camera
  * Configuration Properties</a>
  * </p>
- * 
+ *
  * @author Maurizio Nagni
  *
  */
 public final class CameraHelper {
 
 	private static final String READOUT_TIME = "readoutTime";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CameraHelper.class);
-	
+
 	private static final List<CameraProperties> cameraProperties = new ArrayList<>();
 	private static final List<String> cameraMonitors = new ArrayList<>();
 	private static final Map<String, CameraProperties> cameraPropertiesByID = new HashMap<>();
@@ -137,7 +157,7 @@ public final class CameraHelper {
 	 * The prefix used in the property files to identify a camera configuration.
 	 */
 	private static final String CAMERA_CONFIGURATION_PREFIX = "client.cameraConfiguration";
-	
+
 	/**
 	 * The prefix used in the properties file to identify which cameras are associated with a monitor button.
 	 */
@@ -153,16 +173,16 @@ public final class CameraHelper {
 	}
 
 	public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
-		return createICameraConfiguration(cameraIndex).getCameraConfiguration();	
+		return createICameraConfiguration(cameraIndex).getCameraConfiguration();
 	}
-	
+
 	public static Optional<CameraControl> getCameraControl(int cameraIndex) {
-		return createICameraConfiguration(cameraIndex).getCameraControl();				
+		return createICameraConfiguration(cameraIndex).getCameraControl();
 	}
 
 	/**
 	 * Returns the available {@link StreamType}s for a specific camera
-	 * 
+	 *
 	 * @param cameraIndex the camera index
 	 * @return the available stream types, eventually {@link Optional#empty()} if
 	 *         the camera is missing
@@ -191,7 +211,7 @@ public final class CameraHelper {
 	public static List<String> getCameraMonitors() {
 		return Collections.unmodifiableList(cameraMonitors);
 	}
-	
+
 	public static CameraProperties getCameraProperties(int cameraIndex) {
 		return cameraProperties.get(cameraIndex);
 	}
@@ -203,7 +223,7 @@ public final class CameraHelper {
 	/**
 	 * Returns the default camera properties. The actual implementation returns the
 	 * first camera as default but this should change in future.
-	 * 
+	 *
 	 * @return the camera properties, otherwise <code>null</code>
 	 */
 	public static CameraProperties getDefaultCameraProperties() {
@@ -221,7 +241,7 @@ public final class CameraHelper {
 	 * Adds a mapping between the motors moving the beam, if any, and the camera
 	 * array. The method publishes a {@link BeamCameraMappingEvent} to inform any
 	 * listener of the camera update.
-	 * 
+	 *
 	 * @param cameraIndex   the camera index
 	 * @param beamCameraMap the camera to beam mapping
 	 */
@@ -252,25 +272,25 @@ public final class CameraHelper {
 	private static void parseCameraMonitors() {
 		cameraMonitors.addAll(getMonitoredCameras());
 	}
-	
+
 	private static void observeCameraProperties() {
 		cameraProperties.stream()
 			.map(CameraProperties::getIndex)
 			.map(CameraHelper::getCameraControl)
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::addIObserverToCameraControl));
 	}
-	
+
 	private static void monitorCameraAvailability() {
 		new CameraAvailabilityMonitor();
 	}
-	
+
 	private static void removeObserverCameraProperties() {
 		cameraProperties.stream()
 			.map(CameraProperties::getIndex)
 			.map(CameraHelper::getCameraControl)
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::removeIObserverFromCameraControl));
 	}
-	
+
 	private static void parseCameraProperties(int index) {
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
 		builder.setIndex(index);
@@ -281,7 +301,7 @@ public final class CameraHelper {
 		builder.setBeamMappingActive(getBeamMappingProperty(index));
 		builder.setPixelBinningEditable(getPixelBinningEditableProperty(index));
 		builder.setReadoutTime(getReadoutTimeProperty(index));
-		
+
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
 		CameraProperties cp = builder.build();
 		cp.getId().ifPresent(id -> cameraPropertiesByID.putIfAbsent(id, cp));
@@ -302,7 +322,7 @@ public final class CameraHelper {
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.cameraControl"
-	 * 
+	 *
 	 * @param index the camera index
 	 * @return
 	 */
@@ -313,7 +333,7 @@ public final class CameraHelper {
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.beam_mapping_active"
-	 * 
+	 *
 	 * @param index the camera index
 	 * @return
 	 */
@@ -324,7 +344,7 @@ public final class CameraHelper {
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.pixelBinningEditable"
-	 * 
+	 *
 	 * @param index the camera index
 	 * @return
 	 */
@@ -335,36 +355,36 @@ public final class CameraHelper {
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.monitored"
-	 * 
+	 *
 	 * @param index the camera index
 	 * @return
 	 */
 	private static List<String> getMonitoredCameras() {
 		return Arrays.asList(getStringArrayProperty(CAMERA_MONITORS_PREFIX));
 	}
-	
+
 	/**
 	 * Extracts properties formatted like
 	 * "client.cameraConfiguration.INDEX.readoutTime"
-	 * 
+	 *
 	 * @param index the camera index
 	 * @return the camera readout time. Default 0;
 	 */
 	private static int getReadoutTimeProperty(int index) {
 		try {
 			logger.debug("Reading property {}.{}.{}", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
-			return Integer.parseInt(getProperty(CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME, "0"));	
+			return Integer.parseInt(getProperty(CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME, "0"));
 		} catch (NumberFormatException e) {
 			logger.warn("Error reading property {}.{}.{}. Uses default to 0 ", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
 			return 0;
-		}		
+		}
 	}
-	
+
 	// -- motors -- //
 	/**
 	 * Returns a string like
 	 * "client.cameraConfiguration.CAMERA_INDEX.motor.MOTOR_INDEX"
-	 * 
+	 *
 	 * @param motorIndex
 	 * @return
 	 */
@@ -442,7 +462,7 @@ public final class CameraHelper {
 		public void setBeamCameraMap(BeamCameraMap beamCameraMap) {
 			this.beamCameraMap = Optional.ofNullable(beamCameraMap);
 		}
-		
+
 		private Optional<CameraControl> getCameraControl(int cameraIndex) {
 			String findableName = getCameraControlProperty(cameraIndex);
 			if (findableName != null) {
@@ -450,7 +470,7 @@ public final class CameraHelper {
 			}
 			return Optional.empty();
 		}
-		
+
 		public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
 			String findableName = getCameraConfigurationInstance(cameraIndex);
 			if (findableName != null) {
@@ -458,24 +478,24 @@ public final class CameraHelper {
 			}
 			return Optional.empty();
 		}
-		
-		private static <T> Optional<T> getCameraConfiguration(String findableName, Class<T> clazz) {	
+
+		private static <T> Optional<T> getCameraConfiguration(String findableName, Class<T> clazz) {
 			return Optional.ofNullable(getFinderService())
 					.map(f -> f.getFindableObject(findableName))
 					.filter(Optional::isPresent)
 					.map(Optional::get)
 					.map(clazz::cast);
 		}
-		
+
 		private static FinderService getFinderService() {
 			return SpringApplicationContextFacade.getBean(FinderService.class);
 		}
 	}
-	
+
 	/**
-	 * Loads the cameras configurations. 
+	 * Loads the cameras configurations.
 	 * <p>
-	 * This method 
+	 * This method
 	 * <ul>
 	 * <li>
 	 * is called by the class automatically the first time any method is called
@@ -492,12 +512,12 @@ public final class CameraHelper {
 		cameraPropertiesByID.clear();
 		cameraConfigurations.clear();
 		cameraComboItems.clear();
-		
+
 		parseCameraProperties();
 		parseCameraMonitors();
 		observeCameraProperties();
 		createCameraComboItems();
 		monitorCameraAvailability();
-		
+
 	}
 }

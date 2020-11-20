@@ -1,10 +1,33 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.exposure;
 
+import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER;
+import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
+import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
+import static uk.ac.gda.ui.tool.ClientMessages.SECOND_SYMBOL;
+import static uk.ac.gda.ui.tool.ClientSWTElements.DEFAULT_TEXT_SIZE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.ClientSWTElements.*;
-import static uk.ac.gda.ui.tool.ClientMessages.*;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
 import java.util.Optional;
 
@@ -39,23 +62,23 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 /**
  * A {@link Group} to edit a {@code EpicsCameraControl} {@code acquireTime},
  * expressed in milliseconds.
- * 
+ *
  * <p>
  * This widget dynamically change the {@code cameraControl} it is attached
  * listening to {@link ChangeActiveCameraEvent} events.
  * </p>
- * 
+ *
  * <p>
  * At the start the component points at the camera defined by
  * {@link CameraHelper#getDefaultCameraProperties()}
  * </p>
- * 
+ *
  * <p>
  * <b>NOTE:</b> To works correctly this widget requires that the
- * {@code useAcquireTimeMonitor} property in the {@link EpicsCameraControl} bean
+ * {@code useAcquireTimeMonitor} property in the EpicsCameraControl bean
  * is set to {@code true} (usually in the configuration file).
  * </p>
- * 
+ *
  * @author Maurizio Nagni
  */
 public class ExposureDurationComposite implements CompositeFactory {
@@ -69,11 +92,11 @@ public class ExposureDurationComposite implements CompositeFactory {
 	 */
 	private Label readOut;
 	private Optional<CameraControl> cameraControl;
-	
+
 	private Composite container;
 
-	private static final String SECOND = ClientMessagesUtility.getMessage(SECOND_SYMBOL); 
-	
+	private static final String SECOND = ClientMessagesUtility.getMessage(SECOND_SYMBOL);
+
 	private static final Logger logger = LoggerFactory.getLogger(ExposureDurationComposite.class);
 
 	@Override
@@ -85,7 +108,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		cameraControl = CameraHelper.getCameraControl(CameraHelper.getDefaultCameraProperties().getIndex());
 		cameraControl.ifPresent(this::initialiseElements);
 		bindElements();
-		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);		
+		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		return container;
 	}
 
@@ -95,13 +118,13 @@ public class ExposureDurationComposite implements CompositeFactory {
 
 		exposureText = createClientText(group, style, EMPTY_MESSAGE,	ClientVerifyListener.verifyOnlyDoubleText);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
-				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);	
-		Label unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL, 
+				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
+		Label unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL,
 				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).span(2,1).applyTo(unit);
-		
-		
-		readOut = createClientLabel(group, SWT.LEFT, EMPTY_MESSAGE, 
+
+
+		readOut = createClientLabel(group, SWT.LEFT, EMPTY_MESSAGE,
 				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(readOut);
 
@@ -132,7 +155,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private void setAcquireTime(Widget widget) {
-		cameraControl.ifPresent(c -> 
+		cameraControl.ifPresent(c ->
 			setAcquireTime(c, Double.parseDouble(Text.class.cast(widget).getText()))
 		);
 	}
@@ -142,13 +165,13 @@ public class ExposureDurationComposite implements CompositeFactory {
 			cc.setAcquireTime(exposure);
 			if (CameraState.ACQUIRING.equals(cc.getAcquireState())) {
 				cc.stopAcquiring();
-				cc.startAcquiring();				
+				cc.startAcquiring();
 			}
 		} catch (NumberFormatException | DeviceException e) {
 			UIHelper.showError("Cannot update acquisition time", e, logger);
 		}
 	}
-	
+
 	private void updateGUI(double exposure) {
 		if (exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
 			return;
@@ -187,7 +210,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 				}
 			});
 		}
-		
+
 		private void updateModelToGUI(CameraControlSpringEvent e) {
 			updateGUI(e.getAcquireTime());
 		}

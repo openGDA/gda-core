@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.liveview.state;
 
 import java.util.UUID;
@@ -14,7 +32,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Defines a state where a consumer listen to a stream.
- * 
+ *
  * Publishes states to Spring context
  * <ul>
  * <li>going idle -> {@link StopListenToConnectionEvent}</li>
@@ -22,8 +40,8 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  * <li>going same -> {@link StopListenToConnectionEvent}, then
  * {@link ListenToConnectionEvent} the new configuration</li> *
  * </ul>
- * 
- * 
+ *
+ *
  * @author Maurizio Nagni
  */
 public class ListeningState implements StreamControlState {
@@ -50,7 +68,7 @@ public class ListeningState implements StreamControlState {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamControlState#
 	 * idleState(uk.ac.diamond.daq.client.gui.camera.liveview.state.
 	 * StreamController)
@@ -63,7 +81,7 @@ public class ListeningState implements StreamControlState {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamControlState#
 	 * listeningState(uk.ac.diamond.daq.client.gui.camera.liveview.state.
 	 * StreamController)
@@ -88,7 +106,7 @@ public class ListeningState implements StreamControlState {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamControlState#
 	 * sameState(uk.ac.diamond.daq.client.gui.camera.liveview.state.
 	 * StreamController)

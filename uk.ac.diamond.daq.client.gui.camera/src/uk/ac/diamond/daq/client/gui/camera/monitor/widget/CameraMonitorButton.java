@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.monitor.widget;
 
 import static uk.ac.diamond.daq.client.gui.camera.monitor.widget.CameraMonitorButtonHelper.CAMERA_CONTROL;
@@ -29,38 +47,38 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Widget to monitor the state of a camera.
- * 
+ *
  * <p>
  * Listening at {@link CameraControlSpringEvent} this widget can dynamically change its properties according to the {@link CameraControlSpringEvent#getCameraState()}.
  * For each state, the button provides:
  * <ul>
  * <li>
- * 	A colour in line with EPICS standards. See {@link ButtonLayout} 
+ * 	A colour in line with EPICS standards. See {@link ButtonLayout}
  * </li>
  * <li>
- * 	A tooltip with essential information as camera name and state 
+ * 	A tooltip with essential information as camera name and state
  * </li>
  * <li>
- * 	For {@code CameraState#IDLE} and {@code CameraState#ACQUIRING} an associated action allows to turn off and on the acquisition  
- * </li>  
- * </ul> 
+ * 	For {@code CameraState#IDLE} and {@code CameraState#ACQUIRING} an associated action allows to turn off and on the acquisition
+ * </li>
+ * </ul>
  * </p>
- * 
- * 
+ *
+ *
  * @author Maurizio Nagni
  *
  */
 public class CameraMonitorButton {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CameraMonitorButton.class);
-	
+
 	private Button button;
 	private final ICameraConfiguration cameraConfiguration;
 
 	/**
-	 * Creates the button and place it in the parent Composite 
+	 * Creates the button and place it in the parent Composite
 	 * @param parent the composite where draw the button
-	 * @param cameraControl the control associated with the camera
+	 * @param cameraConfiguration the configuration associated with the camera
 	 * @throws GDAClientException if {@link ICameraConfiguration#getCameraControl()} is {@link Optional#empty()}
 	 */
 	public CameraMonitorButton(Composite parent, ICameraConfiguration cameraConfiguration) throws GDAClientException {
@@ -92,7 +110,7 @@ public class CameraMonitorButton {
 		CameraState cameraState = getCameraState(cameraControl);
 		CameraMonitorButtonHelper.updateButtonLayoutAndListener(button, cameraControl.getName(), cameraState);
 	}
-	
+
 	// At the moment is not possible to use anonymous lambda expression because it
 	// generates a class cast exception
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {

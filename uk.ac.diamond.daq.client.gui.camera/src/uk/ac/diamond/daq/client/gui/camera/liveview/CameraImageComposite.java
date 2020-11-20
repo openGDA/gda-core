@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
@@ -25,13 +43,13 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Instantiates the elements for the CameraConfiguration top area
- * 
+ *
  * @author Maurzio Nagni
  */
 public class CameraImageComposite extends Composite implements CameraPlotter {
-	
+
 	public static final String CAMERA_IMAGE_PLOTTING_SYSTEM_NAME = "CameraImagePlottingSystem";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CameraImageComposite.class);
 
 	private final LivePlottingComposite plottingComposite;
@@ -39,7 +57,7 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 	/**
 	 * Integrates a {@link LiveStreamConnection} into composite element. Can be used
 	 * to display a fixed camera live stream.
-	 * 
+	 *
 	 * @param parent               where this Composite will live
 	 * @param style                the composite style
 	 * @param liveStreamConnection the streaming associated with this composite
@@ -70,11 +88,10 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 	 * directly a {@link LiveStreamConnection} because the internal code is
 	 * listening for {@link ListenToConnectionEvent} published through Spring by the
 	 * {@code parent}
-	 * 
-	 * 
+	 *
+	 *
 	 * @param parent               where this Composite will live
 	 * @param style                the composite style
-	 * @param liveStreamConnection the streaming associated with this composite
 	 * @throws GDAClientException if problems occur in the composite creation or
 	 *                            with the live stream
 	 */
@@ -91,7 +108,7 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 	public IImageTrace getImageTrace() {
 		return plottingComposite.getITrace();
 	}
-	
+
 	private ApplicationListener<RegisterDrawableRegionEvent> registerDrawableRegionListener(Composite parent) {
 		return new ApplicationListener<RegisterDrawableRegionEvent>() {
 			@Override

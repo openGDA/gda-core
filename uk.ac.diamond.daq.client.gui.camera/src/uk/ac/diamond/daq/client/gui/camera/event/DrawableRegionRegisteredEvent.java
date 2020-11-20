@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.client.gui.camera.liveview.DrawableRegion;
 
@@ -34,18 +33,15 @@ import uk.ac.diamond.daq.client.gui.camera.liveview.DrawableRegion;
  */
 public class DrawableRegionRegisteredEvent extends RootCompositeEvent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4530246537809378671L;
 	private final transient DrawableRegion drawableRegion;
 
 	/**
 	 * Creates an instance for this class
-	 * 
+	 *
 	 * @param source  the Object which published this event
-	 * @param plottingSystem   the plottingSystem where the region is registered 
 	 * @param rootComposite the parent unique ID
+	 * @param drawableRegion the {@link DrawableRegion} that has been registered
 	 */
 	public DrawableRegionRegisteredEvent(Object source, Optional<UUID> rootComposite, DrawableRegion drawableRegion) {
 		super(source, rootComposite);

@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.monitor.widget;
 
 import static uk.ac.gda.ui.tool.WidgetUtilities.getDataObject;
@@ -21,16 +39,16 @@ import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * Supports the {@link CameraMonitorButton} activities
- * 
+ *
  * @author Maurizio Nagni
  *
  */
 class CameraMonitorButtonHelper {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CameraMonitorButtonHelper.class);
-	
+
 	/**
-	 * Pairs of (message, image), per state 
+	 * Pairs of (message, image), per state
 	 */
 	enum ButtonLayout {
 		UNAVAILABLE(ClientMessages.CAMERA_UNAVAILABLE, ClientImages.STATE_ERROR),
@@ -68,10 +86,10 @@ class CameraMonitorButtonHelper {
 	 */
 	static final String BUTTON_STATE = "buttonState";
 
-	
+
 	/**
-	 * Returns the camera state but more crucially, catches when the camera is not available, 
-	 * typically when the IOC is unavailable, and return a {@link CameraState#UNAVAILABLE} 
+	 * Returns the camera state but more crucially, catches when the camera is not available,
+	 * typically when the IOC is unavailable, and return a {@link CameraState#UNAVAILABLE}
 	 * @param cameraControl
 	 * @return the camera state
 	 */
@@ -109,10 +127,10 @@ class CameraMonitorButtonHelper {
 	}
 
 	/**
-	 * For each state associate the correct selection listener to the button 
+	 * For each state associate the correct selection listener to the button
 	 * state: IDLE --> action: startAcquire,
 	 * state: ACQUIRE --> action: stopAcquire
-	 * 
+	 *
 	 * @param button
 	 * @param state
 	 */
@@ -127,7 +145,7 @@ class CameraMonitorButtonHelper {
 		case ACQUIRING:
 			button.setData(LISTENER, SelectionListener.widgetSelectedAdapter(event -> updateAcquisition(event, CameraMonitorButtonHelper::stopAcquiring)));
 			WidgetUtilities.addWidgetDisposableListener(button, getButtonListener(button));
-			break;	
+			break;
 		default:
 			break;
 		}
@@ -140,13 +158,13 @@ class CameraMonitorButtonHelper {
 	 * @param cameraState the camera state to set
 	 */
 	static void updateButtonLayoutAndListener(Button button, String name, CameraState cameraState) {
-		// Layout			
+		// Layout
 		updateButtonLayout(button, name, getButtonLayout(cameraState));
 
 		// Listener
 		updateButtonListener(button, cameraState);
 	}
-	
+
 	private static void updateButtonLayout(final Button button, String cameraName, final ButtonLayout buttonLayout) {
 		button.setData(BUTTON_STATE, buttonLayout);
 		button.setEnabled(true);
@@ -166,7 +184,7 @@ class CameraMonitorButtonHelper {
 		button.getParent().layout(true, true);
 	}
 
-	
+
 	/**
 	 * Utility to cast a LISTENER data object
 	 * @param button
@@ -193,12 +211,12 @@ class CameraMonitorButtonHelper {
 	static ButtonLayout getButtonCameraState(Button button) {
 		return getDataObject(button, ButtonLayout.class, BUTTON_STATE);
 	}
-	
+
 	private static void updateAcquisition(SelectionEvent event, Consumer<CameraControl> controlConsumer) {
 		Button button = Button.class.cast(event.widget);
-		Optional.ofNullable(getButtonCameraControl(button)).ifPresent(controlConsumer); 
+		Optional.ofNullable(getButtonCameraControl(button)).ifPresent(controlConsumer);
 	}
-	
+
 	private static void startAcquiring(CameraControl cameraControl) {
 		try {
 			cameraControl.startAcquiring();
@@ -206,11 +224,11 @@ class CameraMonitorButtonHelper {
 			logger.error("Error starting acquisition for {} ", cameraControl.getName());
 		}
 	}
-	
+
 	private static void stopAcquiring(CameraControl cameraControl) {
 		try {
 			cameraControl.stopAcquiring();
-		} catch (DeviceException e) {				
+		} catch (DeviceException e) {
 			logger.error("Error stopping acquisition for {} ", cameraControl.getName());
 		}
 	}

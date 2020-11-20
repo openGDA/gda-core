@@ -20,14 +20,11 @@ package uk.ac.diamond.daq.client.gui.camera.event;
 
 /**
  * Communicates that a new camera to beam mapping is available.
- * 
+ *
  * @author Maurizio Nagni
  */
 public class BeamCameraMappingEvent extends CameraEvent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -1939646061274410504L;
 	private final int cameraIndex;
 
@@ -37,7 +34,6 @@ public class BeamCameraMappingEvent extends CameraEvent {
 	 *                     <a href=
 	 *                     "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">Camera
 	 *                     Configuration Properties</a>.
-	 * @param mappedPoints a collection of (driver position, camera position) pairs
 	 */
 	public BeamCameraMappingEvent(Object source, int cameraIndex) {
 		super(source);
@@ -48,7 +44,7 @@ public class BeamCameraMappingEvent extends CameraEvent {
 	 * See <a href=
 	 * "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">Camera
 	 * Configuration Properties</a>.
-	 * 
+	 *
 	 * @return the camera index
 	 */
 	public int getCameraIndex() {

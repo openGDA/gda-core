@@ -47,7 +47,7 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * Implements an automatic procedure to map the position of the motor driving
  * the beam to the camera pixels.
  * <p>
- * The class constructor {@link #ImagingCalibration(String, String)} uses two
+ * The class constructor {@link #BeamCameraMapping(String, String)} uses two
  * {@code String} to retrieve the two {@link IScannableMotor} controlling the
  * beam position.
  * </p>
@@ -58,8 +58,8 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * {@link BeamCameraMappingEvent} on which {@link CameraImageComposite} is
  * listening.
  * </p>
- * 
- * 
+ *
+ *
  * @author Maurizio Nagni
  *
  */
@@ -85,7 +85,7 @@ public class BeamCameraMapping {
 
 	/**
 	 * Calculates the mapping for the {@code cameraConfiguration}
-	 * 
+	 *
 	 * @param cameraConfiguration
 	 */
 	public void calibrate(final ICameraConfiguration cameraConfiguration) {

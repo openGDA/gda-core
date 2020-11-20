@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.absorption;
 
 import java.util.Arrays;
@@ -25,7 +43,7 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Allows the user to select a geometric shape and draw a regions on a camera {@link IPlottingSystem}.
- * 
+ *
  * @author Maurizio Nagni
  * @see AbsorptionAction
  */
@@ -41,14 +59,14 @@ class AbsorptionElement extends MenuAction implements IPropertyChangeListener {
 	 */
 	AbsorptionElement(ClientMessages name, Color regionColor, CameraPlotter cameraPlotter, BiConsumer<IROI, IDataset> roiEventConsumer) {
 		super(ClientMessagesUtility.getMessage(name));
-		this.cameraPlotter = cameraPlotter;	
+		this.cameraPlotter = cameraPlotter;
 		initialize(regionColor, roiEventConsumer);
 	}
-	
+
 	private void initialize(Color regionColor, BiConsumer<IROI, IDataset> roiEventConsumer) {
 		ActionRegionROIListenerBuilder roiListenerBuilder = new ActionRegionROIListenerBuilder(roiEventConsumer, cameraPlotter::getImageTrace);
 		String regionName = String.format("%s Region", getText());
-		
+
 		addAction(new AbsorptionAction(ClientMessages.BOX, RegionType.BOX, regionColor, regionName,
 				roiListenerBuilder, cameraPlotter::getPlottingSystem));
 		addAction(new AbsorptionAction(ClientMessages.CIRCLE, RegionType.CIRCLE, regionColor, regionName,
@@ -70,24 +88,24 @@ class AbsorptionElement extends MenuAction implements IPropertyChangeListener {
 	}
 
 	private Consumer<ActionState> updateActionState = state -> {
-		// disable the action menu when one of its actions has been selected  
+		// disable the action menu when one of its actions has been selected
 		if (ActionState.CREATED.equals(state)) {
 			this.setEnabled(false);
-		// enable the action menu when one of its action moves to the READY state 			
+		// enable the action menu when one of its action moves to the READY state
 		} else if (ActionState.READY.equals(state)) {
 			this.setEnabled(true);
 		}
 	};
-	
+
 	/**
 	 * Allows to pre-assemble a parametrized listener to be instantiated when the region is draw.
-	 * 
-	 * @see AbsorpionAction
+	 *
+	 * @see AbsorptionAction
 	 */
 	class ActionRegionROIListenerBuilder {
 		private final BiConsumer<IROI, IDataset> eventConsumer;
 		private final Supplier<IImageTrace> imageTrace;
-		
+
 		public ActionRegionROIListenerBuilder(BiConsumer<IROI, IDataset> eventConsumer, Supplier<IImageTrace> imageTrace) {
 			super();
 			this.eventConsumer = eventConsumer;
@@ -97,12 +115,12 @@ class AbsorptionElement extends MenuAction implements IPropertyChangeListener {
 		public IROIListener build(IRegion region) {
 			return new ActionRegionROIListener(eventConsumer, region, imageTrace);
 		}
-		
+
 		class ActionRegionROIListener implements IROIListener {
 			private final BiConsumer<IROI, IDataset> eventConsumer;
 			private final IRegion region;
 			private final Supplier<IImageTrace> imageTrace;
-			
+
 			public ActionRegionROIListener(BiConsumer<IROI, IDataset> eventConsumer, IRegion region,
 					Supplier<IImageTrace> imageTrace) {
 				super();
@@ -124,11 +142,11 @@ class AbsorptionElement extends MenuAction implements IPropertyChangeListener {
 					eventConsumer.accept(evt.getROI(), imageTrace.get().getData());
 				}
 			}
-			
+
 			@Override
 			public void roiSelected(ROIEvent evt) {
 				//Not used
-			}		
+			}
 		}
 	}
 }

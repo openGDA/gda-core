@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2020 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.daq.client.gui.camera.absorption;
 
 import static org.eclipse.january.dataset.DatasetUtils.convertToDataset;
@@ -39,13 +57,13 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * instance exposes {@link #getIntensity()} so that another instance can use it
  * calling {@link #calculateRatioWith(LongSupplier, ClientMessages)}.
  * </p>
- * 
+ *
  * <p>
  * Locking the row value, selecting the {@code lockIntensity} button causes the
  * row to stop updating the intensity value. However region and its dataset are
  * updated are always updated , so unlocking a row causes its immediate update.
  * </p>
- * 
+ *
  * @author Maurizio Nagni
  *
  */
@@ -86,8 +104,7 @@ class ROIStatisticRow {
 	};
 
 	/**
-	 * Updates the row values using the actual region/image. 
-	 * @return
+	 * @return the process event (as defined above)
 	 */
 	BiConsumer<IROI, IDataset> getProcessEvent() {
 		return processEvent;
@@ -101,8 +118,6 @@ class ROIStatisticRow {
 
 	/**
 	 * Calculate the ration of this region intensity com
-	 * 
-	 * @param valueA
 	 */
 	private void processRatio() {
 		if (otherIntensity != null && otherIntensity.getAsLong() != 0) {
@@ -119,7 +134,7 @@ class ROIStatisticRow {
 		TableEditor editor = new TableEditor(table);
 		lockIntensity = createClientButton(table, SWT.CHECK, EMPTY_MESSAGE, EMPTY_MESSAGE);
 		GridDataFactory.fillDefaults().applyTo(lockIntensity);
-		
+
 		editor.grabHorizontal = true;
 		editor.setEditor(lockIntensity, tableItem, 0);
 
@@ -128,21 +143,21 @@ class ROIStatisticRow {
 		editor = new TableEditor(table);
 		Label nameLabel = createClientLabel(table, SWT.NONE, name);
 		GridDataFactory.fillDefaults().applyTo(nameLabel);
-		
+
 		editor.grabHorizontal = true;
 		editor.setEditor(nameLabel, tableItem, 1);
 
 		editor = new TableEditor(table);
 		intensityLabel = createClientLabel(table, SWT.NONE, EMPTY_MESSAGE);
 		GridDataFactory.fillDefaults().applyTo(intensityLabel);
-		
+
 		editor.grabHorizontal = true;
 		editor.setEditor(intensityLabel, tableItem, 2);
 
 		editor = new TableEditor(table);
 		ratioLabel = createClientLabel(table, SWT.NONE, EMPTY_MESSAGE);
 		GridDataFactory.fillDefaults().applyTo(intensityLabel);
-		
+
 		editor.grabHorizontal = true;
 		editor.setEditor(ratioLabel, tableItem, 3);
 	}

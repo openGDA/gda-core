@@ -21,10 +21,7 @@ package uk.ac.diamond.daq.client.gui.camera.event;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.eclipse.swt.widgets.Composite;
-
 import uk.ac.gda.client.event.RootCompositeAware;
-import uk.ac.gda.ui.tool.ClientSWTElements;
 
 /**
  *  Represents an event published by an mutually dependent collection of Composites
@@ -32,10 +29,7 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  * @author Maurizio Nagni
  */
 public class RootCompositeEvent extends CameraEvent implements RootCompositeAware {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -5094032542760128396L;
 	private final Optional<UUID> rootComposite;
 
@@ -48,7 +42,7 @@ public class RootCompositeEvent extends CameraEvent implements RootCompositeAwar
 	public Optional<UUID> getRootComposite() {
 		return rootComposite;
 	}
-	
+
 //	public final boolean hasSameParent(Composite other) {
 //		//Avoids disposed widget
 //		if (other == null || other.isDisposed() || getRootComposite() == null) {

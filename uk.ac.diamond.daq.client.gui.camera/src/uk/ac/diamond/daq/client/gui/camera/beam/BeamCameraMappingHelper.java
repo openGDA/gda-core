@@ -52,22 +52,18 @@ import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
- * Implements an automatic procedure to map the position of the motor driving
- * the beam to the camera pixels.
+ * Implements an automatic procedure to map the position of the motor driving the beam to the camera pixels.
  * <p>
- * The class constructor {@link #ImagingCalibration(String, String)} uses two
- * {@code String} to retrieve the two {@link IScannableMotor} controlling the
- * beam position.
+ * The class constructor {@link #BeamCameraMappingHelper(ScannableIterator, ScannableIterator, ICameraConfiguration)}
+ * uses two {@code ScannableIterator} to retrieve the two {@link IScannableMotor} controlling the beam position.
  * </p>
  * <p>
- * Executing {@link #calibrate(ICameraConfiguration)}, the instance drives the
- * beam and at the same time listen to the stream connected with the camera
- * specified as parameter. The procedure ends when publishes, in Spring, a
- * {@link BeamCameraMappingEvent} on which {@link CameraImageComposite} is
- * listening.
+ * Executing {@link #calibrate()}, the instance drives the beam and at the same time listen to the stream connected with
+ * the camera specified as parameter. The procedure ends when publishes, in Spring, a {@link BeamCameraMappingEvent} on
+ * which {@link CameraImageComposite} is listening.
  * </p>
- * 
- * 
+ *
+ *
  * @author Maurizio Nagni
  *
  */
@@ -93,8 +89,6 @@ public class BeamCameraMappingHelper {
 
 	/**
 	 * Calculates the mapping for the {@code cameraConfiguration}
-	 * 
-	 * @param cameraConfiguration
 	 */
 	public void calibrate() {
 		initialise();
