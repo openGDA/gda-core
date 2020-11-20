@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = StagePropertiesDocument.Builder.class)
-public class StagePropertiesDocument {
+@JsonDeserialize(builder = ScannableGroupPropertiesDocument.Builder.class)
+public class ScannableGroupPropertiesDocument {
 
 	/**
 	 * A unique identifier for the stage
@@ -31,7 +31,7 @@ public class StagePropertiesDocument {
 	private final String label;
 
 
-	private StagePropertiesDocument(String id, List<ScannablePropertiesDocument> scannables, String label) {
+	private ScannableGroupPropertiesDocument(String id, List<ScannablePropertiesDocument> scannables, String label) {
 		this.id = id;
 		this.scannables = scannables;
 		this.label = label;
@@ -58,7 +58,7 @@ public class StagePropertiesDocument {
 		public Builder() {
 		}
 
-		public Builder(final StagePropertiesDocument parent) {
+		public Builder(final ScannableGroupPropertiesDocument parent) {
 			this.id = parent.getId();
 			this.scannables = parent.getScannables();
 			this.label = parent.getLabel();
@@ -79,8 +79,8 @@ public class StagePropertiesDocument {
 			return this;
 		}
 
-		public StagePropertiesDocument build() {
-			return new StagePropertiesDocument(id, scannables, label);
+		public ScannableGroupPropertiesDocument build() {
+			return new ScannableGroupPropertiesDocument(id, scannables, label);
 		}
 	}
 }

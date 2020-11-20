@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import uk.ac.diamond.daq.mapping.ui.properties.stages.StagesPropertiesHelper;
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannablesPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.services.position.DevicePositionDocumentService;
 import uk.ac.diamond.daq.mapping.ui.stage.CommonStage;
 import uk.ac.diamond.daq.mapping.ui.stage.DevicePosition;
@@ -125,7 +125,7 @@ public class StageController implements IStageController {
 
 	private DevicePositionDocument createShutterRequest(String position) {
 		// The "device" string has to be linked to a property
-		String device = StagesPropertiesHelper.getShutter();
+		String device = ScannablesPropertiesHelper.getShutter();
 		DevicePositionDocument shutter = devicePositionDocumentService.devicePositionAsDocument(device);
 		if (shutter == null)
 			return null;
@@ -142,6 +142,6 @@ public class StageController implements IStageController {
 	}
 
 	private Set<String> getDevices() {
-		return StagesPropertiesHelper.getScannables();
+		return ScannablesPropertiesHelper.getScannables();
 	}
 }

@@ -134,7 +134,7 @@ public abstract class CommonStage implements StageDescription {
 	private void loadDevices() {
 		for (Entry<StageDevice, String> entry : getDevicesMap().entrySet()) {
 			if (entry.getKey().name().startsWith("MOTOR")) {
-				loadMotor(entry);
+				mapMotor(entry);
 			}
 			if (entry.getKey().name().startsWith("MALCOLM")) {
 				loadMalcolm(entry);
@@ -142,14 +142,19 @@ public abstract class CommonStage implements StageDescription {
 		}
 	}
 
-	private void loadMotor(Entry<StageDevice, String> entry) {
+	private void mapMotor(Entry<StageDevice, String> entry) {
+			loadMotor(entry.getValue()).ifPresent(c -> motors.put(entry.getKey(), c));
+	}
+
+	public static final Optional<IScannableMotor> loadMotor(String entry) {
 		try {
-			getIScannableMotor(getBeanId(entry)).ifPresent(c -> motors.put(entry.getKey(), c));
+			return getIScannableMotor(getBeanId(entry));
 		} catch (LoadException e) {
-			String errMsg = String.format("Cannot load motor %s", entry.getKey());
+			String errMsg = String.format("Cannot load motor %s", entry);
 			UIHelper.showError(errMsg, e);
 			logger.error(errMsg, e);
 		}
+		return Optional.empty();
 	}
 
 	private void loadMalcolm(Entry<StageDevice, String> entry) {
@@ -163,7 +168,11 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	private String getBeanId(Entry<StageDevice, String> entry) throws LoadException {
-		return Optional.ofNullable(LocalProperties.get(entry.getValue())).orElseThrow(LoadException::new);
+		return getBeanId(entry.getValue());
+	}
+
+	private static final String getBeanId(String entry) throws LoadException {
+		return Optional.ofNullable(LocalProperties.get(entry)).orElseThrow(LoadException::new);
 	}
 
 	private Composite getStageControls(Composite parent) {
@@ -257,7 +266,7 @@ public abstract class CommonStage implements StageDescription {
 	 */
 	protected abstract TabCompositeFactory[] getTabsFactories();
 
-	private class LoadException extends GDAClientException {
+	private static class LoadException extends GDAClientException {
 
 	}
 }
