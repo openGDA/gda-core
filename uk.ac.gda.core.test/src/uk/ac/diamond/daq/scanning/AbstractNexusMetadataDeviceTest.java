@@ -51,7 +51,11 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 
 	protected abstract void setupMockScannables() throws Exception;
 
-	protected abstract INexusDevice<N> setupNexusDevice() throws Exception ;
+	protected abstract INexusDevice<N> setupNexusDevice() throws Exception;
+
+	protected INexusDevice<N> getNexusDevice() {
+		return nexusDevice;
+	}
 
 	protected <T> IScannable<T> createMockScannable(String name, T position) throws Exception {
 		@SuppressWarnings("unchecked")

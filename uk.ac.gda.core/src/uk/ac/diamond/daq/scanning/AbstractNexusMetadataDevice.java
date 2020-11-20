@@ -39,9 +39,30 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		this.name = name;
 	}
 
+
+	protected void writeScannableValueIfSet(NXobject object, String fieldName, String scannableName) throws NexusException {
+		writeScannableValue(object, fieldName, scannableName, false);
+	}
+
 	protected void writeScannableValue(NXobject object, String fieldName, String scannableName) throws NexusException {
-		if (scannableName == null) {
-			// TODO all fields required at present, this may change
+		writeScannableValue(object, fieldName, scannableName, true);
+	}
+
+	protected <T> IScannable<T> getScannable(String scannableName) throws NexusException {
+		try {
+			return ServiceHolder.getScannableDeviceService().getScannable(scannableName);
+		} catch (ScanningException e) {
+			throw new NexusException("Could not find scannable with name: " + scannableName);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected <T> T getScannableValue(String scannableName) throws ScanningException, NexusException {
+		return (T) getScannable(scannableName).getPosition();
+	}
+
+	protected void writeScannableValue(NXobject object, String fieldName, String scannableName, boolean required) throws NexusException {
+		if (required && scannableName == null) {
 			throw new NexusException(String.format("No scannable set for field %s of %s", fieldName, object.getClass().getSimpleName()));
 		}
 
