@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -47,17 +49,18 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 	public CameraImageComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection)
 			throws GDAClientException {
 		super(parent, style);
+		//createClientGridDataFactory().applyTo(this);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this);
 
 		plottingComposite = new LivePlottingComposite(this, SWT.NONE, CAMERA_IMAGE_PLOTTING_SYSTEM_NAME, liveStreamConnection);
 		plottingComposite.setShowTitle(true);
 
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(plottingComposite);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(plottingComposite);
 
 		// Registers the region into the camera
 		SpringApplicationContextProxy.addDisposableApplicationListener(this, registerDrawableRegionListener(this));
 
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(this);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(this);
 		logger.debug("CameraImageComposite created");
 	}
 
