@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.beamline.health.BeamlineHealthMonitor;
 import gda.beamline.health.BeamlineHealthResult;
+import gda.beamline.health.BeamlineHealthState;
 import gda.factory.Finder;
 import gda.jython.GDAJythonClassLoader;
 import gda.jython.ITerminalPrinter;
@@ -224,8 +226,17 @@ public class GDAServerApplication implements IApplication {
 						final BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 					String inputLine;
 					while ((inputLine = in.readLine()) != null) {
-						if (inputLine.equalsIgnoreCase(BeamlineHealthResult.COMMAND) && beamlineHealthMonitor != null) {
-							out.println(new ObjectMapper().writeValueAsString(getBeamlineState()));
+						if (inputLine.equalsIgnoreCase(BeamlineHealthResult.COMMAND)) {
+							// Beamline health status requested
+							final BeamlineHealthResult beamlineHealthResult;
+							if (beamlineHealthMonitor == null) {
+								final String message = "No beamlineHealthMonitor found - server state cannot be determined";
+								logger.warn(message);
+								beamlineHealthResult = new BeamlineHealthResult(BeamlineHealthState.WARNING, message, Collections.emptyList());
+							} else {
+								beamlineHealthResult = getBeamlineState();
+							}
+							out.println(new ObjectMapper().writeValueAsString(beamlineHealthResult));
 						} else {
 							out.println(String.format("You sent: %s", inputLine));
 						}
