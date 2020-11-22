@@ -47,6 +47,7 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -78,6 +79,8 @@ import org.eclipse.january.dataset.StringDataset;
  *
  */
 public class NexusAssert {
+	
+	private static final String ATTRIBUTE_NAME_UNITS = "units";
 	
 	public static void assertAxes(NXdata nxData, String... expectedValues) {
 		if (expectedValues.length == 0) return; // axes not written if no axes to write (a scalar signal field)
@@ -646,7 +649,12 @@ public class NexusAssert {
 		assertArrayEquals(path, expectedAttr.getShape(), actualAttr.getShape());
 		assertDatasetsEqual(path, expectedAttr.getValue(), actualAttr.getValue());
 	}
-
+	
+	public static void assertUnits(DataNode dataNode, String expectedUnits) {
+		final Attribute expectedUnitsAttr = TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, expectedUnits);
+		assertAttributesEquals(null, expectedUnitsAttr, dataNode.getAttribute(ATTRIBUTE_NAME_UNITS));
+	}
+	
 	public static void assertDatasetValue(Object expectedValue, ILazyDataset dataset) {
 		assertDatasetsEqual(null, DatasetFactory.createFromObject(expectedValue), dataset);
 	}
