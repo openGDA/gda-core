@@ -92,6 +92,7 @@ import gda.data.metadata.StoredMetadataEntry;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
@@ -180,11 +181,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 	public static void setUpServices() {
 		// must be called from @BeforeClass method of subclasses
 		nexusFileFactory = new NexusFileFactoryHDF5();
-
-		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(
-				METADATA_KEY_FEDERAL_ID, EXPECTED_USER_NAME));
-		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(
-				METADATA_KEY_INSTRUMENT, EXPECTED_INSTRUMENT_NAME));
 	}
 
 	@AfterClass
@@ -210,6 +206,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 		this.monitor = dummyMonitor;
 	}
 
+	protected void setUpMetadata() throws Exception {
+		addMetadataEntry(METADATA_KEY_FEDERAL_ID, EXPECTED_USER_NAME);
+		addMetadataEntry(METADATA_KEY_INSTRUMENT, EXPECTED_INSTRUMENT_NAME);
+	}
+
+	protected void addMetadataEntry(String metadataKey, Object value) {
+		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(metadataKey, value.toString()));
+	}
+
 	@After
 	public void tearDown() {
 		scannables = null;
@@ -219,6 +224,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected void setUpTest(String testName) throws Exception {
 		testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
+
+		setUpMetadata();
 		setupMetadataScannables();
 	}
 
@@ -234,9 +241,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final Map<String, ScannableWriter> locationMap = new HashMap<>();
 		for (int i = 0; i < METADATA_SCANNABLE_NAMES.length; i++) {
 			final String name = METADATA_SCANNABLE_NAMES[i];
-			final DummyScannable metadataScannable = new DummyScannable(name);
-			metadataScannable.moveTo(Double.valueOf(i));
-			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, metadataScannable);
+			createScannable(name, i);
 
 			final List<String> prerequisites = dependencies.get(i).stream().map(j -> METADATA_SCANNABLE_NAMES[j]).collect(toList());
 			if (i == 0) prerequisites.add(scannables[0].getName());
@@ -262,6 +267,12 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		// create the set of expected metadata scannable names
 		createExpectedMetadataScannableNames();
+	}
+
+	protected void createScannable(final String name, double value) throws DeviceException {
+		final DummyScannable scannable = new DummyScannable(name);
+		scannable.moveTo(value);
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, scannable);
 	}
 
 	private void createExpectedMetadataScannableNames() {
@@ -433,18 +444,19 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(entry, is (notNullValue()));
 
 		checkNexusMetadata(entry);
-		checkDevices(entry);
+		checkSampleGroup(entry);
+		checkUsers(entry);
+		checkInstrument(entry.getInstrument());
 		checkDataGroups(entry);
 		checkTemplateEntry(nexusRoot);
 	}
 
-	protected void checkDevices(NXentry entry) throws Exception {
-		final NXinstrument instrument = entry.getInstrument();
+	protected void checkInstrument(NXinstrument instrument) throws Exception {
 		assertThat(instrument, is(notNullValue()));
-
 		checkInstrumentGroupMetadata(instrument); // check no of nodes, etc
 		checkScannablesAndMonitors(instrument);
 		checkDetector(instrument);
+		checkMetadataDeviceGroups(instrument);
 	}
 
 	protected void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
@@ -565,11 +577,23 @@ public abstract class AbstractNexusDataWriterScanTest {
 		checkDateTime(entry.getStart_time());
 		// end_time
 		checkDateTime(entry.getEnd_time());
-
-		checkUsers(entry);
 	}
 
 	protected abstract void checkUsers(NXentry entry);
+
+	protected void checkMetadataDeviceGroups(NXinstrument instrument) throws Exception {
+		checkMonochromatorGroup(instrument);
+		checkInsertionDeviceGroup(instrument);
+		checkSourceGroup(instrument);
+	}
+
+	protected abstract void checkSourceGroup(NXinstrument instrument);
+
+	protected abstract void checkSampleGroup(NXentry entry);
+
+	protected abstract void checkInsertionDeviceGroup(NXinstrument instrument);
+
+	protected abstract void checkMonochromatorGroup(NXinstrument instrument);
 
 	private void checkDateTime(IDataset dataset) {
 		assertThat(dataset, is(notNullValue()));

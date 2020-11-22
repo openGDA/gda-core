@@ -506,4 +506,24 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 	}
 
+	@Override
+	protected void checkSourceGroup(NXinstrument instrument) {
+		// TODO DAQ-3259 write NXsource group for NexusScanDataWriter
+	}
+
+	@Override
+	protected void checkSampleGroup(NXentry entry) {
+		// TODO DAQ-3259 write NXsample group for NexusScanDataWriter
+	}
+
+	@Override
+	protected void checkInsertionDeviceGroup(NXinstrument instrument) {
+		// TODO DAQ-3259 write NXinsertion_device group for NexusScanDataWriter
+	}
+
+	@Override
+	protected void checkMonochromatorGroup(NXinstrument instrument) {
+		// TODO DAQ-3259 write NXmonochromator group for NexusScanDataWriter
+	}
+
 }

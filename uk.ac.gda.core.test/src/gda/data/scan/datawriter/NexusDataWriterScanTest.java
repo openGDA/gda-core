@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter;
 
+import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
@@ -33,7 +34,9 @@ import java.util.stream.IntStream;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
@@ -64,6 +67,20 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final String ENTRY_NAME = "entry1";
 
+	private static final String METADATA_KEY_MONOCHROMATOR_NAME = "instrument.monochromator.name";
+	private static final String METADATA_KEY_MONOCHROMATOR_ENERGY = "instrument.monochromator.energy";
+	private static final String METADATA_KEY_MONOCHROMATOR_WAVELENGTH = "instrument.monochromator.wavelength";
+	private static final String METADATA_KEY_INSERTION_DEVICE_GAP = "instrument.insertion_device.gap";
+	private static final String METADATA_KEY_INSTRUMENT_SOURCE_ENERGY = "instrument.source.energy";
+	private static final String METADATA_KEY_INSTRUMENT_SOURCE_CURRENT = "instrument.source.current";
+
+	private static final String EXPECTED_MONOCHROMATOR_NAME = "myMono";
+	private static final double EXPECTED_MONOCHROMATOR_ENERGY = 5.432;
+	private static final double EXPECTED_MONOCHROMATOR_WAVELENGTH = 543.34;
+	private static final double EXPECTED_INSERTION_DEVICE_GAP = 1.234;
+	private static final double EXPECTED_SOURCE_ENERGY = 3.0;
+	private static final double EXPECTED_SOURCE_CURRENT = 25.5;
+
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
@@ -88,6 +105,26 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
+	protected void setUpMetadata() throws Exception {
+		super.setUpMetadata();
+
+		// Note: I tried using ScannableMetadataEntries here, but they don't work with no JythonServiceFacade set up, which is hard in a test.
+		// Additional note: for some reason metadata values have to be strings.
+
+		// metadata entries for NXmonochromator
+		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_NAME, EXPECTED_MONOCHROMATOR_NAME);
+		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_ENERGY, EXPECTED_MONOCHROMATOR_ENERGY);
+		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_WAVELENGTH, EXPECTED_MONOCHROMATOR_WAVELENGTH);
+
+		// metadata entries for NXinsertion_device - this is the only field that NeXusUtils.writeNXinsertionDevice actually writes)
+		addMetadataEntry(METADATA_KEY_INSERTION_DEVICE_GAP, EXPECTED_INSERTION_DEVICE_GAP);
+
+		// metadata entries for NXsource
+		addMetadataEntry(METADATA_KEY_INSTRUMENT_SOURCE_ENERGY, EXPECTED_SOURCE_ENERGY);
+		addMetadataEntry(METADATA_KEY_INSTRUMENT_SOURCE_CURRENT, EXPECTED_SOURCE_CURRENT);
+	}
+
+	@Override
 	protected void checkNexusMetadata(NXentry entry) {
 		super.checkNexusMetadata(entry);
 
@@ -104,23 +141,13 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected void checkUsers(NXentry entry) {
-		// user group
-		final Map<String, NXuser> users = entry.getAllUser();
-		assertThat(users.keySet(), Matchers.contains(EXPECTED_USER_GROUP_NAME));
-		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
-		assertThat(user, is(notNullValue()));
-		assertThat(user.getNumberOfNodelinks(), is(1));
-		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_NAME)));
-	}
-
-	@Override
 	protected void checkInstrumentGroupMetadata(final NXinstrument instrument) {
 		assertThat(instrument.getDataNodeNames(), contains(NXinstrument.NX_NAME));
 		assertThat(instrument.getNumberOfDataNodes(), is(1));
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
-		final int expectedGroupNodes = getNumDevices() + 1; // group for each device, plus source group
+		// group for each device, plus metadata groups: source, monochromator, insertion_device
+		final int expectedGroupNodes = getNumDevices() + 3;
 		assertThat(instrument.getNumberOfGroupNodes(), is(expectedGroupNodes));
 		checkSource(instrument);
 	}
@@ -129,13 +156,17 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final NXsource source = instrument.getSource();
 		assertThat(source, is(notNullValue()));
 
-		assertThat(source.getDataNodeNames(), containsInAnyOrder(NXsource.NX_NAME, NXsource.NX_PROBE, NXsource.NX_TYPE));
-		assertThat(source.getNumberOfDataNodes(), is(3));
+		final String[] expectedDataNodeNames = { NXsource.NX_NAME, NXsource.NX_PROBE,
+				NXsource.NX_TYPE, NXsource.NX_CURRENT, NXsource.NX_ENERGY };
+		assertThat(source.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(source.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
 		assertThat(source.getNumberOfGroupNodes(), is(0));
 
 		assertThat(source.getNameScalar(), is(equalTo("DLS")));
 		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
 		assertThat(source.getTypeScalar(), is(equalTo("Synchrotron X-ray Source")));
+		assertThat(source.getEnergyScalar(), is(equalTo(3.0)));
+		assertThat(source.getCurrentScalar(), is(equalTo(25.5)));
 	}
 
 	@Override
@@ -280,6 +311,62 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 						entry.getInstrument().getPositioner(MONITOR_NAME).getDataNode(NXpositioner.NX_VALUE)))));
 			}
 		}
+	}
+
+	@Override
+	protected void checkMonochromatorGroup(NXinstrument instrument) {
+		final NXmonochromator monochromator = instrument.getMonochromator();
+		assertThat(monochromator, is(notNullValue()));
+
+		assertThat(monochromator.getDataNode("name").getString(), is(equalTo(EXPECTED_MONOCHROMATOR_NAME)));
+		assertThat(monochromator.getEnergyScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_ENERGY)));
+		assertUnits(monochromator.getDataNode(NXmonochromator.NX_ENERGY), "keV");
+		assertThat(monochromator.getWavelengthScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_WAVELENGTH)));
+		assertUnits(monochromator.getDataNode(NXmonochromator.NX_WAVELENGTH), "Angstrom");
+	}
+
+	@Override
+	protected void checkInsertionDeviceGroup(NXinstrument instrument) {
+		final NXinsertion_device insertionDevice = instrument.getInsertion_device();
+		assertThat(insertionDevice, is(notNullValue()));
+
+		assertThat(insertionDevice.getGapScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_GAP)));
+		assertUnits(insertionDevice.getDataNode(NXinsertion_device.NX_GAP), "mm");
+	}
+
+	@Override
+	protected void checkSourceGroup(NXinstrument instrument) {
+		final NXsource source = instrument.getSource();
+		assertThat(source, is(notNullValue()));
+
+		assertThat(source.getNumberOfDataNodes(), is(5));
+		assertThat(source.getNumberOfGroupNodes(), is(0));
+
+		assertThat(source.getNameScalar(), is(equalTo("DLS")));
+		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
+		assertThat(source.getTypeScalar(), is(equalTo("Synchrotron X-ray Source")));
+
+		assertThat(source.getEnergyScalar(), is(equalTo(EXPECTED_SOURCE_ENERGY)));
+		assertUnits(source.getDataNode(NXsource.NX_ENERGY), "GeV");
+		assertThat(source.getCurrentScalar(), is(equalTo(EXPECTED_SOURCE_CURRENT)));
+		assertUnits(source.getDataNode(NXsource.NX_CURRENT), "mA");
+	}
+
+	@Override
+	protected void checkSampleGroup(NXentry entry) {
+		// NeXusUtil.write_NXsample is not called and only creates an empty NXsample group
+		assertThat(entry.getAllSample().size(), is(0));
+	}
+
+	@Override
+	protected void checkUsers(NXentry entry) {
+		// user group
+		final Map<String, NXuser> users = entry.getAllUser();
+		assertThat(users.keySet(), Matchers.contains(EXPECTED_USER_GROUP_NAME));
+		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
+		assertThat(user, is(notNullValue()));
+		assertThat(user.getNumberOfNodelinks(), is(1));
+		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_NAME)));
 	}
 
 }
