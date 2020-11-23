@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.eclipse.january.dataset.IDatasetConnector;
+
 import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
@@ -85,7 +87,9 @@ public class LiveStreamConnectionManager implements ILiveStreamConnectionManager
 	 */
 	private LiveStreamConnection doIStreamConnection(CameraConfiguration cameraConfig, StreamType streamType)
 			throws LiveStreamException {
-		LiveStreamConnection liveStream = new LiveStreamConnection(cameraConfig, streamType);
+		final IDatasetConnector stream = LiveStreamWrapperManager.getInstance().getStream(cameraConfig, streamType);
+		final LiveStreamConnection liveStream = new LiveStreamConnection(cameraConfig, streamType);
+		liveStream.setStream(stream);
 		liveStream.connect();
 		liveStreamConnections.add(liveStream);
 		return liveStream;

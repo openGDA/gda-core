@@ -57,6 +57,7 @@ import gda.observable.IObserver;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
@@ -167,10 +168,12 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 		final CameraControl cameraControl = params.getCameraControl();
 		try {
 	        cameraControl.startAcquiring();
-			liveStreamConnection = new LiveStreamConnection(cameraConfig, streamType);
+			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance()
+					.getIStreamConnection(
+							LiveStreamConnectionManager.getInstance().getIStreamConnection(cameraConfig, streamType));
 			createPlottingView(container);
 			cameraControl.stopAcquiring();
-		} catch (DeviceException e) {
+		} catch (DeviceException | LiveStreamException e) {
 			final String message = String.format("Error connecting to camera %s", cameraControl.getName());
 			displayError("Live stream connection error", message, e, logger);
 		}

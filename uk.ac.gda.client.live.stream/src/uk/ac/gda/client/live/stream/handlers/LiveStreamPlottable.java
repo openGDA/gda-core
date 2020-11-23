@@ -151,7 +151,11 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 	@Override
 	public void connect() throws LiveStreamException {
 		connection.addAxisMoveListener(axisChangeListener);
-		cachedDataset =  connection.connect();
+		if (connection.isConnected()) {
+			cachedDataset = connection.getStream();
+		} else {
+			cachedDataset = connection.connect();
+		}
 	}
 
 	@Override

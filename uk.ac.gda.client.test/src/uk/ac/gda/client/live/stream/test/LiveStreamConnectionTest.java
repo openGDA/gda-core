@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.live.stream.test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.scanning.api.event.EventException;
@@ -35,106 +36,112 @@ import uk.ac.gda.client.live.stream.view.StreamType;
 public class LiveStreamConnectionTest {
 
 	/**
-	 * Tests {@link LiveStreamConnection#similarConfiguration(CameraConfiguration, StreamType)}
+	 * Tests {@link LiveStreamConnection#sameConfiguration(CameraConfiguration, StreamType)}
 	 * Compares two empty configurations.
 	 *
 	 * @throws EventException
 	 */
 	@Test
 	public void emptyCameraConfigurationTest() throws EventException {
-		CameraConfiguration firstConfig = new CameraConfiguration();
-		StreamType streamType = StreamType.EPICS_ARRAY;
+		final CameraConfiguration firstConfig = new CameraConfiguration();
+		final StreamType streamType = StreamType.EPICS_ARRAY;
 		try (LiveStreamConnection liveStreamconnection = new LiveStreamConnection(firstConfig, streamType)) {
-			CameraConfiguration other = new CameraConfiguration();
-			// Return true because both are null.
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.MJPEG));
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.EPICS_ARRAY));
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.EPICS_PVA));
+			final CameraConfiguration other = new CameraConfiguration();
+			// Camera config & stream type both have to match
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.MJPEG));
+			assertTrue(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_ARRAY));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_PVA));
 		}
 	}
 
 	/**
-	 * Tests {@link LiveStreamConnection#similarConfiguration(CameraConfiguration, StreamType)}
+	 * Tests {@link LiveStreamConnection#sameConfiguration(CameraConfiguration, StreamType)}
 	 * Compares two configurations containing only arrayPV, first equal then different
 	 *
 	 * @throws EventException
 	 */
 	@Test
 	public void hasOnlyArrayPVTest() throws EventException {
-		String firstArrayPV = "arrayPv";
-		String anotherArrayPV = "anotherArrayPv";
-		CameraConfiguration firstConfig = new CameraConfiguration();
+		final String firstArrayPV = "arrayPv";
+		final String anotherArrayPV = "anotherArrayPv";
+		final CameraConfiguration firstConfig = new CameraConfiguration();
 		firstConfig.setArrayPv(firstArrayPV);
-		StreamType streamType = StreamType.EPICS_ARRAY;
+		final StreamType streamType = StreamType.EPICS_ARRAY;
 		try (LiveStreamConnection liveStreamconnection = new LiveStreamConnection(firstConfig, streamType)) {
-			CameraConfiguration other = new CameraConfiguration();
+			final CameraConfiguration other = new CameraConfiguration();
 			other.setArrayPv(firstArrayPV);
 			// Is the same epics configuration
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.EPICS_ARRAY));
+			assertTrue(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_ARRAY));
 
 			other.setArrayPv(anotherArrayPV);
 			// Is another epics configuration
-			assertTrue(!liveStreamconnection.similarConfiguration(other, StreamType.EPICS_ARRAY));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_ARRAY));
 		}
 	}
 
 	/**
-	 * Tests {@link LiveStreamConnection#similarConfiguration(CameraConfiguration, StreamType)}
+	 * Tests {@link LiveStreamConnection#sameConfiguration(CameraConfiguration, StreamType)}
 	 * Compares two configurations containing only URL, first equal then different
 	 *
 	 * @throws EventException
 	 */
 	@Test
 	public void hasOnlyURLTest() throws EventException {
-		String firstURL = "http://gda.ac.uk";
-		String anotherURL = "http://dawn.ac.uk";
-		CameraConfiguration firstConfig = new CameraConfiguration();
+		final String firstURL = "http://gda.ac.uk";
+		final String anotherURL = "http://dawn.ac.uk";
+		final CameraConfiguration firstConfig = new CameraConfiguration();
 		firstConfig.setUrl(firstURL);
-		StreamType streamType = StreamType.MJPEG;
+		final StreamType streamType = StreamType.MJPEG;
 		try (LiveStreamConnection liveStreamconnection = new LiveStreamConnection(firstConfig, streamType)) {
-			CameraConfiguration other = new CameraConfiguration();
+			final CameraConfiguration other = new CameraConfiguration();
 			other.setUrl(firstURL);
 			// Is the same url configuration
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.MJPEG));
+			assertTrue(liveStreamconnection.sameConfiguration(other, StreamType.MJPEG));
 
 			other.setUrl(anotherURL);
 			// Is another url configuration
-			assertTrue(!liveStreamconnection.similarConfiguration(other, StreamType.MJPEG));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.MJPEG));
 		}
 	}
 
 	/**
-	 * Tests {@link LiveStreamConnection#similarConfiguration(CameraConfiguration, StreamType)}
+	 * Tests {@link LiveStreamConnection#sameConfiguration(CameraConfiguration, StreamType)}
 	 * Compares two configurations containing both URL and arrayPV, alternatively equal
 	 *
 	 * @throws EventException
 	 */
 	@Test
 	public void hasURLAndPVArrayTest() throws EventException {
-		String firstURL = "http://gda.ac.uk";
-		String anotherURL = "http://dawn.ac.uk";
-		String firstArrayPV = "arrayPv";
-		String anotherArrayPV = "anotherArrayPv";
+		final String firstURL = "http://gda.ac.uk";
+		final String anotherURL = "http://dawn.ac.uk";
+		final String firstArrayPV = "arrayPv";
+		final String anotherArrayPV = "anotherArrayPv";
 
-		CameraConfiguration firstConfig = new CameraConfiguration();
+		final CameraConfiguration firstConfig = new CameraConfiguration();
 		firstConfig.setUrl(firstURL);
 		firstConfig.setArrayPv(firstArrayPV);
-		StreamType streamType = StreamType.EPICS_ARRAY;
-		try (LiveStreamConnection liveStreamconnection = new LiveStreamConnection(firstConfig, streamType)) {
-			CameraConfiguration other = new CameraConfiguration();
+		try (LiveStreamConnection liveStreamconnection = new LiveStreamConnection(firstConfig, StreamType.EPICS_ARRAY)) {
+			final CameraConfiguration other = new CameraConfiguration();
+
+			// Same URL & array PV
+			other.setUrl(firstURL);
+			other.setArrayPv(firstArrayPV);
+			// Different stream type
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.MJPEG));
+			// Same stream type
+			assertTrue(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_ARRAY));
+
+			// Same URL, different array PV
 			other.setUrl(firstURL);
 			other.setArrayPv(anotherArrayPV);
-			// Another camera configuration has the same URL
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.MJPEG));
-			// Another camera configuration has another PVArray
-			assertTrue(!liveStreamconnection.similarConfiguration(other, StreamType.EPICS_ARRAY));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.MJPEG));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_ARRAY));
 
+			// Different URL, same array PV
 			other.setUrl(anotherURL);
 			other.setArrayPv(firstArrayPV);
-			// Another camera configuration has the same URL
-			assertTrue(!liveStreamconnection.similarConfiguration(other, StreamType.MJPEG));
-			// Another camera configuration has another PVArray
-			assertTrue(liveStreamconnection.similarConfiguration(other, StreamType.EPICS_ARRAY));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.MJPEG));
+			assertFalse(liveStreamconnection.sameConfiguration(other, StreamType.EPICS_ARRAY));
 		}
 	}
 }

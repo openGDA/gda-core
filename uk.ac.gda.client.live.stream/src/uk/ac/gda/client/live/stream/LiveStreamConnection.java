@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang.StringUtils;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
 import org.eclipse.january.dataset.IDataset;
@@ -82,17 +82,12 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 
 	private AtomicInteger connectionCount = new AtomicInteger(0);
 
+	private boolean initialised = false;
+
 	public LiveStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
 		this.cameraConfig = cameraConfig;
 		this.streamType = streamType;
 		this.id = UUID.randomUUID();
-	}
-
-	public LiveStreamConnection(CameraConfiguration cameraConfig, LiveStreamConnection liveStreamConnection) {
-		this(cameraConfig, liveStreamConnection.getStreamType());
-		this.stream = liveStreamConnection.getStream();
-		connected = liveStreamConnection.isConnected();
-		postConnection();
 	}
 
 	/**
@@ -106,41 +101,35 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 	}
 
 	public synchronized IDatasetConnector connect() throws LiveStreamException {
-		if (getStream() != null) {
-			increaseConnectionCount();
-			return stream;
+		try {
+			stream.connect();
+			if (!initialised) {
+				setupAxes();
+				initialised = true;
+			}
+		} catch (DatasetException e) {
+			throw new LiveStreamException("Error connecting to live stream", e);
 		}
-
-		// Attach the IDatasetConnector of the MJPEG stream to the trace.
-		logger.debug("Connecting to live stream");
-		setStream(IDatasetConnectorFactory.getDatasetConnector(getCameraConfig(), getStreamType()));
 		connected = true;
-		return postConnection();
-	}
-
-	private IDatasetConnector postConnection() {
-		setupAxes();
-		if (this.isConnected()) {
-			increaseConnectionCount();
-		}
-		return getStream();
+		increaseConnectionCount();
+		return stream;
 	}
 
 	@Override
 	public synchronized void disconnect() throws LiveStreamException {
 		decreaseConnectionCount();
-		if (getStream() != null) { // Will be null the first time
+		if (stream != null) { // Will be null the first time
 			try {
-				CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
+				final CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
 				if (calibratedAxesProvider != null) {
 					calibratedAxesProvider.disconnect();
 					stream.removeDataListener(axesUpdater);
 				}
-				getStream().disconnect();
+				stream.disconnect();
 			} catch (Exception e) {
 				throw new LiveStreamException("Error disconnecting from live stream", e);
 			} finally {
-				stream = null;
+				initialised = false;
 			}
 		}
 
@@ -161,15 +150,15 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 
 	@Override
 	public void addDataListenerToStream(IDataListener listener) throws LiveStreamException {
-		if (getStream() == null) {
+		if (stream == null) {
 			throw new LiveStreamException("Stream is not connected.");
 		}
-		getStream().addDataListener(listener);
+		stream.addDataListener(listener);
 	}
 
 	@Override
 	public void removeDataListenerFromStream(IDataListener listener) {
-		if (getStream() != null) {
+		if (stream != null) {
 			stream.removeDataListener(listener);
 		}
 	}
@@ -239,6 +228,10 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		return stream;
 	}
 
+	public void setStream(IDatasetConnector stream) {
+		this.stream = stream;
+	}
+
 	/**
 	 * Compares the identity of this instance
 	 * <ol>
@@ -254,38 +247,7 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		return cameraConfig.equals(getCameraConfig()) && streamType.equals(getStreamType());
 	}
 
-	/**
-	 * Compares the similarity of this instance. This methods guarantees that {@link #getCameraConfig()} and another
-	 * {@code CameraConfiguration} have, at least, different properties for the required {@code streamType}, that is
-	 * <ol>
-	 * <li>for @{@link StreamType#EPICS_ARRAY}, the two {@link CameraConfiguration#getArrayPv()} are different</li>
-	 * <li>for @{@link StreamType#EPICS_PVA}, the two {@link CameraConfiguration#getPvAccessPv()} are different</li>
-	 * <li>for @{@link StreamType#MJPEG}, the two {@link CameraConfiguration#getUrl()} are different</li>
-	 * </ol>
-	 * Can handle the {@code null} case.
-	 *
-	 * @param other the configuration to compare with the one in this class
-	 * @param streamType the reference stream type
-	 * @return <code>true</code> if the configuration is the similar, <code>false</code> in any other case
-	 */
-	public final boolean similarConfiguration(final CameraConfiguration other, final StreamType streamType) {
-		if (StreamType.MJPEG.equals(streamType)) {
-			return StringUtils.equals(other.getUrl(), getCameraConfig().getUrl());
-		}
-		if (StreamType.EPICS_ARRAY.equals(streamType)) {
-			return StringUtils.equals(other.getArrayPv(), getCameraConfig().getArrayPv());
-		}
-		if (StreamType.EPICS_PVA.equals(streamType)) {
-			return StringUtils.equals(other.getPvAccessPv(), getCameraConfig().getPvAccessPv());
-		}
-		return false;
-	}
-
-	private void setStream(IDatasetConnector stream) {
-		this.stream = stream;
-	}
-
-	class AxesUpdater implements IDataListener {
+	private class AxesUpdater implements IDataListener {
 
 		private int[] streamDataShape;
 		private final CalibratedAxesProvider calibratedAxesProvider;
@@ -325,7 +287,17 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((axesUpdater == null) ? 0 : axesUpdater.hashCode());
+		result = prime * result + ((axisChangeListeners == null) ? 0 : axisChangeListeners.hashCode());
+		result = prime * result + ((cameraConfig == null) ? 0 : cameraConfig.hashCode());
+		result = prime * result + (connected ? 1231 : 1237);
+		result = prime * result + ((connectionCount == null) ? 0 : connectionCount.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((logger == null) ? 0 : logger.hashCode());
+		result = prime * result + ((stream == null) ? 0 : stream.hashCode());
+		result = prime * result + ((streamType == null) ? 0 : streamType.hashCode());
+		result = prime * result + ((xAxisDataset == null) ? 0 : xAxisDataset.hashCode());
+		result = prime * result + ((yAxisDataset == null) ? 0 : yAxisDataset.hashCode());
 		return result;
 	}
 
@@ -338,10 +310,54 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		if (getClass() != obj.getClass())
 			return false;
 		LiveStreamConnection other = (LiveStreamConnection) obj;
+		if (axesUpdater == null) {
+			if (other.axesUpdater != null)
+				return false;
+		} else if (!axesUpdater.equals(other.axesUpdater))
+			return false;
+		if (axisChangeListeners == null) {
+			if (other.axisChangeListeners != null)
+				return false;
+		} else if (!axisChangeListeners.equals(other.axisChangeListeners))
+			return false;
+		if (cameraConfig == null) {
+			if (other.cameraConfig != null)
+				return false;
+		} else if (!cameraConfig.equals(other.cameraConfig))
+			return false;
+		if (connected != other.connected)
+			return false;
+		if (connectionCount == null) {
+			if (other.connectionCount != null)
+				return false;
+		} else if (!connectionCount.equals(other.connectionCount))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (logger == null) {
+			if (other.logger != null)
+				return false;
+		} else if (!logger.equals(other.logger))
+			return false;
+		if (stream == null) {
+			if (other.stream != null)
+				return false;
+		} else if (!stream.equals(other.stream))
+			return false;
+		if (streamType != other.streamType)
+			return false;
+		if (xAxisDataset == null) {
+			if (other.xAxisDataset != null)
+				return false;
+		} else if (!xAxisDataset.equals(other.xAxisDataset))
+			return false;
+		if (yAxisDataset == null) {
+			if (other.yAxisDataset != null)
+				return false;
+		} else if (!yAxisDataset.equals(other.yAxisDataset))
 			return false;
 		return true;
 	}
