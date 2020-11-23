@@ -1290,12 +1290,9 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private void updateSpectra() {
 		// Get latest spectrum for current iteration
 		double[] latestSpectrum = getSpectrum();
-		String formattedSpectrum = formatSpectrum(latestSpectrum);
-		logger.debug("Latest spectrum for iteration {}: {}", currentIteration + 1, formattedSpectrum);
 
 		// Update the cached spectra with the latest data for the current iteration
 		iterationSpectra.put(currentIteration + 1, latestSpectrum);
-		logCachedSpectra();
 
 		double[] sum = null;
 		for (double[] spectrum : iterationSpectra.values()) {
@@ -1310,10 +1307,9 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		}
 
 		summedSpectrum = sum;
-		String formattedSum = formatSpectrum(summedSpectrum);
-		logger.debug("Latest sum: {}", formattedSum);
 	}
 
+	@SuppressWarnings("unused")
 	private void logCachedSpectra() {
 		logger.debug("Cached Spectra");
 		for (int iteration : iterationSpectra.keySet()) {
