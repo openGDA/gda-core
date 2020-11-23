@@ -27,8 +27,10 @@ import org.eclipse.dawnsci.nexus.NXsource;
 
 public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsource> {
 
-	private static final String SOURCE_SHORT_NAME = "diamond";
-	private static final String SOURCE_LONG_NAME = "Diamond Light Source";
+	private static final String SOURCE_DEVICE_NAME = "source"; // the name of the NXsource group within its parent group. not used here
+	private static final String EXPECTED_SOURCE_NAME = "Diamond Light Source"; // the value to set the name field to
+	private static final String EXPECTED_TYPE= "Pulsed Muon Source";
+	private static final String EXPECTED_PROBE = "muon";
 	private static final String CURRENT_SCANNABLE_NAME = "current";
 
 	@Override
@@ -39,16 +41,20 @@ public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsou
 	@Override
 	protected INexusDevice<NXsource> setupNexusDevice() throws Exception {
 		final SourceNexusDevice sourceDevice = new SourceNexusDevice();
-		sourceDevice.setName(SOURCE_SHORT_NAME);
-		sourceDevice.setLongName(SOURCE_LONG_NAME);
+		sourceDevice.setName(SOURCE_DEVICE_NAME);
+		sourceDevice.setSourceName(EXPECTED_SOURCE_NAME);
+		sourceDevice.setType(EXPECTED_TYPE);
+		sourceDevice.setProbe(EXPECTED_PROBE);
 		sourceDevice.setCurrentScannableName(CURRENT_SCANNABLE_NAME);
 		return sourceDevice;
 	}
 
 	@Override
 	protected void checkNexusObject(NXsource source) throws Exception {
-		assertThat(source.getName(), is(equalTo(SOURCE_LONG_NAME)));
-		assertThat(source.getNameAttributeShort_name(), is(equalTo(SOURCE_SHORT_NAME)));
+		assertThat(source.getNumberOfDataNodes(), is(4));
+		assertThat(source.getName(), is(equalTo(EXPECTED_SOURCE_NAME)));
+		assertThat(source.getTypeScalar(), is(equalTo(EXPECTED_TYPE)));
+		assertThat(source.getProbeScalar(), is(equalTo(EXPECTED_PROBE)));
 		assertThat(source.getCurrentScalar(), is(equalTo(getScannableValue(CURRENT_SCANNABLE_NAME))));
 	}
 

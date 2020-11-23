@@ -27,16 +27,32 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 
+	public static final String DEFAULT_SOURCE_NAME = "Diamond Light Source";
+	public static final String DEFAULT_TYPE = "Synchrotron X-ray Source";
+	public static final String DEFAULT_PROBE = "x-ray";
+
 	private String currentScannableName;
 
-	private String longName;
+	private String sourceName = DEFAULT_SOURCE_NAME;
+
+	private String type = DEFAULT_TYPE;
+
+	private String probe = DEFAULT_PROBE;
 
 	public void setCurrentScannableName(String currentScannableName) {
 		this.currentScannableName = currentScannableName;
 	}
 
-	public void setLongName(String longName) {
-		this.longName = longName;
+	public void setSourceName(String sourceName) {
+		this.sourceName = sourceName;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setProbe(String probe) {
+		this.probe = probe;
 	}
 
 	@Override
@@ -44,9 +60,9 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 		final NXsource source = NexusNodeFactory.createNXsource();
 
 		// use the long name as the value of the name field
-		source.setNameScalar(longName);
-		// use the (short) name of the device as the short name
-		source.setAttribute(NXsource.NX_NAME, NXsource.NX_NAME_ATTRIBUTE_SHORT_NAME, getName());
+		source.setNameScalar(sourceName);
+		source.setTypeScalar(type);
+		source.setProbeScalar(probe);
 		writeScannableValue(source, NXsource.NX_CURRENT, currentScannableName);
 
 		return new NexusObjectWrapper<>(getName(), source);

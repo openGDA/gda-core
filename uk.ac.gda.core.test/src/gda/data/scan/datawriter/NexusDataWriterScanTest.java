@@ -74,13 +74,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private static final String METADATA_KEY_INSTRUMENT_SOURCE_ENERGY = "instrument.source.energy";
 	private static final String METADATA_KEY_INSTRUMENT_SOURCE_CURRENT = "instrument.source.current";
 
-	private static final String EXPECTED_MONOCHROMATOR_NAME = "myMono";
-	private static final double EXPECTED_MONOCHROMATOR_ENERGY = 5.432;
-	private static final double EXPECTED_MONOCHROMATOR_WAVELENGTH = 543.34;
-	private static final double EXPECTED_INSERTION_DEVICE_GAP = 1.234;
-	private static final double EXPECTED_SOURCE_ENERGY = 3.0;
-	private static final double EXPECTED_SOURCE_CURRENT = 25.5;
-
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();

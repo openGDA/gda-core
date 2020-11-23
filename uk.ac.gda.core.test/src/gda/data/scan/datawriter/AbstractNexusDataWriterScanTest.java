@@ -33,7 +33,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -148,6 +147,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double STEP_SIZE = 1.0;
 	protected static final double SCANNABLE_LOWER_BOUND = -123.456;
 	protected static final double SCANNABLE_UPPER_BOUND = 987.654;
+
+	protected static final String EXPECTED_MONOCHROMATOR_NAME = "myMonochromator";
+	protected static final double EXPECTED_MONOCHROMATOR_ENERGY = 5.432;
+	protected static final double EXPECTED_MONOCHROMATOR_WAVELENGTH = 543.34;
+	protected static final double EXPECTED_INSERTION_DEVICE_GAP = 1.234;
+	protected static final double EXPECTED_SOURCE_ENERGY = 3.0;
+	protected static final double EXPECTED_SOURCE_CURRENT = 25.5;
 
 	protected static final double MONITOR_VALUE = 2.5;
 
@@ -313,6 +319,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		detector.setExtraNames(names);
 		detector.setTotalChans(names.length);
+		detector.setTimerName("timer");
 		detector.configure();
 		detector.setCollectionTime(10.0);
 
@@ -344,7 +351,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		// create the scan
 		scanArguments = createScanArguments(detector);
 		final ConcurrentScan scan = new ConcurrentScan(scanArguments);
-		assertEquals(-1, scan.getScanNumber());
+		assertThat(scan.getScanNumber(), is(-1));
 
 		// run the scan
 		scan.runScan();

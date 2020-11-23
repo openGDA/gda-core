@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -57,6 +58,7 @@ import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Scannable;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -291,7 +293,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 	}
 
-	private NexusScanModel createNexusScanModel(IScanDataPoint point) {
+	private NexusScanModel createNexusScanModel(IScanDataPoint point) throws NexusException {
 		final NexusScanModel nexusScanModel = new NexusScanModel();
 		nexusScanModel.setEntryName(LocalProperties.get(PROPERTY_NAME_ENTRY_NAME, DEFAULT_ENTRY_NAME));
 		nexusScanModel.setFilePath(getCurrentFileName());
@@ -306,7 +308,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return nexusScanModel;
 	}
 
-	private Map<ScanRole, List<INexusDevice<? extends NXobject>>> getNexusDevices(IScanDataPoint point) {
+	private Map<ScanRole, List<INexusDevice<? extends NXobject>>> getNexusDevices(IScanDataPoint point) throws NexusException {
 		final Map<ScanRole, List<INexusDevice<? extends NXobject>>> nexusDevices = new EnumMap<>(ScanRole.class);
 		nexusDevices.put(ScanRole.DETECTOR, getNexusDetectors(point));
 		nexusDevices.put(ScanRole.SCANNABLE, getScannables(point));
@@ -404,18 +406,33 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			if (nexusDevice == null) {
 				logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
 			}
-			return null;
+			return nexusDevice;
 		}
 
 		return createNexusDevice(scannable);
 	}
 
-	private List<INexusDevice<?>> getPerScanMonitors(IScanDataPoint point) {
+	private List<INexusDevice<?>> getPerScanMonitors(IScanDataPoint point) throws NexusException {
 		final MetadataScannableCalculator calculator = new MetadataScannableCalculator(
 				point.getDetectorNames(), point.getScannableNames());
-		final Set<String> metadataScannableNames = calculator.calculateMetadataScannableNames();
+		final Set<String> metadataScannableNames = new HashSet<>();
+		metadataScannableNames.addAll(calculator.calculateMetadataScannableNames());
+		metadataScannableNames.addAll(getCommonBeamlineDeviceNames());
 
-		return metadataScannableNames.stream().map(this::createNexusDevice).collect(toList());
+		return metadataScannableNames.stream().
+				map(this::createNexusDevice).
+				filter(Objects::nonNull).
+				collect(toList());
+	}
+
+	private Set<String> getCommonBeamlineDeviceNames() throws NexusException {
+		final Optional<CommonBeamlineDevicesConfiguration> optDeviceConfig = Finder.findOptionalSingleton(CommonBeamlineDevicesConfiguration.class);
+		if (!optDeviceConfig.isPresent()) {
+			throw new NexusException("Could not find a " + CommonBeamlineDevicesConfiguration.class.getSimpleName() + " bean.\n"
+					+ "It is required to define a bean of this type in your GDA server spring configuration in order to use " + NexusScanDataWriter.class.getSimpleName());
+
+		}
+		return optDeviceConfig.get().getCommonDeviceNames();
 	}
 
 	private Set<String> getTemplateFilePaths() {

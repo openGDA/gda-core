@@ -43,12 +43,17 @@ import java.util.stream.Stream;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
+import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
+import org.eclipse.dawnsci.nexus.NXsample;
+import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -79,6 +84,12 @@ import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.factory.Factory;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.scanning.BeamNexusDevice;
+import uk.ac.diamond.daq.scanning.InsertionDeviceNexusDevice;
+import uk.ac.diamond.daq.scanning.InsertionDeviceNexusDevice.InsertionDeviceType;
+import uk.ac.diamond.daq.scanning.MonochromatorNexusDevice;
+import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
+import uk.ac.diamond.daq.scanning.SourceNexusDevice;
 
 @RunWith(value=Parameterized.class)
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -189,6 +200,22 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String INSTRUMENT_NAME = "instrument";
 	private static final String MONITOR_NAME = "mon01";
 
+	private static final String BEAM_DEVICE_NAME = "beam";
+	private static final String INSERTION_DEVICE_NAME = "insertion_device";
+	private static final String MONOCHROMATOR_DEVICE_NAME = "monochromator";
+	private static final String SOURCE_DEVICE_NAME = "source";
+
+	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
+	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
+
+	private static final double EXPECTED_MONOCHROMATOR_ENERGY_ERROR = 2.53;
+
+	private static final double EXPECTED_BEAM_EXTENT = 0.1;
+	private static final double EXPECTED_BEAM_INCIDENT_ENERGY = 350.0;
+	private static final double EXPECTED_BEAM_INCIDENT_DIVERGENCE = 1.23;
+	private static final double EXPECTED_BEAM_INCIDENT_POLARIZATION = 4.55;
+	private static final double EXPECTED_BEAM_FLUX = 92.2;
+
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
@@ -202,12 +229,15 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	public static void setUpServices() {
 		AbstractNexusDataWriterScanTest.setUpServices();
 
+		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
+
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
-		gdaDataServiceHolder.setNexusDeviceService(new NexusDeviceService());
+		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
+		gdaDataServiceHolder.setScannableDeviceService(new ScannableDeviceConnectorService());
 
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		oednsServiceHolder.setNexusDeviceService(new NexusDeviceService());
+		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
 		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
 		oednsServiceHolder.setTemplateService(new NexusTemplateServiceImpl());
 
@@ -216,11 +246,23 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
 	}
 
+	private static CommonBeamlineDevicesConfiguration createCommonBeamLineDevicesConfiguration() {
+		final CommonBeamlineDevicesConfiguration deviceConfig = new CommonBeamlineDevicesConfiguration();
+		deviceConfig.setName(CommonBeamlineDevicesConfiguration.class.getName()); // set automatically when declare in spring
+		deviceConfig.setBeamName(BEAM_DEVICE_NAME);
+		deviceConfig.setInsertionDeviceName(INSERTION_DEVICE_NAME);
+		deviceConfig.setMonochromatorName(MONOCHROMATOR_DEVICE_NAME);
+		deviceConfig.setSourceName(SOURCE_DEVICE_NAME);
+
+		return deviceConfig;
+	}
+
 	@Override
 	public void setUp() throws Exception { // inherits @Before annotation from superclass
 		super.setUp();
 		final Factory factory = TestHelpers.createTestFactory();
 		Finder.addFactory(factory);
+		factory.addFindable(createCommonBeamLineDevicesConfiguration());
 	}
 
 	@Override
@@ -235,6 +277,80 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		super.setUpTest(testName);
 		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
+		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
+	}
+
+	private void setupCommonBeamlineDevices() throws DeviceException {
+		createBeamDevice();
+		createInsertionDevice();
+		createMonochromatorDevice();
+		createSourceDevice();
+	}
+
+	private void createBeamDevice() throws DeviceException {
+		final String beamExtentScannableName = "beam_extent";
+		final String incidentEnergyScannableName = "incident_energy";
+		final String incidentPolarizationScannableName = "incident_polarization";
+		final String incidentBeamDivergenceScannableName = "incident_beam_divergence";
+		final String fluxScannableName = "flux";
+
+		createScannable(beamExtentScannableName, EXPECTED_BEAM_EXTENT);
+		createScannable(incidentEnergyScannableName, EXPECTED_BEAM_INCIDENT_ENERGY);
+		createScannable(incidentBeamDivergenceScannableName, EXPECTED_BEAM_INCIDENT_DIVERGENCE);
+		createScannable(incidentPolarizationScannableName, EXPECTED_BEAM_INCIDENT_POLARIZATION);
+		createScannable(fluxScannableName, EXPECTED_BEAM_FLUX);
+
+		final BeamNexusDevice beamDevice = new BeamNexusDevice();
+		beamDevice.setName(BEAM_DEVICE_NAME);
+		beamDevice.setIncidentEnergyScannableName(incidentEnergyScannableName);
+		beamDevice.setIncidentBeamDivergenceScannableName(incidentBeamDivergenceScannableName);
+		beamDevice.setIncidentPolarizationScannableName(incidentPolarizationScannableName);
+		beamDevice.setBeamExtentScannableName(beamExtentScannableName);
+		beamDevice.setFluxScannableName(fluxScannableName);
+		ServiceHolder.getNexusDeviceService().register(beamDevice);
+	}
+
+	private void createInsertionDevice() throws DeviceException {
+		final String gapScannableName = "id_gap";
+		final String taperScannableName = "id_taper";
+		final String harmonicScannableName = "id_harmonic";
+
+		createScannable(gapScannableName, EXPECTED_INSERTION_DEVICE_GAP);
+		createScannable(taperScannableName, EXPECTED_INSERTION_DEVICE_TAPER);
+		createScannable(harmonicScannableName, EXPECTED_INSERTION_DEVICE_HARMONIC);
+
+		final InsertionDeviceNexusDevice insertionDevice = new InsertionDeviceNexusDevice();
+		insertionDevice.setName(INSERTION_DEVICE_NAME);
+		insertionDevice.setType(InsertionDeviceType.WIGGLER.toString());
+		insertionDevice.setGapScannableName(gapScannableName);
+		insertionDevice.setTaperScannableName(taperScannableName);
+		insertionDevice.setHarmonicScannableName(harmonicScannableName);
+		ServiceHolder.getNexusDeviceService().register(insertionDevice);
+	}
+
+	private void createMonochromatorDevice() throws DeviceException {
+		final String energyScannableName = "mono_energy";
+		final String energyErrorScannableName = "mono_energy_error";
+
+		createScannable(energyScannableName, EXPECTED_MONOCHROMATOR_ENERGY);
+		createScannable(energyErrorScannableName, EXPECTED_MONOCHROMATOR_ENERGY_ERROR);
+
+		final MonochromatorNexusDevice monochromator = new MonochromatorNexusDevice();
+		monochromator.setName(MONOCHROMATOR_DEVICE_NAME);
+		monochromator.setEnergyScannableName(energyScannableName);
+		monochromator.setEnergyErrorScannableName(energyErrorScannableName);
+		ServiceHolder.getNexusDeviceService().register(monochromator);
+	}
+
+	private void createSourceDevice() throws DeviceException {
+		final String sourceCurrentScannableName = "source_current";
+		createScannable(sourceCurrentScannableName, EXPECTED_SOURCE_CURRENT);
+
+		final SourceNexusDevice source = new SourceNexusDevice();
+		source.setName(SOURCE_DEVICE_NAME);
+		source.setSourceName("Diamond Light Source");
+		source.setCurrentScannableName(sourceCurrentScannableName);
+		ServiceHolder.getNexusDeviceService().register(source);
 	}
 
 	@Test
@@ -286,22 +402,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 //		assertThat(instrument.getNumberOfDataNodes(), is(1));
 //		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
-		final int expectedGroupNodes = getNumDevices() + 1; // group for each device, plus source group scannables:NXcollection for scannables in the locationMap
+		// group for each device, each common (metadata) device (e.g. NXMonochromator), plus source group scannables:NXcollection (for scannables in the locationMap)
+		final int expectedGroupNodes = getNumDevices() + 4;
 		assertThat(instrument.getNumberOfGroupNodes(), is(expectedGroupNodes));
-		checkSource(instrument);
-	}
-
-	private void checkSource(NXinstrument instrument) {
-		// TODO, add source, see DAQ-3151, if same as NexusDataWriter, move method up to superclass
-//		final NXsource source = instrument.getSource();
-//		assertThat(source, is(notNullValue()));
-//
-//		assertThat(source.getNumberOfDataNodes(), is(3));
-//		assertThat(source.getNumberOfGroupNodes(), is(0));
-//
-//		assertThat(source.getNameScalar(), is(equalTo("DLS")));
-//		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
-//		assertThat(source.getTypeScalar(), is(equalTo("Synchrotron X-ray Source")));
 	}
 
 	@Override
@@ -508,22 +611,49 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected void checkSourceGroup(NXinstrument instrument) {
-		// TODO DAQ-3259 write NXsource group for NexusScanDataWriter
+		final NXsource source = instrument.getSource();
+		assertThat(source, is(notNullValue()));
+
+		assertThat(source.getNumberOfDataNodes(), is(4));
+		assertThat(source.getNumberOfGroupNodes(), is(0));
+
+		assertThat(source.getNameScalar(), is(equalTo("Diamond Light Source")));
+		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
+		assertThat(source.getTypeScalar(), is(equalTo("Synchrotron X-ray Source")));
+		assertThat(source.getCurrentScalar(), is(equalTo(EXPECTED_SOURCE_CURRENT)));
 	}
 
 	@Override
 	protected void checkSampleGroup(NXentry entry) {
-		// TODO DAQ-3259 write NXsample group for NexusScanDataWriter
+		final NXsample sample = entry.getSample();
+		assertThat(sample, is(notNullValue()));
+
+		final NXbeam beam = sample.getBeam();
+		assertThat(beam, is(notNullValue()));
+		assertThat(beam.getDistanceScalar(), is(equalTo(0.0)));
+		assertThat(beam.getDouble(BeamNexusDevice.FIELD_NAME_EXTENT), is(equalTo(EXPECTED_BEAM_EXTENT)));
+		assertThat(beam.getIncident_energyScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_ENERGY)));
+		assertThat(beam.getIncident_beam_divergenceScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_DIVERGENCE)));
+		assertThat(beam.getIncident_polarizationScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_POLARIZATION)));
+		assertThat(beam.getFluxScalar(), is(equalTo(EXPECTED_BEAM_FLUX)));
 	}
 
 	@Override
 	protected void checkInsertionDeviceGroup(NXinstrument instrument) {
-		// TODO DAQ-3259 write NXinsertion_device group for NexusScanDataWriter
+		final NXinsertion_device insertionDevice = instrument.getInsertion_device();
+		assertThat(insertionDevice, is(notNullValue()));
+		assertThat(insertionDevice.getGapScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_GAP)));
+		assertThat(insertionDevice.getTaperScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_TAPER)));
+		// DummyScannable always returns a double which gets converted to a long
+		assertThat(insertionDevice.getHarmonicScalar(), is(equalTo((long) EXPECTED_INSERTION_DEVICE_HARMONIC)));
 	}
 
 	@Override
 	protected void checkMonochromatorGroup(NXinstrument instrument) {
-		// TODO DAQ-3259 write NXmonochromator group for NexusScanDataWriter
+		final NXmonochromator monochromator = instrument.getMonochromator();
+		assertThat(monochromator, is(notNullValue()));
+		assertThat(monochromator.getEnergyScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_ENERGY)));
+		assertThat(monochromator.getEnergy_errorScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_ENERGY_ERROR)));
 	}
 
 }
