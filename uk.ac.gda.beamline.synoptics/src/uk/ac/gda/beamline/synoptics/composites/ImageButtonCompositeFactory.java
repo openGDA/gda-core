@@ -6,6 +6,8 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -115,7 +117,9 @@ class ImageButtonComposite extends Composite {
 		gridData.widthHint = 80;
 		gridData.heightHint = 73;
 		canvas.setLayoutData(gridData);
-		canvas.setBackgroundImage(Activator.getImageDescriptor(imagePath).createImage());
+		ImageData id =Activator.getImageDescriptor(imagePath).getImageData(100);
+		Image image = new Image(getDisplay(), id, id);
+		canvas.addPaintListener(e->e.gc.drawImage(image, 0, 0));
 		canvas.setToolTipText(tooltip);
 
 		canvas.addMouseListener(new MouseAdapter() {
