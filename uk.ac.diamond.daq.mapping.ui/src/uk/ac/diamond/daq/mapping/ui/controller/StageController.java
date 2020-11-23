@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
 import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannablesPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.services.position.DevicePositionDocumentService;
 import uk.ac.diamond.daq.mapping.ui.stage.CommonStage;
@@ -121,6 +122,27 @@ public class StageController implements IStageController {
 		// The "OPEN" string has to be linked to a property
 		String position = Position.Open.toString();
 		return createShutterRequest(position);
+	}
+
+	/**
+	 * Returns {@link DevicePositionDocument} from a scannable reference. PInternally works as {@link #createDevicePositionDocument(ManagedScannable)}
+	 * @param groupId the scannable group id
+	 * @param scannableId the scannable id inside the group id
+	 * @param type the expected scannable type
+	 * @return the related document with the actual position
+	 */
+	public DevicePositionDocument createDevicePositionDocument(String groupId, String scannableId, Class<?> type) {
+		ManagedScannable<?> managedScannable = ScannablesPropertiesHelper.getManagedScannable(groupId, scannableId, type);
+		return createDevicePositionDocument(managedScannable);
+	}
+
+	/**
+	 * Returns {@link DevicePositionDocument} from a {@link ManagedScannable}
+	 * @param managedScannable the scannable manager
+	 * @return the related document with the actual position
+	 */
+	public DevicePositionDocument createDevicePositionDocument(ManagedScannable<?> managedScannable) {
+		return devicePositionDocumentService.devicePositionAsDocument(managedScannable.getScannablePropertiesDocument().getScannable());
 	}
 
 	private DevicePositionDocument createShutterRequest(String position) {
