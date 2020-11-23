@@ -24,10 +24,10 @@ public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayMo
 	}
 
 	@Override
-	public void validate(AxialArrayModel model) throws ModelValidationException {
-		super.validate(model);
+	public AxialArrayModel validate(AxialArrayModel model) throws ModelValidationException {
 		if (getModel().getPositions()==null) throw new ModelValidationException("There are no positions!", model, "positions");
 		if (getModel().getPositions().length < 2) throw new ModelValidationException("ArrayModel requires at least 2 positions, did you want SinglePointModel?", model, "positions");
+		return super.validate(model);
 	}
 
 	@Override

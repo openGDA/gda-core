@@ -25,10 +25,10 @@ public class TwoAxisLissajousGenerator extends AbstractScanPointGenerator<TwoAxi
 	}
 
 	@Override
-	public void validate(TwoAxisLissajousModel model) {
-		super.validate(model);
+	public TwoAxisLissajousModel validate(TwoAxisLissajousModel model) {
 		if (model.getPoints() < 1)
 			throw new ModelValidationException("Must have one or more points in model!", model, "points");
+		return super.validate(model);
 	}
 
 	@Override

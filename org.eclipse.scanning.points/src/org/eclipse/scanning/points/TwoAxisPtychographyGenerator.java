@@ -33,14 +33,14 @@ public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisP
 	}
 
 	@Override
-	public void validate(TwoAxisPtychographyModel model) {
-		super.validate(model);
+	public TwoAxisPtychographyModel validate(TwoAxisPtychographyModel model) {
 		if (model.getxBeamSize() == 0)
 			throw new ModelValidationException("X beam size cannot be zero", getModel(), "xBeamSize");
 		if (model.getyBeamSize() == 0)
 			throw new ModelValidationException("Y beam size cannot be zero", getModel(), "yBeamSize");
 		if (model.getOverlap() < 0 || model.getOverlap() >= 1)
 			throw new ModelValidationException("Overlap must be positive between 0 [inclusive] and 1", getModel(), "overlap");
+		return super.validate(model);
 	}
 
 	@Override

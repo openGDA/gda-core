@@ -42,9 +42,6 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	@Before
 	public void setup() {
-		final RunnableDeviceServiceImpl runnableDeviceServiceImpl = (RunnableDeviceServiceImpl) ServiceTestHelper
-				.getRunnableDeviceService();
-
 		for (int i = 1; i <= 3; i++) {
 			final String name = "malcolm" + i;
 			final DummyMalcolmModel malcolmModel = new DummyMalcolmModel();
@@ -52,7 +49,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 			final DummyMalcolmDevice malcolmDevice = new DummyMalcolmDevice();
 			malcolmDevice.setModel(malcolmModel);
 			malcolmDevice.setName(name);
-			runnableDeviceServiceImpl._register(name, malcolmDevice);
+			((RunnableDeviceServiceImpl) dservice)._register(name, malcolmDevice);
 		}
 
 		processingRequest = new ProcessingRequest();
@@ -95,7 +92,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel("stage_x", "stage_y");
 		gmodel.setBoundingBox(new BoundingBox(10, -10, 100, -100));
-		final ScanRequest req = new ScanRequest(gmodel, null, (String)null, null, null);
+		final ScanRequest req = new ScanRequest(gmodel, null, null, null, null);
 		req.putDetector("mandelbrot", new MandelbrotModel());
 		validator.validate(req);
 	}

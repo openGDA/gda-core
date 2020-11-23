@@ -32,7 +32,8 @@ class AxialMultiStepGenerator extends AbstractMultiGenerator<AxialMultiStepModel
 	}
 
 	@Override
-	public void validate(AxialMultiStepModel model) {
+	public AxialMultiStepModel validate(AxialMultiStepModel model) {
+		// Intensive validation so check super first
 		super.validate(model);
 		String axis = model.getScannableNames().get(0);
 		List<String> units = model.getUnits();
@@ -58,6 +59,7 @@ class AxialMultiStepGenerator extends AbstractMultiGenerator<AxialMultiStepModel
 			}
 		}
 		cachedGenerators = null;
+		return model;
 	}
 
 	@Override

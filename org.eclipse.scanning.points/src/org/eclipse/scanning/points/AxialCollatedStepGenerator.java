@@ -26,12 +26,12 @@ public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<Axial
 	}
 
 	@Override
-	public void validate(AxialCollatedStepModel model) {
-		super.validate(model);
+	public AxialCollatedStepModel validate(AxialCollatedStepModel model) {
 		if (model.getNames() == null || model.getNames().isEmpty()) {
 			throw new ModelValidationException("AxialCollatedStepModel requires a list of names of axes to step in",
 					model, "names");
 		}
+		return super.validate(model);
 	}
 
 	@Override

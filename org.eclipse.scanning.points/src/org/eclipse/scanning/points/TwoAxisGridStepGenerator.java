@@ -21,7 +21,8 @@ class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepMode
 	}
 
 	@Override
-	public void validate(TwoAxisGridStepModel model) {
+	public TwoAxisGridStepModel validate(TwoAxisGridStepModel model) {
+		// super.validate first to avoid div by zero
 		super.validate(model);
 		if (model.getxAxisStep() == 0) throw new ModelValidationException("Model x-axis step size must be nonzero!", model, "xAxisStep");
 		if (model.getyAxisStep() == 0) throw new ModelValidationException("Model y-axis step size must be nonzero!", model, "yAxisStep");
@@ -34,6 +35,7 @@ class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepMode
 			throw new ModelValidationException("Model x-axis step is directed so as to produce no points!", model, "xAxisStep");
 		if (model.getyAxisStep()/model.getBoundingBox().getyAxisLength() < 0)
 			throw new ModelValidationException("Model y-axis step is directed so as to produce no points!", model, "yAxisStep");
+		return model;
 	}
 
 	@Override

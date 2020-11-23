@@ -71,7 +71,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	protected abstract PPointGenerator createPythonPointGenerator();
 
 	@Override
-	public void validate(T model) {
+	public T validate(T model) {
 		if (model.getUnits().size() != model.getScannableNames().size()) {
 			throw new ModelValidationException("Model must have units for each scannable axis!", model, "name"); // Not actually name
 		}
@@ -88,6 +88,7 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 			if (boxModel.getBoundingBox().getxAxisLength()==0 || boxModel.getBoundingBox().getyAxisLength()==0)
 	        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
 		}
+		return model;
 	}
 
 	@Override

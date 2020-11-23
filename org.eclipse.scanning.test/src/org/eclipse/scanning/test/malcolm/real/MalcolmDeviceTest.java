@@ -343,7 +343,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		malcolmDevice.setPointGenerator(pointGen);
 		malcolmDevice.setOutputDir(fileDir);
 
-		final IMalcolmModel result = malcolmDevice.validateWithReturn(malcolmModel);
+		final IMalcolmModel result = malcolmDevice.validate(malcolmModel);
 
 		// Assert
 		final IMalcolmModel expectedValidateReturnModel = createExpectedValidateReturnModel(malcolmModel, pointGen);

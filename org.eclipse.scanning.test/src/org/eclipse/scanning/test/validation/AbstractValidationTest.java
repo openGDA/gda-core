@@ -37,15 +37,20 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredModel;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 public abstract class AbstractValidationTest {
 
     protected ValidatorService validator;
 
+    @BeforeClass
+    public static void initalise() {
+    	// Prevent being overwritten by classes not calling super.before()
+    	ServiceTestHelper.setupServices();
+    }
+
 	@Before
 	public void before() throws Exception {
-		ServiceTestHelper.setupServices();
-
 		validator = ServiceTestHelper.getValidatorService();
 
 		makeDetectorsAndModels();

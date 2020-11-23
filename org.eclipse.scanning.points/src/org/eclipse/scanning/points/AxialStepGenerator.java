@@ -29,8 +29,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 	}
 
 	@Override
-	public void validate(AxialStepModel model) {
-		super.validate(model);
+	public AxialStepModel validate(AxialStepModel model) {
 		if (model.getStep() == 0 && model.getCount() == 0) {
 			throw new ModelValidationException("Model step size or count must be nonzero!", model, "step");
 		}
@@ -38,6 +37,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 		if (dir < 0) {
 			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step", "count");
 		}
+		return super.validate(model);
 	}
 
 	@Override

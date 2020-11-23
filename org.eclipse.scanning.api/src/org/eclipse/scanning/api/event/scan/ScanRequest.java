@@ -13,7 +13,6 @@ package org.eclipse.scanning.api.event.scan;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
-import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.script.ScriptRequest;
@@ -136,8 +134,7 @@ public class ScanRequest implements Serializable {
 	}
 
 	public ScanRequest(IScanPointGeneratorModel m, IROI region, String filePath, List<String> monitorNamesPerPoint, List<String> monitorNamesPerScan) {
-		this.compoundModel = new CompoundModel(m);
-		compoundModel.setRegions(Arrays.asList(new ScanRegion(region, m.getScannableNames())));
+		this.compoundModel = new CompoundModel(m, region);
 		this.filePath = filePath;
 		this.monitorNamesPerPoint = monitorNamesPerPoint;
 		this.monitorNamesPerScan = monitorNamesPerScan;

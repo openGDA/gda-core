@@ -50,7 +50,8 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 	}
 
 	@Override
-	public void validate(ConsecutiveMultiModel model) {
+	public ConsecutiveMultiModel validate(ConsecutiveMultiModel model) {
+		// Need cachedGenerators to be set, so call super.validate first
 		super.validate(model);
 		List<String> dimensions = model.getScannableNames();
 		List<String> units = model.getUnits();
@@ -84,5 +85,6 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 			}
 		}
 		cachedGenerators = null;
+		return model;
 	}
 }

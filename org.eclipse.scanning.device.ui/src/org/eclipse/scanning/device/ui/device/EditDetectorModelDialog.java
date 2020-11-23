@@ -326,7 +326,7 @@ public class EditDetectorModelDialog extends Dialog {
 
 	private IDetectorModel validate(IDetectorModel model) throws ScanningException {
 		final IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(model.getName());
-		return detector.validateWithReturn(model);
+		return detector.validate(model);
 	}
 
 	private void displayValidationResult(Object result, boolean initialValidation) {
