@@ -303,7 +303,7 @@ public class TimeSeriesScanView {
 
 	private IDetectorModel validate(IDetectorModel model) throws ScanningException {
 		final IRunnableDevice<IDetectorModel> detector = getRunnableDeviceService().getRunnableDevice(model.getName());
-		return detector.validateWithReturn(model);
+		return detector.validate(model);
 	}
 
 	private IRunnableDeviceService getRunnableDeviceService() throws ScanningException {
