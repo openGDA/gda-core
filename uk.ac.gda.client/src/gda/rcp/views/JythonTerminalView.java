@@ -18,6 +18,8 @@
 
 package gda.rcp.views;
 
+import static gda.rcp.preferences.GdaRootPreferencePage.SHOW_ALL_INPUT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -78,6 +80,7 @@ import gda.jython.IScanDataPointObserver;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 import gda.jython.Terminal;
+import gda.jython.TerminalInput;
 import gda.rcp.GDAClientActivator;
 import gda.rcp.util.ScanDataPointFormatterUtils;
 import gda.rcp.views.dashboard.DashboardView;
@@ -111,9 +114,9 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	public static final String ID = "gda.rcp.jythonterminalview";
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonTerminalView.class);
-	private static final String NORMAL_PROMPT = ">>>";
-	private static final String ADDITONAL_INPUT_PROMPT = "...";
-	private static final String RAW_INPUT_PROMPT = "-->";
+	private static final String NORMAL_PROMPT = ">>> ";
+	private static final String ADDITONAL_INPUT_PROMPT = "... ";
+	private static final String RAW_INPUT_PROMPT = "--> ";
 	private static final int MAX_COMMANDS_TO_SAVE = 100;
 
 	private static final String TERMINALNAME = "JythonTerminal";
@@ -312,6 +315,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		menuMgr.add(selectAllAction);
 		menuMgr.add(new Separator());
 		menuMgr.add(wordWrapAction);
+		menuMgr.add(new OtherClientInputToggleAction());
 	}
 
 	public String getName() {
@@ -356,6 +360,13 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	}
 
 	@Override
+	public void writeInput(TerminalInput input) {
+		if (GDAClientActivator.getDefault().getPreferenceStore().getBoolean(SHOW_ALL_INPUT)) {
+			write(input.format(NORMAL_PROMPT, ADDITONAL_INPUT_PROMPT) + "\n");
+		}
+	}
+
+	@Override
 	public void write(String output) {
 		appendOutput(output);
 	}
@@ -384,7 +395,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			txtInputText = txtInput.getText();
 		});
 
-		appendOutput(String.format("%s %s\n", txtPromptText, txtInputText));
+		appendOutput(String.format("%s%s\n", txtPromptText, txtInputText));
 		try {
 			// if this is the start of a new command
 			if (txtPromptText.compareTo(NORMAL_PROMPT) == 0) {
