@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,21 +265,12 @@ public class BatonManager implements IBatonManager {
 	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		renewLease(myJSFIdentifier);
-		ClientDetails[] array = new ClientDetails[0];
-
-		// loop through facades and find matching index
-		for (String uniqueID : facadeNames.keySet()) {
-			boolean hasBaton = amIBatonHolder(uniqueID, false);
-			ClientInfo info = getClientInfo(uniqueID);
-			ClientDetails details = new ClientDetails(info, hasBaton);
-
-			// add other clients whose lease has not run out
-			// (so ignore Object Servers and Clients who have probably died and not de-registered)
-			if (!uniqueID.equals(myJSFIdentifier) && !details.getUserID().equals("") && leaseHolders.containsKey(idFromIndex(details.getIndex()))) {
-				array = (ClientDetails[]) ArrayUtils.add(array, details);
-			}
-		}
-		return array;
+		return facadeNames.entrySet().stream()
+				.filter(e -> !e.getKey().equals(myJSFIdentifier)) // Ignore me
+				.filter(e -> !e.getValue().isServer()) // Ignore server JSF
+				.filter(e -> leaseHolders.containsKey(e.getKey())) // Ignore dead clients
+				.map(e -> new ClientDetails(e.getValue(), amIBatonHolder(e.getKey())))
+				.toArray(ClientDetails[]::new);
 	}
 
 	@Override
