@@ -453,7 +453,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 				currentCmd += "\n" + txtInputText;
 				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> txtInput.setEnabled(false));
 				// run the command
-				boolean needMore = jsf.runsource("\n" + currentCmd);
+				boolean needMore = jsf.runsource(currentCmd);
 
 				// if not a complete Jython command
 				if (needMore) {
