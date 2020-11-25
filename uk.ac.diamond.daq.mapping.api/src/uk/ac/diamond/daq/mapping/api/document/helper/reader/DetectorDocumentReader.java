@@ -54,4 +54,14 @@ public class DetectorDocumentReader extends AcquisitionReaderBase<DetectorDocume
 			.map(DetectorDocument::getName)
 			.orElseGet(() -> null);
 	}
+
+	/**
+	 *
+	 * @return the existing value, otherwise {@code 0}
+	 */
+	public double getReadout() {
+		return Optional.ofNullable(getData())
+			.map(DetectorDocument::getReadout)
+			.orElseGet(() -> 0d);
+	}
 }

@@ -236,12 +236,24 @@ public class ScanRequestFactory {
 
 		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(getAcquisitionEngine().getId());
 		final IDetectorModel model = detector.getModel();
-
 		if (model == null) {
 			throw new ScanningException(String.format("Could not get model for detector %s",
 					detector.getName()));
 		}
+		model.setExposureTime(getCompensatedExposureTime());
 		ret.put(detector.getName(), model);
+	}
+
+	/**
+	 * This value is the required exposure plus the client.cameraConfiguration.INDEX.readoutTime
+	 * See <a href="https://confluence.diamond.ac.uk/display/DIAD/Cameras+configuration">Cameras configuration</a>
+	 *
+	 * @return the corrected exposure time
+	 *
+	 */
+	private double getCompensatedExposureTime() {
+		return getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getExposure()
+				+ getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getReadout();
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {
