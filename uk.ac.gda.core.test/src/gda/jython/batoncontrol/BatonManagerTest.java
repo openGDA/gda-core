@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,8 +45,9 @@ public class BatonManagerTest {
 		LocalProperties.set( LocalProperties.GDA_BATON_MANAGEMENT_ENABLED, "true");
 		LocalProperties.set( LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
 		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, "JaasAuthenticator");
-
-		InterfaceProvider.setJythonServerNotiferForTesting(new MockJythonServerFacade());
+		MockJythonServerFacade mockJsf = new MockJythonServerFacade();
+		InterfaceProvider.setJythonServerNotiferForTesting(mockJsf);
+		InterfaceProvider.setBatonStateProviderForTesting(mockJsf);
 		manager = new BatonManager();
 		ClientDetails details1 = new ClientDetails(manager.getNewFacadeIndex(), "abc123", "ABC 123", "pc01234", 0, false, "mx123-1");
 		manager.addFacade("opq", details1);
@@ -53,6 +55,16 @@ public class BatonManagerTest {
 		manager.addFacade("xyz", details2);
 		ClientDetails details3 = new ClientDetails(manager.getNewFacadeIndex(), "ghi789", "GHI 789", "pc23456", 2, false, "mx123-3");
 		manager.addFacade("rst", details3);
+	}
+
+	@After
+	public void cleanUp() {
+		LocalProperties.clearProperty("gda.accesscontrol.firstClientTakesBaton");
+		LocalProperties.clearProperty( LocalProperties.GDA_BATON_MANAGEMENT_ENABLED);
+		LocalProperties.clearProperty( LocalProperties.GDA_ACCESS_CONTROL_ENABLED);
+		LocalProperties.clearProperty(Authenticator.AUTHENTICATORCLASS_PROPERTY);
+		InterfaceProvider.setJythonServerNotiferForTesting(null);
+		InterfaceProvider.setBatonStateProviderForTesting(null);
 	}
 
 	@Test
