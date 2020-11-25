@@ -18,6 +18,8 @@
 
 package gda.data.scan.datawriter;
 
+import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
+import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSignal;
@@ -56,6 +58,7 @@ import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
+import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
@@ -183,7 +186,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String ATTRIBUTE_NAME_GDA_FIELD_NAME = "gda_field_name";
 	private static final String GROUP_NAME_SCANNABLES = "scannables";
 
-	private static final String ENTRY_NAME = "entry";
 	private static final String INSTRUMENT_NAME = "instrument";
 	private static final String MONITOR_NAME = "mon01";
 
@@ -213,6 +215,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(new NexusDeviceService());
 		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
+		oednsServiceHolder.setTemplateService(new NexusTemplateServiceImpl());
 
 		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
@@ -230,13 +233,14 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	public void tearDown() { // inherits @After annotation from superclass
 		super.tearDown();
 		Finder.removeAllFactories();
-		LocalProperties.clearProperty(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
+		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
 	}
 
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
-		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
+		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
+		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
 	}
 
 	@Test
@@ -253,11 +257,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final IWritableNexusDevice<NXdetector> nexusDevice = new DummyDetectorNexusDevice(detector.getName());
 		ServiceHolder.getNexusDeviceService().register(nexusDevice);
 		concurrentScan(detector, DetectorType.NEXUS_DEVICE, "RegisteredNexusDevice");
-	}
-
-	@Override
-	protected String getEntryName() {
-		return ENTRY_NAME;
 	}
 
 	@Override

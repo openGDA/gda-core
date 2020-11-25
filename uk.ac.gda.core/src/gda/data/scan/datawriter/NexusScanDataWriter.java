@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
@@ -392,8 +393,20 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private Set<String> getTemplateFilePaths() {
-		// TODO get template file paths
-		return Collections.emptySet();
+		final List<String> templateFilePaths = ServiceHolder.getNexusDataWriterConfiguration().getNexusTemplateFiles();
+		if (templateFilePaths.isEmpty()) return Collections.emptySet();
+		return templateFilePaths.stream().map(this::resolveTemplateFilePath).collect(toSet());
+	}
+
+	private String resolveTemplateFilePath(String templateFilePath) {
+		final Path filePath = Paths.get(templateFilePath);
+		if (filePath.isAbsolute()) {
+			return filePath.toString();
+		}
+
+		// if the file path is relative, resolve it relative to gda.var
+		final String gdaVar = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
+		return Paths.get(gdaVar).resolve(filePath).toString();
 	}
 
 	private void writePoint(IScanDataPoint point) throws Exception {

@@ -349,7 +349,7 @@ public class NexusDataWriterTest {
 
 	}
 
-	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/NexusDataWriterTest/simple-template.yaml";
+	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
 
 	private static final String USER_DEVICE_NAME = "user";
 	private static final String[] SCANNABLE_NAMES = { "stage_y", "stage_x" };

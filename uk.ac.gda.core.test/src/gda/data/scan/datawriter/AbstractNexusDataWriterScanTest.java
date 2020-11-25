@@ -32,9 +32,11 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -104,6 +106,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC_DETECTOR
 	}
 
+	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
+
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
 	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
 
@@ -117,6 +121,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final int[] GRID_SHAPE = { 8, 5 };
 	private static final int DEFAULT_NUM_AXIS_POINTS = 2;
+
+	protected static final String ENTRY_NAME = "entry1";
 
 	protected static final String ATTRIBUTE_NAME_LOCAL_NAME = "local_name";
 	protected static final String ATTRIBUTE_NAME_TARGET = "target";
@@ -246,6 +252,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 					Arrays.asList(METADATA_SCANNABLE_NAMES[2], METADATA_SCANNABLE_NAMES[4]));
 		}
 		config.setMetadataScannablesPerDetectorMap(metadataScannablesPerDetectorMap);
+
+		// set the location of the template file
+		config.setNexusTemplateFiles(Arrays.asList(Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString()));
 
 		// create the set of expected metadata scannable names
 		createExpectedMetadataScannableNames();
@@ -404,12 +413,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final TreeFile nexusTree = NexusUtils.loadNexusTree(nexusFile);
 		final NXroot nexusRoot = (NXroot) nexusTree.getGroupNode();
 		assertThat(nexusRoot, is(notNullValue()));
-		final NXentry entry = nexusRoot.getEntry(getEntryName());
+		final NXentry entry = nexusRoot.getEntry(ENTRY_NAME);
 		assertThat(entry, is (notNullValue()));
 
 		checkNexusMetadata(entry);
 		checkDevices(entry);
 		checkDataGroups(entry);
+		checkTemplateEntry(nexusRoot);
 	}
 
 	protected void checkDevices(NXentry entry) throws Exception {
@@ -576,8 +586,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 	}
 
-	protected abstract String getEntryName();
-
 	protected Dataset getExpectedScannableDataset(int i) {
 		final DoubleDataset dataset = DatasetFactory.zeros(scanDimensions);
 		final Dataset scannableValues = DatasetFactory.createRange(START_VALUE, getStopValue(i) + 1.0, STEP_SIZE);
@@ -590,6 +598,22 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 
 		return dataset;
+	}
+
+	private void checkTemplateEntry(NXroot root) {
+		// assert that the entry created by the template is present
+		final NXentry mainEntry = root.getEntry(ENTRY_NAME);
+
+		final NXentry scanEntry = root.getEntry("scan");
+		assertThat(scanEntry, is(notNullValue()));
+		assertThat(scanEntry.getNumberOfDataNodes(), is(4));
+		assertThat(scanEntry.getNumberOfGroupNodes(), is(0));
+		assertThat(scanEntry.getStart_timeScalar(), is(sameInstance(mainEntry.getStart_timeScalar())));
+		assertThat(scanEntry.getEnd_timeScalar(), is(sameInstance(mainEntry.getEnd_timeScalar())));
+		assertThat(scanEntry.getDefinitionScalar(), is(equalTo("NXscan")));
+		assertThat(scanEntry.getProgram_nameScalar(), is(equalTo("GDA")));
+		assertThat(scanEntry.getProgram_nameAttributeVersion(), is(equalTo("9.13")));
+		assertThat(scanEntry.getProgram_nameAttributeConfiguration(), is(equalTo("dummy")));
 	}
 
 }

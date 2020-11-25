@@ -4,7 +4,6 @@ scan/:
   end_time: /entry1/end_time
   definition: NXscan
   program_name:
-    value: gda
+    value: GDA
     version@: "9.13"
     configuration@: dummy
-    

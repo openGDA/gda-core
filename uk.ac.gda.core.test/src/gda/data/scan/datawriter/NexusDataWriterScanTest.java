@@ -36,6 +36,7 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
@@ -44,6 +45,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 
 @RunWith(value=Parameterized.class)
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -77,17 +79,15 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@BeforeClass
 	public static void setUpServices() {
 		AbstractNexusDataWriterScanTest.setUpServices();
+
+		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
+		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
 	}
 
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "false");
-	}
-
-	@Override
-	protected String getEntryName() {
-		return ENTRY_NAME;
 	}
 
 	@Override
