@@ -67,7 +67,7 @@ public class CameraHelperTest {
 		CameraProperties cp = camerasProperties.get(0);
 		String id = cp.getId().orElseThrow(Exception::new);
 		Assert.assertEquals("PCO_CAMERA", id);
-		Assert.assertEquals(0, cp.getReadoutTime());
+		Assert.assertEquals(0.0, cp.getReadoutTime(), 0.0);
 
 		removeProperties(properties);
 	}
@@ -80,7 +80,7 @@ public class CameraHelperTest {
 		List<CameraProperties> camerasProperties = CameraHelper.getAllCameraProperties();
 		Assert.assertEquals(1, camerasProperties.size());
 		CameraProperties cp = camerasProperties.get(0);
-		Assert.assertEquals(345, cp.getReadoutTime());
+		Assert.assertEquals(345.0, cp.getReadoutTime(), 0.0);
 
 		removeProperties(properties);
 	}
@@ -96,7 +96,7 @@ public class CameraHelperTest {
 		List<CameraProperties> camerasProperties = CameraHelper.getAllCameraProperties();
 		Assert.assertEquals(1, camerasProperties.size());
 		CameraProperties cp = camerasProperties.get(0);
-		Assert.assertEquals(0, cp.getReadoutTime());
+		Assert.assertEquals(0.0, cp.getReadoutTime(), 0.0);
 
 		removeProperties(properties);
 	}

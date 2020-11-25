@@ -89,11 +89,11 @@ public interface CameraProperties {
 	boolean isPixelBinningEditable();
 
 	/**
-	 * Indicates the camera readout time, in milliseconds. This value is typically added to the camera exposure used to
+	 * Indicates the camera readout time. This value is typically added to the camera exposure used to
 	 * estimate the maximum acquisition frequency
 	 *
 	 * @return the camera readout time. Default value is 0.
 	 */
-	int getReadoutTime();
+	double getReadoutTime();
 
 }

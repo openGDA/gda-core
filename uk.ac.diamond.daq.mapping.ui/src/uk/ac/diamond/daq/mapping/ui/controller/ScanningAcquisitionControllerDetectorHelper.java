@@ -201,19 +201,25 @@ class ScanningAcquisitionControllerDetectorHelper {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 			getCamerasControls().stream()
-					.map(CameraControl::getName)
-					.filter(cameraName -> cameraName.equals(event.getName()))
+					.filter(camera -> camera.getName().equals(event.getName()))
 					.forEach(cameraName -> updateDetectorDocument(cameraName, event.getAcquireTime()));
 		}
 
-		private void updateDetectorDocument(String detectorControlName, double acquireTime) {
+		private void updateDetectorDocument(CameraControl cameraControl, double acquireTime) {
+			double readoutTime = CameraHelper.getCameraPropertiesByCameraControl(cameraControl)
+					.map(CameraProperties::getReadoutTime)
+					.orElse(0.0);
 			ScanningParameters acquisitionParameters = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 			// The acquisition configuration may not include this detector
-			if (acquisitionParameters.getDetector() != null && !detectorControlName.equals(acquisitionParameters.getDetector().getName()))
+			if (acquisitionParameters.getDetector() != null && !cameraControl.getName().equals(acquisitionParameters.getDetector().getName()))
 				return;
 
 			ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(() -> getAcquisition().getAcquisitionConfiguration());
-			DetectorDocument detectorDocument = new DetectorDocument(detectorControlName, acquireTime);
+			DetectorDocument detectorDocument = new DetectorDocument.Builder()
+				.withName(cameraControl.getName())
+				.withExposure(acquireTime)
+				.withReadout(readoutTime)
+				.build();
 
 			acquisitionParameters.setDetector(detectorDocument);
 			imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);

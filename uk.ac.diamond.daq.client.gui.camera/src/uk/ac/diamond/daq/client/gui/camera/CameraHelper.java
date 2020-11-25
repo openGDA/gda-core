@@ -74,6 +74,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * client.cameraConfiguration.0.id=PCO_CAMERA
  * client.cameraConfiguration.0.cameraControl=imaging_camera_control
  * client.cameraConfiguration.0.beam_mapping_active=true
+ * client.cameraConfiguration.0.readoutTime=true
  * client.cameraConfiguration.0.motor.0.controller = stagez
  * client.cameraConfiguration.0.motor.0.name = Camera Axis Z
  * client.cameraConfiguration.0.motor.1.controller = stagey
@@ -368,14 +369,14 @@ public final class CameraHelper {
 	 * "client.cameraConfiguration.INDEX.readoutTime"
 	 *
 	 * @param index the camera index
-	 * @return the camera readout time. Default 0;
+	 * @return the camera readout time. Default 0.0;
 	 */
-	private static int getReadoutTimeProperty(int index) {
+	private static double getReadoutTimeProperty(int index) {
 		try {
 			logger.debug("Reading property {}.{}.{}", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
-			return Integer.parseInt(getProperty(CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME, "0"));
+			return Double.parseDouble(getProperty(CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME, "0.0"));
 		} catch (NumberFormatException e) {
-			logger.warn("Error reading property {}.{}.{}. Uses default to 0 ", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
+			logger.warn("Error reading property {}.{}.{}. Uses default to 0.0 ", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
 			return 0;
 		}
 	}
@@ -404,6 +405,12 @@ public final class CameraHelper {
 
 	private static String getCameraConfigurationMotorControllerProperty(int cameraIndex, int motorIndex) {
 		return LocalProperties.get(formatMotorPropertyKey(cameraIndex, motorIndex, "controller"), null);
+	}
+
+	public static final Optional<CameraProperties> getCameraPropertiesByCameraControl(CameraControl cameraControl) {
+		return cameraProperties.stream()
+			.filter(p -> p.getCameraControl().equals(cameraControl.getName()))
+			.findFirst();
 	}
 
 	private static class ICameraConfigurationImpl implements ICameraConfiguration {

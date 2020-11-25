@@ -42,16 +42,22 @@ public class DetectorDocument {
 	 */
 	private final double exposure;
 
-	public DetectorDocument(String name, double exposure) {
-		super();
+	/**
+	 * The detector readout time.
+	 */
+	private final double readout;
+
+	private DetectorDocument(String name, double exposure, double readout) {
 		this.name = name;
 		this.exposure = exposure;
+		this.readout = readout;
 	}
 
 	public DetectorDocument(DetectorDocument detectorDocument) {
 		super();
 		this.name = detectorDocument.getName();
 		this.exposure = detectorDocument.getExposure();
+		this.readout = detectorDocument.getReadout();
 	}
 
 	public String getName() {
@@ -62,23 +68,33 @@ public class DetectorDocument {
 		return exposure;
 	}
 
+	public double getReadout() {
+		return readout;
+	}
+
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String name;
 		private double exposure;
+		private double readout;
 
-	    Builder withName(String name) {
+	    public Builder withName(String name) {
 	        this.name = name;
 	        return this;
 	    }
 
-	    Builder withExposure(double exposure) {
+	    public Builder withExposure(double exposure) {
 	        this.exposure = exposure;
 	        return this;
 	    }
 
+	    public Builder withReadout(double readout) {
+	        this.readout = readout;
+	        return this;
+	    }
+
 	    public DetectorDocument build() {
-	        return new DetectorDocument(name, exposure);
+	        return new DetectorDocument(name, exposure, readout);
 	    }
 	}
 }
