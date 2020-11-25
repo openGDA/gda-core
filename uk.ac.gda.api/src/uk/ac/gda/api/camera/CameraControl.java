@@ -141,6 +141,20 @@ public interface CameraControl extends Findable, IObservable {
 	ImageMode getImageMode() throws Exception;
 
 	/**
+	 * Sets the camera trigger mode
+	 *
+	 * @param triggerMode the camera specific trigger mode value
+	 * @throws Exception
+	 */
+	void setTriggerMode(short triggerMode) throws Exception;
+
+	/**
+	 * Gets the camera trigger mode
+	 * @throws Exception
+	 */
+	short getTriggerMode() throws Exception;
+
+	/**
 	 * Enables the processing filter
 	 */
 	void enableProcessingFilter() throws Exception;

@@ -30,6 +30,7 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishE
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
+import uk.ac.gda.api.camera.TriggerMode;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -75,6 +77,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * client.cameraConfiguration.0.cameraControl=imaging_camera_control
  * client.cameraConfiguration.0.beam_mapping_active=true
  * client.cameraConfiguration.0.readoutTime=true
+ * client.cameraConfiguration.0.triggerModes=AUTO:0,EXTERNAL:1
  * client.cameraConfiguration.0.motor.0.controller = stagez
  * client.cameraConfiguration.0.motor.0.name = Camera Axis Z
  * client.cameraConfiguration.0.motor.1.controller = stagey
@@ -140,6 +143,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 public final class CameraHelper {
 
 	private static final String READOUT_TIME = "readoutTime";
+	private static final String TRIGGER_MODES = "triggerModes";
 
 	private static final Logger logger = LoggerFactory.getLogger(CameraHelper.class);
 
@@ -302,6 +306,7 @@ public final class CameraHelper {
 		builder.setBeamMappingActive(getBeamMappingProperty(index));
 		builder.setPixelBinningEditable(getPixelBinningEditableProperty(index));
 		builder.setReadoutTime(getReadoutTimeProperty(index));
+		builder.setTriggerMode(parseTriggerModes(index));
 
 		builder.setMotorProperties(getCameraConfigurationMotors(index));
 		CameraProperties cp = builder.build();
@@ -380,6 +385,41 @@ public final class CameraHelper {
 			return 0;
 		}
 	}
+
+	/**
+	 * Extracts properties formatted like
+	 * "client.cameraConfiguration.INDEX.readoutTime"
+	 *
+	 * @param index the camera index
+	 * @return the camera readout time. Default 0.0;
+	 */
+	private static double getTriggerModesProperty(int index) {
+		try {
+			logger.debug("Reading property {}.{}.{}", CAMERA_CONFIGURATION_PREFIX, index, TRIGGER_MODES);
+			return Double.parseDouble(getProperty(CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME, "0.0"));
+		} catch (NumberFormatException e) {
+			logger.warn("Error reading property {}.{}.{}. Uses default to 0.0 ", CAMERA_CONFIGURATION_PREFIX, index, READOUT_TIME);
+			return 0;
+		}
+	}
+
+	private static Map<TriggerMode, Short> parseTriggerModes(int index) {
+		Map<TriggerMode, Short> enumsMap = new EnumMap<>(TriggerMode.class);
+		String enums = getProperty(CAMERA_CONFIGURATION_PREFIX, index, TRIGGER_MODES, null);
+		if (enums != null) {
+			Arrays.stream(enums.split(","))
+				.forEach(m -> {
+					String[] mapping = m.split(":");
+					try {
+						enumsMap.put(TriggerMode.valueOf(mapping[0].trim().toUpperCase()), Short.parseShort(mapping[1]));
+					} catch (IllegalArgumentException e) {
+						logger.error("Cannot map trigger mode for camera index {}", index);
+					}
+				});
+		}
+		return enumsMap;
+	}
+
 
 	// -- motors -- //
 	/**

@@ -19,7 +19,10 @@
 package uk.ac.gda.client.properties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import uk.ac.gda.api.camera.TriggerMode;
 
 /**
  * Defines the camera properties required by the GUI to expose a camera
@@ -95,5 +98,12 @@ public interface CameraProperties {
 	 * @return the camera readout time. Default value is 0.
 	 */
 	double getReadoutTime();
+
+	/**
+	 * Indicates the camera trigger mode list. The AUTO
+	 *
+	 * @return the camera readout time. Default value is 0.
+	 */
+	Map<TriggerMode, Short> getTriggerMode();
 
 }

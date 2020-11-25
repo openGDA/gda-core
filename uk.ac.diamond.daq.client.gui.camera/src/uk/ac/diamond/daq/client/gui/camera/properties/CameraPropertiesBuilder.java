@@ -19,9 +19,11 @@
 package uk.ac.diamond.daq.client.gui.camera.properties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.gda.api.camera.TriggerMode;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
 
@@ -80,6 +82,10 @@ public class CameraPropertiesBuilder {
 		cameraProperties.setReadoutTime(readoutTime);
 	}
 
+	public void setTriggerMode(Map<TriggerMode, Short> triggerMode) {
+		cameraProperties.setTriggerMode(triggerMode);
+	}
+
 	private class CameraPropertiesImpl implements CameraProperties {
 
 		private int index;
@@ -91,6 +97,7 @@ public class CameraPropertiesBuilder {
 		private boolean beamMappingActive;
 		private boolean pixelBinningEditable;
 		private double readoutTime;
+		private Map<TriggerMode, Short> triggerMode;
 
 		@Override
 		public int getIndex() {
@@ -171,6 +178,15 @@ public class CameraPropertiesBuilder {
 
 		public void setReadoutTime(double readoutTime) {
 			this.readoutTime = readoutTime;
+		}
+
+		@Override
+		public Map<TriggerMode, Short> getTriggerMode() {
+			return triggerMode;
+		}
+
+		public void setTriggerMode(Map<TriggerMode, Short> triggerMode) {
+			this.triggerMode = triggerMode;
 		}
 	}
 }
