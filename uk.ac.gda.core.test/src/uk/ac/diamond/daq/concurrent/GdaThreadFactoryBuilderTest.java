@@ -22,22 +22,20 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.concurrent.ThreadFactory;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GdaThreadFactoryBuilderTest {
 
 	@Mock
 	private Runnable task;
-
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-	}
 
 	@Test
 	public void testThreadName() {
@@ -121,7 +119,8 @@ public class GdaThreadFactoryBuilderTest {
 
 	@Test
 	public void testClassLoader() throws Exception {
-		ClassLoader loader = mock(ClassLoader.class);
+		// Create a new ClassLoader object rather than mocking as mocking ClassLoader can cause JVM crash
+		ClassLoader loader = new URLClassLoader(new URL[] {});
 		ThreadFactory factory = Threads.classLoader(loader).factory();
 		Thread t = factory.newThread(task);
 		assertEquals("ClassLoader is not used when creating threads",
