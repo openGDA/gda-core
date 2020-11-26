@@ -970,7 +970,7 @@ public class ScannableCommands {
 		JythonServer server = Finder.findSingleton(JythonServer.class);
 		for (Scannable scannable : args) {
 			if (server.addDefault(scannable)) {
-				server.print(scannable.getName()
+				InterfaceProvider.getTerminalPrinter().print(scannable.getName()
 						+ " added to the list of default Scannables. Remove from the list by using command: remove_default "
 						+ scannable.getName());
 			}
@@ -986,7 +986,7 @@ public class ScannableCommands {
 		JythonServer server = Finder.findSingleton(JythonServer.class);
 		for (Scannable scannable : args) {
 			if (server.removeDefault(scannable)) {
-				server.print(scannable.getName()
+				InterfaceProvider.getTerminalPrinter().print(scannable.getName()
 						+ " removed from list of default Scannables. Add back to the list by using command: add_default "
 						+ scannable.getName());
 			}
