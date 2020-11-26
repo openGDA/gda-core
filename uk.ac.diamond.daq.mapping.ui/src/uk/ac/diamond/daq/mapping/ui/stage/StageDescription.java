@@ -25,14 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
-import uk.ac.diamond.daq.mapping.ui.stage.serializer.IScannableMotorDeserializer;
-import uk.ac.diamond.daq.mapping.ui.stage.serializer.IScannableMotorSerializer;
 
 /**
  * Describes a stage by its components.
@@ -42,14 +36,6 @@ import uk.ac.diamond.daq.mapping.ui.stage.serializer.IScannableMotorSerializer;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "stage")
 @JsonSubTypes({ @Type(value = GTSStage.class, name = "GTS"), @Type(value = TR6Stage.class, name = "TR6") })
 public interface StageDescription {
-
-	/**
-	 * A {@link Map} of the motors composing a stage
-	 * @return a map of devices and scannable motors
-	 */
-	@JsonSerialize(contentUsing = IScannableMotorSerializer.class)
-	@JsonDeserialize(contentUsing = IScannableMotorDeserializer.class)
-	public Map<StageDevice, IScannableMotor> getMotors();
 
 	/**
 	 * Returns the described {@link Stage}  type

@@ -77,8 +77,7 @@ public abstract class CommonStage implements StageDescription {
 		this.stage = stage;
 	}
 
-	@Override
-	public Map<StageDevice, IScannableMotor> getMotors() {
+	private Map<StageDevice, IScannableMotor> getMotors() {
 		if (motors.isEmpty()) {
 			loadDevices();
 		}
