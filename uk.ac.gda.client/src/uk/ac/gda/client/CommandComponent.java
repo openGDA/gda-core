@@ -57,6 +57,10 @@ public class CommandComponent {
 
 	private CommandComponent() { /* Do not instantiate */ }
 
+	private static boolean hasPermissionToExecute(boolean doBatonCheck) {
+		return !doBatonCheck || amIBatonHolder();
+	}
+
 	public static boolean amIBatonHolder() {
 		return InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 	}
@@ -66,24 +70,24 @@ public class CommandComponent {
 	}
 
 	public static boolean enqueueCommandProvider(CommandProvider provider, boolean doBatonCheck) throws Exception {
-		boolean doContinue = !doBatonCheck || (doBatonCheck && amIBatonHolder());
-		if (doContinue) {
-			// Alternate could be return getQueue().addToTail(provider)
-			String jobLabel = String.format("Queue Job: %s", provider.getCommand().getDescription());
-			CommandComponent.runJob(new Job(jobLabel) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					boolean success = false;
-					try {
-						success = null != CommandComponent.getQueue().addToTail(provider);
-					} catch (Exception e) {
-						logger.error(String.format("FAIL to queue: %s", jobLabel),e);
-					}
-					return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
+		String commandDescription = provider.getCommand().getDescription();
+		String jobLabel = String.format("Queue Job: %s", commandDescription);
+		runJob(doBatonCheck, new Job(jobLabel) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				boolean success = false;
+				try {
+					Queue q = CommandComponent.getQueue();
+					if(q == null) logger.error("Queue is absent! Job {} could not be added",commandDescription);
+					else success = null!= q.addToTail(provider);
+				} catch (Exception e) {
+					String errorMessage = String.format("FAIL to queue: %s", commandDescription);
+					logger.error(errorMessage,e);
 				}
-			});
-		}
-		return doContinue;
+				return success ? Status.OK_STATUS : Status.CANCEL_STATUS;
+			}
+		});
+		return true;
 	}
 
 	public static boolean enqueueJythonCommand(String command, String description, String settingsPath) throws Exception {
@@ -92,7 +96,7 @@ public class CommandComponent {
 
 	public static boolean enqueueJythonCommand(String command, String description, String settingsPath, boolean doBatonCheck) throws Exception {
 		CommandProvider provider = new JythonCommandCommandProvider(command, description, settingsPath);
-		return CommandComponent.enqueueCommandProvider(provider, doBatonCheck);
+		return enqueueCommandProvider(provider, doBatonCheck);
 	}
 
 	public static boolean enqueueScriptController(Scriptcontroller controller) throws Exception {
@@ -100,10 +104,19 @@ public class CommandComponent {
 	}
 
 	public static boolean enqueueScriptController(Scriptcontroller controller, boolean doBatonCheck) throws Exception {
-		return CommandComponent.enqueueJythonCommand(controller.getCommand(), controller.getName(), controller.getParametersName(), doBatonCheck);
+		return enqueueJythonCommand(controller.getCommand(), controller.getName(), controller.getParametersName(), doBatonCheck);
 	}
 
 	public static String evaluateJythonCommand(String command) {
+		return evaluateJythonCommand(command,true);
+	}
+
+	public static String evaluateJythonCommand(String command, boolean doBatonCheck) {
+		boolean canContinue = hasPermissionToExecute(doBatonCheck);
+		if(!canContinue) {
+			logger.info("Command {} not evaluated, because baton not held",command);
+			return "";
+		}
 		return getCommandRunner().evaluateCommand(command);
 	}
 
@@ -121,64 +134,92 @@ public class CommandComponent {
 
 	public static IFindableQueueProcessor getQueueProcessor() {
 		if (queueProcessor == null && !openQueueProcessorAlreadyAttempted) {
-			queueProcessor = Finder.listFindablesOfType(IFindableQueueProcessor.class).stream().findFirst().orElse(null);
+			queueProcessor = Finder.listFindablesOfType(IFindableQueueProcessor.class)
+									.stream()
+									.findFirst().orElse(null);
 		}
 		return queueProcessor;
 	}
 
-	public static void runJob(Job job) {
+	public static boolean runJob(boolean doBatonCheck, Job job) {
+		if(!hasPermissionToExecute(doBatonCheck)) {
+			logger.info("Job {} not executed, because baton not held",job.getName());
+			return false;
+		}
+		runJobWithoutBatonCheck(job);
+		return true;
+	}
+
+	private static void runJobWithoutBatonCheck(Job job) {
 		logger.info(job.getName());
 		job.setUser(false);
 		job.schedule();
 	}
 
 	public static void runJythonCommand(String command) {
+		runJythonCommand(command,true);
+	}
+
+	public static void runJythonCommand(String command, boolean doBatonCheck) {
 		String jobLabel = String.format("Run command: %s", command);
-		CommandComponent.runJob(new Job(jobLabel) {
+		runJob(doBatonCheck, new Job(jobLabel) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				getCommandRunner().runCommand(command);
+				CommandComponent.getCommandRunner().runCommand(command);
 				return Status.OK_STATUS;
 			}
 		});
 	}
 
-	public static void runJythonScript(File scriptFile) {
+	public static boolean runJythonScript(File scriptFile) {
+		return runJythonScript(scriptFile,true);
+	}
+
+	public static boolean runJythonScript(File scriptFile, boolean doBatonCheck) {
 		String jobLabel = String.format("Run script: %s", scriptFile.toString());
-		CommandComponent.runJob(new Job(jobLabel) {
+		runJob(doBatonCheck,new Job(jobLabel) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				getCommandRunner().runScript(scriptFile);
+				CommandComponent.getCommandRunner().runScript(scriptFile);
 				return Status.OK_STATUS;
 			}
 		});
+		return true;
 	}
 
-	public static void runJythonScript(String scriptName, boolean shared) {
-		String folder = shared
-			? LocalProperties.get("gda.beamline.scripts.shared.procedure.dir", "")
-			: LocalProperties.get("gda.beamline.scripts.procedure.dir", "");
-
-		if (!folder.isEmpty()) {
-			File f = new File(folder + "/" + scriptName);
-			if(f.exists()) {
-				CommandComponent.runJythonScript(f);
-			}
-		}
+	public static boolean runJythonScript(String scriptName, boolean shared) {
+		return runJythonScript(scriptName,shared,true);
 	}
 
-	public static void runScriptController(Scriptcontroller controller) {
+	public static boolean runJythonScript(String scriptName, boolean shared, boolean doBatonCheck) {
+		String propertiesRef = shared
+				? "gda.beamline.scripts.shared.procedure.dir"
+				: "gda.beamline.scripts.procedure.dir";
+
+		String folder = LocalProperties.get(propertiesRef, "");
+		if(folder.isEmpty()) return false;
+
+		File f = new File(folder,scriptName);
+		if(!f.exists()) return false;
+		runJythonScript(f,doBatonCheck);
+		return true;
+	}
+
+	public static boolean runScriptController(Scriptcontroller controller, boolean doBatonCheck) {
+
 		String jobLabel = String.format("Run script via controller: %s", controller.getName());
-		CommandComponent.runJob(new Job(jobLabel) {
+
+		runJobWithoutBatonCheck(new Job(jobLabel) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				if (controller instanceof ScriptControllerBase) {
 					((ScriptControllerBase) controller).run();
 				} else {
-					CommandComponent.runJythonCommand(controller.getCommand());
+					CommandComponent.runJythonCommand(controller.getCommand(),doBatonCheck); // does incur a second baton check
 				}
 				return Status.OK_STATUS;
 			}
 		});
+		return true;
 	}
 }
