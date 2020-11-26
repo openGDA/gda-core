@@ -32,13 +32,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import gda.jython.Jython;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SingleCommandRunnerTest {
 
 	private static final long TIMEOUT = 200;
@@ -56,7 +58,6 @@ public class SingleCommandRunnerTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
 		doAnswer(exec).doAnswer(execTwo).when(mockJython).exec(anyString());
 
 		runner = new SingleCommandRunner();

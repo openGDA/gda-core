@@ -32,11 +32,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ExperimentTreeCacheTest {
 
 	/** the object under test */
@@ -52,8 +54,6 @@ public class ExperimentTreeCacheTest {
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
-
 		when(filePathService.getVisitConfigDir()).thenReturn(configDir.getRoot().getAbsolutePath());
 
 		cache = new ExperimentTreeCache();

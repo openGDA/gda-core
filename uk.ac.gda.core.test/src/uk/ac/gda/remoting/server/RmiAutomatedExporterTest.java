@@ -43,8 +43,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.remoting.rmi.RmiInvocationHandler;
 import org.springframework.remoting.rmi.RmiRegistryFactoryBean;
 import org.springframework.util.SocketUtils;
@@ -68,6 +69,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  *
  * @author James Mudd
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RmiAutomatedExporterTest {
 
 	private RmiAutomatedExporter rmiAutoExporter;
@@ -90,7 +92,6 @@ public class RmiAutomatedExporterTest {
 	@Before
 	public void setUpTest() throws Exception {
 		rmiAutoExporter = new RmiAutomatedExporter();
-		MockitoAnnotations.initMocks(this);
 		when(mockFactory.isLocal()).thenReturn(true);
 
 		// Create local RMI registry to check the objects are exported

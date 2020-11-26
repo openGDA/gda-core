@@ -38,8 +38,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
@@ -59,6 +60,7 @@ import uk.ac.gda.remoting.server.RmiAutomatedExporter;
  * @since GDA 9.8
  * @author James Mudd
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RmiRemotingIntegrationTest {
 
 	private static int portForTesting;
@@ -94,7 +96,6 @@ public class RmiRemotingIntegrationTest {
 	@SuppressWarnings("unused") // As the RmiProxyFactory adds itself to the Finder
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
 		when(mockFactory.isLocal()).thenReturn(true);
 
 		// Make objects under test

@@ -28,8 +28,9 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -37,6 +38,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import gda.device.Scannable;
 import gda.factory.Finder;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GdaRmiProxyTest {
 
 	// Class under test
@@ -48,7 +50,6 @@ public class GdaRmiProxyTest {
 	@Before
 	public void setUp() throws Exception {
 		gdaRmiProxy = new GdaRmiProxy();
-		MockitoAnnotations.initMocks(this);
 		Finder.removeAllFactories();
 		Finder.addFactory(rmiProxyFactory);
 	}

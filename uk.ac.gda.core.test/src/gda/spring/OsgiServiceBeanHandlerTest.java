@@ -24,17 +24,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Dictionary;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
@@ -42,6 +41,7 @@ import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.gda.core.GDACoreActivator;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OsgiServiceBeanHandlerTest {
 
 	// Class under test
@@ -52,8 +52,6 @@ public class OsgiServiceBeanHandlerTest {
 
 	@Before
 	public void setup() throws Exception {
-		// Make mocks
-		MockitoAnnotations.initMocks(this);
 
 		// Set mock in bundle context
 		GDACoreActivator activator = new GDACoreActivator(); // Make an instance to call method that sets static field!
@@ -96,8 +94,6 @@ public class OsgiServiceBeanHandlerTest {
 		// Add it to the service register it already got in there some other way
 		@SuppressWarnings("unchecked") // Generics can't be handled
 		ServiceReference<Serializable> mockServiceReference = mock(ServiceReference.class);
-		when(mockContext.getServiceReferences(Serializable.class, null)).thenReturn(Arrays.asList(mockServiceReference));
-		when(mockContext.getService(mockServiceReference)).thenReturn(service);
 
 		// Verify no more interaction specifically that nothing was added to the context
 		verifyNoMoreInteractions(mockContext, mockServiceReference);

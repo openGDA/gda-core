@@ -73,8 +73,6 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 
 	@Before
 	public void setUp() throws DeviceException, FactoryException {
-		// MockitoAnnotations.initMocks(DeferredAndTrajectoryScannableGroupIntegrationTest.class);
-
 		controller = mock(TrajectoryMoveController.class);
 		when(controller.getNumberAxes()).thenReturn(3);
 		scna = mockScannableMotor(motora, "a");

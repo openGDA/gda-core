@@ -9,13 +9,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import gda.device.ContinuousParameters;
-import gda.device.Detector;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdata.NXDetectorSerialAppender;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,12 +17,22 @@ import java.util.NoSuchElementException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import gda.device.ContinuousParameters;
+import gda.device.Detector;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdata.NXDetectorSerialAppender;
 
 @SuppressWarnings("unused") // to avoid warnings about un-thrown exceptions
+@RunWith(MockitoJUnitRunner.class)
 public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +53,6 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	@Before
 	public void setUp() throws Exception {
 		// Set up mock detector
-		MockitoAnnotations.initMocks(this);
 		inOrder = inOrder(bufferedDetector);
 
 		when(bufferedDetector.getName()).thenReturn(MOCK_BUFFERED_DETECTOR_NAME);

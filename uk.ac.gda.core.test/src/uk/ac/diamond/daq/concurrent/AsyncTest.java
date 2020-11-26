@@ -24,22 +24,18 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.Callable;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @SuppressWarnings("unused")
+@RunWith(MockitoJUnitRunner.class)
 public class AsyncTest {
 	@Mock
 	private Runnable runnable;
 	@Mock
 	private Callable<String> callable;
-
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-	}
 
 	@Test(expected=NullPointerException.class)
 	public void testWrappingNullRunnable() {
