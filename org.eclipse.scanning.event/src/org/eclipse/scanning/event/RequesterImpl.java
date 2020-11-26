@@ -11,13 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
+import static org.eclipse.scanning.api.event.core.ResponseConfiguration.DEFAULT_TIMEOUT;
+import static org.eclipse.scanning.api.event.core.ResponseConfiguration.DEFAULT_TIME_UNIT;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IdBean;
-import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
@@ -31,9 +33,7 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 
 	RequesterImpl(URI uri, String reqTopic, String resTopic, IEventService eservice) {
 		super(uri, reqTopic, resTopic, eservice);
-		long     time = ResponseConfiguration.DEFAULT.getTimeout();
-		TimeUnit unit = ResponseConfiguration.DEFAULT.getTimeUnit();
-		responseConfiguration = new ResponseConfiguration(ResponseType.ONE, time, unit);
+		responseConfiguration = new ResponseConfiguration(ResponseType.ONE, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
 	}
 
 	@Override
@@ -47,21 +47,17 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 	}
 
 	@Override
-	public T post(final T request, ResponseConfiguration.ResponseWaiter waiter)
-			throws EventException, InterruptedException {
+	public T post(final T request, ResponseConfiguration.ResponseWaiter waiter) throws EventException, InterruptedException {
 
 		try (
 			final IPublisher<T> publisher = eservice.createPublisher(getUri(), getRequestTopic());
 			final ISubscriber<IBeanListener<T>> subscriber = eservice.createSubscriber(getUri(), getResponseTopic())) {
 
 			// Just listen to our id changing.
-			subscriber.addListener(request.getUniqueId(), new IBeanListener<T>() {
-				@Override
-				public void beanChangePerformed(BeanEvent<T> evt) {
-					T response = evt.getBean();
-					request.merge(response); // The bean must implement merge, for instance DeviceRequest.
-					responseConfiguration.countDown();
-				}
+			subscriber.addListener(request.getUniqueId(), evt -> {
+				final T response = evt.getBean();
+				request.merge(response); // The bean must implement merge, for instance DeviceRequest.
+				responseConfiguration.countDown();
 			});
 
 			// Send the request
