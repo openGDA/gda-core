@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -73,7 +74,7 @@ public class CommandProcessorComposite extends Composite {
 
 	private IObserver processorObserver;
 	private Processor processor;
-	private Label txtCurrentDescription;
+	private Text txtCurrentDescription;
 	ProgressBar progressBar;
 	private int progressBarHeight = 30;
 	String progressBarText = "";
@@ -311,16 +312,25 @@ public class CommandProcessorComposite extends Composite {
 		txtState = new Label(statusGroup, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtState);
 
-		txtCurrentDescription = new Label(currentTaskGroup, SWT.WRAP);
+		progressBar = new ProgressBar(currentTaskGroup, SWT.SMOOTH);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(progressBar);
+
+		Label blank = new Label(currentTaskGroup,SWT.NONE);
+		blank.setText(" ");
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(blank);
+
+		txtCurrentDescription = new Text(currentTaskGroup, SWT.LEFT | SWT.MULTI);
+		txtCurrentDescription.setEditable(false);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtCurrentDescription);
 
-		progressBar = new ProgressBar(currentTaskGroup, SWT.SMOOTH | SWT.BORDER);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(progressBar);
+		Label gap = new Label(currentTaskGroup, SWT.NONE);
+		gap.setText(" ");
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(gap);
 	}
 
 	private void setRunBtnState(boolean run){
 		btnRunPause_Run = run;
-		if( run){
+		if(run){
 			if (showText){
 				btnRunPause.setText(strRun);
 			} else {
@@ -361,7 +371,8 @@ public class CommandProcessorComposite extends Composite {
 					state = getProcessorState();
 				ProcessorCurrentItem currentItem = getProcessorCurrentItem();
 				boolean itemBeingProcessed = currentItem != null;
-				txtCurrentDescription.setText(currentItem != null ? currentItem.getDescription() : "No current task");
+				String descriptionText = currentItem != null ? currentItem.getDescription() : "No current task\n";
+				txtCurrentDescription.setText(descriptionText);
 				txtCurrentDescription.setForeground(currentItem != null ? null : Display.getCurrent().getSystemColor(
 						SWT.COLOR_GRAY));
 				if (!itemBeingProcessed) {
