@@ -68,6 +68,29 @@ public class ManagedScannable<T> {
 	}
 
 	/**
+	 * Utility to get a scannable position
+	 *
+	 * @throws GDAClientException when the scannable position is not available
+	 */
+	public final T getPosition() throws GDAClientException {
+		if (isAvailable()) {
+			Object pos;
+			try {
+				pos = getScannable().getPosition();
+			} catch (DeviceException e) {
+				throw new GDAClientException("Cannot handle device", e);
+			}
+			if (pos instanceof String) {
+				return (T)String.class.cast(pos);
+			}
+			if (pos instanceof Number) {
+				return (T)Number.class.cast(pos);
+			}
+		}
+		throw new GDAClientException("The scannable is not available: " + scannablePropertiesDocument);
+	}
+
+	/**
 	 * Verifies if the scannable is available.
 	 * @return {@code true} if the scannable is available, otherwise {@code false}
 	 */
@@ -100,7 +123,7 @@ public class ManagedScannable<T> {
 	}
 
 	private Scannable retrieveScannable() {
-		scannable = Optional.ofNullable(getFinder().getFindableObject(getDevice()))
+		scannable = getFinder().getFindableObject(getDevice())
 				.filter(Scannable.class::isInstance)
 				.map(Scannable.class::cast)
 				.orElseGet(() -> null);

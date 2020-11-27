@@ -40,7 +40,9 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
+import uk.ac.diamond.daq.mapping.ui.stage.BeamSelector;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -83,7 +85,6 @@ public class ScanningAcquisitionController
 	@Autowired
 	private AcquisitionFileContext fileContext;
 
-	@SuppressWarnings("unused") // to be used for dark/flat field acquisition in the near future
 	@Autowired
 	private StageController stageController;
 
@@ -278,6 +279,7 @@ public class ScanningAcquisitionController
 			throw new AcquisitionConfigurationException("Save an OutOfBeam position to acquire flat images");
 		}
 		flatPosition.add(stageController.createShutterOpenRequest());
+		updateBeamSelectorPosition(flatPosition);
 		imageCalibrationHelper.updateFlatDetectorPositionDocument(flatPosition);
 	}
 
@@ -286,6 +288,7 @@ public class ScanningAcquisitionController
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
 			darkPosition.add(stageController.createShutterClosedRequest());
+			updateBeamSelectorPosition(darkPosition);
 			imageCalibrationHelper.updateDarkDetectorPositionDocument(darkPosition);
 		}
 	}
@@ -321,6 +324,17 @@ public class ScanningAcquisitionController
 		}
 	}
 
+	private void updateBeamSelectorPosition(Set<DevicePositionDocument> positions) {
+		ManagedScannable<String> beamSelector = BeamSelector.getManagedScannable();
+		if (beamSelector == null)
+			return;
+
+		if (beamSelector.isAvailable()) {
+			DevicePositionDocument beamSelectorPosition = stageController.createDevicePositionDocument(beamSelector);
+			positions.add(beamSelectorPosition);
+		}
+	}
+
 	private String getDatasetName() {
 		return AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(acquisitionType)
 				// should only have one document per acquisition type:
@@ -338,6 +352,8 @@ public class ScanningAcquisitionController
 		// See AcquisitionPropertiesDocument#outOfBeamScannables
 		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, detectorsHelper.getOutOfBeamScannables());
 		startPosition.add(stageController.createShutterOpenRequest());
+		updateBeamSelectorPosition(startPosition);
+
 		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().setPosition(startPosition);
 	}
 

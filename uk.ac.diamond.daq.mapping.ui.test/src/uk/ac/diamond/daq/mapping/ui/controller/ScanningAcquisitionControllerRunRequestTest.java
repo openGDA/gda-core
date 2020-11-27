@@ -74,7 +74,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScanningAcquisitionControllerRunRequestTest {
 
-	private final static String motor_x = "motor_x";
+	private static final String motor_x = "motor_x";
 
 	private ScanningAcquisitionController controller;
 

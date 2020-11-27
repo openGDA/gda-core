@@ -21,6 +21,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.beamline.configuration.api.ConfigurationWorkflow;
 import uk.ac.diamond.daq.client.gui.energy.EnergyWorkflowController.EnergySelectionType;
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
+import uk.ac.diamond.daq.mapping.ui.stage.BeamSelector;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -62,19 +64,13 @@ public class BeamEnergyDialogBuilder {
 	public static final String IMAGING_MONO_WORKFLOW_PROPERTY = "beam.imaging.mono.workflow";
 	public static final String IMAGING_MONO_WORKFLOW_PROPERTY_DEFAULT = "imaging_mono_workflow";
 
-	public static final String BEAM_SELECTOR_SCANNABLE_PROPERTY = "beam.selector.scannable.name";
-	public static final String BEAM_SELECTOR_SCANNABLE_DEFAULT_NAME = "beam_selector";
-
 	private static final String DIFFRACTION_MONO_WORKFLOW = LocalProperties.get(DIFFRACTION_MONO_WORKFLOW_PROPERTY,
 			DIFFRACTION_MONO_WORKFLOW_PROPERTY_DEFAULT);
 	private static final String DIFFRACTION_PINK_WORKFLOW = LocalProperties.get(DIFFRACTION_PINK_WORKFLOW_PROPERTY,
 			DIFFRACTION_PINK_WORKFLOW_PROPERTY_DEFAULT);
 	private static final String IMAGING_MONO_WORKFLOW = LocalProperties.get(IMAGING_MONO_WORKFLOW_PROPERTY,
 			IMAGING_MONO_WORKFLOW_PROPERTY_DEFAULT);
-	private static final String BEAM_SELECTOR_SCANNABLE_NAME = LocalProperties.get(BEAM_SELECTOR_SCANNABLE_PROPERTY,
-			BEAM_SELECTOR_SCANNABLE_DEFAULT_NAME);
 
-	private boolean createBeamSelectorControl;
 	private EnergyWorkflowController diffractionController;
 	private EnergyWorkflowController imagingController;
 
@@ -90,20 +86,6 @@ public class BeamEnergyDialogBuilder {
 		ConfigurationWorkflow imagingMono =
 				(ConfigurationWorkflow) Finder.findOptional(IMAGING_MONO_WORKFLOW).orElse(null);
 		return new EnergyWorkflowController(EnergySelectionType.MONO, imagingMono, null);
-	}
-
-	/**
-	 * Add control for the beam selector scannable, whose name is either
-	 * <ul>
-	 * <li>{@value #BEAM_SELECTOR_SCANNABLE_DEFAULT_NAME}, or</li>
-	 * <li>specified by the property {@value #BEAM_SELECTOR_SCANNABLE_PROPERTY}</li>
-	 * </ul>
-	 *
-	 * @return
-	 */
-	public BeamEnergyDialogBuilder addBeamSelector() {
-		createBeamSelectorControl = true;
-		return this;
 	}
 
 	/**
@@ -143,22 +125,7 @@ public class BeamEnergyDialogBuilder {
 		@Override
 		protected Control createDialogArea(Composite parent) {
 			Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-			if (createBeamSelectorControl) {
-				MotorProperties beamSelectorProperties = new MotorProperties() {
-
-					@Override
-					public String getController() {
-						return BEAM_SELECTOR_SCANNABLE_NAME;
-					}
-
-					@Override
-					public String getName() {
-						return "Beam selector";
-					}
-				};
-
-				new MotorCompositeFactory(beamSelectorProperties).createComposite(container, SWT.HORIZONTAL);
-			}
+			addBeamSelectorWidget(container);
 
 			Composite base;
 			if (diffractionController != null && imagingController != null) {
@@ -177,6 +144,24 @@ public class BeamEnergyDialogBuilder {
 				createEnergyControl(IMAGING, imagingController, base);
 			}
 			return base;
+		}
+
+		private void addBeamSelectorWidget(Composite parent) {
+			if (getBeamSelector() == null || !getBeamSelector().isAvailable()) {
+				return;
+			}
+			MotorProperties beamSelectorProperties = new MotorProperties() {
+				@Override
+				public String getController() {
+					return getBeamSelector().getScannablePropertiesDocument().getScannable();
+				}
+
+				@Override
+				public String getName() {
+					return getBeamSelector().getScannablePropertiesDocument().getLabel();
+				}
+			};
+			new MotorCompositeFactory(beamSelectorProperties).createComposite(parent, SWT.HORIZONTAL);
 		}
 
 		private void createEnergyControl(ClientMessages title, EnergyWorkflowController controller, Composite parent) {
@@ -202,6 +187,10 @@ public class BeamEnergyDialogBuilder {
 		protected void configureShell(Shell shell) {
 			super.configureShell(shell);
 			shell.setText(getMessage(BEAM_ENERGY_CONTROL));
+		}
+
+		private ManagedScannable<String> getBeamSelector() {
+			return BeamSelector.getManagedScannable();
 		}
 
 	}
