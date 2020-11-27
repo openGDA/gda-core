@@ -39,6 +39,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
+import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.script.ScriptRequest;
 
@@ -145,10 +146,14 @@ public class ScanRequestFactory {
 	 */
 	private CompoundModel createInterpolatedCompoundModel(AcquisitionTemplate acquisitionTemplate) {
 		final InterpolatedMultiScanModel multiScanModel = new InterpolatedMultiScanModel();
-		multiScanModel.setContinuous(Optional.ofNullable(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS))
-			.orElse(false));
 
 		// --- Preparation ---
+		// Each new multiscanModel must set this start position and image type
+		// --- Positions List ---
+		final List<IPosition> interpolationPositions = new ArrayList<>();
+		// --- Images Type ---
+		final List<ImageType> imageTypes = new ArrayList<>();
+
 		// --- Flat Positions ---
 		// Note - The shutter "close" position is added by the ScanningAcquisitionController
 		final IPosition flatPos = createPositionMap(getFlatCalibration().getPosition());
@@ -163,43 +168,48 @@ public class ScanRequestFactory {
 		final double posBeforeMainScan = trackDocument.getStart() - trackDocument.calculatedStep() / 2;
 		final double posAfterMainScan = trackDocument.getStop() + trackDocument.calculatedStep() / 2;
 
-		// --- Positions List ---
-		final List<IPosition> interpolationPositions = new ArrayList<>();
-		multiScanModel.setInterpolatedPositions(interpolationPositions);
-
-
-
 		// -- Model Definition
 		// Flat Before Acquisition
 		if (getFlatCalibration().isBeforeAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
 					posBeforeMainScan, getFlatCalibration().getNumberExposures()));
 			interpolationPositions.add(flatPos);
+			imageTypes.add(ImageType.FLAT);
 		}
 		// Dark Before Acquisition
 		if (getDarkCalibration().isBeforeAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
 					posBeforeMainScan, getDarkCalibration().getNumberExposures()));
 			interpolationPositions.add(darkPos);
+			imageTypes.add(ImageType.DARK);
 		}
 
 		// Acquisition
 		final IPosition startPos = createPositionMap(getAcquisitionParameters().getPosition());
 		multiScanModel.addModel(acquisitionTemplate.getIScanPointGeneratorModel());
 		interpolationPositions.add(startPos);
+		imageTypes.add(ImageType.NORMAL);
 
 		// Flat After Acquisition
 		if (getFlatCalibration().isAfterAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
 					posAfterMainScan, getFlatCalibration().getNumberExposures()));
 			interpolationPositions.add(flatPos);
+			imageTypes.add(ImageType.FLAT);
 		}
+
 		// Dark After Acquisition
 		if (getDarkCalibration().isAfterAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
 					posAfterMainScan, getDarkCalibration().getNumberExposures()));
 			interpolationPositions.add(darkPos);
+			imageTypes.add(ImageType.DARK);
 		}
+
+		multiScanModel.setContinuous(Optional.ofNullable(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS))
+				.orElse(false));
+		multiScanModel.setInterpolatedPositions(interpolationPositions);
+		multiScanModel.setImageTypes(imageTypes);
 		return new CompoundModel(multiScanModel);
 	}
 
