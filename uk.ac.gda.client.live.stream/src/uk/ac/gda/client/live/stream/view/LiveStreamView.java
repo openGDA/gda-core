@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.io.IRemoteDatasetService;
@@ -67,7 +66,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.factory.Finder;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.handlers.SnapshotData;
 import uk.ac.gda.client.live.stream.view.customui.LiveStreamViewCustomUi;
@@ -258,8 +257,7 @@ public class LiveStreamView extends ViewPart {
 
 		// Create the plotting view
 		try {
-			UUID streamID = LiveStreamConnectionManager.getInstance().getIStreamConnection(camConfig, streamType);
-			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance().getIStreamConnection(streamID);
+			liveStreamConnection = new LiveStreamConnectionBuilder(camConfig, streamType).buildAndConnect();
 			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), actionBars, liveStreamConnection, this);
 			plottingComposite.setShowAxes(camConfig.getCalibratedAxesProvider() != null);
 			plottingComposite.setShowTitle(true);

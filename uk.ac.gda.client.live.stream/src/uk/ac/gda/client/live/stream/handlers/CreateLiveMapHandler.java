@@ -30,7 +30,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
@@ -53,9 +53,7 @@ public class CreateLiveMapHandler extends AbstractHandler {
 
 		final LiveStreamConnection liveStreamConnection;
 		try {
-			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance()
-					.getIStreamConnection(
-							LiveStreamConnectionManager.getInstance().getIStreamConnection(cameraConfig, streamType));
+			liveStreamConnection = new LiveStreamConnectionBuilder(cameraConfig, streamType).buildAndConnect();
 		} catch (LiveStreamException e) {
 			throw new ExecutionException("Error creating live stream", e);
 		}

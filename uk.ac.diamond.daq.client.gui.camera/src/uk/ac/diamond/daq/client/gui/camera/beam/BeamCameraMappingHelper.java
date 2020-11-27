@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -44,7 +43,7 @@ import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
@@ -115,12 +114,8 @@ public class BeamCameraMappingHelper {
 
 	private void initializeStream(CameraConfiguration cc) {
 		try {
-			UUID streamConnection = LiveStreamConnectionManager.getInstance().getIStreamConnection(cc,
-					StreamType.EPICS_ARRAY);
-			liveStream = (LiveStreamConnection) LiveStreamConnectionManager.getInstance()
-					.getIStreamConnection(streamConnection);
-			// This is essental to make the instance aware of any change in the camera
-			// stream
+			liveStream = new LiveStreamConnectionBuilder(cc, StreamType.EPICS_ARRAY).buildAndConnect();
+			// This is essential to make the instance aware of any change in the camera stream
 			iDataListener = getDataListener();
 			liveStream.addDataListenerToStream(iDataListener);
 		} catch (LiveStreamException e) {

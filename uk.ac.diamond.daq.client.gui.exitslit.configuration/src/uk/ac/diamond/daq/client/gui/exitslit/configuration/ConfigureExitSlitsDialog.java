@@ -57,7 +57,7 @@ import gda.observable.IObserver;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
@@ -168,9 +168,7 @@ public class ConfigureExitSlitsDialog extends TitleAreaDialog {
 		final CameraControl cameraControl = params.getCameraControl();
 		try {
 	        cameraControl.startAcquiring();
-			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance()
-					.getIStreamConnection(
-							LiveStreamConnectionManager.getInstance().getIStreamConnection(cameraConfig, streamType));
+			liveStreamConnection = new LiveStreamConnectionBuilder(cameraConfig, streamType).buildAndConnect();
 			createPlottingView(container);
 			cameraControl.stopAcquiring();
 		} catch (DeviceException | LiveStreamException e) {

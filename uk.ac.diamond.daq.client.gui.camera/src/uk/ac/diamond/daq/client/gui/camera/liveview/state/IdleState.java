@@ -22,11 +22,11 @@ import java.util.UUID;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.client.live.stream.ILiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -79,10 +79,9 @@ public class IdleState implements StreamControlState {
 	 */
 	@Override
 	public void listeningState(StreamController streamController) throws LiveStreamException {
-		ILiveStreamConnectionManager manager = LiveStreamConnectionManager.getInstance();
-		CameraConfiguration cc = CameraHelper.getCameraConfiguration(streamController.getControlData().getCamera());
-		UUID streamUUID = manager.getIStreamConnection(cc, streamController.getControlData().getStreamType());
-		ILiveStreamConnection stream = manager.getIStreamConnection(streamUUID);
+		final CameraConfiguration cc = CameraHelper.getCameraConfiguration(streamController.getControlData().getCamera());
+		final StreamType streamType = streamController.getControlData().getStreamType();
+		final ILiveStreamConnection stream = new LiveStreamConnectionBuilder(cc, streamType).buildAndConnect();
 		streamController.setState(new ListeningState(stream, rootUUID));
 		SpringApplicationContextProxy.publishEvent(new ListenToConnectionEvent(stream, rootUUID));
 	}

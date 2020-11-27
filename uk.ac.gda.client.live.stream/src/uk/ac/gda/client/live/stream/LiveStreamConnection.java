@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
@@ -42,8 +41,11 @@ import uk.ac.gda.client.live.stream.view.StreamType;
 /**
  * An instance of this class encapsulates a connection to a live stream, i.e. a camera, as defined by a
  * {@link CameraConfiguration} and a {@link StreamType}.
- *
+ * <p>
  * Publishes {@link OpenConnectionEvent} when a connection is created
+ * <p>
+ * Instances of this class should be created using {@link LiveStreamConnectionBuilder} which will ensure it is attached
+ * to a stream.
  *
  * @author Matthew Dickie
  * @author Maurizio Nagni
@@ -59,7 +61,7 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 
 	@FunctionalInterface
 	public interface IAxisChangeListener {
-		public void axisChanged();
+		void axisChanged();
 	}
 
 	private final CameraConfiguration cameraConfig;
@@ -80,11 +82,9 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 
 	private final Set<IAxisChangeListener> axisChangeListeners = new HashSet<>(4);
 
-	private AtomicInteger connectionCount = new AtomicInteger(0);
-
 	private boolean initialised = false;
 
-	public LiveStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
+	LiveStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
 		this.cameraConfig = cameraConfig;
 		this.streamType = streamType;
 		this.id = UUID.randomUUID();
@@ -111,13 +111,11 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 			throw new LiveStreamException("Error connecting to live stream", e);
 		}
 		connected = true;
-		increaseConnectionCount();
 		return stream;
 	}
 
 	@Override
 	public synchronized void disconnect() throws LiveStreamException {
-		decreaseConnectionCount();
 		if (stream != null) { // Will be null the first time
 			try {
 				final CalibratedAxesProvider calibratedAxesProvider = getCameraConfig().getCalibratedAxesProvider();
@@ -210,41 +208,12 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		return getCameraConfig().getCalibratedAxesProvider() != null;
 	}
 
-	public int getConnectionCount() {
-		return connectionCount.get();
-	}
-
-	private void increaseConnectionCount() {
-		connectionCount.incrementAndGet();
-	}
-
-	private void decreaseConnectionCount() {
-		if (getConnectionCount() > 0) {
-			connectionCount.decrementAndGet();
-		}
-	}
-
 	public IDatasetConnector getStream() {
 		return stream;
 	}
 
 	public void setStream(IDatasetConnector stream) {
 		this.stream = stream;
-	}
-
-	/**
-	 * Compares the identity of this instance
-	 * <ol>
-	 * <li>{@link #getCameraConfig()} against instance</li>
-	 * <li>{@link #getStreamType()} against instance</li>
-	 * </ol>
-	 *
-	 * @param cameraConfig
-	 * @param streamType
-	 * @return <code>true</code> if the configuration is the same, <code>false</code> in any other case
-	 */
-	public final boolean sameConfiguration(final CameraConfiguration cameraConfig, final StreamType streamType) {
-		return cameraConfig.equals(getCameraConfig()) && streamType.equals(getStreamType());
 	}
 
 	private class AxesUpdater implements IDataListener {
@@ -291,8 +260,8 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		result = prime * result + ((axisChangeListeners == null) ? 0 : axisChangeListeners.hashCode());
 		result = prime * result + ((cameraConfig == null) ? 0 : cameraConfig.hashCode());
 		result = prime * result + (connected ? 1231 : 1237);
-		result = prime * result + ((connectionCount == null) ? 0 : connectionCount.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + (initialised ? 1231 : 1237);
 		result = prime * result + ((logger == null) ? 0 : logger.hashCode());
 		result = prime * result + ((stream == null) ? 0 : stream.hashCode());
 		result = prime * result + ((streamType == null) ? 0 : streamType.hashCode());
@@ -327,15 +296,12 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 			return false;
 		if (connected != other.connected)
 			return false;
-		if (connectionCount == null) {
-			if (other.connectionCount != null)
-				return false;
-		} else if (!connectionCount.equals(other.connectionCount))
-			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (initialised != other.initialised)
 			return false;
 		if (logger == null) {
 			if (other.logger != null)
@@ -367,6 +333,6 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		return "LiveStreamConnection [id=" + id + ", cameraConfig=" + cameraConfig + ", streamType=" + streamType
 				+ ", stream=" + stream + ", connected=" + connected + ", xAxisDataset=" + xAxisDataset
 				+ ", yAxisDataset=" + yAxisDataset + ", axesUpdater=" + axesUpdater + ", logger=" + logger
-				+ ", axisChangeListeners=" + axisChangeListeners + ", connectionCount=" + connectionCount + "]";
+				+ ", axisChangeListeners=" + axisChangeListeners + ", initialised=" + initialised + "]";
 	}
 }

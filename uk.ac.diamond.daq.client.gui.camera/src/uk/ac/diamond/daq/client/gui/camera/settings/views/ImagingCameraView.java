@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.client.gui.camera.settings.views;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -32,9 +31,8 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.api.ILiveStreamConnectionManager;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.CameraProperties;
@@ -82,8 +80,6 @@ public class ImagingCameraView extends ViewPart {
 		}
 		CameraConfiguration cc = CameraHelper.getCameraConfiguration(cameraProperties.get().getIndex())
 				.orElseThrow(() -> new LiveStreamException("No Camera Confguration found"));
-		ILiveStreamConnectionManager manager = LiveStreamConnectionManager.getInstance();
-		UUID connectionID = manager.getIStreamConnection(cc, StreamType.EPICS_ARRAY);
-		return LiveStreamConnection.class.cast(manager.getIStreamConnection(connectionID));
+		return new LiveStreamConnectionBuilder(cc, StreamType.EPICS_ARRAY).buildAndConnect();
 	}
 }

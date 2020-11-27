@@ -17,7 +17,6 @@
  */
 package uk.ac.diamond.daq.mapping.ui;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
@@ -28,7 +27,7 @@ import org.eclipse.ui.PlatformUI;
 
 import gda.factory.Finder;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.handlers.LiveStreamPlottable;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -98,16 +97,14 @@ class BackgroundStateHelper {
 		Optional<CameraConfiguration> config = Finder.findOptional(defaultConfigName);
 		return config.map(this::getLiveStreamObject).orElse(Optional.empty());
 	}
+
 	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration config) {
-		StreamType streamType = config.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
-		UUID uuid;
+		final StreamType streamType = config.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
 		try {
-			uuid = LiveStreamConnectionManager.getInstance().getIStreamConnection(config, streamType);
+			final LiveStreamConnection connection = new LiveStreamConnectionBuilder(config, streamType).buildAndConnect();
+			return Optional.of(new LiveStreamPlottable(connection));
 		} catch (LiveStreamException e) {
 			return Optional.empty();
 		}
-		LiveStreamConnection connection = LiveStreamConnection.class
-				.cast(LiveStreamConnectionManager.getInstance().getIStreamConnection(uuid));
-		return Optional.of(new LiveStreamPlottable(connection));
 	}
 }
