@@ -39,7 +39,6 @@ import org.eclipse.scanning.api.device.models.ScanMode;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.IResponder;
@@ -68,11 +67,14 @@ import org.junit.Test;
  */
 public class DeviceRequestTest extends BrokerTest {
 
+	private static final String DEVICE_NAME_FRED = "fred";
+	private static final String DEVICE_NAME_MANDELBROT = "mandelbrot";
+	private static final String NO_DEVICES_FOUND_MESSAGE = "There were no devices found and at least the mandelbrot example should have been!";
 
-	protected IRunnableDeviceService    dservice;
-	protected IEventService             eservice;
-	protected IRequester<DeviceRequest> requester;
-	protected IResponder<DeviceRequest> responder;
+	private IRunnableDeviceService dservice;
+	private IEventService eservice;
+	private IRequester<DeviceRequest> requester;
+	private IResponder<DeviceRequest> responder;
 
 	@Before
 	public void createServices() throws Exception {
@@ -87,21 +89,23 @@ public class DeviceRequestTest extends BrokerTest {
 
 	@Before
 	public void start() {
-
 		EventTimingsHelper.setConnectionRetryInterval(200); // Normally 2000
 		EventTimingsHelper.setReceiveTimeout(100);
 	}
 
 	@After
-	public void stop() throws Exception {
-
-	EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
-	if (requester!=null) requester.disconnect();
-	if (responder!=null) responder.disconnect();
+	public void stop() throws EventException {
+		EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
+		if (requester != null) {
+			requester.disconnect();
+		}
+		if (responder != null) {
+			responder.disconnect();
+		}
 	}
 
 	protected void connect() throws Exception {
-		DeviceServlet dservlet = new DeviceServlet();
+		final DeviceServlet dservlet = new DeviceServlet();
 		dservlet.setBroker(uri.toString());
 		dservlet.setRequestTopic(EventConstants.DEVICE_REQUEST_TOPIC);
 		dservlet.setResponseTopic(EventConstants.DEVICE_RESPONSE_TOPIC);
@@ -109,44 +113,39 @@ public class DeviceRequestTest extends BrokerTest {
 
 		// We use the long winded constructor because we need to pass in the connector.
 		// In production we would normally
-		requester  = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
+		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 		requester.setTimeout(10, TimeUnit.MINUTES); // It's a test, give it a little longer. // TODO change back to SECONDS
-
 	}
 
 	@Test
 	public void simpleSerialize() throws Exception {
-
-		DeviceRequest in = new DeviceRequest();
-        String json = eservice.getEventConnectorService().marshal(in);
-		DeviceRequest back = eservice.getEventConnectorService().unmarshal(json, DeviceRequest.class);
+		final DeviceRequest in = new DeviceRequest();
+		final String json = eservice.getEventConnectorService().marshal(in);
+		final DeviceRequest back = eservice.getEventConnectorService().unmarshal(json, DeviceRequest.class);
         assertTrue(in.equals(back));
 	}
 
 	// @Test
 	public void testGetDevices() throws Exception {
+		final DeviceRequest req = new DeviceRequest();
+		final DeviceRequest res = requester.post(req);
 
-		DeviceRequest req = new DeviceRequest();
-		DeviceRequest res = requester.post(req);
-
-		if (res.getDevices().size()<1) throw new Exception("There were no devices found and at least the mandelbrot example should have been!");
+		if (res.getDevices().isEmpty()) {
+			throw new Exception(NO_DEVICES_FOUND_MESSAGE);
+		}
 	}
 
 	//@Test
 	public void testGetDevicesUsingString() throws Exception {
-
 		final ResponseConfiguration responseConfiguration = new ResponseConfiguration(ResponseType.ONE, 1000, TimeUnit.MILLISECONDS);
 
 		final List<DeviceRequest> responses = new ArrayList<>(1);
 
-        final ISubscriber<IBeanListener<DeviceRequest>>  receive = eservice.createSubscriber(uri, EventConstants.DEVICE_RESPONSE_TOPIC);
+		final ISubscriber<IBeanListener<DeviceRequest>> receive = eservice.createSubscriber(uri, EventConstants.DEVICE_RESPONSE_TOPIC);
 		// Just listen to our id changing.
-		receive.addListener("726c5d29-72f8-42e3-ba0c-51d26378065e", new IBeanListener<DeviceRequest>() {
-			@Override
-			public void beanChangePerformed(BeanEvent<DeviceRequest> evt) {
-				responses.add(evt.getBean());
-				responseConfiguration.countDown();
-			}
+		receive.addListener("726c5d29-72f8-42e3-ba0c-51d26378065e", evt -> {
+			responses.add(evt.getBean());
+			responseConfiguration.countDown();
 		});
 
 		// Manually send a string without the extra java things...
@@ -157,22 +156,22 @@ public class DeviceRequestTest extends BrokerTest {
 		Session         session  = null;
 
 		try {
-
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory)eservice.getEventConnectorService().createConnectionFactory(uri);
-			send              = connectionFactory.createConnection();
+			final QueueConnectionFactory connectionFactory = (QueueConnectionFactory) eservice.getEventConnectorService().createConnectionFactory(uri);
+			send = connectionFactory.createConnection();
 
 			session = send.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Topic topic = session.createTopic(EventConstants.DEVICE_REQUEST_TOPIC);
+			final Topic topic = session.createTopic(EventConstants.DEVICE_REQUEST_TOPIC);
 
 			producer = session.createProducer(topic);
 			producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
 			// Send the request
 			producer.send(session.createTextMessage(rawString));
-
 		} finally {
 			try {
-				if (session!=null) session.close();
+				if (session != null) {
+					session.close();
+				}
 			} catch (JMSException e) {
 				throw new EventException("Cannot close session!", e);
 			}
@@ -180,79 +179,84 @@ public class DeviceRequestTest extends BrokerTest {
 
 		responseConfiguration.latch(null); // Wait or die trying
 
-		if (responses.isEmpty()) throw new Exception("There was no response identified!");
-		if (responses.get(0).getDevices().size()<1) throw new Exception("There were no devices found and at least the mandelbrot example should have been!");
-
+		if (responses.isEmpty()) {
+			throw new Exception("There was no response identified!");
+		}
+		if (responses.get(0).getDevices().isEmpty()) {
+			throw new Exception(NO_DEVICES_FOUND_MESSAGE);
+		}
 	}
 
 
 	@Test
 	public void testGetNamedDeviceModel() throws Exception {
-		DeviceRequest req = new DeviceRequest();
-		req.setDeviceName("mandelbrot");
-		DeviceRequest res = requester.post(req);
-		if (res.getDevices().size()!=1) throw new Exception("There were no devices found and at least the mandelbrot example should have been!");
+		final DeviceRequest req = new DeviceRequest();
+		req.setDeviceName(DEVICE_NAME_MANDELBROT);
+		final DeviceRequest res = requester.post(req);
+		if (res.getDevices().size() != 1) {
+			throw new Exception(NO_DEVICES_FOUND_MESSAGE);
+		}
 	}
 
 	@Test
 	public void testInvalidName() throws Exception {
-		DeviceRequest req = new DeviceRequest();
-		req.setDeviceName("fred");
-		DeviceRequest res = requester.post(req);
-		if (!res.isEmpty()) throw new Exception("There should have been no devices found!");
+		final DeviceRequest req = new DeviceRequest();
+		req.setDeviceName(DEVICE_NAME_FRED);
+		final DeviceRequest res = requester.post(req);
+		if (!res.isEmpty()) {
+			throw new Exception("There should have been no devices found!");
+		}
 	}
 
 	@Test
 	public void testMandelbrotDeviceInfo() throws Exception {
-		DeviceRequest req = new DeviceRequest();
-		req.setDeviceName("mandelbrot");
-		DeviceRequest res = requester.post(req);
+		final DeviceRequest req = new DeviceRequest();
+		req.setDeviceName(DEVICE_NAME_MANDELBROT);
+		final DeviceRequest res = requester.post(req);
 
 		@SuppressWarnings("unchecked")
-		DeviceInformation<MandelbrotModel> info = (DeviceInformation<MandelbrotModel>)res.getDeviceInformation();
-		assertNotNull("There were no devices found and at least the mandelbrot example should have been!", info);
+		final DeviceInformation<MandelbrotModel> info = (DeviceInformation<MandelbrotModel>) res.getDeviceInformation();
+		assertNotNull(NO_DEVICES_FOUND_MESSAGE, info);
 		assertEquals("Example mandelbrot device", info.getDescription());
 		assertEquals(DeviceRole.HARDWARE, info.getDeviceRole());
 		assertNull(info.getHealth()); // TODO what does this attribute mean?
 		assertEquals("Example Mandelbrot", info.getLabel());
 		assertEquals(1, info.getLevel());
-		assertEquals("mandelbrot", info.getName());
+		assertEquals(DEVICE_NAME_MANDELBROT, info.getName());
 		assertEquals(DeviceState.READY, info.getState());
 		assertEquals(new HashSet<>(Arrays.asList(ScanMode.SOFTWARE)), info.getSupportedScanModes());
 
-		IRunnableDevice<MandelbrotModel> mandy = dservice.getRunnableDevice("mandelbrot");
+		final IRunnableDevice<MandelbrotModel> mandy = dservice.getRunnableDevice(DEVICE_NAME_MANDELBROT);
 		assertEquals(mandy.getModel(), info.getModel());
 	}
 
 	@Test
 	public void testMandelbrotConfigure() throws Exception {
-
-		DeviceRequest req = new DeviceRequest();
-		req.setDeviceName("mandelbrot");
-		DeviceRequest res = requester.post(req);
+		final DeviceRequest req1 = new DeviceRequest();
+		req1.setDeviceName(DEVICE_NAME_MANDELBROT);
+		final DeviceRequest res1 = requester.post(req1);
 
 		@SuppressWarnings("unchecked")
-		DeviceInformation<MandelbrotModel> info = (DeviceInformation<MandelbrotModel>)res.getDeviceInformation();
-		assertNotNull("There were no devices found and at least the mandelbrot example should have been!", info);
+		final DeviceInformation<MandelbrotModel> info = (DeviceInformation<MandelbrotModel>) res1.getDeviceInformation();
+		assertNotNull(NO_DEVICES_FOUND_MESSAGE, info);
 
-		MandelbrotModel model = info.getModel();
+		final MandelbrotModel model = info.getModel();
 		model.setExposureTime(0);
-		assertTrue(info.getState()==DeviceState.READY); // We do not set an exposure as part of the test.
+		assertTrue(info.getState() == DeviceState.READY); // We do not set an exposure as part of the test.
 
-		// Now we will reconfigure the device
-		// and send a new request
-		req = new DeviceRequest();
-		req.setDeviceName("mandelbrot");
+		// Now we will reconfigure the device and send a new request
+		final DeviceRequest req2 = new DeviceRequest();
+		req2.setDeviceName(DEVICE_NAME_MANDELBROT);
 		model.setExposureTime(100);
 		model.setEscapeRadius(15);
-		req.setDeviceModel(model);
-		req.setDeviceAction(DeviceAction.CONFIGURE);
+		req2.setDeviceModel(model);
+		req2.setDeviceAction(DeviceAction.CONFIGURE);
 
-		res = requester.post(req);
+		final DeviceRequest res2 = requester.post(req2);
 
 		@SuppressWarnings("unchecked")
-		DeviceInformation<MandelbrotModel> info2 = (DeviceInformation<MandelbrotModel>)res.getDeviceInformation();
-		assertNotNull("There were no devices found and at least the mandelbrot example should have been!", info2);
+		final DeviceInformation<MandelbrotModel> info2 = (DeviceInformation<MandelbrotModel>) res2.getDeviceInformation();
+		assertNotNull(NO_DEVICES_FOUND_MESSAGE, info2);
 		assertEquals(100, model.getExposureTime(), 1e-15); // We do not set an exposure as part of the test.
 		assertEquals(15, model.getEscapeRadius(), 1e-15); // We do not set an exposure as part of the test.
 		assertEquals(DeviceState.ARMED, info2.getState()); // We do not set an exposure as part of the test.
@@ -260,29 +264,27 @@ public class DeviceRequestTest extends BrokerTest {
 
 	@Test
 	public void testGetAvailableAxes() throws Exception {
-		DeviceRequest req = new DeviceRequest();
+		final DeviceRequest req = new DeviceRequest();
 		req.setDeviceName("malcolm");
-		DeviceRequest res = requester.post(req);
+		final DeviceRequest res = requester.post(req);
 		assertNotNull(res);
 		assertEquals(1, res.size());
-		DeviceInformation<?> deviceInfo = res.getDeviceInformation();
+		final DeviceInformation<?> deviceInfo = res.getDeviceInformation();
 		assertNotNull(deviceInfo);
 
-		List<String> availableAxes = deviceInfo.getAvailableAxes();
+		final List<String> availableAxes = deviceInfo.getAvailableAxes();
 		assertNotNull(availableAxes);
 		assertThat(availableAxes, contains("stage_x", "stage_y"));
-
 	}
 
 	@Test
 	public void testGetDatasets() throws Exception {
-		DeviceRequest req = new DeviceRequest();
+		final DeviceRequest req = new DeviceRequest();
 		req.setDeviceName("malcolm");
 		req.setGetDatasets(true);
-		DeviceRequest res = requester.post(req);
+		final DeviceRequest res = requester.post(req);
 
-		MalcolmTable datasetsTable = res.getDatasets();
+		final MalcolmTable datasetsTable = res.getDatasets();
 		assertNotNull(datasetsTable);
 	}
-
 }

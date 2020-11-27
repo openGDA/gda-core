@@ -78,8 +78,8 @@ public class RemoteServiceFactory {
 		return instance;
 	}
 
-	private static long     time = ResponseConfiguration.DEFAULT.getTimeout();
-	private static TimeUnit timeUnit = ResponseConfiguration.DEFAULT.getTimeUnit();
+	private static long time = ResponseConfiguration.DEFAULT_TIMEOUT;
+	private static TimeUnit timeUnit = ResponseConfiguration.DEFAULT_TIME_UNIT;
 
 	/**
 	 * Used to set the timeout where tests would like to debug a response.

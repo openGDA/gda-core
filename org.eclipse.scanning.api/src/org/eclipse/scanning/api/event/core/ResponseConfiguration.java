@@ -18,8 +18,19 @@ import org.eclipse.scanning.api.event.EventException;
 
 public class ResponseConfiguration {
 
+	/**
+	 * Interface to a class that determines, when an initial timeout has been reached, whether the system should
+	 * continue to wait.
+	 */
 	public interface ResponseWaiter {
+		/**
+		 * @return <code>true</code> if the system should continue to wait, of <code>false</code> if it should not
+		 */
 		boolean waitAgain();
+
+		/**
+		 * An implementation of {@link ResponseWaiter} that will never continue to wait
+		 */
 		public static class Dont implements ResponseWaiter {
 			@Override
 			public boolean waitAgain() {
@@ -28,101 +39,109 @@ public class ResponseConfiguration {
 		}
 	}
 
-	public static final ResponseConfiguration DEFAULT = new ResponseConfiguration(ResponseType.ONE, 100, TimeUnit.MILLISECONDS) {
-		@Override
-		public void setTimeout(long timeout) {
-			throw new RuntimeException("Timeout is immutable!");
-		}
-		@Override
-		public void setTimeUnit(TimeUnit timeUnit) {
-			throw new RuntimeException("TimeUnit is immutable!");
-		}
-	};
-
 	public enum ResponseType {
 		/**
-		 * One response is required, after that comes in, return.
-		 * If the timeout is reached throw an exception.
-		 *
-		 * This is more efficient because the timeout is not waited for,
-		 * it can return as soon as the first message is encountered.
+		 * One response is required, after that comes in, return. If the timeout is reached throw an exception.
+		 * <p>
+		 * This is more efficient because the timeout is not waited for, it can return as soon as the first message is
+		 * encountered.
 		 */
 		ONE,
 
 		/**
-		 * Multiple reponses are required, wait for the
-		 * reponse timeout and collate all reponses. If no
-		 * response comes in, throw an exception.
-		 *
-		 * Less efficient but caters for multiple sources
-		 * of the reponse if there may be some.
+		 * Multiple responses are required, wait for the response timeout and collate all responses. If no response
+		 * comes in, throw an exception.
+		 * <p>
+		 * Less efficient but caters for multiple sources of the response if there may be some.
 		 */
 		ONE_OR_MORE;
 	}
 
+	public static final long DEFAULT_TIMEOUT = 100;
+	public static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
+
 	private ResponseType responseType;
-	private long         timeout;
-	private TimeUnit     timeUnit;
+	private long timeout;
+	private TimeUnit timeUnit;
 	private CountDownLatch latch;
 	private boolean somethingFound;
 
 	public ResponseConfiguration() {
-		this(ResponseType.ONE, DEFAULT.getTimeout(), DEFAULT.getTimeUnit());
+		this(ResponseType.ONE, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
 	}
 
 	public ResponseConfiguration(ResponseType responseType, long timeout, TimeUnit timeUnit) {
-		super();
 		this.responseType = responseType;
-		this.timeout  = timeout;
+		this.timeout = timeout;
 		this.timeUnit = timeUnit;
 	}
 
 	public void latch(ResponseWaiter waiter) throws EventException, InterruptedException {
+		if (waiter == null) {
+			// Default to waiting just one timeout period
+			waiter = new ResponseWaiter.Dont();
+		}
 
-		if (waiter==null) waiter = new ResponseWaiter.Dont();
-
-		if (getResponseType()==ResponseType.ONE) {
-			this.latch    = new CountDownLatch(1);
+		if (responseType == ResponseType.ONE) {
+			// Wait for the first response, subject to timing out
+			latch = new CountDownLatch(1);
 			boolean ok = latch.await(timeout, timeUnit);
 			while (!ok && waiter.waitAgain()) {
 				ok = latch.await(timeout, timeUnit);
 			}
-			ok = latch.await(timeout, timeUnit); // This is because waitAgain() could be false leaving ok as false, we recheck it!
-			if (!ok) throw new EventException("The timeout of "+timeout+" "+timeUnit+" was reached and no response occurred!");
-
-		} else if (getResponseType()==ResponseType.ONE_OR_MORE) {
+			// waitAgain() could be false leaving ok as false, so we recheck it
+			ok = latch.await(timeout, timeUnit);
+			if (!ok) {
+				throw new EventException("The timeout of " + timeout + " " + timeUnit + " was reached and no response occurred!");
+			}
+		} else if (responseType == ResponseType.ONE_OR_MORE) {
+			// Wait for the specified time, regardless of how many responses are received
 			somethingFound = false;
 
 			Thread.sleep(timeUnit.toMillis(timeout));
 			while (waiter.waitAgain()) {
 				Thread.sleep(timeUnit.toMillis(timeout));
 			}
-			if (!somethingFound) throw new EventException("The timeout of "+timeout+" "+timeUnit+" was reached and no response occurred!");
+			if (!somethingFound) {
+				throw new EventException("The timeout of " + timeout + " " + timeUnit + " was reached and no response occurred!");
+			}
 		}
 	}
 
 	public void countDown() {
 		somethingFound = true;
-		if (latch!=null) latch.countDown();
+		if (latch != null) {
+			latch.countDown();
+		}
 	}
 
 	public ResponseType getResponseType() {
 		return responseType;
 	}
+
 	public void setResponseType(ResponseType responseType) {
 		this.responseType = responseType;
 	}
+
 	public long getTimeout() {
 		return timeout;
 	}
+
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
+
 	public TimeUnit getTimeUnit() {
 		return timeUnit;
 	}
+
 	public void setTimeUnit(TimeUnit timeUnit) {
 		this.timeUnit = timeUnit;
+	}
+
+	public void setTimeout(long time, TimeUnit unit) {
+		setTimeout(time);
+		setTimeUnit(unit);
 	}
 
 	@Override
@@ -151,10 +170,5 @@ public class ResponseConfiguration {
 		if (timeout != other.timeout)
 			return false;
 		return true;
-	}
-
-	public void setTimeout(long time, TimeUnit unit) {
-		setTimeout(time);
-		setTimeUnit(unit);
 	}
 }
