@@ -26,6 +26,7 @@ import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.core.ResponseConfiguration;
 import org.eclipse.scanning.api.event.core.ResponseConfiguration.ResponseType;
+import org.eclipse.scanning.api.event.core.IResponseWaiter;
 
 class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection implements IRequester<T> {
 
@@ -47,7 +48,7 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 	}
 
 	@Override
-	public T post(final T request, ResponseConfiguration.ResponseWaiter waiter) throws EventException, InterruptedException {
+	public T post(final T request, IResponseWaiter waiter) throws EventException, InterruptedException {
 
 		try (
 			final IPublisher<T> publisher = eservice.createPublisher(getUri(), getRequestTopic());

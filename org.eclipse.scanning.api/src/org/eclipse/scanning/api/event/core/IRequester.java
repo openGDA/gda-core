@@ -96,6 +96,6 @@ public interface IRequester<T extends IdBean> extends IRequestResponseConnection
 	 * @throws EventException
 	 * @throws InterruptedException
 	 */
-	T post(T request, ResponseConfiguration.ResponseWaiter waiter) throws EventException, InterruptedException;
+	T post(T request, IResponseWaiter waiter) throws EventException, InterruptedException;
 
 }

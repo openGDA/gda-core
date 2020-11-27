@@ -25,7 +25,6 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.core.ResponseConfiguration.ResponseWaiter;
 import org.eclipse.scanning.api.event.scan.DeviceAction;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
@@ -82,7 +81,7 @@ class ScannableProxy<T> extends AbstractRemoteDeviceProxy<T> implements IScannab
 			req.setDeviceAction(DeviceAction.SET);
 			req.setDeviceValue(value);
 			req.setPosition(position);
-			req = requester.post(req, createResponseWaiter()); // Blocks until position set.
+			req = requester.post(req, this::waitAgain); // Blocks until position set.
 			if (req.getDeviceInformation()!=null) {
 				merge((DeviceInformation<T>)req.getDeviceInformation());
 			}
@@ -219,14 +218,9 @@ class ScannableProxy<T> extends AbstractRemoteDeviceProxy<T> implements IScannab
 		}
 	}
 
-	private ResponseWaiter createResponseWaiter() {
-		return new ResponseWaiter() {
-			@Override
-			public boolean waitAgain() {
-				long since = System.currentTimeMillis()-lastActive;
-				return since < 1000*60*2; // If a last value update was within two minutes, we wait some more.
-			}
-		};
+	private boolean waitAgain() {
+		final long since = System.currentTimeMillis() - lastActive;
+		return since < 1000 * 60 * 2; // If a last value update was within two minutes, we wait some more.
 	}
 
 	@Override

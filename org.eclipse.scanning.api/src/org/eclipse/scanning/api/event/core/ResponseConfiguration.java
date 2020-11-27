@@ -18,27 +18,6 @@ import org.eclipse.scanning.api.event.EventException;
 
 public class ResponseConfiguration {
 
-	/**
-	 * Interface to a class that determines, when an initial timeout has been reached, whether the system should
-	 * continue to wait.
-	 */
-	public interface ResponseWaiter {
-		/**
-		 * @return <code>true</code> if the system should continue to wait, of <code>false</code> if it should not
-		 */
-		boolean waitAgain();
-
-		/**
-		 * An implementation of {@link ResponseWaiter} that will never continue to wait
-		 */
-		public static class Dont implements ResponseWaiter {
-			@Override
-			public boolean waitAgain() {
-				return false;
-			}
-		}
-	}
-
 	public enum ResponseType {
 		/**
 		 * One response is required, after that comes in, return. If the timeout is reached throw an exception.
@@ -76,10 +55,10 @@ public class ResponseConfiguration {
 		this.timeUnit = timeUnit;
 	}
 
-	public void latch(ResponseWaiter waiter) throws EventException, InterruptedException {
+	public void latch(IResponseWaiter waiter) throws EventException, InterruptedException {
 		if (waiter == null) {
 			// Default to waiting just one timeout period
-			waiter = new ResponseWaiter.Dont();
+			waiter = () -> false;
 		}
 
 		if (responseType == ResponseType.ONE) {
