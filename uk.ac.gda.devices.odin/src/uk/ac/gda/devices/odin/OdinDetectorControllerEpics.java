@@ -114,7 +114,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:CloseFileTimeout_RBV"));
 			odDataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
 			captured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
-			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize_RBV");
+			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize");
 			errorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
@@ -212,6 +212,9 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 				logger.warn("Did not collect expected number of frames. {} expected, {} written.", imagesExpected,
 						imagesCaptured);
 			}
+			// Here zero frames per block means infinite/all frames in single block
+			framesPerBlock.putWait(0);
+			odinOffset.putWait(0);
 		} catch (IOException e) {
 			logger.warn("Could not stop data writer", e);
 		} catch (InterruptedException e) {
