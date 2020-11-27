@@ -29,8 +29,7 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IConnection;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
-import org.eclipse.scanning.api.event.core.ResponseConfiguration;
-import org.eclipse.scanning.api.event.core.ResponseConfiguration.ResponseType;
+import org.eclipse.scanning.api.event.core.IRequester.ResponseType;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -53,7 +52,8 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 		requester = eservice.createRequestor(uri, EventConstants.DEVICE_REQUEST_TOPIC, EventConstants.DEVICE_RESPONSE_TOPIC);
 		long timeout = Long.getLong("org.eclipse.scanning.event.remote.runnableDeviceServiceTimeout", 2000);
 		logger.debug("Setting timeout {} ms" , timeout);
-		requester.setResponseConfiguration(new ResponseConfiguration(ResponseType.ONE, timeout, TimeUnit.MILLISECONDS));
+		requester.setResponseType(ResponseType.ONE);
+		requester.setTimeout(timeout, TimeUnit.MILLISECONDS);
 		runnables = new ConcurrentHashMap<>();
 	}
 

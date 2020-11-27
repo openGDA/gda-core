@@ -11,10 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.event;
 
-import static org.eclipse.scanning.api.event.core.ResponseConfiguration.DEFAULT_TIMEOUT;
-import static org.eclipse.scanning.api.event.core.ResponseConfiguration.DEFAULT_TIME_UNIT;
-
 import java.net.URI;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.event.EventException;
@@ -23,23 +21,20 @@ import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequester;
-import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.core.ResponseConfiguration;
-import org.eclipse.scanning.api.event.core.ResponseConfiguration.ResponseType;
 import org.eclipse.scanning.api.event.core.IResponseWaiter;
+import org.eclipse.scanning.api.event.core.ISubscriber;
 
 class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection implements IRequester<T> {
 
-	private ResponseConfiguration responseConfiguration;
+	private ResponseType responseType = DEFAULT_RESPONSE_TYPE;
+	private long timeout = DEFAULT_TIMEOUT;
+	private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
+	private CountDownLatch latch;
+	private boolean somethingFound;
+
 
 	RequesterImpl(URI uri, String reqTopic, String resTopic, IEventService eservice) {
 		super(uri, reqTopic, resTopic, eservice);
-		responseConfiguration = new ResponseConfiguration(ResponseType.ONE, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
-	}
-
-	@Override
-	public void setTimeout(long time, TimeUnit unit) {
-		responseConfiguration.setTimeout(time, unit);
 	}
 
 	@Override
@@ -58,26 +53,65 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 			subscriber.addListener(request.getUniqueId(), evt -> {
 				final T response = evt.getBean();
 				request.merge(response); // The bean must implement merge, for instance DeviceRequest.
-				responseConfiguration.countDown();
+				countDown();
 			});
 
 			// Send the request
 			publisher.broadcast(request);
 
-			responseConfiguration.latch(waiter); // Wait or die trying
+			latch(waiter); // Wait or die trying
 
 			return request;
 		}
 	}
 
-	@Override
-	public ResponseConfiguration getResponseConfiguration() {
-		return responseConfiguration;
+	private void latch(IResponseWaiter waiter) throws EventException, InterruptedException {
+		if (waiter == null) {
+			// Default to waiting just one timeout period
+			waiter = () -> false;
+		}
+
+		if (responseType == ResponseType.ONE) {
+			// Wait for the first response, subject to timing out
+			latch = new CountDownLatch(1);
+			boolean ok = latch.await(timeout, timeUnit);
+			while (!ok && waiter.waitAgain()) {
+				ok = latch.await(timeout, timeUnit);
+			}
+			// waitAgain() could be false leaving ok as false, so we recheck it
+			ok = latch.await(timeout, timeUnit);
+			if (!ok) {
+				throw new EventException("The timeout of " + timeout + " " + timeUnit + " was reached and no response occurred!");
+			}
+		} else if (responseType == ResponseType.ONE_OR_MORE) {
+			// Wait for the specified time, regardless of how many responses are received
+			somethingFound = false;
+
+			Thread.sleep(timeUnit.toMillis(timeout));
+			while (waiter.waitAgain()) {
+				Thread.sleep(timeUnit.toMillis(timeout));
+			}
+			if (!somethingFound) {
+				throw new EventException("The timeout of " + timeout + " " + timeUnit + " was reached and no response occurred!");
+			}
+		}
+	}
+
+	private void countDown() {
+		somethingFound = true;
+		if (latch != null) {
+			latch.countDown();
+		}
 	}
 
 	@Override
-	public void setResponseConfiguration(ResponseConfiguration responseConfiguration) {
-		this.responseConfiguration = responseConfiguration;
+	public void setTimeout(long timeout, TimeUnit timeUnit) {
+		this.timeout = timeout;
+		this.timeUnit = timeUnit;
 	}
 
+	@Override
+	public void setResponseType(ResponseType responseType) {
+		this.responseType = responseType;
+	}
 }

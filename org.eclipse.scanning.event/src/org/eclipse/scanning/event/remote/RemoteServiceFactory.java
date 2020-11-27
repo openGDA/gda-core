@@ -21,7 +21,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.core.ResponseConfiguration;
+import org.eclipse.scanning.api.event.core.IRequester;
 
 /**
  *
@@ -57,6 +57,10 @@ import org.eclipse.scanning.api.event.core.ResponseConfiguration;
  */
 public class RemoteServiceFactory {
 
+	private RemoteServiceFactory() {
+		// prevent instantiation
+	}
+
 	private static final Map<Class<?>, Class<?>> remotes;
 	static {
 		Map<Class<?>, Class<?>> tmp = new HashMap<>(7);
@@ -78,8 +82,8 @@ public class RemoteServiceFactory {
 		return instance;
 	}
 
-	private static long time = ResponseConfiguration.DEFAULT_TIMEOUT;
-	private static TimeUnit timeUnit = ResponseConfiguration.DEFAULT_TIME_UNIT;
+	private static long time = IRequester.DEFAULT_TIMEOUT;
+	private static TimeUnit timeUnit = IRequester.DEFAULT_TIME_UNIT;
 
 	/**
 	 * Used to set the timeout where tests would like to debug a response.
