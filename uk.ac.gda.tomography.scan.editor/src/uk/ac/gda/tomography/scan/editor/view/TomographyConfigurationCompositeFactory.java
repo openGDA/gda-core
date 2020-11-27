@@ -49,6 +49,7 @@ import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS;
 import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS;
 import static uk.ac.gda.ui.tool.ClientMessages.RANGE;
+import static uk.ac.gda.ui.tool.ClientMessages.REMOVE_SELECTION_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN;
 import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.SAVU;
@@ -79,6 +80,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
+import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.addDisposableApplicationListener;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -87,6 +89,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ExpandEvent;
@@ -135,8 +138,8 @@ import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.images.ClientImages;
 import uk.ac.gda.ui.tool.selectable.NamedComposite;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * This Composite allows to edit a {@link ScanningParameters} object.
@@ -146,6 +149,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class TomographyConfigurationCompositeFactory implements NamedComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationCompositeFactory.class);
+	private static final String NO_FILE_SELECTED = "No File selected";
 
 	/** Scan prefix **/
 	private Text name;
@@ -185,7 +189,10 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	private Button switchbackMultipleScansType;
 	private ExpandItem multiplExpandItem;
 	private Composite multipleGroup;
+
 	private Composite selectProcessingFile;
+	private Label savuFileName;
+	private Button removeSavuFile;
 
 	protected final AcquisitionController<ScanningAcquisition> controller;
 	private final IStageController stageController;
@@ -217,7 +224,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 		initialiseElements();
 		addWidgetsListener();
 		try {
-			SpringApplicationContextProxy.addDisposableApplicationListener(mainComposite, new LoadListener(mainComposite));
+			addDisposableApplicationListener(mainComposite, new LoadListener(mainComposite));
 		} catch (GDAClientException e) {
 			UIHelper.showWarning("Loading a file will not refresh the gui", "Spring application listener not registered");
 		}
@@ -256,11 +263,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 
 		group = createClientGroup(parent, SWT.NONE, 3, SAVU);
 		createClientGridDataFactory().span(3, 1).applyTo(group);
-		selectProcessingFile = new SelectFileComposite.SelectFileCompositeBuilder()
-				.setLayout(SELECT_SAVU_PROCESSING_FILE, SELECT_SAVU_PROCESSING_FILE_TP)
-				.setLogic(getProcessingFileDirectory(), this::setDefaultProcessingFile)
-				.build()
-				.createComposite(group, SWT.NONE);
+		savuSelection(group, SWT.NONE);
 
 		//multipleScansContentAlternative(parent, labelStyle, textStyle);
 
@@ -462,6 +465,25 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 				// scrolledComposite.layout(true, true);
 			}
 		});
+	}
+
+	private void savuSelection(Composite parent, int labelStyle) {
+		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+
+		selectProcessingFile = new SelectFileComposite.SelectFileCompositeBuilder()
+				.setLayout(SELECT_SAVU_PROCESSING_FILE, SELECT_SAVU_PROCESSING_FILE_TP)
+				.setLogic(getProcessingFileDirectory(), this::setDefaultProcessingFile)
+				.build()
+				.createComposite(container, SWT.NONE);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).applyTo(selectProcessingFile);
+
+		savuFileName = createClientLabel(container, labelStyle, EMPTY_MESSAGE);
+		createClientGridDataFactory().align(SWT.FILL, SWT.END).grab(true, false).applyTo(savuFileName);
+
+		removeSavuFile = createClientButton(container, SWT.PUSH, EMPTY_MESSAGE, REMOVE_SELECTION_TP, ClientImages.DELETE);
+		createClientGridDataFactory().align(SWT.END, SWT.END).applyTo(removeSavuFile);
+		addWidgetDisposableListener(removeSavuFile, SWT.Selection, this::removeDefaultProcessingFile);
 	}
 
 	private void startAngleTextListener(ModifyEvent event) {
@@ -696,6 +718,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 		forceFocusOnEmpty(numberFlat, Integer.toString(getAcquisitionConfiguration().getImageCalibration()
 				.getFlatCalibration().getNumberExposures()));
 		updateMultipleScan();
+		updateSavuComponent();
 	}
 
 	private void initializeScanType() {
@@ -901,6 +924,26 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	private void setDefaultProcessingFile(URL defaultProcessingFile) {
 		getClientContext().getTomographyContext()
 			.putFileInContext(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE, defaultProcessingFile);
+		updateSavuComponent();
+	}
+
+	private void removeDefaultProcessingFile(Event event) {
+		getClientContext().getTomographyContext()
+			.removeFileFromContext(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
+		updateSavuComponent();
+	}
+
+	private void updateSavuComponent() {
+		savuFileName.setText(NO_FILE_SELECTED);
+		URL url = getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
+		if (url == null) {
+			savuFileName.setText(NO_FILE_SELECTED);
+			removeSavuFile.setEnabled(false);
+		} else {
+			savuFileName.setText(FilenameUtils.getName(url.getFile()));
+			removeSavuFile.setEnabled(true);
+		}
+		savuFileName.getParent().layout(true, true);
 	}
 
 	@Override
