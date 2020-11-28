@@ -27,7 +27,6 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridL
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
 import java.util.Optional;
 
@@ -38,7 +37,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -49,14 +47,11 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientResourceManager;
-import uk.ac.gda.ui.tool.ClientVerifyListener;
-import uk.ac.gda.ui.tool.WidgetUtilities;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -107,7 +102,6 @@ public class ExposureDurationComposite implements CompositeFactory {
 		createElements(container, style);
 		cameraControl = CameraHelper.getCameraControl(CameraHelper.getDefaultCameraProperties().getIndex());
 		cameraControl.ifPresent(this::initialiseElements);
-		bindElements();
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		return container;
 	}
@@ -116,7 +110,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		Group group = createClientGroup(parent, SWT.NONE, 3, EXPOSURE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 
-		exposureText = createClientText(group, style, EMPTY_MESSAGE,	ClientVerifyListener.verifyOnlyDoubleText);
+		exposureText = new ExposureTextField(group, style, () -> cameraControl).getExposure();
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
 				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
 		Label unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL,
@@ -143,46 +137,13 @@ public class ExposureDurationComposite implements CompositeFactory {
 		}
 	}
 
-	private void bindElements() {
-		// Sets the acquire time when user pushes return
-		WidgetUtilities.addWidgetDisposableListener(exposureText, SWT.DefaultSelection,
-				event -> setAcquireTime(event.widget));
-
-		// Set the acquire time when exposureText looses focus
-		WidgetUtilities.addControlDisposableFocusListener(exposureText, event -> setAcquireTime(event.widget),
-				event -> {
-				});
-	}
-
-	private void setAcquireTime(Widget widget) {
-		cameraControl.ifPresent(c ->
-			setAcquireTime(c, Double.parseDouble(Text.class.cast(widget).getText()))
-		);
-	}
-
-	private void setAcquireTime(CameraControl cc, double exposure) {
-		try {
-			cc.setAcquireTime(exposure);
-			if (CameraState.ACQUIRING.equals(cc.getAcquireState())) {
-				cc.stopAcquiring();
-				cc.startAcquiring();
-			}
-		} catch (NumberFormatException | DeviceException e) {
-			UIHelper.showError("Cannot update acquisition time", e, logger);
-		}
-	}
-
 	private void updateGUI(double exposure) {
-		if (exposureText.isDisposed() || exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
-			return;
-		}
-		exposureText.setText(Double.toString(exposure));
 		updateReadOut(exposure);
 		container.layout(true, true);
 	}
 
 	private void updateReadOut(double exposure) {
-		readOut.setText(String.format("ReadOut: %s %s", exposure, SECOND));
+		readOut.setText(String.format("ReadOut: %s %s", ExposureTextField.decimalFormat.format(exposure), SECOND));
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {

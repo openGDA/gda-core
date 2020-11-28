@@ -529,10 +529,28 @@ public final class ClientSWTElements {
 	 *            where materialise the component
 	 * @param hint
 	 *            the horizontal/vertical space
+	 * @deprecated Use {@link #createClientGridDataFactory()}
 	 */
+	@Deprecated
 	public static final void createClientEmptyCell(final Composite parent, Point hint) {
-		Label label = createClientLabel(parent, SWT.NONE, ClientMessages.EMPTY_MESSAGE, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().hint(hint).applyTo(label);
+		Label label = createClientLabel(parent, SWT.NONE, ClientMessages.EMPTY_MESSAGE);
+		createClientGridDataFactory().hint(hint).applyTo(label);
+	}
+
+	/**
+	 * Creates an empty {@link Label} component to use a separator. This supports the approach described in
+	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
+	 *
+	 * @param parent
+	 *            where materialise the component
+	 * @param hspan
+	 *            number of columns spanned by the control
+	 * @param vspan
+	 *            number of rows spanned by the control
+	 */
+	public static final void createClientEmptyCell(final Composite parent, int hspan, int vspan) {
+		Label label = createClientLabel(parent, SWT.NONE, ClientMessages.EMPTY_MESSAGE);
+		createClientGridDataFactory().span(hspan, vspan).applyTo(label);
 	}
 
 	/**

@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.client.gui.camera;
 
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.client.gui.camera.monitor.widget.CameraMonitorGroupFactory;
+import uk.ac.diamond.daq.client.gui.camera.summary.CamerasSummaryComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
@@ -79,12 +80,12 @@ public class CameraConfigurationView extends ViewPart {
 	 * @return a {@link Button} instance
 	 */
 	public static final Button openCameraConfigurationViewButton(Composite parent) {
-		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 2);
-		ClientSWTElements.createClientGridDataFactory().grab(true, false).applyTo(container);
+		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		createClientGridDataFactory().grab(true, false).applyTo(container);
 
 		Button cameras = ClientSWTElements.createClientButton(container, SWT.None, ClientMessages.CAMERAS,
 				ClientMessages.CAMERA_TP, ClientImages.CAMERA);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.BOTTOM).indent(5, SWT.DEFAULT).applyTo(cameras);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BOTTOM).indent(5, SWT.DEFAULT).applyTo(cameras);
 		cameras.addListener(SWT.Selection, event -> {
 			IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			try {
@@ -97,9 +98,8 @@ public class CameraConfigurationView extends ViewPart {
 			}
 		});
 
-		CameraMonitorGroupFactory cameraMonitors = new CameraMonitorGroupFactory();
-		Composite composite = cameraMonitors.createComposite(container, SWT.None);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.END, SWT.CENTER).grab(true, false).applyTo(composite);
+		Composite cameraTable = new CamerasSummaryComposite().createComposite(container, SWT.NONE);
+		createClientGridDataFactory().grab(true, true).applyTo(cameraTable);
 		return cameras;
 	}
 }
