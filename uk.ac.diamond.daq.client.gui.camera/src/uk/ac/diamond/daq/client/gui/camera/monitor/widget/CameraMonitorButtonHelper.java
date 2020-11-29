@@ -142,7 +142,7 @@ class CameraMonitorButtonHelper {
 	 * @param state
 	 */
 	static void updateButtonListener(Button button, CameraState state) {
-		Optional.ofNullable(getButtonListener(button)).ifPresent(button::removeSelectionListener);
+		Optional.ofNullable(getButtonListener(button)).ifPresent(a -> WidgetUtilities.removeWidgetDisposableListener(button, a));
 
 		switch (state) {
 		case IDLE:

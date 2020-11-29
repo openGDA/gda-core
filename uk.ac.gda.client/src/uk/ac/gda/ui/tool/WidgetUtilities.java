@@ -28,6 +28,7 @@ import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -91,13 +92,35 @@ public class WidgetUtilities {
 	}
 
 	/**
-	 * Adds a {@link SelectionListener} to a {@link Button} and removes it before the {@code Button} is disposed.
+	 * Defines a standard key to store/retrieve a {@link DisposeListener} from a widget
+	 * @param listener a {@link SelectionListener} instance
+	 * @return the key associated with te dispose listner
+	 */
+	private static String getDisposeListener(SelectionListener listener) {
+		return "DISPOSE" + listener.toString();
+	}
+
+	/**
+	 * Adds both a {@link SelectionListener} and a {@link DisposeListener} to a {@link Button} so to remove the listener
+	 * before the {@code Button} is disposed.
 	 * @param button  the control to which the listener is add
 	 * @param listener the listen to add to the control
 	 */
 	public static final void addWidgetDisposableListener(Button button, SelectionListener listener) {
 		button.addSelectionListener(listener);
-		button.addDisposeListener(ev -> button.removeSelectionListener(listener));
+		DisposeListener dl = ev -> button.removeSelectionListener(listener);
+		button.setData(getDisposeListener(listener), dl);
+		button.addDisposeListener(dl);
+	}
+
+	/**
+	 * Removes the {@link SelectionListener} and a {@link DisposeListener} previosuly added by {@link #addWidgetDisposableListener(Button, SelectionListener)}
+	 * @param button  the control to which the listener is add
+	 * @param listener the listen to add to the control
+	 */
+	public static final void removeWidgetDisposableListener(Button button, SelectionListener listener) {
+		button.removeSelectionListener(listener);
+		button.removeDisposeListener(getDataObject(button, DisposeListener.class, getDisposeListener(listener)));
 	}
 
 	/**
