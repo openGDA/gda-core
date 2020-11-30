@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
@@ -140,6 +142,7 @@ public class ScanningAcquisitionController
 
 	@Override
 	public RunAcquisitionResponse runAcquisition() throws AcquisitionControllerException {
+		updateAcquisitionName();
 		updateImageCalibration();
 		updateProcessingRequest();
 		updateStartPosition();
@@ -248,6 +251,14 @@ public class ScanningAcquisitionController
 			publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
 		} catch (ScanningException e) {
 			logger.error("Canot create scanRequest", e);
+		}
+	}
+
+	private void updateAcquisitionName() throws AcquisitionConfigurationException {
+		try {
+			getAcquisition().setAcquisitionLocation(getExperimentController().prepareAcquisition( getAcquisition().getName()));
+		} catch (ExperimentControllerException e) {
+			throw new AcquisitionConfigurationException("Cannot run acquisition", e);
 		}
 	}
 

@@ -53,7 +53,8 @@ Require-Bundle: org.eclipse.ui,
  com.google.guava,
  com.google.gson,
  uk.ac.diamond.daq.client.gui.camera,
- uk.ac.gda.epics
+ uk.ac.gda.epics,
+ uk.ac.diamond.daq.experiment.api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text,

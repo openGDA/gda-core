@@ -58,6 +58,7 @@ import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -80,6 +81,9 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 	@Autowired
 	private ScanningAcquisitionRestServiceClient scanningAcquisitionServer;
+
+	@Autowired
+	private ExperimentControllerServiceClient experimentControllerServiceClient;
 
 	@Autowired
 	private FinderService finderService;
