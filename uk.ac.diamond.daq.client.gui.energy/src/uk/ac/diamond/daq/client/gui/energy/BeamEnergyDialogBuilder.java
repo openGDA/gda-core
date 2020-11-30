@@ -44,10 +44,10 @@ import uk.ac.gda.ui.tool.ClientSWTElements;
  * <ul>
  * <li>{@link DIFFRACTION_MONO_WORKFLOW_PROPERTY} (default value
  * {@link DIFFRACTION_MONO_WORKFLOW_PROPERTY_DEFAULT})</li>
- * <li>{@link DIFFRACTION_PINK_WORKFLOW_PROPERTY} (default value
- * {@link DIFFRACTION_PINK_WORKFLOW_PROPERTY_DEFAULT})</li>
  * <li>{@link IMAGING_MONO_WORKFLOW_PROPERTY} (default value
  * {@link IMAGING_MONO_WORKFLOW_PROPERTY_DEFAULT})</li>
+ * <li>{@link IMAGING_PINK_WORKFLOW_PROPERTY} (default value
+ * {@link IMAGING_PINK_WORKFLOW_PROPERTY_DEFAULT})</li>
  * </ul>
  *
  * @author Maurizio Nagni
@@ -58,34 +58,31 @@ public class BeamEnergyDialogBuilder {
 	public static final String DIFFRACTION_MONO_WORKFLOW_PROPERTY = "beam.diffraction.mono.workflow";
 	public static final String DIFFRACTION_MONO_WORKFLOW_PROPERTY_DEFAULT = "diffraction_mono_workflow";
 
-	public static final String DIFFRACTION_PINK_WORKFLOW_PROPERTY = "beam.diffraction.pink.workflow";
-	public static final String DIFFRACTION_PINK_WORKFLOW_PROPERTY_DEFAULT = "diffraction_pink_workflow";
-
 	public static final String IMAGING_MONO_WORKFLOW_PROPERTY = "beam.imaging.mono.workflow";
 	public static final String IMAGING_MONO_WORKFLOW_PROPERTY_DEFAULT = "imaging_mono_workflow";
 
+	public static final String IMAGING_PINK_WORKFLOW_PROPERTY = "beam.imaging.pink.workflow";
+	public static final String IMAGING_PINK_WORKFLOW_PROPERTY_DEFAULT = "imaging_pink_workflow";
+
 	private static final String DIFFRACTION_MONO_WORKFLOW = LocalProperties.get(DIFFRACTION_MONO_WORKFLOW_PROPERTY,
 			DIFFRACTION_MONO_WORKFLOW_PROPERTY_DEFAULT);
-	private static final String DIFFRACTION_PINK_WORKFLOW = LocalProperties.get(DIFFRACTION_PINK_WORKFLOW_PROPERTY,
-			DIFFRACTION_PINK_WORKFLOW_PROPERTY_DEFAULT);
 	private static final String IMAGING_MONO_WORKFLOW = LocalProperties.get(IMAGING_MONO_WORKFLOW_PROPERTY,
 			IMAGING_MONO_WORKFLOW_PROPERTY_DEFAULT);
+	private static final String IMAGING_PINK_WORKFLOW = LocalProperties.get(IMAGING_PINK_WORKFLOW_PROPERTY,
+			IMAGING_PINK_WORKFLOW_PROPERTY_DEFAULT);
 
 	private EnergyWorkflowController diffractionController;
 	private EnergyWorkflowController imagingController;
 
 	private EnergyWorkflowController getDiffractionEnergyController() {
-		ConfigurationWorkflow diffractionMono =
-				(ConfigurationWorkflow) Finder.findOptional(DIFFRACTION_MONO_WORKFLOW).orElse(null);
-		ConfigurationWorkflow diffractionPoly =
-				(ConfigurationWorkflow) Finder.findOptional(DIFFRACTION_PINK_WORKFLOW).orElse(null);
-		return new EnergyWorkflowController(EnergySelectionType.BOTH, diffractionMono, diffractionPoly);
+		ConfigurationWorkflow diffractionMono = Finder.find(DIFFRACTION_MONO_WORKFLOW);
+		return new EnergyWorkflowController(EnergySelectionType.MONO, diffractionMono, null);
 	}
 
 	private final EnergyWorkflowController getImagingEnergyController() {
-		ConfigurationWorkflow imagingMono =
-				(ConfigurationWorkflow) Finder.findOptional(IMAGING_MONO_WORKFLOW).orElse(null);
-		return new EnergyWorkflowController(EnergySelectionType.MONO, imagingMono, null);
+		ConfigurationWorkflow imagingMono = Finder.find(IMAGING_MONO_WORKFLOW);
+		ConfigurationWorkflow imagingPoly = Finder.find(IMAGING_PINK_WORKFLOW);
+		return new EnergyWorkflowController(EnergySelectionType.BOTH, imagingMono, imagingPoly);
 	}
 
 	/**
