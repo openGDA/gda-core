@@ -20,8 +20,6 @@ package uk.ac.gda.arpes.ui.views;
 
 import static uk.ac.gda.client.live.stream.view.StreamViewUtility.displayAndLogError;
 
-import java.util.UUID;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,7 +40,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.apres.ui.config.MonitoringViewConfiguration;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionManager;
+import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
 import uk.ac.gda.client.live.stream.view.StreamType;
@@ -81,8 +79,7 @@ public class MonitoringView extends ViewPart {
 
 		// Create the plotting view
 		try {
-			UUID streamID = LiveStreamConnectionManager.getInstance().getIStreamConnection(cameraConfig, StreamType.MJPEG);
-			liveStreamConnection = (LiveStreamConnection) LiveStreamConnectionManager.getInstance().getIStreamConnection(streamID);
+			liveStreamConnection = new LiveStreamConnectionBuilder(cameraConfig, StreamType.MJPEG).buildAndConnect();
 			plottingComposite = new LivePlottingComposite(parent, SWT.NONE, getPartName(), getViewSite().getActionBars(), liveStreamConnection, this);
 			plottingComposite.setShowAxes(false);
 			plottingComposite.setShowTitle(false);
