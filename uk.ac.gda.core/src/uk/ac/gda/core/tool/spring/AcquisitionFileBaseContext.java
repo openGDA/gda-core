@@ -165,16 +165,33 @@ abstract class AcquisitionFileBaseContext<T> {
 		done = true;
 	}
 
-	private void putInContext(T contextFile, URL url) {
-		contextFiles.put(contextFile, url);
+	private void putInContext(T contextFile, URL resource) {
+		contextFiles.put(contextFile, resource);
 	}
 
-	public boolean putFileInContext(T contextFile, URL calibrationUrl) {
-		if (urlExists(calibrationUrl)) {
-			putInContext(contextFile, calibrationUrl);
+	/**
+	 * Set the selection for a specified context.
+	 * @param contextFile the context to associate
+	 * @param resource the resource to associate with the context
+	 * @return {@code true} if successful, {@code false} otherwise
+	 * @see #removeFileFromContext(Object)
+	 */
+	public boolean putFileInContext(T contextFile, URL resource) {
+		if (urlExists(resource)) {
+			putInContext(contextFile, resource);
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Removes the selection from a specified context
+	 * @param contextFile the context from where remove the selection
+	 * @return the previous value associated with key, or null if there was no mapping for key.
+	 * @see #putFileInContext(Object, URL)
+	 */
+	public URL removeFileFromContext(T contextFile) {
+		return contextFiles.remove(contextFile);
 	}
 
 	protected static Logger getLogger() {
