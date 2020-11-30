@@ -289,7 +289,7 @@ public abstract class XasScanBase implements XasScan {
 		loggingScriptController.update(null, new ScanFinishEvent(theScan.getName(), ScanFinishEvent.FinishType.OK));
 	}
 
-	protected abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
+	public abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
 
 	private void checkForPause() throws InterruptedException {
 		if (LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {

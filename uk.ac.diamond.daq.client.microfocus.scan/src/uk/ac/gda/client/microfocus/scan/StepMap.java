@@ -62,7 +62,7 @@ public class StepMap extends XasScanBase implements MappingScan {
 	}
 
 	@Override
-	protected Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
+	public Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
 
 		mapScanParameters = (MicroFocusScanParameters) scanBean;
 

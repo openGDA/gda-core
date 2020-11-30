@@ -29,7 +29,7 @@ public class EnergyScan extends XasScanBase {
 	}
 
 	@Override
-	protected Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
+	public Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
 		Detector[] detectorList = getDetectors();
 		Object[] args = buildScanArguments(detectorList);
 		return args;
