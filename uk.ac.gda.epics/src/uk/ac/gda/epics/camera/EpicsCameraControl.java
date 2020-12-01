@@ -321,6 +321,16 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		return ImageMode.values()[adBase.getImageMode_RBV()];
 	}
 
+	@Override
+	public void setTriggerMode(short triggerMode) throws Exception {
+		adBase.setTriggerMode(triggerMode);
+	}
+
+	@Override
+	public short getTriggerMode() throws Exception {
+		return adBase.getTriggerMode();
+	}
+
 	public NDProcess getNdProcess() {
 		return ndProcess;
 	}
