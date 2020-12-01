@@ -18,9 +18,10 @@
 
 package gda.beamline.health;
 
-import java.util.Date;
+import com.google.common.util.concurrent.RateLimiter;
 
 import gda.data.ServiceHolder;
+import gda.factory.FactoryException;
 
 /**
  * A beamline health condition that checks whether ActiveMQ is active
@@ -28,32 +29,36 @@ import gda.data.ServiceHolder;
 public class ActiveMQServerCondition extends ServerCondition {
 
 	/**
-	 * The minimum time in ms between actually checking the connection.<br>
+	 * The minimum time in seconds between actually checking the connection.<br>
 	 * This can be set to a higher number if the check appears to be slowing things down.
 	 */
-	private long minCheckTime = 10000;
+	private double minCheckTime = 10.0;
 
 	private boolean running;
 
-	private long lastUpdate = 0;
+	private RateLimiter rateLimiter;
+
+	@Override
+	public void configure() throws FactoryException {
+		rateLimiter = RateLimiter.create(1.0 / minCheckTime);
+		setConfigured(true);
+	}
 
 	@Override
 	protected synchronized boolean isRunning() {
-		final long currentTime = new Date().getTime();
-		if (currentTime - lastUpdate > minCheckTime) {
+		if (rateLimiter.tryAcquire()) {
 			running = ServiceHolder.getSessionService().defaultConnectionActive();
-			lastUpdate = currentTime;
 		}
 		return running;
 	}
 
-	public void setMinCheckTime(long minCheckTime) {
+	public void setMinCheckTime(double minCheckTime) {
 		this.minCheckTime = minCheckTime;
 	}
 
 	@Override
 	public String toString() {
-		return "ActiveMQServerCondition [minCheckTime=" + minCheckTime + ", running=" + running + ", lastUpdate="
-				+ lastUpdate + "]";
+		return "ActiveMQServerCondition [minCheckTime=" + minCheckTime + ", running=" + running + ", rateLimiter="
+				+ rateLimiter + "]";
 	}
 }

@@ -18,7 +18,9 @@
 
 package gda.beamline.health;
 
-public abstract class ComponentHealthConditionBase implements ComponentHealthCondition {
+import gda.factory.ConfigurableBase;
+
+public abstract class ComponentHealthConditionBase extends ConfigurableBase implements ComponentHealthCondition {
 
 	/** A user-friendly description of the component */
 	private String description = "(Unknown)";
