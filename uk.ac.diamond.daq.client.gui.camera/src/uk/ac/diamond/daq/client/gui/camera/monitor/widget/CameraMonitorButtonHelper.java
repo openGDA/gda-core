@@ -30,8 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
+import uk.ac.gda.api.camera.ImageMode;
+import uk.ac.gda.api.camera.TriggerMode;
+import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.WidgetUtilities;
@@ -219,6 +223,8 @@ class CameraMonitorButtonHelper {
 
 	private static void startAcquiring(CameraControl cameraControl) {
 		try {
+			setContinuosImageMode(cameraControl);
+			setAutoTriggerMode(cameraControl);
 			cameraControl.startAcquiring();
 		} catch (DeviceException e) {
 			logger.error("Error starting acquisition for {} ", cameraControl.getName());
@@ -229,6 +235,29 @@ class CameraMonitorButtonHelper {
 		try {
 			cameraControl.stopAcquiring();
 		} catch (DeviceException e) {
+			logger.error("Error stopping acquisition for {} ", cameraControl.getName());
+		}
+	}
+
+	private static void setContinuosImageMode(CameraControl cameraControl) {
+		try {
+			cameraControl.setImageMode(ImageMode.CONTINUOUS);
+		} catch (Exception e) {
+			logger.error("Error stopping acquisition for {} ", cameraControl.getName());
+		}
+	}
+
+	private static void setAutoTriggerMode(CameraControl cameraControl) {
+		try {
+			Short triggerMode = CameraHelper.getCameraPropertiesByCameraControl(cameraControl)
+					.map(CameraProperties::getTriggerMode)
+					.filter(t -> t.containsKey(TriggerMode.INTERNAL))
+					.map(m -> m.get(TriggerMode.INTERNAL))
+					.orElse((short)-1);
+			if (triggerMode < 0)
+				return;
+			cameraControl.setTriggerMode(triggerMode);
+		} catch (Exception e) {
 			logger.error("Error stopping acquisition for {} ", cameraControl.getName());
 		}
 	}
