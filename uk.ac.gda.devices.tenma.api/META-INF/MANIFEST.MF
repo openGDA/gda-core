@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tenma Devices API
+Bundle-SymbolicName: uk.ac.gda.devices.tenma.api
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: uk.ac.gda.devices.tenma.api
+Import-Package: org.osgi.framework;version="1.3.0"
+Bundle-ActivationPolicy: lazy
+Require-Bundle: uk.ac.gda.core
+Export-Package: uk.ac.gda.devices.tenma.api
