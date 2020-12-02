@@ -27,7 +27,6 @@ import org.eclipse.scanning.api.event.core.IResponseCreator;
 import org.eclipse.scanning.api.event.servlet.IResponderServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  *
@@ -45,11 +44,6 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 
 	protected IEventService eventService;
 
-	/**
-	 * Represents the ActveMQ broker URL. The {@link Value} annotation is activate, at the moment, by the classes
-	 * extending this class and using the Spring <code></code>@Component</code> annotation.
-	 */
-	@Value("${gda.activemq.broker.uri:${gda.activemq.broker.uri.failover}}")
 	protected String broker;
 
 	// Recommended to configure these as
@@ -67,6 +61,13 @@ public abstract class AbstractResponderServlet<B extends IdBean> implements IRes
 		this();
 		this.requestTopic = requestTopic;
 		this.responseTopic = responseTopic;
+	}
+
+	protected AbstractResponderServlet(String requestTopic, String responseTopic, String broker) {
+		this();
+		this.requestTopic = requestTopic;
+		this.responseTopic = responseTopic;
+		this.broker = broker;
 	}
 
 	@Override
