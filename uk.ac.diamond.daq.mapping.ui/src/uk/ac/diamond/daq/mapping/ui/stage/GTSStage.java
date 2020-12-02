@@ -18,11 +18,18 @@
 
 package uk.ac.diamond.daq.mapping.ui.stage;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.TabCompositeFactory;
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannableGroupPropertiesDocument;
+import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannablesPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Describes a General Tomography Stage
@@ -31,8 +38,22 @@ import uk.ac.gda.ui.tool.ClientMessages;
  */
 public class GTSStage extends CommonStage {
 
+	public static final String GTS_GROUP_ID = "GTS";
+	public static final String GTS_SCANNABLE_X_ID = "X";
+	public static final String GTS_SCANNABLE_Y_ID = "Y";
+	public static final String GTS_SCANNABLE_Z_ID = "Z";
+	public static final String GTS_SCANNABLE_THETA_ID = "THETA";
+
+	private static final Map<String, StageDevice> tempNewToOldMapping = new HashMap<>();
+
 	public GTSStage() {
 		super(Stage.GTS);
+
+		// Temporary map until is possible to rewrite populateDevicesMap in term of ScannablesPropertiesHelper elements
+		tempNewToOldMapping.put(GTS_SCANNABLE_X_ID, StageDevice.MOTOR_STAGE_X);
+		tempNewToOldMapping.put(GTS_SCANNABLE_Y_ID, StageDevice.MOTOR_STAGE_Y);
+		tempNewToOldMapping.put(GTS_SCANNABLE_Z_ID, StageDevice.MOTOR_STAGE_Z);
+		tempNewToOldMapping.put(GTS_SCANNABLE_THETA_ID, StageDevice.MOTOR_STAGE_ROT_Y);
 	}
 
 	@Override
@@ -51,11 +72,16 @@ public class GTSStage extends CommonStage {
 	}
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
+		return Optional.ofNullable(ScannablesPropertiesHelper.getScannableGroupPropertiesDocument(GTS_GROUP_ID))
+				.map(this::createMotorAxesComposite)
+				.orElse(null);
+	}
+
+	private StageCompositeDefinition[] createMotorAxesComposite(ScannableGroupPropertiesDocument groupDocument) {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
-		builder.assemble(StageDevice.MOTOR_STAGE_X, ClientMessages.AXIS_X);
-		builder.assemble(StageDevice.MOTOR_STAGE_Y, ClientMessages.AXIS_Y);
-		builder.assemble(StageDevice.MOTOR_STAGE_Z, ClientMessages.AXIS_Z);
-		builder.assemble(StageDevice.MOTOR_STAGE_ROT_Y, ClientMessages.THETA);
+		groupDocument.getScannables().forEach(s ->
+			builder.assemble(tempNewToOldMapping.get(s.getId()), ClientMessagesUtility.getClientMessageByString(s.getLabel()))
+		);
 		return builder.build();
 	}
 }

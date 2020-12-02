@@ -197,7 +197,7 @@ public abstract class CommonStage implements StageDescription {
 		return group;
 	}
 
-	protected StageCompositeDefinition createMotorElement(StageDevice device, ClientMessages label) throws StageException {
+	protected StageCompositeDefinition createMotorElement(StageDevice device) throws StageException {
 		StageCompositeDefinition scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
@@ -205,7 +205,6 @@ public abstract class CommonStage implements StageDescription {
 		}
 		scd.setStepSize(1);
 		scd.setDecimalPlaces(2);
-		scd.setLabel(ClientMessagesUtility.getMessage(label));
 		return scd;
 	}
 
@@ -236,13 +235,12 @@ public abstract class CommonStage implements StageDescription {
 		public StageCompositeDefinitionBuilder assemble(StageDevice device, ClientMessages label) {
 			StageCompositeDefinition scd;
 			try {
-				scd = createMotorElement(device, label);
+				scd = createMotorElement(device);
+				scd.setLabel(ClientMessagesUtility.getMessage(label));
 			} catch (StageException e) {
 				return this;
 			}
-			if (Objects.nonNull(scd)) {
-				composite.add(scd);
-			}
+			composite.add(scd);
 			return this;
 		}
 
