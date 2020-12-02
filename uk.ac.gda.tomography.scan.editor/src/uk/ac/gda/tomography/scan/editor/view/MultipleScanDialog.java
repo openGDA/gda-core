@@ -81,7 +81,7 @@ public class MultipleScanDialog extends TitleAreaDialog {
 	 * @param parentShell the shell where open the dialog
 	 * @param configurationSupplier the configuration supplier
 	 */
-	protected MultipleScanDialog(Shell parentShell, Supplier<ScanningConfiguration> configurationSupplier) {
+	public MultipleScanDialog(Shell parentShell, Supplier<ScanningConfiguration> configurationSupplier) {
 		super(parentShell);
 		this.parentShell = parentShell;
 		this.setShellStyle(SWT.PRIMARY_MODAL);

@@ -18,26 +18,16 @@
 
 package uk.ac.gda.tomography.view;
 
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.swtdesigner.SWTResourceManager;
 
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
+import gda.rcp.views.Browser;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
@@ -45,22 +35,19 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
-import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionTypeProperties;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
-import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.tomography.browser.TomoBrowser;
-import uk.ac.gda.tomography.scan.editor.view.RadiographyConfigurationCompositeFactory;
-import uk.ac.gda.tomography.scan.editor.view.TomographyConfigurationCompositeFactory;
+import uk.ac.gda.tomography.scan.editor.view.configuration.radiography.RadiographyButtonControlledCompositeFactory;
+import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.TomographyButtonControlledCompositeFactory;
+import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.selectable.NamedComposite;
+import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 
 /**
@@ -79,64 +66,34 @@ import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
  * </p>
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationView extends ViewPart {
+public final class TomographyConfigurationView extends AcquisitionConfigurationView {
 
 	public static final String ID = "uk.ac.gda.tomography.view.TomographyConfigurationView";
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationView.class);
 
 	private AcquisitionController<ScanningAcquisition> acquisitionController;
 
 	@Override
-	public void createPartControl(Composite parent) {
-		logger.debug("Creating {}", this);
-		// The overall container
-		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-		createClientGridDataFactory().applyTo(container);
-		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-
-		getAcquisitionController().setDefaultNewAcquisitionSupplier(newScanningAcquisition());
-		getAcquisitionController().createNewAcquisition();
-
-		AcquisitionCompositeFactoryBuilder builder = new AcquisitionCompositeFactoryBuilder();
-		builder.addTopArea(getTopArea());
-		builder.addBottomArea(getBottomArea());
-		builder.addAcquisitionButtonGroupFactoryBuilder(getAcquistionButtonGroupFacoryBuilder());
-//		builder.addNewSelectionListener(getNewConfigurationListener());
-//		builder.addSaveSelectionListener(getSaveListener());
-//		builder.addRunSelectionListener(getRunListener());
-		builder.build().createComposite(container, SWT.NONE);
-		logger.debug("Created {}", this);
-	}
-
-	@Override
-	public void setFocus() {
-		// Do not necessary
-	}
-
-	private StageController getStageController() {
-		return getBean(StageController.class);
-	}
-
-	private CompositeFactory getTopArea() {
+	protected CompositeFactory getTopArea(Supplier<Composite> controlButtonsContainerSupplier) {
 		// Theses are the on-demand composites for the specific acquisition configurations
-		List<NamedComposite> configurations = new ArrayList<>();
-		configurations.add(new TomographyConfigurationCompositeFactory(getAcquisitionController(), getStageController()));
-		configurations.add(new RadiographyConfigurationCompositeFactory());
-
+		List<NamedCompositeFactory> configurations = new ArrayList<>();
+		configurations.add(new TomographyButtonControlledCompositeFactory(getAcquisitionController(), controlButtonsContainerSupplier));
+		configurations.add(new RadiographyButtonControlledCompositeFactory(getAcquisitionController(), controlButtonsContainerSupplier));
 		return new SelectableContainedCompositeFactory(configurations, ClientMessages.ACQUISITIONS);
 	}
 
-	private CompositeFactory getBottomArea() {
-		return new AcquisitionsBrowserCompositeFactory<>(new TomoBrowser(getAcquisitionController()));
+	@Override
+	protected Browser<?> getBrowser() {
+		return new TomoBrowser(getAcquisitionController());
 	}
 
 	/**
 	 * Creates a new {@link ScanningAcquisition} for a tomography acquisition. Note that the Detectors set by the
 	 * {@link ScanningAcquisitionController#createNewAcquisition()}
 	 *
-	 * @return
+	 * @return a new scanning acquisition
 	 */
-	private Supplier<ScanningAcquisition> newScanningAcquisition() {
+	@Override
+	protected Supplier<ScanningAcquisition> newScanningAcquisition() {
 		return () -> {
 			ScanningAcquisition newConfiguration = new ScanningAcquisition();
 			newConfiguration.setUuid(UUID.randomUUID());
@@ -170,41 +127,11 @@ public class TomographyConfigurationView extends ViewPart {
 		};
 	}
 
-	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
+	@Override
+	protected AcquisitionController<ScanningAcquisition> getAcquisitionController() {
 		if (acquisitionController == null) {
 			acquisitionController = new ExperimentScanningAcquisitionController(AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
 		}
 		return acquisitionController;
-	}
-
-	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
-		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> createNewScanningAcquisition()));
-		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> save()));
-		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> submitExperiment()));
-		return acquisitionButtonGroup;
-	}
-
-	private void createNewScanningAcquisition() {
-		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
-		if (confirmed) {
-			getAcquisitionController().createNewAcquisition();
-		}
-	}
-
-	private void save() {
-		try {
-			getAcquisitionController().saveAcquisitionConfiguration();
-		} catch (AcquisitionControllerException e) {
-			UIHelper.showError("Cannot save acquisition", e, logger);
-		}
-	}
-
-	private void submitExperiment() {
-		try {
-			getAcquisitionController().runAcquisition();
-		} catch (AcquisitionControllerException e) {
-			UIHelper.showError(e.getMessage(), e.getCause().getMessage());
-		}
 	}
 }

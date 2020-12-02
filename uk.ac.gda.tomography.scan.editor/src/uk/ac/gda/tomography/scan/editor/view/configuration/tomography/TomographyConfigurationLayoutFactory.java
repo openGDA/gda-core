@@ -16,8 +16,9 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.scan.editor.view;
+package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.ANGULAR_STEP;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_END;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_END_TOOLTIP;
@@ -80,7 +81,6 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
-import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.addDisposableApplicationListener;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -112,9 +112,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
+import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.MultipleScansHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
@@ -122,7 +122,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
+import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
@@ -130,27 +130,26 @@ import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
-import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
-import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.widgets.SelectFileComposite;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
+import uk.ac.gda.tomography.scan.editor.view.MultipleScanDialog;
+import uk.ac.gda.tomography.scan.editor.view.ScanType;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.images.ClientImages;
-import uk.ac.gda.ui.tool.selectable.NamedComposite;
 
 /**
  * This Composite allows to edit a {@link ScanningParameters} object.
  *
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationCompositeFactory implements NamedComposite {
+public class TomographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationCompositeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationLayoutFactory.class);
 	private static final String NO_FILE_SELECTED = "No File selected";
 
 	/** Scan prefix **/
@@ -196,18 +195,18 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	private Label savuFileName;
 	private Button removeSavuFile;
 
-	protected final AcquisitionController<ScanningAcquisition> controller;
-	private final IStageController stageController;
+	private final AcquisitionController<ScanningAcquisition> acquisitionController;
+
 	private ScanpathDocumentHelper dataHelper;
 	private MultipleScansHelper configurationHelper;
 	private ImageCalibrationHelper imageCalibrationHelper;
 
 	private DataBindingContext dbc = new DataBindingContext();
 
-	public TomographyConfigurationCompositeFactory(AcquisitionController<ScanningAcquisition> controller, IStageController stageController) {
-		super();
-		this.controller = controller;
-		this.stageController = stageController;
+	private Composite mainComposite;
+
+	public TomographyConfigurationLayoutFactory(AcquisitionController<ScanningAcquisition> acquisitionController) {
+		this.acquisitionController = acquisitionController;
 		this.dataHelper = new ScanpathDocumentHelper(this::getAcquisitionParameters);
 		this.configurationHelper = new MultipleScansHelper(this::getAcquisitionConfiguration);
 		this.imageCalibrationHelper = new ImageCalibrationHelper(this::getAcquisitionConfiguration);
@@ -216,7 +215,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		logger.debug("Creating {}", this);
-		Composite mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
+		mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(mainComposite);
 		standardMarginHeight(mainComposite.getLayout());
 		standardMarginWidth(mainComposite.getLayout());
@@ -225,17 +224,20 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 		bindElements();
 		initialiseElements();
 		addWidgetsListener();
-		try {
-			addDisposableApplicationListener(mainComposite, new LoadListener(mainComposite));
-		} catch (GDAClientException e) {
-			UIHelper.showWarning("Loading a file will not refresh the gui", "Spring application listener not registered");
-		}
+
 		logger.debug("Created {}", this);
 		return mainComposite;
 	}
 
-	private AcquisitionController<ScanningAcquisition> getController() {
-		return controller;
+	@Override
+	public void reload() {
+		bindElements();
+		initialiseElements();
+		mainComposite.getShell().layout(true, true);
+	}
+
+	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
+		return acquisitionController;
 	}
 
 	/**
@@ -399,7 +401,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 			public void widgetSelected(SelectionEvent e) {
 				if (e.widget.equals(multipleScansAlternative)) {
 					new MultipleScanDialog(parent.getShell(),
-							TomographyConfigurationCompositeFactory.this::getAcquisitionConfiguration).open();
+							TomographyConfigurationLayoutFactory.this::getAcquisitionConfiguration).open();
 					updateMultipleScan();
 					if (getAcquisitionConfiguration().getMultipleScans().getNumberRepetitions() > 1
 							|| getAcquisitionConfiguration().getMultipleScans().getWaitingTime() > 0
@@ -553,7 +555,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 		}
 
 		private void updateCurrentAngularPosition() {
-			double currentMotorPostion = stageController.getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
+			double currentMotorPostion = getStageController().getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
 			startAngleText.setText(Double.toString(currentMotorPostion));
 		}
 	};
@@ -687,7 +689,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
 
 	private void updateAcquisitionName() {
-		getController().getAcquisition().setName(name.getText());
+		getAcquisitionController().getAcquisition().setName(name.getText());
 	}
 
 	private void bindScanType(DataBindingContext dbc) {
@@ -706,7 +708,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	}
 
 	private void initialiseElements() {
-		name.setText(getController().getAcquisition().getName());
+		name.setText(getAcquisitionController().getAcquisition().getName());
 		initializeScanType();
 		initializeAngleRange();
 		initializeEndAngle();
@@ -770,32 +772,30 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	private void initializeDarkCalibration(DarkCalibrationDocument darkCalibrationDocument) {
 		Optional.ofNullable(darkCalibrationDocument.getNumberExposures())
 			.ifPresent(exposure -> numberDark.setText(Integer.toString(exposure)));
-
 		Optional.ofNullable(darkCalibrationDocument.getDetectorDocument())
 			.map(DetectorDocument::getExposure)
 			.ifPresent(exposure -> darkExposure.setText(Double.toString(exposure)));
-
 		// For the moment dark and flat have the same boolean values
 		Optional.ofNullable(darkCalibrationDocument.isBeforeAcquisition())
 			.ifPresent(selected -> beforeAcquisition.setSelection(selected));
-
 		// For the moment dark and flat have the same boolean values
 		Optional.ofNullable(darkCalibrationDocument.isAfterAcquisition())
 			.ifPresent(selected -> afterAcquisition.setSelection(selected));
-
 		forceFocusOnEmpty(numberDark, Integer.toString(darkCalibrationDocument.getNumberExposures()));
 	}
+
+
+
 
 	private void initializeFlatCalibration(FlatCalibrationDocument flatCalibrationDocument) {
 		Optional.ofNullable(flatCalibrationDocument.getNumberExposures())
 			.ifPresent(exposure ->	numberFlat.setText(Integer.toString(exposure)));
-
 		Optional.ofNullable(flatCalibrationDocument.getDetectorDocument())
 			.map(DetectorDocument::getExposure)
 			.ifPresent(exposure -> flatExposure.setText(Double.toString(exposure)));
-
 		forceFocusOnEmpty(numberFlat, Integer.toString(flatCalibrationDocument.getNumberExposures()));
 	}
+
 
 	private void updateMultipleScan() {
 		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
@@ -898,31 +898,12 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 	}
 
 	private ScanningConfiguration getAcquisitionConfiguration() {
-		return getController().getAcquisition().getAcquisitionConfiguration();
+		return getAcquisitionController().getAcquisition().getAcquisitionConfiguration();
 	}
 
 	private ScannableTrackDocument getScannableTrackDocument() {
-		return getController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument().getScannableTrackDocuments()
+		return getAcquisitionController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument().getScannableTrackDocuments()
 				.get(0);
-	}
-
-	private class LoadListener implements ApplicationListener<AcquisitionConfigurationResourceLoadEvent> {
-
-		private final Composite composite;
-
-		public LoadListener(Composite composite) {
-			super();
-			this.composite = composite;
-		}
-
-		@Override
-		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (getController().equals(event.getSource())) {
-				bindElements();
-				initialiseElements();
-				composite.layout(true, true);
-			}
-		}
 	}
 
 	private AcquisitionFileContext getClientContext() {
@@ -958,13 +939,7 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 		savuFileName.getParent().layout(true, true);
 	}
 
-	@Override
-	public ClientMessages getName() {
-		return ClientMessages.TOMOGRAPHY;
-	}
-
-	@Override
-	public ClientMessages getTooltip() {
-		return ClientMessages.TOMOGRAPHY_TP;
+	private StageController getStageController() {
+		return getBean(StageController.class);
 	}
 }

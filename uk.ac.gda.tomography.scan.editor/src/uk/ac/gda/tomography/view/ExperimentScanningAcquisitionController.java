@@ -72,6 +72,12 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 		if (!getExperimentController().isExperimentInProgress()) {
 			throw new AcquisitionControllerException("Cannot start acquisition", new ExperimentControllerException("You must start an experiment first"));
 		}
+		try {
+			URL acquisitionPath = getExperimentController().prepareAcquisition(acquisitionController.getAcquisition().getName());
+			getAcquisitionController().getAcquisition().setAcquisitionLocation(acquisitionPath);
+		} catch (ExperimentControllerException e) {
+			throw new AcquisitionControllerException("Cannot start acquisition", new ExperimentControllerException("Cannot prepare the experiment URL"));
+		}
 		return getAcquisitionController().runAcquisition();
 	}
 

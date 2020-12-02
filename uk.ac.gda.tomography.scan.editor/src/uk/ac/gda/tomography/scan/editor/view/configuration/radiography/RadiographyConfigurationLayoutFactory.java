@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.tomography.scan.editor.view;
+package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 
 import static uk.ac.gda.ui.tool.ClientMessages.NAME;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME_TOOLTIP;
@@ -41,15 +41,20 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.selectable.NamedComposite;
+import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.ui.tool.Reloadable;
 
 /**
  * @author Maurizio Nagni
  */
-public class RadiographyConfigurationCompositeFactory implements NamedComposite {
+public class RadiographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(RadiographyConfigurationCompositeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(RadiographyConfigurationLayoutFactory.class);
+
+	private final AcquisitionController<ScanningAcquisition> acquisitionController;
+	private Composite mainComposite;
 
 	/** Scan prefix **/
 	private Text name;
@@ -57,10 +62,14 @@ public class RadiographyConfigurationCompositeFactory implements NamedComposite 
 	/** The Projections Composite elements **/
 	private Text totalProjections;
 
+	public RadiographyConfigurationLayoutFactory(AcquisitionController<ScanningAcquisition> acquisitionController) {
+		this.acquisitionController = acquisitionController;
+	}
+
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		logger.debug("Creating {}", this);
-		Composite mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
+		mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(mainComposite);
 		standardMarginHeight(mainComposite.getLayout());
 		standardMarginWidth(mainComposite.getLayout());
@@ -106,13 +115,10 @@ public class RadiographyConfigurationCompositeFactory implements NamedComposite 
 	}
 
 	@Override
-	public ClientMessages getName() {
-		return ClientMessages.RADIOGRAPHY;
+	public void reload() {
+		// TBD
+//		bindElements();
+//		initialiseElements();
+		mainComposite.getShell().layout(true, true);
 	}
-
-	@Override
-	public ClientMessages getTooltip() {
-		return ClientMessages.RADIOGRAPHY_TP;
-	}
-
 }
