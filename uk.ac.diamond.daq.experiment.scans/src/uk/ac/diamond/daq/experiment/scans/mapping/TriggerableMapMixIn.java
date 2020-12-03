@@ -27,6 +27,7 @@ public abstract class TriggerableMapMixIn {
 
 	@SuppressWarnings("unused")
 	@JsonCreator public TriggerableMapMixIn(
+			@JsonProperty("name") String name,
 			@JsonProperty("scanRequest") ScanRequest scanRequest,
 			@JsonProperty("important") boolean important) {
 		// do nothing

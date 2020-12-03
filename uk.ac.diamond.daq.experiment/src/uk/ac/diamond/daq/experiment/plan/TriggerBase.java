@@ -87,13 +87,17 @@ public abstract class TriggerBase extends FindableBase implements ITrigger {
 					executorService.execute(()->{
 						final TriggerEvent event = new TriggerEvent(signal);
 						registrar.triggerOccurred(this);
+												
+						TriggerProcessor processor = TriggerProcessorFactory.getProcessor(triggerable.getClass());
 						try {
-							final Object id = triggerable.trigger();
-							
-							if (id != null && id instanceof IdBean) {
-								event.setId(((IdBean) id).getUniqueId());
+							if (processor != null) {
+								final Object id = processor.process(triggerable);
+								if (id instanceof IdBean) {
+									event.setId(((IdBean) id).getUniqueId());
+								}
+							} else {
+								triggerable.trigger();
 							}
-							
 						} catch (Exception e) {
 							logger.error("Problem while executing trigger '{}'", getName(), e);
 							event.setFailed(true);

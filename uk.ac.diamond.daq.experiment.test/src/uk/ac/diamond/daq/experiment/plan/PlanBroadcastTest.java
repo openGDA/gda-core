@@ -40,6 +40,7 @@ import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 /**
@@ -215,7 +216,6 @@ public class PlanBroadcastTest {
 		sev.broadcast(2); // end plan
 
 		assertThat(publisher.await(), is(true)); // expected events published within reasonable time
-		assertThat(getLastTrigger().getEvents().get(0).getId(), is(equalTo(triggerableScan.getScanId())));
 	}
 
 	private class MockTriggerableScan implements Triggerable {
@@ -226,10 +226,6 @@ public class PlanBroadcastTest {
 		public Object trigger() {
 			// do the scan, then return idBean
 			return idBean;
-		}
-
-		String getScanId() {
-			return idBean.getUniqueId();
 		}
 
 	}
@@ -325,6 +321,7 @@ public class PlanBroadcastTest {
 		sev = new MockSEV();
 		sev.setName(SEV_NAME);
 		plan.setFactory(new TestFactory(sev));
+		plan.experimentController = mock(ExperimentController.class);
 		plan.addSEV(()->0.0); // doesn't matter
 	}
 

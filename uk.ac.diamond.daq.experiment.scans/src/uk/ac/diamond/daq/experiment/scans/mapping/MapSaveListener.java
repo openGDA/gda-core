@@ -10,7 +10,7 @@ public class MapSaveListener extends TriggerableScanWrapper implements Applicati
 
 	@Override
 	public void onApplicationEvent(ScanRequestSavedEvent event) {
-		TriggerableScan scan = new TriggerableMap(event.getScanRequest(), false);
+		TriggerableScan scan = new TriggerableMap(event.getScanName(), event.getScanRequest(), false);
 		saveScan(scan, event.getScanName());
 	}
 
