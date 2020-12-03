@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -295,6 +296,7 @@ public class ScanRequestFactory {
 	private ScriptRequest parseBeforeScriptProcessingRequest() {
 		return getAcquisitionConfiguration().getProcessingRequest().stream()
 			.map(p -> getProcessingRequestHandlerService().generateScriptRequest(p))
+			.filter(Objects::nonNull)
 			.findFirst()
 			.orElse(null);
 	}
