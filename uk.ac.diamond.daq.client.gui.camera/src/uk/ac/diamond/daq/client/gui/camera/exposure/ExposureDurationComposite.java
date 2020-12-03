@@ -173,7 +173,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private void updateGUI(double exposure) {
-		if (exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
+		if (exposureText.isDisposed() || exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
 			return;
 		}
 		exposureText.setText(Double.toString(exposure));
