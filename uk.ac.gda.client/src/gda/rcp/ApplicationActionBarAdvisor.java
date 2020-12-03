@@ -787,9 +787,12 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menu.add(new Separator());
 		menu.add(new GroupMarker(IWorkbenchActionConstants.IMPORT_EXT));
 		menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-		menu.add(ContributionItemFactory.REOPEN_EDITORS.create(getWindow()));
-		menu.add(new GroupMarker(IWorkbenchActionConstants.MRU));
 
+		MenuManager recent = new MenuManager(WorkbenchMessages.OpenRecentDocuments_text);
+		recent.add(ContributionItemFactory.REOPEN_EDITORS.create(getWindow()));
+		menu.add(recent);
+
+		menu.add(new GroupMarker(IWorkbenchActionConstants.MRU));
 		menu.add(new Separator());
 		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_EXPORT,true)) {
 			menu.add(exportWizardAction);
