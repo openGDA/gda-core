@@ -19,8 +19,10 @@
 package gda.image;
 
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.Dataset;
@@ -36,9 +38,8 @@ import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageSaver;
 
 /**
- * ImageCutdown utility class for trimming images to a specified region or regions.
- * Saves resultant images to a specified directory.
- * Optionally takes a suffix which will be appended to the file names.
+ * ImageCutdown utility class for trimming images to a specified region or regions. Saves resultant images to a
+ * specified directory.
  */
 public class ImageCutdown {
 
@@ -47,143 +48,145 @@ public class ImageCutdown {
 	private final String imageType;
 	private final String saveDir;
 
+	// "png"
+	private static final Pattern PNG_MATCHER = Pattern.compile("^png$");
+	public static final String PNG_EXTENSION = "png";
+	// "jpg" or "jpeg"
+	private static final Pattern JPEG_MATCHER = Pattern.compile("^jp(?:e)?g$");
+	public static final String JPEG_EXTENSION = "jpg";
+	// "tif" or "tiff"
+	private static final Pattern TIF_MATCHER = Pattern.compile("^tif(?:f)?$");
+	public static final String TIF_EXTENSION = "tiff";
 
-	/* Produces a single trimmed image
+	private static final String INCORRECT_FILETYPE_EXCEPTION = "Cutdown supports png, jpg & tiff. Incorrect file type provided: ";
+	private static final String MALFORMED_COORDINATES_EXCEPTION = "Invalid coordinates %s provided at index %s";
+
+	private static final int[] singleStep = { 1, 1 };
+
+	/**
+	 * Produces an ImageCutdown prepared with the file to be cut down, and the directory to save output images in. This
+	 * can then be used to cut an image to the specified coordinates with the cutdown method.
+	 * Output files will match NameOfInputFile<_SuffixIfNotNull>_indexOfCoords.InputFileExtension
 	 *
-	 * @param imagePath
-	 *             full path of image to be processed
-	 * @param saveDir
-	 *             path of save folder/directory
-	 * @param coords
-	 *             start and end coordinates of region of interest
-	 *             e.g. new int[][] {{50, 50}, {100, 100}}
-	 */
-	public ImageCutdown(String imagePath, String saveDir, int[][] coords) throws IncorrectFileTypeException, InvalidCoordinatesException, ScanFileHolderException {
-		this(imagePath, saveDir, Collections.singletonList(coords), null, false);
-	}
-
-	/* Produces a series of images from a single image. Images will be numbered.
+	 * @param imagePath full path of image to be processed
 	 *
-	 * @param imagePath
-	 *             full path of image to be processed
-	 * @param saveDir
-	 *             path of save folder/directory
-	 * @param coords
-	 *             start and end coordinates of region of interest
-	 *             e.g. new int[][] {{50, 50}, {100, 100}}
-	 */
-	public ImageCutdown(String imagePath, String saveDir, List<int[][]> coords) throws IncorrectFileTypeException, InvalidCoordinatesException, ScanFileHolderException {
-		this(imagePath, saveDir, coords, null, false);
-	}
-
-	/* Produces a single trimmed image, with suffix appended to file name
+	 * @param saveDir path of save folder/directory
 	 *
-	 * @param imagePath
-	 *             full path of image to be processed
-	 * @param saveDir
-	 *             path of save folder/directory
-	 * @param coords
-	 *             List of start and end coordinates of region of interest
-	 *             e.g. new int[][] {{50, 50}, {100, 100}}
-	 * @param suffix
-	 *             suffix to be appended to filename
 	 */
-	public ImageCutdown(String imagePath, String saveDir, int[][] coords, String suffix) throws IncorrectFileTypeException, InvalidCoordinatesException, ScanFileHolderException {
-		this(imagePath, saveDir, Collections.singletonList(coords), suffix, false);
-	}
 
-	/* Produces multiple trimmed images, with a given suffix and number appended to filename.
-	 *
-	 * @param imagePath
-	 *             full path of image to be processed
-	 * @param saveDir
-	 *             path of save folder/directory
-	 * @param coords
-	 *             start and end coordinates of region of interest
-	 *             e.g. new int[][] {{50, 50}, {100, 100}}
-	 * @param suffix
-	 *             suffix to be appended to filename
-	 */
-	public ImageCutdown(String imagePath, String saveDir, List<int[][]> coords, String suffix) throws IncorrectFileTypeException, InvalidCoordinatesException, ScanFileHolderException {
-		this(imagePath, saveDir, coords, suffix, false);
-	}
-
-	ImageCutdown(String imagePath, String saveDir, List<int[][]> coords, String suffix, boolean testing) throws IncorrectFileTypeException, InvalidCoordinatesException, ScanFileHolderException {
+	public ImageCutdown(String imagePath, String saveDir) {
 		this.imagePath = imagePath;
-		String alternatingSuffix = coords.size() > 1 ? "_" + suffix + "_" : "_" + suffix;
-		String name = Paths.get(imagePath).getFileName().toString();
-		String nameWithoutExtension = name.substring(0, name.lastIndexOf('.'));
-		imageName = nameWithoutExtension + alternatingSuffix;
+		final String name = Paths.get(imagePath).getFileName().toString();
+		imageName = name.substring(0, name.lastIndexOf('.'));
 		imageType = imageTypeFromFileExtension(imagePath);
 		this.saveDir = saveDir;
-
-		if (!testing) {
-			cutdown(coords);
-		}
 	}
 
-	void cutdown(List<int[][]> coordList) throws InvalidCoordinatesException, ScanFileHolderException, IncorrectFileTypeException {
+	/**
+	 * Calls cutdown with a single pair of coordinates Output files will match
+	 * NameOfInputFile<_SuffixIfNotNull>_0.InputFileExtension therefore this should not be called multiple times with
+	 * the same suffix unless intending to overwrite previous runs.
+	 *
+	 * @param coords
+	 *            a 2x2 int array in the order {{ystart_pixels_from_top, xstart_pixels_from_left},
+	 *            {yfinish_pixels_from_top, xfinish_pixels_from_left}}
+	 * @param suffix
+	 *            (optional) String to place after the original filename (will append _0 so will not overwrite original
+	 *            image when null)
+	 * @throws ScanFileHolderException
+	 */
+
+	public void cutdown(int[][] coords, String suffix) throws ScanFileHolderException {
+		final List<int[][]> list = new ArrayList<>();
+		list.add(coords);
+		cutdown(list, suffix);
+	}
+
+	/**
+	 * Calls cutdown with a multiple pairs of coordinates Output files will match
+	 * NameOfInputFile<_SuffixIfNotNull>_index.InputFileExtension therefore this should not be called multiple times with
+	 * the same suffix unless intending to overwrite previous runs.
+	 *
+	 * @param coordList
+	 *            a list of 2x2 int array in the order {{ystart_pixels_from_top, xstart_pixels_from_left},
+	 *            {yfinish_pixels_from_top, xfinish_pixels_from_left}}
+	 * @param suffix
+	 *            (optional) String to place after the original filename (will append _index so will not overwrite original
+	 *            image when null)
+	 * @throws ScanFileHolderException
+	 */
+
+	public void cutdown(List<int[][]> coordList, String suffix) throws ScanFileHolderException {
 		for (int[][] coordSet : coordList) {
 			if (!isValidCoords(coordSet)) {
-				throw new InvalidCoordinatesException("Invalid coordinates " + coordSet.toString() + " provided at index: " + coordList.indexOf(coordSet), coordSet, coordList.indexOf(coordSet));
+				throw new IllegalArgumentException(
+						String.format(MALFORMED_COORDINATES_EXCEPTION, coordSet, coordList.indexOf(coordSet)));
 			}
 		}
-		Dataset data = dataHolderFromPath().getDataset(0);
-		DataHolder result = new DataHolder();
+		final Dataset data = dataHolderFromPath().getDataset(0);
+		final DataHolder result = new DataHolder();
+		final String formattedName = imageName + ((suffix != null) ? "_" + suffix : "") + "_%s";
 
-		if (coordList.size() > 1) {
-			for (int i = 0; i < coordList.size(); i++) {
-				result.addDataset(imageName + i, singleImageSingleROI(data, coordList.get(i)));
-				saveDataHolder(result, Paths.get(saveDir, result.getName(0)).toString());
-				result.clear();
-			}
-		} else {
-			result.addDataset(imageName, singleImageSingleROI(data, coordList.get(0)));
+		for (int i = 0; i < coordList.size(); i++) {
+			int[][] coords = coordList.get(i);
+			result.addDataset(String.format(formattedName, i), data.getSlice(coords[0], coords[1], singleStep));
 			saveDataHolder(result, Paths.get(saveDir, result.getName(0)).toString());
+			result.clear();
 		}
 	}
 
-	Dataset singleImageSingleROI(Dataset data, int[][] coords) {
-		int[] singleStep = new int[] {1,1};
-		return data.getSlice(coords[0], coords[1], singleStep);
-	}
-
-	DataHolder dataHolderFromPath() throws ScanFileHolderException, IncorrectFileTypeException {
-		JavaImageLoader loader;
-		if (imageType.equals("png")) {
+	DataHolder dataHolderFromPath() throws ScanFileHolderException {
+		final JavaImageLoader loader;
+		switch (imageType) {
+		case (PNG_EXTENSION):
 			loader = new PNGLoader(imagePath);
-		} else if (imageType.equals("tif")) {
+			break;
+		case (TIF_EXTENSION):
 			loader = new TIFFImageLoader(imagePath);
-		} else if (imageType.equals("jpg")) {
+			break;
+		case (JPEG_EXTENSION):
 			loader = new JPEGLoader(imagePath);
-		} else throw new IncorrectFileTypeException("Cutdown supports png, jpg & tif. Incorrect file type provided: " + imageType);
+			break;
+		default:
+			throw new IllegalArgumentException(INCORRECT_FILETYPE_EXCEPTION + imageType);
+		}
 		return loader.loadFile();
 	}
 
-	void saveDataHolder(DataHolder dataHolder, String savePath) throws ScanFileHolderException, IncorrectFileTypeException {
- 		JavaImageSaver saver;
-		if (imageType.equals("png")) {
-			saver = new PNGSaver(savePath + ".png");
-		} else if (imageType.equals("tif") || (imageType.equals("tiff"))) {
-			saver = new TIFFImageSaver(savePath + ".tif");
-		} else if (imageType.equals("jpg") || imageType.equals("jpeg")) {
-			saver = new JPEGSaver(savePath + ".jpg");
-		} else throw new IncorrectFileTypeException("Cutdown supports png, jpg & tiff. Incorrect file type provided: " + imageType);
-			saver.saveFile(dataHolder);
+	private void saveDataHolder(DataHolder dataHolder, String savePath) throws ScanFileHolderException {
+		final JavaImageSaver saver;
+		savePath += ".%s";
+		switch (imageType) {
+		case (PNG_EXTENSION):
+			saver = new PNGSaver(String.format(savePath, PNG_EXTENSION));
+			break;
+		case (TIF_EXTENSION):
+			saver = new TIFFImageSaver(String.format(savePath, TIF_EXTENSION));
+			break;
+		case (JPEG_EXTENSION):
+			saver = new JPEGSaver(String.format(savePath, JPEG_EXTENSION));
+			break;
+		default:
+			throw new IllegalArgumentException(INCORRECT_FILETYPE_EXCEPTION + imageType);
+		}
+		saver.saveFile(dataHolder);
 	}
 
-	boolean isValidCoords(int[][] coords){
+	private boolean isValidCoords(int[][] coords) {
 		return (2 == coords.length && 2 == coords[0].length && 2 == coords[1].length);
 	}
 
-	String imageTypeFromFileExtension(String filePath) throws IncorrectFileTypeException {
-		String type = filePath.substring(filePath.lastIndexOf(".") + 1);
-		if (type.equals("png")) {
-			return type;
-		} else if (type.equals("tif") || type.equals("tiff")) {
-			return "tif";
-		} else if ( type.equals("jpg") || type.equals("jpeg")) {
-			return "jpg";
-		} else throw new IncorrectFileTypeException("Cutdown supports png, jpg & tif. Incorrect file type provided: " + type);
+	static String imageTypeFromFileExtension(String filePath) {
+		final String type = filePath.substring(filePath.lastIndexOf(".") + 1);
+		Matcher matcher = PNG_MATCHER.matcher(type);
+		if (matcher.matches())
+			return PNG_EXTENSION;
+		matcher = TIF_MATCHER.matcher(type);
+		if (matcher.matches())
+			return TIF_EXTENSION;
+		matcher = JPEG_MATCHER.matcher(type);
+		if (matcher.matches())
+			return JPEG_EXTENSION;
+		throw new IllegalArgumentException(INCORRECT_FILETYPE_EXCEPTION + type);
 	}
 }
