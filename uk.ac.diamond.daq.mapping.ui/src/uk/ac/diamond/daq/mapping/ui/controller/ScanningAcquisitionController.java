@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -32,12 +35,11 @@ import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionRunEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent;
+import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.service.message.ScanningAcquisitionMessage;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
@@ -56,6 +58,7 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
+import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
@@ -134,11 +137,21 @@ public class ScanningAcquisitionController
 	}
 
 	@Override
-	public void runAcquisition() throws AcquisitionControllerException {
+	public RunAcquisitionResponse runAcquisition() throws AcquisitionControllerException {
 		updateImageCalibration();
 		updateProcessingRequest();
 		updateStartPosition();
-		publishRun(createScanningMessage());
+		ResponseEntity<RunAcquisitionResponse> responseEntity;
+		try {
+			responseEntity = getScanningAcquisitionRestServiceClient().run(getAcquisition());
+		} catch (ScanningAcquisitionServiceException e) {
+			throw new AcquisitionControllerException(e);
+		}
+		RunAcquisitionResponse response = responseEntity.getBody();
+		if (HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+			return response;
+		}
+		throw new AcquisitionControllerException("RunAcquisitionResponse [submitted=" + response.isSubmitted() + ", message=" + response.getMessage() + "]");
 	}
 
 	@Override
@@ -189,14 +202,6 @@ public class ScanningAcquisitionController
 
 	private Supplier<ScanningAcquisition> getDefaultNewAcquisitionSupplier() {
 		return Optional.ofNullable(newAcquisitionSupplier).orElse(ScanningAcquisition::new);
-	}
-
-	private ScanningAcquisitionMessage createScanningMessage() throws AcquisitionControllerException {
-		try {
-			return new ScanningAcquisitionMessage(DocumentMapper.toJSON(getAcquisition()));
-		} catch (GDAException e) {
-			throw new AcquisitionControllerException(e);
-		}
 	}
 
 	private String formatConfigurationFileName(String fileName) {
@@ -388,10 +393,6 @@ public class ScanningAcquisitionController
 
 	private void publishSave(String name, String acquisition) {
 		publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
-	}
-
-	private void publishRun(ScanningAcquisitionMessage tomographyRunMessage) {
-		publishEvent(new ScanningAcquisitionRunEvent(this, tomographyRunMessage));
 	}
 
 	private void setAcquisition(ScanningAcquisition acquisition) {

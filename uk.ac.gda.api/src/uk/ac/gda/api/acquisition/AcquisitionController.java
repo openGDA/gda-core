@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 
 /**
  * Controls how create, load, save run an {@link Acquisition}
@@ -64,11 +65,11 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 
 	/**
 	 * Runs the acquisition
-	 *
+	 * @return a response from the engine/service responsible to handle the request
 	 * @throws AcquisitionControllerException
 	 *             if the request fails
 	 */
-	void runAcquisition() throws AcquisitionControllerException;
+	RunAcquisitionResponse runAcquisition() throws AcquisitionControllerException;
 
 	/**
 	 * Sets the controller active acquisition parsing a file

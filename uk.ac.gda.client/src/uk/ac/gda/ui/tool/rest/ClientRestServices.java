@@ -32,12 +32,20 @@ public class ClientRestServices {
 	}
 
 	/**
-	 * Provides access {@link ExperimentController} services
+	 * Provides access to a {@link ExperimentController} service
 	 *
 	 * @return an experiment controller service
 	 */
 	public static final ExperimentController getExperimentController() {
-		return SpringApplicationContextFacade.getBean(ExperimentControllerService.class);
+		return SpringApplicationContextFacade.getBean(ExperimentControllerServiceClient.class);
 	}
 
+	/**
+	 * Provides access to a {@code ScanningAcquisitionService}
+	 *
+	 * @return an scanning acquisition service
+	 */
+	public static final ScanningAcquisitionRestServiceClient getScanningAcquisitionRestServiceClient() {
+		return SpringApplicationContextFacade.getBean(ScanningAcquisitionRestServiceClient.class);
+	}
 }

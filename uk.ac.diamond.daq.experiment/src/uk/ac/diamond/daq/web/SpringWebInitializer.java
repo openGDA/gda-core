@@ -16,13 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.core.tool.spring;
+package uk.ac.diamond.daq.web;
 
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletRegistration;
 
 import org.eclipse.jetty.server.Server;
@@ -32,15 +31,12 @@ import org.eclipse.jetty.util.component.LifeCycle.Listener;
 import org.eclipse.jetty.util.log.Slf4jLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.rest.SpringContextConfig;
-import uk.ac.diamond.daq.rest.SpringDispatcherConfig;
+import uk.ac.diamond.daq.context.web.SpringContextConfiguration;
 
 /**
  * Instantiates a {@link AnnotationConfigWebApplicationContext} for GDA Rest services.
@@ -55,7 +51,7 @@ import uk.ac.diamond.daq.rest.SpringDispatcherConfig;
  *
  * <p>
  * The service endpoint URL is the same as for GDA, however the port is specified by a property
- * {@link #REST_SERVICE_PORT} (default 8888)
+ * {@link #port} (default 8888)
  * </p>
  *
  * @author Maurizio Nagni
@@ -68,7 +64,8 @@ public class SpringWebInitializer {
 	/**
 	 * The REST service port property
 	 */
-	public static final String REST_SERVICE_PORT = "rest.service.port";
+	@Value("${server.rest.service.port:8888}")
+	public int port;
 
 	/**
 	 * The Spring web application context
@@ -77,9 +74,9 @@ public class SpringWebInitializer {
 
 	@PostConstruct
 	private void postConstruct() throws Exception {
-		final Slf4jLog log = new Slf4jLog("ExperimentRestService");
+		final Slf4jLog log = new Slf4jLog("Starting RestService...");
 
-		Server server = createServer(LocalProperties.getAsInt(REST_SERVICE_PORT, 8888));
+		Server server = createServer(port);
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		context.getServletContext().setExtendedListenerTypes(true);
@@ -134,46 +131,13 @@ public class SpringWebInitializer {
 	}
 
 	private void onStartup(ServletContext container) {
-		addRootContext(container);
-		addDispatcherContext(container);
-	}
-
-	private void addRootContext(ServletContext container) {
 		// Create the application context
 		rootContext = new AnnotationConfigWebApplicationContext();
-		rootContext.register(SpringContextConfig.class);
-
-		// Register application context with ContextLoaderListener
-		container.addListener(new MyContextLoaderListener(rootContext));
-	}
-
-	private void addDispatcherContext(ServletContext container) {
-		// Create the dispatcher servlet's Spring application context
-		AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
-		dispatcherContext.register(SpringDispatcherConfig.class);
+		rootContext.register(SpringContextConfiguration.class);
 
 		ServletRegistration.Dynamic dispatcher = container.addServlet("restServlet",
-				new DispatcherServlet(dispatcherContext));
+				new DispatcherServlet(rootContext));
 		dispatcher.addMapping("/");
-		dispatcher.setLoadOnStartup(1);
+		dispatcher.setLoadOnStartup(1);	
 	}
-
-	/**
-	 * A custom listener to refresh the context scanned classes once ready
-	 */
-	private class MyContextLoaderListener extends ContextLoaderListener {
-
-		public MyContextLoaderListener(WebApplicationContext context) {
-			super(context);
-		}
-
-		@Override
-		public void contextInitialized(ServletContextEvent event) {
-			super.contextInitialized(event);
-			rootContext.scan("uk.ac.diamond.daq.experiment.rest");
-			rootContext.refresh();
-		}
-
-	}
-
 }
