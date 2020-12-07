@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -90,12 +91,13 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 
 	/**
 	 * Points available on the view for focusing, keyed by the name of the point.<br>
-	 * The user will typically choose the point(s) closest to the important areas of the sample.
+	 * The user will typically choose the point(s) closest to the important areas of the sample.<br>
+	 * Points can be moved & resized in the stream view.
 	 */
 	private final Map<String, FocusPoint> focusPoints;
 
 	/**
-	 * Button to show configuration dialog, allowing user to activate/deactivate AF points
+	 * Check box to show/hide autofocus points
 	 */
 	private Button showAfPointCheck;
 
@@ -114,10 +116,7 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 		this.secondaryId = secondaryId;
 
 		// Store focus points, keyed by name
-		this.focusPoints = new HashMap<>(focusPoints.size());
-		for (FocusPoint focusPoint : focusPoints) {
-			this.focusPoints.put(focusPoint.getName(), focusPoint);
-		}
+		this.focusPoints = focusPoints.stream().collect(Collectors.toUnmodifiableMap(FocusPoint::getName, Function.identity()));
 	}
 
 	@Override
@@ -161,7 +160,7 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 
 		// Show any configured ROIs
 		focusPoints.values().stream()
-			.filter(point -> point.isActive())
+			.filter(FocusPoint::isActive)
 			.forEach(point -> drawAfPoint(point, plotter));
 	}
 
@@ -188,6 +187,22 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 	 * Show {@link ConfigureDialog} to allow the user to choose which AF points are active
 	 */
 	private void configAutofocus() {
+		// Update focusPoints in case the user has moved/resized any points
+		final IPlottingSystem<Composite> plotter = liveStreamView.getPlottingSystem();
+		plotter.getRegions(RegionType.BOX).stream()
+			.map(r -> (RectangularROI) r.getROI())
+			.forEach(roi -> {
+				final FocusPoint point = focusPoints.get(roi.getName());
+				if (point == null) return;
+				final double[] mids = roi.getMidPoint();
+				final double[] lengths = roi.getLengths();
+				point.setxCentre(mids[0]);
+				point.setyCentre(mids[1]);
+				point.setxSize(lengths[0]);
+				point.setySize(lengths[1]);
+			});
+
+		// Now open the dialog
 		final Shell shell = Display.getDefault().getActiveShell();
 		final ConfigureDialog configureDialog = new ConfigureDialog(shell);
 		if (configureDialog.open() == Window.OK) {
@@ -214,13 +229,8 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 			final SortedMap<String, Integer> roiFfts = new TreeMap<>(getActiveRoiFfts());
 			final StringBuilder sb = new StringBuilder(roiFfts.size() + " ROI(s) processed\n");
 
-			roiFfts.entrySet().stream().forEach(roiFft -> {
-				final String pointName = roiFft.getKey();
-				final FocusPoint focusPoint = focusPoints.get(pointName);
-				sb.append(String.format("\n%s [%d:%d]: %d", pointName, focusPoint.getxCentre(), focusPoint.getyCentre(),
-						roiFft.getValue()));
-			});
-			sb.append(String.format("\n\nAllow sample rotation: %b", allowSampleRotation));
+			roiFfts.entrySet().stream().forEach(roiFft -> sb.append(String.format("%s: %d%n", roiFft.getKey(), roiFft.getValue())));
+			sb.append(String.format("%n%nAllow sample rotation: %b", allowSampleRotation));
 
 			MessageDialog.openInformation(Display.getDefault().getActiveShell(), "FFT values", sb.toString());
 		} catch (LiveStreamException e) {
@@ -232,21 +242,33 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 	/**
 	 * Calculate the mean FFT value for each active ROI
 	 *
-	 * @return Map of ROI name to its mean FFT value
+	 * @return Map of ROI description to its mean FFT value
 	 * @throws LiveStreamException
 	 */
 	private Map<String, Integer> getActiveRoiFfts() throws LiveStreamException {
 		// Get snapshot of image
 		final IDataset snapshotData = liveStreamView.getSnapshot().getDataset();
 
-		// For each of the active ROIs, get a slice of the dataset corresponding to that ROI
-		final Map<String, Integer> roiFfts = new HashMap<>();
-		final FourierTransformImageOperation fourierTransform = new FourierTransformImageOperation();
+		// We need to read the current focus point positions from the plot: the user may have moved them
+		final IPlottingSystem<Composite> plotter = liveStreamView.getPlottingSystem();
+		final Collection<IRegion> regions = plotter.getRegions(RegionType.BOX);
 
-		focusPoints.values().stream()
-			.filter(point -> point.isActive())
-			.forEach(point -> roiFfts.put(point.getName(), getMeanFft(snapshotData, point, fourierTransform)));
+		// For each of the active ROIs, calculate the FFT for a slice of the dataset corresponding to that ROI
+		final Map<String, Integer> roiFfts = new HashMap<>(regions.size());
+		final FourierTransformImageOperation fourierTransform = new FourierTransformImageOperation();
+		regions.stream()
+			.map(r -> (RectangularROI) r.getROI())
+			.forEach(roi -> roiFfts.put(formatRoi(roi), getMeanFft(snapshotData, roi, fourierTransform)));
 		return roiFfts;
+	}
+
+	/**
+	 * Format a ROI for the pop-up dialog
+	 */
+	private String formatRoi(RectangularROI roi) {
+		final double[] midPoint = roi.getMidPoint();
+		final double[] lengths = roi.getLengths();
+		return String.format("%s [%.2f %.2f %.2f, %.2f]", roi.getName(), midPoint[0], midPoint[1], lengths[0], lengths[1]);
 	}
 
 	/**
@@ -254,21 +276,20 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 	 *
 	 * @param snapshotData
 	 *            complete snapshot image to be analysed
-	 * @param point
-	 *            the focus point for which the FFT is to be calculated
+	 * @param focusRoi
+	 *            the ROI for which the FFT is to be calculated
 	 * @param fourierTransform
 	 *            FFT algorithm
 	 * @return mean FFT value for the point in the image
 	 */
-	private int getMeanFft(IDataset snapshotData, FocusPoint point, FourierTransformImageOperation fourierTransform) {
-		final RectangularROI focusRoi = point.toRectangularROI();
+	private int getMeanFft(IDataset snapshotData, RectangularROI focusRoi, FourierTransformImageOperation fourierTransform) {
 		final double[] startPoints = focusRoi.getPoint();
 		final double[] endPoints = focusRoi.getEndPoint();
 		final Slice xSlice = new Slice((int) startPoints[0], (int) endPoints[0]);
 		final Slice ySlice = new Slice((int) startPoints[1], (int) endPoints[1]);
 		final IDataset roiData = snapshotData.getSlice(ySlice, xSlice);
 		final IDataset datasetFft = fourierTransform.processImage(roiData, null);
-		return ((Double) datasetFft.mean(null)).intValue();
+		return ((Double) datasetFft.mean()).intValue();
 	}
 
 	/**
@@ -290,10 +311,10 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 	 * Class to specify a focus point as x/y centre and x/y size, as an easier way to specify a ROI
 	 */
 	public static class FocusPoint {
-		private final int xCentre;
-		private final int yCentre;
-		private final int xSize;
-		private final int ySize;
+		private double xCentre;
+		private double yCentre;
+		private double xSize;
+		private double ySize;
 		private final String name;
 
 		/**
@@ -312,7 +333,7 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 
 		private boolean active = true;
 
-		public FocusPoint(int xCentre, int yCentre, int xSize, int ySize, String name) {
+		public FocusPoint(double xCentre, double yCentre, double xSize, double ySize, String name) {
 			this.xCentre = xCentre;
 			this.yCentre = yCentre;
 			this.xSize = xSize;
@@ -320,20 +341,36 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 			this.name = name;
 		}
 
-		public int getxCentre() {
+		public double getxCentre() {
 			return xCentre;
 		}
 
-		public int getyCentre() {
+		public void setxCentre(double xCentre) {
+			this.xCentre = xCentre;
+		}
+
+		public double getyCentre() {
 			return yCentre;
 		}
 
-		public int getxSize() {
+		public void setyCentre(double yCentre) {
+			this.yCentre = yCentre;
+		}
+
+		public double getxSize() {
 			return xSize;
 		}
 
-		public int getySize() {
+		public void setxSize(double xSize) {
+			this.xSize = xSize;
+		}
+
+		public double getySize() {
 			return ySize;
+		}
+
+		public void setySize(double ySize) {
+			this.ySize = ySize;
 		}
 
 		public String getName() {
@@ -584,7 +621,7 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 		public Set<String> getActivePoints() {
 			 return focusPointButtons.entrySet().stream()
 			 .filter(b -> activationStates.get(b.getKey()))
-			 .map(b -> b.getKey())
+			 .map(Map.Entry::getKey)
 			 .collect(Collectors.toSet());
 		}
 
