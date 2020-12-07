@@ -23,9 +23,9 @@ class TwoAxisLineStepGenerator extends AbstractLineGenerator<TwoAxisLineStepMode
 	}
 
 	@Override
-	public void validate(TwoAxisLineStepModel model) {
-		super.validate(model);
+	public TwoAxisLineStepModel validate(TwoAxisLineStepModel model) {
 		if (model.getStep() <= 0) throw new ModelValidationException("Model step size must be positive!", model, "step");
+		return super.validate(model);
 	}
 
 	@Override

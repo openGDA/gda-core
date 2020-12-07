@@ -45,7 +45,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 	}
 
 	@Override
-	public void validate(ScanRequest req) throws ValidationException {
+	public ScanRequest validate(ScanRequest req) throws ValidationException {
 
 	    final CompoundModel cm = req.getCompoundModel();
 		if (cm!=null && cm.getModels()!=null && !cm.getModels().isEmpty()) {
@@ -64,6 +64,7 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		} catch (ScanningException ne) {
             throw new ValidationException(ne);
 		}
+		return req;
 	}
 
 	private void validateAnnotations(Map<String, IDetectorModel> dmodels) throws ValidationException, ScanningException {

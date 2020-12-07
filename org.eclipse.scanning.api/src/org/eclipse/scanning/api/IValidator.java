@@ -26,20 +26,6 @@ package org.eclipse.scanning.api;
 public interface IValidator<T> {
 
 	/**
-	 * If the given model is considered "invalid", this method throws a
-	 * ModelValidationException explaining why it is considered invalid.
-	 * Otherwise, just returns. A model should be considered invalid if its
-	 * parameters would cause the generator implementation to hang or crash.
-	 *
-	 * @param model the model to validate
-	 * @throw exception if model invalid
-	 * @return
-	 */
-	default void validate(T model) throws ValidationException {
-		// do nothing by default, implementations should override
-	}
-
-	/**
 	 * The validation server will set itself on any validator incase that validator
 	 * want to validate sub-parts of a complex model.
 	 *
@@ -50,14 +36,18 @@ public interface IValidator<T> {
 	}
 
 	/**
-	 * Same as Validation method above but returns any results sent back by validation.
+	 * If the given model is considered "invalid", this method may either throw a ModelValidationException explaining
+	 * why it is considered invalid or return a modified version of the model that does pass validation. If the model is
+	 * valid, it is returned. A model should be considered invalid if its parameters would cause the generator
+	 * implementation to hang or crash.
 	 *
 	 * @param model
-	 * @return
-	 * @throws ValidationException
+	 *            - a model of type T to validate
+	 * @return a valid model
+	 * @throws ModelValdiationException
+	 *             if model invalid
 	 */
-	default T validateWithReturn(T model) throws ValidationException {
-		validate(model);
-		return model; // By default return the given model
-	}
+
+	T validate(T model);
+
 }

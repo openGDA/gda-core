@@ -31,7 +31,6 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.ui.CommandConstants;
@@ -97,7 +96,6 @@ public class ValidatorService implements IValidatorService {
 		@SuppressWarnings("rawtypes")
 		Map<Class<?>, Class<? extends IValidator>> tmp = new HashMap<>();
 		tmp.put(BoundingBox.class,   BoundingBoxValidator.class);
-		tmp.put(CompoundModel.class, CompoundValidator.class);
 		tmp.put(ScanRequest.class,   ScanRequestValidator.class);
 
 		validators = Collections.unmodifiableMap(tmp);

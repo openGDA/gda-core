@@ -469,34 +469,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	}
 
 	@Override
-	public void validate(IMalcolmModel model) throws ValidationException {
-		super.validate(model);
-
-		// validate field: axesToMove
-		if (model.getAxesToMove() != null) {
-			final List<String> axesToMove = Arrays.asList(this.availableAxes.getValue());
-			for (String axisToMove : model.getAxesToMove()) {
-				if (!axesToMove.contains(axisToMove)) {
-					throw new ModelValidationException("Invalid axis name: " + axisToMove, model, "axesToMove");
-				}
-			}
-		}
-
-		// validate file dir if set
-		if (getOutputDir() != null) {
-			final File fileDir = new File(getOutputDir());
-			if (!fileDir.exists()) {
-				throw new ModelValidationException("The output dir for malcolm does not exist: " + getOutputDir(),
-						model, "fileDir");
-			}
-			if (!fileDir.isDirectory()) {
-				throw new ModelValidationException("The output dir for malcolm is not a directory: " + getOutputDir(),
-						model, "fileDir");
-			}
-		}
-	}
-
-	@Override
 	public void configure(IMalcolmModel model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
 
@@ -572,7 +544,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	}
 
 	@Override
-	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
+	public IMalcolmModel validate(IMalcolmModel model) throws ValidationException {
 		// the dummy malcolm device only allows frames per step between 1 and 10
 		for (IMalcolmDetectorModel detModel : model.getDetectorModels()) {
 			int framesPerStep = detModel.getFramesPerStep();
@@ -580,14 +552,38 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 			framesPerStep = Math.min(10, framesPerStep);
 			detModel.setFramesPerStep(framesPerStep);
 
-			// round the exposure time to 2 decimal places. This is just an example for testing the EditMalcolmModel dialog
+			// round the exposure time to 2 decimal places. This is just an example for testing the EditMalcolmModel
+			// dialog
 			double exposureTime = detModel.getExposureTime();
 			BigDecimal bigD = BigDecimal.valueOf(exposureTime).setScale(2, RoundingMode.HALF_UP);
 			exposureTime = bigD.doubleValue();
 			detModel.setExposureTime(exposureTime);
 		}
 
-		return super.validateWithReturn(model);
+		// validate field: axesToMove
+		if (model.getAxesToMove() != null) {
+			final List<String> axesToMove = Arrays.asList(this.availableAxes.getValue());
+			for (String axisToMove : model.getAxesToMove()) {
+				if (!axesToMove.contains(axisToMove)) {
+					throw new ModelValidationException("Invalid axis name: " + axisToMove, model, "axesToMove");
+				}
+			}
+		}
+
+		// validate file dir if set
+		if (getOutputDir() != null) {
+			final File fileDir = new File(getOutputDir());
+			if (!fileDir.exists()) {
+				throw new ModelValidationException("The output dir for malcolm does not exist: " + getOutputDir(),
+						model, "fileDir");
+			}
+			if (!fileDir.isDirectory()) {
+				throw new ModelValidationException("The output dir for malcolm is not a directory: " + getOutputDir(),
+						model, "fileDir");
+			}
+		}
+
+		return super.validate(model);
 	}
 
 	private int getScanRank() {

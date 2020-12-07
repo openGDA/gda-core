@@ -21,9 +21,9 @@ public class TwoAxisLinePointsGenerator extends AbstractLineGenerator<TwoAxisLin
 	}
 
 	@Override
-	public void validate(TwoAxisLinePointsModel model) {
-		super.validate(model);
+	public TwoAxisLinePointsModel validate(TwoAxisLinePointsModel model) {
 		if (model.getPoints() < 1) throw new ModelValidationException("Must have one or more points in model!", model, "points");
+		return super.validate(model);
 	}
 
 	@Override

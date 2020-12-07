@@ -26,9 +26,9 @@ class TwoAxisSpiralGenerator extends AbstractScanPointGenerator<TwoAxisSpiralMod
 	}
 
 	@Override
-	public void validate(TwoAxisSpiralModel model) {
-		super.validate(model);
+	public TwoAxisSpiralModel validate(TwoAxisSpiralModel model) {
 		if (model.getScale() == 0.0) throw new ModelValidationException("Scale must be non-zero!", model, "scale");
+		return super.validate(model);
 	}
 
 	@Override

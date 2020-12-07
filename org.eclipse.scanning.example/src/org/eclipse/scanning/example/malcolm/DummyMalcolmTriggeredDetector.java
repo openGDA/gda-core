@@ -28,7 +28,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PointStart;
@@ -98,14 +97,10 @@ public class DummyMalcolmTriggeredDetector<T extends DummyMalcolmTriggeredModel>
 	}
 
 	@Override
-	public void validate(T model) throws ValidationException {
-		if (model instanceof INameable) {
-			INameable dmodel = model;
-		    if (dmodel.getName()==null || dmodel.getName().length()<1) {
-			throw new ModelValidationException("The name must be set!", model, "name");
-		    }
-		    // don't validate exposure time. The malcolm device determines the exposure time
-		}
+	public T validate(T model) throws ValidationException {
+		if (model.getName()==null || model.getName().isEmpty()) throw new ModelValidationException("The name must be set!", model, "name");
+		// don't validate exposure time. The malcolm device determines the exposure time
+		return model;
 	}
 
 	@ScanStart

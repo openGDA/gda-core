@@ -50,7 +50,7 @@ public class NoModelGenerator extends AbstractScanPointGenerator {
 	}
 
 	@Override
-	public void validate(AbstractPointsModel model) {
+	public AbstractPointsModel validate(AbstractPointsModel model) {
 		throw new ModelValidationException("Generator is not intended for validating models!", model);
 	}
 

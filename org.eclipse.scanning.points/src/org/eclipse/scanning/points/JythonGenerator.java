@@ -52,7 +52,7 @@ public class JythonGenerator extends AbstractScanPointGenerator<JythonGeneratorM
 	}
 
 	@Override
-	public void validate(JythonGeneratorModel model) throws ValidationException {
+	public JythonGeneratorModel validate(JythonGeneratorModel model) throws ValidationException {
 		if (model.getPath() == null)
 			throw new ModelValidationException("No module directory is set!", model, "path");
 		final File file = new File(model.getPath());
@@ -71,6 +71,7 @@ public class JythonGenerator extends AbstractScanPointGenerator<JythonGeneratorM
 			if (!kwargs.containsKey(arg)) throw new ModelValidationException(
 					String.format("Not all mandatory arguments set for JythonGeneratorModel, missing %s", arg), model, "jythonArguments");
 		}
+		return model;
 	}
 
 }

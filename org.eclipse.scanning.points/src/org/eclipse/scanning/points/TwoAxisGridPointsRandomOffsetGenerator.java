@@ -64,10 +64,10 @@ public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerato
 	}
 
 	@Override
-	public void validate(TwoAxisGridPointsRandomOffsetModel model) {
-		super.validate(model);
+	public TwoAxisGridPointsRandomOffsetModel validate(TwoAxisGridPointsRandomOffsetModel model) {
 		if (model.getyAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
 		if (model.getxAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
+		return super.validate(model);
 	}
 
 }

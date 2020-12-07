@@ -32,9 +32,9 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 	}
 
 	@Override
-	public void validate(T model) {
-		super.validate(model);
+	public T validate(T model) {
 		if (model.getBoundingLine() == null) throw new ModelValidationException("Model must have BoundingLine!", model, "boundingLine");
+		return super.validate(model);
 	}
 
 	@Override

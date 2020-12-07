@@ -41,7 +41,8 @@ public class ConcurrentMultiGenerator extends AbstractMultiGenerator<ConcurrentM
 	}
 
 	@Override
-	public void validate(ConcurrentMultiModel model) {
+	public ConcurrentMultiModel validate(ConcurrentMultiModel model) {
+		// Need cachedGenerators to be set, so call super.validate first
 		super.validate(model);
 		final List<String> dimensions = new ArrayList<>();
 		final int size = cachedGenerators.get(0).size();
@@ -56,6 +57,7 @@ public class ConcurrentMultiGenerator extends AbstractMultiGenerator<ConcurrentM
 			}
 		}
 		cachedGenerators = null;
+		return model;
 	}
 
 }

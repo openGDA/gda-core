@@ -29,9 +29,9 @@ class StaticGenerator extends AbstractScanPointGenerator<StaticModel> {
 	}
 
 	@Override
-	public void validate(StaticModel model) {
-		super.validate(model);
+	public StaticModel validate(StaticModel model) {
 		if (model.getSize() < 1) throw new ModelValidationException("Size must be greater than zero!", model, "size");
+		return super.validate(model);
 	}
 
 	@Override

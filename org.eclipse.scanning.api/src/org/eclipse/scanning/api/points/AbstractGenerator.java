@@ -58,9 +58,10 @@ public abstract class AbstractGenerator<T extends IScanPathModel> implements IPo
 	}
 
 	@Override
-	public void validate(T model) throws ModelValidationException {
+	public T validate(T model) throws ModelValidationException {
 		logger.info("{} validating model: {}", getClass().getSimpleName(), model);
 		if (model.getScannableNames() == null || model.getScannableNames().contains(null)) throw new ModelValidationException("The model must have all the names of the scannables it is acting upon!", model, "name");
+		return model;
 	}
 
 	@Override

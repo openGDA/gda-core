@@ -357,7 +357,7 @@ public class ExampleMalcolmDeviceTest {
 		expectedModel = createExpectedMalcolmModel(expectedModel);
 
 		// Call validate on the malcolm device
-		actualModel = malcolmDevice.validateWithReturn(model);
+		actualModel = malcolmDevice.validate(model);
 
 		// check that the returned model has been modified as expected
 		assertThat(actualModel, is(equalTo(expectedModel)));

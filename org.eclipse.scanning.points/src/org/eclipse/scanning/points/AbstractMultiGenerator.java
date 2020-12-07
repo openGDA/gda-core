@@ -61,7 +61,8 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 	}
 
 	@Override
-	public void validate(T model) {
+	public T validate(T model) {
+		// Intensive validation so check super first
 		super.validate(model);
 		cachedGenerators = new ArrayList<>();
 		if (model.getModels() == null || model.getModels().isEmpty())
@@ -85,6 +86,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 		if (model == this.model) {
 			generators = cachedGenerators;
 		}
+		return model;
 	}
 
 	@Override

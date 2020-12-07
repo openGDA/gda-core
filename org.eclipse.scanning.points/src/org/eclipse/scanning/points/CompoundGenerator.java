@@ -102,7 +102,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 	}
 
 	@Override
-	public void validate(CompoundModel model) {
+	public CompoundModel validate(CompoundModel model) {
 		List<String> axes = new ArrayList<>();
 		cachedGenerators = new ArrayList<>();
 		for (IScanPointGeneratorModel imodel : model.getModels()) {
@@ -138,6 +138,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 			}
 		}
 		cachedGenerators = null;
+		return model;
 	}
 
 	@Override

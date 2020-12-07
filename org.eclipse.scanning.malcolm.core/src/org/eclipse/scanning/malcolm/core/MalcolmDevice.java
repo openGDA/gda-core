@@ -491,13 +491,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	@Override
-	public void validate(IMalcolmModel model) throws ValidationException {
+	public IMalcolmModel validate(IMalcolmModel model) throws ValidationException {
 		logger.debug("validate() called");
-		validateWithReturn(model);
-	}
-
-	@Override
-	public IMalcolmModel validateWithReturn(IMalcolmModel model) throws ValidationException {
 		MalcolmMessage reply;
 		try {
 			final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model); // use default point gen and filedir if not set (i.e. we're not in a scan)

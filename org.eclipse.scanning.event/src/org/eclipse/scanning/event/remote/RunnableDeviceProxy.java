@@ -99,21 +99,9 @@ class RunnableDeviceProxy<M> extends AbstractRemoteDeviceProxy<M> implements IRu
 		return info.getSupportedScanModes();
 	}
 
-	@Override
-	public void validate(M model) throws ValidationException {
-		try {
-			DeviceRequest res = requester.post(new DeviceRequest(info.getName(), DeviceAction.VALIDATE, model));
-			res.checkException();
-		} catch (ValidationException ve) {
-			throw ve;
-		} catch (Exception ne) {
-			throw new ValidationException(ne);
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
-	public M validateWithReturn(M model) throws ValidationException {
+	public M validate(M model) throws ValidationException {
 		try {
 			DeviceRequest res = requester.post(new DeviceRequest(info.getName(), DeviceAction.VALIDATEWITHRETURN, model));
 			res.checkException();
