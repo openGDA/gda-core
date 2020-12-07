@@ -127,6 +127,8 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
+import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
+import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
@@ -713,10 +715,6 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 		initializeImageCalibration();
 
 		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
-		forceFocusOnEmpty(numberDark, Integer.toString(getAcquisitionConfiguration().getImageCalibration()
-				.getDarkCalibration().getNumberExposures()));
-		forceFocusOnEmpty(numberFlat, Integer.toString(getAcquisitionConfiguration().getImageCalibration()
-				.getFlatCalibration().getNumberExposures()));
 		updateMultipleScan();
 		updateSavuComponent();
 	}
@@ -762,27 +760,41 @@ public class TomographyConfigurationCompositeFactory implements NamedComposite {
 
 	private void initializeImageCalibration() {
 		ImageCalibration ic = getAcquisitionConfiguration().getImageCalibration();
-		Optional.ofNullable(ic.getDarkCalibration().getNumberExposures())
+		Optional.ofNullable(ic.getDarkCalibration())
+			.ifPresent(this::initializeDarkCalibration);
+
+		Optional.ofNullable(ic.getFlatCalibration())
+			.ifPresent(this::initializeFlatCalibration);
+	}
+
+	private void initializeDarkCalibration(DarkCalibrationDocument darkCalibrationDocument) {
+		Optional.ofNullable(darkCalibrationDocument.getNumberExposures())
 			.ifPresent(exposure -> numberDark.setText(Integer.toString(exposure)));
 
-		Optional.ofNullable(ic.getDarkCalibration().getDetectorDocument())
+		Optional.ofNullable(darkCalibrationDocument.getDetectorDocument())
 			.map(DetectorDocument::getExposure)
 			.ifPresent(exposure -> darkExposure.setText(Double.toString(exposure)));
 
 		// For the moment dark and flat have the same boolean values
-		Optional.ofNullable(ic.getDarkCalibration().isBeforeAcquisition())
+		Optional.ofNullable(darkCalibrationDocument.isBeforeAcquisition())
 			.ifPresent(selected -> beforeAcquisition.setSelection(selected));
 
 		// For the moment dark and flat have the same boolean values
-		Optional.ofNullable(ic.getDarkCalibration().isAfterAcquisition())
-		.ifPresent(selected -> afterAcquisition.setSelection(selected));
+		Optional.ofNullable(darkCalibrationDocument.isAfterAcquisition())
+			.ifPresent(selected -> afterAcquisition.setSelection(selected));
 
-		Optional.ofNullable(ic.getFlatCalibration().getNumberExposures())
+		forceFocusOnEmpty(numberDark, Integer.toString(darkCalibrationDocument.getNumberExposures()));
+	}
+
+	private void initializeFlatCalibration(FlatCalibrationDocument flatCalibrationDocument) {
+		Optional.ofNullable(flatCalibrationDocument.getNumberExposures())
 			.ifPresent(exposure ->	numberFlat.setText(Integer.toString(exposure)));
 
-		Optional.ofNullable(ic.getFlatCalibration().getDetectorDocument())
+		Optional.ofNullable(flatCalibrationDocument.getDetectorDocument())
 			.map(DetectorDocument::getExposure)
 			.ifPresent(exposure -> flatExposure.setText(Double.toString(exposure)));
+
+		forceFocusOnEmpty(numberFlat, Integer.toString(flatCalibrationDocument.getNumberExposures()));
 	}
 
 	private void updateMultipleScan() {
