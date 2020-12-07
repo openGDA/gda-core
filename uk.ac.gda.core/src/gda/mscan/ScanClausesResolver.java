@@ -45,7 +45,7 @@ public class ScanClausesResolver {
 
 	private final int nArgs;
 	private final List<IClauseElementProcessor> processors;
-	private boolean monitorSeen, detectorSeen, readoutSeen;
+	private boolean monitorSeen, detectorSeen, readoutSeen, isStatic;
 	private int index = 0;
 
 	public ScanClausesResolver(List<IClauseElementProcessor> elementProcessors) {
@@ -66,8 +66,8 @@ public class ScanClausesResolver {
 	 * @throws	IllegalArgumentException if an invalid set of {@link IClauseElementProcessor}s is supplied
 	 */
 	public List<List<IClauseElementProcessor>> resolveScanClauses() {
-		if (!(processors.get(0).hasScannable())) {
-			throw new IllegalArgumentException("First term must be a scannable");
+		if (!processors.get(0).isValidFirstElement()) {
+			throw new IllegalArgumentException("First term must be a scannable or the Static Scanpath");
 		}
 
 		final List<List<IClauseElementProcessor>> clauses = new ArrayList<>();
@@ -76,15 +76,20 @@ public class ScanClausesResolver {
 		ReadoutChecker checker = new ReadoutChecker(processors);
 
 		for (index = 0; index < nArgs; index++) {
-			if (index > 1 && clauses.isEmpty()) {
+			if (index > 1 && clauses.isEmpty() && !isStatic) {
 				throw new IllegalArgumentException(
 						"Invalid MScan : your scan command does not start with a valid scan clause");
 			}
 			IClauseElementProcessor thisProcessor = processors.get(index);
 
+			if (thisProcessor.isStatic()) {
+				current = startNewClause(clauses, joiner);
+				isStatic = true;
+			}
+
 			// a potential scan clause boundary, might be the first of a Scannable pair or a ScannableGroup
 			// if it's a mapping scan, also have to cope with one or more Detectors or Monitors at end of line
-			if (thisProcessor.hasScannable() || thisProcessor.hasDetector() || thisProcessor.hasMonitor()) {
+			else if (thisProcessor.hasScannable() || thisProcessor.hasDetector() || thisProcessor.hasMonitor()) {
 				monitorSeen = monitorSeen ? true : thisProcessor.hasMonitor();     // Latch recognition of a Monitor
 				detectorSeen = detectorSeen ? true : thisProcessor.hasDetector();  // Latch recognition of a Detector
 				readoutSeen = readoutSeen ? true : checker.isAPureScannableUsedAsReadout(
@@ -200,7 +205,7 @@ public class ScanClausesResolver {
 	 * 				been detected in the MScan command sequence.
 	 */
 	private boolean afterScanPaths() {
-		return readoutSeen || monitorSeen || detectorSeen;
+		return readoutSeen || monitorSeen || detectorSeen || isStatic;
 	}
 
 	private void logClauseDetection(final StringJoiner joiner) {

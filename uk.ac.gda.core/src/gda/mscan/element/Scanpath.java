@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
@@ -67,7 +68,8 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	LINE_POINTS("nopt", 2, 1, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
 	SINGLE_POINT("poin", 2, 2, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
 	AXIS_STEP("axst", 1, 1, AxialStepModel.class, Factory::createAxialStepModel),
-	AXIS_POINTS("axno", 1, 1, AxialStepModel.class, Factory::createAxialPointsModel);
+	AXIS_POINTS("axno", 1, 1, AxialStepModel.class, Factory::createAxialPointsModel),
+	STATIC("stat", 0, 1, StaticModel.class, Factory::createStaticModel);
 
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
 	private static final String PREFIX = "Invalid Scan clause: ";
@@ -168,7 +170,8 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	 */
 	public IScanPointGeneratorModel createModel(final List<Scannable> scannables, final List<Number> pathParams,
 										final List<Number> bboxParams, final Map<Mutator, List<Number>> mutatorUses) {
-		validateInputs(ImmutableMap.of(scannables, axisCount,
+		if (this == STATIC) validateStatic(scannables, pathParams);
+		else validateInputs(ImmutableMap.of(scannables, axisCount,
 										pathParams, axisCount == 1 ? valueCount + 2 : valueCount,
 										bboxParams, BOUNDS_REQUIRED_PARAMS));
 		mutatorUses.keySet().forEach(mutator -> {
@@ -198,6 +201,20 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 							PREFIX, modelType.getSimpleName(), entry.getValue()));
 			}
 		});
+	}
+
+	private void validateStatic(List<Scannable> empty, List<Number> optionalArg) {
+		if (!empty.isEmpty()) throw new IllegalArgumentException(String.format(
+				"%s%s requires 0 scannables to be specified",
+				PREFIX, modelType.getSimpleName()));
+		if (optionalArg.size() > 1) throw new IllegalArgumentException(String.format(
+				"%s%s requires exactly 0 or 1 arguments to be specified",
+				PREFIX, modelType.getSimpleName()));
+	}
+
+	@Override
+	public String toString() {
+		return this.name().substring(0,1).concat(this.name().substring(1).toLowerCase());
 	}
 
 	/**
@@ -239,6 +256,9 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		/** Constant to reference the available parameter of a {@link TwoAxisLissajousModel} **/
 		private static final int A = 1;
 		private static final int B = 2;
+
+		/** **/
+		private static final int COUNT = 0;
 
 		/**
 		 * Creates a {@link TwoAxisGridPointsModel} using the supplied params. If the RandomOffset {@link Mutator} is
@@ -498,6 +518,16 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
+		}
+
+		private static IScanPointGeneratorModel createStaticModel(final List<Scannable> dimensionless,
+				   final List<Number> scanParameters,
+				   final List<Number> notUsed,
+				   final Map<Mutator, List<Number>> notUsedMap) {
+			final int size = scanParameters.isEmpty() ? 1 : scanParameters.get(COUNT).intValue();
+			checkOneParameterPositiveInteger(size, StaticModel.class.getSimpleName(), COUNT);
+			return new StaticModel(size);
+
 		}
 
 		/**

@@ -69,6 +69,18 @@ public interface IClauseElementProcessor {
 	}
 
 	/*
+	 * Default implementation to indicate whether the processor is associated with a Static Region or Path
+	 */
+
+	public default boolean isStatic() {
+		return false;
+	}
+
+	public default boolean isValidFirstElement() {
+		return hasScannable() || isStatic();
+	}
+
+	/*
 	 * Default implementation to indicate whether the processor is associated with a Numeric value
 	 */
 	public default boolean hasNumber() {

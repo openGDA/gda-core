@@ -20,6 +20,8 @@ package gda.mscan;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
@@ -36,7 +38,10 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,6 +51,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.python.core.PyList;
 import org.python.core.PyTuple;
@@ -107,6 +113,8 @@ public class MScanSubmitterTest {
 	private MScanSubmitter.ResolverFactory resolverFactory;
 	@Captor
 	private ArgumentCaptor<List<IClauseElementProcessor>> captor;
+	@Captor
+	private ArgumentCaptor<ScanBean> beanCaptor;
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
@@ -952,6 +960,121 @@ public class MScanSubmitterTest {
 									  		new ScanpathElementProcessor(Scanpath.GRID_POINTS))));
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("2nd element of unexpected type in Scan Consumer clause");
+		builder.buildAndSubmitBlockingScanRequest(arr);
+	}
+
+
+	@Test
+	public void willAllowStaticScanWithDetectorAndNoScannable() throws Exception{
+		final int size = 5;
+
+		Object[] arr = {Scanpath.STATIC, size, detectorRunnableDevice, 1.7};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC),
+						new NumberElementProcessor(size)),
+				Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice),
+						new NumberElementProcessor(1.7))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(new CompoundModel(new StaticModel(size)))));
+		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
+	}
+
+	@Test
+	public void willAllowStaticScanWithDefaultSize() throws Exception{
+
+		// > 1 exposure time to ensure number not stolen by previous clause
+		Object[] arr = {Scanpath.STATIC, detectorRunnableDevice, 2.7};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC)),
+				Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice),
+						new NumberElementProcessor(1.7))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(new CompoundModel(new StaticModel()))));
+		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
+	}
+
+	@Test
+	public void willAllowStaticScanWithDefaultSizeAndNoDetectorParams() throws Exception{
+
+		Object[] arr = {Scanpath.STATIC, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC)),
+				Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(new CompoundModel(new StaticModel()))));
+		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
+	}
+
+	@Test
+	public void willAllowStaticScanWithOnlyDetector() throws Exception{
+
+		Object[] arr = {detector};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC)),
+						Arrays.asList(new ScannableDetectorElementProcessor(detector))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(new CompoundModel(new StaticModel()))));
+	}
+
+	@Test
+	public void willAllowStaticScanWithOnlyDetectorAndParams() throws Exception{
+
+		Object[] arr = {Scanpath.STATIC, detectorRunnableDevice, 2.5};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC)),
+				Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice),
+						new NumberElementProcessor(2.5))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(new CompoundModel(new StaticModel()))));
+		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
+	}
+
+	@Test
+	public void willNotAllowStaticScanWithoutDetectors() throws Exception{
+
+		// No Size, so default size=1
+		Object[] arr = {Scanpath.STATIC};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(new CompoundModel(new StaticModel()))));
+
+	}
+
+	@Test
+	public void willFailOnStaticWithScannableFirst() throws Exception {
+		Object[] arr = {scannable, Scanpath.STATIC, 3};
+		when (resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+						new ScanpathElementProcessor(Scanpath.STATIC),
+						new NumberElementProcessor(3))));
+		exception.expect(UnsupportedOperationException.class);
+		exception.expectMessage("Out of sequence call");
+		builder.buildAndSubmitBlockingScanRequest(arr);
+	}
+
+	@Test
+	public void willFailOnStaticWithScannableAfter() throws Exception {
+		// scannable is not a detector or monitor, should not be allowed
+		Object[] arr = {Scanpath.STATIC, 3, scannable};
+		when (resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC),
+						new NumberElementProcessor(3),
+						new ScannableElementProcessor(scannable))));
+		exception.expect(UnsupportedOperationException.class);
+		exception.expectMessage("Out of sequence call");
 		builder.buildAndSubmitBlockingScanRequest(arr);
 	}
 }

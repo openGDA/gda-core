@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import gda.device.Scannable;
 import gda.mscan.ClausesContext;
 import gda.mscan.element.Scanpath;
 
@@ -60,15 +59,6 @@ public class ScanpathElementProcessorTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void processLookUpTrapsScanpathAtElementZero() throws Exception {
 		processor.process(context, emptyList, 0);
-	}
-
-	/**
-	 * Scannable cannot be followed by Roi
-	 */
-	@Test(expected = UnsupportedOperationException.class)
-	public void processLookUpTrapsIncorrectGrammar() throws Exception {
-		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, emptyList, 1);
 	}
 
 	@Test

@@ -46,7 +46,8 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 	POLYGON("poly", 2, 6, false, PolygonalROI.class, Factory::createPolygonalROI),
 	LINE("line", 2, 4, true, LinearROI.class, Factory::createLinearROI),
 	POINT("poin", 2, 2, true, PointROI.class, Factory::createPointROI),
-	AXIAL("axis", 1, 2, true, LinearROI.class, Factory::createLinearROI);
+	AXIAL("axis", 1, 2, true, LinearROI.class, Factory::createLinearROI),
+	STATIC("stat", 0, 0, true, null, Factory::createNullROI);
 
 	private static final String PREFIX = "Invalid Scan clause: ";
 
@@ -153,8 +154,13 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 			}
 			throw new IllegalArgumentException(String.format(
 					"%s%s requires %s%s numeric values to be specified",
-						PREFIX, roiType.getSimpleName(), qualifier, valueCount));
+						PREFIX, roiType == null ? "Null" : roiType.getSimpleName(), qualifier, valueCount));
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return this.name().substring(0,1).concat(this.name().substring(1).toLowerCase());
 	}
 
 	/**
@@ -283,5 +289,17 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 		private static IROI createPointROI(final List<Number> params) {
 			return new PointROI(params.get(0).doubleValue(), params.get(1).doubleValue());
 		}
+
+		/**
+		 * Create a null IROI, ignoring the supplied params, for consistency with non-Static RegionShapes...
+		 * @param unused
+		 * @return {@code null}
+		 */
+
+		private static IROI createNullROI(final List<Number> unused) {
+			if (unused != null && !unused.isEmpty()) throw new IllegalArgumentException(PREFIX + "Null from Static Region must have no arguments");
+			return null;
+		}
+		
 	}
 }

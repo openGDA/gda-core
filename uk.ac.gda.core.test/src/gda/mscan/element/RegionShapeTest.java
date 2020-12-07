@@ -25,6 +25,7 @@ import static gda.mscan.element.RegionShape.LINE;
 import static gda.mscan.element.RegionShape.POINT;
 import static gda.mscan.element.RegionShape.POLYGON;
 import static gda.mscan.element.RegionShape.RECTANGLE;
+import static gda.mscan.element.RegionShape.STATIC;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -66,6 +67,7 @@ public class RegionShapeTest {
 		correctLengthRegionShapeData.put(LINE, Arrays.asList(5.0, 6.0, 7.0, 8.0));
 		correctLengthRegionShapeData.put(POINT, Arrays.asList(5.0, 6.0));
 		correctLengthRegionShapeData.put(AXIAL, Arrays.asList(5.0, 6.0));
+		correctLengthRegionShapeData.put(STATIC, Arrays.asList(1));
 	}
 
 	@Test
@@ -77,6 +79,7 @@ public class RegionShapeTest {
 		assertThat(LINE.valueCount(), is(4));
 		assertThat(POINT.valueCount(), is(2));
 		assertThat(AXIAL.valueCount(), is(2));
+		assertThat(STATIC.valueCount(), is(0));
 	}
 
 	@Test
@@ -88,6 +91,7 @@ public class RegionShapeTest {
 		assertTrue(LINE.roiType().equals(LinearROI.class));
 		assertTrue(POINT.roiType().equals(PointROI.class));
 		assertTrue(AXIAL.roiType().equals(LinearROI.class));
+		assertTrue(STATIC.roiType() == null);
 	}
 
 	@Test
@@ -100,13 +104,14 @@ public class RegionShapeTest {
 		tooMany.put(LINE, new Double[] {1.0, 2.0, 3.0, 4.0, 5.0});
 		tooMany.put(POINT, new Double[] {1.0, 2.0, 3.0});
 		tooMany.put(AXIAL, new Double[] {1.0, 2.0, 3.0});
+		tooMany.put(STATIC,  new Double[] {1.0, 5.0}); // Can have 0 or 1
 
 		List<RegionShape> rejected = assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany);
-		assertThat(rejected, contains(RECTANGLE, CENTRED_RECTANGLE, CIRCLE, LINE, POINT, AXIAL));
+		assertThat(rejected, contains(RECTANGLE, CENTRED_RECTANGLE, CIRCLE, LINE, POINT, AXIAL, STATIC));
 	}
 
 	@Test
-	public void RegionShapeRejectsTooFewParamsForAllInstances() throws Exception {
+	public void regionShapeRejectsTooFewParamsForAllInstancesExceptStatic() throws Exception {
 		Map<RegionShape, Double[]> tooFew = new EnumMap<>(RegionShape.class);
 		tooFew.put(RECTANGLE, new Double[] {1.0, 2.0, 3.0});
 		tooFew.put(CENTRED_RECTANGLE, new Double[] {1.0, 2.0, 3.0});
@@ -124,6 +129,7 @@ public class RegionShapeTest {
 		ArrayList<RegionShape> rejected = new ArrayList<>();
 		for (RegionShape shape: RegionShape.values()) {
 			try {
+				if (shape == RegionShape.STATIC && params.get(shape) == null) continue;
 				shape.createIROI(Arrays.asList(params.get(shape)));
 				if (shape.hasFixedValueCount() || params.get(shape).length < shape.valueCount()) {
 					fail("ROI created from path " + shape + " when it shouldn't be possible");
