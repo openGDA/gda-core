@@ -25,6 +25,12 @@ import uk.ac.diamond.daq.beamcondition.BeamCondition;
  * A {@link ComponentHealthCondition} based on the position of a {@link Scannable}
  */
 public abstract class ScannableHealthCondition extends ComponentHealthConditionBase {
+
+	@Override
+	protected String getDefaultErrorMessage() {
+		return String.format("%s is not in a valid position", getDescription());
+	}
+
 	/**
 	 * Return the health state for the wrapped scannable, based on the state of the scannable and whether it is critical
 	 * for the functioning of the beamline.

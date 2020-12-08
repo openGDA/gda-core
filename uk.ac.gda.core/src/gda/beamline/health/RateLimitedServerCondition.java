@@ -38,6 +38,7 @@ public abstract class RateLimitedServerCondition extends ServerCondition {
 
 	@Override
 	public void configure() throws FactoryException {
+		super.configure();
 		rateLimiter = RateLimiter.create(1.0 / minCheckTime);
 		setConfigured(true);
 	}

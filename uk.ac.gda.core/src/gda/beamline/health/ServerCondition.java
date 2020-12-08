@@ -24,6 +24,11 @@ package gda.beamline.health;
 public abstract class ServerCondition extends ComponentHealthConditionBase {
 
 	@Override
+	protected String getDefaultErrorMessage() {
+		return String.format("%s is not available", getDescription());
+	}
+
+	@Override
 	public String getCurrentState() {
 		return isRunning() ? "Running" : "Not running";
 	}

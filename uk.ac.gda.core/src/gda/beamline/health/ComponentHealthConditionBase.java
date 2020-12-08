@@ -18,6 +18,7 @@
 
 package gda.beamline.health;
 
+import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 
 public abstract class ComponentHealthConditionBase extends FindableConfigurableBase implements ComponentHealthCondition {
@@ -29,7 +30,19 @@ public abstract class ComponentHealthConditionBase extends FindableConfigurableB
 	private boolean critical;
 
 	/** A message that can be displayed to the user is the corresponding condition is not met */
-	private String errorMessage = "Condition not satisfied";
+	private String errorMessage;
+
+	@Override
+	public void configure() throws FactoryException {
+		if (errorMessage == null || errorMessage.isEmpty()) {
+			errorMessage = getDefaultErrorMessage();
+		}
+		setConfigured(true);
+	}
+
+	protected String getDefaultErrorMessage() {
+		return String.format("%s is in an invalid state", getDescription());
+	}
 
 	@Override
 	public String getDescription() {
