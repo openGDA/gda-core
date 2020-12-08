@@ -12,6 +12,9 @@
 package org.eclipse.scanning.example.file;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
 
@@ -22,7 +25,12 @@ public class MockFilePathService implements IFilePathService {
 	private final File dir;
 	private String mostRecentPath;
 	public MockFilePathService() {
-		dir = new File(System.getProperty("java.io.tmpdir"));
+		try {
+			dir = Files.createTempDirectory(this.getClass().getSimpleName()).toFile();
+			dir.deleteOnExit();
+		} catch (IOException e) {
+			throw new UncheckedIOException("Could not create temporary directory", e);
+		}
 	}
 
 	@Override
