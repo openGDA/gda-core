@@ -39,6 +39,8 @@ import javax.annotation.PreDestroy;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -90,13 +92,20 @@ public class ServerStatusView {
 	public void createView(Composite parent) {
 		logger.debug("Creating server status view");
 
-		GridLayoutFactory.fillDefaults().applyTo(parent);
-		GridDataFactory.fillDefaults().applyTo(parent);
+		parent.setLayout(new FillLayout());
 		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
+		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setLayout(new FillLayout());
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+
+		final Composite content = new Composite(scrolledComposite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(content);
+
 		// Show the time the status was last updated
-		final Composite lastUpdateComposite = new Composite(parent, SWT.NONE);
+		final Composite lastUpdateComposite = new Composite(content, SWT.NONE);
 		GridDataFactory.fillDefaults().applyTo(lastUpdateComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(lastUpdateComposite);
 
@@ -108,7 +117,7 @@ public class ServerStatusView {
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(lastUpdateTime);
 
 		// Show status of beamline
-		final Composite statusComposite = new Composite(parent, SWT.NONE);
+		final Composite statusComposite = new Composite(content, SWT.NONE);
 		GridDataFactory.fillDefaults().applyTo(statusComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(statusComposite);
 
@@ -120,13 +129,16 @@ public class ServerStatusView {
 
 		// Show status of each configured component
 		try {
-			createComponentIndicators(parent);
+			createComponentIndicators(content);
 		} catch (Exception e) {
 			final String message = "Error getting server status";
 			lastUpdateTime.setText(message);
 			logger.error(message, e);
 			return;
 		}
+
+		scrolledComposite.setContent(content);
+		scrolledComposite.setMinSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		// Start polling for server status
 		pollingFuture = Async.scheduleWithFixedDelay(this::showServerStatus, 0, POLLING_INTERVAL_SEC, TimeUnit.SECONDS, "Server status");
