@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -64,6 +66,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -91,6 +94,7 @@ public abstract class NexusTest {
 	protected static IScanService            runnableDeviceService;
 	protected static IPointGeneratorService  pointGenService;
 	protected static INexusFileFactory       fileFactory;
+	protected static IFilePathService        filePathService;
 
 
 	@BeforeClass
@@ -102,6 +106,7 @@ public abstract class NexusTest {
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 		fileFactory = ServiceTestHelper.getNexusFileFactory();
 		connector = ServiceTestHelper.getScannableDeviceService();
+		filePathService = ServiceTestHelper.getFilePathService();
 
 	    ScanningTestUtils.clearTmp();
 	}
@@ -111,7 +116,7 @@ public abstract class NexusTest {
 
 	@Before
 	public void createFile() throws IOException {
-		output = File.createTempFile("test_nexus", ".nxs");
+		output = Files.createTempFile(Paths.get(filePathService.getVisitDir()), "test_nexus", ".nxs").toFile();
 		output.deleteOnExit();
 	}
 

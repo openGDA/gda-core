@@ -65,6 +65,7 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
+import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -496,6 +497,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcol
 	}
 
 	@Override
+	@ScanFinally
 	public void scanFinally() throws ScanningException {
 		super.scanFinally();
 		// close all the nexus file
