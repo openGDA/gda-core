@@ -101,6 +101,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 			Supplier<ScanningAcquisition> acquisitionSupplier) {
 		this.acquisitionSupplier = acquisitionSupplier;
 		this.acquisitionType = acquisitionType;
+		applyAcquisitionPropertiesDocument();
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
 	}
 
@@ -126,7 +127,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 	 * Used by the parent {@code ScanningAcquisitionController} to set in a new {@code ScanningAcquisition},
 	 * {@code AcquisitionEngineDocument} and {@code DetectorDocument}
 	 */
-	void applyAcquisitionPropertiesDocument() {
+	private void applyAcquisitionPropertiesDocument() {
 		AcquisitionEngineDocument aed = createNewAcquisitionEngineDocument();
 		getAcquisition().setAcquisitionEngine(aed);
 
