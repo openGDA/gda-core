@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.dry;
+package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.AbstractLockingPausableProcess;
@@ -17,6 +17,9 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 
+/**
+ * a process that simulates a scan from the point of view of a job queue.
+ */
 public class DryRunProcess<T extends StatusBean> extends AbstractLockingPausableProcess<T> {
 
 

@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.api.event.dry;
+package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IProcessCreator;

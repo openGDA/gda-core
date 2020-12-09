@@ -32,7 +32,6 @@ import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.core.ISubscriber;
-import org.eclipse.scanning.api.event.dry.DryRunProcessCreator;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.Status;

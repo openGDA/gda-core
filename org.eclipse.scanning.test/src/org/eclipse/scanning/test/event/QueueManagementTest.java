@@ -43,7 +43,6 @@ import org.eclipse.scanning.api.event.core.IBeanProcess;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.core.IProcessCreator;
 import org.eclipse.scanning.api.event.core.IPublisher;
-import org.eclipse.scanning.api.event.dry.DryRunProcess;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
