@@ -19,6 +19,7 @@
 package org.eclipse.scanning.points;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.scanning.api.points.IPosition;
 
@@ -65,5 +66,7 @@ public interface PPointGenerator extends Iterable<IPosition>, PySerializable {
 	 * Python Generator. Used for ConsecutiveMultiModels
 	 */
 	public IPosition getInitialBounds();
+
+	public List<Set<String>> getDimensionNames();
 
 }

@@ -44,7 +44,6 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
@@ -211,8 +210,7 @@ public class NexusScanFileManager {
 		nexusScanModel.setMultipleNexusDevice(multiNexusDevice);
 		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().map(this::getAbsoluteFilePath).collect(toSet()));
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
-		final AbstractPosition firstPosition = (AbstractPosition) scanModel.getPointGenerator().getFirstPoint();
-		nexusScanModel.setDimensionNamesByIndex(firstPosition.getDimensionNames());
+		nexusScanModel.setDimensionNamesByIndex(scanModel.getPointGenerator().getDimensionNames());
 		nexusScanModel.setNexusMetadataProviders(createScanMetadataProviders(scanModel));
 
 		return nexusScanModel;

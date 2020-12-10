@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -29,7 +30,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -52,8 +52,6 @@ import org.junit.runners.Parameterized.Parameters;
  */
 @RunWith(value=Parameterized.class)
 public class ScanRankTest {
-
-	private static final int NUM_POINTS_TO_CHECK = 100;
 
 	private IPointGeneratorService service;
 
@@ -149,30 +147,33 @@ public class ScanRankTest {
 		final int expectedSize = innerSize * (int) Math.pow(11, nestCount);
 		final int expectedScanRank = nestCount + innerShape.length;
 		final int[] expectedShape = getExpectedShape(innerShape);
-	
+		final List<Set<String>> dimensionNames = gen.getDimensionNames();
+		final AbstractPosition firstPos = (AbstractPosition) gen.getFirstPoint();
+
 		assertThat(gen.size(), is(expectedSize));
 		assertThat(gen.getRank(), is(expectedScanRank));
 		assertThat(gen.getShape(), is(equalTo(expectedShape)));
-	
-		int count = 0;
-		for (IPosition pos : gen) {
-			assertThat("Unexpected scan rank for pos " + pos, pos.getScanRank(), is(expectedScanRank));
-			for (int i = 0; i < nestCount; i++) {
-				final Set<String> names = ((AbstractPosition) pos).getDimensionNames(i);
-				assertThat(names, contains("T" + (nestCount - 1 - i)));
-			}
-			if (nestCount > 0) {
-				if (innerShape.length == 1) {
-					assertThat(((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1), contains("x", "y"));
-				} else {
-					assertThat(((AbstractPosition) pos).getDimensionNames(expectedScanRank - 1), contains("x"));
-					assertThat(((AbstractPosition) pos).getDimensionNames(expectedScanRank - 2), contains("y"));
-				}
-			}
-	
-			count++;
-			if (count > NUM_POINTS_TO_CHECK) break; // we only check the first 100 points
+
+		assertThat(firstPos.getDimensionNames(), is(equalTo(dimensionNames)));
+
+		assertThat("Unexpected scan rank for pos " + firstPos, firstPos.getScanRank(), is(expectedScanRank));
+		for (int i = 0; i < nestCount; i++) {
+			final String expectedDimensionName = "T" + (nestCount - 1 - i);
+			assertThat(firstPos.getDimensionNames(i), contains(expectedDimensionName));
+			assertThat(dimensionNames.get(i), contains(expectedDimensionName));
 		}
+		if (nestCount > 0) {
+			if (innerShape.length == 1) {
+				assertThat(firstPos.getDimensionNames(expectedScanRank - 1), contains("x", "y"));
+				assertThat(dimensionNames.get(expectedScanRank - 1), contains("x", "y"));
+			} else {
+				assertThat(firstPos.getDimensionNames(expectedScanRank - 1), contains("x"));
+				assertThat(firstPos.getDimensionNames(expectedScanRank - 2), contains("y"));
+				assertThat(dimensionNames.get(expectedScanRank - 1), contains("x"));
+				assertThat(dimensionNames.get(expectedScanRank - 2), contains("y"));
+			}
+		}
+
 	}
 
 	private IPointGenerator<CompoundModel> createGridGenerator(int nestCount, IROI region) throws Exception {
