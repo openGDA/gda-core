@@ -19,13 +19,15 @@
 package gda.beamline.health;
 
 /**
- * Used to indicate the overall health state of the beamline and the scannables that are configured as relevant to the
- * the beamline's statue.<br>
+ * Used to indicate the overall health state of the beamline and the components that are configured as relevant to the
+ * the beamline's status.<br>
  * <ul>
  * <li>ERROR indicates that the beamline is not in a usable state</li>
  * <li>WARNING indicates that the beamline is usable, but some scannables may not be in their ideal state</li>
+ * <li>NOT_CHECKED is only applicable to individual components and indicates that the condition for that component is
+ * disabled and therefore the component's state has not been checked.</li>
  * <ul>
  */
 public enum BeamlineHealthState {
-	ERROR, WARNING, OK;
+	ERROR, WARNING, NOT_CHECKED, OK;
 }

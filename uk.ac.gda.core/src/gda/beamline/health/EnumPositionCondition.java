@@ -32,7 +32,7 @@ public class EnumPositionCondition extends ScannableHealthCondition {
 	private EnumPositionCheck condition;
 
 	@Override
-	public String getCurrentState() {
+	public String readCurrentState() {
 		final EnumPositioner positioner = condition.getPositioner();
 		try {
 			return positioner.getPosition().toString();

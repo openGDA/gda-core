@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
  */
 public class ThreeStateDisplay {
 
-	private static final String ICONS_DIR = "/icons/status/";
+	protected static final String ICONS_DIR = "/icons/status/";
 
 	private static final Image ICON_GREEN = new Image(Display.getDefault(), ThreeStateDisplay.class.getResourceAsStream(ICONS_DIR + "green.png"));
 	private static final Image ICON_YELLOW = new Image(Display.getDefault(), ThreeStateDisplay.class.getResourceAsStream(ICONS_DIR + "yellow.png"));
@@ -87,7 +87,7 @@ public class ThreeStateDisplay {
 	 * Display green icon and specified message
 	 */
 	public void setGreen(String message) {
-		icon.setImage(ICON_GREEN);
+		setImage(ICON_GREEN);
 		setMessage(message);
 	}
 
@@ -102,7 +102,7 @@ public class ThreeStateDisplay {
 	 * Display yellow icon and specified message
 	 */
 	public void setYellow(String message) {
-		icon.setImage(ICON_YELLOW);
+		setImage(ICON_YELLOW);
 		setMessage(message);
 	}
 
@@ -117,7 +117,7 @@ public class ThreeStateDisplay {
 	 * Display red icon and specified message
 	 */
 	public void setRed(String message) {
-		icon.setImage(ICON_RED);
+		setImage(ICON_RED);
 		setMessage(message);
 	}
 
@@ -135,12 +135,16 @@ public class ThreeStateDisplay {
 		text.setToolTipText(message);
 	}
 
-	private void setMessage(String message) {
+	protected void setMessage(String message) {
 		// there may be a use case for this to be made API
 		// to e.g. stay in one state but change the message
 		// but the widgets would need to dynamically resize
 		if (message == null) return;
 		text.setText(message);
+	}
+
+	protected void setImage(Image image) {
+		icon.setImage(image);
 	}
 
 	private void calculateMinimumSize() {

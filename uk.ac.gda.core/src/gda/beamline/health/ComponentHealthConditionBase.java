@@ -29,6 +29,9 @@ public abstract class ComponentHealthConditionBase extends FindableConfigurableB
 	/** Indicates whether this is critical for the overall health of the beamline */
 	private boolean critical;
 
+	/** Indicates whether the condition is enabled. */
+	boolean enabled = true;
+
 	/** A message that can be displayed to the user is the corresponding condition is not met */
 	private String errorMessage;
 
@@ -43,6 +46,26 @@ public abstract class ComponentHealthConditionBase extends FindableConfigurableB
 	protected String getDefaultErrorMessage() {
 		return String.format("%s is in an invalid state", getDescription());
 	}
+
+	@Override
+	public String getCurrentState() {
+		if (enabled) {
+			return readCurrentState();
+		}
+		return "not checked";
+	}
+
+	protected abstract String readCurrentState();
+
+	@Override
+	public BeamlineHealthState getHealthState() {
+		if (enabled) {
+			return calculateHealthState();
+		}
+		return BeamlineHealthState.NOT_CHECKED;
+	}
+
+	protected abstract BeamlineHealthState calculateHealthState();
 
 	@Override
 	public String getDescription() {
@@ -75,8 +98,18 @@ public abstract class ComponentHealthConditionBase extends FindableConfigurableB
 	}
 
 	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	@Override
 	public String toString() {
-		return "ComponentHealthConditionBase [description=" + description + ", critical=" + critical + ", errorMessage="
-				+ errorMessage + "]";
+		return "ComponentHealthConditionBase [description=" + description + ", critical=" + critical + ", enabled="
+				+ enabled + ", errorMessage=" + errorMessage + "]";
 	}
 }

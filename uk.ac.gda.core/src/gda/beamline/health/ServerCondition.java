@@ -29,12 +29,12 @@ public abstract class ServerCondition extends ComponentHealthConditionBase {
 	}
 
 	@Override
-	public String getCurrentState() {
+	public String readCurrentState() {
 		return isRunning() ? "Running" : "Not running";
 	}
 
 	@Override
-	public BeamlineHealthState getHealthState() {
+	public BeamlineHealthState calculateHealthState() {
 		if (isRunning()) {
 			return BeamlineHealthState.OK;
 		} else if (isCritical()) {

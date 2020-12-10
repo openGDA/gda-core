@@ -38,7 +38,7 @@ public class ScannableThresholdCondition extends ScannableHealthCondition {
 	private ScannableThresholdCheck condition;
 
 	@Override
-	public String getCurrentState() {
+	public String readCurrentState() {
 		final Scannable scannable = condition.getScannable();
 		try {
 			return scannable.getPosition().toString();

@@ -50,4 +50,9 @@ public interface ComponentHealthCondition {
 	boolean isCritical();
 
 	void setCritical(boolean critical);
+
+	/** Indicates whether the condition is enabled. */
+	boolean isEnabled();
+
+	void setEnabled(boolean enabled);
 }

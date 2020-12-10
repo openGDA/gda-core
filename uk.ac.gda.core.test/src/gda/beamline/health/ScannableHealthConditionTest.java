@@ -73,7 +73,7 @@ public class ScannableHealthConditionTest {
 		}
 
 		@Override
-		public String getCurrentState() {
+		public String readCurrentState() {
 			return null;
 		}
 

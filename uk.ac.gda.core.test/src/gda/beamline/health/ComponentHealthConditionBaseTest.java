@@ -50,6 +50,14 @@ public class ComponentHealthConditionBaseTest {
 		assertEquals(errorMessage, componentCondition.getErrorMessage());
 	}
 
+	@Test
+	public void testStateCalculationsWhenDisabled() throws FactoryException {
+		componentCondition.setEnabled(false);
+		componentCondition.configure();
+		assertEquals("not checked", componentCondition.getCurrentState());
+		assertEquals(BeamlineHealthState.NOT_CHECKED, componentCondition.getHealthState());
+	}
+
 	private static class ComponentCondition extends ComponentHealthConditionBase {
 
 		public ComponentCondition() {
@@ -57,12 +65,12 @@ public class ComponentHealthConditionBaseTest {
 		}
 
 		@Override
-		public String getCurrentState() {
+		public String readCurrentState() {
 			return null;
 		}
 
 		@Override
-		public BeamlineHealthState getHealthState() {
+		public BeamlineHealthState calculateHealthState() {
 			return null;
 		}
 	}

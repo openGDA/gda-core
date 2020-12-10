@@ -38,7 +38,7 @@ public abstract class ScannableHealthCondition extends ComponentHealthConditionB
 	 * @return health state of the scannable
 	 */
 	@Override
-	public BeamlineHealthState getHealthState() {
+	public BeamlineHealthState calculateHealthState() {
 		if (getCondition().beamOn()) {
 			return BeamlineHealthState.OK;
 		} else if (isCritical()) {

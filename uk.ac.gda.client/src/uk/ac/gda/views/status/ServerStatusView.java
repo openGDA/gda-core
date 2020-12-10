@@ -56,7 +56,7 @@ import gda.beamline.health.BeamlineHealthState;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.concurrent.Async.ListeningScheduledFuture;
-import uk.ac.gda.client.viewer.ThreeStateDisplay;
+import uk.ac.gda.client.viewer.FourStateDisplay;
 
 /**
  * Show the current status of the GDA server
@@ -79,7 +79,7 @@ public class ServerStatusView {
 	private Label lastUpdateTime;
 
 	/** Overall beamline state */
-	private ThreeStateDisplay beamlineStatusDisplay;
+	private FourStateDisplay beamlineStatusDisplay;
 
 	/** Managers for each configured component */
 	private Map<String, ComponentIndicatorManager> componentIndicatorManagers;
@@ -125,7 +125,7 @@ public class ServerStatusView {
 		GridDataFactory.swtDefaults().applyTo(beamlineStatusLabel);
 		beamlineStatusLabel.setText("Beamline:");
 
-		beamlineStatusDisplay = new ThreeStateDisplay(statusComposite, null, null, null);
+		beamlineStatusDisplay = new FourStateDisplay(statusComposite, null, null, null, "condition disabled");
 
 		// Show status of each configured component
 		try {
@@ -158,8 +158,8 @@ public class ServerStatusView {
 		for (BeamlineHealthComponentResult componentResult : componentResults) {
 			final String componentName = componentResult.getComponentName();
 			createLabel(indicatorsComposite, SWT.DEFAULT, componentName);
-			final Label positionLabel = createLabel(indicatorsComposite, 75, componentResult.getCurrentState());
-			final ThreeStateDisplay statusIndicator = new ThreeStateDisplay(indicatorsComposite, "", "", "");
+			final Label positionLabel = createLabel(indicatorsComposite, 100, componentResult.getCurrentState());
+			final FourStateDisplay statusIndicator = new FourStateDisplay(indicatorsComposite, "", "", "", "");
 			componentIndicatorManagers.put(componentName, new ComponentIndicatorManager(positionLabel, statusIndicator));
 		}
 	}
@@ -243,9 +243,9 @@ public class ServerStatusView {
 	 */
 	private static class ComponentIndicatorManager {
 		private final Label positionLabel;
-		private final ThreeStateDisplay statusIndicator;
+		private final FourStateDisplay statusIndicator;
 
-		public ComponentIndicatorManager(Label positionLabel, ThreeStateDisplay statusIndicator) {
+		public ComponentIndicatorManager(Label positionLabel, FourStateDisplay statusIndicator) {
 			this.positionLabel = positionLabel;
 			this.statusIndicator = statusIndicator;
 		}
@@ -256,8 +256,10 @@ public class ServerStatusView {
 				statusIndicator.setGreen();
 			} else if (healthState == BeamlineHealthState.WARNING) {
 				statusIndicator.setYellow(componentResult.getErrorMessage());
-			} else {
+			} else if (healthState == BeamlineHealthState.ERROR) {
 				statusIndicator.setRed(componentResult.getErrorMessage());
+			} else {
+				statusIndicator.setGrey();
 			}
 			positionLabel.setText(componentResult.getCurrentState());
 		}

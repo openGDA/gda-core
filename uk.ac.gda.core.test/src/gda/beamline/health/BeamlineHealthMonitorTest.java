@@ -109,4 +109,15 @@ public class BeamlineHealthMonitorTest {
 		assertEquals(BeamlineHealthState.ERROR, beamlineResult.getBeamlineHealthState());
 		assertEquals(ERROR_MESSAGES[0], beamlineResult.getMessage());
 	}
+
+	@Test
+	public void testDisabledConditions() {
+		// Disabled conditions should not affect the overall beamline health
+		when(condition2.getCurrentState()).thenReturn("not checked");
+		when(condition2.getHealthState()).thenReturn(BeamlineHealthState.NOT_CHECKED);
+		assertEquals(BeamlineHealthState.OK, monitor.getState().getBeamlineHealthState());
+
+		when(condition3.getHealthState()).thenReturn(BeamlineHealthState.ERROR);
+		assertEquals(BeamlineHealthState.ERROR, monitor.getState().getBeamlineHealthState());
+	}
 }
