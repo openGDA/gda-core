@@ -18,8 +18,6 @@
 
 package gda.jython.server.shell;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.jline.reader.Parser.ParseContext.ACCEPT_LINE;
 import static org.jline.reader.Parser.ParseContext.COMPLETE;
 import static org.junit.Assert.assertEquals;
@@ -30,7 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
@@ -54,7 +52,7 @@ public class JythonShellParserTest {
 	@Rule
 	public MockitoRule rule = MockitoJUnit.rule();
 
-	@Mock private Function<String, String> translate;
+	@Mock private UnaryOperator<String> translate;
 	@Mock MockedStatic<Py> pyMock;
 
 	private JythonShellParser parser;
