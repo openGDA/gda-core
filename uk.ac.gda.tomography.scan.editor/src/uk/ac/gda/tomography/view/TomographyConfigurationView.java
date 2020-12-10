@@ -21,9 +21,7 @@ package uk.ac.gda.tomography.view;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +40,6 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
@@ -86,7 +83,7 @@ public class TomographyConfigurationView extends ViewPart {
 	public static final String ID = "uk.ac.gda.tomography.view.TomographyConfigurationView";
 	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationView.class);
 
-	private AcquisitionController<ScanningAcquisition> controller;
+	private AcquisitionController<ScanningAcquisition> acquisitionController;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -96,9 +93,8 @@ public class TomographyConfigurationView extends ViewPart {
 		createClientGridDataFactory().applyTo(container);
 		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 
-		controller = getPerspectiveController();
-		getController().setDefaultNewAcquisitionSupplier(newScanningAcquisition());
-		controller.createNewAcquisition();
+		getAcquisitionController().setDefaultNewAcquisitionSupplier(newScanningAcquisition());
+		getAcquisitionController().createNewAcquisition();
 
 		AcquisitionCompositeFactoryBuilder builder = new AcquisitionCompositeFactoryBuilder();
 		builder.addTopArea(getTopArea());
@@ -115,11 +111,6 @@ public class TomographyConfigurationView extends ViewPart {
 		// Do not necessary
 	}
 
-	private ScanningAcquisitionController getPerspectiveController() {
-		return (ScanningAcquisitionController) getBean("scanningAcquisitionController",
-				AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
-	}
-
 	private StageController getStageController() {
 		return getBean(StageController.class);
 	}
@@ -127,14 +118,14 @@ public class TomographyConfigurationView extends ViewPart {
 	private CompositeFactory getTopArea() {
 		// Theses are the on-demand composites for the specific acquisition configurations
 		List<NamedComposite> configurations = new ArrayList<>();
-		configurations.add(new TomographyConfigurationCompositeFactory(getController(), getStageController()));
+		configurations.add(new TomographyConfigurationCompositeFactory(getAcquisitionController(), getStageController()));
 		configurations.add(new RadiographyConfigurationCompositeFactory());
 
 		return new SelectableContainedCompositeFactory(configurations, ClientMessages.ACQUISITIONS);
 	}
 
 	private CompositeFactory getBottomArea() {
-		return new AcquisitionsBrowserCompositeFactory<>(new TomoBrowser(getController()));
+		return new AcquisitionsBrowserCompositeFactory<>(new TomoBrowser(getAcquisitionController()));
 	}
 
 	private SelectionListener getNewConfigurationListener() {
@@ -144,7 +135,7 @@ public class TomographyConfigurationView extends ViewPart {
 			public void widgetSelected(SelectionEvent e) {
 				boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
 				if (confirmed) {
-					controller.createNewAcquisition();
+					acquisitionController.createNewAcquisition();
 				}
 			}
 
@@ -161,7 +152,7 @@ public class TomographyConfigurationView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				try {
-					controller.saveAcquisitionConfiguration();
+					acquisitionController.saveAcquisitionConfiguration();
 				} catch (AcquisitionControllerException e) {
 					UIHelper.showError("Cannot save the file", e);
 					logger.error("Cannot save the file", e);
@@ -180,26 +171,8 @@ public class TomographyConfigurationView extends ViewPart {
 
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				Optional.ofNullable(getOutputPath()).ifPresent(this::runAcquisition);
-			}
-
-			private URL getOutputPath() {
-				return prepareAcquisition();
-			}
-
-			private URL prepareAcquisition() {
 				try {
-					return getExperimentController().prepareAcquisition(controller.getAcquisition().getName());
-				} catch (ExperimentControllerException e) {
-					UIHelper.showError("Run Acquisition", e, logger);
-					return null;
-				}
-			}
-
-			private void runAcquisition(URL path) {
-				getController().getAcquisition().setAcquisitionLocation(path);
-				try {
-					getController().runAcquisition();
+					getAcquisitionController().runAcquisition();
 				} catch (AcquisitionControllerException e) {
 					UIHelper.showError("Run Acquisition", e, logger);
 				}
@@ -210,10 +183,6 @@ public class TomographyConfigurationView extends ViewPart {
 				logger.debug("widgetDefaultSelected");
 			}
 		};
-	}
-
-	private AcquisitionController<ScanningAcquisition> getController() {
-		return controller;
 	}
 
 	/**
@@ -253,5 +222,12 @@ public class TomographyConfigurationView extends ViewPart {
 
 			return newConfiguration;
 		};
+	}
+
+	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
+		if (acquisitionController == null) {
+			acquisitionController = new ExperimentScanningAcquisitionController(AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
+		}
+		return acquisitionController;
 	}
 }
