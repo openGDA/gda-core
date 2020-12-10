@@ -38,7 +38,7 @@ public final class MapPosition extends AbstractPosition {
 	}
 
 	public MapPosition(Map<String, Object> vals) {
-		this(vals, new LinkedHashMap<String, Integer>(7));
+		this(vals, new LinkedHashMap<>(7));
 	}
 
 	public MapPosition(Map<String, Object> vals, Map<String, Integer> inds) {

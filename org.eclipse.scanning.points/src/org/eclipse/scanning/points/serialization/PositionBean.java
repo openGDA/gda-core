@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.scanning.api.points.AbstractPosition;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 
@@ -34,12 +33,7 @@ class PositionBean {
 		this.values    = pos.getValues();
 		this.indices   = pos.getIndices();
 		this.stepIndex = pos.getStepIndex();
-		this.dimensionNames = getDimensionNames(pos);
-	}
-
-	private List<Set<String>> getDimensionNames(IPosition pos) {
-		if (pos instanceof AbstractPosition) return ((AbstractPosition)pos).getDimensionNames();
-		return null; // Do not have to support dimension names
+		this.dimensionNames = pos.getDimensionNames();
 	}
 
 	public IPosition toPosition() {
