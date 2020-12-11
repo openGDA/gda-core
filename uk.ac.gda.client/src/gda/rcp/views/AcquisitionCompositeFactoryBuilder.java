@@ -25,15 +25,12 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 import java.util.Optional;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
-import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.ui.tool.ClientSWTElements;
-import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * Generic layout for an acquisition configuration.
@@ -61,9 +58,7 @@ public class AcquisitionCompositeFactoryBuilder {
 	private Optional<CompositeFactory> top = Optional.empty();
 	private Optional<CompositeFactory> bottom = Optional.empty();
 
-	private Optional<SelectionListener> runListener = Optional.empty();
-	private Optional<SelectionListener> newListener = Optional.empty();
-	private Optional<SelectionListener> saveListener = Optional.empty();
+	private Optional<AcquisitionCompositeButtonGroupFactoryBuilder> acquisitionButtonGroupFactoryBuilder;
 
 	private Composite container;
 	private Composite topContainer;
@@ -107,21 +102,8 @@ public class AcquisitionCompositeFactoryBuilder {
 		return this;
 	}
 
-	public AcquisitionCompositeFactoryBuilder addRunSelectionListener(SelectionListener selectionListener) {
-		this.runListener = Optional.of(selectionListener);
-		logger.debug("Adding runListener {}", this.runListener);
-		return this;
-	}
-
-	public AcquisitionCompositeFactoryBuilder addNewSelectionListener(SelectionListener selectionListener) {
-		this.newListener = Optional.of(selectionListener);
-		logger.debug("Adding newListener {}", this.newListener);
-		return this;
-	}
-
-	public AcquisitionCompositeFactoryBuilder addSaveSelectionListener(SelectionListener selectionListener) {
-		this.saveListener = Optional.of(selectionListener);
-		logger.debug("Adding saveListener {}", this.saveListener);
+	public AcquisitionCompositeFactoryBuilder addAcquisitionButtonGroupFactoryBuilder(AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroupFactoryBuilder) {
+		this.acquisitionButtonGroupFactoryBuilder = Optional.of(acquisitionButtonGroupFactoryBuilder);
 		return this;
 	}
 
@@ -130,15 +112,6 @@ public class AcquisitionCompositeFactoryBuilder {
 	}
 
 	private void buttonsGroup(Composite parent) {
-		ButtonGroupFactoryBuilder builder = new ButtonGroupFactoryBuilder();
-
-		newListener.ifPresent(listener -> builder.addButton(ClientMessages.NEW, ClientMessages.NEW_CONFIGURATION_TP,
-										  listener, ClientImages.ADD));
-		saveListener.ifPresent(listener -> builder.addButton(ClientMessages.SAVE, ClientMessages.SAVE_CONFIGURATION_TP,
-										   listener, ClientImages.SAVE));
-		runListener.ifPresent(listener -> builder.addButton(ClientMessages.RUN, ClientMessages.RUN_CONFIGURATION_TP,
-										  listener, ClientImages.RUN));
-
-		builder.build().createComposite(parent, SWT.NONE);
+		acquisitionButtonGroupFactoryBuilder.ifPresent(a -> a.build().createComposite(parent, SWT.NONE));
 	}
 }

@@ -4,7 +4,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
-import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.publishEvent;
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -43,6 +43,7 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 
 /**
@@ -80,32 +81,37 @@ public class PlanManagerView extends ViewPart {
 			logger.error(message, e);
 			return;
 		}
-		
+
 		base = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(base);
 		STRETCH.applyTo(base);
-		
+
 		Map<String, Consumer<ExperimentPlanBean>> processors = new HashMap<>();
 		processors.put("Edit", this::edit);
 		processors.put("Delete", this::remove);
-		
+
 		planBrowser = new PlanBrowser(Optional.of(this::edit), Optional.of(processors));
-		
+
 		Composite controls = new AcquisitionCompositeFactoryBuilder()
-			.addNewSelectionListener(widgetSelectedAdapter(event -> add()))
-			.addRunSelectionListener(widgetSelectedAdapter(getRunConsumer()))
+			.addAcquisitionButtonGroupFactoryBuilder(getAcquistionButtonGroupFacoryBuilder())
 			.addBottomArea(this::getBrowserComposite)
 			.build().createComposite(base, SWT.NONE);
-		
 		STRETCH.applyTo(controls);
 	}
 	
+	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
+		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> add()));
+		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(getRunConsumer()));
+		return acquisitionButtonGroup;
+	}
+
 	private Composite getBrowserComposite(Composite parent, int style) {
 		Composite browser = new AcquisitionsBrowserCompositeFactory<>(planBrowser).createComposite(parent, style);
 		STRETCH.applyTo(browser);
 		return browser;
 	}
-	
+
 	private Consumer<SelectionEvent> getRunConsumer() {
 		return event -> {
 			if (runButton == null) {
@@ -162,7 +168,7 @@ public class PlanManagerView extends ViewPart {
 		WizardDialog wizardDialog = new WizardDialog(base.getShell(), planWizard);
 		return wizardDialog.open() == Window.OK;
 	}
-	
+
 	// OSGi use only!
 	public void setEventService(IEventService eventService) {
 		PlanManagerView.eventService = eventService; // NOSONAR used by OSGi only (I hope...)
@@ -174,21 +180,18 @@ public class PlanManagerView extends ViewPart {
 		subscriber = eventService.createSubscriber(activeMqUri, EXPERIMENT_PLAN_TOPIC);
 		subscriber.addListener(event -> {
 			final PlanStatusBean bean = event.getBean();
-
 			planComplete = bean.getStatus().isFinal();
 			if (planComplete) {
 				Display.getDefault().syncExec(this::updateButtons);
 			} // Needs to be in thread with display updates
 		});
-
 	}
-	
+
 	private void updateButtons() {
 		final boolean planSelected = planBrowser.getSelectedPlan() != null;
 		runButton.setEnabled(planSelected && planComplete);
 	}
 
-	
 	@Override
 	public void dispose() {
 		if (subscriber != null) {
@@ -200,7 +203,6 @@ public class PlanManagerView extends ViewPart {
 		}
 		super.dispose();
 	}
-
 
 	@Override
 	public void setFocus() {
