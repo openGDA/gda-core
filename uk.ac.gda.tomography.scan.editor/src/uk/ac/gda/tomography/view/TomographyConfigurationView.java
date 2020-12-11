@@ -18,6 +18,7 @@
 
 package uk.ac.gda.tomography.view;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
@@ -29,8 +30,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -55,6 +54,7 @@ import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.tomography.browser.TomoBrowser;
 import uk.ac.gda.tomography.scan.editor.view.RadiographyConfigurationCompositeFactory;
@@ -100,9 +100,10 @@ public class TomographyConfigurationView extends ViewPart {
 		AcquisitionCompositeFactoryBuilder builder = new AcquisitionCompositeFactoryBuilder();
 		builder.addTopArea(getTopArea());
 		builder.addBottomArea(getBottomArea());
-		builder.addNewSelectionListener(getNewConfigurationListener());
-		builder.addSaveSelectionListener(getSaveListener());
-		builder.addRunSelectionListener(getRunListener());
+		builder.addAcquisitionButtonGroupFactoryBuilder(getAcquistionButtonGroupFacoryBuilder());
+//		builder.addNewSelectionListener(getNewConfigurationListener());
+//		builder.addSaveSelectionListener(getSaveListener());
+//		builder.addRunSelectionListener(getRunListener());
 		builder.build().createComposite(container, SWT.NONE);
 		logger.debug("Created {}", this);
 	}
@@ -127,63 +128,6 @@ public class TomographyConfigurationView extends ViewPart {
 
 	private CompositeFactory getBottomArea() {
 		return new AcquisitionsBrowserCompositeFactory<>(new TomoBrowser(getAcquisitionController()));
-	}
-
-	private SelectionListener getNewConfigurationListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
-				if (confirmed) {
-					acquisitionController.createNewAcquisition();
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// not required
-			}
-		};
-	}
-
-	private SelectionListener getSaveListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					acquisitionController.saveAcquisitionConfiguration();
-				} catch (AcquisitionControllerException e) {
-					UIHelper.showError("Cannot save the file", e);
-					logger.error("Cannot save the file", e);
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-				// not necessary
-			}
-		};
-	}
-
-	private SelectionListener getRunListener() {
-		return new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				try {
-					getAcquisitionController().runAcquisition();
-				} catch (AcquisitionControllerException e) {
-					UIHelper.showError("Run Acquisition", e, logger);
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent event) {
-				logger.debug("widgetDefaultSelected");
-			}
-		};
 	}
 
 	/**
@@ -231,5 +175,36 @@ public class TomographyConfigurationView extends ViewPart {
 			acquisitionController = new ExperimentScanningAcquisitionController(AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY);
 		}
 		return acquisitionController;
+	}
+
+	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
+		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> createNewScanningAcquisition()));
+		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> save()));
+		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> submitExperiment()));
+		return acquisitionButtonGroup;
+	}
+
+	private void createNewScanningAcquisition() {
+		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
+		if (confirmed) {
+			getAcquisitionController().createNewAcquisition();
+		}
+	}
+
+	private void save() {
+		try {
+			getAcquisitionController().saveAcquisitionConfiguration();
+		} catch (AcquisitionControllerException e) {
+			UIHelper.showError("Cannot save acquisition", e, logger);
+		}
+	}
+
+	private void submitExperiment() {
+		try {
+			getAcquisitionController().runAcquisition();
+		} catch (AcquisitionControllerException e) {
+			UIHelper.showError(e.getMessage(), e.getCause().getMessage());
+		}
 	}
 }
