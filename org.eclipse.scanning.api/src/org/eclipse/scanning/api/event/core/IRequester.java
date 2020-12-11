@@ -85,6 +85,11 @@ public interface IRequester<T extends IdBean> extends IRequestResponseConnection
 	T post(T request) throws EventException, InterruptedException;
 
 	/**
+	 * As {@link #post(IdBean)}, but allowing the caller to specify a timeout to apply to this request only.
+	 */
+	T post(T request, long timeout, TimeUnit timeUnit) throws EventException, InterruptedException;
+
+	/**
 	 * Same as {@link #post(IdBean)} with an optional {@link IResponseWaiter} (may be null) which provides the ability
 	 * to return true if the post should carry on waiting. This is useful for instance in the case where a scannable is
 	 * setting position. It will have notified position recently and if the waiter thinks it is still alive there is not
@@ -101,4 +106,9 @@ public interface IRequester<T extends IdBean> extends IRequestResponseConnection
 	 * @throws InterruptedException
 	 */
 	T post(T request, IResponseWaiter waiter) throws EventException, InterruptedException;
+
+	/**
+	 * As {@link #post(IdBean, IResponseWaiter)}, but allowing the caller to specify a timeout to apply to this request only.
+	 */
+	T post(T request, IResponseWaiter waiter, long timeout, TimeUnit timeUnit) throws EventException, InterruptedException;
 }

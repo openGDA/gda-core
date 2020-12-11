@@ -27,8 +27,8 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection implements IRequester<T> {
 
 	private ResponseType responseType = DEFAULT_RESPONSE_TYPE;
-	private long timeout = DEFAULT_TIMEOUT;
-	private TimeUnit timeUnit = DEFAULT_TIME_UNIT;
+	private long defTimeout = DEFAULT_TIMEOUT;
+	private TimeUnit defTimeUnit = DEFAULT_TIME_UNIT;
 	private CountDownLatch latch;
 	private boolean somethingFound;
 
@@ -43,7 +43,17 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 	}
 
 	@Override
+	public T post(final T request, long timeout, TimeUnit timeUnit) throws EventException, InterruptedException {
+		return post(request, null, timeout, timeUnit);
+	}
+
+	@Override
 	public T post(final T request, IResponseWaiter waiter) throws EventException, InterruptedException {
+		return post(request, waiter, defTimeout, defTimeUnit);
+	}
+
+	@Override
+	public T post(final T request, IResponseWaiter waiter, long timeout, TimeUnit timeUnit) throws EventException, InterruptedException {
 
 		try (
 			final IPublisher<T> publisher = eservice.createPublisher(getUri(), getRequestTopic());
@@ -59,13 +69,13 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 			// Send the request
 			publisher.broadcast(request);
 
-			latch(waiter); // Wait or die trying
+			latch(waiter, timeout, timeUnit); // Wait or die trying
 
 			return request;
 		}
 	}
 
-	private void latch(IResponseWaiter waiter) throws EventException, InterruptedException {
+	private void latch(IResponseWaiter waiter, long timeout, TimeUnit timeUnit) throws EventException, InterruptedException {
 		if (waiter == null) {
 			// Default to waiting just one timeout period
 			waiter = () -> false;
@@ -106,8 +116,8 @@ class RequesterImpl<T extends IdBean> extends AbstractRequestResponseConnection 
 
 	@Override
 	public void setTimeout(long timeout, TimeUnit timeUnit) {
-		this.timeout = timeout;
-		this.timeUnit = timeUnit;
+		this.defTimeout = timeout;
+		this.defTimeUnit = timeUnit;
 	}
 
 	@Override
