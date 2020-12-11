@@ -106,7 +106,7 @@ public class ScanningAcquisitionController
 
 	public ScanningAcquisitionController() {
 		super();
-		this.acquisitionType = AcquisitionPropertyType.DEFAULT;
+		setAcquisitionType(AcquisitionPropertyType.DEFAULT);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class ScanningAcquisitionController
 	 */
 	public ScanningAcquisitionController(AcquisitionPropertyType acquisitionType) {
 		super();
-		this.acquisitionType = acquisitionType;
+		setAcquisitionType(acquisitionType);
 	}
 
 	@Override
@@ -212,7 +212,7 @@ public class ScanningAcquisitionController
 		}
 
 		return String.format("%s_%s",
-				Optional.ofNullable(acquisitionType).orElse(AcquisitionPropertyType.DEFAULT).name(), fn);
+				Optional.ofNullable(getAcquisitionType()).orElse(AcquisitionPropertyType.DEFAULT).name(), fn);
 	}
 
 	private void save(String fileName, String acquisitionDocument) {
@@ -227,7 +227,7 @@ public class ScanningAcquisitionController
 	}
 
 	private Path getPath(String fileName, String acquisitionDocument) throws IOException {
-		switch (acquisitionType) {
+		switch (getAcquisitionType()) {
 		case TOMOGRAPHY:
 			return getFileService().saveTextDocument(acquisitionDocument, fileName,
 					AcquisitionConfigurationResourceType.TOMO.getExtension());
@@ -298,7 +298,7 @@ public class ScanningAcquisitionController
 	}
 
 	private void updateProcessingRequest() throws AcquisitionControllerException {
-		if (acquisitionType.equals(AcquisitionPropertyType.TOMOGRAPHY)) {
+		if (AcquisitionPropertyType.TOMOGRAPHY.equals(getAcquisitionType())) {
 			URL processingFile = fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
 			if (processingFile == null)
 				return;
@@ -311,7 +311,7 @@ public class ScanningAcquisitionController
 			requests.add(request);
 			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
 		}
-		if (acquisitionType.equals(AcquisitionPropertyType.DIFFRACTION)) {
+		if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionType())) {
 			URL processingFile = fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
 			if (processingFile == null)
 				return;
@@ -340,7 +340,7 @@ public class ScanningAcquisitionController
 	}
 
 	private String getDatasetName() {
-		return AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(acquisitionType)
+		return AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(getAcquisitionType())
 				// should only have one document per acquisition type:
 				.iterator().next().getPrimaryDataset();
 	}
@@ -399,7 +399,7 @@ public class ScanningAcquisitionController
 		releaseResources();
 		this.acquisition = acquisition;
 		// associate a new helper with the new acquisition
-		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(acquisitionType,
+		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(getAcquisitionType(),
 				this::getAcquisition);
 	}
 
@@ -423,5 +423,13 @@ public class ScanningAcquisitionController
 			this.acquisitionReader = new AcquisitionReader(this::getAcquisition);
 		}
 		return this.acquisitionReader;
+	}
+
+	public AcquisitionPropertyType getAcquisitionType() {
+		return acquisitionType;
+	}
+
+	private void setAcquisitionType(AcquisitionPropertyType acquisitionType) {
+		this.acquisitionType = acquisitionType;
 	}
 }

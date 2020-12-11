@@ -34,19 +34,19 @@ public class SavuProcessingRequestHandlerTest {
 	@Test
 	public void testSavuProcessingRequest() throws Exception {
 		ProcessingRequestHandler handler = new SavuProcessingRequestHandler();
-		String file1 = "file://lev1/lev2";
-		String file2 = "file://lev3/lev4";
+		URL file1 = new URL("file:/lev1/lev2");
+		URL file2 = new URL("file:/lev3/lev4");
 		List<URL> paths = new ArrayList<>();
-		paths.add(new URL(file1));
-		paths.add(new URL(file2));
+		paths.add(file1);
+		paths.add(file2);
 		SavuProcessingRequest request = new SavuProcessingRequest.Builder()
 			.withValue(paths)
 			.build();
 
 		Collection<Object> translated = handler.translateToCollection(request);
 		Assert.assertEquals(2, translated.size());
-		Assert.assertTrue(translated.contains(file1));
-		Assert.assertTrue(translated.contains(file2));
+		Assert.assertTrue(translated.contains(file1.getPath()));
+		Assert.assertTrue(translated.contains(file2.getPath()));
 	}
 
 }

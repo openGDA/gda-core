@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.mapping.ui.properties;
 
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getProperty;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getPropertyAsInt;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -169,7 +170,7 @@ public final class AcquisitionTypeProperties {
 
 	private List<String> getAcquisitionTemplateTypeKeys(String acquisitionTemplateType) {
 		return LocalProperties.getKeysByRegexp(
-				String.format("%s\\.%s\\.\\d.*", getAcquisitionTypePrefix(), acquisitionTemplateType));
+				String.format("%s\\.%s\\.\\d.scannable", getAcquisitionTypePrefix(), acquisitionTemplateType));
 	}
 
 	private void parseAcquisitionTypeScannableProperties() {
@@ -181,7 +182,7 @@ public final class AcquisitionTypeProperties {
 		String name = acquisitonTemplateType.name().toLowerCase();
 		List<String> elements = getAcquisitionTemplateTypeKeys(name);
 
-		List<ScannableTrackDocument> scannableTrackDocuments = IntStream.range(0, elements.size()/2)
+		List<ScannableTrackDocument> scannableTrackDocuments = IntStream.range(0, elements.size())
 				.mapToObj(index -> 	parseAcquisitionTemplateType(index, name))
 				.collect(Collectors.toList());
 		acquisitionTemplateTypeScanables.put(acquisitonTemplateType, scannableTrackDocuments);
@@ -192,6 +193,7 @@ public final class AcquisitionTypeProperties {
 		String prefix = String.format("%s.%s", getAcquisitionTypePrefix(), key);
 		 builder.withAxis(getAcquisitionTemplateAxis(index, prefix));
 		 builder.withScannable(getAcquisitionTemplateScannable(index, prefix));
+		 builder.withPoints(getAcquisitionTemplatePoints(index, prefix));
 		return builder.build();
 	}
 
@@ -201,6 +203,10 @@ public final class AcquisitionTypeProperties {
 
 	private static String getAcquisitionTemplateScannable(int index, String prefix) {
 		return getProperty(prefix, index, "scannable", null);
+	}
+
+	private static int getAcquisitionTemplatePoints(int index, String prefix) {
+		return getPropertyAsInt(prefix, index, "points", 1);
 	}
 
 	/**
@@ -216,6 +222,7 @@ public final class AcquisitionTypeProperties {
 					ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
 					builder.withAxis(e.getAxis());
 					builder.withScannable(e.getScannable());
+					builder.withPoints(e.getPoints());
 					return builder;
 				})
 				.map(ScannableTrackDocument.Builder::build)
@@ -226,7 +233,6 @@ public final class AcquisitionTypeProperties {
 		return createScannableTrackDocuments(acquisitonTemplateType).stream()
 				.map(ScannableTrackDocument.Builder::new)
 				.map(builder -> {
-					builder.withPoints(1);
 					builder.withStart(0);
 					builder.withStop(180.0);
 				return builder;

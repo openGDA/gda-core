@@ -47,9 +47,15 @@ class SavuProcessingRequestHandler extends ProcessingRequestHandler {
 			.orElse(Collections.emptyList());
 	}
 
+	/**
+	 * 	At the moment savu process does not handle any {@code URL} syntax as {@code file:/path1} consequently
+	 *	the method call {@link URL#getPath()} to strip the URL protocol
+	 * @param request the savu processing request object
+	 * @return the converted object suitable for a ScanRequest
+	 */
 	private Collection<Object> translateValue(SavuProcessingRequest request) {
 		return request.getValue().stream()
-			.map(URL::toString)
+			.map(URL::getPath)
 			.collect(Collectors.toList());
 	}
 
