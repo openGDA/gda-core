@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.messaging;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,13 +38,8 @@ import org.junit.Test;
 
 /**
  * This is just for testing out messages with the server.
- *
- * Make sure the example server is running when performing these!
- *
  */
 public class JavaMessagingTests extends BrokerTest {
-
-	protected static URI uri;
 
 	protected IRunnableDeviceService    dservice;
 	protected IEventService             eservice;
@@ -72,7 +66,7 @@ public class JavaMessagingTests extends BrokerTest {
 	public void testAvailableQueuesAndTopics() throws ScanningException, JMSException {
 
 		// Create a ConnectionFactory
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(uri);
 
 		// Create a Connection
 		ActiveMQConnection connection = (ActiveMQConnection) connectionFactory.createConnection();
