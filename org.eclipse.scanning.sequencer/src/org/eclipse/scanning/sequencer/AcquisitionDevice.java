@@ -389,7 +389,7 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 			processException(ne);
 			throw new ScanningException(ne);
 		} finally {
-			close(errorFound, pos);
+			finishScan(errorFound, pos);
 			logger.debug("Scan completed with status {}", getScanBean().getStatus());
 			RunnableDeviceServiceImpl.setCurrentScanningDevice(null); // TODO fix this to not use a static method
 		}
@@ -444,7 +444,11 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 	 * Remove this from the list of position listeners for any Malcolm Device
 	 */
 	private void removeMalcolmListeners() {
-		malcolmDevice.ifPresent(dev -> dev.removeMalcolmListener(this));
+		try {
+			malcolmDevice.ifPresent(dev -> dev.removeMalcolmListener(this));
+		} catch (Exception ex) {
+			logger.warn("Error during removing Malcolm listeners", ex);
+		}
 	}
 
 	@Override
@@ -463,35 +467,48 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		}
 	}
 
-	private void close(boolean errorFound, IPosition last) throws ScanningException {
+	private void finishScan(boolean errorFound, IPosition last) throws ScanningException {
 		try {
-			try {
-				try {
-					removeMalcolmListeners();
-				} catch (Exception ex) {
-					logger.warn("Error during removing Malcolm listeners", ex);
-				}
-				positioner.close();
-				runners.close();
-				writers.close();
+			closeResources(errorFound, last);
+		} finally {
+			scanFinally(last);
+		}
+	}
 
-				nexusScanFileManager.scanFinished(); // writes scanFinished and closes nexus file
+	private void closeResources(boolean errorFound, IPosition last) throws ScanningException {
+		try {
+			removeMalcolmListeners();
 
-				// We should not fire the run performed until the nexus file is closed.
-				// Tests wait for this step and reread the file.
-				fireRunPerformed(last); // Say that we did the overall run using the position we stopped at.
-			} finally {
-				// only fire end if finished normally
-				if (!errorFound && getDeviceState() != DeviceState.ABORTED)
-					fireEnd(last);
+			positioner.close();
+			runners.close();
+			writers.close();
+
+			if (!errorFound && getDeviceState() != DeviceState.ABORTED) {
+				fireEnd(last); // only fire end if finished normally
 			}
 		} finally {
+			nexusScanFileManager.scanFinished(); // closes the nexus file
+		}
+	}
+
+	/**
+	 * Perform final tasks for the end of any scan
+	 * @param last
+	 * @throws ScanningException
+	 */
+	private void scanFinally(IPosition last) throws ScanningException {
+		try {
+			annotationManager.invoke(ScanFinally.class, last);
+		} finally {
 			try {
-				annotationManager.invoke(ScanFinally.class, last);
-			} finally {
-				if (scanFinishedLatch != null) {
-					scanFinishedLatch.countDown();
-				}
+				fireRunPerformed(last); // Say that we did the overall run using the position we stopped at.
+			} catch (Exception e) {
+				logger.error("Error calling runPerformed method", e);
+			}
+
+			// finally release the scan latch, releasing waiting threads (used in test)
+			if (scanFinishedLatch != null) {
+				scanFinishedLatch.countDown();
 			}
 		}
 	}
