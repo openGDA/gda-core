@@ -110,9 +110,9 @@ public class ButtonGroupFactoryBuilder {
 			// The main container
 			container = createClientCompositeWithGridLayout(parent, SWT.NONE, buttonElements.size());
 			createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+			buttonElements.stream().forEachOrdered(this::createButton);
 			standardMarginHeight(container.getLayout());
 			standardMarginWidth(container.getLayout());
-			buttonElements.stream().forEachOrdered(this::createButton);
 			logger.trace("Created {}", this);
 			return container;
 		}

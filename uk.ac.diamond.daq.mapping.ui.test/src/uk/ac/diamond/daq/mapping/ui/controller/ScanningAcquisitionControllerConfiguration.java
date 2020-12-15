@@ -27,11 +27,13 @@ import org.springframework.context.annotation.Primary;
 
 import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
+import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 @Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring", "uk.ac.gda.ui.tool.spring",
+@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring",
+		"uk.ac.gda.ui.tool.spring",
 		"uk.ac.diamond.daq.mapping.ui.controller",
 		"uk.ac.diamond.daq.mapping.ui.services.position",
 		"uk.ac.diamond.daq.mapping.api.document"},
@@ -56,6 +58,10 @@ public class ScanningAcquisitionControllerConfiguration {
 		return Mockito.mock(ScanningAcquisitionRestServiceClient.class);
 	}
 
+	@Bean(name = "experimentControllerServiceClient")
+	public ExperimentControllerServiceClient getExperimentControllerServiceClient() {
+		return Mockito.mock(ExperimentControllerServiceClient.class);
+	}
 
 
 

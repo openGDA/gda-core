@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,7 @@ public class SelectableContainedCompositeFactory implements CompositeFactory {
 
 	private ScrolledComposite scrolledInnerContainer;
 	private Composite innerContainer;
+	private Widget selectedWidget;
 
 	/**
 	 * Creates an factory instance.
@@ -114,12 +117,21 @@ public class SelectableContainedCompositeFactory implements CompositeFactory {
 			option.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::configurationRadioListener));
 		});
 		Optional.ofNullable(radioContainer.getChildren())
+			.filter(ArrayUtils::isNotEmpty)
 			.ifPresent(radios -> selectAndNotify((Button)radios[0], true));
 		logger.trace("Created {}", this);
 		return mainContainer;
 	}
 
 	private void configurationRadioListener(SelectionEvent event) {
+		// Reject messages from not selected buttons
+		if (!((Button)event.widget).getSelection())
+			return;
+
+		//Reject messages from the already selected widget
+		if (event.widget.equals(selectedWidget))
+			return;
+
 		// Deletes, if any the existing composites inside the internal scrollable area
 		Arrays.stream(innerContainer.getChildren())
 			.forEach(Control::dispose);
@@ -133,5 +145,7 @@ public class SelectableContainedCompositeFactory implements CompositeFactory {
 		// Calling newComposite.computeSize calculate the default size, that is the widget size
 		// In this way is possible to correctly set the size below which the scroll bars appear.
 		scrolledInnerContainer.setMinSize(newComposite.computeSize( SWT.DEFAULT, SWT.DEFAULT ));
+		scrolledInnerContainer.layout(true, true);
+		selectedWidget = event.widget;
 	}
 }

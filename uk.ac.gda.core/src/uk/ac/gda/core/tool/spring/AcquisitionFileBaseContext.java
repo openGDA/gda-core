@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.api.exception.GDAException;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext.ContextFile;
 
 /**
  * Encapsulates the application state so can be shared throughout the application.
@@ -154,7 +153,7 @@ abstract class AcquisitionFileBaseContext<T> {
 	/**
 	 * This method cannot use the more natural @PostConstruct because the inner {@code SpringApplicationContextProxy}
 	 * would be not initialised at the time of the call. Consequently this method is called once, the first time
-	 * {@link #getContextFile(ContextFile)} is called
+	 * {@link #getContextFile(Object)} is called
 	 *
 	 */
 	private void init(T contextFile) {
