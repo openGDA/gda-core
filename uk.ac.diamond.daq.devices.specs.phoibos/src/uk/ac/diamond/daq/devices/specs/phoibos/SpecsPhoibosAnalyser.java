@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.RateLimiter;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
@@ -1225,6 +1226,20 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 			allValidationErrors.add(validateRegion(userSpecifiedRegion));
 		}
 		return new SpecsPhoibosSequenceValidation(allValidationErrors);
+	}
+
+	/**
+	 * Returns true if no scan running or analyser is in aborted state
+	 */
+	@Override
+	public boolean isNotBusy() {
+		try {
+			return getCollectionStrategy().getStatus() == Detector.IDLE
+					&& getDetectorStatus() == SpecsPhoibosStatus.IDLE
+					|| getDetectorStatus() == SpecsPhoibosStatus.ABORTED;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	@Override

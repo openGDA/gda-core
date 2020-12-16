@@ -41,29 +41,44 @@ public class SaveSequenceHandler extends HandlerBase {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
 
+		if (!analyser.isNotBusy()) {
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON | SWT.YES | SWT.NO);
+			messageBox.setText("Analyser is busy");
+			messageBox.setMessage("This sequence can't be validated at the moment because the analyser is busy, would you like to save it anyway?\n"
+					+ "If saved without validation it may contain invalid parameters and could fail to run if called from a script later.");
+			int response = messageBox.open();
+			if (response == SWT.YES) {
+				saveSequence(sequence, part, shell);
+			}
+			return;
+		}
+
 		SpecsPhoibosSequenceValidation sequenceValidationResult = validateSequence(shell, sequence, analyser);
 
 		presentValidationResults(sequenceValidationResult, eventBroker, partService, shell);
 
 		// Save sequence
 		if (sequenceValidationResult.isValid()) {
-			try {
-				// Save the sequence to the existing file path
-				SpecsPhoibosSequenceHelper.saveSequence(sequence, part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH));
+			saveSequence(sequence, part, shell);
+		}
+	}
 
-				// Update the hash of the saved sequence
-				part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
+	private void saveSequence(SpecsPhoibosSequence sequence, MPart part, Shell shell) {
+		try {
+			// Save the sequence to the existing file path
+			SpecsPhoibosSequenceHelper.saveSequence(sequence, part.getPersistedState().get(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH));
 
-				// Set dirty false its just been saved.
-				part.setDirty(false);
-			} catch (RuntimeException e) {
-				MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-				dialog.setText("Problem with saving sequence");
-				dialog.setMessage(e.getMessage());
-				dialog.open();
-				throw e;
-			}
+			// Update the hash of the saved sequence
+			part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
 
+			// Set dirty false its just been saved.
+			part.setDirty(false);
+		} catch (RuntimeException e) {
+			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			dialog.setText("Problem with saving sequence");
+			dialog.setMessage(e.getMessage());
+			dialog.open();
+			throw e;
 		}
 	}
 

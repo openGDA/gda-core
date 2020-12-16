@@ -42,35 +42,50 @@ public class SaveAsSequenceHandler extends HandlerBase {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
 
+		if (!analyser.isNotBusy()) {
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON | SWT.YES | SWT.NO);
+			messageBox.setText("Analyser is busy");
+			messageBox.setMessage("This sequence can't be validated at the moment because the analyser is busy, would you like to save it anyway?\n"
+					+ "If saved without validation it may contain invalid parameters and could fail to run if called from a script later.");
+			int response = messageBox.open();
+			if (response == SWT.YES) {
+				saveAsSequence(sequence, part, shell);
+			}
+			return;
+		}
+
 		SpecsPhoibosSequenceValidation sequenceValidationResult = validateSequence(shell, sequence, analyser);
 
 		presentValidationResults(sequenceValidationResult, eventBroker, partService, shell);
 
-		// Save sequence as
 		if (sequenceValidationResult.isValid()) {
-			try {
-				String path = getSavePath(shell);
-				// Save the sequence to the existing file path
-				SpecsPhoibosSequenceHelper.saveSequence(sequence, path);
+			saveAsSequence(sequence, part, shell);
+		}
+	}
 
-				part.getPersistedState().put(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH, path);
+	private void saveAsSequence(SpecsPhoibosSequence sequence, MPart part, Shell shell) {
+		try {
+			String path = getSavePath(shell);
+			// Save the sequence to the existing file path
+			SpecsPhoibosSequenceHelper.saveSequence(sequence, path);
 
-				// Update the hash of the saved sequence
-				part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
+			part.getPersistedState().put(SpecsUiConstants.OPEN_SEQUENCE_FILE_PATH, path);
 
-				// Set dirty false its just been saved.
-				part.setDirty(false);
+			// Update the hash of the saved sequence
+			part.getTransientData().put(SpecsUiConstants.SAVED_SEQUENCE_HASH, sequence.hashCode());
 
-				// Send a open event to update the new file path and sequence in the sequence editor
-				// Use blocking event, as need to ensure its done before giving the user thread back
-				eventBroker.send(SpecsUiConstants.OPEN_SEQUENCE_EVENT, sequence);
-			} catch (RuntimeException e) {
-				MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-				dialog.setText("Problem with saving sequence");
-				dialog.setMessage(e.getMessage());
-				dialog.open();
-				throw e;
-			}
+			// Set dirty false its just been saved.
+			part.setDirty(false);
+
+			// Send a open event to update the new file path and sequence in the sequence editor
+			// Use blocking event, as need to ensure its done before giving the user thread back
+			eventBroker.send(SpecsUiConstants.OPEN_SEQUENCE_EVENT, sequence);
+		} catch (RuntimeException e) {
+			MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			dialog.setText("Problem with saving sequence");
+			dialog.setMessage(e.getMessage());
+			dialog.open();
+			throw e;
 		}
 	}
 
