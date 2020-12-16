@@ -88,7 +88,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 		positions.clear();
 	}
 
-	// Some superclasses currently set their own positions
+	// Some subclasses currently set their own positions
 	// We may wish to review this in future.
 	protected synchronized void setPositionsInternal(Collection<String> positions) {
 		this.positions.clear();
@@ -105,13 +105,24 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 	}
 
 	/**
-	 * Set the positioner status<br>
-	 * Ideally, this function should be protected, but there are currently problems with calling protected functions
-	 * from inner classes in subclasses.
+	 * Set the positioner status
 	 * <p>
-	 * TODO: Make protected when the above-mentioned issue is resolved.
+	 * Ideally, this function should be protected, but this causes runtime exceptions because of the interaction of
+	 * three factors:
+	 * <ul>
+	 * <li>Some of this class's subclasses reside in a different plugin (uk.ac.gda.epics)</li>
+	 * <li>The run-time package of a class or interface is determined by the package name AND its class loader (see
+	 * https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html#jvms-5.3-300)</li>
+	 * <li>In OSGi each plugin has a different class loader.</li>
+	 * </ul>
+	 * So a subclass in gda.epics, with a different class loader, trying to call this function in a package-private way
+	 * (from an inner class within the subclass) will fail with a runtime exception.<br>
+	 * See DAQ-1598 and linked tickets, and also https://bugs.eclipse.org/bugs/show_bug.cgi?id=152568
+	 * <p>
+	 * TODO: Make protected if/when we have a solution the above-mentioned issue.
 	 *
-	 * @param positionerStatus The new value to set
+	 * @param positionerStatus
+	 *            The new value to set
 	 */
 	public void setPositionerStatus(EnumPositionerStatus positionerStatus) {
 		this.positionerStatus = positionerStatus;
