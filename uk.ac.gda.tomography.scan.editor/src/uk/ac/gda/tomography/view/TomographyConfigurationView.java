@@ -50,6 +50,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
+import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionTypeProperties;
 import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
@@ -235,9 +236,10 @@ public class TomographyConfigurationView extends ViewPart {
 
 			// *-------------------------------
 			// When a new acquisitionType is selected, replaces the acquisition scanPathDocument
-			ScanpathDocument.Builder scanpathBuilder = Optional.ofNullable(AcquisitionTemplateType.ONE_DIMENSION_LINE)
-				.map(TomographyAcquisitionTypeProperties::createScanpathDocument)
-				.orElseGet(ScanpathDocument.Builder::new);
+			String acquisitionType = "tomography";
+			ScanpathDocument.Builder scanpathBuilder =
+					AcquisitionTypeProperties.getAcquisitionProperties(acquisitionType)
+					.buildScanpathBuilder(AcquisitionTemplateType.ONE_DIMENSION_LINE);
 			acquisitionParameters.setScanpathDocument(scanpathBuilder.build());
 
 			MultipleScans.Builder multipleScanBuilder = new MultipleScans.Builder();
