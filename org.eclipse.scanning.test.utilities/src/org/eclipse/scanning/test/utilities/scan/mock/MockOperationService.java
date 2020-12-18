@@ -128,7 +128,7 @@ public class MockOperationService implements IOperationService {
 	}
 
 	@Override
-	public void createOperations(ClassLoader l, String pakage) throws Exception {
+	public void createOperations(Class<?> c, String pakage) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
