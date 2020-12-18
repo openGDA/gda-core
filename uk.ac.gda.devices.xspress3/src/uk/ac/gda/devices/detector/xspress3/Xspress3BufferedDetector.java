@@ -30,6 +30,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
+import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -40,6 +41,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
  * This decorates an underlying Xspress3Detector instance so that changing the
  * settings on one of the instances affects the other, as users would expect.
  */
+@ServiceInterface(Xspress3.class)
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
 		FluorescenceDetector, Xspress3 {
 
