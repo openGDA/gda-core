@@ -22,9 +22,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <!--module>uk.ac.diamond.tomography.reconstruction.test</module-->
 <module>uk.ac.gda.client.tomo</module>
 <module>uk.ac.gda.client.tomo.feature</module>
-<!-- Requires com.windowtester.swt.runtime  which is not available
-<module>uk.ac.gda.client.tomo.test</module>
- -->
 <module>uk.ac.gda.tomography</module>
 <module>uk.ac.gda.tomography.scan</module>
 <module>uk.ac.gda.tomography.scan.editor</module>
