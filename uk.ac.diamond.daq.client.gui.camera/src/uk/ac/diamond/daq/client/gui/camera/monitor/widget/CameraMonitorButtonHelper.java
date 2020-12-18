@@ -98,6 +98,9 @@ class CameraMonitorButtonHelper {
 	 * @return the camera state
 	 */
 	static CameraState getCameraState(final CameraControl cameraControl) {
+		if (cameraControl == null) {
+			return CameraState.UNAVAILABLE;
+		}
 		try {
 			return cameraControl.getAcquireState();
 		} catch (DeviceException e) {

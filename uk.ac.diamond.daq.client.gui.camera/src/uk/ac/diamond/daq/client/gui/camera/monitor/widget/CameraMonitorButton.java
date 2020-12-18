@@ -101,11 +101,19 @@ public class CameraMonitorButton {
 	}
 
 	/**
+	 * The camera monitoring button
+	 * @return the internal {@code Button}
+	 */
+	public Button getButton() {
+		return button;
+	}
+
+	/**
 	 * This method takes all the necessary information from the, already initialized, button.
 	 * It is used exclusively to synch the layout and listener for a brand new created "monitoring" button.
 	 * @param button
 	 */
-	static void updateButtonLayoutAndListener(Button button) {
+	private static void updateButtonLayoutAndListener(Button button) {
 		CameraControl cameraControl = getButtonCameraControl(button);
 		CameraState cameraState = getCameraState(cameraControl);
 		CameraMonitorButtonHelper.updateButtonLayoutAndListener(button, cameraControl.getName(), cameraState);
