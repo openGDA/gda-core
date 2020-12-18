@@ -31,13 +31,15 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * Allows the client to drive a scannable using a {@link ScannablePropertiesDocument}
  *
  * <p>
- * It is assumed that instances of this class are available only through {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)}
+ * It is assumed that instances of this class are available only through
+ * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)}
  * </p>
  *
  * <p>
- * A client component, i.e. a widget, may parametrise a scannable using a pair of strings (groupID, scananbleID) and assume to know the expected type.
- * Using those parameters in {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)}
- * the client component receives an object which can drive the scannable. This class may be expanded in the future when other use cases will appear.
+ * A client component, i.e. a widget, may parametrise a scannable using a pair of strings (groupID, scananbleID) and
+ * assume to know the expected type. Using those parameters in
+ * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)} the client component receives an object
+ * which can drive the scannable. This class may be expanded in the future when other use cases will appear.
  * </p>
  *
  * @author Maurizio Nagni
@@ -50,6 +52,7 @@ public class ManagedScannable<T> {
 	/**
 	 * This constructor is restricted to the package in order to force the use of
 	 * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)}
+	 *
 	 * @param scannablePropertiesDocument
 	 */
 	ManagedScannable(ScannablePropertiesDocument scannablePropertiesDocument) {
@@ -61,7 +64,8 @@ public class ManagedScannable<T> {
 	 *
 	 * @param position
 	 *            the new position
-	 * @throws GDAClientException when the scannable cannot be moved
+	 * @throws GDAClientException
+	 *             when the scannable cannot be moved
 	 */
 	public final void moveTo(T position) throws GDAClientException {
 		doMoveTo(position);
@@ -70,7 +74,8 @@ public class ManagedScannable<T> {
 	/**
 	 * Utility to get a scannable position
 	 *
-	 * @throws GDAClientException when the scannable position is not available
+	 * @throws GDAClientException
+	 *             when the scannable position is not available
 	 */
 	public final T getPosition() throws GDAClientException {
 		if (isAvailable()) {
@@ -81,10 +86,10 @@ public class ManagedScannable<T> {
 				throw new GDAClientException("Cannot handle device", e);
 			}
 			if (pos instanceof String) {
-				return (T)String.class.cast(pos);
+				return (T) String.class.cast(pos);
 			}
 			if (pos instanceof Number) {
-				return (T)Number.class.cast(pos);
+				return (T) Number.class.cast(pos);
 			}
 		}
 		throw new GDAClientException("The scannable is not available: " + scannablePropertiesDocument);
@@ -92,6 +97,7 @@ public class ManagedScannable<T> {
 
 	/**
 	 * Verifies if the scannable is available.
+	 *
 	 * @return {@code true} if the scannable is available, otherwise {@code false}
 	 */
 	public boolean isAvailable() {
@@ -99,18 +105,19 @@ public class ManagedScannable<T> {
 	}
 
 	private final void doMoveTo(Object position) throws GDAClientException {
-		if (isAvailable()) {
-			try {
-				if (position instanceof String) {
-					moveToEnumPosition(String.class.cast(position));
-				} else {
-					getScannable().moveTo(position);
-				}
-			} catch (DeviceException e) {
-				throw new GDAClientException("Cannot handle device", e);
-			}
+		if (!isAvailable()) {
+			throw new GDAClientException("The scannable is not available: " + scannablePropertiesDocument);
 		}
-		throw new GDAClientException("The scannable is not available: " + scannablePropertiesDocument);
+
+		try {
+			if (position instanceof String) {
+				moveToEnumPosition(String.class.cast(position));
+			} else {
+				getScannable().moveTo(position);
+			}
+		} catch (DeviceException e) {
+			throw new GDAClientException("Cannot handle device", e);
+		}
 	}
 
 	private final void moveToEnumPosition(String position) throws DeviceException {

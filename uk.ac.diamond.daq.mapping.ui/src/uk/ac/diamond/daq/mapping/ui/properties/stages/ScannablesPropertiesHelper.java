@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.mapping.ui.properties.stages;
 
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getConfigurationKeys;
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getProperty;
+import static uk.ac.gda.client.properties.ClientPropertiesHelper.getStringArrayProperty;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -110,9 +111,9 @@ public final class ScannablesPropertiesHelper {
 
 	private static Map<String, String> parseScannableEnums(String scannableKey, int scannableIndex) {
 		Map<String, String> enumsMap = new HashMap<>();
-		String enums = getProperty(scannableKey, scannableIndex, "enums", null);
+		String[] enums = getStringArrayProperty(scannableKey, scannableIndex, "enums");
 		if (enums != null) {
-			Arrays.stream(enums.split(","))
+			Arrays.stream(enums)
 					.forEach(m -> {
 						String[] mapping = m.split(":");
 						enumsMap.put(mapping[0], mapping[1]);
