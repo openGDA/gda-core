@@ -22,16 +22,17 @@ import static uk.ac.gda.ui.tool.rest.ClientRestService.createHttpEntity;
 import static uk.ac.gda.ui.tool.rest.ClientRestService.formatURL;
 import static uk.ac.gda.ui.tool.rest.ClientRestService.submitRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
  * Provides to the GDA client access to the ScanningAcquisition rest service
@@ -46,8 +47,11 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 @Service
 public class ScanningAcquisitionRestServiceClient {
 
+	@Autowired
+	private ClientSpringContext clientContext;
+
 	private String getServiceEndpoint() {
-		return LocalProperties.get("client.acquisition.service.endpoint", "http://127.0.0.1:8888/acquisition");
+		return formatURL(clientContext.getRestServiceEndpoint(), "/acquisition");
 	}
 
 	/**
@@ -60,9 +64,7 @@ public class ScanningAcquisitionRestServiceClient {
 	 *             if methods fails to submit the acquisition request
 	 */
 	public ResponseEntity<RunAcquisitionResponse> run(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) throws ScanningAcquisitionServiceException {
-		String restPath = "/run";
-		String url = formatURL(getServiceEndpoint(), restPath);
-		ResponseEntity<RunAcquisitionResponse> response = submitRequest(url, HttpMethod.POST, createHttpEntity(acquisition), RunAcquisitionResponse.class);
-		return response;
+		String url = formatURL(getServiceEndpoint(), "/run");
+		return submitRequest(url, HttpMethod.POST, createHttpEntity(acquisition), RunAcquisitionResponse.class);
 	}
 }

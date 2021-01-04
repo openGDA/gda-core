@@ -23,12 +23,13 @@ import static uk.ac.gda.ui.tool.rest.ClientRestService.returnBody;
 
 import java.net.URL;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
  * Provides to the GDA client access a {@link ExperimentController} service
@@ -43,8 +44,11 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 @Service
 public class ExperimentControllerServiceClient implements ExperimentController {
 
+	@Autowired
+	private ClientSpringContext clientContext;
+
 	private String getServiceEndpoint() {
-		return LocalProperties.get("client.experiment.service.endpoint", "http://127.0.0.1:8888/experiment");
+		return formatURL(clientContext.getRestServiceEndpoint(), "/experiment");
 	}
 
 	/**
@@ -70,8 +74,7 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 */
 	@Override
 	public String getExperimentName() {
-		String restPath = "/name";
-		String url = formatURL(getServiceEndpoint(), restPath);
+		String url = formatURL(getServiceEndpoint(), "/name");
 		return returnBody(url, HttpMethod.GET, null, String.class);
 	}
 
@@ -83,8 +86,7 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 */
 	@Override
 	public void stopExperiment() throws ExperimentControllerException {
-		String restPath = "/stop";
-		String url = formatURL(getServiceEndpoint(), restPath);
+		String url = formatURL(getServiceEndpoint(), "/stop");
 		returnBody(url, HttpMethod.POST, null, Void.class);
 	}
 
@@ -95,8 +97,7 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 */
 	@Override
 	public boolean isExperimentInProgress() {
-		String restPath = "/inProgress";
-		String url = formatURL(getServiceEndpoint(), restPath);
+		String url = formatURL(getServiceEndpoint(), "/inProgress");
 		return returnBody(url, HttpMethod.GET, null, Boolean.class);
 	}
 
@@ -145,8 +146,7 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 */
 	@Override
 	public void stopMultipartAcquisition() throws ExperimentControllerException {
-		String restPath = "/stopMultipartAcquisition";
-		String url = formatURL(getServiceEndpoint(), restPath);
+		String url = formatURL(getServiceEndpoint(), "/stopMultipartAcquisition");
 		returnBody(url, HttpMethod.POST, null, Void.class);
 	}
 }
