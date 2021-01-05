@@ -572,8 +572,8 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 		}
 	}
 
-	public int waitWhileStatusBusy() throws InterruptedException {
-		return adBase.waitWhileStatusBusy();
+	public void waitWhileStatusBusy() throws InterruptedException {
+		adBase.waitWhileStatusBusy();
 	}
 
 	public int[] getIntegerImageData(int numberOfElements) throws DeviceException {

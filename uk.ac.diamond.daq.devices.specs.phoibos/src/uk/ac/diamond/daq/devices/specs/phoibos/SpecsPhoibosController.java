@@ -870,8 +870,8 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 		return adBase.getStatusMessage_RBV();
 	}
 
-	public int waitWhileStatusBusy() throws InterruptedException {
-		return adBase.waitWhileStatusBusy();
+	public void waitWhileStatusBusy() throws InterruptedException {
+		adBase.waitWhileStatusBusy();
 	}
 
 	@Override
