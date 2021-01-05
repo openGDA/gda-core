@@ -829,7 +829,7 @@ public interface ADBase extends ADCommon {
 
 	void startAcquiringSynchronously() throws Exception;
 
-	int waitWhileStatusBusy() throws InterruptedException;
+	void waitWhileStatusBusy() throws InterruptedException;
 
 	/**
 	 * Waits for a certain exposure during a multiple=exposure acquisition to complete. Note that

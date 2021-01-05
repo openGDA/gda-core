@@ -1997,18 +1997,16 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	}
 
 	@Override
-	public int waitWhileStatusBusy() throws InterruptedException {
+	public void waitWhileStatusBusy() throws InterruptedException {
 		synchronized (statusMonitor) {
-			try{
+			try {
 				while (status == Detector.BUSY) {
 					statusMonitor.wait(1000);
 				}
-			}  finally{
-				//if interrupted clear the status state as the IOC may have crashed
-				if ( status != 0)
-					setStatus(0);
+			} finally {
+				// if interrupted clear the status state as the IOC may have crashed
+				setStatus(Detector.IDLE);
 			}
-			return status;
 		}
 	}
 

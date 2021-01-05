@@ -754,9 +754,8 @@ public class ADBaseSimulator implements ADBase {
 	}
 
 	@Override
-	public int waitWhileStatusBusy() throws InterruptedException {
-
-		return 0;
+	public void waitWhileStatusBusy() throws InterruptedException {
+		// Do nothing
 	}
 
 	@Override
