@@ -44,6 +44,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
@@ -147,7 +148,7 @@ public class ScanpathTest {
 		assertTrue(LINE_POINTS.modelType().equals(TwoAxisLinePointsModel.class));
 		assertTrue(LINE_STEP.modelType().equals(TwoAxisLineStepModel.class));
 		assertTrue(SINGLE_POINT.modelType().equals(TwoAxisPointSingleModel.class));
-		assertTrue(AXIS_POINTS.modelType().equals(AxialStepModel.class));
+		assertTrue(AXIS_POINTS.modelType().equals(AxialPointsModel.class));
 		assertTrue(AXIS_STEP.modelType().equals(AxialStepModel.class));
 	}
 
@@ -395,12 +396,12 @@ public class ScanpathTest {
 	public void createModelCreatesCorrectModelForOneDEqualSpacing() throws Exception {
 		pathParams = Arrays.asList(-2, 2, 5);
 		IScanPathModel model = AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
-		assertThat(model, is(instanceOf(AxialStepModel.class)));
-		AxialStepModel eModel = (AxialStepModel)model;
+		assertThat(model, is(instanceOf(AxialPointsModel.class)));
+		AxialPointsModel eModel = (AxialPointsModel)model;
 		assertThat(eModel.getScannableNames(), contains("name1"));
 		assertThat(eModel.getStart(), is(-2.0));
 		assertThat(eModel.getStop(), is(2.0));
-		assertThat(eModel.getStep(), is(1.0));
+		assertThat(eModel.getPoints(), is(5));
 	}
 
 	@Test
@@ -436,6 +437,23 @@ public class ScanpathTest {
 	}
 
 	@Test
+	public void createModelRejectsNegativePointsValueForOneDPoints() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(AxialPointsModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
+		pathParams = Arrays.asList(2, 3, -5);
+		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsZeroPointsValueForOneDPoints() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(AxialPointsModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
+		pathParams = Arrays.asList(2, 3, 0);
+		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+	}
+
+
+	@Test
 	public void createModelRejectsNegativeStepValueForOneDStep() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
@@ -449,6 +467,14 @@ public class ScanpathTest {
 		exception.expectMessage(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 0);
 		AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
+	}
+
+	@Test
+	public void createModelRejectsNonIntStepValueForOneDStep() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(AxialPointsModel.class.getSimpleName() + String.format(ONE_INTEGER_ERROR, 2));
+		pathParams = Arrays.asList(-2, 2, 5.4);
+		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
 	}
 
 	@Test
