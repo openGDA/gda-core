@@ -38,6 +38,8 @@ import org.junit.Test;
 import com.google.common.eventbus.Subscribe;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
 
 /**
  * Test methods for {@link uk.ac.diamond.daq.msgbus.MsgBus}.
@@ -58,6 +60,7 @@ public class MsgBusTest {
 		LocalProperties.forceActiveMQEmbeddedBroker();
 		// Disable setting of broker URI property above to use with local broker outside process, e.g.:
 		// module load activemq; activemq start
+		ServiceHolder.setSessionService(new TestSessionService());
 	}
 
 	@AfterClass

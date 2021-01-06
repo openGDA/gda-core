@@ -56,10 +56,12 @@ import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
 import uk.ac.gda.remoting.server.RmiObjectInfo;
 import uk.ac.gda.remoting.server.RmiRemoteObjectProvider;
@@ -89,6 +91,7 @@ public class RmiProxyFactoryTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
+		ServiceHolder.setSessionService(new TestSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Create a registry

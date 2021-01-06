@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.activemq;
 
 import javax.jms.JMSException;
+import javax.jms.QueueSession;
 import javax.jms.Session;
 
 public interface ISessionService {
@@ -26,7 +27,9 @@ public interface ISessionService {
 	public Session getSession(String brokerUri, boolean transacted, int acknowledgeMode) throws JMSException;
 
 	public Session getSession() throws JMSException;
+	
+	public QueueSession getQueueSession(String brokerUri, boolean transacted, int acknowledgeMode) throws JMSException;
 
 	public boolean defaultConnectionActive();
-
+		
 }

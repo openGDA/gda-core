@@ -44,12 +44,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.SocketUtils;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
@@ -76,6 +78,7 @@ public class RmiRemotingIntegrationTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
+		ServiceHolder.setSessionService(new TestSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set properties

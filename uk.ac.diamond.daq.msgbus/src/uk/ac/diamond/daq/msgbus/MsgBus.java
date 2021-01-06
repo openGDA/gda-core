@@ -41,7 +41,7 @@ import javax.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import uk.ac.diamond.daq.activemq.ISessionService;
 import com.google.common.base.Supplier;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.DeadEvent;

@@ -28,6 +28,7 @@
 		<module>org.opengda.lde.model.editor</module>
 		<!--module>org.opengda.lde.model.tests</module-->
 		<module>org.opengda.lde.ui</module>
+		<module>uk.ac.diamond.daq.activemq.connection</module>
 		<module>uk.ac.diamond.daq.beamline.configuration</module>
 		<module>uk.ac.diamond.daq.beamline.configuration.api</module>
 		<module>uk.ac.diamond.daq.beamline.configuration.test</module>

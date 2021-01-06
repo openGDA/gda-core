@@ -42,6 +42,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.activemq.ISessionService;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
