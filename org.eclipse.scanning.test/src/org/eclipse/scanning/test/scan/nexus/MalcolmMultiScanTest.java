@@ -18,7 +18,6 @@
 
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.eclipse.scanning.api.points.models.AxialStepModel.createStaticAxialModel;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertDatasetsEqual;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -46,6 +45,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
@@ -134,11 +134,11 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		 // darks and flats should be (step / 2) before the start of the main scan, and the same after
 		final double posBeforeMainScan = mainScanModel.getStart() - mainScanModel.getStep() / 2;
 		final double posAfterMainScan = mainScanModel.getStop() + mainScanModel.getStep() / 2;
-		multiScanModel.addModel(createStaticAxialModel("theta", posBeforeMainScan, NUM_FLATS));
-		multiScanModel.addModel(createStaticAxialModel("theta", posBeforeMainScan, NUM_DARKS));
+		multiScanModel.addModel(new AxialPointsModel("theta", posBeforeMainScan, NUM_FLATS));
+		multiScanModel.addModel(new AxialPointsModel("theta", posBeforeMainScan, NUM_DARKS));
 		multiScanModel.addModel(mainScanModel);
-		multiScanModel.addModel(createStaticAxialModel("theta", posAfterMainScan, NUM_FLATS));
-		multiScanModel.addModel(createStaticAxialModel("theta", posAfterMainScan, NUM_DARKS));
+		multiScanModel.addModel(new AxialPointsModel("theta", posAfterMainScan, NUM_FLATS));
+		multiScanModel.addModel(new AxialPointsModel("theta", posAfterMainScan, NUM_DARKS));
 
 		// flat, dark, tomo, flat, dark
 		final Map<String, Object> flatPosMap = new HashMap<>();

@@ -33,6 +33,7 @@ public class AxialStepModel extends AbstractPointsModel {
 	@FieldDescriptor(label="Step", scannable="name", hint="This is the step during the scan", fieldPosition=3) // The scannable lookup gets the units
 	private double step;
 
+	// Left to prevent problems with deserialisation, see {@link AxialPointsModel}
 	private int count;
 
 	public AxialStepModel() {
@@ -45,12 +46,6 @@ public class AxialStepModel extends AbstractPointsModel {
 		this.start = start;
 		this.stop = stop;
 		this.step = step;
-	}
-
-	public static AxialStepModel createStaticAxialModel(String name, double value, int count) {
-		final AxialStepModel model = new AxialStepModel(name, value, value, 0.0);
-		model.setCount(count);
-		return model;
 	}
 
 	public double getStart() {
@@ -70,13 +65,6 @@ public class AxialStepModel extends AbstractPointsModel {
 	}
 	public void setStep(double step) {
 		this.step = step;
-		this.count = 0;
-	}
-	public void setCount(int count) {
-		this.count = count;
-	}
-	public int getCount() {
-		return count;
 	}
 
 	@Override
@@ -105,12 +93,11 @@ public class AxialStepModel extends AbstractPointsModel {
 			return false;
 		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
 			return false;
-		return count == other.count;
+		return true;
 	}
 
 	protected String description() {
-		return "start=" + start + ", stop=" + stop + (count == 0 ? ", step=" + step : ", count=" + count)
-				+ ", " + super.toString();
+		return "start=" + start + ", stop=" + stop + ", step=" + step + ", " + super.toString();
 	}
 
 	@Override

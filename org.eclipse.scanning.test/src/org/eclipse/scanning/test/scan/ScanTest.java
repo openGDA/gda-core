@@ -303,7 +303,7 @@ public class ScanTest extends BrokerTest {
 			assertEquals(GeneratorException.class, ex.getClass());
 			assertEquals(InvocationTargetException.class, ex.getCause().getClass());
 			assertEquals(ModelValidationException.class, ex.getCause().getCause().getClass());
-			assertEquals("Model step size or count must be nonzero!", ex.getCause().getCause().getMessage());
+			assertEquals("Model step size must be nonzero!", ex.getCause().getCause().getMessage());
 			return;
 		}
 

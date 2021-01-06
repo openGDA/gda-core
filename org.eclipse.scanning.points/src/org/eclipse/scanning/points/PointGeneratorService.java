@@ -37,6 +37,7 @@ import org.eclipse.scanning.api.points.models.AbstractMultiModel;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
@@ -76,6 +77,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 		// (models class keys are different) but causes ambiguity in the GUI when it creates a
 		// generator for a model.
 		gens.put(AxialStepModel.class, AxialStepGenerator.class);
+		gens.put(AxialPointsModel.class, AxialPointsGenerator.class);
 		gens.put(AxialCollatedStepModel.class, AxialCollatedStepGenerator.class);
 		gens.put(AxialMultiStepModel.class, AxialMultiStepGenerator.class);
 		gens.put(AxialArrayModel.class, AxialArrayGenerator.class);

@@ -29,7 +29,6 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_TEMPLATE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_META;
-import static org.eclipse.scanning.api.points.models.AxialStepModel.createStaticAxialModel;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.FILE_EXTENSION_H5;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -79,6 +78,7 @@ import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.Scalar;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -396,9 +396,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		 // darks and flats should be (step / 2) before the start of the main scan, and the same after
 		final double posBeforeMainScan = mainScanModel.getStart() - mainScanModel.getStep() / 2;
 		final double posAfterMainScan = mainScanModel.getStop() + mainScanModel.getStep() / 2;
-		multiScanModel.addModel(createStaticAxialModel("theta", posBeforeMainScan, 3));
+		multiScanModel.addModel(new AxialPointsModel("theta", posBeforeMainScan, 3));
 		multiScanModel.addModel(mainScanModel);
-		multiScanModel.addModel(createStaticAxialModel("theta", posAfterMainScan, 3));
+		multiScanModel.addModel(new AxialPointsModel("theta", posAfterMainScan, 3));
 
 		multiScanModel.addInterpolatedPosition(new Scalar<String>("portshutter", "Closed"));
 		multiScanModel.addInterpolatedPosition(new Scalar<String>("portshutter", "Open"));

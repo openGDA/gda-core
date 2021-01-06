@@ -31,6 +31,7 @@ import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
@@ -115,6 +116,7 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, TwoAxisSpiralModel.class);
 		registerClass(tmp, OneAxisPointRepeatedModel.class);
 		registerClass(tmp, AxialStepModel.class);
+		registerClass(tmp, AxialPointsModel.class);
 		registerClass(tmp, AxialMultiStepModel.class);
 		registerClass(tmp, GenericModel.class);
 		registerClass(tmp, TwoAxisPtychographyModel.class);
