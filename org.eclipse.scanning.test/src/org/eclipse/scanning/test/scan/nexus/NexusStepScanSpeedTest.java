@@ -14,7 +14,6 @@ package org.eclipse.scanning.test.scan.nexus;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.IScannable;
@@ -36,6 +35,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
 
 /**
  *
@@ -61,10 +62,11 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		// DO NOT COPY THIS IN NON-TEST CODE!
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new ScanningAPIClassRegistry()));
+		activemqConnectorService.setSessionService(new TestSessionService());
 		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We publish an event to make sure all these libraries are loaded
-		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.getUri(), EventConstants.SCAN_TOPIC);
+		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
 		publisher.broadcast(new ScanBean());
 
 		// We write a nexus file to ensure that the library is loaded
@@ -82,7 +84,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 
 	@Before
-	public void before() throws GeneratorException, IOException {
+	public void before() throws GeneratorException {
 		this.gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 1000, 1));
 	}
 
@@ -122,7 +124,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 	public void testPublishedNexusStepScanSpeed() throws Exception {
 
 		// We create a step scan
-		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.getUri(), EventConstants.SCAN_TOPIC);
+		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
 		final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen, output), publisher);
 		runAndCheck("NeXus with Publish", scan, 10, 3072, 2000L);
 	}

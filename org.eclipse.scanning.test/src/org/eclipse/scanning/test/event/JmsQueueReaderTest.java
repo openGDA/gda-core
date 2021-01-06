@@ -30,10 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.JMSException;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
@@ -83,10 +82,8 @@ public class JmsQueueReaderTest extends BrokerTest {
 
 	private void clearJmsQueue() throws JMSException {
 		// the easiest way to clear the JMS queue is to destroy it using ActiveMq specific API
-		QueueConnectionFactory connectionFactory =
-				(QueueConnectionFactory) eventService.getEventConnectorService().createConnectionFactory(uri);
-		QueueConnection connection = connectionFactory.createQueueConnection();
-		((ActiveMQConnection) connection).destroyDestination(new ActiveMQQueue(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID));
+		ActiveMQConnection connection = (ActiveMQConnection) new ActiveMQConnectionFactory(uri.toString()).createQueueConnection();
+		connection.destroyDestination(new ActiveMQQueue(ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID));
 	}
 
 	@Test

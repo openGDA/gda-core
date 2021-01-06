@@ -18,7 +18,6 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.usage.SystemUsage;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -26,6 +25,8 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IMessagingService;
 import org.eclipse.scanning.api.scan.IFilePathService;
+
+import uk.ac.diamond.daq.activemq.ISessionService;
 
 /**
  * This class is temporarily in this plugin and needs to be moved out of it once:
@@ -46,12 +47,23 @@ public class ActivemqConnectorService implements IEventConnectorService, IMessag
 
 	private IFilePathService filePathService;
 
+	private ISessionService sessionService;
+
 	public void setJsonMarshaller(IMarshallerService jsonMarshaller) {
 		this.jsonMarshaller = jsonMarshaller;
 	}
 
 	public void setFilePathService(IFilePathService filePathService) {
 		this.filePathService = filePathService;
+	}
+
+	public void setSessionService(ISessionService sessionService) {
+		this.sessionService = sessionService;
+	}
+
+	@Override
+	public ISessionService getSessionService(){
+		return sessionService;
 	}
 
 	static {
@@ -63,11 +75,6 @@ public class ActivemqConnectorService implements IEventConnectorService, IMessag
 	 */
 	public ActivemqConnectorService() {
 		// nothing to do
-	}
-
-	@Override
-	public Object createConnectionFactory(URI uri) {
-		return new ActiveMQConnectionFactory(uri);
 	}
 
 	@Override

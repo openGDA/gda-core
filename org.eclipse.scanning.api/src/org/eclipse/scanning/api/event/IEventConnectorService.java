@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event;
 
-import java.net.URI;
+import uk.ac.diamond.daq.activemq.ISessionService;
 
 /**
  * Clients do not need to consume this service, it is provided by a bundle in the
@@ -42,20 +42,15 @@ public interface IEventConnectorService {
 	<U> U unmarshal(String anyObject, Class<U> beanClass) throws Exception;
 
 	/**
-	 * Create a connection factory for sending events. This method
-	 * may return null or a class implementing javax.jms.ConnectionFactory
-	 * or javax.jms.QueueConnectionFactory
-	 *
-	 * @param uri
-	 * @return
-	 */
-	Object createConnectionFactory(URI uri);
-
-
-	/**
 	 * Returns the path of the directory to use for persistence.
 	 * @return
 	 */
 	String getPersistenceDir();
+
+	/**
+	 * Return a service responsible for managing Connections, Sessions
+	 * @return
+	 */
+	ISessionService getSessionService();
 
 }

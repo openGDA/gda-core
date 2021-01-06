@@ -23,6 +23,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
+
 public class RunTest extends BrokerTest{
 
 	private IEventService            eservice;
@@ -32,6 +34,7 @@ public class RunTest extends BrokerTest{
 	public void before() {
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
+		activemqConnectorService.setSessionService(new TestSessionService());
 		eservice  = new EventServiceImpl(activemqConnectorService);
 		// Use in memory broker removes requirement on network and external ActiveMQ process
 		// http://activemq.apache.org/how-to-unit-test-jms-code.html

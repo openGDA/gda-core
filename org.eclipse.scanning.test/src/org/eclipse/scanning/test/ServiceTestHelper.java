@@ -82,6 +82,8 @@ import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
 import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
+
 /**
  * <p>
  * The utility class is designed to to help tests to setup services in the way OSGi would in the real application.
@@ -299,6 +301,7 @@ public final class ServiceTestHelper {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(marshallerService);
 		activemqConnectorService.setFilePathService(filePathService);
+		activemqConnectorService.setSessionService(new TestSessionService());
 		return activemqConnectorService;
 	}
 

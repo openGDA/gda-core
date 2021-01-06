@@ -18,12 +18,16 @@ import org.apache.activemq.broker.BrokerService;
 
 public class BrokerDelegate {
 
-	private URI           uri;
+	public static final String INBROKER_NONPERSISTENT_URI = "vm://localhost?broker.persistent=false";
+	public final URI uri = new URI(INBROKER_NONPERSISTENT_URI);
 	private BrokerService service;
 
+	public BrokerDelegate() throws URISyntaxException {
+		// non-default constructor so can have uri from creation
+	}
+
 	public void start() throws Exception {
-		uri = createUri();
-		System.setProperty("org.eclipse.scanning.broker.uri", uri.toString());
+		System.setProperty("org.eclipse.scanning.broker.uri", INBROKER_NONPERSISTENT_URI);
         service = new BrokerService();
         service.setPersistent(false);
         service.setUseJmx(false);
@@ -39,19 +43,6 @@ public class BrokerDelegate {
 			service.waitUntilStopped();
 			service = null;
 		}
-	}
-
-	public URI getUri() {
-		return uri;
-	}
-
-	public void setUri(URI uri) {
-		this.uri = uri;
-	}
-
-
-	private static URI createUri() throws URISyntaxException {
-			return new URI("vm://localhost?broker.persistent=false");
 	}
 
 }

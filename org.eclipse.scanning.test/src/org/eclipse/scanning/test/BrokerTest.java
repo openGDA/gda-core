@@ -46,10 +46,10 @@ public abstract class BrokerTest {
 	}
 
 	@BeforeClass
-	public final static void startBroker() throws Exception {
+	public static final void startBroker() throws Exception {
 		delegate = new BrokerDelegate();
 		delegate.start();
-		uri = delegate.getUri();
+		uri = delegate.uri;
 		ScanningTestUtils.clearTmp();
 	}
 
@@ -59,12 +59,12 @@ public abstract class BrokerTest {
 			if (delegate!=null) delegate.stop();
 			delegate = new BrokerDelegate();
 			delegate.start();
-			uri      = delegate.getUri();
+			uri      = delegate.uri;
 		}
 	}
 
 	@AfterClass
-	public final static void stopBroker() throws Exception {
+	public static final void stopBroker() throws Exception {
 		if (delegate!=null) delegate.stop();
 	}
 
@@ -73,7 +73,7 @@ public abstract class BrokerTest {
 	 *  Store comes after Stop so this is final thing to happen
 	 */
 	@AfterClass
-	public final static void storeClose() {
+	public static final void storeClose() {
 		ScanningTestUtils.clearMVStore();
 	}
 

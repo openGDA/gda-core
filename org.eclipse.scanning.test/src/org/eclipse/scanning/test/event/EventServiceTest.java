@@ -40,6 +40,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
+
 public class EventServiceTest extends BrokerTest {
 
 	private IEventService eventService;
@@ -53,6 +55,7 @@ public class EventServiceTest extends BrokerTest {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		activemqConnectorService.setFilePathService(new MockFilePathService());
+		activemqConnectorService.setSessionService(new TestSessionService());
 		eventService  = new EventServiceImpl(activemqConnectorService);
 	}
 

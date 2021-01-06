@@ -16,8 +16,6 @@ import java.net.URI;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 
@@ -41,7 +39,6 @@ abstract class AbstractConnection implements IURIConnection {
 
 	protected IEventConnectorService service;
 
-	private QueueConnection connection;
 	private Session session;
 	private QueueSession queueSession;
 	private boolean connected = true;
@@ -67,30 +64,13 @@ abstract class AbstractConnection implements IURIConnection {
 		return service;
 	}
 
-	protected synchronized void createConnection() throws JMSException {
-		Object factory = service.createConnectionFactory(uri);
-		QueueConnectionFactory connectionFactory = (QueueConnectionFactory)factory;
-		this.connection = connectionFactory.createQueueConnection();
-		connection.start();
-	}
-
-	private synchronized void createSession() throws JMSException {
-		if (connection == null) createConnection();
-		this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-	}
-
 	protected synchronized Session getSession() throws JMSException {
-		if (session == null) createSession();
+		if (session == null) session = service.getSessionService().getSession(uri.toString(), false, Session.AUTO_ACKNOWLEDGE);
 		return session;
 	}
 
-	private synchronized void createQueueSession() throws JMSException {
-		if (connection == null) createConnection();
-		this.queueSession = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-	}
-
 	protected synchronized QueueSession getQueueSession() throws JMSException {
-		if (queueSession == null) createQueueSession();
+		if (queueSession == null) queueSession = service.getSessionService().getQueueSession(uri.toString(), false, Session.AUTO_ACKNOWLEDGE);
 		return queueSession;
 	}
 
@@ -101,21 +81,17 @@ abstract class AbstractConnection implements IURIConnection {
 	 * @throws JMSException
 	 */
 	protected synchronized Queue createQueue(String queueName) throws JMSException {
-		if (connection==null) createConnection();
-		if (queueSession == null) createQueueSession();
-		return queueSession.createQueue(queueName);
+		return getQueueSession().createQueue(queueName);
 	}
 
 	@Override
 	public synchronized void disconnect() throws EventException {
 		try {
-			if (connection!=null) connection.close();
 			if (session != null) session.close();
 			if (queueSession!=null) queueSession.close();
 		} catch (JMSException ne) {
 			logger.error("Internal error - unable to close connection!", ne);
 		} finally {
-			connection = null;
 			session = null;
 			queueSession = null;
 		}
