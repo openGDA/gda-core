@@ -149,6 +149,11 @@ public final class LocalProperties {
 	public static final String GDA_DUMMY_MODE_ENABLED = "gda.dummy.mode";
 
 	/**
+	 * Property that specifies the GDA running mode, e.g. "dummy", "live" or any other defined running mode
+	 */
+	public static final String GDA_MODE = "gda.mode";
+
+	/**
 	 * Boolean property that indicates whether GDA access control is enabled.
 	 */
 	public static final String GDA_ACCESS_CONTROL_ENABLED = "gda.accesscontrol.useAccessControl";
