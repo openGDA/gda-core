@@ -81,7 +81,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	@Override
 	public void createUi(Composite composite) {
 		mainComposite = new Composite(composite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(4 + extensions.size()).applyTo(mainComposite);
+		GridLayoutFactory.fillDefaults().numColumns(6 + extensions.size()).applyTo(mainComposite);
 
 		// Exposure control
 		final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
