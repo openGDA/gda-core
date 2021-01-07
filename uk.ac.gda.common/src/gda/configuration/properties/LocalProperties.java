@@ -383,6 +383,7 @@ public final class LocalProperties {
 	 */
 	public static void unsetActiveMQBrokerURI() {
 		setActiveMQBrokerURI(null);
+		System.clearProperty("GDA/" + GDA_ACTIVEMQ_BROKER_URI);
 	}
 
 	/**
@@ -391,6 +392,9 @@ public final class LocalProperties {
 	 */
 	public static void forceActiveMQEmbeddedBroker() {
 		setActiveMQBrokerURI("vm://localhost?broker.persistent=false");
+		// As ActiveMQSessionService cannot depend on this, must use System property.
+		// Equivalent is done when reading from property config but not when setting config.
+		System.setProperty("GDA/" + GDA_ACTIVEMQ_BROKER_URI, "vm://localhost?broker.persistent=false");
 	}
 
 	public static boolean isScanSetsScanNumber() {
