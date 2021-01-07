@@ -21,7 +21,9 @@ package uk.ac.gda.server.ncd.detectorsystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
+import gda.device.ProcessingRequestProvider;
 import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
@@ -50,7 +53,8 @@ import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
  * Detector system of non crystalline diffraction to allow scans to take time series at each point.
  */
 @ServiceInterface(NcdDetector.class)
-public class NcdDetectorSystem extends DetectorBase implements NcdDetector, PositionCallableProvider<NexusTreeProvider> {
+public class NcdDetectorSystem extends DetectorBase
+		implements NcdDetector, PositionCallableProvider<NexusTreeProvider>, ProcessingRequestProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdDetectorSystem.class);
 
@@ -83,6 +87,8 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	private Collection<NcdAction> scanStartActions = new HashSet<>();
 	private Collection<NcdAction> scanEndActions = new HashSet<>();
+
+	private Map<String, Collection<Object>> processing = new HashMap<>();
 
 	@Override
 	public void configure() throws FactoryException {
@@ -449,5 +455,17 @@ public class NcdDetectorSystem extends DetectorBase implements NcdDetector, Posi
 
 	public void notifyRateCollection(Collection<Object> rateCollection) {
 		notifyIObservers(this, rateCollection);
+	}
+
+	public void setProcessingRequest(Map<String, Collection<Object>> request) {
+		processing.clear();
+		if (request != null) {
+			processing.putAll(request);
+		}
+	}
+
+	@Override
+	public Map<String, Collection<Object>> getProcessingRequest() {
+		return processing;
 	}
 }
