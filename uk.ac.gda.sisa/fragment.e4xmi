@@ -34,7 +34,7 @@
                 <children xsi:type="basic:Part" xmi:id="_wM970MwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_3#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-3"/>
               </children>
               <children xsi:type="basic:PartStack" xmi:id="_ez1jAMy8EeqP-MGPEvoUgA" elementId="uk.ac.gda.sisa.partstack.6">
-                <children xsi:type="basic:Part" xmi:id="_0bLBoMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:analyser_stream#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="EAV"/>
+                <children xsi:type="basic:Part" xmi:id="_0bLBoMwpEeqs2rkYsyaCSA" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:analyser_stream2#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="EAV"/>
               </children>
             </children>
           </children>
