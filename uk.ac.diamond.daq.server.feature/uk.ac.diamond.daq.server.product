@@ -32,8 +32,6 @@ Starts the server as an Eclipse OSGI application
    <windowImages i16="/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png" i32="/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png" i48="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png" i64="/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png" i128="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
 
    <launcher name="gda-server">
-      <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
-      <macosx icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
       <win useIco="false">
          <bmp/>
       </win>
