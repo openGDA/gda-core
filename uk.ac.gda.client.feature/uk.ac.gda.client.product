@@ -34,7 +34,6 @@ See &lt;http://www.opengda.org/&gt;
    <splash
       location="uk.ac.gda.client" />
    <launcher>
-      <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
       <win useIco="false">
          <bmp/>
       </win>
