@@ -165,7 +165,7 @@ Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.activation,
+Import-Package: javax.activation;version="1.1.0",
  javax.annotation;version="1.2.0",
  javax.jms,
  javax.mail;version="1.5.0",
