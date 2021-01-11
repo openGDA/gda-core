@@ -28,6 +28,7 @@ import java.util.function.BiConsumer;
 import java.util.function.LongSupplier;
 import java.util.stream.IntStream;
 
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.january.dataset.Dataset;
@@ -42,6 +43,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientTextFormats;
 
 /**
  * Calculates, from a region shape, and displays, as table row, an image
@@ -178,16 +180,13 @@ class ROIStatisticRow {
 		Dataset intDataset = convertToDataset(dataset.getSliceView(start, end, step));
 
 		// filters the points contained in the roi, sum up their intensities
+		Mean mean = new Mean();
 		IntStream.range(0, length[1])
-				.forEach(y -> IntStream.range(0, length[0])
-					.filter(x -> roi.containsPoint((double) x + xy[0], (double) y + xy[1]))
-					.forEach(x -> sumIntensities(x, y, intDataset)));
-		this.intensityLabel.setText(Long.toString(this.intensity));
+			.forEach(y -> IntStream.range(0, length[0])
+			.filter(x -> roi.containsPoint((double) x + xy[0], (double) y + xy[1]))
+			.forEach(x -> mean.increment(intDataset.getLong(x, y))));
+		this.intensityLabel.setText(ClientTextFormats.formatDecimal(mean.getResult()));;
 
 		processRatio();
-	}
-
-	private void sumIntensities(int x, int y, Dataset intDataset) {
-		this.intensity += intDataset.getLong(x, y);
 	}
 }
