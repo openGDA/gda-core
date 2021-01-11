@@ -391,7 +391,6 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * Fixed data size means if we insert an element we remove
 	 *
 	 * @param obj
-	 * @return
 	 * @see java.util.Vector#insertElementAt(java.lang.Object, int)
 	 */
 	public synchronized boolean add(Double obj) {
