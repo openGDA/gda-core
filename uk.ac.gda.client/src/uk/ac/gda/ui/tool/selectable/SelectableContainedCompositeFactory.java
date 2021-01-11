@@ -52,23 +52,38 @@ import uk.ac.gda.ui.tool.ClientMessages;
 /**
  * This widget can dynamically change its content based on the user selection.
  * <p>
- * An instance of this class contains a collection of {@link NamedComposite}. Each element of the collection is exposed as radio button at the top of the widget.
+ * An instance of this class contains a collection of {@link NamedCompositeFactory}. Each element of the collection is exposed as radio button at the top of the widget.
  * The selection of an element causes the associated {@code NamedComposite} to be build inside a {@link ScrolledComposite}
  * </p>
+ * <p>
+ * Any of the {@code NamedComposite} may inhibit the transition to another {code NamedComposite} locking this {@code Composite}.
+ * To activate the lock the {@code NamedComposite} executes
+ * <pre>
+ * 	LockableSelectable lockableClass = WidgetUtilities.getDataObject(this.parent, LockableSelectable.class, LockableSelectable.LOCKABLE_SELECTABLE);
+ *	Optional.of(lockableClass).ifPresent(l -> l.lock(true));
+ * </pre>
+ * After which the selectable widget will be disabled.
+ * In a similar way the lock can be disabled setting the lock to {@code false}
+ * <pre>
+ * </p>
+ *
  * @author Maurizio Nagni
  */
-public class SelectableContainedCompositeFactory implements CompositeFactory {
+public class SelectableContainedCompositeFactory implements CompositeFactory, Lockable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SelectableContainedCompositeFactory.class);
 
 	private static final String CONFIGURATION_FACTORY = "configurationFactory";
 
-	private List<Button> options = new ArrayList<>();
-	private final List<NamedComposite> composites = new ArrayList<>();
+	private final List<Button> options = new ArrayList<>();
+	private final List<NamedCompositeFactory> composites = new ArrayList<>();
 	private final ClientMessages groupName;
 
 	private ScrolledComposite scrolledInnerContainer;
 	private Composite innerContainer;
+	/**
+	 * The actual selected widget
+	 */
 	private Widget selectedWidget;
 
 	/**
@@ -76,7 +91,7 @@ public class SelectableContainedCompositeFactory implements CompositeFactory {
 	 * @param composites the namedCompsite to select from
 	 * @param groupName the label to use for the radio group
 	 */
-	public SelectableContainedCompositeFactory(List<NamedComposite> composites, ClientMessages groupName) {
+	public SelectableContainedCompositeFactory(List<NamedCompositeFactory> composites, ClientMessages groupName) {
 		this.composites.addAll(composites);
 		this.groupName = groupName;
 	}
@@ -106,6 +121,8 @@ public class SelectableContainedCompositeFactory implements CompositeFactory {
 		innerContainer = createClientCompositeWithGridLayout(scrolledInnerContainer, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(innerContainer);
 		scrolledInnerContainer.setContent(innerContainer);
+		// Exposes the LockableSelectable interface so to allow the selectable factories to lock this widget
+		innerContainer.setData(Lockable.LOCKABLE_SELECTABLE, this);
 
 		// Creates one radio button for each NamedComposite and set it as data object so can be easily retrieved when selected
 		composites.stream().forEach(c -> {
@@ -145,7 +162,20 @@ public class SelectableContainedCompositeFactory implements CompositeFactory {
 		// Calling newComposite.computeSize calculate the default size, that is the widget size
 		// In this way is possible to correctly set the size below which the scroll bars appear.
 		scrolledInnerContainer.setMinSize(newComposite.computeSize( SWT.DEFAULT, SWT.DEFAULT ));
-		scrolledInnerContainer.layout(true, true);
+		scrolledInnerContainer.getShell().layout(true, true);
 		selectedWidget = event.widget;
+	}
+
+	/**
+	 * Enable, or disable, the selectable widget
+	 * @param lock {@code true} to lock, {@code false} to unlock
+	 */
+	@Override
+	public void lock(boolean lock) {
+		if (lock) {
+			options.forEach(b -> b.setEnabled(false));
+		} else {
+			options.forEach(b -> b.setEnabled(true));
+		}
 	}
 }

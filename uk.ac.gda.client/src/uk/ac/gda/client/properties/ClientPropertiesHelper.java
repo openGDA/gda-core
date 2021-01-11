@@ -109,6 +109,23 @@ public final class ClientPropertiesHelper {
 	}
 
 	/**
+	 * Returns the integer value of a property key assembled as "PREFIX.INDEX.PROPERTY"
+	 *
+	 * @param prefix
+	 *            the PREFIX element of the property key
+	 * @param index
+	 *            the INDEX element of the property key
+	 * @param property
+	 *            the PROPERTY element of the property key
+	 * @param defaultValue
+	 *            the default value if the property does not exist
+	 * @return the property value
+	 */
+	public static int getPropertyAsInt(String prefix, int index, String property, int defaultValue) {
+		return LocalProperties.getAsInt(String.format(PROPERTY_FORMAT, prefix, index, property), defaultValue);
+	}
+
+	/**
 	 * Returns an array, from a comma separated value, of a property key assembled as "PREFIX.INDEX.PROPERTY"
 	 *
 	 * @param prefix

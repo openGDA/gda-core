@@ -22,19 +22,24 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
- * Adds to a composite factory a name and tooltip properties so it may be used as element in a collection.
+ * Implementers of <code>NamedCompositeFactory</code> create a {@link CompositeFactory} which can be identified on the GUI.
+ *
+ * <p>
+ * Classes implementing this interface can be used as factories for dynamic GUI, that is to create Composite on demand from a button text provided by {@link #getName()}
+ * with a tooltip provided by {@link #getTooltip()}
+ * </p>
  *
  * @author Maurizio Nagni
  */
-public interface NamedComposite extends CompositeFactory {
+public interface NamedCompositeFactory extends CompositeFactory {
 	/**
-	 * The name to display to the user when this factory is selectable
+	 * The human friendly name to identify this class in the GUI
 	 * @return the factory name
 	 */
 	ClientMessages getName();
 
 	/**
-	 * The tooltip to display to the user when this factory is selectable
+	 * The tooltip providing a brief info about this class
 	 * @return the factory tooltip
 	 */
 	ClientMessages getTooltip();
