@@ -35,6 +35,8 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -45,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LinesToTrackEntry;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 
 /**
@@ -93,6 +96,18 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		}
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
+
+		// Add XANES parameters as metadata to the ScanRequest, so they appear in the Nexus file
+		final ScanMetadata xanesMetadata = new ScanMetadata(MetadataType.ENTRY);
+		final LinesToTrackEntry linesToTrackEntry = xanesEdgeParameters.getLinesToTrack();
+		xanesMetadata.addField("line", linesToTrackEntry.getLine());
+		xanesMetadata.addField("file_paths", new ArrayList<String>(linesToTrackEntry.getFilePaths()));
+		xanesMetadata.addField("tracking_method", xanesEdgeParameters.getTrackingMethod());
+		xanesMetadata.addField("visit_id", xanesEdgeParameters.getVisitId());
+
+		final List<ScanMetadata> scanMetadata = new ArrayList<>(scanRequest.getScanMetadata());
+		scanMetadata.add(xanesMetadata);
+		scanRequest.setScanMetadata(scanMetadata);
 
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
