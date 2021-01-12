@@ -18,10 +18,23 @@
 
 package uk.ac.gda.tomography.scan.editor.view;
 
+import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS;
+import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN;
+import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientMessages.SWITCHBACK_SCAN;
+import static uk.ac.gda.ui.tool.ClientMessages.WAITING_TIME;
+import static uk.ac.gda.ui.tool.ClientMessages.WAITING_TIME_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientSWTElements.DEFAULT_TEXT_SIZE;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientEmptyCell;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -44,8 +57,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.ClientSWTElements;
-import uk.ac.gda.ui.tool.ClientVerifyListener;
 
 /**
  * Open a modal dialog to edit the multiple scan configuration. The editing is done on a copy then if the users closes the dialog pressing the {@code OK} button
@@ -101,34 +112,33 @@ public class MultipleScanDialog extends TitleAreaDialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		area = (Composite) super.createDialogArea(parent);
-		Composite container = ClientSWTElements.createClientCompositeWithGridLayout(area, SWT.NONE, 5);
+		Composite container = createClientCompositeWithGridLayout(area, SWT.NONE, 5);
 
-		Label label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.NUM_REPETITIONS, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		Label label = createClientLabel(container, SWT.NONE, NUM_REPETITIONS);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		numberRepetitions = ClientSWTElements.createClientText(container, SWT.NONE, ClientMessages.NUM_REPETITIONS_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(numberRepetitions);
+		numberRepetitions = createClientText(container, SWT.NONE, NUM_REPETITIONS_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(numberRepetitions);
 
-		ClientSWTElements.createClientEmptyCell(container, new Point(50, 10));
+		createClientEmptyCell(container, new Point(50, 10));
 
-		label = ClientSWTElements.createClientLabel(container, SWT.NONE, ClientMessages.WAITING_TIME, Optional.empty());
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
+		label = createClientLabel(container, SWT.NONE, WAITING_TIME);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		waitingTime = ClientSWTElements.createClientText(container, SWT.NONE, ClientMessages.WAITING_TIME_TOOLTIP, Optional.of(verifyOnlyIntegerText));
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE).applyTo(waitingTime);
+		waitingTime = createClientText(container, SWT.NONE, WAITING_TIME_TOOLTIP, verifyOnlyIntegerText);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(waitingTime);
 
-		repeateMultipleScansType = ClientSWTElements.createClientButton(container, SWT.RADIO, ClientMessages.REPEATE_SCAN, ClientMessages.REPEATE_SCAN_TOOLTIP,
-				Optional.empty());
+		repeateMultipleScansType = createClientButton(container, SWT.RADIO, REPEATE_SCAN, REPEATE_SCAN_TOOLTIP);
 		repeateMultipleScansType.setData(MultipleScansType.REPEAT_SCAN);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(ClientSWTElements.DEFAULT_TEXT_SIZE)
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE)
 				.applyTo(repeateMultipleScansType);
 
-		ClientSWTElements.createClientEmptyCell(container, new Point(50, 10));
+		createClientEmptyCell(container, new Point(50, 10));
 
-		switchbackMultipleScansType = ClientSWTElements.createClientButton(container, SWT.RADIO, ClientMessages.SWITCHBACK_SCAN,
-				ClientMessages.SWITCHBACK_SCAN_TOOLTIP, Optional.empty());
+		switchbackMultipleScansType = createClientButton(container, SWT.RADIO, SWITCHBACK_SCAN,
+				ClientMessages.SWITCHBACK_SCAN_TOOLTIP);
 		switchbackMultipleScansType.setData(MultipleScansType.SWITCHBACK_SCAN);
-		ClientSWTElements.createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(switchbackMultipleScansType);
+		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(switchbackMultipleScansType);
 
 		bindElements();
 		initialiseElements();
@@ -194,11 +204,11 @@ public class MultipleScanDialog extends TitleAreaDialog {
 	}
 
 	private void bindElements() {
-		numberRepetitions.addVerifyListener(ClientVerifyListener.verifyOnlyIntegerText);
+		numberRepetitions.addVerifyListener(verifyOnlyIntegerText);
 		numberRepetitions.addModifyListener(
 				e -> multipleScan = ConfigurationDataHelper.updateNumberRepetitions(multipleScan, Integer.parseInt(Text.class.cast(e.widget).getText())));
 
-		waitingTime.addVerifyListener(ClientVerifyListener.verifyOnlyIntegerText);
+		waitingTime.addVerifyListener(verifyOnlyIntegerText);
 		waitingTime.addModifyListener(
 				e -> multipleScan = ConfigurationDataHelper.updateWaitingTime(multipleScan, Integer.parseInt(Text.class.cast(e.widget).getText())));
 
@@ -211,7 +221,9 @@ public class MultipleScanDialog extends TitleAreaDialog {
 	private void initialiseElements() {
 		numberRepetitions.setText(Integer.toString(getMultipleScans().getNumberRepetitions()));
 		waitingTime.setText(Integer.toString(getMultipleScans().getWaitingTime()));
-		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream().filter(i -> getMultipleScans().getMultipleScansType().equals(i.getData()))
-				.findFirst().ifPresent(b -> b.setSelection(true));
+		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
+			.filter(i -> getMultipleScans().getMultipleScansType().equals(i.getData()))
+			.findFirst()
+			.ifPresent(b -> b.setSelection(true));
 	}
 }
