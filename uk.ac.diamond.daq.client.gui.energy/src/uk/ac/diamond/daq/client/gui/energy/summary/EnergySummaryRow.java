@@ -237,7 +237,9 @@ class EnergySummaryRow {
 	private ButtonLayout getButtonLayout() throws GDAClientException {
 		String position = getEHShutter().getPosition();
 		ValveState bl = getEHShutter().getScannablePropertiesDocument().getEnumsMap().entrySet().stream()
-				.filter(p -> p.getValue().equals(position)).findFirst().map(Entry::getKey).map(ValveState::valueOf)
+				.filter(p -> p.getValue().equals(position))
+				.findFirst().map(Entry::getKey)
+				.map(ValveState::valueOf)
 				.orElse(null);
 
 		if (bl == null)

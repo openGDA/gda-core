@@ -174,7 +174,8 @@ public class BinningCompositeFactory implements CompositeFactory {
 		Predicate<Binning> filterBinning = b -> Objects.equals(b.getPixelSize(), bf.getX());
 		Arrays.stream(Binning.values())
 			.filter(filterBinning)
-			.findFirst().ifPresent(configureRadios);
+			.findFirst()
+			.ifPresent(configureRadios);
 	}
 
 	/**

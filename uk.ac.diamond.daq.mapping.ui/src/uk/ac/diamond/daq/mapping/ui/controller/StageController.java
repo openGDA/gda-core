@@ -89,7 +89,9 @@ public class StageController implements IStageController {
 	@Override
 	public double getMotorPosition(StageDevice device) {
 		Set<DevicePosition<Double>> start = savePosition(Position.START);
-		return start.stream().filter(dp -> dp.getStageDevice().name().equals(device.name())).findFirst()
+		return start.stream()
+				.filter(dp -> dp.getStageDevice().name().equals(device.name()))
+				.findFirst()
 				.orElse(new DevicePosition<>(device, 0.0)).getPosition();
 	}
 

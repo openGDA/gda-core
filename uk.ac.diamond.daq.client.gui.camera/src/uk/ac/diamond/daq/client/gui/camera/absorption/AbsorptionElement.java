@@ -83,8 +83,10 @@ class AbsorptionElement extends MenuAction implements IPropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		Arrays.stream(ActionState.values()).filter(state -> state.equals(event.getNewValue())).findFirst()
-				.ifPresent(updateActionState);
+		Arrays.stream(ActionState.values())
+			.filter(state -> state.equals(event.getNewValue()))
+			.findFirst()
+			.ifPresent(updateActionState);
 	}
 
 	private Consumer<ActionState> updateActionState = state -> {

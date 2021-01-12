@@ -110,9 +110,10 @@ public class StagesComposite {
 			public void widgetSelected(SelectionEvent e) {
 				Combo source = Combo.class.cast(e.getSource());
 				if (source.getSelectionIndex() > -1) {
-					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()]).findFirst()
-							.map(StageType::getCommonStage)
-							.ifPresent(s -> setStage(s));
+					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()])
+						.findFirst()
+						.map(StageType::getCommonStage)
+						.ifPresent(s -> setStage(s));
 				}
 			}
 		};

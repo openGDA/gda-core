@@ -163,9 +163,10 @@ public class TabFolderBuilder {
 							return;
 						}
 
-						Arrays.stream(tabFolderInstance.getItems()).filter(ct -> {
-							return lock.isOwner(ct.getControl());
-						}).findFirst().ifPresent(tabFolderInstance::setSelection);
+						Arrays.stream(tabFolderInstance.getItems())
+							.filter(ct -> lock.isOwner(ct.getControl()))
+							.findFirst()
+							.ifPresent(tabFolderInstance::setSelection);
 					}
 				}
 

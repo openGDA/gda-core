@@ -108,7 +108,8 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 		private void removeOldConfiguration(URL configuration) {
 			resources.stream()
 				.filter(resource -> resource.getLocation().equals(configuration))
-				.findFirst().ifPresent(resources::remove);
+				.findFirst()
+				.ifPresent(resources::remove);
 		}
 
 		@Override
