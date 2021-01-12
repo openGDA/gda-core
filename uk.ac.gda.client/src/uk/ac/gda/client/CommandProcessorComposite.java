@@ -26,15 +26,9 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -54,7 +48,6 @@ import gda.commandqueue.CommandProgress;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
-import gda.commandqueue.QueueChangeEvent;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -74,8 +67,8 @@ public class CommandProcessorComposite extends Composite {
 	private IObserver processorObserver;
 	private Processor processor;
 	private Label txtCurrentDescription;
+	private Label txtProgressDescription;
 	ProgressBar progressBar;
-	private int progressBarHeight = 30;
 	String progressBarText = "";
 	private Label txtState;
 	private Action btnSkip;
@@ -233,57 +226,27 @@ public class CommandProcessorComposite extends Composite {
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(2000);
 
-		progressBar.addPaintListener(new PaintListener() {
-			@Override
-			public void paintControl(PaintEvent e) {
-				// Set the progress bar bounds to increase the height.
-				Rectangle area = progressBar.getParent().getClientArea();
-				progressBar.setBounds(area.x, area.y, area.width, progressBarHeight);
-				if (progressBarText.isEmpty()) {
-					return;
-				}
-				Point point = progressBar.getSize();
-				FontMetrics fontMetrics = e.gc.getFontMetrics();
-				int width = fontMetrics.getAverageCharWidth() * progressBarText.length();
-				int height = fontMetrics.getHeight();
-				e.gc.setForeground(iWorkbenchPartSite.getShell().getDisplay().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
-				e.gc.drawString(progressBarText, (point.x - width) / 2, (point.y - height) / 2, true);
-			}
-		});
-
 		if (processor != null) {
-			processorObserver = new IObserver() {
-
-				@Override
-				public void update(Object source, final Object arg) {
-					if (arg instanceof Processor.STATE) {
-						CommandProcessorComposite.this.updateStateAndDescription((Processor.STATE) arg);
-					} else if (arg instanceof QueueChangeEvent) {
-						// do nothing
-					} else if (arg instanceof CommandProgress) {
-						iWorkbenchPartSite.getShell().getDisplay().asyncExec(new Runnable() {
-
-							@Override
-							public void run() {
-								CommandProgress progress = (CommandProgress) arg;
-								progressBarText = progress.getMsg();
-								progressBar.setSelection((int) (progress.getPercentDone()*20));
-								progressBar.redraw();//this is needed to cope with a change in text but no change in percentage
-
-							}
-						});
-					}
+			processorObserver = (source, arg) -> {
+				if (arg instanceof Processor.STATE) {
+					CommandProcessorComposite.this.updateStateAndDescription((Processor.STATE) arg);
+				} else if (arg instanceof CommandProgress) {
+					iWorkbenchPartSite.getShell().getDisplay().asyncExec(() -> {
+						CommandProgress progress = (CommandProgress) arg;
+						progressBarText = progress.getMsg();
+						txtProgressDescription.setText(progressBarText);
+						progressBar.setSelection((int) (progress.getPercentDone() * 20));
+						// layout the widget to accommodate latest text box contents
+						CommandProcessorComposite.this.getParent().layout(true, true);
+					});
 				}
 			};
 			processor.addIObserver(processorObserver);
 		}
 
-		addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if (processor != null && processorObserver != null) {
-					processor.deleteIObserver(processorObserver);
-				}
+		addDisposeListener( e -> {
+			if (processor != null && processorObserver != null) {
+				processor.deleteIObserver(processorObserver);
 			}
 		});
 
@@ -311,8 +274,15 @@ public class CommandProcessorComposite extends Composite {
 		txtState = new Label(statusGroup, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtState);
 
-		txtCurrentDescription = new Label(currentTaskGroup, SWT.WRAP);
+		Composite textGroup = new Composite(currentTaskGroup, SWT.NONE);
+		textGroup.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(textGroup);
+
+		txtCurrentDescription = new Label(textGroup, SWT.WRAP);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtCurrentDescription);
+
+		txtProgressDescription = new Label(textGroup, SWT.WRAP);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtProgressDescription);
 
 		progressBar = new ProgressBar(currentTaskGroup, SWT.SMOOTH | SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(progressBar);
