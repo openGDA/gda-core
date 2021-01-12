@@ -1,23 +1,21 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import static gda.configuration.properties.LocalProperties.GDA_DATAWRITER_DIR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import java.nio.file.Paths;
-
 import org.eclipse.scanning.api.event.IEventService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import gda.TestHelpers;
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
@@ -40,6 +38,8 @@ public class PlanTest {
 		sev = new MockSEV();
 
 		plan.setFactory(new TestFactory(sev));
+
+		plan.experimentController = mock(ExperimentController.class);
 
 		plan.addSEV(()->0.0); // TestFactory::addSEV returns our MockSEV
 
@@ -111,12 +111,7 @@ public class PlanTest {
 	}
 
 	@Test
-	public void planSetsCorrectDatawriterProperty() {
-
-		// When a trigger fires, we want any files created as a consequence
-		// to be saved in {data directory}/{plan name}/{segment name}/{trigger name}
-
-		// This is achieved by setting the GDA_DATAWRITER_DIR property
+	public void planUsesExperimentController() throws Exception {
 
 		plan.addSegment(SEGMENT1_NAME, s -> s >= 10.0,
 				plan.addTrigger(TRIGGER1_NAME, this::someJob, 3.0),
@@ -125,51 +120,25 @@ public class PlanTest {
 		plan.addSegment(SEGMENT2_NAME, s -> s < 0,
 				plan.addTrigger(TRIGGER3_NAME, this::someJob, 2.0));
 
-		final String defaultDir = LocalProperties.get(GDA_DATAWRITER_DIR);
-
 		plan.start();
 
-		final String experimentDir = Paths.get(defaultDir, EXPERIMENT_NAME).toString();
-		assertThat(LocalProperties.get(GDA_DATAWRITER_DIR), is(experimentDir));
-
-		sev.broadcast(3.0); // triggers trigger1
-
-		final String s1t1Dir = Paths.get(experimentDir, SEGMENT1_NAME, TRIGGER1_NAME).toString();
-		assertThat(LocalProperties.get(GDA_DATAWRITER_DIR), is(s1t1Dir));
-
-		sev.broadcast(5.0); // triggers trigger2
-
-		final String s1t2Dir = Paths.get(experimentDir, SEGMENT1_NAME, TRIGGER2_NAME).toString();
-		assertThat(LocalProperties.get(GDA_DATAWRITER_DIR), is(s1t2Dir));
-
 		sev.broadcast(10); // end of segment1, segment2 starts
-
 		sev.ramp(2, -1);
-
-		final String s2t3Dir = Paths.get(experimentDir, SEGMENT2_NAME, TRIGGER3_NAME).toString();
-		assertThat(LocalProperties.get(GDA_DATAWRITER_DIR), is(s2t3Dir));
-
 		sev.broadcast(-0.3); // end of segment2 & no further segments -> end of experiment
 
-		assertThat(LocalProperties.get(GDA_DATAWRITER_DIR), is(defaultDir));
-	}
+		ExperimentController controller = plan.experimentController;
+		Mockito.verify(controller).isExperimentInProgress(); // to test whether a new one can be started
+		Mockito.verify(controller).startExperiment(EXPERIMENT_NAME);
+		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
+		Mockito.verify(controller).startMultipartAcquisition(SEGMENT2_NAME);
+		Mockito.verify(controller, Mockito.times(2)).stopMultipartAcquisition();
+		Mockito.verify(controller).stopExperiment();
+		Mockito.verifyNoMoreInteractions(controller);
 
-	@Test
-	public void nonAlphanumericsInNamesBecomeUnderscores() {
-		// actually '-' and '.' are also allowed
-		Plan ep = new Plan("My$Experiment");
-		ep.setFactory(new TestFactory(sev));
-		ep.addSEV(()->0.0); // TestFactory doesn't give a monkeys
-
-		ep.addSegment(" ", x -> x >= 5, ep.addTrigger("My.Trigger&", this::someJob, 2.5));
-
-		String expectedDataDirectory = Paths.get(LocalProperties.get(GDA_DATAWRITER_DIR),
-											"My_Experiment", "_", "My.Trigger_").toString();
-
-		ep.start();
-
-		sev.broadcast(3);
-		assertThat(LocalProperties.get(GDA_DATAWRITER_DIR), is(expectedDataDirectory));
+		/*
+		 * But what about experiment.prepareAcquisition() ?
+		 * That is the responsibility of the particular trigger/trigger processor
+		 */
 	}
 
 	@Test

@@ -1,23 +1,21 @@
 package uk.ac.diamond.daq.experiment.plan;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.DoubleSupplier;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
+import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
@@ -30,23 +28,26 @@ import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 public class Plan extends FindableBase implements IPlan, IPlanRegistrar, ConveniencePlanFactory {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Plan.class);
 	
 	private final List<ISegment> segments = new LinkedList<>();
-	private Optional<IExperimentDriver> experimentDriver = Optional.empty();
+	private Optional<IExperimentDriver<?>> experimentDriver = Optional.empty();
 	
 	private Queue<ISegment> segmentChain;
-	private ISegment activeSegment;
 	private ExperimentRecord record;
 	
 	private IPlanFactory factory;	
 	private ISampleEnvironmentVariable lastDefinedSev;
 	
-	private String dataDirBeforeExperiment;
-	private String experimentDataDir;
+	private ISegment activeSegment;
+	
+	protected ExperimentController experimentController;
 	
 	public Plan(String name) {
 		super.setName(name);
@@ -57,11 +58,6 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	public void start() {
 		validatePlan();
 		
-		// set subdirectory
-		dataDirBeforeExperiment = LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR);
-		experimentDataDir = Paths.get(dataDirBeforeExperiment, validName(getName())).toString();
-		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, experimentDataDir);
-		
 		record = new ExperimentRecord(getName());
 		record.start();
 		
@@ -69,8 +65,14 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		printBanner("Plan '" + getName() + "' execution started");
 		
 		if (experimentDriver.isPresent()) {
-			IExperimentDriver driver = experimentDriver.get();
+			IExperimentDriver<?> driver = experimentDriver.get();
 			record.setDriverNameAndProfile(driver.getName(), driver.getModel().getName());
+		}
+		
+		try {
+			getExperimentController().startExperiment(getName());
+		} catch (ExperimentControllerException e) {
+			throw new ExperimentException(e);
 		}
 		
 		activateNextSegment();
@@ -81,6 +83,10 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 	
 	private void validatePlan() {
+		if (getExperimentController().isExperimentInProgress()) {
+			throw new IllegalStateException("An experiment ('" + getExperimentController().getExperimentName() + "') is already running");
+		}
+		
 		if (segments.isEmpty()) throw new IllegalStateException("No segments defined!");
 		segmentChain = new LinkedList<>(segments);
 		
@@ -94,19 +100,50 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		if (triggers.size() != uniqueTriggerNames) throw new IllegalStateException("Triggers should have unique names!");
 	}
 	
+	private ExperimentController getExperimentController() {
+		if (experimentController == null) {
+			experimentController = SpringApplicationContextFacade.getBean(ExperimentController.class);
+		}
+		return experimentController;
+	}
+	
 	private List<ITrigger> getTriggers() {
 		return segments.stream().map(ISegment::getTriggers).flatMap(List::stream).distinct().collect(Collectors.toList());
 	}
 	
 	private void activateNextSegment() {
+		if (activeSegment != null) {
+			stopSegmentMultipartAcquisition();
+		}
+		
 		activeSegment = segmentChain.poll();
+		
 		if (activeSegment == null) {
 			terminateExperiment();
 		} else {
 			record.segmentActivated(activeSegment.getName(), activeSegment.getSampleEnvironmentName());
+			
+			startSegmentMultipartAcquisition(activeSegment.getName());
+			
 			activeSegment.activate();
 		}
-	}	
+	}
+	
+	private void stopSegmentMultipartAcquisition() {
+		try {
+			getExperimentController().stopMultipartAcquisition();
+		} catch (ExperimentControllerException e) {
+			logger.error("Error stopping previous multipart acquisition", e);
+		}
+	}
+	
+	private void startSegmentMultipartAcquisition(String segmentName) {
+		try {
+			getExperimentController().startMultipartAcquisition(segmentName);
+		} catch (ExperimentControllerException e) {
+			logger.error("Could not start multipart acquisition for segment '{}'. This may result in a flat experiment structure.", segmentName, e);
+		}
+	}
 	
 	private void terminateExperiment() {
 		record.complete();
@@ -116,7 +153,11 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		
 		printBanner("Plan '" + getName() + "' execution complete");
 		
-		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, dataDirBeforeExperiment);
+		try {
+			getExperimentController().stopExperiment();
+		} catch (ExperimentControllerException e) {
+			throw new ExperimentException(e);
+		}
 	}
 	
 	private void printBanner(String msg) {
@@ -139,7 +180,6 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	
 	@Override
 	public void triggerOccurred(ITrigger trigger) {
-		switchToTriggerSubdirectory(activeSegment, trigger);
 		record.triggerOccurred(trigger.getName());
 	}
 	
@@ -157,27 +197,6 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	public void segmentComplete(ISegment completedSegment, double terminatingSignal) {
 		record.segmentComplete(completedSegment.getName(), terminatingSignal);
 		activateNextSegment();
-	}
-	
-	private void switchToTriggerSubdirectory(ISegment segment, ITrigger trigger) {
-		if (segment == null) {
-			// FIXME unfortunate race condition:
-			// trigger fires in final segment and segment terminates
-			// before this method is called
-			segment = segments.get(segments.size()-1);
-			
-		}
-		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, Paths.get(experimentDataDir, validName(segment), validName(trigger)).toString());
-	}
-	
-	private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
-	
-	private String validName(Findable findable) {
-		return INVALID_CHARACTERS_PATTERN.matcher(findable.getName()).replaceAll("_");
-	}
-	
-	private String validName(String name) {
-		return INVALID_CHARACTERS_PATTERN.matcher(name).replaceAll("_");
 	}
 	
 	@Override

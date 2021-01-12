@@ -18,47 +18,28 @@
 
 package uk.ac.diamond.daq.experiment.scans.mapping;
 
-import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import uk.ac.diamond.daq.experiment.api.TriggerableScan;
-import uk.ac.diamond.daq.experiment.api.plan.ExperimentPlanException;
-import uk.ac.diamond.daq.experiment.scans.Activator;
 
 public class TriggerableMap implements TriggerableScan {
 
-	/** not serialised */
-	private QueuePreventingScanSubmitter scanSubmitter;
-
+	private String name;
 	private ScanRequest scanRequest;
 	private boolean important;
 
-	public TriggerableMap(ScanRequest scanRequest, boolean important) {
+	public TriggerableMap(String name, ScanRequest scanRequest, boolean important) {
+		this.name = name;
 		this.scanRequest = scanRequest;
 		this.important = important;
 	}
 
 	@Override
-	public IdBean trigger() {
-		if (scanSubmitter == null) initialise();
-		try {
-			final ScanBean scanBean = new ScanBean(scanRequest);
-			if (important) {
-				scanSubmitter.submitImportantScan(scanBean);
-			} else {
-				scanSubmitter.submitScan(scanBean);
-			}
-			return scanBean;
-		} catch (Exception e) {
-			throw new ExperimentPlanException(e);
-		}
-	}
-
-	private void initialise() {
-		scanSubmitter = new QueuePreventingScanSubmitter();
-		scanSubmitter.setEventService(Activator.getService(IEventService.class));
+	public ScanBean trigger() {
+		ScanBean bean = new ScanBean(scanRequest);
+		bean.setName(name);
+		return bean;
 	}
 
 	/**
@@ -73,6 +54,10 @@ public class TriggerableMap implements TriggerableScan {
 	 */
 	public boolean isImportant() {
 		return important;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }
