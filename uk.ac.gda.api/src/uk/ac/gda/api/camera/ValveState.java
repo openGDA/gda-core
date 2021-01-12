@@ -26,5 +26,6 @@ package uk.ac.gda.api.camera;
 public enum ValveState {
 	OPEN,
 	CLOSED,
+	CLOSE,
 	UNAVAILABLE
 }
