@@ -78,6 +78,7 @@ class EnergySummaryRow {
 		// command
 		OPEN(ClientMessages.OPEN, ClientImages.STATE_ACTIVE),
 		CLOSED(ClientMessages.CLOSE, ClientImages.STATE_IDLE),
+		CLOSE(ClientMessages.CLOSE, ClientImages.STATE_IDLE),
 		UNAVAILABLE(ClientMessages.UNAVAILABLE, ClientImages.STATE_IDLE);
 
 		private final ClientMessages message;
@@ -214,6 +215,10 @@ class EnergySummaryRow {
 		if (ButtonLayout.CLOSED.equals(buttonLayout)) {
 			tooltip = tooltip + " \n Push to open shutter";
 		}
+		if (ButtonLayout.CLOSE.equals(buttonLayout)) {
+			button.setEnabled(false);
+			tooltip = tooltip + " \n Wait the shutter to close";
+		}
 		if (ButtonLayout.OPEN.equals(buttonLayout)) {
 			tooltip = tooltip + " \n Push to close shutter";
 		}
@@ -243,6 +248,8 @@ class EnergySummaryRow {
 			return ButtonLayout.OPEN;
 		case CLOSED:
 			return ButtonLayout.CLOSED;
+		case CLOSE:
+			return ButtonLayout.CLOSE;
 		default:
 			return ButtonLayout.UNAVAILABLE;
 		}
@@ -267,6 +274,8 @@ class EnergySummaryRow {
 		case CLOSED:
 			button.setData(LISTENER, SelectionListener.widgetSelectedAdapter(this::openShutter));
 			WidgetUtilities.addWidgetDisposableListener(button, getButtonListener(button));
+			break;
+		case CLOSE:
 			break;
 		case UNAVAILABLE:
 			break;
