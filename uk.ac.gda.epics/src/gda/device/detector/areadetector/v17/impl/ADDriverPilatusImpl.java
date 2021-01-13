@@ -31,6 +31,7 @@ import gda.epics.LazyPVFactory;
 import gda.epics.NoCallbackPV;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
+import gda.epics.util.EpicsGlobals;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
@@ -61,6 +62,12 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	private volatile int softTriggerStatus = Detector.IDLE;
 
 	private Object softTriggerStatusMonitor = new Object();
+
+	/**
+	 * Some operations e.g. set threshold energy can take upwards of 20 seconds so a
+	 * longer time out can be specified for these caputs
+	 */
+	private double longCaputTimeout = EpicsGlobals.getTimeout();
 
 	// PVs
 
@@ -100,6 +107,14 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 
 	public String getBasePVName() {
 		return basePVName;
+	}
+
+	public double getLongCaputTimeout() {
+		return longCaputTimeout;
+	}
+
+	public void setLongCaputTimeout(double longCaputTimeout) {
+		this.longCaputTimeout = longCaputTimeout;
 	}
 
 	@Override
@@ -201,7 +216,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setThresholdEnergy(float thresholdEnergy) throws DeviceException {
 		try {
-			pvThresholdEnergy.putWait(thresholdEnergy);
+			pvThresholdEnergy.putWait(thresholdEnergy, longCaputTimeout);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
@@ -219,7 +234,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	@Override
 	public void setGain(Gain gain) throws DeviceException {
 		try {
-			pvGain.putWait(gain);
+			pvGain.putWait(gain, longCaputTimeout);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}
