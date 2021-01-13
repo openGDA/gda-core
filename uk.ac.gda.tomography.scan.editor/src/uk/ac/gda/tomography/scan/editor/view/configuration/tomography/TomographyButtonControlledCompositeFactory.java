@@ -129,7 +129,7 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 		try {
 			getAcquisitionController().runAcquisition();
 		} catch (AcquisitionControllerException e) {
-			UIHelper.showError(e.getMessage(), e.getCause().getMessage());
+			UIHelper.showError("Cannot Run Acquisition", e);
 		}
 	}
 
