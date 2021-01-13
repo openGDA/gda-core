@@ -132,13 +132,16 @@ class ScanningAcquisitionControllerDetectorHelper {
 	 * {@code AcquisitionEngineDocument} and {@code DetectorDocument}
 	 */
 	private void applyAcquisitionPropertiesDocument() {
-		AcquisitionEngineDocument aed = createNewAcquisitionEngineDocument();
-		getAcquisition().setAcquisitionEngine(aed);
-
+		if (getAcquisition().getAcquisitionEngine() == null) {
+			AcquisitionEngineDocument aed = createNewAcquisitionEngineDocument();
+			getAcquisition().setAcquisitionEngine(aed);
+		}
 		if (getCamerasControls().isEmpty()) {
 			return;
 		}
-		applyImageCalibrationDocument();
+		if (getAcquisition().getAcquisitionConfiguration().getImageCalibration() == null) {
+			applyImageCalibrationDocument();
+		}
 	}
 
 	private void applyImageCalibrationDocument() {
