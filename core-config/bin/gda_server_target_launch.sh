@@ -110,7 +110,7 @@ vm_args="-XX:ErrorFile=${GDA_LOGS_DIR}/server_hs_err_pid%p.log -Dgda.mode=${GDA_
 
 if [[ "$ARGS_IN" == *"--debug"* ]]; then
     [[ "$ARGS_IN" == *"--debug-wait"* ]] && wait="y" || wait="n"
-    vm_args="$vm_args -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=${wait},address=8000"
+    vm_args="$vm_args -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=${wait},address=*:8000"
 fi
 
 if [[ "$ARGS_IN" == *"--jrebel"* ]]; then
