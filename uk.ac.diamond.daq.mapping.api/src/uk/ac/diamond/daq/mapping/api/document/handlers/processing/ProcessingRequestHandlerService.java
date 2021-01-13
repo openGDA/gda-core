@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,12 +66,12 @@ public class ProcessingRequestHandlerService {
 	/**
 	 * Returns a collection suitable for a processing request element.
 	 * @param processingRequest the request to translate
-	 * @return the collection otherwise {@code null} if the handler is not available
+	 * @return the collection otherwise an empty collection if the handler is not available or cannot process the request
 	 */
 	public final Collection<Object> translateToCollection(ProcessingRequestPair<?> processingRequest) {
 		return Optional.ofNullable(processingRequest)
 				.map(handler::handleProcess)
-				.orElse(null);
+				.orElseGet(Collections::emptyList);
 	}
 
 	/**
