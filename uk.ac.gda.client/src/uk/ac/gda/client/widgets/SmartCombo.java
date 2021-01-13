@@ -57,7 +57,7 @@ public class SmartCombo<T> extends Composite {
 	/**
 	 * The {@code combo tooltip}
 	 */
-	private final Optional<ClientMessages> tooltip;
+	private final ClientMessages tooltip;
 	/**
 	 * A listener to the {@code combo} {@link SWT#Selection} events
 	 */
@@ -83,12 +83,12 @@ public class SmartCombo<T> extends Composite {
 	 * @param listener
 	 *            the {@code combo}, if exists, {@link SWT#Selection} event listener
 	 */
-	public SmartCombo(Composite parent, int style, Optional<ClientMessages> tooltip, Optional<Listener> listener) {
+	public SmartCombo(Composite parent, int style, ClientMessages tooltip, Optional<Listener> listener) {
 		super(parent, style);
 		GridLayoutFactory.fillDefaults().applyTo(this);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.LEFT, SWT.TOP).grab(true, true).applyTo(this);
 		this.listener = listener;
-		this.tooltip = tooltip;
+		this.tooltip = Optional.ofNullable(tooltip).orElse(ClientMessages.EMPTY_MESSAGE);
 	}
 
 	/**
@@ -102,8 +102,7 @@ public class SmartCombo<T> extends Composite {
 	 */
 	public void populateCombo(List<ImmutablePair<String, T>> items) {
 		cleanContainer();
-		Combo tmpCombo = ClientSWTElements.createCombo(this, SWT.READ_ONLY, new String[0],
-				tooltip.orElse(ClientMessages.EMPTY_MESSAGE));
+		Combo tmpCombo = ClientSWTElements.createCombo(this, SWT.READ_ONLY, new String[0], tooltip);
 
 		Optional.ofNullable(items).ifPresent(i -> i.forEach(e -> {
 			tmpCombo.add(e.getKey());

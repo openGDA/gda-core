@@ -20,29 +20,29 @@ package uk.ac.diamond.daq.mapping.ui.stage;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.STAGE;
-import static uk.ac.gda.ui.tool.ClientMessages.STAGE_TP;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createCombo;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createComposite;
 
 import java.util.Arrays;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
+import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
+import uk.ac.diamond.daq.mapping.ui.position.summary.PositionSummaryComposite;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
+import uk.ac.gda.client.composites.StringManagedScannableCompositeFactory;
+import uk.ac.gda.client.event.ManagedScannableEvent;
+import uk.ac.gda.client.properties.stage.DefaultManagedScannable;
+import uk.ac.gda.client.properties.stage.ManagedScannable;
+import uk.ac.gda.client.properties.stage.ScannableProperties;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Creates a drop-down list in the parent Composite to switch between different stages.
@@ -50,8 +50,8 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
  * @author Maurizio Nagni
  */
 public class StagesComposite {
+
 	private final Composite parent;
-	private Combo stagesCombo;
 	private Composite stageComposite;
 
 	private StagesComposite(Composite parent) {
@@ -64,20 +64,10 @@ public class StagesComposite {
 	 * @return the created composite
 	 */
 	public static final StagesComposite buildModeComposite(Composite parent) {
-		StagesComposite pc = new StagesComposite(parent);
+		var pc = new StagesComposite(parent);
 		pc.buildStageComposite(getStageController().getStageDescription());
+		// Updates the mapping start/stop button following the mapping state
 		return pc;
-	}
-
-	/**
-	 * @param parent the container where deploy this composite
-	 * @param stageController the stage controller. Actually this parameter is no more used
-	 * @return a stage composite
-	 * @Deprecated Will be deleted in a next release. Use instead {@link #buildModeComposite(Composite)}
-	 */
-	@Deprecated
-	public static final StagesComposite buildModeComposite(Composite parent, IStageController stageController) {
-		return buildModeComposite(parent);
 	}
 
 	public CommonStage getStage() {
@@ -91,54 +81,71 @@ public class StagesComposite {
 	/**
 	 */
 	private void buildStageComposite(CommonStage stage) {
-		Group group = createClientGroup(getParent(), SWT.NONE, 1, STAGE);
+		var group = createClientGroup(getParent(), SWT.NONE, 1, STAGE);
 		createClientGridDataFactory().grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
-		stagesCombo = createCombo(group, SWT.READ_ONLY, getTypes(), STAGE_TP);
-		createClientGridDataFactory().grab(true, false).indent(5, SWT.DEFAULT).applyTo(stagesCombo);
+		var baseX = new StringManagedScannableCompositeFactory(getBaseX());
+		baseX.createComposite(group, SWT.READ_ONLY);
 
 		stageComposite = createComposite(group, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
 				.indent(5, SWT.DEFAULT).applyTo(stageComposite);
 		setStage(stage);
 
-		comboStageSelectionListener();
-	}
-
-	private void comboStageSelectionListener() {
-		SelectionListener listener = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Combo source = Combo.class.cast(e.getSource());
-				if (source.getSelectionIndex() > -1) {
-					filterPerspectiveLabel(getTypes()[source.getSelectionIndex()])
-						.findFirst()
-						.map(StageType::getCommonStage)
-						.ifPresent(s -> setStage(s));
-				}
-			}
-		};
-		stagesCombo.addSelectionListener(listener);
-	}
-
-	private Stream<StageType> filterPerspectiveLabel(final String perspectiveLabel) {
-		return Arrays.stream(StageType.values()).filter(p -> p.getStage().name().equals(perspectiveLabel));
+		new PositionSummaryComposite().createComposite(group, SWT.NONE);
+		SpringApplicationContextFacade.addDisposableApplicationListener(group, scannableStateEventListener);
 	}
 
 	private void setStage(CommonStage stage) {
 		Optional.ofNullable(getStageController())
 			.ifPresent(c -> c.changeStage(stage));
-		stagesCombo.setText(stage.getStage().name());
 		Arrays.stream(stageComposite.getChildren()).forEach(Control::dispose);
 		stage.getUI(stageComposite);
 		stageComposite.layout(true);
 	}
 
-	private String[] getTypes() {
-		return Arrays.stream(StageType.values()).map(StageType::getStage).map(Stage::name).collect(Collectors.toList())
-				.toArray(new String[0]);
-	}
-
 	private static IStageController getStageController() {
 		return getBean(StageController.class);
+	}
+
+	private ApplicationListener<ManagedScannableEvent<String>> scannableStateEventListener = new ApplicationListener<>() {
+		@Override
+		public void onApplicationEvent(ManagedScannableEvent<String> event) {
+			if (!event.getScannablePropertiesDocument().equals(getBaseXProperties()))
+				return;
+			Optional.ofNullable(temporaryManagedScannablePositionToCommonStage(event.getPosition()))
+				.ifPresent(this::setStage);
+		}
+
+		private void setStage(CommonStage stage) {
+			Optional.ofNullable(getStageController())
+				.ifPresent(c -> c.changeStage(stage));
+			Arrays.stream(stageComposite.getChildren()).forEach(Control::dispose);
+			stage.getUI(stageComposite);
+			stageComposite.layout(true);
+		}
+
+		private CommonStage temporaryManagedScannablePositionToCommonStage(String position) {
+			String enumName = getBaseXProperties().getEnumsMap().entrySet().stream()
+				.filter(e -> e.getValue().equals(position))
+				.findFirst()
+				.map(Entry::getKey)
+				.orElse(null);
+			if (StageType.GTS.name().equals(enumName)) {
+				return StageType.GTS.getCommonStage();
+			} else if (StageType.TR6.name().equals(enumName)) {
+				return StageType.TR6.getCommonStage();
+			}
+			return null;
+		}
+
+		private ScannableProperties getBaseXProperties() {
+			return SpringApplicationContextFacade.getBean(ScannablesPropertiesHelper.class)
+						.getScannablePropertiesDocument(DefaultManagedScannable.BASE_X);
+		}
+	};
+
+	private ManagedScannable<String> getBaseX() {
+		return SpringApplicationContextFacade.getBean(ScannablesPropertiesHelper.class)
+					.getManagedScannable(DefaultManagedScannable.BASE_X, String.class);
 	}
 }
