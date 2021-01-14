@@ -76,7 +76,7 @@ abstract class ProcessingRequestHandler {
 
 	private Collection<Object> doHandleProcessingRequest(ProcessingRequestPair<?> processingRequest) throws GDAException {
 		Collection<Object> response = translateToCollection(processingRequest);
-		if (response != null)
+		if (!response.isEmpty())
 			return response;
 		if (nextHandler != null) {
 			return nextHandler.handleProcess(processingRequest);
@@ -117,7 +117,7 @@ abstract class ProcessingRequestHandler {
 		if (nextHandler != null) {
 			return nextHandler.generateScriptRequest(processingRequest);
 		}
-		logger.error("No suitable handler found for processingRequest {} ", processingRequest);
+		logger.info("No script request generated for processingRequest {} ", processingRequest);
 		return null;
 	}
 }
