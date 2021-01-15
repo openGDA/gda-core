@@ -21,8 +21,8 @@ package gda.gui;
 import java.io.Serializable;
 
 public class RCPSetPreferenceCommand implements Serializable {
-	String id;
-	Object value;
+	private String id;
+	private Object value;
 
 	public RCPSetPreferenceCommand(String id, Object value) {
 		this.id = id;
@@ -32,14 +32,16 @@ public class RCPSetPreferenceCommand implements Serializable {
 	public String getId() {
 		return id;
 	}
+
 	public void setId(String id) {
 		this.id = id;
 	}
+
 	public Object getValue() {
 		return value;
 	}
+
 	public void setValue(Object value) {
 		this.value = value;
 	}
-
 }

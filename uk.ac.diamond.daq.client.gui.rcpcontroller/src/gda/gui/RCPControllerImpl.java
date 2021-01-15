@@ -36,22 +36,23 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  */
 @ServiceInterface(RCPController.class)
 public class RCPControllerImpl implements RCPController {
+	public static final String NAME = "RCPController";
 
-	ObservableComponent obs = new ObservableComponent();
+	private ObservableComponent obs = new ObservableComponent();
+
 	@Override
 	public void openView(String id) {
 		notifyIObservers(this, new RCPOpenViewCommand(id));
 	}
 
-	public static String name = "RCPController";
-
 	@Override
 	public void setName(String name) {
+		// do not allow the name to be changed
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return NAME;
 	}
 
 	@Override
@@ -71,10 +72,6 @@ public class RCPControllerImpl implements RCPController {
 
 	private void notifyIObservers(Object theObserved, Object changeCode) {
 		obs.notifyIObservers(theObserved, changeCode);
-	}
-
-	public boolean isBeingObserved() {
-		return obs.isBeingObserved();
 	}
 
 	@Override

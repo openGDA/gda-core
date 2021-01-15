@@ -169,7 +169,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			InterfaceProvider.getJSFObserver().addIObserver(openXYPlotOnScanStart);
 			addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(openXYPlotOnScanStart));
 
-			Optional<RCPController> controller = Finder.findOptional(RCPControllerImpl.name);
+			Optional<RCPController> controller = Finder.findOptional(RCPControllerImpl.NAME);
 			controller.ifPresent(this::listenForCommands);
 
 			listenForUserMessages();
