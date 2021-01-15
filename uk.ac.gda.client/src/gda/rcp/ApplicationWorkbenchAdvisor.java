@@ -72,6 +72,7 @@ import gda.gui.RCPController;
 import gda.gui.RCPControllerImpl;
 import gda.gui.RCPOpenPerspectiveCommand;
 import gda.gui.RCPOpenViewCommand;
+import gda.gui.RCPResetPreferenceCommand;
 import gda.gui.RCPSetPreferenceCommand;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
@@ -268,6 +269,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					else {
 						throw new IllegalArgumentException("The value must be of one of the following types: Double, Float, Integer, Long, String, or Boolean");
 					}
+				} else if (arg instanceof RCPResetPreferenceCommand) {
+					final IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
+					final RCPResetPreferenceCommand preference = (RCPResetPreferenceCommand) arg;
+					preferenceStore.setToDefault(preference.getId());
 				}
 			}
 		};

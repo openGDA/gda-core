@@ -53,11 +53,14 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
@@ -72,6 +75,9 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
+import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
@@ -89,6 +95,11 @@ public class DetectorsSection extends AbstractMappingSection {
 	private static final String DETECTOR_SELECTION_KEY_JSON = "detectorSelection.json";
 
 	private static final String PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG = "showMappingStageChangeDialog";
+
+	/** Prefix for the property ids we want to listen to for changes*/
+	private static final String PROPERTY_DETECTORS = "uk.ac.diamond.daq.mapping.ui.experiment.DetectorsSection.detectors";
+
+	private final IPropertyChangeListener propertyChangeListener = this::handlePropertyChange;
 
 	private Map<String, Button> detectorSelectionCheckboxes;
 	private List<IScanModelWrapper<IDetectorModel>> visibleDetectors; // the detectors
@@ -122,6 +133,9 @@ public class DetectorsSection extends AbstractMappingSection {
 					.collect(Collectors.toList());
 		}
 		createDetectorControls(visibleDetectors);
+
+		// Listen for property changes that affect the selection of detectors
+		GDAClientActivator.getDefault().getPreferenceStore().addPropertyChangeListener(propertyChangeListener);
 	}
 
 	private void chooseDetectors() {
@@ -233,12 +247,21 @@ public class DetectorsSection extends AbstractMappingSection {
 			if (selected) {
 				updateMappingStage(wrapper);
 			}
+		} else {
+			detectorSelectionCheckboxes.values().stream().forEach(cb -> cb.setEnabled(true));
 		}
 
+		updateMappingView();
+		updateStatusLabel();
+	}
+
+	/**
+	 * Update the mapping view when the detector selection has changed
+	 */
+	private void updateMappingView() {
 		getMappingView().detectorSelectionChanged(visibleDetectors.stream()
 													.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 													.collect(Collectors.toList()));
-		updateStatusLabel();
 	}
 
 	/**
@@ -250,7 +273,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * first and second elements of that array, and if the array is of length 3 or greater,
 	 * the associated axis is set to the third element.
 	 *
-	 * @param wrapper detetor model wrapper of the selected detector
+	 * @param wrapper detector model wrapper of the selected detector
 	 */
 	private void updateMappingStage(IScanModelWrapper<IDetectorModel> wrapper) {
 		final String deviceName = wrapper.getModel().getName();
@@ -402,6 +425,137 @@ public class DetectorsSection extends AbstractMappingSection {
 		createDetectorControls(visibleDetectors);
 	}
 
+	/**
+	 * Listen for property changes that may affect detector selection
+	 */
+	private void handlePropertyChange(PropertyChangeEvent event) {
+		final String propertyId = event.getProperty();
+		if (propertyId.equals(PROPERTY_DETECTORS)) {
+			final Object newValue = event.getNewValue();
+			logger.debug("Detector change event received: {}", newValue);
+			if (newValue instanceof String && !((String) newValue).isEmpty()) {
+				handleDetectorsEvent((String) newValue);
+			}
+		}
+	}
+
+	/**
+	 * Handle a change to the "detectors" property
+	 * <p>
+	 * The property value must be a JSON string that can be parsed to a map of detector name (as shown in GUI) to
+	 * exposure time (as double)<br>
+	 * In most cases, there will be only one entry in this map, but in principle multiple software-triggered detectors
+	 * can be selected.<br>
+	 * <p>
+	 * The detector controls will be updated to select the appropriate detector(s), set the corresponding exposure time
+	 * and deselect all other detectors.
+	 *
+	 * @param value
+	 *            The "detectors" property value (as described above)
+	 */
+	private void handleDetectorsEvent(String value) {
+		try {
+			final Gson gson = new Gson();
+			@SuppressWarnings("unchecked")
+			final Map<String, Double> detectorMap = gson.fromJson(value, HashMap.class);
+
+			// Validate the detectors map.
+			validateDetectorMap(detectorMap);
+
+			// Map is valid - update the GUI
+			uiSync.asyncExec(() -> updateFromDetectorMap(detectorMap));
+		} catch (Exception e) {
+			logger.error("Invalid detectors parameter: {}", value, e);
+		}
+	}
+
+	/**
+	 * Validate the map of detector -> exposure passed as a property change.<br>
+	 * This function will throw an exception if:
+	 * <ul>
+	 * <li>the map does not contain the correct data types</li>
+	 * <li>an exposure time is invalid</li>
+	 * <li>it contains multiple detectors, if one is a Malcolm detector</li>
+	 * </ul>
+	 * It will log a warning (but not throw an exception) if the map contains a detector which does not exist or is not
+	 * currently visible.
+	 *
+	 * @param detectorMap
+	 *            the map to be checked
+	 */
+	@SuppressWarnings("cast")
+	private void validateDetectorMap(final Map<String, Double> detectorMap) {
+		for (Map.Entry<String, Double> e : detectorMap.entrySet()) {
+			// The JSON parsing does not check the data types of the map, so do it here
+			if (!(e.getKey() instanceof String)) {
+				throw new IllegalArgumentException("Invalid detector name: " + e.getKey());
+			}
+			if (!(e.getValue() instanceof Number)) {
+				throw new IllegalArgumentException("Invalid exposure time: " + e.getValue());
+			}
+
+			// Check that the detector is visible
+			final String detectorName = e.getKey();
+			final Optional<IScanModelWrapper<IDetectorModel>> detectorModelWrapper = visibleDetectors.stream()
+					.filter(w -> w.getName().equals(detectorName)).findFirst();
+			if (!detectorModelWrapper.isPresent()) {
+				logger.warn("Detector {} does not exist in this view", detectorName);
+				continue;
+			}
+
+			// Check exposure time is positive
+			final Double exposureTime = e.getValue();
+			if (exposureTime.doubleValue() <= 0.0) {
+				throw new IllegalArgumentException("Invalid exposure time: " + exposureTime);
+			}
+
+			// If one detector is a Malcolm device, it should be the only one set.
+			if (detectorModelWrapper.get().getModel() instanceof MalcolmModel && detectorMap.size() > 1) {
+				throw new IllegalArgumentException("If a Malcolm detector is selected, no other detector can be selected");
+			}
+		}
+	}
+
+	/**
+	 * Update the GUI from the detector map passed as a property
+	 * <p>
+	 * <ul>
+	 * <li>mark the appropriate detector(s) as included in the scan</li>
+	 * <li>set the exposure time</li>
+	 * </ul>
+	 * Call {@link #detectorSelectionChanged(IScanModelWrapper)} & {@link #updateMappingView()} to do the actual GUI
+	 * update.
+	 *
+	 * @param detectorMap
+	 *            the detector map to be used
+	 */
+	private void updateFromDetectorMap(final Map<String, Double> detectorMap) {
+		// Update the detector controls
+		IScanModelWrapper<IDetectorModel> selectedDetector = null;
+		for (IScanModelWrapper<IDetectorModel> wrapper : getMappingBean().getDetectorParameters()) {
+			final String detectorName = wrapper.getName();
+			final Object exposure = detectorMap.get(detectorName);
+
+			if (exposure instanceof Double) {
+				// Detector is to be included in the scan: enable & set exposure time
+				wrapper.setIncludeInScan(true);
+				wrapper.getModel().setExposureTime((Double) exposure);
+				if (wrapper.getModel() instanceof MalcolmModel) {
+					updateMappingStage(wrapper);
+				}
+				selectedDetector = wrapper;
+			} else {
+				// Detector not included in scan: disable if a Malcolm detector is selected
+				wrapper.setIncludeInScan(false);
+			}
+		}
+		dataBindingContext.updateTargets();
+		if (selectedDetector != null) {
+			detectorSelectionChanged(selectedDetector);
+		}
+		updateMappingView();
+	}
+
 	@Override
 	public void saveState(Map<String, String> persistedState) {
 		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
@@ -435,5 +589,11 @@ public class DetectorsSection extends AbstractMappingSection {
 		} catch (Exception e) {
 			logger.error("Error loading detector selection", e);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		GDAClientActivator.getDefault().getPreferenceStore().removePropertyChangeListener(propertyChangeListener);
+		super.dispose();
 	}
 }

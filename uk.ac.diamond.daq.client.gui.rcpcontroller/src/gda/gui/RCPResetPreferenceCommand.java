@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,16 +18,24 @@
 
 package gda.gui;
 
-import gda.factory.Findable;
-import gda.observable.IObservable;
+import java.io.Serializable;
 
-
-/*
- * Interface for object on server that can be used to open a view on the client
+/**
+ * Command to reset a preference to its default value<br>
+ * In practice, this usually means removing it.
  */
-public interface RCPController extends IObservable, Findable{
-	void openView(String id);
-	void openPerspective(String id);
-	void setPreference(String id, Object value);
-	void resetPreference(String id);
+public class RCPResetPreferenceCommand implements Serializable {
+	private String id;
+
+	public RCPResetPreferenceCommand(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 }

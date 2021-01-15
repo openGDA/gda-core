@@ -29,6 +29,7 @@ import java.util.function.BiFunction;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.JFaceResources;
@@ -72,11 +73,14 @@ public abstract class AbstractMappingSection implements IMappingSection {
 
 	protected DataBindingContext dataBindingContext;
 
+	protected UISynchronize uiSync;
+
 	private boolean createSeparator = true;
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
 		this.mappingView = mappingView;
+		uiSync = getService(UISynchronize.class);
 	}
 
 	@Override
