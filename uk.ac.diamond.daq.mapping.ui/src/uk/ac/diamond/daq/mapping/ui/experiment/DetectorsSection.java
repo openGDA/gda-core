@@ -42,12 +42,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -58,7 +58,6 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
@@ -102,12 +101,12 @@ public class DetectorsSection extends AbstractMappingSection {
 		sectionComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
-		Label detectorsLabel = new Label(sectionComposite, SWT.NONE);
+		final Label detectorsLabel = new Label(sectionComposite, SWT.NONE);
 		detectorsLabel.setText("Detectors");
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(detectorsLabel);
 
 		// button to open the detector chooser dialog
-		Button configure = new Button(sectionComposite, SWT.PUSH);
+		final Button configure = new Button(sectionComposite, SWT.PUSH);
 		configure.setImage(getImage("icons/gear.png"));
 		configure.setToolTipText("Select detectors to show");
 		GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(configure);
@@ -126,7 +125,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	private void chooseDetectors() {
-		ChooseDevicesDialog<IDetectorModel> dialog = new ChooseDevicesDialog<>(getShell(),
+		final ChooseDevicesDialog<IDetectorModel> dialog = new ChooseDevicesDialog<>(getShell(),
 				getMappingBean().getDetectorParameters(), visibleDetectors);
 		dialog.setTitle("Choose from available detectors");
 
@@ -154,24 +153,24 @@ public class DetectorsSection extends AbstractMappingSection {
 		GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(detectorsComposite);
 		GridLayoutFactory.swtDefaults().numColumns(DETECTORS_COLUMNS).margins(0, 0).applyTo(detectorsComposite);
 
-		Optional<IScanModelWrapper<IDetectorModel>> selectedMalcolmDevice = Optional.empty();
+		final Optional<IScanModelWrapper<IDetectorModel>> selectedMalcolmDevice = Optional.empty();
 		for (IScanModelWrapper<IDetectorModel> detectorParameters : detectorParametersList) {
 			// create the detector selection checkbox and bind it to the includeInScan property of the wrapper
-			Button checkBox = new Button(detectorsComposite, SWT.CHECK);
+			final Button checkBox = new Button(detectorsComposite, SWT.CHECK);
 			detectorSelectionCheckboxes.put(detectorParameters.getName(), checkBox);
 			checkBox.setText(detectorParameters.getName());
-			IObservableValue checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			IObservableValue activeValue = PojoProperties.value("includeInScan").observe(detectorParameters);
+			final IObservableValue<Boolean> checkBoxValue = WidgetProperties.buttonSelection().observe(checkBox);
+			final IObservableValue<Boolean> activeValue = PojoProperties.value("includeInScan", Boolean.class).observe(detectorParameters);
 			dataBindingContext.bindValue(checkBoxValue, activeValue);
 			dataBindingContext.updateTargets(); // sets the checkbox checked if the detector was previously selected
 			checkBox.addListener(SWT.Selection, event -> detectorSelectionChanged(detectorParameters));
 
 			// create the exposure time text control and bind it the exposure time property of the wrapper
-			Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
+			final Text exposureTimeText = new Text(detectorsComposite, SWT.BORDER);
 			exposureTimeText.setToolTipText("Exposure time");
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
-			IObservableValue exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
-			IObservableValue exposureTimeValue = PojoProperties.value("exposureTime").observe(detectorParameters.getModel());
+			final IObservableValue<String> exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
+			final IObservableValue<Double> exposureTimeValue = PojoProperties.value("exposureTime", Double.class).observe(detectorParameters.getModel());
 			dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
 			exposureTimeText.addListener(SWT.Modify, event -> updateStatusLabel());
 
@@ -283,7 +282,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 			if (updatedFastAndSlowAxes || updatedAssociatedAxes) {
 				// show a dialog to inform the user of the change (unless overridden in the preferences)
-				IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+				final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
 				if (prefs.getBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, true)) {
 					String message = "";
 					if (updatedFastAndSlowAxes) {
@@ -295,7 +294,7 @@ public class DetectorsSection extends AbstractMappingSection {
 					} else {
 						message += MessageFormat.format(" The associated axis is ''{0}'' and has not been changed.", stageInfo.getAssociatedAxis());
 					}
-					MessageDialogWithToggle dialog = MessageDialogWithToggle.openInformation(getShell(), "Mapping Stage", message,
+					final MessageDialogWithToggle dialog = MessageDialogWithToggle.openInformation(getShell(), "Mapping Stage", message,
 							"Don't show this dialog again", false, null, null);
 					prefs.putBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, !dialog.getToggleState());
 				}
@@ -303,13 +302,13 @@ public class DetectorsSection extends AbstractMappingSection {
 				// Region and path composites need updating to reflect this change.
 				getMappingView().redrawRegionAndPathComposites();
 			}
-		} catch (ScanningException | EventException e) {
+		} catch (ScanningException e) {
 			logger.error("Could not get axes of malcolm device: {}", deviceName, e);
 		}
 	}
 
-	private IMalcolmDevice getMalcolmDevice(final String malcolmDeviceName) throws ScanningException, EventException {
-		IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
+	private IMalcolmDevice getMalcolmDevice(final String malcolmDeviceName) throws ScanningException {
+		final IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
 		if (!(runnableDevice instanceof IMalcolmDevice)) {
 			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
 		}
@@ -323,7 +322,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		// a function to convert DeviceInformations to IDetectorModelWrappers
 		final Function<DeviceInformation<?>, IScanModelWrapper<IDetectorModel>> malcolmInfoToWrapper =
 				info -> {
-					final DetectorModelWrapper wrapper = new DetectorModelWrapper(infoToOfflineMarker.apply(info), (IDetectorModel) info.getModel(), false);
+					final DetectorModelWrapper<IDetectorModel> wrapper = new DetectorModelWrapper<>(infoToOfflineMarker.apply(info), (IDetectorModel) info.getModel(), false);
 					wrapper.setShownByDefault(info.isShownByDefault());
 					return wrapper;
 				};
@@ -405,9 +404,9 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	@Override
 	public void saveState(Map<String, String> persistedState) {
-		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
-			List<String> chosenDetectorNames = visibleDetectors.stream().
+			final List<String> chosenDetectorNames = visibleDetectors.stream().
 					map(IScanModelWrapper<IDetectorModel>::getName).
 					collect(Collectors.toList());
 			persistedState.put(DETECTOR_SELECTION_KEY_JSON, marshaller.marshal(chosenDetectorNames));
@@ -419,12 +418,12 @@ public class DetectorsSection extends AbstractMappingSection {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadState(Map<String, String> persistedState) {
-		String json = persistedState.get(DETECTOR_SELECTION_KEY_JSON);
+		final String json = persistedState.get(DETECTOR_SELECTION_KEY_JSON);
 		if (json == null || json.isEmpty()) { // This happens when client is reset || if no detectors are configured.
 			return;
 		}
 
-		IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
 			final Map<String, IScanModelWrapper<IDetectorModel>> detectorParamsByName = updateDetectorParameters();
 			final List<String> chosenDetectorNames = marshaller.unmarshal(json, ArrayList.class);
@@ -437,5 +436,4 @@ public class DetectorsSection extends AbstractMappingSection {
 			logger.error("Error loading detector selection", e);
 		}
 	}
-
 }
