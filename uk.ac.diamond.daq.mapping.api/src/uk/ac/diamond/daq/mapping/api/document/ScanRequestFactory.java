@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.api.document;
 
-import static org.eclipse.scanning.api.points.models.AxialStepModel.createStaticAxialModel;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +36,7 @@ import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
@@ -172,14 +171,14 @@ public class ScanRequestFactory {
 		// -- Model Definition
 		// Flat Before Acquisition
 		if (getFlatCalibration().isBeforeAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
+			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posBeforeMainScan, getFlatCalibration().getNumberExposures()));
 			interpolationPositions.add(flatPos);
 			imageTypes.add(ImageType.FLAT);
 		}
 		// Dark Before Acquisition
 		if (getDarkCalibration().isBeforeAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
+			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posBeforeMainScan, getDarkCalibration().getNumberExposures()));
 			interpolationPositions.add(darkPos);
 			imageTypes.add(ImageType.DARK);
@@ -193,7 +192,7 @@ public class ScanRequestFactory {
 
 		// Flat After Acquisition
 		if (getFlatCalibration().isAfterAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
+			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posAfterMainScan, getFlatCalibration().getNumberExposures()));
 			interpolationPositions.add(flatPos);
 			imageTypes.add(ImageType.FLAT);
@@ -201,7 +200,7 @@ public class ScanRequestFactory {
 
 		// Dark After Acquisition
 		if (getDarkCalibration().isAfterAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(createStaticAxialModel(trackDocument.getScannable(),
+			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posAfterMainScan, getDarkCalibration().getNumberExposures()));
 			interpolationPositions.add(darkPos);
 			imageTypes.add(ImageType.DARK);

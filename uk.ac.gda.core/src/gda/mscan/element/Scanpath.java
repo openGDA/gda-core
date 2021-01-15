@@ -32,6 +32,7 @@ import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractMapModel;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
@@ -68,7 +69,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	LINE_POINTS("nopt", 2, 1, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
 	SINGLE_POINT("poin", 2, 2, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
 	AXIS_STEP("axst", 1, 1, AxialStepModel.class, Factory::createAxialStepModel),
-	AXIS_POINTS("axno", 1, 1, AxialStepModel.class, Factory::createAxialPointsModel),
+	AXIS_POINTS("axno", 1, 1, AxialPointsModel.class, Factory::createAxialPointsModel),
 	STATIC("stat", 0, 1, StaticModel.class, Factory::createStaticModel);
 
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
@@ -247,7 +248,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		/** Constant to reference the parameter of a {@link TwoAxisLinePointsModel}/{@link TwoAxisLissajousModel} **/
 		private static final int POINTS = 0;
 
-		/** Constants to reference the available parameters of {@link AxialStepModel} **/
+		/** Constants to reference the available parameters of {@link AxialStepModel}/{@link AxialPointsModel} **/
 		private static final int START = 0;
 		private static final int STOP = 1;
 		private static final int AX_STEP = 2;
@@ -484,7 +485,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		}
 
 		/**
-		 * Creates a {@link AxialStepModel} with a defined number of points using the supplied params.
+		 * Creates a {@link AxialPointsModel} with a defined number of points using the supplied params.
 		 *
 		 * @param scannables		The {@link Scannable} that relates to the axis of the step path as a {@link List}
 		 * 							of 1
@@ -498,23 +499,11 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 														   final List<Number> notUsed,
 														   final Map<Mutator, List<Number>> mutatorUses) {
 			checkOneParameterPositiveInteger(scanParameters.get(AX_POINTS), "AxialPointsModel", AX_POINTS);
-			double length = Math.abs(scanParameters.get(STOP).doubleValue() - scanParameters.get(START).doubleValue());
 
-			int divisor = scanParameters.get(AX_POINTS).intValue() - 1;
-			double start = scanParameters.get(START).doubleValue();
-
-			// For the 1 Point case, offset by half the length
-			if (divisor == 0) {
-				start += length/2;
-				divisor = 1;
-			}
-
-			double sign = scanParameters.get(STOP).doubleValue() < start ? -1 : 1;
-
-			AxialStepModel model = new AxialStepModel(scannables.get(0).getName(),
-											start,
+			AxialPointsModel model = new AxialPointsModel(scannables.get(0).getName(),
+											scanParameters.get(START).doubleValue(),
 											scanParameters.get(STOP).doubleValue(),
-											sign * length / divisor);
+											scanParameters.get(AX_POINTS).intValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
 			return model;
