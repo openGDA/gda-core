@@ -84,7 +84,7 @@ public class RmiAutomatedExporterTest {
 	@BeforeClass
 	public static void setupClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker();
-		ServiceHolder.setSessionService(new TestSessionService());
+		new ServiceHolder().setSessionService(new TestSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Set the property this is used by the RmiAutomatedExporter

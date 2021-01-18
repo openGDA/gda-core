@@ -54,7 +54,7 @@ public class JsonMessagingServiceTest {
 	@BeforeClass
 	public static void beforeClass() {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker for tests
-		ServiceHolder.setSessionService(new TestSessionService());
+		new ServiceHolder().setSessionService(new TestSessionService());
 	}
 
 	@Before

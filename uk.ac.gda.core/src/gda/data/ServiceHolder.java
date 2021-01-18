@@ -132,7 +132,7 @@ public class ServiceHolder {
 		return sessionService;
 	}
 
-	public static void setSessionService(ISessionService sessionService) {
+	public void setSessionService(ISessionService sessionService) {
 		ServiceHolder.sessionService = sessionService;
 	}
 

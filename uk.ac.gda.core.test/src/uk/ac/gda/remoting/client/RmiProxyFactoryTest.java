@@ -91,7 +91,7 @@ public class RmiProxyFactoryTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
-		ServiceHolder.setSessionService(new TestSessionService());
+		new ServiceHolder().setSessionService(new TestSessionService());
 		// Need to find a free port as this test might be running simultaneously on the same machine
 		portForTesting = SocketUtils.findAvailableTcpPort(1099, 10000);
 		// Create a registry

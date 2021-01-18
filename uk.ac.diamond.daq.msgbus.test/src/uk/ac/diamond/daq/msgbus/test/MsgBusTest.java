@@ -60,7 +60,7 @@ public class MsgBusTest {
 		LocalProperties.forceActiveMQEmbeddedBroker();
 		// Disable setting of broker URI property above to use with local broker outside process, e.g.:
 		// module load activemq; activemq start
-		ServiceHolder.setSessionService(new TestSessionService());
+		new ServiceHolder().setSessionService(new TestSessionService());
 	}
 
 	@AfterClass
