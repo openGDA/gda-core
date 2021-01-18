@@ -5,10 +5,8 @@ import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +34,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +61,6 @@ public class PlanProgressPlotView extends ViewPart {
 	private PlanStatusBean activePlan;
 	
 	private IPlottingSystem<Composite> plottingSystem;
-	private Text status;
 	
 	private Scannable signalSource;
 	private Future<?> trajectoryJob;
@@ -95,10 +91,6 @@ public class PlanProgressPlotView extends ViewPart {
 		
 		plottingSystem.createPlotPart(composite, "Experiment plan", null, PlotType.XY, null);
 		plottingSystem.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
-		status = new Text(composite, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER);
-		status.setText("\n"); // initialise with enough height for two lines
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(status);
 	}
 
 	private void createSubscriber() throws URISyntaxException, EventException {
@@ -155,45 +147,12 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 
 	private void updateView() {
-		if (activePlan.getStatus() == Status.RUNNING) {
-			plotSegments();
-		}
+		plotSegments();
 		plotTriggers();
 		updatePlotTitleAndAxisLabel(activePlan.getName() + ": " + activePlan.getStatus().toString(), "Time (min)");
-		if (activePlan.getStatus() == Status.COMPLETE) {
-			if (trajectoryJob != null && !trajectoryJob.isDone()) {
-				trajectoryJob.cancel(true);
-			}
-			try {
-				IAnnotation planEndAnnotation = plottingSystem.createAnnotation("Plan end");
-				planEndAnnotation.setLocation(getRelativeTimeInMinutes(activePlan.getSegments().get(activePlan.getSegments().size()-1).getEndTime()), getYPosition());
-				planEndAnnotation.setLineStyle(LineStyle.UP_DOWN);
-				planEndAnnotation.setShowPosition(false);
-				Display.getDefault().syncExec(()->plottingSystem.addAnnotation(planEndAnnotation));
-			} catch (Exception e) {
-				logger.error("Blame Jake", e);
-			}
+		if (activePlan.getStatus() == Status.COMPLETE && trajectoryJob != null && !trajectoryJob.isDone()) {
+			trajectoryJob.cancel(true);
 		}
-		updateStatus();
-	}
-	
-	private void updateStatus() {
-		if (activePlan != null) {
-			String planInfo = "Plan: '" + activePlan.getName() + "'; started: " + formatTimestamp(activePlan.getSegments().get(0).getStartTime());
-			String other = "";
-			if (activePlan.getStatus() == Status.RUNNING) {
-				SegmentRecord runningSegment = activePlan.getSegments().get(activePlan.getSegments().size()-1);
-				other = "\nSegment: '" + runningSegment.getSegmentName() + "'; started: " + formatTimestamp(runningSegment.getStartTime());
-			} else if (activePlan.getStatus() == Status.COMPLETE) {
-				other = "; completed: " + formatTimestamp(activePlan.getSegments().get(activePlan.getSegments().size()-1).getEndTime());
-			}
-			final String updateText = planInfo + other;
-			Display.getDefault().asyncExec(()->status.setText(updateText));
-		}
-	}
-	
-	private String formatTimestamp(long timestamp) {
-		return DateFormat.getDateTimeInstance().format(new Date(timestamp));
 	}
 	
 	private void updatePlotTitleAndAxisLabel(String title, String xAxisLabel) {
@@ -223,19 +182,33 @@ public class PlanProgressPlotView extends ViewPart {
 	
 	private void plotSegments() {
 		for (int i = segmentAnnotations.size(); i < activePlan.getSegments().size(); i++) {
+			// we plot an annotation to visualise the start of every segment
 			SegmentRecord segmentRecord = activePlan.getSegments().get(i);
-			try {
-				IAnnotation annotation = plottingSystem.createAnnotation("Segment: '" + segmentRecord.getSegmentName() + "'");
-				annotation.setLocation(getRelativeTimeInMinutes(segmentRecord.getStartTime()), getYPosition());
-				annotation.setShowName(true);
-				annotation.setLineStyle(LineStyle.UP_DOWN);
-				annotation.setShowPosition(false);
-				segmentAnnotations.add(annotation);
-				Display.getDefault().syncExec(()->plottingSystem.addAnnotation(annotation));
-				plottingSystem.repaint();
-			} catch (Exception e) {
-				logger.error("Messed up the annotations", e);
-			}
+			plotAnnotation("Segment: '" + segmentRecord.getSegmentName() + "'",
+					getRelativeTimeInMinutes(segmentRecord.getStartTime()), getYPosition());
+		}
+		if (activePlan.getStatus() == Status.COMPLETE) {
+			// we need a final annotation to represent the end of the experiment
+			plotAnnotation("Plan end", getRelativeTimeInMinutes(activePlan.getSegments()
+					.get(activePlan.getSegments().size()-1).getEndTime()), getYPosition());
+		}
+	}
+	
+	/**
+	 * Plotted as a vertical line at the specified xPosition to visualise segment limits.
+	 */
+	private void plotAnnotation(String name, double xPosition, double yPosition) {
+		try {
+			IAnnotation annotation = plottingSystem.createAnnotation(name);
+			annotation.setLocation(xPosition, yPosition);
+			annotation.setShowName(true);
+			annotation.setLineStyle(LineStyle.UP_DOWN);
+			annotation.setShowPosition(false);
+			segmentAnnotations.add(annotation);
+			Display.getDefault().syncExec(() -> plottingSystem.addAnnotation(annotation));
+			plottingSystem.repaint();
+		} catch (Exception e) {
+			logger.error("Error plotting annotation '{}'", name, e);
 		}
 	}
 	
@@ -293,11 +266,8 @@ public class PlanProgressPlotView extends ViewPart {
 	
 	private void plotTriggers() {
 		for (TriggerRecord trigRec : activePlan.getTriggers()) {
-			String name = trigRec.getTriggerName();
-			if (!triggerPlots.containsKey(name)) {
-				triggerPlots.put(name, new DynamicTraceMaintainer(name, false));
-			}
-			DynamicTraceMaintainer tp = triggerPlots.get(name);
+			String triggerName = trigRec.getTriggerName();
+			DynamicTraceMaintainer tp = triggerPlots.computeIfAbsent(triggerName, name -> new DynamicTraceMaintainer(name, false));
 			
 			List<TriggerEvent> events = trigRec.getEvents();
 			for (int i = tp.getSize(); i < events.size(); i++) {
