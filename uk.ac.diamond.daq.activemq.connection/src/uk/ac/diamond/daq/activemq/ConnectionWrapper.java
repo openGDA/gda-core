@@ -43,7 +43,7 @@ public class ConnectionWrapper implements Connection, Consumer<SessionWrapper> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConnectionWrapper.class);
 
-	private final Connection connection;
+	protected final Connection connection;
 	private final String connectionUri;
 	private final List<SessionWrapper> sessions = new ArrayList<>();
 	private Consumer<ConnectionWrapper> closeListener;

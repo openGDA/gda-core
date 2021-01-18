@@ -27,7 +27,6 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
-import uk.ac.diamond.daq.activemq.ActiveMQSessionService;
 import uk.ac.diamond.daq.activemq.ISessionService;
 
 /**
@@ -127,21 +126,13 @@ public class ServiceHolder {
 		return nexusDataWriterConfiguration;
 	}
 
-	private static volatile ISessionService sessionService;
+	private static ISessionService sessionService;
 
 	public static ISessionService getSessionService() {
-		if (sessionService == null) {
-			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
-				if (sessionService == null) {
-					sessionService = new ActiveMQSessionService();
-				}
-			}
-		}
-
 		return sessionService;
 	}
 
-	public void setSessionService(ISessionService sessionService) {
+	public static void setSessionService(ISessionService sessionService) {
 		ServiceHolder.sessionService = sessionService;
 	}
 

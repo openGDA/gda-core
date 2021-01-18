@@ -38,6 +38,7 @@ import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.messaging.json.JsonMessagingService;
@@ -53,6 +54,7 @@ public class JsonMessagingServiceTest {
 	@BeforeClass
 	public static void beforeClass() {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker for tests
+		ServiceHolder.setSessionService(new TestSessionService());
 	}
 
 	@Before

@@ -46,7 +46,7 @@ import javax.jms.TopicSubscriber;
  */
 public class SessionWrapper implements AutoCloseable, Session {
 
-	private final Session session;
+	protected final Session session;
 	private Consumer<SessionWrapper> closeListener;
 
 	SessionWrapper(Session session) {

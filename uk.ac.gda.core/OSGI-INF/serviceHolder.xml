@@ -9,4 +9,5 @@
    <reference bind="setNexusScanFileService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.scan.NexusScanFileService" name="NexusScanFileService" policy="static"/>
    <reference bind="setNexusFileAppenderService" cardinality="1..1" interface="org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService" name="INexusFileAppenderService" policy="static"/>
    <reference bind="setNexusDataWriterConfiguration" cardinality="0..1" interface="gda.data.scan.datawriter.NexusDataWriterConfiguration" name="NexusDataWriterConfiguration" policy="static"/>
+   <reference bind="setSessionService" cardinality="1..1" interface="uk.ac.diamond.daq.activemq.ISessionService" name="ISessionService" policy="static"/>
 </scr:component>
