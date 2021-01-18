@@ -18,17 +18,16 @@
 
 package uk.ac.diamond.daq.mapping.ui.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+
 import java.util.Optional;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,6 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.configuration.properties.LocalProperties;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -59,6 +56,16 @@ public class ScanningAcquisitionControllerTest {
 
 	@Autowired
 	IScanningAcquisitionService scanningAcquisitionService;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTest");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_CONFIG);
+	}
 
 	@Before
 	public void before() {
@@ -87,23 +94,6 @@ public class ScanningAcquisitionControllerTest {
 		Assert.assertNull(controller.getAcquisition().getAcquisitionConfiguration().getImageCalibration());
 	}
 
-	/**
-	 * The new scanning acquisition without configured cameras does not create the ImageCalibration document
-	 * @throws IOException
-	 */
-	@Test
-	public void testControllerWithNewScanningAcquisitionSupplierNoCameras() throws IOException {
-		File properties = new File("test/resources/acquisitions.properties");
-		readProperties(properties);
-
-		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
-		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
-		controller.createNewAcquisition();
-		Assert.assertNull(controller.getAcquisition().getAcquisitionConfiguration().getImageCalibration());
-
-		removeProperties(properties);
-	}
-
 	private Supplier<ScanningAcquisition> getScanningAcquisitionSupplier() {
 		return () -> {
 			ScanningAcquisition newConfiguration = new ScanningAcquisition();
@@ -115,32 +105,5 @@ public class ScanningAcquisitionControllerTest {
 			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 			return newConfiguration;
 		};
-	}
-
-	private void readProperties(File resource) {
-		Optional.ofNullable(resource)
-				.ifPresent(r -> System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath()));
-		LocalProperties.reloadAllProperties();
-		CameraHelper.loadAllProperties();
-		AcquisitionsPropertiesHelper.reloadProperties();
-	}
-
-	/**
-	 * This method is required
-	 * - Junit does not reinstatiate LocalProperties on each test
-	 * - LocalProperties appends each new test properties file
-	 * What worst new tests see old properties, consequently this method is necessary to remove the OLD properties and
-	 * as such is appended after each test
-	 *
-	 * @param properties
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private void removeProperties(File properties) throws IOException {
-		Properties testProps = new Properties();
-		testProps.load(new FileInputStream(properties));
-		testProps.keySet().stream()
-			.map(String.class::cast)
-		.forEach(LocalProperties::clearProperty);
 	}
 }

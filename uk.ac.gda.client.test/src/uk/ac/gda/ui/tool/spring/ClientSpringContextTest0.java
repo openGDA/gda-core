@@ -18,9 +18,11 @@
 
 package uk.ac.gda.ui.tool.spring;
 
-import java.io.File;
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +31,23 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.configuration.properties.LocalProperties;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ClientSpringContextTestConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class ClientSpringContextTest {
+public class ClientSpringContextTest0 {
 
 	@Autowired
 	private ClientSpringContext clientContext;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/clientContext");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_CONFIG);
+	}
 
 	/**
 	 * If no endpoint is configured, uses the default one
@@ -45,21 +55,5 @@ public class ClientSpringContextTest {
 	@Test
 	public void restServiceEndpointDoesNotExistTest() {
 		Assert.assertTrue(ClientSpringContext.REST_ENDPOINT_DEFAULT.equals(clientContext.getRestServiceEndpoint()));
-	}
-
-	/**
-	 * Verify that retrieves the configured endpoint
-	 */
-	@Test
-	public void restServiceEndpointDoesExistTest() {
-		loadProperties("test/resources/clientContext/clientContextWithRestEndpoint.properties");
-		Assert.assertFalse(ClientSpringContext.REST_ENDPOINT_DEFAULT.equals(clientContext.getRestServiceEndpoint()));
-		Assert.assertTrue(clientContext.getRestServiceEndpoint().equals("http://xyz-control.diamond.ac.uk"));
-	}
-
-	private void loadProperties(String resourcePath) {
-		File resource = new File(resourcePath);
-		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath());
-		LocalProperties.reloadAllProperties();
 	}
 }

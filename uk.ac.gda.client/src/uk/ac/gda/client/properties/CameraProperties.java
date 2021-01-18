@@ -23,12 +23,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import uk.ac.gda.api.camera.TriggerMode;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
  * Defines the camera properties required by the GUI to expose a camera
  *
  * @author Maurizio Nagni
+ * @deprecated This interface has been replaced by {@link CameraConfigurationProperties}. To be removed on GDA 9.21
  */
+@Deprecated
 public interface CameraProperties {
 
 	/**
