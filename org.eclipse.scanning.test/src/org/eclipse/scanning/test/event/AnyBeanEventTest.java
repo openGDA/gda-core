@@ -28,6 +28,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.diamond.daq.activemq.test.TestSessionService;
+
 public class AnyBeanEventTest extends BrokerTest {
 
 	private IEventService              eservice;
@@ -41,6 +43,7 @@ public class AnyBeanEventTest extends BrokerTest {
 		// DO NOT COPY THIS IN NON-TEST CODE!
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new AnyBeanClassRegistry()));
+		activemqConnectorService.setSessionService(new TestSessionService());
 		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We use the long winded constructor because we need to pass in the connector.

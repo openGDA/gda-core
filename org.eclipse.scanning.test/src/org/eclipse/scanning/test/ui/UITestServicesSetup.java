@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.ui;
 
-import java.net.URI;
-
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
@@ -23,7 +21,6 @@ public class UITestServicesSetup {
 
 	private static DeviceServlet dservlet;
 	private static BrokerDelegate delegate;
-	private static URI uri;
 
 	public static void createTestServices(boolean requireBroker) throws Exception {
 
@@ -31,7 +28,6 @@ public class UITestServicesSetup {
 		if (requireBroker) {
 			delegate = new BrokerDelegate();
 			delegate.start();
-			uri      = delegate.getUri();
 		}
 
 		System.setProperty("org.eclipse.scanning.broker.uri", "vm://localhost?broker.persistent=false");
