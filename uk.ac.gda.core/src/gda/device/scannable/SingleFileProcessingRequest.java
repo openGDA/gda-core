@@ -66,7 +66,7 @@ public class SingleFileProcessingRequest extends AbstractScanHook implements Pro
 	}
 
 	/** Set the (possibly relative) path to the processing configuration file */
-	public void setProcesingFile(String path) {
+	public void setProcessingFile(String path) {
 		configurationFilePath = path;
 	}
 

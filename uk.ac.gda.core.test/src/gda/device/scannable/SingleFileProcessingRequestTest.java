@@ -37,7 +37,7 @@ public class SingleFileProcessingRequestTest {
 
 	@Test
 	public void absolutePathWithoutBase() {
-		pr.setProcesingFile("/config.xml");
+		pr.setProcessingFile("/config.xml");
 
 		checkRequest(pr, KEY, "/config.xml");
 	}
@@ -45,7 +45,7 @@ public class SingleFileProcessingRequestTest {
 	@Test
 	public void absolutePathIgnoresBase() {
 		pr.setRelativePathBase("/tmp/");
-		pr.setProcesingFile("/config.xml");
+		pr.setProcessingFile("/config.xml");
 
 		checkRequest(pr, KEY, "/config.xml");
 	}
@@ -53,7 +53,7 @@ public class SingleFileProcessingRequestTest {
 	@Test
 	public void relativePathWithBase() {
 		pr.setRelativePathBase("/tmp/");
-		pr.setProcesingFile("config.xml");
+		pr.setProcessingFile("config.xml");
 
 		checkRequest(pr, KEY, "/tmp/config.xml");
 	}
@@ -68,21 +68,21 @@ public class SingleFileProcessingRequestTest {
 		pr.setRelativePathBase("/some/relative/base/");
 		pr.setRelativePathBase(null);
 
-		pr.setProcesingFile("relative/path/to/config.xml");
+		pr.setProcessingFile("relative/path/to/config.xml");
 
 		checkRequest(pr, KEY, "/relative/path/to/config.xml");
 	}
 
 	@Test
 	public void requestIsEmptyWhenNoFileSet() {
-		pr.setProcesingFile(null);
+		pr.setProcessingFile(null);
 		Map<String, Collection<Object>> request = pr.getProcessingRequest();
 		assertThat(request.keySet(), is(empty()));
 	}
 
 	@Test
 	public void emptyFileIsEmptyRequest() {
-		pr.setProcesingFile("");
+		pr.setProcessingFile("");
 		Map<String, Collection<Object>> request = pr.getProcessingRequest();
 		assertThat(request.keySet(), is(empty()));
 	}
@@ -90,7 +90,7 @@ public class SingleFileProcessingRequestTest {
 	@Test
 	public void templateExpandedInBase() {
 		pr.setRelativePathBase("/tmp/$visit$/config");
-		pr.setProcesingFile("config.xml");
+		pr.setProcessingFile("config.xml");
 
 		checkRequest(pr, KEY, "/tmp/0-0/config/config.xml");
 	}
