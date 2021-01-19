@@ -2,8 +2,8 @@ package org.opengda.lde.ui.viewfactories;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.lde.ui.views.ReducedDataPlotComposite.ReducedDataConfig;
 import org.opengda.lde.ui.views.ReducedDataPlotView;
+import org.opengda.lde.ui.views.ReducedDataPlotView.ReducedDataConfig;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
