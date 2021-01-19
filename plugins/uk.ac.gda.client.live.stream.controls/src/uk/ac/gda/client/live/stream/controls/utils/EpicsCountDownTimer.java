@@ -1,6 +1,5 @@
 package uk.ac.gda.client.live.stream.controls.utils;
 
-import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -9,18 +8,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.epics.connection.EpicsController;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 /**
- * An {@link Observable} provides count down time update to the
- * {@link Observer}s.
+ * An {@link IObservable} provides count down time update to the
+ * {@link IObserver}s.
  * 
  * It monitors a EPICS PV {@link #countdownTriggerPvName} to trigger start or
  * stop the count down process with a count down time obtained from another
@@ -31,7 +32,7 @@ import gov.aps.jca.event.MonitorListener;
  * @author fy65
  *
  */
-public class EpicsCountDownTimer extends Observable {
+public class EpicsCountDownTimer extends ObservableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCountDownTimer.class);
 	protected static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
@@ -49,11 +50,9 @@ public class EpicsCountDownTimer extends Observable {
 
 	protected final ExecutorService executroService = Executors.newSingleThreadExecutor();
 
-	private MonitorListener ml = new MonitorListener() {
+	private MonitorListener ml = event -> {
 
-		@Override
-		public void monitorChanged(MonitorEvent arg0) {
-			DBR dbr = arg0.getDBR();
+			DBR dbr = event.getDBR();
 			if (dbr.isENUM()) {
 				short value = ((DBR_Enum) dbr).getEnumValue()[0];
 				if (value == 1) {
@@ -62,14 +61,13 @@ public class EpicsCountDownTimer extends Observable {
 					concelCountdown();
 				}
 			}
-		}
 	};
 
 	protected void concelCountdown() {
-		if (countdownTime > 100) { //stop concel be called when complete exposure normally.
+		if (countdownTime > 100) { //stop call cancel when count down time less than and equal to 100.
 			executroService.submit(() -> {
 				if (countDownTimer != null) {
-					logger.info("Concel count down timer.");
+					logger.info("Cancel count down timer.");
 					countDownTimer.cancel();
 				}
 			});
@@ -87,8 +85,7 @@ public class EpicsCountDownTimer extends Observable {
 					public void onTick(long millisUntilFinished) {
 						if (watchedValue != millisUntilFinished) {
 							watchedValue = countdownTime = millisUntilFinished;
-							setChanged();
-							notifyObservers(String.format(timeFormatInSeconds, millisUntilFinished / 1000));
+							notifyIObservers(EpicsCountDownTimer.this, String.format(timeFormatInSeconds, millisUntilFinished / 1000));
 						}
 					}
 
@@ -96,15 +93,17 @@ public class EpicsCountDownTimer extends Observable {
 					public void onFinish() {
 						if (watchedValue != 0) {
 							watchedValue = countdownTime = 0;
-							setChanged();
-							notifyObservers(String.format(timeFormatInSeconds, 0));
+							notifyIObservers(EpicsCountDownTimer.this, String.format(timeFormatInSeconds, 0));
 						}
 					}
 				};
 				logger.info("Start count down timer.");
 				countDownTimer.start();
-			} catch (TimeoutException | CAException | InterruptedException e) {
+			} catch (TimeoutException | CAException e) {
 				logger.error("Failed to get count down time from {}", timeChannel.getName(), e);
+			} catch (InterruptedException e) {
+				logger.error("interrupted while getting count down time from {}", timeChannel.getName(), e);
+				Thread.currentThread().interrupt();
 			}
 		});
 	}
@@ -121,6 +120,7 @@ public class EpicsCountDownTimer extends Observable {
 				logger.error("Failed to connect to {}", countdownTriggerPvName, e);
 			} catch (InterruptedException e) {
 				logger.error("Failed to add a monitor listener to {}", countdownTriggerPvName, e);
+				Thread.currentThread().interrupt();
 			}
 		}
 		if (countdownTimePvName == null) {
@@ -170,6 +170,7 @@ public class EpicsCountDownTimer extends Observable {
 				}
 			} catch (InterruptedException e) {
 				executroService.shutdownNow();
+				Thread.currentThread().interrupt();
 			}
 		}
 		if (countDownTimer != null) {
@@ -208,4 +209,5 @@ public class EpicsCountDownTimer extends Observable {
 	public void setTimeFormatInSeconds(String timeFormatInSeconds) {
 		this.timeFormatInSeconds = timeFormatInSeconds;
 	}
+
 }

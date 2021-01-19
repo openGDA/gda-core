@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -32,12 +29,17 @@ import org.eclipse.swt.widgets.Text;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+
 /**
- * A class which provides a GUI composite to display a given text value along with a given label and unit.
+ * A class which provides a GUI composite to display a given text value along
+ * with a given label and unit.
  * <p>
- * The format of the displayed text will be specified in the {@link Observable} instance.
+ * The format of the displayed text will be specified in the {@link IObservable}
+ * instance.
  */
-public class CountDownComposite extends Composite implements Observer {
+public class CountDownComposite extends Composite implements IObserver {
 
 	private static final int DEFAULT_TEXT_WIDTH = 30;
 
@@ -45,19 +47,17 @@ public class CountDownComposite extends Composite implements Observer {
 	private Label displayNameLabel;
 	private Text positionText;
 	private Label unitLabel;
-	
-	private String displayName;    // Allow a different prettier name be used if required
-	private Observable observable; // must be set to obtain text to be displayed
-	private String userUnit;       // Allow unit to be specified if required
+
+	private String displayName; // Allow a different prettier name be used if required
+	private IObservable observable; // must be set to obtain text to be displayed
+	private String userUnit; // Allow unit to be specified if required
 	private int textWidth = DEFAULT_TEXT_WIDTH;
-	
+
 	/**
 	 * Constructor
 	 *
-	 * @param parent
-	 *            The parent composite
-	 * @param style
-	 *            SWT style parameter (Typically SWT.NONE)
+	 * @param parent The parent composite
+	 * @param style  SWT style parameter (Typically SWT.NONE)
 	 */
 	public CountDownComposite(Composite parent, int style) {
 		super(parent, style);
@@ -74,22 +74,25 @@ public class CountDownComposite extends Composite implements Observer {
 
 		// Name label
 		displayNameLabel = new Label(this, SWT.NONE);
-		displayNameLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
+		displayNameLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT)
+				.align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 
 		// Position text box
 		positionText = new Text(this, SWT.BORDER);
-		positionText.setLayoutData(GridDataFactory.fillDefaults().hint(getTextWidth(), SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
+		positionText.setLayoutData(GridDataFactory.fillDefaults().hint(getTextWidth(), SWT.DEFAULT)
+				.align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 		positionText.setText("0");
 		positionText.setEditable(false);
 		positionText.setBackground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
 		positionText.setForeground(SWTResourceManager.getColor(SWT.COLOR_GREEN));
 		// Name label
 		unitLabel = new Label(this, SWT.NONE);
-		unitLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
-		
-		if (observable!=null) {
+		unitLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT)
+				.align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
+
+		if (observable != null) {
 			// required when the view containing this widget is re-opened
-			observable.addObserver(this);
+			observable.addIObserver(this);
 		}
 	}
 
@@ -98,12 +101,12 @@ public class CountDownComposite extends Composite implements Observer {
 	}
 
 	/**
-	 * Sets a different name to be used in the GUI instead of the default which is the scannable name
+	 * Sets a different name to be used in the GUI instead of the default which is
+	 * the scannable name
 	 * <p>
 	 * After calling this method the control will be automatically redrawn.
 	 *
-	 * @param displayName
-	 *            The name to be used in the GUI
+	 * @param displayName The name to be used in the GUI
 	 */
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
@@ -130,30 +133,29 @@ public class CountDownComposite extends Composite implements Observer {
 		((GridData) positionText.getLayoutData()).widthHint = textWidth;
 	}
 
-	public Observable getObservable() {
+	public IObservable getObservable() {
 		return observable;
 	}
 
-	public void setObservable(Observable observable) {
+	public void setObservable(IObservable observable) {
 		this.observable = observable;
 		// required when this is 1st instantiated in LiveControl
-		this.observable.addObserver(this);
+		this.observable.addIObserver(this);
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
-		if (o == observable) {
-			// Update the GUI in the UI thread
-			if (!positionText.isDisposed()) {
-				Display.getDefault().asyncExec(()->	positionText.setText(arg.toString()));
-			}
-		}
-	}
-	@Override
 	public void dispose() {
 		if (observable != null) {
-			observable.deleteObserver(this);
+			observable.deleteIObserver(this);
 		}
 		super.dispose();
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if (source == observable && !positionText.isDisposed()) {
+			// Update the GUI in the UI thread
+			Display.getDefault().asyncExec(() -> positionText.setText(arg.toString()));
+		}
 	}
 }

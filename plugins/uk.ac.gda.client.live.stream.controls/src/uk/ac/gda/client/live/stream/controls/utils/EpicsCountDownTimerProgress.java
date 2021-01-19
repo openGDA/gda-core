@@ -8,17 +8,8 @@ import gov.aps.jca.TimeoutException;
 
 public class EpicsCountDownTimerProgress extends EpicsCountDownTimer {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCountDownTimerProgress.class);
-	protected void concelCountdown() {
-		if (countdownTime > 100) { //stop concel be called when complete exposure normally.
-			executroService.submit(() -> {
-				if (countDownTimer != null) {
-					logger.info("Concel count down timer.");
-					countDownTimer.cancel();
-				}
-			});
-		}
-	}
 
+	@Override
 	protected void startCountdown() {
 		executroService.submit(() -> {
 			try {
@@ -31,8 +22,7 @@ public class EpicsCountDownTimerProgress extends EpicsCountDownTimer {
 					public void onTick(long millisUntilFinished) {
 						if (watchedValue != millisUntilFinished) {
 							watchedValue = countdownTime = millisUntilFinished;
-							setChanged();
-							notifyObservers(((acquireTime-millisUntilFinished)*100 /acquireTime));
+							notifyIObservers(EpicsCountDownTimerProgress.this, ((acquireTime-millisUntilFinished)*100 /acquireTime));
 						}
 					}
 
@@ -40,16 +30,17 @@ public class EpicsCountDownTimerProgress extends EpicsCountDownTimer {
 					public void onFinish() {
 						if (watchedValue != 0) {
 							watchedValue = countdownTime = 0;
-							setChanged();
-							notifyObservers(100);
+							notifyIObservers(EpicsCountDownTimerProgress.this,100);
 						}
 					}
 				};
 				logger.info("Start count down timer.");
 				countDownTimer.start();
-			} catch (TimeoutException | CAException | InterruptedException e) {
+			} catch (TimeoutException | CAException e) {
 				logger.error("Failed to get count down time from {}", timeChannel.getName(), e);
-			}
+			} catch (InterruptedException e) {
+				logger.error("Interrupted while get count down time from {}", timeChannel.getName(), e);
+				Thread.currentThread().interrupt();			}
 		});
 	}
 

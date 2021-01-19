@@ -18,24 +18,23 @@
 
 package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
-import java.util.Observable;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
+import gda.observable.IObservable;
 import uk.ac.gda.client.livecontrol.LiveControl;
 import uk.ac.gda.client.livecontrol.LiveControlBase;
 import uk.ac.gda.client.livecontrol.LiveControlsView;
 /**
  * A Spring configure bean for {@link LiveControl} used to populate items in {@link LiveControlsView}.
- * It has 5 properties: a group name, a display name, an {@link Observable} to providing count down time, a time unit, and text width.
- * Among these, only the {@link Observable} instance is essential.
+ * It has 5 properties: a group name, a display name, an {@link IObservable} to providing count down time, a time unit, and text width.
+ * Among these, only the {@link IObservable} instance is essential.
  */
 public class CountDownProgressBarControl extends LiveControlBase {
 
 	// Use the wrapper classes to allow null i.e. default if not set.
 	private String displayName;
-	private Observable observable; // this observable providing count down time data
+	private IObservable observable; // this observable providing count down time data
 	private Integer barWidth; // If set, passed down to CountdownProgressComposite
 
 	public String getDisplayName() {
@@ -110,11 +109,11 @@ public class CountDownProgressBarControl extends LiveControlBase {
 				+ barWidth + "]";
 	}
 
-	public Observable getObservable() {
+	public IObservable getObservable() {
 		return observable;
 	}
 
-	public void setObservable(Observable observable) {
+	public void setObservable(IObservable observable) {
 		this.observable = observable;
 	}
 

@@ -37,7 +37,7 @@ public abstract class CountDownTimer {
 	/**
 	 * The interval in milliseconds that the user receives callbacks
 	 */
-	private final long mCountdownInterval;
+	private long mCountdownInterval = 1;
 	private long mStopTimeInFuture;
 	
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -56,7 +56,7 @@ public abstract class CountDownTimer {
 	 *            The interval along the way to receive {@link #onTick(long)}
 	 *            callbacks.
 	 */
-	public CountDownTimer(long millisInFuture, long countDownInterval) {
+	protected CountDownTimer(long millisInFuture, long countDownInterval) {
 		mMillisInFuture = millisInFuture;
 		mCountdownInterval = countDownInterval;
 	}
@@ -64,7 +64,7 @@ public abstract class CountDownTimer {
 	/**
 	 * Cancel the countdown.
 	 */
-	public synchronized final void cancel() {
+	public final synchronized void cancel() {
 		mCancelled = true;
 		onFinish();
 	}
@@ -72,7 +72,7 @@ public abstract class CountDownTimer {
 	/**
 	 * Start the countdown.
 	 */
-	public synchronized final CountDownTimer start() {
+	public final synchronized CountDownTimer start() {
 		mCancelled = false;
 		if (mMillisInFuture <= 0) {
 			onFinish();
@@ -94,6 +94,7 @@ public abstract class CountDownTimer {
 			    } 
 			} catch (InterruptedException e) {
 			    executor.shutdownNow();
+			    Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -111,11 +112,8 @@ public abstract class CountDownTimer {
 	 */
 	public abstract void onFinish();
 
-	//cannot use lambda here as final field 'mCountdownInterval' only can be initialised inside constructor.
-	private Runnable mRunner = new Runnable() {
+	private Runnable mRunner = ()->{
 
-		@Override
-		public void run() {
 				while (!mCancelled && mStopTimeInFuture >= System.currentTimeMillis()) {
 					final long millisLeft = mStopTimeInFuture - System.currentTimeMillis();
 					if (millisLeft <= 0) {
@@ -144,10 +142,9 @@ public abstract class CountDownTimer {
 						try {
 							TimeUnit.MICROSECONDS.sleep(delay);
 						} catch (InterruptedException e) {
-							// no-op
+							Thread.currentThread().interrupt();
 						}
 					}
 				}
-			}
 	};
 }

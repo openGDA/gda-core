@@ -1,8 +1,5 @@
 package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -15,22 +12,25 @@ import org.eclipse.swt.widgets.ProgressBar;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+
 /**
  * A class which provides a GUI composite to display progress of a count down timer.
  *
  * @author fy65
  *
  */
-public class CountdownProgressComposite extends Composite implements Observer {
+public class CountdownProgressComposite extends Composite implements IObserver {
 
 	// GUI Elements
 	private Label displayNameLabel;
 	private ProgressBar progressBar;
 
 	private String displayName;    // Allow a different prettier name be used if required
-	private Observable observable; // must be set to obtain text to be displayed
+	private IObservable observable; // must be set to obtain text to be displayed
 	private Integer barWidth;
-	private GridData gd_progressBar;
+	private GridData gdProgressBar;
 	private Color color;
 
 	public CountdownProgressComposite(Composite parent, int style) {
@@ -50,16 +50,16 @@ public class CountdownProgressComposite extends Composite implements Observer {
 		displayNameLabel.setLayoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.CENTER, SWT.CENTER).grab(true, false).create());
 
 		progressBar = new ProgressBar(this, SWT.HORIZONTAL);
-		gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
-		gd_progressBar.grabExcessHorizontalSpace = true;
-		gd_progressBar.minimumWidth=SWT.DEFAULT;
-		progressBar.setLayoutData(gd_progressBar);
+		gdProgressBar = new GridData(GridData.FILL_HORIZONTAL);
+		gdProgressBar.grabExcessHorizontalSpace = true;
+		gdProgressBar.minimumWidth=SWT.DEFAULT;
+		progressBar.setLayoutData(gdProgressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
 		
 		if (getObservable()!=null) {
 			// required when view containing this being re-opened.
-			getObservable().addObserver(this);
+			getObservable().addIObserver(this);
 		}
 	}
 
@@ -80,23 +80,15 @@ public class CountdownProgressComposite extends Composite implements Observer {
 		displayNameLabel.setText(displayName);
 		this.redraw();
 	}
-	public Observable getObservable() {
+	public IObservable getObservable() {
 		return observable;
 	}
 
-	public void setObservable(Observable observable) {
+	public void setObservable(IObservable observable) {
 		this.observable = observable;
 		//required when 1st time this being created in LiveControl
-		this.observable.addObserver(this);
+		this.observable.addIObserver(this);
 	}	
-	@Override
-	public void update(Observable o, Object arg) {
-		if (o == observable) {
-			if (!progressBar.isDisposed()) {
-				Display.getDefault().asyncExec(()-> progressBar.setSelection(Integer.parseInt(arg.toString())));
-			}
-		}
-	}
 
 	public Integer getBarWidth() {
 		return barWidth;
@@ -104,13 +96,13 @@ public class CountdownProgressComposite extends Composite implements Observer {
 
 	public void setBarWidth(Integer barWidth) {
 		this.barWidth = barWidth;
-		gd_progressBar.widthHint=barWidth;
+		gdProgressBar.widthHint=barWidth;
 		this.redraw();
 	}
 	@Override
 	public void dispose() {
 		if (observable!=null) {
-			observable.deleteObserver(this);
+			observable.deleteIObserver(this);
 		}
 		if (color!=null) {
 			color.dispose();
@@ -119,6 +111,13 @@ public class CountdownProgressComposite extends Composite implements Observer {
 			progressBar.dispose();
 		}
 		super.dispose();
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if (source == observable && !progressBar.isDisposed()) {
+			Display.getDefault().asyncExec(()-> progressBar.setSelection(Integer.parseInt(arg.toString())));
+		}
 	}
 
 }
