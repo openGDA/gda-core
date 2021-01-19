@@ -32,7 +32,9 @@ import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.Slice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -66,6 +68,9 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	private String plotName;
 	private LDEResourceUtil resUtil;
 	private List<Sample> samples;
+
+	/** Names and internal paths to data */
+	private ReducedDataConfig config;
 
 	/**
 	 * @param parent
@@ -125,7 +130,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		});
 	}
 
-	private void updatePlot(final IProgressMonitor monitor, String value, final String sampleName) throws InterruptedException {
+	private void updatePlot(final IProgressMonitor monitor, String value, final String sampleName) throws InterruptedException, DatasetException {
 		File file= new File(value);
 		long starttime=System.currentTimeMillis();
 		long timer=0;
@@ -149,11 +154,10 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			logger.error("Exception on load data from file {}",value);
 			throw new IllegalArgumentException(e.getMessage(), e);
 		}
-		String[] names = dataHolder.getNames();
-		IDataset xAxis = dataHolder.getDataset(0);
-		xAxis.setName(names[0]);
-		IDataset yds = dataHolder.getDataset(1);
-		yds.setName(names[1]);
+		IDataset xAxis = dataHolder.getLazyDataset(config.xPath).getSlice((Slice) null);
+		xAxis.setName(config.xName);
+		IDataset yds = dataHolder.getLazyDataset(config.yPath).getSlice((Slice)null);
+		yds.setName(config.yName);
 //		Dataset error=(Dataset) dataHolder.getDataset(2);
 //		error.setName(names[2]);
 //		yds.setError(error);
@@ -203,6 +207,8 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 							String msg = "Thread interrupted while updating plot" + getPlotName();
 							logger.error(msg, ie);
 							Thread.currentThread().interrupt();
+						} catch (DatasetException e) {
+							logger.error("Could not read reduced data from file", e);
 						}
 					}
 				});
@@ -235,5 +241,27 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	public void setResUtil(LDEResourceUtil resUtil) {
 		this.resUtil = resUtil;
+	}
+
+	public ReducedDataConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(ReducedDataConfig config) {
+		this.config = config;
+	}
+
+	/** Data class to contain names and paths to reduced data */
+	public static class ReducedDataConfig {
+		private String xName;
+		private String yName;
+		private String xPath;
+		private String yPath;
+		public ReducedDataConfig(String xName, String yName, String xPath, String yPath) {
+			this.xName = xName;
+			this.yName = yName;
+			this.xPath = xPath;
+			this.yPath = yPath;
+		}
 	}
 }

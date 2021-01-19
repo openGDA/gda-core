@@ -4,6 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.ui.views.ReducedDataPlotComposite.ReducedDataConfig;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ public class ReducedDataPlotView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(ReducedDataPlotView.class);
 	public static final String ID = "org.opengda.lde.ui.views.reducdeddataplotview";
 	private ReducedDataPlotComposite plotComposite;
+	private ReducedDataConfig config;
 	private IObservable eventSource;
 	private LDEResourceUtil resUtil;
 
@@ -34,6 +36,7 @@ public class ReducedDataPlotView extends ViewPart {
 			plotComposite.setEventSource(eventSource);
 			plotComposite.setResUtil(getResUtil());
 			plotComposite.setPlotName(getPartName());
+			plotComposite.setConfig(config);
 			plotComposite.initialise();
 
 		} catch (Exception e) {
@@ -56,6 +59,14 @@ public class ReducedDataPlotView extends ViewPart {
 
 	public void setEventSource(IObservable eventSource) {
 		this.eventSource = eventSource;
+	}
+
+	public ReducedDataConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(ReducedDataConfig config) {
+		this.config = config;
 	}
 
 	public LDEResourceUtil getResUtil() {

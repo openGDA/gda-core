@@ -2,6 +2,7 @@ package org.opengda.lde.ui.viewfactories;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.opengda.lde.ui.views.ReducedDataPlotComposite.ReducedDataConfig;
 import org.opengda.lde.ui.views.ReducedDataPlotView;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ public class ReducedDataPlotViewFactory extends FindableBase implements Findable
 	private static final Logger logger=LoggerFactory.getLogger(ReducedDataPlotViewFactory.class);
 	private String viewPartName;
 	private IObservable eventSource;
+	private ReducedDataConfig config;
 	private LDEResourceUtil resUtil;
 
 	@Override
@@ -24,6 +26,7 @@ public class ReducedDataPlotViewFactory extends FindableBase implements Findable
 		plotView.setViewPartName(viewPartName);
 		plotView.setEventSource(getEventSource());
 		plotView.setResUtil(getResUtil());
+		plotView.setConfig(config);
 		return plotView;
 	}
 
@@ -63,5 +66,13 @@ public class ReducedDataPlotViewFactory extends FindableBase implements Findable
 
 	public void setEventSource(IObservable eventSource) {
 		this.eventSource = eventSource;
+	}
+
+	public ReducedDataConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(ReducedDataConfig config) {
+		this.config = config;
 	}
 }
