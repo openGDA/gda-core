@@ -60,8 +60,8 @@ import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.accesscontrol.RbacUtils;
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
 import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
  * This test automated RMI exporting by actually exporting services locally then checking they can be found and what

@@ -56,7 +56,7 @@ Require-Bundle: org.aopalliance,
  org.eclipse.dawnsci.nexus.template,
  org.apache.sshd.osgi;bundle-version="[2.2.0,2.3.0)",
  uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0",
- uk.ac.diamond.daq.activemq.connection;bundle-version="1.0.0"
+ uk.ac.gda.common.activemq;bundle-version="1.0.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api,
  uk.ac.diamond.org.springframework

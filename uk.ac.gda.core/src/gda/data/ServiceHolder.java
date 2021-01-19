@@ -27,7 +27,7 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
-import uk.ac.diamond.daq.activemq.ISessionService;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Holds the IRunnableDeviceService which the file registrar uses

@@ -39,7 +39,7 @@ import com.google.common.eventbus.Subscribe;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
  * Test methods for {@link uk.ac.diamond.daq.msgbus.MsgBus}.
