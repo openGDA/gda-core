@@ -47,8 +47,7 @@ import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObservable;
 import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
@@ -63,8 +62,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	private IPlottingSystem plottingSystem;
 	private ILineTrace profileLineTrace;
 
-	private Scriptcontroller eventAdmin;
-	private String eventAdminName;
+	private IObservable eventSource;
 	private String plotName;
 	private LDEResourceUtil resUtil;
 	private List<Sample> samples;
@@ -97,10 +95,6 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	}
 
 	public void initialise() {
-		if (eventAdminName!=null) {
-			eventAdmin=Finder.find(eventAdminName);
-			if (eventAdmin != null) eventAdmin.addIObserver(this);
-		}
 		if (resUtil!=null) {
 			try {
 				samples=resUtil.getSamples();
@@ -114,8 +108,8 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		if (eventAdmin!=null) {
-			eventAdmin.deleteIObserver(this);
+		if (eventSource!=null) {
+			eventSource.deleteIObserver(this);
 		}
 		super.dispose();
 	}
@@ -163,7 +157,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 //		Dataset error=(Dataset) dataHolder.getDataset(2);
 //		error.setName(names[2]);
 //		yds.setError(error);
-		ArrayList<IDataset> plotDataSets = new ArrayList<IDataset>();
+		ArrayList<IDataset> plotDataSets = new ArrayList<>();
 		plotDataSets.add(yds);
 		plottingSystem.clear();
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
@@ -187,7 +181,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	@Override
 	public void update(Object source, final Object arg) {
-		if (source == eventAdmin) {
+		if (source == eventSource) {
 			if (arg instanceof NewDataFileEvent) {
 
 				Display.getDefault().asyncExec(new Runnable() {
@@ -225,12 +219,14 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		this.plotName = plotName;
 	}
 
-	public String getEventAdminName() {
-		return eventAdminName;
+	public IObservable getEventSource() {
+		return eventSource;
 	}
 
-	public void setEventAdminName(String eventAdminName) {
-		this.eventAdminName = eventAdminName;
+	public void setEventSource(IObservable eventSource) {
+		if (this.eventSource != null) this.eventSource.deleteIObserver(this);
+		this.eventSource = eventSource;
+		if (this.eventSource != null) this.eventSource.addIObserver(this);
 	}
 
 	public LDEResourceUtil getResUtil() {

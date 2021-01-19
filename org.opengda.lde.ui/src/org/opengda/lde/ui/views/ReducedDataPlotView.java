@@ -8,14 +8,16 @@ import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.observable.IObservable;
+
 public class ReducedDataPlotView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReducedDataPlotView.class);
 	public static final String ID = "org.opengda.lde.ui.views.reducdeddataplotview";
 	private ReducedDataPlotComposite plotComposite;
-	private String eventAdminName;
+	private IObservable eventSource;
 	private LDEResourceUtil resUtil;
-	
+
 	public ReducedDataPlotView() {
 		setTitleToolTip("live display of integrated spectrum");
 		// setContentDescription("A view for displaying integrated spectrum.");
@@ -29,16 +31,16 @@ public class ReducedDataPlotView extends ViewPart {
 
 		try {
 			plotComposite = new ReducedDataPlotComposite(this, rootComposite, SWT.None);
-			plotComposite.setEventAdminName(eventAdminName);
+			plotComposite.setEventSource(eventSource);
 			plotComposite.setResUtil(getResUtil());
 			plotComposite.setPlotName(getPartName());
 			plotComposite.initialise();
-			
+
 		} catch (Exception e) {
 			logger.error("Cannot create spectrum plot composite.", e);
 		}
 	}
-	
+
 	@Override
 	public void setFocus() {
 		plotComposite.setFocus();
@@ -48,12 +50,12 @@ public class ReducedDataPlotView extends ViewPart {
 		setPartName(viewPartName);
 	}
 
-	public String getEventAdminName() {
-		return eventAdminName;
+	public IObservable getEventSource() {
+		return eventSource;
 	}
 
-	public void setEventAdminName(String eventAdminName) {
-		this.eventAdminName = eventAdminName;
+	public void setEventSource(IObservable eventSource) {
+		this.eventSource = eventSource;
 	}
 
 	public LDEResourceUtil getResUtil() {
