@@ -121,12 +121,14 @@ public class SpringApplicationContextProxy {
 	public static final void addDisposableApplicationListener(Widget widget, ApplicationListener<?> listener)
 			throws GDAClientException {
 		validateWidget(widget);
-		SpringApplicationContextFacade.addApplicationListener(listener);
-		widget.addDisposeListener(disposedEvent -> {
-			if (Objects.equals(disposedEvent.getSource(), widget)) {
-				SpringApplicationContextFacade.removeApplicationListener(listener);
-			}
-		});
+		if (SpringApplicationContextFacade.addApplicationListener(listener)) {
+			// If the lister has been added to the SpringContext we may then add a lister when the widget is disposed
+			widget.addDisposeListener(disposedEvent -> {
+				if (Objects.equals(disposedEvent.getSource(), widget)) {
+					SpringApplicationContextFacade.removeApplicationListener(listener);
+				}
+			});
+		}
 	}
 
 	/**

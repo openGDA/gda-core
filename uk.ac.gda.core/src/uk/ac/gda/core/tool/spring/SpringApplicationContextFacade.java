@@ -136,12 +136,20 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 
 
 	/**
-	 * @param listener
+	 * Removes a listener from the ApplicationContext.
+	 *
+	 * @param listener the listener to remove. If {@code null} does nothing
 	 */
 	public static final void removeApplicationListener(ApplicationListener<?> listener) {
-		ApplicationEventMulticaster aem = applicationContext.getBean(
-				AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
-		aem.removeApplicationListener(listener);
+		Optional.ofNullable(listener)
+			.ifPresent(SpringApplicationContextFacade::deleteApplicationListener);
+	}
+
+	private static final void deleteApplicationListener(ApplicationListener<?> listener) {
+		if (applicationContext != null) {
+			applicationContext.getBean(AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class)
+				.removeApplicationListener(listener);
+		}
 	}
 
 	/**
