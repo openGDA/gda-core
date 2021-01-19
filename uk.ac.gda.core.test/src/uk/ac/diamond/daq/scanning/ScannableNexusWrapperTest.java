@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.scanning;
 
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
 import static org.eclipse.dawnsci.nexus.NexusBaseClass.NX_POSITIONER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -30,10 +34,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_FIELD_NAME;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCANNABLE_NAME;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCAN_ROLE;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_LOCAL_NAME;
 
 import java.util.Arrays;
 import java.util.List;

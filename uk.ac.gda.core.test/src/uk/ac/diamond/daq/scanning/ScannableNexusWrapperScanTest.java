@@ -18,6 +18,12 @@
 
 package uk.ac.diamond.daq.scanning;
 
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.COLLECTION_NAME_SCANNABLES;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_VALUE_SET;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSolsticeScanGroup;
@@ -29,12 +35,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_FIELD_NAME;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCANNABLE_NAME;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_GDA_SCAN_ROLE;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.ATTR_NAME_LOCAL_NAME;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.COLLECTION_NAME_SCANNABLES;
-import static uk.ac.diamond.daq.scanning.ScannableNexusWrapper.FIELD_NAME_VALUE_SET;
 
 import java.io.File;
 import java.io.IOException;

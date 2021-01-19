@@ -18,6 +18,8 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_UNITS;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
-import uk.ac.diamond.daq.scanning.ScannableNexusWrapper;
 
 /**
  * This class is responsible for linking the datasets for a GDA8 scannable to the
@@ -202,7 +203,7 @@ class LegacyNexusWriter<N extends NXobject> implements CustomNexusEntryModificat
 
 			// also add units if not already present
 			if (StringUtils.isNotBlank(unit)) {
-				parentGroup.setAttribute(newFieldName, ScannableNexusWrapper.ATTR_NAME_UNITS, unit);
+				parentGroup.setAttribute(newFieldName, ATTR_NAME_UNITS, unit);
 			}
 		}
 	}

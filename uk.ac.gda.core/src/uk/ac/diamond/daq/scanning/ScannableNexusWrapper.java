@@ -9,15 +9,12 @@ import java.util.Set;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
-import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.AbstractScannable;
-import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -46,45 +43,6 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N>, IMultipleNexusDevice {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
-
-	/**
-	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
-	 * scannables. The reason for this is that unless otherwise specified the nexus object
-	 * created for all scannables is an {@link NXpositioner}, even for metadata scannables,
-	 * e.g. sample name. This will encourage switching to the proper GDA9 mechanisms, e.g.
-	 * adding scan metadata directly to the {@link ScanRequest} instead of using a
-	 * metadata scannable, and creating implementations of the GDA9 {@link IScannable} interface.
-	 */
-	public static final String COLLECTION_NAME_SCANNABLES = "scannables";
-
-	/**
-	 * The field name 'name' used for the name of the scannable.
-	 */
-	public static final String FIELD_NAME_NAME = "name";
-
-	/**
-	 * The attribute name 'local_name', added to datasets.
-	 */
-	public static final String ATTR_NAME_LOCAL_NAME = "local_name";
-
-	public static final String ATTR_NAME_GDA_SCANNABLE_NAME = "gda_scannable_name";
-
-	public static final String ATTR_NAME_GDA_SCAN_ROLE = "gda_scan_role";
-
-	public static final String ATTR_NAME_GDA_FIELD_NAME = "gda_field_name";
-
-	/**
-	 * The attribute name 'units'.
-	 */
-	public static final String ATTR_NAME_UNITS = "units";
-
-	/**
-	 * The field name 'value_set', used for the requested value of a scannable,
-	 * e.g. a motor. Note that this should be a constant in {@link NXpositioner}, but
-	 * it hasn't been added yet. When this has happened, the nexus base classes should be
-	 * regenerated and the constant from this {@link NXpositioner} used instead.
-	 */
-	public static final String FIELD_NAME_VALUE_SET = "value_set";
 
 	/**
 	 * The GDA8 scannable being wrapped.
