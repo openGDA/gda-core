@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.live.stream.view;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -237,8 +239,8 @@ public class LivePlottingComposite extends Composite {
 
 		// Plot the new trace.
 		plottingSystem.addTrace(iTrace);
-		ClientSWTElements.findParentUUID(getParent()).ifPresent(uuidRoot -> SpringApplicationContextProxy
-				.publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot, plottingSystem)));
+		ClientSWTElements.findParentUUID(getParent()).ifPresent(uuidRoot ->
+				publishEvent(new PlottingSystemUpdateEvent(LivePlottingComposite.this, uuidRoot, plottingSystem)));
 		connected = true;
 	}
 

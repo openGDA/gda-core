@@ -18,11 +18,11 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -120,8 +120,7 @@ public class CameraImageComposite extends Composite implements CameraPlotter {
 						ClientMessagesUtility.getMessage(event.getName()),
 						new ROIListener(parent, plottingComposite, event.getRegionID()), event.getRegionID());
 				roiSelectionRegion.setActive(true);
-
-				SpringApplicationContextProxy.publishEvent(new DrawableRegionRegisteredEvent(parent, ClientSWTElements.findParentUUID(parent), roiSelectionRegion));
+				publishEvent(new DrawableRegionRegisteredEvent(parent, ClientSWTElements.findParentUUID(parent), roiSelectionRegion));
 			}
 		};
 	}

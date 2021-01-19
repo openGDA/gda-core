@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
@@ -446,18 +447,23 @@ public final class CameraHelper {
 	}
 
 	private static void convertAllCameraPropertiesBySpring() {
-		getCameraProperies().forEach(CameraHelper::getCameraPropertiesBySpring);
+		List<CameraConfigurationProperties> cp = getCameraProperies();
+		IntStream.range(0, cp.size())
+			.forEach(index -> {
+				cameraPropertiesBySpring.put(cp.get(index), CameraHelper.convertProperties(cp.get(index), index));
+			});
 	}
 
 	private static CameraProperties getCameraPropertiesBySpring(uk.ac.gda.client.properties.camera.CameraConfigurationProperties cc) {
-		return cameraPropertiesBySpring.computeIfAbsent(cc, CameraHelper::convertProperties);
+		return cameraPropertiesBySpring.get(cc);
 	}
 
-	private static CameraProperties convertProperties(uk.ac.gda.client.properties.camera.CameraConfigurationProperties cc) {
+	private static CameraProperties convertProperties(uk.ac.gda.client.properties.camera.CameraConfigurationProperties cc, int index) {
 		if (cc.getCameraControl() == null && cc.getName() == null)
 			return null;
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
 		builder.setId(cc.getId());
+		builder.setIndex(index);
 		builder.setName(cc.getName());
 		builder.setCameraConfiguration(cc.getConfiguration());
 		builder.setCameraControl(cc.getCameraControl());
