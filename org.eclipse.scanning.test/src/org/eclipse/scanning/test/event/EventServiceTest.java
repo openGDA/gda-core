@@ -40,7 +40,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 public class EventServiceTest extends BrokerTest {
 

@@ -26,7 +26,7 @@ import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IMessagingService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 
-import uk.ac.diamond.daq.activemq.ISessionService;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * This class is temporarily in this plugin and needs to be moved out of it once:

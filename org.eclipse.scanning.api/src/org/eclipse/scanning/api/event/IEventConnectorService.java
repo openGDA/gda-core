@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event;
 
-import uk.ac.diamond.daq.activemq.ISessionService;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Clients do not need to consume this service, it is provided by a bundle in the

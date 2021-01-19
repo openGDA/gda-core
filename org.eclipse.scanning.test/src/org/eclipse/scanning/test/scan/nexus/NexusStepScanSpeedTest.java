@@ -36,7 +36,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
  *

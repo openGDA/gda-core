@@ -82,7 +82,7 @@ import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
 import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
 import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 /**
  * <p>

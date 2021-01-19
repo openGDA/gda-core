@@ -7,5 +7,5 @@
    </service>
     <reference bind="setJsonMarshaller" cardinality="1..1" interface="org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService" name="IMarshallerService" policy="static"/>
     <reference bind="setFilePathService" cardinality="1..1" interface="org.eclipse.scanning.api.scan.IFilePathService" name="IFilePathService" policy="static"/>
-    <reference bind="setSessionService" cardinality="1..1" interface="uk.ac.diamond.daq.activemq.ISessionService" name="ISessionService" policy="static"/>
+    <reference bind="setSessionService" cardinality="1..1" interface="uk.ac.gda.common.activemq.ISessionService" name="ISessionService" policy="static"/>
 </scr:component>

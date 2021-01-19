@@ -27,8 +27,7 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 public class AnyBeanEventTest extends BrokerTest {
 
