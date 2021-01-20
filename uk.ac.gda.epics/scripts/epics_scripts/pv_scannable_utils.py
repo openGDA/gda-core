@@ -1,5 +1,6 @@
 from gda.jython import InterfaceProvider
 from gda.device.scannable import EpicsScannable
+from gda.factory import Findable
 def createPVScannable( name, pv, addToNameSpace=True, hasUnits=True, getAsString=False):
     """
     utility function to create a scannable from a PV
@@ -40,7 +41,7 @@ def ls_pv_scannables( PV=""):
     from gda.device.scannable import ScannableMotor
     from gda.device.motor import EpicsMotor
     scannableConnectedToPV=None
-    a=InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace()
+    a=InterfaceProvider.getJythonNamespace().getNamesForAllObjectsOfType(Findable)
     l=filter(lambda x: isinstance(x, EpicsScannable) or (isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor)), a.values().toArray())
     for x in l:
         description="unknown"
