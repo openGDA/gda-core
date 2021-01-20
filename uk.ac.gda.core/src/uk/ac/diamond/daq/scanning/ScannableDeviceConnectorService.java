@@ -45,6 +45,7 @@ import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServer;
 
 /**
  * Implementation of {@link IScannableDeviceService} for GDA8 devices.
@@ -245,16 +246,10 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 		}
 
 		// add the names of the jython scannables
-		try {
-			final List<String> jythonScannableNames =
-				InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace().entrySet().stream()
-					.filter(entry -> entry.getValue() instanceof Scannable && !(entry.getValue() instanceof Detector))
-					.map(Map.Entry::getKey)
-					.collect(Collectors.toList());
-			scannableNames.addAll(jythonScannableNames);
-		} catch (DeviceException e) {
-			throw new ScanningException("Could not get names of jython scannables", e);
-		}
+		final Set<String> jythonScannableNames = Finder.findSingleton(JythonServer.class).getAllObjectsOfType(Scannable.class).entrySet().stream()
+				.filter(entry -> !(entry.getValue() instanceof Detector)).map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
+		scannableNames.addAll(jythonScannableNames);
 
 		if (scannables!=null) {
 			scannableNames.addAll(scannables.keySet()); // They can be added by spring.

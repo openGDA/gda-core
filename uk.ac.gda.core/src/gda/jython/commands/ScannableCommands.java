@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,6 +50,7 @@ import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.GdaJythonBuiltin;
 import gda.jython.ITerminalPrinter;
@@ -318,21 +321,10 @@ public class ScannableCommands {
 	 * Gets a list of names of all the scannables on the server
 	 */
 	@GdaJythonBuiltin("Get the names of all scannables currently available in the Jython namespace")
-	public static List<String> getScannableNames() throws DeviceException {
+	public static List<String> getScannableNames() {
 		logger.debug("Called 'getScannableNames'");
 
-		List<String> scannables = new ArrayList<String>();
-
-		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
-		for (String objName : map.keySet()) {
-			Object obj = map.get(objName);
-			if (obj instanceof Scannable) {
-				scannables.add(((Scannable) obj).getName());
-			}
-		}
-
-		return scannables;
-
+		return new ArrayList<>(Finder.findSingleton(JythonServer.class).getAllObjectsOfType(Scannable.class).keySet());
 	}
 
 	/**
@@ -342,10 +334,9 @@ public class ScannableCommands {
 
 	/**
 	 * prints to console all the scannables and their current position in the system
-	 * @throws DeviceException
 	 */
 	@GdaJythonBuiltin("Print the position/state of all scannables in the Jython namespace")
-	public static void pos() throws DeviceException {
+	public static void pos() {
 		if (LocalProperties.check(GDA_POS_OVER_ALL_DISABLE)) {
 			InterfaceProvider.getTerminalPrinter().print("'pos' with no args is disabled by " + GDA_POS_OVER_ALL_DISABLE);
 			logger.debug("'pos' with no args is disabled by '{}'", GDA_POS_OVER_ALL_DISABLE);
@@ -354,48 +345,43 @@ public class ScannableCommands {
 		logger.debug("Called 'pos' with no args");
 		posCommandIsInTheProcessOfListingAllScannables = true;
 		try {
-			// Map of all objects in Jython keyed by name
-			final Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
+			// Map of all Scannables in Jython keyed by name
+			final Map<String, Scannable> scannablesMap = Finder.findSingleton(JythonServer.class).getAllObjectsOfType(Scannable.class);
 
-			// Remove everything that's not a Scannable, 'pos' doesn't care about these objects. Do first to improve performance
-			map.values().removeIf(obj-> !(obj instanceof Scannable));
-
-			// Create a list of all the members of scannable groups
-			final List<String> scannablesInGroups = new ArrayList<>();
-			for (Object obj : map.values()) {
-				if (obj instanceof IScannableGroup) {
-					List<String> names = new ArrayList<>();
-					for (Scannable member : ((IScannableGroup) obj).getGroupMembersAsArray()) {
-						names.add(member.getName());
-					}
-					scannablesInGroups.addAll(names);
-				}
-			}
-
-			// Remove scannables contained in groups, they are handled by the group
-			map.keySet().removeIf(scannablesInGroups::contains);
+			removeScannablesInGroups(scannablesMap);
 
 			// Find the longest name, to help with formatting the output
-			final int longestName = map.entrySet().stream()
-				.mapToInt(entry -> entry.getKey().length()) // Find the length of the name in Jython
+			final int longestName = scannablesMap.keySet().stream()
+				.mapToInt(String::length) // Find the length of the name in Jython
 				.max() // find longest of the names
 				.orElse(0); // default to 0 if no scannables found
 
 			// then loop over the reduced list and print each item separately, logging any errors if they occur
 			final ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
-			for (Entry<String, Object> entry : map.entrySet()) {
-				final Object obj = entry.getValue();
+			for (Entry<String, Scannable> entry : scannablesMap.entrySet()) {
 				try {
-					terminalPrinter.print(ScannableUtils.prettyPrintScannable((Scannable) obj,longestName + 1));
+					terminalPrinter.print(ScannableUtils.prettyPrintScannable(entry.getValue(),longestName + 1));
 				} catch (Exception e) {
-					final String objName = entry.getKey();
-					terminalPrinter.print(objName);
-					logger.error("Exception while getting position of {} : ", objName, e);
+					terminalPrinter.print(entry.getKey());
+					logger.error("Exception while getting position of {} : ", entry.getKey(), e);
 				}
 			}
 		} finally {
 			posCommandIsInTheProcessOfListingAllScannables = false;
 		}
+	}
+
+	static <F extends Findable> void removeScannablesInGroups(Map<String, F> unfilteredList) {
+		// Create a set of all the members of scannable groups
+		final Set<String> scannablesInGroups = new HashSet<>();
+		for (Entry<String, F> entry : unfilteredList.entrySet()) {
+			if (entry.getValue() instanceof IScannableGroup) {
+				scannablesInGroups.addAll(Arrays.asList(((IScannableGroup) entry.getValue()).getGroupMemberNames()));
+			}
+		}
+
+		// Remove scannables contained in groups, they are handled by the group
+		unfilteredList.keySet().removeIf(scannablesInGroups::contains);
 	}
 
 	@GdaJythonBuiltin("Check if a pos command is still running")

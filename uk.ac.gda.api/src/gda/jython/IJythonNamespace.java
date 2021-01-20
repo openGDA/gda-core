@@ -18,9 +18,10 @@
 
 package gda.jython;
 
-import gda.device.DeviceException;
+import java.util.Set;
 
-import java.util.Map;
+import gda.device.DeviceException;
+import gda.factory.Findable;
 
 /**
  * For objects with access to the Jython Server namespace.
@@ -47,10 +48,24 @@ public interface IJythonNamespace {
 	public Object getFromJythonNamespace(String objectName);
 	
 	/**
-	 * Returns the contents of the top-level Jython namespace.
-	 * 
-	 * @return Map
-	 * @throws DeviceException 
+	 * Returns all names for an Object in the Jython namespace
+	 *
+	 * @param obj
+	 * @return All names that refer to the Object in the Jython namespace
+	 * @throws DeviceException
 	 */
-	public Map<String,Object> getAllFromJythonNamespace() throws DeviceException;
+	public Set<String> getAllNamesForObject(Object obj) throws DeviceException;
+
+	/**
+	 * As a Collection<String>, this should be able to be passed over any serialisation method and is therefore available
+	 * to client code. We may have e.g. Scannables written entirely in Jython that we may not be able to pass across,
+	 * meaning the similar method {@code LocalJython#getAllObjectsOfType} is limited to server side.
+	 *
+	 * @param clazz
+	 *            a Class extending Findable
+	 * @return a set of all names of all objects of a type in the Jython namespace.
+	 */
+
+	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz);
+
 }

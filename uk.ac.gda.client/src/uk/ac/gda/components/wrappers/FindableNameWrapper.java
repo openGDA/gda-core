@@ -37,10 +37,9 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.swtdesigner.SWTResourceManager;
 
-import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.jython.JythonServerFacade;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
@@ -48,16 +47,16 @@ import uk.ac.gda.common.rcp.util.GridUtils;
  * and are not independent of GDA. This class allows the user to type the name of a findable and shows an error if it is
  * not findable. You can also set a custom icon to show if the findable is the required class.
  */
-public class FindableNameWrapper extends TextWrapper {
+public class FindableNameWrapper<F extends Findable> extends TextWrapper {
 
 	protected CLabel messageLabel;
 	protected Image errorImage, nameImage, checkingImage;
-	protected Class<? extends Object> findableClass;
+	protected final Class<F> findableClass;
 	private ModifyListener modifyListener;
 	private boolean found = false;
 	private boolean labelOnRight;
 
-	public FindableNameWrapper(Composite parent, int style, final Class<? extends Object> findableClass) {
+	public FindableNameWrapper(Composite parent, int style, final Class<F> findableClass) {
 		this(parent, style, findableClass, true);
 	}
 
@@ -68,7 +67,7 @@ public class FindableNameWrapper extends TextWrapper {
 	 * @param style
 	 * @param findableClass
 	 */
-	public FindableNameWrapper(Composite parent, int style, final Class<? extends Object> findableClass,  boolean labelOnRight) {
+	public FindableNameWrapper(Composite parent, int style, final Class<F> findableClass,  boolean labelOnRight) {
 
 		super(parent, style);
 
@@ -138,37 +137,19 @@ public class FindableNameWrapper extends TextWrapper {
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			final Optional<Findable> optionalObject = Finder.findOptionalOfType(name, Findable.class);
-			getDisplay().syncExec( () -> {
+			final Optional<F> optionalObject = Finder.findOptionalOfType(name, findableClass);
+			getDisplay().syncExec(() -> {
 
 				// Only do the update if there isn't another job about to come along behind us
 				if (!name.equals(mostRecentStarted)) { return; }
 
-				optionalObject.ifPresentOrElse(
-					obj-> {
-							if(findableClass.isInstance(obj)) {
-								setRightName(name);
-							} else {
-								setWrongNameError(name);
-							}
-						},
-					() -> {
-							try {
-								if( ! JythonServerFacade.getInstance()
-														.getAllFromJythonNamespace()
-														.containsKey(name)) return;
-
-								Object jythonServerResult = JythonServerFacade.getInstance().evaluateCommand(name);
-								if (jythonServerResult != null)
-									setRightName(name);
-								else
-									setNotFindableError(name);
-
-							} catch (DeviceException e) {
-								text.setToolTipText("Expression has invalid syntax");
-							}
-						}
-				);
+				if (optionalObject.isPresent()) {
+					setRightName(name);
+				} else {
+					if (InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name) != null) {
+						setRightName(name);
+					} else setNotFindableError(name);
+				}
 			});
 			return Status.OK_STATUS;
 		}

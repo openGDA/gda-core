@@ -27,10 +27,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.python.core.Py;
 import org.python.core.PyObject;
@@ -178,58 +181,46 @@ public final class GeneralCommands {
 	 * List all the instances of a particular type (interface) of object
 	 *
 	 * @param theInterface
-	 * @throws DeviceException
 	 */
 	@GdaJythonBuiltin("List all the Findables in the Jython namespace")
-	public static void ls(Class<Findable> theInterface) throws DeviceException {
-		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
+	public static <F extends Findable> void ls(Class<F> theInterface) {
 
-		String output = "\n";
-		for (String objName : map.keySet()) {
-			Object obj = map.get(objName);
-			if (theInterface.isInstance(obj)) {
-				if (obj instanceof IScannableGroup) {
-					output += ScannableUtils.prettyPrintScannableGroup((ScannableGroup) obj) + "\n";
-				} else if (obj instanceof Scannable) {
-					output += ((Scannable) obj).toFormattedString() + "\n";
-				} else {
-					output += obj.toString() + "\n";
-				}
+		final Map<String, F> objectsOfType = Finder.findSingleton(JythonServer.class).getAllObjectsOfType(theInterface);
+		ScannableCommands.removeScannablesInGroups(objectsOfType);
+
+		StringBuilder output = new StringBuilder("\n");
+		for (Entry<String, F> entry : objectsOfType.entrySet()) {
+			if (entry.getValue() instanceof IScannableGroup) {
+				output.append(ScannableUtils.prettyPrintScannableGroup((ScannableGroup) entry.getValue()));
+			} else if (entry.getValue() instanceof Scannable) {
+				output.append(((Scannable) entry.getValue()).toFormattedString());
+			} else {
+				output.append(entry.getValue().toString());
 			}
+			output.append("\n");
 		}
-		InterfaceProvider.getTerminalPrinter().print(output);
+		InterfaceProvider.getTerminalPrinter().print(output.toString());
 	}
 
 	/**
 	 * List the names of all Scannables whose name does not startwith __
-	 * @throws DeviceException
 	 */
 	@GdaJythonBuiltin("List all the scannables in the namespace")
-	public static void ls_names() throws DeviceException {
+	public static void ls_names() {
 		ls_names(Scannable.class);
 	}
 	/**
 	 * List all the instances of a particular type (interface) of object which are also Findable
 	 *
 	 * @param theInterface
-	 * @throws DeviceException
 	 */
 	@GdaJythonBuiltin("List all the Findables in the namespace that are instances of\n"
 			+ "the given interface")
-	public static void ls_names(Class<?> theInterface) throws DeviceException {
-		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
-
-		String output = "\n";
-		for (String objName : map.keySet()) {
-			Object obj = map.get(objName);
-			if ( theInterface.isInstance(obj) &&  (obj instanceof Findable )) {
-				String name = ((Findable)obj).getName();
-				if( ! name.startsWith("__")){
-					output += name + "\n";
-				}
-			}
-		}
-		InterfaceProvider.getTerminalPrinter().print(output);
+	public static <F extends Findable> void ls_names(Class<F> theInterface) {
+		StringBuilder output = new StringBuilder("\n");
+		Collection<String> names = Finder.findSingleton(JythonServer.class).getAllObjectsOfType(theInterface).keySet();
+		output.append(names.stream().filter(name -> !name.startsWith("__")).collect(Collectors.joining("\n")));
+		InterfaceProvider.getTerminalPrinter().print(output.toString());
 	}
 
 	/**
@@ -449,11 +440,7 @@ public final class GeneralCommands {
 			throw new IllegalArgumentException(callable + " can't be aliased");
 		}
 		// Get all the names in the global namespace that reference this object
-		List<String> names = JythonServerFacade.getInstance().getAllFromJythonNamespace()
-				.entrySet().stream()
-				.filter(e -> callable == e.getValue())
-				.map(Entry::getKey)
-				.collect(toList());
+		final Set<String> names = JythonServerFacade.getInstance().getAllNamesForObject(callable);
 		// add builtin functions
 		names.addAll(stream(((Iterable<PyObject>)((PyStringMap)Py.getSystemState()
 						.getBuiltins()).iteritems()).spliterator(), false)
@@ -467,7 +454,7 @@ public final class GeneralCommands {
 		case 0:
 			throw new IllegalArgumentException(callable + " does not exist in namespace");
 		case 1:
-			return names.get(0);
+			return names.iterator().next();
 		default:
 			throw new IllegalArgumentException(callable + " is referenced by multiple names ("
 					+ String.join(", ",  names)
