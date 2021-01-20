@@ -18,13 +18,15 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview.state;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.util.Optional;
 import java.util.UUID;
 
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+
 
 /**
  * Control the state of a stream connection
@@ -87,7 +89,7 @@ public class StreamController {
 	}
 
 	private void publishCameraChange() {
-		SpringApplicationContextProxy.publishEvent(
-				new ChangeActiveCameraEvent(getState(), getControlData().getCamera(), Optional.ofNullable(rootUUID)));
+		publishEvent(new ChangeActiveCameraEvent(getState(),
+				getControlData().getCamera(), Optional.ofNullable(rootUUID)));
 	}
 }

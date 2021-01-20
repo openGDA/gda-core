@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview.state;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.util.UUID;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
@@ -28,7 +30,7 @@ import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.event.StopListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+
 
 /**
  * Defines a state where a consumer listen to a stream.
@@ -75,7 +77,7 @@ public class ListeningState implements StreamControlState {
 	 */
 	@Override
 	public void idleState(StreamController streamController) throws LiveStreamException {
-		SpringApplicationContextProxy.publishEvent(new StopListenToConnectionEvent(stream, rootUUID));
+		publishEvent(new StopListenToConnectionEvent(stream, rootUUID));
 		streamController.setState(new IdleState(rootUUID));
 	}
 
@@ -94,7 +96,7 @@ public class ListeningState implements StreamControlState {
 			final StreamType streamType = streamController.getControlData().getStreamType();
 			final ILiveStreamConnection newStream = new LiveStreamConnectionBuilder(cc, streamType).buildAndConnect();
 			streamController.setState(new ListeningState(newStream, rootUUID));
-			SpringApplicationContextProxy.publishEvent(new ListenToConnectionEvent(stream, rootUUID));
+			publishEvent(new ListenToConnectionEvent(newStream, rootUUID));
 		} catch (LiveStreamException e) {
 			// eventually can't so moves to Idle
 			streamController.setState(new IdleState(rootUUID));
@@ -113,7 +115,7 @@ public class ListeningState implements StreamControlState {
 	@Override
 	public void sameState(StreamController streamController) throws LiveStreamException {
 		// stop listening the previous stream
-		SpringApplicationContextProxy.publishEvent(new StopListenToConnectionEvent(stream, rootUUID));
+		publishEvent(new StopListenToConnectionEvent(stream, rootUUID));
 		// start listening the new stream
 		listeningState(streamController);
 	}
