@@ -27,20 +27,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.swt.widgets.Composite;
+import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
+import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
+import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -481,5 +486,29 @@ public final class CameraHelper {
 					return motorBuilder.build();
 				})
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * A utility method which creates a Spring listener for {@link ChangeActiveCameraEvent} which implements {@link RootCompositeAware}.
+	 * Consequently this listener, before consume the event, verifies that the Composit listening at the event AND the composite which published
+	 * the event have the same root parent, that is traversing upward the parents of both, they have the same common parent Composite.
+	 *
+	 * @param parent the composite interested in camera change events
+	 * @param comboItemConsumer the event consumer, if have same root parents
+	 * @return a Spring {@code ApplicationListener}
+	 */
+	public static final ApplicationListener<ChangeActiveCameraEvent> createChangeCameraListener(Composite parent,
+			final Consumer<ChangeActiveCameraEvent> comboItemConsumer) {
+		return new ApplicationListener<ChangeActiveCameraEvent>() {
+			@Override
+			public void onApplicationEvent(ChangeActiveCameraEvent event) {
+				// if the event arrives from a component with a different common parent, rejects
+				// the event
+				if (!event.haveSameParent(parent)) {
+					return;
+				}
+				comboItemConsumer.accept(event);
+			}
+		};
 	}
 }

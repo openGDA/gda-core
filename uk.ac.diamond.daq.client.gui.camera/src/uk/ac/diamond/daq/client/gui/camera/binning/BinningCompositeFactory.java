@@ -200,22 +200,17 @@ public class BinningCompositeFactory implements CompositeFactory {
 		updateGUI(e.getBinningFormat());
 	}
 
-	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent,
-			Consumer<? super CameraControl> ccConsumer) {
-		return new ApplicationListener<ChangeActiveCameraEvent>() {
-			@Override
-			public void onApplicationEvent(ChangeActiveCameraEvent event) {
-				// if the event arrives from a component with a different common parent, rejects
-				// the event
-				if (!event.haveSameParent(parent)) {
-					return;
-				}
-				cameraIndex = event.getActiveCamera().getIndex();
-				Display.getDefault().asyncExec(() -> CameraHelper.getCameraControl(cameraIndex).ifPresent(ccConsumer));
-			}
-		};
+	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent, Consumer<? super CameraControl> ccConsumer) {
+		return CameraHelper.createChangeCameraListener(parent, createChangeCameraControl(ccConsumer));
 	}
 
+	private Consumer<ChangeActiveCameraEvent> createChangeCameraControl(Consumer<? super CameraControl> ccConsumer) {
+		return event -> {
+			cameraIndex = event.getActiveCamera().getIndex();
+			Display.getDefault().asyncExec(() -> CameraHelper.getCameraControl(cameraIndex).ifPresent(ccConsumer));	
+		};
+	}
+	
 	private final IObserver cameraControlObserver = (source, arg) -> {
 		if (CameraControllerEvent.class.isInstance(arg)) {
 			Display.getDefault().asyncExec(() -> updateModelToGUI(CameraControllerEvent.class.cast(arg)));

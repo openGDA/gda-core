@@ -24,6 +24,7 @@ import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.addDisposab
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -62,7 +63,7 @@ public class CameraPositioningComposite implements CompositeFactory {
 		createClientGridDataFactory().grab(true, true).applyTo(motorCompositeArea);
 		buildMotorsGUI();
 		try {
-			addDisposableApplicationListener(container,	getChangeCameraListener(container));
+			addDisposableApplicationListener(container,	getChangeActiveCameraListener(container));
 		} catch (GDAClientException e) {
 			UIHelper.showError("Cannot add camera change listener to CameraConfiguration", e);
 		}
@@ -83,17 +84,13 @@ public class CameraPositioningComposite implements CompositeFactory {
 	private Optional<ICameraConfiguration> getICameraConfiguration() {
 		return activeCameraIndex.map(CameraHelper::createICameraConfiguration);
 	}
-
-	private ApplicationListener<ChangeActiveCameraEvent> getChangeCameraListener(Composite container) {
-		return new ApplicationListener<ChangeActiveCameraEvent>() {
-			@Override
-			public void onApplicationEvent(ChangeActiveCameraEvent event) {
-				if (!event.haveSameParent(container)) {
-					return;
-				}
-				activeCameraIndex = Optional.of(event.getActiveCamera().getIndex());
-				buildMotorsGUI();
-			}
-		};
+	
+	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
+		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
 	}
+
+	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
+		activeCameraIndex = Optional.of(event.getActiveCamera().getIndex());
+		buildMotorsGUI();	
+	};
 }

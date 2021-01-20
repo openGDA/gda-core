@@ -29,6 +29,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
@@ -147,19 +148,13 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
-		return new ApplicationListener<ChangeActiveCameraEvent>() {
-			@Override
-			public void onApplicationEvent(ChangeActiveCameraEvent event) {
-				// if the event arrives from a component with a different common parent, rejects
-				// the event
-				if (!event.haveSameParent(parent)) {
-					return;
-				}
-				cameraControl = CameraHelper.getCameraControl(event.getActiveCamera().getIndex());
-			}
-		};
+		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
 	}
 
+	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
+		cameraControl = CameraHelper.getCameraControl(event.getActiveCamera().getIndex());	
+	};
+	
 	// At the moment is not possible to use anonymous lambda expression because it
 	// generates a class cast exception
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {

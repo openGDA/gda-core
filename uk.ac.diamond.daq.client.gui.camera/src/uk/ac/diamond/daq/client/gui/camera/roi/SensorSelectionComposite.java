@@ -100,7 +100,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 		updateCamera(CameraHelper.getDefaultCameraProperties().getIndex());
 
 		try {
-			SpringApplicationContextProxy.addDisposableApplicationListener(table, getChangeCameraListener(parent));
+			SpringApplicationContextProxy.addDisposableApplicationListener(table, getChangeActiveCameraListener(parent));
 
 			table.setEnabled(false); // as per K11-685
 			if (table.isEnabled()) {
@@ -329,18 +329,14 @@ public class SensorSelectionComposite implements CompositeFactory {
 		};
 	}
 
-	private ApplicationListener<ChangeActiveCameraEvent> getChangeCameraListener(Composite parent) {
-		return new ApplicationListener<ChangeActiveCameraEvent>() {
-			@Override
-			public void onApplicationEvent(ChangeActiveCameraEvent event) {
-				if (!event.haveSameParent(parent)) {
-					return;
-				}
-				updateCamera(event.getActiveCamera().getIndex());
-			}
-		};
+	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
+		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
 	}
 
+	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
+		updateCamera(event.getActiveCamera().getIndex());
+	};
+	
 	private ApplicationListener<DrawableRegionRegisteredEvent> regionRegisteredEventListener(Composite parent) {
 		return new ApplicationListener<DrawableRegionRegisteredEvent>() {
 			@Override
