@@ -72,7 +72,7 @@ public class LivePlottingComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(LivePlottingComposite.class);
 
-	private static final String LIVE_CAMERA_STREAM = "Live camera stream";
+	public static final String LIVE_CAMERA_STREAM = "Live camera stream";
 
 	private LiveStreamConnection liveStreamConnection;
 	private IPlottingSystem<Composite> plottingSystem;
