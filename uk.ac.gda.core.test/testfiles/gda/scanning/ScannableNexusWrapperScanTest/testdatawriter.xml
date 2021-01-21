@@ -162,13 +162,6 @@
 								<value>instrument:NXinstrument/manipulator:NXgoniometer/say</value>
 							</list>
 						</property>
-						<property name="units">
-							<list>
-								<value>mm</value>
-								<value>mm</value>
-								<value>mm</value>
-							</list>
-						</property>
 						<property name="prerequisiteScannableNames">
 							<list>
 								<value>sax</value>
@@ -185,13 +178,6 @@
 								<value>instrument:NXinstrument/manipulator:NXgoniometer/saperp</value>
 								<value>instrument:NXinstrument/manipulator:NXgoniometer/sax</value>
 								<value>instrument:NXinstrument/manipulator:NXgoniometer/say</value>
-							</list>
-						</property>
-						<property name="units">
-							<list>
-								<value>mm</value>
-								<value>mm</value>
-								<value>mm</value>
 							</list>
 						</property>
 						<property name="prerequisiteScannableNames">

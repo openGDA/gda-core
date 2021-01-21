@@ -191,7 +191,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private static final int NUM_SCANNABLE_DATA_NODES = 2;
 	private static final int NUM_MONITOR_DATA_NODES = 2;
-	private static final int NUM_SCANNABLE_VALUE_ATTRIBUTES = 3;
+	private static final int NUM_SCANNABLE_VALUE_ATTRIBUTES = 4;
 	private static final int NUM_MONITOR_VALUE_ATTRIBUTES = 3;
 	private static final int NUM_METADATA_SCANNABLE_VALUE_ATTRIBUTES = 4;
 
@@ -352,18 +352,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode, is(notNullValue()));
 
 		// check attributes
-		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(
-				NUM_SCANNABLE_VALUE_ATTRIBUTES + (scanIndex == 0 ? 1 : 0)));
-		if (scanIndex == 0) {
-			// the first scannable has an entry in the location map, the value of which is a ScannableWriter
-			// configured with units as 'mm'. Note that the ScannableWriter itself does not write when using
-			// NexusScanDataWriter. Instead ScannableNexusDevice write the nexus group for scannables that have
-			// an entry in the location map to the 'scannables' group, then creates a link to the dataset in
-			// that group for each element of the position array at the path in the array returned by
-			// ScannableWriter#getPaths() with the corresponding index.
-			assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
-					is(equalTo("mm")));
-		}
+		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(NUM_SCANNABLE_VALUE_ATTRIBUTES));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
+				is(equalTo("mm")));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(),
 				is(equalTo(scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),

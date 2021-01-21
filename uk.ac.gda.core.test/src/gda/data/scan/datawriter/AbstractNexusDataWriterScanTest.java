@@ -51,6 +51,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.measure.quantity.Length;
+
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
@@ -96,6 +98,7 @@ import gda.device.detector.DummyDetector;
 import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyScannable;
+import gda.device.scannable.DummyUnitsScannable;
 import gda.device.scannable.ScannableBase;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
@@ -194,8 +197,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 		// setup devices
 		this.scannables = new Scannable[scanRank];
 		for (int i = 0; i < scanRank; i++) {
-			final DummyScannable dummyScannable = new DummyScannable();
-			dummyScannable.setName(SCANNABLE_NAME_PREFIX + i);
+			final DummyUnitsScannable<Length> dummyScannable = new DummyUnitsScannable<>(
+					SCANNABLE_NAME_PREFIX + i, 0.0, "mm", "mm");
 			dummyScannable.setLowerGdaLimits(SCANNABLE_LOWER_BOUND);
 			dummyScannable.setUpperGdaLimits(SCANNABLE_UPPER_BOUND);
 			this.scannables[i] = dummyScannable;

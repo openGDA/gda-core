@@ -57,6 +57,7 @@ import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 
 /**
  * An instance of this type adapts a {@link Scannable} to {@link INexusDevice}.
@@ -319,6 +320,9 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 			}
 		}
 
+		final String unitsStr = getScannable() instanceof ScannableMotionUnits ?
+				((ScannableMotionUnits) getScannable()).getUserUnits() : null;
+
 		// create the dataset for each field
 		final List<String> inputFieldNames = getInputFieldNames();
 		final List<String> outputFieldNames = getOutputFieldNames();
@@ -345,6 +349,11 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 			nexusObject.setAttribute(outputFieldName, ATTR_NAME_LOCAL_NAME, getName() + "." + outputFieldName);
 			// set field name attribute so we can recreate the scannable position from the nexus file
 			nexusObject.setAttribute(outputFieldName, ATTR_NAME_GDA_FIELD_NAME, inputFieldName);
+
+			// set units attribute
+			if (unitsStr != null) {
+				nexusObject.setAttribute(outputFieldName, ATTR_NAME_UNITS, unitsStr);
+			}
 		}
 	}
 

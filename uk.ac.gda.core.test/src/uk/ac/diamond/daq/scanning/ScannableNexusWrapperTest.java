@@ -22,6 +22,7 @@ import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_FIEL
 import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
 import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_UNITS;
 import static org.eclipse.dawnsci.nexus.NexusBaseClass.NX_POSITIONER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -40,7 +41,6 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXpositioner;
-import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -204,7 +204,6 @@ public class ScannableNexusWrapperTest {
 			IPosition position = posEvent.getPosition();
 			assertThat(position.getNames(), contains(scannable.getName()));
 			assertThat(position.getIndex("sax"), is(i == 1 ? -1 : 38)); // index not set for positionChanged
-			System.err.println("i = " + i + ", index = " + position.getIndex("sax"));
 			assertThat(position.getValue(scannable.getName()), is(equalTo(Double.valueOf(newPosition))));
 			i++;
 		}
@@ -292,21 +291,22 @@ public class ScannableNexusWrapperTest {
 	}
 
 	@Test
-	public void testGetNexusProvider() throws NexusException {
+	public void testGetNexusProvider() throws Exception {
 		// NOTE: nexus writing is more fully tested in ScannableNexusWrapperScanTest
-		DummyScannable dummyScannable = new DummyScannable("xPos") {
-			@Override
-			public Object rawGetPosition() {
-				return new Object[] { 1.0, 2.0, 3.0, "One", "Two" };
-			}
-		};
-		dummyScannable.setInputNames(new String[] { "input1", "input2", "input3" });
-		dummyScannable.setExtraNames(new String[] { "extra1", "extra2" });
-		ScannableNexusWrapper<?> scannable = new ScannableNexusWrapper<>(dummyScannable);
+		final ScannableMotionUnits mockScannable = mock(ScannableMotionUnits.class);
+		when(mockScannable.getName()).thenReturn("xPos");
+		final String[] inputNames = { "input1", "input2", "input3" };
+		final String[] extraNames = { "extra1", "extra2" };
+		when(mockScannable.getInputNames()).thenReturn(inputNames);
+		when(mockScannable.getExtraNames()).thenReturn(extraNames);
+		final Object[] position = new Object[] { 1.0, 2.0, 3.0, "One", "Two" };
+		when(mockScannable.getPosition()).thenReturn(position);
+		when(mockScannable.getUserUnits()).thenReturn("nm");
 
+		final ScannableNexusWrapper<?> scannableNexusWrapper = new ScannableNexusWrapper<>(mockScannable);
 
-		NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
-		NexusObjectProvider<?> nexusObjectProvider = scannable.getNexusProvider(scanInfo);
+		final NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
+		final NexusObjectProvider<?> nexusObjectProvider = scannableNexusWrapper.getNexusProvider(scanInfo);
 		assertThat(nexusObjectProvider, notNullValue());
 		assertThat(nexusObjectProvider.getName(), equalTo("xPos"));
 		assertThat(nexusObjectProvider.getNexusBaseClass(), is(NX_POSITIONER));
@@ -316,7 +316,7 @@ public class ScannableNexusWrapperTest {
 				contains("input1", "value_set"));
 		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), equalTo("value_set"));
 
-		NXpositioner nexusObject = (NXpositioner) nexusObjectProvider.getNexusObject();
+		final NXpositioner nexusObject = (NXpositioner) nexusObjectProvider.getNexusObject();
 		assertThat(nexusObject, notNullValue());
 		assertThat(nexusObject.getNexusBaseClass(), is(NX_POSITIONER));
 		assertThat(nexusObject.getNumberOfAttributes(), is(3));
@@ -326,17 +326,18 @@ public class ScannableNexusWrapperTest {
 		assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), equalTo("xPos"));
 		assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
 				equalTo(ScanRole.SCANNABLE.toString().toLowerCase()));
-		List<String> fieldNames = scannable.getOutputFieldNames();
+		final List<String> fieldNames = scannableNexusWrapper.getOutputFieldNames();
 		assertThat(fieldNames, contains("input1", "input2", "input3", "extra1", "extra2"));
 		for (String fieldName : fieldNames) {
-			DataNode valueDataNode = nexusObject.getDataNode(fieldName);
+			final DataNode valueDataNode = nexusObject.getDataNode(fieldName);
 			assertThat(valueDataNode, notNullValue());
 			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_LOCAL_NAME), equalTo("xPos." + fieldName));
 			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_GDA_FIELD_NAME), equalTo(fieldName));
 			assertThat(valueDataNode.getDataset(), notNullValue());
+			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_UNITS), equalTo("nm"));
 		}
 
-		DataNode valueDemandDataNode = nexusObject.getDataNode("value_set");
+		final DataNode valueDemandDataNode = nexusObject.getDataNode("value_set");
 		assertThat(valueDemandDataNode, notNullValue());
 		assertThat(valueDemandDataNode.getDataset(), notNullValue());
 	}
