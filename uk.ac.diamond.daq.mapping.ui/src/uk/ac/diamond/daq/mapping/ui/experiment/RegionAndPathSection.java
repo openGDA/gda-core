@@ -79,7 +79,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private RegionAndPathController controller;
 	private Consumer<RegionPathState> viewUpdater;	// These variables must be used to store the relevant functions so
 	private Consumer<String> statusUpdater;			// they can be passed to the controller on dispose allowing it to
-													// them from its list of active consumers
+													// remove them from its list of active consumers
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
@@ -99,20 +99,19 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(regionAndPathComposite);
 
 		// Prepare a grid data factory for controls which will need to grab space horizontally
-		GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
-
+		final GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
 		// Make the region selection
-		Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		final Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
 		horizontalGrabGridData.span(1, 1).applyTo(regionComboComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(regionComboComposite);
-		Label regionLabel = new Label(regionComboComposite, SWT.NONE);
+		final Label regionLabel = new Label(regionComboComposite, SWT.NONE);
 		regionLabel.setText("Region shape:");
 		regionSelector = new ComboViewer(regionComboComposite);
 		horizontalGrabGridData.applyTo(regionSelector.getControl());
 		regionSelector.getCombo().setToolTipText("Select a scan region shape. The shape can then be drawn on the map, or you can type numbers below.");
 
-		MultiFunctionButton newRegion = new MultiFunctionButton();
+		final MultiFunctionButton newRegion = new MultiFunctionButton();
 		newRegion.addFunction("Draw region", "Draw region by dragging on map",
 				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")),
 				()-> regionSelector.setSelection(regionSelector.getSelection()));
@@ -122,21 +121,21 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		newRegion.draw(regionComboComposite);
 
 		// Make the path selection
-		Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
+		final Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
 		horizontalGrabGridData.applyTo(pathComboComposite);
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(pathComboComposite);
-		Label pathLabel = new Label(pathComboComposite, SWT.NONE);
+		final Label pathLabel = new Label(pathComboComposite, SWT.NONE);
 		pathLabel.setText("Scan path:");
 		pathSelector = new ComboViewer(pathComboComposite);
 		pathSelector.getCombo().setToolTipText(getMessage(SCAN_PATH_SHAPE_TP));
 		horizontalGrabGridData.applyTo(pathSelector.getControl());
 
-		Button configureStageButton = new Button(pathComboComposite, SWT.PUSH);
+		final Button configureStageButton = new Button(pathComboComposite, SWT.PUSH);
 		configureStageButton.setToolTipText("Configure mapping stage");
 		configureStageButton.setImage(getImage("icons/gear.png"));
 		configureStageButton.addListener(SWT.Selection, event -> {
-			MappingStageInfo mappingStage = getService(MappingStageInfo.class);
-			EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, selectedMalcolmDeviceName);
+			final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
+			final EditMappingStageDialog dialog = new EditMappingStageDialog(getShell(), mappingStage, selectedMalcolmDeviceName);
 			if (dialog.open() == Window.OK) {
 				rebuildMappingSection();
 			}
@@ -147,7 +146,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IMappingScanRegionShape) {
-					IMappingScanRegionShape mappingRegion = (IMappingScanRegionShape) element;
+					final IMappingScanRegionShape mappingRegion = (IMappingScanRegionShape) element;
 					return mappingRegion.getName();
 				}
 				return super.getText(element);
@@ -164,7 +163,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IScanPathModel) {
-					IScanPathModel scanPath = (IScanPathModel) element;
+					final IScanPathModel scanPath = (IScanPathModel) element;
 					return scanPath.getName();
 				}
 				return super.getText(element);
@@ -175,8 +174,8 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			logger.debug("Path selection event: {}", event);
 
 			// Get the new selection.
-			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-			IScanPointGeneratorModel selectedPath = (IScanPointGeneratorModel) selection.getFirstElement();
+			final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			final IScanPointGeneratorModel selectedPath = (IScanPointGeneratorModel) selection.getFirstElement();
 			controller.changePath(selectedPath);
 			rebuildMappingSection();
 		});
@@ -289,9 +288,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	@Override
 	public void loadState(Map<String, String> persistedState) {
-		String json = persistedState.get(MAPPING_STAGE_KEY_JSON);
+		final String json = persistedState.get(MAPPING_STAGE_KEY_JSON);
 		if (json == null || json.isEmpty()) return;
-		IMarshallerService marshaller = getService(IMarshallerService.class);
+		final IMarshallerService marshaller = getService(IMarshallerService.class);
 		try {
 			final MappingStageInfo savedStage = marshaller.unmarshal(json, MappingStageInfo.class);
 			final MappingStageInfo mappingStage = getService(MappingStageInfo.class);
@@ -335,6 +334,4 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		regionSelector.setSelection(new StructuredSelection(updated.scanRegionShape()));
 		regionSelector.addSelectionChangedListener(controller.getRegionSelectorListener());
 	}
-
 }
-
