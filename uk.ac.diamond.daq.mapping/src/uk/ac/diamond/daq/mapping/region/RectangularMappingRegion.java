@@ -18,8 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_STOP;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_STOP;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -58,7 +64,7 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	public void setxStart(double newValue) {
 		double oldvalue = this.xStart;
 		this.xStart = newValue;
-		this.pcs.firePropertyChange("xStart", oldvalue, newValue);
+		this.pcs.firePropertyChange(X_START, oldvalue, newValue);
 	}
 
 	public double getxStop() {
@@ -68,7 +74,7 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	public void setxStop(double newValue) {
 		double oldvalue = this.xStop;
 		this.xStop = newValue;
-		this.pcs.firePropertyChange("xStop", oldvalue, newValue);
+		this.pcs.firePropertyChange(X_STOP, oldvalue, newValue);
 	}
 
 	public double getyStart() {
@@ -78,7 +84,7 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	public void setyStart(double newValue) {
 		double oldvalue = this.yStart;
 		this.yStart = newValue;
-		this.pcs.firePropertyChange("yStart", oldvalue, newValue);
+		this.pcs.firePropertyChange(Y_START, oldvalue, newValue);
 	}
 
 	public double getyStop() {
@@ -88,7 +94,7 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 	public void setyStop(double newValue) {
 		double oldvalue = this.yStop;
 		this.yStop = newValue;
-		this.pcs.firePropertyChange("yStop", oldvalue, newValue);
+		this.pcs.firePropertyChange(Y_STOP, oldvalue, newValue);
 	}
 
 	@Override
@@ -109,10 +115,10 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 			yStart = roi.getPoint()[1];
 			yStop = roi.getPoint()[1] + roi.getLengths()[1];
 			// Fire the events once the update is finished
-			this.pcs.firePropertyChange("xStart", oldXStart, xStart);
-			this.pcs.firePropertyChange("xStop", oldXStop, xStop);
-			this.pcs.firePropertyChange("yStart", oldYStart, yStart);
-			this.pcs.firePropertyChange("yStop", oldYStop, yStop);
+			this.pcs.firePropertyChange(X_START, oldXStart, xStart);
+			this.pcs.firePropertyChange(X_STOP, oldXStop, xStop);
+			this.pcs.firePropertyChange(Y_START, oldYStart, yStart);
+			this.pcs.firePropertyChange(Y_STOP, oldYStop, yStop);
 		} else {
 			throw new IllegalArgumentException("Rectangular mapping region can only update from a RectangularROI");
 		}
@@ -152,6 +158,22 @@ public class RectangularMappingRegion implements IMappingScanRegionShape {
 		int ySign = yStart < yStop ? 1 : -1;
 		setyStart(y0 - ySign * halfYLength);
 		setyStop(y0 + ySign * halfYLength);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		if (properties.containsKey(X_START)) {
+			setxStart((double) properties.get(X_START));
+		}
+		if (properties.containsKey(X_STOP)) {
+			setxStop((double) properties.get(X_STOP));
+		}
+		if (properties.containsKey(Y_START)) {
+			setyStart((double) properties.get(Y_START));
+		}
+		if (properties.containsKey(Y_STOP)) {
+			setyStop((double) properties.get(Y_STOP));
+		}
 	}
 
 	@Override

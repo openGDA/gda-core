@@ -24,15 +24,19 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
 public class PolygonMappingRegion implements IMappingScanRegionShape {
+	private static final Logger logger = LoggerFactory.getLogger(PolygonMappingRegion.class);
 
 	private static final String NAME = "Polygon";
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -113,6 +117,11 @@ public class PolygonMappingRegion implements IMappingScanRegionShape {
 			.map(point -> new MutablePoint(point.getX() + xShift,
 										   point.getY() + yShift))
 			.collect(toList()));
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		logger.error("Setting PolygonMappingRegion from properties map not currently supported");
 	}
 
 	public static class MutablePoint {

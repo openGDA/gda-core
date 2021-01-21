@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.RADIUS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_CENTRE;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_CENTRE;
+
 import javax.measure.quantity.Length;
 
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;

@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.api;
 
 import java.beans.PropertyChangeListener;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 
@@ -81,4 +82,5 @@ public interface IMappingScanRegionShape {
 	 */
 	public void centre(double x0, double y0);
 
+	void updateFromPropertiesMap(Map<String, Object> properties);
 }

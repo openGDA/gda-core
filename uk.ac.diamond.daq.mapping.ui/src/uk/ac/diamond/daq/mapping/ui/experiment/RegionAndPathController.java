@@ -124,11 +124,17 @@ public class RegionAndPathController extends AbstractMappingController {
 		 */
 		@Override
 		public void handleValueChange(ValueChangeEvent<? extends IMappingScanRegionShape> event) {
+			handleRegionChange(event.getObservableValue().getValue());
+		}
+
+		/**
+		 * Allow a scan region to be set directly
+		 */
+		public void handleRegionChange(IMappingScanRegionShape newRegionShape) {
 			if (inUpdate.compareAndSet(false, true)) {
 				try {
-					logger.debug("Region selection event setting region to : {}",
-								event.getObservableValue().getValue().getName());
-					changeRegion(event.getObservableValue().getValue());
+					logger.debug("Region selection event setting region to : {}", newRegionShape.getName());
+					changeRegion(newRegionShape);
 
 				} finally {
 					inUpdate.set(false);
@@ -137,7 +143,7 @@ public class RegionAndPathController extends AbstractMappingController {
 		}
 
 		/**
-		 * Handles the change of region hsape and fires each of the registered view update handlers.
+		 * Handles the change of region shape and fires each of the registered view update handlers.
 		 *
 		 * @param newRegion The new region shape that has been chosen
 		 */
@@ -476,7 +482,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	}
 
 	/**
-	 * Retrives the current {#link IMappingScanRegion} object from the mapping bean
+	 * Retrieves the current {#link IMappingScanRegion} object from the mapping bean
 	 *
 	 * @return	The mapping bean's current {#link IMappingScanRegion}
 	 */

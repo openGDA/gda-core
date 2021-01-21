@@ -18,6 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_STOP;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_STOP;
+
 import javax.measure.quantity.Length;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;

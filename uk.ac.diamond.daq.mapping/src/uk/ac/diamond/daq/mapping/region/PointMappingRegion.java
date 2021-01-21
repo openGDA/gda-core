@@ -18,8 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_POSITION;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_POSITION;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
@@ -51,7 +55,7 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	public void setxPosition(double newValue) {
 		double oldvalue = this.xPosition;
 		this.xPosition = newValue;
-		this.pcs.firePropertyChange("xPosition", oldvalue, newValue);
+		this.pcs.firePropertyChange(X_POSITION, oldvalue, newValue);
 	}
 
 	public double getyPosition() {
@@ -61,7 +65,7 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	public void setyPosition(double newValue) {
 		double oldvalue = this.yPosition;
 		this.yPosition = newValue;
-		this.pcs.firePropertyChange("yPosition", oldvalue, newValue);
+		this.pcs.firePropertyChange(Y_POSITION, oldvalue, newValue);
 	}
 
 	@Override
@@ -80,8 +84,8 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 			xPosition = roi.getPoint()[0];
 			yPosition = roi.getPoint()[1];
 			// Fire the events once the update is finished
-			this.pcs.firePropertyChange("xPosition", oldxPosition, xPosition);
-			this.pcs.firePropertyChange("yPosition", oldYPosition, yPosition);
+			this.pcs.firePropertyChange(X_POSITION, oldxPosition, xPosition);
+			this.pcs.firePropertyChange(Y_POSITION, oldYPosition, yPosition);
 		} else {
 			throw new IllegalArgumentException("Point mapping region can only update from a PointROI");
 		}
@@ -111,6 +115,16 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	public void centre(double x0, double y0) {
 		setxPosition(x0);
 		setyPosition(y0);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		if (properties.containsKey(X_POSITION)) {
+			setxPosition((double) properties.get(X_POSITION));
+		}
+		if (properties.containsKey(Y_POSITION)) {
+			setyPosition((double) properties.get(Y_POSITION));
+		}
 	}
 
 	@Override
