@@ -38,10 +38,10 @@ import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.messaging.json.JsonMessagingService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 
 public class JsonMessagingServiceTest {
 

@@ -31,12 +31,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
+import uk.ac.gda.common.activemq.test.TestSessionService;
 import com.google.common.eventbus.Subscribe;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
 
 public class MsgBusGsonTest {
 

@@ -51,8 +51,8 @@ import gda.device.scannable.ScannableBase;
 import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
 import uk.ac.gda.api.remoting.ServiceInterface;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
 

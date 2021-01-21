@@ -61,7 +61,7 @@ import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import uk.ac.diamond.daq.activemq.test.TestSessionService;
+import uk.ac.gda.common.activemq.test.TestSessionService;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
 import uk.ac.gda.remoting.server.RmiObjectInfo;
 import uk.ac.gda.remoting.server.RmiRemoteObjectProvider;
