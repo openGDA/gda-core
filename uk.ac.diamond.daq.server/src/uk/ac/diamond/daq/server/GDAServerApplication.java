@@ -56,6 +56,7 @@ public class GDAServerApplication implements IApplication {
 	 * If the application is run from the command line or eclipse it only requires the config file (-f) and profile (-p) args
 	 * to be supplied; in this case it will default to the example-config values for all other things that the scripts pass in.
 	 */
+	@Override
 	public Object start(IApplicationContext context) throws Exception
 	{
 		// Log some info for debugging - this only goes to stdout as logging is not setup yet
@@ -154,6 +155,7 @@ public class GDAServerApplication implements IApplication {
 	}
 
 	/** Display message to any clients, then clear up resources */
+	@Override
 	public void stop() {
 		logger.info("GDA application stopping");
 		ITerminalPrinter printer = InterfaceProvider.getTerminalPrinter();
