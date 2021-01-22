@@ -1,5 +1,7 @@
 package uk.ac.gda.client.live.stream.controls.custom.widgets;
 
+import static uk.ac.gda.client.live.stream.controls.widgets.css.WidgetCSSStyling.SWT_INTERNAL_GTK_CSS;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -14,6 +16,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.observable.IObservable;
 import gda.observable.IObserver;
+import uk.ac.gda.client.live.stream.controls.widgets.css.WidgetCSSStyling;
 
 /**
  * A class which provides a GUI composite to display progress of a count down timer.
@@ -56,6 +59,8 @@ public class CountdownProgressComposite extends Composite implements IObserver {
 		progressBar.setLayoutData(gdProgressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
+		// override GTK default ProgressBAr widget style
+		WidgetCSSStyling.applyStyling(progressBar, SWT_INTERNAL_GTK_CSS, "platform:/plugin/uk.ac.gda.client.live.stream.controls/css/progressBar.css");
 		
 		if (getObservable()!=null) {
 			// required when view containing this being re-opened.
