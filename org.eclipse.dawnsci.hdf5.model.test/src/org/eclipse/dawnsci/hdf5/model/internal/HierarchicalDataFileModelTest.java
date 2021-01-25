@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -72,11 +73,9 @@ public class HierarchicalDataFileModelTest {
 
 	private void printGroup(NexusFile reader, String g) throws Exception {
 		GroupNode rootGroup = reader.getGroup(g, true);
-		List<String> members = (List<String>) rootGroup.getNames();
+		Set<String> members = rootGroup.getNames();
 
-		int n = members.size();
-		for (int i = 0; i < n; i++) {
-			String childPath = members.get(i);
+		for (String childPath : members) {
 			childPath = Node.SEPARATOR + childPath;
 			System.out.print(childPath);
 			GroupNode group = reader.getGroup(childPath, false);
