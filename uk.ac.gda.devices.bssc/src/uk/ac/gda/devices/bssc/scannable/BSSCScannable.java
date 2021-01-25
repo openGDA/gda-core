@@ -22,7 +22,6 @@ import org.embl.BaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -81,17 +80,9 @@ public class BSSCScannable extends ScannableBase {
 			return;
 		}
 		super.configure();
-		try {
-			setInputNames(new String[] {});
-			setExtraNames(new String[] { "detergentlevel", "waterlevel", "wastelevel" });
-			setOutputFormat(new String[] { "%2.0f", "%2.0f", "%2.0f" });
-			bssc.getTemperatureSampleStorage(); // WARNING - this generates an exception, so the logic expects the
-												// following code not to be run in all cases
-			setExtraNames(new String[] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel" });
-			setOutputFormat(new String[] { "%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f" });
-		} catch (Exception ignored) {
-			// normal behaviour in simulation
-		}
+		setInputNames(new String[] {});
+		setExtraNames(new String[] { "seutemp", "storagetemp", "detergentlevel", "waterlevel", "wastelevel" });
+		setOutputFormat(new String[] { "%3.1f", "%3.1f", "%2.0f", "%2.0f", "%2.0f" });
 		if (poller == null || !poller.isAlive()) {
 			poller = new Thread(new Poller(), getName() + " polling thread");
 			poller.start();
@@ -111,23 +102,12 @@ public class BSSCScannable extends ScannableBase {
 	@Override
 	public Object getPosition() throws DeviceException {
 		try {
-			if (getExtraNames().length == 3) {
-				cachedPosition = new double[] { bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel() };
-			} else {
-				cachedPosition = new double[] { bssc.getTemperatureSEU(), bssc.getTemperatureSampleStorage(),
-						bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel() };
-			}
+			cachedPosition = new double[] { bssc.getTemperatureSEU(), bssc.getTemperatureSampleStorage(),
+					bssc.getDetergentLevel(), bssc.getWaterLevel(), bssc.getWasteLevel() };
 			whackPoller();
 			return cachedPosition;
 		} catch (BaseException e) {
-			if (LocalProperties.get("gda.instrument").equals("ncd")) {
-				//running in sim mode => no sample changer
-				if (getExtraNames().length == 3) {
-					return new double[] {0,0,0};
-				}
-				return new double[] {0,0,0,0,0};
-			}
-			throw new DeviceException("error getting values", e);
+			throw new DeviceException("Error getting sample changer values", e);
 		}
 	}
 
