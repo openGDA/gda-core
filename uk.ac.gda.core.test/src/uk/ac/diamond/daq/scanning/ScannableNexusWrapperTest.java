@@ -24,11 +24,14 @@ import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN
 import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_UNITS;
 import static org.eclipse.dawnsci.nexus.NexusBaseClass.NX_POSITIONER;
+import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.inOrder;
@@ -38,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -64,6 +68,8 @@ import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyScannableMotor;
 
 public class ScannableNexusWrapperTest {
+
+	private static final String FIELD_NAME_VALUE_SET = NXpositioner.NX_VALUE + "_set";
 
 	private IScannable<Object> scannable;
 
@@ -100,28 +106,28 @@ public class ScannableNexusWrapperTest {
 	}
 	@Test
 	public void testGetUnit() throws Exception {
-		assertThat(scannable.getUnit(), nullValue());
+		assertThat(scannable.getUnit(), is(nullValue()));
 
 		ScannableMotionUnits mockUnitsScannable = mock(ScannableMotionUnits.class);
 		when(mockUnitsScannable.getUserUnits()).thenReturn("mm");
 		IScannable<?> unitsScannable = new ScannableNexusWrapper<>(mockUnitsScannable);
 
-		assertThat(unitsScannable.getUnit(), equalTo("mm"));
+		assertThat(unitsScannable.getUnit(), is(equalTo("mm")));
 	}
 
 	@Test
 	public void testGetMinimum() {
-		assertThat(scannable.getMinimum(), equalTo(0.5));
+		assertThat(scannable.getMinimum(), is(equalTo(0.5)));
 	}
 
 	@Test
 	public void testGetMaximum() {
-		assertThat(scannable.getMaximum(), equalTo(9.5));
+		assertThat(scannable.getMaximum(), is(equalTo(9.5)));
 	}
 
 	@Test
 	public void testGetPermittedValues() throws Exception {
-		assertThat(scannable.getPermittedValues(), nullValue());
+		assertThat(scannable.getPermittedValues(), is(nullValue()));
 
 		DummyEnumPositioner enumPositioner = new DummyEnumPositioner();
 		enumPositioner.setPositions(Arrays.asList("One", "Two", "Three"));
@@ -133,7 +139,7 @@ public class ScannableNexusWrapperTest {
 
 	@Test
 	public void testGetPosition() throws Exception {
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 	}
 
 	@Test
@@ -142,13 +148,13 @@ public class ScannableNexusWrapperTest {
 		final double newPosition = 8.3;
 		IPositionListener posListener = mock(IPositionListener.class);
 		((IPositionListenable) scannable).addPositionListener(posListener);
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 
 		// Act
 		scannable.setPosition(newPosition);
 
 		// Assert
-		assertThat(scannable.getPosition(), equalTo(newPosition));
+		assertThat(scannable.getPosition(), is(equalTo(newPosition)));
 		((IPositionListenable) scannable).removePositionListener(posListener);
 
 		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
@@ -180,13 +186,13 @@ public class ScannableNexusWrapperTest {
 		IPositionListener posListener = mock(IPositionListener.class);
 		((IPositionListenable) scannable).addPositionListener(posListener);
 		final IPosition scanPosition = new Scalar<Double>("sax", scanIndex, newPosition);
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 
 		// Act
 		scannable.setPosition(newPosition, scanPosition);
 
 		// Assert
-		assertThat(scannable.getPosition(), equalTo(newPosition));
+		assertThat(scannable.getPosition(), is(equalTo(newPosition)));
 		((IPositionListenable) scannable).removePositionListener(posListener);
 
 		ArgumentCaptor<PositionEvent> captor = ArgumentCaptor.forClass(PositionEvent.class);
@@ -214,13 +220,13 @@ public class ScannableNexusWrapperTest {
 		// Arrange
 		IPositionListener posListener = mock(IPositionListener.class);
 		((IPositionListenable) scannable).addPositionListener(posListener);
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 
 		// Act
 		scannable.setPosition(null);
 
 		// Assert
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 		((IPositionListenable) scannable).removePositionListener(posListener);
 		verifyZeroInteractions(posListener);
 	}
@@ -234,13 +240,13 @@ public class ScannableNexusWrapperTest {
 		IPositionListener posListener = mock(IPositionListener.class);
 		((IPositionListenable) scannable).addPositionListener(posListener);
 		final IPosition scanPosition = new Scalar<Double>("sax", scanIndex, null);
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 
 		// Act
 		scannable.setPosition(null, scanPosition);
 
 		// Assert
-		assertThat(scannable.getPosition(), equalTo(3.7));
+		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 		((IPositionListenable) scannable).removePositionListener(posListener);
 		verifyZeroInteractions(posListener);
 	}
@@ -258,7 +264,7 @@ public class ScannableNexusWrapperTest {
 		// test that the first field name is 'value' where the first input name of the
 		// wrapped scannable is the same as the name of the scannable itself
 		DummyScannable dummyScannable = new DummyScannable("sax");
-		assertThat(dummyScannable.getInputNames(), equalTo(new String[] { "sax" }));
+		assertThat(dummyScannable.getInputNames(), is(equalTo(new String[] { "sax" })));
 		ScannableNexusWrapper<?> simpleScannable = new ScannableNexusWrapper<>(dummyScannable);
 		assertThat(simpleScannable.getOutputFieldNames(), contains("value"));
 	}
@@ -302,48 +308,62 @@ public class ScannableNexusWrapperTest {
 		final Object[] position = new Object[] { 1.0, 2.0, 3.0, "One", "Two" };
 		when(mockScannable.getPosition()).thenReturn(position);
 		when(mockScannable.getUserUnits()).thenReturn("nm");
+		final Double[] lowerLimits = new Double[] { -1.0, -2.0, -3.0 };
+		when(mockScannable.getLowerGdaLimits()).thenReturn(lowerLimits);
+		final Double[] upperLimits = new Double[] { 1.0, 2.0, 3.0 };
+		when(mockScannable.getUpperGdaLimits()).thenReturn(upperLimits);
 
 		final ScannableNexusWrapper<?> scannableNexusWrapper = new ScannableNexusWrapper<>(mockScannable);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
 		final NexusObjectProvider<?> nexusObjectProvider = scannableNexusWrapper.getNexusProvider(scanInfo);
-		assertThat(nexusObjectProvider, notNullValue());
-		assertThat(nexusObjectProvider.getName(), equalTo("xPos"));
+		assertThat(nexusObjectProvider, is(notNullValue()));
+		assertThat(nexusObjectProvider.getName(), is(equalTo("xPos")));
 		assertThat(nexusObjectProvider.getNexusBaseClass(), is(NX_POSITIONER));
-		assertThat(nexusObjectProvider.getCategory(), nullValue());
-		assertThat(nexusObjectProvider.getCollectionName(), nullValue());
+		assertThat(nexusObjectProvider.getCategory(), is(nullValue()));
+		assertThat(nexusObjectProvider.getCollectionName(), is(nullValue()));
 		assertThat(nexusObjectProvider.getAxisDataFieldNames(),
-				contains("input1", "value_set"));
-		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), equalTo("value_set"));
+				contains("input1", FIELD_NAME_VALUE_SET));
+		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(FIELD_NAME_VALUE_SET)));
+
+		final String[] expectedFieldNames = Stream.of(inputNames, extraNames).flatMap(Stream::of).toArray(String[]::new);
+		final String[] otherDataNodeNames = new String[] { NXpositioner.NX_NAME, FIELD_NAME_VALUE_SET };
+		final String[] expectedDataNodeNames = Stream.of(expectedFieldNames, otherDataNodeNames)
+				.flatMap(Stream::of).toArray(String[]::new);
 
 		final NXpositioner nexusObject = (NXpositioner) nexusObjectProvider.getNexusObject();
 		assertThat(nexusObject, notNullValue());
 		assertThat(nexusObject.getNexusBaseClass(), is(NX_POSITIONER));
+		assertThat(nexusObject.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
 		assertThat(nexusObject.getNumberOfAttributes(), is(3));
+		assertThat(nexusObject.getGroupNodeNames(), is(empty()));
 		assertThat(nexusObject.getNumberOfGroupNodes(), is(0));
-		assertThat(nexusObject.getNumberOfDataNodes(), is(7)); // name, input1,2,3, extra1,2, value_demand
-		assertThat(nexusObject.getNameScalar(), equalTo("xPos"));
-		assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), equalTo("xPos"));
+		assertThat(nexusObject.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(nexusObject.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
+		assertThat(nexusObject.getNameScalar(), is(equalTo("xPos")));
+		assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), is(equalTo("xPos")));
 		assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
 				equalTo(ScanRole.SCANNABLE.toString().toLowerCase()));
+
+
 		final List<String> fieldNames = scannableNexusWrapper.getOutputFieldNames();
-		assertThat(fieldNames, contains("input1", "input2", "input3", "extra1", "extra2"));
+		assertThat(fieldNames, contains(expectedFieldNames));
 		for (String fieldName : fieldNames) {
 			final DataNode valueDataNode = nexusObject.getDataNode(fieldName);
 			assertThat(valueDataNode, notNullValue());
-			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_LOCAL_NAME), equalTo("xPos." + fieldName));
-			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_GDA_FIELD_NAME), equalTo(fieldName));
-			assertThat(valueDataNode.getDataset(), notNullValue());
-			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_UNITS), equalTo("nm"));
+			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_LOCAL_NAME), is(equalTo("xPos." + fieldName)));
+			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_GDA_FIELD_NAME), is(equalTo(fieldName)));
+			assertThat(valueDataNode.getDataset(), is(notNullValue()));
+			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_UNITS), is(equalTo("nm")));
 		}
 
-		final DataNode valueDemandDataNode = nexusObject.getDataNode("value_set");
-		assertThat(valueDemandDataNode, notNullValue());
-		assertThat(valueDemandDataNode.getDataset(), notNullValue());
+		final DataNode valueDemandDataNode = nexusObject.getDataNode(FIELD_NAME_VALUE_SET);
+		assertThat(valueDemandDataNode, is(notNullValue()));
+		assertThat(valueDemandDataNode.getDataset(), is(notNullValue()));
 	}
 
 	@Test
-	public void testGetMotorLimitsWhenGDALimitsNotSet() throws Exception {
+	public void testGetMinimumAndMaximumWhenGDALimitsNotSet() throws Exception {
 		DummyScannableMotor motor = new DummyScannableMotor();
 		motor.setUpperMotorLimit(9.4);
 		motor.setLowerMotorLimit(-0.25);

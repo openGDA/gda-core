@@ -24,16 +24,22 @@ import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN
 import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
 import static gda.data.scan.nexus.device.ScannableNexusDevice.COLLECTION_NAME_SCANNABLES;
 import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_VALUE_SET;
+import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSolsticeScanGroup;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertTarget;
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -179,10 +185,10 @@ public class ScannableNexusWrapperScanTest {
 
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
-		IEventService eservice  = new EventServiceImpl(activemqConnectorService);
+		final IEventService eservice  = new EventServiceImpl(activemqConnectorService);
 
-		IRunnableDeviceService dservice  = new RunnableDeviceServiceImpl(connector);
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
+		final IRunnableDeviceService dservice  = new RunnableDeviceServiceImpl(connector);
+		final RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
 		impl._register(MockDetectorModel.class, MockWritableDetector.class);
 		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
 		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
@@ -197,7 +203,7 @@ public class ScannableNexusWrapperScanTest {
 
 		final INexusDeviceService nexusDeviceService = new NexusDeviceService();
 		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(fileFactory);
-		org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
+		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
 		serviceHolder.setNexusDeviceService(nexusDeviceService);
 		serviceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		serviceHolder.setOperationService(new MockOperationService());
@@ -219,12 +225,14 @@ public class ScannableNexusWrapperScanTest {
 			setName(name);
 			setExtraNames(new String[] { "sax", "say" });
 			setUserUnits("rad");
+			setUpperGdaLimits(45.0);
+			setLowerGdaLimits(-45.0);
 			this.perp = perp;
 		}
 
 		@Override
 		public Object getPosition() throws DeviceException {
-			double pos = (Double) super.getPosition();
+			final double pos = (Double) super.getPosition();
 			double x, y;
 			if (perp) { // saperp - perpendicular to the beam line
 				x = -pos * Math.sin(ANGLE);
@@ -263,11 +271,21 @@ public class ScannableNexusWrapperScanTest {
 
 	}
 
+	private static class DummyEnergyScananble extends DummyUnitsScannable<Energy> {
+
+		public DummyEnergyScananble(String name, double initialValue) throws Exception {
+			super(name, initialValue, "GeV", "GeV");
+			this.setLowerGdaLimits(0.1);
+			this.setUpperGdaLimits(10000.0);
+		}
+
+	}
+
 	private static class MultiFieldMetadataScannable extends DummyScannable {
 
-		private LinkedHashMap<String, Object> inputFieldValues = new LinkedHashMap<>();
+		private final LinkedHashMap<String, Object> inputFieldValues = new LinkedHashMap<>();
 
-		private LinkedHashMap<String, Object> extraFieldValues = new LinkedHashMap<>();
+		private final LinkedHashMap<String, Object> extraFieldValues = new LinkedHashMap<>();
 
 		public MultiFieldMetadataScannable(String name) {
 			setName(name);
@@ -305,13 +323,13 @@ public class ScannableNexusWrapperScanTest {
 		@Override
 		public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 			if (inputFieldValues.size() == 1) {
-				String key = inputFieldValues.keySet().iterator().next();
+				final String key = inputFieldValues.keySet().iterator().next();
 				inputFieldValues.put(key, position);
 			} else {
-				Object[] positionArray = (Object[]) position;
-				Iterator<String> inputFieldNameIterator = inputFieldValues.keySet().iterator();
+				final Object[] positionArray = (Object[]) position;
+				final Iterator<String> inputFieldNameIterator = inputFieldValues.keySet().iterator();
 				for (int i = 0; i < positionArray.length; i++) {
-					String inputFieldName = inputFieldNameIterator.next();
+					final String inputFieldName = inputFieldNameIterator.next();
 					inputFieldValues.put(inputFieldName, positionArray[i]);
 				}
 			}
@@ -335,7 +353,7 @@ public class ScannableNexusWrapperScanTest {
 
 	@Before
 	public void before() throws Exception {
-		MandelbrotModel model = new MandelbrotModel();
+		final MandelbrotModel model = new MandelbrotModel();
 		model.setName("mandelbrot");
 		model.setRealAxisName("salong");
 		model.setImaginaryAxisName("saperp");
@@ -366,7 +384,7 @@ public class ScannableNexusWrapperScanTest {
 		factory.addFindable(new DummyScannable("s2_ysize", 8.34));
 		factory.addFindable(new DummyScannable("s2_xsize", 1.66));
 		factory.addFindable(new DummyScannable("exit_slit", 0.0683));
-		factory.addFindable(new DummyUnitsScannable<Energy>("pgm_cff", 123.45, "GeV", "GeV"));
+		factory.addFindable(new DummyEnergyScananble("pgm_cff", 123.45));
 		factory.addFindable(new DummyScannable("energy", 9.357e8));
 		factory.addFindable(new DummyScannable("pgm_linedensity", 28));
 		factory.addFindable(new DummyScannable("ring_current", 15.2));
@@ -374,7 +392,7 @@ public class ScannableNexusWrapperScanTest {
 		factory.addFindable(new DummyScannable("lc_pressure", 73.012));
 		factory.addFindable(new DummyStringScannable("sample_name", "name", "test sample"));
 
-		MultiFieldMetadataScannable cryostat = new MultiFieldMetadataScannable("cryostat");
+		final MultiFieldMetadataScannable cryostat = new MultiFieldMetadataScannable("cryostat");
 		cryostat.addInputField("temperature_demand", 20.0);
 		cryostat.addExtraField("cryostat_temperature", 19.9);
 		cryostat.addExtraField("temperatue", 19.9);
@@ -383,20 +401,20 @@ public class ScannableNexusWrapperScanTest {
 		cryostat.addExtraField("heater_setting", 15.3);
 		factory.addFindable(cryostat);
 
-		MultiFieldMetadataScannable id = new MultiFieldMetadataScannable("id");
+		final MultiFieldMetadataScannable id = new MultiFieldMetadataScannable("id");
 		id.setScanMetadataAttribute(Scannable.ATTR_NX_CLASS, "NXinsertion_device");
 		id.addExtraField("gap", 20);
 		id.addExtraField("final_polarisation_label", "label");
 		id.addExtraField("phase", 60);
 		factory.addFindable(id);
 
-		DummyScannable attr = new DummyScannable("attributes", 2.5);
+		final DummyScannable attr = new DummyScannable("attributes", 2.5);
 		attr.setInputNames(new String[] { "value" });
 		attr.setScanMetadataAttribute("stringAttr", "foo");
 		attr.setScanMetadataAttribute("doubleAttr", 123.456);
 		factory.addFindable(attr);
 
-		DummyScannable beam = new DummyScannable("beam", 3.25);
+		final DummyScannable beam = new DummyScannable("beam", 3.25);
 		beam.setInputNames(new String[] { "extent" });
 		beam.setScanMetadataAttribute(Scannable.ATTR_NX_CLASS, "NXbeam");
 		beam.setScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY, "NXsample");
@@ -419,20 +437,20 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	public void readLegacySpringConfig(String path) throws Exception {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document document = builder.parse(new File(path));
-		Element rootElement = document.getDocumentElement();
+		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		final DocumentBuilder builder = factory.newDocumentBuilder();
+		final Document document = builder.parse(new File(path));
+		final Element rootElement = document.getDocumentElement();
 		rootElement.normalize();
 
-		for (Element beanElement : getChildElements(rootElement, "bean")) {
-			String classAttr = beanElement.getAttribute("class");
+		for (final Element beanElement : getChildElements(rootElement, "bean")) {
+			final String classAttr = beanElement.getAttribute("class");
 			// only process beans with class MethodInvokingFactoryBean
 			if ("org.springframework.beans.factory.config.MethodInvokingFactoryBean".equals(classAttr)) {
 				String staticMethod = null;
 				Element argumentsPropertyElement = null;
-				for (Element propertyElement : getChildElements(beanElement, "property")) {
-					String propertyName = propertyElement.getAttribute("name");
+				for (final Element propertyElement : getChildElements(beanElement, "property")) {
+					final String propertyName = propertyElement.getAttribute("name");
 					if ("staticMethod".equals(propertyName)) {
 						staticMethod = propertyElement.getAttribute("value");
 					} else if ("arguments".equals(propertyName)) {
@@ -470,22 +488,22 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private void testGridScan(String outerScannableName) throws Exception {
-		int[] size = (outerScannableName == null) ? new int[] { 8, 5 } : new int[] { 2, 5, 3 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, outerScannableName, size);
+		final int[] size = (outerScannableName == null) ? new int[] { 8, 5 } : new int[] { 2, 5, 3 };
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, outerScannableName, size);
 		scanner.run(null);
 		checkNexusFile(scanner, size);
 	}
 
 	@SuppressWarnings("unused")
 	private void printLocationMap(Map<String, ScannableWriter> locationMap) {
-		for (Map.Entry<String, ScannableWriter> entry : locationMap.entrySet()) {
+		for (final Map.Entry<String, ScannableWriter> entry : locationMap.entrySet()) {
 			System.err.println("scannable name: " + entry.getKey());
-			SingleScannableWriter scannableWriter = (SingleScannableWriter) entry.getValue();
-			String[] paths = scannableWriter.getPaths();
+			final SingleScannableWriter scannableWriter = (SingleScannableWriter) entry.getValue();
+			final String[] paths = scannableWriter.getPaths();
 			for (int i = 0; i < paths.length; i++) {
 				System.err.println("paths[" + i + "] = " + paths[i]);
 			}
-			String[] units = scannableWriter.getUnits();
+			final String[] units = scannableWriter.getUnits();
 			if (units == null) {
 				System.err.println("no units");
 			} else {
@@ -493,7 +511,7 @@ public class ScannableNexusWrapperScanTest {
 					System.err.println("units[" + i + "] = " + units[i]);
 				}
 			}
-			Collection<String> preqrequisites = scannableWriter.getPrerequisiteScannableNames();
+			final Collection<String> preqrequisites = scannableWriter.getPrerequisiteScannableNames();
 			if (preqrequisites == null || preqrequisites.isEmpty()) {
 				System.err.println("No prerequisites");
 			} else {
@@ -513,25 +531,25 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private Map<String, ScannableWriter> readLegacyLocationMap(Element argumentsPropertyElement) {
-		Map<String, ScannableWriter> locationMap = new HashMap<>();
-		Element mapElement = getChildElements(argumentsPropertyElement, "map").get(0);
-		for (Element entryElement : getChildElements(mapElement, "entry")) {
+		final Map<String, ScannableWriter> locationMap = new HashMap<>();
+		final Element mapElement = getChildElements(argumentsPropertyElement, "map").get(0);
+		for (final Element entryElement : getChildElements(mapElement, "entry")) {
 			final String id = entryElement.getAttribute("key");
 			final SingleScannableWriter scannableWriter = new SingleScannableWriter();
 
-			Element beanElement = getChildElements(entryElement, "bean").get(0);
-			for (Element propertyElement : getChildElements(beanElement, "property")) {
-				String propertyName = propertyElement.getAttribute("name");
-				NodeList valueElements = propertyElement.getElementsByTagName("value");
+			final Element beanElement = getChildElements(entryElement, "bean").get(0);
+			for (final Element propertyElement : getChildElements(beanElement, "property")) {
+				final String propertyName = propertyElement.getAttribute("name");
+				final NodeList valueElements = propertyElement.getElementsByTagName("value");
 				List<String> values;
-				String valueStr = propertyElement.getAttribute("value");
+				final String valueStr = propertyElement.getAttribute("value");
 				if (!StringUtils.isBlank(valueStr)) {
 					values = Arrays.asList(valueStr);
 				} else {
 					values = new ArrayList<>(valueElements.getLength());
 					for (int k = 0; k < valueElements.getLength(); k++) {
-						Element valueElement = (Element) valueElements.item(k);
-						String value = valueElement.getTextContent();
+						final Element valueElement = (Element) valueElements.item(k);
+						final String value = valueElement.getTextContent();
 						values.add(value);
 					}
 				}
@@ -551,13 +569,13 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private Set<String> readLegacyMetadataScannables(Element argumentsPropertyElement) {
-		Set<String> metadataScannables = new HashSet<>();
-		String valueAttr = argumentsPropertyElement.getAttribute("value");
+		final Set<String> metadataScannables = new HashSet<>();
+		final String valueAttr = argumentsPropertyElement.getAttribute("value");
 		if (!StringUtils.isBlank(valueAttr)) {
 			metadataScannables.add(valueAttr);
 		} else {
-			Element setElement = getChildElements(argumentsPropertyElement, "set").get(0);
-			for (Element valueElement : getChildElements(setElement, "value")) {
+			final Element setElement = getChildElements(argumentsPropertyElement, "set").get(0);
+			for (final Element valueElement : getChildElements(setElement, "value")) {
 				metadataScannables.add(valueElement.getTextContent());
 			}
 		}
@@ -579,16 +597,16 @@ public class ScannableNexusWrapperScanTest {
 	private void checkNexusFile(final IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception{
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
-		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
+		final String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
 
-		NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath);
+		final NexusFile nf = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory().newNexusFile(filePath);
 		nf.openToRead();
 
-		TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-		NXroot rootNode = (NXroot) nexusTree.getGroupNode();
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
-		NXsample sample = entry.getSample();
+		final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+		final NXroot rootNode = (NXroot) nexusTree.getGroupNode();
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
+		final NXsample sample = entry.getSample();
 
 		// check the scan points have been written correctly
 		assertSolsticeScanGroup(entry, false, false, sizes);
@@ -605,55 +623,43 @@ public class ScannableNexusWrapperScanTest {
 		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final Collection<String> scannableNames = pos.getNames();
 
-		String dataGroupName = scanModel.getDetectors().get(0).getName();
-		NXdata nxData = entry.getData(dataGroupName);
-		assertNotNull(nxData);
+		final String dataGroupName = scanModel.getDetectors().get(0).getName();
+		final NXdata nxData = entry.getData(dataGroupName);
+		assertThat(nxData, is(notNullValue()));
 
 		// Check axes
-		List<String> expectedAxesNames = Stream.concat(
+		final List<String> expectedAxesNames = Stream.concat(
 				scannableNames.stream().map(x -> x + "_" + FIELD_NAME_VALUE_SET),
 				Arrays.asList("real", "imaginary").stream()).collect(Collectors.toList());
 		assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-		int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+		final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 		int scannableIndex = -1;
-		for (String scannableName : scannableNames) {
+		for (final String scannableName : scannableNames) {
 			scannableIndex++;
 			NXpositioner positioner = instrument.getPositioner(scannableName);
-			boolean inLocationMap = locationMap.containsKey(scannableName);
+			final boolean inLocationMap = locationMap.containsKey(scannableName);
 			if (inLocationMap) {
-				NXcollection scannablesCollection = (NXcollection) instrument.getGroupNode(
+				final NXcollection scannablesCollection = (NXcollection) instrument.getGroupNode(
 						COLLECTION_NAME_SCANNABLES);
-				assertNotNull(scannablesCollection);
+				assertThat(scannablesCollection, is(notNullValue()));
 				positioner = (NXpositioner) scannablesCollection.getGroupNode(scannableName);
 			}
 
-			assertNotNull(positioner);
+			assertThat(positioner, is(notNullValue()));
 
-			assertEquals(0, positioner.getNumberOfGroupNodes());
-			assertEquals(3, positioner.getNumberOfAttributes()); // NXclass, gda_scannable_name, gda_scan_role
+			assertThat(positioner.getGroupNodeNames(), is(empty()));
+			assertThat(positioner.getNumberOfGroupNodes(), is(0));
 
-			assertEquals(scannableName, positioner.getNameScalar());
-			assertEquals(scannableName, positioner.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
-			assertEquals(ScanRole.SCANNABLE.toString().toLowerCase(),
-					positioner.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
+			assertThat(positioner.getAttributeNames(),
+					containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
+			assertThat(positioner.getNumberOfAttributes(), is(3));
 
-			// Demand values should be 1D
-			dataNode = positioner.getDataNode(FIELD_NAME_VALUE_SET);
-			dataset = dataNode.getDataset().getSlice();
-			shape = dataset.getShape();
-			assertEquals(1, shape.length);
-			assertEquals(sizes[scannableIndex], shape[0]);
+			assertThat(positioner.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), is(equalTo(scannableName)));
+			assertThat(positioner.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
+					is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
 
-			String nxDataFieldName = scannableName + "_" + FIELD_NAME_VALUE_SET;
-			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
-			assertIndices(nxData, nxDataFieldName, scannableIndex);
-			assertTarget(nxData, nxDataFieldName, rootNode,
-					"/entry/instrument/" + (inLocationMap ? COLLECTION_NAME_SCANNABLES + "/" : "") +
-					scannableName + "/" + FIELD_NAME_VALUE_SET);
-
-			// Actual values should be scanD
-			Scannable legacyScannable = getScannable(scannableName);
+			final Scannable legacyScannable = getScannable(scannableName);
 			final List<String> inputFieldNames = new ArrayList<>();
 			inputFieldNames.addAll(Arrays.asList(legacyScannable.getInputNames()));
 			inputFieldNames.addAll(Arrays.asList(legacyScannable.getExtraNames()));
@@ -662,41 +668,63 @@ public class ScannableNexusWrapperScanTest {
 				outputFieldNames.set(outputFieldNames.indexOf(scannableName), NXpositioner.NX_VALUE);
 			}
 
+			// check the number of data nodes, num fields of legacy scannable + name + demand_value
+			final List<String> additionalDataNodeNames = Arrays.asList(NXpositioner.NX_NAME, FIELD_NAME_VALUE_SET);
+			final String[] expectedDataNodeNames = Stream.of(outputFieldNames, additionalDataNodeNames)
+					.flatMap(Collection::stream).toArray(String[]::new);
+			assertThat(positioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+			assertThat(positioner.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
+
+			assertThat(positioner.getNameScalar(), is(equalTo(scannableName)));
+
+			// Demand values should be 1D
+			dataNode = positioner.getDataNode(FIELD_NAME_VALUE_SET);
+			dataset = dataNode.getDataset().getSlice();
+			shape = dataset.getShape();
+			assertThat(shape.length, is(1));
+			assertThat(shape[0], is(sizes[scannableIndex]));
+
+			String nxDataFieldName = scannableName + "_" + FIELD_NAME_VALUE_SET;
+			assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
+			assertIndices(nxData, nxDataFieldName, scannableIndex);
+			assertTarget(nxData, nxDataFieldName, rootNode,
+					"/entry/instrument/" + (inLocationMap ? COLLECTION_NAME_SCANNABLES + "/" : "") +
+					scannableName + "/" + FIELD_NAME_VALUE_SET);
+
 			final String[] paths = locationMap.containsKey(scannableName) ?
 					((SingleScannableWriter) locationMap.get(scannableName)).getPaths() : null;
 			final String[] expectedUnits = getExpectedUnits(legacyScannable);
 
-			// check the number of data nodes, num fields of legacy scannable + name + demand_value
-			assertEquals(outputFieldNames.size() + 2, positioner.getNumberOfDataNodes());
-			assertEquals(positioner.getNameScalar(), scannableName);
+			assertThat(positioner.getNameScalar(), is(equalTo(scannableName)));
 
 			final DataNode setValueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE + "_set");
-			assertNotNull(setValueDataNode);
+			assertThat(setValueDataNode, is(notNullValue()));
 			dataset = setValueDataNode.getDataset().getSlice();
 			shape = dataset.getShape();
-			assertArrayEquals(new int[] { sizes[scannableIndex] }, shape);
+			assertThat(shape, is(equalTo(new int[] { sizes[scannableIndex] })));
 
 			for (int fieldIndex = 0; fieldIndex < outputFieldNames.size(); fieldIndex++) {
 				final String valueFieldName = outputFieldNames.get(fieldIndex);
 				dataNode = positioner.getDataNode(valueFieldName);
-				assertNotNull(valueFieldName, dataNode);
+				assertThat(valueFieldName, dataNode, is(notNullValue()));
 
-				assertNotNull(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME));
-				assertEquals(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_LOCAL_NAME),
-						scannableName + "." + valueFieldName);
-				assertNotNull(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME));
-				assertEquals(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_GDA_FIELD_NAME),
-						inputFieldNames.get(fieldIndex));
+				assertThat(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME), is(notNullValue()));
+				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_LOCAL_NAME),
+						is(equalTo(scannableName + "." + valueFieldName)));
+				assertThat(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME), is(notNullValue()));
+				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_GDA_FIELD_NAME),
+						is(equalTo(inputFieldNames.get(fieldIndex))));
 
+				// Actual values should be scanD
 				dataset = dataNode.getDataset().getSlice();
 				shape = dataset.getShape();
-				assertArrayEquals(sizes, shape);
+				assertThat(valueFieldName, shape, is(equalTo(sizes)));
 
 				if (fieldIndex == 0) {
 					// currently only the first field of a Scannable is linked to from an NXdata group,
 					// this is probably incorrect, see JIRA DAQ-311
 					nxDataFieldName = scannableName + "_" + valueFieldName;
-					assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+					assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 					assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 					assertTarget(nxData, nxDataFieldName, rootNode,
 							"/entry/instrument/" + (inLocationMap ? COLLECTION_NAME_SCANNABLES + "/" : "") +
@@ -704,12 +732,12 @@ public class ScannableNexusWrapperScanTest {
 
 					if (paths != null && paths.length > fieldIndex) {
 						// check the same datanode can also be found at the path for this fieldname in the location map
-						assertSame(dataNode, getDataNode(entry, paths[fieldIndex]));
+						assertThat(valueFieldName, getDataNode(entry, paths[fieldIndex]), is(sameInstance(dataNode)));
 						if (expectedUnits != null && expectedUnits.length > fieldIndex) {
 							// check the units attribute has been written according to the location map
-							Attribute unitsAttribute = dataNode.getAttribute("units");
-							assertNotNull(unitsAttribute);
-							assertEquals(expectedUnits[fieldIndex], unitsAttribute.getFirstElement());
+							final Attribute unitsAttribute = dataNode.getAttribute("units");
+							assertThat(unitsAttribute, is(notNullValue()));
+							assertThat(unitsAttribute.getFirstElement(), is(equalTo(expectedUnits[fieldIndex])));
 						}
 					}
 				}
@@ -718,12 +746,12 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private Scannable getScannable(String scannableName) {
-		Findable found = Finder.find(scannableName);
+		final Findable found = Finder.find(scannableName);
 		if (found instanceof Scannable && !(found instanceof Detector)) {
 			return (Scannable) found;
 		}
 
-		Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		final Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 		if (jythonObj instanceof Scannable && !(jythonObj instanceof Detector)) {
 			return (Scannable) jythonObj;
 		}
@@ -735,19 +763,19 @@ public class ScannableNexusWrapperScanTest {
 	private void checkMetadataScannables(final ScanModel scanModel, NXentry entry) throws Exception {
 		DataNode dataNode;
 		IDataset dataset;
-		NXinstrument instrument = entry.getInstrument();
+		final NXinstrument instrument = entry.getInstrument();
 
-		Collection<IScannable<?>> perScan  = scanModel.getMonitorsPerScan();
-		Set<String> metadataScannableNames = perScan.stream().map(INameable::getName).collect(Collectors.toSet());
+		final Collection<IScannable<?>> perScan  = scanModel.getMonitorsPerScan();
+		final Set<String> metadataScannableNames = perScan.stream().map(INameable::getName).collect(Collectors.toSet());
 
-		Set<String> expectedMetadataScannableNames = new HashSet<>(legacyMetadataScannables);
+		final Set<String> expectedMetadataScannableNames = new HashSet<>(legacyMetadataScannables);
 		Set<String> scannableNamesToCheck = new HashSet<>(expectedMetadataScannableNames);
 		do {
-			Set<String> addedScannableNames = new HashSet<>();
-			for (String metadataScannableName : scannableNamesToCheck) {
-				Collection<String> reqdScannableNames = locationMap.get(metadataScannableName).getPrerequisiteScannableNames();
+			final Set<String> addedScannableNames = new HashSet<>();
+			for (final String metadataScannableName : scannableNamesToCheck) {
+				final Collection<String> reqdScannableNames = locationMap.get(metadataScannableName).getPrerequisiteScannableNames();
 				if (reqdScannableNames != null && !reqdScannableNames.isEmpty()) {
-					for (String reqdScannableName : reqdScannableNames) {
+					for (final String reqdScannableName : reqdScannableNames) {
 						if (!expectedMetadataScannableNames.contains(reqdScannableName)) {
 							expectedMetadataScannableNames.add(reqdScannableName);
 							addedScannableNames.add(reqdScannableName);
@@ -759,50 +787,47 @@ public class ScannableNexusWrapperScanTest {
 		} while (!scannableNamesToCheck.isEmpty());
 
 		// check the metadata scannables specified in the legacy spring config are present
-		List<String> scannableNames = ((AbstractPosition) scanModel.getPointGenerator().iterator().next()).getNames();
-		for (String legacyMetadataScannableName : expectedMetadataScannableNames) {
-			assertTrue(legacyMetadataScannableName, metadataScannableNames.contains(legacyMetadataScannableName)
-					|| scannableNames.contains(legacyMetadataScannableName));
+		final List<String> scannableNames = ((AbstractPosition) scanModel.getPointGenerator().iterator().next()).getNames();
+		for (final String legacyMetadataScannableName : expectedMetadataScannableNames) {
+			assertThat(legacyMetadataScannableName, metadataScannableNames.contains(legacyMetadataScannableName)
+					|| scannableNames.contains(legacyMetadataScannableName), is(true));
 		}
 
 		// check each metadata scannable has been written correctly
-		for (String metadataScannableName : metadataScannableNames) {
-			Scannable scannable = Finder.find(metadataScannableName);
+		for (final String metadataScannableName : metadataScannableNames) {
+			final Scannable scannable = Finder.find(metadataScannableName);
 			if (scannable.getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY) != null) {
 				// the nexus object for a scannable with a nexus category won't be under NXinstrument
 				continue;
 			}
 
 			NXobject nexusObject = (NXobject) instrument.getGroupNode(metadataScannableName);
-
 			if (locationMap.containsKey(metadataScannableName)) {
 				// if there is an entry in the location map for this group, the nexus object
 				// should have been added to a collection called 'scannables'
-				assertNull(nexusObject);
-				NXcollection scannablesCollection = (NXcollection) instrument.getGroupNode(
+				assertThat(nexusObject, is(nullValue()));
+				final NXcollection scannablesCollection = (NXcollection) instrument.getGroupNode(
 						COLLECTION_NAME_SCANNABLES);
-				assertNotNull(scannablesCollection);
+				assertThat(scannablesCollection, is(notNullValue()));
 				nexusObject = (NXobject) scannablesCollection.getGroupNode(metadataScannableName);
 			}
 
 			// Check that the nexus object is of the expected base class
-			assertNotNull(nexusObject);
-			String expectedNexusBaseClass = (String) scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
-			assertEquals(expectedNexusBaseClass == null ? "NXpositioner" : expectedNexusBaseClass,
-					nexusObject.getNexusBaseClass().toString());
+			assertThat(nexusObject, is(notNullValue()));
+			final String expectedNexusBaseClass = (String) scannable.getScanMetadataAttribute(Scannable.ATTR_NX_CLASS);
+			assertThat(nexusObject.getNexusBaseClass().toString(), is(equalTo(
+					expectedNexusBaseClass == null ? NexusBaseClass.NX_POSITIONER.toString() : expectedNexusBaseClass)));
 
-			if (metadataScannableName.equals("sample_name")) {
-				assertEquals("test sample", nexusObject.getString("name"));
-			} else {
-				assertEquals(metadataScannableName, nexusObject.getString("name"));
-			}
+			assertThat(nexusObject.getGroupNodeNames(), is(empty()));
+			assertThat(nexusObject.getNumberOfGroupNodes(), is(0));
 
-			assertEquals(0, nexusObject.getNumberOfGroupNodes());
-			assertEquals(3, nexusObject.getNumberOfAttributes());
-
-			assertEquals(metadataScannableName, nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
-			assertEquals(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase(),
-					nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
+			assertThat(nexusObject.getAttributeNames(),
+					containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
+			assertThat(nexusObject.getNumberOfAttributes(), is(3));
+			assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME),
+					is(equalTo(metadataScannableName)));
+			assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
+					is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 
 			final String[] valueFieldNames = (String[]) ArrayUtils.addAll(
 					scannable.getInputNames(), scannable.getExtraNames());
@@ -810,6 +835,17 @@ public class ScannableNexusWrapperScanTest {
 					valueFieldNames[0].equals(scannable.getName())) {
 				valueFieldNames[0] = NXpositioner.NX_VALUE;
 			}
+
+			final Set<String> expectedDataNodeNames = new HashSet<>();
+			expectedDataNodeNames.addAll(scannable.getScanMetadataAttributeNames());
+			expectedDataNodeNames.removeAll(Arrays.asList(Scannable.ATTR_NX_CLASS, Scannable.ATTR_NEXUS_CATEGORY));
+			expectedDataNodeNames.addAll(Arrays.asList(NXpositioner.NX_NAME));
+			expectedDataNodeNames.addAll(Arrays.asList(valueFieldNames));
+			assertThat(nexusObject.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
+			assertThat(nexusObject.getNumberOfDataNodes(), is(expectedDataNodeNames.size()));
+
+			final String expectedName = metadataScannableName.equals("sample_name") ? "test sample": metadataScannableName;
+			assertThat(nexusObject.getString(NXpositioner.NX_NAME), is(equalTo(expectedName)));
 
 			final Object[] positionArray = getPositionArray(scannable);
 			final String[] paths = locationMap.containsKey(metadataScannableName) ?
@@ -822,31 +858,32 @@ public class ScannableNexusWrapperScanTest {
 			for (int fieldIndex = 0; fieldIndex < valueFieldNames.length; fieldIndex++) {
 				final String valueFieldName = valueFieldNames[fieldIndex];
 				dataNode = nexusObject.getDataNode(valueFieldName);
-				assertNotNull(dataNode);
+				assertThat(dataNode, is(notNullValue()));
 				dataset = dataNode.getDataset().getSlice();
-				assertEquals(0, dataset.getRank());
-				assertEquals(positionArray[fieldIndex], dataset.getObject());
+				assertThat(dataset.getRank(), is(0));
+				assertThat(dataset.getObject(), is(equalTo(positionArray[fieldIndex])));
 
 				if (paths != null && paths.length > fieldIndex) {
 					// and to the location referred to by the location map
 					if (metadataScannableName.equals("sax") || metadataScannableName.equals("say")) {
 						// special case, datasets in location map overwritten with
 						// lazy writable dataset by salong and saperp
-						assertNotNull(getDataNode(entry, paths[fieldIndex]));
+						assertThat(getDataNode(entry, paths[fieldIndex]), is(notNullValue()));
 					} else {
-						assertSame(dataNode, getDataNode(entry, paths[fieldIndex]));
+						assertThat(getDataNode(entry, paths[fieldIndex]), is(sameInstance(dataNode)));
 						if (expectedUnits != null && expectedUnits.length > fieldIndex && StringUtils.isNotBlank(expectedUnits[fieldIndex])) {
-							Attribute unitsAttribute = dataNode.getAttribute("units");
-							assertNotNull(unitsAttribute);
-							assertEquals(expectedUnits[fieldIndex], unitsAttribute.getFirstElement());
+							final Attribute unitsAttribute = dataNode.getAttribute("units");
+							assertThat(unitsAttribute, is(notNullValue()));
+							assertThat(unitsAttribute.getFirstElement(), is(equalTo(expectedUnits[fieldIndex])));
 						}
 					}
 				}
 			}
 
 			if (prerequisiteScannableNames != null) {
-				for (String prerequisiteScannableName : prerequisiteScannableNames) {
-					assertTrue(prerequisiteScannableName, metadataScannableNames.contains(prerequisiteScannableName));
+				for (final String prerequisiteScannableName : prerequisiteScannableNames) {
+					assertThat(prerequisiteScannableName,
+							metadataScannableNames.contains(prerequisiteScannableName), is(true));
 				}
 			}
 		}
@@ -873,36 +910,36 @@ public class ScannableNexusWrapperScanTest {
 	}
 
 	private void checkAttributeScannable(NXinstrument instrument) throws Exception {
-		Scannable attributeScannable = Finder.find("attributes");
-		NXpositioner positioner = instrument.getPositioner(attributeScannable.getName());
-		assertNotNull(positioner);
+		final Scannable attributeScannable = Finder.find("attributes");
+		final NXpositioner positioner = instrument.getPositioner(attributeScannable.getName());
+		assertThat(positioner, is(notNullValue()));
 
-		for (String attrName : attributeScannable.getScanMetadataAttributeNames()) {
-			DataNode dataNode = positioner.getDataNode(attrName);
-			assertNotNull(dataNode);
-			IDataset dataset = dataNode.getDataset().getSlice();
-			assertEquals(0, dataset.getRank());
-			Object expectedValue = attributeScannable.getScanMetadataAttribute(attrName);
-			assertTrue(InterfaceUtils.getInterface(expectedValue).isInstance(dataset));
-			assertEquals(expectedValue, dataset.getObject());
+		for (final String attrName : attributeScannable.getScanMetadataAttributeNames()) {
+			final DataNode dataNode = positioner.getDataNode(attrName);
+			assertThat(dataNode, is(notNullValue()));
+			final IDataset dataset = dataNode.getDataset().getSlice();
+			assertThat(dataset.getRank(), is(0));
+			final Object expectedValue = attributeScannable.getScanMetadataAttribute(attrName);
+			assertThat(dataset, is(instanceOf(InterfaceUtils.getInterface(expectedValue))));
+			assertThat(dataset.getObject(), is(equalTo(expectedValue)));
 		}
 	}
 
 	private void checkBeamSizeScannable(NXsample sample) throws Exception {
-		NXbeam beam = sample.getBeam();
-		assertNotNull(beam);
+		final NXbeam beam = sample.getBeam();
+		assertThat(beam, is(notNullValue()));
 
-		assertEquals(0, beam.getNumberOfGroupNodes());
-		assertEquals(3, beam.getNumberOfAttributes());
-		assertEquals("beam", beam.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME));
-		assertEquals(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase(),
-				beam.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE));
-		assertEquals(NexusBaseClass.NX_BEAM, beam.getNexusBaseClass());
+		assertThat(beam.getNumberOfGroupNodes(), is(0));
+		assertThat(beam.getNumberOfAttributes(), is(3));
+		assertThat(beam.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), is(equalTo("beam")));
+		assertThat(beam.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
+				is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
+		assertThat(beam.getNexusBaseClass(), is(NexusBaseClass.NX_BEAM));
 
-		IDataset extentDataset = beam.getDataset("extent"); // TODO use getExtent when Nexus base classes are next generated
-		assertNotNull(extentDataset);
-		assertEquals(0, extentDataset.getRank());
-		assertEquals(3.25, extentDataset.getObject());
+		final IDataset extentDataset = beam.getDataset("extent"); // TODO use getExtent when Nexus base classes are next generated
+		assertThat(extentDataset, is(notNullValue()));
+		assertThat(extentDataset.getRank(), is(0));
+		assertThat(extentDataset.getObject(), is(equalTo(3.25)));
 	}
 
 	private Object[] getPositionArray(Scannable legacyScannable) throws DeviceException {
@@ -913,7 +950,7 @@ public class ScannableNexusWrapperScanTest {
 
 		if (position.getClass().getComponentType().isPrimitive()) {
 			final int size = Array.getLength(position);
-			Object[] outputArray = new Object[size];
+			final Object[] outputArray = new Object[size];
 			for (int i = 0; i < size; i++) {
 				outputArray[i] = Array.get(position, i);
 			}
@@ -925,36 +962,36 @@ public class ScannableNexusWrapperScanTest {
 
 	private DataNode getDataNode(NXentry entry, String augmentedPath) {
 		GroupNode currentNode = entry;
-		Iterator<Pair<String, String>> parsedPathIter = parseAugmentedPath(augmentedPath).iterator();
+		final Iterator<Pair<String, String>> parsedPathIter = parseAugmentedPath(augmentedPath).iterator();
 		DataNode dataNode = null;
 		while (parsedPathIter.hasNext()) {
-			Pair<String, String> parsedPathSegment = parsedPathIter.next();
+			final Pair<String, String> parsedPathSegment = parsedPathIter.next();
 			final String name = parsedPathSegment.getFirst();
 			final String nxClass = parsedPathSegment.getSecond();
 
 			if (parsedPathIter.hasNext()) {
 				currentNode = currentNode.getGroupNode(name);
-				assertNotNull(currentNode);
-				assertTrue(currentNode instanceof NXobject);
-				NexusBaseClass expectedBaseClass = nxClass.equals("NXgoniometer") ?
+				assertThat(currentNode, is(notNullValue()));
+				assertThat(currentNode, is(instanceOf(NXobject.class)));
+				final NexusBaseClass expectedBaseClass = nxClass.equals("NXgoniometer") ?
 						NexusBaseClass.NX_COLLECTION : NexusBaseClass.getBaseClassForName(nxClass);
-				assertSame(expectedBaseClass, ((NXobject) currentNode).getNexusBaseClass());
+				assertThat(expectedBaseClass, is(sameInstance(((NXobject) currentNode).getNexusBaseClass())));
 			} else {
 				// final segment
-				assertNull(nxClass);
+				assertThat(nxClass, is(nullValue()));
 				dataNode = currentNode.getDataNode(name);
 			}
 		}
 
-		assertNotNull(dataNode);
+		assertThat(dataNode, is(notNullValue()));
 		return dataNode;
 	}
 
 	private List<Pair<String, String>> parseAugmentedPath(String augmentedPath) {
-		String[] segments = augmentedPath.split(org.eclipse.dawnsci.analysis.api.tree.Node.SEPARATOR);
-		List<Pair<String, String>> parsedSegments = new ArrayList<Pair<String, String>>(segments.length);
-		for (String segment : segments) {
-			String[] pair = segment.split(NexusFile.NXCLASS_SEPARATOR, 2);
+		final String[] segments = augmentedPath.split(org.eclipse.dawnsci.analysis.api.tree.Node.SEPARATOR);
+		final List<Pair<String, String>> parsedSegments = new ArrayList<Pair<String, String>>(segments.length);
+		for (final String segment : segments) {
+			final String[] pair = segment.split(NexusFile.NXCLASS_SEPARATOR, 2);
 			parsedSegments.add(new Pair<>(pair[0], pair.length > 1 ? pair[1] : null));
 		}
 
