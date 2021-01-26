@@ -18,12 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.extractor.INexusDataGetter;
-import gda.data.nexus.extractor.INexusTreeProcessor;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusExtractorException;
-import gda.data.nexus.extractor.NexusGroupData;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,11 +30,17 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.january.IMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.extractor.INexusDataGetter;
+import gda.data.nexus.extractor.INexusTreeProcessor;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusExtractorException;
+import gda.data.nexus.extractor.NexusGroupData;
 /**
  *
  */
 public class NexusTreeBuilder implements INexusTreeProcessor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NexusTreeBuilder.class);
 	NexusTreeNodeSelection currentSelectedNode = null;
 	INexusTree parentNode = null;
@@ -52,7 +52,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 		this.requiredContents = requiredContents;
 		selectionTree = null;
 	}
-	
+
 	NexusTreeBuilder(NexusTreeNodeSelection selectionTree) {
 		this.selectionTree = selectionTree;
 		currentSelectedNode = selectionTree;
@@ -62,14 +62,14 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	 * process new group found in the file.
 	 * the function needs to return to the caller if the child nodes are to be processed or skipped
 	 * if the data for the current point is wanted ( it is an SDS or Attr then read using getDataForCurrentProcessedGroup
-	 * 
+	 *
 	 * first check if this item is wanted as expressed in the selection tree - calling match
-	 * if not wanted (skip) then return skip 
+	 * if not wanted (skip) then return skip
 	 * if wanted created a node and add to the tree. If SDS or Attr the  read the data into the node
 	 * if Attr return SKIP as attributes cannot have children
 	 */
 	@Override
-	public RESPONSE beginElement(String name, String nxClass, 
+	public RESPONSE beginElement(String name, String nxClass,
 			INexusDataGetter nexusDataGetter) throws NexusException,
 			NexusExtractorException {
 		INexusTree treeNode = new NexusTreeNode(name, nxClass, parentNode, null);
@@ -88,19 +88,19 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 				}
 				if(isAttr)
 					response = RESPONSE.SKIP_OVER; // attributes cannot have children so always skip over
-				else 
+				else
 					response = RESPONSE.SDS_ATTR; //  SDS can have attributes.
 
-				
-				
+
+
 				NexusGroupData nexusGroupData = null;
 				String targetVal=null;
 				if( !isAttr){
 					//Look for target attribute
 					NexusGroupData data = nexusDataGetter.getAttributeOfCurrentProcessedGroup("target");
 					if( data != null && data.isChar() && data.getBuffer() != null){
-						//this is a link so look in targetNodes 
-						//note that both ends of the link have the target attribute so if the value has already 
+						//this is a link so look in targetNodes
+						//note that both ends of the link have the target attribute so if the value has already
 						//been read then it will be in the targetNodes
 						Serializable buffer = data.getBuffer();
 						targetVal = ((String [])buffer)[0];
@@ -131,14 +131,14 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 		}
 		return response;
 	}
-	
-	/* To support the concept of links that are expressed as attributes called target we hold onto all those NexusGroupData items that are to be added into the tree 
-	 * more than once. 
+
+	/* To support the concept of links that are expressed as attributes called target we hold onto all those NexusGroupData items that are to be added into the tree
+	 * more than once.
 	 * note that both ends of the link have the target attribute so if the value has already
 	 * been read then it will be in the targetNodes
 	 */
-	Map<String, NexusGroupData > targetNodes = new HashMap<String, NexusGroupData>();
-	
+	Map<String, NexusGroupData > targetNodes = new HashMap<>();
+
 	@Override
 	public void endElement() {
 		parentNode = parentNode.getParentNode();
@@ -151,26 +151,26 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 */
-	static public INexusTree getNexusTree(String fileName, NexusTreeNodeSelection selectionTree)
+	public static INexusTree getNexusTree(String fileName, NexusTreeNodeSelection selectionTree)
 			throws NexusException, NexusExtractorException {
 		return getNexusTree(fileName, selectionTree, null);
 	}
-	
+
 	/**
 	 * NOTE: this is synchronized otherwise the thread test fails.
-	 * The addition of synchronized keyword on the static method in NexusTreeBuilder is not the 
-	 * correct thing to do as it block concurrent use of that static method on different 
-	 * files as well as the same file. If the nexus api does not allow concurrent access to 
-	 * the  file then the locking should be done in NexusFile. 
-	 * 
+	 * The addition of synchronized keyword on the static method in NexusTreeBuilder is not the
+	 * correct thing to do as it block concurrent use of that static method on different
+	 * files as well as the same file. If the nexus api does not allow concurrent access to
+	 * the  file then the locking should be done in NexusFile.
+	 *
 	 * @param fileName
 	 * @param selectionTree
-	 * @param mon 
+	 * @param mon
 	 * @return The tree of selected items from the nexus file @see NexusTreeNode
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 */
-	static public synchronized INexusTree getNexusTree(String fileName, NexusTreeNodeSelection selectionTree, final IMonitor mon) throws NexusException, NexusExtractorException {
+	public static synchronized INexusTree getNexusTree(String fileName, NexusTreeNodeSelection selectionTree, final IMonitor mon) throws NexusException, NexusExtractorException {
 		NexusExtractor extractor =  new NexusExtractor(fileName);
 		NexusTreeBuilder proc = new NexusTreeBuilder(selectionTree);
 		extractor.runLoop(proc, System.getProperty("gda.nexus.instrumentApi") != null, mon);
@@ -185,22 +185,22 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	 * @throws NexusExtractorException
 	 * @throws Exception
 	 */
-	static public INexusTree getNexusTree(String fileName, String nexusSelectionFilename) throws NexusException,
+	public static INexusTree getNexusTree(String fileName, String nexusSelectionFilename) throws NexusException,
 			NexusExtractorException, Exception {
-		
+
 		return getNexusTree(fileName, nexusSelectionFilename, null);
 	}
 
 	/**
 	 * @param fileName
 	 * @param nexusSelectionFilename
-	 * @param mon 
+	 * @param mon
 	 * @return The tree of selected items from the nexus file @see NexusTreeNode
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 * @throws Exception
 	 */
-	static public INexusTree getNexusTree(String fileName, String nexusSelectionFilename, final IMonitor mon) throws NexusException,
+	public static INexusTree getNexusTree(String fileName, String nexusSelectionFilename, final IMonitor mon) throws NexusException,
 			NexusExtractorException, Exception {
 		NexusTreeNodeSelection selectionTree;
 		if (nexusSelectionFilename == null) {
@@ -215,13 +215,13 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	/**
 	 *
 	 */
-	public enum TREE_CONTENTS { 
+	public enum TREE_CONTENTS {
 	/**
 	 * All data within NXentry
 	 */
 	ALLNXENTRY,
 	/**
-	 * All 
+	 * All
 	 */
 	ALL
 	}
@@ -229,9 +229,9 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	 * @param fileName
 	 * @param requiredContents
 	 * @return NExusTree read from the file with contents as required
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	static public INexusTree getNexusTree(String fileName, TREE_CONTENTS requiredContents) throws Exception{
+	public static INexusTree getNexusTree(String fileName, TREE_CONTENTS requiredContents) throws Exception{
 		NexusExtractor extractor =  new NexusExtractor(fileName);
 		NexusTreeBuilder proc = new NexusTreeBuilder(requiredContents);
 		try{
@@ -240,7 +240,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 			String msg = proc.getTree() != null ? proc.getTree().toString() : "tree empty";
 			throw new Exception("Error in getNexusTree for file=" + fileName + ". Tree = "+msg,e);
 		}
-		return proc.getTree();		
+		return proc.getTree();
 	}
 	INexusTree getTree() {
 		return tree;
@@ -266,7 +266,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 					match = NexusTreeNodeSelection.GET_ALL;
 				} else if(requiredContents == TREE_CONTENTS.ALLNXENTRY && childOfTop.getNxClass().equals(NexusExtractor.NXEntryClassName)){
 					match = NexusTreeNodeSelection.GET_ALL;
-				} 
+				}
 			}
 			return match;
 		}
@@ -294,7 +294,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 			Vector<NexusTreeNodeSelection> selectionNodesV = new Vector<NexusTreeNodeSelection>();
 			selectionNodesV.add(selectionTree);
 			selectionNodes = selectionNodesV;
-		}	
+		}
 
 		/*
 		 * iterate along the path to the current location - at each point check if it is wanted
@@ -306,11 +306,11 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 			Group item = iter.next();
 			if (!match.isGetThisAndBelow())
 				match = NexusTreeNodeSelection.SKIP;
-			for (NexusTreeNodeSelection selectionNode : selectionNodes) { 
-				if (selectionNode.MatchesNXClass(item.NXclass)) { 
+			for (NexusTreeNodeSelection selectionNode : selectionNodes) {
+				if (selectionNode.MatchesNXClass(item.NXclass)) {
 					//find a node in selection tree that matches current node in path
-					if (selectionNode.MatchesName(item.name)) { 
-						//if the names match then set current match to the match at that point 
+					if (selectionNode.MatchesName(item.name)) {
+						//if the names match then set current match to the match at that point
 						// and move down selection tree for next point on the path
 						// use this node for the next iteration
 						match = selectionNode;
@@ -332,7 +332,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 
 class Group {
 
-	static public Group getInstance(Group source) {
+	public static Group getInstance(Group source) {
 		return new Group(source.name, source.NXclass);
 	}
 
@@ -347,8 +347,8 @@ class Group {
 		this.name = node.getName();
 		this.NXclass = node.getNxClass();
 	}
-	
-	
+
+
 	public boolean containsSDS() {
 		return getNXclass().equals(NexusExtractor.SDSClassName);
 	}
@@ -363,7 +363,7 @@ class Group {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) {
@@ -375,7 +375,7 @@ class Group {
 		Group other = (Group) o;
 		return name.equals(other.name) && NXclass.equals(other.NXclass);
 	}
-	
+
 	public String getName() {
 		return name;
 	}

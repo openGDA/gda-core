@@ -18,9 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,6 +25,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
 
 /**
  * Class to represent a Nexus Group - a child is either a DATASET or an ATTRIBUTE
@@ -38,7 +38,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	 * The actual data read from the element
 	 */
 	public final NexusGroupData groupData;
-	private List<INexusTree> childNodes = new Vector<INexusTree>();
+	private List<INexusTree> childNodes = new Vector<>();
 
 	/**
 	 * @return Comparator that compares items by comparing the result of getName
@@ -345,7 +345,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 			NexusTreeNode c = (NexusTreeNode) getChildNode(j);
 			if (c.getNxClass().equals(NexusExtractor.AttrClassName)) {
 				if (attributes == null)
-					attributes = new HashMap<String, Serializable>();
+					attributes = new HashMap<>();
 				attributes.put(c.getName(), c.getData().getFirstValue());
 			}
 		}

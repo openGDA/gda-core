@@ -46,24 +46,24 @@ import gda.data.nexus.tree.INexusTree;
 /**
  * see the package-info.java file for information on this class
  */
-final public class NexusExtractor implements INexusDataGetter {
+public final class NexusExtractor implements INexusDataGetter {
 	private static final Logger logger = LoggerFactory.getLogger(NexusExtractor.class);
 
-	public final static String NXDataClassName = "NXdata";
-	public final static String NXEntryClassName = "NXentry";
-	public final static String NXInstrumentClassName = "NXinstrument";
-	public final static String NXPositionerClassName = "NXpositioner";
-	public final static String NXNoteClassName = "NXnote";
-	public final static String NXDetectorClassName = "NXdetector";
-	public final static String NXMonitorClassName = "NXmonitor";
-	public final static String NXCollectionClassName = "NXcollection";
-	public final static String SDSClassName = "SDS";
-	public final static String AttrClassName = "Attr";
+	public static final String NXDataClassName = "NXdata";
+	public static final String NXEntryClassName = "NXentry";
+	public static final String NXInstrumentClassName = "NXinstrument";
+	public static final String NXPositionerClassName = "NXpositioner";
+	public static final String NXNoteClassName = "NXnote";
+	public static final String NXDetectorClassName = "NXdetector";
+	public static final String NXMonitorClassName = "NXmonitor";
+	public static final String NXCollectionClassName = "NXcollection";
+	public static final String SDSClassName = "SDS";
+	public static final String AttrClassName = "Attr";
 	public static final String ExternalSDSLink = "ExternalSDSLink";
-	public final static int DATAWANTED_NX_CHAR = 1;
-	public final static int DATAWANTED_NX_FLOAT64 = 2;
-	public final static String topClass = "";
-	public final static String topName = "";
+	public static final int DATAWANTED_NX_CHAR = 1;
+	public static final int DATAWANTED_NX_FLOAT64 = 2;
+	public static final String topClass = "";
+	public static final String topName = "";
 
 
 	private Group currentGroupBeingProcessed = null;
@@ -317,7 +317,7 @@ final public class NexusExtractor implements INexusDataGetter {
 	 * @return NexusGroupData
 	 * @throws NexusException
 	 */
-	static synchronized public NexusGroupData getNexusGroupData(URL source, String nodePathWithClasses, int[] startPos,
+	public static synchronized NexusGroupData getNexusGroupData(URL source, String nodePathWithClasses, int[] startPos,
  int[] dims, boolean debug)
 			throws NexusException {
 		return new SimpleExtractor(source, nodePathWithClasses, startPos, dims, debug).getData();
@@ -329,7 +329,7 @@ final public class NexusExtractor implements INexusDataGetter {
 	 * @return the NexusGroupData from a node - reading from the file if possible and requested
 	 * @throws NexusException
 	 */
-	static public NexusGroupData getNexusGroupDataWithBuffer(INexusTree node, boolean readIfNull) throws NexusException {
+	public static NexusGroupData getNexusGroupDataWithBuffer(INexusTree node, boolean readIfNull) throws NexusException {
 		if ((node.getData() == null || node.getData().getBuffer() == null) && readIfNull) {
 			INexusTree top = node;
 			while (top.getParentNode() != null) {
@@ -354,7 +354,7 @@ final public class NexusExtractor implements INexusDataGetter {
 	 * @throws NexusExtractorException
 	 * @throws NexusException
 	 */
-	static public NexusGroupData getNexusGroupDataSlab(INexusTree node, int[] startPos, int[] dims)
+	public static NexusGroupData getNexusGroupDataSlab(INexusTree node, int[] startPos, int[] dims)
 			throws NexusExtractorException, NexusException {
 		INexusTree top = node;
 		while (top.getParentNode() != null) {
