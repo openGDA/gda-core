@@ -18,7 +18,10 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.ORIENTATION;
+
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
@@ -83,11 +86,19 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 	public void setOrientation(Orientation orientation) {
 		Orientation oldValue = this.orientation;
 		this.orientation = orientation;
-		this.pcs.firePropertyChange("orientation", oldValue, orientation);
+		this.pcs.firePropertyChange(ORIENTATION, oldValue, orientation);
 	}
 
 	public boolean isVerticalOrientation() {
 		return orientation.equals(Orientation.VERTICAL);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(ORIENTATION)) {
+			setOrientation(Orientation.valueOf(((String) properties.get(ORIENTATION)).toUpperCase()));
+		}
 	}
 
 	@Override

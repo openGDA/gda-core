@@ -12,6 +12,10 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.SCALE;
+
+import java.util.Map;
+
 /**
  * Previously SpiralModel
  */
@@ -44,7 +48,7 @@ public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 	public void setScale(double newValue) {
 		double oldValue = this.scale;
 		this.scale = newValue;
-		this.pcs.firePropertyChange("scale", oldValue, newValue);
+		this.pcs.firePropertyChange(SCALE, oldValue, newValue);
 	}
 
 	public String getInitialScaleUnit() {
@@ -55,6 +59,13 @@ public class TwoAxisSpiralModel extends AbstractBoundingBoxModel {
 		this.initialScaleUnit = initialScaleUnit;
 	}
 
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(SCALE)) {
+			setScale((double) properties.get(SCALE));
+		}
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

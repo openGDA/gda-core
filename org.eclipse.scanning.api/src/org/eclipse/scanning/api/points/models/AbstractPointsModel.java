@@ -11,11 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.ALTERNATING;
+import static org.eclipse.scanning.api.constants.PathConstants.CONTINUOUS;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
@@ -132,7 +136,7 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 
 	@Override
 	public void setContinuous(boolean newValue) {
-		pcs.firePropertyChange("continuous", continuous, newValue);
+		pcs.firePropertyChange(CONTINUOUS, continuous, newValue);
 		continuous = newValue;
 	}
 
@@ -160,9 +164,18 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 	public void setAlternating(boolean alternating) {
 		boolean oldValue = this.alternating;
 		this.alternating = alternating;
-		this.pcs.firePropertyChange("alternating", oldValue, alternating);
+		this.pcs.firePropertyChange(ALTERNATING, oldValue, alternating);
 	}
 
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		if (properties.containsKey(ALTERNATING)) {
+			setAlternating((boolean) properties.get(ALTERNATING));
+		}
+		if (properties.containsKey(CONTINUOUS)) {
+			setContinuous((boolean) properties.get(CONTINUOUS));
+		}
+	}
 	public static boolean supportsAlternating(Class<? extends IScanPointGeneratorModel> model) {
 		return !(model.equals(OneAxisPointRepeatedModel.class) || model.equals(TwoAxisPointSingleModel.class) || model.equals(StaticModel.class));
 	}

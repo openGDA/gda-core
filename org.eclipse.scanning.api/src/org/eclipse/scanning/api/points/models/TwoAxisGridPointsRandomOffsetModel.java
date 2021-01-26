@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.OFFSET;
+import static org.eclipse.scanning.api.constants.PathConstants.SEED;
+
+import java.util.Map;
+
 import org.eclipse.scanning.api.annotation.UiTooltip;
 import org.eclipse.scanning.api.annotation.Units;
 
@@ -42,19 +47,33 @@ public class TwoAxisGridPointsRandomOffsetModel extends TwoAxisGridPointsModel {
 	public double getOffset() {
 		return offset;
 	}
+
 	public void setOffset(double newValue) {
 		double oldValue = this.offset;
 		this.offset = newValue;
-		this.pcs.firePropertyChange("offset", oldValue, newValue);
+		this.pcs.firePropertyChange(OFFSET, oldValue, newValue);
 	}
+
 	@UiTooltip("Seed to initialise random number generator with")
 	public int getSeed() {
 		return seed;
 	}
+
 	public void setSeed(int newValue) {
 		double oldValue = this.seed;
 		this.seed = newValue;
-		this.pcs.firePropertyChange("seed", oldValue, newValue);
+		this.pcs.firePropertyChange(SEED, oldValue, newValue);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(OFFSET)) {
+			setOffset((double) properties.get(OFFSET));
+		}
+		if (properties.containsKey(SEED)) {
+			setSeed(((Number) properties.get(SEED)).intValue());
+		}
 	}
 
 	@Override

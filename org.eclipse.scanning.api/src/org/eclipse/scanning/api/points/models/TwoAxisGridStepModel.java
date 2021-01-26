@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.X_AXIS_STEP;
+import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_STEP;
+
+import java.util.Map;
+
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
@@ -52,19 +57,34 @@ public class TwoAxisGridStepModel extends AbstractTwoAxisGridModel {
 	public double getxAxisStep() {
 		return xAxisStep;
 	}
+
 	public void setxAxisStep(double newValue) {
 		double oldValue = this.xAxisStep;
 		this.xAxisStep = newValue;
-		this.pcs.firePropertyChange("xAxisStep", oldValue, newValue);
+		this.pcs.firePropertyChange(X_AXIS_STEP, oldValue, newValue);
 	}
+
 	public double getyAxisStep() {
 		return yAxisStep;
 	}
+
 	public void setyAxisStep(double newValue) {
 		double oldValue = this.yAxisStep;
 		this.yAxisStep = newValue;
-		this.pcs.firePropertyChange("yAxisStep", oldValue, newValue);
+		this.pcs.firePropertyChange(Y_AXIS_STEP, oldValue, newValue);
 	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(X_AXIS_STEP)) {
+			setxAxisStep((double) properties.get(X_AXIS_STEP));
+		}
+		if (properties.containsKey(Y_AXIS_STEP)) {
+			setyAxisStep((double) properties.get(Y_AXIS_STEP));
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

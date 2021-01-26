@@ -11,6 +11,12 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.LISSAJOUS_A;
+import static org.eclipse.scanning.api.constants.PathConstants.LISSAJOUS_B;
+import static org.eclipse.scanning.api.constants.PathConstants.LISSAJOUS_POINTS;
+
+import java.util.Map;
+
 import org.eclipse.scanning.api.ModelValidationException;
 
 /**
@@ -32,7 +38,7 @@ public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 	public void setA(double a) {
 		double oldValue = this.a;
 		this.a = a;
-		this.pcs.firePropertyChange("a", oldValue, a);
+		this.pcs.firePropertyChange(LISSAJOUS_A, oldValue, a);
 	}
 	public double getB() {
 		return b;
@@ -40,7 +46,7 @@ public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 	public void setB(double b) {
 		double oldValue = this.b;
 		this.b = b;
-		this.pcs.firePropertyChange("b", oldValue, b);
+		this.pcs.firePropertyChange(LISSAJOUS_B, oldValue, b);
 	}
 
 	public int getPoints() {
@@ -52,7 +58,21 @@ public class TwoAxisLissajousModel extends AbstractBoundingBoxModel {
 		}
 		int oldValue = this.points;
 		this.points = points;
-		this.pcs.firePropertyChange("points", oldValue, points);
+		this.pcs.firePropertyChange(LISSAJOUS_POINTS, oldValue, points);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(LISSAJOUS_A)) {
+			setA((double) properties.get(LISSAJOUS_A));
+		}
+		if (properties.containsKey(LISSAJOUS_B)) {
+			setB((double) properties.get(LISSAJOUS_B));
+		}
+		if (properties.containsKey(LISSAJOUS_POINTS)) {
+			setPoints(((Number) properties.get(LISSAJOUS_POINTS)).intValue());
+		}
 	}
 
 	@Override

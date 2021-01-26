@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.X_AXIS_POINTS;
+import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_POINTS;
+
+import java.util.Map;
+
 import org.eclipse.scanning.api.annotation.MinimumValue;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -58,20 +63,35 @@ public class TwoAxisGridPointsModel extends AbstractTwoAxisGridModel {
 	public int getxAxisPoints() {
 		return xAxisPoints;
 	}
+
 	public void setxAxisPoints(int newValue) {
 		int oldValue = this.xAxisPoints;
 		this.xAxisPoints = newValue;
-		this.pcs.firePropertyChange("xAxisPoints", oldValue, newValue);
+		this.pcs.firePropertyChange(X_AXIS_POINTS, oldValue, newValue);
 	}
+
 	@MinimumValue("1")
 	public int getyAxisPoints() {
 		return yAxisPoints;
 	}
+
 	public void setyAxisPoints(int newValue) {
 		int oldValue = this.yAxisPoints;
 		this.yAxisPoints = newValue;
-		this.pcs.firePropertyChange("yAxisPoints", oldValue, newValue);
+		this.pcs.firePropertyChange(Y_AXIS_POINTS, oldValue, newValue);
 	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(X_AXIS_POINTS)) {
+			setxAxisPoints(((Number) properties.get(X_AXIS_POINTS)).intValue());
+		}
+		if (properties.containsKey(Y_AXIS_POINTS)) {
+			setyAxisPoints(((Number) properties.get(Y_AXIS_POINTS)).intValue());
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

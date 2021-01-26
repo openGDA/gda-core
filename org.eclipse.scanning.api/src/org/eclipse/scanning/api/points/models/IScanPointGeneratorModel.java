@@ -19,6 +19,7 @@
 package org.eclipse.scanning.api.points.models;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * IScanPointGeneratorModels are any model that can be created through the ScanPointGenerator,
@@ -60,4 +61,5 @@ public interface IScanPointGeneratorModel extends IScanPathModel {
 
 	public void setUnits(List<String> units);
 
+	void updateFromPropertiesMap(Map<String, Object> properties);
 }
