@@ -18,14 +18,12 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,26 +39,28 @@ public class FluoCompositeDataStore {
 
 	public FluoCompositeDataStore(String fileName) {
 		this.fileName = fileName;
+		columnFileName = fileName+".dat";
 	}
 
 	public double[][] readDataFromFile() {
-		double[][] result = new double[][] {/* empty */};
-		try {
-			File dataFile = new File(fileName);
-			if (!dataFile.exists()) {
-				return result;
-			}
-
-			BufferedReader in = new BufferedReader(new FileReader(dataFile));
-			String strLine = in.readLine();
-			in.close();
-
-			result = getDataFromString(strLine);
-
-		} catch (IOException e) {
-			logger.error("IOException whilst reading stored detector editor data from file " + fileName);
+		double[][] emptyReturn = new double[][] {/* empty */};
+		File dataFile = new File(fileName);
+		if (!dataFile.exists()) {
+			return emptyReturn;
 		}
-		return result;
+		return readDataFileFirstLine(dataFile, emptyReturn);
+	}
+
+	private double[][] readDataFileFirstLine(File dataFile, double[][] defaultValue) {
+		try {
+			return FileUtils.readLines(dataFile, Charset.defaultCharset()).stream()
+				.findFirst()
+				.map(this::getDataFromString)
+				.orElseGet(() -> defaultValue);
+		} catch (IOException e) {
+			logger.error("IOException whilst reading stored detector editor data from file {}", fileName, e);
+			return defaultValue;
+		}
 	}
 
 	private double[][] getDataFromString(String compressedData) {
@@ -76,12 +76,12 @@ public class FluoCompositeDataStore {
 	 * Write MCA data to text file, counts in columns (i.e. column 1 has counts for each channel in element 1 etc).
 	 * Output filename is mca filename with .dat appended.
 	 * @param data
+	 * @throws IOException
 	 */
-	public void writeDataToColumnFile(double[][] data) {
+	public void writeDataToColumnFile(double[][] data) throws IOException {
 		int numElements = data.length;
 		int numChannels = data[0].length;
 
-		columnFileName = fileName+".dat";
 		String header = "# Filename    : "+columnFileName+"\n"+
 					    "# Description : MCA data from file "+fileName+" saved in columns\n"+
 					    "# Number of elements : "+numElements+"\n"+
@@ -109,28 +109,16 @@ public class FluoCompositeDataStore {
 		}
 
 		//Write the file
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(columnFileName));
-			out.write(str.toString());
-			out.close();
-		} catch (IOException e) {
-			logger.error("IOException whilst writing stored detector editor data to file " + columnFileName);
-		}
+		writeStringToFile(columnFileName, str.toString());
+
 	}
 
 	public String getColumnFileName() {
 		return columnFileName;
 	}
 
-	public void writeDataToFile(double[][] newData) {
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-			out.write(getDataString(newData));
-			out.write("\n");
-			out.close();
-		} catch (IOException e) {
-			logger.error("IOException whilst writing stored detector editor data from file " + fileName);
-		}
+	public void writeDataToFile(double[][] newData) throws IOException {
+		writeStringToFile(fileName, getDataString(newData));
 	}
 
 	private String getDataString(double[][] data) {
@@ -145,5 +133,20 @@ public class FluoCompositeDataStore {
 			}
 		}
 		return stringBuilder.toString();
+	}
+
+	/**
+	 * Write string to file using Apache {@link FileUtils#writeStringToFile(File, String, Charset)}.
+	 * Any IOExceptions produced are rethrown.
+	 * @param fileName
+	 * @param data
+	 * @throws IOException
+	 */
+	private void writeStringToFile(String fileName, String data) throws IOException {
+		try {
+			FileUtils.writeStringToFile(new File(fileName), data, Charset.defaultCharset());
+		} catch (IOException e) {
+			throw new IOException("IOException whilst writing detector editor MCA data to file "+fileName, e);
+		}
 	}
 }

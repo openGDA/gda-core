@@ -754,7 +754,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			} else if (monitor != null) {
 				logAndAppendStatus("Data successfully acquired");
 			}
-		} catch (DeviceException de) {
+		} catch (DeviceException | IOException de) {
 			logger.error("Exception reading out detector data.", de);
 			displayErrorMessage("Exception reading out detector data", "Hardware problem acquiring data. See log for details.");
 			stopContinuousAcquire();
