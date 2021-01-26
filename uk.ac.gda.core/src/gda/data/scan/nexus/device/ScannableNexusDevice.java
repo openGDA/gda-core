@@ -57,6 +57,7 @@ import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 
 /**
@@ -232,6 +233,10 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		// add fields for attributes, e.g. name, description (a.k.a. metadata)
 		registerAttributes(nexusObject);
 
+		if (getScannable() instanceof ScannableMotion && nexusBaseClass == NexusBaseClass.NX_POSITIONER) {
+			writeLimits((NXpositioner) nexusObject);
+		}
+
 		// create the data fields. These are the fields read from the scannables position.
 		createDataFields(info, nexusObject);
 
@@ -284,6 +289,29 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		}
 
 		return NexusBaseClass.NX_POSITIONER;
+	}
+
+	private void writeLimits(NXpositioner positioner) {
+		if (!(getScannable() instanceof ScannableMotion)) return;
+		final ScannableMotion scannableMotion = (ScannableMotion) getScannable();
+
+		final Double[] lowerLimits = scannableMotion.getLowerGdaLimits();
+		if (lowerLimits == null || lowerLimits.length == 0) {
+			// do nothing
+		} else if (lowerLimits.length == 1) {
+			positioner.setSoft_limit_minScalar(lowerLimits[0]);
+		} else {
+			positioner.setSoft_limit_min(DatasetFactory.createFromObject(lowerLimits));
+		}
+
+		final Double[] upperLimits = scannableMotion.getUpperGdaLimits();
+		if (upperLimits == null || upperLimits.length == 0) {
+			// do nothing
+		} else if (upperLimits.length == 1) {
+			positioner.setSoft_limit_maxScalar(upperLimits[0]);
+		} else {
+			positioner.setSoft_limit_max(DatasetFactory.createFromObject(upperLimits));
+		}
 	}
 
 	/**

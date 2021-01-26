@@ -152,6 +152,7 @@ import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyUnitsScannable;
@@ -669,7 +670,8 @@ public class ScannableNexusWrapperScanTest {
 			}
 
 			// check the number of data nodes, num fields of legacy scannable + name + demand_value
-			final List<String> additionalDataNodeNames = Arrays.asList(NXpositioner.NX_NAME, FIELD_NAME_VALUE_SET);
+			final List<String> additionalDataNodeNames = Arrays.asList(NXpositioner.NX_NAME, FIELD_NAME_VALUE_SET,
+					NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX);
 			final String[] expectedDataNodeNames = Stream.of(outputFieldNames, additionalDataNodeNames)
 					.flatMap(Collection::stream).toArray(String[]::new);
 			assertThat(positioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
@@ -702,6 +704,11 @@ public class ScannableNexusWrapperScanTest {
 			dataset = setValueDataNode.getDataset().getSlice();
 			shape = dataset.getShape();
 			assertThat(shape, is(equalTo(new int[] { sizes[scannableIndex] })));
+
+			assertThat(positioner.getSoft_limit_minScalar(),
+					is(equalTo(((ScannableMotion) legacyScannable).getLowerGdaLimits()[0])));
+			assertThat(positioner.getSoft_limit_maxScalar(),
+					is(equalTo(((ScannableMotion) legacyScannable).getUpperGdaLimits()[0])));
 
 			for (int fieldIndex = 0; fieldIndex < outputFieldNames.size(); fieldIndex++) {
 				final String valueFieldName = outputFieldNames.get(fieldIndex);
@@ -841,11 +848,22 @@ public class ScannableNexusWrapperScanTest {
 			expectedDataNodeNames.removeAll(Arrays.asList(Scannable.ATTR_NX_CLASS, Scannable.ATTR_NEXUS_CATEGORY));
 			expectedDataNodeNames.addAll(Arrays.asList(NXpositioner.NX_NAME));
 			expectedDataNodeNames.addAll(Arrays.asList(valueFieldNames));
+			if (hasLimits(scannable)) {
+				expectedDataNodeNames.addAll(Arrays.asList(NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX));
+			}
 			assertThat(nexusObject.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
 			assertThat(nexusObject.getNumberOfDataNodes(), is(expectedDataNodeNames.size()));
 
 			final String expectedName = metadataScannableName.equals("sample_name") ? "test sample": metadataScannableName;
 			assertThat(nexusObject.getString(NXpositioner.NX_NAME), is(equalTo(expectedName)));
+
+			if (hasLimits(scannable) && nexusObject instanceof NXpositioner) {
+				final NXpositioner positioner = (NXpositioner) nexusObject;
+				assertThat(positioner.getSoft_limit_minScalar(),
+						is(equalTo(((ScannableMotion) scannable).getLowerGdaLimits()[0])));
+				assertThat(positioner.getSoft_limit_maxScalar(),
+						is(equalTo(((ScannableMotion) scannable).getUpperGdaLimits()[0])));
+			}
 
 			final Object[] positionArray = getPositionArray(scannable);
 			final String[] paths = locationMap.containsKey(metadataScannableName) ?
@@ -907,6 +925,15 @@ public class ScannableNexusWrapperScanTest {
 		}
 
 		return expectedUnits;
+	}
+
+	private boolean hasLimits(Scannable scannable) {
+		if(scannable instanceof ScannableMotion) {
+			// assume that if upperLimits is set then lowerLimits is set also
+			final Double[] upperLimits = ((ScannableMotion) scannable).getUpperGdaLimits();
+			return upperLimits != null && upperLimits.length > 0;
+		}
+		return false;
 	}
 
 	private void checkAttributeScannable(NXinstrument instrument) throws Exception {

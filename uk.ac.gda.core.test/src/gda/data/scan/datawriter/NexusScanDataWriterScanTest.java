@@ -189,12 +189,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String INSTRUMENT_NAME = "instrument";
 	private static final String MONITOR_NAME = "mon01";
 
-	private static final int NUM_SCANNABLE_DATA_NODES = 2;
-	private static final int NUM_MONITOR_DATA_NODES = 2;
-	private static final int NUM_SCANNABLE_VALUE_ATTRIBUTES = 4;
-	private static final int NUM_MONITOR_VALUE_ATTRIBUTES = 3;
-	private static final int NUM_METADATA_SCANNABLE_VALUE_ATTRIBUTES = 4;
-
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
@@ -341,18 +335,21 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected void checkDefaultScannablePositioner(NXpositioner scannablePos, int scanIndex) throws DatasetException {
 		// This is the NXpositioner created by ScannableNexusDevice
-		assertThat(scannablePos.getNumberOfDataNodes(), is(NUM_SCANNABLE_DATA_NODES));
-		assertThat(scannablePos.getDataNodeMap().keySet(), containsInAnyOrder(
-				NXpositioner.NX_NAME, NXpositioner.NX_VALUE));
-//				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN, // TODO: write soft limit min/max, DAQ-3165
-//				DATASET_NAME_VALUE_SET)); // TODO add demand (set) value, see DAQ-3163
+		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE,
+				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN };
+		assertThat(scannablePos.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(scannablePos.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
 
 		final String scannableName = scannables[scanIndex].getName();
 		final DataNode scannableValueDataNode = scannablePos.getDataNode(NXpositioner.NX_VALUE);
 		assertThat(scannableValueDataNode, is(notNullValue()));
 
 		// check attributes
-		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(NUM_SCANNABLE_VALUE_ATTRIBUTES));
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_GDA_FIELD_NAME,
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET };
+		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
+		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
+
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
 				is(equalTo("mm")));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(),
@@ -368,15 +365,18 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode.getDataset().getSlice(),
 				is(equalTo(DatasetFactory.createFromObject(getExpectedScannableDataset(scanIndex))))); // check values
 
-		 // TODO: write soft limit min/max, DAQ-3154
-//		assertThat(scannablePos.getSoft_limit_minScalar(), is(equalTo(SCANNABLE_LOWER_BOUND)));
-//		assertThat(scannablePos.getSoft_limit_maxScalar(), is(equalTo(SCANNABLE_UPPER_BOUND)));
+		// check upper/lower bounds
+		assertThat(scannablePos.getSoft_limit_minScalar(), is(equalTo(SCANNABLE_LOWER_BOUND)));
+		assertThat(scannablePos.getSoft_limit_maxScalar(), is(equalTo(SCANNABLE_UPPER_BOUND)));
 	}
 
 	protected void checkDefaultMetadataScannablePositioner(NXpositioner positioner, int index) throws DatasetException {
-		final String scannableName = METADATA_SCANNABLE_NAMES[index];
-		assertThat(positioner.getNumberOfDataNodes(), is(2));
+		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE,
+				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN };
+		assertThat(positioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(positioner.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
 
+		final String scannableName = METADATA_SCANNABLE_NAMES[index];
 		assertThat(positioner.getNameScalar(), is(equalTo(scannableName)));
 
 		final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
@@ -385,12 +385,17 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected void checkConfiguredScannablePositioner(final String scannableName, NXpositioner scannablePos) throws DatasetException {
+		assertThat(scannablePos.getDataNodeNames(), contains(scannableName));
 		assertThat(scannablePos.getNumberOfDataNodes(), is(1));
-		assertThat(scannablePos.getDataNodeMap().keySet(), contains(scannableName));
 
 		final DataNode scannableValueDataNode = scannablePos.getDataNode(scannableName);
 		assertThat(scannableValueDataNode, is(notNullValue()));
-		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(4));
+
+		final String[] expectedAttributeNames = new String[] { ATTRIBUTE_NAME_LOCAL_NAME,
+				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS };
+		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
+		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
+
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + NXpositioner.NX_VALUE)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(
@@ -407,13 +412,20 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected void checkMonitorPositioner(NXpositioner monitorPos) throws Exception {
-		assertThat(monitorPos.getNumberOfDataNodes(), is(NUM_MONITOR_DATA_NODES));
-		assertThat(monitorPos.getDataNodeMap().keySet(), containsInAnyOrder(NXpositioner.NX_NAME, NXpositioner.NX_VALUE));
+		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE };
+		assertThat(monitorPos.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(monitorPos.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
+
 		assertThat(monitorPos.getNameScalar(), is(equalTo(MONITOR_NAME)));
 
 		final DataNode monitorValueDataNode = monitorPos.getDataNode(NXpositioner.NX_VALUE);
 		assertThat(monitorValueDataNode, is(notNullValue()));
-		assertThat(monitorValueDataNode.getNumberOfAttributes(), is(NUM_MONITOR_VALUE_ATTRIBUTES));
+
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET };
+		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
+		assertThat(monitorValueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
+
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(NXpositioner.NX_VALUE)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(MONITOR_NAME + "." + NXpositioner.NX_VALUE)));
@@ -435,7 +447,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private void checkMetadataScannableValueDataNode(int index, final String scannableName,
 			final DataNode valueDataNode) throws DatasetException {
 		assertThat(valueDataNode, is(notNullValue()));
-		assertThat(valueDataNode.getNumberOfAttributes(), is(NUM_METADATA_SCANNABLE_VALUE_ATTRIBUTES));
+
+		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_UNITS };
+		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
+		assertThat(valueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
+
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + "." + NXpositioner.NX_VALUE)));

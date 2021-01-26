@@ -43,11 +43,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
@@ -271,29 +274,45 @@ public class ScannableNexusWrapperTest {
 
 	@Test
 	public void testGetFieldNamesRecalculated() throws Exception {
-		DummyScannable multiFieldDummyScannable = new DummyScannable("multiField") {
+		final DummyScannable dummyScannable = new DummyScannable("multiField") {
 			@Override
 			public Object getPosition() throws DeviceException {
 				return new double[getInputNames().length + getExtraNames().length];
 			}
 		};
-		multiFieldDummyScannable.setInputNames(new String[] { "input1", "input2", "input3" });
-		multiFieldDummyScannable.setExtraNames(new String[] { "extra1", "extra2" });
-		ScannableNexusWrapper<?> multiFieldScannable = new ScannableNexusWrapper<>(multiFieldDummyScannable);
+		dummyScannable.setInputNames(new String[] { "input1", "input2", "input3" });
+		dummyScannable.setExtraNames(new String[] { "extra1", "extra2" });
+		dummyScannable.setLowerGdaLimits(new Double[] { 0.0, 0.0, 0.0 });
+		dummyScannable.setUpperGdaLimits(new Double[] { 100.0, 100.0, 100.0 });
+		final ScannableNexusWrapper<?> scannableWrapper = new ScannableNexusWrapper<>(dummyScannable);
 
-		assertThat(multiFieldScannable.getOutputFieldNames(),
-				contains("input1", "input2", "input3", "extra1", "extra2"));
+		String[] expectedOutputNames = new String[] { "input1", "input2", "input3", "extra1", "extra2" };
+		assertThat(scannableWrapper.getOutputFieldNames(), contains(expectedOutputNames));
 
-		multiFieldDummyScannable.setInputNames(new String[] { "newInput1", "newInput2" });
-		multiFieldDummyScannable.setExtraNames(new String[] { "newExtra" });
-
-		// triggers fields to be recalculated
-		NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
+		final NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
 		scanInfo.setPerPointMonitorNames(Sets.newHashSet("multiField"));
-		multiFieldScannable.getNexusProvider(scanInfo);
+		NexusObjectProvider<?> nexusObjectProvider = scannableWrapper.getNexusProvider(scanInfo);
+		NXpositioner nxPositioner = (NXpositioner) nexusObjectProvider.getNexusObject();
 
-		assertThat(multiFieldScannable.getOutputFieldNames(),
-				contains("newInput1", "newInput2", "newExtra"));
+		final String[] additionalNames = new String[] { NXpositioner.NX_NAME,
+				NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX };
+		String[] expectedDataNodeNames = ArrayUtils.addAll(expectedOutputNames, additionalNames);
+		assertThat(nxPositioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+
+		// update the names
+		dummyScannable.setInputNames(new String[] { "newInput1", "newInput2" });
+		dummyScannable.setExtraNames(new String[] { "newExtra" });
+		dummyScannable.setLowerGdaLimits(new Double[] { 0.0, 0.0 });
+		dummyScannable.setUpperGdaLimits(new Double[] { 100.0, 100.0 });
+
+		// calling getNexusProvider triggers fields to be recalculated
+		nexusObjectProvider = scannableWrapper.getNexusProvider(scanInfo);
+		nxPositioner = (NXpositioner) nexusObjectProvider.getNexusObject();
+		expectedOutputNames = new String[] { "newInput1", "newInput2", "newExtra" };
+		expectedDataNodeNames = ArrayUtils.addAll(expectedOutputNames, additionalNames);
+		assertThat(nxPositioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+
+		assertThat(scannableWrapper.getOutputFieldNames(), contains(expectedOutputNames));
 	}
 
 	@Test
@@ -327,7 +346,8 @@ public class ScannableNexusWrapperTest {
 		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(FIELD_NAME_VALUE_SET)));
 
 		final String[] expectedFieldNames = Stream.of(inputNames, extraNames).flatMap(Stream::of).toArray(String[]::new);
-		final String[] otherDataNodeNames = new String[] { NXpositioner.NX_NAME, FIELD_NAME_VALUE_SET };
+		final String[] otherDataNodeNames = new String[] { NXpositioner.NX_NAME, FIELD_NAME_VALUE_SET,
+				NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX };
 		final String[] expectedDataNodeNames = Stream.of(expectedFieldNames, otherDataNodeNames)
 				.flatMap(Stream::of).toArray(String[]::new);
 
@@ -360,6 +380,16 @@ public class ScannableNexusWrapperTest {
 		final DataNode valueDemandDataNode = nexusObject.getDataNode(FIELD_NAME_VALUE_SET);
 		assertThat(valueDemandDataNode, is(notNullValue()));
 		assertThat(valueDemandDataNode.getDataset(), is(notNullValue()));
+
+		final DataNode softLimitMin = nexusObject.getDataNode(NXpositioner.NX_SOFT_LIMIT_MIN);
+		assertThat(softLimitMin, is(notNullValue()));
+		final IDataset softLimitMinDataset = softLimitMin.getDataset().getSlice();
+		assertThat(softLimitMinDataset, is(equalTo(DatasetFactory.createFromObject(lowerLimits))));
+
+		final DataNode softLimitMax = nexusObject.getDataNode(NXpositioner.NX_SOFT_LIMIT_MAX);
+		assertThat(softLimitMax, is(notNullValue()));
+		final IDataset softLimitMaxDataset = softLimitMax.getDataset().getSlice();
+		assertThat(softLimitMaxDataset, is(equalTo(DatasetFactory.createFromObject(upperLimits))));
 	}
 
 	@Test
