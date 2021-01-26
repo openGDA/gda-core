@@ -643,7 +643,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		String nxClass = tree.getNxClass();
 		boolean loopNodes = true;
 		boolean attrBelowThisOnly = attrOnly;
-		boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
+		boolean nxClassIsSDS = isSDS(nxClass, tree.getParentNode() != null);
 		boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
 		boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
 		if (nxClassIsExternalSDS) {
@@ -697,7 +697,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				if (data != null && data.getBuffer() != null) {
 					INexusTree parent = tree.getParentNode();
 					Node node;
-					if (parent.getNxClass().equals(NexusExtractor.SDSClassName)) {
+					if (isSDS(parent.getNxClass(), parent.getParentNode() != null)) {
 						node = file.getData(group, parent.getName());
 					} else {
 						node = file.getGroup(group, parent.getName(), parent.getNxClass(), false);
@@ -851,6 +851,10 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		}
 
 		return newGroup;
+	}
+
+	private boolean isSDS(String className, boolean hasParent) {
+		return (NexusExtractor.SDSClassName.equals(className) || (className.isEmpty() && hasParent));
 	}
 
 	private void writeNexusDetector(NexusDetector detector) throws NexusException {
