@@ -83,6 +83,12 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	 * Configures the analyser to acquire the region specified.
 	 *
 	 * @param region The region to set
+
+/**
+ * This is the interface used to expose the SPECS Phoibos analyser over RMI.
+ * <p>
+ * It is intended to only contain the methods needed to make a rich GUI to interact with the analyser
+ *
 	 */
 	void setRegion(SpecsPhoibosRegion region);
 

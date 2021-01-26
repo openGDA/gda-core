@@ -1,0 +1,210 @@
+/*-
+ * Copyright © 2021 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.daq.devices.mbs;
+
+public class MbsAnalyserCompletedRegion {
+
+	private double collectionTime;
+	private double acquirePeriod;
+	private int iterations;
+	private int passEnergy;
+	private String lensMode;
+	private String acquisitionMode;
+	private double startEnergy;
+	private double endEnergy;
+	private double centreEnergy;
+	private double energyWidth;
+	private double deflectorX;
+	private double deflectorY;
+	private int numberOfScans;
+	private int numberOfSlices;
+	private int numberfSteps;
+	private int numberOfDitherSteps;
+	private double spinOffset;
+	private double  stepSize;
+	private double[][] image;
+	private int regionStartX;
+	private int regionStartY;
+
+	public double getCollectionTime() {
+		return collectionTime;
+	}
+
+	public void setCollectionTime(double collectionTime) {
+		this.collectionTime = collectionTime;
+	}
+
+	public double getAcquirePeriod() {
+		return acquirePeriod;
+	}
+
+	public void setAcquirePeriod(double acquirePeriod) {
+		this.acquirePeriod = acquirePeriod;
+	}
+	public int getIterations() {
+		return iterations;
+	}
+
+	public void setIterations(int iterations) {
+		this.iterations = iterations;
+	}
+
+	public int getPassEnergy() {
+		return passEnergy;
+	}
+
+	public void setPassEnergy(int passEnergy) {
+		this.passEnergy = passEnergy;
+	}
+
+	public String getLensMode() {
+		return lensMode;
+	}
+
+	public void setLensMode(String lensMode) {
+		this.lensMode = lensMode;
+	}
+
+	public String getAcquisitionMode() {
+		return acquisitionMode;
+	}
+
+	public void setAcquisitionMode(String acquisitionMode) {
+		this.acquisitionMode = acquisitionMode;
+	}
+
+	public double getStartEnergy() {
+		return startEnergy;
+	}
+
+	public void setStartEnergy(double startEnergy) {
+		this.startEnergy = startEnergy;
+	}
+
+	public double getEndEnergy() {
+		return endEnergy;
+	}
+
+	public void setEndEnergy(double endEnergy) {
+		this.endEnergy = endEnergy;
+	}
+	public double getCentreEnergy() {
+		return centreEnergy;
+	}
+
+	public void setCentreEnergy(double centreEnergy) {
+		this.centreEnergy = centreEnergy;
+	}
+
+	public double getEnergyWidth() {
+		return energyWidth;
+	}
+
+	public void setEnergyWidth(double energyWidth) {
+		this.energyWidth = energyWidth;
+	}
+
+	public double getDeflectorX() {
+		return deflectorX;
+	}
+
+	public void setDeflectorX(double deflectorX) {
+		this.deflectorX = deflectorX;
+	}
+
+	public double getDeflectorY() {
+		return deflectorY;
+	}
+
+	public void setDeflectorY(double deflectorY) {
+		this.deflectorY = deflectorY;
+	}
+
+	public int getNumberOfScans() {
+		return numberOfScans;
+	}
+
+	public void setNumberOfScans(int numberOfScans) {
+		this.numberOfScans = numberOfScans;
+	}
+
+	public int getNumberOfSlices() {
+		return numberOfSlices;
+	}
+
+	public void setNumberOfSlices(int numberOfSlices) {
+		this.numberOfSlices = numberOfSlices;
+	}
+
+	public int getNumberfSteps() {
+		return numberfSteps;
+	}
+
+	public void setNumberfSteps(int numberfSteps) {
+		this.numberfSteps = numberfSteps;
+	}
+
+	public int getNumberOfDitherSteps() {
+		return numberOfDitherSteps;
+	}
+
+	public void setNumberOfDitherSteps(int numberOfDitherSteps) {
+		this.numberOfDitherSteps = numberOfDitherSteps;
+	}
+
+	public double getSpinOffset() {
+		return spinOffset;
+	}
+
+	public void setSpinOffset(double spinOffset) {
+		this.spinOffset = spinOffset;
+	}
+
+	public double getStepSize() {
+		return stepSize;
+	}
+
+	public void setStepSize(double stepSize) {
+		this.stepSize = stepSize;
+	}
+
+	public double[][] getImage() {
+		return image;
+	}
+
+	public void setImage(double[][] image) {
+		this.image = image;
+	}
+
+	public int getRegionStartX() {
+		return regionStartX;
+	}
+
+	public void setRegionStartX(int regionStartX) {
+		this.regionStartX = regionStartX;
+	}
+
+	public int getRegionStartY() {
+		return regionStartY;
+	}
+
+	public void setRegionStartY(int regionStartY) {
+		this.regionStartY = regionStartY;
+	}
+}
