@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>uk.ac.diamond</groupId>
+		<artifactId>gda-core</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- This pom defines a Javadoc execution execute with the following (in 
+		daq-aggregator): mvn -DskipTests -Pgda,server,javadoc clean verify -->
+
+	<groupId>uk.ac.diamond</groupId>
+	<artifactId>documentation.gda</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<!-- This project isn't a bundle so use pom packaging -->
+	<packaging>pom</packaging>
+
+	<!-- The tycho-document-bundle-plugin looks at all standard Maven dependencies 
+		of its project and visits all transitive dependencies (which are part of 
+		the reactor build) to construct a sourcepath, classpath and package list 
+		to generate Javadoc -->
+	<dependencies>
+		<!-- This feature requires that the 'server' profile is active -->
+		<dependency>
+			<groupId>uk.ac.diamond</groupId>
+			<artifactId>uk.ac.diamond.daq.server.feature</artifactId>
+			<version>9.20.0-SNAPSHOT</version>
+		</dependency>
+		<!-- only build server docs for now until we can update to Tycho 2.3.0 
+			<dependency> <groupId>uk.ac.diamond</groupId> <artifactId>uk.ac.gda.client.feature</artifactId> 
+			<version>9.20.0-SNAPSHOT</version> </dependency> -->
+	</dependencies>
+
+	<!-- Here a profile is used as tycho-document-bundle-plugin doesn't appear 
+		to have a skip property -->
+	<profiles>
+		<profile>
+			<id>javadoc</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-document-bundle-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<executions>
+							<execution>
+								<id>javadoc</id>
+								<goals>
+									<goal>javadoc</goal>
+								</goals>
+								<configuration>
+									<skipTocGen>true</skipTocGen>
+									<javadocOptions>
+										<ignoreError>true</ignoreError>
+										<excludes>
+											<!-- Javadoc is only generated from packages which are exported 
+												from plugins (Export-Package header) We have some exported packages which 
+												don't make sense to generate Javadoc for, so exclude here -->
+											<exclude>boofcv.*</exclude>
+											<exclude>dna*</exclude>
+											<exclude>org.iucr.*</exclude>
+											<exclude>org.springframework.*</exclude>
+											<exclude>rigaku.*</exclude>
+											<exclude>javax.*</exclude>
+											<exclude>oracle.*</exclude>
+											<exclude>persistence.*</exclude>
+											<exclude>uk.ac.gda.exafs.ui</exclude> <!-- This is here because it appears in the split package resolver, might 
+												be able to remove if the relevant client features are added later -->
+											<exclude>fr.esrf.*</exclude>
+											<exclude>org.python.*</exclude>
+											<exclude>astra.*</exclude>
+											<exclude>co.gphl.*</exclude>
+											<exclude>org.metawidget.*</exclude>
+											<exclude>de.jreality.*</exclude>
+										</excludes>
+										<additionalArguments>
+											<additionalArgument>-link
+												https://docs.oracle.com/en/java/javase/11/docs/api</additionalArgument>
+											<additionalArgument>-doctitle 'GDA (Generic Data
+												Acquisition)'</additionalArgument>
+											<additionalArgument>-header
+												'<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
+											</additionalArgument>
+											<additionalArgument>-footer
+												'<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
+											</additionalArgument>
+											<!--This seems to be required to allow the search bar links to 
+												work with module/non-module based docs see https://stackoverflow.com/a/52603413 -->
+											<additionalArgument>-bottom
+												'<![CDATA[<p>Build timestamp: ${maven.build.timestamp}</p><script>if (typeof useModuleDirectories !== 'undefined') { useModuleDirectories = false; } </script>]]>'
+											</additionalArgument>
+											<additionalArgument>--allow-script-in-comments</additionalArgument>
+										</additionalArguments>
+									</javadocOptions>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

@@ -15,12 +15,10 @@
 	</parent>
 
 	<modules>
-	<!-- 
-		<module>core-config</module>
-		<module>diamond.releng.tools.gda</module>
+		<!--module>core-config</module-->
+		<!--module>diamond.releng.tools.gda</module-->
 		<module>documentation.gda</module>
-		<module>example-config</module>
-	 -->
+		<!--module>example-config</module-->
 		<module>org.apache.derby.fragment.daq.persistence</module>
 		<module>org.opengda.lde</module>
 		<module>org.opengda.lde.model</module>
