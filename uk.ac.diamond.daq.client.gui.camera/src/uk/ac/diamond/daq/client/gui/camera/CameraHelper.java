@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.client.gui.camera;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
 import java.util.ArrayList;
@@ -36,7 +37,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
-import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMap;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
@@ -54,8 +54,8 @@ import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.client.properties.controller.ControllerConfiguration;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -287,19 +287,29 @@ public final class CameraHelper {
 		return cameraConfigurations.computeIfAbsent(cameraIndex, ICameraConfigurationImpl::new);
 	}
 
+	public static ICameraConfiguration createICameraConfiguration(CameraConfigurationProperties cameraProperties) {
+		return createICameraConfiguration(getCameraPropertiesBySpring(cameraProperties).getIndex());
+	}
+
 	/**
 	 * Adds a mapping between the motors moving the beam, if any, and the camera
 	 * array. The method publishes a {@link BeamCameraMappingEvent} to inform any
 	 * listener of the camera update.
 	 *
-	 * @param cameraIndex   the camera index
+	 * @param cameraConfiguration   the camera to map
 	 * @param beamCameraMap the camera to beam mapping
 	 */
-	public static void addBeamCameraMap(int cameraIndex, BeamCameraMap beamCameraMap) {
-		ICameraConfigurationImpl.class.cast(createICameraConfiguration(cameraIndex)).setBeamCameraMap(beamCameraMap);
+	public static void addBeamCameraMap(ICameraConfiguration cameraConfiguration, CameraToBeamMap beamCameraMap) {
+		ICameraConfigurationImpl.class.cast(cameraConfiguration).setBeamCameraMap(beamCameraMap);
 		// resets the status to mark the end of the mapping
-		BeamCameraMappingEvent cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
-		publishEvent(cmEvent);
+		cameraConfigurations.entrySet().stream()
+			.filter(e -> e.getValue().equals(cameraConfiguration))
+			.map(Map.Entry::getKey)
+			.findFirst()
+			.ifPresent(cameraIndex -> {
+				BeamCameraMappingEvent cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
+				publishEvent(cmEvent);
+			});
 	}
 
 	private static void createCameraComboItems() {
@@ -340,7 +350,7 @@ public final class CameraHelper {
 		/**
 		 * The mapping from camera array space to the beam drivers, if any
 		 */
-		private Optional<BeamCameraMap> beamCameraMap;
+		private CameraToBeamMap beamCameraMap;
 
 		public ICameraConfigurationImpl(int cameraIndex) {
 			super();
@@ -383,12 +393,15 @@ public final class CameraHelper {
 		}
 
 		@Override
-		public Optional<BeamCameraMap> getBeamCameraMap() {
+		public CameraToBeamMap getBeamCameraMap() {
+			if (beamCameraMap == null) {
+				setBeamCameraMap(getCameraConfigurationProperties(getCameraIndex()).getCameraToBeamMap());
+			}
 			return beamCameraMap;
 		}
 
-		public void setBeamCameraMap(BeamCameraMap beamCameraMap) {
-			this.beamCameraMap = Optional.ofNullable(beamCameraMap);
+		public void setBeamCameraMap(CameraToBeamMap beamCameraMap) {
+			this.beamCameraMap = beamCameraMap;
 		}
 
 		private Optional<CameraControl> getCameraControl(int cameraIndex) {
@@ -416,7 +429,7 @@ public final class CameraHelper {
 		}
 
 		private static FinderService getFinderService() {
-			return SpringApplicationContextFacade.getBean(FinderService.class);
+			return getBean(FinderService.class);
 		}
 	}
 
@@ -444,7 +457,7 @@ public final class CameraHelper {
 	}
 
 	private static  List<CameraConfigurationProperties> getCameraProperies() {
-		return SpringApplicationContextFacade.getBean(ClientSpringProperties.class)
+		return getBean(ClientSpringProperties.class)
 				.getCameras()
 				.stream()
 				.filter(c -> c.getConfiguration() != null && c.getCameraControl() != null)
@@ -459,11 +472,11 @@ public final class CameraHelper {
 			});
 	}
 
-	private static CameraProperties getCameraPropertiesBySpring(uk.ac.gda.client.properties.camera.CameraConfigurationProperties cc) {
+	private static CameraProperties getCameraPropertiesBySpring(CameraConfigurationProperties cc) {
 		return cameraPropertiesBySpring.get(cc);
 	}
 
-	private static CameraProperties convertProperties(uk.ac.gda.client.properties.camera.CameraConfigurationProperties cc, int index) {
+	private static CameraProperties convertProperties(CameraConfigurationProperties cc, int index) {
 		if (cc.getCameraControl() == null && cc.getName() == null)
 			return null;
 		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
@@ -473,7 +486,6 @@ public final class CameraHelper {
 		builder.setCameraConfiguration(cc.getConfiguration());
 		builder.setCameraControl(cc.getCameraControl());
 		builder.setReadoutTime(cc.getReadoutTime());
-		builder.setBeamMappingActive(cc.isBeamMappingActive());
 		builder.setPixelBinningEditable(cc.isPixelBinningEditable());
 		builder.setTriggerMode(cc.getTriggerMode());
 

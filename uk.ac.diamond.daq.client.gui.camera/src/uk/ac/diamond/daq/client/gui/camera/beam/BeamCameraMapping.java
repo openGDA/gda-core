@@ -20,11 +20,16 @@ package uk.ac.diamond.daq.client.gui.camera.beam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +38,16 @@ import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import gda.device.scannable.iterator.ScannableIterator;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
-import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
-import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
+import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.properties.camera.CameraToBeamMap;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.MotorUtils;
 
 /**
  * Implements an automatic procedure to map the position of the motor driving
@@ -51,15 +57,6 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * {@code String} to retrieve the two {@link IScannableMotor} controlling the
  * beam position.
  * </p>
- * <p>
- * Executing {@link #calibrate(ICameraConfiguration)}, the instance drives the
- * beam and at the same time listen to the stream connected with the camera
- * specified as parameter. The procedure ends when publishes, in Spring, a
- * {@link BeamCameraMappingEvent} on which {@link CameraImageComposite} is
- * listening.
- * </p>
- *
- *
  * @author Maurizio Nagni
  *
  */
@@ -74,7 +71,7 @@ public class BeamCameraMapping {
 	private ScannableIterator beamX;
 	private ScannableIterator beamY;
 
-	private InitializationFailed initializationFailed = new InitializationFailed();
+	private InitializationFailed initializationFailed;
 
 	@Autowired
 	public BeamCameraMapping(@Value("${client.beam.position.driverX}") String driverX,
@@ -83,49 +80,78 @@ public class BeamCameraMapping {
 		this.driverY = driverY;
 	}
 
+
 	/**
-	 * Calculates the mapping for the {@code cameraConfiguration}
+	 * Calculates the mapping for the {@code cameraConfiguration}. If fails displays
+	 * an error dialog with a short description of the problem.
 	 *
-	 * @param cameraConfiguration
+	 * @param context
 	 */
-	public void calibrate(final ICameraConfiguration cameraConfiguration) {
-		if (initializationFailed.reportErrorsToUser()) {
-			return;
-		}
-		BeamCameraMappingHelper helper = new BeamCameraMappingHelper(beamX, beamY, cameraConfiguration);
-		helper.calibrate();
-	}
-
-	void moveKB(RealVector kbVector) throws GDAClientException {
-		try {
-			beamX.forceToPosition(kbVector.getEntry(0));
-			beamY.forceToPosition(kbVector.getEntry(1));
-		} catch (OutOfRangeException | DeviceException e) {
-			throw new GDAClientException("Cannot moves motors", e);
+	public void calibrate(final BeamMappingStateContext context) {
+		initialise(context.getxSamplePoints(), context.getySamplePoints());
+		if (!initializationFailed.reportErrorsToUser()) {
+			BeamCameraMappingHelper helper = new BeamCameraMappingHelper(context, beamX, beamY);
+			helper.calibrate();
 		}
 	}
 
-	@PostConstruct
-	private void initialise() {
-		FinderHelper.getIScannableMotor(driverX).ifPresent(this::setBeamX);
-		FinderHelper.getIScannableMotor(driverY).ifPresent(this::setBeamY);
+	/**
+	 * Moves the beam drivers.
+	 *
+	 * @param kbVector a (pos_x, pos_y) vector describing the required position for the motors
+	 */
+	public void moveKB(RealVector kbVector) {
+		moveBeam(beamX, kbVector.getEntry(0));
+		moveBeam(beamY, kbVector.getEntry(1));
+	}
+
+	private void moveBeam(ScannableIterator scannableIterator, double newPosition) {
+		if (scannableIterator != null) {
+			getMotorUtils().moveMotorAsynchronously(scannableIterator.getScannableName(), newPosition);
+		}
+	}
+
+	/**
+	 * Set the resolution to map the camera.
+	 *
+	 * <p>
+	 * A lower resolution will result in a faster mapping but less accurate.
+	 * </p>
+	 * @param xSteps the number of steps on the x axis
+	 * @param ySteps the number of steps on the y axis
+	 */
+	private void initialise(int xSteps, int ySteps) {
+		initializationFailed = new InitializationFailed();
+		initializeAxis(driverX, this::setBeamX, xSteps);
+		initializeAxis(driverY, this::setBeamY, ySteps);
 		initializationFailed.reportErrorsToLog();
 	}
 
-	private void setBeamX(IScannableMotor scannableMotor) {
-		try {
-			beamX = new ScannableIterator(scannableMotor);
-		} catch (DeviceException e) {
-			initializationFailed.addException(new GDAClientException("Failed to initalize ScannableIterator", e));
-		}
+	private void initializeAxis(String axis, Consumer<ScannableIterator> consumer, int steps) {
+		FinderHelper.getIScannableMotor(axis)
+			.map(ScannableIterator::new)
+			.ifPresent(b -> {
+				consumer.accept(b);
+				initialiseScannableIterator(steps).accept(b);
+			});
 	}
 
-	private void setBeamY(IScannableMotor scannableMotor) {
-		try {
-			beamY = new ScannableIterator(scannableMotor);
-		} catch (DeviceException e) {
-			initializationFailed.addException(new GDAClientException("Failed to initalize ScannableIterator", e));
-		}
+	private Consumer<ScannableIterator> initialiseScannableIterator(int steps) {
+		return b -> {
+			try {
+				b.setSteps(steps);
+			} catch (DeviceException e) {
+				initializationFailed.addException(new GDAClientException("Failed to initalize ScannableIterator", e));
+			}
+		};
+	}
+
+	private void setBeamX(ScannableIterator scannableIterator) {
+		beamX = scannableIterator;
+	}
+
+	private void setBeamY(ScannableIterator scannableIterator) {
+		beamY = scannableIterator;
 	}
 
 	private class InitializationFailed {
@@ -155,5 +181,65 @@ public class BeamCameraMapping {
 		private boolean hasErrors() {
 			return !exceptions.isEmpty();
 		}
+	}
+
+	Optional<RealVector> pixelToBeam(ICameraConfiguration iConfiguration, double x, double y) {
+		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
+				.map(this::pixelToBeamSolver)
+				.map(s -> transformCoordinates(s, x, y));
+	}
+
+	Optional<RealVector> beamToPixel(ICameraConfiguration iConfiguration, double x, double y) {
+		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
+				.map(this::beamToPixelSolver)
+				.map(s -> transformCoordinates(s, x, y));
+	}
+
+	RealVector transformCoordinates(DecompositionSolver solver, double x, double y) {
+		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
+		try {
+			return solver.solve(cameraVector);
+		} catch (SingularMatrixException e) {
+			UIHelper.showError("error in pixel to beam conversion", e);
+		}
+		return null;
+	}
+
+	private DecompositionSolver pixelToBeamSolver(CameraToBeamMap beamCameraMap) {
+		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
+		return new LUDecomposition(new LUDecomposition(transformation).getSolver().getInverse())
+				.getSolver();
+	}
+
+	private DecompositionSolver beamToPixelSolver(CameraToBeamMap beamCameraMap) {
+		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
+		return new LUDecomposition(transformation).getSolver();
+	}
+
+
+
+
+	/**
+	 * The motor moving the beam on the X axis
+	 * @return the motor name, otherwise {@code emmpty()} if the scanable has not been found
+	 */
+	public Optional<String> getMotorXName() {
+		// when a ClientContext (K11-633) will be available should be update from there
+		return Optional.ofNullable(beamX)
+				.map(ScannableIterator::getScannableName);
+	}
+
+	/**
+	 * The motor moving the beam on the Y axis
+	 * @return the motor name, otherwise {@code emmpty()} if the scanable has not been found
+	 */
+	public Optional<String> getMotorYName() {
+		// when a ClientContext (K11-633) will be available should be update from there
+		return Optional.ofNullable(beamY)
+				.map(ScannableIterator::getScannableName);
+	}
+
+	private MotorUtils getMotorUtils() {
+		return SpringApplicationContextFacade.getBean(MotorUtils.class);
 	}
 }

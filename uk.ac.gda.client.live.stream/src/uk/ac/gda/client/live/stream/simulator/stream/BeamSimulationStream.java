@@ -21,9 +21,11 @@ package uk.ac.gda.client.live.stream.simulator.stream;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.swt.graphics.ImageData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,8 @@ import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCamera;
+import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
  * A class able to stream point controlled by two {@link IScannableMotor}s. The constructor uses a
@@ -106,25 +110,37 @@ public class BeamSimulationStream implements Runnable {
 			long x = Math.round(getBeamCamera().getScaleX() * Double.class.cast(driverX.getPosition()));
 			long y = Math.round(getBeamCamera().getScaleY() * Double.class.cast(driverY.getPosition()));
 			// Sets all array pixels as black
-			Arrays.fill(dataArray, -128);
+			Arrays.fill(dataArray, 0);
+			//backgroundImage(dataArray, ClientImages.BROKEN);
+			dataArray[0] = 1; // this hack prevents the stream to be GREEN if all the pixels have the same value
 			if (x >= 0 && y >= 0) {
 				updateDataArray(x, y);
 			}
-			//logger.debug("KBx:{} KBy:{}", driverX.getPosition(), driverY.getPosition());
-			//logger.debug("X:{} Y:{}", x, y);
 			dataUpdate();
 		} catch (DeviceException e) {
 			logger.error("TODO put description of error here", e);
 		}
 	}
 
+	/**
+	 * Provides a background for the simulation (to be completed)
+	 * @param dataArray
+	 * @param background
+	 */
+	private void backgroundImage(long[] dataArray, ClientImages background) {
+		final ImageData id = ClientSWTElements.getImage(background).getImageData();
+		IntStream.range(0, dataArray.length).forEach(i -> {
+			dataArray[i] = dataArray[i] + (id.data[i+1] +  id.data[i+2] + id.data[i+3])/3;
+		} );
+	}
+
 	private void updateDataArray(long x, long y) {
 		// The half width of the beam size. It could be parametrised in future.
 		int beamHalfWidth = 3;
 		// The beam brightness. It could be parametrised in future.
-		int elementValue = 50;
+		int elementValue = 110;
 		int reducedWidth = (beamHalfWidth - 1);
-		//loops around the pixel it thickness
+		// loops around the pixel it thickness
 		for (int indexY = -1 * reducedWidth; indexY < beamHalfWidth; indexY++) {
 			for (int indexX = -1 * reducedWidth; indexX < beamHalfWidth; indexX++) {
 				long newPosition = ((y + indexY) * beamCamera.getCameraWidth()) + x + indexX;
@@ -140,7 +156,7 @@ public class BeamSimulationStream implements Runnable {
 								&& Math.floorMod(newPosition, beamCamera.getCameraWidth() - 1L) < lowerDisplayBoundary)
 						|| (x > upperDisplayBoundary && Math.floorMod(newPosition,
 								beamCamera.getCameraWidth() - 1L) > upperDisplayBoundary)) {
-					dataArray[(int)newPosition] = elementValue;
+					dataArray[(int) newPosition] = elementValue;
 				}
 			}
 		}

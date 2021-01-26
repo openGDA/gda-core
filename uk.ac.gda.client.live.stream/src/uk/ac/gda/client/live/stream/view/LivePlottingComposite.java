@@ -137,7 +137,7 @@ public class LivePlottingComposite extends Composite {
 
 	private LivePlottingComposite(Composite parent, int style, LiveStreamConnection liveStreamConnection)
 			throws GDAClientException {
-		super(parent, style);
+			super(parent, style);
 		this.liveStreamConnection = liveStreamConnection;
 		setLayout(new FillLayout());
 		SpringApplicationContextProxy.addDisposableApplicationListener(this, openConnectionListener);

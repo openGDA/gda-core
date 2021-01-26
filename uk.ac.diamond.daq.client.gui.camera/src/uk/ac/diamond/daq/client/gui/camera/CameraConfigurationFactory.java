@@ -159,7 +159,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		builder.addTab(createPositioningCompositeFactory());
 		builder.addTab(createAbsorptionCompositeFactory());
 		builder.addTab(createROICompositeFactory());
-		builder.addTab(createCalibrationFactory());
+		builder.addTab(createBeamMappingFactory());
 		return builder.build();
 	}
 
@@ -200,7 +200,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	 *
 	 * @return
 	 */
-	private final TabCompositeFactory createCalibrationFactory() {
+	private final TabCompositeFactory createBeamMappingFactory() {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		group.setCompositeFactory(new BeamCameraCalibrationComposite());
 		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.BEAM_CAMERA_MAPPING));
