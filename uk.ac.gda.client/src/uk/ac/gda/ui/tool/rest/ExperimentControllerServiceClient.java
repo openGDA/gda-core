@@ -27,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
+import uk.ac.diamond.daq.experiment.api.entity.ExperimentErrorCode;
+import uk.ac.diamond.daq.experiment.api.entity.ExperimentServiceResponse;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
@@ -66,7 +68,29 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	public URL startExperiment(String experimentName) throws ExperimentControllerException {
 		String restPath = String.format("/start/%s", experimentName);
 		String url = formatURL(getServiceEndpoint(), restPath);
-		return returnBody(url, HttpMethod.PUT, null, URL.class);
+		ExperimentServiceResponse response = returnBody(url, HttpMethod.PUT, null, ExperimentServiceResponse.class);
+		handleExperimentErrorCode(response.getErrorCode());
+		return response.getRootNode();
+	}
+
+	private void handleExperimentErrorCode(ExperimentErrorCode errorCode) throws ExperimentControllerException {
+		if (errorCode == null)
+			return;
+
+		switch (errorCode) {
+			case ACQUISITION_EXISTS:
+				throw new ExperimentControllerException("An acquisition with the same name already exists");
+			case EXPERIMENT_EXISTS:
+				throw new ExperimentControllerException("An experiment with the same name already exists");
+			case CANNOT_CREATE_EXPERIMENT:
+				throw new ExperimentControllerException("Cannot create the experiment structure");
+			case CANNOT_CREATE_ACQUISITION:
+				throw new ExperimentControllerException("Cannot create the acquisition structure");
+			case NONE:
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**
@@ -116,7 +140,9 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	public URL prepareAcquisition(String acquisitionName) throws ExperimentControllerException {
 		String restPath = String.format("/prepareAcquisition/%s", acquisitionName);
 		String url = formatURL(getServiceEndpoint(), restPath);
-		return returnBody(url, HttpMethod.PUT, null, URL.class);
+		ExperimentServiceResponse response = returnBody(url, HttpMethod.PUT, null, ExperimentServiceResponse.class);
+		handleExperimentErrorCode(response.getErrorCode());
+		return response.getRootNode();
 	}
 
 	/**
@@ -135,7 +161,9 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	public URL startMultipartAcquisition(String acquisitionName) throws ExperimentControllerException {
 		String restPath = String.format("/startMultipartAcquisition/%s", acquisitionName);
 		String url = formatURL(getServiceEndpoint(), restPath);
-		return returnBody(url, HttpMethod.PUT, null, URL.class);
+		ExperimentServiceResponse response = returnBody(url, HttpMethod.PUT, null, ExperimentServiceResponse.class);
+		handleExperimentErrorCode(response.getErrorCode());
+		return response.getRootNode();
 	}
 
 	/**

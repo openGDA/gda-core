@@ -18,10 +18,12 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -30,14 +32,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 public class URLFactory {
-
 	private NameHelper nameHelper = new NameHelper();
 
 	/**
 	 * Generates a unique file URL based on the given root
 	 */
-	public URL generateUniqueFile(URL root, String name, String defaultName, String fileExtension) throws MalformedURLException {
-		String safeName = nameHelper.makeUnique(nameHelper.makeUrlSafe(name, defaultName));
+	public URL generateFormattedNameFile(URL root, String name, String defaultName, String fileExtension, DateFormat format) throws MalformedURLException {
+		String safeName = nameHelper.appendToFormattedDate(format, nameHelper.makeUrlSafe(name, defaultName));
 		return generateUrl(root, safeName, formatFileName(safeName, fileExtension));
 	}
 
@@ -55,6 +56,17 @@ public class URLFactory {
 		return Paths.get(file.getPath()).getParent().toUri().toURL();
 	}
 
+	public static final boolean urlExists(URL url) {
+		if (url == null) {
+			return false;
+		}
+		try {
+			return new File(url.toURI()).exists();
+		} catch (URISyntaxException e) {
+			return false;
+		}
+	}
+
 	private String formatFileName(String name, String extension) {
 		extension = extension.startsWith(".") ? extension : "." + extension;
 		return name + extension;
@@ -62,9 +74,7 @@ public class URLFactory {
 
 
 	private static class NameHelper {
-
 		private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
-		private final SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 
 		public String makeUrlSafe(String rawName, String defaultName) {
 			String value = StringUtils.isNotBlank(rawName) ? rawName : defaultName;
@@ -76,8 +86,8 @@ public class URLFactory {
 				.collect(Collectors.joining());
 		}
 
-		public String makeUnique(String name) {
-			return name + "_" + timestampFormat.format(new Date());
+		public String appendToFormattedDate(DateFormat format, String name) {
+			return format.format(new Date()) + "_" + name;
 		}
 
 		private String capitalise(String word) {

@@ -1,7 +1,5 @@
 package uk.ac.diamond.daq.service.rest;
 
-import java.net.URL;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,8 +8,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import uk.ac.diamond.daq.experiment.api.entity.ExperimentErrorCode;
+import uk.ac.diamond.daq.experiment.api.entity.ExperimentServiceResponse;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentNodeExistsException;
 
 /**
  * Exposes as REST service the server {@link ExperimentController}.
@@ -34,8 +35,17 @@ public class ExperimentRestService {
 	private ExperimentController experimentController;
 	
 	@RequestMapping(value = "/start/{experimentName}", method = RequestMethod.PUT)
-	public @ResponseBody URL startExperiment(@PathVariable String experimentName) throws ExperimentControllerException {
-		return getExperimentController().startExperiment(experimentName);
+	public @ResponseBody ExperimentServiceResponse startExperiment(@PathVariable String experimentName) {
+		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
+		response.withErrorCode(ExperimentErrorCode.NONE);
+		try {
+			response.withRootNode(getExperimentController().startExperiment(experimentName));
+		} catch (ExperimentNodeExistsException e) {
+			response.withErrorCode(ExperimentErrorCode.EXPERIMENT_EXISTS);
+		} catch (ExperimentControllerException e) {
+			response.withErrorCode(ExperimentErrorCode.CANNOT_CREATE_EXPERIMENT);
+		}
+		return response.build();
 	}
 
 	@RequestMapping(value = "/name", method = RequestMethod.GET )
@@ -54,13 +64,31 @@ public class ExperimentRestService {
 	}
 
 	@RequestMapping(value = "/prepareAcquisition/{acquisitionName}", method = RequestMethod.PUT)
-	public @ResponseBody URL prepareAcquisition(@PathVariable String acquisitionName) throws ExperimentControllerException {
-		return getExperimentController().prepareAcquisition(acquisitionName);
+	public @ResponseBody ExperimentServiceResponse prepareAcquisition(@PathVariable String acquisitionName) {
+		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
+		response.withErrorCode(ExperimentErrorCode.NONE);
+		try {
+			response.withRootNode(getExperimentController().prepareAcquisition(acquisitionName));
+		} catch (ExperimentNodeExistsException e) {
+			response.withErrorCode(ExperimentErrorCode.ACQUISITION_EXISTS);
+		} catch (ExperimentControllerException e) {
+			response.withErrorCode(ExperimentErrorCode.CANNOT_CREATE_ACQUISITION);
+		}
+		return response.build();
 	}
 
 	@RequestMapping(value = "/startMultipartAcquisition/{acquisitionName}", method = RequestMethod.PUT)
-	public @ResponseBody URL startMultipartAcquisition(String acquisitionName) throws ExperimentControllerException {
-		return getExperimentController().startMultipartAcquisition(acquisitionName);
+	public @ResponseBody ExperimentServiceResponse startMultipartAcquisition(String acquisitionName) {
+		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
+		response.withErrorCode(ExperimentErrorCode.NONE);
+		try {
+			response.withRootNode(getExperimentController().startMultipartAcquisition(acquisitionName));
+		} catch (ExperimentNodeExistsException e) {
+			response.withErrorCode(ExperimentErrorCode.ACQUISITION_EXISTS);
+		} catch (ExperimentControllerException e) {
+			response.withErrorCode(ExperimentErrorCode.CANNOT_CREATE_ACQUISITION);
+		}
+		return response.build();
 	}
 
 	@RequestMapping(value = "/stopMultipartAcquisition", method = RequestMethod.POST)
