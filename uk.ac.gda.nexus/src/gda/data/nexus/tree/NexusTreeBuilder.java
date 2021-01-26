@@ -348,13 +348,6 @@ class Group {
 		this.NXclass = node.getNxClass();
 	}
 
-
-	public boolean containsSDS() {
-		return getNXclass().equals(NexusExtractor.SDSClassName);
-	}
-
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

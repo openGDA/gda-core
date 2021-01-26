@@ -137,7 +137,7 @@ public final class NexusExtractor implements INexusDataGetter {
 	public NexusGroupData getDataForCurrentProcessedGroup(String name, String nxClass, boolean getData)
 			throws NexusException, NexusExtractorException {
 		if (currentGroupBeingProcessed == null || !currentGroupBeingProcessed.getName().equals(name)
-				|| !currentGroupBeingProcessed.getNXclass().equals(nxClass)) {
+				|| !isRequestedClass(nxClass)) {
 			throw new NexusExtractorException("getDataForCurrentProcessedGroup being called out of sequence");
 		}
 		if (currentGroupBeingProcessed instanceof Attr) {
@@ -161,6 +161,11 @@ public final class NexusExtractor implements INexusDataGetter {
 			}
 		}
 		return n;
+	}
+
+	private boolean isRequestedClass(String requestedClassName) {
+		return requestedClassName.equals(currentGroupBeingProcessed.NXclass) ||
+				(requestedClassName.equals(SDSClassName) && currentGroupBeingProcessed.getNXclass().isEmpty() && currentGroupBeingProcessed.parent != null);
 	}
 
 	private RESPONSE loop(Group group, final IMonitor mon) throws NexusException, NexusExtractorException {
@@ -393,8 +398,14 @@ class Group {
 		return NXclass;
 	}
 
-	boolean containsSDS() {
-		return getNXclass().equals(NexusExtractor.SDSClassName);
+	/*
+	 * Changes to ADCore August 2019 removes NX_Class=SDS from HDF files generated - strictly it is not valid NeXus formatting, but it is used internally and by
+	 * other detectors as a placeholder but never written to file. As the only other valid Nexus group without an NX_Class is the top of the tree, we allow a
+	 * group with a parent but no name to be read as an SDS.
+	 */
+	private boolean isSDS() {
+		return (NexusExtractor.SDSClassName.equals(NXclass) ||
+				(NXclass.isEmpty() && parent != null));
 	}
 
 	@Override

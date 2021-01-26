@@ -140,7 +140,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	@Override
 	public StringBuffer toXMLbegin(boolean newlineAfterEach, boolean dataAsString) {
 		StringBuffer msg = new StringBuffer("<");
-		msg.append(nxClass.isEmpty() ? "top" : nxClass);
+		msg.append((parentNode == null) ? "top" : nxClass);
 		msg.append(" @name=" + name);
 
 		msg.append(">");
