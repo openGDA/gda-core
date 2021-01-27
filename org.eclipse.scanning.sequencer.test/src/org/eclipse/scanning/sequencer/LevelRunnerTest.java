@@ -58,12 +58,12 @@ public class LevelRunnerTest {
 
 	private static Logger logger = LoggerFactory.getLogger(LevelRunnerTest.class);
 
-	private ScannableForTest level1a;
-	private ScannableForTest level1b;
-	private ScannableForTest level2a;
-	private ScannableForTest level2b;
-	private ScannableForTest level5a;
-	private ScannableForTest level5b;
+	private SimpleScannable level1a;
+	private SimpleScannable level1b;
+	private SimpleScannable level2a;
+	private SimpleScannable level2b;
+	private SimpleScannable level5a;
+	private SimpleScannable level5b;
 
 	private INameable scan;
 	private IPosition position;
@@ -73,12 +73,12 @@ public class LevelRunnerTest {
 
 	@Before
 	public void setUp() throws Exception {
-		level1a = new ScannableForTest(1, "level1a", 11);
-		level1b = new ScannableForTest(1, "level1b", 12);
-		level2a = new ScannableForTest(2, "level2a", 21);
-		level2b = new ScannableForTest(2, "level2b", 22);
-		level5a = new ScannableForTest(5, "level5a", 51);
-		level5b = new ScannableForTest(5, "level5b", 52);
+		level1a = new SimpleScannable(1, "level1a", 11);
+		level1b = new SimpleScannable(1, "level1b", 12);
+		level2a = new SimpleScannable(2, "level2a", 21);
+		level2b = new SimpleScannable(2, "level2b", 22);
+		level5a = new SimpleScannable(5, "level5a", 51);
+		level5b = new SimpleScannable(5, "level5b", 52);
 
 		scan = mock(INameable.class);
 		when(scan.getName()).thenReturn("Test solstice scan");
@@ -345,7 +345,7 @@ public class LevelRunnerTest {
 				}
 				// Register the call and delay if set, but we don't need to the Callable to do anything else
 				tasksRun.add(task);
-				final int delay = ((ScannableForTest) levelObject).getDelay();
+				final int delay = ((SimpleScannable) levelObject).getDelay();
 				if (delay > 0) {
 					Thread.sleep(delay * 1000);
 				}
@@ -393,63 +393,4 @@ public class LevelRunnerTest {
 		}
 	}
 
-	/**
-	 * Simple implementation of IScannable, with the ability to specify delay time, for testing timeout
-	 */
-	private static class ScannableForTest implements IScannable<Double> {
-		private int level;
-		private String name;
-		private double value;
-		private int delay = 0; // delay time in seconds
-
-		public ScannableForTest(int level, String name, double value) {
-			this.level = level;
-			this.name = name;
-			this.value = value;
-		}
-
-		@Override
-		public void setLevel(int level) {
-			this.level = level;
-		}
-
-		@Override
-		public int getLevel() {
-			return level;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public Double getPosition() throws ScanningException {
-			return value;
-		}
-
-		@Override
-		public Double setPosition(Double value, IPosition position) throws ScanningException {
-			this.value = value;
-			return value;
-		}
-
-		@Override
-		public String toString() {
-			return "ScannableForTest [level=" + level + ", name=" + name + ", value=" + value + "]";
-		}
-
-		public int getDelay() {
-			return delay;
-		}
-
-		public void setDelay(int delay) {
-			this.delay = delay;
-		}
-	}
 }

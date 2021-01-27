@@ -83,5 +83,13 @@ public interface IScannable<T> extends
 		return null;
 	}
 
+	/**
+	 * Call to terminate a movement before it is complete, for example when ScannablePositioner#abort is called due to
+	 * an exception with another IScannable's movement
+	 *
+	 * @throws ScanningException, InterruptedException
+	 */
+	public void abort() throws ScanningException, InterruptedException;
+
 
 }

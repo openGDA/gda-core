@@ -289,4 +289,13 @@ public class MockScannable extends CountableScannable<Number> implements ITermin
 	public void setMoveRate(double moveRate) {
 		this.moveRate = moveRate;
 	}
+
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		try {
+			terminate(TerminationPreference.CONTROLLED);
+		} catch (Exception e) {
+			throw new ScanningException("Exception while stopping scannable " + getName(), e);
+		}
+	}
 }

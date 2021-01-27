@@ -45,4 +45,9 @@ public class MockStringScannable extends AbstractScannable<String> implements IN
 		return permittedValues;
 	}
 
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Mock Scannable, nothing to abort.
+	}
+
 }

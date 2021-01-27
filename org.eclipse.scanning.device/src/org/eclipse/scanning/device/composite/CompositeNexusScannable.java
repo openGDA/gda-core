@@ -133,4 +133,13 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 	public void setChildNodes(List<ChildNode> childNodes) {
 		this.childNodes = childNodes;
 	}
+
+	@Override
+	public void abort() throws UnsupportedOperationException {
+		logger.warn("abort() called on {}", this);
+		throw new UnsupportedOperationException(
+				"A CompositeNexusScannable should only be used as a per-scan monitor, and therefore not passed to a ScannablePositioner");
+	}
+
+
 }

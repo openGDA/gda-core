@@ -238,4 +238,10 @@ class ScannableProxy<T> extends AbstractRemoteDeviceProxy<T> implements IScannab
 		return wasactivated;
 	}
 
+	@Override
+	// from RunnableDeviceProxy
+	public void abort() throws ScanningException {
+		method(new DeviceRequest(info.getName(), DeviceAction.ABORT));
+	}
+
 }
