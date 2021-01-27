@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.command;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 public class PyExpressionNotImplementedException extends Exception {
 
 	private static final long serialVersionUID = 6008079465533652603L;

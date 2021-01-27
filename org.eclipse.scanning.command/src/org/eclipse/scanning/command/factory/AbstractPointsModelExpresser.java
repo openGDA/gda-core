@@ -20,6 +20,10 @@ package org.eclipse.scanning.command.factory;
 
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 public abstract class AbstractPointsModelExpresser<T extends AbstractPointsModel> extends PyModelExpresser<T> {
 
 	public void appendCommonProperties(StringBuilder sb, T model, boolean verbose) {

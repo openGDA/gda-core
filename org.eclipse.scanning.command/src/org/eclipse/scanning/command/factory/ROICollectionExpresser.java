@@ -16,6 +16,10 @@ import java.util.Collection;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.command.PyExpressionNotImplementedException;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class ROICollectionExpresser extends PyModelExpresser<Collection<IROI>> {
 
 	@Override

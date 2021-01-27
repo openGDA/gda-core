@@ -20,6 +20,10 @@ package org.eclipse.scanning.command.factory;
 
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 public abstract class AbstractGridModelExpresser<T extends AbstractTwoAxisGridModel> extends AbstractPointsModelExpresser<T> {
 
 	public void appendCommonGridProperties(StringBuilder sb, T model, boolean verbose) {

@@ -18,6 +18,10 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class AxialMultiStepModelExpresser extends AbstractPointsModelExpresser<AxialMultiStepModel> {
 
 	@Override

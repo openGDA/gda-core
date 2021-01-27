@@ -21,11 +21,13 @@ import org.eclipse.scanning.command.PyExpressionNotImplementedException;
 
 /**
  * You must override at least one of the pyExpress(...) methods.
+ * @deprecated for removal in 9.21. See DAQ-3292
  *
  * @author Matthew Gerring
  *
  * @param <T> the model for which we are expressing.
  */
+@Deprecated
 abstract class PyModelExpresser<T> {
 
 	protected PyExpressionFactory factory;

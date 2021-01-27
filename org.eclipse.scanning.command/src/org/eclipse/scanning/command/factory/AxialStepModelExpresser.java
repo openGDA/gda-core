@@ -17,6 +17,10 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class AxialStepModelExpresser extends AbstractPointsModelExpresser<AxialStepModel> {
 
 	@Override

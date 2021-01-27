@@ -36,7 +36,7 @@ import org.eclipse.scanning.command.PyExpressionNotImplementedException;
 /**
  *
  * This is a factory for expressing various Java objects in mscan command syntax.
- *
+ * @deprecated for removal in 9.21. See DAQ-3292
  * To add a new point generation model to mscan:
  * 1. Add a new expresser for your model here.
  * 2. Edit the test PyExpresserTest to have a test for expressing your model.
@@ -46,6 +46,8 @@ import org.eclipse.scanning.command.PyExpressionNotImplementedException;
  * @author Matthew Gerring
  *
  */
+//
+@Deprecated
 public class PyExpressionFactory {
 
 	private static Map<Class<?>, PyModelExpresser<?>> expressers;

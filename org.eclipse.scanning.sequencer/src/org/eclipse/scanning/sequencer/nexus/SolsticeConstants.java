@@ -19,7 +19,7 @@ public final class SolsticeConstants {
 	public static final String FIELD_NAME_UNIQUE_KEYS   = "uniqueKeys";
 	public static final String FIELD_NAME_SCAN_RANK     = "scanRank";
 	public static final String FIELD_NAME_SCAN_FINISHED = "scan_finished";
-	public static final String FIELD_NAME_SCAN_CMD      = "scan_cmd";
+	public static final String FIELD_NAME_SCAN_REQUEST  = "scan_request";
 	public static final String FIELD_NAME_SCAN_MODELS   = "scan_models";
 	public static final String FIELD_NAME_SCAN_DURATION = "scan_duration";
 	public static final String FIELD_NAME_SCAN_ESTIMATED_DURATION = "scan_estimated_duration";
