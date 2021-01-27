@@ -274,4 +274,9 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 				+ malcolmDetectorNames + ", detector=" + detector + ", frameFilePath=" + frameFilePath
 				+ ", nexusNodePath=" + nexusNodePath + ", previousConfiguration=" + previousConfiguration + "]";
 	}
+
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Data scannable, nothing to abort.
+	}
 }

@@ -113,6 +113,15 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			}
 			return null; // Since we did not read position as part of the move, we return null
 		}
+
+		@Override
+		public void abort() throws ScanningException, InterruptedException {
+			try {
+				scannable.stop();
+			} catch (DeviceException e) {
+				throw new ScanningException("Device exception while stopping scannable " + getName(), e);
+			}
+		}
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableDeviceConnectorService.class);

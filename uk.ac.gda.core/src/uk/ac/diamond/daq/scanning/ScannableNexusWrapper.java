@@ -369,4 +369,13 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		return "ScannableNexusWrapper [scannable=" + getScannable() + "]";
 	}
 
+	@Override
+	public void abort() throws ScanningException {
+		try {
+			getScannable().stop();
+		} catch (DeviceException e) {
+			throw new ScanningException("Device exception while stopping scannable " + getName(), e);
+		}
+	}
+
 }
