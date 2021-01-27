@@ -39,6 +39,10 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -133,6 +137,39 @@ public class ScanManagementController extends AbstractMappingController {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Loads a {@link ScanRequest} from the NeXus file specified by the supplied fully quAlified filename then
+	 * returned within an {@link Optional}.
+	 * An error dialog is displayed if the {@link ScanRequest} could not be successfully loaded. Not all
+	 * NeXus files contain {@link ScanRequest}s.
+	 *
+	 * @param nxFilename
+	 *        The fully qualified name of the required file
+	 * @return An {@link Optional} of a scan request extracted from the metadata of the NeXus file
+	 */
+	public Optional<ScanRequest> loadScanRequest(final String nxFilename) {
+		checkInitialised();
+		if (nxFilename != null) {
+			final IMarshallerService marshaller = getService(IMarshallerService.class);
+			final INexusFileFactory nxFileFactory = ServiceHolder.getNexusFileFactory();
+			try {
+				try (NexusFile nxFile = nxFileFactory.newNexusFile(nxFilename)) {
+					nxFile.openToRead();
+					DataNode json = nxFile.getData("/entry/solstice_scan/scan_request");
+					ScanRequest request = marshaller.unmarshal(json.toString(), ScanRequest.class);
+					return Optional.of(request);
+				}
+			} catch (Exception e) {
+				final String errorMessage = "Could not load scan request from nexus file: " + nxFilename;
+				logger.error(errorMessage, e);
+				ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Load Scan", errorMessage,
+						new Status(IStatus.ERROR, MappingUIConstants.PLUGIN_ID, errorMessage, e));
+				return Optional.empty();
+			}
+		}
+		return Optional.empty();
 	}
 
 	/**
