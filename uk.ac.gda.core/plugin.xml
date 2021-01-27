@@ -35,9 +35,6 @@
             name="gda.data.generalfilereaders">
          </package>
          <package
-            name="gda.data.generic">
-         </package>
-         <package
             name="gda.data.metadata">
          </package>
          <package
