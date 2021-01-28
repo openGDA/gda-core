@@ -141,7 +141,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String EXPECTED_PROGRAM_NAME = "GDA 7.11.0";
 	protected static final String EXPECTED_USER_GROUP_NAME = "user01";
 	protected static final String EXPECTED_INSTRUMENT_NAME = "i99";
-	protected static final String EXPECTED_USER_NAME = "abc12345";
+	protected static final String EXPECTED_USER_ID = "abc12345";
+	protected static final String EXPECTED_USER_NAME = "Ted Jones";
 
 	protected static final double START_VALUE = 0.0;
 	protected static final double STEP_SIZE = 1.0;
@@ -213,7 +214,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected void setUpMetadata() throws Exception {
-		addMetadataEntry(METADATA_KEY_FEDERAL_ID, EXPECTED_USER_NAME);
+		addMetadataEntry(METADATA_KEY_FEDERAL_ID, EXPECTED_USER_ID);
 		addMetadataEntry(METADATA_KEY_INSTRUMENT, EXPECTED_INSTRUMENT_NAME);
 	}
 

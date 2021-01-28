@@ -39,7 +39,7 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 	private static final String FLUX_SCANNABLE_NAME = "flux";
 
 	@Override
-	protected void setupMockScannables() throws Exception {
+	protected void setupTestFixtures() throws Exception {
 		createMockScannable(INCIDENT_ENERGY_SCANNABLE_NAME, 234.88);
 		createMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME, 1.234);
 		createMockScannable(INCIDENT_POLARIZATION_SCANNABLE_NAME, 3.683);

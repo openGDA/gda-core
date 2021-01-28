@@ -78,18 +78,23 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return (T) getScannable(scannableName).getPosition();
 	}
 
-	protected void writeScannableValue(NXobject object, String fieldName, String scannableName) throws NexusException {
+	protected void writeScannableValue(NXobject nxObject, String fieldName, String scannableName) throws NexusException {
 		if (scannableName == null) return; // property not set, ignore
 
 		try {
 			final IScannable<?> scannable = ServiceHolder.getScannableDeviceService().getScannable(scannableName);
 			final Object scannableValue = scannable.getPosition();
-			object.setField(fieldName, scannableValue);
+			nxObject.setField(fieldName, scannableValue);
 			// TODO write units?
 		} catch (ScanningException e) {
 			throw new NexusException("Could not find scannable with name: " + scannableName);
 		}
 	}
 
+	protected void writeFieldValue(NXobject nxObject, String fieldName, Object value) {
+		if (value != null) {
+			nxObject.setField(fieldName, value);
+		}
+	}
 
 }

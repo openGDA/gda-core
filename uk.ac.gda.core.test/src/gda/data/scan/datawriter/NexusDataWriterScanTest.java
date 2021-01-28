@@ -359,7 +359,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
 		assertThat(user, is(notNullValue()));
 		assertThat(user.getNumberOfNodelinks(), is(1));
-		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_NAME)));
+		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_ID)));
 	}
 
 }

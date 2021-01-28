@@ -45,11 +45,13 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 	public void setUp() throws Exception {
 		scannableDeviceService = new ScannableDeviceConnectorService();
 		new ServiceHolder().setScannableDeviceService(scannableDeviceService);
-		setupMockScannables();
+		setupTestFixtures();
 		nexusDevice = setupNexusDevice();
 	}
 
-	protected abstract void setupMockScannables() throws Exception;
+	protected void setupTestFixtures() throws Exception {
+		// do nothing, subclasses may override
+	}
 
 	protected abstract INexusDevice<N> setupNexusDevice() throws Exception;
 

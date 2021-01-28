@@ -59,6 +59,8 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 
 	private String beamName;
 
+	private String userDeviceName;
+
 	/**
 	 * Returns the name of the {@link INexusDevice} that will contribute the {@link NXsource} group
 	 * to the nexus file. The class {@link SourceNexusDevice} is provided for this purpose.
@@ -126,14 +128,23 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 		this.beamName = beamName;
 	}
 
+	public String getUserDeviceName() {
+		return userDeviceName;
+	}
+
+	public void setUserDeviceName(String userDeviceName) {
+		this.userDeviceName = userDeviceName;
+	}
+
 	public Set<String> getCommonDeviceNames() {
 		if (sourceName == null) logger.warn("Source device name should be set");
 		if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name should be set");
 		if (insertionDeviceName != null && bendingMagnetName != null) logger.error("Only one of insertion device or bending magnet name should be set");
 		if (monochromatorName == null) logger.warn("Monochromator name should be set");
-		if (beamName == null) logger.warn("Beam name should be set");
+		if (beamName == null) logger.warn("Beam name must be set");
+		if (userDeviceName == null) logger.warn("User device name should be set");
 
-		return Arrays.asList(sourceName, insertionDeviceName, bendingMagnetName, monochromatorName, beamName).stream()
+		return Arrays.asList(sourceName, insertionDeviceName, bendingMagnetName, monochromatorName, beamName, userDeviceName).stream()
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 	}

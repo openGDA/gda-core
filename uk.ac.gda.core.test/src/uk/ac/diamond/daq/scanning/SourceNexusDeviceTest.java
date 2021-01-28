@@ -34,7 +34,7 @@ public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsou
 	private static final String CURRENT_SCANNABLE_NAME = "current";
 
 	@Override
-	protected void setupMockScannables() throws Exception {
+	protected void setupTestFixtures() throws Exception {
 		createMockScannable(CURRENT_SCANNABLE_NAME, 12.34);
 	}
 

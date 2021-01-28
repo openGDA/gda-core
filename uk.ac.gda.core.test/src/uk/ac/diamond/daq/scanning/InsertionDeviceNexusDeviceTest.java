@@ -34,7 +34,7 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 	private static final String HARMONIC_SCANNABLE_NAME = "harmonic";
 
 	@Override
-	protected void setupMockScannables() throws Exception {
+	protected void setupTestFixtures() throws Exception {
 		createMockScannable(GAP_SCANNABLE_NAME, 2.3);
 		createMockScannable(TAPER_SCANNABLE_NAME, 7.24);
 		createMockScannable(HARMONIC_SCANNABLE_NAME, 2);
