@@ -18,10 +18,14 @@
 
 package gda.beamline.health;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Base class for checking that a server/service is running
  */
 public abstract class ServerCondition extends ComponentHealthConditionBase {
+	private static final Logger logger = LoggerFactory.getLogger(ServerCondition.class);
 
 	@Override
 	protected String getDefaultErrorMessage() {
@@ -30,17 +34,27 @@ public abstract class ServerCondition extends ComponentHealthConditionBase {
 
 	@Override
 	public String readCurrentState() {
-		return isRunning() ? "Running" : "Not running";
+		try {
+			return isRunning() ? "Running" : "Not running";
+		} catch (Exception e) {
+			logger.error("Error reading current state of {}", getName(), e);
+			return "Error";
+		}
 	}
 
 	@Override
 	public BeamlineHealthState calculateHealthState() {
-		if (isRunning()) {
-			return BeamlineHealthState.OK;
-		} else if (isCritical()) {
+		try {
+			if (isRunning()) {
+				return BeamlineHealthState.OK;
+			} else if (isCritical()) {
+				return BeamlineHealthState.ERROR;
+			} else {
+				return BeamlineHealthState.WARNING;
+			}
+		} catch (Exception e) {
+			logger.error("Error calculating health state of {}", getName(), e);
 			return BeamlineHealthState.ERROR;
-		} else {
-			return BeamlineHealthState.WARNING;
 		}
 	}
 
