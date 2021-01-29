@@ -99,9 +99,7 @@ public class ScannableIterator {
 	 */
 	public double getActualResolution() {
 		try {
-			double lowerLimit = motor.getLowerInnerLimit();
-			double upperLimit = motor.getUpperInnerLimit();
-			return Math.abs(upperLimit - lowerLimit) / this.steps;
+			return Math.abs(getUpperLimit() - getLowerLimit()) / this.steps;
 		} catch (DeviceException e) {
 			logger.error("TODO put description of error here", e);
 		}
@@ -207,8 +205,8 @@ public class ScannableIterator {
 	}
 
 	private void initialise() throws DeviceException {
-		double lowerLimit = motor.getLowerInnerLimit();
-		double upperLimit = motor.getUpperInnerLimit();
+		double lowerLimit = getLowerLimit();
+		double upperLimit = getUpperLimit();
 		double step = Math.abs(upperLimit - lowerLimit) / this.steps;
 		List<Double> stepsList = new ArrayList<>();
 		IntStream.rangeClosed(0, this.steps).forEachOrdered(i -> stepsList.add(lowerLimit + i * step));
@@ -217,5 +215,15 @@ public class ScannableIterator {
 
 	private MotorUtils getMotorUtils() {
 		return SpringApplicationContextFacade.getBean(MotorUtils.class);
+	}
+
+	// Reduces 5% the actual motor limit to avoid motor alert/warning
+	private double getLowerLimit() throws DeviceException {
+		return motor.getLowerInnerLimit() * 0.95;
+	}
+
+	// Reduces 5% the actual motor limit to avoid motor alert/warning
+	private double getUpperLimit() throws DeviceException {
+		return motor.getUpperInnerLimit() * 0.95;
 	}
 }
