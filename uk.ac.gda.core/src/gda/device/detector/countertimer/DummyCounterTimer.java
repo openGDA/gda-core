@@ -106,7 +106,10 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 		if (isConfigured()) {
 			return;
 		}
-		super.configure();
+
+		// don't call super implementation as the only thing it does is to set the
+		// timer, which we override here
+//		super.configure();
 
 		runner = new Thread(this, getClass().getName() + " " + getName());
 		runner.start();

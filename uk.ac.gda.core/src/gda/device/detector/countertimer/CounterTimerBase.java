@@ -35,7 +35,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 
 	protected boolean slave = false;
 
-	protected gda.device.Timer timer = null;
+	protected Timer timer = null;
 
 	private String timerName;
 
@@ -45,9 +45,13 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 			return;
 		}
 		if (timer == null) {
-			logger.debug("Finding: " + timerName);
-			if ((timer = (gda.device.Timer) Finder.find(timerName)) == null) {
-				logger.error("Tfg " + timerName + " not found");
+			if (timerName == null) {
+				throw new FactoryException("timerName not set");
+			} else {
+				logger.debug("Finding: {}", timerName);
+				if ((timer = Finder.find(timerName)) == null) {
+					throw new FactoryException("Tfg " + timerName + " not found");
+				}
 			}
 		}
 		super.configure();
