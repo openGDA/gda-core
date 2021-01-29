@@ -63,32 +63,18 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 
 		String subject = visit + "/" + scannumber + ": " + title + " (" + command + ")";
 
-		StringBuilder body = new StringBuilder();
-
-		body.append("Filename: <a href=\"file://");
-		body.append(filename);
-		body.append("\">");
-		body.append(filename);
-		body.append("</a><br />\n");
-		body.append("<br />\n");
-		body.append("Command: ");
-		body.append(command);
-		body.append("<br />\n");
-		body.append("Points: ");
-		body.append(points);
-		body.append("<br />\n");
-		body.append("Title: ");
-		body.append(title);
-		body.append("<br />\n");
-		body.append("<br />\n");
+		ElogEntry entry = new ElogEntry(subject, userID, visit, logID, groupID)
+				.addHtml("Filename: <a href=\"file://"+filename+"</a>")
+				.addText("Command: " + command + "\n"
+						+ "Points: " + points + "\n"
+						+ "Title: " + title + "\n");
 
 		if (extractorList != null) {
-			for(SDP2ElogInfo extractor: extractorList)
-				body.append(extractor.extractInfo(lastScanDataPoint));
+			extractorList.forEach(e -> entry.addText(e.extractInfo(lastScanDataPoint)));
 		}
 
 		logger.info("posting to elog with title: {}",title);
-		ElogEntry.postAsyn(subject, body.toString(), userID, null, logID, groupID, null);
+		entry.postAsync();
 
 		lastScanDataPoint = null;
 		super.completeCollection(parent);
