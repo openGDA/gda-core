@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.naming.directory.InvalidAttributesException;
+
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
@@ -56,7 +58,6 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.exception.GDAException;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
@@ -81,6 +82,8 @@ import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 public class ScanningAcquisitionController
 		implements AcquisitionController<ScanningAcquisition> {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionController.class);
+
+	public static final String DEFAULT_CONFIGURATION_NAME = "UntitledConfiguration";
 
 	@Autowired
 	private AcquisitionFileContext fileContext;
@@ -132,8 +135,8 @@ public class ScanningAcquisitionController
 		updateImageCalibration();
 		updateProcessingRequest();
 		try {
-			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()));
-		} catch (GDAException e) {
+			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()), false);
+		} catch (IOException | InvalidAttributesException | GDAException e) {
 			throw new AcquisitionControllerException(e);
 		}
 	}
@@ -203,41 +206,31 @@ public class ScanningAcquisitionController
 	}
 
 	private String formatConfigurationFileName(String fileName) {
-		String fn = "";
-		if (fileName != null) {
-			fn = fileName.replaceAll("\\s", "");
-		}
-		if (fn.length() == 0) {
-			fn = "noNameConfiguration";
-		}
-
-		return String.format("%s_%s",
-				Optional.ofNullable(getAcquisitionType()).orElse(AcquisitionPropertyType.DEFAULT).name(), fn);
+		return Optional.ofNullable(fileName)
+			.map(n -> fileName.replaceAll("\\s", ""))
+			.filter(n -> n.length() > 0)
+			.orElseGet(() -> "noNameConfiguration");
 	}
 
-	private void save(String fileName, String acquisitionDocument) {
-		try {
-			Path path = getPath(fileName, acquisitionDocument);
-			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
-			publishScanRequestSavedEvent(fileName);
-		} catch (IOException e) {
-			UIHelper.showError("Cannot save the configuration", e);
-		}
+	private void save(String fileName, String acquisitionDocument, boolean override) throws IOException, InvalidAttributesException {
+		Path path = saveTextDocument(fileName, acquisitionDocument, override);
+		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
+		publishScanRequestSavedEvent(fileName);
 		publishSave(getAcquisition().getName(), acquisitionDocument);
 	}
 
-	private Path getPath(String fileName, String acquisitionDocument) throws IOException {
+	private Path saveTextDocument(String fileName, String acquisitionDocument, boolean override) throws IOException, InvalidAttributesException {
 		switch (getAcquisitionType()) {
 		case TOMOGRAPHY:
 			return getFileService().saveTextDocument(acquisitionDocument, fileName,
-					AcquisitionConfigurationResourceType.TOMO.getExtension());
+					AcquisitionConfigurationResourceType.TOMO.getExtension(), override);
 		case DIFFRACTION:
 		case BEAM_SELECTOR:
 			return getFileService().saveTextDocument(acquisitionDocument, fileName,
-					AcquisitionConfigurationResourceType.MAP.getExtension());
+					AcquisitionConfigurationResourceType.MAP.getExtension(), override);
 		default:
 			return getFileService().saveTextDocument(acquisitionDocument, fileName,
-					AcquisitionConfigurationResourceType.DEFAULT.getExtension());
+					AcquisitionConfigurationResourceType.DEFAULT.getExtension(), override);
 		}
 	}
 
