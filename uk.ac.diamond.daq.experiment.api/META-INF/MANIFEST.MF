@@ -9,6 +9,7 @@ Bundle-Activator: uk.ac.diamond.daq.experiment.api.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.experiment.api,
  uk.ac.diamond.daq.experiment.api.driver,
+ uk.ac.diamond.daq.experiment.api.entity,
  uk.ac.diamond.daq.experiment.api.plan,
  uk.ac.diamond.daq.experiment.api.plan.event,
  uk.ac.diamond.daq.experiment.api.remote,
@@ -22,3 +23,4 @@ Require-Bundle: uk.ac.gda.api,
  org.apache.commons.io
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api 
+Import-Package: com.fasterxml.jackson.databind.annotation

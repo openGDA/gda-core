@@ -23,8 +23,6 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_ACQUISITION_PREFIX;
-import static uk.ac.diamond.daq.experiment.structure.NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,21 +53,22 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	@Test
 	public void testNullExperimentName() throws ExperimentControllerException {
 		URL experimentFolder = controller.startExperiment(null);
-		assertTrue("Experiment URL is malformed",
-				extractBase(experimentFolder).startsWith(DEFAULT_EXPERIMENT_PREFIX));
+		String regexp = "\\d{8}_(" + NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX + ").nxs";
+		assertTrue(FilenameUtils.getName(experimentFolder.getFile()).matches(regexp));
 	}
 
 	@Test
 	public void testEmptyExperimentName() throws ExperimentControllerException {
 		URL experimentFolder = controller.startExperiment("");
-		assertTrue("Experiment URL is malformed",
-				extractBase(experimentFolder).startsWith(DEFAULT_EXPERIMENT_PREFIX));
+		String regexp = "\\d{8}_(" + NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX + ").nxs";
+		assertTrue(FilenameUtils.getName(experimentFolder.getFile()).matches(regexp));
 	}
 
 	@Test
-	public void testExperimentName() throws ExperimentControllerException, IOException {
+	public void testExperimentDirectoryStructure() throws ExperimentControllerException, IOException {
 		URL experimentFolder = controller.startExperiment(EXPERIMENT_NAME);
-		assertTrue("Experiment URL is malformed", extractBase(experimentFolder).startsWith(EXPERIMENT_NAME));
+		String regexp = "\\d{8}_(" + EXPERIMENT_NAME + ").nxs";
+		assertTrue(FilenameUtils.getName(experimentFolder.getFile()).matches(regexp));
 
 		File experimentFile = new File(experimentFolder.getPath());
 		File experimentDir = experimentFile.getParentFile();
@@ -168,21 +167,23 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	public void testAcquisitionName() throws Exception {
 		controller.startExperiment(EXPERIMENT_NAME);
 		String acquisitionDir = extractBase(controller.prepareAcquisition(ACQUISITION_NAME));
-		assertThat(acquisitionDir, startsWith(ACQUISITION_NAME));
+		String regexp = "\\d{8}_(" + ACQUISITION_NAME + ")";
+		assertTrue(acquisitionDir.matches(regexp));
 	}
 
 	@Test
 	public void testNullMeasurementIdentifier() throws ExperimentControllerException {
 		controller.startExperiment(EXPERIMENT_NAME);
 		URL acquisitionFolder = controller.prepareAcquisition(null);
-		assertThat(extractBase(acquisitionFolder), startsWith(DEFAULT_ACQUISITION_PREFIX));
+		String regexp = "\\d{8}_(" + NexusExperimentController.DEFAULT_ACQUISITION_PREFIX + ").nxs";
+		assertTrue(FilenameUtils.getName(acquisitionFolder.getFile()).matches(regexp));
 	}
 
 	@Test
 	public void nonAlphaNumericCharactersBecomeUnderscores() throws ExperimentControllerException {
 		URL experimentFolder = controller.startExperiment("$my experiment &");
-		assertTrue("Experiment name is not formatted as requested",
-				extractBase(experimentFolder).startsWith(EXPERIMENT_NAME));
+		String regexp = "\\d{8}_(" + "MyExperiment" + ").nxs";
+		assertTrue(FilenameUtils.getName(experimentFolder.getFile()).matches(regexp));
 	}
 
 	@Test(expected = ExperimentControllerException.class)

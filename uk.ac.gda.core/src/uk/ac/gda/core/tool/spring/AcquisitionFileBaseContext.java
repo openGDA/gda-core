@@ -36,6 +36,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.experiment.structure.URLFactory;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
@@ -63,7 +64,7 @@ abstract class AcquisitionFileBaseContext<T> {
 	public final URL getContextFile(T contextFile) {
 		init(contextFile);
 		URL value = contextFiles.get(contextFile);
-		return urlExists(value) ? value : null;
+		return URLFactory.urlExists(value) ? value : null;
 	}
 
 	private void bindContextFile(URL url, T contextFile) {
@@ -138,18 +139,6 @@ abstract class AcquisitionFileBaseContext<T> {
 		return initializeDirectory(rootDir, propertyKey, defaultValue, contextFile);
 	}
 
-	protected boolean urlExists(URL url) {
-		if (url == null) {
-			return false;
-		}
-		try {
-			return new File(url.toURI()).exists();
-		} catch (URISyntaxException e) {
-			logger.error(String.format("URL %s does not exists", url.toExternalForm()), e);
-		}
-		return false;
-	}
-
 	/**
 	 * This method cannot use the more natural @PostConstruct because the inner {@code SpringApplicationContextProxy}
 	 * would be not initialised at the time of the call. Consequently this method is called once, the first time
@@ -176,7 +165,7 @@ abstract class AcquisitionFileBaseContext<T> {
 	 * @see #removeFileFromContext(Object)
 	 */
 	public boolean putFileInContext(T contextFile, URL resource) {
-		if (urlExists(resource)) {
+		if (URLFactory.urlExists(resource)) {
 			putInContext(contextFile, resource);
 			return true;
 		}

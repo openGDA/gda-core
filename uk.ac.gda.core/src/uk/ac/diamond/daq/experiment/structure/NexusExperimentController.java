@@ -20,7 +20,13 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,6 +41,7 @@ import org.springframework.stereotype.Component;
 
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentNodeExistsException;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
@@ -59,6 +66,9 @@ public class NexusExperimentController implements ExperimentController {
 	private static final Logger logger = LoggerFactory.getLogger(NexusExperimentController.class);
 
 	private static final String FILE_EXTENSION = "nxs";
+
+	public final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	public final SimpleDateFormat daytimeFormat = new SimpleDateFormat("DDHHmmss");
 
 
 	/** Represents all the acquisitions within the experiment as a tree data structure */
@@ -166,26 +176,40 @@ public class NexusExperimentController implements ExperimentController {
 	}
 
 	/**
-	 * For creating the root node
+	 * Creates the root node.
+	 *
+	 * @param name
+	 * @param defaultName
+	 * @return
+	 * @throws ExperimentControllerException if the experiment cannot be created
+	 * @throws ExperimentNodeExistsException if the experiment node already exists
 	 */
 	private ExperimentNode createNode(String name, String defaultName) throws ExperimentControllerException {
 		try {
-			return createNode(getNodeUrl(getRootDir(), name, defaultName), null);
+			URL url = getNodeUrl(getRootDir(), name, defaultName, dateFormat);
+			if (Files.exists(Paths.get(url.toURI()).getParent(), LinkOption.NOFOLLOW_LINKS)) {
+				throw new ExperimentNodeExistsException("Already exists an experiment with the same name");
+			}
+			return createNode(url, null);
 		} catch (MalformedURLException e) {
 			throw new ExperimentControllerException("Could not create experiment node", e);
+		} catch (URISyntaxException e) {
+			logger.error("Cannot transform URL to URI", e);
 		}
+		return null;
 	}
 
 	private ExperimentNode createNode(String name, String defaultName, ExperimentNode parent) throws ExperimentControllerException {
 		try {
-			return createNode(getNodeUrl(urlFactory.getParent(parent.getLocation()), name, defaultName), parent.getId());
+			URL url = getNodeUrl(urlFactory.getParent(parent.getLocation()), name, defaultName, daytimeFormat);
+			return createNode(url, parent.getId());
 		} catch (MalformedURLException e) {
 			throw new ExperimentControllerException("Could not create experiment node", e);
 		}
 	}
 
-	private URL getNodeUrl(URL root, String name, String defaultName) throws MalformedURLException {
-		return urlFactory.generateUniqueFile(root, name, defaultName, FILE_EXTENSION);
+	private URL getNodeUrl(URL root, String name, String defaultName, DateFormat format) throws MalformedURLException {
+		return urlFactory.generateFormattedNameFile(root, name, defaultName, FILE_EXTENSION, format);
 	}
 
 	private ExperimentNode createNode(URL location, UUID parentId) {
