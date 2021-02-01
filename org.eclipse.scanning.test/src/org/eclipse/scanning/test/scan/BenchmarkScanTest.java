@@ -23,7 +23,6 @@ import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
@@ -40,10 +39,12 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -68,7 +69,7 @@ public class BenchmarkScanTest extends BrokerTest {
 		assertTrue(nexusMediumEvents<(nexusMedium+20));
 	}
 
-	private IRunnableDeviceService      dservice;
+	private IScanService      			sservice;
 	private IPointGeneratorService      gservice;
 	private IEventService               eservice;
 	private ILoaderService              lservice;
@@ -78,7 +79,7 @@ public class BenchmarkScanTest extends BrokerTest {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		dservice = ServiceTestHelper.getRunnableDeviceService();
+		sservice = ServiceTestHelper.getScanService();
 		gservice = ServiceTestHelper.getPointGeneratorService();
 		eservice = ServiceTestHelper.getEventService();
 		lservice = ServiceTestHelper.getLoaderService();
@@ -98,7 +99,7 @@ public class BenchmarkScanTest extends BrokerTest {
 		dmodel.setCreateImage(false);  // Would put our times off.
 		dmodel.setExposureTime(0.001); // Sleep 1ms on the mock detector.
 		dmodel.setName("detector");
-		IRunnableDevice<MockDetectorModel> detector = dservice.createRunnableDevice(dmodel);
+		IRunnableDevice<MockDetectorModel> detector = TestDetectorHelpers.createAndConfigureMockDetector(dmodel);
 
 		benchmarkStep(new BenchmarkBean(256, 2000l, 1, true, detector)); // set things up
 
@@ -143,7 +144,7 @@ public class BenchmarkScanTest extends BrokerTest {
 		model.setMaxIterations(1);
 		model.setExposureTime(0.0);
 
-		IRunnableDevice<MandelbrotModel> detector = dservice.createRunnableDevice(model);
+		IRunnableDevice<MandelbrotModel> detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 
 		final BenchmarkBean bean = new BenchmarkBean(256, 5000l, 1, true, detector);
 		File output = File.createTempFile("test_mandel_nexus", ".nxs");
@@ -212,7 +213,7 @@ public class BenchmarkScanTest extends BrokerTest {
 			model.setMaxIterations(1);
 			model.setExposureTime(0.0);
 
-			IRunnableDevice<MandelbrotModel> detector = dservice.createRunnableDevice(model);
+			IRunnableDevice<MandelbrotModel> detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 
 			final BenchmarkBean bean = new BenchmarkBean(256, 5000l, 1, true, detector);
 			output = File.createTempFile("test_mandel_nexus", ".nxs");
@@ -276,7 +277,7 @@ public class BenchmarkScanTest extends BrokerTest {
 		}
 
 		// Create configured device.
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel, bean.getPublisher());
+		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(scanModel, bean.getPublisher());
 
 		long time = 0l;
 		for (int i = 0; i < bean.getTries(); i++) {

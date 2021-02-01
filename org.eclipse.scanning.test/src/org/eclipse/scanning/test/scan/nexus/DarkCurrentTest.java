@@ -61,6 +61,7 @@ import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,11 +73,11 @@ public class DarkCurrentTest extends NexusTest {
 	@Before
 	public void before() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
+		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
 
 		DarkImageModel dmodel = new DarkImageModel();
-		dark =  (IWritableDetector<DarkImageModel>)runnableDeviceService.createRunnableDevice(dmodel);
+		dark = TestDetectorHelpers.createAndConfigureDarkImageDetector(dmodel);
 		assertNotNull(dark);
 	}
 
@@ -271,7 +272,7 @@ public class DarkCurrentTest extends NexusTest {
 		System.out.println("File writing to "+scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
+		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

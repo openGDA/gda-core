@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.IMessagingService;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.api.script.IScriptService;
 
@@ -43,6 +44,7 @@ public class Services {
 	private static IEventService           eventService;
 	private static IPointGeneratorService  generatorService;
 	private static IRunnableDeviceService  runnableDeviceService;
+	private static IScanService			   scanService;
 	private static IScannableDeviceService connector;
 	private static INexusDeviceService     nexusDeviceService;
 	private static IFilePathService        filePathService;
@@ -84,6 +86,14 @@ public class Services {
 
 	public void setRunnableDeviceService(IRunnableDeviceService deviceService) {
 		Services.runnableDeviceService = deviceService;
+	}
+
+	public static IScanService getScanService() {
+		return scanService;
+	}
+
+	public void setScanService(IScanService deviceService) {
+		Services.scanService = deviceService;
 	}
 
 	public static IScannableDeviceService getConnector() {

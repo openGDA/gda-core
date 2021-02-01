@@ -12,12 +12,14 @@
 package org.eclipse.scanning.test.validation;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.scanning.api.ModelValidationException;
+import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -26,6 +28,8 @@ import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.example.detector.PosDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
@@ -79,4 +83,18 @@ public class ModelTest extends AbstractValidationTest {
 		}
 	}
 
+	@Test
+	public void exceptionWhenValidatingWithUnregisteredName() {
+		assertThrows(ValidationException.class, () -> {
+			MandelbrotModel model = new MandelbrotModel();
+			model.setName("not_mandelbrot");
+			validator.validate(model);
+		});
+	}
+
+	@Test
+	public void exceptionWhenValidatingWithUnregisteredModel() {
+		assertThrows(ValidationException.class, () ->
+			validator.validate(new PosDetectorModel()));
+	}
 }

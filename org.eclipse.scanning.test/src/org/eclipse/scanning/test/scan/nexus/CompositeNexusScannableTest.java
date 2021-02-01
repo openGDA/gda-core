@@ -50,6 +50,7 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -146,7 +147,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<MandelbrotModel>) runnableDeviceService.createRunnableDevice(model);
+		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
 
 		beam = new BeamPerScanMonitor();
@@ -361,7 +362,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
+		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {

@@ -81,6 +81,7 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -111,7 +112,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		this.model = createMandelbrotModel();
 		model.setExposureTime(0.1);
 
-		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
+		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
 		detector.addRunListener(new IRunListener() {
 			@Override
@@ -326,7 +327,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(smodel);
 
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
 			@Override

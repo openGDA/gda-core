@@ -31,7 +31,6 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -41,6 +40,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -59,10 +59,7 @@ import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -70,7 +67,7 @@ import org.junit.Test;
 @Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1488")
 public class ScanFinishedTest {
 
-	protected IRunnableDeviceService      dservice;
+	protected IScanService      		  sservice;
 	protected IScannableDeviceService     connector;
 	protected IPointGeneratorService      gservice;
 	protected IEventService               eservice;
@@ -91,11 +88,7 @@ public class ScanFinishedTest {
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE
 		connector = new MockScannableConnector(null);
-		dservice  = new RunnableDeviceServiceImpl(connector);
-		RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
+		sservice  = new RunnableDeviceServiceImpl(connector);
 
 		gservice  = new PointGeneratorService();
 
@@ -122,10 +115,10 @@ public class ScanFinishedTest {
 		ScanModel smodel = createStepModel(8, 5);
 		MandelbrotModel mmodel = new MandelbrotModel("neXusScannable1", "neXusScannable2");
 		mmodel.setExposureTime(0.1);
-		smodel.setDetector(dservice.createRunnableDevice(mmodel));
+		smodel.setDetector(TestDetectorHelpers.createAndConfigureMandelbrotDetector(mmodel));
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(smodel);
 
 		NXentry entry = getNexusEntry(scanner);
 		assertScanNotFinished(entry);
@@ -186,16 +179,16 @@ public class ScanFinishedTest {
 
 		ScanModel smodel = createStepModel(2, 2);
 		MandelbrotModel mmodel = new MandelbrotModel("neXusScannable1", "neXusScannable2");
-		smodel.setDetector(dservice.createRunnableDevice(mmodel));
+		smodel.setDetector(TestDetectorHelpers.createAndConfigureMandelbrotDetector(mmodel));
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(smodel);
 		scanner.run(null);
 
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
 		@SuppressWarnings("rawtypes")
-		IRunnableDevice device = dservice.getRunnableDevice(mmodel.getName());
+		IRunnableDevice device = sservice.getRunnableDevice(mmodel.getName());
 		MandelbrotDetector detector = (MandelbrotDetector)device;
 		assertTrue(detector._isScanFinallyCalled());
 	}
@@ -238,7 +231,7 @@ public class ScanFinishedTest {
 		ScanModel smodel = createStepModel(size);
 
 		// Create a scan and run it without publishing events
-		IScanDevice scanner = (IScanDevice) dservice.createRunnableDevice(smodel, null);
+		IScanDevice scanner = sservice.createScanDevice(smodel);
 
 		final IPointGenerator<?> fgen = smodel.getPointGenerator();
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

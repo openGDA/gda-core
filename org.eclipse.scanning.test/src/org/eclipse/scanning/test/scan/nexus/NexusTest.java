@@ -91,7 +91,7 @@ public abstract class NexusTest {
 	private static Logger logger = LoggerFactory.getLogger(NexusTest.class);
 
 	protected static IScannableDeviceService connector;
-	protected static IScanService            runnableDeviceService;
+	protected static IScanService            scanService;
 	protected static IPointGeneratorService  pointGenService;
 	protected static INexusFileFactory       fileFactory;
 	protected static IFilePathService        filePathService;
@@ -102,7 +102,7 @@ public abstract class NexusTest {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		runnableDeviceService = ServiceTestHelper.getScanService();
+		scanService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 		fileFactory = ServiceTestHelper.getNexusFileFactory();
 		connector = ServiceTestHelper.getScannableDeviceService();
@@ -284,7 +284,7 @@ public abstract class NexusTest {
 		ScanModel smodel = createGridScanModel(detector, file, snake, size);
 
 		// Create a scan and run it without publishing events
-		return runnableDeviceService.createRunnableDevice(smodel, null);
+		return scanService.createScanDevice(smodel);
 	}
 
 	protected IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, File file, IROI region, boolean snake, int... size) throws Exception {
@@ -292,7 +292,7 @@ public abstract class NexusTest {
 		ScanModel smodel = createGridScanModel(detector, file, region, snake, size);
 
 		// Create a scan and run it without publishing events
-		return runnableDeviceService.createRunnableDevice(smodel, null);
+		return scanService.createScanDevice(smodel);
 	}
 
 	protected ScanModel createGridScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file, boolean snake, int... size) throws Exception {
@@ -330,7 +330,7 @@ public abstract class NexusTest {
 	protected IRunnableDevice<ScanModel> createSpiralScan(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
 		ScanModel smodel = createSpiralScanModel(detector, file);
 		// Create a scan and run it without publishing events
-		return runnableDeviceService.createRunnableDevice(smodel, null);
+		return scanService.createScanDevice(smodel);
 	}
 
 	protected ScanModel createSpiralScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {

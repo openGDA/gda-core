@@ -103,7 +103,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			}
 		});
 		participant = new MockScanParticpiant();
-		runnableDeviceService.addScanParticipant(participant);
+		scanService.addScanParticipant(participant);
 	}
 
 	@After
@@ -369,7 +369,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
+		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

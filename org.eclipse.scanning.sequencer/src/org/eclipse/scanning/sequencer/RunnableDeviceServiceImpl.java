@@ -12,8 +12,6 @@
 package org.eclipse.scanning.sequencer;
 
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +25,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.scanning.api.IConfigurable;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
@@ -34,8 +33,10 @@ import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
+import org.eclipse.scanning.api.device.models.ModelReflection;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -66,13 +67,6 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	private static IScannableDeviceService deviceConnectorService;
 
 	/**
-	 * Map of device model class to device class.
-	 * NOTE This is not unmodifiable. Entries may be made after service create time. For instance
-	 * when the spring files are parsed.
-	 */
-	private static final Map<Class<?>, Class<? extends IRunnableDevice>> modelledDevices;
-
-	/**
 	 * Map of device name to created device. Used to avoid
 	 * recreating non-virtual devices many times.
 	 *
@@ -90,11 +84,8 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	// This pattern can always be extended by extension points
 	// to allow point generators to be dynamically registered.
 	static {
-		System.out.println("Starting device service");
-		modelledDevices = new HashMap<>(7);
-		modelledDevices.put(ScanModel.class,         AcquisitionDevice.class);
-
-		namedDevices     = new HashMap<>(3);
+		logger.info("Starting device service");
+		namedDevices = new HashMap<>(3);
 	}
 
 	/**
@@ -112,16 +103,14 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	public RunnableDeviceServiceImpl(IScannableDeviceService deviceConnectorService) {
 		this();
 		RunnableDeviceServiceImpl.deviceConnectorService = deviceConnectorService;
-		modelledDevices.clear();
-		modelledDevices.put(ScanModel.class,         AcquisitionDevice.class);
 		namedDevices.clear();
 	}
 
 
 	private static void readExtensions() throws CoreException {
-
-		if (Platform.getExtensionRegistry()!=null) {
+		if (Platform.getExtensionRegistry() != null) {
 			final IConfigurationElement[] eles = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.scanning.api.device");
+
 			for (IConfigurationElement e : eles) {
 
 				if (e.getName().equals("device")) {
@@ -156,7 +145,7 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 						}
 	                }
 
-					registerDevice(mod.getClass(), device);
+	                globalRegisterIfReal(device);
 
 				} else {
 					throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.scanning.sequencer", "Unrecognized device "+e.getName()));
@@ -167,11 +156,10 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 
 	@Override
 	public <T> void register(IRunnableDevice<T> device) {
-		registerDevice(device.getModel().getClass(), device);
+		globalRegisterIfReal(device);
 	}
 
-	private static void registerDevice(Class modelClass, IRunnableDevice device) {
-		modelledDevices.put(modelClass, device.getClass());
+	private static <T> void globalRegisterIfReal(IRunnableDevice<T> device) {
 		if (!device.getRole().isVirtual()) {
 			namedDevices.put(device.getName(), device);
 		}
@@ -205,75 +193,6 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 		return new ScannablePositioner(deviceConnectorService, nameable);
 	}
 
-
-	@Override
-	public final <T> IRunnableDevice<T> createRunnableDevice(T model) throws ScanningException {
-        return createRunnableDevice(model, null, true);
-	}
-
-
-	@Override
-	public <T> IRunnableDevice<T> createRunnableDevice(T model, boolean configure) throws ScanningException {
-        return createRunnableDevice(model, null, configure);
-	}
-
-	@Override
-	public final <T> IRunnableDevice<T> createRunnableDevice(T model, IPublisher<ScanBean> publisher) throws ScanningException {
-        return createRunnableDevice(model, publisher, true);
-	}
-
-	@Override
-	public final <T> IRunnableDevice<T> createRunnableDevice(T model, IPublisher<ScanBean> publisher, boolean configure) throws ScanningException {
-
-		try {
-			if (deviceConnectorService==null) deviceConnectorService = getDeviceConnector();
-
-			final IRunnableDevice<T> scanner = createDevice(model);
-			if (scanner instanceof AbstractRunnableDevice) {
-				AbstractRunnableDevice<T> ascanner = (AbstractRunnableDevice<T>)scanner;
-				ascanner.setRunnableDeviceService(this);
-                ascanner.setConnectorService(deviceConnectorService);
-                ascanner.setPublisher(publisher); // May be null
-
-                // If the model has a name for the device, we use
-                // it automatically.
-                try {
-			String name = null;
-			// Try with INameable first as faster than reflection
-			if (model instanceof INameable) name = ((INameable) model).getName();
-
-			// Try with reflection
-			if (name == null) {
-				final Method getName = model.getClass().getMethod("getName");
-	                    name = (String)getName.invoke(model);
-			}
-                    ascanner.setName(name);
-                } catch (NoSuchMethodException ignored) {
-			// getName() is not compulsory in the model
-                }
-			}
-
-			if (configure) {
-				AnnotationManager manager = new AnnotationManager(SequencerActivator.getInstance());
-				manager.addDevices(scanner);
-				manager.invoke(PreConfigure.class, model);
-				scanner.configure(model);
-				manager.invoke(PostConfigure.class, model);
-			}
-
-			if (!scanner.getRole().isVirtual()) {
-				namedDevices.put(scanner.getName(), scanner);
-			}
-
-			return scanner;
-
-		} catch (ScanningException s) {
-			throw s;
-		} catch (Exception ne) {
-			throw new ScanningException(ne);
-		}
-	}
-
 	@Override
 	public <T> IRunnableDevice<T> getRunnableDevice(String name) throws ScanningException {
 		return getRunnableDevice(name, null);
@@ -289,23 +208,6 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 			adevice.setPublisher(publisher); // Now all its moves will be reported by this publisher.
 		}
 		return device;
-	}
-
-	private <T> IRunnableDevice<T> createDevice(T model) throws ScanningException, InstantiationException, IllegalAccessException, URISyntaxException, UnknownHostException {
-
-		final IRunnableDevice<T> scanner;
-
-		if (modelledDevices.containsKey(model.getClass())) {
-			@SuppressWarnings("unchecked")
-			final Class<IRunnableDevice<T>> clazz = (Class<IRunnableDevice<T>>)modelledDevices.get(model.getClass());
-			if (clazz == null) throw new ScanningException("The model '"+model.getClass()+"' does not have a device registered for it!");
-			scanner = clazz.newInstance();
-
-			// TODO Might have other extension point driven devices
-		} else {
-			throw new ScanningException("The model '"+model.getClass()+"' does not have a device registered for it!");
-		}
-		return scanner;
 	}
 
 	@Override
@@ -327,27 +229,8 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 		this.context = null;
 	}
 
-    /**
-     * Try to get the connector service or throw an exception
-     * @return
-     */
-	private IScannableDeviceService getDeviceConnector() throws ScanningException {
-		ServiceReference<IScannableDeviceService> ref = context.getServiceReference(IScannableDeviceService.class);
-		return context.getService(ref);
-	}
-
 	/**
 	 * Used for testing only
-	 * @param model
-	 * @param device
-	 */
-	public void _register(Class<?> model, Class<? extends IRunnableDevice> device) {
-		modelledDevices.put(model, device);
-	}
-
-	/**
-	 * Used for testing only
-	 * @param model
 	 * @param device
 	 */
 	public void _register(String name, IRunnableDevice<?> device) {
@@ -438,4 +321,108 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 		RunnableDeviceServiceImpl.currentScanningDevice = currentScanningDevice;
 	}
 
+	@Override
+	public IScanDevice createScanDevice(ScanModel model) throws ScanningException {
+		return createScanDevice(model, null, true);
+	}
+
+	@Override
+	public IScanDevice createScanDevice(ScanModel model, boolean configure) throws ScanningException {
+		return createScanDevice(model, null, configure);
+	}
+
+	@Override
+	public IScanDevice createScanDevice(ScanModel model, IPublisher<ScanBean> eventPublisher) throws ScanningException {
+		return createScanDevice(model, eventPublisher, true);
+	}
+
+	@Override
+	public IScanDevice createScanDevice(
+			ScanModel model,
+			IPublisher<ScanBean> eventPublisher,
+			boolean configure) throws ScanningException {
+		ensureDeviceConnectorService();
+
+		// Create Acquisition Device
+		AcquisitionDevice scanner = new AcquisitionDevice();
+
+		// Set attributes using this service
+		scanner.setRunnableDeviceService(this);
+		scanner.setConnectorService(deviceConnectorService);
+		if (eventPublisher != null)
+			scanner.setPublisher(eventPublisher);
+
+		// Configure the device if requested
+		if (configure)
+			configureAndFireAnnotations(scanner, model);
+
+		// Automatically register the device
+		globalRegisterIfReal(scanner);
+
+		return scanner;
+	}
+
+	/**
+	 * Configure a RunnableDevice using a compatible model,
+	 * fire the {@link PreConfigure} and {@link PostConfigure}
+	 * annotations at the appropriate times.
+	 * TODO: This should be encapsulated inside the devices themselves.
+	 * @param <M> The type of the model, must be compatible with the device.
+	 * @param configurable A device implementing the IConfigurable interface.
+	 * @param model The model providing the configuration
+	 * @throws ScanningException
+	 */
+	public static <M> void configureAndFireAnnotations(
+			IConfigurable<M> configurable,
+			M model) throws ScanningException {
+		AnnotationManager manager = new AnnotationManager(SequencerActivator.getInstance());
+		manager.addDevices(configurable);
+
+		// Invoke the @PreConfigure annotation inside the configurable, then
+		// invoke configurable.configure(), then the @PostConfigure annotation.
+		manager.invoke(PreConfigure.class, model);
+		configurable.configure(model);
+		manager.invoke(PostConfigure.class, model);
+	}
+
+	/**
+	 * Search a model for a name with reflection. If found, transfer it to an
+	 * INameable.
+	 * @param nameable The nameable to possibly name
+	 * @param model The model possibly providing the name
+	 */
+	public static void applyNameIfInModel(INameable nameable, Object model) {
+		final String name = ModelReflection.getName(model);
+		if (name != null)
+			nameable.setName(name);
+		else
+			logger.warn("Could not find a name to give device in model {}", model);
+	}
+
+	/**
+	 * Make sure the deviceConnectorService is not null or throw
+	 * a {@link ScanningException}
+	 * @throws ScanningException
+	 */
+	private void ensureDeviceConnectorService() throws ScanningException {
+		if (deviceConnectorService == null)
+			deviceConnectorService = getDeviceConnector();
+	}
+
+    /**
+     * Try to get the connector service from the {@link BundleContext}
+     * @return The {@link IScannableDeviceService}
+     * @throws ScanningException
+     */
+	private IScannableDeviceService getDeviceConnector() throws ScanningException {
+		if (context != null) {
+			ServiceReference<IScannableDeviceService> ref = context
+					.getServiceReference(IScannableDeviceService.class);
+			return context.getService(ref);
+		} else {
+			throw new ScanningException(
+					"RunnableDeviceServiceImpl has no bundle "
+					+ "context to get a device connector service");
+		}
+	}
 }

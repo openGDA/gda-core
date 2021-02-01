@@ -30,7 +30,6 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.EventConstants;
@@ -54,6 +53,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
@@ -62,6 +62,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -69,7 +70,7 @@ import org.junit.Test;
 
 public class ScanTest extends BrokerTest {
 
-	protected IRunnableDeviceService runnableDeviceService;
+	protected IScanService scanService;
 	protected IScannableDeviceService scannableDeviceService;
 	protected IPointGeneratorService pointGenService;
 	protected IEventService eventService;
@@ -80,14 +81,14 @@ public class ScanTest extends BrokerTest {
 		ServiceTestHelper.registerTestDevices();
 		eventService = ServiceTestHelper.getEventService();
 		scannableDeviceService = ServiceTestHelper.getScannableDeviceService();
-		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+		scanService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 	}
 
 	@Test
 	public void testSetSimplePosition() throws Exception {
 
-		IPositioner     pos    = runnableDeviceService.createPositioner("test");
+		IPositioner     pos    = scanService.createPositioner("test");
 		pos.setPosition(new MapPosition("x:0:1, y:0:2"));
 
 		IScannable<Number> x = scannableDeviceService.getScannable("x");
@@ -110,7 +111,7 @@ public class ScanTest extends BrokerTest {
 	@Test
 	public void testLevels() throws Exception {
 
-		IPositioner     pos    = runnableDeviceService.createPositioner("test");
+		IPositioner pos = scanService.createPositioner("test");
 
 		final List<String> scannablesMoved = new ArrayList<>(6);
 		pos.addPositionListener(new IPositionListener() {
@@ -153,7 +154,7 @@ public class ScanTest extends BrokerTest {
 			}
 		}
 
-		IPositioner positioner   = runnableDeviceService.createPositioner("test");
+		IPositioner positioner   = scanService.createPositioner("test");
 
 		final List<String> levelsMoved = new ArrayList<>(6);
 		positioner.addPositionListener(new IPositionListener() {
@@ -203,7 +204,7 @@ public class ScanTest extends BrokerTest {
 		MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setExposureTime(0.01);
 		dmodel.setName("detector");
-		IRunnableDevice<MockDetectorModel> detector = runnableDeviceService.createRunnableDevice(dmodel);
+		IRunnableDevice<MockDetectorModel> detector = TestDetectorHelpers.createAndConfigureMockDetector(dmodel);
 
 		IRunnableDevice<ScanModel> scanner = createTestScanner(null, null, null, null, null, detector);
 		Executors.newSingleThreadScheduledExecutor().schedule(() -> {
@@ -318,7 +319,7 @@ public class ScanTest extends BrokerTest {
 		MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setExposureTime(0.001);
 		dmodel.setAbortCount(3); // Aborts on the third write call by throwing an exception
-		IWritableDetector<MockDetectorModel> detector = (IWritableDetector<MockDetectorModel>)runnableDeviceService.createRunnableDevice(dmodel);
+		IWritableDetector<MockDetectorModel> detector = TestDetectorHelpers.createAndConfigureMockDetector(dmodel);
 
 		// 2. Check run fails and check exception is that which the detector provided
 		// Not some horrible reflection one.
@@ -474,7 +475,7 @@ public class ScanTest extends BrokerTest {
 			final MockDetectorModel detModel = new MockDetectorModel();
 			detModel.setExposureTime(0.001);
 			detModel.setName("detector");
-			detector = runnableDeviceService.createRunnableDevice(detModel);
+			detector = TestDetectorHelpers.createAndConfigureMockDetector(detModel);
 		}
 
 		// If none passed, create scan points for a grid.
@@ -503,8 +504,7 @@ public class ScanTest extends BrokerTest {
 		if (monitorsPerScan!=null) scanModel.setMonitorsPerScan(monitorsPerScan);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, publisher);
-		return scanner;
+		return scanService.createScanDevice(scanModel, publisher);
 	}
 
 }

@@ -87,30 +87,6 @@ public class RunnableDeviceServiceProxy extends AbstractRemoteService implements
 	}
 
 	@Override
-	public <T> IRunnableDevice<T> createRunnableDevice(T model) throws ScanningException {
-		return createRunnableDevice(model, true);
-	}
-
-	@Override
-	public <T> IRunnableDevice<T> createRunnableDevice(T model, boolean configure) throws ScanningException {
-		try {
-			return new RunnableDeviceProxy<>(new DeviceRequest(model, configure), uri, eservice);
-		} catch (EventException | InterruptedException e) {
-			throw new ScanningException(e);
-		}
-	}
-
-	@Override
-	public <T> IRunnableDevice<T> createRunnableDevice(T model, IPublisher<ScanBean> publisher) throws ScanningException {
-		throw new ScanningException("Not possible to set custom publishers on "+getClass().getSimpleName()+" because it is remote!");
-	}
-
-	@Override
-	public <T> IRunnableDevice<T> createRunnableDevice(T model, IPublisher<ScanBean> publisher, boolean configure) throws ScanningException {
-		throw new ScanningException("Not possible to set custom publishers on "+getClass().getSimpleName()+" because it is remote!");
-	}
-
-	@Override
 	public <T> IRunnableDevice<T> getRunnableDevice(String name) throws ScanningException {
 		return getRunnableDevice(name, null);
 	}

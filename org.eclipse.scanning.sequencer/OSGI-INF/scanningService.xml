@@ -3,6 +3,7 @@
    <implementation class="org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl"/>
    <service>
       <provide interface="org.eclipse.scanning.api.device.IRunnableDeviceService"/>
+      <provide interface="org.eclipse.scanning.api.scan.IScanService"/>
    </service>
    <reference bind="setDeviceConnectorService" cardinality="0..1" interface="org.eclipse.scanning.api.device.IScannableDeviceService" name="IDeviceConnectorService" policy="static" />
 </scr:component>

@@ -34,6 +34,7 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class DetectorMetadataTest extends NexusTest {
 	@BeforeClass
 	public static void before() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = (IWritableDetector<MandelbrotModel>)runnableDeviceService.createRunnableDevice(model);
+		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
 	}
 

@@ -69,6 +69,7 @@ import org.eclipse.scanning.api.device.IDeviceController;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
+import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IDeviceWatchdogModel;
@@ -90,15 +91,14 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockTopupScannable;
@@ -110,11 +110,8 @@ import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.ScanProcess;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -137,15 +134,11 @@ public class ScanProcessTest {
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 
 		final RunnableDeviceServiceImpl dserviceImpl = (RunnableDeviceServiceImpl) dservice;
-		dserviceImpl._register(MockDetectorModel.class, MockWritableDetector.class);
-		dserviceImpl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		dserviceImpl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		dserviceImpl._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
 
 		final MandelbrotModel model = new MandelbrotModel("p", "q");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.00001);
-		dserviceImpl.createRunnableDevice(model);
+		dserviceImpl.register(TestDetectorHelpers.createAndConfigureMandelbrotDetector(model));
 
 		NexusMetadataDevice userNexusDevice = new NexusMetadataDevice("user", NexusBaseClass.NX_USER);
 		final Map<String, Object> userData = new HashMap<>();
@@ -277,25 +270,24 @@ public class ScanProcessTest {
 	private Mocks setupMocks() throws Exception {
 		// only used for the newer mockito based test methods in this class
 		final Mocks mocks = new Mocks(IDeviceWatchdogService.class, IDeviceController.class,
-				IRunnableDeviceService.class, IPausableDevice.class, IPointGeneratorService.class,
+				IScanService.class, IScanDevice.class, IPointGeneratorService.class,
 				IPointGenerator.class, ScanPointIterator.class, IPositioner.class, ScanModel.class,
 				IScriptService.class);
 
 		// assign the mocks used more than once to local variables for ease of reading
 		final IDeviceController mockDeviceController = mocks.get(IDeviceController.class);
 		@SuppressWarnings("rawtypes")
-		final IPausableDevice mockDevice = mocks.get(IPausableDevice.class);
-		final IRunnableDeviceService mockRunnableDeviceService = mocks.get(IRunnableDeviceService.class);
+		final IScanDevice mockDevice = mocks.get(IScanDevice.class);
+		final IScanService mockScanService = mocks.get(IScanService.class);
 		@SuppressWarnings("rawtypes")
 		final IPointGenerator mockPointGen = mocks.get(IPointGenerator.class);
 		final ScanPointIterator mockScanPointIterator = mocks.get(ScanPointIterator.class);
 
-		when(mockDeviceController.getDevice()).thenReturn(mockDevice);
+		when(mockDeviceController.getDevice()).thenReturn((IPausableDevice) mockDevice);
 		when(mockDevice.getModel()).thenReturn(mocks.get(ScanModel.class)); // prevents an NPE in ScanProcess.runScript
-
-		when(mockRunnableDeviceService.createRunnableDevice(nullable(ScanModel.class), nullable(IPublisher.class), eq(false))).thenReturn(mockDevice);
+		when(mockScanService.createScanDevice(nullable(ScanModel.class), nullable(IPublisher.class), eq(false))).thenReturn(mockDevice);
 		when(mocks.get(IDeviceWatchdogService.class).create(any(IPausableDevice.class), any(ScanBean.class))).thenReturn(mockDeviceController);
-		when(mockRunnableDeviceService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(mocks.get(IPositioner.class));
+		when(mockScanService.createPositioner(ScanProcess.class.getSimpleName())).thenReturn(mocks.get(IPositioner.class));
 		when(mocks.get(IPointGeneratorService.class).createCompoundGenerator(any(CompoundModel.class))).thenReturn(mockPointGen);
 		when(mockPointGen.size()).thenReturn(100); // these three lines required by ScanEstimator constructor
 		final IPosition firstPoint = new Scalar<>("xNex", 0, 0);
@@ -305,7 +297,8 @@ public class ScanProcessTest {
 
 		final Services services = new Services(); // the set methods of Services actually set a static field
 		services.setWatchdogService(mocks.get(IDeviceWatchdogService.class));
-		services.setRunnableDeviceService(mockRunnableDeviceService);
+		services.setRunnableDeviceService(mockScanService);
+		services.setScanService(mockScanService);
 		services.setScriptService(mocks.get(IScriptService.class));
 		services.setGeneratorService(mocks.get(IPointGeneratorService.class));
 
@@ -364,7 +357,7 @@ public class ScanProcessTest {
 		// Assert
 		verify(mocks.get(IPositioner.class)).abort();
 		verify(mocks.get(IScriptService.class), never()).execute(any(ScriptRequest.class)); // no scripts run (before or after)
-		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
+		verifyZeroInteractions(mocks.get(IScanDevice.class)); // scan not run
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
 	}
@@ -395,7 +388,7 @@ public class ScanProcessTest {
 		waitingAnswer.resume(); // resume the answer to allow scriptService.execute and then scanProcess.execute to finish
 		task.awaitCompletion();
 
-		verifyZeroInteractions(mocks.get(IPausableDevice.class)); // scan not run
+		verifyZeroInteractions(mocks.get(IScanDevice.class)); // scan not run
 		verify(mockScriptService, never()).execute(scanRequest.getAfterScript()); // after script not called
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
@@ -429,7 +422,7 @@ public class ScanProcessTest {
 
 		// set up a WaitingAnswer as the answer to mockDevice.run(), so we can call scanProcess.terminate
 		final WaitingAnswer<Void> runScanWaitingAnswer = new WaitingAnswer<>(null);
-		doAnswer(runScanWaitingAnswer).when(mocks.get(IPausableDevice.class)).run(null);
+		doAnswer(runScanWaitingAnswer).when(mocks.get(IScanDevice.class)).run(null);
 
 		// Act
 		// we need to run the scanProcess execute method in another thread, so that we can call terminate in this thread
@@ -440,7 +433,7 @@ public class ScanProcessTest {
 
 		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition()); // start position was moved to
 		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBeforeScript()); // before script was called
-		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
+		verify(mocks.get(IScanDevice.class)).run(null); // scan was run
 		scanProcess.terminate();
 
 		// Assert
@@ -484,7 +477,7 @@ public class ScanProcessTest {
 		final Mocks mocks = setupMocks();
 
 		final ScanningException e = new ScanningException("Something went wrong.");
-		doThrow(e).when(mocks.get(IPausableDevice.class)).run(null);
+		doThrow(e).when(mocks.get(IScanDevice.class)).run(null);
 
 		// Act
 		final ScanProcess process = new ScanProcess(scanBean, null, true);
@@ -492,7 +485,7 @@ public class ScanProcessTest {
 
 		verify(mocks.get(IPositioner.class)).setPosition(scanRequest.getStartPosition()); // start position was moved to
 		verify(mocks.get(IScriptService.class)).execute(scanRequest.getBeforeScript()); // before script was called
-		verify(mocks.get(IPausableDevice.class)).run(null); // scan was run
+		verify(mocks.get(IScanDevice.class)).run(null); // scan was run
 
 		if (alwaysRunAfterScript) {
 			verify(mocks.get(IScriptService.class), times(1)).execute(scanRequest.getAfterScript()); // after script alwats called
@@ -527,14 +520,14 @@ public class ScanProcessTest {
 		final IScriptService mockScriptService = mocks.get(IScriptService.class);
 		final IPositioner mockPositioner = mocks.get(IPositioner.class);
 		@SuppressWarnings("unchecked")
-		final IPausableDevice<ScanModel> mockDevice = mocks.get(IPausableDevice.class);
+		final IPausableDevice<ScanModel> mockDevice = mocks.get(IScanDevice.class);
 		@SuppressWarnings("unchecked")
 		final IPublisher<ScanBean> mockPublisher = mock(IPublisher.class);
 		when(mockPositioner.setPosition(scanRequest.getStartPosition())).thenAnswer(startPositionAnswer);
 		when(mockPositioner.setPosition(scanRequest.getEndPosition())).thenAnswer(endPositionAnswer);
 		doAnswer(beforeScriptAnswer).when(mockScriptService).execute(scanRequest.getBeforeScript());
 		doAnswer(afterScriptAnswer).when(mockScriptService).execute(scanRequest.getAfterScript());
-		doAnswer(runScanAnswer).when(mocks.get(IPausableDevice.class)).run(null);
+		doAnswer(runScanAnswer).when(mocks.get(IScanDevice.class)).run(null);
 		final InOrder inOrder = inOrder(mockPositioner, mockScriptService, mockDevice);
 
 		// Act
@@ -862,7 +855,7 @@ public class ScanProcessTest {
 		final DummyMalcolmModel dmodel = new DummyMalcolmModel();
 		dmodel.setName("malcolm");
 		dmodel.setExposureTime(valid ? 0.1 : -0.1); // use an negative exposure time for fail validation
-		dservice.createRunnableDevice(dmodel);
+		dservice.register(TestDetectorHelpers.createAndConfigureDummyMalcolmDetector(dmodel));
 
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();

@@ -35,7 +35,6 @@ import org.eclipse.scanning.api.annotation.scan.ScanStart;
 import org.eclipse.scanning.api.annotation.scan.WriteComplete;
 import org.eclipse.scanning.api.device.IPausableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -43,12 +42,14 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockScannable;
 import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockWritableDetector;
@@ -60,7 +61,7 @@ import org.junit.Test;
 @Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
 public class ScanSpeedTest extends BrokerTest {
 
-	private IRunnableDeviceService      dservice;
+	private IScanService      			sservice;
 	private IScannableDeviceService     connector;
 	private IPointGeneratorService      gservice;
 
@@ -69,7 +70,7 @@ public class ScanSpeedTest extends BrokerTest {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		dservice = ServiceTestHelper.getRunnableDeviceService();
+		sservice = ServiceTestHelper.getScanService();
 		connector = ServiceTestHelper.getScannableDeviceService();
 		gservice = ServiceTestHelper.getPointGeneratorService();
 	}
@@ -129,7 +130,7 @@ public class ScanSpeedTest extends BrokerTest {
 			mod.setCreateImage(false);  // Would put our times off.
 			mod.setExposureTime(0);
 
-			IRunnableDevice<MockDetectorModel> dev = dservice.createRunnableDevice(mod);
+			IRunnableDevice<MockDetectorModel> dev = TestDetectorHelpers.createAndConfigureMockDetector(mod);
 			dev.setLevel(i%10);
 			detectors.add(dev);
 		}
@@ -258,7 +259,7 @@ public class ScanSpeedTest extends BrokerTest {
 			mod.setCreateImage(createImage);  // Would put our times off.
 			mod.setExposureTime(0);
 
-			IRunnableDevice<MockDetectorModel> dev = dservice.createRunnableDevice(mod);
+			IRunnableDevice<MockDetectorModel> dev = TestDetectorHelpers.createAndConfigureMockDetector(mod);
 			dev.setLevel(i%10);
 			detectors.add(dev);
 		}
@@ -313,7 +314,7 @@ public class ScanSpeedTest extends BrokerTest {
 		smodel.setDetectors(dets);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(smodel);
 
 		return scanner;
 	}

@@ -50,19 +50,10 @@ import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.event.ScanningEventsClassRegistry;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
-import org.eclipse.scanning.example.detector.ConstantVelocityDevice;
-import org.eclipse.scanning.example.detector.ConstantVelocityModel;
-import org.eclipse.scanning.example.detector.DarkImageDetector;
-import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
-import org.eclipse.scanning.example.detector.PosDetector;
-import org.eclipse.scanning.example.detector.PosDetectorModel;
-import org.eclipse.scanning.example.detector.RandomLineDevice;
-import org.eclipse.scanning.example.detector.RandomLineModel;
 import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
-import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ScanPointGeneratorFactory;
@@ -74,13 +65,9 @@ import org.eclipse.scanning.sequencer.watchdog.DeviceWatchdogService;
 import org.eclipse.scanning.test.event.BillStatusBean;
 import org.eclipse.scanning.test.event.FredStatusBean;
 import org.eclipse.scanning.test.scan.servlet.MockScriptService;
-import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockDetectorModel;
-import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockWritableDetector;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
@@ -180,6 +167,7 @@ public final class ServiceTestHelper {
 		services.setGeneratorService(pointGeneratorService);
 		services.setMessagingService(activemqConnectorService);
 		services.setRunnableDeviceService(runnableDeviceService);
+		services.setScanService(runnableDeviceService);
 		services.setScriptService(scriptService);
 		services.setValidatorService(validatorService);
 		services.setWatchdogService(watchdogService);
@@ -250,30 +238,21 @@ public final class ServiceTestHelper {
 	 *             if setup fails
 	 */
 	public static void registerTestDevices() throws ScanningException, IOException {
-		runnableDeviceService._register(MockDetectorModel.class, MockWritableDetector.class);
-		runnableDeviceService._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		runnableDeviceService._register(MandelbrotModel.class, MandelbrotDetector.class);
-		runnableDeviceService._register(DummyMalcolmModel.class, DummyMalcolmDevice.class);
-		runnableDeviceService._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
-		runnableDeviceService._register(DarkImageModel.class, DarkImageDetector.class);
-		runnableDeviceService._register(RandomLineModel.class, RandomLineDevice.class);
-		runnableDeviceService._register(PosDetectorModel.class, PosDetector.class);
-		runnableDeviceService._register(AnnotatedMockDetectorModel.class, AnnotatedMockWritableDetector.class);
 
 		final MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setName("detector");
 		dmodel.setExposureTime(0.000001);
-		runnableDeviceService.createRunnableDevice(dmodel);
+		runnableDeviceService.register(TestDetectorHelpers.createAndConfigureMockDetector(dmodel));
 
 		MandelbrotModel model = new MandelbrotModel("xNex", "yNex");
 		model.setName("mandelbrot");
 		model.setExposureTime(0.00001);
-		runnableDeviceService.createRunnableDevice(model);
+		runnableDeviceService.register(TestDetectorHelpers.createAndConfigureMandelbrotDetector(model));
 
 		model = new MandelbrotModel("xNex", "yNex");
 		model.setName("m");
 		model.setExposureTime(0.00001);
-		runnableDeviceService.createRunnableDevice(model);
+		runnableDeviceService.register(TestDetectorHelpers.createAndConfigureMandelbrotDetector(model));
 
 		final DummyMalcolmDevice dummyMalcolm = new DummyMalcolmDevice();
 		final DeviceInformation<IMalcolmModel> malcInfo = new DeviceInformation<>();

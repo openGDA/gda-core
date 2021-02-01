@@ -18,7 +18,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -34,11 +33,13 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.BrokerTest;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class ScanExecutionTest extends BrokerTest {
 
 	private static IEventService     eventService;
 	private static IPointGeneratorService generatorService;
-	private static IRunnableDeviceService  runnableDeviceService;
+	private static IScanService  scanService;
 	private static IScannableDeviceService connector;
 
 
@@ -99,7 +100,7 @@ public class ScanExecutionTest extends BrokerTest {
 		MockDetectorModel dmodel = new MockDetectorModel();
 		dmodel.setExposureTime(0.1);
 		dmodel.setName("swmr");
-		IWritableDetector<MockDetectorModel> detector = (IWritableDetector<MockDetectorModel>) runnableDeviceService.createRunnableDevice(dmodel);
+		IWritableDetector<MockDetectorModel> detector = TestDetectorHelpers.createAndConfigureMockDetector(dmodel);
 		assertNotNull(detector);
 
 		detector.addRunListener(new IRunListener() {
@@ -145,7 +146,7 @@ public class ScanExecutionTest extends BrokerTest {
 		System.out.println("File writing to "+smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(smodel);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
@@ -174,12 +175,12 @@ public class ScanExecutionTest extends BrokerTest {
 		ScanExecutionTest.generatorService = generatorService;
 	}
 
-	public static IRunnableDeviceService getRunnableDeviceService() {
-		return runnableDeviceService;
+	public static IScanService getScanService() {
+		return scanService;
 	}
 
-	public static void setRunnableDeviceService(IRunnableDeviceService scanService) {
-		ScanExecutionTest.runnableDeviceService = scanService;
+	public static void setScanService(IScanService scanService) {
+		ScanExecutionTest.scanService = scanService;
 	}
 
 	/**
@@ -190,7 +191,7 @@ public class ScanExecutionTest extends BrokerTest {
 	public void checkServices() throws Exception {
 		assertNotNull(eventService);
 		assertNotNull(generatorService);
-		assertNotNull(runnableDeviceService);
+		assertNotNull(scanService);
 		assertNotNull(connector);
 	}
 }
