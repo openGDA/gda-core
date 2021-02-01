@@ -32,6 +32,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -55,6 +56,11 @@ public class JsonMessagingServiceTest {
 	public static void beforeClass() {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker for tests
 		new ServiceHolder().setSessionService(new TestSessionService());
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		LocalProperties.unsetActiveMQBrokerURI();
 	}
 
 	@Before
