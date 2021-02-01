@@ -77,20 +77,15 @@
 											<exclude>de.jreality.*</exclude>
 										</excludes>
 										<additionalArguments>
-											<additionalArgument>-link
-												https://docs.oracle.com/en/java/javase/11/docs/api</additionalArgument>
-											<additionalArgument>-doctitle 'GDA (Generic Data
-												Acquisition)'</additionalArgument>
-											<additionalArgument>-header
-												'<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
+											<additionalArgument>-link https://docs.oracle.com/en/java/javase/11/docs/api</additionalArgument>
+											<additionalArgument>-doctitle 'GDA (Generic Data Acquisition)'</additionalArgument>
+											<additionalArgument>-header '<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
 											</additionalArgument>
-											<additionalArgument>-footer
-												'<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
+											<additionalArgument>-footer '<![CDATA[<div style="margin-top: 14px;"><strong>GDA</strong> </div>]]>'
 											</additionalArgument>
 											<!--This seems to be required to allow the search bar links to 
 												work with module/non-module based docs see https://stackoverflow.com/a/52603413 -->
-											<additionalArgument>-bottom
-												'<![CDATA[<p>Build timestamp: ${maven.build.timestamp}</p><script>if (typeof useModuleDirectories !== 'undefined') { useModuleDirectories = false; } </script>]]>'
+											<additionalArgument>-bottom '<![CDATA[<p>Build timestamp: ${maven.build.timestamp}</p><script>if (typeof useModuleDirectories !== 'undefined') { useModuleDirectories = false; } </script>]]>'
 											</additionalArgument>
 											<additionalArgument>--allow-script-in-comments</additionalArgument>
 										</additionalArguments>
