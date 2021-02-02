@@ -35,6 +35,8 @@ import java.util.Optional;
 import org.junit.After;
 import org.junit.Test;
 
+import gda.device.Scannable;
+
 public class FinderTest {
 
 	@After
@@ -77,6 +79,25 @@ public class FinderTest {
 		prepareFactoryForFindAndFindOptionalTests();
 
 		Optional<Findable> findable = Finder.findOptional("findable3");
+
+		assertFalse(findable.isPresent());
+	}
+
+	@Test
+	public void findOptionalOfTypeReturnsOptionalWithCorrectFindableWhenNameAndTypeMatch() throws FactoryException {
+		prepareFactoryForFindAndFindOptionalTests();
+
+		Optional<Findable> findable = Finder.findOptionalOfType("findable1", Findable.class);
+
+		assertTrue(findable.isPresent());
+		assertEquals("findable1", findable.get().getName());
+	}
+
+	@Test
+	public void findOptionalOfTypeReturnsEmptyOptionalWhenNameMatchesButTypeDoesNot() throws FactoryException {
+		prepareFactoryForFindAndFindOptionalTests();
+
+		Optional<Scannable> findable = Finder.findOptionalOfType("findable1", Scannable.class);
 
 		assertFalse(findable.isPresent());
 	}

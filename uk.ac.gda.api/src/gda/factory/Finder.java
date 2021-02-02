@@ -83,9 +83,31 @@ public enum Finder {
 	 * @param name
 	 *            object to find.
 	 * @return the Optional<T> findable object
+	 *
+	 * @deprecated This method is deprecated as it is not type safe. It could return an Optional<T> where T
+	 * is not compatible with the type of the variable you assign it to, and you will then encounter a ClassCastException
+	 * when you try to access it. findOptionalOfType should be used instead. Will be removed in GDA 9.22. See DAQ-3348.
 	 */
+	@Deprecated
 	public static <T extends Findable> Optional<T> findOptional(String name) {
+		logger.warn("findOptional is deprecated and will be removed in GDA 9.22. Please update your code to use findOptionalOfType instead.");
 		return Optional.ofNullable(findObjectByName(name, false));
+	}
+
+	/**
+	 * Return a Optional named object from any of the factories known to the finder.
+	 *
+	 * @param <T>
+	 * 			class of Optional<T> Object being returned
+	 * @param name
+	 * 			The object to find
+	 * @param findableType
+	 * 			The class or interface to match
+	 * @return the Optional<T> findable object
+	 */
+	public static <T extends Findable> Optional<T> findOptionalOfType(String name, Class<T> findableType) {
+		Optional<T> findable = Optional.ofNullable(findObjectByName(name, false));
+		return findable.filter(findableType::isInstance);
 	}
 
 	/**
