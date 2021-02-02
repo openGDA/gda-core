@@ -34,11 +34,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -177,9 +177,8 @@ public class OuterScannablesSection extends AbstractMappingSection {
 			// Create checkbox and bind to "includeInScan" in the model
 			final Button checkBox = new Button(scannablesComposite, SWT.CHECK);
 			checkBox.setText(scannableName);
-			final IObservableValue<?> checkBoxValue = WidgetProperties.selection().observe(checkBox);
-			@SuppressWarnings("unchecked")
-			final IObservableValue<?> activeValue = PojoProperties.value("includeInScan").observe(scannableAxisParameters);
+			final IObservableValue<Boolean> checkBoxValue = WidgetProperties.buttonSelection().observe(checkBox);
+			final IObservableValue<Boolean> activeValue = PojoProperties.value("includeInScan", Boolean.class).observe(scannableAxisParameters);
 			final Binding checkBoxBinding = dataBindingContext.bindValue(checkBoxValue, activeValue);
 			checkBoxBindings.put(scannableName, checkBoxBinding);
 

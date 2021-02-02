@@ -26,12 +26,12 @@ import java.util.Optional;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -88,12 +88,12 @@ public class ScanPathEditor extends Composite implements IObservable {
 				+ "or a list of points <pos1,pos2,pos3,pos4...>\n"
 				+ "or a list of ranges <start1 stop1 step1; start2 stop2 step2>");
 		GridDataFactory.fillDefaults().hint(300, SWT.DEFAULT).grab(true, false).applyTo(axisText);
-		final IObservableValue<?> axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
+		final IObservableValue<String> axisTextValue = WidgetProperties.text(SWT.Modify).observe(axisText);
 
 		// Box to show current value
 		currentValueLabel = new Label(this, SWT.NONE);
 		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(currentValueLabel);
-		final Optional<Scannable> optScannable = Finder.findOptional(scannableName);
+		final Optional<Scannable> optScannable = Finder.findOptionalOfType(scannableName, Scannable.class);
 		if (optScannable.isPresent()) {
 			scannable = optScannable.get();
 			updateCurrentValue();
@@ -149,24 +149,23 @@ public class ScanPathEditor extends Composite implements IObservable {
 	}
 
 	public void setScanPathModel(IScanPointGeneratorModel model) {
-		axisText.setText((String) new ScanPathToStringConverter().convert(model));
+		axisText.setText(new ScanPathToStringConverter().convert(model));
 		observable.notifyIObservers(this, model);
 	}
 
-	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPointGeneratorModel> scannableAxisParameters, IObservableValue<?> axisTextValue) {
+	private void bindScanPathModelToTextField(IScanModelWrapper<IScanPointGeneratorModel> scannableAxisParameters, IObservableValue<String> axisTextValue) {
 		final String scannableName = scannableAxisParameters.getName();
-		@SuppressWarnings("unchecked")
-		final IObservableValue<?> axisValue = BeanProperties.value("model").observe(scannableAxisParameters);
+		final IObservableValue<IScanPointGeneratorModel> axisValue = BeanProperties.value("model", IScanPointGeneratorModel.class).observe(scannableAxisParameters);
 
 		// create an update strategy from text to model with a converter and a validator
-		final UpdateValueStrategy axisTextToModelStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<String, IScanPointGeneratorModel> axisTextToModelStrategy = new UpdateValueStrategy<>();
 		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
 		axisTextToModelStrategy.setBeforeSetValidator(value -> {
 			// the value created by the converter will be an IScanPointGeneratorModel if the text value is valid, or null if not
-			if (value instanceof IScanPointGeneratorModel) {
+			if (value != null) {
 				return ValidationStatus.ok();
 			}
-			final boolean isEmpty = ((String) axisTextValue.getValue()).isEmpty();
+			final boolean isEmpty = axisTextValue.getValue().isEmpty();
 			final String message = isEmpty ? "Enter a range or list of values for this scannable" : "Text is incorrectly formatted";
 			if (scannableAxisParameters.isIncludeInScan()) {
 				return ValidationStatus.error(message);
@@ -177,7 +176,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		});
 
 		// create an update strategy from model back to text
-		final UpdateValueStrategy modelToAxisTextStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<IScanPointGeneratorModel, String> modelToAxisTextStrategy = new UpdateValueStrategy<>();
 		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
 
 		// create the binding from the values and the two update strategies
@@ -238,25 +237,25 @@ public class ScanPathEditor extends Composite implements IObservable {
 	/**
 	 * Class to convert a path model to a string
 	 */
-	private static class ScanPathToStringConverter extends Converter {
+	private static class ScanPathToStringConverter extends Converter<IScanPointGeneratorModel, String> {
 
 		public ScanPathToStringConverter() {
 			super(IScanPointGeneratorModel.class, String.class);
 		}
 
 		@Override
-		public Object convert(Object fromObject) {
-			if (fromObject == null) {
+		public String convert(IScanPointGeneratorModel model) {
+			if (model == null) {
 				return ""; // this is the case when the outer scannable is not specified
-			} else if (fromObject instanceof AxialStepModel) {
-				return convertAxialStepModel((AxialStepModel) fromObject);
-			} else if (fromObject instanceof AxialArrayModel) {
-				return convertAxialArrayModel((AxialArrayModel) fromObject);
-			} else if (fromObject instanceof AxialMultiStepModel) {
-				return convertMultiAxialStepModel((AxialMultiStepModel) fromObject);
+			} else if (model instanceof AxialStepModel) {
+				return convertAxialStepModel((AxialStepModel) model);
+			} else if (model instanceof AxialArrayModel) {
+				return convertAxialArrayModel((AxialArrayModel) model);
+			} else if (model instanceof AxialMultiStepModel) {
+				return convertMultiAxialStepModel((AxialMultiStepModel) model);
 			} else {
 				// We only expect path model types that can be created from this GUI
-				throw new IllegalArgumentException("Unknown model type: " + fromObject.getClass());
+				throw new IllegalArgumentException("Unknown model type: " + model.getClass());
 			}
 		}
 
@@ -322,7 +321,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 	 * <p>
 	 * If the string contains a comma, it is interpreted a sequence of points, otherwise as one or more ranges.
 	 */
-	private static final class StringToScanPathConverter extends Converter {
+	private static final class StringToScanPathConverter extends Converter<String, IScanPointGeneratorModel> {
 		private final String scannableName;
 
 		private StringToScanPathConverter(String scannableName) {
@@ -331,8 +330,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		}
 
 		@Override
-		public Object convert(Object fromObject) {
-			final String text = (String) fromObject;
+		public IScanPointGeneratorModel convert(String text) {
 			if (text.isEmpty()) {
 				return null;
 			}

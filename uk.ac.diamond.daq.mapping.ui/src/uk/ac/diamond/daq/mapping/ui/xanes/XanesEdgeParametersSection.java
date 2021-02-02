@@ -43,8 +43,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
@@ -53,9 +53,9 @@ import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.ServiceHolder;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -126,7 +126,6 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	private ComboViewer linesToTrackCombo;
 	private Button enforcedShape;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
@@ -172,19 +171,19 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		updateControls();
 
 		// Bind to model
-		final IViewerObservableValue comboObservable = ViewersObservables.observeSingleSelection(linesToTrackCombo);
-		final IObservableValue<XanesEdgeParameters> modelObservable = BeanProperties.value("linesToTrack").observe(scanParameters);
+		final IViewerObservableValue<?> comboObservable = ViewerProperties.singleSelection().observe(linesToTrackCombo);
+		final IObservableValue<XanesEdgeParameters> modelObservable = BeanProperties.value("linesToTrack", XanesEdgeParameters.class).observe(scanParameters);
 		dataBindingContext.bindValue(comboObservable, modelObservable);
 
 		// Radio buttons to choose tracking method (reference/edge)
 		final SelectObservableValue<String> radioButtonObservable = new SelectObservableValue<>();
 		final Button btnUseReference = createRadioButton(content, getMessage(XANES_USE_REFERENCE));
-		radioButtonObservable.addOption(REFERENCE.toString(), WidgetProperties.selection().observe(btnUseReference));
+		radioButtonObservable.addOption(REFERENCE.toString(), WidgetProperties.buttonSelection().observe(btnUseReference));
 		final Button btnUseEdge = createRadioButton(content, getMessage(XANES_USE_EDGE));
-		radioButtonObservable.addOption(EDGE.toString(), WidgetProperties.selection().observe(btnUseEdge));
+		radioButtonObservable.addOption(EDGE.toString(), WidgetProperties.buttonSelection().observe(btnUseEdge));
 
 		// Bind to model
-		final IObservableValue<XanesEdgeParameters> radioButtonModelObservable = PojoProperties.value(XanesEdgeParameters.class, "trackingMethod", TrackingMethod.class).observe(scanParameters);
+		final IObservableValue<TrackingMethod> radioButtonModelObservable = PojoProperties.value("trackingMethod", TrackingMethod.class).observe(scanParameters);
 		dataBindingContext.bindValue(radioButtonObservable, radioButtonModelObservable);
 
 		if (scanParameters.getTrackingMethod().equals(REFERENCE.toString())) {
