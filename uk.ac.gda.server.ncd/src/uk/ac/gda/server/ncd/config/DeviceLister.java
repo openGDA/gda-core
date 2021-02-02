@@ -18,62 +18,49 @@
 
 package uk.ac.gda.server.ncd.config;
 
-import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.Finder;
-import gda.jython.JythonServer;
+import gda.jython.IJythonNamespace;
+import gda.jython.InterfaceProvider;
 
 public class DeviceLister {
+	private static final String HTML_FORMAT = "<b>%s</b> %s; %s; (%d)<br>";
+	private static final String TEXT_FORMAT = "%s %s; %s; (%d)";
 
-	public static String generateDeviceListHTML() throws DeviceException {
-		return generateDeviceList("", "", "<p>", "</p>", " <b>", "</b> ", "", "", ",", "; ", "", "", ",", "; ", " (", ")");
+	public static String generateDeviceListHTML() {
+		return generateDeviceList(HTML_FORMAT);
 	}
 
-	public static String generateDeviceList() throws DeviceException {
-		return generateDeviceList("", "", "", "\n", "", ":", "", "", ",", ";", "", "", ",", ";", "", "");
+	public static String generateDeviceList() {
+		return generateDeviceList(TEXT_FORMAT);
 	}
 
-	public static String generateDeviceList(String bodyStart, String bodyEnd, String lineStart, String lineEnd, String nameStart, String nameEnd, String inputStart, String inputEnd, String inputInterSep, String inputFinalSep, String extraStart, String extraEnd, String extraIntersep, String extraFinalSep, String permissionStart, String permissionEnd) throws DeviceException {
-
-		final SortedMap<String, Scannable> sortedMap = new TreeMap<>(Finder.findSingleton(JythonServer.class).getAllObjectsOfType(Scannable.class));
-		StringBuilder sb = new StringBuilder(bodyStart);
-		for (Entry<String, Scannable> entry : sortedMap.entrySet()) {
-			sb.append(lineStart);
-			
-			sb.append(nameStart);
-			sb.append(entry.getKey());
-			sb.append(nameEnd);
-			
-			boolean first = true;
-			for (String in : entry.getValue().getInputNames()) {
-				if (!first) sb.append(inputInterSep);
-				sb.append(inputStart);
-				sb.append(in);
-				sb.append(inputEnd);
-				first = false;
-			}
-			
-			first = true;
-			sb.append(inputFinalSep);
-			for (String en : entry.getValue().getExtraNames()) {
-				if (!first) sb.append(extraIntersep);
-				sb.append(extraStart);
-				sb.append(en);
-				sb.append(extraEnd);
-				first = false;
-			}
-			sb.append(extraFinalSep);
-
-			sb.append(permissionStart);
-			sb.append(entry.getValue().getProtectionLevel());
-			sb.append(permissionEnd);
-			sb.append(lineEnd);
+	private static String formatScannable(String format, Scannable s) {
+		int level;
+		try {
+			level = s.getProtectionLevel();
+		} catch (DeviceException e) {
+			level = -1;
 		}
-		sb.append(bodyEnd);
-		return sb.toString();
+		return String.format(format,
+				s.getName(),
+				stream(s.getInputNames()).collect(joining(",")),
+				stream(s.getExtraNames()).collect(joining(",")),
+				level);
+	}
+
+	public static String generateDeviceList(String format) {
+		IJythonNamespace namespace = InterfaceProvider.getJythonNamespace();
+		return namespace
+				.getAllNamesForType(Scannable.class)
+				.stream()
+				.sorted()
+				.map(namespace::getFromJythonNamespace)
+				.map(Scannable.class::cast) // safe based on getAllNamesForType
+				.map(s -> formatScannable(format, s))
+				.collect(joining("\n"));
 	}
 }
