@@ -98,7 +98,6 @@ import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -113,28 +112,21 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
-import org.eclipse.scanning.example.detector.ConstantVelocityDevice;
-import org.eclipse.scanning.example.detector.ConstantVelocityModel;
-import org.eclipse.scanning.example.detector.DarkImageDetector;
-import org.eclipse.scanning.example.detector.DarkImageModel;
-import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.Services;
-import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritableDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandelbrotDetector;
-import org.eclipse.scanning.test.utilities.scan.mock.MockWritingMandlebrotModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -180,7 +172,7 @@ public class ScannableNexusWrapperScanTest {
 	public static void setServices() throws Exception {
 
 		connector   = new ScannableDeviceConnectorService();
-		dservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
+		sservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
 		gservice    = new PointGeneratorService();
 		fileFactory = new NexusFileFactoryHDF5();
 
@@ -188,17 +180,9 @@ public class ScannableNexusWrapperScanTest {
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
 		final IEventService eservice  = new EventServiceImpl(activemqConnectorService);
 
-		final IRunnableDeviceService dservice  = new RunnableDeviceServiceImpl(connector);
-		final RunnableDeviceServiceImpl impl = (RunnableDeviceServiceImpl)dservice;
-		impl._register(MockDetectorModel.class, MockWritableDetector.class);
-		impl._register(MockWritingMandlebrotModel.class, MockWritingMandelbrotDetector.class);
-		impl._register(MandelbrotModel.class, MandelbrotDetector.class);
-		impl._register(ConstantVelocityModel.class, ConstantVelocityDevice.class);
-		impl._register(DarkImageModel.class, DarkImageDetector.class);
-
 		final Services services = new Services();
 		services.setEventService(eservice);
-		services.setRunnableDeviceService(dservice);
+		services.setRunnableDeviceService(sservice);
 		services.setGeneratorService(gservice);
 		services.setConnector(connector);
 
@@ -341,7 +325,7 @@ public class ScannableNexusWrapperScanTest {
 	public static final String TEST_CONFIG_FILE_PATH =
 			"testfiles/gda/scanning/ScannableNexusWrapperScanTest/testdatawriter.xml";
 	protected static IScannableDeviceService connector;
-	protected static IRunnableDeviceService  dservice;
+	protected static IScanService		     sservice;
 	protected static IPointGeneratorService  gservice;
 	protected static INexusFileFactory       fileFactory;
 
@@ -359,7 +343,8 @@ public class ScannableNexusWrapperScanTest {
 		model.setRealAxisName("salong");
 		model.setImaginaryAxisName("saperp");
 
-		detector = (IWritableDetector<MandelbrotModel>) dservice.createRunnableDevice(model);
+		detector = TestDetectorHelpers
+				.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
 		detector.addRunListener(new IRunListener() {
 
@@ -1067,7 +1052,7 @@ public class ScannableNexusWrapperScanTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		final IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel, null);
+		final IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
