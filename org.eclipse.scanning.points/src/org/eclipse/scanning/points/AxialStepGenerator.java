@@ -52,7 +52,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
         final boolean continuous = model.isContinuous();
         final int numPoints = size(model);
         final double start  = model.getStart();
-        final double stop   = start + model.getStep() * (numPoints-1);
+        final double stop   = numPoints == 1 ? model.getStop() : start + model.getStep() * (numPoints - 1);
 
         final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 
