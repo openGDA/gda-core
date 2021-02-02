@@ -28,14 +28,15 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.LiveStreamConnection;
-import uk.ac.gda.client.live.stream.LiveStreamConnectionBuilder;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Creates a predefined view for the imaging camera stream. This view defines the {@link #IMAGING_CAMERA_ID} property which has to be equal to one
@@ -73,13 +74,11 @@ public class ImagingCameraView extends ViewPart {
 	}
 
 	private LiveStreamConnection getLiveStreamConnection() throws LiveStreamException {
-		Optional<CameraProperties> cameraProperties = CameraHelper
-				.getCameraPropertiesByID(LocalProperties.get(IMAGING_CAMERA_ID, null));
-		if (!cameraProperties.isPresent()) {
-			throw new LiveStreamException("No Camera Confguration found");
-		}
-		CameraConfiguration cc = CameraHelper.getCameraConfiguration(cameraProperties.get().getIndex())
+		CameraConfiguration cc = CameraHelper.getCameraConfigurationPropertiesByID(LocalProperties.get(IMAGING_CAMERA_ID, null))
+				.map(CameraHelper::createICameraConfiguration)
+				.map(ICameraConfiguration::getCameraConfiguration)
+				.map(Optional::get)
 				.orElseThrow(() -> new LiveStreamException("No Camera Confguration found"));
-		return new LiveStreamConnectionBuilder(cc, StreamType.EPICS_ARRAY).buildAndConnect();
+		return SpringApplicationContextFacade.getBean(CameraStreamsManager.class).getStreamConnection(cc, StreamType.EPICS_ARRAY);
 	}
 }

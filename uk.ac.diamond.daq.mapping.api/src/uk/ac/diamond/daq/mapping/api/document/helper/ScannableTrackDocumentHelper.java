@@ -45,19 +45,19 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * The method silently return without updating the document if
 	 * <p>
-	 * {@code starts.length == getScanpathDocument().getScannableTrackDocuments().size()}
+	 * {@code starts.length != getScanpathDocument().getScannableTrackDocuments().size()}
 	 * </p>
 	 *
 	 * @param starts
 	 *            the start per each scannableTrackDocument
 	 */
-	public void updateScannableTrackDocumentsStarts(int... starts) {
-		if (starts.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
+	public void updateScannableTrackDocumentsStarts(double... starts) {
+		if (starts.length != getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
 		List<String> axes = getAxes();
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
-				.assembleScannableTracks(IntStream.of(starts.length)
+				.assembleScannableTracks(IntStream.range(0, starts.length)
 					.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withStart(starts[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
@@ -69,19 +69,19 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * The method silently return without updating the document if
 	 * <p>
-	 * {@code stops.length == getScanpathDocument().getScannableTrackDocuments().size()}
+	 * {@code stops.length != getScanpathDocument().getScannableTrackDocuments().size()}
 	 * </p>
 	 *
 	 * @param stops
 	 *            the stop per each scannableTrackDocument
 	 */
-	public void updateScannableTrackDocumentsStops(int... stops) {
-		if (stops.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
+	public void updateScannableTrackDocumentsStops(double... stops) {
+		if (stops.length != getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
 		List<String> axes = getAxes();
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
-				.assembleScannableTracks(IntStream.of(stops.length)
+				.assembleScannableTracks(IntStream.range(0, stops.length)
 					.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withStop(stops[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));
@@ -116,19 +116,19 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 	 *
 	 * The method silently return without updating the document if
 	 * <p>
-	 * {@code steps.length == getScanpathDocument().getScannableTrackDocuments().size()}
+	 * {@code steps.length != getScanpathDocument().getScannableTrackDocuments().size()}
 	 * </p>
 	 *
 	 * @param steps
 	 *            the step per each scannableTrackDocument
 	 */
 	public void updateScannableTrackDocumentsSteps(int... steps) {
-		if (steps.length == getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
+		if (steps.length != getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}
 		List<String> axes = getAxes();
 		List<ScannableTrackDocument> trackDocuments = ScanningParametersHelperBase
-				.assembleScannableTracks(IntStream.of(steps.length)
+				.assembleScannableTracks(IntStream.range(0, steps.length)
 					.mapToObj(index -> getScannableTrackDocumentBuilder(axes.get(index)).withStep(steps[index]))
 					.toArray(ScannableTrackDocument.Builder[]::new));
 		updateScanPathDocument(getScanpathDocumentBuilder().withScannableTrackDocuments(trackDocuments));

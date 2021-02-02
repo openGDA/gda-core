@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.client.gui.camera.beam;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -142,8 +143,9 @@ public class BeamCameraMappingHelper {
 	private void updateCameraConfiguration(RealMatrix transformation) {
 		CameraToBeamMap cameraToBeamMap = new CameraToBeamMap();
 		cameraToBeamMap.setMap(transformation.getData());
-		cameraToBeamMap.setDriverX(beamX.getScannableName());
-		cameraToBeamMap.setDriverY(beamY.getScannableName());
+		cameraToBeamMap.setDriver(new ArrayList<>());
+		cameraToBeamMap.getDriver().add(beamX.getScannableName());
+		cameraToBeamMap.getDriver().add(beamY.getScannableName());
 		cameraToBeamMap.setActive(true);
 		context.getCameraConfiguration()
 			.ifPresent(cc -> CameraHelper.addBeamCameraMap(cc, cameraToBeamMap));

@@ -157,9 +157,9 @@ public class DrawCameraMappingArea {
 			throw new GDAClientException("Cannot retrieve the camera frame size");
 		}
 
-		IScannableMotor driverX = FinderHelper.getIScannableMotor(beamCameraMap.getDriverX())
+		IScannableMotor driverX = FinderHelper.getIScannableMotor(beamCameraMap.getDriver().get(0))
 				.orElseThrow(() -> new GDAClientException("Cannot use beam driver X"));
-		IScannableMotor driverY = FinderHelper.getIScannableMotor(beamCameraMap.getDriverY())
+		IScannableMotor driverY = FinderHelper.getIScannableMotor(beamCameraMap.getDriver().get(1))
 				.orElseThrow(() -> new GDAClientException("Cannot use beam driver Y"));
 
 		Optional<RealVector> solutionMin;

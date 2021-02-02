@@ -287,8 +287,15 @@ public final class CameraHelper {
 		return cameraConfigurations.computeIfAbsent(cameraIndex, ICameraConfigurationImpl::new);
 	}
 
+	/**
+	 * @param cameraProperties
+	 * @return may return {@code null}
+	 */
 	public static ICameraConfiguration createICameraConfiguration(CameraConfigurationProperties cameraProperties) {
-		return createICameraConfiguration(getCameraPropertiesBySpring(cameraProperties).getIndex());
+		return Optional.ofNullable(getCameraPropertiesBySpring(cameraProperties))
+				.map(CameraProperties::getIndex)
+				.map(CameraHelper::createICameraConfiguration)
+				.orElse(null);
 	}
 
 	/**

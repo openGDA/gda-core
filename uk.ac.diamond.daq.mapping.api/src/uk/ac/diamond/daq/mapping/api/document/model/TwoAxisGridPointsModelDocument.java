@@ -137,8 +137,7 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
 		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
 		return new BoundingBox(scannableOne.getStart(), scannableTwo.getStart(),
-				scannableOne.getStop() - scannableOne.getStart(),
-				scannableTwo.getStop() - scannableTwo.getStart());
+				scannableOne.length(),	scannableTwo.length());
 	}
 
 	@Override

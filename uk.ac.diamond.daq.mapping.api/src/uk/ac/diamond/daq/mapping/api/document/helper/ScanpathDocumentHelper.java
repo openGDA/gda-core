@@ -112,7 +112,7 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 * @param start
 	 *            the new start position for the existing scannableTrackDocument
 	 *
-	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsStarts(int...)}
+	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsStarts(double...)}
 	 */
 	@Deprecated
 	public void updateStartAngle(double start) {
@@ -127,7 +127,7 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 * @param stop
 	 *            the new stop position for the existing scannableTrackDocument
 	 *
-	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsStops(int...)}
+	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsStops(double...)}
 	 */
 	@Deprecated
 	public void updateStopAngle(double stop) {
