@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiHidden;
-
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 /**
@@ -56,7 +53,6 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 	}
 
 	@Override
-	@UiComesAfter("name")
 	public boolean isIncludeInScan() {
 		return includeInScan;
 	}
@@ -67,7 +63,6 @@ public abstract class ScanModelWrapper<T> implements IScanModelWrapper<T> {
 	}
 
 	@Override
-	@UiHidden
 	public T getModel() {
 		return model;
 	}

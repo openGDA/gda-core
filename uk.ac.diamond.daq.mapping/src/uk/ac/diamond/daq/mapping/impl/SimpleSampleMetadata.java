@@ -18,9 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.impl;
 
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiLarge;
-
 import uk.ac.diamond.daq.mapping.api.ISampleMetadata;
 
 /**
@@ -41,8 +38,6 @@ public class SimpleSampleMetadata implements ISampleMetadata {
 		this.sampleName = sampleName;
 	}
 
-	@UiLarge
-	@UiComesAfter("sampleName")
 	public String getDescription() {
 		return description;
 	}
