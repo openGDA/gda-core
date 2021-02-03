@@ -4,5 +4,6 @@
       <provide interface="uk.ac.diamond.daq.api.messaging.MessagingService"/>
    </service>
    <reference bind="setFactoryService" cardinality="1..1" interface="uk.ac.diamond.daq.services.PropertyService" name="FactoryService"/>
+   <reference bind="setSessionService" cardinality="1..1" interface="uk.ac.gda.common.activemq.ISessionService" name="SessionService"/>
    <implementation class="uk.ac.diamond.daq.messaging.json.JsonMessagingService"/>
 </scr:component>

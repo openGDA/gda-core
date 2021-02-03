@@ -41,12 +41,12 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.api.messaging.Destination;
 import uk.ac.diamond.daq.api.messaging.Message;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.concurrent.Threads;
 import uk.ac.diamond.daq.services.PropertyService;
+import uk.ac.gda.common.activemq.ISessionService;
 
 /**
  * Implementation of the {@link MessagingService}. It uses ActiveMQ as the broker and Jackson for the JSON
@@ -72,10 +72,12 @@ public class JsonMessagingService implements MessagingService {
 
 	private Session session;
 
+	private ISessionService sessionService;
+
 	@Activate
 	public void activate() {
 		try {
-			session = ServiceHolder.getSessionService().getSession();
+			session = sessionService.getSession();
 		} catch (JMSException e) {
 			throw new RuntimeException("Unable to create Session on ActiveMQ connection ", e);
 		}
@@ -160,5 +162,15 @@ public class JsonMessagingService implements MessagingService {
 			}
 		}
 	}
+
+	@Reference(cardinality = MANDATORY)
+	public void setSessionService(ISessionService sessionService) {
+		this.sessionService = sessionService;
+	}
+
+	public ISessionService getSessionService() {
+		return sessionService;
+	}
+
 
 }
