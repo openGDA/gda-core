@@ -87,7 +87,9 @@ public class XanesScanningUtils {
 		}
 
 		// Create a multi-step model containing these step models
-		return new AxialMultiStepModel(energyScannableName, stepModels);
+		final AxialMultiStepModel model = new AxialMultiStepModel(energyScannableName, stepModels);
+		model.setContinuous(false);
+		return model;
 	}
 
 	private static double roundDouble(double input) {
