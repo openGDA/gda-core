@@ -74,7 +74,6 @@ public class ProfileManagerPage extends WizardPage {
 
 		profilesViewer = new ListWithCustomEditor();
 		profilesViewer.setListHeight(300);
-		profilesViewer.setTemplate(new SingleAxisLinearSeries().createDefault());
 		profilesViewer.create(profileListComposite);
 		profilesViewer.setElementEditor(new PretendElementEditor());
 		profilesViewer.addDeleteHook(this::deleteProfile);
@@ -167,9 +166,15 @@ public class ProfileManagerPage extends WizardPage {
 
 	public void setDriverName(String driverName) {
 		this.driverName = driverName;
+		profilesViewer.setTemplate(new SingleAxisLinearSeries(getAxisName(driverName)).createDefault());
 		profilesViewer.setList(getProfilesForDriver(driverName));
 		profilesViewer.refresh();
 		initiateColourState();
+	}
+
+	private String getAxisName(String driverName) {
+		IExperimentDriver<DriverModel> driver = Finder.find(driverName);
+		return driver.getQuantityName();
 	}
 
 	private void initiateColourState() {

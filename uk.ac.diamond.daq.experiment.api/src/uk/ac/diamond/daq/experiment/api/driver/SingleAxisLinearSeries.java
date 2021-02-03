@@ -14,9 +14,15 @@ public class SingleAxisLinearSeries extends DriverModelBase {
 	private static final long serialVersionUID = -834737476722369747L;
 
 	private List<DriverProfileSection> profile;
+	private String axisName;
 
 	public SingleAxisLinearSeries() {
 		profile = Collections.emptyList();
+	}
+
+	public SingleAxisLinearSeries(String axisName) {
+		this();
+		setAxisName(axisName);
 	}
 
 	public List<DriverProfileSection> getProfile() {
@@ -27,9 +33,17 @@ public class SingleAxisLinearSeries extends DriverModelBase {
 		this.profile = series;
 	}
 
+	public String getAxisName() {
+		return axisName;
+	}
+
+	public void setAxisName(String axisName) {
+		this.axisName = axisName;
+	}
+
 	@Override
 	public EditableWithListWidget createDefault() {
-		DriverModel model = new SingleAxisLinearSeries();
+		DriverModel model = new SingleAxisLinearSeries(axisName);
 		model.setName("New Profile");
 		return model;
 	}
@@ -50,7 +64,7 @@ public class SingleAxisLinearSeries extends DriverModelBase {
 		final Dataset xDataset = DatasetFactory.createFromObject(x);
 		xDataset.setName("Time");
 		final Dataset yDataset = DatasetFactory.createFromObject(y);
-		yDataset.setName("Load"); // FIXME obviously this should come from elsewhere
+		yDataset.setName(axisName);
 
 		return Arrays.asList(xDataset, yDataset);
 	}

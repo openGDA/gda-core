@@ -143,7 +143,7 @@ public class PlanBroadcastTest {
 	public void experimentDriverNameAndProfile() throws DeviceException {
 		IExperimentDriver<DriverModel> driver = new NoImplDriver();
 		driver.setName(DRIVER_NAME);
-		DriverModel model = new SingleAxisLinearSeries();
+		DriverModel model = new SingleAxisLinearSeries("Load");
 		model.setName(DRIVER_PROFILE_NAME);
 		driver.setModel(model);
 		plan.setDriver(driver);
