@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.ui.services;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +39,6 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.ui.IWorkbench;
@@ -48,13 +46,14 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.DetectorModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
  * Centralise all services requests by the mapping package. The goal is to reduce multiple implementation to access the
@@ -69,20 +68,35 @@ public class MappingServices {
 	private MappingServices() {
 	}
 
+	/**
+	 * @return a plotting system instance
+	 * @deprecated use instead {@link ClientRemoteServices#getIPlottingService()}
+	 */
+	@Deprecated
 	public static IPlottingService getPlottingService() {
-		return getWorkbench().getService(IPlottingService.class);
+		return getClientRemoteServices().getIPlottingService();
 	}
 
+	/**
+	 * @return a Scan Management instance
+	 * @deprecated use instead {@link MappingRemoteServices#getScanManagementController()}
+	 */
+	@Deprecated
 	public static ScanManagementController getScanManagementController() {
-		return getWorkbench().getService(ScanManagementController.class);
+		return getMappingRemoteServices().getScanManagementController();
 	}
 
+	/**
+	 * @return a Region nd Path controller instance
+	 * @deprecated use instead {@link MappingRemoteServices#getRegionAndPathController()}
+	 */
+	@Deprecated
 	public static RegionAndPathController getRegionAndPathController() {
-		return getWorkbench().getService(RegionAndPathController.class);
+		return getMappingRemoteServices().getRegionAndPathController();
 	}
 
 	public static Optional<IRunnableDeviceService> getIRunnableDeviceService() {
-		return getRemoteService(IRunnableDeviceService.class);
+		return Optional.of(getClientRemoteServices().getIRunnableDeviceService());
 	}
 
 	public static IMappingExperimentBeanProvider getMappingBeanProvider() {
@@ -112,17 +126,6 @@ public class MappingServices {
 
 	private static IWorkbench getWorkbench() {
 		return PlatformUI.getWorkbench();
-	}
-
-	private static <T> Optional<T> getRemoteService(Class<T> serviceClass) {
-		IEventService eventService = getWorkbench().getService(IEventService.class);
-		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			return Optional.ofNullable(eventService.createRemoteService(jmsURI, serviceClass));
-		} catch (Exception e) {
-			logger.error("Error getting the remote service", e);
-		}
-		return Optional.empty();
 	}
 
 	private static Map<String, IScanModelWrapper<IDetectorModel>> internalUpdateDetectorParameters() {
@@ -174,4 +177,11 @@ public class MappingServices {
 		return detectorParamsByName;
 	}
 
+	private static MappingRemoteServices getMappingRemoteServices() {
+		return SpringApplicationContextFacade.getBean(MappingRemoteServices.class);
+	}
+
+	private static ClientRemoteServices getClientRemoteServices() {
+		return SpringApplicationContextFacade.getBean(ClientRemoteServices.class);
+	}
 }

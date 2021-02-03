@@ -28,16 +28,20 @@ import java.util.function.Consumer;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
 import uk.ac.diamond.daq.mapping.ui.experiment.saver.ScanSaver;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
+/**
+ *
+ * @deprecated No other reference found. To be deleted on GDA 9.21
+ */
+@Deprecated
 public class FileScanSaver extends ScanSaver {
 	private final String scanFilesDir;
 	private final ScanManagementController smController;
@@ -45,7 +49,7 @@ public class FileScanSaver extends ScanSaver {
 	public FileScanSaver(Consumer<Optional<IMappingExperimentBean>> postLoad, ScanManagementController smController) {
 		super(new ArrayList<SavedScanMetaData>(), postLoad);
 
-		this.scanFilesDir = PlatformUI.getWorkbench().getService(IFilePathService.class).getVisitConfigDir();
+		this.scanFilesDir = getClientRemoteServices().getIFilePathService().getVisitConfigDir();
 		this.smController = smController;
 		refreshScanList();
 	}
@@ -59,7 +63,7 @@ public class FileScanSaver extends ScanSaver {
 		AcquisitionConfigurationResourceSaveEvent event;
 		try {
 			event = new AcquisitionConfigurationResourceSaveEvent(this, new URL("file", "localhost", filename));
-			SpringApplicationContextProxy.publishEvent(event);
+			SpringApplicationContextFacade.publishEvent(event);
 		} catch (MalformedURLException e) {
 		}
 	}
@@ -70,7 +74,7 @@ public class FileScanSaver extends ScanSaver {
 				"Please enter a name for the current Scan Definition", "", null);
 		if (dlg.open() == Window.OK) {
 			String filename = smController.buildDescriptiveFilename(dlg.getValue());
-			filename = scanFilesDir + "/" + filename;
+			filename = String.format("%s/%s", scanFilesDir, filename);
 			smController.saveScan(filename);
 			refreshScanList();
 			publishExposureChangeEvent(filename);
@@ -102,5 +106,9 @@ public class FileScanSaver extends ScanSaver {
 				getObservableList().add(new SavedScanMetaData(filaName));
 			});
 		}
+	}
+
+	private static ClientRemoteServices getClientRemoteServices() {
+		return SpringApplicationContextFacade.getBean(ClientRemoteServices.class);
 	}
 }
