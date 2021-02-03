@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -41,7 +40,6 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	}
 
 	@Override
-	@UiHidden
 	public String getxAxisName() {
 		return xAxisName;
 	}
@@ -54,7 +52,6 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	}
 
 	@Override
-	@UiHidden
 	public String getyAxisName() {
 		return yAxisName;
 	}
@@ -100,7 +97,6 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 		setyAxisUnits(units.get(1));
 	}
 
-	@UiHidden
 	@Override
 	public List<String> getScannableNames() {
 		return Arrays.asList(getxAxisName(), getyAxisName());

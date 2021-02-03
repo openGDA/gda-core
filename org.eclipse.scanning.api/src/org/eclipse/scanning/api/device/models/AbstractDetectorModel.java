@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device.models;
 
-import org.eclipse.scanning.api.annotation.UiComesAfter;
-import org.eclipse.scanning.api.annotation.UiHidden;
-import org.eclipse.scanning.api.annotation.UiReadOnly;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 public abstract class AbstractDetectorModel implements IDetectorModel, IReflectedModel {
@@ -53,7 +50,6 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	}
 
 	@Override
-	@UiComesAfter("name")
 	public double getExposureTime() {
 		return exposureTime;
 	}
@@ -97,7 +93,6 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	}
 
 	@Override
-	@UiReadOnly
 	public String getName() {
 		return name;
 	}
@@ -108,7 +103,6 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	}
 
 	@Override
-	@UiHidden
 	public long getTimeout() {
 		return timeout;
 	}

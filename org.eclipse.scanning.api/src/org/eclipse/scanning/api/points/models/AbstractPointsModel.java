@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
@@ -80,7 +79,6 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 		return Arrays.asList(getName());
 	}
 
-	@UiHidden
 	public String getSummary() {
 		StringBuilder buf = new StringBuilder();
 		String sname = getClass().getSimpleName();

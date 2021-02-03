@@ -16,9 +16,6 @@ import static org.eclipse.scanning.api.constants.PathConstants.SEED;
 
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.UiTooltip;
-import org.eclipse.scanning.api.annotation.Units;
-
 /**
  * Previously RandomOffsetGridModel
  */
@@ -42,8 +39,6 @@ public class TwoAxisGridPointsRandomOffsetModel extends TwoAxisGridPointsModel {
 		super(f, s);
 	}
 
-	@Units("%")
-	@UiTooltip("Standard deviation to use for a 2D Gaussian random offset, as a percentage of the X step size")
 	public double getOffset() {
 		return offset;
 	}
@@ -54,7 +49,6 @@ public class TwoAxisGridPointsRandomOffsetModel extends TwoAxisGridPointsModel {
 		this.pcs.firePropertyChange(OFFSET, oldValue, newValue);
 	}
 
-	@UiTooltip("Seed to initialise random number generator with")
 	public int getSeed() {
 		return seed;
 	}

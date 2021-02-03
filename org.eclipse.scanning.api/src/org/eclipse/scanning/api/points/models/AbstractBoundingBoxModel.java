@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import org.eclipse.scanning.api.annotation.UiHidden;
 import org.eclipse.scanning.api.annotation.ui.EditType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
@@ -39,7 +38,6 @@ public abstract class AbstractBoundingBoxModel extends AbstractMapModel implemen
 	}
 
 	@Override
-	@UiHidden
 	public BoundingBox getBoundingBox() {
 		return boundingBox;
 	}

@@ -16,7 +16,6 @@ import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_POINTS;
 
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.MinimumValue;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 
@@ -59,7 +58,6 @@ public class TwoAxisGridPointsModel extends AbstractTwoAxisGridModel {
 	}
 
 	// Note: x and y must be in lower case in getter/setter names for JFace bindings to work correctly.
-	@MinimumValue("1")
 	public int getxAxisPoints() {
 		return xAxisPoints;
 	}
@@ -70,7 +68,6 @@ public class TwoAxisGridPointsModel extends AbstractTwoAxisGridModel {
 		this.pcs.firePropertyChange(X_AXIS_POINTS, oldValue, newValue);
 	}
 
-	@MinimumValue("1")
 	public int getyAxisPoints() {
 		return yAxisPoints;
 	}

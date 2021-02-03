@@ -17,8 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.UiHidden;
-
 /**
  *
  * This class represents an x,y position for a mapping scan.
@@ -97,7 +95,7 @@ public final class Point extends AbstractPosition {
 	}
 
 	private List<String> names;
-	@UiHidden
+
 	@Override
 	public List<String> getNames() {
 		if (names==null) names = Arrays.asList(yName, xName);
@@ -120,7 +118,6 @@ public final class Point extends AbstractPosition {
 
 	private Map<String, Object>  values;
 
-	@UiHidden
 	@Override
 	public Map<String, Object> getValues() {
 		if (values == null) {
@@ -134,7 +131,6 @@ public final class Point extends AbstractPosition {
 
 	private Map<String, Integer>  indices;
 
-	@UiHidden
 	@Override
 	public Map<String, Integer> getIndices() {
 		if (indices == null) {
