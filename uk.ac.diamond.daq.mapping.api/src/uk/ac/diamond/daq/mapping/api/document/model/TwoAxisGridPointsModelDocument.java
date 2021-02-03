@@ -90,11 +90,6 @@ public class TwoAxisGridPointsModelDocument implements AcquisitionTemplate {
 		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
 		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
 
-		if (scannableOne.hasNegativeValues() || scannableTwo.hasNegativeValues()) {
-			this.pathModel= null;
-			return this.pathModel;
-		}
-
 		TwoAxisGridPointsModel model;
 		if (getScanpathDocument().getMutators().containsKey(RANDOM_OFFSET)) {
 			model = createRandomModel();

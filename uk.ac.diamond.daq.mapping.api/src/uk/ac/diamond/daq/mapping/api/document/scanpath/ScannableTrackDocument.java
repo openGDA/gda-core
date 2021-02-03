@@ -155,13 +155,8 @@ public class ScannableTrackDocument {
 	}
 
 	@JsonIgnore
-	public boolean hasNegativeValues() {
-		return getStart() < 0 || getStop() < 0;
-	}
-
-	@JsonIgnore
 	public double length() {
-		return getStop() - getStart();
+		return Math.abs(getStop() - getStart());
 	}
 
 	@Override
