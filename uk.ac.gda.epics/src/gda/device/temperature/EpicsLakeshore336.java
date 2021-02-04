@@ -66,6 +66,8 @@ public class EpicsLakeshore336 extends ScannableBase {
 	private static final String LOOP_RAMP_RBV = "RAMP%d";
 	private static final String LOOP_RAMP_ENABLE = "RAMPST_S%d";
 	private static final String LOOP_RAMP_ENABLE_RBV = "RAMPST%d";
+	private static final String LOOP_MODE = "OMMODE_S%d";
+	private static final String LOOP_MODE_RBV = "OMMODE%d";
 	private static final String LOOP_INPUT = "OMINPUT_S%d";
 	private static final String LOOP_INPUT_RBV = "OMINPUT%d";
 	private static final String LOOP_MANUAL_OUT = "MOUT_S%d";
@@ -260,6 +262,56 @@ public class EpicsLakeshore336 extends ScannableBase {
 		} catch (Exception e) {
 			logger.error("Error trying to get the currently controlled temperature", e);
 			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
+		}
+	}
+
+	/**
+	 * Gets the mode selected for the currently active output
+	 * <p>
+	 * 0 = Off<br>
+	 * 1 = Closed Loop PID<br>
+	 * 2 = Zone<br>
+	 * 3 = Open Loop<br>
+	 * 4 = Monitor Out<br>
+	 * 5 = Warmup Supply<br>
+	 *
+	 * @return The mode selected for the currently active output
+	 * @throws DeviceException
+	 */
+	public int getMode() throws DeviceException {
+		try {
+			return EPICS_CONTROLLER.cagetInt(getChannel(LOOP_MODE_RBV, activeOutput));
+		} catch (Exception e) {
+			logger.error("Error trying to get the mode for output {}", activeOutput, e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
+		}
+	}
+
+	/**
+	 * Sets the mode for the currently active output
+	 * <p>
+	 * 0 = Off<br>
+	 * 1 = Closed Loop PID<br>
+	 * 2 = Zone<br>
+	 * 3 = Open Loop<br>
+	 * 4 = Monitor Out<br>
+	 * 5 = Warmup Supply<br>
+	 *
+	 * @param mode
+	 *            The mode to use for the control
+	 * @throws DeviceException
+	 */
+	public void setMode(int mode) throws DeviceException {
+		if (mode < 0 || mode > 5) {
+			logger.error("The control mode must be between 0 and 5 inclusive");
+			throw new DeviceException("The control mode must be between 0 and 5 inclusive");
+		} else {
+			try {
+				EPICS_CONTROLLER.caputWait(getChannel(LOOP_MODE, activeOutput), mode);
+			} catch (Exception e) {
+				logger.error("Error trying to set mode to {} for output {}", mode, activeOutput, e);
+				throw new DeviceException("Error setting mode value in Lakeshore 336 Temperature Controller device", e);
+			}
 		}
 	}
 
