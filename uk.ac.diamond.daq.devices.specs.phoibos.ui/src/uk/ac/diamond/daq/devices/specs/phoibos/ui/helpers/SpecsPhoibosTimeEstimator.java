@@ -18,12 +18,11 @@
 
 package uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers;
 
-import java.util.List;
-
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import gda.factory.Finder;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 
@@ -34,33 +33,24 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
  * @author James Mudd
  */
 public final class SpecsPhoibosTimeEstimator {
+	private static final Logger log = LoggerFactory.getLogger(SpecsPhoibosTimeEstimator.class);
 
-	private static final double detectorEnergyWidth;
+	private static final String TIME_OFFSET_KEY = "gda.specs.time.estimator.time.offset";
+	private static final String DETECTOR_SHIFT_KEY = "gda.specs.time.estimator.detector.shift";
+	private static final String DETECTOR_DEADTIME_KEY = "gda.specs.time.estimator.detector.deadtime";
+
+	private static final double TIME_OFFSET;
+	private static final double DETECTOR_SHIFT;
+	private static final double DETECTOR_DEADTIME;
+
+	static {
+		TIME_OFFSET = LocalProperties.getDouble(TIME_OFFSET_KEY, 2.4);
+		DETECTOR_SHIFT = LocalProperties.getDouble(DETECTOR_SHIFT_KEY, 0.11);
+		DETECTOR_DEADTIME = LocalProperties.getDouble(DETECTOR_DEADTIME_KEY, 0.082);
+	}
 
 	private SpecsPhoibosTimeEstimator() {
 		// Prevent instances
-	}
-
-	static {
-		// Get an analyser
-		List<ISpecsPhoibosAnalyser> analysers = Finder.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
-		if (analysers.size() != 1) {
-			throw new RuntimeException("No Analyser was found! (Or more than 1)");
-		}
-		detectorEnergyWidth =  analysers.get(0).getDetectorEnergyWidth();
-	}
-
-	/**
-	 * Estimates the run time of the region and provides a formatted string to display to the user
-	 *
-	 * @param region The region to estimate
-	 * @return Formatted string of the region run time
-	 */
-	public static String estimateRegionTime(SpecsPhoibosRegion region) {
-		long timeInMs = estimateRegionTimeMs(region);
-
-		// Convert ms to HH:MM:SS string
-		return formatDuration(timeInMs);
 	}
 
 	public static String estimateSequenceRunTime(SpecsPhoibosSequence sequence) {
@@ -76,6 +66,27 @@ public final class SpecsPhoibosTimeEstimator {
 		return DurationFormatUtils.formatDuration(timeInMs, "H:mm:ss");
 	}
 
+	private static final String SNAPSHOT_ACQUISTION_MODE = "Snapshot";
+
+	private static boolean isNotSnapshotMode (SpecsPhoibosRegion region) {
+		return !SNAPSHOT_ACQUISTION_MODE.equals(region.getAcquisitionMode());
+	}
+
+	/**
+	 * Estimated scan(s) time
+	 *
+	 * From ticket B07-435
+	 * TotalTime = NumberOfIteration*(Time_Offset+(EndEnergy-StartEnergy+Detector_Shift*PassEnergy)/energyStep*(ExposureTime+Detector_DeadTime))
+	 * Note detector motion time ignored if in snapshot mode
+	 *
+	 * @param region The region to estimate
+	 * @return time in H:mm:ss format
+	 */
+	public static String estimateRegionTime(SpecsPhoibosRegion region) {
+		return formatDuration(estimateRegionTimeMs(region));
+	}
+
+
 	/**
 	 * Estimate the run time of the region in ms
 	 *
@@ -83,17 +94,25 @@ public final class SpecsPhoibosTimeEstimator {
 	 * @return The estimated run time of the region in ms
 	 */
 	private static long estimateRegionTimeMs(SpecsPhoibosRegion region) {
-		long timeInMs = Math.round(region.getExposureTime()*1000);
+		double detectorMoveTime = 1;
+		if (isNotSnapshotMode(region)) {
+			detectorMoveTime = getEnergyWidth(region) + DETECTOR_SHIFT * region.getPassEnergy() / region.getStepEnergy();
+		}
+		double imagingTime  = region.getExposureTime() + DETECTOR_DEADTIME;
+		int iterations = region.getIterations();
+		double totalTime = iterations * (TIME_OFFSET + detectorMoveTime * imagingTime);
 
-		if("Fixed Transmission".equals(region.getAcquisitionMode())) { // i.e. a swept scan
-			// Add one detectorEnergyWidth for the pre-scan
-			long numberOfEnergySteps = Math.round((getEnergyWidth(region) + detectorEnergyWidth ) / region.getStepEnergy());
-			timeInMs *= numberOfEnergySteps;
+		if (log.isTraceEnabled()) {
+			StringBuilder message = new StringBuilder();
+			message.append(String.format("Estimated scan time(s): %6.3f", totalTime));
+			if (isNotSnapshotMode(region)) {
+				message.append(String.format(", Detector Move Time(s): %6.3f", detectorMoveTime));
+			}
+			message.append(String.format(", imaging time(s): %6.3f, iterations: %d", imagingTime, iterations));
+			log.trace(message.toString());
 		}
 
-		// Multiply by iterations
-		timeInMs *= region.getIterations();
-		return timeInMs;
+		return Math.round(totalTime * 1000.0);
 	}
 
 	private static double getEnergyWidth(SpecsPhoibosRegion region) {

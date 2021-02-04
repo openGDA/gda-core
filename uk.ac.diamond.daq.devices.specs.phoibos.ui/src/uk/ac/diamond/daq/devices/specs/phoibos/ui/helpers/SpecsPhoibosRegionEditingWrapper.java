@@ -22,8 +22,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
-
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.editors.SpecsRegionEditor;
 
@@ -59,7 +57,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	public void propertyChange(PropertyChangeEvent evt) {
 		// Fire through the events received from the wrapped region
 		pcs.firePropertyChange(evt);
-		pcs.firePropertyChange("estimatedTime", "", getEstimatedTime());
+		pcs.firePropertyChange("estimatedTime", "", SpecsPhoibosTimeEstimator.estimateRegionTime(region));
 	}
 
 	public void setAcquisitionMode(String acquisitionMode) {
@@ -143,22 +141,6 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 
 	public boolean isNotSnapshotMode() {
 		return !isSnapshotMode();
-	}
-
-	public String getEstimatedTime() {
-		long timeInMs = Math.round(getExposureTime()*1000);
-
-		if(isNotSnapshotMode()) { // i.e. a swept scan
-			// Add one detectorEnergyWidth for the pre-scan
-			long numberOfEnergySteps = Math.round((getEnergyWidth() + detectorEnergyWidth) / getStepEnergy());
-			timeInMs *= numberOfEnergySteps;
-		}
-
-		// Multiply by iterations
-		timeInMs *= getIterations();
-
-		// Convert ms to HH:MM:SS string
-		return DurationFormatUtils.formatDuration(timeInMs, "H:mm:ss");
 	}
 
 	// ------ Pure delegated methods -------
