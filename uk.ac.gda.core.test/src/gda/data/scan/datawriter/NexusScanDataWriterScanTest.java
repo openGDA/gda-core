@@ -72,31 +72,31 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.scanning.device.BeamNexusDevice;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
+import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
+import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
+import org.eclipse.scanning.device.MonochromatorNexusDevice;
+import org.eclipse.scanning.device.Services;
+import org.eclipse.scanning.device.SourceNexusDevice;
+import org.eclipse.scanning.device.UserNexusDevice;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
-import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
-import uk.ac.diamond.daq.scanning.BeamNexusDevice;
-import uk.ac.diamond.daq.scanning.InsertionDeviceNexusDevice;
-import uk.ac.diamond.daq.scanning.InsertionDeviceNexusDevice.InsertionDeviceType;
-import uk.ac.diamond.daq.scanning.MonochromatorNexusDevice;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
-import uk.ac.diamond.daq.scanning.SourceNexusDevice;
-import uk.ac.diamond.daq.scanning.UserNexusDevice;
 
 @RunWith(value=Parameterized.class)
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -242,7 +242,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
-		gdaDataServiceHolder.setScannableDeviceService(new ScannableDeviceConnectorService());
+		gdaDataServiceHolder.setCommonBeamlineDevicesConfiguration(createCommonBeamLineDevicesConfiguration());
+
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
 		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
@@ -251,11 +252,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final org.eclipse.dawnsci.nexus.ServiceHolder oednServiceHolder = new org.eclipse.dawnsci.nexus.ServiceHolder();
 		oednServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		oednServiceHolder.setNexusDeviceAdapterFactory(new GDANexusDeviceAdapterFactory());
+
+		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
 	}
 
 	private static CommonBeamlineDevicesConfiguration createCommonBeamLineDevicesConfiguration() {
 		final CommonBeamlineDevicesConfiguration deviceConfig = new CommonBeamlineDevicesConfiguration();
-		deviceConfig.setName(CommonBeamlineDevicesConfiguration.class.getName()); // set automatically when declare in spring
 		deviceConfig.setBeamName(BEAM_DEVICE_NAME);
 		deviceConfig.setInsertionDeviceName(INSERTION_DEVICE_NAME);
 		deviceConfig.setMonochromatorName(MONOCHROMATOR_DEVICE_NAME);
@@ -263,14 +265,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
 		return deviceConfig;
-	}
-
-	@Override
-	public void setUp() throws Exception { // inherits @Before annotation from superclass
-		super.setUp();
-		final Factory factory = TestHelpers.createTestFactory();
-		Finder.addFactory(factory);
-		factory.addFindable(createCommonBeamLineDevicesConfiguration());
 	}
 
 	@Override

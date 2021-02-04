@@ -49,6 +49,7 @@ import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.SliceND;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,6 @@ import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Scannable;
-import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -426,14 +426,14 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private Set<String> getCommonBeamlineDeviceNames() throws NexusException {
-		final Optional<CommonBeamlineDevicesConfiguration> optDeviceConfig = Finder.findOptionalSingleton(CommonBeamlineDevicesConfiguration.class);
-		if (!optDeviceConfig.isPresent()) {
+		final CommonBeamlineDevicesConfiguration deviceConfig = ServiceHolder.getCommonBeamlineDevicesConfiguration();
+
+		if (deviceConfig == null) {
 			throw new NexusException("Could not find a " + CommonBeamlineDevicesConfiguration.class.getSimpleName() + " bean.\n"
 					+ "It is required to define a bean of this type in your GDA server spring configuration in order to use " + NexusScanDataWriter.class.getSimpleName());
-
 		}
 
-		return optDeviceConfig.get().getCommonDeviceNames();
+		return deviceConfig.getCommonDeviceNames();
 	}
 
 	private Set<String> getTemplateFilePaths() {

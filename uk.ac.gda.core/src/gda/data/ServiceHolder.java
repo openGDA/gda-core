@@ -18,6 +18,7 @@
 
 package gda.data;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.dawnsci.nexus.appender.INexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
@@ -25,9 +26,11 @@ import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
 import uk.ac.gda.common.activemq.ISessionService;
+import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * Holds the IRunnableDeviceService which the file registrar uses
@@ -124,6 +127,26 @@ public class ServiceHolder {
 		}
 
 		return nexusDataWriterConfiguration;
+	}
+
+	private static volatile CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration;
+
+	public void setCommonBeamlineDevicesConfiguration(CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration) {
+		// note that this method is not typically set by OSGi as this bean is declared in spring which is loaded after OSGi wiring
+		// it should be set by unit tests
+		ServiceHolder.commonBeamlineDevicesConfiguration = commonBeamlineDevicesConfiguration;
+	}
+
+	public static CommonBeamlineDevicesConfiguration getCommonBeamlineDevicesConfiguration() {
+		if (commonBeamlineDevicesConfiguration == null) {
+			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
+				if (commonBeamlineDevicesConfiguration == null && Platform.isRunning()) {
+					commonBeamlineDevicesConfiguration = GDACoreActivator.getService(CommonBeamlineDevicesConfiguration.class).orElse(null);
+				}
+			}
+		}
+
+		return commonBeamlineDevicesConfiguration;
 	}
 
 	private static ISessionService sessionService;
