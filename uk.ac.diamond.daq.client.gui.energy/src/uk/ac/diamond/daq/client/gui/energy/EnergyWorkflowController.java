@@ -31,15 +31,22 @@ public class EnergyWorkflowController implements IObserver {
 	private final ConfigurationWorkflow monoWorkflow;
 	private final ConfigurationWorkflow pinkWorkflow;
 
+	private final double lowerLimit;
+	private final double upperLimit;
+
 	private final Set<EnergyControllerListener> listeners;
 
 	private ExecutorService executor = Executors.newFixedThreadPool(1);
 
-	public EnergyWorkflowController(EnergySelectionType energySelectionType, ConfigurationWorkflow mono, ConfigurationWorkflow pink) {
+
+	public EnergyWorkflowController(EnergySelectionType energySelectionType, ConfigurationWorkflow mono, ConfigurationWorkflow pink,
+			double loLimit, double hiLimit) {
 		this.energySelectionType = energySelectionType;
 		this.monoWorkflow = mono;
 		this.pinkWorkflow = pink;
 		listeners = new HashSet<>();
+		this.lowerLimit = loLimit;
+		this.upperLimit = hiLimit;
 	}
 
 	public EnergySelectionType getEnergySelectionType() {
@@ -102,6 +109,14 @@ public class EnergyWorkflowController implements IObserver {
 		}
 
 		return workflow;
+	}
+
+	public double getLowerLimit() {
+		return lowerLimit;
+	}
+
+	public double getUpperLimit() {
+		return upperLimit;
 	}
 
 	/**
