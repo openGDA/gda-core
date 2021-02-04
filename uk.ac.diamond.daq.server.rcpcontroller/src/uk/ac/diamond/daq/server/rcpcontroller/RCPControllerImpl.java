@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.gui;
+package uk.ac.diamond.daq.server.rcpcontroller;
 
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;

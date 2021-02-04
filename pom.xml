@@ -35,7 +35,6 @@
 		<module>uk.ac.diamond.daq.client.gui.energyfocus.editor</module>
 		<module>uk.ac.diamond.daq.client.gui.exitslit.configuration</module>
 		<module>uk.ac.diamond.daq.client.gui.persistence</module>
-		<module>uk.ac.diamond.daq.client.gui.rcpcontroller</module>
 		<module>uk.ac.diamond.daq.detectors.addetector</module>
 		<module>uk.ac.diamond.daq.detectors.addetector.api</module>
 		<module>uk.ac.diamond.daq.experiment</module>
@@ -64,6 +63,7 @@
 		<module>uk.ac.diamond.daq.persistence.test</module>
 		<module>uk.ac.diamond.daq.remotedataset.feature</module>
 		<module>uk.ac.diamond.daq.scm.api</module>
+		<module>uk.ac.diamond.daq.server.rcpcontroller</module>
 		<module>uk.ac.diamond.daq.stage</module>
 		<module>uk.ac.diamond.daq.stage.test</module>
 		<module>uk.ac.diamond.scisoft.gda.feature</module>

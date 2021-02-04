@@ -16,14 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.gui;
+package uk.ac.diamond.daq.server.rcpcontroller;
 
 import java.io.Serializable;
 
-public class RCPOpenViewCommand implements Serializable{
+public class RCPOpenPerspectiveCommand implements Serializable {
 	String id;
 
-	public RCPOpenViewCommand(String id) {
+	public RCPOpenPerspectiveCommand(String id) {
 		super();
 		this.id = id;
 	}

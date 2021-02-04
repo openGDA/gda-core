@@ -68,12 +68,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
-import gda.gui.RCPController;
-import gda.gui.RCPControllerImpl;
-import gda.gui.RCPOpenPerspectiveCommand;
-import gda.gui.RCPOpenViewCommand;
-import gda.gui.RCPResetPreferenceCommand;
-import gda.gui.RCPSetPreferenceCommand;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -83,6 +77,12 @@ import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPController;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPControllerImpl;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPOpenPerspectiveCommand;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPOpenViewCommand;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPResetPreferenceCommand;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPSetPreferenceCommand;
 import uk.ac.gda.client.closeactions.UserOptionsOnCloseDialog;
 import uk.ac.gda.client.liveplot.LivePlotViewManager;
 import uk.ac.gda.client.scripting.JythonPerspective;
@@ -170,7 +170,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			InterfaceProvider.getJSFObserver().addIObserver(openXYPlotOnScanStart);
 			addCleanupWork(() -> InterfaceProvider.getJSFObserver().deleteIObserver(openXYPlotOnScanStart));
 
-			Optional<RCPController> controller = Finder.findOptional(RCPControllerImpl.NAME);
+			Optional<RCPController> controller = Finder.findOptionalOfType(RCPControllerImpl.NAME, RCPController.class);
 			controller.ifPresent(this::listenForCommands);
 
 			listenForUserMessages();
