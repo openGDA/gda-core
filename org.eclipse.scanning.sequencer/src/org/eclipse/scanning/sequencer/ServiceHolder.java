@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
@@ -23,6 +24,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IParserService;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 
@@ -160,6 +162,26 @@ public class ServiceHolder {
 
 	public void setMessagingService(MessagingService messagingService) {
 		ServiceHolder.messagingService = messagingService;
+	}
+
+	private static volatile CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration;
+
+	public void setCommonBeamlineDevicesConfiguration(CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration) {
+		// note that this method is not typically set by OSGi as this bean is declared in spring which is loaded after OSGi wiring
+		// it should be set by unit tests
+		ServiceHolder.commonBeamlineDevicesConfiguration = commonBeamlineDevicesConfiguration;
+	}
+
+	public static CommonBeamlineDevicesConfiguration getCommonBeamlineDevicesConfiguration() {
+		if (commonBeamlineDevicesConfiguration == null) {
+			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
+				if (commonBeamlineDevicesConfiguration == null && Platform.isRunning()) {
+					commonBeamlineDevicesConfiguration = SequencerActivator.getInstance().getService(CommonBeamlineDevicesConfiguration.class);
+				}
+			}
+		}
+
+		return commonBeamlineDevicesConfiguration;
 	}
 
 	/**

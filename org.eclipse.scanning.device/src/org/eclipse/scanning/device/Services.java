@@ -9,7 +9,7 @@
  * Contributors:
  *    Matthew Gerring - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.scanning.device.composite;
+package org.eclipse.scanning.device;
 
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.osgi.framework.ServiceReference;

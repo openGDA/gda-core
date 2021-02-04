@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -23,6 +24,7 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -48,6 +50,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.slf4j.Logger;
@@ -70,6 +73,7 @@ public class NexusScanFileManager {
 		METADATA_TYPE_TO_NEXUS_CLASS_MAP.put(MetadataType.USER, NexusBaseClass.NX_USER);
 	}
 
+	private final IScannableDeviceService scannableDeviceService;
 	private final IScanDevice scanDevice;
 	private boolean isWritingNexus;
 	private NexusScanFile nexusScanFile = null;
@@ -77,6 +81,7 @@ public class NexusScanFileManager {
 
 	public NexusScanFileManager(IScanDevice scanDevice) {
 		this.scanDevice = scanDevice;
+		scannableDeviceService = ((AbstractRunnableDevice<?>) scanDevice).getConnectorService();
 	}
 
 	/**
@@ -89,7 +94,8 @@ public class NexusScanFileManager {
 	public void configure(ScanModel scanModel) throws ScanningException {
 		isWritingNexus = scanModel.getFilePath() != null && ServiceHolder.getNexusScanFileService() != null;
 
-		addLegacyPerScanMonitors(scanModel);
+		addGlobalMetadataDevices(scanModel);
+
 		if (isWritingNexus) {
 			final NexusScanModel nexusScanModel = createNexusScanModel(scanModel);
 			solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
@@ -104,60 +110,93 @@ public class NexusScanFileManager {
 		}
 	}
 
+	private void addGlobalMetadataDevices(ScanModel scanModel) throws ScanningException {
+		final Set<String> newPerScanMonitorNames = new HashSet<>();
+
+		// add legacy per-scan monitor names
+		newPerScanMonitorNames.addAll(getLegacyPerScanMonitorNames(scanModel));
+
+		// add CommonBeamlineDevices, if configured
+		final CommonBeamlineDevicesConfiguration devicesConfig = ServiceHolder.getCommonBeamlineDevicesConfiguration();
+		if (devicesConfig != null) {
+			newPerScanMonitorNames.addAll(devicesConfig.getCommonDeviceNames());
+		}
+
+		// if there are any names of scannables to add, get the scannables for them,
+		// setting them to be per scan monitors
+		if (!newPerScanMonitorNames.isEmpty()) {
+			final Set<String> allScannableNames = new HashSet<>(scannableDeviceService.getScannableNames());
+			final Map<Boolean, List<String>> newPerScanMonitorNamesByIsScannable = newPerScanMonitorNames.stream()
+					.collect(groupingBy(allScannableNames::contains));
+
+			// add new per scan monitors to the scan model's list of per scan monitors
+			if (newPerScanMonitorNamesByIsScannable.get(true) != null) {
+				final List<IScannable<?>> monitorsPerScan = new ArrayList<>(scanModel.getMonitorsPerScan());
+				monitorsPerScan.addAll(newPerScanMonitorNames.stream().map(this::getPerScanMonitor).collect(toList()));
+				scanModel.setMonitorsPerScan(monitorsPerScan);
+			}
+
+			// add new nexus devices to the scan model's list of additional scan objects
+			if (newPerScanMonitorNamesByIsScannable.get(false) != null) {
+				final List<Object> additionalScanObjects = new ArrayList<>(scanModel.getAdditionalScanObjects());
+				additionalScanObjects.addAll(newPerScanMonitorNamesByIsScannable.get(false).stream()
+						.map(this::getNexusDevice).filter(Objects::nonNull).collect(toList()));
+				scanModel.setAdditionalScanObjects(additionalScanObjects);
+			}
+		}
+	}
+
+	private INexusDevice<?> getNexusDevice(String name) {
+		try {
+			return ServiceHolder.getNexusDeviceService().getNexusDevice(name);
+		} catch (NexusException e) {
+			logger.error("No such scannable or nexus device '{}'. It will not be written", name);
+			return null;
+		}
+	}
+
 	/**
 	 * Augments the set of per-scan monitors in the model with: <ul>
 	 * <li>any metadata scannables (called per-scan monitors in GDA9) from the legacy spring configuration;</li>
 	 * <li>the required scannables (as per-scan monitors) point of any scannables in the scan;</li>
 	 * </ul>
 	 * The scannable services gets these from {@code gda.data.scan.datawriter.NexusDataWriter}
-	 * @param model
+	 * @param scanModel the scan model
 	 */
-	private void addLegacyPerScanMonitors(ScanModel model) {
-		final IScannableDeviceService scannableDeviceService = ((AbstractRunnableDevice<?>) scanDevice).getConnectorService();
+	private Set<String> getLegacyPerScanMonitorNames(ScanModel model) {
+		final Set<String> newPerScanMonitorNames = new HashSet<>();
 
-		// build up the set of all metadata scannables
-		final List<String> scannableNames = model.getPointGenerator().getNames();
-		final Set<String> perScanMonitorNames = new HashSet<>();
-
-		// add the names of the metadata scannables already in the model
-		final Set<String> existingPerScanMonitorNames = model.getMonitorsPerScan().stream()
-				.map(m -> m.getName()).collect(Collectors.toSet());
-		perScanMonitorNames.addAll(existingPerScanMonitorNames);
-
-		// add the global metadata scannables, and the required metadata scannables for
+		// get the global metadata scannables, and the required metadata scannables for
 		// each scannable in the scan. These are from the legacy GDA8 location map
-		perScanMonitorNames.addAll(scannableDeviceService.getGlobalPerScanMonitorNames());
+		final Set<String> legacyPerScanMonitorNames = scannableDeviceService.getGlobalPerScanMonitorNames();
+		newPerScanMonitorNames.addAll(legacyPerScanMonitorNames);
+
+		// create a set of the names of the metadata scannables already in the model
+		final Set<String> existingScannableNames = new HashSet<>();
+		existingScannableNames.addAll(model.getPointGenerator().getNames());
+		existingScannableNames.addAll(model.getMonitorsPerScan().stream().map(INameable::getName).collect(toSet()));
+		existingScannableNames.addAll(model.getMonitorsPerPoint().stream().map(INameable::getName).collect(toSet()));
 
 		// the set of scannable names to check for dependencies
 		Set<String> scannableNamesToCheck = new HashSet<>();
-		scannableNamesToCheck.addAll(perScanMonitorNames);
-		scannableNamesToCheck.addAll(scannableNames);
+		scannableNamesToCheck.addAll(existingScannableNames);
+		scannableNamesToCheck.addAll(legacyPerScanMonitorNames);
 		do {
 			// check the given set of scannable names for dependencies
 			// each iteration checks the scannable names added in the previous one
-			Set<String> requiredScannables = scannableNamesToCheck.stream()
+			Set<String> requiredScannableNames = scannableNamesToCheck.stream()
 					.flatMap(name -> scannableDeviceService.getRequiredPerScanMonitorNames(name).stream())
-					.filter(name -> !perScanMonitorNames.contains(name))
+					.filter(name -> !newPerScanMonitorNames.contains(name))
 					.collect(Collectors.toSet());
 
-			perScanMonitorNames.addAll(requiredScannables);
-			scannableNamesToCheck = requiredScannables;
+			newPerScanMonitorNames.addAll(requiredScannableNames);
+			scannableNamesToCheck = requiredScannableNames;
 		} while (!scannableNamesToCheck.isEmpty());
 
 		// remove any scannable names in the scan from the list of per scan monitors,
 		// as a scannable can only have one role within the scan
-		perScanMonitorNames.removeAll(scannableNames);
-		Set<String> scannablesToAdd = new HashSet<>(perScanMonitorNames.stream()
-				.filter(name -> !existingPerScanMonitorNames.contains(name))
-				.collect(Collectors.toSet()));
-
-		// if there are any names of scannables to add, get the scannables for them,
-		// setting them to be per scan monitors
-		if (!scannablesToAdd.isEmpty()) {
-			final List<IScannable<?>> monitorsPerScan = new ArrayList<>(model.getMonitorsPerScan());
-			monitorsPerScan.addAll(perScanMonitorNames.stream().map(this::getPerScanMonitor).collect(toList()));
-			model.setMonitorsPerScan(monitorsPerScan);
-		}
+		newPerScanMonitorNames.removeAll(existingScannableNames);
+		return newPerScanMonitorNames;
 	}
 
 	private IScannable<?> getPerScanMonitor(String monitorName) {
