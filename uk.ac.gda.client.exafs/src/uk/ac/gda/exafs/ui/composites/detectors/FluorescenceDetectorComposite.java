@@ -745,6 +745,14 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
+	 * Set selection state of 'save on acquire' checkbox.
+	 * @param enabled
+	 */
+	public void setSaveOnAcquire(boolean enabled) {
+		acquireComposite.getAutoSaveCheckBox().setSelection(enabled);
+	}
+
+	/**
 	 * Setup GUI for specified readout mode of detector.
 	 * i.e. shows/hides different parts of GUI as appropriate for XSpress2/3
 	 * This function is called during initial setup of GUI, using settings from Xml file.

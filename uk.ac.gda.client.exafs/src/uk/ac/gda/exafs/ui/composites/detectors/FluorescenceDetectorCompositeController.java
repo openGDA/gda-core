@@ -352,6 +352,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		// Show/hide deadtime correction energy control
 		setShowDTCEnergyFromPreference();
 
+		// Set state of 'save on acquire' checkbox
+		setSaveOnAcquireFromPreference();
+
 		// setup data store and fetch stored data, if any
 		createDataStore();
 		theData = dataStore.readDataFromFile();
@@ -369,6 +372,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setShowDtcEnergyControls(showDtcEnergyControls);
 	}
 
+	private void setSaveOnAcquireFromPreference() {
+		boolean autoSave = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_SAVE_ON_ACQUIRE);
+		fluorescenceDetectorComposite.setSaveOnAcquire(autoSave);
+	}
 	/**
 	 * Fetch the current configuration from the detector.
 	 * <p>

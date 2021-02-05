@@ -144,6 +144,12 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String DETECTOR_SHOW_DTC_ENERGY = "exafs.editor.showDtcEnergy.preference";
 
+	/**
+	 * When set to 'true', set 'show on acquire' checkbox in FluorescenceDetectorComposite to true when view
+	 * is opened.
+	 */
+	public static final String DETECTOR_SAVE_ON_ACQUIRE = "exafs.editor.saveOnAcquireCheckbox.preference";
+
 	/** Width of scaler/ROI window to use when doing 'set window from line' in fluorescence detector view */
 	public static final String DETECTOR_WINDOW_HALFWIDTH = "exafs.editor.detectorWindow.halfWidth";
 
