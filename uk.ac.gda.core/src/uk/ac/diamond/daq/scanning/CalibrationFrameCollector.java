@@ -52,6 +52,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
 
 /**
  * A temporary solution to dark/flat field collection within the Solstice framework.
@@ -60,7 +62,7 @@ import gda.configuration.properties.LocalProperties;
  * map, take a snapshot of the detector used for the main scan, then restore the beamline to its previous configuration.<br>
  * The snapshot is then appended to the overall NeXus file under /entry/instrument/ as an NXdetector.
  */
-public class CalibrationFrameCollector extends AbstractScannable<Object> implements INexusDevice<NXdetector> {
+public class CalibrationFrameCollector extends AbstractScannable<Object> implements INexusDevice<NXdetector>, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalibrationFrameCollector.class);
 
@@ -68,23 +70,30 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 
 	private IRequester<AcquireRequest> acquireRequester;
 
-	/** Maps scannable names to target positions, applied before taking snapshot */
-	private final Map<String, Object> beamlineConfiguration;
+	/**
+	 * A map describing desired scannable positions to move to before acquiring a frame.<br>
+	 * e.g. "shutter1": "Closed", "sample_y": 5.4.
+	 */
+	private Map<String, Object> beamlineConfiguration;
 
-	/** Name by which the snapshot is linked in the main Nexus file */
-	private final String nexusFieldName;
+	/**
+	 * Name by which the snapshot is linked in the main Nexus file<br>
+	 * The collected frame will appear in the main NeXus file under <code>
+	 * /entry/instrument/nameOfThisScannable/nexusFieldName</code>
+	 */
+	private String nexusFieldName;
 
 	/**
 	 * Maps the name of the Malcolm detector used for the snapshot to the key (under /entry/instrument/) under which
 	 * Malcolm will write the snapshot.
 	 */
-	private final Map<String, String> malcolmDetectorNames;
+	private Map<String, String> malcolmDetectorNames;
 
 	/**
 	 * Model of the detector to be used for the snapshot.<br>
 	 * If this is not configured explicitly, this class will use the first detector in the "main" scan.
 	 */
-	private IRunnableDevice<? extends IDetectorModel> detector;
+	private IRunnableDevice<? extends IDetectorModel> snapshotDetector;
 
 	/** File path of the NeXus file corresponding to the single frame scan */
 	private String frameFilePath;
@@ -95,26 +104,25 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	/** Stores the initial beamline configuration so it can be restored after taking the snapshot */
 	private Map<String, Object> previousConfiguration;
 
-	/**
-	 * @param beamlineConfiguration
-	 *            A map describing desired scannable positions to move to before acquiring a frame.<br>
-	 *            e.g. "shutter1": "Closed", "sample_y": 5.4.
-	 * @param nexusFieldName
-	 *            The collected frame will appear in the main NeXus file under
-	 *            /entry/instrument/nameOfThisScannable/nexusFieldName
-	 * @param malcolmDetectorNames
-	 *            For every malcolm scan this scannable could be used in, we need the name of the actual detector in
-	 *            order to locate its dataset.
-	 */
-	public CalibrationFrameCollector(Map<String, Object> beamlineConfiguration,
-										String nexusFieldName,
-										Map<String, String> malcolmDetectorNames) {
+	/** Flag to indicate whether this object is configured */
+	private boolean configured = false;
 
+	public CalibrationFrameCollector() {
 		super(null, ScannableDeviceConnectorService.getInstance());
+	}
 
-		this.beamlineConfiguration = beamlineConfiguration;
-		this.nexusFieldName = nexusFieldName;
-		this.malcolmDetectorNames = malcolmDetectorNames;
+	@Override
+	public void configure() throws FactoryException {
+		if (configured) {
+			return;
+		}
+		if (beamlineConfiguration == null) {
+			throw new FactoryException("beamlineConfiguration not set");
+		}
+		if (nexusFieldName == null) {
+			throw new FactoryException("nexusFieldName not set");
+		}
+		configured = true;
 	}
 
 	@PrepareScan
@@ -136,7 +144,7 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		final double exposureTime = modelFromRequest.getExposureTime();
 
 		// If no detector has been explicitly configured, use the "main scan" detector
-		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = (detector == null) ? mainScanDetector : detector;
+		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = (snapshotDetector == null) ? mainScanDetector : snapshotDetector;
 		logger.debug("Setting exposure time on {} to {}", acquisitionDetector.getName(), exposureTime);
 		acquisitionDetector.getModel().setExposureTime(exposureTime);
 		acquire(acquisitionDetector);
@@ -263,15 +271,43 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_MESSAGE);
 	}
 
-	public void setDetector(IRunnableDevice<? extends IDetectorModel> detector) {
-		this.detector = detector;
+	public void setBeamlineConfiguration(Map<String, Object> beamlineConfiguration) {
+		this.beamlineConfiguration = beamlineConfiguration;
+	}
+
+	public void setNexusFieldName(String nexusFieldName) {
+		this.nexusFieldName = nexusFieldName;
+	}
+
+	public void setMalcolmDetectorNames(Map<String, String> malcolmDetectorNames) {
+		this.malcolmDetectorNames = malcolmDetectorNames;
+	}
+
+	public void setSnapshotDetector(IRunnableDevice<? extends IDetectorModel> snapshotDetector) {
+		this.snapshotDetector = snapshotDetector;
+	}
+
+	@Override
+	public boolean isConfigured() {
+		return configured;
+	}
+
+	@Override
+	public void reconfigure() throws FactoryException {
+		// nothing to do
+	}
+
+	@Override
+	public boolean isConfigureAtStartup() {
+		return true;
 	}
 
 	@Override
 	public String toString() {
 		return "CalibrationFrameCollector [acquireRequester=" + acquireRequester + ", beamlineConfiguration="
 				+ beamlineConfiguration + ", nexusFieldName=" + nexusFieldName + ", malcolmDetectorNames="
-				+ malcolmDetectorNames + ", detector=" + detector + ", frameFilePath=" + frameFilePath
-				+ ", nexusNodePath=" + nexusNodePath + ", previousConfiguration=" + previousConfiguration + "]";
+				+ malcolmDetectorNames + ", snapshotDetector=" + snapshotDetector + ", frameFilePath=" + frameFilePath
+				+ ", nexusNodePath=" + nexusNodePath + ", previousConfiguration=" + previousConfiguration
+				+ ", configured=" + configured + "]";
 	}
 }
