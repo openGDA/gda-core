@@ -18,15 +18,21 @@
 
 package uk.ac.diamond.daq.scanning;
 
+import java.lang.reflect.Field;
+
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.data.ServiceHolder;
 
 public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements INexusDevice<N> {
+
+	private static final Logger logger = LoggerFactory.getLogger(AbstractNexusMetadataDevice.class);
 
 	private String name;
 
@@ -39,13 +45,24 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		this.name = name;
 	}
 
-
-	protected void writeScannableValueIfSet(NXobject object, String fieldName, String scannableName) throws NexusException {
-		writeScannableValue(object, fieldName, scannableName, false);
+	@Override
+	public void register() {
+		// TODO Auto-generated method stub
+		INexusDevice.super.register();
+		checkPropertiesSet();
 	}
 
-	protected void writeScannableValue(NXobject object, String fieldName, String scannableName) throws NexusException {
-		writeScannableValue(object, fieldName, scannableName, true);
+	protected void checkPropertiesSet() {
+		for (Field field : getClass().getFields()) {
+			field.setAccessible(true);
+			try {
+				if (field.get(this) == null) {
+					logger.warn("property {} not set for {} ''{}''", field.getName(), getClass().getSimpleName(), getName());
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				logger.error("TODO put description of error here", e);
+			}
+		}
 	}
 
 	protected <T> IScannable<T> getScannable(String scannableName) throws NexusException {
@@ -61,10 +78,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return (T) getScannable(scannableName).getPosition();
 	}
 
-	protected void writeScannableValue(NXobject object, String fieldName, String scannableName, boolean required) throws NexusException {
-		if (required && scannableName == null) {
-			throw new NexusException(String.format("No scannable set for field %s of %s", fieldName, object.getClass().getSimpleName()));
-		}
+	protected void writeScannableValue(NXobject object, String fieldName, String scannableName) throws NexusException {
+		if (scannableName == null) return; // property not set, ignore
 
 		try {
 			final IScannable<?> scannable = ServiceHolder.getScannableDeviceService().getScannable(scannableName);

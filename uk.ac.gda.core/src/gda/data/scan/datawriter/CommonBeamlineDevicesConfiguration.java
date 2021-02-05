@@ -19,16 +19,18 @@
 package gda.data.scan.datawriter;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXbending_magnet;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NXsource;
-import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.factory.FindableBase;
 import uk.ac.diamond.daq.scanning.BeamNexusDevice;
@@ -44,6 +46,8 @@ import uk.ac.diamond.daq.scanning.SourceNexusDevice;
  * with the {@link INexusDeviceService}.
  */
 public class CommonBeamlineDevicesConfiguration extends FindableBase {
+
+	private Logger logger = LoggerFactory.getLogger(CommonBeamlineDevicesConfiguration.class);
 
 	private String sourceName;
 
@@ -122,15 +126,16 @@ public class CommonBeamlineDevicesConfiguration extends FindableBase {
 		this.beamName = beamName;
 	}
 
-	public Set<String> getCommonDeviceNames() throws NexusException {
-		if (sourceName == null) throw new NexusException("Source device name must be set");
-		if (insertionDeviceName == null && bendingMagnetName == null) throw new NexusException("Insertion device or bending magnet name must be set");
-		if (insertionDeviceName != null && bendingMagnetName != null) throw new NexusException("Only one of insertion device or bending magnet name can be set");
-		if (monochromatorName == null) throw new NexusException("Monochromator name must be set");
-		if (beamName == null) throw new NexusException("Beam name must be set");
+	public Set<String> getCommonDeviceNames() {
+		if (sourceName == null) logger.warn("Source device name should be set");
+		if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name should be set");
+		if (insertionDeviceName != null && bendingMagnetName != null) logger.error("Only one of insertion device or bending magnet name should be set");
+		if (monochromatorName == null) logger.warn("Monochromator name should be set");
+		if (beamName == null) logger.warn("Beam name should be set");
 
-		// TODO use Set.of when we can use Java 9 source code.
-		return new HashSet<>(Arrays.asList(sourceName, insertionDeviceName != null ? insertionDeviceName : bendingMagnetName, monochromatorName, beamName));
+		return Arrays.asList(sourceName, insertionDeviceName, bendingMagnetName, monochromatorName, beamName).stream()
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 	}
 
 }
