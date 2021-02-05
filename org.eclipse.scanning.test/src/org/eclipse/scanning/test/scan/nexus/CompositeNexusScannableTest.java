@@ -225,7 +225,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		NXentry entry = root.getEntry();
 
 		// Assert: check the nexus file
-		assertEquals(7, entry.getNumberOfGroupNodes());
+		assertEquals(6, entry.getNumberOfGroupNodes());
 		NXinstrument instrument = entry.getInstrument();
 		assertEquals(4, instrument.getNumberOfGroupNodes());
 
@@ -298,7 +298,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 
 		NXroot root = createAndRunScan(composite);
 		NXentry entry = root.getEntry();
-		assertEquals(8, entry.getNumberOfGroupNodes()); // NXinstrument, NXdata groups, etc
+		assertEquals(7, entry.getNumberOfGroupNodes()); // NXinstrument, NXdata groups, etc
 		NXinstrument instrument = entry.getInstrument();
 		assertEquals(3, instrument.getNumberOfGroupNodes()); // mandelbrot, xNex, yNex
 

@@ -47,7 +47,6 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXsample;
-import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
@@ -112,13 +111,6 @@ public class ScanMetadataTest extends NexusTest {
 		sampleMetadata.addField(NXsample.NX_TEMPERATURE, 22.0);
 		sampleMetadata.addField(NXsample.NX_DESCRIPTION, "Test sample");
 		scanMetadata.add(sampleMetadata);
-
-		ScanMetadata userMetadata = new ScanMetadata(MetadataType.USER);
-		userMetadata.addField(NXuser.NX_NAME, "testuser");
-		userMetadata.addField(NXuser.NX_ADDRESS, "Diamond Light Source, Diamond House, Harwell Science & Innovation Campus, Didcot, Oxfordshire, OX11 0DE");
-		userMetadata.addField(NXuser.NX_EMAIL, "user@diamond.ac.uk");
-		userMetadata.addField(NXuser.NX_TELEPHONE_NUMBER, "01");
-		scanMetadata.add(userMetadata);
 
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, scanMetadata, 2, 2);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
