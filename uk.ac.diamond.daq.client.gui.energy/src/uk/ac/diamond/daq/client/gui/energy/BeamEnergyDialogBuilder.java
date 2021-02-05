@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.client.gui.energy;
 
+import static uk.ac.gda.client.properties.stage.DefaultManagedScannable.BEAM_SELECTOR;
 import static uk.ac.gda.ui.tool.ClientMessages.BEAM_ENERGY_CONTROL;
 import static uk.ac.gda.ui.tool.ClientMessages.DIFFRACTION;
 import static uk.ac.gda.ui.tool.ClientMessages.IMAGING;
@@ -7,6 +8,7 @@ import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.getBean;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -21,10 +23,10 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.beamline.configuration.api.ConfigurationWorkflow;
 import uk.ac.diamond.daq.client.gui.energy.EnergyWorkflowController.EnergySelectionType;
-import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
-import uk.ac.diamond.daq.mapping.ui.stage.BeamSelector;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.properties.MotorProperties;
+import uk.ac.gda.client.properties.stage.ManagedScannable;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 
@@ -201,7 +203,8 @@ public class BeamEnergyDialogBuilder {
 		}
 
 		private ManagedScannable<String> getBeamSelector() {
-			return BeamSelector.getManagedScannable();
+			return getBean(ScannablesPropertiesHelper.class)
+					.getManagedScannable(BEAM_SELECTOR, BEAM_SELECTOR.getScannableType());
 		}
 
 	}

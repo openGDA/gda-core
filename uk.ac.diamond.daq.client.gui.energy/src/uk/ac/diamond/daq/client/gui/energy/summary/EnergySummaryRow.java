@@ -18,9 +18,12 @@
 
 package uk.ac.diamond.daq.client.gui.energy.summary;
 
+import static uk.ac.gda.client.properties.stage.DefaultManagedScannable.BEAM_SELECTOR;
+import static uk.ac.gda.client.properties.stage.DefaultManagedScannable.EH_SHUTTER;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.WidgetUtilities.getDataObject;
+import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.getBean;
 
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -37,11 +40,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
-import uk.ac.diamond.daq.mapping.ui.stage.BeamSelector;
-import uk.ac.diamond.daq.mapping.ui.stage.EHShutter;
 import uk.ac.gda.api.camera.ValveState;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.properties.stage.ManagedScannable;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.WidgetUtilities;
@@ -327,10 +329,14 @@ class EnergySummaryRow {
 	}
 
 	private ManagedScannable<String> getEHShutter() {
-		return EHShutter.getManagedScannable();
+		return getBean(ScannablesPropertiesHelper.class)
+				.getManagedScannable(EH_SHUTTER, EH_SHUTTER.getScannableType());
 	}
 
 	private ManagedScannable<String> getBeamSelector() {
-		return BeamSelector.getManagedScannable();
+		return getBean(ScannablesPropertiesHelper.class)
+				.getManagedScannable(BEAM_SELECTOR, BEAM_SELECTOR.getScannableType());
 	}
+
+
 }

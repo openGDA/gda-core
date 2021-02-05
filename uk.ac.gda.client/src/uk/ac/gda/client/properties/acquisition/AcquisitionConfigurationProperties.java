@@ -31,7 +31,7 @@ public class AcquisitionConfigurationProperties {
 	private Set<String> cameras;
 
 	/**
-	 * A collection of {@link ScannablePropertiesDocument#getScannable()} associated with this acquisition type
+	 * A collection of {@link ScannableProperties#getScannable()} associated with this acquisition type
 	 * defining the out of beam
 	 */
 	private Set<String> outOfBeamScannables;

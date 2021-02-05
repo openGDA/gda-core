@@ -33,7 +33,8 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  */
 @Configuration
 @ComponentScan(basePackages = { "uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui.services",
-		"uk.ac.diamond.daq.mapping.api.document" },
+		"uk.ac.diamond.daq.mapping.api.document",
+		"uk.ac.gda.client.properties.stage.services" },
 				excludeFilters = {
 						@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class) })
 public class DevicePositionServiceTestConfiguration {

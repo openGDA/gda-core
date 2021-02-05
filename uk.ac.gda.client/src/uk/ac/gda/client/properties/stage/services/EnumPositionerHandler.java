@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.services.position;
+package uk.ac.gda.client.properties.stage.services;
 
 import java.util.Optional;
 
@@ -25,13 +25,12 @@ import org.springframework.stereotype.Component;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.Scannable;
-import gda.device.enumpositioner.EpicsEnumPositioner;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.exception.GDAException;
 
 /**
- * Handler for {@link EpicsEnumPositioner} devices
+ * Handler for {@code EpicsEnumPositioner} devices
  *
  * @author Maurizio Nagni
  */

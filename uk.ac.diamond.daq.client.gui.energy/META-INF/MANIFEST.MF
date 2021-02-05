@@ -19,5 +19,4 @@ Require-Bundle: uk.ac.gda.api;bundle-version="9.15.0",
 Export-Package: uk.ac.diamond.daq.client.gui.energy,
  uk.ac.diamond.daq.client.gui.energy.summary
 Import-Package: gda.configuration.properties,
- uk.ac.diamond.daq.mapping.ui.properties.stages,
  uk.ac.diamond.daq.mapping.ui.stage

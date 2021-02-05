@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.properties.stages;
+package uk.ac.gda.client.properties.stage;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -28,7 +28,7 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
- * Allows the client to drive a scannable using a {@link ScannablePropertiesDocument}
+ * Allows the client to drive a scannable using a {@link ScannableProperties}
  *
  * <p>
  * It is assumed that instances of this class are available only through
@@ -47,7 +47,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 public class ManagedScannable<T> {
 
 	private Scannable scannable;
-	private final ScannablePropertiesDocument scannablePropertiesDocument;
+	private final ScannableProperties scannablePropertiesDocument;
 
 	/**
 	 * This constructor is restricted to the package in order to force the use of
@@ -55,7 +55,7 @@ public class ManagedScannable<T> {
 	 *
 	 * @param scannablePropertiesDocument
 	 */
-	ManagedScannable(ScannablePropertiesDocument scannablePropertiesDocument) {
+	ManagedScannable(ScannableProperties scannablePropertiesDocument) {
 		this.scannablePropertiesDocument = scannablePropertiesDocument;
 	}
 
@@ -137,13 +137,13 @@ public class ManagedScannable<T> {
 		return scannable;
 	}
 
-	public ScannablePropertiesDocument getScannablePropertiesDocument() {
+	public ScannableProperties getScannablePropertiesDocument() {
 		return scannablePropertiesDocument;
 	}
 
 	private String getDevice() {
 		return Optional.ofNullable(getScannablePropertiesDocument())
-				.map(ScannablePropertiesDocument::getScannable)
+				.map(ScannableProperties::getScannable)
 				.orElseGet(() -> null);
 	}
 
