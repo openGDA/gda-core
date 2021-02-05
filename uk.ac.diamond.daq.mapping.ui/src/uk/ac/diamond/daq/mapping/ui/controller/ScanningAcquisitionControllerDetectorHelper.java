@@ -36,9 +36,6 @@ import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionPropertiesDocument;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
@@ -46,10 +43,13 @@ import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocume
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
- * Manages a set of {@link AcquisitionPropertiesDocument} on behalf of a {@link ScanningAcquisitionController}
+ * Manages a set of {@code AcquisitionPropertiesDocument} on behalf of a {@link ScanningAcquisitionController}
  *
  * <p>
  * The {@link AcquisitionPropertyType}, required by the controller in the constructor, selects the sets of
@@ -73,12 +73,11 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
  *
  * @author Maurizio Nagni
  *
- * @see AcquisitionsPropertiesHelper
  */
 class ScanningAcquisitionControllerDetectorHelper {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionControllerDetectorHelper.class);
 
-	private final List<AcquisitionPropertiesDocument> acquisitionPropertiesDocuments = new ArrayList<>();
+	private final List<AcquisitionConfigurationProperties> acquisitionPropertiesDocuments = new ArrayList<>();
 	private final Supplier<ScanningAcquisition> acquisitionSupplier;
 
 	/**
@@ -105,17 +104,22 @@ class ScanningAcquisitionControllerDetectorHelper {
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
 	}
 
-	private List<AcquisitionPropertiesDocument> getAcquisitionPropertiesDocuments() {
-		if (acquisitionPropertiesDocuments.isEmpty()) {
-			Optional.ofNullable(AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(getAcquisitionType()))
-				.ifPresent(acquisitionPropertiesDocuments::addAll);
-		}
-		return acquisitionPropertiesDocuments;
+	private List<AcquisitionConfigurationProperties> getAcquisitionPropertiesDocuments() {
+		return getClientProperties().getAcquisitions();
+//		if (acquisitionPropertiesDocuments.isEmpty()) {
+//			Optional.ofNullable(AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(getAcquisitionType()))
+//				.ifPresent(acquisitionPropertiesDocuments::addAll);
+//		}
+//		return acquisitionPropertiesDocuments;
+	}
+
+	private ClientSpringProperties getClientProperties() {
+		return SpringApplicationContextFacade.getBean(ClientSpringProperties.class);
 	}
 
 	Set<String> getOutOfBeamScannables() {
 		return Optional.ofNullable(getAcquisitionPropertiesDocument())
-				.map(AcquisitionPropertiesDocument::getOutOfBeamScannables)
+				.map(AcquisitionConfigurationProperties::getOutOfBeamScannables)
 				.orElseGet(HashSet::new);
 	}
 
@@ -145,7 +149,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		if (!camerasControls.isEmpty())
 			return camerasControls;
 
-		AcquisitionPropertiesDocument dp = getAcquisitionPropertiesDocument();
+		AcquisitionConfigurationProperties dp = getAcquisitionPropertiesDocument();
 		if (dp == null)
 			return camerasControls;
 
@@ -162,7 +166,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 	}
 
 	private AcquisitionEngineDocument createNewAcquisitionEngineDocument() {
-		AcquisitionPropertiesDocument dp = getAcquisitionPropertiesDocument();
+		AcquisitionConfigurationProperties dp = getAcquisitionPropertiesDocument();
 		AcquisitionEngineDocument.Builder engineBuilder = new AcquisitionEngineDocument.Builder();
 		if (dp != null) {
 			engineBuilder.withId(dp.getEngine().getId());
@@ -188,7 +192,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 		return imageCalibrationBuilder.build();
 	}
 
-	private AcquisitionPropertiesDocument getAcquisitionPropertiesDocument() {
+	private AcquisitionConfigurationProperties getAcquisitionPropertiesDocument() {
 		if (getAcquisitionPropertiesDocuments().isEmpty()) {
 			return null;
 		}

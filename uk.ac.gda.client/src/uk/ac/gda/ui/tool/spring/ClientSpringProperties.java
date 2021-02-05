@@ -11,6 +11,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import uk.ac.gda.client.properties.RealVectorConverter;
 import uk.ac.gda.client.properties.Array2DConverter;
+import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
@@ -28,14 +29,21 @@ import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 @PropertySource("file:${gda.config}/properties/_common/common_instance_java.properties")
 @PropertySource(value = "file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties", ignoreResourceNotFound = true)
 @ConfigurationProperties(prefix = "client")
-@EnableConfigurationProperties(CameraConfigurationProperties.class)
+@EnableConfigurationProperties({CameraConfigurationProperties.class, AcquisitionConfigurationProperties.class})
 public class ClientSpringProperties {
 
 	@Autowired
 	private List<CameraConfigurationProperties> cameras;
 
+	@Autowired
+	private List<AcquisitionConfigurationProperties> acquisitions;
+
 	public List<CameraConfigurationProperties> getCameras() {
 		return cameras;
+	}
+
+	public List<AcquisitionConfigurationProperties> getAcquisitions() {
+		return acquisitions;
 	}
 
 	@Bean

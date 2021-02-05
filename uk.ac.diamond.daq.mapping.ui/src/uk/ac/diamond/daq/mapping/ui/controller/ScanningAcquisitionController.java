@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
@@ -20,6 +21,7 @@ import javax.naming.directory.InvalidAttributesException;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
+import org.eclipse.dawnsci.nexus.appender.NexusNodeCopyAppender;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
@@ -49,8 +51,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper.AcquisitionPropertyType;
 import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.mapping.ui.stage.BeamSelector;
@@ -68,11 +68,15 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -101,6 +105,9 @@ public class ScanningAcquisitionController
 
 	@Autowired
 	private StageController stageController;
+
+	@Autowired
+	private ClientSpringProperties clientProperties;
 
 	@Autowired
 	private ClientRemoteServices remoteServices;
@@ -304,34 +311,62 @@ public class ScanningAcquisitionController
 	}
 
 	private void updateProcessingRequest() throws AcquisitionControllerException {
-		if (AcquisitionPropertyType.TOMOGRAPHY.equals(getAcquisitionType())) {
-			URL processingFile = fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
-			if (processingFile == null)
-				return;
-			List<URL> urls = new ArrayList<>();
-			urls.add(processingFile);
-			SavuProcessingRequest request = new SavuProcessingRequest.Builder()
-					.withValue(urls)
-					.build();
-			List<ProcessingRequestPair<?>> requests = new ArrayList<>();
-			requests.add(request);
-			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
+		switch (getAcquisitionType()) {
+			case DIFFRACTION:
+				processDiffraction();
+				break;
+			case TOMOGRAPHY:
+				processTomography();
+				break;
+			default:
+				break;
 		}
-		if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionType())) {
-			URL processingFile = fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
-			if (processingFile == null)
-				return;
-			List<URL> urls = new ArrayList<>();
-			urls.add(processingFile);
-			DiffractionCalibrationMergeRequest request = new DiffractionCalibrationMergeRequest.Builder()
-					.withValue(urls)
-					.withDeviceName(Optional.ofNullable(getDatasetName())
-											.orElseThrow(() -> new AcquisitionConfigurationException("Dataset name property not configured for diffraction scans")))
-					.build();
-			List<ProcessingRequestPair<?>> requests = new ArrayList<>();
-			requests.add(request);
-			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
-		}
+	}
+
+	private AcquisitionConfigurationProperties getAcquisitionConfigurationProperties() throws AcquisitionConfigurationException {
+		return clientProperties.getAcquisitions().stream()
+				.filter(a -> a.getType().equals(getAcquisitionType()))
+				.findFirst()
+				.orElseThrow(() -> new AcquisitionConfigurationException("There are no properties associated with the acqual acquisition"));
+	}
+
+	private void processTomography() throws AcquisitionConfigurationException {
+		URL processingFile = fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
+		if (processingFile == null)
+			return;
+		List<URL> urls = new ArrayList<>();
+		urls.add(processingFile);
+		SavuProcessingRequest request = new SavuProcessingRequest.Builder()
+				.withValue(urls)
+				.build();
+		List<ProcessingRequestPair<?>> requests = new ArrayList<>();
+		requests.add(request);
+		getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
+	}
+
+	private void processDiffraction() throws AcquisitionConfigurationException {
+		AcquisitionConfigurationProperties acquisitionProperties = getAcquisitionConfigurationProperties();
+		URL processingFile = fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
+		if (processingFile == null)
+			return;
+		List<URL> urls = new ArrayList<>();
+		urls.add(processingFile);
+
+		Optional.ofNullable(acquisitionProperties.getNexusNodeCopyAppender())
+			.ifPresent(a -> {
+				NexusNodeCopyAppender<?> appender = SpringApplicationContextFacade.getBean(a, NexusNodeCopyAppender.class);
+				if (appender.getName() == null) {
+					logger.error("Dataset name property not configured for diffraction scans");
+					return;
+				}
+				DiffractionCalibrationMergeRequest request = new DiffractionCalibrationMergeRequest.Builder()
+						.withValue(urls)
+						.withDeviceName(appender.getName())
+						.build();
+				List<ProcessingRequestPair<?>> requests = new ArrayList<>();
+				requests.add(request);
+				getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
+			});
 	}
 
 	private void updateBeamSelectorPosition(Set<DevicePositionDocument> positions) {
@@ -345,10 +380,8 @@ public class ScanningAcquisitionController
 		}
 	}
 
-	private String getDatasetName() {
-		return AcquisitionsPropertiesHelper.getAcquistionPropertiesDocument(getAcquisitionType())
-				// should only have one document per acquisition type:
-				.iterator().next().getPrimaryDataset();
+	private ClientSpringProperties getClientProperties() {
+		return getBean(ClientSpringProperties.class);
 	}
 
 	private void updateStartPosition() {

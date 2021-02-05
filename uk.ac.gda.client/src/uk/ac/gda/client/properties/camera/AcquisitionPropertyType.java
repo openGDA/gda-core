@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,20 +16,23 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.properties;
+package uk.ac.gda.client.properties.camera;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-/**
- * Configures various tests related to properties parsing.
- *
- * @author Maurizio Nagni
- */
-@Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring",
-		"uk.ac.gda.client.properties",
-		"uk.ac.gda.ui.tool.spring"})
-public class ConfigurationPropertiesTestConfiguration {
-
+public enum AcquisitionPropertyType {
+	/**
+	 * Identifies an acquisition associated with a diffraction
+	 */
+	DIFFRACTION,
+	/**
+	 * Identifies an acquisition associated with a tomography
+	 */
+	TOMOGRAPHY,
+	/**
+	 * Identifies an acquisition associated with a double detector
+	 */
+	BEAM_SELECTOR,
+	/**
+	 * Identifies an acquisition not associated with a specific type
+	 */
+	DEFAULT
 }
