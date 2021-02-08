@@ -90,10 +90,13 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	private Map<String, String> malcolmDetectorNames;
 
 	/**
-	 * Model of the detector to be used for the snapshot.<br>
-	 * If this is not configured explicitly, this class will use the first detector in the "main" scan.
+	 * Mapping of (the name of) the first detector in the "main" scan to the model of the detector to be used for the
+	 * snapshot.<br>
+	 * This is principally intended for Malcolm scans, for example to allow us to use a Malcolm device for dark field
+	 * collection that does not open the shutter.<br>
+	 * If this is not configured, the snapshot will be taken using the first detector in the "main" scan.
 	 */
-	private IRunnableDevice<? extends IDetectorModel> snapshotDetector;
+	private Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors;
 
 	/** File path of the NeXus file corresponding to the single frame scan */
 	private String frameFilePath;
@@ -144,10 +147,18 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		final double exposureTime = modelFromRequest.getExposureTime();
 
 		// If no detector has been explicitly configured, use the "main scan" detector
-		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = (snapshotDetector == null) ? mainScanDetector : snapshotDetector;
+		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = getSnapshotDetector(mainScanDetector);
 		logger.debug("Setting exposure time on {} to {}", acquisitionDetector.getName(), exposureTime);
 		acquisitionDetector.getModel().setExposureTime(exposureTime);
 		acquire(acquisitionDetector);
+	}
+
+	private IRunnableDevice<? extends IDetectorModel> getSnapshotDetector(IRunnableDevice<? extends IDetectorModel> mainScanDetector) {
+		final String mainDetectorName = mainScanDetector.getName();
+		if (snapshotDetectors == null || !snapshotDetectors.containsKey(mainDetectorName)) {
+			return mainScanDetector;
+		}
+		return snapshotDetectors.get(mainDetectorName);
 	}
 
 	@Override
@@ -283,8 +294,8 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 		this.malcolmDetectorNames = malcolmDetectorNames;
 	}
 
-	public void setSnapshotDetector(IRunnableDevice<? extends IDetectorModel> snapshotDetector) {
-		this.snapshotDetector = snapshotDetector;
+	public void setSnapshotDetectors(Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors) {
+		this.snapshotDetectors = snapshotDetectors;
 	}
 
 	@Override
@@ -306,7 +317,7 @@ public class CalibrationFrameCollector extends AbstractScannable<Object> impleme
 	public String toString() {
 		return "CalibrationFrameCollector [acquireRequester=" + acquireRequester + ", beamlineConfiguration="
 				+ beamlineConfiguration + ", nexusFieldName=" + nexusFieldName + ", malcolmDetectorNames="
-				+ malcolmDetectorNames + ", snapshotDetector=" + snapshotDetector + ", frameFilePath=" + frameFilePath
+				+ malcolmDetectorNames + ", snapshotDetectors=" + snapshotDetectors + ", frameFilePath=" + frameFilePath
 				+ ", nexusNodePath=" + nexusNodePath + ", previousConfiguration=" + previousConfiguration
 				+ ", configured=" + configured + "]";
 	}
