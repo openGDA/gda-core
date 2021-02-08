@@ -64,6 +64,12 @@ public class BeamEnergyDialogBuilder {
 	public static final String IMAGING_PINK_WORKFLOW_PROPERTY = "beam.imaging.pink.workflow";
 	public static final String IMAGING_PINK_WORKFLOW_PROPERTY_DEFAULT = "imaging_pink_workflow";
 
+	public static final String DIFFRACTION_MONO_LOWER_LIMIT = "beam.diffraction.mono.limit.lower";
+	public static final String DIFFRACTION_MONO_UPPER_LIMIT = "beam.diffraction.mono.limit.upper";
+
+	public static final String IMAGING_MONO_LOWER_LIMIT = "beam.imaging.mono.limit.lower";
+	public static final String IMAGING_MONO_UPPER_LIMIT = "beam.imaging.mono.limit.upper";
+
 	private static final String DIFFRACTION_MONO_WORKFLOW = LocalProperties.get(DIFFRACTION_MONO_WORKFLOW_PROPERTY,
 			DIFFRACTION_MONO_WORKFLOW_PROPERTY_DEFAULT);
 	private static final String IMAGING_MONO_WORKFLOW = LocalProperties.get(IMAGING_MONO_WORKFLOW_PROPERTY,
@@ -71,18 +77,26 @@ public class BeamEnergyDialogBuilder {
 	private static final String IMAGING_PINK_WORKFLOW = LocalProperties.get(IMAGING_PINK_WORKFLOW_PROPERTY,
 			IMAGING_PINK_WORKFLOW_PROPERTY_DEFAULT);
 
+	private static final double DIFFRACTION_LOWER_LIMIT = LocalProperties.getDouble(DIFFRACTION_MONO_LOWER_LIMIT, Double.NEGATIVE_INFINITY);
+	private static final double DIFFRACTION_UPPER_LIMIT = LocalProperties.getDouble(DIFFRACTION_MONO_UPPER_LIMIT, Double.POSITIVE_INFINITY);
+
+	private static final double IMAGING_LOWER_LIMIT = LocalProperties.getDouble(IMAGING_MONO_LOWER_LIMIT, Double.NEGATIVE_INFINITY);
+	private static final double IMAGING_UPPER_LIMIT = LocalProperties.getDouble(IMAGING_MONO_UPPER_LIMIT, Double.POSITIVE_INFINITY);
+
 	private EnergyWorkflowController diffractionController;
 	private EnergyWorkflowController imagingController;
 
 	private EnergyWorkflowController getDiffractionEnergyController() {
 		ConfigurationWorkflow diffractionMono = Finder.find(DIFFRACTION_MONO_WORKFLOW);
-		return new EnergyWorkflowController(EnergySelectionType.MONO, diffractionMono, null);
+		return new EnergyWorkflowController(EnergySelectionType.MONO, diffractionMono, null,
+				DIFFRACTION_LOWER_LIMIT, DIFFRACTION_UPPER_LIMIT);
 	}
 
 	private final EnergyWorkflowController getImagingEnergyController() {
 		ConfigurationWorkflow imagingMono = Finder.find(IMAGING_MONO_WORKFLOW);
 		ConfigurationWorkflow imagingPoly = Finder.find(IMAGING_PINK_WORKFLOW);
-		return new EnergyWorkflowController(EnergySelectionType.BOTH, imagingMono, imagingPoly);
+		return new EnergyWorkflowController(EnergySelectionType.BOTH, imagingMono, imagingPoly,
+				IMAGING_LOWER_LIMIT, IMAGING_UPPER_LIMIT);
 	}
 
 	/**

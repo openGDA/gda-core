@@ -4,14 +4,19 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Arrays;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.UpdateValueStrategy;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
+import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -25,6 +30,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
+
+import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.images.ClientImages;
 
 public class BeamEnergyControl {
 
@@ -44,6 +52,8 @@ public class BeamEnergyControl {
 	private Label updateMessage;
 
 	private ProgressBar progress;
+
+	private ControlDecoration illegalValueDecoration;
 
 	private BeamEnergyBean bean;
 
@@ -65,6 +75,11 @@ public class BeamEnergyControl {
 
 		monoDemand = new Text(base, SWT.BORDER);
 		layout.applyTo(monoDemand);
+
+		illegalValueDecoration = new ControlDecoration(monoDemand, SWT.LEFT | SWT.TOP);
+		illegalValueDecoration.setImage(ClientSWTElements.getImage(ClientImages.EXCLAMATION_RED));
+		illegalValueDecoration.setDescriptionText("Energy outside of allowed range ["
+				+ controller.getLowerLimit() + " : " + controller.getUpperLimit() + "]");
 
 		pinkBeam = new Button(base, SWT.RADIO);
 		pinkBeam.setText("Polychromatic");
@@ -94,23 +109,39 @@ public class BeamEnergyControl {
 		bind(base);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void bind(Composite base) {
 		DataBindingContext context = new DataBindingContext();
 
 		// beam selection
 		SelectObservableValue<EnergyType> beamSelection = new SelectObservableValue<>();
-		beamSelection.addOption(EnergyType.MONOCHROMATIC, WidgetProperties.selection().observe(monoBeam));
-		beamSelection.addOption(EnergyType.POLYCHROMATIC, WidgetProperties.selection().observe(pinkBeam));
-		IObservableValue<EnergyType> beamInBean = PojoProperties.value("type").observe(bean);
+		beamSelection.addOption(EnergyType.MONOCHROMATIC, WidgetProperties.buttonSelection().observe(monoBeam));
+		beamSelection.addOption(EnergyType.POLYCHROMATIC, WidgetProperties.buttonSelection().observe(pinkBeam));
+		IObservableValue<EnergyType> beamInBean = PojoProperties.value("type", EnergyType.class).observe(bean);
 
 		context.bindValue(beamSelection, beamInBean);
 
 		// mono energy
-		IObservableValue<Double> monoEnergyUi = WidgetProperties.text(SWT.Modify).observe(monoDemand);
-		IObservableValue<Double> monoEnergyModel = PojoProperties.value("monoEnergy").observe(bean);
+		IObservableValue<String> monoEnergyUi = WidgetProperties.text(SWT.Modify).observe(monoDemand);
+		IObservableValue<Double> monoEnergyModel = PojoProperties.value("monoEnergy", Double.class).observe(bean);
 
-		context.bindValue(monoEnergyUi, monoEnergyModel);
+		UpdateValueStrategy<String, Double> strategy = new UpdateValueStrategy<>();
+		strategy.setBeforeSetValidator(energy -> {
+			if (energy >= controller.getLowerLimit() && energy <= controller.getUpperLimit()) {
+				start.setEnabled(true);
+				illegalValueDecoration.hide();
+				return ValidationStatus.ok();
+			} else {
+				start.setEnabled(false);
+				illegalValueDecoration.show();
+				illegalValueDecoration.showHoverText(illegalValueDecoration.getDescriptionText());
+				return ValidationStatus.error("");
+			}
+		});
+
+		Binding binding = context.bindValue(monoEnergyUi, monoEnergyModel, strategy, null);
+
+		ControlDecorationSupport.create(binding, SWT.TOP | SWT.LEFT);
+
 
 		// pink band
 		pinkDemand.setContentProvider(ArrayContentProvider.getInstance());
@@ -128,8 +159,8 @@ public class BeamEnergyControl {
 				return band.getLabel() + ": " + band.getLow() + "-" + band.getHigh() + " keV";
 			}
 		});
-		IViewerObservableValue bandInUi = ViewerProperties.singleSelection().observe(pinkDemand);
-		IObservableValue<EnergyBand> bandInModel = PojoProperties.value("polyEnergy").observe(bean);
+		IViewerObservableValue<EnergyBand> bandInUi = ViewerProperties.singleSelection(EnergyBand.class).observe(pinkDemand);
+		IObservableValue<EnergyBand> bandInModel = PojoProperties.value("polyEnergy", EnergyBand.class).observe(bean);
 		context.bindValue(bandInUi, bandInModel);
 
 		// disable mono/pink input
