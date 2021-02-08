@@ -20,6 +20,7 @@ package uk.ac.gda.devices.detector.xspress4;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -160,7 +161,12 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		this.caClientTimeoutSecs = caClientTimeoutSecs;
 	}
 
+	private <T> void checkPv(ReadOnlyPV<T> pv) throws DeviceException {
+		Optional.ofNullable(pv).orElseThrow(() -> new DeviceException("PV has not been set"));
+	}
+
 	private double[] getArray(ReadOnlyPV<Double[]> pv) throws DeviceException {
+		checkPv(pv);
 		try {
 			return ArrayUtils.toPrimitive(pv.get());
 		}catch(IOException e) {
@@ -169,6 +175,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	private double[] getArray(ReadOnlyPV<Double[]> pv, int numValues) throws DeviceException {
+		checkPv(pv);
 		try {
 			return ArrayUtils.toPrimitive(pv.get(numValues));
 		}catch(IOException e) {
@@ -177,6 +184,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	private <T> T getValue(ReadOnlyPV<T> pv) throws DeviceException {
+		checkPv(pv);
 		try {
 			return pv.get();
 		}catch(IOException e) {
@@ -185,6 +193,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	private <T> void putValue(PV<T> pv, T value) throws DeviceException {
+		checkPv(pv);
 		try {
 			pv.putWait(value, caClientTimeoutSecs);
 		}catch(IOException e) {
@@ -193,6 +202,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	private <T> void putValueNoWait(PV<T> pv, T value) throws DeviceException {
+		checkPv(pv);
 		try {
 			pv.putNoWait(value);
 		}catch(IOException e) {
@@ -343,11 +353,7 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
-		// DTC_FACTORS pv is missing from Epics. Return dummy values instead. 22/8/2019
-		double[] dummyValues = new double[numElements];
-		Arrays.fill(dummyValues, 1.0);
-		return dummyValues;
-		// return getArray(pvDtcFactors);
+		 return getArray(pvDtcFactors);
 	}
 
 	public String getBasePv() {
