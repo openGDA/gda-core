@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.properties.camera;
 
+import java.util.List;
+
 /**
  * Defines the mapping from a camera array space to the beam drivers one.
  * <p>
@@ -31,8 +33,7 @@ package uk.ac.gda.client.properties.camera;
 public class CameraToBeamMap {
 
 	private double[][] map;
-	private String driverX;
-	private String driverY;
+	private List<String> driver;
 	private boolean active;
 
 	public double[][] getMap() {
@@ -41,17 +42,12 @@ public class CameraToBeamMap {
 	public void setMap(double[][] map) {
 		this.map = map;
 	}
-	public String getDriverX() {
-		return driverX;
+
+	public List<String> getDriver() {
+		return driver;
 	}
-	public void setDriverX(String driverX) {
-		this.driverX = driverX;
-	}
-	public String getDriverY() {
-		return driverY;
-	}
-	public void setDriverY(String driverY) {
-		this.driverY = driverY;
+	public void setDriver(List<String> driver) {
+		this.driver = driver;
 	}
 	public boolean isActive() {
 		return active;

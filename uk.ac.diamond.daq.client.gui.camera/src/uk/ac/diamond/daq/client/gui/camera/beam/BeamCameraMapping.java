@@ -184,19 +184,30 @@ public class BeamCameraMapping {
 	}
 
 	Optional<RealVector> pixelToBeam(ICameraConfiguration iConfiguration, double x, double y) {
+		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
 		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
 				.map(this::pixelToBeamSolver)
-				.map(s -> transformCoordinates(s, x, y));
+				.map(s -> transformCoordinates(s, cameraVector));
+	}
+
+	public Optional<RealVector> pixelToBeam(ICameraConfiguration iConfiguration, RealVector cameraVector) {
+		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
+				.map(this::pixelToBeamSolver)
+				.map(s -> transformCoordinates(s, cameraVector));
 	}
 
 	Optional<RealVector> beamToPixel(ICameraConfiguration iConfiguration, double x, double y) {
-		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
-				.map(this::beamToPixelSolver)
-				.map(s -> transformCoordinates(s, x, y));
+		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
+		return beamToPixel(iConfiguration, cameraVector);
 	}
 
-	RealVector transformCoordinates(DecompositionSolver solver, double x, double y) {
-		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
+	public Optional<RealVector> beamToPixel(ICameraConfiguration iConfiguration, RealVector cameraVector) {
+		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
+				.map(this::beamToPixelSolver)
+				.map(s -> transformCoordinates(s, cameraVector));
+	}
+
+	RealVector transformCoordinates(DecompositionSolver solver, RealVector cameraVector) {
 		try {
 			return solver.solve(cameraVector);
 		} catch (SingularMatrixException e) {

@@ -6,6 +6,7 @@ import static uk.ac.gda.ui.tool.ClientMessages.BEAM_MOTORS;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
@@ -73,14 +74,17 @@ public final class BeamMappingSupport {
 		}
 
 		private void moveMotors(ClickEvent event) {
-			Optional<RealVector> moveTo;
-			if (iConfiguration.getBeamCameraMap().getDriverX().equals(event.getxAxis().getTitle())) {
-				moveTo = Optional.of(new ArrayRealVector(new double[] { event.getxValue(), event.getyValue() }, false));
-			} else {
-				moveTo = getBean(BeamCameraMapping.class).pixelToBeam(iConfiguration,
-								event.getxValue(), event.getyValue());
-			}
-			moveTo.ifPresent(this::doMove);
+			iConfiguration.getBeamCameraMap().getDriver().forEach(s -> {
+				Optional<RealVector> moveTo;
+				if (s.equals(event.getxAxis().getTitle())) {
+					moveTo = Optional.of(new ArrayRealVector(new double[] { event.getxValue(), event.getyValue() }, false));
+				} else {
+					moveTo = getBean(BeamCameraMapping.class).pixelToBeam(iConfiguration,
+									event.getxValue(), event.getyValue());
+				}
+				moveTo.ifPresent(this::doMove);
+			});
+
 		}
 
 		/**
@@ -88,10 +92,10 @@ public final class BeamMappingSupport {
 		 * @param moveTo
 		 */
 		private void doMove(RealVector moveTo) {
-			FinderHelper.getIScannableMotor(iConfiguration.getBeamCameraMap().getDriverX())
-				.ifPresent(m -> getMotorUtils() .moveMotorAsynchronously(m, moveTo.getEntry(0)));
-			FinderHelper.getIScannableMotor(iConfiguration.getBeamCameraMap().getDriverY())
-				.ifPresent(m -> getMotorUtils() .moveMotorAsynchronously(m, moveTo.getEntry(1)));
+			IntStream.rangeClosed(0, 1).forEach(i -> {
+				FinderHelper.getIScannableMotor(iConfiguration.getBeamCameraMap().getDriver().get(i))
+					.ifPresent(m -> getMotorUtils() .moveMotorAsynchronously(m, moveTo.getEntry(i)));
+			});
 		}
 
 		private MotorUtils getMotorUtils() {
@@ -123,7 +127,7 @@ public final class BeamMappingSupport {
 		// Creates the action to display the motor calibrated axes
 		if (topLeft.isPresent() && bottomRight.isPresent()) {
 			alternativeAxes.add(new AxesAction(BEAM_MOTORS, () -> plottingSystem, topLeft.get(), bottomRight.get(),
-					iConfiguration.getBeamCameraMap().getDriverX(), iConfiguration.getBeamCameraMap().getDriverY()));
+					iConfiguration.getBeamCameraMap().getDriver().get(0), iConfiguration.getBeamCameraMap().getDriver().get(1)));
 			plottingSystem.getPlotActionSystem().addPopupAction(alternativeAxes);
 		}
 	}
