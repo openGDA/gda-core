@@ -36,7 +36,7 @@ def setup_xspress_detector(basePvName):
         collect_software_triggered_frame(basePvName, 1.0)
 
 def set_trigger_mode(basePvName, triggerMode) :
-    caput(basePvName, ":CAM:TriggerMode", triggerMode) # TTL veto trigger mode
+    caput(basePvName, ":TriggerMode", triggerMode) # TTL veto trigger mode
 
 def collect_software_triggered_frame(basePvName, collectionTime) :
     """Collect one frame of software (internal) triggered data on the detector.
@@ -67,3 +67,20 @@ def setup_swmr(basePvName, switchOn, numFramesFlush, ndAttributeFlush):
     print "  HDF5 SWMR : Flush on nth frame = %d, NDAttribute flush = %d"%(numFramesFlush, ndAttributeFlush)
     caput(basePvName, ":HDF5:NumFramesFlush", numFramesFlush)
     caput(basePvName, ":HDF5:NDAttributeChunk", ndAttributeFlush)
+
+
+from org.slf4j import LoggerFactory
+import traceback
+
+def run_in_try_catch(function):
+    logger = LoggerFactory.getLogger("run_in_try_catch")
+
+    try :
+        print "Running ",function.__name__," function"
+        function()
+    except (Exception, java.lang.Throwable) as ex:
+        stacktrace=traceback.format_exc()
+        print "Problem running ",function.__name__," - see log for more details"
+        print "Stack trace : ", stacktrace
+        logger.warn("Problem running jython function {} :\n{}", function.__name__, stacktrace)
+
