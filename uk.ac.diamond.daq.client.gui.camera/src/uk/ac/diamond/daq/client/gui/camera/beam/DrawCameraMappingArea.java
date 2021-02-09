@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -57,13 +55,13 @@ import uk.ac.gda.ui.tool.ClientMessages;
 public class DrawCameraMappingArea {
 
 	private final IPlottingSystem<Composite> plottingSystem;
-	private final ICameraConfiguration cameraConfiguration;
+	private final ICameraConfiguration iCameraConfiguration;
 
 	private static final String BEAM_BOUNDARIES = "BeamBoundaries";
 
 	private DrawCameraMappingArea(IPlottingSystem<Composite> plottingSystem, ICameraConfiguration cameraConfiguration) {
 		this.plottingSystem = plottingSystem;
-		this.cameraConfiguration = cameraConfiguration;
+		this.iCameraConfiguration = cameraConfiguration;
 	}
 
 	/**
@@ -127,13 +125,13 @@ public class DrawCameraMappingArea {
 	private void estimateBoundaries() throws GDAClientException {
 		int[] cameraSize = new int[2];
 		try {
-			if (cameraConfiguration.getCameraControl().isPresent()) {
-				cameraSize = cameraConfiguration.getCameraControl().get().getFrameSize();
+			if (iCameraConfiguration.getCameraControl().isPresent()) {
+				cameraSize = iCameraConfiguration.getCameraControl().get().getFrameSize();
 			}
 		} catch (DeviceException e) {
 			throw new GDAClientException("Cannot retrieve the camera frame size", e);
 		}
-		estimateBoundaries(cameraSize, cameraConfiguration.getBeamCameraMap());
+		estimateBoundaries(cameraSize, iCameraConfiguration.getBeamCameraMap());
 	}
 
 	/**
@@ -205,6 +203,6 @@ public class DrawCameraMappingArea {
 	}
 
 	private Optional<RealVector> calculateSolution(double x, double y) {
-		return getBean(BeamCameraMapping.class).beamToPixel(cameraConfiguration, x, y);
+		return iCameraConfiguration.getBeamCameraMapping().beamToPixel(iCameraConfiguration, x, y);
 	}
 }

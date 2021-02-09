@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
@@ -89,7 +88,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	private Label motorYPosition;
 
 	private Composite container;
-	private ICameraConfiguration cameraConfiguration;
+	private ICameraConfiguration iCameraConfiguration;
 	// Displays the 2x2 matrix representing the transformation
 	private CameraMappingTable mappingTable;
 	/**
@@ -97,7 +96,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	 */
 	private IPlottingSystem<Composite> plottingSystem;
 
-	private BeamMappingStateContext beamMappingContext = new BeamMappingStateContext(() -> cameraConfiguration, 4, 4);
+	private BeamMappingStateContext beamMappingContext = new BeamMappingStateContext(() -> iCameraConfiguration, 4, 4);
 	private static final String CONTEXT_STATE = "STATE";
 
 	private static final Logger logger = LoggerFactory.getLogger(BeamCameraCalibrationComposite.class);
@@ -183,7 +182,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	 * @param cameraIndex the camera to be mapped against the beam
 	 */
 	private void updateCamera(CameraConfigurationProperties cameraProperties) {
-		cameraConfiguration = CameraHelper.createICameraConfiguration(cameraProperties);
+		iCameraConfiguration = CameraHelper.createICameraConfiguration(cameraProperties);
 		boolean enable = Optional.ofNullable(cameraProperties)
 				.map(cp -> cp.getCameraToBeamMap().isActive())
 				.orElseGet(() -> false);
@@ -207,13 +206,13 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	private ApplicationListener<BeamCameraMappingEvent> cameraMappingEventListener = new ApplicationListener<BeamCameraMappingEvent>() {
 		@Override
 		public void onApplicationEvent(BeamCameraMappingEvent event) {
-			if (event.getCameraIndex() != cameraConfiguration.getCameraIndex()) {
+			if (event.getCameraIndex() != iCameraConfiguration.getCameraIndex()) {
 				return;
 			}
-			Optional.ofNullable(cameraConfiguration.getBeamCameraMap()).ifPresent(c -> displayAsynch(() -> {
+			Optional.ofNullable(iCameraConfiguration.getBeamCameraMap()).ifPresent(c -> displayAsynch(() -> {
 				updateComposite(c);
 				try {
-					DrawCameraMappingArea.drawBeamBoundaries(plottingSystem, cameraConfiguration);
+					DrawCameraMappingArea.drawBeamBoundaries(plottingSystem, iCameraConfiguration);
 				} catch (GDAClientException e) {
 					UIHelper.showError("Cannot draw camera beam boundaries", e, logger);
 				}
@@ -280,7 +279,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 				UIHelper.showWarning("Mapping Unavailable", "Unavailable");
 				break;
 			}
-			beamMappingContext = new BeamMappingStateContext(() -> cameraConfiguration, 4, 4);
+			beamMappingContext = new BeamMappingStateContext(() -> iCameraConfiguration, 4, 4);
 		}
 	};
 
@@ -292,7 +291,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 		}
 
 		private void updateXMotorPosition(ScannableStateEvent event) {
-			getBean(BeamCameraMapping.class).getMotorXName()
+			iCameraConfiguration.getBeamCameraMapping().getMotorXName()
 				.ifPresent(n -> {
 					if (n.equals(event.getScannableName())) {
 						updateMotorPosition(motorXPosition, "xPos", event.getScannablePosition());
@@ -301,7 +300,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 		}
 
 		private void updateYMotorPosition(ScannableStateEvent event) {
-			getBean(BeamCameraMapping.class).getMotorYName()
+			iCameraConfiguration.getBeamCameraMapping().getMotorYName()
 				.ifPresent(n -> {
 					if (n.equals(event.getScannableName())) {
 						updateMotorPosition(motorYPosition, "yPos", event.getScannablePosition());

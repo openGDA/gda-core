@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
+import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -71,4 +72,6 @@ public interface ICameraConfiguration {
 	 * @return the transformation map (as described above)
 	 */
 	CameraToBeamMap getBeamCameraMap();
+
+	BeamCameraMapping getBeamCameraMapping();
 }

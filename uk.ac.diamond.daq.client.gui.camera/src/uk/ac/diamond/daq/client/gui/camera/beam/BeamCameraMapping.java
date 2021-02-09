@@ -32,9 +32,6 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
@@ -60,7 +57,6 @@ import uk.ac.gda.ui.tool.spring.MotorUtils;
  * @author Maurizio Nagni
  *
  */
-@Component
 public class BeamCameraMapping {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeamCameraMapping.class);
@@ -73,13 +69,10 @@ public class BeamCameraMapping {
 
 	private InitializationFailed initializationFailed;
 
-	@Autowired
-	public BeamCameraMapping(@Value("${client.beam.position.driverX}") String driverX,
-			@Value("${client.beam.position.driverY}") String driverY) {
+	public BeamCameraMapping(String driverX, String driverY) {
 		this.driverX = driverX;
 		this.driverY = driverY;
 	}
-
 
 	/**
 	 * Calculates the mapping for the {@code cameraConfiguration}. If fails displays

@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.AXES;
 import static uk.ac.gda.ui.tool.ClientMessages.BEAM_MOTORS;
 
@@ -79,7 +78,7 @@ public final class BeamMappingSupport {
 				if (s.equals(event.getxAxis().getTitle())) {
 					moveTo = Optional.of(new ArrayRealVector(new double[] { event.getxValue(), event.getyValue() }, false));
 				} else {
-					moveTo = getBean(BeamCameraMapping.class).pixelToBeam(iConfiguration,
+					moveTo = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration,
 									event.getxValue(), event.getyValue());
 				}
 				moveTo.ifPresent(this::doMove);
@@ -115,12 +114,12 @@ public final class BeamMappingSupport {
 		this.iConfiguration = iConfiguration;
 		this.plottingSystem = plottingSystem;
 
-		Optional<RealVector> topLeft = getBean(BeamCameraMapping.class).pixelToBeam(iConfiguration, 0, 0);
+		Optional<RealVector> topLeft = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration, 0, 0);
 		Optional<RealVector> bottomRight= Optional.empty();
 		int[] pos = iConfiguration.getCameraControl().map(this::getFrameSize).orElseGet(() -> new int[] { 0, 0 });
 		double x = pos[0];
 		double y = pos[1];
-		bottomRight = getBean(BeamCameraMapping.class).pixelToBeam(iConfiguration, x, y);
+		bottomRight = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration, x, y);
 
 		// Creates the context menu for the calibrated axes
 		MenuAction alternativeAxes = new MenuAction(ClientMessagesUtility.getMessage(AXES));
