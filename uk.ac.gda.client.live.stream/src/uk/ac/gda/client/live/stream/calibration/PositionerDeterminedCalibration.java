@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.live.stream.calibration;
 
-import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.january.dataset.IDataset;
@@ -31,57 +30,58 @@ import gda.device.EnumPositionerStatus;
 import gda.observable.IObserver;
 
 /**
- * This {@link CalibratedAxesProvider} contains a map of discrete zoom position to calibration bean,
- * and safely swaps the active bean when the zoom position changes.
+ * This implementation observes a given {@link EnumPositioner}
+ * and always delegates to the {@link CalibratedAxesProvider}
+ * corresponding to the current enumerated position.
  */
-public class CalibrationWithEnumZoomSupport implements CalibratedAxesProvider {
+public class PositionerDeterminedCalibration implements CalibratedAxesProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(CalibrationWithEnumZoomSupport.class);
+	private static final Logger logger = LoggerFactory.getLogger(PositionerDeterminedCalibration.class);
 
-	private final EnumPositioner zoom;
-	private final Map<String, CalibratedAxesProvider> zoomCalibrators;
+	private final EnumPositioner positioner;
+	private final CalibrationStore calibrations;
 
-	private CalibratedAxesProvider activeCalibrator;
+	private CalibratedAxesProvider activeCalibration;
 	private int[] dataShape;
 
-	private final IObserver zoomObserver;
+	private final IObserver switchObserver;
 
 
 	/**
 	 * Create a {@link CalibratedAxesProvider} which observes an {@link EnumPositioner} and delegates to the
-	 * CalibratedAxesProvider corresponding to the current position.
+	 * CalibratedAxesProvider corresponding to the positioner's current position.
 	 * <p>
 	 * This constructor fails if:
 	 * <ul>
 	 * <li> either argument is {@code null}, or</li>
-	 * <li> the map is missing an entry for any possible position.</li>
+	 * <li> the calibration store is missing any entry for the possible positions
 	 * </ul>
 	 *
-	 * @param zoom 					the EnumPositioner we will observe
-	 * @param zoomCalibrators		map of CalibratedAxesProvider bean for each enumerated zoom position
+	 * @param positioner 		the EnumPositioner we will observe
+	 * @param calibrations		CalibrationStore with CalibratedAxesProviders for each enum switch position
 	 */
-	public CalibrationWithEnumZoomSupport(EnumPositioner zoom, Map<String, CalibratedAxesProvider> zoomCalibrators) {
+	public PositionerDeterminedCalibration(EnumPositioner positioner, CalibrationStore calibrations) {
 
 		try {
-			validateArguments(zoom, zoomCalibrators);
-			activeCalibrator = zoomCalibrators.get(zoom.getPosition());
+			validateArguments(positioner, calibrations);
+			activeCalibration = calibrations.get((String) positioner.getPosition());
 		} catch (DeviceException e) {
-			throw new IllegalStateException("Could not read " + zoom.getName() + " positions");
+			throw new IllegalStateException("Could not read " + positioner.getName() + " positions");
 		}
 
-		this.zoom = zoom;
-		this.zoomCalibrators = zoomCalibrators;
+		this.positioner = positioner;
+		this.calibrations = calibrations;
 
-		this.zoomObserver = this::updateCalibrator;
+		this.switchObserver = this::updateCalibrator;
 	}
 
-	private void validateArguments(EnumPositioner zoom,	Map<String, CalibratedAxesProvider> zoomCalibrators) throws DeviceException {
-		Objects.requireNonNull(zoom);
-		Objects.requireNonNull(zoomCalibrators);
+	private void validateArguments(EnumPositioner positioner,	CalibrationStore calibrations) throws DeviceException {
+		Objects.requireNonNull(positioner);
+		Objects.requireNonNull(calibrations);
 
-		for (String zoomPosition : zoom.getPositions()) {
-			if (!zoomCalibrators.containsKey(zoomPosition)) {
-				throw new IllegalStateException("No calibration configuration found for " + zoom.getName() + " position '" + zoomPosition + "'");
+		for (String position : positioner.getPositions()) {
+			if (!calibrations.containsKey(position)) {
+				throw new IllegalStateException("No calibration configuration found for " + positioner.getName() + " position '" + position + "'");
 			}
 		}
 	}
@@ -92,13 +92,13 @@ public class CalibrationWithEnumZoomSupport implements CalibratedAxesProvider {
 			logger.debug("Updating live stream calibrator after receiving event from {}", source);
 			try {
 
-				final CalibratedAxesProvider newCalibrator = zoomCalibrators.get(zoom.getPosition());
+				final CalibratedAxesProvider newCalibrator = calibrations.get((String) positioner.getPosition());
 
 				// We must be careful when updating our calibrator
 				// to prevent the stream from briefly receiving null datasets:
 
 				// 1) disconnect currentCalibrator.
-				activeCalibrator.disconnect();
+				activeCalibration.disconnect();
 
 				// 2) connect newCalibrator
 				newCalibrator.connect();
@@ -109,40 +109,40 @@ public class CalibrationWithEnumZoomSupport implements CalibratedAxesProvider {
 				}
 
 				// 4) only then reassign currentCalibrator
-				activeCalibrator = newCalibrator;
+				activeCalibration = newCalibrator;
 
 			} catch (DeviceException e) {
-				logger.error("Problem with " + zoom.getName() + "; stream calibration has not been updated", e);
+				logger.error("Problem with " + positioner.getName() + "; stream calibration has not been updated", e);
 			}
 		}
 	}
 
 	@Override
 	public void connect() {
-		zoom.addIObserver(zoomObserver);
+		positioner.addIObserver(switchObserver);
 		updateCalibrator(this, EnumPositionerStatus.IDLE); // forced update to connect to the appropriate calibrator
 	}
 
 	@Override
 	public void disconnect() {
-		zoom.deleteIObserver(zoomObserver);
-		activeCalibrator.disconnect();
+		positioner.deleteIObserver(switchObserver);
+		activeCalibration.disconnect();
 	}
 
 	@Override
 	public IDataset getXAxisDataset() {
-		return activeCalibrator.getXAxisDataset();
+		return activeCalibration.getXAxisDataset();
 	}
 
 	@Override
 	public IDataset getYAxisDataset() {
-		return activeCalibrator.getYAxisDataset();
+		return activeCalibration.getYAxisDataset();
 	}
 
 	@Override
 	public void resizeStream(int[] newShape) {
 		dataShape = newShape;
-		activeCalibrator.resizeStream(newShape);
+		activeCalibration.resizeStream(newShape);
 	}
 
 }
