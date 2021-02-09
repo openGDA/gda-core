@@ -18,8 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.RADIUS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_CENTRE;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_CENTRE;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
@@ -53,7 +58,7 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	public void setxCentre(double newValue) {
 		double oldvalue = this.xCentre;
 		this.xCentre = newValue;
-		this.pcs.firePropertyChange("xCentre", oldvalue, newValue);
+		this.pcs.firePropertyChange(X_CENTRE, oldvalue, newValue);
 	}
 
 	public double getyCentre() {
@@ -63,7 +68,7 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	public void setyCentre(double newValue) {
 		double oldvalue = this.yCentre;
 		this.yCentre = newValue;
-		this.pcs.firePropertyChange("yCentre", oldvalue, newValue);
+		this.pcs.firePropertyChange(Y_CENTRE, oldvalue, newValue);
 	}
 
 	public double getRadius() {
@@ -73,7 +78,7 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	public void setRadius(double newValue) {
 		double oldvalue = this.radius;
 		this.radius = newValue;
-		this.pcs.firePropertyChange("radius", oldvalue, newValue);
+		this.pcs.firePropertyChange(RADIUS, oldvalue, newValue);
 	}
 
 	@Override
@@ -94,9 +99,9 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 			yCentre = roi.getPoint()[1];
 			radius = roi.getRadius();
 			// Fire the events once the update is finished
-			this.pcs.firePropertyChange("xCentre", oldxCentre, xCentre);
-			this.pcs.firePropertyChange("yCentre", oldyCentre, yCentre);
-			this.pcs.firePropertyChange("radius", oldRadius, radius);
+			this.pcs.firePropertyChange(X_CENTRE, oldxCentre, xCentre);
+			this.pcs.firePropertyChange(Y_CENTRE, oldyCentre, yCentre);
+			this.pcs.firePropertyChange(RADIUS, oldRadius, radius);
 		} else {
 			throw new IllegalArgumentException("Circular mapping region can only update from a CircularROI");
 		}
@@ -128,6 +133,19 @@ public class CircularMappingRegion implements IMappingScanRegionShape {
 	public void centre(double x0, double y0) {
 		setxCentre(x0);
 		setyCentre(y0);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		if (properties.containsKey(X_CENTRE)) {
+			setxCentre((double) properties.get(X_CENTRE));
+		}
+		if (properties.containsKey(Y_CENTRE)) {
+			setyCentre((double) properties.get(Y_CENTRE));
+		}
+		if (properties.containsKey(RADIUS)) {
+			setRadius((double) properties.get(RADIUS));
+		}
 	}
 
 	@Override

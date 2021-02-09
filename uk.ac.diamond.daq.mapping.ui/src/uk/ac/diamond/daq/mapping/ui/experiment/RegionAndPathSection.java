@@ -18,18 +18,23 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static com.google.common.base.Functions.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static uk.ac.gda.ui.tool.ClientMessages.SCAN_PATH_SHAPE_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -50,7 +55,11 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
+import com.google.gson.Gson;
+
+import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
@@ -68,6 +77,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private static final Logger logger = LoggerFactory.getLogger(RegionAndPathSection.class);
 	private static final String MAPPING_STAGE_KEY_JSON = "mappingStageAxes.json";
 
+	/** The property id we want to listen to for changes*/
+	private static final String PROPERTY_REGION_AND_PATH = "uk.ac.diamond.daq.mapping.ui.experiment.regionandpathsection.regionandpath";
+
 	private Composite regionAndPathComposite;
 	private AbstractRegionPathModelEditor<IScanPathModel> pathEditor;
 
@@ -80,6 +92,11 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private Consumer<RegionPathState> viewUpdater;	// These variables must be used to store the relevant functions so
 	private Consumer<String> statusUpdater;			// they can be passed to the controller on dispose allowing it to
 													// remove them from its list of active consumers
+
+	private final IPropertyChangeListener propertyChangeListener = this::handlePropertyChange;
+
+	/** The scan regions available in the combo box, keyed by name */
+	private Map<String, IMappingScanRegionShape> scanRegionMap;
 
 	@Override
 	public void initialize(MappingExperimentView mappingView) {
@@ -154,7 +171,11 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		});
 
 		regionSelector.setContentProvider(ArrayContentProvider.getInstance());
-		regionSelector.setInput(controller.getTemplateRegions().toArray());
+
+		final List<IMappingScanRegionShape> scanRegions = controller.getTemplateRegions();
+		scanRegionMap = scanRegions.stream()
+				.collect(toMap(IMappingScanRegionShape::getName, identity()));
+		regionSelector.setInput(scanRegions.toArray());
 
 		regionSelector.addSelectionChangedListener(controller.getRegionSelectorListener());
 
@@ -187,6 +208,9 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		 */
 		regionSelector.getCombo().addListener(SWT.MouseWheel, this::disableEvent);
 		pathSelector.getCombo().addListener(SWT.MouseWheel, this::disableEvent);
+
+		// Listen for property changes that affect this section
+		GDAClientActivator.getDefault().getPreferenceStore().addPropertyChangeListener(propertyChangeListener);
 
 		updateControls();
 	}
@@ -254,7 +278,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 		detectorsChanged(getMappingBean().getDetectorParameters().stream()
 							.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
-							.collect(Collectors.toList()));
+							.collect(toList()));
 
 		relayoutMappingView();
 	}
@@ -304,6 +328,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 	@Override
 	public void dispose() {
+		GDAClientActivator.getDefault().getPreferenceStore().removePropertyChangeListener(propertyChangeListener);
 		regionSelector.removeSelectionChangedListener(controller.getRegionSelectorListener());
 		controller.detachViewUpdater(viewUpdater);
 		controller.detachStatusMessageConsumer(statusUpdater);
@@ -333,5 +358,66 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		regionSelector.setInput(updated.scanRegionList().toArray());
 		regionSelector.setSelection(new StructuredSelection(updated.scanRegionShape()));
 		regionSelector.addSelectionChangedListener(controller.getRegionSelectorListener());
+	}
+
+	/**
+	 * Listen for property change events that may affect this section
+	 */
+	private void handlePropertyChange(PropertyChangeEvent event) {
+		final String propertyId = event.getProperty();
+		if (propertyId.equals(PROPERTY_REGION_AND_PATH)) {
+			final Object newValue = event.getNewValue();
+			logger.debug("Region and path change event received: {}", newValue);
+			if (newValue instanceof String && !((String) newValue).isEmpty()) {
+				handleRegionAndPathEvent((String) newValue);
+			}
+		}
+	}
+
+	private void handleRegionAndPathEvent(String value) {
+		try {
+			final Gson gson = new Gson();
+			@SuppressWarnings("unchecked")
+			final Map<String, Object> regionAndPathMap = gson.fromJson(value, HashMap.class);
+
+			// Change to region
+			final String region = (String) regionAndPathMap.get("region");
+			if (!StringUtils.isEmpty(region)) {
+				final IMappingScanRegionShape scanRegion = scanRegionMap.get(region);
+				if (scanRegion == null) {
+					throw new IllegalArgumentException("Invalid region " + region);
+				}
+				uiSync.syncExec(() -> controller.getRegionSelectorListener().handleRegionChange(scanRegion));
+			}
+
+			// Change to path
+			final String path = (String) regionAndPathMap.get("path");
+			if (!StringUtils.isEmpty(path)) {
+				// Get the available scan paths for the current region
+				final Map<String, IScanPointGeneratorModel> scanPathMap = controller.getScanPathListAndLinkPath().stream()
+						.collect(toMap(IScanPointGeneratorModel::getName, identity()));
+
+				final IScanPointGeneratorModel scanPath = scanPathMap.get(path);
+				if (scanPath == null) {
+					throw new IllegalArgumentException("No scan path corresponding to " + path);
+				}
+				uiSync.syncExec(() -> {
+					final IMappingScanRegionShape scanRegion = controller.getScanRegionShape();
+					controller.updateMappingBeanScanRegion(scanRegion, scanPath);
+					controller.getRegionSelectorListener().handleRegionChange(scanRegion);
+				});
+			}
+
+			// Changes to scan region properties
+			controller.getScanRegionShape().updateFromPropertiesMap(regionAndPathMap);
+
+			// Changes to scan path properties
+			controller.getScanPathModel().updateFromPropertiesMap(regionAndPathMap);
+
+			// Update GUI
+			uiSync.asyncExec(this::rebuildMappingSection);
+		} catch (Exception e) {
+			logger.error("Invalid region/path parameter: {}", value, e);
+		}
 	}
 }

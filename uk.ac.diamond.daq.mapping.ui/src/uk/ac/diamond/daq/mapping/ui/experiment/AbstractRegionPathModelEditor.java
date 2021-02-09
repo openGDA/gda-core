@@ -48,24 +48,6 @@ import uk.ac.gda.client.NumberAndUnitsComposite;
 public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEditor<T> {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionPathModelEditor.class);
 
-	protected static final String X_POSITION = "xPosition";
-	protected static final String Y_POSITION = "yPosition";
-
-	protected static final String X_START = "xStart";
-	protected static final String Y_START = "yStart";
-	protected static final String X_STOP = "xStop";
-	protected static final String Y_STOP = "yStop";
-
-	protected static final String X_CENTRE = "xCentre";
-	protected static final String Y_CENTRE = "yCentre";
-	protected static final String X_RANGE = "xRange";
-	protected static final String Y_RANGE = "yRange";
-
-	protected static final String RADIUS = "radius";
-
-	protected static final String X_AXIS_STEP = "xAxisStep";
-	protected static final String Y_AXIS_STEP = "yAxisStep";
-
 	@Inject
 	private IStageScanConfiguration mappingStageInfo;
 

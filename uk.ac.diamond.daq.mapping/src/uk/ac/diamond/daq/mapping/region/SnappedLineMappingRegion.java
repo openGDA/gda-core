@@ -20,10 +20,13 @@ package uk.ac.diamond.daq.mapping.region;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -32,6 +35,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
  * A line region that snaps to horizontal or vertical.
  */
 public class SnappedLineMappingRegion implements ILineMappingRegion {
+	private static final Logger logger = LoggerFactory.getLogger(SnappedLineMappingRegion.class);
 
 	private enum Orientation {
 		HORIZONTAL,
@@ -167,6 +171,11 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 		default:
 			throw new IllegalStateException("Unexpected orientation: " + orientation.toString());
 		}
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		logger.error("Setting SnappedLineMappingRegion from properties map not currently supported");
 	}
 
 	@Override

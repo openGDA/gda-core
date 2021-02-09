@@ -97,7 +97,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	private static final String PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG = "showMappingStageChangeDialog";
 
 	/** Prefix for the property ids we want to listen to for changes*/
-	private static final String PROPERTY_DETECTORS = "uk.ac.diamond.daq.mapping.ui.experiment.DetectorsSection.detectors";
+	private static final String PROPERTY_DETECTORS = "uk.ac.diamond.daq.mapping.ui.experiment.detectorssection.detectors";
 
 	private final IPropertyChangeListener propertyChangeListener = this::handlePropertyChange;
 

@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import static org.eclipse.scanning.api.constants.PathConstants.X_AXIS_STEP;
+import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_STEP;
 import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
 
 import javax.measure.quantity.Length;
