@@ -82,6 +82,9 @@ class CopyScanSaveClass extends WizardPage {
 	private static final String[] FILTER_EXTENSIONS = new String[] { "*.py", "*.*" };
 	private static final String DEFAULT_SAVE_DIRECTORY = String.format("/dls_sw/%s/scripts", LocalProperties.get(GDA_BEAMLINE_NAME));
 
+	private static final String TEMPLATE_FILE_BUNDLE = "uk.ac.diamond.daq.mapping.ui";
+	private static final String TEMPLATE_FILE_PATH = "files/save_scan/jython_class_template.txt";
+
 	private final ScanManagementController controller;
 	private final CopyScanConfig config;
 
@@ -152,12 +155,15 @@ class CopyScanSaveClass extends WizardPage {
 		} catch (Exception e) {
 			final String message = ClientMessagesUtility.getMessage(COPY_SCAN_GENERATE_CLASS_ERROR);
 			logger.error(message, e);
-			return String.format("%s\n%s", message, e.getMessage());
+			return String.format("%s%n%s", message, e.getMessage());
 		}
 	}
 
-	private String readClassTemplate() throws Exception {
-		final URL fileUrl = Platform.getBundle("uk.ac.diamond.daq.mapping.ui").getEntry("files/save_scan/jython_class_template.txt");
+	private String readClassTemplate() throws IOException {
+		final URL fileUrl = Platform.getBundle(TEMPLATE_FILE_BUNDLE).getEntry(TEMPLATE_FILE_PATH);
+		if (fileUrl == null) {
+			throw new IOException("Template file '" + TEMPLATE_FILE_PATH + "' not found in bundle " + TEMPLATE_FILE_BUNDLE);
+		}
 		final InputStream inputStream = fileUrl.openStream();
 		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
 			return bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));

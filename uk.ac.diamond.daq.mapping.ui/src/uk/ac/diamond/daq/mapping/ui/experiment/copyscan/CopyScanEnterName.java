@@ -25,17 +25,15 @@ import static uk.ac.gda.ui.tool.ClientMessages.COPY_SCAN_ENTER_NAME_TITLE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
-import java.util.Optional;
-
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
@@ -60,8 +58,6 @@ class CopyScanEnterName extends WizardPage {
 	private final DataBindingContext bindingContext = new DataBindingContext();
 	private final CopyScanConfig config;
 
-	private Text classNameText;
-
 	protected CopyScanEnterName(CopyScanConfig config) {
 		super(CopyScanEnterName.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_TITLE));
@@ -77,16 +73,14 @@ class CopyScanEnterName extends WizardPage {
 		final Label classNameLabel = createClientLabel(mainComposite, SWT.NONE, COPY_SCAN_CLASS_NAME);
 		classNameLabel.setFont(config.getDefaultFont());
 
-		classNameText = createClientText(mainComposite, SWT.LEFT, COPY_SCAN_CLASS_NAME, Optional.empty());
+		final Text classNameText = createClientText(mainComposite, SWT.LEFT, COPY_SCAN_CLASS_NAME);
 		GridDataFactory.swtDefaults().hint(TEXT_LENGTH, SWT.DEFAULT).applyTo(classNameText);
 		classNameText.setFont(config.getDefaultFont());
 
-		@SuppressWarnings("unchecked")
-		final IObservableValue<String> classNameModel = PojoProperties.value("className").observe(config);
-		@SuppressWarnings("unchecked")
+		final IObservableValue<String> classNameModel = PojoProperties.value("className", String.class).observe(config);
 		final IObservableValue<String> classNameWidget = WidgetProperties.text(SWT.Modify).observe(classNameText);
 
-		final UpdateValueStrategy strategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<String, String> strategy = new UpdateValueStrategy<>();
 		strategy.setBeforeSetValidator(this::validateClassName);
 		final Binding bindValue = bindingContext.bindValue(classNameWidget, classNameModel, strategy, null);
 		ControlDecorationSupport.create(bindValue, SWT.ON_TOP | SWT.LEFT);
