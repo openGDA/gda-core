@@ -122,7 +122,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		connector.register(topupScannable);
 
 		// Create the outer scannable, a special scananble that can be waited on
-		outerScannable = new WaitingScannable("outer");
+		outerScannable = new WaitingScannable("outer", 295);
 		connector.register(outerScannable);
 
 		// Create the topup watchdog

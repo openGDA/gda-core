@@ -14,13 +14,11 @@ package org.eclipse.scanning.test.scan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThrows;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IDeviceController;
@@ -31,26 +29,21 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
+import org.eclipse.scanning.example.scannable.WaitingScannable;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
-import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * TODO DAQ-3295 this test has issues when running in CI system
- * due to its highly concurrent nature, it should be rewritten e.g. with
- * {@link WaitingAnswer}
- */
 public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog<ExpressionWatchdogModel> dog;
+	private WaitingScannable yAxis;
 
 	@BeforeClass
 	public static void createWatchdogs() throws Exception {
-
 		assertNotNull(connector.getScannable("beamcurrent"));
 		assertNotNull(connector.getScannable("portshutter"));
 
@@ -67,10 +60,16 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Before
 	public void before() throws Exception {
-		IScannable<Object> beamCurrent = connector.getScannable("beamcurrent");
-		IScannable<Object> portShutter = connector.getScannable("portshutter");
+		initializeWatchedScannables();
+		initializeScanAxes();
+	}
+
+	private void initializeWatchedScannables() throws ScanningException {
+		IScannable<Number> beamCurrent = connector.getScannable("beamcurrent");
+		IScannable<String> portShutter = connector.getScannable("portshutter");
 		assertNotNull(beamCurrent);
 		assertNotNull(portShutter);
+
 		try {
 			beamCurrent.setPosition(5d);
 			portShutter.setPosition("Open");
@@ -80,6 +79,17 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 			e.printStackTrace(System.out);
 			throw e;
 		}
+	}
+
+	private void initializeScanAxes() throws InterruptedException, ScanningException {
+		yAxis = new WaitingScannable("y", 0.);
+
+		// Ensure yAxis has overridden the existing y Scannable
+		connector.register(yAxis);
+		assertEquals(yAxis, connector.getScannable("y"));
+
+		// Ensure yAxis is where we expect
+		assertEquals(0., yAxis.getPosition());
 	}
 
 
@@ -115,64 +125,40 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Test
 	public void beamLostInScan() throws Exception {
-
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		List<DeviceState> states = new ArrayList<>();
-		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
-
 		scanner.start(null);
-		scanner.latch(200, TimeUnit.MILLISECONDS);
+		waitForYAxisToMove();
+		assertInState(scanner, DeviceState.RUNNING);
 
-		final IScannable<Number>   mon  = connector.getScannable("beamcurrent");
-		mon.setPosition(0.1);
-		Thread.sleep(100);
+		killBeam();
+		assertInState(scanner, DeviceState.PAUSED);
 
-		assertTrue(states.get(states.size()-1)==DeviceState.PAUSED);
+		startBeam();
+		assertInState(scanner, DeviceState.RUNNING);
 
-		mon.setPosition(2.1);
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertTrue(states.get(states.size()-1)==DeviceState.RUNNING);
-
+		verifyFinishes(scanner);
 	}
 
 	@Test
 	public void shutterClosedInScan() throws Exception {
-
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		List<DeviceState> states = new ArrayList<>();
-		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
-
 		scanner.start(null);
-		scanner.latch(500, TimeUnit.MILLISECONDS);
+		waitForYAxisToMove();
+		assertInState(scanner, DeviceState.RUNNING);
 
-		final IScannable<String>   mon  = connector.getScannable("portshutter");
-		mon.setPosition("Closed");
-		scanner.latch(100, TimeUnit.MILLISECONDS);
+		closeShutter();
+		assertInState(scanner, DeviceState.PAUSED);
 
-		assertTrue(states.get(states.size()-1)==DeviceState.PAUSED);
+		openShutter();
+		assertInState(scanner, DeviceState.RUNNING);
 
-		mon.setPosition("Open");
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertTrue(states.get(states.size()-1)==DeviceState.RUNNING);
-
+		verifyFinishes(scanner);
 	}
 
 	@Test
@@ -181,26 +167,21 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		detector.getModel().setExposureTime(1.0);
 
 		// Stop topup, we want to control it programmatically.
-		final IScannable<String>   mon  = connector.getScannable("portshutter");
-		mon.setPosition("Closed");
+		closeShutter();
 
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		Set<DeviceState> states = new HashSet<>();
-		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
-
+		// Can be used to block until the scan has gone through the expected 3 changes of state
+		// We can't synchronise on yAxis here because it shouldn't move.
+		CountDownLatch latch = latchUntilStateChanges(scanner, 3);
 		scanner.start(null);
-		scanner.latch(250, TimeUnit.MILLISECONDS);
 
-		// By now, queue should be paused.
-		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
+		latch.await();
+		assertInState(scanner, DeviceState.PAUSED);
+
+		controller.abort("test");
+		verifyInterrupted(scanner);
 	}
 
 	@Test
@@ -210,31 +191,25 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 		// x and y are level 3
 		IDeviceController controller = createTestScanner(null);
-		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
-
-		Set<DeviceState> states = new HashSet<>();
-		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>) controller.getDevice();
 
 		scanner.start(null);
-		scanner.latch(200, TimeUnit.MILLISECONDS);
+		waitForYAxisToMove();
+		assertInState(scanner, DeviceState.RUNNING);
+
 		controller.pause("test", null);  // Pausing externally should override any watchdog resume.
 
-		final IScannable<String>   mon  = connector.getScannable("portshutter");
-		mon.setPosition("Closed");
-		mon.setPosition("Open");
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertEquals(scanner.getDeviceState(), DeviceState.PAUSED);
+		closeShutter();
+		openShutter();
+
+		assertInState(scanner, DeviceState.PAUSED);
 
 		controller.abort("test");
 
-		mon.setPosition("Closed");
-		assertNotEquals(scanner.getDeviceState(), DeviceState.PAUSED);
+		closeShutter();
+		assertNotInState(scanner, DeviceState.PAUSED);
+
+		verifyInterrupted(scanner);
 	}
 
 	@Test
@@ -246,41 +221,97 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		Set<DeviceState> states = new HashSet<>();
-		// This run should get paused for beam and restarted.
+		scanner.start(null);
+		waitForYAxisToMove();
+		assertInState(scanner, DeviceState.RUNNING);
+
+		controller.pause("test", null);  // Pausing externally should override any watchdog resume.
+
+		closeShutter();
+		openShutter();
+		assertInState(scanner, DeviceState.PAUSED);
+
+		controller.resume("test");
+		assertNotInState(scanner, DeviceState.PAUSED);
+
+		closeShutter();
+		assertInState(scanner, DeviceState.PAUSED);
+
+		controller.resume("test"); // The external resume should still not resume it
+		assertInState(scanner, DeviceState.PAUSED);
+
+		controller.abort("test");
+
+		verifyInterrupted(scanner);
+	}
+
+	private void waitForYAxisToMove() throws InterruptedException {
+		yAxis.waitForSetPosition();
+		yAxis.resume();
+	}
+
+	private void openShutter() throws ScanningException {
+		setShutterPosition("Open");
+	}
+
+	private void closeShutter() throws ScanningException {
+		setShutterPosition("Closed");
+	}
+
+	private void setShutterPosition(String pos) throws ScanningException {
+		final IScannable<String> shutter = connector.getScannable("portshutter");
+
+		// This should block until the watchdog has done its job
+		shutter.setPosition(pos);
+	}
+
+	private void killBeam() throws ScanningException {
+		setBeamCurrent(0.1);
+	}
+
+	private void startBeam() throws ScanningException {
+		setBeamCurrent(2.1);
+	}
+
+	private void setBeamCurrent(double current) throws ScanningException {
+		final IScannable<Number> currentMonitor = connector.getScannable("beamcurrent");
+
+		// This should block until the watchdog has done its job
+		currentMonitor.setPosition(current);
+	}
+
+	private void assertInState(
+			IRunnableEventDevice<?> scanner,
+			DeviceState expectedState) throws ScanningException {
+		assertEquals(expectedState, scanner.getDeviceState());
+	}
+
+	private void assertNotInState(
+			IRunnableEventDevice<?> scanner,
+			DeviceState unexpectedState) throws ScanningException {
+		assertNotEquals(unexpectedState, scanner.getDeviceState());
+	}
+
+	private void verifyFinishes(IRunnableEventDevice<?> scanner) throws ScanningException, InterruptedException, TimeoutException, ExecutionException {
+		scanner.latch();
+	}
+
+	private void verifyInterrupted(IRunnableEventDevice<?> scanner) {
+		assertThrows(InterruptedException.class, scanner::latch);
+	}
+
+	private CountDownLatch latchUntilStateChanges(
+			IRunnableEventDevice<?> scanner,
+			int numChanges) throws ScanningException {
+		CountDownLatch latch = new CountDownLatch(numChanges);
 		scanner.addRunListener(new IRunListener() {
 			@Override
 			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
+				latch.countDown();
+				if (latch.getCount() <= 0)
+					scanner.removeRunListener(this);
 			}
 		});
-
-		scanner.start(null);
-		scanner.latch(200, TimeUnit.MILLISECONDS);
-		controller.pause("test", null);  // Pausing externally should override any watchdog resume.
-
-		final IScannable<String>   mon  = connector.getScannable("portshutter");
-		mon.setPosition("Closed");
-		mon.setPosition("Open");
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
-
-		controller.resume("test");
-
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertNotEquals(DeviceState.PAUSED, scanner.getDeviceState());
-
-		mon.setPosition("Closed");
-
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
-
-		controller.resume("test"); // The external resume should still not resume it
-
-		scanner.latch(100, TimeUnit.MILLISECONDS);
-		assertEquals(DeviceState.PAUSED, scanner.getDeviceState());
-
-		controller.abort("test");
+		return latch;
 	}
-
 }

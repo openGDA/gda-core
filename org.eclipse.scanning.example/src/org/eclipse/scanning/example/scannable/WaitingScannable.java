@@ -32,8 +32,8 @@ public class WaitingScannable extends MockScannable {
 
 	private Semaphore semaphore = new Semaphore(1, true); // true to make semaphore fair, see javadoc
 
-	public WaitingScannable(String name) throws InterruptedException {
-		super(name, 295);
+	public WaitingScannable(String name, double pos) throws InterruptedException {
+		super(name, pos);
 		semaphore.acquire();
 	}
 
