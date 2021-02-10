@@ -386,12 +386,22 @@ public class NXDetectorData implements GDANexusDetectorData {
 
 		for(int i = 0; i < detTree.getNumberOfChildNodes(); i++) {
 			INexusTree dataTree = detTree.getChildNode(i);
-			if(dataTree.getName().equals(dataName) && dataTree.getNxClass().equals(className)) {
+			if(dataTree.getName().equals(dataName) && isRequestedDatasetClass(className, dataTree.getNxClass())) {
 				return dataTree.getData();
 			}
 		}
 
 		return null;
+	}
+
+	/*
+	 *  ADCore update Aug 2019 removes "SDS" NX_Class from AreaDetector signal field, we continue to use it internally
+	 *  and it may also appear in non AD-detectors
+	 */
+	private boolean isRequestedDatasetClass(String datasetClassName, String requestedClassName) {
+		if (requestedClassName.equals(datasetClassName)) return true;
+		if (!requestedClassName.equals(NexusExtractor.SDSClassName)) return false;
+		return datasetClassName.isEmpty();
 	}
 
 	/**

@@ -667,7 +667,6 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 	}
 
 	public INexusTree createChildNodeForTextualMetaEntry(Entry<String, Object> e, INexusTree parentNode) {
-		String nxClass = NexusExtractor.SDSClassName;
 		String childNodeName = e.getKey();
 		Object object = e.getValue();
 		String units = "placeholder units";
@@ -679,7 +678,7 @@ public class NXMetaDataProvider extends FindableBase implements NexusTreeAppende
 		NexusGroupData groupData = null;
 		groupData = createNexusGroupData(object);
 
-		INexusTree node = new NexusTreeNode(childNodeName, nxClass, parentNode, groupData);
+		INexusTree node = new NexusTreeNode(childNodeName, NexusExtractor.SDSClassName, parentNode, groupData);
 
 		node.addChildNode(new NexusTreeNode(ATTRIBUTE_KEY_FOR_METADATA_TYPE, NexusExtractor.AttrClassName, node,
 				new NexusGroupData(ATTRIBUTE_VALUE_FOR_METADATA_TYPE_SUPPLIED)));
