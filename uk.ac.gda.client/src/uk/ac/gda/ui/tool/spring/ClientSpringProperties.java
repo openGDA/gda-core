@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import uk.ac.gda.client.properties.RealVectorConverter;
 import uk.ac.gda.client.properties.Array2DConverter;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
@@ -41,5 +42,11 @@ public class ClientSpringProperties {
 	@ConfigurationProperties
 	public Array2DConverter array2DConverter() {
 		return new Array2DConverter();
+	}
+
+	@Bean
+	@ConfigurationProperties
+	public RealVectorConverter array1DConverter() {
+		return new RealVectorConverter();
 	}
 }
