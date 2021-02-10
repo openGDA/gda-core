@@ -770,30 +770,43 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	}
 
 	private void initializeDarkCalibration(DarkCalibrationDocument darkCalibrationDocument) {
-		Optional.ofNullable(darkCalibrationDocument.getNumberExposures())
-			.ifPresent(exposure -> numberDark.setText(Integer.toString(exposure)));
-		Optional.ofNullable(darkCalibrationDocument.getDetectorDocument())
-			.map(DetectorDocument::getExposure)
-			.ifPresent(exposure -> darkExposure.setText(Double.toString(exposure)));
+		int exposures = Optional.ofNullable(darkCalibrationDocument.getNumberExposures())
+				.orElse(0);
+		numberDark.setText(Integer.toString(exposures));
+
+		double exposure = Optional.ofNullable(darkCalibrationDocument.getDetectorDocument())
+				.map(DetectorDocument::getExposure)
+				.orElse(0d);
+		darkExposure.setText(Double.toString(exposure));
+
+
 		// For the moment dark and flat have the same boolean values
-		Optional.ofNullable(darkCalibrationDocument.isBeforeAcquisition())
-			.ifPresent(selected -> beforeAcquisition.setSelection(selected));
+		boolean selected = Optional.ofNullable(darkCalibrationDocument.isBeforeAcquisition())
+				.orElse(false);
+		beforeAcquisition.setSelection(selected);
+
 		// For the moment dark and flat have the same boolean values
-		Optional.ofNullable(darkCalibrationDocument.isAfterAcquisition())
-			.ifPresent(selected -> afterAcquisition.setSelection(selected));
-		forceFocusOnEmpty(numberDark, Integer.toString(darkCalibrationDocument.getNumberExposures()));
+		selected = Optional.ofNullable(darkCalibrationDocument.isAfterAcquisition())
+				.orElse(false);
+		afterAcquisition.setSelection(selected);
+
+		forceFocusOnEmpty(numberDark, Integer.toString(exposures));
 	}
 
 
 
 
 	private void initializeFlatCalibration(FlatCalibrationDocument flatCalibrationDocument) {
-		Optional.ofNullable(flatCalibrationDocument.getNumberExposures())
-			.ifPresent(exposure ->	numberFlat.setText(Integer.toString(exposure)));
-		Optional.ofNullable(flatCalibrationDocument.getDetectorDocument())
+		int exposures = Optional.ofNullable(flatCalibrationDocument.getNumberExposures())
+				.orElse(0);
+		numberFlat.setText(Integer.toString(exposures));
+
+		double exposure = Optional.ofNullable(flatCalibrationDocument.getDetectorDocument())
 			.map(DetectorDocument::getExposure)
-			.ifPresent(exposure -> flatExposure.setText(Double.toString(exposure)));
-		forceFocusOnEmpty(numberFlat, Integer.toString(flatCalibrationDocument.getNumberExposures()));
+			.orElse(0d);
+		flatExposure.setText(Double.toString(exposure));
+
+		forceFocusOnEmpty(numberFlat, Integer.toString(exposures));
 	}
 
 
