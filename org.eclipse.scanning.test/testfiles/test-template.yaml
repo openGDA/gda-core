@@ -1,5 +1,6 @@
 scan/:
-  NX_class@: NXentry # the '@' has to come at the end as 
+  NX_class@: NXentry # the '@' has to come at the end as it has a special meaning in YAML 
+  title: My Scan
   start_time: /entry/start_time
   end_time: /entry/end_time
   definition: NXscan
@@ -9,11 +10,15 @@ scan/:
     configuration@: dummy
   instrument/:
     NX_class@: NXinstrument
-    detector: /entry/instrument/mandelbrot
-    stagex: /entry/instrument/xNex
-    stagey: /entry/instrument/yNex
+    detector: /entry/instrument/det1
+    theta: /entry/instrument/theta
   sample/:
     NX_class@: NXsample
+    rotation_angle: /entry/instrument/theta/value
+  monitor/:
+    NX_class@: NXmonitor
+    data: /entry/instrument/temp/value
   data/: # or link to group
     NX_class@: NXdata
-    data: /entry/instrument/mandelbrot/data
+    data: /entry/instrument/det1/data # app def specifies link to /NXentry/NXinstrument/NXdetector/data so we link to same node in main entry
+    rotation_angle: /entry/instrument/theta/value # aff def specifies link to /NXentry/NXsample/rotation_angle, so we create link to same node in main entry 

@@ -37,11 +37,11 @@ import org.eclipse.scanning.example.Services;
 
 public class MockScannableConnector implements IScannableDeviceService, IConnection {
 
-	protected String               broker;
+	protected String broker;
 	private Map<String, INameable> cache;
-	private IPublisher<Location>   positionPublisher;
+	private IPublisher<Location> positionPublisher;
 	private Set<String> globalPerScanMonitorNames;
-	private Map<String, Set<String>> perScanMonitorPrereqisites = new HashMap<>();
+	private Map<String, Set<String>> perScanMonitorPrerequisites = new HashMap<>();
 	private boolean createIfNotThere = true;
 
 	// Spring
@@ -53,21 +53,21 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 	public void connect() throws URISyntaxException {
 		IEventService eservice = Services.getEventService();
 		this.positionPublisher = eservice.createPublisher(new URI(broker), EventConstants.POSITION_TOPIC);
-        createMockObjects();
+		createMockObjects();
 	}
 
 	// Test decks
 	public MockScannableConnector(IPublisher<Location> positionPublisher) {
 		this.positionPublisher = positionPublisher;
-        createMockObjects();
+		createMockObjects();
 	}
 
 	@Override
 	public <T> void register(IScannable<T> mockScannable) {
 		cache.put(mockScannable.getName(), mockScannable);
 		if (mockScannable instanceof AbstractScannable) {
-			((AbstractScannable)mockScannable).setPublisher(positionPublisher);
-			((AbstractScannable)mockScannable).setScannableDeviceService(this);
+			((AbstractScannable<?>) mockScannable).setPublisher(positionPublisher);
+			((AbstractScannable<?>) mockScannable).setScannableDeviceService(this);
 		}
 	}
 
@@ -75,8 +75,7 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 	 * Makes a bunch of things that the tests and example user interface connect to.
 	 */
 	private void createMockObjects() {
-
-		if (cache==null) cache = new HashMap<String, INameable>(3);
+		if (cache==null) cache = new HashMap<>(3);
 
 		MockScannable energy = new MockScannable("energy", 10000d,  1, "eV");
 		energy.setMinimum(0);
@@ -85,7 +84,7 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 		register(new MockPausingMonitor("pauser", 10d,  -1));
 		register(new MockTopupScannable("topup", 1000));
 		register(new MockScannable("beamcurrent", 5d,  1, "mA"));
-		register(new MockStringScannable("portshutter", "Open", new String[]{"Open", "Closed", "Error"}));
+		register(new MockStringScannable("portshutter", "Open", "Open", "Closed", "Error"));
 
 		register(new MockScannable("period", 1000d, 1, "ms"));
 		register(new MockBeamOnMonitor("beamon", 10d, 1));
@@ -123,41 +122,39 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 		y.setMoveRate(100); // µm/s, faster than real?
 		register(y);
 
-
-		register(new MockNeXusScannable("z", 2d,  3, "mm"));
-		register(new MockNeXusScannable("stage_z", 2d,  3, "mm"));
-		register(new MockNeXusScannable("xNex", 0d,  3, "mm"));
-		register(new MockNeXusScannable("yNex", 0d,  3, "mm"));
-		register(new MockScannable("benchmark1",  0.0,  -1, false));
-		register(new MockScannable("myScannable",  0.0,  -1, false));
-
+		register(new MockNeXusScannable("z", 2d, 3, "mm"));
+		register(new MockNeXusScannable("stage_z", 2d, 3, "mm"));
+		register(new MockNeXusScannable("xNex", 0d, 3, "mm"));
+		register(new MockNeXusScannable("yNex", 0d, 3, "mm"));
+		register(new MockScannable("benchmark1", 0.0, -1, false));
+		register(new MockScannable("myScannable", 0.0, -1, false));
 		register(new MockNeXusScannable("theta", 0d, 3, "deg"));
 
-		MockNeXusScannable temp= new MockNeXusScannable("T", 295,  3, "K");
+		MockNeXusScannable temp = new MockNeXusScannable("T", 295d, 3, "K");
 		temp.setRealisticMove(true);
 		String srate = System.getProperty("org.eclipse.scanning.example.temperatureRate");
 		if (srate==null) srate = "10.0";
 		temp.setMoveRate(Double.valueOf(srate)); // K/s much faster than real but device used in tests.
 		register(temp);
 
-		temp= new MockNeXusScannable("temp", 295,  3, "K");
+		temp= new MockNeXusScannable("temp", 295, 3, "K");// integer valued
 		temp.setRealisticMove(false);
 		temp.setRequireSleep(false);
 		register(temp);
 
 		for (int i = 0; i < 10; i++) {
-			MockScannable t = new MockScannable("T"+i, 0d,  0, "K");
+			MockScannable t = new MockScannable("T"+i, 0d, 0, "K");
 			t.setRequireSleep(false);
 			register(t);
 
 		}
 		for (int i = 0; i < 10; i++) {
-			register(new MockNeXusScannable("neXusScannable"+i, 0d,  3));
-	    }
+			register(new MockNeXusScannable("neXusScannable"+i, 0d, 3));
+		}
 		for (int i = 0; i < 10; i++) {
-			MockNeXusScannable mon = new MockNeXusScannable("monitor"+i, 0d,  3);
+			MockNeXusScannable mon = new MockNeXusScannable("monitor"+i, 0d, 3);
 			register(mon);
-	    }
+		}
 		for (int i = 0; i < 10; i++) {
 			MockNeXusScannable perScanMonitor = new MockNeXusScannable("perScanMonitor"+i, 0d, 3);
 			perScanMonitor.setInitialPosition(i * 10.0);
@@ -176,9 +173,9 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> IScannable<T> getScannable(String name) throws ScanningException {
-
 		if (name==null) throw new ScanningException("Invalid scannable "+name);
 		if (cache==null) cache = new HashMap<>(3);
 		if (cache.containsKey(name)) return (IScannable<T>)cache.get(name);
@@ -206,13 +203,13 @@ public class MockScannableConnector implements IScannableDeviceService, IConnect
 
 	public void setGlobalPerScanMonitorPrerequisiteNames(String metadataScannableName,
 			String... prerequisiteMetadataScannableNames) {
-		perScanMonitorPrereqisites.put(metadataScannableName,
+		perScanMonitorPrerequisites.put(metadataScannableName,
 				new HashSet<>(Arrays.asList(prerequisiteMetadataScannableNames)));
 	}
 
 	@Override
 	public Set<String> getRequiredPerScanMonitorNames(String scannableName) {
-		Set<String> prereqMetadataScannables = perScanMonitorPrereqisites.get(scannableName);
+		Set<String> prereqMetadataScannables = perScanMonitorPrerequisites.get(scannableName);
 		return prereqMetadataScannables == null ? Collections.emptySet() : prereqMetadataScannables;
 	}
 

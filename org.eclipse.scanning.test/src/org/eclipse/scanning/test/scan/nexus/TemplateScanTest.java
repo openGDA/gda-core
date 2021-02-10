@@ -35,12 +35,17 @@ import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NXsample;
+import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.models.SimpleDetectorModel;
+import org.eclipse.scanning.api.points.IPointGenerator;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.example.detector.MandelbrotModel;
+import org.eclipse.scanning.example.detector.RandomIntDetector;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,19 +53,20 @@ public class TemplateScanTest extends NexusTest {
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/test-template.yaml";
 
-	private IRunnableDevice<MandelbrotModel> detector;
+	private RandomIntDetector detector;
+	private IScannable<?> monitor;
 
 	@Before
 	public void before() throws Exception {
-		MandelbrotModel model = createMandelbrotModel();
-		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertThat(detector, is(notNullValue()));
+		detector = new RandomIntDetector();
+		detector.configure(new SimpleDetectorModel("det1", 0.1));
+		monitor = connector.getScannable("temp");
 	}
 
 	@Test
 	public void testTemplateScan() throws Exception {
 		final String templateFileAbsolutePath =
-				Paths.get("testfiles/test-template.yaml").toAbsolutePath().toString();
+				Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString();
 		final IRunnableDevice<ScanModel> scanner = createAndRunTemplateScan(templateFileAbsolutePath);
 		checkNexusFile(scanner);
 	}
@@ -90,36 +96,46 @@ public class TemplateScanTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel> createAndRunTemplateScan(String templateFile) throws Exception {
-		final ScanModel scanModel = createGridScanModel(detector, output, false, 8, 5);
+		final CompoundModel model = new CompoundModel(new AxialStepModel("theta", 0, 90, 15));
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(model);
+
+		final ScanModel scanModel = new ScanModel();
+		scanModel.setScanPathModel(model);
+		scanModel.setPointGenerator(pointGen);
+		scanModel.setDetector(detector);
+		scanModel.setMonitorsPerPoint(monitor);
+		scanModel.setFilePath(output.getAbsolutePath());
 		scanModel.setTemplateFilePaths(new HashSet<>(Arrays.asList(templateFile)));
+
 		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 		scanner.run();
 		return scanner;
 	}
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner) throws Exception {
-		final NXroot root = checkNexusFile(scanner, false, 8, 5);
-		final NXentry entry = root.getEntry("scan");
-		assertThat(entry, is(notNullValue()));
+		final NXroot root = getNexusRoot(scanner);
+		final NXentry scanEntry = root.getEntry("scan");
+		assertThat(scanEntry, is(notNullValue()));
 
-		assertThat(entry.getDataNode(NXentry.NX_START_TIME), is(sameInstance(getNode(root, "/entry/start_time"))));
-		assertThat(entry.getDataNode(NXentry.NX_END_TIME), is(sameInstance(getNode(root, "/entry/end_time"))));
-		assertThat(entry.getDefinitionScalar(), is(equalTo("NXscan")));
-		assertThat(entry.getProgram_nameScalar(), is(equalTo("gda")));
-		assertThat(entry.getProgram_nameAttributeVersion(), is(equalTo("9.13")));
-		assertThat(entry.getProgram_nameAttributeConfiguration(), is(equalTo("dummy")));
+		assertThat(scanEntry.getDataNode(NXentry.NX_START_TIME), is(sameInstance(getNode(root, "/entry/start_time"))));
+		assertThat(scanEntry.getDataNode(NXentry.NX_END_TIME), is(sameInstance(getNode(root, "/entry/end_time"))));
+		assertThat(scanEntry.getDefinitionScalar(), is(equalTo("NXscan")));
+		assertThat(scanEntry.getProgram_nameScalar(), is(equalTo("gda")));
+		assertThat(scanEntry.getProgram_nameAttributeVersion(), is(equalTo("9.13")));
+		assertThat(scanEntry.getProgram_nameAttributeConfiguration(), is(equalTo("dummy")));
 
-		final NXinstrument instrument = entry.getInstrument();
+		final NXinstrument instrument = scanEntry.getInstrument();
 		assertThat(instrument, is(notNullValue()));
-		assertThat(instrument.getDetector(), is(sameInstance(getNode(root, "/entry/instrument/mandelbrot"))));
-		assertThat(instrument.getPositioner("stagex"), is(sameInstance(getNode(root, "/entry/instrument/xNex"))));
-		assertThat(instrument.getPositioner("stagey"), is(sameInstance(getNode(root, "/entry/instrument/yNex"))));
+		assertThat(instrument.getDetector(), is(sameInstance(getNode(root, "/entry/instrument/det1"))));
+		assertThat(instrument.getPositioner("theta"), is(sameInstance(getNode(root, "/entry/instrument/theta"))));
+		final NXsample sample = scanEntry.getSample();
+		assertThat(sample, is(notNullValue()));
+		assertThat(sample.getDataNode("rotation_angle"), is(sameInstance(getNode(root, "/entry/instrument/theta/value"))));
 
-		assertThat(entry.getSample(), is(notNullValue()));
-
-		final NXdata data = entry.getData();
+		final NXdata data = scanEntry.getData();
 		assertThat(data, is(notNullValue()));
-		assertThat(data.getDataNode(NXdata.NX_DATA), is(sameInstance(getNode(root, "/entry/mandelbrot/data"))));
+		assertThat(data.getDataNode(NXdata.NX_DATA), is(sameInstance(getNode(root, "/entry/instrument/det1/data"))));
+		assertThat(data.getDataNode("rotation_angle"), is(sameInstance(getNode(root, "/entry/instrument/theta/value"))));
 	}
 
 }

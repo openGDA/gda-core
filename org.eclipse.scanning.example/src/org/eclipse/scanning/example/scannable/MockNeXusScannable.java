@@ -64,15 +64,16 @@ public class MockNeXusScannable extends MockScannable implements INexusDevice<NX
 		super();
 	}
 
-	public MockNeXusScannable(String name, double d, int level) {
-		super(name, d, level);
+	public MockNeXusScannable(String name, Number position, int level) {
+		super(name, position, level);
 	}
-	public MockNeXusScannable(String name, double d, int level, String unit) {
-		super(name, d, level, unit);
+
+	public MockNeXusScannable(String name, Number position, int level, String unit) {
+		super(name, position, level, unit);
 	}
 
 	@ScanFinally
-	public void nullify() {
+	public void scanFinally() {
 		lzSet   = null;
 		lzValue = null;
 	}
@@ -83,21 +84,22 @@ public class MockNeXusScannable extends MockScannable implements INexusDevice<NX
 		positioner.setNameScalar(getName());
 
 		if (info.getScanRole(getName()).getNexusRole() == NexusRole.PER_SCAN) {
-			positioner.setField(FIELD_NAME_SET_VALUE, getPosition().doubleValue());
-			positioner.setValueScalar(getPosition().doubleValue());
+			positioner.setField(FIELD_NAME_SET_VALUE, getPosition());
+			positioner.setValueScalar(getPosition());
 		} else { // NexusRole.PER_POINT
-			String floatFill = System.getProperty("GDA/gda.nexus.floatfillvalue", "nan");
-			double fill = floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill);
-
-			this.lzSet = positioner.initializeLazyDataset(FIELD_NAME_SET_VALUE, 1, Double.class);
-			lzSet.setFillValue(fill);
-			lzSet.setChunking(new int[]{8}); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
+			final Class<? extends Number> positionClass = getPosition().getClass();
+			this.lzSet = positioner.initializeLazyDataset(FIELD_NAME_SET_VALUE, 1, positionClass);
+			lzSet.setChunking(8); // Faster than looking at the shape of the scan for this dimension because slow to iterate.
 			lzSet.setWritingAsync(true);
 
-			this.lzValue  = positioner.initializeLazyDataset(NXpositioner.NX_VALUE, info.getRank(), Double.class);
-			lzValue.setFillValue(fill);
-			lzValue.setChunking(info.createChunk(false, 8)); // TODO Might be slow, need to check this
+			this.lzValue  = positioner.initializeLazyDataset(NXpositioner.NX_VALUE, info.getRank(), positionClass);
+			lzValue.setChunking(info.createChunk(false, 8));
 			lzValue.setWritingAsync(true);
+		}
+
+		if (getUnit() != null) {
+			positioner.setAttribute(NXpositioner.NX_VALUE, "units", getUnit());
+			positioner.setAttribute(FIELD_NAME_SET_VALUE, "units", getUnit());
 		}
 
 		registerAttributes(positioner, this);

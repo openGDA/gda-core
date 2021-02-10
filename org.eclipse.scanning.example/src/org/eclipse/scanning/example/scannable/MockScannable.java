@@ -43,25 +43,25 @@ public class MockScannable extends CountableScannable<Number> implements ITermin
 		positions = new ArrayList<>();
 	}
 
-	public MockScannable(double position) {
+	public MockScannable(Number position) {
 		this();
 		this.position = position;
 	}
 
-	public MockScannable(String name, double position) {
+	public MockScannable(String name, Number position) {
 		this();
 		setName(name);
 		this.position = position;
 	}
 
-	public MockScannable(String name, Double position, int level) {
+	public MockScannable(String name, Number position, int level) {
 		this();
 		setLevel(level);
 		setName(name);
 		this.position = position;
 	}
 
-	public MockScannable(String name, Double position, int level, boolean requireSleep) {
+	public MockScannable(String name, Number position, int level, boolean requireSleep) {
 		this();
 		this.requireSleep = requireSleep;
 		setLevel(level);
@@ -69,7 +69,7 @@ public class MockScannable extends CountableScannable<Number> implements ITermin
 		this.position = position;
 	}
 
-	public MockScannable(String name, Double position, int level, String unit) {
+	public MockScannable(String name, Number position, int level, String unit) {
 		this();
 		setLevel(level);
 		setName(name);

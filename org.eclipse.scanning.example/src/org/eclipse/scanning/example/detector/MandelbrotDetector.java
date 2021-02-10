@@ -12,7 +12,6 @@
 
 package org.eclipse.scanning.example.detector;
 
-import java.io.IOException;
 import java.util.Random;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -64,7 +63,7 @@ public class MandelbrotDetector extends AbstractRunnableDevice<MandelbrotModel> 
 	private ILazyWriteableDataset valueData;
 	private final Random random = new Random();
 
-	public MandelbrotDetector() throws IOException, ScanningException {
+	public MandelbrotDetector() throws ScanningException {
 		super(Services.getRunnableDeviceService()); // Necessary if you are going to spring it
 		this.model = new MandelbrotModel();
 		setDeviceState(DeviceState.READY);

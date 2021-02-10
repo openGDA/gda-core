@@ -1,0 +1,3 @@
+scan/:
+  NX_class@: NXentry  
+  definition: NXtomo
