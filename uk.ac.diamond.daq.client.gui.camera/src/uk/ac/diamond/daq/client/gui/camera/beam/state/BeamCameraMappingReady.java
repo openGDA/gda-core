@@ -1,7 +1,6 @@
 package uk.ac.diamond.daq.client.gui.camera.beam.state;
 
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext.State;
 
@@ -29,12 +28,9 @@ class BeamCameraMappingReady implements BeamCameraMappingState {
 
 	@Override
 	public void start(BeamMappingStateContext context) {
-		BeamCameraMapping ic = getBean(BeamCameraMapping.class);
-		// advances the mapping state to start
-		context.setMappingThread(new Thread(() -> ic.calibrate(context)));
-		// start the mapping thread so the GUI can be updated meanwhile the mapping is running
-		context.getMappingThread().start();
-		context.setState(BeamMappingStateContext.RUNNING);
+		context.getCameraConfiguration()
+			.map(ICameraConfiguration::getBeamCameraMapping)
+			.ifPresent(d -> startCalibration(d, context));
 	}
 
 	@Override
@@ -45,6 +41,14 @@ class BeamCameraMappingReady implements BeamCameraMappingState {
 	@Override
 	public BeamMappingStateContext.State getState() {
 		return state;
+	}
+
+	private void startCalibration(BeamCameraMapping cameraMapper, BeamMappingStateContext context) {
+		// advances the mapping state to start
+		context.setMappingThread(new Thread(() -> cameraMapper.calibrate(context)));
+		// start the mapping thread so the GUI can be updated meanwhile the mapping is running
+		context.getMappingThread().start();
+		context.setState(BeamMappingStateContext.RUNNING);
 	}
 
 }

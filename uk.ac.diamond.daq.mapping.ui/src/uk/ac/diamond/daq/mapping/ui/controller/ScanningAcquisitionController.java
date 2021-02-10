@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -35,7 +36,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
-import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
@@ -72,7 +72,6 @@ import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
@@ -443,15 +442,18 @@ public class ScanningAcquisitionController
 	}
 
 	private void transformPixelsToBeamDrivers() {
-		transformCoordinates(SpringApplicationContextFacade.getBean(BeamCameraMapping.class)::pixelToBeam);
+		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
+			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
+			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::pixelToBeam, c));
 	}
 
 	private void transformBeamDriversToPixel() {
-		transformCoordinates(SpringApplicationContextFacade.getBean(BeamCameraMapping.class)::beamToPixel);
+		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
+			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
+			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::beamToPixel, c));
 	}
 
-	private void transformCoordinates(BiFunction<ICameraConfiguration, RealVector, Optional<RealVector>> transformation) {
-		ICameraConfiguration iConfiguration =  CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0));
+	private void transformCoordinates(BiFunction<ICameraConfiguration, RealVector, Optional<RealVector>> transformation, ICameraConfiguration iConfiguration) {
 		List<ScannableTrackDocument> trackDocuments = Optional.ofNullable(getAcquisition())
 			.map(ScanningAcquisition::getAcquisitionConfiguration)
 			.map(ScanningConfiguration::getAcquisitionParameters)

@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
@@ -359,6 +360,8 @@ public final class CameraHelper {
 		 */
 		private CameraToBeamMap beamCameraMap;
 
+		private BeamCameraMapping beamCameraMapping;
+
 		public ICameraConfigurationImpl(int cameraIndex) {
 			super();
 			this.cameraIndex = cameraIndex;
@@ -407,8 +410,23 @@ public final class CameraHelper {
 			return beamCameraMap;
 		}
 
+		@Override
+		public BeamCameraMapping getBeamCameraMapping() {
+			return Optional.ofNullable(beamCameraMapping)
+					.orElseGet(this::createBeamCameraMapping);
+		}
+
 		public void setBeamCameraMap(CameraToBeamMap beamCameraMap) {
 			this.beamCameraMap = beamCameraMap;
+		}
+
+		private BeamCameraMapping createBeamCameraMapping() {
+			beamCameraMapping = Optional.ofNullable(this.getBeamCameraMap())
+				.map(CameraToBeamMap::getDriver)
+				.filter(d -> d.size() == 2)
+				.map(d -> new BeamCameraMapping(d.get(0), d.get(1)))
+				.orElse(null);
+			return beamCameraMapping;
 		}
 
 		private Optional<CameraControl> getCameraControl(int cameraIndex) {
