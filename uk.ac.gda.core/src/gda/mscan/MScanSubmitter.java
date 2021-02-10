@@ -224,9 +224,10 @@ public class MScanSubmitter extends ValidationUtils {
 	 * 			the {@code args} array is empty.
 	 */
 	private ScanClausesResolver validateCommand(final Object[] args) {
-		if (args.length < 1 || !(args[0] instanceof Scannable || args[0].equals(Scanpath.STATIC))) {
+		if (args.length < 1 ||
+				!(args[0] instanceof Scannable || args[0].equals(Scanpath.STATIC) || onlyDetectorsAndParams(args))) {
 			throw new IllegalArgumentException(
-			"You must specify at least one argument in your mscan command and your first argument must be a Scannable or the Static Scanpath");
+			"You must specify at least one argument in your mscan command and your first argument must be a Scannable, the Static Scanpath or a Detector");
 		}
 
 		// Adjust for point scan syntax which doesn't require both region and scanpath. This loop must run
@@ -234,6 +235,7 @@ public class MScanSubmitter extends ValidationUtils {
 		List<Object> params = new ArrayList<>();
 		// Prepend with Static region if only detectors provided
 		if (onlyDetectorsAndParams(args)) params.add(0, Scanpath.STATIC);
+
 		for (int i = 0; i < args.length; i++) {
 			params.addAll(resolveNumericTuples(args[i]));
 			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
@@ -300,6 +302,7 @@ public class MScanSubmitter extends ValidationUtils {
 	}
 
 	private boolean onlyDetectorsAndParams(Object[] args) {
+		if (!(args[0] instanceof Detector)) return false;
 		for (Object arg : args) {
 			if (!(arg instanceof Number || arg instanceof Detector)) {
 				return false;
