@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
@@ -176,28 +175,74 @@ public class BeamCameraMapping {
 		}
 	}
 
-	Optional<RealVector> pixelToBeam(ICameraConfiguration iConfiguration, double x, double y) {
+	Optional<RealVector> pixelToBeam(CameraToBeamMap cameraToBeam, double x, double y) {
 		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
-		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
-				.map(this::pixelToBeamSolver)
-				.map(s -> transformCoordinates(s, cameraVector));
+		return pixelToBeam(cameraToBeam, cameraVector);
 	}
 
-	public Optional<RealVector> pixelToBeam(ICameraConfiguration iConfiguration, RealVector cameraVector) {
-		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
+	/**
+	 * Transforms a vector from the camera space to the beam space.
+	 *
+	 * <p>
+	 * {@link CameraToBeamMap#getOffset()}, if not {@code null}, is added to the transformation result
+	 * </p>
+	 * @param cameraToBeam object with the transformation information
+	 * @param vector the vector in the camera space
+	 * @return the vector in the beam space
+	 */
+	public Optional<RealVector> pixelToBeam(CameraToBeamMap cameraToBeam, RealVector vector) {
+		return Optional.ofNullable(cameraToBeam)
 				.map(this::pixelToBeamSolver)
-				.map(s -> transformCoordinates(s, cameraVector));
+				.map(s -> transformCoordinates(s, vector))
+				.map(t -> addOffset(t, cameraToBeam.getOffset()));
 	}
 
-	Optional<RealVector> beamToPixel(ICameraConfiguration iConfiguration, double x, double y) {
+	Optional<RealVector> beamToPixel(CameraToBeamMap cameraToBeam, double x, double y) {
 		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
-		return beamToPixel(iConfiguration, cameraVector);
+		return beamToPixel(cameraToBeam, cameraVector);
 	}
 
-	public Optional<RealVector> beamToPixel(ICameraConfiguration iConfiguration, RealVector cameraVector) {
-		return Optional.ofNullable(iConfiguration.getBeamCameraMap())
+	/**
+	 * Transforms a vector from the beam space to the camera space.
+	 *
+	 * <p>
+	 * {@link CameraToBeamMap#getOffset()}, if not {@code null}, is subtracted from the transformation result
+	 * </p>
+	 * @param cameraToBeam object with the transformation information
+	 * @param vector the vector in the beam space
+	 * @return the vector in the camera space
+	 */
+	public Optional<RealVector> beamToPixel(CameraToBeamMap cameraToBeam, RealVector vector) {
+		return Optional.ofNullable(cameraToBeam)
 				.map(this::beamToPixelSolver)
-				.map(s -> transformCoordinates(s, cameraVector));
+				.map(s -> transformCoordinates(s, vector))
+				.map(t -> subtractOffset(t, cameraToBeam.getOffset()));
+	}
+
+	/**
+	 * Adds an offset vector to a given one
+	 *
+	 * @param vector the primary vector
+	 * @param offset the offset to add
+	 * @return the amended vector
+	 */
+	public final RealVector addOffset(RealVector vector, RealVector offset) {
+		return Optional.ofNullable(offset)
+				.map(vector::add)
+				.orElse(vector);
+	}
+
+	/**
+	 * Adds an offset vector to a given one
+	 *
+	 * @param vector the primary vector
+	 * @param offset the offset to add
+	 * @return the amended vector
+	 */
+	public final RealVector subtractOffset(RealVector vector, RealVector offset) {
+		return Optional.ofNullable(offset)
+				.map(vector::subtract)
+				.orElse(vector);
 	}
 
 	RealVector transformCoordinates(DecompositionSolver solver, RealVector cameraVector) {

@@ -78,7 +78,7 @@ public final class BeamMappingSupport {
 				if (s.equals(event.getxAxis().getTitle())) {
 					moveTo = Optional.of(new ArrayRealVector(new double[] { event.getxValue(), event.getyValue() }, false));
 				} else {
-					moveTo = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration,
+					moveTo = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration.getBeamCameraMap(),
 									event.getxValue(), event.getyValue());
 				}
 				moveTo.ifPresent(this::doMove);
@@ -114,12 +114,12 @@ public final class BeamMappingSupport {
 		this.iConfiguration = iConfiguration;
 		this.plottingSystem = plottingSystem;
 
-		Optional<RealVector> topLeft = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration, 0, 0);
+		Optional<RealVector> topLeft = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration.getBeamCameraMap(), 0, 0);
 		Optional<RealVector> bottomRight= Optional.empty();
 		int[] pos = iConfiguration.getCameraControl().map(this::getFrameSize).orElseGet(() -> new int[] { 0, 0 });
 		double x = pos[0];
 		double y = pos[1];
-		bottomRight = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration, x, y);
+		bottomRight = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration.getBeamCameraMap(), x, y);
 
 		// Creates the context menu for the calibrated axes
 		MenuAction alternativeAxes = new MenuAction(ClientMessagesUtility.getMessage(AXES));

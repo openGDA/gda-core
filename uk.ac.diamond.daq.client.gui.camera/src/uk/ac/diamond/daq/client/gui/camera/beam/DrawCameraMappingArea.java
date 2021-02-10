@@ -203,6 +203,6 @@ public class DrawCameraMappingArea {
 	}
 
 	private Optional<RealVector> calculateSolution(double x, double y) {
-		return iCameraConfiguration.getBeamCameraMapping().beamToPixel(iCameraConfiguration, x, y);
+		return iCameraConfiguration.getBeamCameraMapping().beamToPixel(iCameraConfiguration.getBeamCameraMap(), x, y);
 	}
 }

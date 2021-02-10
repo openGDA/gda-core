@@ -35,7 +35,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
@@ -444,16 +443,16 @@ public class ScanningAcquisitionController
 	private void transformPixelsToBeamDrivers() {
 		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
 			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
-			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::pixelToBeam, c));
+			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::pixelToBeam, c.getBeamCameraMap()));
 	}
 
 	private void transformBeamDriversToPixel() {
 		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
 			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
-			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::beamToPixel, c));
+			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::beamToPixel, c.getBeamCameraMap()));
 	}
 
-	private void transformCoordinates(BiFunction<ICameraConfiguration, RealVector, Optional<RealVector>> transformation, ICameraConfiguration iConfiguration) {
+	private void transformCoordinates(BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation, CameraToBeamMap cameraToBeam) {
 		List<ScannableTrackDocument> trackDocuments = Optional.ofNullable(getAcquisition())
 			.map(ScanningAcquisition::getAcquisitionConfiguration)
 			.map(ScanningConfiguration::getAcquisitionParameters)
@@ -462,50 +461,48 @@ public class ScanningAcquisitionController
 			.orElseGet(ArrayList::new);
 	 	ScannableTrackDocumentHelper helper = new ScannableTrackDocumentHelper(this::getAcquisitionParameters);
 
-	 	int vectSize = Optional.ofNullable(iConfiguration)
-	 			.map(ICameraConfiguration::getBeamCameraMap)
+	 	int vectSize = Optional.ofNullable(cameraToBeam)
 	 			.map(CameraToBeamMap::getDriver)
 	 			.map(List::size)
 	 			.orElse(0);
 	 	if (vectSize == 0)
 	 		return;
 
-	 	updateStart(iConfiguration, trackDocuments, helper, vectSize, transformation);
-	 	updateStop(iConfiguration, trackDocuments, helper, vectSize, transformation);
+	 	updateStart(cameraToBeam, trackDocuments, helper, vectSize, transformation);
+	 	updateStop(cameraToBeam, trackDocuments, helper, vectSize, transformation);
 	}
 
-	private void updateStart(ICameraConfiguration iConfiguration, List<ScannableTrackDocument> trackDocuments, ScannableTrackDocumentHelper helper, int vectSize,
-			BiFunction<ICameraConfiguration, RealVector, Optional<RealVector>> transformation) {
+	private void updateStart(CameraToBeamMap cameraToBeam, List<ScannableTrackDocument> trackDocuments, ScannableTrackDocumentHelper helper, int vectSize,
+			BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation) {
 	 	RealVector start = new ArrayRealVector(vectSize);
-		IntStream.range(0, iConfiguration.getBeamCameraMap().getDriver().size())
+		IntStream.range(0, cameraToBeam.getDriver().size())
 		 	.forEach(i -> {
-		 		if (!scannableMatchesTrasformationAxis(iConfiguration, trackDocuments, i))
+		 		if (!scannableMatchesTrasformationAxis(cameraToBeam, trackDocuments, i))
 		 			return;
 		 		RealVector cameraVector = new ArrayRealVector(vectSize);
 		 		cameraVector.setEntry(i, trackDocuments.get(i).getStart());
-		 		transformation.apply(iConfiguration, cameraVector).ifPresent(v -> start.addToEntry(i, v.getEntry(i)));
+		 		transformation.apply(cameraToBeam, cameraVector).ifPresent(v -> start.addToEntry(i, v.getEntry(i)));
 		 	});
 		helper.updateScannableTrackDocumentsStarts(start.toArray());
 	}
 
-	private void updateStop(ICameraConfiguration iConfiguration, List<ScannableTrackDocument> trackDocuments, ScannableTrackDocumentHelper helper, int vectSize,
-			BiFunction<ICameraConfiguration, RealVector, Optional<RealVector>> transformation) {
+	private void updateStop(CameraToBeamMap cameraToBeam, List<ScannableTrackDocument> trackDocuments, ScannableTrackDocumentHelper helper, int vectSize,
+			BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation) {
 		RealVector stop = new ArrayRealVector(vectSize);
-		IntStream.range(0, iConfiguration.getBeamCameraMap().getDriver().size())
+		IntStream.range(0, cameraToBeam.getDriver().size())
 	 		.forEach(i -> {
-		 		if (!scannableMatchesTrasformationAxis(iConfiguration, trackDocuments, i))
+		 		if (!scannableMatchesTrasformationAxis(cameraToBeam, trackDocuments, i))
 		 			return;
 	 			RealVector cameraVector = new ArrayRealVector(vectSize);
 		 		cameraVector.setEntry(i, trackDocuments.get(i).getStop());
-		 		transformation.apply(iConfiguration, cameraVector).ifPresent(v -> stop.addToEntry(i, v.getEntry(i)));
+		 		transformation.apply(cameraToBeam, cameraVector).ifPresent(v -> stop.addToEntry(i, v.getEntry(i)));
 	 		});
 		helper.updateScannableTrackDocumentsStops(stop.toArray());
 	}
 
-	private boolean scannableMatchesTrasformationAxis(ICameraConfiguration iConfiguration, List<ScannableTrackDocument> trackDocuments, int i) {
+	private boolean scannableMatchesTrasformationAxis(CameraToBeamMap cameraToBeam, List<ScannableTrackDocument> trackDocuments, int i) {
 		try {
-	 		String driverName = Optional.ofNullable(iConfiguration)
-						.map(ICameraConfiguration::getBeamCameraMap)
+	 		String driverName = Optional.ofNullable(cameraToBeam)
 						.map(CameraToBeamMap::getDriver)
 						.map(l -> l.get(i))
 						.orElseGet(String::new);
