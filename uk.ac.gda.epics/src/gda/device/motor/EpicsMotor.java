@@ -570,9 +570,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			if (controller.cagetShort(dmov) == 0) {
 				ms = MotorStatus.BUSY;
 			}
-			final String statusString = Long.toBinaryString((long) (Double.parseDouble(controller.caget(msta))));
-			if (statusString.charAt(0) == '1' || statusString.charAt(3) == '1' || statusString.charAt(6) == '1') {
-				logger.info("There is a hardware problem");
+			String motorStatusFlags = controller.caget(msta);
+			if (isMotorStatusProblematic(motorStatusFlags)) {
+				int motorStatusNumerical = Integer.parseInt(motorStatusFlags);
+				String motorStatusBinary = Integer.toBinaryString(motorStatusNumerical);
+				logger.info("Hardware problem: Motor status = {} [ in binary {} ] ",motorStatusNumerical,motorStatusBinary);
 				ms = MotorStatus.FAULT;
 			}
 			// check motor status flags MSTA
@@ -1525,5 +1527,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	public void setMissedTargetLevel(MissedTargetLevel level) {
 		missedTargetAction = level;
+	}
+
+	protected static boolean isMotorStatusProblematic(String motorStatusFlags) {
+		String statusString = Long.toBinaryString((long) (Double.parseDouble(motorStatusFlags))); // TODO understand why using long and Double for 16 bits?
+		return (statusString.charAt(0) == '1' || statusString.charAt(3) == '1' || statusString.charAt(6) == '1'); // TODO understand why traditional AND with bit MASK was not used
 	}
 }
