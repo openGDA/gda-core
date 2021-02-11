@@ -22,14 +22,15 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +47,7 @@ import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialog;
 import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialogMode;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
+import uk.ac.diamond.daq.mapping.ui.MultiFunctionButton;
 import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 
 /**
@@ -65,8 +67,11 @@ import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 public class SubmitScanSection extends AbstractMappingSection {
 	private static final Logger log = LoggerFactory.getLogger(SubmitScanSection.class);
 
-	private static final String[] FILE_FILTER_NAMES = new String[] { "Mapping Scan Files", "All Files (*.*)" };
-	private static final String[] FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
+	private static final String[] MAP_FILE_FILTER_NAMES = new String[] { "Mapping Scan Files", "All Files (*.*)" };
+	private static final String[] MAP_FILE_FILTER_EXTENSIONS = new String[] { "*.map", "*.*" };
+
+	private static final String[] NX_FILE_FILTER_NAMES = new String[] { "NeXus Files", "All Files (*.*)" };
+	private static final String[] NX_FILE_FILTER_EXTENSIONS = new String[] { "*.nxs", "*.*" };
 
 	private Composite composite;
 	private Button submitScanButton;
@@ -137,38 +142,58 @@ public class SubmitScanSection extends AbstractMappingSection {
 						new ComplexScanNameLabelProvider("Dimensions", PersistableMappingExperimentBean.SCAN_NAME_TITLE, false, 1));
 
 
-		// Button to load a scan from disk
-		final Button loadButton = new Button(mscanComposite, SWT.PUSH);
-		loadButton.setImage(getImage("icons/open.png"));
-		loadButton.setToolTipText("Load a scan from the file system");
-		GridDataFactory.swtDefaults().applyTo(loadButton);
-		loadButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			Optional<IMappingExperimentBean> bean = Optional.empty();
-			if (LocalProperties.isPersistenceServiceAvailable()) {
-				PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
-				SearchResult searchResult;
-				try {
-					searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
-				} catch (PersistenceException e1) {
-					log.error("Unable to find existing Mapping Beans", e1);
-					return;
-				}
-				SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
-						"Load Scan Definition", true, false, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
-						SearchResultViewDialogMode.load, labelProviders);
-				searchDialog.open();
-				if (searchDialog.getReturnCode() == Window.OK) {
-					bean = smController.loadScanMappingBean(searchDialog.getItemId());
-				}
-			} else {
-				bean = smController.loadScanMappingBean(chooseFileName(SWT.OPEN));
-			}
-			if (bean.isPresent()) {
-				getMappingView().setMappingBean(bean.get());
-				smController.updateGridModelIndex();
-				getMappingView().updateControls();
-			}
-		}));
+		// Multi-functional button to load scan parameters from various places into the Mapping UI
+		final MultiFunctionButton loadScanButton = new MultiFunctionButton();
+
+		// Loads parameters from a .map file
+		loadScanButton.addFunction(
+				"Load a scan from a .map file",
+				"Load a scan from a .map file",
+				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/open.png")),
+				() -> smController
+						.loadScanMappingBean(chooseMapFileName(SWT.OPEN))
+						.ifPresent(this::loadNewMappingBean));
+
+		// Derives parameters from a NeXus file if the correct entry is present
+		loadScanButton.addFunction(
+				"Load a scan from a NeXus file",
+				"Load a scan from a compatible .nxs file",
+				new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/nexus.png")),
+				() -> smController
+						.loadScanRequest(chooseNxFileName(SWT.OPEN))
+						.ifPresent(this::updateMappingBean));
+
+		// Loads parameters from the persistence service,
+		// this function only appears if GDA is configured to use the
+		// persistence service
+		if (LocalProperties.isPersistenceServiceAvailable()) {
+			loadScanButton.addFunction(
+					"Load a persisted scan",
+					"Load a scan from the GDA persistence service",
+					new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/database--arrow.png")),
+					() -> {
+						PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+						SearchResult searchResult;
+						try {
+							searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
+						} catch (PersistenceException e1) {
+							log.error("Unable to find existing Mapping Beans", e1);
+							return;
+						}
+						SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
+								"Load Scan Definition", true, false, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
+								SearchResultViewDialogMode.load, labelProviders);
+
+						searchDialog.open();
+						if (searchDialog.getReturnCode() == Window.OK) {
+							smController
+								.loadScanMappingBean(searchDialog.getItemId())
+								.ifPresent(this::loadNewMappingBean);
+						}
+					});
+		}
+
+		loadScanButton.draw(mscanComposite);
 
 		// Button to save a scan to disk
 		final Button saveButton = new Button(mscanComposite, SWT.PUSH);
@@ -196,24 +221,59 @@ public class SubmitScanSection extends AbstractMappingSection {
 					smController.saveScanAs(mappingBean.getId());
 				}
 			} else {
-				smController.saveScan(chooseFileName(SWT.SAVE));
+				smController.saveScan(chooseMapFileName(SWT.SAVE));
 			}
 		}));
 	}
 
+	private void updateMappingBean(final ScanRequest request) {
+		// Merges a ScanRequest into the mapping bean and refreshes the UI
+		getService(ScanRequestConverter.class)
+			.mergeIntoMappingBean(request, getMappingBean());
+		refreshMappingView();
+	}
+
+	private void loadNewMappingBean(final IMappingExperimentBean bean) {
+		// Replaces the mapping bean and refreshes the UI
+		getMappingView().setMappingBean(bean);
+		refreshMappingView();
+	}
+
+	private void refreshMappingView() {
+		smController.updateGridModelIndex();
+		getMappingView().updateControls();
+
+	}
 	protected void submitScan() {
 		smController.submitScan();
 	}
 
-	private String chooseFileName(int fileDialogStyle) {
+	private String chooseMapFileName(int fileDialogStyle) {
 		final FileDialog dialog = new FileDialog(getShell(), fileDialogStyle);
-		dialog.setFilterNames(FILE_FILTER_NAMES);
-		dialog.setFilterExtensions(FILE_FILTER_EXTENSIONS);
-		final String visitConfigDir = getService(IFilePathService.class).getVisitConfigDir();
-		dialog.setFilterPath(visitConfigDir);
+		dialog.setFilterNames(MAP_FILE_FILTER_NAMES);
+		dialog.setFilterExtensions(MAP_FILE_FILTER_EXTENSIONS);
+		dialog.setFilterPath(getVisitConfigDir());
 		dialog.setOverwrite(true);
 
 		return dialog.open();
+	}
+
+	private String chooseNxFileName(int fileDialogStyle) {
+		final FileDialog dialog = new FileDialog(getShell(), fileDialogStyle);
+		dialog.setFilterNames(NX_FILE_FILTER_NAMES);
+		dialog.setFilterExtensions(NX_FILE_FILTER_EXTENSIONS);
+		dialog.setFilterPath(getVisitDir());
+		dialog.setOverwrite(true);
+
+		return dialog.open();
+	}
+
+	private String getVisitConfigDir() {
+		return getService(IFilePathService.class).getVisitConfigDir();
+	}
+
+	private String getVisitDir() {
+		return getService(IFilePathService.class).getVisitDir();
 	}
 
 	/**

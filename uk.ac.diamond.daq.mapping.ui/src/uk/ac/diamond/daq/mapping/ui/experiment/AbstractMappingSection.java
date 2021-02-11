@@ -226,6 +226,10 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		}
 	}
 
+	/**
+	 * @deprecated for removal in 9.21. See DAQ-3292
+	 */
+	@Deprecated
 	protected String createScanCommand() {
 		final ScanBean scanBean = createScanBean();
 		final IParserService parserService = getEclipseContext().get(IParserService.class);
