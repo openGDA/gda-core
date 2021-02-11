@@ -18,6 +18,10 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.command.ParserServiceImpl;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class ScanRequestExpresser extends PyModelExpresser<ScanRequest> {
 
 	@Override

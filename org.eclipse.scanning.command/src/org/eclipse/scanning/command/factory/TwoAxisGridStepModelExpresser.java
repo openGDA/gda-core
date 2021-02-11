@@ -16,6 +16,10 @@ import java.util.Collection;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class TwoAxisGridStepModelExpresser extends AbstractGridModelExpresser<TwoAxisGridStepModel> {
 
 	@Override

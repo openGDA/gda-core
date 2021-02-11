@@ -15,7 +15,6 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_START_TIME;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_CMD;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DEAD_TIME_PERCENT;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_DURATION;
@@ -23,6 +22,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_FINISHED;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_MODELS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_RANK;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_REQUEST;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_SCAN_SHAPE;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_START_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
@@ -46,9 +46,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -68,6 +70,8 @@ import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.api.AbstractScannable;
+import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -193,21 +197,24 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 		// add a field for the scan rank
 		scanPointsCollection.setField(FIELD_NAME_SCAN_RANK, info.getRank());
 
-		if (model.getBean() != null && model.getBean().getScanRequest() != null) {
+		getScanRequest().ifPresent(request -> {
+			final IMarshallerService marshallerService = ServiceHolder.getMarshallerService();
 			try {
-			    String cmd = ServiceHolder.getParserService().getCommand(model.getBean().getScanRequest(), true);
-				scanPointsCollection.setField(FIELD_NAME_SCAN_CMD,  cmd);
+				// serialize ScanRequest as a JSON string and include in a field
+				final String scanRequestJson = marshallerService.marshal(request);
+				scanPointsCollection.setField(FIELD_NAME_SCAN_REQUEST,  scanRequestJson);
 			} catch (Exception ne) {
-				logger.debug("Unable to write scan command", ne);
+				logger.debug("Unable to write scan request", ne);
 			}
 			try {
-				List<?> models = model.getBean().getScanRequest().getCompoundModel().getModels();
-				String json = ServiceHolder.getMarshallerService().marshal(models);
+				List<?> models = request.getCompoundModel().getModels();
+				String json = marshallerService.marshal(models);
 				scanPointsCollection.setField(FIELD_NAME_SCAN_MODELS, json);
 			} catch (Exception ne) {
 				logger.debug("Unable to write point models", ne);
 			}
-		}
+		});
+
 
 		// create the scan finished dataset and set the initial value to false
 //		scanFinished = scanPointsCollection.initializeFixedSizeLazyDataset(
@@ -273,6 +280,15 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 		}
 
 		return scanPointsCollection;
+	}
+
+	private Optional<ScanRequest> getScanRequest() {
+		// First check the bean to see if null, then check scan request.
+		// Return an empty optional unless both are present.
+		return Optional
+				.ofNullable(model.getBean())
+				.map(ScanBean::getScanRequest)
+				.flatMap(Optional::ofNullable);
 	}
 
 	private static String durationInMillisToString(Duration duration) {

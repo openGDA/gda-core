@@ -17,6 +17,10 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.command.PyExpressionNotImplementedException;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class AxialArrayModelExpresser extends AbstractPointsModelExpresser<AxialArrayModel> {
 
 	@Override

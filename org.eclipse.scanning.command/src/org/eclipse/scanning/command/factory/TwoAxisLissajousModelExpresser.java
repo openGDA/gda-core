@@ -23,6 +23,10 @@ import java.util.Collection;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 public class TwoAxisLissajousModelExpresser extends AbstractPointsModelExpresser<TwoAxisLissajousModel> {
 
 	@Override

@@ -13,6 +13,10 @@ package org.eclipse.scanning.command.factory;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
+/**
+ * @deprecated for removal in 9.21. See DAQ-3292
+ */
+@Deprecated
 class RectangularROIExpresser extends PyModelExpresser<RectangularROI> {
 
 	@Override
