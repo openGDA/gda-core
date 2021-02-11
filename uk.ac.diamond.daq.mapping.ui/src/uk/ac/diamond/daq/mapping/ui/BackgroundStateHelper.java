@@ -104,8 +104,10 @@ public class BackgroundStateHelper {
 	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration cameraConfig) {
 		final StreamType streamType = cameraConfig.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
 		CameraStreamsManager manager = getBean(CameraStreamsManager.class);
-		IDynamicShape dataset = manager.getDynamicShape(cameraConfig, streamType);
-		cameraConfig.setCalibratedAxesProvider(new PixelCalibration(dataset::getDataset));
+		if (cameraConfig.getCalibratedAxesProvider() == null) {
+			IDynamicShape dataset = manager.getDynamicShape(cameraConfig, streamType);
+			cameraConfig.setCalibratedAxesProvider(new PixelCalibration(dataset::getDataset));
+		}
 		return Optional.ofNullable(manager.getLiveStreamPlottable(cameraConfig, streamType));
 	}
 
