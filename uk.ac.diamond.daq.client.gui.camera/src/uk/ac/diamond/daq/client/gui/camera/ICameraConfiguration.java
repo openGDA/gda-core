@@ -62,6 +62,10 @@ public interface ICameraConfiguration {
 	 */
 	RectangularROI getMaximumSizedROI() throws GDAClientException;
 
+	/**
+	 * @return the client camera configuration.<br>
+	 *         See <a href= "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">
+	 */
 	CameraConfigurationProperties getCameraConfigurationProperties();
 
 	/**

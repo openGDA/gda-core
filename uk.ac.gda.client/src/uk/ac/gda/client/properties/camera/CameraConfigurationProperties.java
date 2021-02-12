@@ -19,9 +19,7 @@
 package uk.ac.gda.client.properties.camera;
 
 import java.util.List;
-import java.util.Map;
 
-import uk.ac.gda.api.camera.TriggerMode;
 import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 
 /**
@@ -41,8 +39,6 @@ public class CameraConfigurationProperties {
 
 	private boolean pixelBinningEditable;
 
-	private boolean withMonitor;
-
 	private double readoutTime;
 	private String malcolmDetectorName;
 	private String gdaDetectorName;
@@ -50,7 +46,7 @@ public class CameraConfigurationProperties {
 
 	private List<ControllerConfiguration> motors;
 
-	private Map<TriggerMode, Short> triggerMode;
+	private StreamConfiguration streamingConfiguration;
 
 	private CameraToBeamMap cameraToBeamMap;
 
@@ -102,23 +98,6 @@ public class CameraConfigurationProperties {
 		this.pixelBinningEditable = pixelBinningEditable;
 	}
 
-	public boolean isWithMonitor() {
-		return withMonitor;
-	}
-
-	public void setWithMonitor(boolean withMonitor) {
-		this.withMonitor = withMonitor;
-	}
-
-	/**
-	 * The detector readout time.
-	 * <p>
-	 * <b>NOTE</b> this is a temporary solution to mitigate the case where the acquisition engine acquisition time
-	 * accounts not only for the detector exposure but also for the readout time. This property should be removed as soon
-	 * an improved Malcolm version will be deployed (BC-1349)
-	 * </p>
-	 * @return the detector readout
-	 */
 	public double getReadoutTime() {
 		return readoutTime;
 	}
@@ -172,11 +151,11 @@ public class CameraConfigurationProperties {
 		this.motors = motors;
 	}
 
-	public Map<TriggerMode, Short> getTriggerMode() {
-		return triggerMode;
+	public StreamConfiguration getStreamingConfiguration() {
+		return streamingConfiguration;
 	}
 
-	public void setTriggerMode(Map<TriggerMode, Short> triggerMode) {
-		this.triggerMode = triggerMode;
+	public void setStreamingConfiguration(StreamConfiguration streamingConfiguration) {
+		this.streamingConfiguration = streamingConfiguration;
 	}
 }

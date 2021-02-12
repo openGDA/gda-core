@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -35,6 +34,7 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.swt.widgets.Composite;
 import org.springframework.context.ApplicationListener;
 
+import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
@@ -47,12 +47,14 @@ import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
+import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
+import uk.ac.gda.client.properties.camera.StreamConfiguration;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.rest.CameraControlClient;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
@@ -171,12 +173,11 @@ public final class CameraHelper {
 
 	/**
 	 * Returns the available client camera configuration
-	 * @return the available camera configurations
+	 * @return the available camera configurations, eventually an empty collection
 	 */
 	public static List<CameraConfigurationProperties> getAllCameraConfigurationProperties() {
-		return Collections.unmodifiableList(getCameraProperies().stream()
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList()));
+		return Optional.ofNullable(getCameraProperies())
+				.orElseGet(Collections::emptyList);
 	}
 
 	public static ICameraConfiguration getICameraConfigurationByConfigurationName(String cameraConfigurationName) {
@@ -227,14 +228,19 @@ public final class CameraHelper {
 
 	/**
 	 * Returns the IDs of the camera requiring a camera monitoring button
-	 * @return a list of camera IDs
+	 * @return a list of camera IDs, eventually an empty collection
 	 */
 	public static List<String> getCameraMonitors() {
-		return Collections.unmodifiableList(getCameraProperies().stream()
-				.filter(CameraConfigurationProperties::isWithMonitor)
-				.filter(p -> Objects.nonNull(p.getId()))
+		return getAllCameraConfigurationProperties().stream()
+				.filter(isMonitorActive())
 				.map(CameraConfigurationProperties::getId)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
+	}
+
+	private static Predicate<? super CameraConfigurationProperties> isMonitorActive() {
+		return cameraProperties -> Optional.ofNullable(cameraProperties.getStreamingConfiguration())
+				.map(StreamConfiguration::isActive)
+				.orElse(false);
 	}
 
 	/**
@@ -504,6 +510,22 @@ public final class CameraHelper {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.orElse(null);
+}
+	/**
+	 * Returns the camera state but more crucially, catches when the camera is not available,
+	 * typically when the IOC is unavailable, and return a {@link CameraState#UNAVAILABLE}
+	 * @param cameraControl
+	 * @return the camera state
+	 */
+	public static final CameraState getCameraState(final CameraControl cameraControl) {
+		if (cameraControl == null) {
+			return CameraState.UNAVAILABLE;
+		}
+		try {
+			return cameraControl.getAcquireState();
+		} catch (DeviceException e) {
+			return CameraState.UNAVAILABLE;
+		}
 	}
 
 	public static Map<CameraControl, IObserver> getCameraControlObservers() {

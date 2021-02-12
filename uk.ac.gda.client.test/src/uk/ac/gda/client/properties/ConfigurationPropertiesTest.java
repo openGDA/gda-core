@@ -31,6 +31,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
@@ -69,6 +70,11 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals(2.0, pco.getCameraToBeamMap().getMap()[0][1], 0.0);
 		Assert.assertEquals(-1.0, pco.getCameraToBeamMap().getOffset().getEntry(0), 0.0);
 		Assert.assertEquals(-2.0, pco.getCameraToBeamMap().getOffset().getEntry(1), 0.0);
+
+		Assert.assertEquals(0, pco.getStreamingConfiguration().getTriggerMode(), 0.0);
+		Assert.assertEquals(ImageMode.CONTINUOUS, pco.getStreamingConfiguration().getImageMode());
+		Assert.assertTrue(pco.getStreamingConfiguration().isActive());
+
 		Assert.assertTrue(pco.getCameraToBeamMap().isActive());
 		Assert.assertEquals(2, pco.getMotors().size());
 
@@ -87,6 +93,9 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals("diffraction_camera_control", pilatus.getCameraControl());
 		Assert.assertEquals(2, pilatus.getMotors().size());
 		Assert.assertNull(pilatus.getCameraToBeamMap());
+		Assert.assertEquals(4, pilatus.getStreamingConfiguration().getTriggerMode(), 0.0);
+		Assert.assertEquals(null, pilatus.getStreamingConfiguration().getImageMode());
+		Assert.assertFalse(pilatus.getStreamingConfiguration().isActive());
 
 		cameraMotor = pilatus.getMotors().get(0);
 		Assert.assertTrue(cameraMotor.getController().equals("pco_x"));
