@@ -18,17 +18,14 @@
 
 package uk.ac.gda.client.live.stream.controls.handlers;
 
-import com.opencsv.bean.CsvBindByName;
-
 public class CrosshairBean {
-	
-	@CsvBindByName
+
 	private String cameraName;
-	
-	@CsvBindByName
+
 	private double xPosition;
-	
-	@CsvBindByName
+
+
+
 	private double yPosition;
 
 	public String getCameraName() {

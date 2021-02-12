@@ -18,17 +18,29 @@
 
 package uk.ac.gda.client.live.stream.controls.handlers;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -50,12 +62,6 @@ import org.eclipse.ui.menus.UIElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opencsv.bean.CsvToBeanBuilder;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-
 import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.controls.Activator;
@@ -66,7 +72,7 @@ import uk.ac.gda.client.live.stream.view.LiveStreamView;
 /**
  * A handler to create a cross hair on top of the image in the {@link LiveStreamView}.
  * <p>
- * This implementation supports add and remove cross-hair, and save cross hair position to cached file {@link LocalProperties#GDA_VAR_DIR}/crosshair.csv, 
+ * This implementation supports add and remove cross-hair, and save cross hair position to cached file {@link LocalProperties#GDA_VAR_DIR}/crosshair.csv,
  * Users can also control the visibility and move_ability of the cross hair.
  * </p>
  */
@@ -87,9 +93,9 @@ public class CrossHairHandler extends AbstractHandler implements IElementUpdater
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		String name = event.getParameter(PARAMETER_ID);
-				
+
 		final LiveStreamView liveStreamView = (LiveStreamView) HandlerUtil.getActivePart(event);
 		displayName = liveStreamView.getActiveCameraConfiguration().getDisplayName();
 		fileName = LocalProperties.get(LocalProperties.GDA_VAR_DIR) + File.separator + "crosshair.csv";
@@ -125,7 +131,7 @@ public class CrossHairHandler extends AbstractHandler implements IElementUpdater
 			xregion.setMobile(true);
 			yregion.setMobile(true);
 			moveable=true;
-		}		
+		}
 	}
 
 	private void taggleVisible(LiveStreamView liveStreamView) {
@@ -172,11 +178,11 @@ public class CrossHairHandler extends AbstractHandler implements IElementUpdater
 		yregion.setMobile(false);
 		moveable=false;
 	}
-	
+
 	private void addCrosshair(final LiveStreamView liveStreamView, CrosshairBean bean) throws ExecutionException {
 		final IPlottingSystem<Composite> plottingSystem = liveStreamView.getPlottingSystem();
 		final Color crosshairColour = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-		
+
 		IRegion xRegion;
 		try {
 			xRegion = plottingSystem.createRegion(CROSSHAIR_X, RegionType.XAXIS_LINE);
@@ -209,37 +215,36 @@ public class CrossHairHandler extends AbstractHandler implements IElementUpdater
 		yRegion.setUserRegion(false);
 		yRegion.setFromServer(false);
 		plottingSystem.addRegion(yRegion);
-		
+
 		crosshairAdded=true;
 	}
 
 	private CrosshairBean createCrosshairBean(final LiveStreamView liveStreamView) throws ExecutionException {
-		CrosshairBean bean;
+		if (!Files.exists(Paths.get(fileName))) {
+			logger.info("File {} is not available in cache, create a new file", fileName);
+			// when 1st time start no crosshair.csv in cache so create the cached file.
+			return createDefaultCrosshairBean(liveStreamView);
+		}
 		try {
-			List<CrosshairBean> beans = new CsvToBeanBuilder<CrosshairBean>(new FileReader(fileName)).withType(CrosshairBean.class)
-					.withOrderedResults(false).build().parse();
+			List<CrosshairBean> beans = readBeansFromCsv(Paths.get(fileName));
 			for (CrosshairBean each : beans) {
 				beansMap.put(each.getCameraName(), each);
 			}
-			//retrieve cross hair bean from cached data file
-			bean=beansMap.get(displayName);
-			if (bean == null) {
+			// retrieve cross hair bean from cached data file
+			if (beansMap.containsKey(displayName)) {
+				return beansMap.get(displayName);
+			} else {
 				// create a default cross hair bean at the centre of the camera image view
-				bean = createDefaultCrosshairBean(liveStreamView);
+				return createDefaultCrosshairBean(liveStreamView);
 			}
-		} catch (IllegalStateException e1) {
-			logger.error("File {} cannot be parsed.", fileName);
+		} catch (IOException e1) {
+			logger.error("Error reading {} ", fileName);
 			throw new ExecutionException(e1.getMessage(), e1);
-		} catch (FileNotFoundException e1) {
-			logger.info("File {} is not available in cache, create a new file", fileName);
-			// when 1st time start no crosshair.csv in cache so create the cached file.
-			bean = createDefaultCrosshairBean(liveStreamView);
 		}
-		return bean;
 	}
 
 	private CrosshairBean createDefaultCrosshairBean(final LiveStreamView liveStreamView) {
-		
+
 		SnapshotData dataset;
 		double x=10.0, y=10.0;
 		try {
@@ -268,12 +273,7 @@ public class CrossHairHandler extends AbstractHandler implements IElementUpdater
 			for (CrosshairBean bean : beansMap2.values()) {
 				beans.add(bean);
 			}
-			Writer writer = new FileWriter(fileName);
-			StatefulBeanToCsv<CrosshairBean> beanToCsv = new StatefulBeanToCsvBuilder<CrosshairBean>(writer).withOrderedResults(false).build();
-			beanToCsv.write(beans);
-			writer.close();
-		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-			logger.error(e.getMessage(), e);
+			writeBeansToCsv(beans, Paths.get(fileName));
 		} catch (IOException e) {
 			logger.error("Write to file {} throws", fileName, e);
 		}
@@ -317,7 +317,56 @@ public class CrossHairHandler extends AbstractHandler implements IElementUpdater
 				} else {
 					element.setChecked(false);
 				}
-			} 
+			}
 		}
 	}
+
+	/**
+	 * Read CSV rows from a file and convert to {@link CrosshairBean}.
+	 * The first row of the file should contain the field names (case sensitive) as:
+	 * <p>
+	 * {@code "cameraName","xPosition","yPosition"}
+	 */
+	private List<CrosshairBean> readBeansFromCsv(Path path) throws IOException {
+		List<CrosshairBean> beans = new ArrayList<>();
+		try (CSVParser csvFileParser = new CSVParser(Files.newBufferedReader(path),
+				CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withFirstRecordAsHeader())) {
+			List<CSVRecord> csvRecords = csvFileParser.getRecords();
+			for (CSVRecord rec : csvRecords) {
+				Map<String, ? extends Object> mappedFields = rec.toMap();
+				CrosshairBean cb = new CrosshairBean();
+				// Check that the header names read are valid properties
+				if (mappedFields.keySet().stream().anyMatch(f -> !PropertyUtils.isWriteable(cb, f))) {
+					logger.warn("Crosshair file: {} contains invalid header names", path);
+					return Collections.emptyList();
+				}
+				BeanUtils.populate(cb, mappedFields);
+				beans.add(cb);
+			}
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			logger.error("Error deserialising Crosshair bean", e);
+		}
+		return beans;
+	}
+
+	private void writeBeansToCsv(List<CrosshairBean> beans, Path path) throws IOException {
+		try {
+			// First generate a header from the class, TreeSet to ensure consistent ordering
+			Map<String, String> prop = BeanUtils.describe(new CrosshairBean());
+			Set<String> header = new TreeSet<>(prop.keySet());
+			// The class entry is removed to leave the fields only
+			header.remove("class");
+			try (CSVPrinter pr = new CSVPrinter(Files.newBufferedWriter(path),
+					CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withHeader(header.toArray(new String[] {})))) {
+				for (CrosshairBean b : beans) {
+					Map<String, String> bMap = BeanUtils.describe(b);
+					List<String> record = header.stream().map(bMap::get).collect(toList());
+					pr.printRecord(record);
+				}
+			}
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			logger.error("Error serialising Crosshair bean", e);
+		}
+	}
+
 }
