@@ -1,8 +1,5 @@
 package uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api;
 
-import org.eclipse.scanning.api.annotation.UiLookup;
-import org.eclipse.scanning.api.annotation.UiRequired;
-
 import uk.ac.diamond.daq.detectors.addetector.api.AreaDetectorRunnableDeviceModel;
 
 /**
@@ -28,7 +25,6 @@ public class ElectronAnalyserRunnableDeviceModel extends AreaDetectorRunnableDev
 		this.slices = slices;
 	}
 
-	@UiRequired
 	public DA30LensMode getLensMode() {
 		return lensMode;
 	}
@@ -37,7 +33,6 @@ public class ElectronAnalyserRunnableDeviceModel extends AreaDetectorRunnableDev
 		this.lensMode = lensMode;
 	}
 
-	@UiLookup({"1", "2", "5", "10", "20", "40", "50", "75", "100", "200"})
 	public int getPassEnergy() {
 		return passEnergy;
 	}
