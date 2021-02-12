@@ -34,7 +34,7 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 	private static final String ENERGY_ERROR_SCANNABLE_NAME = "energyErrors";
 
 	@Override
-	protected void setupMockScannables() throws Exception {
+	protected void setupTestFixtures() throws Exception {
 		createMockScannable(ENERGY_SCANNABLE_NAME, 358.89);
 		createMockScannable(ENERGY_ERROR_SCANNABLE_NAME, 0.1);
 	}

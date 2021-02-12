@@ -32,6 +32,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +56,7 @@ import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NXsource;
+import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -84,12 +87,16 @@ import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.factory.Factory;
 import gda.factory.Finder;
+import gda.jython.IBatonStateProvider;
+import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 import uk.ac.diamond.daq.scanning.BeamNexusDevice;
 import uk.ac.diamond.daq.scanning.InsertionDeviceNexusDevice;
 import uk.ac.diamond.daq.scanning.InsertionDeviceNexusDevice.InsertionDeviceType;
 import uk.ac.diamond.daq.scanning.MonochromatorNexusDevice;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.diamond.daq.scanning.SourceNexusDevice;
+import uk.ac.diamond.daq.scanning.UserNexusDevice;
 
 @RunWith(value=Parameterized.class)
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -204,6 +211,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String INSERTION_DEVICE_NAME = "insertion_device";
 	private static final String MONOCHROMATOR_DEVICE_NAME = "monochromator";
 	private static final String SOURCE_DEVICE_NAME = "source";
+	private static final String USER_DEVICE_NAME = "user";
 
 	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
@@ -235,7 +243,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		gdaDataServiceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
 		gdaDataServiceHolder.setNexusDeviceService(nexusDeviceService);
 		gdaDataServiceHolder.setScannableDeviceService(new ScannableDeviceConnectorService());
-
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder oednsServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		oednsServiceHolder.setNexusDeviceService(nexusDeviceService);
 		oednsServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
@@ -253,6 +260,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		deviceConfig.setInsertionDeviceName(INSERTION_DEVICE_NAME);
 		deviceConfig.setMonochromatorName(MONOCHROMATOR_DEVICE_NAME);
 		deviceConfig.setSourceName(SOURCE_DEVICE_NAME);
+		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
 		return deviceConfig;
 	}
@@ -263,6 +271,16 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final Factory factory = TestHelpers.createTestFactory();
 		Finder.addFactory(factory);
 		factory.addFindable(createCommonBeamLineDevicesConfiguration());
+	}
+
+	@Override
+	protected void setUpMetadata() throws Exception {
+		super.setUpMetadata();
+
+		final ClientDetails userDetails = new ClientDetails(0, EXPECTED_USER_ID, EXPECTED_USER_NAME, "ws001", 0, true, "visit1");
+		final IBatonStateProvider batonStateProvider = mock(IBatonStateProvider.class);
+		when(batonStateProvider.getBatonHolder()).thenReturn(userDetails);
+		InterfaceProvider.setBatonStateProviderForTesting(batonStateProvider);
 	}
 
 	@Override
@@ -285,6 +303,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		createInsertionDevice();
 		createMonochromatorDevice();
 		createSourceDevice();
+		createUserDevice();
 	}
 
 	private void createBeamDevice() throws DeviceException {
@@ -353,6 +372,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		ServiceHolder.getNexusDeviceService().register(source);
 	}
 
+	private void createUserDevice() throws DeviceException {
+		final UserNexusDevice userDevice = new UserNexusDevice();
+		userDevice.setName(USER_DEVICE_NAME);
+		ServiceHolder.getNexusDeviceService().register(userDevice);
+	}
+
 	@Test
 	public void concurrentScanNexusDeviceDetector() throws Exception {
 		detector = new DummyNexusDeviceDetector();
@@ -387,12 +412,15 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected void checkUsers(NXentry entry) {
-		// user group // TODO add user data!!
-//		final Map<String, NXuser> users = entry.getAllUser();
-//		assertThat(users.keySet(), Matchers.contains(EXPECTED_USER_NAME));
-//		final NXuser user = users.get(EXPECTED_USER_NAME);
-//		assertThat(user, is(notNullValue()));
-//		assertThat(user.getNumberOfNodelinks(), is(0));  // note that the created NXuser group is empty
+		final Map<String, NXuser> users = entry.getAllUser();
+		assertThat(users.keySet(), contains(EXPECTED_USER_GROUP_NAME));
+		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
+		assertThat(user, is(notNullValue()));
+
+		assertThat(user.getDataNodeNames(), containsInAnyOrder(NXuser.NX_FACILITY_USER_ID, NXuser.NX_NAME));
+		assertThat(user.getNumberOfDataNodes(), is(2));
+		assertThat(user.getFacility_user_idScalar(), is(equalTo(EXPECTED_USER_ID)));
+		assertThat(user.getNameScalar(), is(equalTo(EXPECTED_USER_NAME)));
 	}
 
 	@Override

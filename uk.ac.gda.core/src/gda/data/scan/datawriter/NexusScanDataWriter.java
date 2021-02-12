@@ -432,6 +432,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 					+ "It is required to define a bean of this type in your GDA server spring configuration in order to use " + NexusScanDataWriter.class.getSimpleName());
 
 		}
+
 		return optDeviceConfig.get().getCommonDeviceNames();
 	}
 
