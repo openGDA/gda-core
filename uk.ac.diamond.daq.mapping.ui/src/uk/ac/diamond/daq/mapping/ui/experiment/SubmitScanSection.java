@@ -168,62 +168,36 @@ public class SubmitScanSection extends AbstractMappingSection {
 		// persistence service
 		if (LocalProperties.isPersistenceServiceAvailable()) {
 			loadScanButton.addFunction(
-					"Load a persisted scan",
-					"Load a scan from the GDA persistence service",
+					"Load a scan from the database",
+					"Load a scan from the GDA persistence database",
 					new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/database--arrow.png")),
-					() -> {
-						PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
-						SearchResult searchResult;
-						try {
-							searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
-						} catch (PersistenceException e1) {
-							log.error("Unable to find existing Mapping Beans", e1);
-							return;
-						}
-						SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
-								"Load Scan Definition", true, false, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
-								SearchResultViewDialogMode.load, labelProviders);
-
-						searchDialog.open();
-						if (searchDialog.getReturnCode() == Window.OK) {
-							smController
-								.loadScanMappingBean(searchDialog.getItemId())
-								.ifPresent(this::loadNewMappingBean);
-						}
-					});
+					() -> loadNewMappingBeanFromPersistenceService(labelProviders));
 		}
 
 		loadScanButton.draw(mscanComposite);
 
 		// Button to save a scan to disk
-		final Button saveButton = new Button(mscanComposite, SWT.PUSH);
-		saveButton.setImage(getImage("icons/save.png"));
-		saveButton.setToolTipText("Save a scan to the file system");
-		GridDataFactory.swtDefaults().applyTo(saveButton);
-		saveButton.addSelectionListener(widgetSelectedAdapter(e -> {
-			if (LocalProperties.isPersistenceServiceAvailable()) {
-				PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
-				SearchResult searchResult;
-				try {
-					searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
-				} catch (PersistenceException e1) {
-					log.error("Unable to find existing Mapping Beans", e1);
-					return;
-				}
-				SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
-						"Save Scan Definition", true, true, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
-						SearchResultViewDialogMode.save, labelProviders);
-				searchDialog.open();
-				if (searchDialog.getReturnCode() == Window.OK) {
-					IMappingExperimentBean mappingBean = getMappingBean();
-					mappingBean.setDisplayName(searchDialog.getNewName());
-					mappingBean.setId(searchDialog.getItemId());
-					smController.saveScanAs(mappingBean.getId());
-				}
-			} else {
-				smController.saveScan(chooseMapFileName(SWT.SAVE));
-			}
-		}));
+		final MultiFunctionButton saveScanButton = new MultiFunctionButton();
+
+		// Saves parameters to a .map file
+		saveScanButton.addFunction(
+						"Save a scan to a .map file",
+						"Save a scan to a .map file",
+						new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/save.png")),
+						this::saveCurrentMappingBean);
+
+		// Saves parameters to the persistence service,
+		// this function only appears if GDA is configured to use the
+		// persistence service
+		if (LocalProperties.isPersistenceServiceAvailable()) {
+			saveScanButton.addFunction(
+					"Save a scan to the database",
+					"Save a scan to the GDA persistence database",
+					new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/database--plus.png")),
+					() -> saveCurrentMappingBeanToPersistenceService(labelProviders));
+		}
+
+		saveScanButton.draw(mscanComposite);
 	}
 
 	private void updateMappingBean(final ScanRequest request) {
@@ -233,10 +207,58 @@ public class SubmitScanSection extends AbstractMappingSection {
 		refreshMappingView();
 	}
 
+	private void loadNewMappingBeanFromPersistenceService(
+			final List<AbstractSearchResultLabelProvider> labelProviders) {
+		PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+		SearchResult searchResult;
+		try {
+			searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
+		} catch (PersistenceException e1) {
+			log.error("Unable to find existing Mapping Beans", e1);
+			return;
+		}
+		SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
+				"Load Scan Definition", true, false, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
+				SearchResultViewDialogMode.load, labelProviders);
+
+		searchDialog.open();
+		if (searchDialog.getReturnCode() == Window.OK) {
+			smController
+				.loadScanMappingBean(searchDialog.getItemId())
+				.ifPresent(this::loadNewMappingBean);
+		}
+	}
+
 	private void loadNewMappingBean(final IMappingExperimentBean bean) {
 		// Replaces the mapping bean and refreshes the UI
 		getMappingView().setMappingBean(bean);
 		refreshMappingView();
+	}
+
+	private void saveCurrentMappingBeanToPersistenceService(
+			final List<AbstractSearchResultLabelProvider> labelProviders) {
+		PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
+		SearchResult searchResult;
+		try {
+			searchResult = persistenceService.get(PersistableMappingExperimentBean.class);
+		} catch (PersistenceException e1) {
+			log.error("Unable to find existing Mapping Beans", e1);
+			return;
+		}
+		SearchResultViewDialog searchDialog = new SearchResultViewDialog(getShell(), searchResult,
+				"Save Scan Definition", true, true, PersistableMappingExperimentBean.SCAN_NAME_TITLE,
+				SearchResultViewDialogMode.save, labelProviders);
+		searchDialog.open();
+		if (searchDialog.getReturnCode() == Window.OK) {
+			IMappingExperimentBean mappingBean = getMappingBean();
+			mappingBean.setDisplayName(searchDialog.getNewName());
+			mappingBean.setId(searchDialog.getItemId());
+			smController.saveScanAs(mappingBean.getId());
+		}
+	}
+
+	private void saveCurrentMappingBean() {
+		smController.saveScan(chooseMapFileName(SWT.SAVE));
 	}
 
 	private void refreshMappingView() {
