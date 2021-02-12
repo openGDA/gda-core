@@ -114,6 +114,9 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	private FluorescenceDetectorMcaProvider mcaProvider;
 
+	/** Whether deadtime correction values are to be calculated (set by call to {@link #showDeadtimeCorrectionValues()} */
+	private boolean showDtcParameters;
+
 	// Magic string
 	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
 
@@ -228,6 +231,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		fluorescenceDetectorComposite.setMaxNumberOfRois(theDetector.getMaxNumberOfRois());
 		fluorescenceDetectorComposite.setOutputOptions( detectorParameters );
 		fluorescenceDetectorComposite.setReadoutModeOptions( detectorParameters );
+		showDtcParameters = showDeadtimeCorrectionValues();
+		fluorescenceDetectorComposite.setDeadtimeParametersVisible(showDtcParameters);
 
 		// Add listeners
 		try {
@@ -583,7 +588,41 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 			fluorescenceDetectorComposite.setSelectedElementCounts(currentElementCounts);
 			fluorescenceDetectorComposite.setSelectedRegionCounts(regionCounts);
+
+			displayDtcParameters(currentElement, regionCounts);
 		}
+	}
+
+	private void displayDtcParameters(int currentElement, double regionCounts) {
+		if (!showDtcParameters) {
+			return;
+		}
+		try {
+			double[] dtcFactors = theDetector.getDeadtimeCorrectionFactors();
+			if (dtcFactors.length>currentElement) {
+				double dtcFactor = dtcFactors[currentElement];
+				double inputEstimate = regionCounts * dtcFactor;
+				fluorescenceDetectorComposite.setDtcValue(dtcFactor);
+				fluorescenceDetectorComposite.setInputEstimateCounts(inputEstimate);
+			}
+		} catch (DeviceException e) {
+			logAndAppendStatus("Problem getting deadtime correction values from "+theDetector.getName());
+			logger.error("Problem getting deadtime correction values from {}", theDetector.getName(), e);
+		}
+
+	}
+
+	/**
+	 *
+	 * @return True if deadtime correction values are available for the detector
+	 */
+	private boolean showDeadtimeCorrectionValues() {
+		try {
+			return theDetector.getDeadtimeCorrectionFactors().length > 0;
+		} catch (DeviceException e) {
+			logger.warn("Problem getting deadtime correction values from {}. Assuming these values are not available for display in the gui", theDetector.getName());
+		}
+		return false;
 	}
 
 	/**

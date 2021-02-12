@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.richbeans.api.widget.IFieldWidget;
@@ -26,8 +29,11 @@ import org.eclipse.richbeans.widgets.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+
+import uk.ac.gda.common.rcp.util.GridUtils;
 
 public class FluoDetectorCountsComposite extends Composite {
 
@@ -36,6 +42,9 @@ public class FluoDetectorCountsComposite extends Composite {
 	private LabelWrapper enabledElementsCounts;
 	private LabelWrapper selectedElementCounts;
 	private LabelWrapper selectedRegionCounts;
+	private LabelWrapper deadtimeCorrectionFactor;
+	private LabelWrapper inputEstimate;
+	private List<Control> dtcWidgets;
 
 	public FluoDetectorCountsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -56,16 +65,30 @@ public class FluoDetectorCountsComposite extends Composite {
 		horizontalGrabGridData.applyTo(enabledElementsCounts);
 
 		Label selectedElementCountsLabel = new Label(countsGroup, SWT.NONE);
-		selectedElementCountsLabel.setText("Selected element: ");
+		selectedElementCountsLabel.setText("Total counts: ");
 
 		selectedElementCounts = createNewLabelWrapper(countsGroup);
 		horizontalGrabGridData.applyTo(selectedElementCounts);
 
 		Label selectedRegionCountsLabel = new Label(countsGroup, SWT.NONE);
-		selectedRegionCountsLabel.setText("Selected region: ");
+		selectedRegionCountsLabel.setText("In-window counts: ");
 
 		selectedRegionCounts = createNewLabelWrapper(countsGroup);
 		horizontalGrabGridData.applyTo(selectedRegionCounts);
+
+		// Deadtime correction factor widgets
+		final Label dtcFactorLabel = new Label(countsGroup, SWT.NONE);
+		dtcFactorLabel.setText("Deadtime correction factor: ");
+		deadtimeCorrectionFactor = createNewLabelWrapper(countsGroup);
+		horizontalGrabGridData.applyTo(deadtimeCorrectionFactor);
+
+		final Label inputEstimateLabel = new Label(countsGroup, SWT.NONE);
+		inputEstimateLabel.setText("Corrected in-window counts: ");
+		inputEstimate = createNewLabelWrapper(countsGroup);
+		horizontalGrabGridData.applyTo(inputEstimate);
+
+		// Store the widgets so they can be made visible/hidden by call to setDeadtimeParametersVisible()
+		dtcWidgets = Arrays.asList(dtcFactorLabel, deadtimeCorrectionFactor, inputEstimateLabel, inputEstimate);
 	}
 
 	private LabelWrapper createNewLabelWrapper(Composite parent) {
@@ -85,5 +108,25 @@ public class FluoDetectorCountsComposite extends Composite {
 
 	public IFieldWidget getSelectedRegionCounts() {
 		return selectedRegionCounts;
+	}
+
+	/**
+	 * @return In-window 'deadtime corrected' counts widget
+	 */
+	public IFieldWidget getInputEstimateCounts() {
+		return inputEstimate;
+	}
+
+	/**
+	 * @return deadtime correction (DTC) factor widget
+	 */
+	public IFieldWidget getDtcFactor() {
+		return deadtimeCorrectionFactor;
+	}
+
+	public void setDeadtimeParametersVisible(boolean isVisible) {
+		for(Control c : dtcWidgets) {
+			GridUtils.setVisibleAndLayout(c, isVisible);
+		}
 	}
 }

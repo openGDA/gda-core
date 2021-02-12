@@ -489,6 +489,34 @@ public class FluorescenceDetectorComposite extends Composite {
 		countsComposite.layout(true, true);
 	}
 
+	/**
+	 * Set the deadtime correction value for the currently selected detector element
+	 *
+	 * @param dtcValue
+	 */
+	public void setDtcValue(double dtcValue) {
+		countsComposite.getDtcFactor().setValue(NumberFormat.getNumberInstance().format(dtcValue));
+		countsComposite.layout(true, true);
+	}
+
+	/**
+	 * Set the input counts estimate (i.e. counts for selected region corrected for deadtime)
+	 *
+	 * @param inputEstimateCounts
+	 */
+	public void setInputEstimateCounts(double inputEstimateCounts) {
+		countsComposite.getInputEstimateCounts().setValue(formatDoubleValue(inputEstimateCounts));
+		countsComposite.layout(true, true);
+	}
+
+	/**
+	 * Show/hide the deadtime correction factor widgets (i.e. deadtime correction factor and input count estimate)
+	 * @param show
+	 */
+	public void setDeadtimeParametersVisible(boolean show) {
+		countsComposite.setDeadtimeParametersVisible(show);
+	}
+
 	private String formatDoubleValue(double val) {
 		return NumberFormat.getIntegerInstance().format(val);
 	}
