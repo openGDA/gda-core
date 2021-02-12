@@ -583,6 +583,11 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	}
 
 	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return xspress4Controller.getDeadtimeCorrectionFactors();
+	}
+
+	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		NexusTreeProvider tree = null;
 		try {

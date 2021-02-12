@@ -696,6 +696,15 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 		return null;
 	}
 
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		Double[] liveStats = (Double[]) calculateLiveStats();
+		double[] dtcValues = new double[getNumberOfMca()];
+		for(int i=0; i<getNumberOfMca(); i++) {
+			dtcValues[i] = liveStats[i*3 + 1];
+		}
+		return dtcValues;
+	}
+
 	public boolean isSaveRawSpectrum() {
 		return saveRawSpectrum;
 	}

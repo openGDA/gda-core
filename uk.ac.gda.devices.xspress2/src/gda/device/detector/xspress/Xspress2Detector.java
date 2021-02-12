@@ -715,6 +715,13 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 		return null;
 	}
 
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		int[] rawData = getRawScalerData();
+		long[] rawDataLong = xspress2SystemData.convertUnsignedIntToLong(rawData);
+		return xspress2SystemData.getDeadtimeCorrectionFactors(rawDataLong);
+	}
+
 	/**
 	 * @return double[] - for every element, return the total count rate,
 	 *         deadtime correction factor and in-window count rate

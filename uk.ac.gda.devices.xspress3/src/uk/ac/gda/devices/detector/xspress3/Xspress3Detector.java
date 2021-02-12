@@ -862,4 +862,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	public void setDefaultSubdirectory(String defaultSubdirectory) {
 		this.defaultSubdirectory = defaultSubdirectory;
 	}
+
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return new double[] {};
+	}
 }

@@ -53,4 +53,11 @@ public interface FluorescenceDetector extends Findable {
 	 * @param writeHdfFiles
 	 */
 	public void setWriteHDF5Files(boolean writeHdfFiles);
+
+	/**
+	 *
+	 * @return An array of 'deadtime correction' factor values (one for each element of the detector)
+	 * @throws DeviceException
+	 */
+	double[] getDeadtimeCorrectionFactors() throws DeviceException;
 }

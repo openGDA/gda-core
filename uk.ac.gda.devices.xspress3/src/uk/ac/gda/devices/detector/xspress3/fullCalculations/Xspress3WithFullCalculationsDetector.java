@@ -255,5 +255,9 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 		// do nothing
 	}
 
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return new double[] {};
+	}
 }
 

@@ -228,4 +228,9 @@ public class NexusXmapFluorescenceDetectorAdapter implements FluorescenceDetecto
 	public void setWriteHDF5Files(boolean writeHDF5Files) {
 		// do nothing
 	}
+
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return xmap.getDeadtimeCorrectionFactors();
+	}
 }

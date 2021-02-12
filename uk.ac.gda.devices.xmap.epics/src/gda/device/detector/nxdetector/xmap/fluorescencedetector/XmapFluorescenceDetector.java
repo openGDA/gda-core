@@ -250,4 +250,8 @@ public class XmapFluorescenceDetector implements FluorescenceDetector, Initializ
 		// do nothing
 	}
 
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return edxdInterface.getDeadtimeCorrectionFactors();
+	}
 }

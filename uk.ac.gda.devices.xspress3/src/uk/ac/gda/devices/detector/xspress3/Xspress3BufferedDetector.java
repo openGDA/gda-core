@@ -468,4 +468,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public void setWriteHDF5Files(boolean writeHDF5Files) {
 		xspress3Detector.setWriteHDF5Files(writeHDF5Files);
 	}
+
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return xspress3Detector.getDeadtimeCorrectionFactors();
+	}
 }

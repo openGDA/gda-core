@@ -603,4 +603,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	public String getDetectorNexusFilename() {
 		return nexusTreeWriter.getDetectorNexusFilename();
 	}
+
+	@Override
+	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
+		return xspressDetector.getDeadtimeCorrectionFactors();
+	}
 }
