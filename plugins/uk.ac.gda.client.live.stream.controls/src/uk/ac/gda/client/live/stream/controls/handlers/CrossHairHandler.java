@@ -66,7 +66,7 @@ import uk.ac.gda.client.live.stream.view.LiveStreamView;
 /**
  * A handler to create a cross hair on top of the image in the {@link LiveStreamView}.
  * <p>
- * This implementation supports add and remove cross-hair, and save cross hair position to cached file {@link LocalProperties.GDA_VAR_DIR}/crosshair.csv, 
+ * This implementation supports add and remove cross-hair, and save cross hair position to cached file {@link LocalProperties#GDA_VAR_DIR}/crosshair.csv, 
  * Users can also control the visibility and move_ability of the cross hair.
  * </p>
  */

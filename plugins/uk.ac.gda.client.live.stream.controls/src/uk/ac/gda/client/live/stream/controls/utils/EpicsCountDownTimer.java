@@ -1,3 +1,21 @@
+/*-
+ * Copyright © 2018 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.gda.client.live.stream.controls.utils;
 
 import java.util.concurrent.ExecutorService;
@@ -23,11 +41,11 @@ import gov.aps.jca.event.MonitorListener;
  * An {@link IObservable} provides count down time update to the
  * {@link IObserver}s.
  * 
- * It monitors a EPICS PV {@link #countdownTriggerPvName} to trigger start or
+ * It monitors a EPICS PV to trigger start or
  * stop the count down process with a count down time obtained from another
- * EPICS PV {@link #countdownTimePvName} and a user-specified update interval
- * {@link #updateIntervalInSeconds}. Users also need to specify update text
- * format {@link #timeFormatInSeconds}
+ * EPICS PV and a user-specified update interval
+ * Users also need to specify update text
+ * format
  * 
  * @author fy65
  *
