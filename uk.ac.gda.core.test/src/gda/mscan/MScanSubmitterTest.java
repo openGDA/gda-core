@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -1076,5 +1077,45 @@ public class MScanSubmitterTest {
 		exception.expect(UnsupportedOperationException.class);
 		exception.expectMessage("Out of sequence call");
 		builder.buildAndSubmitBlockingScanRequest(arr);
+	}
+
+	@Test
+	// Behaviour combined with {@link StepTest#testTooLargeStep} shows expected behaviour
+	public void trimIfStepTooLongForRegionOccursOnGenerator() throws Exception {
+		final AxialStepModel expectedModel = new AxialStepModel(scannable.getName(), -1, 1, 5);
+		expectedModel.setContinuous(false);
+		Object[] arr = {scannable, RegionShape.AXIAL, -1, 1, Scanpath.AXIS_STEP, 5, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(-1),
+											new NumberElementProcessor(1),
+											new ScanpathElementProcessor(Scanpath.AXIS_STEP),
+											new NumberElementProcessor(5)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		CompoundModel model = beanCaptor.getValue().getScanRequest().getCompoundModel();
+		assertThat(model.getModels().get(0), is(equalTo(expectedModel)));
+	}
+
+	@Test
+	// Behaviour combined with {@link StepTest#testImperfectSequence} shows expected behaviour
+	public void trimIfStepAwkwardFitForRegionOccursOnGenerator() throws Exception {
+		final AxialStepModel expectedModel = new AxialStepModel(scannable.getName(), -1, 1, 0.3);
+		expectedModel.setContinuous(false);
+		Object[] arr = {scannable, RegionShape.AXIAL, -1, 1, Scanpath.AXIS_STEP, 0.3, detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(-1),
+											new NumberElementProcessor(1),
+											new ScanpathElementProcessor(Scanpath.AXIS_STEP),
+											new NumberElementProcessor(0.3)),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		Mockito.verify(submitter).blockingSubmit(beanCaptor.capture());
+		CompoundModel model = beanCaptor.getValue().getScanRequest().getCompoundModel();
+		assertThat(model.getModels().get(0), is(equalTo(expectedModel)));
 	}
 }
