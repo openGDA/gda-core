@@ -11,4 +11,6 @@
       name="diamond.releng.tools.gda"/>
   <requirement
       name="documentation.gda"/>
+  <requirement
+      name="gda-documentation.plain.project"/>
 </targlets:ComponentExtension>
