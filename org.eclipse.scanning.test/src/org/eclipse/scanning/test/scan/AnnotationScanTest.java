@@ -197,6 +197,11 @@ public class AnnotationScanTest extends NexusTest {
 			return injectionContexts.get(annotationClass);
 		}
 
+		@Override
+		public void abort() throws ScanningException, InterruptedException {
+			// Mock Scannable, nothing to abort.
+		}
+
 	}
 
 	private InjectionMonitor injectionMonitor;

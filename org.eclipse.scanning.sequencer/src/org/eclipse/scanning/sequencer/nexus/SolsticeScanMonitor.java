@@ -523,4 +523,9 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 		return new SliceND(uniqueKeysDataset.getShape(), uniqueKeysDataset.getMaxShape(), rslice.getStart(), rslice.getStop(), rslice.getStep());
 	}
 
+	@Override
+	public void abort() {
+		// Not moving any hardware, and we allow whatever called this to handle the abort of the scan.
+	}
+
 }

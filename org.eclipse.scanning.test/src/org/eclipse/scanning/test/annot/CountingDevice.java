@@ -74,4 +74,9 @@ public class CountingDevice extends CountableScannable<Double> {
 		return value;
 	}
 
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Mock Scannable, nothing to abort.
+	}
+
 }
