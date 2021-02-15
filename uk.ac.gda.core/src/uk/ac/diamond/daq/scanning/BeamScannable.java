@@ -49,4 +49,9 @@ public class BeamScannable extends AbstractScannable<Double> {
 		return this.beamSize;
 	}
 
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Data scannable, nothing to abort.
+	}
+
 }

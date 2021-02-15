@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.scanning;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -246,5 +247,24 @@ public class NexusSlitsWrapper extends AbstractScannable<DeviceValueMultiPositio
 	public void setY_gap(Scannable y_gap) {
 		this.y_gap = y_gap;
 		//this.y_gap.addIObserver(this);
+	}
+
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Must catch if either Scannable threw an exception but want to request both stop.
+		StringBuilder sb = new StringBuilder();
+		Exception cachedException = null;
+		for (Scannable scan : Arrays.asList(x_gap, y_gap)) {
+			try {
+				scan.stop();
+			} catch (Exception e) {
+				// If both Scannables except it's probably the same exception
+				cachedException = e;
+				sb.append(String.format("%s threw Exception %s ", scan.getName(), e.getMessage()));
+			}
+		}
+		if (cachedException != null) {
+			throw new ScanningException("Device exception while stopping scannable(s) " + sb.toString(), cachedException);
+		}
 	}
 }

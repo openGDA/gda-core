@@ -90,4 +90,11 @@ public class NXSampleScannable implements IScannable<Object>, INexusDevice<NXsam
 	public Object setPosition(Object value, IPosition position) throws ScanningException {
 		return null;
 	}
+
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Deprecated, unused class. Method added to remove compiler errors but class likely deletion bound.
+	}
+
+
 }

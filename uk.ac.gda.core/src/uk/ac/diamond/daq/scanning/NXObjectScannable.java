@@ -84,4 +84,9 @@ public class NXObjectScannable<T extends NXobject> implements IScannable<Object>
 		logger.trace("setPosition({}, {}) ignoring for {}", value, position, this.scannableName);
 		return null;
 	}
+
+	@Override
+	public void abort() throws ScanningException, InterruptedException {
+		// Data scannable, nothing to abort.
+	}
 }
