@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -28,13 +29,17 @@ import org.eclipse.scanning.api.scan.ScanInformation;
  */
 class GeneratorUtil {
 
+	private GeneratorUtil() {
+		// Private constructor to hide implicit public one
+	}
+
 	/**
 	 * Checks the points list vs the iterator
 	 * @param gen
 	 * @param expectedShape
-	 * @throws Exception
+	 * @throws GeneratorException
 	 */
-	public static void testGeneratorPoints(IPointGenerator<?> gen, int... expectedShape) throws Exception {
+	public static void testGeneratorPoints(IPointGenerator<?> gen, int... expectedShape) throws GeneratorException {
 
 		final List<IPosition> points = gen.createPoints();
 		final List<IPosition> its   = new ArrayList<>(gen.size());
@@ -44,17 +49,19 @@ class GeneratorUtil {
 		IPosition[] pnts1 = array(points);
 		IPosition[] pnts2 = array(its);
 
-		if (pnts2.length!=pnts1.length) throw new Exception("Not the same size! Iterator size is "+its.size()+" full list size is "+points.size());
+		if (pnts2.length!=pnts1.length) {
+			throw new GeneratorException("Not the same size! Iterator size is "+its.size()+" full list size is "+points.size());
+		}
         for (int i = 0; i < pnts1.length; i++) {
 			if (!pnts1[i].equals(pnts2[i])) {
-				throw new Exception(pnts1[i]+" does not equal "+pnts2[i]);
+				throw new GeneratorException(pnts1[i]+" does not equal "+pnts2[i]);
 			}
 		}
 
 		// Check the estimator. In this case it is not doing anything
 		// that we don't already know, so we can test it.
 		final ScanInformation scanInfo = new ScanInformation(gen, Collections.emptySet(), null);
-		if (points.size()!=points.size()) throw new Exception("Different size from shape estimator!");
+		if (points.size()!=scanInfo.getSize()) throw new GeneratorException("Different size from shape estimator!");
 
 		if (expectedShape!=null && expectedShape.length>0) {// They set one
 		    int[] shape = gen.getShape();

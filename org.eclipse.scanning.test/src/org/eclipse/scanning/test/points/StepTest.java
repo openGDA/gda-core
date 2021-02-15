@@ -38,12 +38,12 @@ public class StepTest {
 	private IPointGeneratorService service;
 
 	@Before
-	public void before() throws Exception {
+	public void before() {
 		service = new PointGeneratorService();
 	}
 
 	@Test
-	public void testSizes() throws Exception {
+	public void testSizes() throws GeneratorException {
 
 		AxialStepModel model = new AxialStepModel("Temperature", 290,300,1);
 		IPointGenerator<AxialStepModel> gen = service.createGenerator(model);
@@ -117,7 +117,7 @@ public class StepTest {
 	}
 
 	@Test
-	public void testDirectionSmaller() throws Exception {
+	public void testDirectionSmaller() throws GeneratorException {
 		AxialStepModel model = new AxialStepModel("Temperature", 4, 1, -0.5);
 		IPointGenerator<?> gen = service.createGenerator(model);
 		assertEquals(7, gen.size());
@@ -133,30 +133,30 @@ public class StepTest {
 	}
 
 	@Test
-	public void testTooLargeStep() throws Exception {
+	public void testTooLargeStep() throws GeneratorException {
 
-		IPointGenerator<AxialStepModel> gen = service.createGenerator(new AxialStepModel("fred", 0, 3, 5));
+		IPointGenerator<AxialStepModel> gen = service.createGenerator(new AxialStepModel("stage_x", 0, 3, 5));
 		assertEquals(1, gen.size());
-		assertEquals(0d, gen.iterator().next().get("fred"));
-		// TODO Should this throw an exception or do this? Possible to do a size 1 step makes some tests easier to write.
+		// A single point, halfway between the limit- limits are still passed to Jython, to allow a continuous scan to pass from centre + step * (-0.5->+0.5)
+		assertEquals(1.5, gen.iterator().next().get("stage_x"));
 	}
 
 	@Test(expected = GeneratorException.class)
-	public void testMisdirectedStepGenSize() throws Exception {
+	public void testMisdirectedStepGenSize() throws GeneratorException {
 
 		IPointGenerator<AxialStepModel> gen = service.createGenerator(new AxialStepModel("Temperature", 290, 300, -1));
 		gen.size();
 	}
 
 	@Test(expected = GeneratorException.class)
-	public void testMisdirectedStepGenPoints() throws Exception {
+	public void testMisdirectedStepGenPoints() throws GeneratorException {
 
 		IPointGenerator<AxialStepModel> gen = service.createGenerator(new AxialStepModel("Temperature", 290, 300, -1));
 		gen.createPoints();
 	}
 
 	@Test
-	public void testTolerance() throws Exception {
+	public void testTolerance() throws GeneratorException {
 
 		// within the 1% of step size tolerance
 		AxialStepModel model = new AxialStepModel("Temperature", 0.0, 2.0, 0.667);
@@ -174,7 +174,7 @@ public class StepTest {
 	}
 
 	@Test
-	public void testPerfectSequence() throws Exception {
+	public void testPerfectSequence() throws GeneratorException {
 		// Test cases where start, stop, step result in an integer number of points.
 
 		AxialStepModel model = new AxialStepModel("Temperature", 290,300,1);
@@ -204,7 +204,7 @@ public class StepTest {
 	}
 
 	@Test
-	public void testImperfectSequence() throws Exception {
+	public void testImperfectSequence() throws GeneratorException {
 		// Test cases where start, stop, step result in an non-integer number of points.
 
 		AxialStepModel model = new AxialStepModel("Temperature", 290, 299.5, 1);
@@ -234,7 +234,7 @@ public class StepTest {
 	}
 
 	@Test
-	public void testSequenceExposureTime() throws Exception {
+	public void testSequenceExposureTime() throws GeneratorException {
 		AxialStepModel model = new AxialStepModel("Temperature", 290,300,1);
 		IPointGenerator<AxialStepModel> gen = service.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen, 11);
@@ -280,23 +280,14 @@ public class StepTest {
 
 	}
 
-	private void checkSequence(IPointGenerator<AxialStepModel> gen, double... positions) throws Exception {
+	private void checkSequence(IPointGenerator<AxialStepModel> gen, double... positions) {
 
 		Iterator<IPosition> it = gen.iterator();
         for (int i = 0; i < positions.length; i++) {
 			double position = positions[i];
 			IPosition pos = it.next();
-			if (!equalsWithinTolerance(new Double(position), (Number)pos.get("Temperature"), 0.00001)) {
-				throw new Exception("Position not equal! "+pos.get("Temperature"));
-			}
+			assertEquals("Position not equal", position, ((Number) pos.get("Temperature")).doubleValue(), 0.0001);
 		}
-	}
-
-	private static boolean equalsWithinTolerance(Number foo, Number bar, Number tolerance) {
-		final double a = foo.doubleValue();
-		final double b = bar.doubleValue();
-		final double t = tolerance.doubleValue();
-		return t>=Math.abs(a-b);
 	}
 
 }

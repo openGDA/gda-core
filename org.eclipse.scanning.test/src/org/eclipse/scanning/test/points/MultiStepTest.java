@@ -393,7 +393,7 @@ public class MultiStepTest {
 		// Bounds 9-21: 6 positions
 		model.addRange(10, 20, 2);
 		// Bounds 21-30: 9 positions
-		model.addRange(21.5, 30, 1);
+		model.addRange(21.5, 29.5, 1);
 		model.setAlternating(true);
 
 		for (boolean bool : new boolean[] {true, false}) {
