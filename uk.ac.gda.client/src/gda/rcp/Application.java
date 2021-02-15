@@ -20,12 +20,14 @@ package gda.rcp;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
@@ -70,7 +72,6 @@ public class Application implements IApplication {
 
 	@Override
 	public Object start(IApplicationContext context) {
-
 		Display display = PlatformUI.createDisplay();
 		try {
 			// NOTE: Please keep the methods called during startup in tidy order. New tests or configurations should be
@@ -226,9 +227,55 @@ public class Application implements IApplication {
 		}
 
 		// Set the RCP visit property
-		LocalProperties.set(LocalProperties.RCP_APP_VISIT, defaultVisit);
+		checkAndSetVisit(defaultVisit);
 	}
 
+	private void checkAndSetVisit(String newVisit) {
+		if (!GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.CONFIRM_VISIT_ON_CLIENT_START)) {
+			logger.debug("Not checking whether to change visit ({} = false)", PreferenceConstants.CONFIRM_VISIT_ON_CLIENT_START);
+			LocalProperties.set(LocalProperties.RCP_APP_VISIT, newVisit);
+			return;
+		}
+
+		String currentVisitPath = InterfaceProvider.getPathConstructor().getVisitDirectory();
+		String currentVisit = Paths.get(currentVisitPath).getFileName().toString();
+		if (currentVisit.isEmpty() || currentVisit.equals(newVisit)) {
+			logger.debug("Setting visit to {}", newVisit);
+			LocalProperties.set(LocalProperties.RCP_APP_VISIT, newVisit);
+			return;
+		}
+
+		// Check if user is member of staff
+		String user = UserAuthentication.getUsername();
+		// Set the new visit if not staff
+		if (!isMemberOfStaff()) {
+			logger.info("User {} is not staff - setting visit to {}", user, newVisit);
+			LocalProperties.set(LocalProperties.RCP_APP_VISIT, newVisit);
+			return;
+		}
+
+		// Present dialog box with option to change the visit.
+		logger.info("User {} is staff - checking whether to change current visit to {}", user, newVisit);
+		boolean replace = MessageDialog.openQuestion(null, "Change current visit",
+				"Visit is currently set to "+currentVisit+". Do you want to change it to "+newVisit);
+		String visit = replace ? newVisit : currentVisit;
+		logger.info("Changing visit to {}", visit);
+		LocalProperties.set(LocalProperties.RCP_APP_VISIT, visit);
+	}
+
+	private boolean isMemberOfStaff() {
+		boolean isStaff = false;
+		String user = UserAuthentication.getUsername();
+		try {
+			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
+				isStaff = true;
+			}
+		} catch (ClassNotFoundException e) {
+			logger.error("Problem checking if user is staff. Assuming user IS staff.", e);
+			isStaff = true;
+		}
+		return isStaff;
+	}
 	/**
 	 * only sets the private chosenVisit attribute
 	 */
@@ -251,19 +298,9 @@ public class Application implements IApplication {
 			return 1;
 		}
 
-		boolean isStaff = false;
-		try {
-			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
-				isStaff = true;
-			}
-		} catch (ClassNotFoundException e) {
-			logger.error("Problem checking if user is staff. Assuming user IS staff.", e);
-			isStaff = true;
-		}
-
 		// if no valid visit ID then do same as the cancel button
 		if (visits == null || visits.length == 0) {
-			if (!isStaff) {
+			if (!isMemberOfStaff()) {
 				logger.error("No visits found for user '{}' at this time on this beamline. GUI will not start.", user);
 				MessageBox messageBox = new MessageBox(new Shell(display), SWT.ICON_ERROR);
 				messageBox.setText("Cannot Start GDA Client");
@@ -276,7 +313,7 @@ public class Application implements IApplication {
 			logger.info("No visits found for user '{}' at this time on this beamline. Will use default visit as ID listed as a member of staff.", user);
 			setToDefaultVisit();
 		} else if (visits.length == 1) {
-			LocalProperties.set(LocalProperties.RCP_APP_VISIT,visits[0].getVisitID());
+			checkAndSetVisit(visits[0].getVisitID());
 		} else {
 			// send array of visits to dialog to pick one
 			String[][] visitInfo = new String[visits.length][];
@@ -295,7 +332,7 @@ public class Application implements IApplication {
 				logger.info("Visit not resolved from visit chooser dialog. GUI will not start.");
 				return EXIT_OK;
 			}
-			LocalProperties.set(LocalProperties.RCP_APP_VISIT,visitDialog.getChoosenID());
+			checkAndSetVisit(visitDialog.getChoosenID());
 		}
 		return 1;
 	}
