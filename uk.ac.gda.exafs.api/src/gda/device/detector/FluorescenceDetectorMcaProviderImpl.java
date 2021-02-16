@@ -21,6 +21,7 @@ package gda.device.detector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.factory.FindableBase;
 import gda.factory.Finder;
@@ -42,8 +43,11 @@ public class FluorescenceDetectorMcaProviderImpl extends FindableBase implements
 		}
 		FluorescenceDetector detector = Finder.find(detectorName);
 		if (detector != null) {
-			logger.debug("Returning MCA data from {}", detector.getName());
-			return detector.getMCAData(time);
+			if ( !((Detector)detector).isBusy()) {
+				logger.debug("Returning MCA data from {}", detector.getName());
+				return detector.getMCAData(time);
+			}
+			logger.warn("Cannot collect MCA data from {} - detector is already busy", detectorName);
 		}
 		return new double[0][0];
 	}
@@ -54,7 +58,7 @@ public class FluorescenceDetectorMcaProviderImpl extends FindableBase implements
 	}
 
 	private boolean isScriptOrScanIsRunning() {
-		return JythonServerFacade.getInstance().getScanStatus() != JythonStatus.IDLE ||
-			   JythonServerFacade.getInstance().getScriptStatus() != JythonStatus.IDLE;
+		return JythonServerFacade.getInstance().isScanRunning() ||
+			   JythonServerFacade.getInstance().getScriptStatus() == JythonStatus.RUNNING;
 	}
 }
