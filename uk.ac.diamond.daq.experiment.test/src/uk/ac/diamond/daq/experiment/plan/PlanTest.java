@@ -168,7 +168,7 @@ public class PlanTest {
 		// should also start the driver.
 
 		NoImplDriver experimentDriver = new NoImplDriver();
-		experimentDriver.setModel(new SingleAxisLinearSeries());
+		experimentDriver.setModel(new SingleAxisLinearSeries("Displacement"));
 		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
 		plan.setDriver(experimentDriver);
 		plan.addSegment(SEGMENT1_NAME, sev -> false);

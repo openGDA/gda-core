@@ -276,5 +276,6 @@ public class ListWithCustomEditor {
 
 	public void refresh() {
 		viewer.refresh();
+		updateButtons();
 	}
 }
