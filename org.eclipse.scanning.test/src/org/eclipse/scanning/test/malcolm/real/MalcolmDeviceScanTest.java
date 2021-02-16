@@ -70,12 +70,14 @@ import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.WaitingAnswer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
 /**
  * A test that uses a {@link MalcolmDevice} in a scan.
  */
+@Ignore("Flaky new-scanning test")
 public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	@Mock

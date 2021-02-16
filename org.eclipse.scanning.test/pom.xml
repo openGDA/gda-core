@@ -34,23 +34,6 @@
 					</dependency-resolution>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-surefire-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<configuration>
-					<excludes>
-						<!-- Flaky new-scanning tests, currently excluded -->
-						<exclude>PosDetectorScanTest</exclude>
-						<exclude>JmsQueueReaderTest</exclude>
-						<exclude>MultiStepCompositeTest</exclude>
-						<exclude>MalcolmDeviceTest</exclude>
-						<exclude>MalcolmDeviceEventTest</exclude>
-						<exclude>MalcolmDeviceScanTest</exclude>
-						<exclude>SubmitterTest</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 </project>

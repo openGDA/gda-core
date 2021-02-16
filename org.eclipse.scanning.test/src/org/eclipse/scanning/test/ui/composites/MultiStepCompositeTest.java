@@ -25,6 +25,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@Ignore("Flaky new-scanning test")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class MultiStepCompositeTest extends ShellTest{
 
