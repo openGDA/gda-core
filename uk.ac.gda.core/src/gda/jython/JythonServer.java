@@ -404,7 +404,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			CommandThreadInfo info = notifyStartCommandThread(runner);
 			runner.join();
 			this.notifyTerminateCommandThread(info);
-			return runner.result;
+			return runner.requiresMoreInput();
 		} catch (Exception ex) {
 			logger.info("Command terminated.", ex);
 		}
@@ -1201,14 +1201,17 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		}
 	}
 
-	/*
-	 * This allows each command sent to the Jython Interpreter in its own thread
+	/**
+	 * Runner to allow each command sent to the Jython Interpreter to be its own thread
 	 */
 	private static class RunSourceRunner extends JythonServerThread {
 		/**
-		 * Returns true if the command is a completed Jython command or false if more input is required.
+		 * False if the command is complete, true if the command is incomplete and more input is required,
+		 * If the command is invalid, an exception is raised and no result is returned.
 		 */
-		public boolean result = false;
+		// defaults to false although should never be accessed before it has be overwritten by the run
+		// method
+		private boolean moreInputRequired = false;
 		private InputStream stdin;
 
 		/**
@@ -1242,7 +1245,12 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		 */
 		@Override
 		public void run() {
-			result = interpreter.runsource(cmd, stdin);
+			// runsource returns true if the command is incomplete
+			moreInputRequired = interpreter.runsource(cmd, stdin);
+		}
+
+		public boolean requiresMoreInput() {
+			return moreInputRequired;
 		}
 	}
 
