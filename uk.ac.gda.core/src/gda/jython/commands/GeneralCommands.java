@@ -48,10 +48,12 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.GdaJythonBuiltin;
+import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.scriptcontroller.Scriptcontroller;
 
 /**
@@ -481,6 +483,22 @@ public final class GeneralCommands {
 			}
 		} catch (IOException e) {
 			JythonServerFacade.getInstance().print(e.getMessage() + " or command not found.");
+		}
+	}
+
+	@GdaJythonBuiltin("Show details of a user from a given client index")
+	public static void whois(int id) {
+		ITerminalPrinter printer = InterfaceProvider.getTerminalPrinter();
+		if (id == 0) {
+			printer.print("Server User");
+		} else {
+			for (ClientDetails cd : InterfaceProvider.getBatonStateProvider().getOtherClientInformation()) {
+				if (cd.getIndex() == id) {
+					printer.print(cd.toString());
+					return;
+				}
+			}
+			printer.print("User not recognised");
 		}
 	}
 }

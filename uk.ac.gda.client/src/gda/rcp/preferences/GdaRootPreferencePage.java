@@ -18,8 +18,6 @@
 
 package gda.rcp.preferences;
 
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -29,6 +27,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 
+import gda.rcp.GDAClientActivator;
+
 /**
  * This class is to represent global GDA/Client preferences. It provides a root node for the other GDA preference pages
  * TODO: Add actual preferences here
@@ -36,7 +36,9 @@ import org.eclipse.ui.PlatformUI;
 public class GdaRootPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	public static final String SHOW_MENU_TEXT = "SHOW_MENU_TEXT";
+	public static final String SHOW_ALL_INPUT = "SHOW_ALL_INPUT";
 	private BooleanFieldEditor showMenuTextFieldEditor;
+	private BooleanFieldEditor showAllInputFieldEditor;
 
 	/**
 	 *
@@ -53,6 +55,11 @@ public class GdaRootPreferencePage extends FieldEditorPreferencePage implements 
 				"Show text along with icons for menus in the toolbar", BooleanFieldEditor.DEFAULT,
 				getFieldEditorParent());
 		addField(showMenuTextFieldEditor);
+
+		showAllInputFieldEditor = new BooleanFieldEditor(SHOW_ALL_INPUT,
+				"Show input from all clients in the terminal", BooleanFieldEditor.DEFAULT,
+				getFieldEditorParent());
+		addField(showAllInputFieldEditor);
 	}
 
 	@Override

@@ -31,4 +31,7 @@ public interface Terminal {
 	 */
 	public void write(String output);
 
+	// Ignore input by default
+	default void writeInput(@SuppressWarnings("unused") TerminalInput input) {}
+
 }

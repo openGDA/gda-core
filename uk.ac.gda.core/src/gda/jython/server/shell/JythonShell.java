@@ -82,6 +82,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.jython.GDAJythonInterpreter;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.JythonServerFacade;
+import gda.jython.TerminalInput;
 import gda.jython.completion.AutoCompletion;
 import gda.scan.IScanDataPoint;
 import gda.util.Version;
@@ -406,6 +407,11 @@ public class JythonShell implements Closeable, gda.jython.Terminal, IScanDataPoi
 			// not reading -> we don't need to preserve the prompt line
 		}
 		rawWrite(output);
+	}
+
+	@Override
+	public void writeInput(TerminalInput input) {
+		write(input.format(PS1, PS2));
 	}
 
 	/**

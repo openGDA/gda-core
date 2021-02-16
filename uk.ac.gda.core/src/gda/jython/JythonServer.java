@@ -395,9 +395,10 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	@Override
 	public boolean runsource(String command, String jsfIdentifier, InputStream stdin) {
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
+			ClientDetails client = this.batonManager.getClientInformation(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
-			RunSourceRunner runner = new RunSourceRunner(interp, command, authorisationLevel, stdin);
+			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
+			RunSourceRunner runner = new RunSourceRunner(interp, command, client.getAuthorisationLevel(), stdin);
 			runner.setName(nameThread(command));
 			threads.add(runner);
 			runner.start();
