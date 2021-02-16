@@ -200,6 +200,11 @@ public class SpreadsheetViewTable {
 
 			// Get ParameterValue object for current selected cell :
 			ParameterValue value = getParameterValueFromIndex(selectedColumn, selectedRow);
+			if (value == null) {
+				// i.e. filename or repetitions column is selected.
+				logger.debug("No ParameterValue found for selected indices");
+				return;
+			}
 			logger.debug("Selected ParameterValue : {}", value.getFullPathToGetter());
 			Optional<Scannable> scn = getScannable(value);
 
@@ -267,8 +272,11 @@ public class SpreadsheetViewTable {
 	private ParameterValue getParameterValueFromIndex(int column, int row) {
 		ParametersForScan scanParams = parameterValuesForScanFiles.get(row);
 		Pair<Integer, Integer> paramIndices = scanParams.getParameterValueByIndex(column-1); // Data start at index=1 due to row index column...
-		ParameterValuesForBean beanParams = scanParams.getParameterValuesForScanBeans().get(paramIndices.getFirst());
-		return beanParams.getParameterValue(paramIndices.getSecond());
+		if (paramIndices != null && paramIndices.getSecond() != null) {
+			ParameterValuesForBean beanParams = scanParams.getParameterValuesForScanBeans().get(paramIndices.getFirst());
+			return beanParams.getParameterValue(paramIndices.getSecond());
+		}
+		return null;
 	}
 
 	/**
