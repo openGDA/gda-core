@@ -14,10 +14,8 @@ import org.junit.BeforeClass;
  * Composite for your tests. This class will take care of setting up the display and the shell, and disposing of them
  * appropriately.
  * <p>
- * For use in the standard ant build (where a physical display is not usually available), the ant script and testing
- * classpath need to be set up correctly to initialize a display and ensure the correct version of SWT is available.
- * See the releng.ant file in uk.ac.gda.common.rcp.test for an example.
- * 
+ * The test runner must be configured to have a virtual display avalable e.g. Xvfb
+ *
  * @author Colin Palmer
  */
 public class SWTTestBase {
