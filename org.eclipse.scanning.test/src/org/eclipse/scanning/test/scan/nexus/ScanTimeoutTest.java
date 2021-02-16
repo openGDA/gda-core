@@ -12,6 +12,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.RandomLineDevice;
 import org.eclipse.scanning.example.detector.RandomLineModel;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class ScanTimeoutTest  extends NexusTest {
 	public void before() throws ScanningException {
 		final RandomLineModel rlModel = new RandomLineModel();
 		rlModel.setTimeout(10);
-		linedetector = (RandomLineDevice)runnableDeviceService.createRunnableDevice(rlModel);
+		linedetector = (RandomLineDevice) TestDetectorHelpers.createAndConfigureRandomLineDetector(rlModel);
 		assertNotNull(linedetector);
 	}
 
@@ -98,7 +99,7 @@ public class ScanTimeoutTest  extends NexusTest {
 	private IRunnableDevice<ScanModel> createScanner(IRunnableDevice<RandomLineModel> device, int... shape) throws Exception {
 
 		ScanModel smodel = createGridScanModel(device, output, true, shape);
-		return runnableDeviceService.createRunnableDevice(smodel, null);
+		return scanService.createScanDevice(smodel);
 	}
 
 	private IRunnableDevice<ScanModel> createMultiStepScanner(IRunnableDevice<RandomLineModel> device) throws Exception {
@@ -119,7 +120,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		scanModel.setDetector(device);
 		scanModel.setFilePath(output.getCanonicalPath());
 
-		return runnableDeviceService.createRunnableDevice(scanModel, null);
+		return scanService.createScanDevice(scanModel);
 	}
 
 }

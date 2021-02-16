@@ -25,13 +25,13 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
@@ -44,7 +44,7 @@ import org.junit.Test;
 @Ignore("DAQ-2088 Fails due to: 'array lengths differed, expected.length=14 actual.length=2'")
 public class LegacyDeviceSupportScanTest {
 
-	private IRunnableDeviceService runnableDeviceService;
+	private IScanService scanService;
 	private IPointGeneratorService pointGeneratorService;
 	private INexusFileFactory fileFactory;
 
@@ -52,7 +52,7 @@ public class LegacyDeviceSupportScanTest {
 	public void before() {
 		ServiceTestHelper.setupServices();
 		fileFactory = ServiceTestHelper.getNexusFileFactory();
-		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+		scanService = ServiceTestHelper.getScanService();
 		pointGeneratorService = ServiceTestHelper.getPointGeneratorService();
 	}
 
@@ -115,7 +115,7 @@ public class LegacyDeviceSupportScanTest {
 		System.out.println("File writing to " + smodel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(smodel, null);
+		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(smodel);
 
 		final IPointGenerator<?> fgen = gen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

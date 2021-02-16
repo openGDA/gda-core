@@ -18,11 +18,10 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +53,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
@@ -484,7 +484,9 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		try {
 			configureDetectors(scanRequest.getDetectors(), scanModel);
 
-			final IPausableDevice<ScanModel> device = (IPausableDevice<ScanModel>) Services.getRunnableDeviceService().createRunnableDevice(scanModel, publisher, false);
+			final IScanService scanService = Services.getScanService();
+
+			final IPausableDevice<ScanModel> device = scanService.createScanDevice(scanModel, publisher, false);
 			final IDeviceController deviceController = Services.getWatchdogService().create(device, bean);
 			if (deviceController.getObjects() != null && !deviceController.getObjects().isEmpty()) {
 				final List<Object> scanObjects = new ArrayList<>();
@@ -519,7 +521,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		bean.setSize(generator.size());
 
 		final ScanRequest req = bean.getScanRequest();
-		scanModel.setDetectors(getDetectors(req.getDetectors()));
+		scanModel.setDetectors(getDetectors(req.getDetectors().keySet()));
 
 		// Note: no need to set the scannables as AcquisitionDevice can determine them from the point generator
 		scanModel.setMonitorsPerPoint(getScannables(req.getMonitorNamesPerPoint()));
@@ -573,27 +575,35 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		logger.debug("Configured detectors {}", detectorModels.keySet());
 	}
 
-	private List<IRunnableDevice<? extends IDetectorModel>> getDetectors(Map<String, IDetectorModel> detectors) throws EventException {
-		if (detectors == null) {
-			return Collections.emptyList();
-		}
+	private List<IRunnableDevice<? extends IDetectorModel>> getDetectors(
+			Collection<String> detectorNames) throws EventException {
 		try {
-			final List<IRunnableDevice<? extends IDetectorModel>> ret = new ArrayList<>(3);
-			final IRunnableDeviceService service = Services.getRunnableDeviceService();
-
-			for (Entry<String, IDetectorModel> detectorEntry : detectors.entrySet()) {
-				IRunnableDevice<IDetectorModel> detector = service.getRunnableDevice(detectorEntry.getKey());
-				if (detector == null) {
-					detector = service.createRunnableDevice(detectorEntry.getValue(), false);
-					detector.setName(detectorEntry.getKey()); // Not sure whether this is ok. For now name must match that in table
-				}
-				ret.add(detector);
-			}
-			return ret;
-
+			validateDetectorNames(detectorNames);
+			return detectorsFromNames(detectorNames);
 		} catch (ScanningException ne) {
 			throw new EventException(ne);
 		}
+	}
+
+	private void validateDetectorNames(Collection<String> detectorNames) throws ScanningException {
+		if (detectorNames
+				.stream()
+				.anyMatch(Objects::isNull))
+			throw new ScanningException("Cannot accept null detector names");
+	}
+
+	private List<IRunnableDevice<? extends IDetectorModel>> detectorsFromNames(
+			Collection<String> detectorNames) throws ScanningException {
+		// Get services we need
+		final List<IRunnableDevice<? extends IDetectorModel>> detectors = new ArrayList<>(3);
+		final IRunnableDeviceService service = Services.getRunnableDeviceService();
+
+		// Turn names into detectors and collect into a list. Throw a ScanningException
+		// if any issues
+		for (String name: detectorNames)
+			detectors.add(service.getRunnableDevice(name));
+
+		return detectors;
 	}
 
 	private List<IScannable<?>> getScannables(Collection<String> scannableNames) {

@@ -43,7 +43,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmConstants;
@@ -66,6 +65,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
@@ -79,7 +79,7 @@ import org.mockito.junit.MockitoRule;
 
 public abstract class AbstractMalcolmDeviceTest {
 
-	protected IRunnableDeviceService runnableDeviceService;
+	protected IScanService scanService;
 	protected IPointGeneratorService pointGenService;
 	protected IMalcolmDevice malcolmDevice;
 
@@ -104,7 +104,7 @@ public abstract class AbstractMalcolmDeviceTest {
 	@Before
 	public void setUp() throws Exception {
 		ServiceTestHelper.setupServices();
-		this.runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+		this.scanService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 
 		Services services = new Services();
@@ -112,7 +112,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		services.setFilePathService(ServiceTestHelper.getFilePathService());
 
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
-		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection, runnableDeviceService);
+		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection, scanService);
 
 		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::copy);
 		doAnswer(malcolmBeanCaptor).when(malcolmEventListener).eventPerformed(any(MalcolmEvent.class));

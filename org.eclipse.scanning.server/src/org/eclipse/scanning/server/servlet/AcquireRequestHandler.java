@@ -20,7 +20,6 @@ import org.eclipse.scanning.api.annotation.scan.AnnotationManager;
 import org.eclipse.scanning.api.annotation.scan.PostConfigure;
 import org.eclipse.scanning.api.annotation.scan.PreConfigure;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -32,6 +31,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.IFilePathService;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -83,8 +83,8 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 
 	private IRunnableDevice<?> createRunnableDevice(AcquireRequest request) throws Exception {
 		// get the services we need
-		final IRunnableDeviceService deviceService = Services.getRunnableDeviceService();
-		final IRunnableDevice<IDetectorModel> detector = deviceService.getRunnableDevice(bean.getDetectorName());
+		final IScanService scanService = Services.getScanService();
+		final IRunnableDevice<IDetectorModel> detector = scanService.getRunnableDevice(bean.getDetectorName());
 		if (detector == null) {
 			throw new ScanningException("No such detector: " + bean.getDetectorName());
 		}
@@ -92,7 +92,7 @@ public class AcquireRequestHandler implements IRequestHandler<AcquireRequest> {
 		final ScanModel scanModel = createScanModel(request, detector);
 		configureDetector(detector, request.getDetectorModel(), scanModel, scanModel.getPointGenerator());
 
-		return deviceService.createRunnableDevice(scanModel, null);
+		return scanService.createScanDevice(scanModel);
 	}
 
 	private ScanModel createScanModel(AcquireRequest request, final IRunnableDevice<IDetectorModel> detector) throws Exception {

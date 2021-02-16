@@ -27,7 +27,6 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -43,17 +42,19 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class LinearScanTest extends BrokerTest{
 
-	private IRunnableDeviceService runnableDeviceService;
+	private IScanService runnableDeviceService;
 	private IPointGeneratorService pointGenService;
 	private ILoaderService loaderService;
 
@@ -66,7 +67,7 @@ public class LinearScanTest extends BrokerTest{
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		runnableDeviceService = ServiceTestHelper.getRunnableDeviceService();
+		runnableDeviceService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 		loaderService = ServiceTestHelper.getLoaderService();
 
@@ -198,7 +199,7 @@ public class LinearScanTest extends BrokerTest{
 		detModel.setRealAxisName("xNex");
 		detModel.setImaginaryAxisName("yNex");
 
-		final IRunnableDevice<MandelbrotModel> detector = runnableDeviceService.createRunnableDevice(detModel);
+		final IRunnableDevice<MandelbrotModel> detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(detModel);
 
 		// Generate the last model using the roi then work back up creating compounds
 		final CompoundModel compoundModel = new CompoundModel();
@@ -218,9 +219,7 @@ public class LinearScanTest extends BrokerTest{
 		scanModel.setFilePath(tmp.getAbsolutePath());
 
 		// Create a scan and run it without publishing events
-		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, publisher);
-
-		return scanner;
+		return runnableDeviceService.createScanDevice(scanModel, publisher);
 	}
 
 }

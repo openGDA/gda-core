@@ -46,7 +46,6 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
@@ -62,6 +61,7 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +130,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	@Test
 	public void testDummyMalcolmNexusFiles() throws Exception {
 		DummyMalcolmModel model = createModel();
-		IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model, false);
+		IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice) malcolmDevice).setPointGenerator(getGenerator(2, 2));// Generator isn't actually used by the test malcolm device
 		((AbstractMalcolmDevice) malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
@@ -147,7 +147,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	@Test
 	public void testMalcolmNexusObjects() throws Exception {
 		DummyMalcolmModel model = createModel();
-		IMalcolmDevice malcolmDevice = (IMalcolmDevice) (IRunnableDevice<?>) runnableDeviceService.createRunnableDevice(model, false);
+		IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
 		int scanRank = 3;
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice) malcolmDevice).setPointGenerator(getGenerator(2, 2, 2));// Generator isn't actually used by the test malcolm device

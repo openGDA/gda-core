@@ -374,7 +374,7 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		final MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(createExpectedMalcolmGetConfigureReply());
 
-		return runnableDeviceService.createRunnableDevice(scanModel, publisher);
+		return scanService.createScanDevice(scanModel, publisher);
 	}
 
 }

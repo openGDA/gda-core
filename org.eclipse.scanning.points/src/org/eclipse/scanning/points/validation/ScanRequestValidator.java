@@ -14,7 +14,6 @@ package org.eclipse.scanning.points.validation;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.eclipse.scanning.api.IValidator;
@@ -23,7 +22,6 @@ import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.ui.DeviceType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -102,8 +100,8 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 
 		// check each detector supports the scan mode and that there is at most one malcolm device
 		int numMalcolmDevices = 0;
-		for (Entry<String, IDetectorModel> entry : dmodels.entrySet()) {
-			DeviceRole role = checkDetectorAndGetRole(runnableDeviceService, scanMode, entry.getKey(), entry.getValue());
+		for (String name: dmodels.keySet()) {
+			DeviceRole role = checkDetectorAndGetRole(runnableDeviceService, scanMode, name);
 			if (role == DeviceRole.MALCOLM) {
 				numMalcolmDevices++;
 			}
@@ -114,16 +112,13 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 		}
 	}
 
-	private DeviceRole checkDetectorAndGetRole(IRunnableDeviceService runnableDeviceService, final ScanMode scanMode,
-			String name, Object model) throws ScanningException {
+	private DeviceRole checkDetectorAndGetRole(
+			IRunnableDeviceService runnableDeviceService,
+			final ScanMode scanMode,
+			String name) throws ScanningException {
 		final DeviceInformation<?> info = runnableDeviceService.getDeviceInformation(name);
 		if (info == null) {
-			final IRunnableDevice<?> device = runnableDeviceService.createRunnableDevice(model);
-			if (device.getRole() != DeviceRole.PROCESSING) {
-				// Only processing may be created on the fly, the others must have names.
-				throw new ValidationException("Detector '"+name+"' cannot be found!");
-			}
-			return DeviceRole.PROCESSING;
+			throw new ScanningException("No info found for device name " + name);
 		} else {
 			// devices that can run either as a standard hardware detector or as a hardware
 			// triggered detector will be switched to the appropriate role according to the scan type

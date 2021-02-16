@@ -48,9 +48,9 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.WaitingScannable;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
-import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.messaging.FileUtils;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -159,8 +159,8 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	public void testTopupWithOuterScanTest() throws Exception {
 		IMalcolmModel model = createDummyMalcolmModel();
 
-		final IMalcolmDevice malcolmDevice =
-				(IMalcolmDevice) ServiceTestHelper.getRunnableDeviceService().createRunnableDevice(model, false);
+		final IMalcolmDevice malcolmDevice = (IMalcolmDevice) TestDetectorHelpers
+				.createDummyMalcolmDetector();
 		final List<String> axisNames = Arrays.asList("stage_x", "stage_y", "outer");
 		IDeviceController controller = createTestScanner(null, null, malcolmDevice, model, 3, axisNames, null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();

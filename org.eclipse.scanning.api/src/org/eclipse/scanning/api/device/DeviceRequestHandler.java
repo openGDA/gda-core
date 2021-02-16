@@ -13,7 +13,6 @@ package org.eclipse.scanning.api.device;
 
 import java.util.Collection;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.ITerminatable;
 import org.eclipse.scanning.api.ModelValidationException;
@@ -192,17 +191,6 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 			}
 
 			addDeviceInformation(device, request);
-		} else if (request.getDeviceModel()!=null) { // Modelled device created
-
-			String name = request.getDeviceModel() instanceof INameable
-                        ? ((INameable)request.getDeviceModel()).getName()
-                        : null;
-			IRunnableDevice<Object> device = name != null ? dservice.getRunnableDevice(name) : null;
-			if (device == null) {
-				device = dservice.createRunnableDevice(request.getDeviceModel(), request.isConfigure());
-			}
-			addDeviceInformation(device, request);
-
 		} else {  // Device list needed.
 
 			Collection<DeviceInformation<?>> info;

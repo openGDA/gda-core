@@ -40,6 +40,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,7 +53,7 @@ public class TemplateScanTest extends NexusTest {
 	@Before
 	public void before() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
-		detector = runnableDeviceService.createRunnableDevice(model);
+		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
 
@@ -91,7 +92,7 @@ public class TemplateScanTest extends NexusTest {
 	private IRunnableDevice<ScanModel> createAndRunTemplateScan(String templateFile) throws Exception {
 		final ScanModel scanModel = createGridScanModel(detector, output, false, 8, 5);
 		scanModel.setTemplateFilePaths(new HashSet<>(Arrays.asList(templateFile)));
-		final IRunnableDevice<ScanModel> scanner = runnableDeviceService.createRunnableDevice(scanModel, null);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 		scanner.run();
 		return scanner;
 	}

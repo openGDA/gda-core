@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
-import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -25,6 +24,7 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -36,13 +36,13 @@ import org.junit.Test;
 
 public class RunnableDeviceServiceConfigureTest {
 
-	private IRunnableDeviceService dservice;
+	private IScanService sservice;
 	private IPointGeneratorService gservice;
 
 	@Before
 	public void setup() throws Exception {
 		gservice  = new PointGeneratorService();
-		dservice  = new RunnableDeviceServiceImpl(new MockScannableConnector());
+		sservice  = new RunnableDeviceServiceImpl(new MockScannableConnector());
 		registerFive();
 	}
 
@@ -65,7 +65,7 @@ public class RunnableDeviceServiceConfigureTest {
 			info.setIcon("org.eclipse.scanning.example/icons/alarm-clock-select.png");
 			det.setDeviceInformation(info);
 
-			dservice.register(det);
+			sservice.register(det);
 
 		}
 	}
@@ -96,7 +96,7 @@ public class RunnableDeviceServiceConfigureTest {
 
 		final List<IRunnableDevice<? extends IDetectorModel>> detectors = new ArrayList<>(names.length);
 		for (String name : names) {
-			detectors.add(dservice.getRunnableDevice(name));
+			detectors.add(sservice.getRunnableDevice(name));
 		}
 
 		// If none passed, create scan points for a grid.
@@ -114,7 +114,7 @@ public class RunnableDeviceServiceConfigureTest {
 		scanModel.setDetectors(detectors);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = dservice.createRunnableDevice(scanModel);
+		IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(scanModel);
 		return scanner;
 	}
 

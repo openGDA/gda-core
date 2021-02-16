@@ -80,7 +80,7 @@ public abstract class AbstractValidationTest {
 		mandelbrotModel.setPoints(1000);
 		mandelbrotModel.setMaxRealCoordinate(1.5);
 		mandelbrotModel.setMaxImaginaryCoordinate(1.2);
-		mandelbrotModel.setName("mandlebrot");
+		mandelbrotModel.setName("mandelbrot");
 		mandelbrotModel.setExposureTime(0.1);
 		mandelbrotModel.setRealAxisName("stage_x");
 		mandelbrotModel.setImaginaryAxisName("stage_y");

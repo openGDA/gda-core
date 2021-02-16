@@ -73,7 +73,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		File file = File.createTempFile("test_nexus", ".nxs");
 		file.deleteOnExit();
 		IPointGenerator<AxialStepModel> gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 3, 1));
-		final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen, file));
+		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, file));
 		scan.run(null);
 
 	}
@@ -92,7 +92,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 	public void testBareNexusStepScanSpeedNoNexus() throws Exception {
 
 		// We create a step scan
-		final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen));
+		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen));
 		runAndCheck("No NeXus scan", scan, 5, 1, 100L);
 	}
 
@@ -105,7 +105,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		try {
 			xNex.setWritingOn(false);
 			// We create a step scan
-			final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen, output));
+			final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output));
 			runAndCheck("Scan no 'setSlice'", scan, 10, 3072, 2000L);
 		} finally {
 			xNex.setWritingOn(true);
@@ -116,7 +116,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 	public void testBareNexusStepScanSpeed() throws Exception {
 
 		// We create a step scan
-		final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen, output));
+		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output));
 		runAndCheck("Normal NeXus Scan", scan, 10, 3072, 2000L);
 	}
 
@@ -125,7 +125,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 		// We create a step scan
 		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
-		final IRunnableDevice<ScanModel> scan = runnableDeviceService.createRunnableDevice(new ScanModel(gen, output), publisher);
+		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output), publisher);
 		runAndCheck("NeXus with Publish", scan, 10, 3072, 2000L);
 	}
 

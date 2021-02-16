@@ -49,6 +49,7 @@ import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.PosDetectorModel;
+import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +61,7 @@ public class PosDetectorScanTest extends NexusTest {
 	@Before
 	public void before() throws Exception {
 		PosDetectorModel model = new PosDetectorModel(3);
-		detector = (IWritableDetector<PosDetectorModel>) runnableDeviceService.createRunnableDevice(model);
+		detector = TestDetectorHelpers.createAndConfigurePosDetector(model);
 		assertNotNull(detector);
 	}
 
