@@ -26,14 +26,22 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.eclipse.scanning.api.annotation.scan.FileDeclared;
+import org.eclipse.scanning.api.annotation.scan.PointStart;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
+import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +64,14 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 	private String detFileNameSuffix = "-DIFFRACTION.h5";
 	private String detFrameEntry = "/entry/data";
 	private String detUidEntry = "/entry/uid";
+
+	private HklAdapter hklProvider;
+
+	private LazyWriteableDataset hDataset;
+
+	private LazyWriteableDataset kDataset;
+
+	private LazyWriteableDataset lDataset;
 
 	@FileDeclared
 	public void startSwmrReader() {
@@ -89,7 +105,48 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 		processors.forEach(p -> p.initialise(info, mDetWrapper));
 		swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, processors, detFrameEntry, detUidEntry);
 
+		if (hklProvider != null) {
+			prepareHkl(info, malcNxs);
+		}
+
 		return malcNxs;
+	}
+
+	private void prepareHkl(NexusScanInfo info, List<NexusObjectProvider<?>> main) {
+		NXpositioner hklDet = NexusNodeFactory.createNXpositioner();
+		NexusObjectWrapper<NXpositioner> hklWrapper = new NexusObjectWrapper<>("hkl", hklDet);
+		createHklDatasets(info, hklWrapper);
+		main.add(hklWrapper);
+	}
+
+
+	private void createHklDatasets(NexusScanInfo info, NexusObjectWrapper<NXpositioner> wrapper) {
+		int[] ones = new int[info.getShape().length];
+		Arrays.fill(ones, 1);
+		hDataset = new LazyWriteableDataset("h", Double.class, ones, info.getShape(), null, null);
+		kDataset = new LazyWriteableDataset("k", Double.class, ones, info.getShape(), null, null);
+		lDataset = new LazyWriteableDataset("l", Double.class, ones, info.getShape(), null, null);
+		hDataset.setChunking(info.getShape());
+		kDataset.setChunking(info.getShape());
+		lDataset.setChunking(info.getShape());
+		hDataset.setFillValue(null);
+		kDataset.setFillValue(null);
+		lDataset.setFillValue(null);
+		wrapper.getNexusObject().createDataNode("h", hDataset);
+		wrapper.getNexusObject().createDataNode("k", kDataset);
+		wrapper.getNexusObject().createDataNode("l", lDataset);
+		wrapper.addAxisDataFieldNames("h", "k", "l");
+
+	}
+
+	@PointStart
+	public void writeHkl() {
+		if (hklProvider == null) {
+			return;
+		}
+		List<IPosition> positions = StreamSupport.stream(pointGenerator.spliterator(), false).collect(Collectors.toList());
+		Set<String> axesInScan = pointGenerator.getDimensionNames().stream().flatMap(Set::stream).collect(Collectors.toSet());
+		hklProvider.populateHkl(hDataset, kDataset, lDataset, positions, axesInScan);
 	}
 
 	@ScanEnd
@@ -131,6 +188,14 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	public void setDetUidEntry(String detUidEntry) {
 		this.detUidEntry = detUidEntry;
+	}
+
+	public HklAdapter getHklProvider() {
+		return hklProvider;
+	}
+
+	public void setHklProvider(HklAdapter hklProvider) {
+		this.hklProvider = hklProvider;
 	}
 
 }
