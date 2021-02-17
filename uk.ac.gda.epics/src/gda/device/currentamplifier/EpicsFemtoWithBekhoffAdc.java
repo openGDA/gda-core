@@ -59,8 +59,11 @@ import gov.aps.jca.event.MonitorListener;
  * The Femto <img src="Femto_EDM.png"> <br>
  * The Bekhoff ADC <img src="Bekhoff_ADC_EDM.png">
  *
+ * @deprecated This class is refactored and replaced by 2 separate classes {@link EpicsBekhoffAdc} and {@link EpicsFemtoAmplifier} in order to support other
+ *             type of Current Amplifier, for example, {@link EpicsStanfordAmplifer}.
  * @author James Mudd
  */
+@Deprecated(since = "9.20.0pre")
 public class EpicsFemtoWithBekhoffAdc extends DetectorBase implements NexusDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsFemtoWithBekhoffAdc.class);
