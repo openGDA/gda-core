@@ -29,10 +29,10 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.event.RunEvent;
-import org.eclipse.scanning.example.scannable.WaitingScannable;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
+import org.eclipse.scanning.test.util.WaitingScannable;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -100,7 +100,6 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	@Test
 	public void expressionDeactivated() throws Exception {
-
 		try {
 			// Deactivate!=disabled because deactivate removes it from the service.
 			dog.deactivate(); // Are a testing a pausing monitor here
@@ -129,9 +128,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		scanner.start(null);
-		waitForYAxisToMove();
-		assertInState(scanner, DeviceState.RUNNING);
+		startAndVerifyScan(scanner);
 
 		killBeam();
 		assertInState(scanner, DeviceState.PAUSED);
@@ -148,9 +145,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		scanner.start(null);
-		waitForYAxisToMove();
-		assertInState(scanner, DeviceState.RUNNING);
+		startAndVerifyScan(scanner);
 
 		closeShutter();
 		assertInState(scanner, DeviceState.PAUSED);
@@ -193,9 +188,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>) controller.getDevice();
 
-		scanner.start(null);
-		waitForYAxisToMove();
-		assertInState(scanner, DeviceState.RUNNING);
+		startAndVerifyScan(scanner);
 
 		controller.pause("test", null);  // Pausing externally should override any watchdog resume.
 
@@ -221,9 +214,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		scanner.start(null);
-		waitForYAxisToMove();
-		assertInState(scanner, DeviceState.RUNNING);
+		startAndVerifyScan(scanner);
 
 		controller.pause("test", null);  // Pausing externally should override any watchdog resume.
 
@@ -245,9 +236,13 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		verifyInterrupted(scanner);
 	}
 
-	private void waitForYAxisToMove() throws InterruptedException {
+	private void startAndVerifyScan(IRunnableEventDevice<?> scanner) throws InterruptedException, ScanningException, TimeoutException, ExecutionException {
+		yAxis.enableBlocking();
+		scanner.start(null);
 		yAxis.waitForSetPosition();
+		assertInState(scanner, DeviceState.RUNNING);
 		yAxis.resume();
+		yAxis.disableBlocking();
 	}
 
 	private void openShutter() throws ScanningException {
