@@ -18,6 +18,8 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -227,10 +229,13 @@ public class XasProgressUpdater extends ScannableBase implements IScanDataPointO
 	}
 
 	private XasLoggingMessage getLogMessage(String message, String elapsedTime, double percentComplete) {
+		Path visitDir = Paths.get(InterfaceProvider.getPathConstructor().getVisitDirectory());
+
+		String folder = fileName.replace(visitDir.getParent().toString()+"/", "");
 		XasLoggingMessage msg = new XasLoggingMessage(visitID, id, scriptName, message,
 				thisScanrepetition, getTotalRepetitions(), sampleEnvironmentRepetition,
 				sampleEnvironmentRepetitions, percentComplete + "%", elapsedTime, getElapsedTotalTime(),
-				predictedTotalTime, fileName, sampleName, scanNumber);
+				predictedTotalTime, folder, sampleName, scanNumber);
 
 		msg.setCompletedScanFileNames(completedScanFileNames);
 		return msg;
