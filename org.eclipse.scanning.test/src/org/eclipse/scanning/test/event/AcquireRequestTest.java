@@ -13,9 +13,9 @@ package org.eclipse.scanning.test.event;
 
 import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_REQUEST_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.ACQUIRE_RESPONSE_TOPIC;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;

@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

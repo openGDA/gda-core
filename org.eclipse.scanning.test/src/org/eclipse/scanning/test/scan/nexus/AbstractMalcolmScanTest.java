@@ -13,11 +13,11 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.scanning.example.malcolm.DummyMalcolmDevice.FILE_EXTENSION_HDF5;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertDataNodesEqual;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
