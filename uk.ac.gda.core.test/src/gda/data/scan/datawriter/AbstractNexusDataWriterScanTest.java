@@ -90,6 +90,8 @@ import gda.TestHelpers;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.NexusTreeProvider;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Detector;
@@ -97,6 +99,8 @@ import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.NexusDetector;
 import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyScannable;
@@ -109,7 +113,7 @@ import gda.scan.IScanDataPoint;
 public abstract class AbstractNexusDataWriterScanTest {
 
 	public enum DetectorType {
-		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC, FILE_CREATOR
+		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC, FILE_CREATOR, NEXUS_DETECTOR
 	}
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
@@ -208,6 +212,39 @@ public abstract class AbstractNexusDataWriterScanTest {
 		@Override
 		public int[] getDataDimensions() throws DeviceException {
 			return IMAGE_SIZE;
+		}
+
+	}
+
+	protected static class DummyNexusDetector extends DummyDetector implements NexusDetector {
+
+		// note 'value' causes a name conflict with the monitor's 'value' field when creating the NXdata group with NexusDataWriter
+		public static final String FIELD_NAME_VALUE = "value_";
+		public static final String FIELD_NAME_SPECTRUM = "spectrum";
+
+		private static final int SPECTRUM_SIZE = 8;
+		private static final int[] IMAGE_SIZE = new int[] { 8, 8 };
+
+		@Override
+		public NexusTreeProvider readout() throws DeviceException {
+			return (NexusTreeProvider) super.readout();
+		}
+
+		@Override
+		protected Object acquireData() {
+			final NXDetectorData data = new NXDetectorData(this);
+
+			final NexusGroupData valueData = new NexusGroupData(Math.random() * Double.MAX_VALUE);
+			data.addData(getName(), FIELD_NAME_VALUE, valueData);
+
+			final NexusGroupData spectrumData = new NexusGroupData(Random.rand(SPECTRUM_SIZE));
+			data.addData(getName(), FIELD_NAME_SPECTRUM, spectrumData);
+
+			final NexusGroupData imageData = new NexusGroupData(Random.rand(IMAGE_SIZE));
+			data.addData(getName(), NXdetector.NX_DATA, imageData);
+
+			// TODO: add at least one attribute, other nodes (see NexusDataWriter.writeHere and cover at least some cases
+			return data;
 		}
 
 	}
@@ -447,6 +484,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 		concurrentScan(detector, DetectorType.FILE_CREATOR, "FileCreatorDetector");
 	}
 
+	@Test
+	public void concurrentScanNexusDetector() throws Exception {
+		detector = new DummyNexusDetector();
+		detector.setName("nexusDetector");
+		concurrentScan(detector, DetectorType.NEXUS_DETECTOR, "NexusDetector");
+	}
+
 	protected void concurrentScan(Detector detector, DetectorType detectorType, String testSuffix) throws Exception {
 		this.detector = detector;
 		this.detectorType = detectorType;
@@ -640,6 +684,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 			case FILE_CREATOR:
 				checkFileCreatorDetector(detectorGroup);
 				break;
+			case NEXUS_DETECTOR:
+				checkNexusDetector(detectorGroup);
+				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type: " + detectorType);
 		}
@@ -710,6 +757,18 @@ public abstract class AbstractNexusDataWriterScanTest {
 			int[] pos = posIter.getPos();
 			assertThat(dataset.getString(pos), is(equalTo("file" + (expectedFileNum++) + ".tif")));
 		}
+	}
+
+	private void checkNexusDetector(NXdetector detGroup) throws Exception {
+		assertThat(detGroup.getGroupNodeNames(), is(empty()));
+		assertThat(detGroup.getDataNodeNames(), contains(NXdetector.NX_DATA, NXdetector.NX_LOCAL_NAME,
+				DummyNexusDetector.FIELD_NAME_SPECTRUM, DummyNexusDetector.FIELD_NAME_VALUE));
+
+		assertThat(detGroup.getLocal_nameScalar(), is(equalTo(detector.getName())));
+		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_SPECTRUM).getDataset(),
+				new int[] { DummyNexusDetector.SPECTRUM_SIZE });
+		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
+		checkDatasetWritten(detGroup.getDataNode(NXdetector.NX_DATA).getDataset(), DummyNexusDetector.IMAGE_SIZE);
 	}
 
 	private void checkMonitor(NXinstrument instrument) throws Exception {

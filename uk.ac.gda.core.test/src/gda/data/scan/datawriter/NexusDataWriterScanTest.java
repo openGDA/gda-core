@@ -18,7 +18,7 @@
 
 package gda.data.scan.datawriter;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toMap;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
@@ -31,11 +31,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -55,6 +57,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.device.Scannable;
 
 @RunWith(value=Parameterized.class)
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
@@ -272,46 +275,52 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final NXdata data = dataGroups.get(expectedDataGroupName);
 		assertThat(data, is(notNullValue()));
 
-		final String[] scannableAndMonitorNames = getScannableAndMonitorNames();
-		final Set<String> expectedDataNodeNames = Arrays.stream(scannableAndMonitorNames).map(
-				name -> name.equals(MONITOR_NAME) ? NXpositioner.NX_VALUE : name).collect(toSet());
+		// create map of expected linked data nodes and add those for the scannables and
+		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
+		expectedDataNodeLinks.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(
+				toMap(Function.identity(), scannableName -> String.format("instrument/%s/%s", scannableName, scannableName))));
+		if (monitor != null) {
+			expectedDataNodeLinks.put(NXpositioner.NX_VALUE, String.format("instrument/%s/%s", MONITOR_NAME, NXpositioner.NX_VALUE));
+		}
+
+		final String detectorPath = detector != null ? "instrument/" + detector.getName() + "/" : null;
+		// add expected
 		switch (detectorType) {
 			case NONE: break;
 			case NEXUS_DEVICE: break;
 			case COUNTER_TIMER:
 				// a data node is added for each extra name of the detector
-				final String[] extraNames = detector.getExtraNames();
-				expectedDataNodeNames.addAll(Arrays.asList(extraNames));
-				for (String name : extraNames) {
-					assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(
-							entry.getInstrument().getDetector(detector.getName()).getDataNode(name)))));
-				}
+				expectedDataNodeLinks.putAll(Arrays.stream(detector.getExtraNames()).collect(
+						toMap(Function.identity(), name -> detectorPath + name)));
 				break;
 			case GENERIC:
 				// a single data node is added
-				expectedDataNodeNames.add(NXdata.NX_DATA);
-				assertThat(data.getDataNode(NXdata.NX_DATA), is(both(notNullValue()).and(sameInstance(
-						entry.getInstrument().getDetector(detector.getName()).getDataNode(NXdetector.NX_DATA)))));
+				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
 				break;
 			case FILE_CREATOR:
 				// nothing to do in this case, no data node is added to the NXdata group for the detector
+				break;
+			case NEXUS_DETECTOR:
+				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
+				expectedDataNodeLinks.put(DummyNexusDetector.FIELD_NAME_SPECTRUM, detectorPath + DummyNexusDetector.FIELD_NAME_SPECTRUM);
+				expectedDataNodeLinks.put(DummyNexusDetector.FIELD_NAME_VALUE, detectorPath + DummyNexusDetector.FIELD_NAME_VALUE);
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type " + detectorType);
 		}
 
-		assertThat(data.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
+		// assert that all the expected linked data nodes are present
+		assertThat(data.getDataNodeNames(), containsInAnyOrder(
+				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
+		expectedDataNodeLinks.forEach((name, targetPath) ->
+			assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(getDataNode(entry, targetPath))))));
+	}
 
-		for (int i = 0; i < scannableAndMonitorNames.length; i++) {
-			final String scannableName = scannableAndMonitorNames[i];
-			if (i < scanRank) {
-				assertThat(data.getDataNode(scannableName), is(both(notNullValue()).and(sameInstance(
-						entry.getInstrument().getPositioner(scannableName).getDataNode(scannableName)))));
-			} else {
-				assertThat(data.getDataNode(NXpositioner.NX_VALUE), is(both(notNullValue()).and(sameInstance(
-						entry.getInstrument().getPositioner(MONITOR_NAME).getDataNode(NXpositioner.NX_VALUE)))));
-			}
-		}
+	protected DataNode getDataNode(NXentry entry, String nodePath) {
+		final NodeLink nodeLink = entry.findNodeLink(nodePath);
+		assertThat(nodeLink, is(notNullValue()));
+		assertThat(nodeLink.isDestinationData(), is(true));
+		return (DataNode) nodeLink.getDestination();
 	}
 
 	@Override
