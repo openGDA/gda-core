@@ -135,9 +135,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 		nexusWrapper.setPrimaryDataFieldName(getPrimaryDataFieldName());
 	}
 
-	protected String getPrimaryDataFieldName() {
-		return null;
-	}
+	protected abstract String getPrimaryDataFieldName();
 
 	protected static Object getFillValue(Class<?> clazz) {
 		if (clazz.equals(Double.class)) {

@@ -73,10 +73,10 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.PositionIterator;
+import org.eclipse.january.dataset.Random;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -111,6 +111,63 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
+
+	/**
+	 * A generic detector that extends DummyDetector to return an fixed-length double array.
+	 * Used by {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector()}
+	 */
+	protected static class DummyGenericDetector extends DummyDetector {
+
+		private static final int ARRAY_LENGTH = 6;
+		private static final int[] DATA_DIMENSIONS = new int[] { ARRAY_LENGTH };
+
+		@Override
+		protected Object acquireData() {
+			return random.doubles(ARRAY_LENGTH, 0, getMaxDataValue()).toArray();
+		}
+
+		@Override
+		public int[] getDataDimensions() throws DeviceException {
+			return DATA_DIMENSIONS;
+		}
+
+		@Override
+		public String getDescription() throws DeviceException {
+			return "An example generic detector";
+		}
+
+		@Override
+		public String getDetectorID() throws DeviceException {
+			return "gen1";
+		}
+
+		@Override
+		public String getDetectorType() throws DeviceException {
+			return "generic";
+		}
+
+	}
+
+	/**
+	 * A simple detector that extends DummyDetector to return an image as a two-dimensional DoubleDataset.
+	 * Used by {@link NexusScanDataWriterScanTest#concurrentScanRegisteredNexusDevice()}
+	 */
+	protected static class DummyImageDetector extends DummyDetector {
+
+		private static final int[] IMAGE_SIZE = new int[] { 8, 8 }; // small image size for tests
+
+		@Override
+		protected Object acquireData() {
+			// override DummyDetector to return an image (a 2d DoubleDataset)
+			return Random.rand(IMAGE_SIZE);
+		}
+
+		@Override
+		public int[] getDataDimensions() throws DeviceException {
+			return IMAGE_SIZE;
+		}
+
+	}
 
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
 	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
@@ -334,13 +391,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	@Test
-	@Ignore
 	public void concurrentScanGenericDetector() throws Exception {
-		final DummyDetector det = new DummyDetector();
-		det.setName("det1");
-		det.setRandomSeed(34l);
-
-		concurrentScan(det, DetectorType.GENERIC_DETECTOR, "GenericDetector");
+		detector = new DummyGenericDetector();
+		detector.setName("Generic Detector");
+		concurrentScan(detector, DetectorType.GENERIC_DETECTOR, "GenericDetector");
 	}
 
 	protected void concurrentScan(Detector detector, DetectorType detectorType, String testSuffix) throws Exception {
@@ -530,6 +584,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 			case COUNTER_TIMER:
 				checkCounterTimerDetector(detectorGroup);
 				break;
+			case GENERIC_DETECTOR:
+				checkGenericDetector(detectorGroup);
+				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type: " + detectorType);
 		}
@@ -543,7 +600,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final int[] shape = dataset.getShape();
 		assertThat(shape.length, is(scanRank + 2));
 		assertThat(Arrays.copyOfRange(shape, 0, scanRank), is(equalTo(scanDimensions)));
-		checkDatasetWritten(dataset);
+		checkDatasetWritten(dataset, DummyImageDetector.IMAGE_SIZE);
 	}
 
 	private void checkCounterTimerDetector(NXdetector detGroup) throws DatasetException {
@@ -557,8 +614,19 @@ public abstract class AbstractNexusDataWriterScanTest {
 		for (String name : detector.getExtraNames()) {
 			final DataNode dataNode = detGroup.getDataNode(name);
 			assertThat(dataNode, is(notNullValue()));
-			checkDatasetWritten(dataNode.getDataset());
+			checkDatasetWritten(dataNode.getDataset(), EMPTY_SHAPE);
 		}
+	}
+
+	private void checkGenericDetector(NXdetector detGroup) throws DatasetException {
+		assertThat(detGroup.getNumberOfDataNodes(), is(4));
+		assertThat(detGroup.getDescriptionScalar(), is(equalTo("An example generic detector")));
+		assertThat(detGroup.getTypeScalar(), is(equalTo("generic")));
+		assertThat(detGroup.getDataNode("id").getString(), is(equalTo("gen1")));
+
+		final DataNode dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
+		assertThat(dataNode, is(notNullValue()));
+		checkDatasetWritten(dataNode.getDataset(), DummyGenericDetector.DATA_DIMENSIONS);
 	}
 
 	private void checkMonitor(NXinstrument instrument) throws Exception {
@@ -620,13 +688,17 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(dateTime, is(greaterThan(LocalDateTime.now().minus(5, ChronoUnit.MINUTES))));
 	}
 
-	protected void checkDatasetWritten(ILazyDataset dataset) throws DatasetException {
-		checkDatasetWritten(dataset.getSlice());
+	protected void checkDatasetWritten(ILazyDataset dataset, int[] dataShape) throws DatasetException {
+		checkDatasetWritten(dataset.getSlice(), dataShape);
 	}
 
-	protected void checkDatasetWritten(IDataset dataset) {
+	protected void checkDatasetWritten(IDataset dataset, int[] dataShape) {
 		// Make sure none of the numbers are NaNs. The detector
 		// is expected to fill this scan with non-nulls.
+		final int[] expectedShape = Streams.concat(Arrays.stream(scanDimensions),
+				Arrays.stream(dataShape)).toArray();
+		assertThat(dataset.getShape(), is(equalTo(expectedShape)));
+
 		final PositionIterator posIter = new PositionIterator(dataset.getShape());
 		while (posIter.hasNext()) {
 			int[] pos = posIter.getPos();

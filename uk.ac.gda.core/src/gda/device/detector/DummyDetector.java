@@ -48,7 +48,7 @@ public class DummyDetector extends DetectorBase {
 
 	private double maxDataValue = 10.0;
 	private int status;
-	private final Random random = new Random();
+	protected final Random random = new Random();
 	private transient Future<?> future;
 
 	/**

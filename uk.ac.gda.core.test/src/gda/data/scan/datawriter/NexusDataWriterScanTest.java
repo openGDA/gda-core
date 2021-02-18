@@ -33,6 +33,7 @@ import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NXinstrument;
@@ -282,12 +283,19 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 			case NONE: break;
 			case NEXUS_DEVICE: break;
 			case COUNTER_TIMER:
+				// a data node is added for each extra name of the detector
 				final String[] extraNames = detector.getExtraNames();
 				expectedNumDataNodes += extraNames.length;
 				for (String name : extraNames) {
 					assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(
 							entry.getInstrument().getDetector(detector.getName()).getDataNode(name)))));
 				}
+				break;
+			case GENERIC_DETECTOR:
+				// a single data node is added
+				expectedNumDataNodes++;
+				assertThat(data.getDataNode(NXdata.NX_DATA), is(both(notNullValue()).and(sameInstance(
+						entry.getInstrument().getDetector(detector.getName()).getDataNode(NXdetector.NX_DATA)))));
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type " + detectorType);
