@@ -21,6 +21,7 @@ package uk.ac.gda.client.live.stream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -182,18 +183,21 @@ public class LiveStreamConnection implements IConnection, ILiveStreamConnection 
 		if (calibratedAxesProvider == null)
 			return;
 		logger.debug("Setting up axes");
+		int[] initialStreamSize = stream.getDataset().getShape();
+		if (initialStreamSize != null && initialStreamSize.length >= 2) {
+			calibratedAxesProvider.resizeStream(initialStreamSize);
+		}
 		calibratedAxesProvider.connect();
 		this.axesUpdater = new AxesUpdater(calibratedAxesProvider);
 		stream.addDataListener(axesUpdater);
 
-		xAxisDataset = calibratedAxesProvider.getXAxisDataset();
-		yAxisDataset = calibratedAxesProvider.getYAxisDataset();
+		xAxisDataset = Objects.requireNonNull(calibratedAxesProvider.getXAxisDataset());
+		yAxisDataset = Objects.requireNonNull(calibratedAxesProvider.getYAxisDataset());
 	}
 
 	public List<IDataset> getAxes() {
 		if (xAxisDataset == null || yAxisDataset == null) {
-			return null; // returns null rather than empty list to indicate that axes have not been configured
-							// (therefore NOSONAR please)
+			return null; // (NOSONAR) returns null rather than empty list to indicate that axes have not been configured
 		}
 
 		return Arrays.asList(xAxisDataset, yAxisDataset);
