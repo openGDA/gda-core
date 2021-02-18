@@ -34,6 +34,8 @@ import gda.device.DeviceException;
 
 public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDeviceAdapter<NXdetector> {
 
+	protected static final String FIELD_NAME_ID = "id";
+
 	private static final Logger logger = LoggerFactory.getLogger(AbstractDetectorNexusDeviceAdapter.class);
 
 	public AbstractDetectorNexusDeviceAdapter(Detector detector) {
@@ -57,9 +59,7 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 		final Detector detector = getDetector();
 		try {
-			detGroup.setDescriptionScalar(detector.getDescription());
-			detGroup.setTypeScalar(detector.getDetectorType());
-			detGroup.setDataset("id", DatasetFactory.createFromObject(detector.getDetectorID()));
+			writeMetaDataFields(detGroup, detector);
 		} catch (DeviceException e) {
 			throw new NexusException("Error reading device metadata", e);
 		}
@@ -76,6 +76,12 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 		registerAttributes(detGroup);
 
 		return detGroup;
+	}
+
+	protected void writeMetaDataFields(final NXdetector detGroup, final Detector detector) throws DeviceException {
+		detGroup.setDescriptionScalar(detector.getDescription());
+		detGroup.setTypeScalar(detector.getDetectorType());
+		detGroup.setDataset(FIELD_NAME_ID, DatasetFactory.createFromObject(detector.getDetectorID()));
 	}
 
 	protected abstract void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException;
