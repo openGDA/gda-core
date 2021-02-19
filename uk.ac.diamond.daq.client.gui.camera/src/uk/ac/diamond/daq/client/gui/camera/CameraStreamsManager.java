@@ -86,8 +86,7 @@ public class CameraStreamsManager {
 	 * @param liveStream
 	 * @return
 	 */
-	private LiveStreamConnection createStreamConnection(CameraConfiguration cameraConfig, StreamType streamType)
-			{
+	private LiveStreamConnection createStreamConnection(CameraConfiguration cameraConfig, StreamType streamType) {
 		final LiveStreamConnection liveStream = new LiveStreamConnectionBuilder(cameraConfig, streamType).build();
 		try {
 			liveStream.getStream().connect();

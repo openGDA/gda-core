@@ -31,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
 import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
+import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.calibration.PixelCalibration;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
@@ -107,6 +108,10 @@ public class BackgroundStateHelper {
 		if (cameraConfig.getCalibratedAxesProvider() == null) {
 			IDynamicShape dataset = manager.getDynamicShape(cameraConfig, streamType);
 			cameraConfig.setCalibratedAxesProvider(new PixelCalibration(dataset::getDataset));
+		} else {
+			try {
+				manager.getStreamConnection(cameraConfig, streamType).connect();
+			} catch (LiveStreamException e) {}
 		}
 		return Optional.ofNullable(manager.getLiveStreamPlottable(cameraConfig, streamType));
 	}
