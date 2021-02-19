@@ -103,5 +103,16 @@ public class TomographyCalibrationData {
 		public void setMean(double mean) {
 			this.mean = mean;
 		}
+
+		@Override
+		public String toString() {
+			return "TomographyAxisCalibration [amplitude=" + amplitude + ", frequency=" + frequency + ", phase=" + phase
+					+ ", mean=" + mean + "]";
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "TomographyCalibrationData [xCalibration=" + xCalibration + ", zCalibration=" + zCalibration + "]";
 	}
 }

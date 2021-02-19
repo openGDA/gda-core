@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import java.util.Arrays;
+
 /**
  * Class to hold the data to be passed to a scripted tomography scan
  */
@@ -49,5 +51,11 @@ public class TomographyParams {
 
 	public void setVisitId(String visitId) {
 		this.visitId = visitId;
+	}
+
+	@Override
+	public String toString() {
+		return "TomographyParams [tomographyCalibration=" + tomographyCalibration + ", processingFiles="
+				+ Arrays.toString(processingFiles) + ", visitId=" + visitId + "]";
 	}
 }
