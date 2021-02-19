@@ -55,6 +55,8 @@ import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
 
 /**
  * Holder for a series of static methods to operate Scannable objects
@@ -292,6 +294,29 @@ public final class GeneralCommands {
 	public static void add_reset_hook(Runnable hook) {
 		logger.info("Adding reset hook to JythonServer");
 		Finder.findSingleton(JythonServer.class).addResetHook(hook);
+	}
+
+	/**
+	 * Jython utility method for adding objects as observers within a Jython namespace lifetime
+	 *
+	 * <p>If a Jython object is added as an observer of a Java object on the server, the
+	 * reference lives through the interpreter being recreated
+	 * (via {@link #reset_namespace}). This often means the observer cannot be removed as
+	 * there are no references accessible from the Jython shell and
+	 * {@link IObservable#deleteIObservers()} has the risk of removing other observers that
+	 * are still required.</p>
+	 * <p>This adds the observer and also adds a reset hook so that the observer is removed when
+	 * the namespace is reset.</p>
+	 * @param observer The Jython object to add as an observer
+	 * @param observable The object to observe
+	 */
+	@GdaJythonBuiltin("Add an observer to observable.\n"
+			+ "Adds a an observer while also registering a reset hook so that"
+			+ "the observer is removed when the Jython namespace is reset."
+			+ "Prevents Jython observers accumulating after multiple resets.")
+	public static void add_jython_observer(IObserver observer, IObservable observable) {
+		observable.addIObserver(observer);
+		add_reset_hook(() -> observable.deleteIObserver(observer));
 	}
 
 	/**
