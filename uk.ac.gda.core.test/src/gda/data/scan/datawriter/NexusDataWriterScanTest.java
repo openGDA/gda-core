@@ -18,17 +18,21 @@
 
 package gda.data.scan.datawriter;
 
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -137,7 +141,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkInstrumentGroupMetadata(final NXinstrument instrument) {
 		assertThat(instrument.getDataNodeNames(), contains(NXinstrument.NX_NAME));
-		assertThat(instrument.getNumberOfDataNodes(), is(1));
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
 		// group for each device, plus metadata groups: source, monochromator, insertion_device
@@ -153,8 +156,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final String[] expectedDataNodeNames = { NXsource.NX_NAME, NXsource.NX_PROBE,
 				NXsource.NX_TYPE, NXsource.NX_CURRENT, NXsource.NX_ENERGY };
 		assertThat(source.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-		assertThat(source.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
-		assertThat(source.getNumberOfGroupNodes(), is(0));
+		assertThat(source.getGroupNodeNames(), is(empty()));
 
 		assertThat(source.getNameScalar(), is(equalTo("DLS")));
 		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
@@ -169,7 +171,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 		final String[] expectedDataNodeNames = { scannableName, NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX };
 		assertThat(scannablePos.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-		assertThat(scannablePos.getNumberOfDataNodes(), is(expectedDataNodeNames.length));
 
 		final DataNode scannableValueDataNode = scannablePos.getDataNode(scannableName);
 		final String expectedAxes = String.join(",", IntStream.range(0, scanRank).map(j->j+1).mapToObj(Integer::toString).toArray(String[]::new));
@@ -178,7 +179,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final String[] expectedDataNodeAttrNames = { ATTRIBUTE_NAME_AXIS, ATTRIBUTE_NAME_LABEL,
 				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_PRIMARY, ATTRIBUTE_NAME_TARGET };
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedDataNodeAttrNames));
-		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(expectedDataNodeAttrNames.length));
 
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo(expectedAxes)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LABEL).getFirstElement(), is(Integer.toString(i)));
@@ -199,7 +199,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	protected void checkConfiguredScannablePositioner(String scannableName, NXpositioner positioner)
 			throws Exception {
 		assertThat(positioner.getDataNodeNames(), contains(scannableName));
-		assertThat(positioner.getNumberOfDataNodes(), is(1));
 
 		final DataNode scannableValueDataNode = positioner.getDataNode(scannableName);
 		assertThat(scannableValueDataNode, is(notNullValue()));
@@ -207,7 +206,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final String[] expectedDataNodeAttrNames = { ATTRIBUTE_NAME_AXIS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_PRIMARY,
 				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_UNITS };
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedDataNodeAttrNames));
-		assertThat(scannableValueDataNode.getNumberOfAttributes(), is(expectedDataNodeAttrNames.length));
 
 		final String expectedAxes = String.join(",", IntStream.range(0, scanRank).map(j->j+1).mapToObj(Integer::toString).toArray(String[]::new));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo(expectedAxes)));
@@ -226,7 +224,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkMonitorPositioner(NXpositioner monitorPos) throws Exception {
 		assertThat(monitorPos.getDataNodeNames(), contains(NXpositioner.NX_VALUE));
-		assertThat(monitorPos.getNumberOfDataNodes(), is(1));
 
 		final DataNode monitorValueDataNode = monitorPos.getDataNode(NXpositioner.NX_VALUE);
 		assertThat(monitorValueDataNode, is(notNullValue()));
@@ -234,7 +231,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final String[] expectedDataNodeAttrNames = { ATTRIBUTE_NAME_AXIS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_PRIMARY,
 				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_LABEL };
 		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedDataNodeAttrNames));
-		assertThat(monitorValueDataNode.getNumberOfAttributes(), is(expectedDataNodeAttrNames.length));
 
 		final String expectedAxes = String.join(",", IntStream.range(0, scanRank).map(j->j+1).mapToObj(Integer::toString).toArray(String[]::new));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo(expectedAxes)));
@@ -251,13 +247,12 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkMetadataScannablePositioner(NXpositioner positioner, int index) throws Exception {
 		final String scannableName = METADATA_SCANNABLE_NAMES[index];
-		assertThat(positioner.getNumberOfDataNodes(), is(1));
+		assertThat(positioner.getDataNodeNames(), contains(scannableName));
 
 		final DataNode valueDataNode = positioner.getDataNode(scannableName);
 		assertThat(valueDataNode, is(notNullValue()));
 
-		final String[] expectedDataNodeAttrNames = { ATTRIBUTE_NAME_AXIS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS };
-		assertThat(valueDataNode.getNumberOfAttributes(), is(expectedDataNodeAttrNames.length));
+		assertThat(valueDataNode.getAttributeNames(), contains(ATTRIBUTE_NAME_AXIS, ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_UNITS));
 
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_AXIS).getFirstElement(), is(equalTo("1")));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
@@ -278,14 +273,15 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(data, is(notNullValue()));
 
 		final String[] scannableAndMonitorNames = getScannableAndMonitorNames();
-		int expectedNumDataNodes = scannableAndMonitorNames.length;
+		final Set<String> expectedDataNodeNames = Arrays.stream(scannableAndMonitorNames).map(
+				name -> name.equals(MONITOR_NAME) ? NXpositioner.NX_VALUE : name).collect(toSet());
 		switch (detectorType) {
 			case NONE: break;
 			case NEXUS_DEVICE: break;
 			case COUNTER_TIMER:
 				// a data node is added for each extra name of the detector
 				final String[] extraNames = detector.getExtraNames();
-				expectedNumDataNodes += extraNames.length;
+				expectedDataNodeNames.addAll(Arrays.asList(extraNames));
 				for (String name : extraNames) {
 					assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(
 							entry.getInstrument().getDetector(detector.getName()).getDataNode(name)))));
@@ -293,7 +289,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				break;
 			case GENERIC:
 				// a single data node is added
-				expectedNumDataNodes++;
+				expectedDataNodeNames.add(NXdata.NX_DATA);
 				assertThat(data.getDataNode(NXdata.NX_DATA), is(both(notNullValue()).and(sameInstance(
 						entry.getInstrument().getDetector(detector.getName()).getDataNode(NXdetector.NX_DATA)))));
 				break;
@@ -304,7 +300,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				throw new IllegalArgumentException("Unknown detector type " + detectorType);
 		}
 
-		assertThat(data.getNumberOfDataNodes(), is(expectedNumDataNodes));
+		assertThat(data.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
+
 		for (int i = 0; i < scannableAndMonitorNames.length; i++) {
 			final String scannableName = scannableAndMonitorNames[i];
 			if (i < scanRank) {
@@ -343,8 +340,9 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final NXsource source = instrument.getSource();
 		assertThat(source, is(notNullValue()));
 
-		assertThat(source.getNumberOfDataNodes(), is(5));
-		assertThat(source.getNumberOfGroupNodes(), is(0));
+		assertThat(source.getGroupNodeNames(), is(empty()));
+		assertThat(source.getDataNodeNames(), containsInAnyOrder(NXsource.NX_NAME,
+				NXsource.NX_PROBE, NXsource.NX_TYPE, NXsource.NX_ENERGY, NXsource.NX_CURRENT));
 
 		assertThat(source.getNameScalar(), is(equalTo("DLS")));
 		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
@@ -369,7 +367,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(users.keySet(), Matchers.contains(EXPECTED_USER_GROUP_NAME));
 		final NXuser user = users.get(EXPECTED_USER_GROUP_NAME);
 		assertThat(user, is(notNullValue()));
-		assertThat(user.getNumberOfNodelinks(), is(1));
+		assertThat(user.getDataNodeNames(), contains(FIELD_NAME_USER_NAME));
 		assertThat(user.getString(FIELD_NAME_USER_NAME), is(equalTo(EXPECTED_USER_ID)));
 	}
 

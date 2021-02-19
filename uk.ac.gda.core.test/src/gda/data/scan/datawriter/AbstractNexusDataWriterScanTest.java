@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 
 import javax.measure.quantity.Length;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
@@ -657,7 +658,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private void checkCounterTimerDetector(NXdetector detGroup) throws DatasetException {
 		final String[] extraNames = detector.getExtraNames();
-		assertThat(detGroup.getNumberOfDataNodes(), is(extraNames.length + 3));
+		final String[] expectedDataNodeNames = ArrayUtils.addAll(extraNames,
+				NXdetector.NX_DESCRIPTION, NXdetector.NX_TYPE, "id");
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 
 		assertThat(detGroup.getDescriptionScalar(), is(equalTo("Dummy Counter Timer")));
 		assertThat(detGroup.getTypeScalar(), is(equalTo("DUMMY")));
@@ -671,7 +674,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	private void checkGenericDetector(NXdetector detGroup) throws DatasetException {
-		assertThat(detGroup.getNumberOfDataNodes(), is(4));
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(
+				NXdetector.NX_DATA, NXdetector.NX_DESCRIPTION, NXdetector.NX_TYPE, "id"));
 		assertThat(detGroup.getDescriptionScalar(), is(equalTo("An example generic detector")));
 		assertThat(detGroup.getTypeScalar(), is(equalTo("generic")));
 		assertThat(detGroup.getDataNode("id").getString(), is(equalTo("gen1")));
@@ -682,18 +686,18 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	private void checkFileCreatorDetector(NXdetector detGroup) throws DatasetException {
-		assertThat(detGroup.getNumberOfDataNodes(), is(2));
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DESCRIPTION, NXdetector.NX_TYPE));
 		// TODO: DAQ 3180 - NexusDataWriter writes these hard coded values instead of calling
 		// detector.getDescription() and detector.getType(), also it doesn't write ID. Why not? should the new writer change this
 		assertThat(detGroup.getDescriptionScalar(), is(equalTo("Generic GDA Detector - External Files")));
 		assertThat(detGroup.getTypeScalar(), is(equalTo("Detector")));
 //		assertThat(detGroup.getDataNode("id").getString(), is(equalTo("fileDet1")));
 
-		assertThat(detGroup.getNumberOfGroupNodes(), is(1));
+		assertThat(detGroup.getGroupNodeNames(), contains("data_file"));
 		final NXnote dataFileGroup = detGroup.getData_file();
 		assertThat(dataFileGroup, is(notNullValue()));
 
-		assertThat(dataFileGroup.getNumberOfDataNodes(), is(1));
+		assertThat(dataFileGroup.getDataNodeNames(), contains(NXnote.NX_FILE_NAME));
 		final DataNode fileNameDataNode = dataFileGroup.getDataNode(NXnote.NX_FILE_NAME);
 		assertThat(fileNameDataNode, is(notNullValue()));
 
@@ -805,8 +809,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		final NXentry scanEntry = root.getEntry("scan");
 		assertThat(scanEntry, is(notNullValue()));
-		assertThat(scanEntry.getNumberOfDataNodes(), is(4));
-		assertThat(scanEntry.getNumberOfGroupNodes(), is(0));
+		assertThat(scanEntry.getDataNodeNames(), containsInAnyOrder(
+				NXentry.NX_START_TIME, NXentry.NX_END_TIME, NXentry.NX_PROGRAM_NAME, NXentry.NX_DEFINITION));
+		assertThat(scanEntry.getGroupNodeNames(), is(empty()));
 		assertThat(scanEntry.getStart_timeScalar(), is(sameInstance(mainEntry.getStart_timeScalar())));
 		assertThat(scanEntry.getEnd_timeScalar(), is(sameInstance(mainEntry.getEnd_timeScalar())));
 		assertThat(scanEntry.getDefinitionScalar(), is(equalTo("NXscan")));
