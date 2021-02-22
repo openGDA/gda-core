@@ -37,7 +37,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -314,13 +313,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
 		expectedDataNodeLinks.forEach((name, targetPath) ->
 			assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(getDataNode(entry, targetPath))))));
-	}
-
-	protected DataNode getDataNode(NXentry entry, String nodePath) {
-		final NodeLink nodeLink = entry.findNodeLink(nodePath);
-		assertThat(nodeLink, is(notNullValue()));
-		assertThat(nodeLink.isDestinationData(), is(true));
-		return (DataNode) nodeLink.getDestination();
 	}
 
 	@Override

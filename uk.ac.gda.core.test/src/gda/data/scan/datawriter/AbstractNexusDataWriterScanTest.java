@@ -54,6 +54,7 @@ import javax.measure.quantity.Length;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
@@ -584,6 +585,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected Set<String> getExpectedMetadataScannableNames() {
 		return expectedMetadataScannableNames;
+	}
+
+	protected DataNode getDataNode(NXentry entry, String nodePath) {
+		final NodeLink nodeLink = entry.findNodeLink(nodePath);
+		assertThat(nodePath, nodeLink, is(notNullValue()));
+		assertThat(nodePath, nodeLink.isDestinationData(), is(true));
+		return (DataNode) nodeLink.getDestination();
 	}
 
 	private NexusFile openNexusFile(String filePath) throws NexusException {

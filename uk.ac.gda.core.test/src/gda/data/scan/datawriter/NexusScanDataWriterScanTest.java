@@ -20,6 +20,8 @@ package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSignal;
@@ -39,8 +41,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -59,6 +64,7 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -601,30 +607,49 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final NXdata data = dataGroups.get(dataDeviceName);
 		assertThat(data, is(notNullValue()));
 
-		// check that the value field of the monitor and scannable have been linked to
-		final int numExpectedDevices = getNumScannedDevices() - (detector != null && !detectorIsPrimaryDevice ? 1 : 0);
-		assertThat(data.getNumberOfDataNodes(), is(numExpectedDevices));
-		assertThat(data.getDataNode(signalFieldName), is(both(notNullValue()).and(sameInstance(detectorIsPrimaryDevice ?
-				entry.getInstrument().getDetector(dataDeviceName).getDataNode(getDetectorPrimaryFieldName()) :
-				entry.getInstrument().getPositioner(dataDeviceName).getDataNode(NXpositioner.NX_VALUE)))));
+		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
+		final Set<String> expectedAttributeNames = new LinkedHashSet<>();
+
+		// check that the value fields of the monitor and scannables have been linked to
+		expectedDataNodeLinks.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(
+				toMap(Function.identity(), scannableName -> String.format("instrument/%s/%s", scannableName,
+						scannableName.equals(scannables[0].getName()) ? scannableName : NXpositioner.NX_VALUE))));
+		expectedAttributeNames.addAll(Arrays.stream(scannables)
+				.map(Scannable::getName).map(name -> name + "_indices").collect(toSet()));
+
+		if (monitor != null) {
+			expectedDataNodeLinks.put(MONITOR_NAME, String.format("instrument/%s/%s", MONITOR_NAME, NXpositioner.NX_VALUE));
+			if (detectorIsPrimaryDevice) { // no _indices attribute for the monitor if its the signal field
+				expectedAttributeNames.add(MONITOR_NAME + "_indices");
+			}
+		}
+
+		// check that the signal field points to the value of the detector (or monitor if no detector)
+		expectedDataNodeLinks.put(signalFieldName, String.format("instrument/%s/%s", dataDeviceName,
+				detectorIsPrimaryDevice ? getDetectorPrimaryFieldName() : NXpositioner.NX_VALUE));
+
+		// assert that all the expected linked data nodes are present
+		assertThat(data.getDataNodeNames(), containsInAnyOrder(
+				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
+		expectedDataNodeLinks.forEach((name, targetPath) ->
+			assertThat(targetPath, data.getDataNode(name), is(both(notNullValue()).and(sameInstance(getDataNode(entry, targetPath))))));
 
 		// check that the attributes have been added according to the 2014 NXdata format
 		// attributes created for each scannable, monitor (if signal field not from monitor), signal, axes, NXclass
-		final int expectedNumAttributes = scanRank + 3 + (detector != null && detectorIsPrimaryDevice ? 1 : 0);
-		assertThat(data.getNumberOfAttributes(), is(expectedNumAttributes));
+		expectedAttributeNames.addAll(Arrays.asList(NXdata.NX_ATTRIBUTE_SIGNAL, NXdata.NX_ATTRIBUTE_AXES, NexusConstants.NXCLASS));
+
+		assertThat(data.getAttributeNames(), containsInAnyOrder(expectedAttributeNames.toArray()));
 		assertSignal(data, signalFieldName);
 		assertAxes(data, Stream.concat(Arrays.stream(scannables).map(Scannable::getName),
 				Collections.nCopies(data.getDataNode(signalFieldName).getRank() - scanRank, ".").stream())
 						.toArray(String[]::new));
 
+		// check that each field has the expected indices
 		final int[] expectedIndices = IntStream.range(0, scanRank).toArray();
-		for (int i = 0; i < scanRank; i++) {
-			final String scannableName = scannables[i].getName();
-			final DataNode expectedDataNode = entry.getInstrument().getPositioner(scannableName).getDataNode(
-					i == 0 ? scannableName : NXpositioner.NX_VALUE);
-
-			assertThat(data.getDataNode(scannableName), is(both(notNullValue()).and(sameInstance(expectedDataNode))));
-			assertIndices(data, scannableName, expectedIndices);
+		Arrays.stream(scannables).map(Scannable::getName).forEach(
+				scannableName -> assertIndices(data, scannableName, expectedIndices));
+		if (detectorIsPrimaryDevice) {
+			assertIndices(data, MONITOR_NAME, expectedIndices);
 		}
 	}
 
