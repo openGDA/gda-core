@@ -29,7 +29,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -73,11 +73,12 @@ public class LazyPVFactoryTest {
 	private PV<Boolean> binaryPV;
 	private MonitorEvent mockEvent;
 	private DBR_Int mockEventDBR;
+	private static final String MOCK_PV_NAME = "full:pv:name.ext";
 
 	@Before
 	public void setUp() throws Exception {
 		mockEpicsController = mock(EpicsController.class);
-		LazyPVFactory.setEPICS_CONTROLLER(mockEpicsController);
+		LazyPVFactory.setEpicsController(mockEpicsController);
 		mockChannel = mock(Channel.class);
 		mockIntDBR = mock(DBR_Int.class);
 		mockEnumDBR = mock(DBR_Enum.class);
@@ -89,24 +90,24 @@ public class LazyPVFactoryTest {
 
 	private void setUpIntAndIntArray() throws Exception {
 		when(mockChannel.getFieldType()).thenReturn(DBRType.INT);
-		when(mockEpicsController.createChannel("full:pv:name.ext")).thenReturn(mockChannel);
+		when(mockEpicsController.createChannel(MOCK_PV_NAME)).thenReturn(mockChannel);
 		when(mockEpicsController.getDBR(mockChannel, DBRType.INT)).thenReturn(mockIntDBR);
-		pv = LazyPVFactory.newIntegerPV("full:pv:name.ext");
-		pvArray = LazyPVFactory.newIntegerArrayPV("full:pv:name.ext");
+		pv = LazyPVFactory.newIntegerPV(MOCK_PV_NAME);
+		pvArray = LazyPVFactory.newIntegerArrayPV(MOCK_PV_NAME);
 	}
 
 	@Test
 	public void testConstruction() {
-		ReadOnlyPV<Integer> ropv = LazyPVFactory.newReadOnlyIntegerPV("full:pv:name.ext");
-		assertEquals("full:pv:name.ext", ropv.getPvName());
+		ReadOnlyPV<Integer> ropv = LazyPVFactory.newReadOnlyIntegerPV(MOCK_PV_NAME);
+		assertEquals(MOCK_PV_NAME, ropv.getPvName());
 		assertFalse(ropv instanceof PV);
 		assertFalse(pv.isValueMonitoring());
 	}
 
 	@Test
 	public void testConstructionIsLazy() {
-		pv = LazyPVFactory.newIntegerPV("full:pv:name.ext");
-		verifyZeroInteractions(mockEpicsController);
+		pv = LazyPVFactory.newIntegerPV(MOCK_PV_NAME);
+		verifyNoInteractions(mockEpicsController);
 	}
 
 	@Test
@@ -119,7 +120,7 @@ public class LazyPVFactoryTest {
 	}
 
 	@Test
-	public void testSetValueMonitoring_True() throws Exception {
+	public void testSetValueMonitoringTrue() throws Exception {
 		pv.setValueMonitoring(true);
 		pv.setValueMonitoring(true);
 		verify(mockEpicsController, times(1)).setMonitor(eq(mockChannel), eq(DBRType.INT), eq(Monitor.VALUE),
@@ -128,7 +129,7 @@ public class LazyPVFactoryTest {
 	}
 
 	@Test
-	public void testSetValueMonitoring_TrueFalse() throws Exception {
+	public void testSetValueMonitoringTrueFalse() throws Exception {
 		Monitor mockMonitor = mock(Monitor.class);
 		when(
 				mockEpicsController.setMonitor(eq(mockChannel), eq(DBRType.INT), eq(Monitor.VALUE),
@@ -174,8 +175,7 @@ public class LazyPVFactoryTest {
 		pv.setValueMonitoring(true);
 		verify(mockEpicsController, times(1)).setMonitor(eq(mockChannel), eq(DBRType.INT), eq(Monitor.VALUE),
 				monitorArgument.capture());
-		MonitorListener monitorListener = monitorArgument.getValue();
-		return monitorListener;
+		return monitorArgument.getValue();
 	}
 
 	@Test
@@ -185,7 +185,7 @@ public class LazyPVFactoryTest {
 		when(mockIntDBR.getIntValue()).thenReturn(new int[] { 1 });
 
 		final Predicate<Integer> greaterThanTen = i -> i > 10;
-		FutureTask<Integer> futureTask = new FutureTask<Integer>(new Callable<Integer>() {
+		FutureTask<Integer> futureTask = new FutureTask<>(new Callable<Integer>() {
 			@Override
 			public Integer call() throws Exception {
 				return pv.waitForValue(greaterThanTen, 0);
@@ -214,7 +214,7 @@ public class LazyPVFactoryTest {
 		when(mockEventDBR.getIntValue()).thenReturn(new int[] { 1 });
 
 		final Predicate<Integer> neverTrue = i -> false;
-		FutureTask<Integer> futureTask = new FutureTask<Integer>(new Callable<Integer>() {
+		FutureTask<Integer> futureTask = new FutureTask<>(new Callable<Integer>() {
 			@Override
 			public Integer call() throws Exception {
 				return pv.waitForValue(neverTrue, 2);
@@ -239,12 +239,12 @@ public class LazyPVFactoryTest {
 
 	@Test
 	public void testGetArray() throws Exception {
-		PV<Integer[]> pvArray = LazyPVFactory.newIntegerArrayPV("full:pv:name.ext");
+		PV<Integer[]> pvArray2 = LazyPVFactory.newIntegerArrayPV(MOCK_PV_NAME);
 		when(mockIntDBR.getIntValue()).thenReturn(new int[] { 1, 2, 3, 4, 5 });
-		assertArrayEquals(new Integer[] { 1, 2, 3, 4, 5 }, pvArray.get());
+		assertArrayEquals(new Integer[] { 1, 2, 3, 4, 5 }, pvArray2.get());
 		when(mockIntDBR.getIntValue()).thenReturn(new int[] { 5, 4, 3, 2, 1 });
-		assertArrayEquals(new Integer[] { 5, 4, 3, 2, 1 }, pvArray.get());
-		verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
+		assertArrayEquals(new Integer[] { 5, 4, 3, 2, 1 }, pvArray2.get());
+		verify(mockEpicsController, times(1)).createChannel(MOCK_PV_NAME);
 	}
 
 	@Test
@@ -252,7 +252,7 @@ public class LazyPVFactoryTest {
 		pv.putNoWait(1);
 		pv.putNoWait(2);
 		InOrder inOrder = inOrder(mockEpicsController);
-		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
+		inOrder.verify(mockEpicsController, times(1)).createChannel(MOCK_PV_NAME);
 		inOrder.verify(mockEpicsController).caput(mockChannel, 1);
 		inOrder.verify(mockEpicsController).caput(mockChannel, 2);
 	}
@@ -262,16 +262,10 @@ public class LazyPVFactoryTest {
 		pvArray.putNoWait(new Integer[] { 1, 2, 3, 4, 5 });
 		pvArray.putNoWait(new Integer[] { 5, 4, 3, 2, 1 });
 		InOrder inOrder = inOrder(mockEpicsController);
-		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
+		inOrder.verify(mockEpicsController, times(1)).createChannel(MOCK_PV_NAME);
 		inOrder.verify(mockEpicsController).caput(mockChannel, new int[] { 1, 2, 3, 4, 5 });
 		inOrder.verify(mockEpicsController).caput(mockChannel, new int[] { 5, 4, 3, 2, 1 });
 	}
-
-	// pv.setValueMonitoring(true);
-	// verify(mockEpicsController, times(1)).setMonitor(eq(mockChannel), eq(DBRType.INT), eq(Monitor.VALUE),
-	// monitorArgument.capture());
-	// MonitorListener monitorListener = monitorArgument.getValue();
-	// return monitorListener;
 
 	@Test
 	public void testStartPutCallback() throws Exception {
@@ -290,7 +284,7 @@ public class LazyPVFactoryTest {
 		PutEvent mockPutEvent = mock(PutEvent.class);
 		when(mockPutEvent.getStatus()).thenReturn(CAStatus.NORMAL);
 
-		FutureTask<Void> futureTask = new FutureTask<Void>(new Callable<Void>() {
+		FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				pv.putAsyncWait();
@@ -315,7 +309,7 @@ public class LazyPVFactoryTest {
 		PutEvent mockPutEvent = mock(PutEvent.class);
 		when(mockPutEvent.getStatus()).thenReturn(CAStatus.NORMAL);
 
-		FutureTask<Void> futureTask = new FutureTask<Void>(new Callable<Void>() {
+		FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				pv.putWait(1, 5);
@@ -345,7 +339,7 @@ public class LazyPVFactoryTest {
 		PutEvent mockPutEvent = mock(PutEvent.class);
 		when(mockPutEvent.getStatus()).thenReturn(CAStatus.NORMAL);
 
-		FutureTask<PVValues> futureTask = new FutureTask<PVValues>(new Callable<PVValues>() {
+		FutureTask<PVValues> futureTask = new FutureTask<>(new Callable<PVValues>() {
 			@Override
 			public PVValues call() throws Exception {
 				return pv.putWait(1, mockIntPV);
@@ -376,9 +370,9 @@ public class LazyPVFactoryTest {
 
 	private void setUpEnum() throws Exception {
 		when(mockChannel.getFieldType()).thenReturn(DBRType.ENUM);
-		when(mockEpicsController.createChannel("full:pv:name.ext")).thenReturn(mockChannel);
+		when(mockEpicsController.createChannel(MOCK_PV_NAME)).thenReturn(mockChannel);
 		when(mockEpicsController.getDBR(mockChannel, DBRType.ENUM)).thenReturn(mockEnumDBR);
-		enumPV = LazyPVFactory.newEnumPV("full:pv:name.ext", TestEnum.class);
+		enumPV = LazyPVFactory.newEnumPV(MOCK_PV_NAME, TestEnum.class);
 	}
 
 	@Test
@@ -387,7 +381,7 @@ public class LazyPVFactoryTest {
 		enumPV.putNoWait(TestEnum.ZERO);
 		enumPV.putNoWait(TestEnum.TWO);
 		InOrder inOrder = inOrder(mockEpicsController);
-		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
+		inOrder.verify(mockEpicsController, times(1)).createChannel(MOCK_PV_NAME);
 		inOrder.verify(mockEpicsController).caput(mockChannel, 0);
 		inOrder.verify(mockEpicsController).caput(mockChannel, 2);
 	}
@@ -404,9 +398,9 @@ public class LazyPVFactoryTest {
 
 	private void setUpBinaryFromInteger() throws Exception {
 		when(mockChannel.getFieldType()).thenReturn(DBRType.INT);
-		when(mockEpicsController.createChannel("full:pv:name.ext")).thenReturn(mockChannel);
+		when(mockEpicsController.createChannel(MOCK_PV_NAME)).thenReturn(mockChannel);
 		when(mockEpicsController.getDBR(mockChannel, DBRType.ENUM)).thenReturn(mockIntDBR);
-		binaryPV = LazyPVFactory.newBooleanFromIntegerPV("full:pv:name.ext");
+		binaryPV = LazyPVFactory.newBooleanFromIntegerPV(MOCK_PV_NAME);
 	}
 
 	@Test
@@ -415,7 +409,7 @@ public class LazyPVFactoryTest {
 		binaryPV.putNoWait(true);
 		binaryPV.putNoWait(false);
 		InOrder inOrder = inOrder(mockEpicsController);
-		inOrder.verify(mockEpicsController, times(1)).createChannel("full:pv:name.ext");
+		inOrder.verify(mockEpicsController, times(1)).createChannel(MOCK_PV_NAME);
 		inOrder.verify(mockEpicsController).caput(mockChannel, 1);
 		inOrder.verify(mockEpicsController).caput(mockChannel, 0);
 	}
