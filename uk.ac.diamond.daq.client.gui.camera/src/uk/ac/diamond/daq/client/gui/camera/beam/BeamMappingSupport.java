@@ -3,6 +3,8 @@ package uk.ac.diamond.daq.client.gui.camera.beam;
 import static uk.ac.gda.ui.tool.ClientMessages.AXES;
 import static uk.ac.gda.ui.tool.ClientMessages.BEAM_MOTORS;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -24,6 +26,7 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.spring.MotorUtils;
@@ -124,9 +127,16 @@ public final class BeamMappingSupport {
 		// Creates the context menu for the calibrated axes
 		MenuAction alternativeAxes = new MenuAction(ClientMessagesUtility.getMessage(AXES));
 		// Creates the action to display the motor calibrated axes
+		List<String> drivers = Optional.ofNullable(iConfiguration.getBeamCameraMap())
+				.map(CameraToBeamMap::getDriver)
+				.orElseGet(ArrayList::new);
+		if (iConfiguration.getBeamCameraMap() != null && drivers.size() < 2) {
+			logger.warn("A beam map is defined but has no drivers associated");
+			return;
+		}
 		if (topLeft.isPresent() && bottomRight.isPresent()) {
 			alternativeAxes.add(new AxesAction(BEAM_MOTORS, () -> plottingSystem, topLeft.get(), bottomRight.get(),
-					iConfiguration.getBeamCameraMap().getDriver().get(0), iConfiguration.getBeamCameraMap().getDriver().get(1)));
+					drivers.get(0), drivers.get(1)));
 			plottingSystem.getPlotActionSystem().addPopupAction(alternativeAxes);
 		}
 	}

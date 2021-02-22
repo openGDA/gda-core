@@ -28,11 +28,11 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 
 /**
@@ -45,11 +45,11 @@ import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
  */
 public class ExperimentScanningAcquisitionController implements AcquisitionController<ScanningAcquisition> {
 
-	private final AcquisitionsPropertiesHelper.AcquisitionPropertyType acquisitionType;
+	private final AcquisitionPropertyType acquisitionType;
 
 	private AcquisitionController<ScanningAcquisition> acquisitionController;
 
-	public ExperimentScanningAcquisitionController(AcquisitionsPropertiesHelper.AcquisitionPropertyType acquisitionType) {
+	public ExperimentScanningAcquisitionController(AcquisitionPropertyType acquisitionType) {
 		this.acquisitionType = acquisitionType;
 	}
 

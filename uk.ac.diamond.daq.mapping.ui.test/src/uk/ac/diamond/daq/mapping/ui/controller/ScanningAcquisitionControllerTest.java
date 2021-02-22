@@ -40,7 +40,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
-import uk.ac.diamond.daq.mapping.ui.properties.AcquisitionsPropertiesHelper;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -70,7 +70,7 @@ public class ScanningAcquisitionControllerTest {
 	@Before
 	public void before() {
 		controller = Optional.ofNullable(SpringApplicationContextFacade.getBean("scanningAcquisitionController",
-													AcquisitionsPropertiesHelper.AcquisitionPropertyType.TOMOGRAPHY))
+													AcquisitionPropertyType.TOMOGRAPHY))
 				.map(ScanningAcquisitionController.class::cast)
 				.orElseGet(() -> null);
 	}

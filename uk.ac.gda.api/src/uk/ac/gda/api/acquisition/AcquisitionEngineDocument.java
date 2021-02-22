@@ -55,9 +55,12 @@ public class AcquisitionEngineDocument {
 		SERVICE
 	}
 
-	private final AcquisitionEngineType type;
+	private AcquisitionEngineType type;
 
-	private final String id;
+	private String id;
+
+	public AcquisitionEngineDocument() {
+	}
 
 	private AcquisitionEngineDocument(String id, AcquisitionEngineType type) {
 		this.type = type;
@@ -89,6 +92,14 @@ public class AcquisitionEngineDocument {
 	 */
 	public String getId() {
 		return id;
+	}
+
+	public void setType(AcquisitionEngineType type) {
+		this.type = type;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	@JsonPOJOBuilder

@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.mapping.ui.properties;
+package uk.ac.gda.client.properties.acquisition;
 
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getProperty;
 import static uk.ac.gda.client.properties.ClientPropertiesHelper.getPropertyAsInt;

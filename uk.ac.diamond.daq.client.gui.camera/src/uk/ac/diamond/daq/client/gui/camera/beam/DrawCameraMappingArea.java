@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -153,6 +155,14 @@ public class DrawCameraMappingArea {
 	private void estimateBoundaries(int[] cameraSize, CameraToBeamMap beamCameraMap) throws GDAClientException {
 		if (cameraSize == null || cameraSize.length != 2) {
 			throw new GDAClientException("Cannot retrieve the camera frame size");
+		}
+
+		List<String> drivers = Optional.ofNullable(beamCameraMap)
+				.map(CameraToBeamMap::getDriver)
+				.orElseGet(ArrayList::new);
+		if (beamCameraMap != null && drivers.size() < 2) {
+			logger.warn("A beam map is defined but has no drivers associated");
+			return;
 		}
 
 		IScannableMotor driverX = FinderHelper.getIScannableMotor(beamCameraMap.getDriver().get(0))
