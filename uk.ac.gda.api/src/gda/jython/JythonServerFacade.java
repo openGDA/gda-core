@@ -87,8 +87,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	private static JythonServerFacade theInstance = null;
 
-	private final Set<INamedScanDataPointObserver> namedSDPObservers = new CopyOnWriteArraySet<>();
-	private final Set<IScanDataPointObserver> allSDPObservers = new CopyOnWriteArraySet<>();
+	private final Set<IScanDataPointObserver> scanDataPointObservers = new CopyOnWriteArraySet<>();
 	private final Set<ICommandThreadObserver> commandThreadObservers = new CopyOnWriteArraySet<>();
 	private final Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
 
@@ -428,7 +427,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 				IScanDataPoint point = (IScanDataPoint) data;
 				lastScanDataPoint = point;
-				for (IScanDataPointObserver observer : allSDPObservers) {
+				for (IScanDataPointObserver observer : scanDataPointObservers) {
 					try {
 						observer.update(this, point);
 					} catch (Throwable e) {
@@ -511,12 +510,9 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		myIObservers.addIObserver(anIObserver);
 
 		// objects wishing to see SDPs
-		if (anIObserver instanceof INamedScanDataPointObserver) {
-			namedSDPObservers.add((INamedScanDataPointObserver) anIObserver);
-			logger.debug("Added {} as named SDP observer. Now have {} observers", anIObserver, namedSDPObservers.size());
-		} else if (anIObserver instanceof IScanDataPointObserver) {
-			allSDPObservers.add((IScanDataPointObserver) anIObserver);
-			logger.debug("Added {} as SDP observer. Now have {} observers", anIObserver, allSDPObservers.size());
+		if (anIObserver instanceof IScanDataPointObserver) {
+			scanDataPointObservers.add((IScanDataPointObserver) anIObserver);
+			logger.debug("Added {} as SDP observer. Now have {} observers", anIObserver, scanDataPointObservers.size());
 		}
 
 	}
@@ -525,13 +521,9 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public void deleteIObserver(IObserver anIObserver) {
 		myIObservers.deleteIObserver(anIObserver);
 
-		// Check if INamedScanDataPointObserver first as its a subclass of IScanDataPointObserver
-		if (anIObserver instanceof INamedScanDataPointObserver) {
-			namedSDPObservers.remove(anIObserver);
-			logger.debug("Removed {} as named SDP observer. Now have {} observers", anIObserver, namedSDPObservers.size());
-		} else if (anIObserver instanceof IScanDataPointObserver) {
-			allSDPObservers.remove(anIObserver);
-			logger.debug("Removed {} as SDP observer. Now have {} observers", anIObserver, allSDPObservers.size());
+		if (anIObserver instanceof IScanDataPointObserver) {
+			scanDataPointObservers.remove(anIObserver);
+			logger.debug("Removed {} as SDP observer. Now have {} observers", anIObserver, scanDataPointObservers.size());
 		}
 	}
 
@@ -540,12 +532,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		myIObservers.deleteIObservers();
 		final int numTerminals = myTerminals.size();
 		myTerminals.clear();
-		final int numNamedSDPObservers = namedSDPObservers.size();
-		namedSDPObservers.clear();
-		final int numSDPObservers = allSDPObservers.size();
-		allSDPObservers.clear();
-		logger.debug("Deleting all IObservers, Removed {} terminals, {} named SDP observers and {} SDP observers",
-				numTerminals, numNamedSDPObservers, numSDPObservers);
+		final int numSDPObservers = scanDataPointObservers.size();
+		scanDataPointObservers.clear();
+		logger.debug("Deleting all IObservers, Removed {} terminals and {} SDP observers",
+				numTerminals, numSDPObservers);
 	}
 
 	@Override
