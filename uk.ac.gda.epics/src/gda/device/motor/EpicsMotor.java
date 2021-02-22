@@ -80,33 +80,35 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMotor.class);
 
+	private static MoveEventQueue moveEventQueue = new MoveEventQueue();
+
 	private static final short SET_USE_PV_USE_VALUE = 0;
 	private static final short SET_USE_PV_SET_VALUE = 1;
 
-	private boolean assertHomedBeforeMoving = false;
-
-	/**
-	 * Cached motor properties
-	 */
-	private volatile double currentPosition = Double.NaN;
-
-	private volatile double currentSpeed = Double.NaN;
-
-	private final Object _motorStatusMonitor = new Object();
-
-	private volatile MotorStatus _motorStatus = MotorStatus.UNKNOWN;
-
-	private volatile Boolean homed = null;
-
-	private volatile double targetPosition = Double.NaN;
-
-	private volatile double retryDeadband;
-
-	private boolean callbackWait = false;
-
-	private boolean DMOVRefreshEnabled = true;
-	// we always get a DMOV after a caput_callback so we do not need to act on it
-	// private boolean ignoreNextDMOV = false;
+	/** field bit positions in MSTA - leave all for legibility, cross-reference */
+	@SuppressWarnings("unused")
+	private static final short MSTA_DIRECTION_POSITIVE = 0;
+	private static final short MSTA_DONE = 1;
+	private static final short MSTA_UPPER_LIMIT = 2;
+	@SuppressWarnings("unused")
+	private static final short MSTA_HOME_LIMIT = 3;
+	@SuppressWarnings("unused")
+	private static final short MSTA_UNUSED = 4;
+	@SuppressWarnings("unused")
+	private static final short MSTA_CLOSED_LOOP = 5;
+	private static final short MSTA_FOLLOWING_ERROR = 6;
+	private static final short MSTA_AT_HOME = 7;
+	@SuppressWarnings("unused")
+	private static final short MSTA_ENCODER_PRESENT = 8;
+	private static final short MSTA_FAULT = 9;
+	@SuppressWarnings("unused")
+	private static final short MSTA_MOVING = 10;
+	@SuppressWarnings("unused")
+	private static final short MSTA_GAIN_SUPPORT = 11;
+	private static final short MSTA_COMMS_ERROR = 12;
+	private static final short MSTA_LOWER_LIMIT = 13;
+	@SuppressWarnings("unused")
+	private static final short MSTA_HOMED = 14;
 
 	/**
 	 * EPICS channels to connect
@@ -205,19 +207,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	protected PutListener putCallbackListener;
 
-	private Status status = Status.NO_ALARM;
-	private Severity severity = Severity.NO_ALARM;
-	private TimeStamp timestamp = null;
-
 	protected String pvName;
-
-	private boolean alarmRaised = false;
-
-	private MotorStatus mstaStatus = MotorStatus.READY;
-
-	private SetUseState setUseMode = SetUseState.UNKNOWN;
-	private final ReadWriteLock setUseLock = new ReentrantReadWriteLock();
-
 
 	/**
 	 * EPICS controller
@@ -228,6 +218,47 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 * EPICS Channel Manager
 	 */
 	protected EpicsChannelManager channelManager;
+
+	private final Object _motorStatusMonitor = new Object();
+	private final ReadWriteLock setUseLock = new ReentrantReadWriteLock();
+
+	private double dialHighLimit = Double.NaN;
+	private double dialLowLimit = Double.NaN;
+
+	private boolean assertHomedBeforeMoving = false;
+
+	/**
+	 * Cached motor properties
+	 */
+	private volatile double currentPosition = Double.NaN;
+
+	private volatile double currentSpeed = Double.NaN;
+
+	private volatile MotorStatus _motorStatus = MotorStatus.UNKNOWN;
+
+	private volatile Boolean homed = null;
+
+	private volatile double targetPosition = Double.NaN;
+
+	private volatile double retryDeadband;
+
+	private boolean callbackWait = false;
+
+	private boolean DMOVRefreshEnabled = true;
+	// we always get a DMOV after a caput_callback so we do not need to act on it
+	// private boolean ignoreNextDMOV = false;
+
+	private Status status = Status.NO_ALARM;
+	private Severity severity = Severity.NO_ALARM;
+	private TimeStamp timestamp = null;
+
+	private boolean alarmRaised = false;
+
+	private MotorStatus mstaStatus = MotorStatus.READY;
+
+	private SetUseState setUseMode = SetUseState.UNKNOWN;
+
+	private MotorStatus lastMotorStatus = MotorStatus.UNKNOWN;
 
 	/**
 	 * Motor access control object name (CASTOR XML)
@@ -250,17 +281,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	/** The action to take when a motor does not reach its target during a move */
 	private MissedTargetLevel missedTargetAction = MissedTargetLevel.WARN;
 
-	private static MoveEventQueue moveEventQueue = new MoveEventQueue();
-
 	/**
 	 * Normally the unitString is read from EPICS EGu field. But if this is no supported then we may have to set it.
 	 * Only setter is provided for object configuration
 	 */
 	private String unitStringOverride = null;
-
-	public void setUnitStringOverride(String unitStringOverride) {
-		this.unitStringOverride = unitStringOverride;
-	}
 
 	public EpicsMotor() {
 		controller = EpicsController.getInstance();
@@ -288,6 +313,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	public EpicsMotor(String name) {
 		this();
 		setName(name);
+	}
+
+
+	public void setUnitStringOverride(String unitStringOverride) {
+		this.unitStringOverride = unitStringOverride;
 	}
 
 	/**
@@ -542,13 +572,13 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 * checks motor Status
 	 */
 	protected MotorStatus checkStatus() throws MotorException {
-		final MotorStatus status = getStatus();
-		logger.trace("checking status {}", status);
-		if (status == MotorStatus.UNKNOWN || status == MotorStatus.FAULT) {
-			logger.error("throwing motor exception for {} or {}", MotorStatus.UNKNOWN, MotorStatus.FAULT);
-			throw new MotorException(MotorStatus.FAULT, "getStatus returned " + status.toString());
+		MotorStatus readMotorStatus = getStatus();
+		logger.trace("Checking motor status {}", readMotorStatus);
+		if (readMotorStatus == MotorStatus.UNKNOWN || readMotorStatus == MotorStatus.FAULT) {
+			logger.error("Motor exception for {} or {}", MotorStatus.UNKNOWN, MotorStatus.FAULT);
+			throw new MotorException(MotorStatus.FAULT, "getStatus returned " + readMotorStatus.toString());
 		}
-		return status;
+		return readMotorStatus;
 	}
 
 	/**
@@ -557,38 +587,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	@Override
 	public MotorStatus getStatus() throws MotorException {
 		return _motorStatus;
-	}
-
-	/**
-	 * Refreshes the motor status from EPICS server by checking (.DMOV)(motor busy/idle status), MSTA (motor hardware
-	 * status). Also checks The method checks whether the motor stopped due to a soft limit violation.
-	 */
-	public void refreshMotorStatus() {
-
-		try {
-			MotorStatus ms = MotorStatus.READY;
-			if (controller.cagetShort(dmov) == 0) {
-				ms = MotorStatus.BUSY;
-			}
-			String motorStatusFlags = controller.caget(msta);
-			if (isMotorStatusProblematic(motorStatusFlags)) {
-				int motorStatusNumerical = Integer.parseInt(motorStatusFlags);
-				String motorStatusBinary = Integer.toBinaryString(motorStatusNumerical);
-				logger.info("Hardware problem: Motor status = {} [ in binary {} ] ",motorStatusNumerical,motorStatusBinary);
-				ms = MotorStatus.FAULT;
-			}
-			// check motor status flags MSTA
-			if (controller.cagetShort(lvio) == 1) {
-				logger.error("Soft limit violation on {}", lvio.getName());
-				ms = MotorStatus.SOFT_LIMIT_VIOLATION;
-			}
-			// add to queue so that the status is cleared
-			if (!ms.equals(getStatus())) {
-				moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, ms, STATUSCHANGE_REASON.NEWSTATUS);
-			}
-		} catch (Exception ex) {
-			logger.error("Could not refresh motor status for {}", getName(), ex);
-		}
 	}
 
 	/**
@@ -673,8 +671,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			case CAPUT_MOVECOMPLETE_IN_ERROR:
 				MotorStatus motorStatusFromMSTAValue = MotorStatus.FAULT;
 				try {
-					double mstaVal = controller.cagetDouble(msta);
-					motorStatusFromMSTAValue = getMotorStatusFromMSTAValue(mstaVal);
+					Double mstaVal = controller.cagetDouble(msta);
+					motorStatusFromMSTAValue = getMotorStatusFromMSTAValue(mstaVal.intValue());
 				} catch (Exception e) {
 					logger.error("Error gettting msta val for {}", getName(), e);
 				}
@@ -834,14 +832,12 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			return;
 		}
 
-		final double lowerLimit = getMinPosition();
-		final double upperLimit = getMaxPosition();
-
+		double lowerLimit = getMinPosition();
 		if (requestedPosition < lowerLimit) {
 			throw (new MotorException(MotorStatus.LOWER_LIMIT, requestedPosition + " outside lower hardware limit of " + lowerLimit));
 		}
-
-		else if (requestedPosition > upperLimit) {
+		double upperLimit = getMaxPosition();
+		if (requestedPosition > upperLimit) {
 			throw (new MotorException(MotorStatus.UPPER_LIMIT, requestedPosition + " outside upper hardware limit of " + upperLimit));
 		}
 	}
@@ -853,10 +849,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 * @return true unless both dial limits are 0
 	 */
 	private boolean hasLimitsToCheck() throws MotorException {
-		final double dialHighLimit = getDialHighLimit();
-		final double dialLowLimit = getDialLowLimit();
+		boolean hasActiveHighLimit = 0.0 < abs(getDialHighLimit());
+		boolean hasActiveLowLimit = 0.0 < abs(getDialLowLimit());
 
-		return (!(dialHighLimit == 0 && dialLowLimit == 0));
+		return hasActiveLowLimit || hasActiveHighLimit;
 	}
 
 	/**
@@ -962,7 +958,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	@Override
 	public void panicStop() throws MotorException {
-		// noop
+		// no op
 	}
 
 	@Override
@@ -1074,58 +1070,57 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		}
 	}
 
-	// all the field bits in MSTA
-	// private long MSTA_DIRECTION_POSITIVE = 0x1;
-	private long MSTA_DONE = 0x2;
-	private long MSTA_UPPER_LIMIT = 0x4;
-	// private long MSTA_HOME_LIMIT = 0x8;
-	// private long MSTA_UNUSED = 0x10;
-	// private long MSTA_CLOSED_LOOP = 0x20;
-	private long MSTA_FOLLOWING_ERROR = 0x40;
-	// private long MSTA_AT_HOME = 0x80;
-	// private long MSTA_ENCODER_PRESENT = 0x100;
-	private long MSTA_FAULT = 0x200;
-	// private long MSTA_MOVING = 0x400;
-	// private long MSTA_GAIN_SUPPORT = 0x800;
-	private long MSTA_COMMS_ERROR = 0x1000;
-	private long MSTA_LOWER_LIMIT = 0x2000;
-	private long MSTA_HOMED = 0x4000;
 	/*
-	 * This implementation implies there is an order of importance in the returning bits.
+	 * Checks the most important bits first.
 	 */
-	private MotorStatus lastMotorStatus = MotorStatus.UNKNOWN;
+	private MotorStatus getMotorStatusFromMSTAValue(int msta) {
+		MotorStatus decodedStatus = MotorStatus.UNKNOWN;
+		String binaryStatus = Integer.toBinaryString(msta);
+		String decimalStatus = Integer.toString(msta);
+		logger.debug("Motor status: decimal {} and binary {}", decimalStatus, binaryStatus);
 
-	public double dialHighLimit = Double.NaN;
-
-	public double dialLowLimit = Double.NaN;
-
-	private MotorStatus getMotorStatusFromMSTAValue(double msta) {
-		MotorStatus status = MotorStatus.UNKNOWN;
-		long lmsta = (long) msta;
-		logger.trace("status string from motor  = {}", Long.toHexString(lmsta));
-		if ((lmsta & MSTA_FAULT) != 0 || (lmsta & MSTA_FOLLOWING_ERROR) != 0 || (lmsta & MSTA_COMMS_ERROR) != 0) {
-			status = MotorStatus.FAULT;
-			if (!lastMotorStatus.equals(status))
-				logger.error("Motor - {} is at FAULT. Please check EPICS motor status.", getName());
-		} else if ((lmsta & MSTA_UPPER_LIMIT) != 0) {
-			status = MotorStatus.UPPER_LIMIT;
-			if (!lastMotorStatus.equals(status))
-				logger.warn("Motor - {} is at UPPERLIMIT.", getName());
-		} else if ((lmsta & MSTA_LOWER_LIMIT) != 0) {
-			status = MotorStatus.LOWER_LIMIT;
-			if (!lastMotorStatus.equals(status))
-				logger.warn("Motor - {} is at LOWERLIMIT.", getName());
-		} else if ((lmsta & MSTA_DONE) != 0) {
-			status = MotorStatus.READY;
-			if (!lastMotorStatus.equals(status))
-				logger.debug("Motor - {} is READY.", getName());
+		if ( hasTrueBitAtAnyPosition(msta, MSTA_FAULT, MSTA_FOLLOWING_ERROR, MSTA_COMMS_ERROR) ) {
+			decodedStatus = MotorStatus.FAULT;
+			if (lastMotorStatus != decodedStatus) {
+				logger.error("Motor - {} has FAULT STATUS in binary {}. Please check EPICS motor status.",getName(),binaryStatus);
+				lastMotorStatus = decodedStatus;
+			}
+			return decodedStatus;
 		}
-		lastMotorStatus = status;
-		return status;
+
+		if ( hasTrueBitAtPosition(msta,MSTA_UPPER_LIMIT) ) {
+			decodedStatus = MotorStatus.UPPER_LIMIT;
+			if (lastMotorStatus != decodedStatus) {
+				logger.warn("Motor - {} is at UPPERLIMIT;status in binary {}.",getName(),binaryStatus);
+				lastMotorStatus = decodedStatus;
+			}
+			return decodedStatus;
+		}
+
+		if ( hasTrueBitAtPosition(msta,MSTA_LOWER_LIMIT) ) {
+			decodedStatus = MotorStatus.LOWER_LIMIT;
+			if (lastMotorStatus != decodedStatus) {
+				logger.warn("Motor - {} is at LOWERLIMIT; status in binary {}.",getName(),binaryStatus);
+				lastMotorStatus = decodedStatus;
+			}
+			return decodedStatus;
+		}
+		if ( hasTrueBitAtPosition(msta, MSTA_DONE) ) {
+			decodedStatus = MotorStatus.READY;
+			if (lastMotorStatus != decodedStatus) {
+				logger.debug("Motor - {} is READY.",getName());
+				lastMotorStatus = decodedStatus;
+			}
+			return decodedStatus;
+		}
+
+		lastMotorStatus = decodedStatus;
+		return decodedStatus;
 	}
 
 	public boolean isHomedFromMSTAValue(double msta) {
-		return ((long) msta & MSTA_HOMED) != 0;
+		int motorStatusAsInteger = new Double(msta).intValue();
+		return hasTrueBitAtPosition(motorStatusAsInteger, MSTA_AT_HOME);
 	}
 
 	@Override
@@ -1247,10 +1242,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	private void mstaMonitorChanged(MonitorEvent mev) {
 		try {
-			final DBR dbr = mev.getDBR();
+			DBR dbr = mev.getDBR();
 			if (dbr.isDOUBLE()) {
-				final double msta = ((DBR_Double) dbr).getDoubleValue()[0]; // TODO why doubkle !!??
-				final MotorStatus status = getMotorStatusFromMSTAValue(msta);
+				Double msta = ((DBR_Double) dbr).getDoubleValue()[0];
+				MotorStatus status = getMotorStatusFromMSTAValue(msta.intValue());
 				if ((status == MotorStatus.READY || status == MotorStatus.LOWER_LIMIT || status == MotorStatus.UPPER_LIMIT
 						|| status == MotorStatus.FAULT)) {
 					mstaStatus = status;
@@ -1501,7 +1496,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		return assertHomedBeforeMoving;
 	}
 
-	private void setMotorStatus(MotorStatus _motorStatus) {
+	private void setMotorStatus(MotorStatus motorStatus) {
 		synchronized (_motorStatusMonitor) {
 			this._motorStatus = _motorStatus;
 			this._motorStatusMonitor.notifyAll();
@@ -1529,8 +1524,20 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		missedTargetAction = level;
 	}
 
-	protected static boolean isMotorStatusProblematic(String motorStatusFlags) {
-		String statusString = Long.toBinaryString((long) (Double.parseDouble(motorStatusFlags))); // TODO understand why using long and Double for 16 bits?
-		return (statusString.charAt(0) == '1' || statusString.charAt(3) == '1' || statusString.charAt(6) == '1'); // TODO understand why traditional AND with bit MASK was not used
+	private static int maskOfBitAt(short bitPosition) {
+		if(bitPosition < 0 || bitPosition > 30) throw new IllegalArgumentException("Integer bit position limits exceeded: " + Short.toString(bitPosition));
+		return 1 << bitPosition;
+	}
+
+	private static boolean hasTrueBitAtAnyPosition(int binaryValue, short ...bitLocations) {
+		for(short location : bitLocations) {
+			if(hasTrueBitAtPosition(binaryValue, location)) return true;
+		}
+		return false;
+	}
+
+	private static boolean hasTrueBitAtPosition(int binaryValue, short bitLocation) {
+		int maskedOffBit = binaryValue & maskOfBitAt(bitLocation);
+		return maskedOffBit > 0;
 	}
 }
