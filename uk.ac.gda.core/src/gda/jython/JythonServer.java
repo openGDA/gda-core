@@ -86,6 +86,8 @@ import gda.jython.completion.TextCompleter;
 import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.logging.PythonException;
 import gda.jython.server.GdaSshServer;
+import gda.jython.server.shell.JythonSyntaxChecker;
+import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
@@ -157,6 +159,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	private final int sshPort = LocalProperties.getAsInt(SSH_PORT_PROPERTY, -1);
 
 	private TextCompleter jythonCompleter;
+
+	/** Check syntax is complete before running to prevent intermediate partial commands being logged */
+	private JythonSyntaxChecker syntaxChecker;
 
 	private Collection<Runnable> resetHooks = new ArrayList<>();
 
@@ -276,6 +281,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 				atStartup = false;
 			}
 
+			syntaxChecker = new JythonSyntaxChecker();
+			syntaxChecker.setTranslator(GDAJythonInterpreter.getTranslator()::translate);
 			jythonCompleter = new JythonCompleter(this);
 
 			setConfigured(true);
@@ -395,6 +402,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	@Override
 	public boolean runsource(String command, String jsfIdentifier, InputStream stdin) {
 		try {
+			if (syntaxChecker.apply(command) == SyntaxState.INCOMPLETE) {
+				return true;
+			}
 			ClientDetails client = this.batonManager.getClientInformation(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
