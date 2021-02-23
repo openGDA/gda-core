@@ -41,9 +41,10 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 			return device instanceof NexusDetector;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public <N extends NXobject> INexusDevice<N> createNexusDevice(Detector detector) throws NexusException {
-			throw new UnsupportedOperationException("Detectors of type NexusDetector are not yet supported:" + detector.getName());
+		public INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
+			return new NexusDetectorNexusDevice((NexusDetector) detector);
 		}
 
 	}

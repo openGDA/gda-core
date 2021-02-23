@@ -773,9 +773,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 				DummyNexusDetector.FIELD_NAME_SPECTRUM, DummyNexusDetector.FIELD_NAME_VALUE));
 
 		assertThat(detGroup.getLocal_nameScalar(), is(equalTo(detector.getName())));
+		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
 		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_SPECTRUM).getDataset(),
 				new int[] { DummyNexusDetector.SPECTRUM_SIZE });
-		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
 		checkDatasetWritten(detGroup.getDataNode(NXdetector.NX_DATA).getDataset(), DummyNexusDetector.IMAGE_SIZE);
 	}
 

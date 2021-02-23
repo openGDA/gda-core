@@ -88,7 +88,6 @@ import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -381,14 +380,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	@Test
-	@Ignore
-	public void concurrentScanNexusDetector() throws Exception {
-		// overrides test in superclass to ignore this test until it has been implemented
-		// this will be removed in a subsequent change
-	}
-
-	@Override
 	protected void checkNexusMetadata(NXentry entry) {
 		super.checkNexusMetadata(entry);
 
@@ -660,6 +651,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			case COUNTER_TIMER: return detector.getExtraNames()[0];
 			case GENERIC: return NXdetector.NX_DATA;
 			case FILE_CREATOR: throw new IllegalArgumentException("File creator detector does not have primary fields.");
+			case NEXUS_DETECTOR: return NXdetector.NX_DATA;
 			default: throw new IllegalArgumentException("Unknown detector type: " + detectorType);
 		}
 	}
