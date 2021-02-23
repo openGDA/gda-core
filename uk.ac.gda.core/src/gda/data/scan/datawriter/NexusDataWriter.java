@@ -700,7 +700,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 					if (isSDS(parent.getNxClass(), parent.getParentNode() != null)) {
 						node = file.getData(group, parent.getName());
 					} else {
-						node = file.getGroup(group, parent.getName(), parent.getNxClass(), false);
+						node = group;
 					}
 					if ("axis".equals(name) || "label".equals(name)) {
 						Integer axisno = getIntfromBuffer(data.getBuffer());

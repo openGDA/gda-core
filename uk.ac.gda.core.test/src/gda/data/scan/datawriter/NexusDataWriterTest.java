@@ -83,6 +83,7 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -126,7 +127,11 @@ public class NexusDataWriterTest {
 			public Object getDetectorData() {
 				final NexusTreeProvider nexusTreeProvider = mock(NexusTreeProvider.class);
 				final INexusTree nexusTreeRoot = new NexusTreeNode("", NexusExtractor.NXInstrumentClassName, null);
-				nexusTreeRoot.addChildNode(new NexusTreeNode(DetectorType.NEXUS_DETECTOR.getName(), NexusExtractor.NXDetectorClassName, null));
+
+				final INexusTree detTree = new NexusTreeNode(DetectorType.NEXUS_DETECTOR.getName(), NexusExtractor.NXDetectorClassName, null);
+				nexusTreeRoot.addChildNode(detTree);
+				detTree.addChildNode(new NexusTreeNode("foo", NexusExtractor.AttrClassName, detTree, new NexusGroupData("bar")));
+
 				nexusTreeRoot.addChildNode(new NexusTreeNode(MONITOR_NAME, NexusExtractor.NXMonitorClassName, null));
 				when(nexusTreeProvider.getNexusTree()).thenReturn(nexusTreeRoot);
 				return nexusTreeProvider;
@@ -134,7 +139,8 @@ public class NexusDataWriterTest {
 
 			@Override
 			public void addExpectedDataField(NXdetector expectedDetectorGroup, NXdetector actualDetectorGroup) {
-				expectedDetectorGroup.setLocal_nameScalar(getName());
+				expectedDetectorGroup.setLocal_nameScalar(getName()); // added by NexusDataWriter.makeNexusDetector
+				expectedDetectorGroup.addAttribute(TreeFactory.createAttribute("foo", "bar")); // added from INexusTree to test DAQ-3376
 			}
 
 			@Override
