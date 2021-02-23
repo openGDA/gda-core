@@ -13,8 +13,6 @@ package org.eclipse.scanning.api.points.models;
 
 import java.io.Serializable;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 /**
  * A model defining a box in two dimensional space, which can be used to confine and give scale to a {@link
  * IBoundingBoxModel}.
@@ -33,35 +31,26 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public class BoundingBox  implements Serializable {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 3775847793520017725L;
 
-	@FieldDescriptor(editable=false, fieldPosition=0)
 	private String xAxisName="stage_x";
 
-	@FieldDescriptor(scannable="xAxisName", fieldPosition=1)
 	private double xAxisStart;
 
-	@FieldDescriptor(scannable="xAxisName", validif="xAxisLength!=0", fieldPosition=2)
 	private double xAxisLength;
 
-	@FieldDescriptor(editable=false, fieldPosition=3)
 	private String yAxisName="stage_y";
 
-	@FieldDescriptor(scannable="yAxisName", fieldPosition=4)
 	private double yAxisStart;
 
-	@FieldDescriptor(scannable="yAxisName", validif="yAxisLength!=0", fieldPosition=5)
 	private double yAxisLength;
 
-	@FieldDescriptor(visible=false, hint="Provides information about the visible region we are linked to.")
+	/** Information about the visible region we are linked to. */
 	private String regionName;
 
 
 	public BoundingBox() {
-
+		// no-arg constructor for json
 	}
 
 	public BoundingBox(String xName, String yName) {

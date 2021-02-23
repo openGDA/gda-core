@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
  * Abstract superclass for models representing a raster scan within a rectangular box in two-dimensional space.
@@ -33,7 +32,6 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel {
 
-	@FieldDescriptor(label="Orientation")
 	private Orientation orientation = Orientation.HORIZONTAL;
 
 

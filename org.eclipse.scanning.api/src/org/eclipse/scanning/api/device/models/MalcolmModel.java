@@ -15,8 +15,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 /**
  * The model for a malcolm device that writes h5 files.
  */
@@ -24,7 +22,6 @@ public class MalcolmModel extends AbstractDetectorModel implements IMalcolmModel
 
 	private static final long DEFAULT_TIMEOUT_SECOND = Duration.ofDays(1).getSeconds();
 
-	@FieldDescriptor(editable=false)
 	private List<String> axesToMove;
 
 	private List<IMalcolmDetectorModel> detectorModels;

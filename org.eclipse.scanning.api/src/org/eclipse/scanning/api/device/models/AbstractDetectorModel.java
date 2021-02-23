@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device.models;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 public abstract class AbstractDetectorModel implements IDetectorModel, IReflectedModel {
 
 	private long timeout;
@@ -20,30 +18,28 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	/**
 	 * The name of the detector device
 	 */
-	@FieldDescriptor(label="Name", editable=false)
 	private String name;
 
 	/**
 	 * The exposure time. If calculation is shorter than this, time is artificially added to make the detector respect
 	 * the time that is set.
 	 */
-	@FieldDescriptor(label="Exposure Time", unit="s", minimum=0)
 	private double exposureTime; // Seconds
 
-	public AbstractDetectorModel() {
+	protected AbstractDetectorModel() {
 		// no-arg constructor for json
 	}
 
-	public AbstractDetectorModel(String name) {
+	protected AbstractDetectorModel(String name) {
 		setName(name);
 	}
 
-	public AbstractDetectorModel(String name, double exposureTime) {
+	protected AbstractDetectorModel(String name, double exposureTime) {
 		this(name);
 		setExposureTime(exposureTime);
 	}
 
-	public AbstractDetectorModel(AbstractDetectorModel toCopy) {
+	protected AbstractDetectorModel(AbstractDetectorModel toCopy) {
 		setName(toCopy.getName());
 		setTimeout(toCopy.getTimeout());
 		setExposureTime(toCopy.getExposureTime());

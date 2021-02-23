@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.points.models;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.TypeDescriptor;
 
 /**
@@ -24,9 +23,6 @@ import org.eclipse.scanning.api.annotation.ui.TypeDescriptor;
  */
 @TypeDescriptor(editor="org.eclipse.scanning.device.ui.composites.MultiStepComposite")
 public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> {
-
-	@FieldDescriptor(visible=true, label="The scannable name over which the multiple steps will run.")
-	private String name;
 
 	public AxialMultiStepModel() {
 		setContinuous(false);

@@ -12,8 +12,6 @@
 package org.eclipse.scanning.api.points.models;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 /**
  * A model for a generator which repeats the same position a set number of times.
@@ -23,20 +21,17 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public class OneAxisPointRepeatedModel extends AbstractPointsModel {
 
-	@FieldDescriptor(label="Device", device=DeviceType.SCANNABLE, fieldPosition=1)
-	private String name;
-
-	@FieldDescriptor(label="Value", scannable="name", hint="The value to set the scannable to at each point.", fieldPosition=2)
+	/** The value to set the scannable to at each point. */
 	private double value;
 
-	@FieldDescriptor(label="Count", hint="Number of points to generate", minimum=1, maximum=10000, fieldPosition=3)
+	/** Number of points to generate */
 	private int count;
 
-	@FieldDescriptor(label="Sleep", hint="Sleep time between points, if any", minimum=1, maximum=10000, fieldPosition=4)
+	/** Sleep time between points, if any */
 	private long sleep;
 
 	public OneAxisPointRepeatedModel() {
-
+		// required for deserialisation
 	}
 
 	public OneAxisPointRepeatedModel(String name, int count, double value, long sleep) {
@@ -99,7 +94,6 @@ public class OneAxisPointRepeatedModel extends AbstractPointsModel {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + count;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + (int) (sleep ^ (sleep >>> 32));
 		long temp;
 		temp = Double.doubleToLongBits(value);
@@ -109,7 +103,11 @@ public class OneAxisPointRepeatedModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
 		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
 			return false;
 		OneAxisPointRepeatedModel other = (OneAxisPointRepeatedModel) obj;
 		if (count != other.count)

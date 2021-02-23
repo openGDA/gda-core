@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 /**
  * A model for a scan along one axis with start and stop positions and a step size.
  *
@@ -21,23 +18,20 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public class AxialStepModel extends AbstractPointsModel {
 
-	@FieldDescriptor(label="Device", device=DeviceType.SCANNABLE, fieldPosition=0)
-	private String name;
-
-	@FieldDescriptor(label="Start", scannable="name", hint="This is the start position for the scan", fieldPosition=1) // The scannable lookup gets the units
+	/** Start position for the scan */
 	private double start;
 
-	@FieldDescriptor(label="Stop", scannable="name", hint="This is the stop position for the scan", fieldPosition=2) // The scannable lookup gets the units
+	/** Stop position for the scan */
 	private double stop;
 
-	@FieldDescriptor(label="Step", scannable="name", hint="This is the step during the scan", fieldPosition=3) // The scannable lookup gets the units
+	/** Step during the scan */
 	private double step;
 
 	// Left to prevent problems with deserialisation, see {@link AxialPointsModel}
 	private int count;
 
 	public AxialStepModel() {
-
+		// no-arg constructor for json
 	}
 
 	public AxialStepModel(String name, double start, double stop, double step) {
@@ -71,7 +65,7 @@ public class AxialStepModel extends AbstractPointsModel {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + count;
 		long temp;
 		temp = Double.doubleToLongBits(start);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -84,9 +78,15 @@ public class AxialStepModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
 		if (!super.equals(obj))
 			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		AxialStepModel other = (AxialStepModel) obj;
+		if (count != other.count)
+			return false;
 		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
 			return false;
 		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))

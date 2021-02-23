@@ -20,16 +20,12 @@ package org.eclipse.scanning.api.device.models;
 
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.ITimeoutable;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 public class GenericModel implements ITimeoutable, INameable, IReflectedModel {
 
 	private long timeout;
 
-	/**
-	 * The name of the device
-	 */
-	@FieldDescriptor(label="Name", editable=false)
+	/** The name of the device */
 	private String name;
 
 
@@ -89,7 +85,7 @@ public class GenericModel implements ITimeoutable, INameable, IReflectedModel {
 		this.name = name;
 	}
 
-	// interface INameable methods
+	// interface ITimeoutable methods
 
 	@Override
 	public long getTimeout() {

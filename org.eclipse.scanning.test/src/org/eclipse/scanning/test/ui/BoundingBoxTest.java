@@ -13,7 +13,6 @@ package org.eclipse.scanning.test.ui;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,19 +119,6 @@ public class BoundingBoxTest extends ShellTest{
 		assertEquals(bbox.getyAxisName(),             bot.table(0).cell(3, 1));
 		assertEquals(bbox.getyAxisStart()+" K",       bot.table(0).cell(4, 1));
 		assertEquals(bbox.getyAxisLength()+" K",      bot.table(0).cell(5, 1));
-
-	}
-
-	@Test(expected=Exception.class)
-	public void checkNameIneditable() throws Exception {
-
-		// stage_x is mm and T is K. This tests picking up the units from the scannable!
-		assertEquals(bbox.getxAxisName(),             bot.table(0).cell(0, 1));
-		bot.table(0).click(0, 1); // Make the file editor
-
-		// This does pass if fast axis name is editable, I checked by doing that in BoundingBox.
-		SWTBotText text = bot.performWithTimeout(()->bot.text(0), 500);
-		assertNull(text);
 
 	}
 

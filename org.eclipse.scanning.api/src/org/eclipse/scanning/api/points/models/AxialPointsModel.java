@@ -18,25 +18,19 @@
 
 package org.eclipse.scanning.api.points.models;
 
-import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 public class AxialPointsModel extends AbstractPointsModel {
 
-	@FieldDescriptor(label="Device", device=DeviceType.SCANNABLE, fieldPosition=0)
-	private String name;
-
-	@FieldDescriptor(label="Start", scannable="name", hint="This is the start position for the scan", fieldPosition=1) // The scannable lookup gets the units
+	/** Start position for the scan */
 	private double start;
 
-	@FieldDescriptor(label="Stop", scannable="name", hint="This is the stop position for the scan", fieldPosition=2) // The scannable lookup gets the units
+	/** Stop position for the scan */
 	private double stop;
 
-	@FieldDescriptor(label="Points", scannable="name", hint="This is the number of steps during the scan", fieldPosition=3) // The scannable lookup gets the units
+	/** Number of steps during the scan */
 	private int points;
 
 	public AxialPointsModel() {
-
+		// no-arg constructor for json
 	}
 
 	public AxialPointsModel(String name, double start, double stop, int points) {
@@ -84,7 +78,6 @@ public class AxialPointsModel extends AbstractPointsModel {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + points;
 		long temp;
 		temp = Double.doubleToLongBits(start);
@@ -96,16 +89,19 @@ public class AxialPointsModel extends AbstractPointsModel {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
 		if (!super.equals(obj))
 			return false;
-		AxialPointsModel other = (AxialPointsModel) obj;
-		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+		if (getClass() != obj.getClass())
 			return false;
+		AxialPointsModel other = (AxialPointsModel) obj;
 		if (points != other.points)
 			return false;
-		return (Double.doubleToLongBits(stop) == Double.doubleToLongBits(other.stop));
+		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+			return false;
+		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
+			return false;
+		return true;
 	}
-
-
-
 }

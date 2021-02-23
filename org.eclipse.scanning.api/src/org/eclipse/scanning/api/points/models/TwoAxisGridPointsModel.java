@@ -16,8 +16,6 @@ import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_POINTS;
 
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 
 /**
  * A model for a raster scan within a rectangular box in two-dimensional space, which evenly fills the box with a grid
@@ -29,17 +27,10 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public class TwoAxisGridPointsModel extends AbstractTwoAxisGridModel {
 
-
-	@FieldDescriptor(label="X Axis Count",
-			         maximum=100000,
-			         minimum=1,
-			         hint="The number of points that the grid should run over in the direction of the x-axis, as plotted.")
+	/** The number of points that the grid should run over in the direction of the x-axis, as plotted. */
 	private int xAxisPoints = 5;
 
-	@FieldDescriptor(label="Y Axis Count",
-			         maximum=100000,
-			         minimum=1,
-			         hint="The number of points that the grid should run over in the direction of the y-axis, as plotted")
+	/** The number of points that the grid should run over in the direction of the y-axis, as plotted" */
 	private int yAxisPoints = 5;
 
 	public TwoAxisGridPointsModel() {

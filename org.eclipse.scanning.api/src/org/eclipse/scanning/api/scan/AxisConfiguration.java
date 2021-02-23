@@ -13,23 +13,14 @@ package org.eclipse.scanning.api.scan;
 
 import java.io.Serializable;
 
-import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-import org.eclipse.scanning.api.annotation.ui.FileType;
-
 public class AxisConfiguration implements Serializable {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -3907146006857647918L;
 
-	@FieldDescriptor(file=FileType.EXISTING_FILE,
-			         hint="The microscope image to load into the scan as a background.",
-			         fieldPosition=-2)
+	/** The microscope image to load into the scan as a background. */
 	private String microscopeImage;
 
-	@FieldDescriptor(label="Random", hint="If there is no image, create some random noise for one instead.", fieldPosition=-1, enableif="microscopeImage==null")
+	/** If there is no image, create some random noise for one instead. */
 	private boolean randomNoise = false;
 
 	public boolean isRandomNoise() {
@@ -44,28 +35,25 @@ public class AxisConfiguration implements Serializable {
 	public void setMicroscopeImage(String microscopeImage) {
 		this.microscopeImage = microscopeImage;
 	}
-	@FieldDescriptor(device=DeviceType.SCANNABLE, hint="The name of the scannable to be plotted as the x-axis, e.g. the x motor of the sample stage.", fieldPosition=0)
+
+	/** The name of the scannable to be plotted as the x-axis, e.g. the x motor of the sample stage. */
 	private String xAxisName;
 
-	@FieldDescriptor(scannable="xAxisName", fieldPosition=1)
 	private double xAxisStart;
 
-	@FieldDescriptor(scannable="xAxisName", fieldPosition=2)
 	private double xAxisEnd;
 
-	@FieldDescriptor(device=DeviceType.SCANNABLE, hint="The name of the scannable to be plotted as the y-axis, e.g. the x motor of the sample stage.", fieldPosition=3)
+	/** The name of the scannable to be plotted as the y-axis, e.g. the y motor of the sample stage. */
 	private String yAxisName;
 
-	@FieldDescriptor(scannable="yAxisName", fieldPosition=4)
 	private double yAxisStart;
 
-	@FieldDescriptor(scannable="yAxisName", fieldPosition=5)
 	private double yAxisEnd;
 
-	@FieldDescriptor(label="Apply to Regions", hint="Find any scan regions and set their axis names to those on this form.", fieldPosition=6)
+	/** If <code>true</code>, find any scan regions and set their axis names to those on this form. */
 	private boolean applyRegions = false;
 
-	@FieldDescriptor(label="Apply to Scan", hint="Find any scan models and set their axis names to those on this form.", fieldPosition=7)
+	/** If <code>true</code>, find any scan models and set their axis names to those on this form. */
 	private boolean applyModels = false;
 
 	@Override

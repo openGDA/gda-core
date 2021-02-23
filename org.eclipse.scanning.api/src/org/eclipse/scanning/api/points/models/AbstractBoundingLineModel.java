@@ -14,11 +14,8 @@ package org.eclipse.scanning.api.points.models;
 import java.math.BigDecimal;
 
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 
 public abstract class AbstractBoundingLineModel extends AbstractMapModel implements IBoundingLineModel {
-
-	@FieldDescriptor(editable = false) // We edit this with a popup.
 	private BoundingLine boundingLine;
 
 	@Override

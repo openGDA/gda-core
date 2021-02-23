@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 /**
  * Abstract base class for models using the ScanPointGenerator module, providing property change support for the convenience of subclasses.
  *
@@ -42,7 +40,7 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 	private static final String HARDCODED_UNITS = "mm";
 	private List<String> units;
 
-	@FieldDescriptor(label="Alternating/'Snake' - switches direction with every iteration of wrapping model")
+	/** Alternating/'Snake': if <code>true</code>, switches direction with every iteration of wrapping model */
 	private boolean alternating = false;
 
 	protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -56,10 +54,9 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 		pcs.removePropertyChangeListener(listener);
 	}
 
-	@FieldDescriptor(visible=false)
 	private String name;
 
-	@FieldDescriptor(label = "Continuous", hint = "Whether the motors should move continuously or stop at each point in the scan to take an image")
+	/** If <code>true</code>, the motors move continuously; if <code>false</code>, they stop at each point in the scan to take an image */
 	private boolean continuous = true;
 
 	@Override

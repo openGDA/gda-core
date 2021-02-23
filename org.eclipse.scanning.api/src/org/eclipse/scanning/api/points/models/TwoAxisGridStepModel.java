@@ -16,8 +16,6 @@ import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_STEP;
 
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 /**
  * A model for a raster scan within a rectangular box in a two-dimensional space, beginning at the box's start
  * coordinates and moving in steps of the sizes set in this model.
@@ -30,18 +28,10 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public class TwoAxisGridStepModel extends AbstractTwoAxisGridModel {
 
-	@FieldDescriptor(label="X Step",
-			         scannable="xAxisName",
-				     maximum=100000,
-					 minimum=1,
-			         hint="The step in the fast direction to take in the units of the x-axis, as plotted.")
+	/** The step in the fast direction to take in the units of the x-axis, as plotted. */
 	private double xAxisStep = 1;
 
-	@FieldDescriptor(label="Y Step",
-			         scannable="yAxisName",
-					 maximum=100000,
-					 minimum=1,
-			         hint="The step in the slow direction to take in the units of the y-axis, as plotted.")
+	/** The step in the slow direction to take in the units of the y-axis, as plotted. */
 	private double yAxisStep = 1;
 
 	public TwoAxisGridStepModel() {

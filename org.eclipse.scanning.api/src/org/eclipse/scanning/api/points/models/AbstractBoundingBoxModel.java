@@ -11,10 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import org.eclipse.scanning.api.annotation.ui.EditType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
-
 /**
  * A model for a scan within a rectangular box in two-dimensional space.
  * <p>
@@ -25,7 +21,9 @@ import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
  */
 public abstract class AbstractBoundingBoxModel extends AbstractMapModel implements IBoundingBoxModel {
 
-	@FieldDescriptor(edit=EditType.COMPOUND, hint="The bounding box is automatically calculated from the scan regions shown in the main plot.") // We edit this with a popup.
+	/**
+	 * The bounding box is automatically calculated from the scan regions shown in the main plot
+	 */
 	private BoundingBox boundingBox;
 
 	protected AbstractBoundingBoxModel() {

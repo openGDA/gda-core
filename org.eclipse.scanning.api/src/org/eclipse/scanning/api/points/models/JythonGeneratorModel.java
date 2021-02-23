@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-import org.eclipse.scanning.api.annotation.ui.FileType;
-
 /**
  * This class allows loading of an almost arbitrary Python function generator as a PointsModel.
  * See /org.eclipse.scanning.test/src/org/eclipse/scanning/test/points/JythonGeneratorExamples.py for example generators
@@ -51,13 +48,19 @@ public class JythonGeneratorModel extends AbstractPointsModel {
 	private static final String UNITS = "units";
 	private static final String SIZE = "size";
 
-	@FieldDescriptor(label = "Module Name", hint = "The name of the module to load.\nUsually this is the same as the python file without an ending '.py'", fieldPosition = 0)
+	/**
+	 * The name of the module to load.<br>
+	 * Usually this is the same as the python file without an ending '.py'
+	 */
 	private String moduleName;
 
-	@FieldDescriptor(label = "Module Path", hint = "The file path to the module folder.", file = FileType.EXISTING_FOLDER, fieldPosition = 1)
+	/** The file path to the module folder. */
 	private String path;
 
-	@FieldDescriptor(label = "Class Name", hint = "The name of the class implementing PPointGenerator.\nIt must wrap a class extending Generator.", fieldPosition = 2)
+	/**
+	 * The name of the class implementing PPointGenerator.<br>
+	 * It must wrap a class extending Generator.
+	 */
 	private String className;
 
 	private Map<String, Object> jythonArguments = new HashMap<>();

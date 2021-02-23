@@ -101,6 +101,7 @@ public class KnownModelsTest extends ShellTest{
 			});
 
 			String className = tcase.getModel().getClass().getSimpleName();
+			// All fields are now editable, as annotations have been removed
 			assertEquals("Checking editable fields of "+className, tcase.getFieldCount(), bot.table(0).rowCount());
 			System.out.println(className+" Passed");
 		}
@@ -111,11 +112,11 @@ public class KnownModelsTest extends ShellTest{
 		models.add(new ModelTest(new AxialStepModel("x", 0, 10, 1), 7));
 		models.add(new ModelTest(new AxialPointsModel("x", 7.5, 3), 7));
 		models.add(new ModelTest(new AxialCollatedStepModel(0, 10, 1, "x1", "y1"), 8));
-		models.add(new ModelTest(new AxialArrayModel(0,1,2,3,4,5,6,7,8,9), 4));
-		models.add(new ModelTest(new TwoAxisGridPointsModel("x", "y"), 12));
-		models.add(new ModelTest(new TwoAxisGridStepModel("x", "y"), 12));
-		models.add(new ModelTest(new TwoAxisSpiralModel("x", "y", 2, null), 10));
-		models.add(new ModelTest(new TwoAxisLissajousModel(), 11));
+		models.add(new ModelTest(new AxialArrayModel(0,1,2,3,4,5,6,7,8,9), 5));
+		models.add(new ModelTest(new TwoAxisGridPointsModel("x", "y"), 13));
+		models.add(new ModelTest(new TwoAxisGridStepModel("x", "y"), 13));
+		models.add(new ModelTest(new TwoAxisSpiralModel("x", "y", 2, null), 11));
+		models.add(new ModelTest(new TwoAxisLissajousModel(), 12));
 		return models;
 	}
 

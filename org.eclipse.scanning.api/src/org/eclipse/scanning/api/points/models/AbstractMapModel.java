@@ -15,26 +15,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 public abstract class AbstractMapModel extends AbstractPointsModel implements IMapPathModel {
 
-	@FieldDescriptor(label="X Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the x-axis direction as plotted, for instance 'stage_x'.")
+	/** The name of the scannable in the x-axis direction as plotted, for instance 'stage_x'. */
 	private String xAxisName = "stage_x";
 
-	@FieldDescriptor(label="Y Axis", device=DeviceType.SCANNABLE, hint="The name of the scannable in the y-axis direction as plotted, for instance 'stage_y'.")
+	/** The name of the scannable in the y-axis direction as plotted, for instance 'stage_y'. */
 	private String yAxisName = "stage_y";
 
 	private String xAxisUnits = "mm";
 
 	private String yAxisUnits = "mm";
 
-	public AbstractMapModel() {
+	protected AbstractMapModel() {
 		super();
 	}
 
-	public AbstractMapModel(String xName, String yName) {
+	protected AbstractMapModel(String xName, String yName) {
 		this.xAxisName = xName;
 		this.yAxisName = yName;
 	}
