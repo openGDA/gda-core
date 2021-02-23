@@ -18,8 +18,6 @@
 
 package gda.device.detector.xmap.api;
 
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
-
 /**
  * <p>
  * Model to support an XMAP detector that uses a custom controller for acquisition but Area Detector to write data.
@@ -31,13 +29,11 @@ public class XmapWritingFilesRunnableDeviceModel extends XmapRunnableDeviceModel
 	/**
 	 * The name of the area detector (ADDetector object)
 	 */
-	@FieldDescriptor(label="Area detector name", editable=false)
 	private String areaDetectorName;
 
 	/**
 	 * The name of the XMAP detector device
 	 */
-	@FieldDescriptor(label="XMAP detector name", editable=false)
 	private String xmapDetectorName;
 
 	public String getAreaDetectorName() {
