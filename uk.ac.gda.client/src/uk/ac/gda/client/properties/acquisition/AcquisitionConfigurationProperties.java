@@ -1,5 +1,7 @@
 package uk.ac.gda.client.properties.acquisition;
 
+import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
@@ -35,6 +37,11 @@ public class AcquisitionConfigurationProperties {
 	 * defining the out of beam
 	 */
 	private Set<String> outOfBeamScannables;
+
+	/**
+	 * A list of nexus templates files paths
+	 */
+	private List<URL> nexusTemplates;
 
 	/**
 	 * The bean which is eventually responsible to merge an external Nexus file into an acquisition
@@ -87,5 +94,13 @@ public class AcquisitionConfigurationProperties {
 
 	public void setNexusNodeCopyAppender(String nexusNodeCopyAppender) {
 		this.nexusNodeCopyAppender = nexusNodeCopyAppender;
+	}
+
+	public List<URL> getNexusTemplates() {
+		return nexusTemplates;
+	}
+
+	public void setNexusTemplates(List<URL> nexusTemplates) {
+		this.nexusTemplates = nexusTemplates;
 	}
 }

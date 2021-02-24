@@ -22,12 +22,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -58,6 +58,8 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationRead
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentReader;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
+import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
@@ -227,7 +229,10 @@ public class ScanRequestFactory {
 
 	private void parseAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService)
 			throws ScanningException {
-		switch (getAcquisitionEngine().getType()) {
+		AcquisitionEngineType acquisitionEngineType = Optional.ofNullable(getAcquisitionEngine())
+			.map(AcquisitionEngineReader::getType)
+			.orElseThrow(() -> new ScanningException("The document does not containan AcquisitionEngine section"));
+		switch (acquisitionEngineType) {
 			case MALCOLM:
 				prepareMalcolmAcquisitionEngine(scanRequest, runnableDeviceService);
 				break;
@@ -244,7 +249,11 @@ public class ScanRequestFactory {
 		final Map<String, IDetectorModel> ret = new HashMap<>();
 		scanRequest.setDetectors(ret);
 
-		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(getAcquisitionEngine().getId());
+		String id = Optional.ofNullable(getAcquisitionEngine())
+				.map(AcquisitionEngineReader::getId)
+				.orElseThrow(() -> new ScanningException("The AcquisitionEngine section does not contain the device id"));
+
+		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(id);
 		final IDetectorModel model = detector.getModel();
 		if (model == null) {
 			throw new ScanningException(String.format("Could not get model for detector %s",
@@ -271,12 +280,18 @@ public class ScanRequestFactory {
 	}
 
 	private Set<String> parseTemplateFilePaths() {
-		return new HashSet<>();
+		return getAcquisitionConfiguration().getProcessingRequest().stream()
+			.filter(ApplyNexusTemplatesRequest.class::isInstance)
+			.map(getProcessingRequestHandlerService()::translateToCollection)
+			.flatMap(Collection::stream)
+			.map(String.class::cast)
+			.collect(Collectors.toSet());
 	}
 
 	private ProcessingRequest parseProcessingRequest() {
 		Map<String, Collection<Object>> requests = new HashMap<>();
-		getAcquisitionConfiguration().getProcessingRequest()
+		getAcquisitionConfiguration().getProcessingRequest().stream()
+			.filter(a -> !ApplyNexusTemplatesRequest.class.isInstance(a))
 			.forEach(p -> requests.put(p.getKey(), getProcessingRequestHandlerService().translateToCollection(p)));
 		ProcessingRequest pr = new ProcessingRequest();
 		pr.setRequest(requests);

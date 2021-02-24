@@ -22,7 +22,6 @@ import javax.naming.directory.InvalidAttributesException;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
-import org.eclipse.dawnsci.nexus.appender.NexusNodeCopyAppender;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
@@ -57,6 +56,7 @@ import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
+import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
@@ -74,7 +74,6 @@ import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
@@ -85,7 +84,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * The class supports a view to load, save, delete or run a {@link ScanningAcquisition} instance. This class is based on
  * several Spring features
  * <ul>
- * <li>it is annotated with {@link Controller} in order to be autodetected through classpath scanning by Spring</li>
+ * <li>it is annotated with {@link Controller} in order to be auto-detected through classpath scanning by Spring</li>
  * <li>it is annotated with {@link Scope} as prototype, so any invocation of
  * {@code SpringApplicationContextProxy.getBean(ScanningAcquisitionController.class)} returns a new instance</li>
  * </ul>
@@ -290,7 +289,7 @@ public class ScanningAcquisitionController
 	}
 
 	private void validateFlatCalibrationParameters(ImageCalibrationReader ic) throws AcquisitionConfigurationException {
-		// Note - Uses a read-only acquisition object to avoid nullpointer in ic
+		// Note - Uses a read-only acquisition object to avoid Null Pointer in ic
 		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, detectorsHelper.getOutOfBeamScannables());
 		if ((ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition())
 				&& flatPosition.isEmpty()) {
@@ -302,7 +301,7 @@ public class ScanningAcquisitionController
 	}
 
 	private void validateDarkCalibrationParameters(ImageCalibrationReader ic) throws AcquisitionConfigurationException {
-		// Note - Uses a read-only acquisition object to avoid nullpointer in ic
+		// Note - Uses a read-only acquisition object to avoid Null Pointer in ic
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
 			darkPosition.add(stageController.createShutterClosedRequest());
@@ -322,6 +321,12 @@ public class ScanningAcquisitionController
 			default:
 				break;
 		}
+		AcquisitionConfigurationProperties acquisitionProperties = getAcquisitionConfigurationProperties();
+		Optional.ofNullable(acquisitionProperties.getNexusNodeCopyAppender())
+			.ifPresent(this::injectNexusAppender);
+
+		Optional.ofNullable(acquisitionProperties.getNexusTemplates())
+			.ifPresent(this::injectNexusTemplates);
 	}
 
 	private AcquisitionConfigurationProperties getAcquisitionConfigurationProperties() throws AcquisitionConfigurationException {
@@ -332,6 +337,10 @@ public class ScanningAcquisitionController
 	}
 
 	private void processTomography() throws AcquisitionConfigurationException {
+		injectSavuRequest();
+	}
+
+	private void injectSavuRequest() {
 		URL processingFile = fileContext.getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
 		if (processingFile == null)
 			return;
@@ -340,35 +349,42 @@ public class ScanningAcquisitionController
 		SavuProcessingRequest request = new SavuProcessingRequest.Builder()
 				.withValue(urls)
 				.build();
-		List<ProcessingRequestPair<?>> requests = new ArrayList<>();
-		requests.add(request);
-		getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
+		addProcessingRequest(request);
 	}
 
+	// ------- ProcessRequest section start ------- //
 	private void processDiffraction() throws AcquisitionConfigurationException {
-		AcquisitionConfigurationProperties acquisitionProperties = getAcquisitionConfigurationProperties();
+		// Does nothing specific
+	}
+
+	private void injectNexusTemplates(List<URL> appenderBeanName) {
+		ApplyNexusTemplatesRequest request = new ApplyNexusTemplatesRequest.Builder()
+				.withValue(appenderBeanName)
+				.build();
+		addProcessingRequest(request);
+	}
+
+	private void injectNexusAppender(String appenderBeanName) {
 		URL processingFile = fileContext.getDiffractionContext().getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
 		if (processingFile == null)
 			return;
 		List<URL> urls = new ArrayList<>();
 		urls.add(processingFile);
 
-		Optional.ofNullable(acquisitionProperties.getNexusNodeCopyAppender())
-			.ifPresent(a -> {
-				NexusNodeCopyAppender<?> appender = SpringApplicationContextFacade.getBean(a, NexusNodeCopyAppender.class);
-				if (appender.getName() == null) {
-					logger.error("Dataset name property not configured for diffraction scans");
-					return;
-				}
-				DiffractionCalibrationMergeRequest request = new DiffractionCalibrationMergeRequest.Builder()
-						.withValue(urls)
-						.withDeviceName(appender.getName())
-						.build();
-				List<ProcessingRequestPair<?>> requests = new ArrayList<>();
-				requests.add(request);
-				getAcquisition().getAcquisitionConfiguration().setProcessingRequest(requests);
-			});
+		DiffractionCalibrationMergeRequest request = new DiffractionCalibrationMergeRequest.Builder()
+				.withValue(urls)
+				.withDeviceName(appenderBeanName)
+				.build();
+		addProcessingRequest(request);
 	}
+
+	private void addProcessingRequest(ProcessingRequestPair<?> request) {
+		if (getAcquisition().getAcquisitionConfiguration().getProcessingRequest() == null) {
+			getAcquisition().getAcquisitionConfiguration().setProcessingRequest(new ArrayList<>());
+		}
+		getAcquisition().getAcquisitionConfiguration().getProcessingRequest().add(request);
+	}
+	// ------- ProcessRequest section end ------- //
 
 	private void updateBeamSelectorPosition(Set<DevicePositionDocument> positions) {
 		ManagedScannable<String> beamSelector =  getBeamSelector();
@@ -379,10 +395,6 @@ public class ScanningAcquisitionController
 			DevicePositionDocument beamSelectorPosition = stageController.createDevicePositionDocument(beamSelector);
 			positions.add(beamSelectorPosition);
 		}
-	}
-
-	private ClientSpringProperties getClientProperties() {
-		return getBean(ClientSpringProperties.class);
 	}
 
 	private ManagedScannable<String> getBeamSelector() {
