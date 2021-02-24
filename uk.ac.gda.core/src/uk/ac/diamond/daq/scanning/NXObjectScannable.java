@@ -23,33 +23,33 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NXObjectScannable<T extends NXobject> implements IScannable<Object>, INexusDevice<T> {
+public class NXObjectScannable<T extends NXobject> extends AbstractNameable implements IScannable<Object>, INexusDevice<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NXObjectScannable.class);
 
-	private String scannableName;
 	private NXObjectProvider<T> provider;
 
 	public NXObjectScannable(String scannableName, String objectName, T objectNode) {
-		this.scannableName = scannableName;
-		provider = new NXObjectProvider<T>(objectName, objectNode);
+		setName(scannableName);
+		provider = new NXObjectProvider<>(objectName, objectNode);
 		logger.trace("NXObjectScannable({}, {}, {}), provider={}", scannableName, objectName, objectNode, provider);
 	}
 
 	public void updateNode(String objectName, T objectNode) {
 		provider = new NXObjectProvider<T>(objectName, objectNode);
-		logger.trace("updateNode({}, {}), provider={} for {}", objectName, objectNode, provider, this.scannableName);
+		logger.trace("updateNode({}, {}), provider={} for {}", objectName, objectNode, provider, getName());
 	}
 
 	@Override
 	public void setLevel(int level) {
-		logger.trace("setLevel({}) ignoring for {}", level, this.scannableName);
+		logger.trace("setLevel({}) ignoring for {}", level, getName());
 		//level does nothing here
 	}
 
@@ -59,18 +59,8 @@ public class NXObjectScannable<T extends NXobject> implements IScannable<Object>
 	}
 
 	@Override
-	public String getName() {
-		return scannableName;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.scannableName = name;
-	}
-
-	@Override
 	public NexusObjectProvider<T> getNexusProvider(NexusScanInfo info) throws NexusException {
-		logger.trace("getNexusProvider({}) returning {} for {}", info, provider, this.scannableName);
+		logger.trace("getNexusProvider({}) returning {} for {}", info, provider, getName());
 		return provider;
 	}
 
@@ -81,7 +71,7 @@ public class NXObjectScannable<T extends NXobject> implements IScannable<Object>
 
 	@Override
 	public Object setPosition(Object value, IPosition position) throws ScanningException {
-		logger.trace("setPosition({}, {}) ignoring for {}", value, position, this.scannableName);
+		logger.trace("setPosition({}, {}) ignoring for {}", value, position, getName());
 		return null;
 	}
 

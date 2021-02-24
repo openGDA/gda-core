@@ -23,6 +23,7 @@ import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -41,18 +42,17 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *
  */
 @Deprecated
-public class NXSampleScannable implements IScannable<Object>, INexusDevice<NXsample> {
+public class NXSampleScannable extends AbstractNameable implements IScannable<Object>, INexusDevice<NXsample> {
 
-	private String scannableName;
 	private NXObjectProvider<NXsample> provider;
 
 	public NXSampleScannable(String scannableName, String sampleName, NXsample sampleNode) {
-		this.scannableName = scannableName;
-		provider = new NXObjectProvider<NXsample>(sampleName, sampleNode);
+		setName(scannableName);
+		provider = new NXObjectProvider<>(sampleName, sampleNode);
 	}
 
 	public void updateNode(String sampleName, NXsample sampleNode) {
-		provider = new NXObjectProvider<NXsample>(sampleName, sampleNode);
+		provider = new NXObjectProvider<>(sampleName, sampleNode);
 	}
 
 	@Override
@@ -63,17 +63,6 @@ public class NXSampleScannable implements IScannable<Object>, INexusDevice<NXsam
 	@Override
 	public int getLevel() {
 		return 0;
-	}
-
-	@Override
-	public String getName() {
-		return scannableName;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.scannableName = name;
-
 	}
 
 	@Override
