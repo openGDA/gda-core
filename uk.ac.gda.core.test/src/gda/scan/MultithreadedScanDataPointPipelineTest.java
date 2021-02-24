@@ -202,7 +202,7 @@ public class MultithreadedScanDataPointPipelineTest {
 	 */
 
 	protected void configurePipeline() {
-		pipeline = new MultithreadedScanDataPointPipeline(new ScanDataPointPublisher(mockDataWriter, mockScan), 10, 10,
+		pipeline = new MultithreadedScanDataPointPipeline(new ScanDataPointPublisher(mockDataWriter, mockScan, i -> {}), 10, 10,
 				"scan-name");
 		// multithreadedPipeline = new MultithreadedScanDataPointPipeline(mockSDP, 10, 10);
 	}
