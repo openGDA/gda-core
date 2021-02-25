@@ -118,7 +118,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 	protected abstract N createNexusObject(NexusScanInfo info) throws NexusException;
 
 	protected NexusObjectProvider<N> createNexusProvider(N nexusObject, NexusScanInfo info) throws NexusException {
-		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<N>(getName(), nexusObject);
+		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(getName(), nexusObject);
 		configureNexusWrapper(nexusWrapper, info);
 		return nexusWrapper;
 	}

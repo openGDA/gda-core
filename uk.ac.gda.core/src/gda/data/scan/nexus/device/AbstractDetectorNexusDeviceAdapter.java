@@ -23,8 +23,6 @@ import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +43,6 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 	protected Detector getDetector() {
 		return (Detector) super.getDevice();
-	}
-
-	@Override
-	public NexusObjectProvider<NXdetector> getNexusProvider(NexusScanInfo info) throws NexusException {
-		logger.debug("Creating nexus object for detector {}", getName());
-		final NXdetector detGroup = createNexusObject(info);
-		return new NexusObjectWrapper<>(getName(), detGroup, getPrimaryDataFieldName());
 	}
 
 	@Override
@@ -93,5 +84,10 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 	}
 
 	protected abstract void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException;
+
+	@Override
+	public void scanEnd() throws NexusException {
+		nexusObject = null;
+	}
 
 }

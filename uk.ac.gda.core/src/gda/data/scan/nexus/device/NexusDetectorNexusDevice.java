@@ -193,7 +193,9 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 				String relativePath = relativize.toString();
 				addExternalLink(group, name, relativePath, address);
 //				links.add(new ExternalNXlink(name, relativeLink)); // note: changed from NexusDataWriter
-				primaryFieldNames.add(name);
+				if (group == detectorGroup) { // only an immediate child node of the detector group can be a primary field
+					primaryFieldNames.add(name);
+				}
 			}
 			return null;
 		}
@@ -331,7 +333,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 							throw new NexusException("Problem setting slice on lazy dataset", e);
 						}
 					}
-					if (makeData && sds.isDetectorEntryData) {
+					if (makeData && sds.isDetectorEntryData && group == detectorGroup) {
+						// only an immediate child node of the detector group can be a primary field
 //						links.add(new SelfCreatingLink(data)); // note: changed from NexusDataWriter
 						primaryFieldNames.add(name);
 					}
