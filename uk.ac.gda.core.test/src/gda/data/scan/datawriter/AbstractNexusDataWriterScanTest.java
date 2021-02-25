@@ -18,6 +18,19 @@
 
 package gda.data.scan.datawriter;
 
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.ARRAY_ATTR_NAME;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.ARRAY_ATTR_VALUE;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.COLLECTION_NAME;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DETECTOR_NUMBER;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FLOAT_ATTR_NAME;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FLOAT_ATTR_VALUE;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.INT_ATTR_NAME;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.INT_ATTR_VALUE;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.SERIAL_NUMBER;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_NAME;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_VALUE;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,6 +78,7 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXnote;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
@@ -91,7 +105,10 @@ import gda.TestHelpers;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.StoredMetadataEntry;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -223,8 +240,29 @@ public abstract class AbstractNexusDataWriterScanTest {
 		public static final String FIELD_NAME_VALUE = "value_";
 		public static final String FIELD_NAME_SPECTRUM = "spectrum";
 
-		private static final int SPECTRUM_SIZE = 8;
-		private static final int[] IMAGE_SIZE = new int[] { 8, 8 };
+		public static final int SPECTRUM_SIZE = 8;
+		public static final int[] IMAGE_SIZE = new int[] { 8, 8 };
+
+		public static final String NOTE_TEXT = "This is a note";
+		public static final long DETECTOR_NUMBER = 1L;
+		public static final String SERIAL_NUMBER = "ABC12345XYZ";
+		public static final double DIAMETER = 52.2;
+		public static final String DIAMETER_UNITS = "mm";
+
+		public static final String STRING_ATTR_NAME = "stringAttr";
+		public static final String INT_ATTR_NAME = "intAttr";
+		public static final String FLOAT_ATTR_NAME = "floatAttr";
+		public static final String ARRAY_ATTR_NAME = "arrayAttr";
+		public static final String STRING_ATTR_VALUE = "stringVal";
+		public static final int INT_ATTR_VALUE = 2;
+		public static final double FLOAT_ATTR_VALUE = 5.432;
+		public static final double[] ARRAY_ATTR_VALUE = { 1.23, 2.34, 3.45, 4.56, 5.67 };
+
+		public static final String COLLECTION_NAME = "collection";
+		public static final String COLLECTION_FIELD_NAME = "fieldName";
+		public static final String COLLECTION_ATTR_NAME = "attrName";
+		public static final String COLLECTION_FIELD_VALUE = "fieldValue";
+		public static final String COLLECTION_ATTR_VALUE = "attrValue";
 
 		@Override
 		public NexusTreeProvider readout() throws DeviceException {
@@ -244,7 +282,45 @@ public abstract class AbstractNexusDataWriterScanTest {
 			final NexusGroupData imageData = new NexusGroupData(Random.rand(IMAGE_SIZE));
 			data.addData(getName(), NXdetector.NX_DATA, imageData);
 
-			// TODO: add at least one attribute, other nodes (see NexusDataWriter.writeHere and cover at least some cases
+			// add an NXnote child group - NXDetectorData has a convenience method for this
+			data.addNote(getName(), NOTE_TEXT);
+
+			final INexusTree detTree = data.getDetTree(getName());
+
+			// add some metadata dataset (i.e. per-scan or non point-dependent)
+			// TODO do these need to be set to non-point-dependent??
+			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_DETECTOR_NUMBER, NexusExtractor.SDSClassName, detTree,
+					new NexusGroupData(DETECTOR_NUMBER)));
+			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_SERIAL_NUMBER, NexusExtractor.SDSClassName, detTree,
+					new NexusGroupData(SERIAL_NUMBER)));
+			final INexusTree diameterNode = new NexusTreeNode(NXdetector.NX_DIAMETER, NexusExtractor.SDSClassName, detTree,
+					new NexusGroupData(DIAMETER));
+			diameterNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_UNITS, NexusExtractor.AttrClassName, diameterNode,
+					new NexusGroupData(DIAMETER_UNITS)));
+			detTree.addChildNode(diameterNode);
+
+
+//			// add some attributes
+			detTree.addChildNode(new NexusTreeNode(STRING_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
+					new NexusGroupData(STRING_ATTR_VALUE)));
+			detTree.addChildNode(new NexusTreeNode(INT_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
+					new NexusGroupData(INT_ATTR_VALUE)));
+			detTree.addChildNode(new NexusTreeNode(FLOAT_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
+					new NexusGroupData(FLOAT_ATTR_VALUE)));
+			detTree.addChildNode(new NexusTreeNode(ARRAY_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
+					new NexusGroupData(ARRAY_ATTR_VALUE)));
+
+//			// add an NXcollection child group with a data node and an attribute
+			final INexusTree collectionNode = new NexusTreeNode(COLLECTION_NAME, NexusExtractor.NXCollectionClassName, detTree);
+			collectionNode.addChildNode(new NexusTreeNode(COLLECTION_FIELD_NAME, NexusExtractor.SDSClassName, collectionNode,
+					new NexusGroupData(COLLECTION_FIELD_VALUE)));
+			collectionNode.addChildNode(new NexusTreeNode(COLLECTION_ATTR_NAME, NexusExtractor.AttrClassName, collectionNode,
+					new NexusGroupData(COLLECTION_ATTR_VALUE)));
+			detTree.addChildNode(collectionNode);
+
+			// TODO add dataset linking to external file (find some other test that does this...)
+			// and make sure file is deleted at end of test...
+
 			return data;
 		}
 
@@ -768,15 +844,37 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	private void checkNexusDetector(NXdetector detGroup) throws Exception {
-		assertThat(detGroup.getGroupNodeNames(), is(empty()));
-		assertThat(detGroup.getDataNodeNames(), contains(NXdetector.NX_DATA, NXdetector.NX_LOCAL_NAME,
-				DummyNexusDetector.FIELD_NAME_SPECTRUM, DummyNexusDetector.FIELD_NAME_VALUE));
+		assertThat(detGroup.getGroupNodeNames(), containsInAnyOrder("note", COLLECTION_NAME));
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DATA,
+				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, // primary fields, written at each point
+				NXdetector.NX_LOCAL_NAME, // added for all detectors
+				NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER));
 
 		assertThat(detGroup.getLocal_nameScalar(), is(equalTo(detector.getName())));
-		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
-		checkDatasetWritten(detGroup.getDataNode(DummyNexusDetector.FIELD_NAME_SPECTRUM).getDataset(),
+		checkDatasetWritten(detGroup.getDataNode(FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
+		checkDatasetWritten(detGroup.getDataNode(FIELD_NAME_SPECTRUM).getDataset(),
 				new int[] { DummyNexusDetector.SPECTRUM_SIZE });
 		checkDatasetWritten(detGroup.getDataNode(NXdetector.NX_DATA).getDataset(), DummyNexusDetector.IMAGE_SIZE);
+
+		assertThat(detGroup.getDetector_numberScalar(), is(DETECTOR_NUMBER));
+		assertThat(detGroup.getSerial_numberScalar(), is(equalTo(SERIAL_NUMBER)));
+
+		assertThat(detGroup.getAttributeNames(), containsInAnyOrder(NexusConstants.NXCLASS,
+				STRING_ATTR_NAME, INT_ATTR_NAME, FLOAT_ATTR_NAME, ARRAY_ATTR_NAME));
+		assertThat(detGroup.getAttr(null, STRING_ATTR_NAME).getSlice(),
+				is(equalTo(DatasetFactory.createFromObject(STRING_ATTR_VALUE))));
+		assertThat(detGroup.getAttr(null, INT_ATTR_NAME).getSlice(),
+				is(equalTo(DatasetFactory.createFromObject(new int[] { INT_ATTR_VALUE })))); // written as 1d dataset of size 1 rather than scalar dataset
+		assertThat(detGroup.getAttr(null, FLOAT_ATTR_NAME).getSlice(),
+				is(equalTo(DatasetFactory.createFromObject(new double[] { FLOAT_ATTR_VALUE })))); // written as 1d dataset of size 1 rather than scalar dataset
+		assertThat(detGroup.getAttr(null, ARRAY_ATTR_NAME).getSlice(),
+				is(equalTo(DatasetFactory.createFromObject(ARRAY_ATTR_VALUE))));
+
+		final NXnote note = (NXnote) detGroup.getGroupNode("note");
+		assertThat(note, is(notNullValue()));
+		assertThat(note.getDataNodeNames(), containsInAnyOrder(NXnote.NX_TYPE, NXnote.NX_DESCRIPTION));
+		assertThat(note.getTypeScalar(), is(equalTo("text/plain")));
+		assertThat(note.getDescriptionScalar(), is(equalTo("This is a note")));
 	}
 
 	private void checkMonitor(NXinstrument instrument) throws Exception {

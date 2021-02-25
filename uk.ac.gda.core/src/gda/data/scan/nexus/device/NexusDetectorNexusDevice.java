@@ -255,115 +255,109 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 			NexusGroupData sds = tree.getData(); // note SDS stands for Scientific Data Set(?)
 			if (sds != null) { // create a DataNode containing a dataset, note: mutually exclusive with nxClassIsSDS above
-				ILazyWriteableDataset lazy = sds.toLazyDataset();
-				int[] sdims = lazy.getShape();
-				lazy.setName(name);
-				if (makeData) {
-					DataNode data;
-					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
-							tree.isPointDependent() ? scanDimensions : null, sdims);
-					lazy.setMaxShape(dataDimMake);
+				if (!tree.isPointDependent()) {
+					final DataNode data = NexusNodeFactory.createDataNode(); // moved and rewritten from NexusDataWRiter
+					data.setDataset(sds.toDataset());
+					group.addDataNode(name, data);
+				} else {
+					ILazyWriteableDataset lazy = sds.toLazyDataset();
+					int[] sdims = lazy.getShape();
+					lazy.setName(name);
+					if (makeData) {
+						DataNode data;
+						int[] dataDimMake = generateDataDim(tree.isPointDependent(),
+								tree.isPointDependent() ? scanDimensions : null, sdims);
+						lazy.setMaxShape(dataDimMake);
 
-					int[] dimensions;
-					boolean requiresChunking = false;
-					if (sdims.length == 1 && sdims[0] == 1) {
-						// zero-dim data (single value per point), so dimensions are scan dimensions
-						dimensions = tree.isPointDependent() ? scanDimensions : new int[] { 1 };
-						requiresChunking = tree.isPointDependent();
-					} else {
-						requiresChunking = true;
-						if (!tree.isPointDependent()) {
-							dimensions = Arrays.copyOf(dataDimMake, dataDimMake.length);
+						int[] dimensions;
+						boolean requiresChunking = false;
+						if (sdims.length == 1 && sdims[0] == 1) {
+							// zero-dim data (single value per point), so dimensions are scan dimensions
+							dimensions = tree.isPointDependent() ? scanDimensions : new int[] { 1 };
+							requiresChunking = tree.isPointDependent();
 						} else {
-							dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
-							System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+							requiresChunking = true;
+							if (!tree.isPointDependent()) {
+								dimensions = Arrays.copyOf(dataDimMake, dataDimMake.length);
+							} else {
+								dimensions = Arrays.copyOf(scanDimensions, scanDimensions.length + sdims.length);
+								System.arraycopy(sdims, 0, dimensions, scanDimensions.length, sdims.length);
+							}
 						}
-					}
-					if (requiresChunking) {
-						int[] specifiedChunkDims;
-						if (!tree.isPointDependent()) {
-							// not point dependent so use dataset chunking
-							if (sds.chunkDimensions != null) {
-								specifiedChunkDims = sds.chunkDimensions.clone();
-							} else { // No chunking set on the dataset so fill with -1 to estimate automatically
-								specifiedChunkDims = new int[sds.dimensions.length];
+						if (requiresChunking) {
+							int[] specifiedChunkDims;
+							if (!tree.isPointDependent()) {
+								// not point dependent so use dataset chunking
+								if (sds.chunkDimensions != null) {
+									specifiedChunkDims = sds.chunkDimensions.clone();
+								} else { // No chunking set on the dataset so fill with -1 to estimate automatically
+									specifiedChunkDims = new int[sds.dimensions.length];
+									Arrays.fill(specifiedChunkDims, -1);
+								}
+							} else if (!(sdims.length == 1 && sdims[0] == 1)) {
+								// point dependent, non-zero-dim data
+								// extend chunk to include scan dimensions
+								specifiedChunkDims = new int[dimensions.length];
+								Arrays.fill(specifiedChunkDims, -1);
+								if (sds.chunkDimensions != null) {
+									System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+								}
+							} else {
+								// zero-dim, point dependent data
+								// chunk rank matches scan rank (dimensions have been reduced to scan dimensions)
+								specifiedChunkDims = new int[scanDimensions.length];
 								Arrays.fill(specifiedChunkDims, -1);
 							}
-						} else if (!(sdims.length == 1 && sdims[0] == 1)) {
-							// point dependent, non-zero-dim data
-							// extend chunk to include scan dimensions
-							specifiedChunkDims = new int[dimensions.length];
-							Arrays.fill(specifiedChunkDims, -1);
-							if (sds.chunkDimensions != null) {
-								System.arraycopy(sds.chunkDimensions, 0, specifiedChunkDims, scanDimensions.length, sds.chunkDimensions.length);
+							int dataByteSize = InterfaceUtils.getItemBytes(1, sds.getInterface());
+							if (dataByteSize <= 0) {
+								// TODO: Fix for string types, particularly fixed length strings
+								dataByteSize = 4;
 							}
-						} else {
-							// zero-dim, point dependent data
-							// chunk rank matches scan rank (dimensions have been reduced to scan dimensions)
-							specifiedChunkDims = new int[scanDimensions.length];
-							Arrays.fill(specifiedChunkDims, -1);
+							int[] chunk = NexusUtils.estimateChunking(dimensions, dataByteSize, specifiedChunkDims);
+							int[] maxshape = lazy.getMaxShape();
+							for (int i = 0; i < maxshape.length; i++) {
+								// chunk length in a given dimension should not exceed the upper bound of the dataset
+								chunk[i] = maxshape[i] > 0 && maxshape[i] < chunk[i] ? maxshape[i] : chunk[i];
+							}
+							lazy.setChunking(chunk);
 						}
-						int dataByteSize = InterfaceUtils.getItemBytes(1, sds.getInterface());
-						if (dataByteSize <= 0) {
-							// TODO: Fix for string types, particularly fixed length strings
-							dataByteSize = 4;
+						lazy.setFillValue(getFillValue(InterfaceUtils.getElementClass(sds.getInterface())));
+						// data = file.createData(group, lazy, compression); // note: changed from NexusDataWriter
+						data = NexusNodeFactory.createDataNode();
+						data.setDataset(lazy);
+						group.addDataNode(name, data);
+						if (sds.isDetectorEntryData && group == detectorGroup) {
+							// only an immediate child node of the detector group can be a primary field
+	//						links.add(new SelfCreatingLink(data)); // note: changed from NexusDataWriter
+							primaryFieldNames.add(name);
 						}
-						int[] chunk = NexusUtils.estimateChunking(dimensions, dataByteSize, specifiedChunkDims);
-						int[] maxshape = lazy.getMaxShape();
-						for (int i = 0; i < maxshape.length; i++) {
-							// chunk length in a given dimension should not exceed the upper bound of the dataset
-							chunk[i] = maxshape[i] > 0 && maxshape[i] < chunk[i] ? maxshape[i] : chunk[i];
-						}
-						lazy.setChunking(chunk);
-					}
-					lazy.setFillValue(getFillValue(InterfaceUtils.getElementClass(sds.getInterface())));
-					// data = file.createData(group, lazy, compression); // note: changed from NexusDataWriter
-					data = NexusNodeFactory.createDataNode();
-					data.setDataset(lazy);
-					group.addDataNode(name, data);
 
-					if (!tree.isPointDependent()) {
-						int[] dataStartPos = generateDataStartPos(null, sdims);
+						attrBelowThisOnly = true;
+					} else {
+						if (sdims.length == 1 && sdims[0] == 1) {
+							sdims = null; // fix single item writing
+						}
+						int[] dataDim = generateDataDim(false, dataDimPrefix, sdims);
+						int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, sdims);
 						int[] dataStop = generateDataStop(dataStartPos, sdims);
-						IDataset ds = sds.toDataset();
+
+						// DataNode d = file.getData(group, name); // note: changed from NexusDataWriter
+						DataNode d = group.getDataNode(name);
+
+						lazy = d.getWriteableDataset();
+						IDataset ds = sds.toDataset(); // TODO: copied from NexusDataWriter, but do we need to do this?
+						ds.setShape(dataDim);
+
 						try {
 							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 						} catch (Exception e) {
 							logger.error("Problem setting slice on lazy dataset: {}", lazy, e);
 							throw new NexusException("Problem setting slice on lazy dataset", e);
 						}
+
+						// Close data - do not add children as attributes added for first point only
+						loopNodes = false;
 					}
-					if (makeData && sds.isDetectorEntryData && group == detectorGroup) {
-						// only an immediate child node of the detector group can be a primary field
-//						links.add(new SelfCreatingLink(data)); // note: changed from NexusDataWriter
-						primaryFieldNames.add(name);
-					}
-
-					attrBelowThisOnly = true;
-				} else {
-					if (sdims.length == 1 && sdims[0] == 1) {
-						sdims = null; // fix single item writing
-					}
-					int[] dataDim = generateDataDim(false, dataDimPrefix, sdims);
-					int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, sdims);
-					int[] dataStop = generateDataStop(dataStartPos, sdims);
-
-					// DataNode d = file.getData(group, name); // note: changed from NexusDataWriter
-					DataNode d = group.getDataNode(name);
-
-					lazy = d.getWriteableDataset();
-					IDataset ds = sds.toDataset(); // TODO: copied from NexusDataWriter, but do we need to do this?
-					ds.setShape(dataDim);
-
-					try {
-						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
-					} catch (Exception e) {
-						logger.error("Problem setting slice on lazy dataset: {}", lazy, e);
-						throw new NexusException("Problem setting slice on lazy dataset", e);
-					}
-
-					// Close data - do not add children as attributes added for first point only
-					loopNodes = false;
 				}
 			}
 		} else {
