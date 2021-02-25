@@ -11,9 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.scan.ui;
 
-import org.eclipse.scanning.api.INameable;
-
-public class ControlFileNode extends AbstractControl implements INameable {
+public class ControlFileNode extends AbstractControl {
 
 	private String file;
 

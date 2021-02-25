@@ -11,9 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.scan.ui;
 
-import org.eclipse.scanning.api.INameable;
-
-public class ControlEnumNode extends AbstractControl implements INameable {
+public class ControlEnumNode extends AbstractControl {
 
 	private Enum value;
 

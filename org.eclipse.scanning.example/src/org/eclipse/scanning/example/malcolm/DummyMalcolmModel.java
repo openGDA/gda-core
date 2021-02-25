@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.scanning.api.ITimeoutable;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.MalcolmModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
@@ -30,7 +29,7 @@ import org.eclipse.scanning.api.points.IPosition;
  *
  * @author Matthew Dickie
  */
-public class DummyMalcolmModel extends MalcolmModel implements ITimeoutable {
+public class DummyMalcolmModel extends MalcolmModel {
 
 	/**
 	 * The positioner names are the names of the datasets written by the dummy malcolm device.

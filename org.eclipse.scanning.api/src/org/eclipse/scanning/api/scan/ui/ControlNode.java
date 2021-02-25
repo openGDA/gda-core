@@ -11,11 +11,10 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.scan.ui;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 
-public class ControlNode extends AbstractControl implements INameable {
+public class ControlNode extends AbstractControl {
 
 	private Object value;       // If the user sets a temporary value which does not go straight to the scannable
 	private double increment=1;

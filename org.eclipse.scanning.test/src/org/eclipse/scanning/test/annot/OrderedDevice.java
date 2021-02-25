@@ -14,19 +14,19 @@ package org.eclipse.scanning.test.annot;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.annotation.scan.PointStart;
 import org.eclipse.scanning.api.annotation.scan.ScanEnd;
 
-public class OrderedDevice implements ILevel {
+public class OrderedDevice extends AbstractNameable implements ILevel {
 
 	private static List<String> calledNames = new ArrayList<>();
 
 	private int    level;
-	private String name;
 
 	public OrderedDevice(String name) {
-		this.name = name;
+		setName(name);
 	}
 
 	@PointStart
@@ -44,16 +44,6 @@ public class OrderedDevice implements ILevel {
 		this.level = level;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@ScanEnd
 	public void dispose() {
 		calledNames.clear();
@@ -65,6 +55,6 @@ public class OrderedDevice implements ILevel {
 
 	@Override
 	public String toString() {
-		return name+"(level=" + level+")";
+		return getName()+"(level=" + level+")";
 	}
 }

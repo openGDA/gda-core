@@ -11,14 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device.models;
 
-public abstract class AbstractDetectorModel implements IDetectorModel, IReflectedModel {
+import org.eclipse.scanning.api.AbstractNameableTimeoutable;
 
-	private long timeout;
-
-	/**
-	 * The name of the detector device
-	 */
-	private String name;
+public abstract class AbstractDetectorModel extends AbstractNameableTimeoutable implements IDetectorModel {
 
 	/**
 	 * The exposure time. If calculation is shorter than this, time is artificially added to make the detector respect
@@ -58,12 +53,10 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		long temp;
 		temp = Double.doubleToLongBits(exposureTime);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (int) (timeout ^ (timeout >>> 32));
 		return result;
 	}
 
@@ -71,46 +64,18 @@ public abstract class AbstractDetectorModel implements IDetectorModel, IReflecte
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		AbstractDetectorModel other = (AbstractDetectorModel) obj;
 		if (Double.doubleToLongBits(exposureTime) != Double.doubleToLongBits(other.exposureTime))
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (timeout != other.timeout)
-			return false;
 		return true;
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public long getTimeout() {
-		return timeout;
-	}
-
-	@Override
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
-
-	@Override
 	public String toString() {
-		return "AbstractDetectorModel [timeout=" + timeout + ", name=" + name + ", exposureTime=" + exposureTime + "]";
+		return "AbstractDetectorModel [exposureTime=" + exposureTime + "]";
 	}
-
 }

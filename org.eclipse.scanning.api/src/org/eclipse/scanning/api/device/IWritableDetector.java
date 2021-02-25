@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.device;
 
-import org.eclipse.scanning.api.ILevel;
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -46,7 +44,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *
  * @param <T> Class of model required by detector to configure it.
  */
-public interface IWritableDetector<T> extends IRunnableEventDevice<T>, INameable, ILevel {
+public interface IWritableDetector<T> extends IRunnableEventDevice<T> {
 
 	/**
 	 * For GDA9 detectors, returns a boolean for the readout completed, true for complete, false for error.

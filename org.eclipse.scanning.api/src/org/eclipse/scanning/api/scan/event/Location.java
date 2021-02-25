@@ -14,8 +14,8 @@ package org.eclipse.scanning.api.scan.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.ILevel;
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.PositionEvent;
 
@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.scan.PositionEvent;
  * @author Matthew Gerring
  *
  */
-public class Location implements INameable {
+public class Location extends AbstractNameable {
 
 	/**
 	 * Must match method names in IPositionListener as reflection used on the value to
@@ -43,9 +43,7 @@ public class Location implements INameable {
 		positionWillPerform, levelPerformed, positionChanged, positionPerformed;
 	}
 
-
 	private LocationType type;
-	private String       name;
 	private IPosition    position;
 	private int          level;
 	private List<String> levelNames;
@@ -53,11 +51,14 @@ public class Location implements INameable {
 	public Location() {
 
 	}
+
 	public Location(LocationType t, PositionEvent evnt) {
-		this.type       = t;
-		this.position   = evnt.getPosition();
-		if (position.getNames()!=null&&position.getNames().size()==1) this.name = position.getNames().iterator().next();
-		this.level      = evnt.getLevel();
+		this.type = t;
+		this.position = evnt.getPosition();
+		if (position.getNames() != null && position.getNames().size() == 1) {
+			setName(position.getNames().iterator().next());
+		}
+		this.level = evnt.getLevel();
 		this.levelNames = readLevelNames(evnt.getLevelObjects());
 	}
 
@@ -75,14 +76,6 @@ public class Location implements INameable {
 	}
 	public void setType(LocationType type) {
 		this.type = type;
-	}
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 	public IPosition getPosition() {
 		return position;
@@ -102,22 +95,23 @@ public class Location implements INameable {
 	public void setLevelNames(List<String> levelNames) {
 		this.levelNames = levelNames;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + level;
 		result = prime * result + ((levelNames == null) ? 0 : levelNames.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((position == null) ? 0 : position.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
@@ -129,11 +123,6 @@ public class Location implements INameable {
 				return false;
 		} else if (!levelNames.equals(other.levelNames))
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
 		if (position == null) {
 			if (other.position != null)
 				return false;
@@ -143,8 +132,10 @@ public class Location implements INameable {
 			return false;
 		return true;
 	}
+
 	@Override
 	public String toString() {
-		return "Location [type=" + type + ", name=" + name + ", position=" + position + ", level=" + level + "]";
+		return "Location [type=" + type + ", position=" + position + ", level=" + level + ", levelNames=" + levelNames
+				+ "]";
 	}
 }

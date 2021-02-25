@@ -169,6 +169,22 @@ public class MandelbrotModel extends AbstractDetectorModel {
 		this.maxImaginaryCoordinate = maxY;
 	}
 
+	public String getRealAxisName() {
+		return realAxisName;
+	}
+
+	public void setRealAxisName(String xName) {
+		this.realAxisName = xName;
+	}
+
+	public String getImaginaryAxisName() {
+		return imaginaryAxisName;
+	}
+
+	public void setImaginaryAxisName(String yName) {
+		this.imaginaryAxisName = yName;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -241,19 +257,13 @@ public class MandelbrotModel extends AbstractDetectorModel {
 		return true;
 	}
 
-	public String getRealAxisName() {
-		return realAxisName;
-	}
-
-	public void setRealAxisName(String xName) {
-		this.realAxisName = xName;
-	}
-
-	public String getImaginaryAxisName() {
-		return imaginaryAxisName;
-	}
-
-	public void setImaginaryAxisName(String yName) {
-		this.imaginaryAxisName = yName;
+	@Override
+	public String toString() {
+		return "MandelbrotModel [maxIterations=" + maxIterations + ", escapeRadius=" + escapeRadius + ", columns="
+				+ columns + ", rows=" + rows + ", points=" + points + ", maxRealCoordinate=" + maxRealCoordinate
+				+ ", maxImaginaryCoordinate=" + maxImaginaryCoordinate + ", realAxisName=" + realAxisName
+				+ ", imaginaryAxisName=" + imaginaryAxisName + ", enableNoise=" + enableNoise
+				+ ", noiseFreeExposureTime=" + noiseFreeExposureTime + ", saveImage=" + saveImage + ", saveSpectrum="
+				+ saveSpectrum + ", saveValue=" + saveValue + "]";
 	}
 }

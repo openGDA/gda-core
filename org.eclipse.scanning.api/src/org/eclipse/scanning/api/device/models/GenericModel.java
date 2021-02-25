@@ -18,82 +18,8 @@
 
 package org.eclipse.scanning.api.device.models;
 
-import org.eclipse.scanning.api.INameable;
-import org.eclipse.scanning.api.ITimeoutable;
+import org.eclipse.scanning.api.AbstractNameableTimeoutable;
 
-public class GenericModel implements ITimeoutable, INameable, IReflectedModel {
-
-	private long timeout;
-
-	/** The name of the device */
-	private String name;
-
-
-	// Auto generated methods
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (int) (timeout ^ (timeout >>> 32));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof GenericModel)) {
-			return false;
-		}
-		GenericModel other = (GenericModel) obj;
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		if (timeout != other.timeout) {
-			return false;
-		}
-		return true;
-	}
-
-	// Class functions
-
-	@Override
-	public String toString() {
-		return getClass().getName() + '@' + Integer.toHexString(hashCode())
-				+ " [timeout=" + timeout + ", name=" + name + "]";
-	}
-
-	// interface INameable methods
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	// interface ITimeoutable methods
-
-	@Override
-	public long getTimeout() {
-		return timeout;
-	}
-
-	@Override
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
+public class GenericModel extends AbstractNameableTimeoutable implements IReflectedModel {
+	// nothing further required
 }

@@ -15,16 +15,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.INamedNode;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 
-public abstract class AbstractControl implements INamedNode {
+public abstract class AbstractControl extends AbstractNameable implements INamedNode {
 
 	// Should not serialize parent.
 	private String parentName;
-	private String name;
 	private String displayName;
 	private INamedNode[] children;
 
@@ -59,16 +59,6 @@ public abstract class AbstractControl implements INamedNode {
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public String getDisplayName() {
 		if (displayName==null) return getName();
 		return displayName;
@@ -81,28 +71,24 @@ public abstract class AbstractControl implements INamedNode {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + Arrays.hashCode(children);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + ((parentName == null) ? 0 : parentName.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		// displayName is not considered significant when comparing objects of this class
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		AbstractControl other = (AbstractControl) obj;
 		if (!Arrays.equals(children, other.children))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
 			return false;
 		if (parentName == null) {
 			if (other.parentName != null)
@@ -114,8 +100,8 @@ public abstract class AbstractControl implements INamedNode {
 
 	@Override
 	public String toString() {
-		return "AbstractControl [parentName=" + parentName + ", name=" + name + ", displayName=" + displayName
-				+ ", children=" + Arrays.toString(children) + "]";
+		return "AbstractControl [parentName=" + parentName + ", displayName=" + displayName + ", children="
+				+ Arrays.toString(children) + "]";
 	}
 
 	public void addChild(INamedNode child) {
@@ -197,10 +183,10 @@ public abstract class AbstractControl implements INamedNode {
 		return false;
 	}
 
-
+	@SuppressWarnings("unchecked")
 	public <T extends INamedNode> T findChild(String name) {
 		if (children!=null) for (INamedNode child : children) {
-			if (child.getName().equals(name)) return (T)child;
+			if (child.getName().equals(name)) return (T) child;
 		}
 		return null;
 	}

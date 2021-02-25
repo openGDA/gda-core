@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.scanning.api.AbstractNameable;
+
 /**
  * Abstract base class for models using the ScanPointGenerator module, providing property change support for the convenience of subclasses.
  *
@@ -35,7 +37,7 @@ import java.util.Map;
  * @author Joseph Ware
  *
  */
-public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
+public abstract class AbstractPointsModel extends AbstractNameable implements IScanPointGeneratorModel {
 
 	private static final String HARDCODED_UNITS = "mm";
 	private List<String> units;
@@ -54,22 +56,8 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 		pcs.removePropertyChangeListener(listener);
 	}
 
-	private String name;
-
 	/** If <code>true</code>, the motors move continuously; if <code>false</code>, they stop at each point in the scan to take an image */
 	private boolean continuous = true;
-
-	@Override
-	public String getName() {
-		return name;
-	}
-	/**
-	 * Name of the model as it will appear in the UI.
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	@Override
 	public List<String> getScannableNames() {
@@ -86,42 +74,6 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 		names = names.replace(']', ')');
 		buf.append(names);
 		return buf.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (alternating ? 1231 : 1237);
-		result = prime * result + (continuous ? 1231 : 1237);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || obj.getClass()!=getClass()) {
-			return false;
-		}
-		AbstractPointsModel other = (AbstractPointsModel) obj;
-		if (alternating != other.alternating) {
-			return false;
-		}
-		if (continuous != other.continuous) {
-			return false;
-		}
-		if (name == null) {
-			return (other.name == null);
-		}
-		return (name.equals(other.name));
-	}
-
-	@Override
-	public String toString() {
-		return "name=" + name + ", continuous="+ continuous + ", alternating=" + alternating;
 	}
 
 	@Override
@@ -180,5 +132,38 @@ public abstract class AbstractPointsModel implements IScanPointGeneratorModel {
 	public static boolean supportsRandomOffset(Class<? extends IScanPointGeneratorModel> model) {
 		return (model.equals(TwoAxisGridPointsModel.class));
 	}
-
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (alternating ? 1231 : 1237);
+		result = prime * result + (continuous ? 1231 : 1237);
+		result = prime * result + ((units == null) ? 0 : units.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractPointsModel other = (AbstractPointsModel) obj;
+		if (alternating != other.alternating)
+			return false;
+		if (continuous != other.continuous)
+			return false;
+		if (units == null) {
+			if (other.units != null)
+				return false;
+		} else if (!units.equals(other.units))
+			return false;
+		return true;
+	}
+	@Override
+	public String toString() {
+		return "AbstractPointsModel [units=" + units + ", alternating=" + alternating + ", continuous=" + continuous
+				+ "]";
+	}
 }

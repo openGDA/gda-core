@@ -34,19 +34,19 @@ public abstract class CountableScannable<T> extends AbstractScannable<T> {
 
 	private Map<String, Integer> counts = new HashMap<>();
 
-	public CountableScannable() {
+	protected CountableScannable() {
 		super();
 	}
 
-	public CountableScannable(IPublisher<Location> publisher, IScannableDeviceService sservice) {
+	protected CountableScannable(IPublisher<Location> publisher, IScannableDeviceService sservice) {
 		super(publisher, sservice);
 	}
 
-	public CountableScannable(IPublisher<Location> publisher) {
+	protected CountableScannable(IPublisher<Location> publisher) {
 		super(publisher);
 	}
 
-	public CountableScannable(IScannableDeviceService sservice) {
+	protected CountableScannable(IScannableDeviceService sservice) {
 		super(sservice);
 	}
 

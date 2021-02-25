@@ -14,10 +14,9 @@ package org.eclipse.scanning.api.scan.ui;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.INamedNode;
 
-public class ControlGroup extends AbstractControl implements INameable {
+public class ControlGroup extends AbstractControl {
 
 
 	public ControlGroup() {

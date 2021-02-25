@@ -15,20 +15,22 @@ import org.eclipse.scanning.api.device.models.AbstractDetectorModel;
 
 public class ConstantVelocityModel extends AbstractDetectorModel {
 
+	private static final String DEFAULT_NAME = "cvExmpl";
+	private static final long DEFAULT_TIMEOUT = 100;
+
 	private double start,stop,step;
-	private String name      = "cvExmpl";
 	private int lineSize     = 1;
 	private int channelCount = 64;
 	private int spectraSize  = 46;
-	private long timeout  = 100;
 
 	public ConstantVelocityModel() {
-
+		setName(DEFAULT_NAME);
+		setTimeout(DEFAULT_TIMEOUT);
 	}
 
 	public ConstantVelocityModel(String name, double start, double stop, double step) {
-
-		this.name  = name;
+		setName(name);
+		setTimeout(DEFAULT_TIMEOUT);
 		this.start = start;
 		this.stop  = stop;
 		this.step  = step;
@@ -37,38 +39,6 @@ public class ConstantVelocityModel extends AbstractDetectorModel {
 		this.lineSize = (int)Math.floor(div+1);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + channelCount;
-		result = prime * result + lineSize;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + spectraSize;
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConstantVelocityModel other = (ConstantVelocityModel) obj;
-		if (channelCount != other.channelCount)
-			return false;
-		if (lineSize != other.lineSize)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (spectraSize != other.spectraSize)
-			return false;
-		return true;
-	}
 	public int getLineSize() {
 		return lineSize;
 	}
@@ -86,14 +56,6 @@ public class ConstantVelocityModel extends AbstractDetectorModel {
 	}
 	public void setSpectraSize(int spectraSize) {
 		this.spectraSize = spectraSize;
-	}
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public double getStart() {
@@ -121,15 +83,49 @@ public class ConstantVelocityModel extends AbstractDetectorModel {
 	}
 
 	@Override
-	public long getTimeout() {
-		return timeout;
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + channelCount;
+		result = prime * result + lineSize;
+		result = prime * result + spectraSize;
+		long temp;
+		temp = Double.doubleToLongBits(start);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(step);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(stop);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
 	}
 
 	@Override
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ConstantVelocityModel other = (ConstantVelocityModel) obj;
+		if (channelCount != other.channelCount)
+			return false;
+		if (lineSize != other.lineSize)
+			return false;
+		if (spectraSize != other.spectraSize)
+			return false;
+		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+			return false;
+		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))
+			return false;
+		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
+			return false;
+		return true;
 	}
 
-
-
+	@Override
+	public String toString() {
+		return "ConstantVelocityModel [start=" + start + ", stop=" + stop + ", step=" + step + ", lineSize=" + lineSize
+				+ ", channelCount=" + channelCount + ", spectraSize=" + spectraSize + "]";
+	}
 }

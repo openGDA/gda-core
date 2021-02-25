@@ -84,40 +84,42 @@ public class PyExpressionFactory {
 	}
 
 
-	@SuppressWarnings("unchecked")
 	private <T> PyModelExpresser<T> getExpresser(T model) throws PyExpressionNotImplementedException {
+		final Class<?> modelClass = model.getClass();
+		PyModelExpresser<T> expresser = getExpresser(modelClass);
+		if (expresser == null) {
+			throw new PyExpressionNotImplementedException("The model '" + modelClass + "' does not have a python expresser!");
+		}
+		expresser.setFactory(this);
+		return expresser;
+	}
 
-		PyModelExpresser<T> expresser=null;
+	@SuppressWarnings("unchecked")
+	private <T> PyModelExpresser<T> getExpresser(Class<?> modelClass) {
+		if (expressers.containsKey(modelClass)) {
+			return (PyModelExpresser<T>) expressers.get(modelClass);
+		}
 
-		if (expressers.containsKey(model.getClass())) {
-			expresser = (PyModelExpresser<T>)expressers.get(model.getClass());
-		} else {
-			Class<?> clazz = model.getClass();
-			while(!clazz.equals(Object.class)) {
+		// Recurse over the superclasses/interfaces of the model class
+		Class<?> class1 = modelClass;
+		while (class1 != null && !class1.equals(Object.class)) {
+			try {
+				for (Class<?> class2 : class1.getInterfaces()) {
+					final PyModelExpresser<T> expresser = getExpresser(class2);
+					if (expresser != null) {
+						return expresser;
+					}
+				}
+			} finally {
 				try {
-					Class<?>[] classes = clazz.getInterfaces();
-					for (Class<?> class1 : classes) {
-						if (expressers.containsKey(class1)) {
-							expresser = (PyModelExpresser<T>)expressers.get(class1);
-							break;
-						}
-					}
-				} finally {
-					try {
-					    clazz = clazz.getSuperclass();
-					} catch (Exception ne) {
-						break;
-					}
+					class1 = class1.getSuperclass();
+				} catch (Exception ne) {
+					// nothing to do
 				}
 			}
 		}
-
-		if (expresser==null) throw new PyExpressionNotImplementedException("The model '"+model.getClass()+"' does not have a python expresser!");
-
-		expresser.setFactory(this);
-        return expresser;
+		return null;
 	}
-
 
 	public <T> String pyExpress(T model, Collection<IROI> rois, boolean verbose) throws Exception {
 		final PyModelExpresser<T> expresser = getExpresser(model);

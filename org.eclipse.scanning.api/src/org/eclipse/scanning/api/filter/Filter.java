@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.AbstractNameable;
+
 /**
  * A springable class which encapsulates information for a given feature.
  *
@@ -70,9 +72,8 @@ import java.util.stream.Collectors;
  * @author Matthew Gerring
  *
  */
-public class Filter implements IFilter<String> {
+public class Filter extends AbstractNameable implements IFilter<String> {
 
-	private String name;
 	private List<String> excludes;
 	private List<String> includes;
 
@@ -80,14 +81,6 @@ public class Filter implements IFilter<String> {
 		IFilterService.DEFAULT.register(this);
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-	@Override
-	public void setName(String n) {
-		this.name = n;
-	}
 	@Override
 	public List<String> getExcludes() {
 		return excludes;
@@ -103,41 +96,6 @@ public class Filter implements IFilter<String> {
 	@Override
 	public void setIncludes(List<String> includes) {
 		this.includes = includes;
-	}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((excludes == null) ? 0 : excludes.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((includes == null) ? 0 : includes.hashCode());
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Filter other = (Filter) obj;
-		if (excludes == null) {
-			if (other.excludes != null)
-				return false;
-		} else if (!excludes.equals(other.excludes))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (includes == null) {
-			if (other.includes != null)
-				return false;
-		} else if (!includes.equals(other.includes))
-			return false;
-		return true;
 	}
 
 	@Override
@@ -193,7 +151,38 @@ public class Filter implements IFilter<String> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((excludes == null) ? 0 : excludes.hashCode());
+		result = prime * result + ((includes == null) ? 0 : includes.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Filter other = (Filter) obj;
+		if (excludes == null) {
+			if (other.excludes != null)
+				return false;
+		} else if (!excludes.equals(other.excludes))
+			return false;
+		if (includes == null) {
+			if (other.includes != null)
+				return false;
+		} else if (!includes.equals(other.includes))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
-		return "Filter [name=" + name + ", excludes=" + excludes + ", includes=" + includes + "]";
+		return "Filter [excludes=" + excludes + ", includes=" + includes + "]";
 	}
 }

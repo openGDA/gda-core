@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.eclipse.scanning.api.IModelProvider;
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScanAttributeContainer;
 import org.eclipse.scanning.api.ModelValidationException;
@@ -52,13 +52,12 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
-public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<T>,
-		IModelProvider<T>, IScanAttributeContainer, IActivatable {
+public abstract class AbstractRunnableDevice<T> extends AbstractNameable implements IRunnableEventDevice<T>,
+		IScanAttributeContainer, IActivatable {
 	private static Logger logger = LoggerFactory.getLogger(AbstractRunnableDevice.class);
 
 	// Data
 	protected T model;
-	private String name;
 	private int level = 1;
 	private String scanId;
 	private DeviceState deviceState;
@@ -154,16 +153,6 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 	@Override
 	public void setLevel(int level) {
 		this.level = level;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
@@ -528,7 +517,7 @@ public abstract class AbstractRunnableDevice<T> implements IRunnableEventDevice<
 
 	@Override
 	public String toString() {
-		return getClass().getName() + '@' + Integer.toHexString(hashCode()) +" [name=" + name + "]";
+		return getClass().getName() + '@' + Integer.toHexString(hashCode()) +" [name=" + getName() + "]";
 	}
 
 	@Override

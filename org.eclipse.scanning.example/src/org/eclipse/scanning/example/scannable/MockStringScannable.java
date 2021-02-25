@@ -12,12 +12,11 @@
 package org.eclipse.scanning.example.scannable;
 
 import org.eclipse.scanning.api.AbstractScannable;
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.ScanningException;
 
-public class MockStringScannable extends AbstractScannable<String> implements INameable {
+public class MockStringScannable extends AbstractScannable<String> {
 
 	private String value;
 	private String[] permittedValues;

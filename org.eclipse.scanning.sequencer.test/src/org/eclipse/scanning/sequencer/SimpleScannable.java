@@ -1,5 +1,6 @@
 package org.eclipse.scanning.sequencer;
 
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -7,16 +8,15 @@ import org.eclipse.scanning.api.scan.ScanningException;
 /**
  * Simple implementation of IScannable, with the ability to specify delay time, for testing timeout
  */
-public class SimpleScannable implements IScannable<Double> {
+public class SimpleScannable extends AbstractNameable implements IScannable<Double> {
 
 	private int level;
-	private String name;
 	private double value;
 	private int delay = 0; // delay time in seconds
 
 	public SimpleScannable(int level, String name, double value) {
 		this.level = level;
-		this.name = name;
+		setName(name);
 		this.value = value;
 	}
 
@@ -28,16 +28,6 @@ public class SimpleScannable implements IScannable<Double> {
 	@Override
 	public int getLevel() {
 		return level;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
@@ -53,7 +43,7 @@ public class SimpleScannable implements IScannable<Double> {
 
 	@Override
 	public String toString() {
-		return "SimpleScannable [level=" + level + ", name=" + name + ", value=" + value + "]";
+		return "SimpleScannable [level=" + level + ", name=" + getName() + ", value=" + value + "]";
 	}
 
 	public int getDelay() {

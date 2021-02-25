@@ -22,7 +22,6 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.scanning.api.IConfigurable;
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IValidator;
 import org.eclipse.scanning.api.device.models.IDeviceRoleActor;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -74,7 +73,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  * @author Matthew Gerring
  *
  */
-public interface IRunnableDevice<T> extends INameable, IDeviceRoleActor, ILevel, IConfigurable<T>, IResettableDevice, IValidator<T>, IModelProvider<T> {
+public interface IRunnableDevice<T> extends IDeviceRoleActor, ILevel, IConfigurable<T>, IResettableDevice, IValidator<T>, IModelProvider<T> {
 
 	/**
 	 *

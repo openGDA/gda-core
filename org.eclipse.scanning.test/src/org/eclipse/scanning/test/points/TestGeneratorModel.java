@@ -13,24 +13,13 @@ package org.eclipse.scanning.test.points;
 
 import java.beans.PropertyChangeListener;
 
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 
-public class TestGeneratorModel implements IScanPathModel {
-
-	private String name;
+public class TestGeneratorModel extends AbstractNameable implements IScanPathModel {
 
 	public TestGeneratorModel() {
 		setName("Test");
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override

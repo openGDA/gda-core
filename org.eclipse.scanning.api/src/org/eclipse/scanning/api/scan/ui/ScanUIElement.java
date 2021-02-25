@@ -18,14 +18,14 @@
 
 package org.eclipse.scanning.api.scan.ui;
 
+import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.ui.IScanUIElement;
 
 /**
  * A default implemementation of {@link IScanUIElement}, an element in the scan ui.
  */
-public class ScanUIElement implements IScanUIElement {
+public class ScanUIElement extends AbstractNameable implements IScanUIElement {
 
-	private String name;
 	private String iconPath;
 	private boolean enabled;
 
@@ -34,19 +34,9 @@ public class ScanUIElement implements IScanUIElement {
 	}
 
 	public ScanUIElement(String name, String iconPath) {
-		this.name = name;
+		setName(name);
 		this.iconPath = iconPath;
 		this.enabled = false;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
@@ -70,7 +60,7 @@ public class ScanUIElement implements IScanUIElement {
 
 	@Override
 	public String toString() {
-		return "ScanUIElement [name=" + name + ", iconPath=" + iconPath + ", enabled=" + enabled + "]";
+		return "ScanUIElement [name=" + getName() + ", iconPath=" + iconPath + ", enabled=" + enabled + "]";
 	}
 
 }

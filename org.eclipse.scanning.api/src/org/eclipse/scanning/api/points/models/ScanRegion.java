@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.INameable;
+import org.eclipse.scanning.api.AbstractNameable;
 
 /**
  *
@@ -26,9 +26,8 @@ import org.eclipse.scanning.api.INameable;
  *
  * @param <T>
  */
-public class ScanRegion implements INameable {
+public class ScanRegion extends AbstractNameable {
 
-	private String       name;
 	private Object       type;
 	private IROI            roi;
 	private List<String> scannables;
@@ -37,10 +36,10 @@ public class ScanRegion implements INameable {
 		// We are a bean
 	}
 	public ScanRegion(String name) {
-		this.name = name;
+		setName(name);
 	}
 	public ScanRegion(String name, Object type, List<String> snames) {
-		this.name = name;
+		setName(name);
 		this.type = type;
 		this.scannables = snames;
 	}
@@ -98,15 +97,6 @@ public class ScanRegion implements INameable {
 		return true;
 	}
 
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
 	public Object getType() {
 		return type;
 	}
@@ -117,8 +107,8 @@ public class ScanRegion implements INameable {
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
-		if (name!=null) {
-			buf.append(name);
+		if (getName() != null) {
+			buf.append(getName());
 			buf.append(" ");
 		}
 		if (roi!=null) {

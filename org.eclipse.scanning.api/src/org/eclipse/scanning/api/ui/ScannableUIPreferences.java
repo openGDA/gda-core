@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.api.ui;
 
-import org.eclipse.scanning.api.INameable;
+import org.eclipse.scanning.api.AbstractNameable;
 
 /**
  * Default values in UI elements are invariably arbitrary. Use this class to tweak these for a particular scannable in Spring.
@@ -42,8 +42,9 @@ import org.eclipse.scanning.api.INameable;
 {@literal			<property name="stepModelStep" value="0.001" />}
 {@literal		</bean>}
    </pre>
+Note that the name set for an object of this class must match the scannable name as configured in Spring
  */
-public class ScannableUIPreferences implements INameable {
+public class ScannableUIPreferences extends AbstractNameable {
 
 	// DEFAULT VALUES
 	private static final double DEFAULT_NUDGE = 0.1;
@@ -51,7 +52,6 @@ public class ScannableUIPreferences implements INameable {
 	private static final double DEFAULT_WIDTH = 10.0;
 	private static final double DEFAULT_STEP = 1.0;
 
-	private String name;
 	private double nudgeValue;
 	private double stepModelStart;
 	private double stepModelWidth;
@@ -74,19 +74,6 @@ public class ScannableUIPreferences implements INameable {
 	 */
 	public void register() {
 		IScannableUIPreferencesService.DEFAULT.register(this);
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name must match scannable name as configured in Spring
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	/**
@@ -128,7 +115,6 @@ public class ScannableUIPreferences implements INameable {
 
 	/**
 	 * Used by MultiStepComposite to add default StepModel values
-	 * @param stepModelStep
 	 */
 	public double getStepModelStep() {
 		return stepModelStep;
@@ -140,7 +126,7 @@ public class ScannableUIPreferences implements INameable {
 
 	@Override
 	public String toString() {
-		return "ScannableUIPreferences [name=" + name + ", nudgeValue=" + nudgeValue + ", stepModelStart="
+		return "ScannableUIPreferences [name=" + getName() + ", nudgeValue=" + nudgeValue + ", stepModelStart="
 				+ stepModelStart + ", stepModelWidth=" + stepModelWidth + ", stepModelStep=" + stepModelStep + "]";
 	}
 

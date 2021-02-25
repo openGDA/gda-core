@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
 
 /**
@@ -32,9 +31,7 @@ import org.eclipse.scanning.api.device.models.MalcolmDetectorModel;
  *
  * @author Matthew Dickie
  */
-public class DummyMalcolmDetectorModel extends MalcolmDetectorModel implements INameable {
-
-	private String name;
+public class DummyMalcolmDetectorModel extends MalcolmDetectorModel {
 
 	private List<DummyMalcolmDatasetModel> datasets = null;
 
@@ -43,17 +40,7 @@ public class DummyMalcolmDetectorModel extends MalcolmDetectorModel implements I
 	}
 
 	public DummyMalcolmDetectorModel(String name) {
-		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
+		setName(name);
 	}
 
 	public List<DummyMalcolmDatasetModel> getDatasets() {
@@ -77,7 +64,7 @@ public class DummyMalcolmDetectorModel extends MalcolmDetectorModel implements I
 
 	@Override
 	public String toString() {
-		return "DummyMalcolmControlledDetectorModel [name=" + name + ", datasets=" + datasets + "]";
+		return "DummyMalcolmControlledDetectorModel [name=" + getName() + ", datasets=" + datasets + "]";
 	}
 
 }

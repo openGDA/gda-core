@@ -37,7 +37,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
  */
 public interface IScannable<T> extends
 						           /* A list of mostly defaulted and vanilla interfaces optionally used for scannables */
-						           ILevel, INameable, ITimeoutable,
+						           ILevel, ITimeoutable,
 						           IBoundable<T>, ITolerable<T>, IActivatable {
 
 	/**

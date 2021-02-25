@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
-public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttributeContainer, IPositionListenable {
+public abstract class AbstractScannable<T> extends AbstractNameableTimeoutable implements IScannable<T>, IScanAttributeContainer, IPositionListenable {
 
 	private static Logger logger = LoggerFactory.getLogger(AbstractScannable.class);
 
@@ -50,9 +50,7 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 	private T                   tolerance;
 	private Map<String, Object> attributes;
 	private int                 level;
-	private String              name;
 	private boolean             activated;
-	private long                timeout=-1;
 
 	/**
 	 * Model is used for some scannables for instance those writing NeXus
@@ -192,16 +190,6 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	@Override
 	public T getMaximum() {
 		return max;
 	}
@@ -251,16 +239,6 @@ public abstract class AbstractScannable<T> implements IScannable<T>, IScanAttrib
 
 	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
 		this.scannableDeviceService = scannableDeviceService;
-	}
-
-	@Override
-	public long getTimeout() {
-		return timeout;
-	}
-
-	@Override
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
 	}
 
 	@Override
