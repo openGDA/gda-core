@@ -16,21 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.eclipse.scanning.test.command;
+package org.eclipse.scanning.sequencer;
 
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.AFTER_SCRIPT;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.ALWAYS_RUN_AFTER_SCRIPT;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.BEFORE_SCRIPT;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.DETECTORS;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.END_POSITION;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.FILE_PATH;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.IGNORE_PREPROCESS;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.MONITOR_NAMES_PER_POINT;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.MONITOR_NAMES_PER_SCAN;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.PROCESSING_REQUEST;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.SCAN_METADATA;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.START_POSITION;
-import static org.eclipse.scanning.api.event.scan.ScanRequestBuilder.TEMPLATE_FILE_PATHS;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.AFTER_SCRIPT;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.ALWAYS_RUN_AFTER_SCRIPT;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.BEFORE_SCRIPT;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.DETECTORS;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.END_POSITION;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.FILE_PATH;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.IGNORE_PREPROCESS;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.MONITOR_NAMES_PER_POINT;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.MONITOR_NAMES_PER_SCAN;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.PROCESSING_REQUEST;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.SCAN_METADATA;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.START_POSITION;
+import static org.eclipse.scanning.sequencer.ScanRequestBuilder.TEMPLATE_FILE_PATHS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -47,7 +47,7 @@ import java.util.Set;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.event.scan.ScanRequestBuilder;
+import org.eclipse.scanning.sequencer.ScanRequestBuilder;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;

@@ -16,6 +16,7 @@ import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.processing.IOperationService;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
@@ -49,6 +50,16 @@ public class ServiceHolder {
 
 	public void setNexusDeviceService(INexusDeviceService nexusDeviceService) {
 		ServiceHolder.nexusDeviceService = nexusDeviceService;
+	}
+
+	private static INexusFileFactory nexusFileFactory;
+
+	public static INexusFileFactory getNexusFileFactory() {
+		return nexusFileFactory;
+	}
+
+	public void setNexusFileFactory(INexusFileFactory nexusFileFactory) {
+		ServiceHolder.nexusFileFactory = nexusFileFactory;
 	}
 
     private static IOperationService operationService;
