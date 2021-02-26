@@ -1,0 +1,324 @@
+/*
+ * Copyright © 2021 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.daq.devices.mbs.api;
+
+import java.util.List;
+
+import gda.device.DeviceException;
+
+public interface IMbsAnalyser {
+
+	/**
+	 * Gets the collection time
+	 *
+	 * @return The collection time
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	double getCollectionTime() throws DeviceException;
+
+	/**
+	 * Sets the collection time
+	 *
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	void setCollectionTime(double collectionTime) throws DeviceException;
+
+	/**
+	 * Gets the acquisition period
+	 *
+	 * @return The acquisition period
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	double getAcquirePeriod() throws DeviceException;
+
+	/**
+	 * Sets the acquisition period
+	 *
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	void setAcquirePeriod(double acquirePeriod) throws DeviceException;
+
+	/**
+	 * Gets the number of iterations (exposures per image)
+	 *
+	 * @return The number of iterations
+	 * @throws DeviceException If there is a problem communication
+	 */
+	public int getIterations() throws DeviceException;
+
+	/**
+	 * Sets the number of iterations (exposures per image)
+	 *
+	 * @param iterations The number of iterations
+	 * @throws DeviceException If there is a problem communication
+	 */
+	public void setIterations(int iterations) throws DeviceException;
+
+	/**
+	 * Gets the list of available pass energies
+	 *
+	 * @return The list of available pass energies
+	 */
+	public List<String> getPassEnergies();
+
+	/**
+	 * Gets the current pass energy
+	 *
+	 * @return The pass energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public int getPassEnergy() throws DeviceException;
+
+	/**
+	 * Sets the pass energy
+	 *
+	 * @param passEnergy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setPassEnergy(int passEnergy) throws DeviceException;
+
+	/**
+	 * Gets the list of available lens modes
+	 *
+	 * @return The list of available lens modes
+	 */
+	public List<String> getLensModes();
+
+	/**
+	 * Gets the current lens mode
+	 *
+	 * @return The current lens mode
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public String getLensMode() throws DeviceException;
+
+	/**
+	 * Sets the current lens mode
+	 *
+	 * @param lensMode The requested lens mode
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setLensMode(String lensMode) throws DeviceException;
+
+	/**
+	 * Gets the list of available acquisition modes
+	 *
+	 * @return the list of available acquisition modes
+	 */
+	public List<String> getAcquisitionModes();
+
+	/**
+	 * Gets the current acquisition mode
+	 *
+	 * @return The current acquisition mode
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public String getAcquisitionMode() throws DeviceException;
+
+	/**
+	 * Sets the current acquisition mode
+	 *
+	 * @param acquisitionMode The requested acquisition mode
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setAcquisitionMode(String acquisitionMode) throws DeviceException;
+
+	/**
+	 * Gets the start energy
+	 *
+	 * @return The start energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public double getStartEnergy() throws DeviceException;
+
+	/**
+	 * Sets the start energy
+	 *
+	 * @param startEnergy The start energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setStartEnergy(double startEnergy) throws DeviceException;
+
+	/**
+	 * Gets the end energy
+	 *
+	 * @return The end energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public double getEndEnergy() throws DeviceException;
+
+	/**
+	 * Sets the end energy
+	 *
+	 * @param endEnergy The end energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setEndEnergy(double endEnergy) throws DeviceException;
+
+	/**
+	 * Gets the centre energy
+	 *
+	 * @return The end energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public double getCentreEnergy() throws DeviceException;
+
+	/**
+	 * Sets the centre energy
+	 *
+	 * @param centreEnergy The end energy
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setCentreEnergy(double centreEnergy) throws DeviceException;
+
+	/**
+	 * Gets the energy width
+	 * @return The energy width
+	 * @throws DeviceException
+	 */
+	public double getEnergyWidth() throws DeviceException;
+
+	/**
+	 * Gets the deflector X value
+	 *
+	 * @return The deflector X value
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public double getDeflectorX() throws DeviceException;
+
+	/**
+	 * Sets the deflector X value
+	 *
+	 * @param deflectorX The deflector X value
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setDeflectorX(double deflectorX) throws DeviceException;
+
+	/**
+	 * Gets the deflector Y value
+	 *
+	 * @return The deflector Y value
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public double getDeflectorY() throws DeviceException;
+
+	/**
+	 * Sets the deflector Y value
+	 *
+	 * @param deflectorY The deflector Y value
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setDeflectorY(double deflectorY) throws DeviceException;
+
+	/**
+	 * Gets the number of scans
+	 *
+	 * @return The number of scans
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public int getNumberOfScans() throws DeviceException;
+
+	/**
+	 * Sets the number of scans
+	 *
+	 * @param numberOfScans The number of scans
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setNumberOfScans(int numberOfScans) throws DeviceException;
+
+	/**
+	 * Gets the number of slices.
+	 * @return The number of slices
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public int getSlices() throws DeviceException;
+
+	/**
+	 * Sets the number of slices.
+	 *
+	 * @param slices The number of slices
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setSlices(int slices) throws DeviceException;
+
+
+	/**
+	 * Gets the number of steps
+	 *
+	 * @return The number of steps
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public int getNumberOfSteps() throws DeviceException;
+
+	/**
+	 * Sets the number of steps
+	 *
+	 * @param steps The number of steps
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setNumberOfSteps(int steps) throws DeviceException;
+
+	/**
+	 * Gets the number of dither steps
+	 *
+	 * @return The number of dither steps
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public int getNumberOfDitherSteps() throws DeviceException;
+
+	/**
+	 * Sets the number of dither steps
+	 *
+	 * @param ditherSteps The number of dither steps
+	 * @throws DeviceException If there is a problem with communication
+	 */
+	public void setNumberOfDitherSteps(int ditherSteps) throws DeviceException;
+
+	/**
+	 * Gets the spin offset
+	 *
+	 * @return The spin offset
+	 * @throws DeviceException If there is a problem with EPICS communication
+	 */
+	public double getSpinOffset() throws DeviceException;
+
+	/**
+	 * Sets the spin offset
+	 *
+	 * @param spinOffset The spin offset
+	 * @throws DeviceException If there is a problem with EPICS communication
+	 */
+	public void setSpinOffset(double spinOffset) throws DeviceException;
+
+	/**
+	 * Gets the step size
+	 *
+	 * @return step size
+	 * @throws DeviceException If there is a problem with EPICS communication
+	 */
+	public double getStepSize() throws DeviceException;
+
+	/**
+	 * Sets the step size
+	 *
+	 * @param stepSize The step size
+	 * @throws DeviceException If there is a problem with EPICS communication
+	 */
+	public void setStepSize(double stepSize) throws DeviceException;
+}

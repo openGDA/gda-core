@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mbs Devices API
+Bundle-SymbolicName: uk.ac.diamond.daq.devices.mbs.api
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.devices.mbs.api
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: uk.ac.diamond.daq.devices.mbs.api
+Require-Bundle: uk.ac.gda.epics
