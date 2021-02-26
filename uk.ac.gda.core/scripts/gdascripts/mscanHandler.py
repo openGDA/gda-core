@@ -206,6 +206,9 @@ alias('templates')
 alias('proc')
 alias('processors')
 
+rrun = rerun = 'rerun'
+alias('rerun')
+
 # The Java entry point for MScan commands, creates the scan builder and
 # submits the command string via the GeneralTranslator.
 def mscan(*args):

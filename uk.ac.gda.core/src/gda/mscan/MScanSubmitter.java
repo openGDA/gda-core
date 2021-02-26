@@ -19,6 +19,7 @@
 package gda.mscan;
 
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,9 +34,14 @@ import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.ISubmitter;
+import org.eclipse.scanning.api.event.core.ISubscriber;
+import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.sequencer.ScanRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +53,7 @@ import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
+import gda.jython.JythonServerFacade;
 import gda.mscan.element.IMScanElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
@@ -56,6 +63,7 @@ import gda.mscan.processor.IClauseElementProcessor;
 import gda.mscan.processor.IRunnableDeviceDetectorElementProcessor;
 import gda.mscan.processor.MutatorElementProcessor;
 import gda.mscan.processor.NumberElementProcessor;
+import gda.mscan.processor.ReRunFromFileElementProcessor;
 import gda.mscan.processor.RegionShapeElementProcessor;
 import gda.mscan.processor.ScanDataConsumerElementProcessor;
 import gda.mscan.processor.ScannableDetectorElementProcessor;
@@ -77,6 +85,8 @@ import gda.mscan.processor.TokenStringElementProcessor;
 public class MScanSubmitter extends ValidationUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MScanSubmitter.class);
+	private static final String RERUN = "rerun";
+	private static final String EMPTYSTRING = "";
 
 	private interface ProcessorFunction extends Function<Object, IClauseElementProcessor> {}
 	/**
@@ -105,6 +115,7 @@ public class MScanSubmitter extends ValidationUtils {
 	private final IEventService eventService;
 	private final IRunnableDeviceService runnableDeviceService;
 	private final ResolverFactory resolverFactory;
+	private final JythonServerFacade facade = JythonServerFacade.getInstance();
 
 	public MScanSubmitter(final IEventService eventService, final IRunnableDeviceService runnableDeviceService) {
 		this(eventService, runnableDeviceService,  new ResolverFactory());
@@ -142,6 +153,21 @@ public class MScanSubmitter extends ValidationUtils {
 		LOGGER.info("MScan command received {}", Arrays.toString(args));
 
 		final ScanClausesResolver resolver = validateCommand(args);
+		// First check for run from Nexus option
+		IClauseElementProcessor initialProc = withNullProcessorCheck(processors.get(0));
+		if (initialProc instanceof ReRunFromFileElementProcessor) {
+			initialProc.process(null, processors, 0);
+			try{
+				final String filepath = initialProc.getElementValue();
+				printToJython(ImmutableMap.of("Loading scan from ", Paths.get(filepath).getFileName()));
+				final Optional<ScanRequest> scanRequest = ScanRequestBuilder.buildFromNexusFile(filepath);
+				submitFromFile(scanRequest.orElseThrow(), block);
+			} catch(Exception e) {
+				printToJython(ImmutableMap.of("Exception: ", e.getMessage()));
+			}
+			return;
+		}
+
 		final CompoundModel scanModel = new CompoundModel();
 
 		// Find the distinct clauses within the MScan command and return a list of the list of
@@ -161,7 +187,7 @@ public class MScanSubmitter extends ValidationUtils {
 			throwIf(clauseProcessors.isEmpty() || clauseProcessors.contains(null),
 					"clause resolution returned an empty or invalid processor list for a clause");
 			context.wipe();
-			IClauseElementProcessor initialProc = withNullProcessorCheck(clauseProcessors.get(0));
+			initialProc = withNullProcessorCheck(clauseProcessors.get(0));
 
 			// within each clauseProcessors list, the first element is always some type of Scannable for which the
 			// appropriate type of processor has already been selected. If it is a pure Scannable in a clause of length
@@ -196,17 +222,80 @@ public class MScanSubmitter extends ValidationUtils {
 		scanRequest.setTemplateFilePaths(context.getTemplates());
 		scanRequest.setProcessingRequest(context.getProcessorRequest());
 
+		submit(scanRequest, block);
+	}
+
+	/**
+	 * Shim method to be called when re-running from a file after a ScanDefinition has been successfully loaded from it
+	 * in order to submit with appropriate messaging.
+	 *
+	 * @param scanRequest	The ScanRequest to be submitted
+	 * @param block			Whether the request should be submitted in blocking or non-blocking mode
+	 * @throws Exception	Any Exception arising from the submission operation
+	 */
+	private void submitFromFile(final ScanRequest scanRequest, final boolean block) throws Exception {
+		printToJython(ImmutableMap.of("Successful, ", EMPTYSTRING, "submitting scan", EMPTYSTRING));
+		submit(scanRequest, block);
+	}
+
+	/**
+	 * Handle submission of the supplied ScanRequest and monitoring and reporting of the progress of the associated scan
+	 *
+	 * @param scanRequest	The ScanRequest to be submitted
+	 * @param block			Whether the request should be submitted in blocking or non-blocking mode
+	 * @throws Exception	Any Exception arising from the submission operation
+	 */
+	private void submit(final ScanRequest scanRequest, final boolean block) throws Exception {
 		// validate the scan bean properly here or you get a nullpointer exception
 		final ScanBean bean = new ScanBean(scanRequest);
 		eventService.getEventConnectorService().marshal(bean);
 		final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
-		try (final ISubmitter<ScanBean> submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE)) {
+
+		try (final ISubmitter<ScanBean> submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
+				final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)) {
+
+			subscriber.addListener(new IScanListener() {
+				@Override
+				public void scanEventPerformed(ScanEvent evt) {
+					String message = evt.getBean().getMessage();
+					if (message != null) {
+						printToJython(ImmutableMap.of(EMPTYSTRING, message));
+					}
+				}
+
+				@Override
+				public void scanStateChanged(ScanEvent evt) {
+					ScanBean bean = evt.getBean();
+					if ((bean.getStatus().equals(Status.PREPARING) || bean.getStatus().equals(Status.COMPLETE)) && bean.getFilePath() != null) {
+						printToJython(ImmutableMap.of("Output file: ", bean.getFilePath()));
+					} else if (bean.getStatus().equals(Status.FAILED)) {
+						printToJython(ImmutableMap.of("Failed: ", bean.getMessage()));
+					}
+				}
+			});
 			if (block) {
 				submitter.blockingSubmit(bean);
 			} else {
 				submitter.submit(bean);
 			}
 		}
+	}
+
+	/**
+	 * Utility for outputting text and variables to the Jython terminal. Takes a Guava ImmutableMap of Text keys
+	 * to Object values (because iteration order is the same as insertion order) where the keys are the sequential
+	 * String elements of the output and the values are the variables to embed between them in the composite
+	 * output. So if you had the map m["key1":v1, "key2":v2], the resulting printed output would be the same as
+	 * "key1" + v1 + "key2" + v2. If v2 is not required it should be replaced in the map with the empty string.
+	 *
+	 * @param textToParams	Map of Text strings and Variables to be printed
+	 */
+	private void printToJython(final ImmutableMap<String, Object> textToParams) {
+		facade.runCommand("print \"\"\"" +
+				textToParams.entrySet().stream()
+					.map(e -> e.getKey() + e.getValue())
+					.collect(Collectors.joining())
+					+ "\"\"\"");
 	}
 
 	/**
@@ -225,9 +314,12 @@ public class MScanSubmitter extends ValidationUtils {
 	 */
 	private ScanClausesResolver validateCommand(final Object[] args) {
 		if (args.length < 1 ||
-				!(args[0] instanceof Scannable || args[0].equals(Scanpath.STATIC) || onlyDetectorsAndParams(args))) {
+				!((args[0] instanceof String && ((String)args[0]).equals(RERUN))
+						|| args[0] instanceof Scannable
+						|| args[0].equals(Scanpath.STATIC)
+						|| onlyDetectorsAndParams(args))) {
 			throw new IllegalArgumentException(
-			"You must specify at least one argument in your mscan command and your first argument must be a Scannable, the Static Scanpath or a Detector");
+			"You must specify at least one argument in your mscan command and your first argument must be a Scannable, the Static Scanpath, a Detector or the 'rerun' keyword");
 		}
 
 		// Adjust for point scan syntax which doesn't require both region and scanpath. This loop must run
@@ -289,6 +381,11 @@ public class MScanSubmitter extends ValidationUtils {
 			}
 			else if (obj instanceof IRunnableDevice<?>) {
 				type = IRunnableDevice.class;
+			}
+
+			else if (i == 0 && obj instanceof String && ((String)obj).equals(RERUN)) {
+				processors.add(new ReRunFromFileElementProcessor((String)params.get(1)));
+				break;
 			}
 			// Check the processorBuilders map can construct a processor for the required type and if so
 			// make it and add it to the collection of processors that correspond to the command.
