@@ -11,17 +11,13 @@
  *******************************************************************************/
 package org.eclipse.scanning.points.validation;
 
-import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanMap;
 import org.eclipse.scanning.api.IValidator;
 import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
-import org.eclipse.scanning.api.annotation.ui.DeviceType;
-import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
@@ -56,37 +52,12 @@ class ScanRequestValidator implements IValidator<ScanRequest> {
 			if (dmodels!=null && !dmodels.isEmpty()) { // No detectors is allowed.
 				validateMalcolmRules(dmodels);
 				validateDetectors(dmodels);
-				validateAnnotations(dmodels);
 			}
 
 		} catch (ScanningException ne) {
             throw new ValidationException(ne);
 		}
 		return req;
-	}
-
-	private void validateAnnotations(Map<String, IDetectorModel> dmodels) throws ValidationException, ScanningException {
-		for (Object model : dmodels.values()) {
-			// If the model has an annotated field which points at
-			// a detector, that detector must be in the scan.
-			final Field[] fields = model.getClass().getDeclaredFields();
-
-			BeanMap beanMap = null; // May need to use newer version of BeanMap in Java9 if it uses setAccessable(true)
-			for (Field field : fields) {
-				final FieldDescriptor des = field.getAnnotation(FieldDescriptor.class);
-				if (des != null && des.device()==DeviceType.RUNNABLE) { // Then its value must be in the devices.
-					if (beanMap == null) beanMap = new BeanMap(model);
-					final String reference = beanMap.get(field.getName()).toString();
-					if (!dmodels.containsKey(reference)) {
-						IRunnableDeviceService dservice = ValidatorService.getRunnableDeviceService();
-						if (dservice == null || dservice.getRunnableDevice(reference) == null) {
-							String label = des.label()!=null && des.label().length()>0 ? des.label() : field.getName();
-							throw new ModelValidationException("The value of '"+label+"' references a device ("+reference+") not a valid device!", model, field.getName());
-						}
-					}
-				}
-			}
-		}
 	}
 
 	private void validateMalcolmRules(Map<String, IDetectorModel> dmodels) throws ValidationException, ScanningException {
