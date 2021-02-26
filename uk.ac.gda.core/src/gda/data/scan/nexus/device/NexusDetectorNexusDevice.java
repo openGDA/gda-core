@@ -26,13 +26,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -77,6 +82,9 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 	private List<String> primaryFieldNames = null;
 
+	private Set<String> externalFileNames = null;
+	private Map<String, Integer> externalDatasetRanks = null;
+
 	public NexusDetectorNexusDevice(NexusDetector detector) {
 		super(detector);
 	}
@@ -113,6 +121,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		dataDimPrefix = new int[scanDimensions.length];
 		Arrays.fill(dataDimPrefix, 1);
 		primaryFieldNames = new ArrayList<>();
+		externalDatasetRanks = new HashMap<>();
+		externalFileNames = new HashSet<>();
 
 		final INexusTree detTree = getDetectorNexusSubTree();
 		for (INexusTree subTree : detTree) {
@@ -142,6 +152,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		// the first primary field is added above, the rest are added as 'additional' primary data fields
 		// note: these are the fields that NXdata groups are created for
 		primaryFieldNames.stream().skip(1).forEach(nexusWrapper::addAdditionalPrimaryDataFieldName);
+		externalFileNames.forEach(nexusWrapper::addExternalFileName);
+		externalDatasetRanks.forEach(nexusWrapper::setExternalDatasetRank);
 	}
 
 	private GroupNode writeHere(GroupNode group, INexusTree tree, boolean makeData, boolean attrOnly) throws NexusException {
@@ -193,8 +205,15 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 				String relativePath = relativize.toString();
 				addExternalLink(group, name, relativePath, address);
 //				links.add(new ExternalNXlink(name, relativeLink)); // note: changed from NexusDataWriter
-				if (group == detectorGroup) { // only an immediate child node of the detector group can be a primary field
-					primaryFieldNames.add(name);
+				if (data.isDetectorEntryData && group == detectorGroup) { // only an immediate child node of the detector group can be a primary field
+					if (data.externalDataRank < 0) {
+						// in order to correctly build an NXdata for the field, we need to know its rank, which we can calculate from the dimensions field.
+						logger.error("No rank set for field {}. This field will not be set as a primary field {}", name);
+					} else {
+						externalFileNames.add(relativePath);
+						externalDatasetRanks.put(name, data.externalDataRank + scanDimensions.length);
+						primaryFieldNames.add(name);
+					}
 				}
 			}
 			return null;
@@ -390,6 +409,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		dataStartPosPrefix = null;
 		detectorGroup = null;
 		primaryFieldNames = null;
+		externalDatasetRanks = null;
+		externalFileNames = null;
 	}
 
 	private boolean isSDS(String className, boolean hasParent) {
@@ -398,6 +419,9 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 	private void addExternalLink(GroupNode group, String name, String externalFilePath, String nodePath) throws NexusException {
 		try {
+			if (!nodePath.startsWith(Tree.ROOT)) {
+				nodePath = Tree.ROOT + nodePath;
+			}
 			final URI uri = new URI(externalFilePath);
 			final SymbolicNode linkNode = NexusNodeFactory.createSymbolicNode(uri, nodePath);
 			group.addSymbolicNode(name, linkNode);

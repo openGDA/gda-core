@@ -18,17 +18,18 @@
 
 package gda.data.scan.datawriter;
 
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
 import static java.util.stream.Collectors.toMap;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -301,18 +302,16 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				break;
 			case NEXUS_DETECTOR:
 				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
-				expectedDataNodeLinks.put(DummyNexusDetector.FIELD_NAME_SPECTRUM, detectorPath + DummyNexusDetector.FIELD_NAME_SPECTRUM);
-				expectedDataNodeLinks.put(DummyNexusDetector.FIELD_NAME_VALUE, detectorPath + DummyNexusDetector.FIELD_NAME_VALUE);
+				expectedDataNodeLinks.put(FIELD_NAME_SPECTRUM, detectorPath + FIELD_NAME_SPECTRUM);
+				expectedDataNodeLinks.put(FIELD_NAME_VALUE, detectorPath + FIELD_NAME_VALUE);
+				expectedDataNodeLinks.put(FIELD_NAME_EXTERNAL, detectorPath + FIELD_NAME_EXTERNAL);
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown detector type " + detectorType);
 		}
 
 		// assert that all the expected linked data nodes are present
-		assertThat(data.getDataNodeNames(), containsInAnyOrder(
-				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
-		expectedDataNodeLinks.forEach((name, targetPath) ->
-			assertThat(data.getDataNode(name), is(both(notNullValue()).and(sameInstance(getDataNode(entry, targetPath))))));
+		checkLinkedDatasets(data, entry, expectedDataNodeLinks);
 	}
 
 	@Override
