@@ -72,6 +72,6 @@ class ModelFieldEditingSupport extends EditingSupport implements IDisposable {
 
 	@Override
 	public void dispose() {
-		factory.dispose();
+		// nothing to do
 	}
 }
