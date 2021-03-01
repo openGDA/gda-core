@@ -3,7 +3,6 @@ package org.eclipse.scanning.device.composite;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
@@ -106,18 +105,15 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 					throw new NexusException("The scannable " + scannable.getName() + " is already in the scan.");
 				}
 				if (scannable instanceof INexusDevice<?>) {
-					final NexusObjectProvider<?> nexusProvider = ((INexusDevice<?>) scannable).getNexusProvider(info);
-					final NXobject nexusObj = nexusProvider.getNexusObject();
 					if (childNode instanceof ChildGroupNode) {
+						final NexusObjectProvider<?> nexusProvider = ((INexusDevice<?>) scannable).getNexusProvider(info);
+						final NXobject nexusObj = nexusProvider.getNexusObject();
 						final String groupName = ((ChildGroupNode) childNode).getGroupName();
 						nexusObject.addGroupNode(groupName, nexusObj);
 					} else if (childNode instanceof ChildFieldNode) {
 						final ChildFieldNode fieldNode = (ChildFieldNode) childNode;
-						DataNode dataNode = nexusObj.getDataNode(fieldNode.getSourceFieldName());
-						if (dataNode == null) {
-							throw new NullPointerException("No such dataset: " + fieldNode.getSourceFieldName());
-						}
-						nexusObject.addDataNode(fieldNode.getDestinationFieldName(), dataNode);
+						final String fieldName = fieldNode.getDestinationFieldName();
+						nexusObject.setField(fieldName, scannable.getPosition());
 					}
 				}
 			} catch (ScanningException e) {
