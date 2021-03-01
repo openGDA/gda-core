@@ -192,28 +192,22 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			if (startDataWriter.get() != 1) {
 				logger.debug("Data writer already stopped");
 				checkWriterErrors();
-				return;
+			} else {
+				logger.trace("Stopping data writer (via timeout)");
+				timeoutDataWriter.putNoWait("Capture");
+				while (startDataWriter.get() == 1) {
+					Thread.sleep(200);
+				}
+				checkWriterErrors();
+				int imagesCaptured = captured.get();
+				int imagesExpected = odinFrameCount.get();
+				if (imagesExpected != imagesCaptured) {
+					logger.warn("Did not collect expected number of frames. {} expected, {} written.", imagesExpected,
+							imagesCaptured);
+				}
 			}
-		} catch (IOException e) {
-			// Warn to prevent scan falling over. Scan is over at this point anyway
-			logger.warn("Could not read data writer state", e);
-		}
-
-		try {
-			logger.trace("Stopping data writer (via timeout)");
-			timeoutDataWriter.putNoWait("Capture");
-			while (startDataWriter.get() == 1) {
-				Thread.sleep(200);
-			}
-			checkWriterErrors();
-			int imagesCaptured = captured.get();
-			int imagesExpected = odinFrameCount.get();
-			if (imagesExpected != imagesCaptured) {
-				logger.warn("Did not collect expected number of frames. {} expected, {} written.", imagesExpected,
-						imagesCaptured);
-			}
-			// Here zero frames per block means infinite/all frames in single block
-			framesPerBlock.putWait(0);
+			// Reset frames per block and offset as detector may be used by Malcolm subsequently
+			framesPerBlock.putWait(1);
 			odinOffset.putWait(0);
 		} catch (IOException e) {
 			logger.warn("Could not stop data writer", e);
