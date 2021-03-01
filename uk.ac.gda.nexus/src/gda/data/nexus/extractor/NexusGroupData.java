@@ -79,6 +79,14 @@ public class NexusGroupData implements Serializable {
 	 */
 	public boolean isDetectorEntryData = false;
 
+	/**
+	 * If this data represents a link to an external file (where the data value is the path to that file
+	 * in the format nxfile://externalFilePath#nodePath), then this field specifies the rank of the data
+	 * written at each point in the scan. Note that the actual rank of the dataset written will be this
+	 * number plus the scan rank.
+	 */
+	public int externalDataRank = -1;
+
 	private boolean isUnsigned = false;
 
 	private int textLength = -1;
