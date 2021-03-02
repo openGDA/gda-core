@@ -18,10 +18,13 @@
 
 package uk.ac.gda.client.hrpd.views;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.observable.IObserver;
-import gov.aps.jca.event.MonitorListener;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.eclipse.jface.dialogs.ProgressIndicator;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -40,6 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.observable.IObserver;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
 
@@ -60,6 +67,10 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
 
 public class EpicsProcessProgressMonitor extends Composite implements IObserver, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsProcessProgressMonitor.class);
+
+	private static final String CSS_DATA_KEY = "org.eclipse.swt.internal.gtk.css";
+	private static final String CSS = loadCSS();
+
 	private EpicsIntegerDataListener totalWorkListener; // must have
 	private EpicsIntegerDataListener workedSoFarListener; // must have
 	private EpicsStringDataListener messageListener; // optional, must handle null
@@ -107,7 +118,10 @@ public class EpicsProcessProgressMonitor extends Composite implements IObserver,
         if (allowStopButton) {
         	stopButton=createCancelButton(progressMonitor);
         }
-        
+        if (CSS != null) {
+            stream(progressIndicator.getChildren())
+                    .forEach(c -> c.setData(CSS_DATA_KEY, CSS));
+        }
         fLabel = new Label(this, SWT.LEFT);
         fLabel.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1));
 	}
@@ -287,5 +301,22 @@ public class EpicsProcessProgressMonitor extends Composite implements IObserver,
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
+	}
+
+	/**
+	 * By default ProgressBars in GTK3 are 2 pixels wide, try and replace
+	 * style with custom CSS for this view.
+	 *
+	 * @return CSS string
+	 */
+	private static String loadCSS() {
+		try (InputStream cssStream = EpicsProcessProgressMonitor.class.getResourceAsStream("progress.css");
+				InputStreamReader cssReader = new InputStreamReader(cssStream);
+				BufferedReader br = new BufferedReader(cssReader)) {
+			return br.lines().collect(joining("\n"));
+		} catch (IOException e1) {
+			logger.error("Error closing CSS file", e1);
+		}
+		return null;
 	}
 }
