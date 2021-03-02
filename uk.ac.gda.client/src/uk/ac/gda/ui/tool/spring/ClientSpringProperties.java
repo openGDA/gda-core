@@ -13,6 +13,7 @@ import uk.ac.gda.client.properties.RealVectorConverter;
 import uk.ac.gda.client.properties.Array2DConverter;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
 
 /**
  * Loads the client properties using spring.
@@ -29,7 +30,12 @@ import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 @PropertySource("file:${gda.config}/properties/_common/common_instance_java.properties")
 @PropertySource(value = "file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties", ignoreResourceNotFound = true)
 @ConfigurationProperties(prefix = "client")
-@EnableConfigurationProperties({CameraConfigurationProperties.class, AcquisitionConfigurationProperties.class})
+// --- To be enabled when in GDA when will be available springboot >= 2.2
+//@ConstructorBinding
+// ------------------
+@EnableConfigurationProperties({CameraConfigurationProperties.class,
+	AcquisitionConfigurationProperties.class,
+	ScannableGroupProperties.class})
 public class ClientSpringProperties {
 
 	@Autowired
@@ -38,12 +44,19 @@ public class ClientSpringProperties {
 	@Autowired
 	private List<AcquisitionConfigurationProperties> acquisitions;
 
+	@Autowired
+	private List<ScannableGroupProperties> scannableGroups;
+
 	public List<CameraConfigurationProperties> getCameras() {
 		return cameras;
 	}
 
 	public List<AcquisitionConfigurationProperties> getAcquisitions() {
 		return acquisitions;
+	}
+
+	public List<ScannableGroupProperties> getScannableGroups() {
+		return scannableGroups;
 	}
 
 	@Bean

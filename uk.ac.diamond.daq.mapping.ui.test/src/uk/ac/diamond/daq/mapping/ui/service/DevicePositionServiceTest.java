@@ -36,9 +36,9 @@ import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.IScannableMotor;
 import gda.device.Scannable;
-import uk.ac.diamond.daq.mapping.ui.services.position.DevicePositionDocumentService;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**

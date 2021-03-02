@@ -24,10 +24,11 @@ import java.util.Optional;
 
 import gda.rcp.views.StageCompositeDefinition;
 import gda.rcp.views.TabCompositeFactory;
-import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannableGroupPropertiesDocument;
-import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannablesPropertiesHelper;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
+import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
@@ -72,16 +73,20 @@ public class GTSStage extends CommonStage {
 	}
 
 	private StageCompositeDefinition[] createMotorAxesComposite() {
-		return Optional.ofNullable(ScannablesPropertiesHelper.getScannableGroupPropertiesDocument(GTS_GROUP_ID))
+		return Optional.ofNullable(getScannableHelper().getScannableGroupPropertiesDocument(GTS_GROUP_ID))
 				.map(this::createMotorAxesComposite)
 				.orElse(null);
 	}
 
-	private StageCompositeDefinition[] createMotorAxesComposite(ScannableGroupPropertiesDocument groupDocument) {
+	private StageCompositeDefinition[] createMotorAxesComposite(ScannableGroupProperties groupDocument) {
 		StageCompositeDefinitionBuilder builder = new StageCompositeDefinitionBuilder();
 		groupDocument.getScannables().forEach(s ->
 			builder.assemble(tempNewToOldMapping.get(s.getId()), ClientMessagesUtility.getClientMessageByString(s.getLabel()))
 		);
 		return builder.build();
+	}
+
+	private ScannablesPropertiesHelper getScannableHelper() {
+		return SpringApplicationContextFacade.getBean(ScannablesPropertiesHelper.class);
 	}
 }

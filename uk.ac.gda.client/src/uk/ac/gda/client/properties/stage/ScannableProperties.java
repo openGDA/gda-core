@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.mapping.ui.properties.stages;
+package uk.ac.gda.client.properties.stage;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,33 +11,36 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * Client side document associating a scannable, typically a motor, with a human readable label.
  *
  * <p>
- * A {@link ScannablePropertiesDocument} is uniquely identified inside a {@link ScannableGroupPropertiesDocument} by its {@link #getId()}
+ * A {@link ScannableProperties} is uniquely identified inside a {@link ScannableGroupProperties} by its {@link #getId()}
  * </p>
  *
  * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = ScannablePropertiesDocument.Builder.class)
-public class ScannablePropertiesDocument {
+@JsonDeserialize(builder = ScannableProperties.Builder.class)
+public class ScannableProperties {
 
 	/**
 	 * An identifier used to discriminate different components inside a group of scannables
 	 */
-	private final String id;
+	private String id;
 
 	/**
 	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
 	 * scannable
 	 */
-	private final String scannable;
+	private String scannable;
 
 	/**
 	 * A human friendly label to identify the scannable
 	 */
-	private final String label;
+	private String label;
 
-	private final Map<String, String> enumsMap;
+	private Map<String, String> enumsMap;
 
-	private ScannablePropertiesDocument(String id, String scannable, String label, Map<String, String> enumsMap) {
+	public ScannableProperties() {
+	}
+
+	private ScannableProperties(String id, String scannable, String label, Map<String, String> enumsMap) {
 		super();
 		this.id = id;
 		this.scannable = scannable;
@@ -61,6 +64,24 @@ public class ScannablePropertiesDocument {
 		return enumsMap;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setScannable(String scannable) {
+		this.scannable = scannable;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public void setEnumsMap(Map<String, String> enumsMap) {
+		this.enumsMap = enumsMap;
+	}
+
+
+
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String id;
@@ -71,7 +92,7 @@ public class ScannablePropertiesDocument {
 		public Builder() {
 		}
 
-		public Builder(final ScannablePropertiesDocument parent) {
+		public Builder(final ScannableProperties parent) {
 			this.scannable = parent.getScannable();
 			this.label = parent.getLabel();
 		}
@@ -97,8 +118,8 @@ public class ScannablePropertiesDocument {
 			return this;
 		}
 
-		public ScannablePropertiesDocument build() {
-			return new ScannablePropertiesDocument(id, scannable, label, Collections.unmodifiableMap(this.enumsMap));
+		public ScannableProperties build() {
+			return new ScannableProperties(id, scannable, label, Collections.unmodifiableMap(this.enumsMap));
 		}
 	}
 
@@ -119,7 +140,7 @@ public class ScannablePropertiesDocument {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScannablePropertiesDocument other = (ScannablePropertiesDocument) obj;
+		ScannableProperties other = (ScannableProperties) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

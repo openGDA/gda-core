@@ -30,9 +30,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import uk.ac.diamond.daq.mapping.ui.properties.stages.ManagedScannable;
-import uk.ac.diamond.daq.mapping.ui.properties.stages.ScannablesPropertiesHelper;
-import uk.ac.diamond.daq.mapping.ui.services.position.DevicePositionDocumentService;
 import uk.ac.diamond.daq.mapping.ui.stage.CommonStage;
 import uk.ac.diamond.daq.mapping.ui.stage.DevicePosition;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
@@ -40,6 +37,11 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
+import uk.ac.gda.client.properties.stage.DefaultManagedScannable;
+import uk.ac.gda.client.properties.stage.ManagedScannable;
+import uk.ac.gda.client.properties.stage.ScannableProperties;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 
 /**
  *
@@ -49,6 +51,9 @@ public class StageController implements IStageController {
 
 	@Autowired
 	private DevicePositionDocumentService devicePositionDocumentService;
+
+	@Autowired
+	private ScannablesPropertiesHelper helper;
 
 	private CommonStage commonStage;
 
@@ -134,7 +139,7 @@ public class StageController implements IStageController {
 	 * @return the related document with the actual position
 	 */
 	public DevicePositionDocument createDevicePositionDocument(String groupId, String scannableId, Class<?> type) {
-		ManagedScannable<?> managedScannable = ScannablesPropertiesHelper.getManagedScannable(groupId, scannableId, type);
+		ManagedScannable<?> managedScannable = helper.getManagedScannable(groupId, scannableId, type);
 		return createDevicePositionDocument(managedScannable);
 	}
 
@@ -149,8 +154,11 @@ public class StageController implements IStageController {
 
 	private DevicePositionDocument createShutterRequest(String position) {
 		// The "device" string has to be linked to a property
-		String device = ScannablesPropertiesHelper.getShutter();
-		DevicePositionDocument shutter = devicePositionDocumentService.devicePositionAsDocument(device);
+		DevicePositionDocument shutter = Optional.ofNullable(helper.getManagedScannable(DefaultManagedScannable.EH_SHUTTER))
+			.map(ManagedScannable::getScannablePropertiesDocument)
+			.map(ScannableProperties::getScannable)
+			.map(devicePositionDocumentService::devicePositionAsDocument)
+			.orElse(null);
 		if (shutter == null)
 			return null;
 		DevicePositionDocument.Builder builder = new DevicePositionDocument.Builder(shutter);
@@ -159,13 +167,9 @@ public class StageController implements IStageController {
 	}
 
 	private Set<DevicePositionDocument> reportPositions() {
-		return getDevices().stream()
+		return  helper.getScannables().stream()
 				.map(devicePositionDocumentService::devicePositionAsDocument)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
-	}
-
-	private Set<String> getDevices() {
-		return ScannablesPropertiesHelper.getScannables();
 	}
 }
