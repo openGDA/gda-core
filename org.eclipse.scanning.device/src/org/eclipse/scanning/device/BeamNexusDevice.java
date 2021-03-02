@@ -32,6 +32,10 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
  */
 public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
+	public BeamNexusDevice() {
+		addScalarField(NXbeam.NX_DISTANCE, 0.0);
+	}
+
 	public void setIncidentEnergyScannableName(String incidentEnergyScannableName) {
 		addScannableField(NXbeam.NX_INCIDENT_ENERGY, incidentEnergyScannableName);
 	}
@@ -50,12 +54,6 @@ public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
 	public void setFluxScannableName(String fluxScannableName) {
 		addScannableField(NXbeam.NX_FLUX, fluxScannableName);
-	}
-
-	@Override
-	protected void writeFields(NXbeam beam) throws NexusException {
-		super.writeFields(beam);
-		beam.setDistanceScalar(0.0); // since this is the beam at the sample, the distance is 0
 	}
 
 	@Override

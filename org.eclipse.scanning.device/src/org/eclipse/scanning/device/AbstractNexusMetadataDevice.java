@@ -19,8 +19,8 @@
 package org.eclipse.scanning.device;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -36,7 +36,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private String name;
 
-	private List<AbstractMetadataField> fields = new ArrayList<>();
+	/**
+	 * A map of the fields in this device, keyed by name.
+	 */
+	private Map<String, AbstractMetadataField> fields = new HashMap<>();
 
 	@Override
 	public String getName() {
@@ -48,13 +51,20 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	public void addField(AbstractMetadataField field) {
-		fields.add(field);
+		fields.put(field.getFieldName(), field);
 	}
 
 	public void addScannableField(String fieldName, String scannableName) {
 		final ScannableField field = new ScannableField(); // TODO or create a constructor?
 		field.setFieldName(fieldName);
 		field.setScannableName(scannableName);
+		addField(field);
+	}
+
+	public void addScalarField(String fieldName, Object fieldValue) {
+		final ScalarField field = new ScalarField();
+		field.setFieldName(fieldName);
+		field.setValue(fieldValue);
 		addField(field);
 	}
 
@@ -78,10 +88,15 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	protected void writeFields(N nxObject) throws NexusException {
-		for (AbstractMetadataField field : fields) {
+		for (AbstractMetadataField field : fields.values()) {
+			final String fieldName = field.getFieldName();
 			if (field instanceof ScannableField) {
 				final ScannableField scannableField = (ScannableField) field;
-				writeScannableValue(nxObject, field.getFieldName(), scannableField.getScannableName());
+				writeScannableValue(nxObject, fieldName, scannableField.getScannableName());
+			}
+			if (field instanceof ScalarField) { // TODO note: to be refactored in a later commit
+				final ScalarField scalarField = (ScalarField) field;
+				writeFieldValue(nxObject, fieldName, scalarField.getValue());
 			}
 		}
 	}

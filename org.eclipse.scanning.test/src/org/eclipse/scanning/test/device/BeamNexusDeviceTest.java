@@ -19,6 +19,7 @@
 package org.eclipse.scanning.test.device;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -73,6 +74,7 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 		final IDataset extentDataset = extentDataNode.getDataset().getSlice();
 		assertThat(extentDataset.getDouble(), is(equalTo(getScannableValue(BEAM_EXTENT_SCANNABLE_NAME))));
 
+		assertThat(beam.getDistanceScalar(), is(closeTo(0.0, 1e-15)));
 		assertThat(beam.getIncident_energyScalar(), is(equalTo(getScannableValue(INCIDENT_ENERGY_SCANNABLE_NAME))));
 		assertThat(beam.getIncident_beam_divergenceScalar(), is(equalTo(getScannableValue(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME))));
 		assertThat(beam.getIncident_polarizationScalar(), is(equalTo(getScannableValue(INCIDENT_POLARIZATION_SCANNABLE_NAME))));

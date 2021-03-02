@@ -44,14 +44,9 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 		}
 	}
 
-	private InsertionDeviceType type;
-
-	public void setType(String type) {
-		this.type = InsertionDeviceType.getValue(type);
-	}
-
-	public InsertionDeviceType getType() {
-		return type;
+	public void setType(String typeStr) {
+		final InsertionDeviceType type = InsertionDeviceType.getValue(typeStr);// throws IllegalArgumentException if not valid value
+		addScalarField(NXinsertion_device.NX_TYPE, type.toString());
 	}
 
 	public void setGapScannableName(String gapScannableName) {
@@ -64,12 +59,6 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 
 	public void setHarmonicScannableName(String harmonicScannableName) {
 		addScannableField(NXinsertion_device.NX_HARMONIC, harmonicScannableName);
-	}
-
-	@Override
-	protected void writeFields(NXinsertion_device insertionDevice) throws NexusException {
-		super.writeFields(insertionDevice);
-		insertionDevice.setTypeScalar(getType().toString());
 	}
 
 	@Override
