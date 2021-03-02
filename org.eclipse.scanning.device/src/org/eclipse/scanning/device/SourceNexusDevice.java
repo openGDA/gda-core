@@ -31,8 +31,6 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 	public static final String DEFAULT_TYPE = "Synchrotron X-ray Source";
 	public static final String DEFAULT_PROBE = "x-ray";
 
-	private String currentScannableName;
-
 	private String sourceName = DEFAULT_SOURCE_NAME;
 
 	private String type = DEFAULT_TYPE;
@@ -40,7 +38,7 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 	private String probe = DEFAULT_PROBE;
 
 	public void setCurrentScannableName(String currentScannableName) {
-		this.currentScannableName = currentScannableName;
+		addScannableField(NXsource.NX_CURRENT, currentScannableName);
 	}
 
 	public void setSourceName(String sourceName) {
@@ -56,14 +54,19 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 	}
 
 	@Override
-	public NexusObjectProvider<NXsource> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXsource source = NexusNodeFactory.createNXsource();
+	protected void writeFields(NXsource source) throws NexusException {
+		super.writeFields(source);
 
 		// use the long name as the value of the name field
 		source.setNameScalar(sourceName);
 		source.setTypeScalar(type);
 		source.setProbeScalar(probe);
-		writeScannableValue(source, NXsource.NX_CURRENT, currentScannableName);
+	}
+
+	@Override
+	public NexusObjectProvider<NXsource> getNexusProvider(NexusScanInfo info) throws NexusException {
+		final NXsource source = NexusNodeFactory.createNXsource();
+		writeFields(source);
 
 		return new NexusObjectWrapper<>(getName(), source);
 	}

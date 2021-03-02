@@ -68,7 +68,7 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 	@Override
 	protected void checkNexusObject(NXbeam beam) throws Exception {
 		assertThat(beam, is(notNullValue()));
-		final DataNode extentDataNode = beam.getDataNode(BeamNexusDevice.FIELD_NAME_EXTENT);
+		final DataNode extentDataNode = beam.getDataNode(NXbeam.NX_EXTENT);
 		assertThat(extentDataNode, is(notNullValue()));
 		final IDataset extentDataset = extentDataNode.getDataset().getSlice();
 		assertThat(extentDataset.getDouble(), is(equalTo(getScannableValue(BEAM_EXTENT_SCANNABLE_NAME))));

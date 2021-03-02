@@ -47,23 +47,6 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 
 	private InsertionDeviceType type;
 
-	private String gapScannableName;
-
-	private String taperScannableName;
-
-	private String harmonicScannableName;
-
-	@Override
-	public NexusObjectProvider<NXinsertion_device> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXinsertion_device insertionDevice = NexusNodeFactory.createNXinsertion_device();
-		insertionDevice.setTypeScalar(getType().toString());
-		writeScannableValue(insertionDevice, NXinsertion_device.NX_GAP, gapScannableName);
-		writeScannableValue(insertionDevice, NXinsertion_device.NX_TAPER, taperScannableName);
-		writeScannableValue(insertionDevice, NXinsertion_device.NX_HARMONIC, harmonicScannableName);
-
-		return new NexusObjectWrapper<>(getName(), insertionDevice);
-	}
-
 	public void setType(String type) {
 		this.type = InsertionDeviceType.getValue(type);
 	}
@@ -73,15 +56,29 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 	}
 
 	public void setGapScannableName(String gapScannableName) {
-		this.gapScannableName = gapScannableName;
+		addScannableField(NXinsertion_device.NX_GAP, gapScannableName);
 	}
 
 	public void setTaperScannableName(String taperScannableName) {
-		this.taperScannableName = taperScannableName;
+		addScannableField(NXinsertion_device.NX_TAPER, taperScannableName);
 	}
 
 	public void setHarmonicScannableName(String harmonicScannableName) {
-		this.harmonicScannableName = harmonicScannableName;
+		addScannableField(NXinsertion_device.NX_HARMONIC, harmonicScannableName);
+	}
+
+	@Override
+	protected void writeFields(NXinsertion_device insertionDevice) throws NexusException {
+		super.writeFields(insertionDevice);
+		insertionDevice.setTypeScalar(getType().toString());
+	}
+
+	@Override
+	public NexusObjectProvider<NXinsertion_device> getNexusProvider(NexusScanInfo info) throws NexusException {
+		final NXinsertion_device insertionDevice = NexusNodeFactory.createNXinsertion_device();
+		writeFields(insertionDevice);
+	
+		return new NexusObjectWrapper<>(getName(), insertionDevice);
 	}
 
 }

@@ -19,6 +19,8 @@
 package org.eclipse.scanning.device;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -34,6 +36,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private String name;
 
+	private List<AbstractMetadataField> fields = new ArrayList<>();
+
 	@Override
 	public String getName() {
 		return name;
@@ -43,9 +47,19 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		this.name = name;
 	}
 
+	public void addField(AbstractMetadataField field) {
+		fields.add(field);
+	}
+
+	public void addScannableField(String fieldName, String scannableName) {
+		final ScannableField field = new ScannableField(); // TODO or create a constructor?
+		field.setFieldName(fieldName);
+		field.setScannableName(scannableName);
+		addField(field);
+	}
+
 	@Override
 	public void register() {
-		// TODO Auto-generated method stub
 		INexusDevice.super.register();
 		checkPropertiesSet();
 	}
@@ -59,6 +73,15 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				logger.error("TODO put description of error here", e);
+			}
+		}
+	}
+
+	protected void writeFields(N nxObject) throws NexusException {
+		for (AbstractMetadataField field : fields) {
+			if (field instanceof ScannableField) {
+				final ScannableField scannableField = (ScannableField) field;
+				writeScannableValue(nxObject, field.getFieldName(), scannableField.getScannableName());
 			}
 		}
 	}

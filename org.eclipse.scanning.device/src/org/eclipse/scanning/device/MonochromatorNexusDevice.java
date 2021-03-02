@@ -27,24 +27,18 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 public class MonochromatorNexusDevice extends AbstractNexusMetadataDevice<NXmonochromator> {
 
-	private String energyScannableName;
-
-	private String energyErrorScannableName;
-
 	public void setEnergyScannableName(String energyScannableName) {
-		this.energyScannableName = energyScannableName;
+		addScannableField(NXmonochromator.NX_ENERGY, energyScannableName);
 	}
 
 	public void setEnergyErrorScannableName(String energyErrorScannableName) {
-		this.energyErrorScannableName = energyErrorScannableName;
+		addScannableField(NXmonochromator.NX_ENERGY_ERROR, energyErrorScannableName);
 	}
 
 	@Override
 	public NexusObjectProvider<NXmonochromator> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final NXmonochromator monochromator = NexusNodeFactory.createNXmonochromator();
-
-		writeScannableValue(monochromator, NXmonochromator.NX_ENERGY, energyScannableName);
-		writeScannableValue(monochromator, NXmonochromator.NX_ENERGY_ERROR, energyErrorScannableName);
+		writeFields(monochromator);
 
 		return new NexusObjectWrapper<>(getName(), monochromator);
 	}

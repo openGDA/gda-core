@@ -48,19 +48,19 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 
 	@Override
 	public NexusObjectProvider<NXuser> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXuser userGroup = createUserGroup();
+		final NXuser userGroup = NexusNodeFactory.createNXuser();
+		writeFields(userGroup);
+
 		return new NexusObjectWrapper<>(userGroupName, userGroup);
 	}
 
-	private NXuser createUserGroup() {
-		final ClientDetails userDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+	@Override
+	protected void writeFields(NXuser userGroup) throws NexusException {
+		super.writeFields(userGroup);
 
-		final NXuser userGroup = NexusNodeFactory.createNXuser();
+		final ClientDetails userDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
 		writeFieldValue(userGroup, NXuser.NX_FACILITY_USER_ID, userDetails.getUserID());
 		writeFieldValue(userGroup, NXuser.NX_NAME, userDetails.getFullName());
-
-		return userGroup;
 	}
-
 
 }

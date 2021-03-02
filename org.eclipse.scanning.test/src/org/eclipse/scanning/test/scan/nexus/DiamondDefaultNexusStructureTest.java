@@ -265,7 +265,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final NXbeam beam = sample.getBeam();
 		assertThat(beam, is(notNullValue()));
 		assertThat(beam.getDistanceScalar(), is(equalTo(0.0)));
-		assertThat(beam.getDouble(BeamNexusDevice.FIELD_NAME_EXTENT), is(equalTo(EXPECTED_BEAM_EXTENT)));
+		assertThat(beam.getDouble(NXbeam.NX_EXTENT), is(equalTo(EXPECTED_BEAM_EXTENT)));
 		assertThat(beam.getIncident_energyScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_ENERGY)));
 		assertThat(beam.getIncident_beam_divergenceScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_DIVERGENCE)));
 		assertThat(beam.getIncident_polarizationScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_POLARIZATION)));

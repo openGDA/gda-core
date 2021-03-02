@@ -28,48 +28,40 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
-	// use NXbeam.NX_EXTENT once nexus base classes have been regenerated (DAQ-2948)
-	public static final String FIELD_NAME_EXTENT = "extent";
+	public void setIncidentEnergyScannableName(String incidentEnergyScannableName) {
+		addScannableField(NXbeam.NX_INCIDENT_ENERGY, incidentEnergyScannableName);
+	}
 
-	private String incidentEnergyScannableName;
-	private String incidentBeamDivergenceScannableName;
-	private String incidentPolarizationScannableName;
-	private String beamExtentScannableName;
-	private String fluxScannableName;
+	public void setIncidentBeamDivergenceScannableName(String incidentBeamDivergenceScannableName) {
+		addScannableField(NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, incidentBeamDivergenceScannableName);
+	}
+
+	public void setIncidentPolarizationScannableName(String incidentPolarizationScannableName) {
+		addScannableField(NXbeam.NX_INCIDENT_POLARIZATION, incidentPolarizationScannableName);
+	}
+
+	public void setBeamExtentScannableName(String beamExtentScannableName) {
+		addScannableField(NXbeam.NX_EXTENT, beamExtentScannableName);
+	}
+
+	public void setFluxScannableName(String fluxScannableName) {
+		addScannableField(NXbeam.NX_FLUX, fluxScannableName);
+	}
+
+	@Override
+	protected void writeFields(NXbeam beam) throws NexusException {
+		super.writeFields(beam);
+		beam.setDistanceScalar(0.0); // since this is the beam at the sample, the distance is 0
+	}
 
 	@Override
 	public NexusObjectProvider<NXbeam> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final NXbeam beam = NexusNodeFactory.createNXbeam();
-		beam.setDistanceScalar(0.0); // since this is the beam at the sample, the distance is 0
-		writeScannableValue(beam, NXbeam.NX_INCIDENT_ENERGY, incidentEnergyScannableName);
-		writeScannableValue(beam, NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, incidentBeamDivergenceScannableName);
-		writeScannableValue(beam, NXbeam.NX_INCIDENT_POLARIZATION, incidentPolarizationScannableName);
-		writeScannableValue(beam, NXbeam.NX_FLUX, fluxScannableName);
-		writeScannableValue(beam, FIELD_NAME_EXTENT, beamExtentScannableName);
+		writeFields(beam);
 
 		final NexusObjectWrapper<NXbeam> nexusWrapper = new NexusObjectWrapper<>(getName(), beam);
 		nexusWrapper.setCategory(NexusBaseClass.NX_SAMPLE);
 		return nexusWrapper;
-	}
-
-	public void setIncidentEnergyScannableName(String incidentEnergyScannableName) {
-		this.incidentEnergyScannableName = incidentEnergyScannableName;
-	}
-
-	public void setIncidentBeamDivergenceScannableName(String incidentBeamDivergenceScannableName) {
-		this.incidentBeamDivergenceScannableName = incidentBeamDivergenceScannableName;
-	}
-
-	public void setIncidentPolarizationScannableName(String incidentPolarizationScannableName) {
-		this.incidentPolarizationScannableName = incidentPolarizationScannableName;
-	}
-
-	public void setBeamExtentScannableName(String beamExtentScannableName) {
-		this.beamExtentScannableName = beamExtentScannableName;
-	}
-
-	public void setFluxScannableName(String fluxScannableName) {
-		this.fluxScannableName = fluxScannableName;
 	}
 
 }
