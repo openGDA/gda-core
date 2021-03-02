@@ -20,11 +20,7 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 
 /**
  * An {@link INexusDevice} implementation that adds an {@link NXinsertion_device} to the nexus tree.
@@ -44,6 +40,10 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 		}
 	}
 
+	public InsertionDeviceNexusDevice() {
+		super(NexusBaseClass.NX_INSERTION_DEVICE);
+	}
+
 	public void setType(String typeStr) {
 		final InsertionDeviceType type = InsertionDeviceType.getValue(typeStr);// throws IllegalArgumentException if not valid value
 		addScalarField(NXinsertion_device.NX_TYPE, type.toString());
@@ -59,14 +59,6 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 
 	public void setHarmonicScannableName(String harmonicScannableName) {
 		addScannableField(NXinsertion_device.NX_HARMONIC, harmonicScannableName);
-	}
-
-	@Override
-	public NexusObjectProvider<NXinsertion_device> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXinsertion_device insertionDevice = NexusNodeFactory.createNXinsertion_device();
-		writeFields(insertionDevice);
-
-		return new NexusObjectWrapper<>(getName(), insertionDevice);
 	}
 
 }

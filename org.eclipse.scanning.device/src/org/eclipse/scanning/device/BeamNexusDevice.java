@@ -21,11 +21,6 @@ package org.eclipse.scanning.device;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 /**
  * An {@link INexusDevice} implementation that adds an {@link NXbeam} to the nexus tree.
@@ -33,6 +28,8 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
 	public BeamNexusDevice() {
+		super(NexusBaseClass.NX_BEAM);
+		setCategory(NexusBaseClass.NX_SAMPLE);
 		addScalarField(NXbeam.NX_DISTANCE, 0.0);
 	}
 
@@ -54,16 +51,6 @@ public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
 	public void setFluxScannableName(String fluxScannableName) {
 		addScannableField(NXbeam.NX_FLUX, fluxScannableName);
-	}
-
-	@Override
-	public NexusObjectProvider<NXbeam> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXbeam beam = NexusNodeFactory.createNXbeam();
-		writeFields(beam);
-
-		final NexusObjectWrapper<NXbeam> nexusWrapper = new NexusObjectWrapper<>(getName(), beam);
-		nexusWrapper.setCategory(NexusBaseClass.NX_SAMPLE);
-		return nexusWrapper;
 	}
 
 }

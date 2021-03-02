@@ -18,13 +18,13 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.scanning.api.AbstractNameable;
+import org.eclipse.scanning.api.INameable;
 
 /**
- * A field that can be part of a metadata device.
+ * Describes a metadata field to add to a nexus file
  */
-public abstract class AbstractMetadataField extends AbstractNameable implements MetadataField {
+public interface MetadataField extends INameable {
 
-	// no additional fields or method are needed so far
+	// no additional methods
 
 }

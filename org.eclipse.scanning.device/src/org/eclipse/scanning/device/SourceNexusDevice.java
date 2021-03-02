@@ -20,11 +20,7 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXsource;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 
 /**
  * An {@link INexusDevice} implementation that adds an {@link NXsource} to the nexus tree.
@@ -36,6 +32,7 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 	public static final String DEFAULT_PROBE = "x-ray";
 
 	public SourceNexusDevice() {
+		super(NexusBaseClass.NX_SOURCE);
 		addScalarField(NXsource.NX_NAME, DEFAULT_SOURCE_NAME);
 		addScalarField(NXsource.NX_TYPE, DEFAULT_TYPE);
 		addScalarField(NXsource.NX_PROBE, DEFAULT_PROBE);
@@ -55,14 +52,6 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 
 	public void setProbe(String probe) {
 		addScalarField(NXsource.NX_PROBE, probe);
-	}
-
-	@Override
-	public NexusObjectProvider<NXsource> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXsource source = NexusNodeFactory.createNXsource();
-		writeFields(source);
-
-		return new NexusObjectWrapper<>(getName(), source);
 	}
 
 }

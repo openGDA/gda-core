@@ -24,7 +24,12 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
@@ -36,10 +41,18 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private String name;
 
+	private NexusBaseClass nexusClass = null;
+
+	private NexusBaseClass nexusCategory = null;
+
 	/**
 	 * A map of the fields in this device, keyed by name.
 	 */
-	private Map<String, AbstractMetadataField> fields = new HashMap<>();
+	private Map<String, MetadataField> fields = new HashMap<>();
+
+	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
+		nexusClass = nexusBaseClass;
+	}
 
 	@Override
 	public String getName() {
@@ -50,20 +63,20 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		this.name = name;
 	}
 
-	public void addField(AbstractMetadataField field) {
-		fields.put(field.getFieldName(), field);
+	public void addField(MetadataField field) {
+		fields.put(field.getName(), field);
 	}
 
 	public void addScannableField(String fieldName, String scannableName) {
 		final ScannableField field = new ScannableField(); // TODO or create a constructor?
-		field.setFieldName(fieldName);
+		field.setName(fieldName);
 		field.setScannableName(scannableName);
 		addField(field);
 	}
 
 	public void addScalarField(String fieldName, Object fieldValue) {
 		final ScalarField field = new ScalarField();
-		field.setFieldName(fieldName);
+		field.setName(fieldName);
 		field.setValue(fieldValue);
 		addField(field);
 	}
@@ -87,9 +100,40 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		}
 	}
 
+	@Override
+	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
+		final N nexusObject = createNexusObject(info);
+		writeFields(nexusObject);
+		final NexusObjectWrapper<N> nexusWrapper = createAndConfigureNexusWrapper(nexusObject);
+		return nexusWrapper;
+	}
+
+	protected NexusObjectWrapper<N> createAndConfigureNexusWrapper(final N nexusObject) {
+		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(getName(), nexusObject);
+		nexusWrapper.setCategory(getCategory());
+		return nexusWrapper;
+	}
+
+	public void setCategory(NexusBaseClass nexusCategory) {
+		this.nexusCategory = nexusCategory;
+	}
+
+	public NexusBaseClass getCategory() {
+		return nexusCategory;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected N createNexusObject(@SuppressWarnings("unused") NexusScanInfo info) {
+		return (N) NexusNodeFactory.createNXobjectForClass(getNexusBaseClass());
+	}
+
+	public final NexusBaseClass getNexusBaseClass() {
+		return nexusClass;
+	}
+
 	protected void writeFields(N nxObject) throws NexusException {
-		for (AbstractMetadataField field : fields.values()) {
-			final String fieldName = field.getFieldName();
+		for (MetadataField field : fields.values()) {
+			final String fieldName = field.getName();
 			if (field instanceof ScannableField) {
 				final ScannableField scannableField = (ScannableField) field;
 				writeScannableValue(nxObject, fieldName, scannableField.getScannableName());
