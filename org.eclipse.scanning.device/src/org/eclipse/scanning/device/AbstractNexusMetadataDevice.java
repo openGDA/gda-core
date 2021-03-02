@@ -30,8 +30,6 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,17 +66,11 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	public void addScannableField(String fieldName, String scannableName) {
-		final ScannableField field = new ScannableField(); // TODO or create a constructor?
-		field.setName(fieldName);
-		field.setScannableName(scannableName);
-		addField(field);
+		addField(new ScannableField(fieldName, scannableName));
 	}
 
 	public void addScalarField(String fieldName, Object fieldValue) {
-		final ScalarField field = new ScalarField();
-		field.setName(fieldName);
-		field.setValue(fieldValue);
-		addField(field);
+		addField(new ScalarField(fieldName, fieldValue));
 	}
 
 	@Override
@@ -133,46 +125,7 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	protected void writeFields(N nxObject) throws NexusException {
 		for (MetadataField field : fields.values()) {
-			final String fieldName = field.getName();
-			if (field instanceof ScannableField) {
-				final ScannableField scannableField = (ScannableField) field;
-				writeScannableValue(nxObject, fieldName, scannableField.getScannableName());
-			}
-			if (field instanceof ScalarField) { // TODO note: to be refactored in a later commit
-				final ScalarField scalarField = (ScalarField) field;
-				writeFieldValue(nxObject, fieldName, scalarField.getValue());
-			}
-		}
-	}
-
-	protected <T> IScannable<T> getScannable(String scannableName) throws NexusException {
-		try {
-			return Services.getScannableDeviceService().getScannable(scannableName);
-		} catch (ScanningException e) {
-			throw new NexusException("Could not find scannable with name: " + scannableName);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <T> T getScannableValue(String scannableName) throws ScanningException, NexusException {
-		return (T) getScannable(scannableName).getPosition();
-	}
-
-	protected void writeScannableValue(NXobject nxObject, String fieldName, String scannableName) throws NexusException {
-		if (scannableName == null) return; // property not set, ignore
-
-		try {
-			final Object scannableValue = getScannable(scannableName).getPosition();
-			nxObject.setField(fieldName, scannableValue);
-			// TODO write units?
-		} catch (ScanningException e) {
-			throw new NexusException("Could not find scannable with name: " + scannableName);
-		}
-	}
-
-	protected void writeFieldValue(NXobject nxObject, String fieldName, Object value) {
-		if (value != null) {
-			nxObject.setField(fieldName, value);
+			field.writeField(nxObject);
 		}
 	}
 

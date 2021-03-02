@@ -18,13 +18,20 @@
 
 package org.eclipse.scanning.device;
 
+import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.INameable;
 
 /**
- * Describes a metadata field to add to a nexus file
+ * Describes a metadata field to add to a nexus object.
  */
 public interface MetadataField extends INameable {
 
-	// no additional methods
+	/**
+	 * Write the field into the given nexus object.
+	 * @param nexusObject
+	 * @throws NexusException if the field could not be written for any reason
+	 */
+	public void writeField(NXobject nexusObject) throws NexusException;
 
 }
