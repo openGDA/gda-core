@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.standards.ui;
 
 import static gda.jython.JythonStatus.RUNNING;
+import static org.eclipse.scanning.api.script.IScriptService.VAR_NAME_STANDARDS_SCAN_PARAMS_JSON;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 
@@ -30,6 +31,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -61,6 +63,7 @@ import gda.jython.JythonServerFacade;
 import gda.rcp.GDAClientActivator;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.StandardsScanParams;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.experiment.ScanPathEditor;
 import uk.ac.diamond.daq.mapping.ui.xanes.XanesEdgeCombo;
@@ -76,6 +79,7 @@ public class StandardsScanView {
 	private ScanPathEditor scanPathEditor;
 	private Text exposureTimeText;
 	private Button submitButton;
+	private Button reverseCheckBox;
 
 	private IJobQueue<StatusBean> jobQueueProxy;
 
@@ -97,7 +101,22 @@ public class StandardsScanView {
 		}
 	}
 
+	/**
+	 * Create the GUI elements to edit the energy scannable.<br>
+	 * This consists of
+	 * <ul>
+	 * <li>the specification of the energy ranges</li>
+	 * <li>a drop-down box to choose the edge</li>
+	 * <li>a text box for the exposure time</li>
+	 * <li>a check box to specify whether the energy steps should be run in reverse order</li>
+	 * </ul>
+	 * In general, the energy ranges should be set by choosing the edge, though they can also be edited directly.
+	 *
+	 * @param parent
+	 *            the parent composite to draw these controls on
+	 */
 	private void createScannableEditor(Composite parent) {
+		// Energy scannable
 		final Composite editorComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(editorComposite);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(editorComposite);
@@ -117,9 +136,10 @@ public class StandardsScanView {
 		final IScanModelWrapper<IScanPointGeneratorModel> scannableWrapper = new ScanPathModelWrapper(energyScannableName, null, false);
 		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
 
+		// Edge, exposure, reverse check box
 		final Composite edgeAndExposureComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(edgeAndExposureComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(edgeAndExposureComposite);
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(edgeAndExposureComposite);
 
 		// List of energy/edge combinations
 		final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite);
@@ -134,8 +154,19 @@ public class StandardsScanView {
 		exposureTimeLabel.setText("Exposure time");
 		exposureTimeText = new Text(edgeAndExposureComposite, SWT.BORDER);
 		GridDataFactory.swtDefaults().hint(80, SWT.DEFAULT).applyTo(exposureTimeText);
+
+		// Reverse check box
+		reverseCheckBox = new Button(edgeAndExposureComposite, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(reverseCheckBox);
+		reverseCheckBox.setText("Reverse scan");
 	}
 
+	/**
+	 * Buttons to, respectively, submit and stop the scan
+	 *
+	 * @param parent
+	 *            the parent composite to draw these controls on
+	 */
 	private void createSubmitSection(Composite parent) {
 		final Composite submitComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(submitComposite);
@@ -155,6 +186,9 @@ public class StandardsScanView {
 		stopButton.addSelectionListener(widgetSelectedAdapter(e -> stopScan()));
 	}
 
+	/**
+	 * Set the parameters of the scan in the Jython namespace and call a script to process them.
+	 */
 	private void submitScan() {
 		final String scanPath = scanPathEditor.getAxisText();
 		if (scanPath == null || scanPath.isEmpty()) {
@@ -162,15 +196,25 @@ public class StandardsScanView {
 			return;
 		}
 
-		final IScriptService scriptService = injectionContext.get(IScriptService.class);
-		scriptService.setNamedValue(IScriptService.VAR_NAME_SCAN_PATH, scanPathEditor.getAxisText());
-		scriptService.setNamedValue(IScriptService.VAR_NAME_EXPOSURE_TIME, exposureTimeText.getText());
+		try {
+			final StandardsScanParams scanParams = new StandardsScanParams();
+			scanParams.setScanPath(scanPathEditor.getAxisText());
+			scanParams.setExposureTime(Double.parseDouble(exposureTimeText.getText()));
+			scanParams.setReverseScan(reverseCheckBox.getSelection());
+
+			final IScriptService scriptService = injectionContext.get(IScriptService.class);
+			final IMarshallerService marshallerService = injectionContext.get(IMarshallerService.class);
+			scriptService.setNamedValue(VAR_NAME_STANDARDS_SCAN_PARAMS_JSON, marshallerService.marshal(scanParams));
+		} catch (Exception e) {
+			displayError("Submit error", "Error submitting scan: " + e.getMessage());
+			return;
+		}
 
 		Async.execute(() -> {
 			// Run the script, disabling the submit button while it is running
 			final JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
 			try {
-				setButtonEnabled(false);
+				setSubmitButtonEnabled(false);
 				logger.info("Running standards scan script: {}", SCRIPT_FILE);
 				jythonServerFacade.runScript(SCRIPT_FILE);
 				while (jythonServerFacade.getScriptStatus() == RUNNING) {
@@ -180,14 +224,15 @@ public class StandardsScanView {
 			} catch (Exception e) {
 				logger.error("Error running standards scan script", e);
 			} finally {
-				setButtonEnabled(true);
+				setSubmitButtonEnabled(true);
 			}
 		});
 	}
 
-	private void setButtonEnabled(boolean enabled) {
+	private void setSubmitButtonEnabled(boolean enabled) {
 		Display.getDefault().syncExec(() -> submitButton.setEnabled(enabled));
 	}
+
 	private void stopScan() {
 		logger.info("Stopping standards scan script & job");
 
