@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device;
 
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -26,9 +27,7 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 /**
- * TODO javadoc
- *
- * TODO is this the right package for this class?
+ * An {@link INexusDevice} implementation that adds an {@link NXinsertion_device} to the nexus tree.
  */
 public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXinsertion_device> {
 
@@ -77,7 +76,7 @@ public class InsertionDeviceNexusDevice extends AbstractNexusMetadataDevice<NXin
 	public NexusObjectProvider<NXinsertion_device> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final NXinsertion_device insertionDevice = NexusNodeFactory.createNXinsertion_device();
 		writeFields(insertionDevice);
-	
+
 		return new NexusObjectWrapper<>(getName(), insertionDevice);
 	}
 

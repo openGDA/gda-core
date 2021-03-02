@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device;
 
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -25,6 +26,9 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
+/**
+ * An {@link INexusDevice} implementation that adds an {@link NXsource} to the nexus tree.
+ */
 public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 
 	public static final String DEFAULT_SOURCE_NAME = "Diamond Light Source";

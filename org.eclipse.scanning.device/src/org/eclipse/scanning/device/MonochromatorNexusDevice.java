@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device;
 
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -25,6 +26,9 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
+/**
+ * An {@link INexusDevice} implementation that adds an {@link NXmonochromator} to the nexus tree.
+ */
 public class MonochromatorNexusDevice extends AbstractNexusMetadataDevice<NXmonochromator> {
 
 	public void setEnergyScannableName(String energyScannableName) {

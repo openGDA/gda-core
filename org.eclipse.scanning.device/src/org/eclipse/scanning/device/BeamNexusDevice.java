@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device;
 
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -26,6 +27,9 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
+/**
+ * An {@link INexusDevice} implementation that adds an {@link NXbeam} to the nexus tree.
+ */
 public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
 	public void setIncidentEnergyScannableName(String incidentEnergyScannableName) {
