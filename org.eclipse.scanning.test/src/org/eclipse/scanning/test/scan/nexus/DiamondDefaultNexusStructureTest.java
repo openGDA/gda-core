@@ -27,6 +27,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.nexus.NXbeam;
@@ -45,7 +47,10 @@ import org.eclipse.scanning.device.BeamNexusDevice;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
+import org.eclipse.scanning.device.MetadataField;
 import org.eclipse.scanning.device.MonochromatorNexusDevice;
+import org.eclipse.scanning.device.ScalarField;
+import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
@@ -83,6 +88,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final double EXPECTED_MONOCHROMATOR_ENERGY = 5.432;
 	private static final double EXPECTED_MONOCHROMATOR_WAVELENGTH = 543.34;
 	private static final double EXPECTED_INSERTION_DEVICE_GAP = 1.234;
+	private static final double EXPECTED_INSERTION_DEVICE_BANDWIDTH = 83.34;
+	private static final double EXPECTED_INSERTION_DEVICE_LENGTH = 3.5;
 	private static final double EXPECTED_SOURCE_ENERGY = 3.0;
 	private static final double EXPECTED_SOURCE_CURRENT = 25.5;
 
@@ -155,10 +162,12 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final String gapScannableName = "id_gap";
 		final String taperScannableName = "id_taper";
 		final String harmonicScannableName = "id_harmonic";
+		final String bandwidthScannableName = "id_bandwidth";
 
 		createScannable(gapScannableName, EXPECTED_INSERTION_DEVICE_GAP);
 		createScannable(taperScannableName, EXPECTED_INSERTION_DEVICE_TAPER);
 		createScannable(harmonicScannableName, EXPECTED_INSERTION_DEVICE_HARMONIC);
+		createScannable(bandwidthScannableName, EXPECTED_INSERTION_DEVICE_BANDWIDTH);
 
 		final InsertionDeviceNexusDevice insertionDevice = new InsertionDeviceNexusDevice();
 		insertionDevice.setName(INSERTION_DEVICE_NAME);
@@ -166,6 +175,12 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		insertionDevice.setGapScannableName(gapScannableName);
 		insertionDevice.setTaperScannableName(taperScannableName);
 		insertionDevice.setHarmonicScannableName(harmonicScannableName);
+
+		final List<MetadataField> customFields = new ArrayList<>();
+		customFields.add(new ScannableField(NXinsertion_device.NX_BANDWIDTH, bandwidthScannableName));
+		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, EXPECTED_INSERTION_DEVICE_LENGTH));
+		insertionDevice.setCustomFields(customFields);
+
 		ServiceHolder.getNexusDeviceService().register(insertionDevice);
 	}
 
@@ -279,6 +294,9 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		assertThat(insertionDevice.getTaperScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_TAPER)));
 		// DummyScannable always returns a double which gets converted to a long
 		assertThat(insertionDevice.getHarmonicScalar(), is(equalTo((long) EXPECTED_INSERTION_DEVICE_HARMONIC)));
+
+		assertThat(insertionDevice.getBandwidthScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_BANDWIDTH)));
+		assertThat(insertionDevice.getLengthScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_LENGTH)));
 	}
 
 	private void checkMonochromatorGroup(NXinstrument instrument) {

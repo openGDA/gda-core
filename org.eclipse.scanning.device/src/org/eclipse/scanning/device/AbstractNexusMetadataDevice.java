@@ -18,9 +18,13 @@
 
 package org.eclipse.scanning.device;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -30,6 +34,7 @@ import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.scanning.api.INameable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +52,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	 * A map of the fields in this device, keyed by name.
 	 */
 	private Map<String, MetadataField> fields = new HashMap<>();
+
+	private Map<String, MetadataField> customFields = new HashMap<>();
 
 	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
 		nexusClass = nexusBaseClass;
@@ -71,6 +78,16 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	public void addScalarField(String fieldName, Object fieldValue) {
 		addField(new ScalarField(fieldName, fieldValue));
+	}
+
+	/**
+	 * Custom fields are those for which there is not an explicit set method, such as one that
+	 * takes a scannable name like {@link BeamNexusDevice#setFluxScannableName(String)} or a value
+	 * like {@link SourceNexusDevice#setProbe(String)}.
+	 * @param customFields list of fields to add t
+	 */
+	public void setCustomFields(List<MetadataField> customFields) {
+		this.customFields = customFields.stream().collect(toMap(INameable::getName, Function.identity()));
 	}
 
 	@Override
@@ -125,6 +142,9 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	protected void writeFields(N nxObject) throws NexusException {
 		for (MetadataField field : fields.values()) {
+			field.writeField(nxObject);
+		}
+		for (MetadataField field : customFields.values()) {
 			field.writeField(nxObject);
 		}
 	}

@@ -22,10 +22,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
+import org.eclipse.scanning.device.MetadataField;
+import org.eclipse.scanning.device.ScalarField;
+import org.eclipse.scanning.device.ScannableField;
 
 public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXinsertion_device> {
 
@@ -33,21 +40,37 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 	private static final String TAPER_SCANNABLE_NAME = "taper";
 	private static final String HARMONIC_SCANNABLE_NAME = "harmonic";
 
+	private static final String BANDWIDTH_SCANNABLE_NAME = "bandwidth";
+	private static final double INSERTION_DEVICE_LENGTH = 3.5;
+	private static final String CUSTOM_FIELD_NAME = "custom";
+	private static final String CUSTOM_FIELD_VALUE = "customValue";
+
 	@Override
 	protected void setupTestFixtures() throws Exception {
 		createMockScannable(GAP_SCANNABLE_NAME, 2.3);
 		createMockScannable(TAPER_SCANNABLE_NAME, 7.24);
 		createMockScannable(HARMONIC_SCANNABLE_NAME, 2);
+		createMockScannable(BANDWIDTH_SCANNABLE_NAME, 15.2);
 	}
 
 	@Override
 	protected INexusDevice<NXinsertion_device> setupNexusDevice() throws Exception {
 		final InsertionDeviceNexusDevice insertionDevice = new InsertionDeviceNexusDevice();
 		insertionDevice.setName("insertionDevice");
+
+		// set up fields with setters
 		insertionDevice.setType(InsertionDeviceType.WIGGLER.toString());
 		insertionDevice.setGapScannableName(GAP_SCANNABLE_NAME);
 		insertionDevice.setTaperScannableName(TAPER_SCANNABLE_NAME);
 		insertionDevice.setHarmonicScannableName(HARMONIC_SCANNABLE_NAME);
+
+		// set up custom fields
+		final List<MetadataField> customFields = new ArrayList<>();
+		customFields.add(new ScannableField(NXinsertion_device.NX_BANDWIDTH, BANDWIDTH_SCANNABLE_NAME));
+		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, INSERTION_DEVICE_LENGTH));
+		customFields.add(new ScalarField(CUSTOM_FIELD_NAME, CUSTOM_FIELD_VALUE));
+		insertionDevice.setCustomFields(customFields);
+
 		return insertionDevice;
 	}
 
@@ -56,6 +79,11 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 		assertThat(nxInsertionDevice.getTypeScalar(), is(InsertionDeviceType.WIGGLER.toString()));
 		assertThat(nxInsertionDevice.getGapScalar(), is(equalTo(getScannableValue(GAP_SCANNABLE_NAME))));
 		assertThat(nxInsertionDevice.getTaperScalar(), is(equalTo(getScannableValue(TAPER_SCANNABLE_NAME))));
+
+		assertThat(nxInsertionDevice.getBandwidthScalar(), is(equalTo(getScannableValue(BANDWIDTH_SCANNABLE_NAME))));
+		assertThat(nxInsertionDevice.getLengthScalar(), is(equalTo(INSERTION_DEVICE_LENGTH)));
+		assertThat(nxInsertionDevice.getDataset(CUSTOM_FIELD_NAME),
+				is(equalTo(DatasetFactory.createFromObject(CUSTOM_FIELD_VALUE))));
 	}
 
 }
