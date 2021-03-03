@@ -24,9 +24,13 @@ import static uk.ac.gda.ui.tool.ClientMessages.ALTERNATIVE_DIRECTORY_USE_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.BROWSE;
 import static uk.ac.gda.ui.tool.ClientMessages.BROWSE_DIRECTORY;
 import static uk.ac.gda.ui.tool.ClientMessages.CHOOSE_DIRECTORY;
+import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientMessages.NOT_A_DIRECTORY;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
+import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -35,13 +39,11 @@ import java.io.File;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -84,39 +86,38 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 		dataBindingContext = new DataBindingContext();
 		final IMappingExperimentBean mappingBean = getMappingBean();
 
-		final Composite tempDirectoryComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(tempDirectoryComposite);
-		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(tempDirectoryComposite);
+		final Composite tempDirectoryComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, NUM_COLUMNS);
+		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(tempDirectoryComposite);
 
-		useCheck = createButton(tempDirectoryComposite, SWT.CHECK, ALTERNATIVE_DIRECTORY_USE, ALTERNATIVE_DIRECTORY_USE_TP);
-		GridDataFactory.fillDefaults().applyTo(useCheck);
+		useCheck = createClientButton(tempDirectoryComposite, SWT.CHECK, ALTERNATIVE_DIRECTORY_USE, ALTERNATIVE_DIRECTORY_USE_TP);
+		createClientGridDataFactory().applyTo(useCheck);
 		useCheck.setSelection(mappingBean.isUseAlternativeDirectory());
 		useCheck.addSelectionListener(widgetSelectedAdapter(e -> setEnabledState()));
 
-		directoryText = new Text(tempDirectoryComposite, SWT.BORDER);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(directoryText);
+		directoryText = createClientText(tempDirectoryComposite, SWT.NONE, EMPTY_MESSAGE);
+		createClientGridDataFactory().grab(true, true).applyTo(directoryText);
 		directoryText.setText(mappingBean.getAlternativeDirectory());
 
-		browseButton = createButton(tempDirectoryComposite, SWT.PUSH, BROWSE, BROWSE_DIRECTORY);
-		GridDataFactory.swtDefaults().applyTo(browseButton);
+		browseButton = createClientButton(tempDirectoryComposite, SWT.PUSH, BROWSE, BROWSE_DIRECTORY);
+		createClientGridDataFactory().applyTo(browseButton);
 		browseButton.addSelectionListener(widgetSelectedAdapter(e -> selectDirectory()));
 
 		createDataBindings();
 		setEnabledState();
 	}
 
-	@SuppressWarnings("unchecked")
+
 	private void createDataBindings() {
 		// Data binding for the check box
-		final IObservableValue<Boolean> useCheckBoxModelObservable = BeanProperties.value(DirectoryModel.class, "use").observe(directoryModel);
-		final IObservableValue<Boolean> useCheckBoxWidgetObservable = WidgetProperties.selection().observe(useCheck);
+		final IObservableValue<Boolean> useCheckBoxModelObservable = BeanProperties.value(DirectoryModel.class, "use", Boolean.class).observe(directoryModel);
+		final IObservableValue<Boolean> useCheckBoxWidgetObservable = WidgetProperties.buttonSelection().observe(useCheck);
 		dataBindingContext.bindValue(useCheckBoxWidgetObservable, useCheckBoxModelObservable);
 
 		// When the user changes the text box, check that the directory exists
-		final UpdateValueStrategy setDirectoryStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<String, String> setDirectoryStrategy = new UpdateValueStrategy<>();
 		setDirectoryStrategy.setBeforeSetValidator(value -> {
 			// Make sure tooltip is up to date
-			final String newDirectoryString = (String) value;
+			final String newDirectoryString = value;
 			directoryText.setToolTipText(newDirectoryString);
 			// If the "use" check box is not selected, we don't care whether the path is valid
 			if (!useCheck.getSelection()) {
@@ -128,10 +129,10 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 		});
 
 		// Nothing particular to check when binding from text box
-		final UpdateValueStrategy setTextBoxStrategy = new UpdateValueStrategy();
+		final UpdateValueStrategy<String, String> setTextBoxStrategy = new UpdateValueStrategy<>();
 
 		// Data binding for the text box
-		final IObservableValue<String> directoryModelObservable = BeanProperties.value(DirectoryModel.class, "directory").observe(directoryModel);
+		final IObservableValue<String> directoryModelObservable = BeanProperties.value(DirectoryModel.class, "directory", String.class).observe(directoryModel);
 		final IObservableValue<String> directoryWidgetObservable = WidgetProperties.text(SWT.Modify).observe(directoryText);
 		directoryBinding = dataBindingContext.bindValue(directoryWidgetObservable, directoryModelObservable, setDirectoryStrategy, setTextBoxStrategy);
 		ControlDecorationSupport.create(directoryBinding, SWT.ARROW_LEFT | SWT.TOP);
