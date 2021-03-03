@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2014 Diamond Light Source Ltd.
+ * Copyright © 2020 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,24 +18,34 @@
 
 package gda.device.enumpositioner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.scannable.ScannablePositionChangeEvent;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(EnumPositioner.class)
-public class IntegerMapperBasedEnumPositioner extends MapperBasedEnumPositionerBase<Integer> {
+public class StringMapperBasedEnumPositioner extends MapperBasedEnumPositionerBase<String> {
+
+	private static final Logger logger = LoggerFactory.getLogger(StringMapperBasedEnumPositioner.class);
 
 	@Override
-	protected String getExternalValueFromMonitor() throws IllegalArgumentException, DeviceException {
-		return getExternalValue((Integer) getMonitor().getPosition());
+	protected String getExternalValueFromMonitor() throws DeviceException {
+		return getExternalValue((String) getMonitor().getPosition());
 	}
 
 	@Override
 	protected ScannablePositionChangeEvent getScannablePositionChangeEvent(Object source, Object arg) {
-		if (arg instanceof Integer) {
-			String externalValue = getExternalValue((Integer) arg);
-			return new ScannablePositionChangeEvent(externalValue);
+		if (source == getMonitor()) {
+			try {
+				String latestPosition = (String) getMonitor().getPosition();
+				String externalValue = getExternalValue(latestPosition);
+				return new ScannablePositionChangeEvent(externalValue);
+			} catch (DeviceException e) {
+				logger.error("Problem getting position from {}", getMonitor().getName());
+			}
 		}
 		return null;
 	}
