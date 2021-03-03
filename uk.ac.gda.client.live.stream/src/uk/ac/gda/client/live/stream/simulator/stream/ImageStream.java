@@ -37,7 +37,7 @@ public class ImageStream implements Runnable {
 	/**
 	 * The image to be streamed.
 	 */
-	private Optional<Image> image;
+	private Optional<Image> image = Optional.empty();
 
 	private final IDatasetConnector connector;
 	private IDataset dataset = DatasetFactory.zeros(new int[] { 0, 0 });
@@ -67,6 +67,7 @@ public class ImageStream implements Runnable {
 			synchronized (lock) {
 				if (imageChanged) {
 					image.ifPresent(this::datasetUpdate);
+					imageChanged = false;
 					connector.fireDataListeners();
 				}
 				lock.notifyAll();
@@ -90,13 +91,20 @@ public class ImageStream implements Runnable {
 		}
 	}
 
-	private void datasetUpdate(final Image image) {
-		try {
-			int[] shape = new int[] { image.getImageData().width, image.getImageData().height };
-			dataset = DatasetFactory.createFromObject(getImagePixels(image), shape);
-		} finally {
-			imageChanged = false;
+	public void setDataset(IDataset image) {
+		synchronized (lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+			}
+			this.dataset = DatasetFactory.createFromObject(image);
+			imageChanged = true;
 		}
+	}
+
+	private void datasetUpdate(final Image image) {
+		int[] shape = new int[] { image.getImageData().width, image.getImageData().height };
+		dataset = DatasetFactory.createFromObject(getImagePixels(image), shape);
 	}
 
 	private int[] getImagePixels(Image image) {

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
 import org.eclipse.january.dataset.IDataListener;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetChangeChecker;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.january.dataset.ILazyDataset;
@@ -36,7 +37,7 @@ import uk.ac.gda.client.live.stream.simulator.stream.ImageStream;
 
 /**
  * A ready to use connector to stream images using an internal instance of {@link ImageStream}. A controller can use
- * {@link #setImage(Image)} to change the streamed image.
+ * {@link #setImage(Image)} or {@link #setDataset(IDataset)} to change the streamed image.
  *
  * @author Maurizio Nagni
  */
@@ -90,6 +91,15 @@ public class ImageDatasetConnector implements IDatasetConnector {
 		}
 	}
 
+	/**
+	 * Set the Dataset to be streamed
+	 * @param dataset
+	 */
+	public void setDataset(IDataset dataset) {
+		if (internalStream != null) {
+			internalStream.setDataset(dataset);
+		}
+	}
 	@Override
 	public String getDatasetName() {
 		return this.datasetName;
