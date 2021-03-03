@@ -20,10 +20,10 @@ package uk.ac.gda.api.acquisition;
 
 import java.net.URL;
 import java.time.Period;
-import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+import uk.ac.gda.common.entity.Document;
 
 
 /**
@@ -33,28 +33,7 @@ import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
  *
  * @author Maurizio Nagni
  */
-public interface Acquisition<T extends AcquisitionConfiguration<? extends AcquisitionParameters>> {
-
-	/**
-	 * An universal immutable identifier to discriminate between different acquisitions
-	 *
-	 * @return the acquisition identifier
-	 */
-	UUID getUuid();
-
-	/**
-	 * A brief definition of the acquisition.
-	 *
-	 * @return the acquisition name
-	 */
-	String getName();
-
-	/**
-	 * A short description of the acquisition.
-	 *
-	 * @return the acquisition abstract
-	 */
-	String getDescription();
+public interface Acquisition<T extends AcquisitionConfiguration<? extends AcquisitionParameters>> extends Document {
 
 	/**
 	 * The period between which the acquisition has been running

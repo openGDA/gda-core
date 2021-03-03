@@ -18,30 +18,40 @@
 
 package uk.ac.gda.api.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Root class for all GDA exceptions
  *
  * @author Maurizio Nagni
+ * @deprecated Use instead {@link uk.ac.gda.common.exception.GDAException}. To be removed on GDA 9.22
  */
+@Deprecated
 public class GDAException extends Exception {
+
+	private static final Logger logger = LoggerFactory.getLogger(GDAException.class);
 
 	public GDAException() {
 	}
 
 	public GDAException(String message) {
 		super(message);
+		logger.warn("Ths class is deprecated and will be remove on GDA 9.22");
 	}
 
 	public GDAException(Throwable cause) {
 		super(cause);
+		logger.warn("Ths class is deprecated and will be remove on GDA 9.22");
 	}
 
 	public GDAException(String message, Throwable cause) {
 		super(message, cause);
+		logger.warn("Ths class is deprecated and will be remove on GDA 9.22");
 	}
 
 	public GDAException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
+		logger.warn("Ths class is deprecated and will be remove on GDA 9.22");
 	}
-
 }

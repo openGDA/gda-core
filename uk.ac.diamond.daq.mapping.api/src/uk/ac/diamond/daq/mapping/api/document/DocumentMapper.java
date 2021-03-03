@@ -90,6 +90,13 @@ public class DocumentMapper {
 		return getStaticObjectMapper();
 	}
 
+	/**
+	 * @param value the object to convert
+	 * @return the json converted document
+	 * @throws GDAException
+	 * @deprecated access it as normal instance or as Spring bean using {@link #convertToJSON(Object)}
+	 */
+	@Deprecated
 	public static final String toJSON(Object value) throws GDAException {
 		try {
 			return getStaticObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
@@ -98,6 +105,23 @@ public class DocumentMapper {
 		}
 	}
 
+	public final String convertToJSON(Object value) throws uk.ac.gda.common.exception.GDAException {
+		try {
+			return getStaticObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
+		} catch (JsonProcessingException e) {
+			throw new uk.ac.gda.common.exception.GDAException("Cannot create json document", e);
+		}
+	}
+
+	/**
+	 * @param <T>
+	 * @param content the json document
+	 * @param clazz which class represents the json document
+	 * @return an instance of the class
+	 * @throws GDAException
+	 * @deprecated access it as normal instance or as Spring bean using {@link #convertFromJSON(String, Class)}
+	 */
+	@Deprecated
 	public static final <T> T fromJSON(String content, Class<T> clazz) throws GDAException {
 		try {
 			return getStaticObjectMapper().readValue(content, clazz);
@@ -105,6 +129,16 @@ public class DocumentMapper {
 			throw new GDAException("Cannot create json document", e);
 		} catch (IOException e) {
 			throw new GDAException("Cannot read json document", e);
+		}
+	}
+
+	public final <T> T convertFromJSON(String content, Class<T> clazz) throws uk.ac.gda.common.exception.GDAException {
+		try {
+			return getStaticObjectMapper().readValue(content, clazz);
+		} catch (JsonProcessingException e) {
+			throw new uk.ac.gda.common.exception.GDAException("Cannot create json document", e);
+		} catch (IOException e) {
+			throw new uk.ac.gda.common.exception.GDAException("Cannot read json document", e);
 		}
 	}
 
