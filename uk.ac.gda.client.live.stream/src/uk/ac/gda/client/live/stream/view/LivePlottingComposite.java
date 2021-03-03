@@ -89,6 +89,9 @@ public class LivePlottingComposite extends Composite {
 	private boolean connected;
 
 	private final IAxisChangeListener axisChangeListener = this::updateAxes;
+	private final ApplicationListener<ListenToConnectionEvent> openConnectionListener = this::handleOpenConnection;
+	private final ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = this::handleCloseConnection;
+
 	private IDataListener dataShapeChangeListener;
 	private IDataListener titleUpdateListener;
 
@@ -381,15 +384,8 @@ public class LivePlottingComposite extends Composite {
 
 	private IDataListener updateTitleUpdateListener() {
 		titleUpdateListener = new IDataListener() {
-			private long lastUpdateTime = System.nanoTime(); // Initialise
-																// to
-																// make
-																// first
-																// call
-																// to
-																// getFps
-																// more
-																// reasonable
+			// Initialise to make first call to getFps more reasonable
+			private long lastUpdateTime = System.nanoTime();
 
 			@Override
 			public void dataChangePerformed(DataEvent evt) {
@@ -413,47 +409,38 @@ public class LivePlottingComposite extends Composite {
 			private double getFps() {
 				final long now = System.nanoTime();
 				final long timeDiff = now - lastUpdateTime;
-				lastUpdateTime = now; // Cache
-										// for
-										// next
-										// frame
+				// Cache for next frame
+				lastUpdateTime = now;
 				return 1 / (timeDiff * 1e-9);
 			}
 		};
 		return titleUpdateListener;
 	}
 
-	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {
-		@Override
-		public void onApplicationEvent(ListenToConnectionEvent event) {
-			if (!event.haveSameParent(getParent())) {
-				return;
-			}
-			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
-				liveStreamConnection = LiveStreamConnection.class.cast(event.getSource());
-				try {
-					activatePlottingSystem();
-				} catch (LiveStreamException e) {
-					logger.error("Canot activate Plotting", e);
-				}
+	private void handleOpenConnection(ListenToConnectionEvent event) {
+		if (!event.haveSameParent(getParent())) {
+			return;
+		}
+		if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
+			liveStreamConnection = LiveStreamConnection.class.cast(event.getSource());
+			try {
+				activatePlottingSystem();
+			} catch (LiveStreamException e) {
+				logger.error("Cannot activate Plotting", e);
 			}
 		}
-	};
+	}
 
-	ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = new ApplicationListener<StopListenToConnectionEvent>() {
-		@Override
-		public void onApplicationEvent(StopListenToConnectionEvent event) {
-			// Avoids disposed widget
-			if (isDisposed() || getParent().isDisposed()) {
-				return;
-			}
-			if (!event.haveSameParent(getParent())) {
-				return;
-			}
-			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
-				disconnect();
-			}
+	private void handleCloseConnection(StopListenToConnectionEvent event) {
+		// Avoids disposed widget
+		if (isDisposed() || getParent().isDisposed()) {
+			return;
 		}
-	};
-
+		if (!event.haveSameParent(getParent())) {
+			return;
+		}
+		if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
+			disconnect();
+		}
+	}
 }
