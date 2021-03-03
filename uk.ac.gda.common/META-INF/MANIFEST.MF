@@ -17,6 +17,10 @@ Export-Package: gda.configuration.properties,
  gda.util.logging,
  uk.ac.gda,
  uk.ac.gda.beans,
+ uk.ac.gda.common.command,
+ uk.ac.gda.common.entity,
+ uk.ac.gda.common.entity.filter,
+ uk.ac.gda.common.exception,
  uk.ac.gda.common.util,
  uk.ac.gda.doe,
  uk.ac.gda.jython,
@@ -42,5 +46,7 @@ Require-Bundle: ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  org.eclipse.core.runtime;bundle-version="3.5.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
+Import-Package: com.fasterxml.jackson.annotation;version="2.9.9",
+ com.fasterxml.jackson.databind.annotation;version="2.9.93",
+ org.slf4j;version="[1.7.2,2.0.0)"
 Automatic-Module-Name: uk.ac.gda.common
