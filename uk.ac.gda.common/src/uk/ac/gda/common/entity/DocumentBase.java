@@ -20,28 +20,50 @@ package uk.ac.gda.common.entity;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
  * Represents a document identifier.
  *
  * @author Maurizio Nagni
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "uuid")
+@JsonDeserialize(builder = DocumentBase.Builder.class)
 public class DocumentBase implements Document {
 
-	private UUID uuid;
-	private String name;
-	private String description;
+	private final UUID uuid;
+	private final String name;
+	private final String description;
+
+	/**
+	 * A constructor used only by the inner builder class
+	 * @param uuid
+	 * @param name
+	 * @param description
+	 */
+	private DocumentBase(UUID uuid, String name, String description) {
+		super();
+		this.uuid = uuid;
+		this.name = name;
+		this.description = description;
+	}
+
+	/**
+	 * This constructor enable any class extending this to still create a new immutable object
+	 *
+	 * @param documentBase
+	 *
+	 * @see uk.ac.gda.common.entity.device.DeviceValue.Builder#build()
+	 */
+	protected DocumentBase(DocumentBase documentBase) {
+		this.uuid = documentBase.getUuid();
+		this.name = documentBase.getName();
+		this.description = documentBase.getDescription();
+	}
 
 	@Override
 	public UUID getUuid() {
 		return uuid;
-	}
-
-	public void setUuid(UUID uuid) {
-		this.uuid = uuid;
 	}
 
 	@Override
@@ -49,16 +71,34 @@ public class DocumentBase implements Document {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getDescription() {
 		return description;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+	@JsonPOJOBuilder
+    public static class Builder {
+    	private UUID uuid;
+    	private String name;
+    	private String description;
+
+    	public final Builder withUuid(UUID uuid) {
+	        this.uuid = uuid;
+	        return this;
+	    }
+
+    	public final Builder withName(String name) {
+	        this.name = name;
+	        return this;
+	    }
+
+    	public final Builder withDescription(String description) {
+	        this.description = description;
+	        return this;
+	    }
+
+		public DocumentBase build() {
+			return new DocumentBase(uuid, name, description);
+		}
+    }
 }
