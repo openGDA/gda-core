@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROIList;
@@ -108,10 +107,11 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 		Serializable roiListS = bean.get(GuiParameters.ROIDATALIST);
 
 		if (roiListS instanceof RectangularROIList) {
-			RectangularROIList rawRoiList = (RectangularROIList) roiListS;
+			ArrayList<RectangularROI> rawRoiList = new ArrayList<>((RectangularROIList) roiListS);
 			rawRoiList.sort(Comparator.comparing(RectangularROI::getName));
-			List<String> roiString = rawRoiList.stream().map(RectangularROI::toString).collect(Collectors.toList());
-			logger.info("Rois defined on {}: {}", plotName, roiString);
+			// isPlot corresponds to the "Active" property in the GUI (not visible)
+			rawRoiList.removeIf(roi -> !roi.isPlot());
+			logger.info("Rois defined on {}: {}", plotName, rawRoiList);
 			rawRoiList.stream().map(RegionOfInterest::new).forEach(roiList::add);
 		} else {
 			// It is null or not rectangular rois
