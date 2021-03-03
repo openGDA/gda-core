@@ -411,7 +411,7 @@ public class LiveStreamView extends ViewPart {
 		if (plottingComposite != null) {
 			plottingComposite.dispose();
 		}
-		if (liveStreamConnection.isConnected()) {
+		if (liveStreamConnection != null && liveStreamConnection.isConnected()) {
 			try {
 				liveStreamConnection.disconnect();
 			} catch (LiveStreamException e) {

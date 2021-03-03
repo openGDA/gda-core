@@ -364,12 +364,11 @@ public class LivePlottingComposite extends Composite {
 
 			@Override
 			public void dataChangePerformed(DataEvent evt) {
-				final Display display = PlatformUI.getWorkbench().getDisplay();
 				// Check if the shape has changed, if so rescale
 				if (!Arrays.equals(evt.getShape(), oldShape)) {
 					oldShape = evt.getShape();
 					// Need to be in the UI thread to do rescaling
-					display.asyncExec(() -> {
+					Display.getDefault().asyncExec(() -> {
 						if (plottingSystem != null && !plottingSystem.isDisposed()) {
 							plottingSystem.autoscaleAxes();
 							iTrace.rehistogram();

@@ -98,8 +98,10 @@ public class WatchdogControl extends LiveControlBase {
 	private void updateSelectionStates() {
 		Display.getDefault().asyncExec(() -> {
 			for (Button watchdogCheckbox : watchdogCheckBoxes) {
-				final String watchdogName = (String) watchdogCheckbox.getData();
-				watchdogCheckbox.setSelection(isWatchdogEnabled(watchdogName));
+				if (watchdogCheckbox != null && !watchdogCheckbox.isDisposed()) {
+					final String watchdogName = (String) watchdogCheckbox.getData();
+					watchdogCheckbox.setSelection(isWatchdogEnabled(watchdogName));
+				}
 			}
 		});
 	}
