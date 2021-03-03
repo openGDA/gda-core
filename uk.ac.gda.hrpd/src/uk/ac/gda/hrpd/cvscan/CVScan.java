@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	private File rebinnedfile;
 	private int retrycount = 0;
 
+	private AtomicBoolean rawDataSaved = new AtomicBoolean(false);
+
 	private static final int NTHREDS = 2;
 	private ExecutorService executor;
 	// collision prevention objects
@@ -144,6 +147,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			}
 		}
 		pausedCounter = 0; // initialise counter for paused flag for this cvscan
+		rawDataSaved.set(false);
 		this.totaltime = Double.valueOf(time.toString()).doubleValue();
 		try {
 			controller.setTime(totaltime);
@@ -628,6 +632,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	private class SaveRawData implements Callable<String> {
 		@Override
 		public String call() throws Exception {
+			if (!rawDataSaved.compareAndSet(false, true)) {
+				logger.info("Raw data already saved");
+				return null;
+			}
 			if (pausedCounter == 0) {
 				return saveRawData();
 			}
@@ -760,10 +768,9 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 						logger.error("{}: Failed to close fast shutter", getName());
 					}
 				}
-				// save reduced data
-				Callable<String> worker = new SaveRebinnedData();
-				Future<String> submit = executor.submit(worker);
-				list.add(submit);
+				// save data
+				list.add(executor.submit(new SaveRawData()));
+				list.add(executor.submit(new SaveRebinnedData()));
 			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Paused) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Paused");
 				logger.info("{}: paused", getName());
