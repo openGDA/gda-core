@@ -37,6 +37,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import uk.ac.diamond.daq.context.web.SpringContextConfiguration;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Instantiates a {@link AnnotationConfigWebApplicationContext} for GDA Rest services.
@@ -138,6 +139,7 @@ public class SpringWebInitializer {
 		ServletRegistration.Dynamic dispatcher = container.addServlet("restServlet",
 				new DispatcherServlet(rootContext));
 		dispatcher.addMapping("/");
-		dispatcher.setLoadOnStartup(1);	
+		dispatcher.setLoadOnStartup(1);
+		SpringApplicationContextFacade.addApplicationContextAsParent(rootContext);
 	}
 }

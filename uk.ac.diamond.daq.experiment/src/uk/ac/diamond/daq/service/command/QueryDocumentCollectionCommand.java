@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.service.command;
 
 import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
-import uk.ac.diamond.daq.service.command.strategy.CollectionOutputStrategy;
+import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.command.ExecuteCommand;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
@@ -36,7 +36,7 @@ public class QueryDocumentCollectionCommand<T extends Document> implements Execu
 
 	private final CollectionCommandReceiver<T> ccr;
 	private final DocumentFilter filter;
-	private final CollectionOutputStrategy<T> outputStrategy;
+	private final OutputStrategy<T> outputStrategy;
 
 	/**
 	 * Constructor for the query command
@@ -44,7 +44,7 @@ public class QueryDocumentCollectionCommand<T extends Document> implements Execu
 	 * @param filter filter the document collections 
 	 * @param outputStrategy defines how write the output
 	 */
-	public QueryDocumentCollectionCommand(CollectionCommandReceiver<T> ccr, DocumentFilter filter, CollectionOutputStrategy<T> outputStrategy) {
+	public QueryDocumentCollectionCommand(CollectionCommandReceiver<T> ccr, DocumentFilter filter, OutputStrategy<T> outputStrategy) {
 		super();
 		this.ccr = ccr;
 		this.filter = filter;

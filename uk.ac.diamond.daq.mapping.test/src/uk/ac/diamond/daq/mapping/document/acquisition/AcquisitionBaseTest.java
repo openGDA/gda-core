@@ -53,7 +53,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 		ScanningParameters acquisitionParameters = new ScanningParameters();
 		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
 		String document = serialiseDocument(acquisition);
-		assertThat(document, containsString("\"type\" : \"scanningAcquisition\""));
+		assertThat(document, containsString("\"documentType\" : \"scanningAcquisition\""));
 	}
 
 	@Test

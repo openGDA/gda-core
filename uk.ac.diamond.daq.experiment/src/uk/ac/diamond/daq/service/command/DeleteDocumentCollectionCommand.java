@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.service.command;
 import java.util.UUID;
 
 import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
-import uk.ac.diamond.daq.service.command.strategy.CollectionOutputStrategy;
+import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.command.ExecuteCommand;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.exception.GDAServiceException;
@@ -37,7 +37,7 @@ public class DeleteDocumentCollectionCommand<T extends Document> implements Exec
 
 	private final CollectionCommandReceiver<T> ccr;
 	private final UUID id;
-	private final CollectionOutputStrategy<T> outputStrategy;
+	private final OutputStrategy<T> outputStrategy;
 
 	/**
 	 * Constructor for the delete command
@@ -45,7 +45,7 @@ public class DeleteDocumentCollectionCommand<T extends Document> implements Exec
 	 * @param id the document identifier 
 	 * @param outputStrategy defines how write the output
 	 */
-	public DeleteDocumentCollectionCommand(CollectionCommandReceiver<T> ccr, UUID id, CollectionOutputStrategy<T> outputStrategy) {
+	public DeleteDocumentCollectionCommand(CollectionCommandReceiver<T> ccr, UUID id, OutputStrategy<T> outputStrategy) {
 		super();
 		this.ccr = ccr;
 		this.id = id;

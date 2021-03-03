@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.service.rest;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 import java.io.ByteArrayOutputStream;
@@ -30,7 +32,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,7 +83,7 @@ public class ConfigurationsServiceTest {
 		ServletOutputStream os = new DelegatingServletOutputStream(stream);
 		doReturn(os).when(response).getOutputStream();
 		service.getDocument(uuid, null, response);
-		Assert.assertTrue(stream.toString().contains(uuid));
+		assertTrue(stream.toString().contains(uuid));
 	}
 
 	@Test
@@ -90,7 +91,7 @@ public class ConfigurationsServiceTest {
 		String uuid2 = "015748eb-4be4-4d0f-a509-f989ec3a0453";
 		String uuid3 = "ab8d1bb0-f43f-4ce9-abfd-9b79778a7607";
 
-		Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+		Map<String, String[]> parameterMap = new HashMap<>();
 		parameterMap.put("fileExtension", new String[]{"tomo"});
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		doReturn(parameterMap).when(request).getParameterMap();
@@ -101,8 +102,8 @@ public class ConfigurationsServiceTest {
 		doReturn(os).when(response).getOutputStream();
 
 		service.getDocuments(request, response);
-		Assert.assertTrue(stream.toString().contains(uuid2));
-		Assert.assertTrue(stream.toString().contains(uuid3));
+		assertTrue(stream.toString().contains(uuid2));
+		assertTrue(stream.toString().contains(uuid3));
 	}
 
 	@Test
@@ -120,6 +121,6 @@ public class ConfigurationsServiceTest {
 		service.insertDiffraction(scanningAcquisition, request, response);
 
 		Document newDocument = documentMapper.convertFromJSON(stream.toString(), Document.class);
-		Assert.assertNotNull(newDocument.getUuid());
+		assertNotNull(newDocument.getUuid());
 	}
 }

@@ -25,7 +25,6 @@ import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.common.entity.Document;
 
-
 /**
  * Represents an acquisition workflow.
  *

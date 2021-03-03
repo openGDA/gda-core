@@ -37,6 +37,7 @@ import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesReq
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.entity.device.DeviceValue;
 
 /**
  * Wraps Jackson {@link ObjectMapper} in order to provide a simple and effective serializartion/deserialization service.
@@ -67,6 +68,7 @@ public class DocumentMapper {
 			SavuProcessingRequest.class,
 			DiffractionCalibrationMergeRequest.class,
 			ApplyNexusTemplatesRequest.class,
+			DeviceValue.class,
 			};
 
 	private static ObjectMapper objectMapper;

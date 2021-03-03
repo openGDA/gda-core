@@ -188,6 +188,30 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 	 *             if more than one bean of the given type was found
 	 */
 	public static <T> T getBean(String name, Class<T> requiredType) {
+		return getBean(name, requiredType, false);
+	}
+
+	/**
+	 * @param <T>
+	 * @param name
+	 * 			   the name of the bean to retrieve
+	 * @param requiredType
+	 *            type the bean must match; can be an interface or superclass. {@code null} is disallowed.
+	 *            <p>
+	 *            This method goes into {@link ListableBeanFactory} by-type lookup territory but may also be translated
+	 *            into a conventional by-name lookup based on the name of the given type. For more extensive retrieval
+	 *            operations across sets of beans, use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
+	 * @param fromParent if {@code true} the bean is requested from the parent {@code ApplicationContext}, otherwise from the one in this instance 
+	 * @return an instance of the single bean matching the required type
+	 * @throws NoSuchBeanDefinitionException
+	 *             if no bean of the given type was found
+	 * @throws NoUniqueBeanDefinitionException
+	 *             if more than one bean of the given type was found
+	 */
+	public static <T> T getBean(String name, Class<T> requiredType, boolean fromParent) {
+		if (fromParent) {
+			return applicationContext.getParent().getBean(name, requiredType);
+		}
 		return applicationContext.getBean(name, requiredType);
 	}
 
@@ -232,6 +256,14 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 		if (addApplicationListener(listener)) {
 			createPhantomReference(object, listener);
 		}
+	}
+
+	/**
+	 * Associates an {@code ApplicationContext} parent to the {@code ApplicationContext} defined in this instance
+	 * @param child
+	 */
+	public static final void addApplicationContextAsParent(AbstractApplicationContext child) {
+		child.setParent(applicationContext);
 	}
 
 	private static void springApplicationDidNotScanClass() {

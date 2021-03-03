@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.service.command.receiver;
 
 import java.util.UUID;
 
-import uk.ac.diamond.daq.service.command.strategy.CollectionOutputStrategy;
+import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
 import uk.ac.gda.common.exception.GDAServiceException;
@@ -40,7 +40,7 @@ public interface CollectionCommandReceiver<T extends Document> {
 	 * @param outputStrategy the writer handling the result
 	 * @throws GDAServiceException
 	 */
-	void count(DocumentFilter filter, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException;
+	void count(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException;
 
 	/**
 	 * Returns a set of documents
@@ -49,8 +49,7 @@ public interface CollectionCommandReceiver<T extends Document> {
 	 * @param outputStrategy the writer handling the result
 	 * @throws GDAServiceException
 	 */
-	void query(DocumentFilter filter, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException;
-
+	void query(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException;
 
 	/**
 	 * Returns a specific document.
@@ -59,7 +58,7 @@ public interface CollectionCommandReceiver<T extends Document> {
 	 * @param outputStrategy the writer handling the result
 	 * @throws GDAServiceException
 	 */
-	void getDocument(UUID id , CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException;
+	void getDocument(UUID id , OutputStrategy<T> outputStrategy) throws GDAServiceException;
 
 	/**
 	 * Deletes a specific document.
@@ -68,7 +67,7 @@ public interface CollectionCommandReceiver<T extends Document> {
 	 * @param outputStrategy the writer handling the result
 	 * @throws GDAServiceException
 	 */
-	void deleteDocument(UUID id, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException;
+	void deleteDocument(UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException;
 	
 	/**
 	 * Inserts a new document.
@@ -77,5 +76,5 @@ public interface CollectionCommandReceiver<T extends Document> {
 	 * @param outputStrategy the writer handling the result
 	 * @throws GDAServiceException
 	 */
-	void insertDocument(T document, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException;	
+	void insertDocument(T document, OutputStrategy<T> outputStrategy) throws GDAServiceException;	
 }

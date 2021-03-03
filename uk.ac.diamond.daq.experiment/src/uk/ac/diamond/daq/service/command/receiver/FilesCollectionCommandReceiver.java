@@ -46,7 +46,8 @@ import org.springframework.beans.PropertyAccessorFactory;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.service.ScanningAcquisitionFileService;
-import uk.ac.diamond.daq.service.command.strategy.CollectionOutputStrategy;
+import uk.ac.diamond.daq.service.ServiceUtils;
+import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
@@ -80,6 +81,8 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	private ScanningAcquisitionFileService fileService;
 	// To use it call getFileService()
 	private DocumentMapper documentMapper;
+	// To use it call getServiceUtils()
+	private ServiceUtils serviceUtils;
 	
 	public FilesCollectionCommandReceiver(Class<T> documentClass, HttpServletResponse response, HttpServletRequest request) {
 		this(documentClass, response, request, null);
@@ -94,25 +97,24 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	}
 	
 	@Override
-	public void count(DocumentFilter filter, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public void count(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		// TBD	
 	}
 
 	@Override
-	public void query(DocumentFilter filter, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException {	
-		List<T> ret = getFiles(filter).stream()
+	public void query(DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {	
+		List<T> document = getFiles(filter).stream()
 				.map(this::readDocument)
 				.filter(Objects::nonNull)
 				.map(this::parseDocument)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		byte[] output;
-		output = outputStrategy.write(ret);
-		writeOutput(output, response);
+	
+		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 
 	@Override
-	public void getDocument(UUID id, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public void getDocument(UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		T document = getFiles().stream()
 			.map(this::readDocument)
 			.filter(Objects::nonNull)
@@ -122,14 +124,14 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 			.findFirst()
 			.orElse(null);		
 
-		writeOutput(document);
+		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 	
 	/**
 	 * Insert a new document. If this 
 	 */
 	@Override
-	public void insertDocument(T document, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public void insertDocument(T document, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		if (document.getUuid() == null)
 			insertId(document);
 		try {
@@ -138,9 +140,26 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		} catch (InvalidAttributesException | IOException | GDAException e) {
 			throw new GDAServiceException("Cannot insert the document", e);
 		}	
-		writeOutput(document);
+		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 
+	@Override
+	public void deleteDocument(UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
+		for (File file : getFiles()) {
+			String content = readDocument(file);
+			if (content == null)
+				continue;
+			T document = parseDocument(content);
+			if (document == null)
+				continue;
+			if (document.getUuid().equals(id)) {
+				file.delete();
+				getServiceUtils() .writeOutput(document, outputStrategy, response);
+				break;
+			}			
+		}
+	}
+	
 	private void insertId(T document) {
 		try {
 			PropertyAccessor documentAccessor = PropertyAccessorFactory.forDirectFieldAccess(document);
@@ -149,15 +168,6 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 			logger.error("Cannot insert uuid in a new document", e);
 		}
 	}
-	
-	private void writeOutput(byte[] data, HttpServletResponse response) throws GDAServiceException {
-		try {
-			response.getOutputStream().write(data);
-		} catch (IOException e) {
-			throw new GDAServiceException("Cannot write http response", e);
-		}
-	}
-	
 	
 	private String readDocument(File document) {
 		try {
@@ -174,23 +184,6 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		} catch (GDAException e) {
 			logger.error("Cannot parse the document", e);
 			return null;
-		}
-	}
-	
-	@Override
-	public void deleteDocument(UUID id, CollectionOutputStrategy<T> outputStrategy) throws GDAServiceException {
-		for (File file : getFiles()) {
-			String content = readDocument(file);
-			if (content == null)
-				continue;
-			T document = parseDocument(content);
-			if (document == null)
-				continue;
-			if (document.getUuid().equals(id)) {
-				file.delete();
-				writeOutput(document);
-				break;
-			}			
 		}
 	}
 
@@ -225,16 +218,6 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		return FileUtils.listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 	}	
 	
-	private void writeOutput(T document) throws GDAServiceException {
-		if (document == null)
-			return;
-		try {
-			writeOutput(getDocumentMapper().convertToJSON(document).getBytes(), response);
-		} catch (GDAException e) {
-			throw new GDAServiceException("Cannot convert the document");
-		} 
-	}
-	
 	private String formatConfigurationFileName(String fileName) {
 		return Optional.ofNullable(fileName)
 			.map(n -> fileName.replaceAll("\\s", ""))
@@ -263,6 +246,13 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		return documentMapper;
 	}
 
+	private ServiceUtils getServiceUtils() {		
+		if (serviceUtils == null) {
+			serviceUtils = SpringApplicationContextFacade.getBean(ServiceUtils.class);
+		}
+		return serviceUtils;
+	}
+	
 	private AcquisitionConfigurationResourceType getType() {
 		return Optional.ofNullable(type)
 				.orElseGet(() -> AcquisitionConfigurationResourceType.DEFAULT);
