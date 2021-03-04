@@ -12,7 +12,8 @@ Require-Bundle: uk.ac.gda.epics,
  uk.ac.diamond.daq.devices.specs.phoibos.api,
  uk.ac.gda.nexus;bundle-version="1.0.0",
  com.google.guava;bundle-version="16.0.1"
-Import-Package: org.python.core,
+Import-Package: org.eclipse.dawnsci.nexus,
+ org.python.core,
  org.slf4j;version="1.7.6",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: uk.ac.diamond.daq.devices.specs.phoibos

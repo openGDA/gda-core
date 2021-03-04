@@ -22,16 +22,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
+
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 
 public class SpecsPhoibosCompletedRegionWithSeperateIterations extends SpecsPhoibosRegion {
-
-	private List<SpecsPhoibosCompletedIteration> completedIterations = new ArrayList<>();
 	private double[] kineticEnergyScale;
 	private String yAxisUnits;
 	private double[] yAxisScale;
 	private double[] summedSpectrum = null;
 	private double[][] summedImage = null;
+
+	private List<double[][]> images = new ArrayList<>();
+	private List<double[]> spectra = new ArrayList<>();
 
 	public double[] getKineticEnergyScale() {
 		return kineticEnergyScale;
@@ -57,20 +61,16 @@ public class SpecsPhoibosCompletedRegionWithSeperateIterations extends SpecsPhoi
 		this.yAxisScale = yAxisScale;
 	}
 
-	public double[] getSummedSpectrum() {
-		return summedSpectrum;
+	public Dataset getSummedSpectrum() {
+		return DatasetFactory.createFromObject(summedSpectrum);
 	}
 
-	public double[][] getSummedImage() {
-		return summedImage;
+	public Dataset getSummedImage() {
+		return DatasetFactory.createFromObject(summedImage);
 	}
 
 	public double getSpectrumSum() {
 		return Arrays.stream(summedSpectrum).sum();
-	}
-
-	public List<SpecsPhoibosCompletedIteration> getCompletedIterations() {
-		return completedIterations;
 	}
 
 	public void addCompletedIteration(double[] spectrumData, double[][] imageData) {
@@ -78,9 +78,8 @@ public class SpecsPhoibosCompletedRegionWithSeperateIterations extends SpecsPhoi
 		// we don't want to add any of the data if the sizes don't match
 		checkDataSizesAndThrow(spectrumData, imageData);
 
-		completedIterations.add(new SpecsPhoibosCompletedIteration(spectrumData, imageData));
-		addSpectrumToSum(spectrumData);
-		addImageToSum(imageData);
+		addSpectrum(spectrumData);
+		addImage(imageData);
 	}
 
 	private void checkDataSizesAndThrow(double[] spectrumData, double[][] imageData) {
@@ -101,7 +100,9 @@ public class SpecsPhoibosCompletedRegionWithSeperateIterations extends SpecsPhoi
 		}
 	}
 
-	private void addSpectrumToSum(double[] spectrum) {
+	private void addSpectrum(double[] spectrum) {
+		spectra.add(spectrum);
+
 		if (summedSpectrum == null) {
 			// If it's the first dataset, just copy it
 			summedSpectrum = spectrum.clone();
@@ -113,7 +114,9 @@ public class SpecsPhoibosCompletedRegionWithSeperateIterations extends SpecsPhoi
 		}
 	}
 
-	private void addImageToSum(double[][] image) {
+	private void addImage(double[][] image) {
+		images.add(image);
+
 		if (summedImage == null) {
 			// If it's the first dataset, just copy it
 			summedImage = Arrays.stream(image).map(double[]::clone).toArray(double[][]::new);
@@ -125,5 +128,21 @@ public class SpecsPhoibosCompletedRegionWithSeperateIterations extends SpecsPhoi
 				summedImage[i][j] += image[i][j];
 			}
 		}
+	}
+
+	public Dataset getImagesDataset () {
+		return DatasetFactory.createFromObject(images.toArray());
+	}
+
+	public List<double[][]> getImages () {
+		return images;
+	}
+
+	public Dataset getSpectraDataset () {
+		return DatasetFactory.createFromObject(spectra.toArray());
+	}
+
+	public List<double[]> getSpectra () {
+		return spectra;
 	}
 }

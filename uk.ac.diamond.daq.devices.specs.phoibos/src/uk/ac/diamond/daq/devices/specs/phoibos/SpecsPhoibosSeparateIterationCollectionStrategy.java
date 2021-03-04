@@ -71,7 +71,6 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 
 	// This queue allows the collection to get ahead of the file writing by making them asynchronous
 	// Using a LinkedBlockingQueue to allow the queue to dynamically resize
-	private final BlockingQueue<List<SpecsPhoibosCompletedRegion>> pointsAwaitingWriting = new LinkedBlockingQueue<>();
 	private final BlockingQueue<List<SpecsPhoibosCompletedRegionWithSeperateIterations>> regionsAwaitingWriting = new LinkedBlockingQueue<>();
 
 	private List<SpecsPhoibosRegion> regionsToAcquire;
@@ -110,12 +109,6 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		logger.trace("completeCollection called");
 		// Clear running acquisition
 		runningAcquisition = null;
-		// Check that all points have been written correctly
-		if (!pointsAwaitingWriting.isEmpty()) {
-			logger.error("Complete collection was called when not all data was written to the NeXus file");
-		}
-		// Empty the queue shouldn't be needed but will ensure future scans could work if the queue was not empty
-		pointsAwaitingWriting.clear();
 
 		// Set if the analyser HV will be switched off at the end of the scan
 		analyser.setSafeState(safeStateAfterScan);
@@ -295,34 +288,6 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		}
 	}
 
-	private SpecsPhoibosCompletedRegion getCompletedRegion(final String regionName) {
-		SpecsPhoibosCompletedRegion completedRegion = new SpecsPhoibosCompletedRegion();
-
-		// Set the name of the region
-		completedRegion.setName(regionName);
-
-		// Get the data
-		completedRegion.setImageData(analyser.getImage());
-		completedRegion.setSpectrumData(analyser.getSpectrum());
-		// Get the axis
-		completedRegion.setKineticEnergyScale(analyser.getEnergyAxis());
-		completedRegion.setyAxisScale(analyser.getYAxis());
-		completedRegion.setyAxisUnits(analyser.getYUnits());
-
-		// Get the settings used
-		completedRegion.setAcquisitionMode(analyser.getAcquisitionMode());
-		completedRegion.setEndEnergy(analyser.getHighEnergy());
-		completedRegion.setExposureTime(analyser.getCollectionTime());
-		completedRegion.setIterations(analyser.getIterations());
-		completedRegion.setLensMode(analyser.getLensMode());
-		completedRegion.setPassEnergy(analyser.getPassEnergy());
-		completedRegion.setPsuMode(analyser.getPsuMode());
-		completedRegion.setStartEnergy(analyser.getLowEnergy());
-		completedRegion.setStepEnergy(analyser.getEnergyStep());
-
-		return completedRegion;
-	}
-
 	@Override
 	public int getStatus() {
 		return status;
@@ -407,67 +372,6 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		this.analyser = analyser;
 	}
 
-	/**
-	 * This class holds all the information used to setup a region and the data resulting from acquiring it.
-	 */
-	private class SpecsPhoibosCompletedRegion extends SpecsPhoibosRegion {
-		private double[] spectrumData;
-		private double[][] imageData;
-		private double[] kineticEnergyScale;
-		private double[] yAxisScale; // This is the scale usually angle or position
-		private String yAxisUnits;
-
-		public double[] getSpectrumData() {
-			return spectrumData;
-		}
-
-		public void setSpectrumData(double[] spectrumData) {
-			this.spectrumData = spectrumData;
-		}
-
-		public double[][] getImageData() {
-			return imageData;
-		}
-
-		public void setImageData(double[][] imageData) {
-			this.imageData = imageData;
-		}
-
-		/**
-		 * This returns the sum of all the intensity on the detector.
-		 *
-		 * It should be equivalent to the Image sum.
-		 *
-		 * @return total intensity
-		 */
-		public double getSpectrumSum() {
-			return Arrays.stream(spectrumData).sum();
-		}
-
-		public double[] getKineticEnergyScale() {
-			return kineticEnergyScale;
-		}
-
-		public void setKineticEnergyScale(double[] kineticEnergyScale) {
-			this.kineticEnergyScale = kineticEnergyScale;
-		}
-
-		public double[] getyAxisScale() {
-			return yAxisScale;
-		}
-
-		public void setyAxisScale(double[] yAxisScale) {
-			this.yAxisScale = yAxisScale;
-		}
-
-		public String getYAxisUnits() {
-			return yAxisUnits;
-		}
-
-		public void setyAxisUnits(String yAxisUnits) {
-			this.yAxisUnits = yAxisUnits;
-		}
-	}
 
 	/**
 	 * This class handles writing the analyser data to NeXus it also supplies the region totals for the command line feedback.
@@ -528,12 +432,12 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 			// If in single region mode the name should be the name of the detector
 			final String regionName = regionCompleted.getName();
 
-			int iterationNumber = 1;
-			for (SpecsPhoibosCompletedIteration iteration : regionCompleted.getCompletedIterations()) {
-				data.addData(regionName, String.format("spectrum_%s", iterationNumber), new NexusGroupData(iteration.getSpectrumData()));
-				data.addData(regionName, String.format("image_%s", iterationNumber), new NexusGroupData(iteration.getImageData()));
-				iterationNumber++;
+			data.addData(regionName, "images", NexusGroupData.createFromDataset(regionCompleted.getImagesDataset()));
+			data.addData(regionName, "spectra", NexusGroupData.createFromDataset(regionCompleted.getSpectraDataset()));
+			for (int i=0;i<regionCompleted.getSpectra().size();i++) {
+				data.addData(regionName, String.format("spectrum_%d", i+1), new NexusGroupData(regionCompleted.getSpectra().get(i)));
 			}
+
 			data.addData(regionName, "spectrum", new NexusGroupData(regionCompleted.getSummedSpectrum()));
 			data.addData(regionName, "image", new NexusGroupData(regionCompleted.getSummedImage()));
 
