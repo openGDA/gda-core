@@ -18,17 +18,16 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.INameable;
 
 public interface MetadataNode extends INameable {
 
 	/**
-	 * Write the field into the given nexus object.
-	 * @param nexusObject
-	 * @throws NexusException if the field could not be written for any reason
+	 * Create and return the nexus {@link Node} for this object.
+	 * @throws NexusException if the node could not be created for any reason
 	 */
-	public void writeNode(NXobject nexusObject) throws NexusException;
+	public Node createNode() throws NexusException;
 
 }

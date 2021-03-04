@@ -66,15 +66,15 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 	}
 
 	@Override
-	public void writeNode(NXobject nexusObject) throws NexusException {
+	public N createNode() throws NexusException {
 		@SuppressWarnings("unchecked")
-		final N groupNode = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 
 		for (MetadataNode node : nodes.values()) {
-			node.writeNode(groupNode);
+			nexusObject.addNode(node.getName(), node.createNode());
 		}
 
-		nexusObject.addGroupNode(getName(), groupNode);
+		return nexusObject;
 	}
 
 }

@@ -149,10 +149,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	protected void writeChildNodes(N nxObject) throws NexusException {
 		for (MetadataNode node : predeterminedNodes.values()) {
-			node.writeNode(nxObject);
+			nxObject.addNode(node.getName(), node.createNode());
 		}
 		for (MetadataNode node : customNodes.values()) {
-			node.writeNode(nxObject);
+			nxObject.addNode(node.getName(), node.createNode());
 		}
 	}
 
