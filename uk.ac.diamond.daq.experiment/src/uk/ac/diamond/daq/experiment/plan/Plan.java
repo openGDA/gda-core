@@ -15,7 +15,6 @@ import gda.device.Scannable;
 import gda.factory.Findable;
 import gda.factory.FindableBase;
 import gda.jython.InterfaceProvider;
-import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.ConveniencePlanFactory;
 import uk.ac.diamond.daq.experiment.api.plan.IExperimentRecord;
@@ -56,13 +55,14 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	
 	@Override
 	public void start() {
-		validatePlan();
-		
 		record = new ExperimentRecord(getName());
-		record.start();
 		
-		logger.info("Plan '{}' execution started", getName());
-		printBanner("Plan '" + getName() + "' execution started");
+		try {
+			validatePlan();
+		} catch (IllegalStateException e) {
+			logError("Invalid plan: " + e.getMessage(), e);
+			return;
+		}
 		
 		if (experimentDriver.isPresent()) {
 			IExperimentDriver<?> driver = experimentDriver.get();
@@ -72,8 +72,15 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		try {
 			getExperimentController().startExperiment(getName());
 		} catch (ExperimentControllerException e) {
-			throw new ExperimentException(e);
+			String message = "Error starting experiment: " + e.getMessage();
+			logError(message, e);
+			return;
 		}
+			
+		record.start();
+		
+		logger.info("Plan '{}' execution started", getName());
+		printBanner("Plan '" + getName() + "' execution started");
 		
 		activateNextSegment();
 		
@@ -83,9 +90,6 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 	
 	private void validatePlan() {
-		if (getExperimentController().isExperimentInProgress()) {
-			throw new IllegalStateException("An experiment ('" + getExperimentController().getExperimentName() + "') is already running");
-		}
 		
 		if (segments.isEmpty()) throw new IllegalStateException("No segments defined!");
 		segmentChain = new LinkedList<>(segments);
@@ -133,7 +137,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		try {
 			getExperimentController().stopMultipartAcquisition();
 		} catch (ExperimentControllerException e) {
-			logger.error("Error stopping previous multipart acquisition", e);
+			logError("Error stopping previous multipart acquisition", e);
 		}
 	}
 	
@@ -141,7 +145,8 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		try {
 			getExperimentController().startMultipartAcquisition(segmentName);
 		} catch (ExperimentControllerException e) {
-			logger.error("Could not start multipart acquisition for segment '{}'. This may result in a flat experiment structure.", segmentName, e);
+			String message = String.format("Could not start multipart acquisition for segment '%s'. This may result in a flat experiment structure.", segmentName);
+			logError(message, e);
 		}
 	}
 	
@@ -156,8 +161,14 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		try {
 			getExperimentController().stopExperiment();
 		} catch (ExperimentControllerException e) {
-			throw new ExperimentException(e);
+			logError("Error stopping experiment", e);
 		}
+	}
+	
+	private void logError(String msg, Exception exception) {
+		logger.error(msg, exception);
+		record.failed(msg);
+		printBanner(msg);
 	}
 	
 	private void printBanner(String msg) {
@@ -274,6 +285,16 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
 		return factory.addTrigger(name, triggerable, sev, interval);
 	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double target, double tolerance) {
+		return addTrigger(name, triggerable, lastDefinedSEV(), target, tolerance);
+	}
+
+	@Override
+	public ITrigger addTrigger(String name, Triggerable triggerable, double interval) {
+		return addTrigger(name, triggerable, lastDefinedSEV(), interval);
+	}
 
 	@Override
 	public ISegment addSegment(String name, LimitCondition limit, ITrigger... triggers) {
@@ -285,14 +306,4 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		return addSegment(name, lastDefinedSEV(), duration, triggers);
 	}
 
-	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, double target, double tolerance) {
-		return addTrigger(name, triggerable, lastDefinedSEV(), target, tolerance);
-	}
-
-	@Override
-
-	public ITrigger addTrigger(String name, Triggerable triggerable, double interval) {
-		return addTrigger(name, triggerable, lastDefinedSEV(), interval);
-	}
 }

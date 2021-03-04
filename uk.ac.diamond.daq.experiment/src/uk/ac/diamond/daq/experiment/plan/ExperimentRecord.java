@@ -78,6 +78,12 @@ public class ExperimentRecord implements IExperimentRecord {
 			}
 		}
 	}
+	
+	protected void failed(String message) {
+		bean.setStatus(Status.FAILED);
+		bean.setMessage(message);
+		broadcast();
+	}
 
 	protected void segmentActivated(String segmentName, String sampleEnvironmentName) {
 		bean.getSegments().add(new SegmentRecord(segmentName, sampleEnvironmentName));
