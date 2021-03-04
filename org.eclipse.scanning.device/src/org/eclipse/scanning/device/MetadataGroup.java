@@ -18,35 +18,6 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.nexus.NXobject;
-
-/**
- * A field written to the nexus file as a scalar value.
- */
-public class ScalarField extends AbstractMetadataNode {
-
-	public ScalarField() {
-		// no-arg constructor for spring initialization
-	}
-
-	public ScalarField(String fieldName, Object value) {
-		super(fieldName);
-		setValue(value);
-	}
-
-	private Object value;
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
-
-	@Override
-	public void writeNode(NXobject object) {
-		object.setField(getName(), getValue());
-	}
+public interface MetadataGroup extends MetadataNode {
 
 }

@@ -18,20 +18,21 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.nexus.NXobject;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.scanning.api.INameable;
+import org.eclipse.scanning.api.AbstractNameable;
 
 /**
- * Describes a metadata field to add to a nexus object.
+ * A field that can be part of a metadata device.
  */
-public interface MetadataField extends INameable {
+public abstract class AbstractMetadataNode extends AbstractNameable implements MetadataNode {
 
-	/**
-	 * Write the field into the given nexus object.
-	 * @param nexusObject
-	 * @throws NexusException if the field could not be written for any reason
-	 */
-	public void writeField(NXobject nexusObject) throws NexusException;
+	protected AbstractMetadataNode() {
+		// no-arg constructor for spring initialization
+	}
+
+	protected AbstractMetadataNode(String fieldName) {
+		setName(fieldName);
+	}
+
+	// no additional fields or methods are required
 
 }

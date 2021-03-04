@@ -24,9 +24,9 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
- * A {@link AbstractMetadataField} field that is written as the position of a scannable.
+ * A {@link AbstractMetadataNode} field that is written as the position of a scannable.
  */
-public class ScannableField extends AbstractMetadataField {
+public class ScannableField extends AbstractMetadataNode {
 
 	public ScannableField() {
 		// no-arg constructor for spring initialization
@@ -48,7 +48,7 @@ public class ScannableField extends AbstractMetadataField {
 	}
 
 	@Override
-	public void writeField(NXobject nexusObject) throws NexusException {
+	public void writeNode(NXobject nexusObject) throws NexusException {
 		writeScannableValue(nexusObject, getName(), getScannableName());
 	}
 

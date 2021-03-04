@@ -26,10 +26,10 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 
 /**
- * A {@link MetadataField} that adds a link to a {@link DataNode} at given path within the
+ * A {@link MetadataNode} that adds a link to a {@link DataNode} at given path within the
  * nexus file.
  */
-public class LinkedField extends AbstractMetadataField {
+public class LinkedField extends AbstractMetadataNode {
 
 	private String linkPath = null;
 
@@ -54,7 +54,7 @@ public class LinkedField extends AbstractMetadataField {
 	}
 
 	@Override
-	public void writeField(NXobject nexusObject) throws NexusException {
+	public void writeNode(NXobject nexusObject) throws NexusException {
 		final SymbolicNode symbolicNode = NexusNodeFactory.createSymbolicNode(null, linkPath);
 		nexusObject.addSymbolicNode(getName(), symbolicNode);
 	}

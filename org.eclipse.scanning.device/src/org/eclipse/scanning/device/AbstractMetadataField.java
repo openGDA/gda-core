@@ -23,7 +23,7 @@ import org.eclipse.scanning.api.AbstractNameable;
 /**
  * A field that can be part of a metadata device.
  */
-public abstract class AbstractMetadataField extends AbstractNameable implements MetadataField {
+public abstract class AbstractMetadataField extends AbstractNameable implements MetadataNode {
 
 	protected AbstractMetadataField() {
 		// no-arg constructor for spring initialization

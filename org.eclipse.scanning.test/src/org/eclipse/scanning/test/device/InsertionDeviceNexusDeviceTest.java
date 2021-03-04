@@ -30,7 +30,7 @@ import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
-import org.eclipse.scanning.device.MetadataField;
+import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
 
@@ -65,11 +65,11 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 		insertionDevice.setHarmonicScannableName(HARMONIC_SCANNABLE_NAME);
 
 		// set up custom fields
-		final List<MetadataField> customFields = new ArrayList<>();
+		final List<MetadataNode> customFields = new ArrayList<>();
 		customFields.add(new ScannableField(NXinsertion_device.NX_BANDWIDTH, BANDWIDTH_SCANNABLE_NAME));
 		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, INSERTION_DEVICE_LENGTH));
 		customFields.add(new ScalarField(CUSTOM_FIELD_NAME, CUSTOM_FIELD_VALUE));
-		insertionDevice.setCustomFields(customFields);
+		insertionDevice.setCustomNodes(customFields);
 
 		return insertionDevice;
 	}

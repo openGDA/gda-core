@@ -19,34 +19,16 @@
 package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.scanning.api.INameable;
 
-/**
- * A field written to the nexus file as a scalar value.
- */
-public class ScalarField extends AbstractMetadataNode {
+public interface MetadataNode extends INameable {
 
-	public ScalarField() {
-		// no-arg constructor for spring initialization
-	}
-
-	public ScalarField(String fieldName, Object value) {
-		super(fieldName);
-		setValue(value);
-	}
-
-	private Object value;
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
-
-	@Override
-	public void writeNode(NXobject object) {
-		object.setField(getName(), getValue());
-	}
+	/**
+	 * Write the field into the given nexus object.
+	 * @param nexusObject
+	 * @throws NexusException if the field could not be written for any reason
+	 */
+	public void writeNode(NXobject nexusObject) throws NexusException;
 
 }
