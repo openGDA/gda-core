@@ -37,6 +37,10 @@ public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 		addScannableField(NXbeam.NX_INCIDENT_ENERGY, incidentEnergyScannableName);
 	}
 
+	public void setIncidentEnergyLinkPath(String energyLinkPath) {
+		addLinkedField(NXbeam.NX_INCIDENT_ENERGY, energyLinkPath);
+	}
+
 	public void setIncidentBeamDivergenceScannableName(String incidentBeamDivergenceScannableName) {
 		addScannableField(NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, incidentBeamDivergenceScannableName);
 	}

@@ -78,8 +78,9 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private static final double EXPECTED_MONOCHROMATOR_ENERGY_ERROR = 2.53;
 
+	private static final String BEAM_ENERGY_LINK_PATH =
+			"/entry/instrument/" + MONOCHROMATOR_DEVICE_NAME + "/" + NXmonochromator.NX_ENERGY;
 	private static final double EXPECTED_BEAM_EXTENT = 0.1;
-	private static final double EXPECTED_BEAM_INCIDENT_ENERGY = 350.0;
 	private static final double EXPECTED_BEAM_INCIDENT_DIVERGENCE = 1.23;
 	private static final double EXPECTED_BEAM_INCIDENT_POLARIZATION = 4.55;
 	private static final double EXPECTED_BEAM_FLUX = 92.2;
@@ -137,20 +138,18 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private void createBeamDevice() {
 		final String beamExtentScannableName = "beam_extent";
-		final String incidentEnergyScannableName = "incident_energy";
 		final String incidentPolarizationScannableName = "incident_polarization";
 		final String incidentBeamDivergenceScannableName = "incident_beam_divergence";
 		final String fluxScannableName = "flux";
 
 		createScannable(beamExtentScannableName, EXPECTED_BEAM_EXTENT);
-		createScannable(incidentEnergyScannableName, EXPECTED_BEAM_INCIDENT_ENERGY);
 		createScannable(incidentBeamDivergenceScannableName, EXPECTED_BEAM_INCIDENT_DIVERGENCE);
 		createScannable(incidentPolarizationScannableName, EXPECTED_BEAM_INCIDENT_POLARIZATION);
 		createScannable(fluxScannableName, EXPECTED_BEAM_FLUX);
 
 		final BeamNexusDevice beamDevice = new BeamNexusDevice();
 		beamDevice.setName(BEAM_DEVICE_NAME);
-		beamDevice.setIncidentEnergyScannableName(incidentEnergyScannableName);
+		beamDevice.setIncidentEnergyLinkPath(BEAM_ENERGY_LINK_PATH); // add link to monochromator energy
 		beamDevice.setIncidentBeamDivergenceScannableName(incidentBeamDivergenceScannableName);
 		beamDevice.setIncidentPolarizationScannableName(incidentPolarizationScannableName);
 		beamDevice.setBeamExtentScannableName(beamExtentScannableName);
@@ -184,7 +183,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		ServiceHolder.getNexusDeviceService().register(insertionDevice);
 	}
 
-	private void createMonochromatorDevice() throws DeviceException {
+	private void createMonochromatorDevice() {
 		final String energyScannableName = "mono_energy";
 		final String energyErrorScannableName = "mono_energy_error";
 
@@ -281,7 +280,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		assertThat(beam, is(notNullValue()));
 		assertThat(beam.getDistanceScalar(), is(equalTo(0.0)));
 		assertThat(beam.getDouble(NXbeam.NX_EXTENT), is(equalTo(EXPECTED_BEAM_EXTENT)));
-		assertThat(beam.getIncident_energyScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_ENERGY)));
+		assertThat(beam.getIncident_energyScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_ENERGY)));
 		assertThat(beam.getIncident_beam_divergenceScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_DIVERGENCE)));
 		assertThat(beam.getIncident_polarizationScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_POLARIZATION)));
 		assertThat(beam.getFluxScalar(), is(equalTo(EXPECTED_BEAM_FLUX)));

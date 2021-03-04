@@ -80,6 +80,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		addField(new ScalarField(fieldName, fieldValue));
 	}
 
+	public void addLinkedField(String fieldName, String linkPath) {
+		addField(new LinkedField(fieldName, linkPath));
+	}
+
 	/**
 	 * Custom fields are those for which there is not an explicit set method, such as one that
 	 * takes a scannable name like {@link BeamNexusDevice#setFluxScannableName(String)} or a value
