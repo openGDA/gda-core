@@ -20,6 +20,8 @@ package org.eclipse.scanning.device;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -34,7 +36,10 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 
 	private NexusBaseClass nexusBaseClass;
 
-	private Map<String, MetadataNode> nodes = null;
+	/**
+	 * A map of the nodes within this device (those without an explicit setter), keyed by name.
+	 */
+	private Map<String, MetadataNode> nodes = new HashMap<>();
 
 	public GroupMetadataNode() {
 		// no-arg constructor for spring initialization
@@ -61,7 +66,19 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 		nexusBaseClass = NexusBaseClass.valueOf(nxClass);
 	}
 
-	public void setNodes(List<MetadataNode> customNodes) {
+	public void addChildNode(MetadataNode childNode) {
+		if (nodes.containsKey(childNode.getName()) && !nodes.get(childNode.getName()).isDefaultValue()) {
+			// only a default value can be overwritten
+			throw new IllegalArgumentException(MessageFormat.format("The group ''{0}'' already contains a child group with the name ''{1}''.", getName(), childNode.getName()));
+		}
+		nodes.put(childNode.getName(), childNode);
+	}
+
+	public void addChildNodes(List<MetadataNode> customNodes) {
+		customNodes.stream().forEach(this::addChildNode);
+	}
+
+	public void setChildNodes(List<MetadataNode> customNodes) {
 		this.nodes = customNodes.stream().collect(toMap(INameable::getName, Function.identity()));
 	}
 

@@ -81,7 +81,7 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 		crystalFields.add(new ScalarField(NXcrystal.NX_TYPE, EXPECTED_CRYSTAL_TYPE));
 		crystalFields.add(new ScalarField(NXcrystal.NX_ORDER_NO, number));
 		crystalFields.add(new ScannableField(NXcrystal.NX_TEMPERATURE, temperatureScannableName));
-		crystal.setNodes(crystalFields);
+		crystal.addChildNodes(crystalFields);
 
 		return crystal;
 	}

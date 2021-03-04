@@ -29,16 +29,23 @@ import org.eclipse.january.dataset.DatasetFactory;
  */
 public class ScalarField extends AbstractMetadataNode {
 
+	private boolean isDefaultValue;
+
+	private Object value;
+
 	public ScalarField() {
 		// no-arg constructor for spring initialization
 	}
 
 	public ScalarField(String fieldName, Object value) {
 		super(fieldName);
-		setValue(value);
+		this.value = value;
 	}
 
-	private Object value;
+	public ScalarField(String fieldName, Object value, boolean isDefault) {
+		this(fieldName, value);
+		this.isDefaultValue = isDefault;
+	}
 
 	public Object getValue() {
 		return value;
@@ -46,6 +53,15 @@ public class ScalarField extends AbstractMetadataNode {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	@Override
+	public boolean isDefaultValue() {
+		return isDefaultValue;
+	}
+
+	public void setDefaultValue(boolean isDefaultValue) {
+		this.isDefaultValue = isDefaultValue;
 	}
 
 	@Override

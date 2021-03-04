@@ -30,4 +30,8 @@ public interface MetadataNode extends INameable {
 	 */
 	public Node createNode() throws NexusException;
 
+	public default boolean isDefaultValue() {
+		return false;
+	}
+
 }

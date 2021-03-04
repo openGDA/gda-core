@@ -18,23 +18,15 @@
 
 package org.eclipse.scanning.device;
 
-import static java.util.stream.Collectors.toMap;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.eclipse.scanning.api.INameable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,92 +34,78 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractNexusMetadataDevice.class);
 
-	private String name;
-
-	private NexusBaseClass nexusClass = null;
-
 	private NexusBaseClass nexusCategory = null;
 
-	/**
-	 * A map of the predetermined fields in this device (those with an explicit setter), keyed by name.
-	 */
-	private Map<String, MetadataNode> predeterminedNodes = new HashMap<>();
-
-	/**
-	 * A map of the custom fields in this device (those without an explicit setter), keyed by name.
-	 */
-	private Map<String, MetadataNode> customNodes = new HashMap<>();
+	private final GroupMetadataNode<N> metadataNode;
 
 	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
-		nexusClass = nexusBaseClass;
+		metadataNode = new GroupMetadataNode<>();
+		metadataNode.setNexusBaseClass(nexusBaseClass);
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return metadataNode.getName();
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		metadataNode.setName(name);
 	}
 
 	public void addField(MetadataNode node) {
-		predeterminedNodes.put(node.getName(), node);
+		metadataNode.addChildNode(node);
 	}
 
 	public void addScannableField(String fieldName, String scannableName) {
-		addField(new ScannableField(fieldName, scannableName));
+		metadataNode.addChildNode(new ScannableField(fieldName, scannableName));
 	}
 
 	public void addScalarField(String fieldName, Object fieldValue) {
-		addField(new ScalarField(fieldName, fieldValue));
+		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue));
+	}
+
+	protected void setDefaultValue(String nxName, Object defaultValue) {
+		metadataNode.addChildNode(new ScalarField(nxName, defaultValue, true));
 	}
 
 	public void addLinkedField(String fieldName, String linkPath) {
-		addField(new LinkedField(fieldName, linkPath));
+		metadataNode.addChildNode(new LinkedField(fieldName, linkPath));
 	}
 
 	/**
 	 * Custom nodes are those for which there is not an explicit set method, such as one that
 	 * takes a scannable name like {@link BeamNexusDevice#setFluxScannableName(String)} or a value
 	 * like {@link SourceNexusDevice#setProbe(String)}.
+	 * <p>
+	 * Note: this method isn't actually a setter, the name is for ease of use with spring. The
+	 * given nodes are added to any existing nodes rather than overwriting them.
+	 * TODO: is there a better way of doing this?
+	 *
 	 * @param customNodes list of nodes to add
 	 */
 	public void setCustomNodes(List<MetadataNode> customNodes) {
-		this.customNodes = customNodes.stream().collect(toMap(INameable::getName, Function.identity()));
+		metadataNode.addChildNodes(customNodes);
 	}
 
 	@Override
 	public void register() {
 		INexusDevice.super.register();
-		checkPropertiesSet();
-	}
-
-	protected void checkPropertiesSet() {
-		for (Field field : getClass().getFields()) {
-			field.setAccessible(true);
-			try {
-				if (field.get(this) == null) {
-					logger.warn("property {} not set for {} ''{}''", field.getName(), getClass().getSimpleName(), getName());
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				logger.error("TODO put description of error here", e);
-			}
-		}
 	}
 
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final N nexusObject = createNexusObject(info);
-		writeChildNodes(nexusObject);
-		final NexusObjectWrapper<N> nexusWrapper = createAndConfigureNexusWrapper(nexusObject);
-		return nexusWrapper;
+		return createAndConfigureNexusWrapper(nexusObject);
 	}
 
 	protected NexusObjectWrapper<N> createAndConfigureNexusWrapper(final N nexusObject) {
 		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(getName(), nexusObject);
 		nexusWrapper.setCategory(getCategory());
 		return nexusWrapper;
+	}
+
+	protected N createNexusObject(@SuppressWarnings("unused") NexusScanInfo info) throws NexusException {
+		return metadataNode.createNode();
 	}
 
 	public void setCategory(NexusBaseClass nexusCategory) {
@@ -138,22 +116,9 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return nexusCategory;
 	}
 
-	@SuppressWarnings("unchecked")
-	protected N createNexusObject(@SuppressWarnings("unused") NexusScanInfo info) {
-		return (N) NexusNodeFactory.createNXobjectForClass(getNexusBaseClass());
-	}
-
 	public final NexusBaseClass getNexusBaseClass() {
-		return nexusClass;
+		return metadataNode.getNexusBaseClass();
 	}
 
-	protected void writeChildNodes(N nxObject) throws NexusException {
-		for (MetadataNode node : predeterminedNodes.values()) {
-			nxObject.addNode(node.getName(), node.createNode());
-		}
-		for (MetadataNode node : customNodes.values()) {
-			nxObject.addNode(node.getName(), node.createNode());
-		}
-	}
 
 }
