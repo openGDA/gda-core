@@ -39,10 +39,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.nexus.INexusFileFactory;
-import org.eclipse.dawnsci.nexus.NexusFile;
-import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.event.scan.ScanBean;
@@ -53,6 +49,7 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
+import org.eclipse.scanning.sequencer.ScanRequestBuilder;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewReference;
 import org.slf4j.Logger;
@@ -140,7 +137,7 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	/**
-	 * Loads a {@link ScanRequest} from the NeXus file specified by the supplied fully quAlified filename then
+	 * Loads a {@link ScanRequest} from the NeXus file specified by the supplied fully qualified filename then
 	 * returned within an {@link Optional}.
 	 * An error dialog is displayed if the {@link ScanRequest} could not be successfully loaded. Not all
 	 * NeXus files contain {@link ScanRequest}s.
@@ -152,15 +149,8 @@ public class ScanManagementController extends AbstractMappingController {
 	public Optional<ScanRequest> loadScanRequest(final String nxFilename) {
 		checkInitialised();
 		if (nxFilename != null) {
-			final IMarshallerService marshaller = getService(IMarshallerService.class);
-			final INexusFileFactory nxFileFactory = ServiceHolder.getNexusFileFactory();
 			try {
-				try (NexusFile nxFile = nxFileFactory.newNexusFile(nxFilename)) {
-					nxFile.openToRead();
-					DataNode json = nxFile.getData("/entry/solstice_scan/scan_request");
-					ScanRequest request = marshaller.unmarshal(json.toString(), ScanRequest.class);
-					return Optional.of(request);
-				}
+				return ScanRequestBuilder.buildFromNexusFile(nxFilename);
 			} catch (Exception e) {
 				final String errorMessage = "Could not load scan request from nexus file: " + nxFilename;
 				logger.error(errorMessage, e);
