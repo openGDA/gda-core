@@ -90,6 +90,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ExpandEvent;
@@ -513,10 +514,10 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	}
 
 	private double parseAngle(String angle) {
-		return Optional.ofNullable(angle)
-				.filter(s -> !s.isEmpty())
-				.map(Double::parseDouble)
-				.orElseGet(() -> 0.0);
+		if (NumberUtils.isNumber(angle)) {
+			return NumberUtils.toDouble(angle);
+		}
+		return 0.0;
 	}
 
 	private void totalProjectionsListener(ModifyEvent event) {
