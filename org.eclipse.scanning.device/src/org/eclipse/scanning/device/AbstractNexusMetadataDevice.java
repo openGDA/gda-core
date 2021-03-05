@@ -38,8 +38,13 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	private final GroupMetadataNode<N> metadataNode;
 
-	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
+	protected AbstractNexusMetadataDevice() {
+		// no-arg constructor for spring initialization
 		metadataNode = new GroupMetadataNode<>();
+	}
+
+	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
+		this();
 		metadataNode.setNexusBaseClass(nexusBaseClass);
 	}
 
