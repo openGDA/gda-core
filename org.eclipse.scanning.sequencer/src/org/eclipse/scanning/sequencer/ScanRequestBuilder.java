@@ -16,17 +16,24 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.eclipse.scanning.api.event.scan;
+package org.eclipse.scanning.sequencer;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -268,5 +275,27 @@ public class ScanRequestBuilder {
 		request.setIgnorePreprocess(ignorePreprocess);
 		request.setProcessingRequest(processingRequest);
 		return request;
+	}
+
+	/**
+	 * Retrieves a ScanRequest from a previously saved Nexus file if it contains one.
+	 *
+	 * @param nxFilename	The filename of the Nexus file
+	 * @return				An Optional of the Scan Request, empty if the filename is null or blank
+	 * @throws Exception	If any of the Nexus reading operations fail
+	 */
+	public static Optional<ScanRequest> buildFromNexusFile(final String nxFilename) throws Exception {
+		if (nxFilename != null && !nxFilename.isBlank()) {
+			final IMarshallerService marshaller = ServiceHolder.getMarshallerService();
+			final INexusFileFactory nxFileFactory = ServiceHolder.getNexusFileFactory();
+
+			try (NexusFile nxFile = nxFileFactory.newNexusFile(nxFilename)) {
+				nxFile.openToRead();
+				DataNode json = nxFile.getData("/entry/solstice_scan/scan_request");
+				ScanRequest request = marshaller.unmarshal(json.toString(), ScanRequest.class);
+				return Optional.of(request);
+			}
+		}
+		return Optional.empty();
 	}
 }
