@@ -34,6 +34,12 @@ public final class PathConstants {
 	public static final String LISSAJOUS_B = "b";
 	public static final String LISSAJOUS_POINTS = "points";
 
+	public static final String LINE_POINTS = "points";
+	public static final String LINE_STEP = "step";
+
+	public static final String OVERLAP = "overlap";
+	public static final String RANDOM_OFFSET = "randomOffset";
+
 	public static final String ALTERNATING = "alternating";
 	public static final String CONTINUOUS = "continuous";
 	public static final String ORIENTATION = "orientation";

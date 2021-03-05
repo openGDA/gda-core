@@ -18,6 +18,9 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.RANDOM_OFFSET;
+
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -43,11 +46,19 @@ public class TwoAxisPtychographyModel extends AbstractOverlapModel {
 	public void setRandomOffset(double offset) {
 		double oldOffset = randomOffset;
 		randomOffset = offset;
-		pcs.firePropertyChange("randomOffset", oldOffset, randomOffset);
+		pcs.firePropertyChange(RANDOM_OFFSET, oldOffset, randomOffset);
 	}
 
 	public int getSeed() {
 		return seed;
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(RANDOM_OFFSET)) {
+			setRandomOffset(((Number) properties.get(RANDOM_OFFSET)).doubleValue());
+		}
 	}
 
 	@Override

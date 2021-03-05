@@ -11,13 +11,16 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.LINE_POINTS;
+
+import java.util.Map;
+
 /**
  * A model for a scan along a straight line in two-dimensional space, dividing the line into the number of points given
- * in this model.
+ * in this model.<br>
+ * Previously OneDEqualSpacingModel
  *
  * @author Colin Palmer
- *
- * Previously OneDEqualSpacingModel
  */
 public class TwoAxisLinePointsModel extends AbstractBoundingLineModel {
 
@@ -30,10 +33,19 @@ public class TwoAxisLinePointsModel extends AbstractBoundingLineModel {
 	public int getPoints() {
 		return points;
 	}
+
 	public void setPoints(int points) {
 		int oldValue = this.points;
 		this.points = points;
-		this.pcs.firePropertyChange("points", oldValue, points);
+		this.pcs.firePropertyChange(LINE_POINTS, oldValue, points);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(LINE_POINTS)) {
+			setPoints(((Number) properties.get(LINE_POINTS)).intValue());
+		}
 	}
 
 	@Override

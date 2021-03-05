@@ -18,14 +18,19 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.OVERLAP;
+
+import java.util.Map;
+
 /**
  * Base class for path models which require knowledge of beam size
  * <p>
- * Note: this class extends {@link AbstractTwoAxisGridModel} as its only subclass is a type
- * of grid model. This prevents having to duplicate properties as Java does not
- * support multiple inheritance. If this were to change then this class should
- * extend {@link AbstractBoundingBoxModel} directly and duplication of
+ * Note: this class extends {@link AbstractTwoAxisGridModel} as its only subclass is a type of grid model. This prevents
+ * having to duplicate properties as Java does not support multiple inheritance.
+ * <p>
+ * If this were to change then this class should extend {@link AbstractBoundingBoxModel} directly and duplication of
  * {@link AbstractTwoAxisGridModel} properties would be unavoidable.
+ * <p>
  * Note: x and y must be in lower case in getter and setter names for JFace bindings to work correctly
  */
 public abstract class AbstractOverlapModel extends AbstractTwoAxisGridModel {
@@ -38,15 +43,19 @@ public abstract class AbstractOverlapModel extends AbstractTwoAxisGridModel {
 	public double getxBeamSize() {
 		return xBeamSize;
 	}
+
 	public void setxBeamSize(double xBeamSize) {
 		this.xBeamSize = xBeamSize;
 	}
+
 	public double getyBeamSize() {
 		return yBeamSize;
 	}
+
 	public void setyBeamSize(double yBeamSize) {
 		this.yBeamSize = yBeamSize;
 	}
+
 	public void setBeamSize(Object[] position) {
 		xBeamSize = (double) position[0];
 		yBeamSize = (double) position[1];
@@ -54,12 +63,22 @@ public abstract class AbstractOverlapModel extends AbstractTwoAxisGridModel {
 
 	/**
 	 * Set the required beam overlap produced by adjacent points
-	 * @param overlap between 0 (inclusive) and 1 (exclusive)
+	 *
+	 * @param overlap
+	 *            between 0 (inclusive) and 1 (exclusive)
 	 */
 	public void setOverlap(double overlap) {
 		double oldValue = this.overlap;
 		this.overlap = overlap;
-		pcs.firePropertyChange("overlap", oldValue, overlap);
+		pcs.firePropertyChange(OVERLAP, oldValue, overlap);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(OVERLAP)) {
+			setOverlap(((Number) properties.get(OVERLAP)).doubleValue());
+		}
 	}
 
 	public double getOverlap() {

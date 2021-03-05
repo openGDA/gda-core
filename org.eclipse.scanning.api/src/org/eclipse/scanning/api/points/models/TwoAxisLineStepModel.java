@@ -11,13 +11,16 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.LINE_STEP;
+
+import java.util.Map;
+
 /**
  * A model for a scan along a straight line in two-dimensional space, starting at the beginning of the line and moving
- * in steps of the size given in this model.
+ * in steps of the size given in this model.<br>
+ * Previously OneDStepModel
  *
  * @author Colin Palmer
- *
- * Previously OneDStepModel
  */
 public class TwoAxisLineStepModel extends AbstractBoundingLineModel {
 
@@ -30,10 +33,19 @@ public class TwoAxisLineStepModel extends AbstractBoundingLineModel {
 	public double getStep() {
 		return step;
 	}
+
 	public void setStep(double step) {
 		double oldValue = this.step;
 		this.step = step;
-		this.pcs.firePropertyChange("step", oldValue, step);
+		this.pcs.firePropertyChange(LINE_STEP, oldValue, step);
+	}
+
+	@Override
+	public void updateFromPropertiesMap(Map<String, Object> properties) {
+		super.updateFromPropertiesMap(properties);
+		if (properties.containsKey(LINE_STEP)) {
+			setStep(((Number) properties.get(LINE_STEP)).doubleValue());
+		}
 	}
 
 	@Override
