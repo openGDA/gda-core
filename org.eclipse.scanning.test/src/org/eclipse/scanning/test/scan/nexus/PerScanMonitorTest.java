@@ -46,7 +46,7 @@ import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.device.NexusMetadataDevice;
+import org.eclipse.dawnsci.nexus.device.SimpleNexusMetadataDevice;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
@@ -96,7 +96,7 @@ public class PerScanMonitorTest extends NexusTest {
 		dcs.setPosition(10.0);
 		((MockScannableConnector) connector).setGlobalPerScanMonitorNames();
 
-		final NexusMetadataDevice<NXuser> userNexusDevice = new NexusMetadataDevice("user", NexusBaseClass.NX_USER);
+		final SimpleNexusMetadataDevice<NXuser> userNexusDevice = new SimpleNexusMetadataDevice("user", NexusBaseClass.NX_USER);
 		final Map<String, Object> userData = new HashMap<>();
 		userData.put(NXuser.NX_NAME, "John Smith");
 		userData.put(NXuser.NX_ROLE, "Beamline Scientist");
@@ -336,8 +336,8 @@ public class PerScanMonitorTest extends NexusTest {
 	}
 
 	private void checkUser(NXuser user, String perScanMonitorName) throws NexusException {
-		final NexusMetadataDevice<NXuser> metadataDevice =
-				(NexusMetadataDevice<NXuser>) ServiceHolder.getNexusDeviceService().<NXuser>getNexusDevice(perScanMonitorName);
+		final SimpleNexusMetadataDevice<NXuser> metadataDevice =
+				(SimpleNexusMetadataDevice<NXuser>) ServiceHolder.getNexusDeviceService().<NXuser>getNexusDevice(perScanMonitorName);
 		final Map<String, Object> metadata = metadataDevice.getNexusMetadata();
 		assertEquals(metadata.size(), user.getNumberOfDataNodes());
 		for (Map.Entry<String, Object> metadataEntry : metadata.entrySet()) {

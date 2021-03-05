@@ -59,7 +59,7 @@ import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.device.NexusMetadataDevice;
+import org.eclipse.dawnsci.nexus.device.SimpleNexusMetadataDevice;
 import org.eclipse.dawnsci.nexus.template.NexusTemplate;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.january.dataset.IDataset;
@@ -140,7 +140,7 @@ public class ScanProcessTest {
 		model.setExposureTime(0.00001);
 		dserviceImpl.register(TestDetectorHelpers.createAndConfigureMandelbrotDetector(model));
 
-		NexusMetadataDevice userNexusDevice = new NexusMetadataDevice("user", NexusBaseClass.NX_USER);
+		SimpleNexusMetadataDevice userNexusDevice = new SimpleNexusMetadataDevice("user", NexusBaseClass.NX_USER);
 		final Map<String, Object> userData = new HashMap<>();
 		userData.put(NXuser.NX_NAME, "John Smith");
 		userData.put(NXuser.NX_ROLE, "Beamline Scientist");
@@ -639,8 +639,8 @@ public class ScanProcessTest {
 				if (perScanMonitorName.equals("user")) {
 					final NXuser user = entry.getUser(perScanMonitorName);
 					assertThat(user, is(notNullValue()));
-					final NexusMetadataDevice metadataDevice =
-							(NexusMetadataDevice) ServiceHolder.getNexusDeviceService().getNexusDevice(perScanMonitorName);
+					final SimpleNexusMetadataDevice metadataDevice =
+							(SimpleNexusMetadataDevice) ServiceHolder.getNexusDeviceService().getNexusDevice(perScanMonitorName);
 					final Map<String, Object> userData = metadataDevice.getNexusMetadata();
 					assertEquals(userData.size(), user.getNumberOfDataNodes());
 					for (Map.Entry<String, Object> metadataEntry : userData.entrySet()) {
