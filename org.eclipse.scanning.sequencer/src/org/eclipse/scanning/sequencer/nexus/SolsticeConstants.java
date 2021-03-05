@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
+import org.eclipse.dawnsci.nexus.NXentry;
+
 public final class SolsticeConstants {
 
 	public static final String SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR = "solsticeScanMonitor";
@@ -30,6 +32,11 @@ public final class SolsticeConstants {
 	public static final String FIELD_NAME_POINT_END_TIME = "point_end_times";
 	public static final String FIELD_NAME_START_TIME = "start_time";
 	public static final String FIELD_NAME_END_TIME = "end_time";
+
+	/**
+	 * System property used to determine the name of the main {@link NXentry} within the nexus file.
+	 */
+	public static final String SYSTEM_PROPERTY_NAME_ENTRY_NAME = "org.eclipse.scanning.nexusEntryName";
 
 	/**
 	 * Property name for the path within an external (linked) nexus file to the unique keys dataset.

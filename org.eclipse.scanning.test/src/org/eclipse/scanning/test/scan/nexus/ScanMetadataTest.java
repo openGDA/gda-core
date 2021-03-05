@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SYSTEM_PROPERTY_NAME_ENTRY_NAME;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,12 +74,26 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ScanMetadataTest extends NexusTest {
 
+	private static final String EXPECTED_ENTRY_NAME = "myEntry";
+
 	private IWritableDetector<MandelbrotModel> detector;
+
+	@BeforeClass
+	public static void setupClass() {
+		System.setProperty(SYSTEM_PROPERTY_NAME_ENTRY_NAME, EXPECTED_ENTRY_NAME);
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		System.clearProperty(SYSTEM_PROPERTY_NAME_ENTRY_NAME);
+	}
 
 	@Before
 	public void before() throws ScanningException, IOException {
@@ -115,7 +131,9 @@ public class ScanMetadataTest extends NexusTest {
 		scanMetadata.add(sampleMetadata);
 
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, scanMetadata, 2, 2);
-		assertScanNotFinished(getNexusRoot(scanner).getEntry());
+		final NXroot root = getNexusRoot(scanner);
+		assertEquals(root.getAllEntry().keySet(), new HashSet<>(Arrays.asList(EXPECTED_ENTRY_NAME)));
+		assertScanNotFinished(getNexusRoot(scanner).getEntry(EXPECTED_ENTRY_NAME));
 		scanner.run(null);
 
 		checkNexusFile(scanner, scanMetadata, 2, 2);
@@ -205,7 +223,8 @@ public class ScanMetadataTest extends NexusTest {
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 
 		final NXroot rootNode = getNexusRoot(scanner);
-		final NXentry entry = rootNode.getEntry();
+		assertEquals(rootNode.getAllEntry().keySet(), new HashSet<>(Arrays.asList(EXPECTED_ENTRY_NAME)));
+		final NXentry entry = rootNode.getEntry(EXPECTED_ENTRY_NAME);
 		checkMetadata(entry, scanMetadata);
 		// check that the scan points have been written correctly
 		assertNXentryMetadata(entry);
@@ -241,8 +260,8 @@ public class ScanMetadataTest extends NexusTest {
 			DataNode dataNode = detector.getDataNode(sourceFieldName);
 			IDataset dataset = dataNode.getDataset().getSlice();
 			assertSame(dataNode, nxData.getDataNode(sourceFieldName));
-			assertTarget(nxData, sourceFieldName, rootNode, "/entry/instrument/" + detectorName
-					+ "/" + sourceFieldName);
+			assertTarget(nxData, sourceFieldName, rootNode, "/" + EXPECTED_ENTRY_NAME + "/instrument/" +
+					detectorName + "/" + sourceFieldName);
 
 			// check that the other primary data fields of the detector haven't been added to this NXdata
 			for (String primaryDataFieldName : signalFieldAxes.keySet()) {
@@ -291,7 +310,7 @@ public class ScanMetadataTest extends NexusTest {
 				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 				assertIndices(nxData, nxDataFieldName, i);
 				assertTarget(nxData, nxDataFieldName, rootNode,
-						"/entry/instrument/" + scannableName + "/value_set");
+						"/" + EXPECTED_ENTRY_NAME + "/instrument/" + scannableName + "/value_set");
 
 				// Actual values should be scanD
 				dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
@@ -303,7 +322,7 @@ public class ScanMetadataTest extends NexusTest {
 				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 				assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 				assertTarget(nxData, nxDataFieldName, rootNode,
-						"/entry/instrument/" + scannableName + "/" + NXpositioner.NX_VALUE);
+						"/"+ EXPECTED_ENTRY_NAME + "/instrument/" + scannableName + "/" + NXpositioner.NX_VALUE);
 			}
 		}
 	}

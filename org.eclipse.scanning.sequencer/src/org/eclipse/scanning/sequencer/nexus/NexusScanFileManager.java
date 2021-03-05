@@ -245,6 +245,7 @@ public class NexusScanFileManager {
 				.map(IMultipleNexusDevice.class::cast).findFirst();
 
 		final NexusScanModel nexusScanModel = new NexusScanModel(nexusDevices);
+		nexusScanModel.setEntryName(getEntryName());
 		nexusScanModel.setFilePath(scanModel.getFilePath());
 		nexusScanModel.setMultipleNexusDevice(multiNexusDevice);
 		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().map(this::getAbsoluteFilePath).collect(toSet()));
@@ -266,6 +267,14 @@ public class NexusScanFileManager {
 		nexusScanInfo.setFilePath(scanModel.getFilePath());
 
 		return nexusScanInfo;
+	}
+
+	private String getEntryName() {
+		String entryName = System.getProperty(SolsticeConstants.SYSTEM_PROPERTY_NAME_ENTRY_NAME);
+		if (entryName == null) {
+			entryName = System.getProperty("GDA/gda.nexus.entryName");
+		}
+		return entryName; // will be null if neither property set, uses default entry name
 	}
 
 	private Set<String> getDeviceNames(Collection<? extends INameable> devices) {
