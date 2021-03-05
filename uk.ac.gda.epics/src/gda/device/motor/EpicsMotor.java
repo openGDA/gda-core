@@ -1077,12 +1077,12 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		MotorStatus decodedStatus = MotorStatus.UNKNOWN;
 		String binaryStatus = Integer.toBinaryString(msta);
 		String decimalStatus = Integer.toString(msta);
-		logger.debug("Motor status: decimal {} and binary {}", decimalStatus, binaryStatus);
 
 		if ( hasTrueBitAtAnyPosition(msta, MSTA_FAULT, MSTA_FOLLOWING_ERROR, MSTA_COMMS_ERROR) ) {
 			decodedStatus = MotorStatus.FAULT;
 			if (lastMotorStatus != decodedStatus) {
-				logger.error("Motor - {} has FAULT STATUS in binary {}. Please check EPICS motor status.",getName(),binaryStatus);
+				logger.error( "Motor - {} has FAULT STATUS: Please check EPICS motor's status word logged at DEBUG level.", getName() );
+				logger.debug("EPICS Motor {} FAULT STATUS in decimal {} and binary {}.", getName(), decimalStatus, binaryStatus );
 				lastMotorStatus = decodedStatus;
 			}
 			return decodedStatus;
@@ -1091,7 +1091,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		if ( hasTrueBitAtPosition(msta,MSTA_UPPER_LIMIT) ) {
 			decodedStatus = MotorStatus.UPPER_LIMIT;
 			if (lastMotorStatus != decodedStatus) {
-				logger.warn("Motor - {} is at UPPERLIMIT;status in binary {}.",getName(),binaryStatus);
+				logger.warn( "Motor - {} is at UPPERLIMIT; status word logged at DEBUG level.", getName() );
+				logger.debug("EPICS Motor {} FAULT STATUS in decimal {} and binary {}.", getName(), decimalStatus, binaryStatus );
 				lastMotorStatus = decodedStatus;
 			}
 			return decodedStatus;
@@ -1100,7 +1101,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		if ( hasTrueBitAtPosition(msta,MSTA_LOWER_LIMIT) ) {
 			decodedStatus = MotorStatus.LOWER_LIMIT;
 			if (lastMotorStatus != decodedStatus) {
-				logger.warn("Motor - {} is at LOWERLIMIT; status in binary {}.",getName(),binaryStatus);
+				logger.warn( "Motor - {} is at LOWERLIMIT; status word logged at DEBUG level.", getName() );
+				logger.debug("EPICS Motor {} FAULT STATUS in decimal {} and binary {}.", getName(), decimalStatus, binaryStatus );
 				lastMotorStatus = decodedStatus;
 			}
 			return decodedStatus;
