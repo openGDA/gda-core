@@ -89,8 +89,6 @@ public class LivePlottingComposite extends Composite {
 	private boolean connected;
 
 	private final IAxisChangeListener axisChangeListener = this::updateAxes;
-	private final ApplicationListener<ListenToConnectionEvent> openConnectionListener = this::handleOpenConnection;
-	private final ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = this::handleCloseConnection;
 
 	private IDataListener dataShapeChangeListener;
 	private IDataListener titleUpdateListener;
@@ -442,4 +440,39 @@ public class LivePlottingComposite extends Composite {
 			disconnect();
 		}
 	}
+
+	// At the moment is not possible to use anonymous lambda expression because it generates a class cast exception
+	ApplicationListener<ListenToConnectionEvent> openConnectionListener = new ApplicationListener<ListenToConnectionEvent>() {
+		@Override
+		public void onApplicationEvent(ListenToConnectionEvent event) {
+			if (!event.haveSameParent(getParent())) {
+				return;
+			}
+			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
+				liveStreamConnection = LiveStreamConnection.class.cast(event.getSource());
+				try {
+					activatePlottingSystem();
+				} catch (LiveStreamException e) {
+					logger.error("Canot activate Plotting", e);
+				}
+			}
+		}
+	};
+
+	// At the moment is not possible to use anonymous lambda expression because it generates a class cast exception
+	ApplicationListener<StopListenToConnectionEvent> closeConnectionListener = new ApplicationListener<StopListenToConnectionEvent>() {
+		@Override
+		public void onApplicationEvent(StopListenToConnectionEvent event) {
+			// Avoids disposed widget
+			if (isDisposed() || getParent().isDisposed()) {
+				return;
+			}
+			if (!event.haveSameParent(getParent())) {
+				return;
+			}
+			if (LiveStreamConnection.class.isAssignableFrom(event.getSource().getClass())) {
+				disconnect();
+			}
+		}
+	};
 }
