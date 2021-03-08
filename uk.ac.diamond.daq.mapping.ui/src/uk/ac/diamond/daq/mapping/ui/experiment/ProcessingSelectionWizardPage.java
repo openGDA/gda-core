@@ -736,8 +736,6 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				findFirst();
 	}
 
-	private boolean useExisting = false;
-
 	protected ProcessingMode selectedMode() {
 		return mode;
 	}
@@ -748,39 +746,41 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		final Optional<String> malcolmDetectorDatasetName = detectorModel instanceof IMalcolmModel ? getDetectorDatasetNameForMalcolm((IMalcolmModel) detectorModel) : Optional.empty();
 		configureProcessingModel(detectorModel, malcolmDetectorDatasetName);
 
-		useExisting = useExistingButton.getSelection();
-		if (!useExisting) {
-			// Clone the detector model - we don't want to change the one in the mapping bean
-			IDetectorModel detectorModelCopy = null;
-			try {
-				detectorModelCopy = (IDetectorModel) BeanUtils.cloneBean(detectorModel);
-			} catch (Exception e) {
-				logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
-				return;
-			}
-
-			// setup the acquire page with the detector model for the appropriate detector and
-			// the name of the detector group (may be different if the detector is a malcolm detector).
-			AcquireDataWizardPage acquirePage = (AcquireDataWizardPage) getNextPage();
-			acquirePage.setAcquireDetectorModel(detectorModelCopy);
-			acquirePage.setDetectorDataGroupName(malcolmDetectorDatasetName.orElse(detectorModel.getName()));
-
-			// set template file on wizard, so that other pages can be created appropriately
-			final String templateFile = getSelectedTemplateFile().getPath();
-			try {
-				((IOperationModelWizard) getWizard()).setTemplateFile(templateFile);
-			} catch (Exception e) {
-				final String exceptionMessage = "Error setting template file on wizard. Could not create operations pages.";
-				final String userMessage = "Could not open template file, please contact beamline representative";
-				logger.error(exceptionMessage, e);
-
-				final MessageBox messageBox = new MessageBox(getShell(), SWT.ERROR);
-				messageBox.setMessage(userMessage);
-				messageBox.open();
-
-				throw new RuntimeException(exceptionMessage, e);
-			}
+		if (!ProcessingMode.NEW_DAWN.equals(selectedMode())) {
+			return;
 		}
+
+		// Clone the detector model - we don't want to change the one in the mapping bean
+		IDetectorModel detectorModelCopy = null;
+		try {
+			detectorModelCopy = (IDetectorModel) BeanUtils.cloneBean(detectorModel);
+		} catch (Exception e) {
+			logger.error("Could not make a copy of the detector model: " + detectorModel.getName(), e);
+			return;
+		}
+
+		// setup the acquire page with the detector model for the appropriate detector and
+		// the name of the detector group (may be different if the detector is a malcolm detector).
+		AcquireDataWizardPage acquirePage = (AcquireDataWizardPage) getNextPage();
+		acquirePage.setAcquireDetectorModel(detectorModelCopy);
+		acquirePage.setDetectorDataGroupName(malcolmDetectorDatasetName.orElse(detectorModel.getName()));
+
+		// set template file on wizard, so that other pages can be created appropriately
+		final String templateFile = getSelectedTemplateFile().getPath();
+		try {
+			((IOperationModelWizard) getWizard()).setTemplateFile(templateFile);
+		} catch (Exception e) {
+			final String exceptionMessage = "Error setting template file on wizard. Could not create operations pages.";
+			final String userMessage = "Could not open template file, please contact beamline representative";
+			logger.error(exceptionMessage, e);
+
+			final MessageBox messageBox = new MessageBox(getShell(), SWT.ERROR);
+			messageBox.setMessage(userMessage);
+			messageBox.open();
+
+			throw new RuntimeException(exceptionMessage, e);
+		}
+
 	}
 
 }
