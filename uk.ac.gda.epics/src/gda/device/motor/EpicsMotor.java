@@ -1500,7 +1500,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	private void setMotorStatus(MotorStatus motorStatus) {
 		synchronized (_motorStatusMonitor) {
-			this._motorStatus = _motorStatus;
+			this._motorStatus = motorStatus;
 			this._motorStatusMonitor.notifyAll();
 		}
 	}
