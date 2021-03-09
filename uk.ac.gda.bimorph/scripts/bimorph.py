@@ -165,7 +165,7 @@ class RunOptimisation:
         try:
             errorData = ScanFileLoader(fileNo, self.scanDir).getSFH()
         except Exception, e:
-            errorData = ScanFileLoader(fileNo, InterfaceProvider.getPathConstructor()().getDefaultDataDir()).getSFH()
+            errorData = ScanFileLoader(fileNo, InterfaceProvider.getPathConstructor().getDefaultDataDir()).getSFH()
         return errorData
 
     def getColumnNames(self, headings):
