@@ -61,6 +61,26 @@ public class LdapAuthenticator implements Authenticator {
 	 */
 	public static final String LDAPADMIN_PROPERTY = "gda.jython.authenticator.ldap.admin";
 
+	/**
+	 * The java property to use to define the LDAP connection timeout in milliseconds
+	 */
+	public static final String LDAPCONNECT_TIMEOUT_PROPERTY = "gda.jython.authenticator.ldap.connect_timeout_ms";
+
+	/**
+	 * The default timeout if not defined in local properties
+	 */
+	public static final int DEFAULT_LDAP_CONNECT_TIMEOUT_MS = 5000;
+
+	/**
+	 * The java property to use to define the LDAP connection timeout in milliseconds
+	 */
+	public static final String LDAPREAD_TIMEOUT_PROPERTY = "gda.jython.authenticator.ldap.read_timeout_ms";
+
+	/**
+	 * The default timeout if not defined in local properties
+	 */
+	public static final int DEFAULT_LDAP_READ_TIMEOUT_MS = 120000;
+
 	final String ldapContext = LocalProperties.get(LDAPCONTEXT_PROPERTY, "com.sun.jndi.ldap.LdapCtxFactory");
 	final String adminName = LocalProperties.get(LDAPADMIN_PROPERTY, ",OU=DLS,DC=fed,DC=cclrc,DC=ac,DC=uk");
 

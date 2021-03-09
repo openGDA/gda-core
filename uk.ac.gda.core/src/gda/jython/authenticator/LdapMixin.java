@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -31,6 +32,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,17 @@ import gda.configuration.properties.LocalProperties;
  * Contains LDAP-related methods.
  */
 public class LdapMixin {
+	/**
+	 * The LDAP environment property used to define the timeout for connecting to a socket
+	 */
+    public static final String LDAP_ENV_CONNECT_TIMEOUT =
+        "com.sun.jndi.ldap.connect.timeout";
+
+	/**
+	 * The LDAP environment property used to define the timeout for reading from a socket
+	 */
+    public static final String LDAP_ENV_READ_TIMEOUT =
+        "com.sun.jndi.ldap.read.timeout";
 
 	private static final Logger logger = LoggerFactory.getLogger(LdapMixin.class);
 
@@ -59,47 +72,32 @@ public class LdapMixin {
 		this.resolver = resolver;
 	}
 
-	public InitialLdapContext getContext(String ldapURL) throws NamingException {
-		Hashtable<String, String> env = new Hashtable<String, String>();
-
-		env.put(Context.INITIAL_CONTEXT_FACTORY, ldapContext);
-		env.put(Context.SECURITY_AUTHENTICATION, "none");
-		env.put(Context.PROVIDER_URL, ldapURL);
-
-		return new InitialLdapContext(env, null);
-	}
-
 	public NamingEnumeration<SearchResult> searchLdapForUser(String fedId, String... requiredAtts) {
 
 		final List<String> urls = getUrlsToTry();
-		logger.debug("LDAP URLs: " + urls);
+		logger.debug("LDAP URLs: {}", urls);
 
 		if (urls.isEmpty()) {
 			logger.error("No LDAP servers defined");
 			return null;
 		}
 
-		Exception lastException = null;
-
-		for (String url : urls) {
-			try {
-				return searchOneLdapServerForUser(url, fedId, requiredAtts);
-			} catch (Exception e) {
-				// try the next server
-				lastException = e;
-				logger.info("Unable to use LDAP server with URL '{}' - will try next server", url, e);
-			}
+		try {
+			return searchLdapServersForUser(urls, fedId, requiredAtts);
+		} catch (Exception e) {
+			logger.error("Unable to connect to any LDAP server, servers tried: {}", urls, e);
+			return null;
 		}
-
-		logger.error("Unable to connect to any LDAP server", lastException);
-		return null;
 	}
 
-	private NamingEnumeration<SearchResult> searchOneLdapServerForUser(String url, String fedId, String... returnedAtts) throws NamingException {
+	/**
+	 * @param urls list of server (typically IP) addresses which LDAP uses internally to find an available server
+	 */
+	private NamingEnumeration<SearchResult> searchLdapServersForUser(List<String> urls, String fedId, String... returnedAtts) throws NamingException {
 
-		InitialLdapContext ctx = null;
+		LdapContext ctx = null;
 		try {
-			if( fedId == null || fedId.isEmpty())
+			if(fedId == null || fedId.isEmpty())
 				return null;
 			// Set up criteria on which to search
 			// e.g. (&(objectClass=groupOfUniqueNames)(uniqueMember=uid=ifx999,ou=People,dc=esrf,dc=fr))
@@ -109,9 +107,10 @@ public class LdapMixin {
 			SearchControls cons = new SearchControls();
 			cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
 			cons.setReturningAttributes(returnedAtts);
+			cons.setTimeLimit(getReadTimeoutMs());
 
 			// Search
-			ctx = getContext(url);
+			ctx = createContext(urls);
 			return ctx.search(staffContext, filter, cons);
 
 		} finally {
@@ -122,7 +121,40 @@ public class LdapMixin {
 				}
 			}
 		}
+	}
 
+	/**
+	 * Creates and connects to a new LDAP context given a set of URLs
+	 * @param ldapURLs The set of URLs to try
+	 * @return A new {@link LdapContext}
+	 * @throws NamingException
+	 */
+	public LdapContext createContext(List<String> ldapURLs) throws NamingException {
+		return new InitialLdapContext(generateLdapEnv(ldapURLs), null);
+	}
+
+	/**
+	 * Generates environment variables for an {@link LdapContext} to use for
+	 * authentication. Must be a {@link Hashtable} due to requirements by a commonly
+	 * used class implementing {@link LdapContext}, {@link InitialLdapContext}
+	 * @param ldapURLs List of URLs to include in the environment
+	 * @return A new {@link Hashtable}
+	 */
+	public Hashtable<String, String> generateLdapEnv(List<String> ldapURLs) {
+		Hashtable<String, String> env = new Hashtable<>();
+
+		// Setup parameters from Context
+		env.put(Context.INITIAL_CONTEXT_FACTORY, ldapContext);
+		env.put(Context.SECURITY_AUTHENTICATION, "none");
+		env.put(Context.PROVIDER_URL, String.join(" ", ldapURLs));
+
+		// Set timeouts
+		env.put(LDAP_ENV_CONNECT_TIMEOUT,
+				Integer.toString(getConnectTimeoutMs()));
+		env.put(LDAP_ENV_READ_TIMEOUT,
+				Integer.toString(getReadTimeoutMs()));
+
+		return env;
 	}
 
 	/**
@@ -141,7 +173,7 @@ public class LdapMixin {
 			final String hostList = LocalProperties.get(LdapAuthenticator.LDAP_HOSTS_PROPERTY);
 
 			StringTokenizer st = new StringTokenizer(hostList, " ");
-			List<String> urls = new ArrayList<String>();
+			List<String> urls = new ArrayList<>();
 			while (st.hasMoreTokens()) {
 				final String host = st.nextToken();
 				try {
@@ -169,18 +201,26 @@ public class LdapMixin {
 	 * Builds the LDAP URLs for the given host.
 	 */
 	List<String> buildUrlsForHost(String host) throws UnknownHostException {
-		host = host.trim();
-		List<String> urls = new ArrayList<String>();
-		List<String> ips = resolver.resolveHostname(host);
-		for (String ip : ips) {
-			final String url = hostToLdapUrl(ip);
-			urls.add(url);
-		}
-		return urls;
+		return resolver.resolveHostname(host.trim())
+				.stream()
+				.map(LdapMixin::hostToLdapUrl)
+				.collect(Collectors.toList());
 	}
 
 	static String hostToLdapUrl(String host) {
 		return String.format("ldap://%s:389", host);
+	}
+
+	private int getConnectTimeoutMs() {
+		return LocalProperties
+				.getInt(LdapAuthenticator.LDAPCONNECT_TIMEOUT_PROPERTY,
+						LdapAuthenticator.DEFAULT_LDAP_CONNECT_TIMEOUT_MS);
+	}
+
+	private int getReadTimeoutMs() {
+		return LocalProperties
+				.getInt(LdapAuthenticator.LDAPREAD_TIMEOUT_PROPERTY,
+						LdapAuthenticator.DEFAULT_LDAP_READ_TIMEOUT_MS);
 	}
 
 }
