@@ -113,7 +113,7 @@ public class CompositeNexusScannable<N extends NXobject> extends AbstractScannab
 						nexusObject.addGroupNode(groupName, nexusObj);
 					} else if (childNode instanceof ChildFieldNode) {
 						final ChildFieldNode fieldNode = (ChildFieldNode) childNode;
-						DataNode dataNode = nexusObj.getDataNode("value");
+						DataNode dataNode = nexusObj.getDataNode(fieldNode.getSourceFieldName());
 						if (dataNode == null) {
 							throw new NullPointerException("No such dataset: " + fieldNode.getSourceFieldName());
 						}
