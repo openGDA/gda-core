@@ -22,6 +22,7 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.ARRAY_ATTR_VALUE;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.COLLECTION_NAME;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DETECTOR_NUMBER;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FLOAT_ATTR_NAME;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -71,6 +73,7 @@ import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -81,6 +84,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
@@ -88,9 +92,12 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.Random;
+import org.eclipse.january.dataset.SliceND;
+import org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -236,6 +243,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static class DummyNexusDetector extends DummyDetector implements NexusDetector {
 
+		public static final String EXTERNAL_NEXUS_FILE_NAME = "external.nxs";
+
 		// note 'value' causes a name conflict with the monitor's 'value' field when creating the NXdata group with NexusDataWriter
 		public static final String FIELD_NAME_VALUE = "value_";
 		public static final String FIELD_NAME_SPECTRUM = "spectrum";
@@ -264,6 +273,24 @@ public abstract class AbstractNexusDataWriterScanTest {
 		public static final String COLLECTION_FIELD_VALUE = "fieldValue";
 		public static final String COLLECTION_ATTR_VALUE = "attrValue";
 
+		public static final String FIELD_NAME_EXTERNAL = "external";
+
+		private String outputDir = null;
+		private int[] scanDimensions = null;
+		private boolean firstData = true;
+		private ILazyWriteableDataset externalDataset = null;
+		private PositionIterator posIter = null;
+		private String externalFilePath = null;
+
+		public void setScanDimensions(int[] scanDimensions) {
+			this.scanDimensions = scanDimensions;
+			posIter = new PositionIterator(scanDimensions);
+		}
+
+		public void setOutputDir(String outputDir) {
+			this.outputDir = outputDir;
+		}
+
 		@Override
 		public NexusTreeProvider readout() throws DeviceException {
 			return (NexusTreeProvider) super.readout();
@@ -271,6 +298,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		@Override
 		protected Object acquireData() {
+			if (firstData) {
+				createExternalNexusFile();
+				firstData = false;
+			}
+
 			final NXDetectorData data = new NXDetectorData(this);
 
 			final NexusGroupData valueData = new NexusGroupData(Math.random() * Double.MAX_VALUE);
@@ -288,7 +320,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 			final INexusTree detTree = data.getDetTree(getName());
 
 			// add some metadata dataset (i.e. per-scan or non point-dependent)
-			// TODO do these need to be set to non-point-dependent??
 			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_DETECTOR_NUMBER, NexusExtractor.SDSClassName, detTree,
 					new NexusGroupData(DETECTOR_NUMBER)));
 			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_SERIAL_NUMBER, NexusExtractor.SDSClassName, detTree,
@@ -299,8 +330,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 					new NexusGroupData(DIAMETER_UNITS)));
 			detTree.addChildNode(diameterNode);
 
-
-//			// add some attributes
+			// add some attributes
 			detTree.addChildNode(new NexusTreeNode(STRING_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
 					new NexusGroupData(STRING_ATTR_VALUE)));
 			detTree.addChildNode(new NexusTreeNode(INT_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
@@ -310,7 +340,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 			detTree.addChildNode(new NexusTreeNode(ARRAY_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
 					new NexusGroupData(ARRAY_ATTR_VALUE)));
 
-//			// add an NXcollection child group with a data node and an attribute
+			// add an NXcollection child group with a data node and an attribute
 			final INexusTree collectionNode = new NexusTreeNode(COLLECTION_NAME, NexusExtractor.NXCollectionClassName, detTree);
 			collectionNode.addChildNode(new NexusTreeNode(COLLECTION_FIELD_NAME, NexusExtractor.SDSClassName, collectionNode,
 					new NexusGroupData(COLLECTION_FIELD_VALUE)));
@@ -318,10 +348,51 @@ public abstract class AbstractNexusDataWriterScanTest {
 					new NexusGroupData(COLLECTION_ATTR_VALUE)));
 			detTree.addChildNode(collectionNode);
 
-			// TODO add dataset linking to external file (find some other test that does this...)
-			// and make sure file is deleted at end of test...
+			writeToExternalFile(); // write to dataset in external file
+
+			final String externalTargetPath = "nxfile://" + externalFilePath + "#entry/data/data";
+			data.addExternalFileLink(getName(), FIELD_NAME_EXTERNAL, externalTargetPath, false, true, 2);
 
 			return data;
+		}
+
+		private void writeToExternalFile() {
+			final IDataset dataToWrite = Random.rand(IMAGE_SIZE);
+
+			if (!posIter.hasNext()) {
+				// hasNext() actually moves the posIter to the next position(!);
+				throw new NoSuchElementException("posIter ran out of positions, shape = " + Arrays.toString(scanDimensions));
+			}
+
+			final int[] start = posIter.getPos();
+			final int[] stop = Arrays.stream(start).map(pos -> pos + 1).toArray();
+			final SliceND scanSlice = new SliceND(scanDimensions, start, stop, null);
+
+			try {
+				IWritableNexusDevice.writeDataset(externalDataset, dataToWrite, scanSlice);
+			} catch (DatasetException e) {
+				throw new RuntimeException("Error writing to external file", e);
+			}
+		}
+
+		private void createExternalNexusFile() {
+			externalFilePath = outputDir + EXTERNAL_NEXUS_FILE_NAME;
+			final TreeFile treeFile = NexusNodeFactory.createTreeFile(externalFilePath);
+			final NXroot root = NexusNodeFactory.createNXroot();
+			treeFile.setGroupNode(root); // the structure of the external file doesn't matter
+			final NXentry entry = NexusNodeFactory.createNXentry();
+			root.setEntry(entry);
+			final NXdata data = NexusNodeFactory.createNXdata();
+			entry.setData(data);
+
+			final int datasetRank = scanDimensions.length + IMAGE_SIZE.length;
+			externalDataset = data.initializeLazyDataset(NXdata.NX_DATA, datasetRank, Double.class);
+
+			try {
+				saveNexusFile(treeFile);
+			} catch (NexusException e) {
+				throw new RuntimeException("Error creating external nexus file", e);
+			}
 		}
 
 	}
@@ -374,7 +445,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private static INexusFileFactory nexusFileFactory;
 
-	private String testDir;
+	private String outputDir;
 
 	protected final int scanRank;
 	protected final int[] scanDimensions;
@@ -388,15 +459,14 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private Object[] scanArguments;
 
-	public AbstractNexusDataWriterScanTest(int scanRank) {
+	protected AbstractNexusDataWriterScanTest(int scanRank) {
 		this.scanRank = scanRank;
-		final int[] scanDimensions = new int[scanRank];
+		scanDimensions = new int[scanRank];
 		// dimensions 0 and 1 use GRID_SHAPE, any remaining use DEFAULT_NUM_AXIS_POINTS to keep the
 		// scan size small for higher dimension scans
 		for (int i = 0; i < scanRank; i++) {
 			scanDimensions[i] = i < GRID_SHAPE.length ? GRID_SHAPE[i] : DEFAULT_NUM_AXIS_POINTS;
 		}
-		this.scanDimensions = scanDimensions;
 	}
 
 	public static void setUpServices() {
@@ -444,7 +514,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected void setUpTest(String testName) throws Exception {
-		testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
+		final String testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
+		outputDir = testDir + "/Data/";
 
 		setUpMetadata();
 		setupMetadataScannables();
@@ -564,6 +635,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	@Test
 	public void concurrentScanNexusDetector() throws Exception {
 		detector = new DummyNexusDetector();
+		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);
+
 		detector.setName("nexusDetector");
 		concurrentScan(detector, DetectorType.NEXUS_DETECTOR, "NexusDetector");
 	}
@@ -573,6 +646,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 		this.detectorType = detectorType;
 
 		setUpTest("concurrentScan" + testSuffix); // create test dir and initialize properties
+		if (detectorType == DetectorType.NEXUS_DETECTOR) {
+			((DummyNexusDetector) detector).setOutputDir(outputDir); // to write external file
+		}
 
 		// create the scan
 		scanArguments = createScanArguments(detector);
@@ -587,7 +663,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(lastPoint.getScanIdentifier(), is(EXPECTED_SCAN_NUMBER));
 
 		// check the nexus file was written with the expected name
-		final File expectedNexusFile = new File(testDir + "/Data/1.nxs");
+		final File expectedNexusFile = new File(outputDir + "1.nxs");
 		final String expectedNexusFilePath = expectedNexusFile.getAbsolutePath();
 		assertThat(expectedNexusFile.exists(), is(true));
 		assertThat(lastPoint.getCurrentFilename(), is(equalTo(expectedNexusFilePath)));
@@ -599,7 +675,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 
 		// check an SRS file was created
-		final File expectedSrsFile = new File(testDir + "/Data/1.dat");
+		final File expectedSrsFile = new File(outputDir + "1.dat");
 		assertThat(expectedSrsFile.exists(), is(true));
 	}
 
@@ -670,10 +746,19 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return (DataNode) nodeLink.getDestination();
 	}
 
-	private NexusFile openNexusFile(String filePath) throws NexusException {
+	protected static NexusFile openNexusFile(String filePath) throws NexusException {
 		final NexusFile nexusFile = nexusFileFactory.newNexusFile(filePath);
 		nexusFile.openToRead();
 		return nexusFile;
+	}
+
+	protected static NexusFile saveNexusFile(TreeFile nexusTree) throws NexusException {
+		try (NexusFile nexusFile = nexusFileFactory.newNexusFile(nexusTree.getFilename(), true)) {
+			nexusFile.createAndOpenToWrite();
+			nexusFile.addNode("/", nexusTree.getGroupNode());
+			nexusFile.flush();
+			return nexusFile;
+		}
 	}
 
 	private void checkNexusFile(NexusFile nexusFile) throws Exception {
@@ -845,8 +930,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private void checkNexusDetector(NXdetector detGroup) throws Exception {
 		assertThat(detGroup.getGroupNodeNames(), containsInAnyOrder("note", COLLECTION_NAME));
-		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DATA,
-				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, // primary fields, written at each point
+		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DATA, // primary fields, written at each point
+				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL,
 				NXdetector.NX_LOCAL_NAME, // added for all detectors
 				NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER));
 
@@ -855,6 +940,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		checkDatasetWritten(detGroup.getDataNode(FIELD_NAME_SPECTRUM).getDataset(),
 				new int[] { DummyNexusDetector.SPECTRUM_SIZE });
 		checkDatasetWritten(detGroup.getDataNode(NXdetector.NX_DATA).getDataset(), DummyNexusDetector.IMAGE_SIZE);
+		checkDatasetWritten(detGroup.getDataNode(FIELD_NAME_EXTERNAL).getDataset(), DummyNexusDetector.IMAGE_SIZE);
 
 		assertThat(detGroup.getDetector_numberScalar(), is(DETECTOR_NUMBER));
 		assertThat(detGroup.getSerial_numberScalar(), is(equalTo(SERIAL_NUMBER)));
@@ -934,6 +1020,25 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 		assertThat(dateTime, is(lessThan(LocalDateTime.now())));
 		assertThat(dateTime, is(greaterThan(LocalDateTime.now().minus(5, ChronoUnit.MINUTES))));
+	}
+
+	protected void checkLinkedDatasets(NXdata data, NXentry entry, Map<String, String> expectedDataNodeLinks) {
+		assertThat(data.getDataNodeNames(), containsInAnyOrder(
+				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
+
+		for (Map.Entry<String, String> dataNodeLinkEntry : expectedDataNodeLinks.entrySet()) {
+			final String dataNodeName = dataNodeLinkEntry.getKey();
+			final DataNode dataNode = data.getDataNode(dataNodeName);
+			final String targetPath = dataNodeLinkEntry.getValue();
+			final DataNode targetNode = getDataNode(entry, dataNodeLinkEntry.getValue());
+			assertThat(targetNode, is(notNullValue()));
+
+			if (dataNodeName.equals(FIELD_NAME_EXTERNAL)) {
+				NexusAssert.assertDataNodesEqual(targetPath, dataNode, targetNode);
+			} else {
+				assertThat(dataNode, is(sameInstance(targetNode)));
+			}
+		}
 	}
 
 	protected void checkDatasetWritten(ILazyDataset dataset, int[] dataShape) throws DatasetException {

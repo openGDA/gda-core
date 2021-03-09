@@ -298,14 +298,27 @@ public class NXDetectorData implements GDANexusDetectorData {
 
 	/**
 	 * create one node called 'linkname' for each external file link.
-	 * @param detName
-	 * @param linknodename
-	 * @param fileName - must be plain full path file name.
+	 * @param detName the detector name
+	 * @param linknodename the name of the link node in the detector tree
+	 * @param linkTargetPath the path of the node to link to in the external file in the format
+	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
 	 */
-	public void addExternalFileLink(String detName, String linknodename, String fileName, boolean isPointDependent, boolean isDetectorEntryData) {
+	public void addExternalFileLink(String detName, String linknodename, String linkTargetPath, boolean isPointDependent, boolean isDetectorEntryData) {
+		addExternalFileLink(detName, linknodename, linkTargetPath, isPointDependent, isDetectorEntryData, -1);
+	}
+
+	/**
+	 * create one node called 'linkname' for each external file link.
+	 * @param detName the detector name
+	 * @param linknodename the name of the link node in the detector tree
+	 * @param linkTargetPath the path of the node to link to in the external file in the format
+	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
+	 */
+	public void addExternalFileLink(String detName, String linknodename, String linkTargetPath, boolean isPointDependent, boolean isDetectorEntryData, int dataRank) {
 		INexusTree detTree = getDetTree(detName);
 //		NexusGroupData dummy_sds = new NexusGroupData("dummy");
-		NexusGroupData groupData = new NexusGroupData( fileName );
+		NexusGroupData groupData = new NexusGroupData( linkTargetPath );
+		groupData.externalDataRank = dataRank;
 		NexusTreeNode link = new NexusTreeNode(linknodename, NexusExtractor.ExternalSDSLink, null, groupData);
 		link.setIsPointDependent(isPointDependent);
 		groupData.isDetectorEntryData = isDetectorEntryData;

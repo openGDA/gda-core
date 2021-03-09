@@ -19,6 +19,9 @@
 package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -26,7 +29,6 @@ import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertA
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
 import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -34,7 +36,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -636,10 +637,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 
 		// assert that all the expected linked data nodes are present
-		assertThat(data.getDataNodeNames(), containsInAnyOrder(
-				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
-		expectedDataNodeLinks.forEach((name, targetPath) ->
-			assertThat(targetPath, data.getDataNode(name), is(both(notNullValue()).and(sameInstance(getDataNode(entry, targetPath))))));
+		checkLinkedDatasets(data, entry, expectedDataNodeLinks);
 
 		// check that the attributes have been added according to the 2014 NXdata format
 		// attributes created for each scannable, monitor (if signal field not from monitor), signal, axes, NXclass
@@ -663,7 +661,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private List<String> getPrimaryFieldNames() {
 		final String primaryFieldName = getPrimaryFieldName();
 		if (detectorType == DetectorType.NEXUS_DETECTOR) {
-			return Arrays.asList(primaryFieldName, DummyNexusDetector.FIELD_NAME_SPECTRUM, DummyNexusDetector.FIELD_NAME_VALUE);
+			return Arrays.asList(primaryFieldName, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL);
 		} else {
 			return Arrays.asList(primaryFieldName);
 		}
