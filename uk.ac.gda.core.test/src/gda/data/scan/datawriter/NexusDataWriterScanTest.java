@@ -22,7 +22,7 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
 import static java.util.stream.Collectors.toMap;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertUnits;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;

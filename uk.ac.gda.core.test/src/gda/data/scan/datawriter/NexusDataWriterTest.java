@@ -19,7 +19,7 @@
 package gda.data.scan.datawriter;
 
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertGroupNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertGroupNodesEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
