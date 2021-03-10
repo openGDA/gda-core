@@ -291,6 +291,8 @@ class EnergySummaryRow {
 	private void openShutter(SelectionEvent event) {
 		try {
 			getEHShutter().moveTo(
+					getEHShutter().getScannablePropertiesDocument().getEnumsMap().get(ShutterCommand.RESET.name()));
+			getEHShutter().moveTo(
 					getEHShutter().getScannablePropertiesDocument().getEnumsMap().get(ShutterCommand.OPEN.name()));
 			updateButtonLayoutAndListener(shutterMonitor);
 		} catch (GDAClientException e) {
