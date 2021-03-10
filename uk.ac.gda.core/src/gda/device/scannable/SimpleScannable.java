@@ -33,24 +33,19 @@ public class SimpleScannable extends ScannableBase {
 	private Object currentPosition;
 
 	/**
-	 * Constructor
-	 */
-	public SimpleScannable() {
-	}
-
-	/**
-	 * @param currentPosition  Used at instantiation only. From then use asynchronousMoveTo
+	 * @param currentPosition
+	 *            Used at instantiation only. From then use asynchronousMoveTo
 	 * @throws DeviceException
 	 */
-	public void setCurrentPosition(Object currentPosition)  throws DeviceException {
+	public void setCurrentPosition(Object currentPosition) throws DeviceException {
 		asynchronousMoveTo(currentPosition);
 	}
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		if(currentPosition == null || !currentPosition.equals(position)){
+		if (currentPosition == null || !currentPosition.equals(position)) {
 			currentPosition = position;
-			notifyIObservers(this, new ScannablePositionChangeEvent((Serializable)currentPosition));
+			notifyIObservers(this, new ScannablePositionChangeEvent((Serializable) currentPosition));
 		}
 
 	}
