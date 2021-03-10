@@ -37,7 +37,7 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		imageData.isDetectorEntryData = true;
 		data.addData(detectorName, "data", imageData);
 
-		data.addData(detectorName, "collection_time", new NexusGroupData(region.getCollectionTime()), "sec", null);
+		data.addData(detectorName, "time_for_frame", new NexusGroupData(region.getCollectionTime()), "sec", null);
 		data.addData(detectorName, "acquire_period", new NexusGroupData(region.getAcquirePeriod()), "sec", null);
 		data.addData(detectorName, "number_of_iterations", new NexusGroupData(region.getIterations()), null, null);
 		data.addData(detectorName, "pass_energy", new NexusGroupData(region.getPassEnergy()), "eV", null);
@@ -56,5 +56,7 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		data.addData(detectorName, "spin_offset", new NexusGroupData(region.getSpinOffset()), null, null);
 		data.addData(detectorName, "kinetic_energy_step", new NexusGroupData(region.getStepSize()), "eV", null);
 		data.addData(detectorName, "region_origin", new NexusGroupData(region.getRegionStartX(), region.getRegionStartY()), null, null);
+		data.addData(detectorName, "region_size", new NexusGroupData(region.getRegionSizeX(), region.getRegionSizeY()), null, null);
+		data.addData(detectorName, "sensor_size", new NexusGroupData(region.getSensorSizeX(), region.getSensorSizeY()), null, null);
 	}
 }
