@@ -12,11 +12,12 @@ Require-Bundle: uk.ac.gda.common,
  uk.ac.diamond.scisoft.analysis;bundle-version="1.2.0",
  uk.ac.diamond.scisoft.analysis.plotserver;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: Diamond Light Source
 Import-Package: org.python.core,
  org.slf4j;version="[1.7.2,2.0.0)",
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.diamond.daq.pes.api
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.devices.vgscienta;
   uses:="gda.device.detector,

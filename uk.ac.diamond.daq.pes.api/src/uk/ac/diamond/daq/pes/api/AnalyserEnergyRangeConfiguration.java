@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2016 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.vgscienta;
+package uk.ac.diamond.daq.pes.api;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 /**
  * A class used to provide the valid kinetic energy (KE) range to stay inside the lens table. It has one nested map which contains all of the data. The map is
@@ -37,7 +38,8 @@ import java.util.TreeSet;
  *
  * @author James Mudd
  */
-public class VGScientaAnalyserEnergyRange implements Serializable {
+
+public class AnalyserEnergyRangeConfiguration implements Serializable {
 
 	/**
 	 * Class representing the energy range for one PSU mode, lens mode and pass energy combination.
@@ -107,7 +109,7 @@ public class VGScientaAnalyserEnergyRange implements Serializable {
 	 */
 	private final Map<String, Map<String, Map<Integer, EnergyRange>>> energyRangeMap;
 
-	public VGScientaAnalyserEnergyRange(Map<String, Map<String, Map<Integer, EnergyRange>>> capabilitiesMap) {
+	public AnalyserEnergyRangeConfiguration(Map<String, Map<String, Map<Integer, EnergyRange>>> capabilitiesMap) {
 		this.energyRangeMap = capabilitiesMap;
 	}
 
@@ -254,10 +256,8 @@ public class VGScientaAnalyserEnergyRange implements Serializable {
 	public boolean isKEValid(String psuMode, String lensMode, int passEnergy, double energy) {
 		checkPsuModeLensModeAndPassEnergyValid(psuMode, lensMode, passEnergy);
 		EnergyRange energyRange = energyRangeMap.get(psuMode).get(lensMode).get(passEnergy);
-		if (energy >= energyRange.getMinKE() && energy <= energyRange.getMaxKE()) {
-			return true;
-		}
-		return false;
+
+		return energy >= energyRange.getMinKE() && energy <= energyRange.getMaxKE();
 	}
 
 	@Override
@@ -276,7 +276,7 @@ public class VGScientaAnalyserEnergyRange implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VGScientaAnalyserEnergyRange other = (VGScientaAnalyserEnergyRange) obj;
+		AnalyserEnergyRangeConfiguration other = (AnalyserEnergyRangeConfiguration) obj;
 		if (energyRangeMap == null) {
 			if (other.energyRangeMap != null)
 				return false;
@@ -284,5 +284,4 @@ public class VGScientaAnalyserEnergyRange implements Serializable {
 			return false;
 		return true;
 	}
-
 }

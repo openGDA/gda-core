@@ -63,10 +63,10 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
-import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
-import uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
@@ -78,8 +78,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private static final String SWEPT_MODE = "swept";
 
 	// Information from the analyser to make the GUI responsive
-	private final IVGScientaAnalyserRMI analyser;
-	private final VGScientaAnalyserEnergyRange energyRange;
+	private final IElectronAnalyser analyser;
+	private final AnalyserEnergyRangeConfiguration energyRange;
 	private final double energyStepPerPixel;
 	private final double maxKE;
 	private final int fixedModeEnergyChannels;
@@ -121,7 +121,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		editor.setUndoStackActive(false);
 
 		// Should be local as its already imported by Spring
-		final List<IVGScientaAnalyserRMI> analyserRmiList = Finder.listLocalFindablesOfType(IVGScientaAnalyserRMI.class);
+		final List<IElectronAnalyser> analyserRmiList = Finder.listLocalFindablesOfType(IElectronAnalyser.class);
 		if (analyserRmiList.isEmpty()) {
 			throw new RuntimeException("No analyser was found over RMI");
 		}

@@ -1,0 +1,259 @@
+/*-
+ * Copyright © 2021 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.daq.pes.api;
+
+import java.util.List;
+
+import gda.device.Device;
+import gda.device.DeviceException;
+
+public interface IElectronAnalyser extends Device {
+
+	AnalyserEnergyRangeConfiguration getEnergyRange();
+
+	/**
+	 * This is the energy covered by one pixel in pass energy = 1 in meV
+	 * <p>
+	 * To find the energy step per pixel this value should be multiplied by the pass energy. To find the fixed mode energy width this value should be multiplied
+	 * by the pass energy and the number of energy channels.
+	 * <p>
+	 * This value should <b>not</b> be used to calculate energy scales.
+	 */
+	double getEnergyStepPerPixel();
+
+	/**
+	 * This is the fall-back maximum kinetic energy (KE) if the energyRange object can't provide a correct energy range
+	 */
+	double getMaxKE();
+
+	/**
+	 * This gets the number of energy channels in the fixed mode region, to allow the fixed mode energy width to be calculated.
+	 *
+	 * @return The number of energy channels in fixed mode
+	 */
+	int getFixedModeEnergyChannels();
+
+	/**
+	 * This gets the number of energy channels in the swept mode region, to allow the swept mode energy steps including pre-scan to be calculated
+	 *
+	 * @return The number of energy channels in swept mode
+	 */
+	int getSweptModeEnergyChannels();
+
+	/**
+	 * Gets the current PSU mode. (Also known as element set)
+	 *
+	 * @return The current power supply mode
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	String getPsuMode() throws Exception;
+
+	/**
+	 * Gets the available PSU modes (also known as element set)
+	 * @return The list of available PSU modes
+	 */
+	List<String> getPsuModes();
+
+	/**
+	 * Sets the PSU mode (aka element set)
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void setPsuMode(String psuMode) throws Exception;
+
+	/**
+	 * Gets the current lens mode.
+	 *
+	 * @return The current lens mode
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	String getLensMode() throws Exception;
+
+	/**
+	 * Sets the lens mode
+	 *
+	 * @param lensMode The lens mode to set
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void setLensMode(String lensMode) throws Exception;
+
+	/**
+	 * Gets the list of available lens modes
+	 */
+
+	List<String> getLensModes();
+
+	/**
+	 * This can be called to change the number of iterations scheduled during a scan.
+	 *
+	 * @param newScheduledIterations
+	 */
+	void changeRequestedIterations(int newScheduledIterations);
+
+	/**
+	 * Get the energy axis for the current acquisition
+	 *
+	 * @return The energy axis
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	double[] getEnergyAxis() throws Exception;
+
+	/**
+	 * Gets the Y axis (usually angle) for the current acquisition
+	 *
+	 * @return The angle axis
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	double[] getAngleAxis() throws Exception;
+
+	/**
+	 * Get the current pass energy
+	 *
+	 * @return The current pass energy
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	// TODO This should probably be changed to double to become consistent with SPECS analysers
+	Integer getPassEnergy() throws Exception;
+
+	/**
+	 * Sets the pass energy
+	 *
+	 * @param passEnergy The requested pass energy
+	 * @throws Exception If the pass energy is invalid or if there is a problem with the EPICS communication
+	 */
+	// TODO This should probably be changed to double to become consistent with SPECS analysers
+	void setPassEnergy(Integer passEnergy) throws Exception;
+
+	/**
+	 * Gets the available pass energies
+	 */
+	List<String> getPassEnergies();
+
+	/**
+	 * Gets the current centre energy
+	 *
+	 * @return The current centre energy
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	Double getCentreEnergy() throws Exception;
+
+	/**
+	 * Sets the centre energy
+	 *
+	 * @param centreEnergy The requested centre energy
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void setCentreEnergy(Double centreEnergy) throws Exception;
+
+	/**
+	 * Gets the collection time per point
+	 *
+	 * @return The collection time
+	 * @throws DeviceException If there is a problem with the EPICS communication
+	 */
+	double getCollectionTime() throws DeviceException;
+
+	/**
+	 * Sets the collection time per point
+	 *
+	 * @throws DeviceException If there is a problem with the EPICS communication
+	 */
+	void setCollectionTime(double collectionTime) throws DeviceException;
+
+	/**
+	 * Starts the analyser acquiring in continuous mode, this is intended for use in alignment. This is non blocking
+	 *
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void startContinuious() throws Exception;
+
+	/**
+	 * Stops the analyser acquiring <b>Does NOT zero supplies</b>
+	 *
+	 * @see #zeroSupplies()
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void stop() throws Exception;
+
+	/**
+	 * Stops the analyser and zeros the HV supplies. This puts the analyser into a safe state.
+	 *
+	 * @see #stop()
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void zeroSupplies() throws Exception;
+
+	/**
+	 * Stops the analyser after the current iteration and saves the data.
+	 *
+	 * @see #stop()
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	void stopAfterCurrentIteration() throws Exception;
+
+	/**
+	 * Gets the currently set number of iterations
+	 *
+	 * @return The current number of iterations
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	int getIterations() throws Exception;
+
+	/**
+	 * Gets the completed number of iterations
+	 * from the most recent scan
+	 *
+	 * @return The number of complete iterations from previous scan
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	int getCompletedIterations() throws Exception;
+
+	/**
+	 * Gets the current iteration number in the scan
+	 *
+	 * @return The current iteration number in the scan
+	 * @throws Exception If there is a problem with the EPICS communication
+	 */
+	int getCurrentIterations() throws Exception;
+
+	/**
+	 * Sets the number of iterations requested, not for use while in a scan
+	 *
+	 * @see #changeRequestedIterations(int)
+	 * @param iterations The requested number of iterations
+	 * @throws Exception If there is a problem with the EPICS communication
+	 * @throws IllegalStateException If the analyser is performing a scan
+	 */
+	void setIterations(int iterations) throws Exception;
+
+	double[] getSpectrum() throws Exception;
+
+	double[] getImage() throws Exception;
+
+	int getSlices() throws Exception;
+
+	int getFrames() throws Exception;
+
+	double getExcitationEnergy() throws Exception;
+
+	double[] getExtIO(int length) throws Exception;
+
+	void setAcquisitionMode(String acquisitionMode) throws Exception;
+
+	void start() throws Exception;
+}

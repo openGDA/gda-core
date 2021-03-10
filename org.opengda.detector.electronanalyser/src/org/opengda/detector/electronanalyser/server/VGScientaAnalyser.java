@@ -44,9 +44,9 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
-import uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange;
 import uk.ac.gda.devices.vgscienta.VGScientaController;
 
 @ServiceInterface(IVGScientaAnalyserRMI.class)
@@ -60,7 +60,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	private int[] fixedModeRegion;
 	private int[] sweptModeRegion;
 
-	private VGScientaAnalyserEnergyRange energyRange;
+	private AnalyserEnergyRangeConfiguration energyRange;
 
 	private NDProcess ndProc;
 
@@ -1018,11 +1018,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	}
 
 	@Override
-	public VGScientaAnalyserEnergyRange getEnergyRange() {
+	public AnalyserEnergyRangeConfiguration getEnergyRange() {
 		return energyRange;
 	}
 
-	public void setEnergyRange(VGScientaAnalyserEnergyRange energyRange) {
+	public void setEnergyRange(AnalyserEnergyRangeConfiguration energyRange) {
 		this.energyRange = energyRange;
 	}
 
