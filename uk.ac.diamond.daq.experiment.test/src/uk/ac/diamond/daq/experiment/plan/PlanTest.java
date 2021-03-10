@@ -1,7 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -95,19 +95,21 @@ public class PlanTest {
 		assertThat(plan.getExperimentRecord().getSegmentRecords().size(), is(3));
 	}
 
-	@Test (expected=IllegalStateException.class)
+	@Test
 	public void segmentNamesShouldBeUnique() {
 		plan.addSegment(SEGMENT1_NAME, s->false);
 		plan.addSegment(SEGMENT1_NAME, s->true);
 		plan.start();
+		assertThat(plan.isRunning(), is(false));
 	}
 
-	@Test (expected=IllegalStateException.class)
+	@Test
 	public void triggerNamesShouldBeUnique() {
 		plan.addSegment(SEGMENT1_NAME, s -> s > 5,
 				plan.addTrigger(TRIGGER1_NAME, this::someJob, 0),
 				plan.addTrigger(TRIGGER1_NAME, this::someJob, 5));
 		plan.start();
+		assertThat(plan.isRunning(), is(false));
 	}
 
 	@Test
@@ -127,7 +129,6 @@ public class PlanTest {
 		sev.broadcast(-0.3); // end of segment2 & no further segments -> end of experiment
 
 		ExperimentController controller = plan.experimentController;
-		Mockito.verify(controller).isExperimentInProgress(); // to test whether a new one can be started
 		Mockito.verify(controller).startExperiment(EXPERIMENT_NAME);
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
 		Mockito.verify(controller).startMultipartAcquisition(SEGMENT2_NAME);
