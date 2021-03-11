@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Joiner;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.VisitData;
 import gda.jython.authoriser.AuthoriserProvider;
 
 public abstract class DlsIcatBase extends IcatBase {
@@ -114,6 +115,19 @@ public abstract class DlsIcatBase extends IcatBase {
 		}
 	}
 
+	@Override
+	public List<VisitData> getVisitDataByPrefix(String visitPrefix) throws Exception {
+		Connection connection = null;
+		try {
+			connection = connectToDatabase();
+			return getVisitDataWithPrefix(connection, visitPrefix);
+		} catch (Exception e) {
+			throw new Exception("Error connection to dicat database", e);
+		} finally {
+			closeConnection(connection);
+		}
+	}
+
 	private void closeConnection(Connection connection) {
 		if (connection != null) {
 			try {
@@ -137,6 +151,8 @@ public abstract class DlsIcatBase extends IcatBase {
 	protected abstract List<String> getVisitsForUser(Connection connection, String user) throws Exception;
 
 	protected abstract Optional<String> getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws Exception;
+
+	protected abstract List<VisitData> getVisitDataWithPrefix(Connection connection, String visitPrefix) throws Exception;
 
 	protected abstract String getTitleForVisitUsingConnection(String visitID, Connection connection) throws Exception;
 

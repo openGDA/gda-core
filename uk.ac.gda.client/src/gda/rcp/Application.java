@@ -18,6 +18,8 @@
 
 package gda.rcp;
 
+import static gda.configuration.properties.LocalProperties.GDA_CHECK_USER_VISIT_VALID;
+
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -69,6 +71,8 @@ public class Application implements IApplication {
 	private static final String PROP_EXIT_CODE = "eclipse.exitcode";
 
 	private final ServerAvailableWatchdog serverAvailableWatchdog = new ServerAvailableWatchdog();
+
+	private boolean usingDefaultVisit = false;
 
 	@Override
 	public Object start(IApplicationContext context) {
@@ -128,6 +132,12 @@ public class Application implements IApplication {
 			}
 
 			fixVisitID();
+
+			// Start a watchdog to close the client when the user's visit has expired
+			// TODO: Change LocalProperties.check() default to true when successfully tested in live mode
+			if (!usingDefaultVisit && LocalProperties.check(GDA_CHECK_USER_VISIT_VALID, false)) {
+				new CurrentVisitValidWatchdog(System.getProperty("user.name"), LocalProperties.get(LocalProperties.RCP_APP_VISIT)).startWatchdog();
+			}
 
 			// This is where we block while the client is running
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
@@ -228,6 +238,8 @@ public class Application implements IApplication {
 
 		// Set the RCP visit property
 		checkAndSetVisit(defaultVisit);
+
+		usingDefaultVisit = true;
 	}
 
 	private void checkAndSetVisit(String newVisit) {

@@ -19,7 +19,9 @@
 package gda.data.metadata.icat;
 
 import java.util.Date;
+import java.util.List;
 
+import gda.data.metadata.VisitData;
 import gda.data.metadata.VisitEntry;
 
 /**
@@ -36,7 +38,7 @@ public interface Icat {
 	 * ICAT is in use.
 	 */
 	public static final String ICAT_TYPE_PROP = "gda.data.metadata.icat.type";
-	
+
 	/**
 	 * Name of the java property which defines the Icat database url (file or database)
 	 */
@@ -56,7 +58,7 @@ public interface Icat {
 	/**
 	 * Returns all the visit IDs for this user on this beamline at this point in time (tolerance in the
 	 * IcatConnectionDetails).
-	 * 
+	 *
 	 * @param username
 	 * @return array of valid visit IDs
 	 * @throws Exception
@@ -65,14 +67,14 @@ public interface Icat {
 
 	/**
 	 * Sets the visit under which this user shall collect data.
-	 * 
+	 *
 	 * @param visitID
 	 */
 	public void setMyVisit(String visitID);
 
 	/**
 	 * Queries the database filtering using the stored username, beamline and visit.
-	 * 
+	 *
 	 * @param accessName
 	 * @return String or null if no information found
 	 * @throws Exception
@@ -81,7 +83,7 @@ public interface Icat {
 
 	/**
 	 * Queries the database filtering using the given username, beamline and visit.
-	 * 
+	 *
 	 * @param accessName
 	 * @param username
 	 * @param visitID
@@ -92,7 +94,7 @@ public interface Icat {
 
 	/**
 	 * Queries the database filtering using the current username and visit held in metadata.
-	 * 
+	 *
 	 * @param accessName
 	 * @return String or null if no information found
 	 * @throws Exception
@@ -102,10 +104,18 @@ public interface Icat {
 	/**
 	 * Inject the current time for testing. This will be used when filtering for valid visits on the given beamline.
 	 * <p>
-	 * Set to null for the current date to tbe used.
-	 * 
+	 * Set to null for the current date to be used.
+	 *
 	 * @param date
 	 */
 	public void setOperatingDate(Date date);
 
+	/**
+	 * Get {@link VisitData} for visits beginning with the specified prefix
+	 *
+	 * @param visitPrefix
+	 *            the prefix to search for. This can be a complete visit name
+	 * @throws Exception
+	 */
+	List<VisitData> getVisitDataByPrefix(String visitPrefix) throws Exception;
 }

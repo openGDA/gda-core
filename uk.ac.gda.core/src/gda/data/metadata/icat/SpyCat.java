@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -35,6 +36,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.VisitData;
 
 /**
  * {@link IcatBase} subclass that retrieves visit information from ISPyB.
@@ -66,6 +68,31 @@ public class SpyCat extends DlsIcatBase {
 	@Override
 	protected Optional<String> getLatestVisitWithPrefix(Connection connection, String visitPrefix) {
 		logger.trace("getLatestVisitWithPrefix({}, {})", connection, visitPrefix);
+		return getVisitWithPrefix(connection, visitPrefix, VISIT_MAPPER).stream().findFirst();
+	}
+
+	@Override
+	protected List<VisitData> getVisitDataWithPrefix(Connection connection, String visitPrefix) {
+		return getVisitWithPrefix(connection, visitPrefix, VISIT_DATA_MAPPER);
+	}
+
+	private static final RowMapper<String> VISIT_MAPPER = new RowMapper<>() {
+		@Override
+		public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+			return rs.getString(1);
+		}
+	};
+
+	private static final RowMapper<VisitData> VISIT_DATA_MAPPER = new RowMapper<>() {
+		@Override
+		public VisitData mapRow(ResultSet rs, int rowNum) throws SQLException {
+			// Ensure dates are standard Java Dates, not SQL Times
+			return new VisitData(rs.getString(1), new Date(rs.getTime(2).getTime()), new Date(rs.getTime(3).getTime()));
+		}
+	};
+
+	private <T> List<T> getVisitWithPrefix(Connection connection, String visitPrefix, RowMapper<T> mapper) {
+		logger.trace("getVisitWithPrefix({}, {})", connection, visitPrefix);
 
 		final String sql = "CALL ispyb.retrieve_most_recent_session(?, ?)";
 
@@ -73,19 +100,12 @@ public class SpyCat extends DlsIcatBase {
 
 		final JdbcTemplate template = makeJdbcTemplateFromConnection(connection);
 
-		final List<String> visits = template.query(sql, VISIT_MAPPER, parameters);
+		final List<T> visits = template.query(sql, mapper, parameters);
 
-		logger.debug("SQL query '{}' with parameters {} returned {}", sql, Arrays.toString(parameters), visits);
+		logger.debug("SQL query '{}' with parameters {} returned {}", sql, parameters, visits);
 
-		return visits.stream().findFirst();
+		return visits;
 	}
-
-	private static final RowMapper<String> VISIT_MAPPER = new RowMapper<String>() {
-		@Override
-		public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-			return rs.getString(1);
-		}
-	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 

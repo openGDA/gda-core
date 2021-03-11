@@ -19,6 +19,7 @@
 package gda.data.metadata.icat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.springframework.util.StringUtils;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
+import gda.data.metadata.VisitData;
 import gda.data.metadata.VisitEntry;
 import gda.jython.JythonServerFacade;
 import gda.jython.authoriser.AuthoriserProvider;
@@ -154,6 +156,12 @@ public abstract class IcatBase implements Icat {
 	@Override
 	public void setOperatingDate(Date date) {
 		operatingDate = date;
+	}
+
+	@Override
+	public List<VisitData> getVisitDataByPrefix(String visitPrefix) throws Exception {
+		// Dummy implementation - subclasses can override
+		return Collections.emptyList();
 	}
 
 	/**
