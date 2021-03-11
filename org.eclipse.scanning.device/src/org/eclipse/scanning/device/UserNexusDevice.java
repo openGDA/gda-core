@@ -22,6 +22,7 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 import gda.jython.InterfaceProvider;
@@ -54,12 +55,13 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 	}
 
 	@Override
-	protected void writeChildNodes(NXuser userGroup) throws NexusException {
-		super.writeChildNodes(userGroup);
+	protected NXuser createNexusObject(NexusScanInfo info) throws NexusException {
+		final NXuser userGroup = super.createNexusObject(info);
 
 		final ClientDetails userDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
 		userGroup.setNameScalar(userDetails.getFullName());
 		userGroup.setFacility_user_idScalar(userDetails.getUserID());
+		return userGroup;
 	}
 
 }

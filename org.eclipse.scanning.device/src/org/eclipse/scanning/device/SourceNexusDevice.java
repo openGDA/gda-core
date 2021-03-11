@@ -33,9 +33,9 @@ public class SourceNexusDevice extends AbstractNexusMetadataDevice<NXsource> {
 
 	public SourceNexusDevice() {
 		super(NexusBaseClass.NX_SOURCE);
-		addScalarField(NXsource.NX_NAME, DEFAULT_SOURCE_NAME);
-		addScalarField(NXsource.NX_TYPE, DEFAULT_TYPE);
-		addScalarField(NXsource.NX_PROBE, DEFAULT_PROBE);
+		setDefaultValue(NXsource.NX_NAME, DEFAULT_SOURCE_NAME);
+		setDefaultValue(NXsource.NX_TYPE, DEFAULT_TYPE);
+		setDefaultValue(NXsource.NX_PROBE, DEFAULT_PROBE);
 	}
 
 	public void setCurrentScannableName(String currentScannableName) {
