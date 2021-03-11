@@ -20,10 +20,8 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
 import gda.jython.InterfaceProvider;
@@ -33,6 +31,10 @@ import gda.jython.batoncontrol.ClientDetails;
  * A simple {@link INexusDevice} that creates a {@link NXuser} object for the current user.
  */
 public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
+
+	public UserNexusDevice() {
+		super(NexusBaseClass.NX_USER);
+	}
 
 	public static final String DEFAULT_USER_GROUP_NAME = "user01";
 
@@ -47,11 +49,8 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 	}
 
 	@Override
-	public NexusObjectProvider<NXuser> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXuser userGroup = NexusNodeFactory.createNXuser();
-		writeFields(userGroup);
-
-		return new NexusObjectWrapper<>(userGroupName, userGroup);
+	protected NexusObjectWrapper<NXuser> createAndConfigureNexusWrapper(NXuser nexusObject) {
+		return new NexusObjectWrapper<>(userGroupName, nexusObject);
 	}
 
 	@Override

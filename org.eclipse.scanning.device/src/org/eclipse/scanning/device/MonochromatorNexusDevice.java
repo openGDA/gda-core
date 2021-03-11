@@ -20,16 +20,16 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmonochromator;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.dawnsci.nexus.NexusScanInfo;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
-import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 
 /**
  * An {@link INexusDevice} implementation that adds an {@link NXmonochromator} to the nexus tree.
  */
 public class MonochromatorNexusDevice extends AbstractNexusMetadataDevice<NXmonochromator> {
+
+	public MonochromatorNexusDevice() {
+		super(NexusBaseClass.NX_MONOCHROMATOR);
+	}
 
 	public void setEnergyScannableName(String energyScannableName) {
 		addScannableField(NXmonochromator.NX_ENERGY, energyScannableName);
@@ -38,14 +38,5 @@ public class MonochromatorNexusDevice extends AbstractNexusMetadataDevice<NXmono
 	public void setEnergyErrorScannableName(String energyErrorScannableName) {
 		addScannableField(NXmonochromator.NX_ENERGY_ERROR, energyErrorScannableName);
 	}
-
-	@Override
-	public NexusObjectProvider<NXmonochromator> getNexusProvider(NexusScanInfo info) throws NexusException {
-		final NXmonochromator monochromator = NexusNodeFactory.createNXmonochromator();
-		writeFields(monochromator);
-
-		return new NexusObjectWrapper<>(getName(), monochromator);
-	}
-
 
 }
