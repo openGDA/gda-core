@@ -54,8 +54,8 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 	}
 
 	@Override
-	protected void writeFields(NXuser userGroup) throws NexusException {
-		super.writeFields(userGroup);
+	protected void writeChildNodes(NXuser userGroup) throws NexusException {
+		super.writeChildNodes(userGroup);
 
 		final ClientDetails userDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
 		userGroup.setNameScalar(userDetails.getFullName());

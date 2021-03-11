@@ -18,15 +18,18 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
- * A {@link AbstractMetadataField} field that is written as the position of a scannable.
+ * A {@link AbstractMetadataNode} field that is written as the position of a scannable.
  */
-public class ScannableField extends AbstractMetadataField {
+public class ScannableField extends AbstractMetadataNode {
 
 	public ScannableField() {
 		// no-arg constructor for spring initialization
@@ -48,33 +51,22 @@ public class ScannableField extends AbstractMetadataField {
 	}
 
 	@Override
-	public void writeField(NXobject nexusObject) throws NexusException {
-		writeScannableValue(nexusObject, getName(), getScannableName());
-	}
-
-	protected void writeScannableValue(NXobject nxObject, String fieldName, String scannableName) throws NexusException {
-		if (scannableName == null) return; // property not set, ignore
-
-		try {
-			final Object scannableValue = getScannable(scannableName).getPosition();
-			nxObject.setField(fieldName, scannableValue);
-			// TODO write units?
-		} catch (ScanningException e) {
-			throw new NexusException("Could not find scannable with name: " + scannableName);
-		}
-	}
-
-	protected <T> IScannable<T> getScannable(String scannableName) throws NexusException {
-		try {
-			return Services.getScannableDeviceService().getScannable(scannableName);
-		} catch (ScanningException e) {
-			throw new NexusException("Could not find scannable with name: " + scannableName);
-		}
+	public DataNode createNode() throws NexusException {
+		final DataNode dataNode = NexusNodeFactory.createDataNode();
+		final Dataset dataset = DatasetFactory.createFromObject(getScannableValue(scannableName));
+		dataset.setName(getName());
+		dataNode.setDataset(dataset);
+		return dataNode;
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T> T getScannableValue(String scannableName) throws ScanningException, NexusException {
-		return (T) getScannable(scannableName).getPosition();
+	protected <T> T getScannableValue(String scannableName) throws NexusException {
+		try {
+			IScannable<?> scannable = Services.getScannableDeviceService().getScannable(scannableName);
+			return (T) scannable.getPosition();
+		} catch (ScanningException e) {
+			throw new NexusException("Could not find scannable with name: " + scannableName);
+		}
 	}
 
 }

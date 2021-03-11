@@ -18,12 +18,16 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 
 /**
  * A field written to the nexus file as a scalar value.
  */
-public class ScalarField extends AbstractMetadataField {
+public class ScalarField extends AbstractMetadataNode {
 
 	public ScalarField() {
 		// no-arg constructor for spring initialization
@@ -45,8 +49,12 @@ public class ScalarField extends AbstractMetadataField {
 	}
 
 	@Override
-	public void writeField(NXobject object) {
-		object.setField(getName(), getValue());
+	public DataNode createNode() throws NexusException {
+		final DataNode dataNode = NexusNodeFactory.createDataNode();
+		final Dataset dataset = DatasetFactory.createFromObject(getValue());
+		dataset.setName(getName());
+		dataNode.setDataset(dataset);
+		return dataNode;
 	}
 
 }

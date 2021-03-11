@@ -18,21 +18,16 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.scanning.api.AbstractNameable;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.scanning.api.INameable;
 
-/**
- * A field that can be part of a metadata device.
- */
-public abstract class AbstractMetadataField extends AbstractNameable implements MetadataNode {
+public interface MetadataNode extends INameable {
 
-	protected AbstractMetadataField() {
-		// no-arg constructor for spring initialization
-	}
-
-	protected AbstractMetadataField(String name) {
-		setName(name);
-	}
-
-	// no additional fields or method are needed so far
+	/**
+	 * Create and return the nexus {@link Node} for this object.
+	 * @throws NexusException if the node could not be created for any reason
+	 */
+	public Node createNode() throws NexusException;
 
 }

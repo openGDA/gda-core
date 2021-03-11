@@ -49,11 +49,14 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	private NexusBaseClass nexusCategory = null;
 
 	/**
-	 * A map of the fields in this device, keyed by name.
+	 * A map of the predetermined fields in this device (those with an explicit setter), keyed by name.
 	 */
-	private Map<String, MetadataField> fields = new HashMap<>();
+	private Map<String, MetadataNode> predeterminedNodes = new HashMap<>();
 
-	private Map<String, MetadataField> customFields = new HashMap<>();
+	/**
+	 * A map of the custom fields in this device (those without an explicit setter), keyed by name.
+	 */
+	private Map<String, MetadataNode> customNodes = new HashMap<>();
 
 	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
 		nexusClass = nexusBaseClass;
@@ -68,8 +71,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		this.name = name;
 	}
 
-	public void addField(MetadataField field) {
-		fields.put(field.getName(), field);
+	public void addField(MetadataNode node) {
+		predeterminedNodes.put(node.getName(), node);
 	}
 
 	public void addScannableField(String fieldName, String scannableName) {
@@ -85,13 +88,13 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	/**
-	 * Custom fields are those for which there is not an explicit set method, such as one that
+	 * Custom nodes are those for which there is not an explicit set method, such as one that
 	 * takes a scannable name like {@link BeamNexusDevice#setFluxScannableName(String)} or a value
 	 * like {@link SourceNexusDevice#setProbe(String)}.
-	 * @param customFields list of fields to add t
+	 * @param customNodes list of nodes to add
 	 */
-	public void setCustomFields(List<MetadataField> customFields) {
-		this.customFields = customFields.stream().collect(toMap(INameable::getName, Function.identity()));
+	public void setCustomNodes(List<MetadataNode> customNodes) {
+		this.customNodes = customNodes.stream().collect(toMap(INameable::getName, Function.identity()));
 	}
 
 	@Override
@@ -116,7 +119,7 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
 		final N nexusObject = createNexusObject(info);
-		writeFields(nexusObject);
+		writeChildNodes(nexusObject);
 		final NexusObjectWrapper<N> nexusWrapper = createAndConfigureNexusWrapper(nexusObject);
 		return nexusWrapper;
 	}
@@ -144,12 +147,12 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return nexusClass;
 	}
 
-	protected void writeFields(N nxObject) throws NexusException {
-		for (MetadataField field : fields.values()) {
-			field.writeField(nxObject);
+	protected void writeChildNodes(N nxObject) throws NexusException {
+		for (MetadataNode node : predeterminedNodes.values()) {
+			nxObject.addNode(node.getName(), node.createNode());
 		}
-		for (MetadataField field : customFields.values()) {
-			field.writeField(nxObject);
+		for (MetadataNode node : customNodes.values()) {
+			nxObject.addNode(node.getName(), node.createNode());
 		}
 	}
 

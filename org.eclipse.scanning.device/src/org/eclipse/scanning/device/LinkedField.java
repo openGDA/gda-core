@@ -21,15 +21,14 @@ package org.eclipse.scanning.device;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 
 /**
- * A {@link MetadataField} that adds a link to a {@link DataNode} at given path within the
+ * A {@link MetadataNode} that adds a link to a {@link DataNode} at given path within the
  * nexus file.
  */
-public class LinkedField extends AbstractMetadataField {
+public class LinkedField extends AbstractMetadataNode {
 
 	private String linkPath = null;
 
@@ -54,9 +53,8 @@ public class LinkedField extends AbstractMetadataField {
 	}
 
 	@Override
-	public void writeField(NXobject nexusObject) throws NexusException {
-		final SymbolicNode symbolicNode = NexusNodeFactory.createSymbolicNode(null, linkPath);
-		nexusObject.addSymbolicNode(getName(), symbolicNode);
+	public SymbolicNode createNode() throws NexusException {
+		return NexusNodeFactory.createSymbolicNode(null, linkPath);
 	}
 
 }

@@ -47,7 +47,7 @@ import org.eclipse.scanning.device.BeamNexusDevice;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
-import org.eclipse.scanning.device.MetadataField;
+import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.MonochromatorNexusDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
@@ -175,10 +175,10 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		insertionDevice.setTaperScannableName(taperScannableName);
 		insertionDevice.setHarmonicScannableName(harmonicScannableName);
 
-		final List<MetadataField> customFields = new ArrayList<>();
+		final List<MetadataNode> customFields = new ArrayList<>();
 		customFields.add(new ScannableField(NXinsertion_device.NX_BANDWIDTH, bandwidthScannableName));
 		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, EXPECTED_INSERTION_DEVICE_LENGTH));
-		insertionDevice.setCustomFields(customFields);
+		insertionDevice.setCustomNodes(customFields);
 
 		ServiceHolder.getNexusDeviceService().register(insertionDevice);
 	}
