@@ -21,7 +21,7 @@ package org.eclipse.scanning.device;
 import org.eclipse.scanning.api.AbstractNameable;
 
 /**
- * A field that can be part of a metadata device.
+ * A node that can be part of a metadata device.
  */
 public abstract class AbstractMetadataNode extends AbstractNameable implements MetadataNode {
 
@@ -29,8 +29,8 @@ public abstract class AbstractMetadataNode extends AbstractNameable implements M
 		// no-arg constructor for spring initialization
 	}
 
-	protected AbstractMetadataNode(String fieldName) {
-		setName(fieldName);
+	protected AbstractMetadataNode(String nodeName) {
+		setName(nodeName);
 	}
 
 	// no additional fields or methods are required

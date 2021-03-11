@@ -27,12 +27,8 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements INexusDevice<N> {
-
-	private static final Logger logger = LoggerFactory.getLogger(AbstractNexusMetadataDevice.class);
 
 	private NexusBaseClass nexusCategory = null;
 

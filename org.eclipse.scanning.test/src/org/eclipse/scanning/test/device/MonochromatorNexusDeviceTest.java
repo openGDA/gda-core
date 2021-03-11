@@ -22,7 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,14 +93,4 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 		assertThat(monochromator.getGroupNodeNames(), containsInAnyOrder(CRYSTAL1_GROUP_NAME, CRYSTAL2_GROUP_NAME));
 
 	}
-
-	private void checkCrystal(NXmonochromator monochromator, String name, int num, String temperatureScannableName) throws Exception {
-		final NXcrystal crystal = monochromator.getCrystal(name);
-		assertThat(crystal, is(notNullValue()));
-		assertThat(crystal.getUsageScalar(), is(equalTo(EXPECTED_CRYSTAL_USAGE)));
-		assertThat(crystal.getTypeScalar(), is(equalTo(EXPECTED_CRYSTAL_TYPE)));
-		assertThat(crystal.getOrder_noScalar(), is(num));
-		assertThat(crystal.getTemperatureScalar(), is(equalTo(getScannableValue(temperatureScannableName))));
-	}
-
 }
