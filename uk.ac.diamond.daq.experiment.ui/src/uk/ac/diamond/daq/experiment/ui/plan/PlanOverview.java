@@ -3,14 +3,12 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 import static org.eclipse.scanning.api.event.EventConstants.STATUS_TOPIC;
 import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -22,7 +20,6 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.BeanEvent;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
@@ -38,13 +35,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.remote.EventConstants;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.PlanTree;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.PlanTreeNode;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.SegmentNode;
 import uk.ac.diamond.daq.experiment.ui.plan.tree.TriggerNode;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 public class PlanOverview extends ViewPart {
 	
@@ -62,7 +60,6 @@ public class PlanOverview extends ViewPart {
 
 	private ISubscriber<IBeanListener<PlanStatusBean>> planSubscriber;
 	private ISubscriber<IBeanListener<StatusBean>> scanSubscriber;
-	private static IEventService eventService;
 
 	private TreeViewer viewer;
 	
@@ -155,12 +152,11 @@ public class PlanOverview extends ViewPart {
 	 * Remember to {@link #dispose() dispose} the subscribers!
 	 */
 	private void createSubscribers() throws URISyntaxException, EventException {
-		Objects.requireNonNull(eventService, "Event service not set! Check OSGi configuration.");
-		URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		planSubscriber = eventService.createSubscriber(activeMqUri, EXPERIMENT_PLAN_TOPIC);
+		ClientRemoteServices remoteServices = SpringApplicationContextFacade.getBean(ClientRemoteServices.class);
+		planSubscriber = remoteServices.createSubscriber(EXPERIMENT_PLAN_TOPIC);
 		planSubscriber.addListener(this::planListener);
 		
-		scanSubscriber = eventService.createSubscriber(activeMqUri, STATUS_TOPIC);
+		scanSubscriber = remoteServices.createSubscriber(STATUS_TOPIC);
 		scanSubscriber.addListener(this::scanListener);
 	}
 	
@@ -386,11 +382,6 @@ public class PlanOverview extends ViewPart {
 		completed.dispose();
 		error.dispose();
 		super.dispose();
-	}
-
-	// for OSGi use only!
-	public void setEventService(IEventService eventService) {
-		PlanOverview.eventService = eventService; // NOSONAR used by OSGi only
 	}
 
 }

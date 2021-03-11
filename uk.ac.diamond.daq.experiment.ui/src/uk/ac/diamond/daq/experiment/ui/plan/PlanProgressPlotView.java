@@ -3,14 +3,12 @@ package uk.ac.diamond.daq.experiment.ui.plan;
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_PLAN_TOPIC;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +24,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.Status;
@@ -38,7 +35,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -49,6 +45,8 @@ import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 public class PlanProgressPlotView extends ViewPart {
 
@@ -56,7 +54,6 @@ public class PlanProgressPlotView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(PlanProgressPlotView.class);
 	
 	private ISubscriber<IBeanListener<PlanStatusBean>> subscriber;
-	private static IEventService eventService;
 
 	private PlanStatusBean activePlan;
 	
@@ -94,9 +91,8 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 
 	private void createSubscriber() throws URISyntaxException, EventException {
-		Objects.requireNonNull(eventService);
-		URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		subscriber = eventService.createSubscriber(activeMqUri, EXPERIMENT_PLAN_TOPIC);
+		ClientRemoteServices remoteServices = SpringApplicationContextFacade.getBean(ClientRemoteServices.class);
+		subscriber = remoteServices.createSubscriber(EXPERIMENT_PLAN_TOPIC);
 		subscriber.addListener(event -> {
 			final PlanStatusBean bean = event.getBean();
 			if (activePlan == null || !activePlan.getUniqueId().equals(bean.getUniqueId())) {
@@ -295,11 +291,6 @@ public class PlanProgressPlotView extends ViewPart {
 			trajectoryJob.cancel(true);
 		}
 		super.dispose();
-	}
-	
-	// OSGi use only!
-	public void setEventService(IEventService eventService) {
-		PlanProgressPlotView.eventService = eventService; // NOSONAR used by OSGi only (I hope...)
 	}
 
 }

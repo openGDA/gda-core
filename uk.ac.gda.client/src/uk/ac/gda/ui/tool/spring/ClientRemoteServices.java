@@ -26,6 +26,8 @@ import org.eclipse.dawnsci.plotting.api.IPlottingService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.event.bean.IBeanListener;
+import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.ui.PlatformUI;
@@ -77,6 +79,13 @@ public class ClientRemoteServices {
 
 	public IEventService getIEventService() {
 		return getService(IEventService.class);
+	}
+
+	/**
+	 * Create subscriber to ActiveMQ topic
+	 */
+	public <T> ISubscriber<IBeanListener<T>> createSubscriber(String topic) throws URISyntaxException {
+		return getIEventService().createSubscriber(new URI(LocalProperties.getActiveMQBrokerURI()), topic);
 	}
 
 	public IStageScanConfiguration getIStageScanConfiguration() {
