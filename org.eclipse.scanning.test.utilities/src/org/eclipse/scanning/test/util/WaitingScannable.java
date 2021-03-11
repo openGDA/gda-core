@@ -16,49 +16,56 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.eclipse.scanning.example.scannable;
+package org.eclipse.scanning.test.util;
 
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.example.scannable.MockScannable;
 
 /**
- * An scannable whose {@link #setPosition(Number)} method blocks
+ * A {@link MockScannable} whose {@link #setPosition(Number)} method blocks
  * if {@link #waitForSetPosition()} has first been called. until a resume method is called. This
  * allows us to be able to test the scan at a specific point before resuming.
  */
 public class WaitingScannable extends MockScannable {
 
-	private Semaphore semaphore = new Semaphore(1, true); // true to make semaphore fair, see javadoc
+	private final WaitingRunnable runnable;
+	private final AtomicBoolean shouldBlock = new AtomicBoolean(false);
 
-	public WaitingScannable(String name, double pos) throws InterruptedException {
+	public WaitingScannable(String name, double pos) {
 		super(name, pos);
-		semaphore.acquire();
+		this.runnable = new WaitingRunnable();
+	}
+	
+	public void enableBlocking() {
+		shouldBlock.set(true);
+	}
+	
+	public void disableBlocking() {
+		shouldBlock.set(false);
+	}
+	
+	public void waitForSetPosition() throws InterruptedException {
+		// Wait for setPosition() to run runnable
+		if (shouldBlock.get())
+			runnable.waitUntilRun();
 	}
 
 	@Override
 	public Number setPosition(Number position, IPosition loc) throws ScanningException {
-		try {
-			semaphore.release(); // Notify waiting thread
-			semaphore.acquire(); // Wait to be notified ourselves, note this only works because the semaphore is fair
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt(); // shouldn't happen in test code
-			throw new ScanningException(e);
-		}
-
+		// Run runnable if we have to block
+		if (shouldBlock.get())
+			runnable.run();
+		
+		// Actually move the Scannable
 		return super.setPosition(position, loc);
 	}
 
-	public void waitForSetPosition() throws InterruptedException {
-		// waits for setPosition() to release semaphore
-		// this requires the semaphore to be fair to be work, see javadoc
-		semaphore.acquire();
-	}
-
 	public void resume() {
-		semaphore.release();
+		// If we're not in blocking mode, this does nothing
+		runnable.release();
 	}
-
 }
 

@@ -46,11 +46,11 @@ import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
-import org.eclipse.scanning.example.scannable.WaitingScannable;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.test.messaging.FileUtils;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.eclipse.scanning.test.util.WaitingScannable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -172,6 +172,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		final ArgumentCaptor<MalcolmEvent> malcolmEventCaptor = ArgumentCaptor.forClass(MalcolmEvent.class);
 		malcolmDevice.addMalcolmListener(malcolmEventListener);
 
+		outerScannable.enableBlocking();
 		scanner.start(null);
 		outerScannable.waitForSetPosition(); // initial move at start of scan
 		assertTrue(controller.isActive());
@@ -198,6 +199,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState()); // check the scan state is paused
 
 		outerScannable.resume(); // resume the outer scannable
+		outerScannable.disableBlocking();
 		assertEquals(DeviceState.PAUSED, scanner.getDeviceState()); // check the scan state is paused
 
 		// check the scan is actually paused by checking no more positions have been perfomed after a short sleep

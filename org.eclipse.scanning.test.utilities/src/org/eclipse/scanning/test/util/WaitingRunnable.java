@@ -22,7 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,68 +39,88 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class WaitingRunnable implements Runnable {
 
-	private static final int TIMEOUT_SECONDS = 60;
+	private static final int DEFAULT_TIMEOUT_SECONDS = 60;
 
-	private final Lock lock = new ReentrantLock();
+	private final int timeoutSeconds;
+	
+	private final Lock lock;
 
 	// the predicate and condition to set and notify when run is called
-	private final AtomicBoolean called = new AtomicBoolean(false);
-	private final Condition calledCondition = lock.newCondition();
+	private final Condition calledCondition;
 
 	// the predicate and condition for to set and notify when release is called
-	private final AtomicBoolean released = new AtomicBoolean(false);
-	private final Condition releasedCondition = lock.newCondition();
-
-	/**
-	 * A convenience method to set the predicate and notify the condition.
-	 * @param condition
-	 * @param predicate
-	 */
-	private void notifyCondition(Condition condition, AtomicBoolean predicate) {
-		predicate.set(true);
-
-		lock.lock();
-		try {
-			condition.signalAll();
-		} finally {
-			lock.unlock();
-		}
+	private final Condition releasedCondition;
+	
+	// current status of the runnable
+	private Status status;
+	
+	private enum Status {
+		IDLE, RUNNING
 	}
 
-	private void waitOnCondition(Condition condition, AtomicBoolean predicate) throws InterruptedException {
-		lock.lock();
-
-		try {
-			while (predicate.get() == false) {
-				// much better to have an assertion failure than a hanging test, especially on jenkins
-				boolean timedOut = !condition.await(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-//				assertThat("Timed out waiting for condition", timedOut, is(false));
-			}
-		} finally {
-			lock.unlock();
-		}
+	public WaitingRunnable() {
+		this(DEFAULT_TIMEOUT_SECONDS);
 	}
-
+	
+	public WaitingRunnable(int timeoutSeconds) {
+		super();
+		this.timeoutSeconds = timeoutSeconds;
+		this.lock = new ReentrantLock();
+		this.calledCondition = lock.newCondition();
+		this.releasedCondition = lock.newCondition();
+		this.status = Status.IDLE;
+	}
+	
 	public void waitUntilRun() throws InterruptedException {
-		waitOnCondition(calledCondition, called);
+		waitOnCondition(calledCondition, Status.RUNNING);
 	}
 
 	public void release() {
-		notifyCondition(releasedCondition, released);
+		notifyCondition(releasedCondition, Status.IDLE);
 	}
 
 	@Override
 	public void run() {
 		// Notify waiting thread
-		notifyCondition(calledCondition, called);
+		notifyCondition(calledCondition, Status.RUNNING);
 
 		// Wait to be notified to continue
 		try {
-			waitOnCondition(releasedCondition, released);
+			waitOnCondition(releasedCondition, Status.IDLE);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new RuntimeException("Waiting thread interrupted");
 		}
 	}
 
+	/**
+	 * A convenience method to set the predicate and notify the condition.
+	 * @param condition
+	 * @param predicate
+	 */
+	private void notifyCondition(Condition condition, Status status) {
+		lock.lock();
+		this.status = status;
+		
+		try {
+			condition.signalAll();
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+
+	private void waitOnCondition(Condition condition, Status desiredStatus) throws InterruptedException {
+		lock.lock();
+
+		try {
+			// Preferable to use a timeout than have a hanging test, especially during CI
+			while (status != desiredStatus) {
+				boolean timedOut = !condition.await(timeoutSeconds, TimeUnit.SECONDS);
+				assertThat("Timed out waiting for condition", timedOut, is(false));
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
 }
