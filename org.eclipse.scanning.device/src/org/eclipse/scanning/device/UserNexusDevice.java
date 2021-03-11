@@ -58,8 +58,8 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 		super.writeFields(userGroup);
 
 		final ClientDetails userDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
-		writeFieldValue(userGroup, NXuser.NX_FACILITY_USER_ID, userDetails.getUserID());
-		writeFieldValue(userGroup, NXuser.NX_NAME, userDetails.getFullName());
+		userGroup.setNameScalar(userDetails.getFullName());
+		userGroup.setFacility_user_idScalar(userDetails.getUserID());
 	}
 
 }

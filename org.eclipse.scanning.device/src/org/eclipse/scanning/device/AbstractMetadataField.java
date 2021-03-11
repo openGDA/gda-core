@@ -25,6 +25,14 @@ import org.eclipse.scanning.api.AbstractNameable;
  */
 public abstract class AbstractMetadataField extends AbstractNameable implements MetadataField {
 
+	protected AbstractMetadataField() {
+		// no-arg constructor for spring initialization
+	}
+
+	protected AbstractMetadataField(String name) {
+		setName(name);
+	}
+
 	// no additional fields or method are needed so far
 
 }
