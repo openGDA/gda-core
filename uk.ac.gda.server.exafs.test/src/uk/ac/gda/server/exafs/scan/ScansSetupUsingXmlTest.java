@@ -132,6 +132,7 @@ public class ScansSetupUsingXmlTest {
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "XasNexusDataWriter");
 		LocalProperties.set("gda.nexus.createSRS", "false");
 		testDir = LocalProperties.getBaseDataDir();
+		LocalProperties.set(LocalProperties.GDA_VISIT_DIR, testDir);
 
 		// Findables the server needs to know about
 		Findable[] findables = new Findable[] { xspress2Detector, counterTimer01, ffi0,

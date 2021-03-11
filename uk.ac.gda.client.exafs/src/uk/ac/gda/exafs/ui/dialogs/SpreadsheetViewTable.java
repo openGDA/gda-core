@@ -33,9 +33,10 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.bindings.keys.IKeyLookup;
 import org.eclipse.jface.bindings.keys.KeyLookupFactory;
+import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
-import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
@@ -51,21 +52,26 @@ import org.eclipse.jface.viewers.TableViewerEditor;
 import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.ViewerRow;
 import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.widgets.cell.SpinnerCellEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
@@ -73,8 +79,13 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.slf4j.LoggerFactory;
 
-import gda.rcp.GDAClientActivator;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.beans.exafs.SampleParameterMotorPosition;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.exafs.XesScanParameters;
@@ -112,6 +123,37 @@ public class SpreadsheetViewTable {
 				selectedTableIndex = getSelectedCellIndices(new Point(e.x, e.y));
 			}
 		});
+
+		viewer.getTable().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				logger.debug("Key down");
+				if (viewer.isCellEditorActive() &&
+					(e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) ) {
+					viewer.applyEditorValue();
+					viewer.cancelEditing();
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				ViewerCell cell = viewer.getColumnViewerEditor().getFocusCell();
+				TableItem[] row = viewer.getTable().getSelection();
+				if (row != null && row.length > 0) {
+					ParametersForScan p = (ParametersForScan) row[0].getData();
+					int rowIndex = viewer.getTable().getSelectionIndex();
+					int columnIndex = cell.getColumnIndex();
+					logger.debug("Key up : row = {}, column = {}", rowIndex, columnIndex);
+					if (viewer.isCellEditorActive()) {
+						logger.debug("Cell editor active");
+						return;
+					}
+					if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+						viewer.editElement(p, columnIndex);
+					}
+				}
+			}
+		});
 	}
 
 	/**
@@ -122,7 +164,7 @@ public class SpreadsheetViewTable {
 	private Optional<Point> getSelectedCellIndices(Point coordinate) {
 		TableItem selectedItem = viewer.getTable().getItem(coordinate);
 		if (selectedItem == null) {
-			logger.debug("No under mouse click");
+			logger.debug("No table item under mouse click");
 			return Optional.empty();
 		}
 		int numColumns = viewer.getTable().getColumnCount();
@@ -144,7 +186,6 @@ public class SpreadsheetViewTable {
 			if (!selectedTableIndex.isPresent()) {
 				return;
 			}
-			logger.info("Selected cell index : {}", selectedTableIndex.get());
 			int selectedColumn = selectedTableIndex.get().x;
 			int selectedRow = selectedTableIndex.get().y;
 			if (selectedColumn == 0) {
@@ -153,14 +194,112 @@ public class SpreadsheetViewTable {
 			contextMenu.add(new Action("Copy values to rows...") {
 				@Override
 				public void run() {
-					//get value to be edited
 					copySettingsToRows(selectedColumn, selectedRow);
 				}
 			});
+
+			// Get ParameterValue object for current selected cell :
+			ParameterValue value = getParameterValueFromIndex(selectedColumn, selectedRow);
+			if (value == null) {
+				// i.e. filename or repetitions column is selected.
+				logger.debug("No ParameterValue found for selected indices");
+				return;
+			}
+			logger.debug("Selected ParameterValue : {}", value.getFullPathToGetter());
+			Optional<Scannable> scn = getScannable(value);
+
+			if (scn.isPresent()) {
+				contextMenu.add(new Action("Get latest position") {
+					@Override
+					public String getText() {
+						return "Get latest position from "+scn.get().getName();
+					}
+					@Override
+					public void run() {
+						getLatestPosition(value, scn);
+					}
+				});
+
+				contextMenu.add(new Action("Go to selected position") {
+					@Override
+					public String getText() {
+						return "Move "+scn.get().getName()+" to selected position";
+					}
+					@Override
+					public void run() {
+						goToSelectedPosition(value, scn);
+					}
+				});
+			}
 		});
 
 		Menu menu = contextMenu.createContextMenu(tableViewer.getControl());
 		tableViewer.getControl().setMenu(menu);
+	}
+
+	/**
+	 * Get position from scannable and set the newValue of the ParameterValue to it
+	 * @param value
+	 * @param scannable
+	 */
+	private void getLatestPosition(ParameterValue value, Optional<Scannable> scannable) {
+		scannable.ifPresent(scn -> {
+			try {
+				value.setNewValue(scn.getPosition());
+				viewer.refresh();
+			} catch (DeviceException e) {
+				logger.error("Problem setting parameter {} to current position of {}", value.getFullPathToGetter(), scn.getName(), e);
+			}
+		});
+	}
+
+	/**
+	 * Move the scannable to position of the ParameterValue
+	 * @param value
+	 * @param scannable
+	 */
+	private void goToSelectedPosition(ParameterValue value, Optional<Scannable> scannable) {
+		scannable.ifPresent( scn -> {
+			try {
+				Object newPosition = value.getNewValue();
+				scn.moveTo(newPosition);
+			} catch (DeviceException e) {
+				logger.error("Problem moving {} to {}", scn.getName(), value.getNewValue(), e);
+			}
+		});
+	}
+
+	private ParameterValue getParameterValueFromIndex(int column, int row) {
+		ParametersForScan scanParams = parameterValuesForScanFiles.get(row);
+		Pair<Integer, Integer> paramIndices = scanParams.getParameterValueByIndex(column-1); // Data start at index=1 due to row index column...
+		if (paramIndices != null && paramIndices.getSecond() != null) {
+			ParameterValuesForBean beanParams = scanParams.getParameterValuesForScanBeans().get(paramIndices.getFirst());
+			return beanParams.getParameterValue(paramIndices.getSecond());
+		}
+		return null;
+	}
+
+	/**
+	 * Get scannable to be moved from ParameterValue : i.e. scannable to be moved by a {@link SampleParameterMotorPosition} setting
+	 * @param ParameterValue
+	 * @return Scannable to be moved (optional)
+	 */
+	private Optional<Scannable> getScannable(ParameterValue v) {
+		Optional<Scannable> scannable = Optional.empty();
+		// Split the getter string at () and . symbols
+		// (getter string format is : getSampleParameterMotorPosition(<name of scannable>).getDemandPosition() )
+		String[] splitString = v.getFullPathToGetter().split("[().]+");
+		if (splitString != null && splitString.length == 3 &&
+				splitString[0].equals(ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME) &&
+				splitString[2].equals(SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME) ) {
+			String scannableName = splitString[1];
+			logger.debug("Getting position of scannable {}", scannableName);
+			Optional<Findable> f = Finder.findOptional(scannableName);
+			if (f.isPresent() && f.get() instanceof Scannable) {
+				scannable = Optional.of((Scannable)f.get());
+			}
+		}
+		return scannable;
 	}
 
 	/**
@@ -334,10 +473,10 @@ public class SpreadsheetViewTable {
 			}
 		}
 
-		TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
+		TableViewerColumn columnViewer = new TableViewerColumn(viewer, SWT.NONE);
+		TableColumn column = columnViewer.getColumn();
 		column.setText(title);
 		column.setWidth(100);
-		TableViewerColumn columnViewer = new TableViewerColumn(viewer, column);
 
 		if (paramConfig != null) {
 			if (paramConfig.getAllowedValues().length>0) {
@@ -375,6 +514,7 @@ public class SpreadsheetViewTable {
 			columnViewer.setEditingSupport(new StringValueEditingSupport(viewer, typeIndex, paramIndex));
 			columnViewer.setLabelProvider(new StringValueLabelProvider(typeIndex, paramIndex));
 		}
+		columnViewer.getColumn().setWidth(100);
 	}
 
 	/**
@@ -473,8 +613,7 @@ public class SpreadsheetViewTable {
 					logger.error("Problem updating class for scan xml file {}", fullPathToXmlFile, e);
 				}
 			}
-
-			getViewer().update(param, null);
+			getViewer().refresh();
 		}
 	}
 
@@ -540,7 +679,7 @@ public class SpreadsheetViewTable {
 		public void setValue(Object element, Object value) {
 			ParametersForScan param = (ParametersForScan) element;
 			setOverrideFromColumnData(param, value, typeIndex, paramIndex);
-			getViewer().update(param, null);
+			getViewer().refresh();
 		}
 
 		@Override
@@ -610,12 +749,23 @@ public class SpreadsheetViewTable {
 			ParametersForScan param = (ParametersForScan) element;
 			String selectedItem = comboItems[(int) value];
 			setOverrideFromColumnData(param, selectedItem, typeIndex, paramIndex);
-			getViewer().update(param, null);
+			getViewer().refresh();
 		}
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
 			ComboBoxCellEditor ce = new ComboBoxCellEditor((Composite) getViewer().getControl(), comboItems);
+			ce.getControl().addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					if (e.character == '\n') {
+						ce.deactivate();
+					}
+					if (e.character == '\r') {
+						ce.deactivate();
+					}
+				}
+			});
 			return ce;
 		}
 
@@ -676,7 +826,7 @@ public class SpreadsheetViewTable {
 			ParametersForScan param = (ParametersForScan) element;
 			String selectedItem = detectorConfigFiles.get((int) value);
 			setOverrideFromColumnData(param, selectedItem, typeIndex, paramIndex);
-			getViewer().update(param, null);
+			getViewer().refresh();
 		}
 	}
 
@@ -791,7 +941,7 @@ public class SpreadsheetViewTable {
 			ParametersForScan param = (ParametersForScan) element;
 			String selectedFilename = (String)value;
 			setOverrideFromColumnData(param, selectedFilename, typeIndex, paramIndex);
-			getViewer().update(param, null);
+			getViewer().refresh();
 		}
 	}
 
@@ -882,7 +1032,7 @@ public class SpreadsheetViewTable {
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
-			return new CheckboxCellEditor(null, SWT.CHECK | SWT.READ_ONLY);
+			return new BooleanCellEditor((Composite) getViewer().getControl(), SWT.NONE);
 		}
 
 		@Override
@@ -901,7 +1051,75 @@ public class SpreadsheetViewTable {
 		protected void setValue(Object element, Object value) {
 			ParametersForScan param = (ParametersForScan)element;
 			setOverrideFromColumnData(param, value.toString(), typeIndex, paramIndex);
-			getViewer().update(param, null);
+			getViewer().refresh();
+		}
+	}
+
+	private class BooleanCellEditor extends CellEditor {
+		private Button b;
+
+		public BooleanCellEditor(Composite parent, int style) {
+			super(parent, style);
+		}
+		@Override
+		protected Control createControl(Composite parent) {
+			b = new Button(parent, getStyle()|SWT.CHECK);
+			b.setBackground(parent.getBackground());
+			addListeners();
+			return b;
+		}
+
+		protected void addListeners() {
+			b.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					if (e.character == '\n') {
+						BooleanCellEditor.this.focusLost();
+					}
+					if (e.character == '\r') {
+						BooleanCellEditor.this.focusLost();
+					}
+				}
+			});
+
+			b.addFocusListener( new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					BooleanCellEditor.this.focusLost();
+				}
+			});
+		}
+
+		@Override
+		public void focusLost() {
+			logger.info("Focus lost");
+			super.focusLost();
+		}
+
+		@Override
+		protected Object doGetValue() {
+			return b.getSelection();
+		}
+
+		@Override
+		protected void doSetValue(Object value) {
+			b.setSelection(Boolean.valueOf(value.toString().toLowerCase()));
+		}
+
+		@Override
+		protected void doSetFocus() {
+			// Override so we can set focus to the Button widget.
+			b.setFocus();
+		}
+
+		@Override
+		public void activate(ColumnViewerEditorActivationEvent activationEvent) {
+			ViewerCell cell = (ViewerCell)activationEvent.getSource();
+			int index = cell.getColumnIndex();
+			ViewerRow row = (ViewerRow) cell.getViewerRow().clone();
+			row.setImage(index, null);
+			row.setText(index, "");
+			super.activate(activationEvent);
 		}
 	}
 
@@ -912,8 +1130,6 @@ public class SpreadsheetViewTable {
 	private class CheckboxLabelProvider extends  ColumnLabelProvider  {
 		private int paramIndex;
 		private int typeIndex;
-		private Image CHECKED = GDAClientActivator.getImageDescriptor("icons/checked.gif").createImage();
-		private Image UNCHECKED = GDAClientActivator.getImageDescriptor("icons/unchecked.gif").createImage();
 
 		public CheckboxLabelProvider(int typeIndex, int paramIndex) {
 			this.paramIndex = paramIndex;
@@ -921,19 +1137,30 @@ public class SpreadsheetViewTable {
 		}
 
 		@Override
-		public Image getImage(Object element) {
+		public String getText(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
 			String val = getDataForColumn(param, typeIndex, paramIndex).toString();
 			if (val.equalsIgnoreCase("true")) {
-				return CHECKED;
+				return "\u2611";
 			} else {
-				return UNCHECKED;
+				return "\u2610";
 			}
 		}
 
 		@Override
-		public String getText(Object element) {
-			return null;
+		public Font getFont(Object element) {
+			FontRegistry reg = new FontRegistry();
+			FontDescriptor desc = reg.defaultFontDescriptor();
+
+			Display display = getTableViewer().getTable().getDisplay();
+			for(FontData f : display.getFontList(null, true)) {
+				if (f.getName().equalsIgnoreCase("serif")) {
+					logger.info("{}", f.toString());
+					desc = FontDescriptor.createFrom(f);
+					break;
+				}
+			}
+			return desc.setHeight(12).setStyle(SWT.BOLD).createFont(display);
 		}
 	}
 
