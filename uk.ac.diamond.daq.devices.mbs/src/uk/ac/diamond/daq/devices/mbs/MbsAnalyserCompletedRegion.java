@@ -41,6 +41,10 @@ public class MbsAnalyserCompletedRegion {
 	private double[][] image;
 	private int regionStartX;
 	private int regionStartY;
+	private int regionSizeX;
+	private int regionSizeY;
+	private int sensorSizeX;
+	private int sensorSizeY;
 
 	public double getCollectionTime() {
 		return collectionTime;
@@ -206,5 +210,37 @@ public class MbsAnalyserCompletedRegion {
 
 	public void setRegionStartY(int regionStartY) {
 		this.regionStartY = regionStartY;
+	}
+
+	public int getRegionSizeX() {
+		return regionSizeX;
+	}
+
+	public void setRegionSizeX(int regionSizeX) {
+		this.regionSizeX = regionSizeX;
+	}
+
+	public int getRegionSizeY() {
+		return regionSizeY;
+	}
+
+	public void setRegionSizeY(int regionSizeY) {
+		this.regionSizeY = regionSizeY;
+	}
+
+	public int getSensorSizeX() {
+		return sensorSizeX;
+	}
+
+	public void setSensorSizeX(int sensorSizeX) {
+		this.sensorSizeX = sensorSizeX;
+	}
+
+	public int getSensorSizeY() {
+		return sensorSizeY;
+	}
+
+	public void setSensorSizeY(int sensorSizeY) {
+		this.sensorSizeY = sensorSizeY;
 	}
 }

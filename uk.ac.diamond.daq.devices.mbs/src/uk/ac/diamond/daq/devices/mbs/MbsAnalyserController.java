@@ -595,6 +595,38 @@ public class MbsAnalyserController extends ConfigurableBase {
 		}
 	}
 
+	public int getRegionSizeX() throws DeviceException {
+		try {
+			return adBase.getSizeX_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error getting region size X");
+		}
+	}
+
+	public int getRegionSizeY() throws DeviceException {
+		try {
+			return adBase.getSizeY_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error getting region size Y");
+		}
+	}
+
+	public int getSensorSizeX() throws DeviceException {
+		try {
+			return adBase.getMaxSizeX_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error while getting sensor size X");
+		}
+	}
+
+	public int getSensorSizeY() throws DeviceException {
+		try {
+			return adBase.getMaxSizeY_RBV();
+		} catch (Exception e) {
+			throw new DeviceException("Error while getting sensor size Y");
+		}
+	}
+
 	private void initialiseEnumChannel(String channel, List<String> list) throws Exception {
 		String[] positionLabels = null;
 		positionLabels = epicsController.cagetLabels(getChannel(channel));

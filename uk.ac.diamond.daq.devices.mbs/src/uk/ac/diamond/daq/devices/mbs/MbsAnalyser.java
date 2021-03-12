@@ -306,6 +306,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setImage(getImage());
 		completedRegion.setRegionStartX(getRegionStartX());
 		completedRegion.setRegionStartY(getRegionStartY());
+		completedRegion.setRegionSizeX(getRegionSizeX());
+		completedRegion.setRegionSizeY(getRegionSizeY());
+		completedRegion.setSensorSizeX(getSensorSizeX());
+		completedRegion.setSensorSizeY(getSensorSizeY());
 
 		return completedRegion;
 	}
@@ -316,6 +320,22 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	public int getRegionStartY() throws DeviceException {
 		return controller.getRegionStartY();
+	}
+
+	public int getRegionSizeX() throws DeviceException {
+		return controller.getRegionSizeX();
+	}
+
+	public int getRegionSizeY() throws DeviceException {
+		return controller.getRegionSizeY();
+	}
+
+	public int getSensorSizeX() throws DeviceException {
+		return controller.getSensorSizeX();
+	}
+
+	public int getSensorSizeY() throws DeviceException {
+		return controller.getSensorSizeY();
 	}
 
 	private int parsePassEnergyValue(String passEnergy) {
