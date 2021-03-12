@@ -18,19 +18,26 @@
 
 package gda.device.scannable;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
+import com.google.common.util.concurrent.RateLimiter;
+
 import gda.device.DeviceException;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanDataPoint;
+import gda.scan.ScanInformation;
+import uk.ac.diamond.daq.server.rcpcontroller.RCPController;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.plotclient.IPlotWindowManager;
 
 /**
  * Plots a 2D graph of the current scan into an RCP plot window as the scan progresses.
@@ -59,10 +66,9 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	private Double yStop;
 	private Double yStep;
 	private Long rate = 1200L; // by default refresh all 2D plotter is 1.2 s
-	private Long timeElapsed;
-	private Long timeInit;
-
-
+	private RateLimiter limiter = RateLimiter.create(1000.0/rate);
+	private RCPController rcpController;
+	private boolean openPlotViewAtScanStart = false;
 
 	public TwoDScanPlotter() {
 		this.inputNames = new String[] {};
@@ -72,14 +78,22 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 
 	@Override
 	public void atScanStart() throws DeviceException {
+		ScanInformation scanInfo = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		if (scanInfo.getDimensions().length != 2) {
+			logger.warn("Not using 2d plotter - scan does not have 2 dimensions");
+			return;
+		}
+
 		// re-register with datapoint provider
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
-		logger.debug(getName() + " - registering as SDP listener.");
-		timeElapsed = 0L;
-		timeInit = System.currentTimeMillis();
+		logger.debug("{} - registering as SDP listener.", getName());
+		limiter  = RateLimiter.create(1000.0/rate);
+		if (openPlotViewAtScanStart) {
+			openPlotView();
+		}
 	}
 
-	private DoubleDataset createTwoDset(Double start, Double stop, Double step, Boolean reverse) {
+	private DoubleDataset createTwoDset(double start, double stop, double step, boolean reverse) {
 		int numPoints = ScannableUtils.getNumberSteps(start, stop, step) + 1; // why + 1?
 		double[] values = new double[numPoints];
 		Double value = start;
@@ -96,16 +110,12 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		if (LocalProperties.check("gda.scan.endscan.neworder", false)) {
-			try {
-				// try to plot any points that have been buffered
-				plot();
-			} catch (Exception e) {
-			}
-			deregisterAsScanDataPointObserver();
-		} else {
-			logger.warn("Cannot safely deregister at scan end if property gda.scan.endscan.neworder is not true.");
+		try {
+			// try to plot any points that have been buffered
+			plot();
+		} catch (Exception e) {
 		}
+		deregisterAsScanDataPointObserver();
 	}
 
 	@Override
@@ -132,24 +142,21 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 			int currentPoint = ((ScanDataPoint) arg).getCurrentPointNumber();
 			int totalPoints = ((ScanDataPoint) arg).getNumberOfPoints();
 			try {
+				logger.debug("{} - receiving point {} of {}", getName(), currentPoint, totalPoints);
 				unpackSDP((ScanDataPoint) arg);
-				timeElapsed = System.currentTimeMillis() - timeInit;
-				System.out.println("TimeElapsed"+timeElapsed);
-				if (timeElapsed > rate){
+				if (limiter.tryAcquire()) {
 					plot();
-					timeElapsed = 0L;
-					timeInit = System.currentTimeMillis();
 				}
-				logger.debug(getName() + " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
 
 				if (currentPoint == (totalPoints - 1)) {
 					plot(); //plot last points
-					logger.debug(getName() + " - last point received; deregistering as SDP listener.");
+					logger.debug("{} - last point received; deregistering as SDP listener.", getName());
 					deregisterAsScanDataPointObserver();
 				}
 			} catch (Exception e) {
 				// Quietly deregister as this scan does not match what this is looking for.
 				// In this way, this object could be added to the list of defaults and only plot related scans.
+				logger.warn("Problem updating 2d plot for {} : {}",getName(), e.getMessage());
 				deregisterAsScanDataPointObserver();
 			}
 		}
@@ -166,14 +173,14 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 			intensity.fill(Double.NaN);
 
 			// if xstart,xstop,xstep values not defined then simply use an index
-			if (xStart == null) {
-				x = createTwoDset(0.0, (double) sdp.getScanDimensions()[0], 1.0, false);
+			if (Stream.of(xStart, xStop, xStep).anyMatch(Objects::isNull)) {
+				x = createTwoDset(0.0, sdp.getScanDimensions()[0], 1.0, false);
 			} else {
 				x = createTwoDset(xStart, xStop, xStep, false);
 			}
 
-			if (yStart == null) {
-				y = createTwoDset(0.0, (double) sdp.getScanDimensions()[1], 1.0, true);
+			if (Stream.of(yStart, yStop, yStep).anyMatch(Objects::isNull)) {
+				y = createTwoDset(0.0, sdp.getScanDimensions()[1], 1.0, true);
 			} else {
 				y = createTwoDset(yStart, yStop, yStep, true);
 			}
@@ -183,7 +190,7 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 		Double inten = getIntensity(sdp);
 		int[] locationInDataSets = getSDPLocation(sdp);
 		int xLoc = locationInDataSets[0];
-		// y has to be reversed as otherwise things are plotted from the top left, not bottom right as the plotting
+		// y has to be reversed as otherwise things are plotted from the top left, not bottom left as the plotting
 		// system 2d plotting was originally for images which work this way.
 		int yLoc = sdp.getScanDimensions()[0] - locationInDataSets[1] - 1;
 		intensity.set(inten, yLoc, xLoc);
@@ -201,18 +208,22 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 		return new int[] { xLoc, yLoc };
 	}
 
-	private Double getIntensity(ScanDataPoint sdp) {
-		return sdp.getDetectorDataAsDoubles()[getPositionOfDetector(z_colName, sdp)];
+	private Double getIntensity(ScanDataPoint sdp) throws IndexOutOfBoundsException {
+		int dataIndex = getPositionOfDetector(z_colName, sdp);
+		if (dataIndex==-1) {
+			throw new IndexOutOfBoundsException("Could not find data called '"+z_colName+" in scan results");
+		}
+		return sdp.getDetectorDataAsDoubles()[dataIndex];
 	}
 
 	private int getPositionOfDetector(String columnName, ScanDataPoint sdp) {
 		Object[] headers = sdp.getDetectorHeader().toArray();
-		return org.apache.commons.lang.ArrayUtils.indexOf(headers, columnName);
+		return ArrayUtils.indexOf(headers, columnName);
 	}
 
 	public void plot() throws Exception {
-		if (getPlotViewname() != null) {
-			logger.debug("Plotting to RCP client plot named:" + getPlotViewname());
+		if (Stream.of(plotViewname, x, y, intensity).allMatch(Objects::nonNull)) {
+			logger.debug("Plotting to RCP client plot named: {}", getPlotViewname());
 			if (xAxisName!=null && yAxisName!=null) {
 				SDAPlotter.imagePlot(plotViewname, x, y, intensity, xAxisName, yAxisName);
 			} else {
@@ -221,6 +232,17 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 		}
 	}
 
+	/**
+	 * Use RCPController to try and open the plot view
+	 */
+	public void openPlotView() {
+		if (rcpController != null) {
+			logger.debug("Making plot view {} visible", plotViewname);
+			rcpController.openView(IPlotWindowManager.PLOT_VIEW_MULTIPLE_ID + ":" + plotViewname);
+		} else {
+			logger.debug("Cannot make plot view {} visible - RCPController has not been set", plotViewname);
+		}
+	}
 
 	/**
 	 * Call this before the scan if you want to plot actual motor positions, not just indexes
@@ -281,6 +303,7 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	public String getPlotViewname() {
 		return plotViewname;
 	}
+
 	public Long getRate() {
 		return rate;
 	}
@@ -304,4 +327,29 @@ public class TwoDScanPlotter extends ScannableBase implements IScanDataPointObse
 	public void setYAxisName(String yAxisName) {
 		this.yAxisName = yAxisName;
 	}
+
+	public RCPController getRcpController() {
+		return rcpController;
+	}
+
+	/**
+	 *
+	 * @param rcpController {@link RCPController} object used for opening plot view
+	 */
+	public void setRcpController(RCPController rcpController) {
+		this.rcpController = rcpController;
+	}
+
+	public boolean isOpenPlotViewAtScanStart() {
+		return openPlotViewAtScanStart;
+	}
+
+	/**
+	 *
+	 * @param openPlotViewAtScanStart Set to 'true' to make the plot view open at the start of the scan
+	 */
+	public void setOpenPlotViewAtScanStart(boolean openPlotViewAtScanStart) {
+		this.openPlotViewAtScanStart = openPlotViewAtScanStart;
+	}
+
 }

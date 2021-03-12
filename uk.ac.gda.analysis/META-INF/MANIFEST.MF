@@ -53,10 +53,13 @@ Require-Bundle: org.eclipse.january;bundle-version="2.3.0",
  hdf.hdf5lib;bundle-version="[1.10.0,1.12.0)",
  org.eclipse.dawnsci.hdf5;bundle-version="1.5.0",
  org.eclipse.dawnsci.nexus;bundle-version="1.0.0",
- javax.vecmath;bundle-version="1.5.2"
+ javax.vecmath;bundle-version="1.5.2",
+ uk.ac.diamond.daq.server.rcpcontroller
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
- org.springframework.beans.factory;version="3.0.4"
+Import-Package: com.google.common.util.concurrent;version="27.1.0",
+ org.slf4j;version="[1.7.2,2.0.0)",
+ org.springframework.beans.factory;version="3.0.4",
+ uk.ac.diamond.scisoft.analysis.plotclient
 Automatic-Module-Name: uk.ac.gda.analysis
