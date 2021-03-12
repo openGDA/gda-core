@@ -44,7 +44,10 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		@SuppressWarnings("unchecked")
 		@Override
 		public INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
-			return new NexusDetectorNexusDevice((NexusDetector) detector);
+//			if (LocalProperties.check(PROPERTY_NAME_USE_LEGACY_NEXUS_DETECTOR_ADAPTER)) {
+				return new LegacyNexusDetectorNexusDevice((NexusDetector) detector);
+//			}
+//			return new NexusDetectorNexusDevice((NexusDetector) detector);
 		}
 
 	}
@@ -115,6 +118,8 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		}
 
 	}
+
+	public static final String PROPERTY_NAME_USE_LEGACY_NEXUS_DETECTOR_ADAPTER = "gda.nexus.nexusScanDataWriter.useLegacyNexusDetectorAdapter";
 
 	private final List<INexusDeviceAdapterFactory<? extends Scannable>> adapterFactories;
 
