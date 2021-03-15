@@ -545,7 +545,7 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 			final double current = amplifier.getCurrent();
 			String gain = amplifier.getGain();
 			// Format using the output format for the current
-			String string = "%s : " + getOutputFormat()[0] + " A (Gain = %1.0g)";
+			String string = "%s : " + getOutputFormat()[0] + " A (Gain = %s)";
 			return String.format(string, getName(), current, gain);
 		} catch (Exception e) {
 			logger.error("Error getting {} status", getName(), e);
