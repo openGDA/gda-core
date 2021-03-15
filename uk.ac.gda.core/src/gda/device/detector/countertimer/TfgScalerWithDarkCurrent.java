@@ -18,6 +18,10 @@
 
 package gda.device.detector.countertimer;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -26,10 +30,6 @@ import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
 import gda.factory.Finder;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements DarkCurrentDetector {
 
@@ -128,7 +128,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	 */
 	@Override
 	public void atScanStart() throws DeviceException {
-
+		darkCurrent = null;
 		if (isDarkCurrentRequired()) {
 			try {
 				acquireDarkCurrent();

@@ -20,6 +20,8 @@ package gda.device.detector.countertimer;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -323,5 +325,16 @@ public class TfgScalerTest {
 		assertEquals(origVals.length, finalVals.length);
 		assertArrayEquals(origFormat, finalFormat);
 		assertArrayEquals(origExtraNames, finalExtraNames);
+	}
+
+	@Test
+	public void testDarkCurrent() throws DeviceException {
+		tfgScalerWithLogValues.setDarkCurrentRequired(true);
+		tfgScalerWithLogValues.atScanStart();
+		assertNotNull("Dark current collection results should not be null", tfgScalerWithLogValues.getDarkCurrentResults());
+
+		tfgScalerWithLogValues.setDarkCurrentRequired(false);
+		tfgScalerWithLogValues.atScanStart();
+		assertNull("Dark current collection results should be null", tfgScalerWithLogValues.getDarkCurrentResults());
 	}
 }
