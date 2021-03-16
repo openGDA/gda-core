@@ -45,13 +45,21 @@ import gda.observable.IObserver;
  */
 public class NexusDetectorProcessor implements NexusDetector, PositionCallableProvider<GDANexusDetectorData>, HardwareTriggerableDetector {
 	private static final Logger logger = LoggerFactory.getLogger(NexusDetectorProcessor.class);
-	boolean mergeWithDetectorData=true;
-	NexusDetector detector;
-	NexusTreeProviderProcessor processor;
 
+	private boolean mergeWithDetectorData = true;
+	private NexusDetector detector;
+	private NexusTreeProviderProcessor processor;
 	private boolean readoutDone;
+	private boolean enableProcessing = true;
+	private String wrapperName = "NexusDetectorWrapper_Unnamed";
+	private String[] outputFormatCache;
+	private String[] extraNamesCache;
 
-	boolean enableProcessing=true;
+	/**
+	 * To allow multiple calls to getPositionCallable for the same point hold onto the result of the first call. Clear
+	 * at atPointStart
+	 */
+	private Callable<GDANexusDetectorData> positionCallableCache = null;
 
 	public boolean isEnableProcessing() {
 		return enableProcessing;
@@ -104,9 +112,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		extraNamesCache = null;
 	}
 
-	String wrapperName = "NexusDetectorWrapper_Unnamed";
-	private String[] outputFormatCache;
-	private String[] extraNamesCache;
+
 
 	@Override
 	public void setName(String name) {
@@ -166,7 +172,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 
 	@Override
 	public String toString() {
-		return "NexusDetectorWrapper [detector=" + detector + ", wrapperName=" + wrapperName + "]";
+		return "NexusDetectorProcessor [detector=" + detector + ", wrapperName=" + wrapperName + "]";
 	}
 
 	@Override
@@ -424,86 +430,24 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		return res.replaceFirst(detector.getName(), getName());
 	}
 
-	/*
-	 * To allow multiple calls to getPositionCallable for the same point hold onto the result of the first call. Clear
-	 * at atPointStart
-	 */
-	Callable<GDANexusDetectorData> positionCallableCache = null;
+
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Callable<GDANexusDetectorData> getPositionCallable() throws DeviceException {
 		if (readoutDone) {
-			logger.error("getPositionCallable already called for " + getName());
+			logger.error("getPositionCallable already called for {}", getName());
 		}
-		/*
-		 * create a callable that when called will process the data from the detector.
-		 */
+
 		if (positionCallableCache != null) {
 			return positionCallableCache;
 		}
 
-		positionCallableCache = new Callable<GDANexusDetectorData>() {
-			Callable<GDANexusDetectorData> callable;
-			boolean merge= NexusDetectorProcessor.this.mergeWithDetectorData;
-			{
-				callable = null;
-				if (detector instanceof PositionCallableProvider) {
-					//TODO check type first
-					callable = ((PositionCallableProvider<GDANexusDetectorData>) detector).getPositionCallable();
-				} else {
-					callable = new Callable<GDANexusDetectorData>() {
-						GDANexusDetectorData pos;
-						{
-							//TODO check type first
-							pos = (GDANexusDetectorData)detector.readout();
-						}
-
-						@Override
-						public GDANexusDetectorData call() throws Exception {
-							return pos;
-						}
-					};
-				}
-			}
-			/*
-			 * The single instance of the Callable may be referenced many times. The result of the call method is
-			 * therefore stored on the first call and returned on subsequent calls. Synchronisation is used to avoid
-			 * race conditions
-			 */
-			GDANexusDetectorData result = null;
-
-			private synchronized GDANexusDetectorData getResult() throws Exception {
-				if (result == null) {
-					GDANexusDetectorData detectorNexusTreeProvider = callable.call();
-					// do something with nexusTreeProvider before returning
-					if( processor == null || !isEnableProcessing())
-						result = detectorNexusTreeProvider;
-					else{
-						result = processor.process(detectorNexusTreeProvider);
-						if( merge){
-							result = detectorNexusTreeProvider.mergeIn( result);
-						}
-						if( result == null){
-							result = new NXDetectorData();
-						}
-
-					}
-				}
-				return result;
-			}
-
-
-			@Override
-			public GDANexusDetectorData call() throws Exception {
-
-				return getResult();
-			}
-		};
+		// create a callable that when called will process the data from the detector.
+		positionCallableCache = new DetCallableWrapper();
 		return positionCallableCache;
 	}
 
-	HardwareTriggerableDetector getHardDet(){
+	private HardwareTriggerableDetector getHardDet(){
 		if( detector instanceof HardwareTriggerableDetector)
 			return (HardwareTriggerableDetector)detector;
 		throw new UnsupportedOperationException("Detector '" + detector.getName() + "' is not a HardwareTriggerableDetector ");
@@ -534,7 +478,63 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		return getHardDet().integratesBetweenPoints();
 	}
 
+	private class DetCallableWrapper implements Callable<GDANexusDetectorData> {
 
+		private final Callable<?> callableFromDetector;
+		private final boolean merge = mergeWithDetectorData;
 
+		public DetCallableWrapper() throws DeviceException {
+			if (detector instanceof PositionCallableProvider) {
+				callableFromDetector = ((PositionCallableProvider<?>) detector).getPositionCallable();
+			} else {
+				NexusTreeProvider nexusReadout = detector.readout();
+				if (nexusReadout instanceof GDANexusDetectorData) {
+					GDANexusDetectorData readout = (GDANexusDetectorData) nexusReadout;
+					callableFromDetector = () -> readout;
+				} else {
+					throw new IllegalArgumentException(
+							"Detector " + detector + " did not provide a GDANexusDetectorData");
+				}
+			}
+		}
+
+		/**
+		 * The single instance of the Callable may be referenced many times. The result of the call method is therefore
+		 * stored on the first call and returned on subsequent calls. Synchronisation is used to avoid race conditions
+		 */
+		GDANexusDetectorData result = null;
+
+		private synchronized GDANexusDetectorData getResult() throws Exception {
+			if (result == null) {
+				Object g1 = callableFromDetector.call();
+				GDANexusDetectorData detectorNexusTreeProvider;
+				if (g1 instanceof GDANexusDetectorData) {
+					detectorNexusTreeProvider = (GDANexusDetectorData) g1;
+				} else {
+					throw new IllegalArgumentException(
+							"Detector " + detector + " did not provide a GDANexusDetectorData");
+				}
+				if (processor == null || !isEnableProcessing()) {
+					result = detectorNexusTreeProvider;
+				} else {
+					// do something with nexusTreeProvider before returning
+					result = processor.process(detectorNexusTreeProvider);
+					if (merge) {
+						result = detectorNexusTreeProvider.mergeIn(result);
+					}
+					if (result == null) {
+						result = new NXDetectorData();
+					}
+
+				}
+			}
+			return result;
+		}
+
+		@Override
+		public GDANexusDetectorData call() throws Exception {
+			return getResult();
+		}
+	}
 
 }
