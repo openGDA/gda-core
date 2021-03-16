@@ -36,10 +36,11 @@ public class FinderService {
 	/**
 	 * @param <T> the expected class extending {@code Findable}
 	 * @param findableId the findable object identificator
+	 * @param findableType the the expected class extending {@code Findable}
 	 * @return the required object oherwise {@link Optional#empty()}
 	 */
-	public synchronized <T extends Findable> Optional<T> getFindableObject(String findableId) {
-		return Finder.findOptional(findableId);
+	public synchronized <T extends Findable> Optional<T> getFindableObject(String findableId, Class<T> findableType) {
+		return Finder.findOptionalOfType(findableId, findableType);
 	}
 
 }

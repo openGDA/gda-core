@@ -67,9 +67,9 @@ public class DevicePositionServiceTest {
 		doReturn("device_one").when(scannableMotor).getName();
 		doReturn(2.3).when(scannableMotor).getPosition();
 
-		doReturn(Optional.of(scannableMotor)).when(finderService).getFindableObject("device_one");
+		doReturn(Optional.of(scannableMotor)).when(finderService).getFindableObject("device_one", IScannableMotor.class);
 
-		DevicePositionDocument document = helper.devicePositionAsDocument("device_one");
+		DevicePositionDocument document = helper.devicePositionAsDocument("device_one", IScannableMotor.class);
 		Assert.assertEquals("device_one", document.getDevice());
 		Assert.assertEquals(2.3, document.getPosition(), 0);
 		Assert.assertEquals(ValueType.NUMERIC, document.getValueType());
@@ -85,9 +85,9 @@ public class DevicePositionServiceTest {
 		EnumPositioner positioner = mock(EnumPositioner.class);
 		doReturn("device_two").when(positioner).getName();
 		doReturn("CLOSE").when(positioner).getPosition();
-		doReturn(Optional.of(positioner)).when(finderService).getFindableObject("device_two");
+		doReturn(Optional.of(positioner)).when(finderService).getFindableObject("device_two", EnumPositioner.class);
 
-		DevicePositionDocument document = helper.devicePositionAsDocument("device_two");
+		DevicePositionDocument document = helper.devicePositionAsDocument("device_two", EnumPositioner.class);
 		Assert.assertEquals("device_two", document.getDevice());
 		Assert.assertEquals("CLOSE", document.getLabelledPosition());
 		Assert.assertEquals(ValueType.LABELLED, document.getValueType());
@@ -102,9 +102,9 @@ public class DevicePositionServiceTest {
 		Scannable positioner = mock(Scannable.class);
 		doReturn("mistery_one").when(positioner).getName();
 
-		doReturn(Optional.of(positioner)).when(finderService).getFindableObject("device_two");
+		doReturn(Optional.of(positioner)).when(finderService).getFindableObject("device_two", EnumPositioner.class);
 
-		DevicePositionDocument document = helper.devicePositionAsDocument("device_two");
+		DevicePositionDocument document = helper.devicePositionAsDocument("device_two", EnumPositioner.class);
 		Assert.assertNull(document);
 	}
 }
