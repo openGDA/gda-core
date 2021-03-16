@@ -58,7 +58,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
 
 /**
@@ -83,28 +82,23 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		super(detector);
 	}
 
-	private INexusTree getDetectorNexusSubTree() throws NexusException {
-		try {
-			final NexusTreeProvider treeProvider = ((NexusDetector) getDetector()).readout();
-			final INexusTree nexusTree = treeProvider.getNexusTree();
-			if (nexusTree.getNumberOfChildNodes() != 1) {
-				// At present we assume that the tree has a single entry, most detectors do this.
-				logger.error("Nexus tree for detector {} has more than one sub-tree. Only the first will be processed.", getDetector().getName());
-			}
-
-			final INexusTree detectorSubTree = nexusTree.getChildNode(0);
-			if (!detectorSubTree.getName().equals(getDetector().getName())) {
-				logger.warn("Detector subtree {} has different name to detector {}", nexusTree.getName(), getDetector().getName());
-			}
-			if (!detectorSubTree.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
-				// can only handle NXdetector trees. See NexusDataWriter.makeNexusDetectorGroups
-				throw new NexusException("Nxclass attribute for detector " + getName() + "must be " + NexusExtractor.NXDetectorClassName + ", was: " + detectorSubTree.getNxClass());
-			}
-
-			return detectorSubTree;
-		} catch (DeviceException e) {
-			throw new NexusException("Cannot get NexusTree for detector: " + getName());
+	private INexusTree getDetectorNexusSubTree(NexusTreeProvider treeProvider) throws NexusException {
+		final INexusTree nexusTree = treeProvider.getNexusTree();
+		if (nexusTree.getNumberOfChildNodes() != 1) {
+			// At present we assume that the tree has a single entry, most detectors do this.
+			logger.error("Nexus tree for detector {} has more than one sub-tree. Only the first will be processed.", getDetector().getName());
 		}
+
+		final INexusTree detectorSubTree = nexusTree.getChildNode(0);
+		if (!detectorSubTree.getName().equals(getDetector().getName())) {
+			logger.warn("Detector subtree {} has different name to detector {}", nexusTree.getName(), getDetector().getName());
+		}
+		if (!detectorSubTree.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
+			// can only handle NXdetector trees. See NexusDataWriter.makeNexusDetectorGroups
+			throw new NexusException("Nxclass attribute for detector " + getName() + "must be " + NexusExtractor.NXDetectorClassName + ", was: " + detectorSubTree.getNxClass());
+		}
+
+		return detectorSubTree;
 	}
 
 	private void writeDataNode(INexusTree dataTreeNode, SliceND scanSlice) throws NexusException {
@@ -124,7 +118,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		final Dataset dataToWrite = data.toDataset();
 		try {
 			IWritableNexusDevice.writeDataset(dataset, dataToWrite, scanSlice);
-		} catch (DatasetException e) {
+		} catch (DatasetException | IllegalArgumentException e) {
 			throw new NexusException("Could not write data for detector " + getName(), e);
 		}
 	}
@@ -138,7 +132,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 		this.externalFileNames = new HashSet<>();
 		this.externalDatasetRanks = new HashMap<>();
 
-		final INexusTree detTree = getDetectorNexusSubTree();
+		final INexusTree detTree = getDetectorNexusSubTree((NexusTreeProvider) firstPointData);
 		detGroup.setLocal_nameScalar(detTree.getName());
 
 		for (INexusTree subTree : detTree) {
@@ -358,7 +352,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 	@Override
 	public void writePosition(Object data, SliceND scanSlice) throws NexusException {
-		final INexusTree detTree = getDetectorNexusSubTree();
+		final INexusTree detTree = getDetectorNexusSubTree((NexusTreeProvider) data);
 		for (INexusTree subTree : detTree) {
 			writeNode(subTree, scanSlice);
 		}

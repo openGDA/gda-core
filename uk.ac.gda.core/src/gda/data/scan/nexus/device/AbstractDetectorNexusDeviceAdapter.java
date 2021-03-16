@@ -37,8 +37,14 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractDetectorNexusDeviceAdapter.class);
 
+	protected Object firstPointData;
+
 	protected AbstractDetectorNexusDeviceAdapter(Detector detector) {
 		super(detector);
+	}
+
+	public void setFirstPointData(Object detectorData) {
+		firstPointData = detectorData;
 	}
 
 	protected Detector getDetector() {

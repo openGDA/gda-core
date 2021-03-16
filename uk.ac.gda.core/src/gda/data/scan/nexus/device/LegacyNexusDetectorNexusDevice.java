@@ -96,28 +96,23 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 		super(detector);
 	}
 
-	private INexusTree getDetectorNexusSubTree() throws NexusException {
-		try {
-			final NexusTreeProvider treeProvider = ((NexusDetector) getDetector()).readout();
-			final INexusTree nexusTree = treeProvider.getNexusTree();
-			if (nexusTree.getNumberOfChildNodes() != 1) {
-				// At present we assume that the tree has a single entry, most detectors do this.
-				logger.error("Nexus tree for detector {} has more than one sub-tree. Only the first will be processed.", getDetector().getName());
-			}
-
-			final INexusTree detectorSubTree = nexusTree.getChildNode(0);
-			if (!detectorSubTree.getName().equals(getDetector().getName())) {
-				logger.warn("Detector subtree {} has different name to detector {}", nexusTree.getName(), getDetector().getName());
-			}
-			if (!detectorSubTree.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
-				// can only handle NXdetector trees. See NexusDataWriter.makeNexusDetectorGroups
-				throw new NexusException("Nxclass attribute for detector " + getName() + "must be " + NexusExtractor.NXDetectorClassName + ", was: " + detectorSubTree.getNxClass());
-			}
-
-			return detectorSubTree;
-		} catch (DeviceException e) {
-			throw new NexusException("Cannot get NexusTree for detector: " + getName());
+	private INexusTree getDetectorNexusSubTree(NexusTreeProvider treeProvider) throws NexusException {
+		final INexusTree nexusTree = treeProvider.getNexusTree();
+		if (nexusTree.getNumberOfChildNodes() != 1) {
+			// At present we assume that the tree has a single entry, most detectors do this.
+			logger.error("Nexus tree for detector {} has more than one sub-tree. Only the first will be processed.", getDetector().getName());
 		}
+
+		final INexusTree detectorSubTree = nexusTree.getChildNode(0);
+		if (!detectorSubTree.getName().equals(getDetector().getName())) {
+			logger.warn("Detector subtree {} has different name to detector {}", nexusTree.getName(), getDetector().getName());
+		}
+		if (!detectorSubTree.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
+			// can only handle NXdetector trees. See NexusDataWriter.makeNexusDetectorGroups
+			throw new NexusException("Nxclass attribute for detector " + getName() + "must be " + NexusExtractor.NXDetectorClassName + ", was: " + detectorSubTree.getNxClass());
+		}
+
+		return detectorSubTree;
 	}
 
 	@Override
@@ -131,7 +126,7 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 		externalDatasetRanks = new HashMap<>();
 		externalFileNames = new HashSet<>();
 
-		final INexusTree detTree = getDetectorNexusSubTree();
+		final INexusTree detTree = getDetectorNexusSubTree((NexusTreeProvider) firstPointData);
 		for (INexusTree subTree : detTree) {
 			writeHere(detGroup, subTree, true, false);
 		}
@@ -400,8 +395,12 @@ public class LegacyNexusDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 
 	@Override
 	public void writePosition(Object data, SliceND scanSlice) throws NexusException {
+		if (!(data instanceof NexusTreeProvider)) {
+			throw new NexusException("Data object for NexusDetector must be a NexusTreeProvider");
+		}
+
 		dataStartPosPrefix = scanSlice.getStart();
-		final INexusTree detTree = getDetectorNexusSubTree();
+		final INexusTree detTree = getDetectorNexusSubTree((NexusTreeProvider) data);
 		for (INexusTree subTree : detTree) {
 			writeHere(detectorGroup, subTree, false, false);
 		}

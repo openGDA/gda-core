@@ -58,6 +58,8 @@ import gda.data.NumTracker;
 import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
+import gda.data.scan.nexus.device.AbstractDetectorNexusDeviceAdapter;
+import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
@@ -360,8 +362,26 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				.map(this::createNexusDevice).collect(toList());
 	}
 
-	private List<INexusDevice<?>> getNexusDetectors(IScanDataPoint point) {
-		return point.getDetectors().stream().map(this::createNexusDevice).collect(toList());
+	private List<INexusDevice<?>> getNexusDetectors(IScanDataPoint point) throws NexusException {
+		final List<String> detectorNames = point.getDetectorNames();
+		if (detectorNames.size() != point.getDetectorData().size()) {
+			throw new NexusException("Detector name and data lists have different sizes");
+		}
+
+		return point.getDetectorNames().stream()
+				.map(detName -> createNexusDevice(detName, point))
+				.collect(toList());
+	}
+
+	private INexusDevice<?> createNexusDevice(String detectorName, IScanDataPoint firstPoint) {
+		final Detector detector = firstPoint.getDetector(detectorName);
+		final INexusDevice<?> device = createNexusDevice(detector);
+		final Object detectorData = getDetectorData(detectorName, firstPoint);
+		if (device instanceof AbstractDetectorNexusDeviceAdapter) {
+			((AbstractDetectorNexusDeviceAdapter) device).setFirstPointData(detectorData);
+		}
+
+		return device;
 	}
 
 	private INexusDevice<?> createNexusDevice(Scannable device) {
@@ -508,17 +528,27 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private void writeDetectors(IScanDataPoint point, final SliceND scanSlice) throws Exception {
 		final List<String> detectorNames = point.getDetectorNames();
-		final List<Object> detectorData = point.getDetectorData();
-		if (detectorNames.size() != detectorData.size()) {
+		if (detectorNames.size() != point.getDetectorData().size()) {
 			throw new NexusException("Detector name and data lists have different sizes");
 		}
 
-		for (int i = 0; i < detectorNames.size(); i++) {
-			final IWritableNexusDevice<?> detNexusDevice = nexusDevices.get(detectorNames.get(i));
-			if (detNexusDevice == null)
-				throw new IllegalArgumentException("No nexus device for detector: " + detectorNames.get(i));
-			detNexusDevice.writePosition(detectorData.get(i), scanSlice);
+		for (String detectorName : detectorNames) {
+			writeDetector(point, detectorName, scanSlice);
 		}
+	}
+
+	private void writeDetector(IScanDataPoint point, String detectorName, final SliceND scanSlice)
+			throws NexusException {
+		final Object detectorData = getDetectorData(detectorName, point);
+		final IWritableNexusDevice<?> detNexusDevice = nexusDevices.get(detectorName);
+		if (detNexusDevice == null)
+			throw new IllegalArgumentException("No nexus device for detector: " + detectorName);
+		detNexusDevice.writePosition(detectorData, scanSlice);
+	}
+
+	private Object getDetectorData(String detName, IScanDataPoint point) {
+		final int detectorIndex = point.getDetectorNames().indexOf(detName);
+		return point.getDetectorData().get(detectorIndex);
 	}
 
 	@Override
