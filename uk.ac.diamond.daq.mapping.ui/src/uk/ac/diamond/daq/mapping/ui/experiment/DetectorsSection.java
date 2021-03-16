@@ -130,12 +130,30 @@ public class DetectorsSection extends AbstractMappingSection {
 			visibleDetectors = getMappingBean().getDetectorParameters().stream()
 					.map(DetectorModelWrapper.class::cast)
 					.filter(DetectorModelWrapper::isShownByDefault)
+					.filter(this::isValidMappingDetector)
 					.collect(Collectors.toList());
 		}
 		createDetectorControls(visibleDetectors);
 
 		// Listen for property changes that affect the selection of detectors
 		GDAClientActivator.getDefault().getPreferenceStore().addPropertyChangeListener(propertyChangeListener);
+	}
+
+	/*
+	 * Majority of MalcolmModels in GDA have their axesToMove not set, so we need to get the device to ask.
+	 * If this situation changes we could ask the model directly.
+	 */
+	private boolean isValidMappingDetector(DetectorModelWrapper<?> model) {
+		if (!(model.getModel() instanceof IMalcolmModel)) return true;
+		IMalcolmModel malcolmModel = (IMalcolmModel) model.getModel();
+		try {
+			List<String> malcolmAxes = getMalcolmDevice(malcolmModel.getName()).getAvailableAxes();
+			// 1-D Malcolm devices (e.g. Tomography stage) not valid for 2-D mapping scans.
+			return malcolmAxes.size() > 1;
+		} catch (ScanningException e) {
+			logger.error("Could not get axes of malcolm device: {}", malcolmModel.getName(), e);
+			return false;
+		}
 	}
 
 	private void chooseDetectors() {
