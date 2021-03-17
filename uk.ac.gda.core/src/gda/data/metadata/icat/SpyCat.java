@@ -47,7 +47,7 @@ public class SpyCat extends DlsIcatBase {
 
 	@Override
 	protected List<String> getVisitsForUser(Connection connection, String username) throws Exception {
-		logger.trace(     "getVisitsForUser({}, {})", connection, username);
+		logger.trace("getVisitsForUser({}, {})", connection, username);
 
 		final String sql = "CALL ispyb.retrieve_current_sessions_for_person(?, ?, ?)";
 
@@ -65,7 +65,7 @@ public class SpyCat extends DlsIcatBase {
 
 	@Override
 	protected Optional<String> getLatestVisitWithPrefix(Connection connection, String visitPrefix) {
-		logger.trace(         "getLatestVisitWithPrefix({}, {})", connection, visitPrefix);
+		logger.trace("getLatestVisitWithPrefix({}, {})", connection, visitPrefix);
 
 		final String sql = "CALL ispyb.retrieve_most_recent_session(?, ?)";
 
@@ -83,8 +83,7 @@ public class SpyCat extends DlsIcatBase {
 	private static final RowMapper<String> VISIT_MAPPER = new RowMapper<String>() {
 		@Override
 		public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-			final String visit = rs.getString(1);
-			return visit;
+			return rs.getString(1);
 		}
 	};
 
@@ -125,7 +124,7 @@ public class SpyCat extends DlsIcatBase {
 		final String username = getMandatoryProperty(USER_PROP, "username");
 		final String password = getMandatoryProperty(PASSWORD_PROP, "password");
 
-		MariaDbDataSource ds = new MariaDbDataSource();
+		final MariaDbDataSource ds = new MariaDbDataSource();
 		ds.setUrl(url);
 		ds.setUserName(username);
 		ds.setPassword(password);
@@ -134,14 +133,13 @@ public class SpyCat extends DlsIcatBase {
 	}
 
 	/*
-	 * It would be best to create JdbcTemplate objects directly from a DataSource, but DLSdicat used Connection
-	 * objects directly, so this class does too. This method wraps a Connection in a DataSource, so that the
-	 * DataSource can then be used to create a JdbcTemplate.
+	 * It would be best to create JdbcTemplate objects directly from a DataSource, but DLSdicat used Connection objects
+	 * directly, so this class does too. This method wraps a Connection in a DataSource, so that the DataSource can then
+	 * be used to create a JdbcTemplate.
 	 */
 	private static JdbcTemplate makeJdbcTemplateFromConnection(Connection connection) {
 		final SingleConnectionDataSource dataSource = new SingleConnectionDataSource(connection, true);
-		final JdbcTemplate template = new JdbcTemplate(dataSource);
-		return template;
+		return new JdbcTemplate(dataSource);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

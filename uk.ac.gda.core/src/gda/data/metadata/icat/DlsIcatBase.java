@@ -72,14 +72,15 @@ public abstract class DlsIcatBase extends IcatBase {
 			final List<String> visits = getUsefulVisits(userNameFilter);
 			return Joiner.on(", ").join(visits);
 		}
-		if (TITLE_QUERY.equals(accessName))
+		if (TITLE_QUERY.equals(accessName)) {
 			return getTitleForVisit(visitIDFilter);
+		}
 		throw new IllegalArgumentException(String.format(
-			"unknown query request: visitIDFilter=%s, userNameFilter=%s, accessName=%s",
-			StringUtils.quote(visitIDFilter), StringUtils.quote(userNameFilter), StringUtils.quote(accessName)));
+				"unknown query request: visitIDFilter=%s, userNameFilter=%s, accessName=%s",
+				StringUtils.quote(visitIDFilter), StringUtils.quote(userNameFilter), StringUtils.quote(accessName)));
 	}
 
-	protected List<String> getUsefulVisits(String user) throws Exception {
+	private List<String> getUsefulVisits(String user) throws Exception {
 		Connection connection = null;
 		try {
 			connection = connectToDatabase();
@@ -101,12 +102,11 @@ public abstract class DlsIcatBase extends IcatBase {
 		}
 	}
 
-	protected String getTitleForVisit(String visitID) throws Exception {
+	private String getTitleForVisit(String visitID) throws Exception {
 		Connection connection = null;
 		try {
 			connection = connectToDatabase();
-			final String title = getTitleForVisitUsingConnection(visitID, connection);
-			return title;
+			return getTitleForVisitUsingConnection(visitID, connection);
 		} catch (Exception e) {
 			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
@@ -114,7 +114,7 @@ public abstract class DlsIcatBase extends IcatBase {
 		}
 	}
 
-	protected void closeConnection(Connection connection) {
+	private void closeConnection(Connection connection) {
 		if (connection != null) {
 			try {
 				connection.close();
