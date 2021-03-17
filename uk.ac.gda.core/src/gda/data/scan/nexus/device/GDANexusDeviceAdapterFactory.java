@@ -27,6 +27,7 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -44,10 +45,10 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		@SuppressWarnings("unchecked")
 		@Override
 		public INexusDevice<NXdetector> createNexusDevice(Detector detector) throws NexusException {
-//			if (LocalProperties.check(PROPERTY_NAME_USE_LEGACY_NEXUS_DETECTOR_ADAPTER)) {
+			if (LocalProperties.check(PROPERTY_NAME_USE_LEGACY_NEXUS_DETECTOR_ADAPTER)) {
 				return new LegacyNexusDetectorNexusDevice((NexusDetector) detector);
-//			}
-//			return new NexusDetectorNexusDevice((NexusDetector) detector);
+			}
+			return new NexusDetectorNexusDevice((NexusDetector) detector);
 		}
 
 	}
