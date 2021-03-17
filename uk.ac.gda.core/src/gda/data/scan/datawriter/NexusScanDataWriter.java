@@ -445,12 +445,14 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				collect(toList());
 	}
 
-	private Set<String> getCommonBeamlineDeviceNames() throws NexusException {
+	private Set<String> getCommonBeamlineDeviceNames() {
 		final CommonBeamlineDevicesConfiguration deviceConfig = ServiceHolder.getCommonBeamlineDevicesConfiguration();
 
 		if (deviceConfig == null) {
-			throw new NexusException("Could not find a " + CommonBeamlineDevicesConfiguration.class.getSimpleName() + " bean.\n"
-					+ "It is required to define a bean of this type in your GDA server spring configuration in order to use " + NexusScanDataWriter.class.getSimpleName());
+			logger.error("Could not find a {} bean.\n"
+					+ "It is required to define a bean of this type in your GDA server spring configuration in order to use {}",
+					CommonBeamlineDevicesConfiguration.class.getSimpleName(), NexusScanDataWriter.class.getSimpleName());
+			return Collections.emptySet();
 		}
 
 		return deviceConfig.getCommonDeviceNames();
