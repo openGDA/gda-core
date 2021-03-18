@@ -14,3 +14,4 @@ Require-Bundle: org.eclipse.core.commands,
  uk.ac.diamond.daq.mapping.api,
  org.eclipse.core.runtime,
  uk.ac.diamond.daq.mapping.ui
+Automatic-Module-Name: uk.ac.diamond.daq.client.gui.energyfocus.editor
