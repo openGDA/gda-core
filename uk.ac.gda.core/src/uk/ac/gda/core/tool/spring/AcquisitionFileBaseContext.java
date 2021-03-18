@@ -61,7 +61,7 @@ abstract class AcquisitionFileBaseContext<T> {
 	 * @param contextFile
 	 * @return the resource URL, otherwise {@code null} if nothing is found.
 	 */
-	public final URL getContextFile(T contextFile) {
+	public URL getContextFile(T contextFile) {
 		init(contextFile);
 		URL value = contextFiles.get(contextFile);
 		return URLFactory.urlExists(value) ? value : null;

@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.service.rest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +15,7 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.service.ScanningAcquisitionService;
+import uk.ac.diamond.daq.service.core.AcquisitionServiceCore;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 
 /**
@@ -29,10 +29,7 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
  */
 @RestController
 @RequestMapping("/acquisition")
-public class ScanningAcquisitionRestService {
-
-	@Autowired
-	private ScanningAcquisitionService service;
+public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
 
 	/**
 	 * Receives request for acquisitions.
@@ -41,14 +38,14 @@ public class ScanningAcquisitionRestService {
 	 * @throws ScanningAcquisitionServiceException
 	 */
 	@RequestMapping(value = "/run", method = RequestMethod.POST)
-	public @ResponseBody ResponseEntity<RunAcquisitionResponse> run(
+	public @ResponseBody ResponseEntity<RunAcquisitionResponse> runScan(
 			@RequestBody AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition)
 			throws ScanningAcquisitionServiceException {
-		service.run(acquisition);
-		RunAcquisitionResponse response = buildResponse(true, "Acquisition submitted");
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		return runAcquisition(acquisition);
 	}
 
+
+	
 	/**
 	 * Handles the HTTP response for the {@link ExperimentControllerException}
 	 * thrown by this rest service
@@ -60,12 +57,5 @@ public class ScanningAcquisitionRestService {
 	public @ResponseBody ResponseEntity<RunAcquisitionResponse> handleException(ExperimentControllerException e) {
 		RunAcquisitionResponse response = buildResponse(false, e.getMessage());
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-
-	private RunAcquisitionResponse buildResponse(boolean submitted, String message) {
-		return new RunAcquisitionResponse.Builder()
-				.withSubmitted(submitted)
-				.withMessage(message)
-				.build();
 	}
 }

@@ -64,8 +64,8 @@ public class SpringWebInitializer {
 	/**
 	 * The REST service port property
 	 */
-	@Value("${server.rest.service.port:8888}")
-	public int port;
+	@Value("#{systemProperties['server.rest.service.port'] ?: 8888}")
+	private int port;
 
 	/**
 	 * The Spring web application context
