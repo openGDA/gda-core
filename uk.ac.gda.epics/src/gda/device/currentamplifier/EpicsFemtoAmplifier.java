@@ -298,6 +298,16 @@ public class EpicsFemtoAmplifier extends CurrentAmplifierBase implements Amplifi
 		}
 	}
 
+	public void setGain(double newGain) throws DeviceException {
+		String mode = getMode();
+		String gain = String.valueOf(newGain);
+		if (!modeToGainMap.get(mode).contains(gain)) {
+			throw new IllegalArgumentException("The reqested gain '" + newGain + "' is not avaliable in the current mode '" + mode + "'");
+		}
+
+		setGain(modeToGainToGainStringMap.get(mode).get(gain));
+	}
+
 	@Override
 	public String getGain() throws DeviceException {
 		String gainString = getGainString();
@@ -312,11 +322,6 @@ public class EpicsFemtoAmplifier extends CurrentAmplifierBase implements Amplifi
 	@Override
 	public void setGain(String gain) throws DeviceException {
 		logger.debug("Changing gain to: {}", gain);
-		String mode = getMode();
-
-		if (!modeToGainMap.get(mode).contains(gain)) {
-			throw new IllegalArgumentException("The reqested gain '" + gain + "' is not avaliable in the current mode '" + mode + "'");
-		}
 
 		try {
 			epicsController.caputWait(getFemtoChannel(FEMTO_GAIN), gain);
