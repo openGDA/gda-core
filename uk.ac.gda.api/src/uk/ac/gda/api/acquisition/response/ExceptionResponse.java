@@ -22,60 +22,46 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
- * Represents an exhaustive response from the service or engine handling the acquisition request.
+ * Represents the exception thrown by a REST service
  *
- * <p>
- *  Actually the response contains only a text string. Further content will be added case by case.
- * </p>
+ * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = RunAcquisitionResponse.Builder.class)
-public class RunAcquisitionResponse {
+@JsonDeserialize(builder = ExceptionResponse.Builder.class)
+public class ExceptionResponse {
 
-	private final boolean submitted;
 	private final String message;
-	private final ExceptionResponse exception;
+	private final String causeMessage;
 
-	private RunAcquisitionResponse(boolean submitted, String message, ExceptionResponse exception) {
-		this.submitted = submitted;
+	private ExceptionResponse(String message, String causeMessage) {
 		this.message = message;
-		this.exception = exception;
-	}
-
-	public boolean isSubmitted() {
-		return submitted;
+		this.causeMessage = causeMessage;
 	}
 
 	public String getMessage() {
 		return message;
 	}
 
-	public ExceptionResponse getException() {
-		return exception;
+	public String getCauseMessage() {
+		return causeMessage;
 	}
 
 	@JsonPOJOBuilder
 	public static class Builder {
-		private boolean submitted;
 		private String message;
-		private ExceptionResponse exception;
-
-		public Builder withSubmitted(boolean submitted) {
-			this.submitted = submitted;
-			return this;
-		}
+		private String causeMessage;
 
 		public Builder withMessage(String message) {
 			this.message = message;
 			return this;
 		}
 
-		public Builder withException(ExceptionResponse exception) {
-			this.exception = exception;
+		public Builder withCauseMessage(String causeMessage) {
+			this.causeMessage = causeMessage;
 			return this;
 		}
 
-		public RunAcquisitionResponse build() {
-			return new RunAcquisitionResponse(submitted, message, exception);
+		public ExceptionResponse build() {
+			return new ExceptionResponse(message, causeMessage);
 		}
 	}
 }

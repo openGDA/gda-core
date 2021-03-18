@@ -16,6 +16,7 @@ import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.service.ScanningAcquisitionService;
 import uk.ac.diamond.daq.service.core.AcquisitionServiceCore;
+import uk.ac.gda.api.acquisition.request.MscanRequest;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 
 /**
@@ -45,6 +46,19 @@ public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
 	}
 
 
+
+	/**
+	 * Receives request for acquisitions.
+	 * @param acquisition
+	 * @return
+	 * @throws ScanningAcquisitionServiceException
+	 */
+	@RequestMapping(value = "/mscan", method = RequestMethod.POST)
+	public @ResponseBody ResponseEntity<RunAcquisitionResponse> run(
+			@RequestBody MscanRequest request) 
+					throws ScanningAcquisitionServiceException {
+		return runMScan(request);
+	}
 	
 	/**
 	 * Handles the HTTP response for the {@link ExperimentControllerException}
@@ -53,9 +67,9 @@ public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
 	 * @param e the thrown exception
 	 * @return the exception message
 	 */
-	@ExceptionHandler({ ExperimentControllerException.class })
-	public @ResponseBody ResponseEntity<RunAcquisitionResponse> handleException(ExperimentControllerException e) {
-		RunAcquisitionResponse response = buildResponse(false, e.getMessage());
+	@ExceptionHandler({ ScanningAcquisitionServiceException.class })
+	public @ResponseBody ResponseEntity<RunAcquisitionResponse> handleException(ScanningAcquisitionServiceException e) {
+		RunAcquisitionResponse response = buildResponse(false, "Scanning Acquisition Service Error", e);
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
