@@ -40,6 +40,9 @@ import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gda.scan.ScanInformation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
@@ -52,11 +55,13 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
  *
  * @author James Mudd
  */
-public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXCollectionStrategy {
+public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXCollectionStrategy, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpecsPhoibosSeparateIterationCollectionStrategy.class);
 
 	private static final String REGION_OUTPUT_FORMAT = "%5.5g";
+
+	private final ObservableComponent observableComponent = new ObservableComponent();
 
 	// This is used to execute the data collection
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -230,8 +235,10 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		// Create a new array to hold this points completed regions
 		final List<SpecsPhoibosCompletedRegionWithSeperateIterations> completedRegions = new ArrayList<>();
 
+
+
 		// Set the detector to busy
-		status = Detector.BUSY;
+		setStatus(Detector.BUSY);
 
 		logger.debug("Starting acquisition");
 
@@ -302,6 +309,7 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		}
 		// Block while the acquisition is running and set the status when it returns
 		status = runningAcquisition.get();
+		setStatus(status);
 
 		// Throw if status is not idle to abort the scan. Something went wrong with the analyser
 		if (status != Detector.IDLE) {
@@ -370,6 +378,30 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 
 	public void setAnalyser(SpecsPhoibosAnalyserSeparateIterations analyser) {
 		this.analyser = analyser;
+	}
+
+	@Override
+	public void addIObserver(IObserver anIObserver) {
+		observableComponent.addIObserver(anIObserver);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver anIObserver) {
+		observableComponent.deleteIObserver(anIObserver);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
+	}
+
+	private void notifyListeners(Object evt) {
+		observableComponent.notifyIObservers(this, evt);
+	}
+
+	private void setStatus(int statusChange) {
+		status = statusChange;
+		notifyListeners(statusChange);
 	}
 
 
