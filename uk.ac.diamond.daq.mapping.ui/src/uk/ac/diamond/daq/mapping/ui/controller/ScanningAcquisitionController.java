@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
@@ -494,13 +495,13 @@ public class ScanningAcquisitionController
 	private void transformPixelsToBeamDrivers() {
 		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
 			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
-			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::pixelToBeam, c.getBeamCameraMap()));
+			.ifPresent(c -> transformCoordinates(MappedCalibrationUtils::pixelToBeam, c.getBeamCameraMap()));
 	}
 
 	private void transformBeamDriversToPixel() {
 		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
 			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
-			.ifPresent(c -> transformCoordinates(c.getBeamCameraMapping()::beamToPixel, c.getBeamCameraMap()));
+			.ifPresent(c -> transformCoordinates(MappedCalibrationUtils::beamToPixel, c.getBeamCameraMap()));
 	}
 
 	private void transformCoordinates(BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation, CameraToBeamMap cameraToBeam) {

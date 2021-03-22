@@ -23,13 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.DecompositionSolver;
-import org.apache.commons.math3.linear.LUDecomposition;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.linear.SingularMatrixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +33,6 @@ import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
@@ -174,99 +167,6 @@ public class BeamCameraMapping {
 			return !exceptions.isEmpty();
 		}
 	}
-
-	Optional<RealVector> pixelToBeam(CameraToBeamMap cameraToBeam, double x, double y) {
-		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
-		return pixelToBeam(cameraToBeam, cameraVector);
-	}
-
-	/**
-	 * Transforms a vector from the camera space to the beam space.
-	 *
-	 * <p>
-	 * {@link CameraToBeamMap#getOffset()}, if not {@code null}, is added to the transformation result
-	 * </p>
-	 * @param cameraToBeam object with the transformation information
-	 * @param vector the vector in the camera space
-	 * @return the vector in the beam space
-	 */
-	public Optional<RealVector> pixelToBeam(CameraToBeamMap cameraToBeam, RealVector vector) {
-		return Optional.ofNullable(cameraToBeam)
-				.map(this::pixelToBeamSolver)
-				.map(s -> transformCoordinates(s, vector))
-				.map(t -> addOffset(t, cameraToBeam.getOffset()));
-	}
-
-	Optional<RealVector> beamToPixel(CameraToBeamMap cameraToBeam, double x, double y) {
-		RealVector cameraVector = new ArrayRealVector(new double[] { x, y }, false);
-		return beamToPixel(cameraToBeam, cameraVector);
-	}
-
-	/**
-	 * Transforms a vector from the beam space to the camera space.
-	 *
-	 * <p>
-	 * {@link CameraToBeamMap#getOffset()}, if not {@code null}, is subtracted from the transformation result
-	 * </p>
-	 * @param cameraToBeam object with the transformation information
-	 * @param vector the vector in the beam space
-	 * @return the vector in the camera space
-	 */
-	public Optional<RealVector> beamToPixel(CameraToBeamMap cameraToBeam, RealVector vector) {
-		return Optional.ofNullable(cameraToBeam)
-				.map(this::beamToPixelSolver)
-				.map(s -> transformCoordinates(s, vector))
-				.map(t -> subtractOffset(t, cameraToBeam.getOffset()));
-	}
-
-	/**
-	 * Adds an offset vector to a given one
-	 *
-	 * @param vector the primary vector
-	 * @param offset the offset to add
-	 * @return the amended vector
-	 */
-	public final RealVector addOffset(RealVector vector, RealVector offset) {
-		return Optional.ofNullable(offset)
-				.map(vector::add)
-				.orElse(vector);
-	}
-
-	/**
-	 * Adds an offset vector to a given one
-	 *
-	 * @param vector the primary vector
-	 * @param offset the offset to add
-	 * @return the amended vector
-	 */
-	public final RealVector subtractOffset(RealVector vector, RealVector offset) {
-		return Optional.ofNullable(offset)
-				.map(vector::subtract)
-				.orElse(vector);
-	}
-
-	RealVector transformCoordinates(DecompositionSolver solver, RealVector cameraVector) {
-		try {
-			return solver.solve(cameraVector);
-		} catch (SingularMatrixException e) {
-			UIHelper.showError("error in pixel to beam conversion", e);
-		}
-		return null;
-	}
-
-	private DecompositionSolver pixelToBeamSolver(CameraToBeamMap beamCameraMap) {
-		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
-		return new LUDecomposition(new LUDecomposition(transformation).getSolver().getInverse())
-				.getSolver();
-	}
-
-	private DecompositionSolver beamToPixelSolver(CameraToBeamMap beamCameraMap) {
-		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
-		return new LUDecomposition(transformation).getSolver();
-	}
-
-
-
 
 	/**
 	 * The motor moving the beam on the X axis
