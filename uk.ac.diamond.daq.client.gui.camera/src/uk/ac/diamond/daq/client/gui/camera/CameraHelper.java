@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -204,6 +205,52 @@ public final class CameraHelper {
 		return Collections.unmodifiableList(getCameraProperies().stream()
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList()));
+	}
+
+	public static ICameraConfiguration getICameraConfigurationByConfigurationName(String cameraConfigurationName) {
+		return getCameraConfigurationPropertiesByConfigurationName(cameraConfigurationName)
+			.map(CameraHelper::createICameraConfiguration)
+			.orElse(null);
+	}
+
+	/**
+	 * Returns the available client camera configuration
+	 * @return the available camera configurations
+	 */
+	private static Optional<CameraConfigurationProperties> getCameraConfigurationProperties(Predicate<? super CameraConfigurationProperties> filter) {
+		return getCameraProperies().stream()
+				.filter(filter)
+				.findFirst();
+	}
+
+	/**
+	 * Finds a camera configuration from the loaded ones by its cameraConfigurationName name,
+	 * @param cameraConfigurationName the configuration name
+	 * @return a camera configuration, otherwise {@link Optional#empty()}
+	 */
+	public static Optional<CameraConfigurationProperties> getCameraConfigurationPropertiesByConfigurationName(String cameraConfigurationName) {
+		Predicate<? super CameraConfigurationProperties> filter = c -> c.getConfiguration().equals(cameraConfigurationName);
+		return getCameraConfigurationProperties(filter);
+	}
+
+	/**
+	 * Finds a camera configuration from the loaded ones by its detector name,
+	 * @param detectorName the detector name
+	 * @return a camera configuration, otherwise {@link Optional#empty()}
+	 */
+	public static Optional<CameraConfigurationProperties> getCameraConfigurationPropertiesByDetectorName(String detectorName) {
+		Predicate<? super CameraConfigurationProperties> filter = c -> c.getName().equals(detectorName);
+		return getCameraConfigurationProperties(filter);
+	}
+
+	/**
+	 * Finds a camera configuration from the loaded ones by its cameraControl name,
+	 * @param cameraControlName the control name
+	 * @return a camera configuration, otherwise {@link Optional#empty()}
+	 */
+	public static Optional<CameraConfigurationProperties> getCameraConfigurationPropertiesByCameraControlName(String cameraControlName) {
+		Predicate<? super CameraConfigurationProperties> filter = c -> c.getCameraControl().equals(cameraControlName);
+		return getCameraConfigurationProperties(filter);
 	}
 
 	/**
