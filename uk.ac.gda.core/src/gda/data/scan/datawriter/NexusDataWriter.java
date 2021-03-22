@@ -19,7 +19,6 @@
 
 package gda.data.scan.datawriter;
 
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -31,6 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +50,7 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -108,6 +109,10 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private static final String INSTRUMENT = "instrument";
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
+
+	private static final int[] START_SHAPE = new int[] { 0 };
+	private static final int[] SINGLE_SHAPE = new int[] { 1 };
+
 
 	/**
 	 * Property to control the level of instrumentation of the nexus api
@@ -182,7 +187,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 */
 	protected int scanNumber = -1;
 
-	private final ZonedDateTime startTime = ZonedDateTime.now();
+	private final ZonedDateTime startTime = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
 	private Collection<SelfCreatingLink> scannableID;
 
@@ -910,14 +915,15 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	@Override
 	public void completeCollection() throws Exception {
 		logger.debug("completeCollection() called with file={}, entryName={}", file, entryName);
+		final ZonedDateTime finishTime = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 		if (file != null) {
 			// In some error conditions, this can be called twice with 'file' being null the second time
 			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
-			ILazyWriteableDataset endTime = file.getData(g, "end_time").getWriteableDataset();
+			ILazyWriteableDataset endTime = file.getData(g, NXentry.NX_END_TIME).getWriteableDataset();
 			endTime.setSlice(
 					null,
-					DatasetFactory.createFromObject(ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now())),
-					new int[] {0}, new int[] {1}, new int[] {1});
+					DatasetFactory.createFromObject(finishTime.toString()),
+					START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 			applyTemplates();
 		}
 		releaseFile();
@@ -1064,9 +1070,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				}
 				NexusUtils.writeString(file, g, "title", title);
 			}
-			NexusUtils.writeString(file, g, "start_time", ISO_OFFSET_DATE_TIME.format(startTime));
+			NexusUtils.writeString(file, g, NXentry.NX_START_TIME,  startTime.toString());
 			ILazyWriteableDataset endTime = NexusUtils.createLazyWriteableDataset(
-					"end_time", String.class, new int[] {1}, new int[] {1}, new int[] {1});
+					NXentry.NX_END_TIME, String.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 			file.createData(g, endTime);
 			createCustomMetaData(g);
 		} catch (Exception e) {
@@ -1970,7 +1976,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		final Object position = scannable.getPosition();
 		final Optional<ScannableWriter> optScannableWriter = getWriterForScannable(scannableName);
 		if (optScannableWriter.isPresent()) {
-			optScannableWriter.get().makeScannable(file, entry, scannable, position, new int[] {1}, false);
+			optScannableWriter.get().makeScannable(file, entry, scannable, position, SINGLE_SHAPE, false);
 		} else {
 			// put in default location (NXcollection with name metadata)
 			makeMetadataScannableFallback(entry, scannable, position);

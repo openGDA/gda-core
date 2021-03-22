@@ -40,9 +40,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -50,12 +48,12 @@ import static org.hamcrest.Matchers.sameInstance;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -90,6 +88,8 @@ import org.eclipse.dawnsci.nexus.test.utilities.NexusAssert;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DateDataset;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
@@ -1009,17 +1009,20 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(dataset, is(notNullValue()));
 		assertThat(dataset.getRank(), either(is(0)).or(is(1)));
 		assertThat(dataset.getElementClass(), is(equalTo(String.class)));
-		final String dateTimeString;
+		DateDataset dateTime = DatasetUtils.cast(DateDataset.class, dataset);
+		Date inDataset;
 		if (dataset.getRank() == 0) {
 			assertThat(dataset.getShape(), is(equalTo(EMPTY_SHAPE)));
-			dateTimeString = dataset.getString();
+			inDataset = dateTime.getDate();
 		} else {
 			assertThat(dataset.getShape(), is(equalTo(SINGLE_VALUE_SHAPE)));
-			dateTimeString = dataset.getString(0);
+			inDataset = dateTime.getDate(0);
 		}
-		final LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-		assertThat(dateTime, is(lessThan(LocalDateTime.now())));
-		assertThat(dateTime, is(greaterThan(LocalDateTime.now().minus(5, ChronoUnit.MINUTES))));
+
+
+
+		assertThat(inDataset.before(Date.from(Instant.now())), is(true));
+		assertThat(inDataset.after(Date.from((Instant.now().minus(5, ChronoUnit.MINUTES)))), is(true));
 	}
 
 	protected void checkLinkedDatasets(NXdata data, NXentry entry, Map<String, String> expectedDataNodeLinks) {
