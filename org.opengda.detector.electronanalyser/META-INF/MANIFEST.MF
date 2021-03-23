@@ -40,5 +40,5 @@ Export-Package: org.opengda.detector.electronanalyser,
  org.opengda.detector.electronanalyser.scan,
  org.opengda.detector.electronanalyser.server,
  org.opengda.detector.electronanalyser.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: org.opengda.detector.electronanalyser
