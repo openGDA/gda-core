@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: HATSAXS UI
 Bundle-SymbolicName: uk.ac.gda.devices.hatsaxs.ui
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: uk.ac.gda.devices.hatsaxs.ui;
   uses:="uk.ac.gda.richbeans.editors,
    org.eclipse.swt.graphics,
