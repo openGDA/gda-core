@@ -61,6 +61,6 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  org.springframework.stereotype;version="4.0.6.RELEASE",
  org.springframework.util;version="3.0.4",
  uk.ac.diamond.daq.mapping.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.tomography
