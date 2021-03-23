@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: GDA Test Helpers
 Bundle-SymbolicName: uk.ac.gda.test.helpers
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
