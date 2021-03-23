@@ -48,11 +48,13 @@ import gda.factory.FactoryException;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@ServiceInterface(IVGScientaAnalyserRMI.class)
-public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IVGScientaAnalyserRMI {
+@ServiceInterface(IElectronAnalyser.class)
+public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IElectronAnalyser {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCamOnly.class);
 
 	protected boolean inScan = false;
@@ -72,7 +74,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	private WorkFunctionProvider workFunctionProvider = new FixedWorkFunctionProvider();
 	private Scannable pgmEnergyScannable;
 	private VGScientaController controller;
-	private VGScientaAnalyserEnergyRange energyRange;
+	private AnalyserEnergyRangeConfiguration energyRange;
 	private DetectorConfiguration fixedModeConfiguration;
 	private DetectorConfiguration sweptModeConfiguration;
 
@@ -777,11 +779,11 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	@Override
-	public VGScientaAnalyserEnergyRange getEnergyRange() {
+	public AnalyserEnergyRangeConfiguration getEnergyRange() {
 		return energyRange;
 	}
 
-	public void setEnergyRange(VGScientaAnalyserEnergyRange energyRange) {
+	public void setEnergyRange(AnalyserEnergyRangeConfiguration energyRange) {
 		this.energyRange = energyRange;
 	}
 

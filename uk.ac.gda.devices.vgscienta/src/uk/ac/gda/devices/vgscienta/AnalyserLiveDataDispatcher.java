@@ -39,13 +39,14 @@ import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.MonitorEvent;
+import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);
 
 	private String plotName;
-	private IVGScientaAnalyserRMI analyser;
+	private IElectronAnalyser analyser;
 	private final  EpicsController epicsController = EpicsController.getInstance();
 	private String arrayPV;
 	private String frameNumberPV;
@@ -170,11 +171,11 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		this.plotName = plotName;
 	}
 
-	public IVGScientaAnalyserRMI getAnalyser() {
+	public IElectronAnalyser getAnalyser() {
 		return analyser;
 	}
 
-	public void setAnalyser(IVGScientaAnalyserRMI analyser) {
+	public void setAnalyser(IElectronAnalyser analyser) {
 		this.analyser = analyser;
 	}
 

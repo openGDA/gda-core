@@ -76,8 +76,8 @@ import gda.device.scannable.ScannableStatus;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
-import uk.ac.gda.devices.vgscienta.VGScientaAnalyserEnergyRange;
 
 /**
  * A Region Editor View for defining new or editing existing Region Definition for VG Scienta Electron Analyser.
@@ -722,7 +722,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private void initialisation() {
-		VGScientaAnalyserEnergyRange energyRange = analyser.getEnergyRange();
+		AnalyserEnergyRangeConfiguration energyRange = analyser.getEnergyRange();
 
 		try {
 			// I09-137 Remove Transmission mode from UI
