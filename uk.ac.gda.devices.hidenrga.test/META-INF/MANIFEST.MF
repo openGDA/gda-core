@@ -4,7 +4,7 @@ Bundle-Name: HidenRGA Test
 Bundle-SymbolicName: uk.ac.gda.devices.hidenrga.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: uk.ac.gda.devices.hidenrga;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: javassist,
  org.junit;bundle-version="[4.12.0,5.0.0)",
  org.mockito.mockito-core,

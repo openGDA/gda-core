@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hidenrga
 Bundle-SymbolicName: uk.ac.gda.devices.hidenrga;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.core,
