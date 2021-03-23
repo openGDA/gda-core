@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Experiment API
 Bundle-SymbolicName: uk.ac.diamond.daq.experiment.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Activator: uk.ac.diamond.daq.experiment.api.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.experiment.api,

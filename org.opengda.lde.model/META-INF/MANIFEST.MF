@@ -7,7 +7,7 @@ Bundle-ClassPath: .
 Bundle-Activator: org.opengda.lde.model.ldeexperiment.impl.SampledefinitionModelPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.opengda.lde.model.ldeexperiment,
  org.opengda.lde.model.ldeexperiment.impl,
  org.opengda.lde.model.ldeexperiment.util

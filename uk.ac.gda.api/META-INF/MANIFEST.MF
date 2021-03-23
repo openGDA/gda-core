@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: uk.ac.gda.api plugin
 Bundle-SymbolicName: uk.ac.gda.api;singleton:=true
 Bundle-Version: 9.20.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: gda.analysis.numerical.optimization.optimizers,
  gda.beamline,
  gda.beamline.health,

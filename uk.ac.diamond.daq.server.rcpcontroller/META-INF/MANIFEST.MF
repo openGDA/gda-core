@@ -4,7 +4,7 @@ Bundle-Name: RCPController allowing server to access client views and perspectiv
 Bundle-SymbolicName: uk.ac.diamond.daq.server.rcpcontroller;singleton:=true
 Bundle-Version: 9.20.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.api;bundle-version="8.52.0",
  uk.ac.gda.core;bundle-version="9.0.0"

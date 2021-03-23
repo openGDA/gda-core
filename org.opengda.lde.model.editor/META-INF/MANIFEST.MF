@@ -7,7 +7,7 @@ Bundle-ClassPath: .
 Bundle-Activator: org.opengda.lde.model.ldeexperiment.presentation.SampledefinitionEditorPlugin$Implementation
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.opengda.lde.model.editor.ui.provider,
  org.opengda.lde.model.ldeexperiment.presentation
 Require-Bundle: org.eclipse.core.runtime,
