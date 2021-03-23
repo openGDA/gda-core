@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.browser;
 
+import java.util.Optional;
+
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -30,6 +32,8 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.IComparableStyledLabelProvider;
+import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
  * Provides a summary of 2D path in {@link ScanningParameters} configurations for a column in a {@link Browser}
@@ -41,9 +45,12 @@ class DetailsLabelProvider extends LabelProvider implements IComparableStyledLab
 
 	@Override
 	public StyledString getStyledText(Object element) {
-		ScanningParameters parameters = ScanningAcquisitionBrowserBase.getAcquisitionParameters(element);
-		String details = getDetailsSummary(parameters.getScanpathDocument());
-		return new StyledString(details);
+		String message = Optional.ofNullable(ScanningAcquisitionBrowserBase.getAcquisitionParameters(element))
+			.map(ScanningParameters::getScanpathDocument)
+			.map(this::getDetailsSummary)
+			.orElseGet(() -> ClientMessagesUtility.getMessage(ClientMessages.MISSING_MESSAGE));
+
+		return new StyledString(message);
 	}
 
 	private String getDetailsSummary(ScanpathDocument scanpathDocument) {

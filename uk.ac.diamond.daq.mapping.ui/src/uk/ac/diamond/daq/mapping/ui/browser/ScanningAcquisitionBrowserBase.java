@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
@@ -176,8 +177,10 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 	}
 
 	public static final ScanningParameters getAcquisitionParameters(Object element) {
-		return ScanningAcquisition.class.cast(AcquisitionConfigurationResource.class.cast(element).getResource())
-				.getAcquisitionConfiguration().getAcquisitionParameters();
+		return Optional.ofNullable(ScanningAcquisition.class.cast(AcquisitionConfigurationResource.class.cast(element).getResource()))
+			.map(ScanningAcquisition::getAcquisitionConfiguration)
+			.map(ScanningConfiguration::getAcquisitionParameters)
+			.orElse(null);
 	}
 
 	private void load() throws AcquisitionControllerException {

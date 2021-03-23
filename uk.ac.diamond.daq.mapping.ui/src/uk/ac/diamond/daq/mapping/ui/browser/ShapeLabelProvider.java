@@ -22,6 +22,7 @@ import static uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBas
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
@@ -34,6 +35,7 @@ import org.eclipse.swt.graphics.Image;
 import gda.rcp.views.Browser;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.IComparableStyledLabelProvider;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
@@ -58,8 +60,13 @@ class ShapeLabelProvider extends LabelProvider implements IComparableStyledLabel
 	 */
 	@Override
 	public Image getImage(Object element) {
-		ScanningParameters parameters = getAcquisitionParameters(element);
-		return ClientSWTElements.getImage(ICONS.get(parameters.getScanpathDocument().getModelDocument()));
+		ClientImages clientimage = Optional.ofNullable(getAcquisitionParameters(element))
+			.map(ScanningParameters::getScanpathDocument)
+			.map(ScanpathDocument::getModelDocument)
+			.map(ICONS::get)
+			.orElseGet(() -> ClientImages.NO_IMAGE);
+
+		return ClientSWTElements.getImage(clientimage);
 	}
 
 	/**
