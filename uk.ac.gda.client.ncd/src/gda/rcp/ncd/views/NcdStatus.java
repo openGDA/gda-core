@@ -84,8 +84,6 @@ public class NcdStatus extends ViewPart {
 	private void createFirstHalf(Composite parent) {
 		GridLayout glParent = new GridLayout(4, false);
 		glParent.verticalSpacing = 12;
-		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		parent.setLayoutData(gridData);
 		parent.setLayout(glParent);
 		Composite progress = new Composite(parent, SWT.NONE);
 		progress.setLayout(new GridLayout(4, false));
