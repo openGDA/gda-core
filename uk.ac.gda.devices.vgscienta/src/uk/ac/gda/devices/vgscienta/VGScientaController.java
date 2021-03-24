@@ -35,6 +35,7 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 
 /**
  * The EPICS controller class for operating VG Scienta electron analysers. The class interact only with the CAM plugin which contains the specific PVs to

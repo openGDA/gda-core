@@ -49,6 +49,7 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -821,8 +822,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	@Override
-	public void startContinuious() throws Exception {
-		logger.info("Starting continious acquisition");
+	public void startContinuous() throws Exception {
+		logger.info("Starting continuous acquisition");
 		// For continuous acquisition in alignment use fixed mode
 		setFixedMode(true);
 		// Change to continuous
@@ -844,7 +845,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	@Override
-	public int getCurrentIterations() throws Exception {
+	public int getCurrentIteration() throws Exception {
 		return controller.getCurrentIterations();
 	}
 

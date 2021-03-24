@@ -21,23 +21,9 @@ package uk.ac.diamond.daq.devices.mbs.api;
 import java.util.List;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 
-public interface IMbsAnalyser {
-
-	/**
-	 * Gets the collection time
-	 *
-	 * @return The collection time
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	double getCollectionTime() throws DeviceException;
-
-	/**
-	 * Sets the collection time
-	 *
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	void setCollectionTime(double collectionTime) throws DeviceException;
+public interface IMbsAnalyser extends IElectronAnalyser {
 
 	/**
 	 * Gets the acquisition period
@@ -54,67 +40,6 @@ public interface IMbsAnalyser {
 	 */
 	void setAcquirePeriod(double acquirePeriod) throws DeviceException;
 
-	/**
-	 * Gets the number of iterations (exposures per image)
-	 *
-	 * @return The number of iterations
-	 * @throws DeviceException If there is a problem communication
-	 */
-	public int getIterations() throws DeviceException;
-
-	/**
-	 * Sets the number of iterations (exposures per image)
-	 *
-	 * @param iterations The number of iterations
-	 * @throws DeviceException If there is a problem communication
-	 */
-	public void setIterations(int iterations) throws DeviceException;
-
-	/**
-	 * Gets the list of available pass energies
-	 *
-	 * @return The list of available pass energies
-	 */
-	public List<String> getPassEnergies();
-
-	/**
-	 * Gets the current pass energy
-	 *
-	 * @return The pass energy
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public int getPassEnergy() throws DeviceException;
-
-	/**
-	 * Sets the pass energy
-	 *
-	 * @param passEnergy
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setPassEnergy(int passEnergy) throws DeviceException;
-
-	/**
-	 * Gets the list of available lens modes
-	 *
-	 * @return The list of available lens modes
-	 */
-	public List<String> getLensModes();
-
-	/**
-	 * Gets the current lens mode
-	 *
-	 * @return The current lens mode
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public String getLensMode() throws DeviceException;
-
-	/**
-	 * Sets the current lens mode
-	 *
-	 * @param lensMode The requested lens mode
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setLensMode(String lensMode) throws DeviceException;
 
 	/**
 	 * Gets the list of available acquisition modes
@@ -131,13 +56,6 @@ public interface IMbsAnalyser {
 	 */
 	public String getAcquisitionMode() throws DeviceException;
 
-	/**
-	 * Sets the current acquisition mode
-	 *
-	 * @param acquisitionMode The requested acquisition mode
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setAcquisitionMode(String acquisitionMode) throws DeviceException;
 
 	/**
 	 * Gets the start energy
@@ -171,21 +89,6 @@ public interface IMbsAnalyser {
 	 */
 	public void setEndEnergy(double endEnergy) throws DeviceException;
 
-	/**
-	 * Gets the centre energy
-	 *
-	 * @return The end energy
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public double getCentreEnergy() throws DeviceException;
-
-	/**
-	 * Sets the centre energy
-	 *
-	 * @param centreEnergy The end energy
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setCentreEnergy(double centreEnergy) throws DeviceException;
 
 	/**
 	 * Gets the energy width
@@ -243,20 +146,12 @@ public interface IMbsAnalyser {
 	public void setNumberOfScans(int numberOfScans) throws DeviceException;
 
 	/**
-	 * Gets the number of slices.
-	 * @return The number of slices
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public int getSlices() throws DeviceException;
-
-	/**
 	 * Sets the number of slices.
 	 *
 	 * @param slices The number of slices
 	 * @throws DeviceException If there is a problem with communication
 	 */
 	public void setSlices(int slices) throws DeviceException;
-
 
 	/**
 	 * Gets the number of steps
@@ -321,4 +216,6 @@ public interface IMbsAnalyser {
 	 * @throws DeviceException If there is a problem with EPICS communication
 	 */
 	public void setStepSize(double stepSize) throws DeviceException;
+
+	public double[][] get2DImageArray() throws DeviceException;
 }

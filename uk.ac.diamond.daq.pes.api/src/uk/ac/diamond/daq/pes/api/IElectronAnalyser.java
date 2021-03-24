@@ -180,7 +180,7 @@ public interface IElectronAnalyser extends Device {
 	 *
 	 * @throws Exception If there is a problem with the EPICS communication
 	 */
-	void startContinuious() throws Exception;
+	void startContinuous() throws Exception;
 
 	/**
 	 * Stops the analyser acquiring <b>Does NOT zero supplies</b>
@@ -229,7 +229,7 @@ public interface IElectronAnalyser extends Device {
 	 * @return The current iteration number in the scan
 	 * @throws Exception If there is a problem with the EPICS communication
 	 */
-	int getCurrentIterations() throws Exception;
+	int getCurrentIteration() throws Exception;
 
 	/**
 	 * Sets the number of iterations requested, not for use while in a scan
