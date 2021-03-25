@@ -95,8 +95,13 @@ public class RegionAndPathController extends AbstractMappingController {
 		public RegionSelectorListener() {
 			this.regionBeanPropertyChangeListener = evt -> {
 				updatePlotRegion();
+				mapRegionOntoModel();
 				updatePoints();
 			};
+		}
+
+		private void mapRegionOntoModel() {
+			RegionAndPathMapper.mapRegionOntoModel(scanRegionShape, scanPathModel);
 		}
 
 		/**
@@ -511,6 +516,8 @@ public class RegionAndPathController extends AbstractMappingController {
 			pathCalculationJob.schedule();
 		}
 	}
+
+
 
 	/**
 	 *  Updates the current scan path - this method should be called by the view updater function of client methods to

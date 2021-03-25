@@ -27,16 +27,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.BoundingLine;
-import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
-import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
@@ -88,41 +81,6 @@ public class PathInfoCalculatorJob extends Job {
 			IMapPathModel mapPathModel = (IMapPathModel) scanPathModel;
 			xAxisName = mapPathModel.getxAxisName();
 			yAxisName = mapPathModel.getyAxisName();
-
-			if (scanRegion != null && scanRegion.toROI() != null) {
-				if (scanPathModel instanceof IBoundingBoxModel) {
-					IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPathModel;
-					// We set the roi to the bounds of the first region.
-					// TODO Is this correct?
-					IRectangularROI roi = scanRegion.toROI().getBounds();
-					if (roi != null) {
-						BoundingBox box = boxModel.getBoundingBox();
-						if (box == null) {
-							box = new BoundingBox();
-							boxModel.setBoundingBox(box);
-						}
-						box.setxAxisStart(roi.getPointX());
-						box.setyAxisStart(roi.getPointY());
-						box.setxAxisLength(roi.getLength(0));
-						box.setyAxisLength(roi.getLength(1));
-					}
-				} else if (scanPathModel instanceof IBoundingLineModel) {
-					IBoundingLineModel lineModel = (IBoundingLineModel) scanPathModel;
-					IROI roi = scanRegion.toROI();
-					if (roi instanceof LinearROI) {
-						LinearROI linearROI = (LinearROI) roi;
-						BoundingLine line = lineModel.getBoundingLine();
-						if (line == null) {
-							line = new BoundingLine();
-							lineModel.setBoundingLine(line);
-						}
-						line.setxStart(linearROI.getPointX());
-						line.setyStart(linearROI.getPointY());
-						line.setAngle(linearROI.getAngle());
-						line.setLength(linearROI.getLength());
-					}
-				}
-			}
 		}
 
 		try {

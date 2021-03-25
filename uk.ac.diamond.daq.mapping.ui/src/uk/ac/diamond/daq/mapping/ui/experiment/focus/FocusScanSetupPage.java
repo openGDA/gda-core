@@ -103,6 +103,7 @@ import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
+import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 import uk.ac.gda.client.NumberUnitsWidgetProperty;
 
@@ -203,12 +204,18 @@ class FocusScanSetupPage extends WizardPage {
 		linePathModel = new TwoAxisLinePointsModel();
 		pathBeanPropertyChangeListener = event -> updatePoints();
 		linePathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
+		// Ensure the line boundaries are kept up to date with the model
+		linePathModel.addPropertyChangeListener(evt -> mapRegionOntoModel());
 
 		pathCalculationJob = createPathCalculationJob();
 
 		endPointTextUpdateStrategy = new UpdateValueStrategy();
 		endPointTextUpdateStrategy.setConverter(new EndPointNumberConverter());
-}
+	}
+
+	private void mapRegionOntoModel() {
+		RegionAndPathMapper.mapRegionOntoModel(focusScanBean.getLineRegion(), linePathModel);
+	}
 
 	private void updateLineRegion() {
 		plottingController.updatePlotRegionFrom(focusScanBean.getLineRegion());
