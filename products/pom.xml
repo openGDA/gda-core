@@ -106,9 +106,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 							<configuration>
 								<!-- set the working directory to the one containing this file and devlinks.py -->
 								<workingDirectory>..</workingDirectory>
-								<executable>python</executable>
+								<executable>./devlinks.py</executable>
 								<arguments>
-									<argument>./devlinks.py</argument>
 									<argument>../../../${server-product-root}/plugins</argument>
 								</arguments>
 							</configuration>

@@ -1,20 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-""" This script is only run when exporting a Development GDA Server product from the uk.ac.diamond.server.site using Buckminster
+""" This script is only run when exporting a GDA Server product using Maven
 Do not attempt to use it for other purposes as the destination of the links it creates will likely not be present.
 
 The script finds all the bundles that contain python script locations defined using the uk.ac.diamond.daq.jython.api.scriptLocations
 extension point (i.e. those that should be available to all configurations). These folders are copied to their associated bundle
 folders by the basic export process, however for a development export they must be replaced by links back to the corresponding
-folders under workspace_git. In order to  do this, the script uses the exported plugins folder supplied by the calling Ant task
+folders under workspace_git. In order to  do this, the script uses the exported plugins folder supplied by the calling Maven task
 plus the script location value(s) parsed from the identified file to create a relative path to the copied folder that includes the
 generated bundle version for the exported product. This folder is then deleted and replaced by a symlink that points back to the
 source folder in workspace_git. The utilities folder is processed in the same way to handle script sources that are not plugins but
 nevertheless need to be available (e.g. diffcalc)
 
 Arguments:
-1                The path to the exported plugins directory (usually supplied by Ant)
+1                The path to the exported plugins directory (usually supplied by Maven)
 
 The following folder structure is assumed for the plugin scripts:
 
