@@ -189,6 +189,8 @@ public class GDAJythonInterpreter {
 			Py.setSystemState(pss);
 			pss.setClassLoader(classLoader);
 			pss.setdefaultencoding(UTF_8);		// cannot be done before Py.setSystemState
+			// Restricted permissions cause issues in shared (writable) deployments (CVE-2013-2027 Jython 2.7.2)
+			pss.dont_write_bytecode = true;
 			Py.defaultSystemState = pss;
 		} catch (Exception e) {
 			if (e instanceof PyException) {
