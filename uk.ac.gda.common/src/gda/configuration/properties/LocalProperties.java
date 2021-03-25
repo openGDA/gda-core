@@ -426,6 +426,11 @@ public final class LocalProperties {
 	public static final String GDA_INITIAL_LENGTH_UNITS = "uk.ac.gda.client.defaultUnits";
 
 	/**
+	 * Control whether client should be closed automatically when user session expires
+	 */
+	public static final String GDA_CHECK_USER_VISIT_VALID = "uk.ac.gda.client.check.user.visit.valid";
+
+	/**
 	 * Property to choose whether to use the persistence service or file base persistence
 	 */
 	public static final String GDA_PERSISTENCE_SERVICE_ENABLED = "uk.ac.diamond.persistence.manager.enabled";
