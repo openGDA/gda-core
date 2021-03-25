@@ -147,7 +147,7 @@ public class StatusPanel extends AbstractMappingSection {
 	}
 
 	private int get2DPoints() {
-		return pathInfo.pointCount;
+		return pathInfo.getPointCount();
 	}
 
 	void setPathInfo(PathInfo pathInfo) {
