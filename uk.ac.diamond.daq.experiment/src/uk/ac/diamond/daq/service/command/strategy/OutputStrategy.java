@@ -15,26 +15,30 @@
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package uk.ac.diamond.daq.service.command.strategy;
 
-import uk.ac.gda.common.entity.Document;
+import java.util.List;
+
+import uk.ac.gda.common.exception.GDAServiceException;
 
 /**
- * A set of methods to format the output.
- * 
+ * Converts documents accordingly to the implementing strategy class
+ *
  * @author Maurizio Nagni
  *
+ * @param <T> a compliant document
  */
-public class OutputStrategyFactory {
+public interface OutputStrategy<T> {
 
-	private OutputStrategyFactory() {}
+	 /**
+	 * Converts a list of documents to a byte array.
+	 * 
+	 * @param documents a list of objects to format
+	 * @return the formatted output
+	 * @throws GDAServiceException
+	 */
+	byte[] write(final List<T> documents) throws GDAServiceException;
 	
-	public static final <T extends Document> OutputStrategy<T>  getJSONCollectionOutputStrategy() {
-		return new JSONOutputStrategy<>();
-	}
-		
-	public static final <T> OutputStrategy<T>  getJSONOutputStrategy() {
-		return new JSONOutputStrategy<>();
-	}
+	byte[] write(final T documents) throws GDAServiceException;
+
 }

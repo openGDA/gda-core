@@ -16,43 +16,43 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.service.command;
+package uk.ac.diamond.daq.service.command.device;
 
-import java.util.UUID;
-
-import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
+import uk.ac.diamond.daq.service.command.receiver.device.DeviceCommandReceiver;
+import uk.ac.diamond.daq.service.command.receiver.device.DeviceRequest;
 import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.command.ExecuteCommand;
-import uk.ac.gda.common.entity.Document;
+import uk.ac.gda.common.entity.device.DeviceValue;
 import uk.ac.gda.common.exception.GDAServiceException;
 
 /**
- * An {@link ExecuteCommand} to retrieve any  {@link Document} document
+ * An {@link ExecuteCommand} to set value using a {@link DeviceValue} document
  * 
  * @author Maurizio Nagni
  *
  * @param <T>
  */
-public class GetDocumentCollectionCommand<T extends Document> implements ExecuteCommand {
-	private final CollectionCommandReceiver<T> ccr;
-	private final UUID id;
+public class SetDeviceValueCommand<T extends DeviceValue> implements ExecuteCommand {
+
+	private final DeviceCommandReceiver<T> ccr;
 	private final OutputStrategy<T> outputStrategy;
+	private final DeviceRequest deviceRequest;
 
 	/**
 	 * Constructor for the retreive command
-	 * @param ccr defines how collect the document
+	 * @param ccr defines how collect the device value
 	 * @param id the document identifier 
 	 * @param outputStrategy defines how write the output
 	 */
-	public GetDocumentCollectionCommand(CollectionCommandReceiver<T> ccr, UUID id, OutputStrategy<T> outputStrategy) {
+	public SetDeviceValueCommand(DeviceRequest deviceRequest, DeviceCommandReceiver<T> ccr, OutputStrategy<T> outputStrategy) {
 		super();
+		this.deviceRequest = deviceRequest;
 		this.ccr = ccr;
-		this.id = id;
 		this.outputStrategy = outputStrategy;
 	}
 
 	@Override
 	public void execute() throws GDAServiceException {
-		ccr.getDocument(id, outputStrategy);
+		ccr.setValue(deviceRequest, outputStrategy);
 	}
 }

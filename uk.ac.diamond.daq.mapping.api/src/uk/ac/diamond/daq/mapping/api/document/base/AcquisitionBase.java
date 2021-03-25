@@ -22,9 +22,6 @@ import java.net.URL;
 import java.time.Period;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 
@@ -33,7 +30,6 @@ import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
  *
  * @author Maurizio Nagni
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "type")
 public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> implements Acquisition<T> {
 
 	private UUID uuid;

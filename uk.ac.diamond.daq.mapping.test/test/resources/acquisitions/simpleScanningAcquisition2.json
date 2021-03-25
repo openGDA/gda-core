@@ -1,5 +1,5 @@
 {
-	"type": "scanningAcquisition",
+	"documentType": "scanningAcquisition",
 	"uuid": null,
 	"name": "Scanning Acquisition Test",
 	"description": "SimpleTest",

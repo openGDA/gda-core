@@ -15,29 +15,23 @@
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
-package uk.ac.diamond.daq.service.command.strategy;
 
-import java.util.List;
+package uk.ac.diamond.daq.service.command.receiver.device;
 
+import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.exception.GDAServiceException;
 
 /**
- * Converts a list of documents accordingly to the implementing strategy class
+ * Defines getter and setter commands to apply on {@link DeviceRequest} documents
  *
  * @author Maurizio Nagni
  *
- * @param <T> a compliant document
+ * @param <T>
  */
-public interface CollectionOutputStrategy<T extends Document> {
+public interface DeviceCommandReceiver<T extends Document> {
 
-	 /**
-	 * Converts a list of documents to a byte array.
-	 * 
-	 * @param documents a list of objects to format
-	 * @return the formatted output
-	 * @throws GDAServiceException
-	 */
-	byte[] write(final List<T> documents) throws GDAServiceException;
+	void getValue(DeviceRequest deviceRequest, OutputStrategy<T> outputStrategy) throws GDAServiceException;
 
+	void setValue(DeviceRequest deviceRequest, OutputStrategy<T> outputStrategy) throws GDAServiceException;
 }

@@ -47,6 +47,7 @@ import uk.ac.gda.core.tool.spring.TomographyFileContext;
 @Configuration
 @ComponentScan(basePackages = {
 		"uk.ac.gda.core.tool.spring",
+		"uk.ac.diamond.daq.service",
 		"uk.ac.diamond.daq.mapping.api.document",
 		"uk.ac.diamond.daq.service.rest"
 		},

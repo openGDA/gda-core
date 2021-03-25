@@ -22,31 +22,42 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.exception.GDAServiceException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
- * An {@link CollectionOutputStrategy} which converts the input to a JSON document as output
+ * An {@link OutputStrategy} which converts the input to a JSON document as output
  * 
  * @author Maurizio Nagni
  *
  * @param <T>
  */
-public class JSONCollectionOutputStrategy<T extends Document> implements CollectionOutputStrategy<T> {
+public class JSONOutputStrategy<T> implements OutputStrategy<T> {
 
 	@Override
-	public byte[] write(List<T> documents) throws GDAServiceException {
-		DocumentMapper om = Optional.ofNullable(SpringApplicationContextFacade.getBean(DocumentMapper.class))
-			.orElseThrow(() -> new GDAServiceException("DocumentMapper not available"));
-		
+	public byte[] write(T document) throws GDAServiceException {
 		try {
-			return om.getJacksonObjectMapper().writeValueAsBytes(documents);
+			return getObjectMapper().writeValueAsBytes(document);
 		} catch (JsonProcessingException e) {
-			throw new GDAServiceException("Cannot convert documents", e);
+			throw new GDAServiceException("Cannot convert document");
 		}
 	}
-	
+
+	@Override
+	public byte[] write(List<T> ds) throws GDAServiceException {		
+		try {
+			return getObjectMapper().writeValueAsBytes(ds);
+		} catch (JsonProcessingException e) {
+			throw new GDAServiceException("Cannot convert document");
+		}
+	}
+
+	private ObjectMapper getObjectMapper() throws GDAServiceException {
+		DocumentMapper om = Optional.ofNullable(SpringApplicationContextFacade.getBean(DocumentMapper.class))
+				.orElseThrow(() -> new GDAServiceException("DocumentMapper not available"));		
+		return om.getJacksonObjectMapper();
+	}
 }
