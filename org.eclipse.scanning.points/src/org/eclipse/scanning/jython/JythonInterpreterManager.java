@@ -53,6 +53,8 @@ public class JythonInterpreterManager {
 			loader = createJythonClassLoader(state.getClassLoader()); // Don't clobber their working.
 		}
 		state.setClassLoader(loader);
+		// Restricted permissions cause issues in shared (writable) deployments (CVE-2013-2027 Jython 2.7.2)
+		state.dont_write_bytecode = true;
 
 		setJythonPaths(state); // Tries to ensure that enough of jython is on the path
 		setSpgGeneratorPaths(state, bundleNames); // Adds the scripts directory from points
