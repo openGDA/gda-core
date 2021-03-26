@@ -4,7 +4,7 @@ Bundle-Name: Energy
 Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.energy
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.client.gui.energy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: uk.ac.gda.api;bundle-version="9.15.0",
  uk.ac.diamond.daq.beamline.configuration.api,
  org.eclipse.swt;bundle-version="3.106.3",

@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.diamond.daq.msgbus.test
 Bundle-Version: 9.20.0.qualifier
 Fragment-Host: uk.ac.diamond.daq.msgbus
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  uk.ac.gda.common.activemq
 Automatic-Module-Name: uk.ac.diamond.daq.msgbus.test

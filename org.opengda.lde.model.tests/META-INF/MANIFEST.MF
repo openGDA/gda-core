@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.opengda.lde.model.ldeexperiment.tests
 Require-Bundle: org.eclipse.core.runtime,
  org.opengda.lde.model;visibility:=reexport,

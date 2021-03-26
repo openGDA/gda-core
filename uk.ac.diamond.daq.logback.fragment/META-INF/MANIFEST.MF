@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: DLS
 Fragment-Host: ch.qos.logback.core;bundle-version="1.2.3"
 Automatic-Module-Name: uk.ac.diamond.daq.logback.fragment
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: ch.qos.logback.classic;bundle-version="1.2.3"
 Note: This fragment is required because logback-core can't
  see classes from logback-classic however it needs to for

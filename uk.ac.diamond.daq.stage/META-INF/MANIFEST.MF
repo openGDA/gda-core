@@ -5,7 +5,7 @@ Bundle-Name: Stage
 Bundle-SymbolicName: uk.ac.diamond.daq.stage
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.stage
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: uk.ac.diamond.daq.stage,
  uk.ac.diamond.daq.stage.event
 Import-Package: gda.device,

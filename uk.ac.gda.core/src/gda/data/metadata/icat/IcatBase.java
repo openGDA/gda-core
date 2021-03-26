@@ -18,14 +18,6 @@
 
 package gda.data.metadata.icat;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.data.metadata.VisitEntry;
-import gda.device.DeviceException;
-import gda.jython.JythonServerFacade;
-import gda.jython.authoriser.AuthoriserProvider;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -35,6 +27,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.data.metadata.VisitEntry;
+import gda.jython.JythonServerFacade;
+import gda.jython.authoriser.AuthoriserProvider;
 
 /**
  * Provides base functionality for classes implementing the Icat interface.
@@ -53,33 +52,27 @@ public abstract class IcatBase implements Icat {
 	 */
 	@Override
 	public boolean icatInUse() {
-		if (LocalProperties.get(ICAT_TYPE_PROP) != null) {
-			return true;
-		}
-		return false;
+		return LocalProperties.get(ICAT_TYPE_PROP) != null;
 	}
 
 	@Override
 	public void setMyVisit(String choiceOfVisit) {
-		if (!choiceOfVisit.equals(visitID)) {
-			if (!choiceOfVisit.equals("")) {
-				logger.info("Visit ID used to filter information from Icat database now: " + choiceOfVisit);
-				visitID = choiceOfVisit;
-				if (JythonServerFacade.getInstance() != null) {
-					JythonServerFacade.getInstance().changeVisitID(visitID);
-				}
+		if (!choiceOfVisit.equals(visitID) && !choiceOfVisit.equals("")) {
+			logger.info("Visit ID used to filter information from Icat database now: {}", choiceOfVisit);
+			visitID = choiceOfVisit;
+			if (JythonServerFacade.getInstance() != null) {
+				JythonServerFacade.getInstance().changeVisitID(visitID);
 			}
 		}
 	}
 
 	@Override
 	public VisitEntry[] getMyValidVisits(String username) throws Exception {
-		String results = "";
-		results = getValue(null, username, getVisitIDAccessName());
+		final String results = getValue(null, username, getVisitIDAccessName());
 		this.username = username;
 
 		// Use a set here to prevent duplicate visits appearing
-		Set<String> visits = new LinkedHashSet<String>();
+		final Set<String> visits = new LinkedHashSet<>();
 
 		if (results != null && !results.isEmpty()) {
 			final String[] bits = results.split(",");
@@ -92,27 +85,26 @@ public abstract class IcatBase implements Icat {
 		if (AuthoriserProvider.getAuthoriser().isLocalStaff(username)) {
 
 			// allow beamline staff to use the current visit ID
-			String currentVisitID = getCurrentVisitId();
+			final String currentVisitID = getCurrentVisitId();
 			addVisitIfNotNullOrEmpty(currentVisitID, visits);
 
 			// allow beamline staff to choose the default ID listed in the metadata
-			Metadata metadata = GDAMetadataProvider.getInstance();
-			String defVisit = metadata.getMetadataValue("defVisit");
+			final String defVisit = getMetadata().getMetadataValue("defVisit");
 			addVisitIfNotNullOrEmpty(defVisit, visits);
 
 			// allow beamline staff to use the default ID listed in Java properties
-			String defProperty = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
+			final String defProperty = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
 			addVisitIfNotNullOrEmpty(defProperty, visits);
 		}
 
 		// if nothing has been found so far and the local property is set, use the def visit
 		if (visits.isEmpty() && LocalProperties.get("gda.icat.usersCanUseDefVisit", "false").equals("true")) {
 			// allow beamline staff to use the default ID listed in Java properties
-			String defProperty = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
+			final String defProperty = LocalProperties.get(LocalProperties.GDA_DEF_VISIT);
 			addVisitIfNotNullOrEmpty(defProperty, visits);
 		}
 
-		List<VisitEntry> visitEntries = new ArrayList<VisitEntry>();
+		final List<VisitEntry> visitEntries = new ArrayList<>();
 
 		for (String visit : visits) {
 			String titleValue = "";
@@ -126,7 +118,7 @@ public abstract class IcatBase implements Icat {
 				titleValue = titleValue.trim();
 			}
 
-			VisitEntry entry = new VisitEntry(visit.trim(), titleValue);
+			final VisitEntry entry = new VisitEntry(visit.trim(), titleValue);
 			visitEntries.add(entry);
 		}
 
@@ -141,7 +133,7 @@ public abstract class IcatBase implements Icat {
 
 	@Override
 	public String getCurrentInformation(String accessName) throws Exception {
-		String fedId = getCurrentFederalId();
+		final String fedId = getCurrentFederalId();
 		if (fedId == null || fedId.equals("")) {
 			return null;
 		}
@@ -212,13 +204,12 @@ public abstract class IcatBase implements Icat {
 	}
 
 	protected String getInstrumentName() {
-
 		if (instrumentName != null) {
 			return instrumentName;
 		}
 
 		instrumentName = LocalProperties.get(LocalProperties.GDA_INSTRUMENT);
-		if (!(instrumentName == null) && !instrumentName.isEmpty()) {
+		if (instrumentName != null && !instrumentName.isEmpty()) {
 			return instrumentName;
 		}
 
@@ -227,9 +218,8 @@ public abstract class IcatBase implements Icat {
 
 	/**
 	 * @return the fedid of the user stored in metadata i.e. the one with the baton
-	 * @throws DeviceException
 	 */
-	protected String getCurrentFederalId() throws DeviceException {
+	private String getCurrentFederalId() {
 		if (getMetadata() != null) {
 			return getMetadata().getMetadataValue("federalid");
 		}
@@ -238,9 +228,8 @@ public abstract class IcatBase implements Icat {
 
 	/**
 	 * @return the fedid of the user stored in metadata i.e. the one with the baton
-	 * @throws DeviceException
 	 */
-	protected String getCurrentVisitId() throws DeviceException {
+	private String getCurrentVisitId() {
 		if (getMetadata() != null) {
 			return getMetadata().getMetadataValue("visit");
 		}
