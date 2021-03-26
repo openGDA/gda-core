@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
+import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
@@ -81,7 +82,7 @@ public final class BeamMappingSupport {
 				if (s.equals(event.getxAxis().getTitle())) {
 					moveTo = Optional.of(new ArrayRealVector(new double[] { event.getxValue(), event.getyValue() }, false));
 				} else {
-					moveTo = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration.getBeamCameraMap(),
+					moveTo = MappedCalibrationUtils.pixelToBeam(iConfiguration.getBeamCameraMap(),
 									event.getxValue(), event.getyValue());
 				}
 				moveTo.ifPresent(this::doMove);
@@ -117,12 +118,12 @@ public final class BeamMappingSupport {
 		this.iConfiguration = iConfiguration;
 		this.plottingSystem = plottingSystem;
 
-		Optional<RealVector> topLeft = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration.getBeamCameraMap(), 0, 0);
+		Optional<RealVector> topLeft = MappedCalibrationUtils.pixelToBeam(iConfiguration.getBeamCameraMap(), 0, 0);
 		Optional<RealVector> bottomRight= Optional.empty();
 		int[] pos = iConfiguration.getCameraControl().map(this::getFrameSize).orElseGet(() -> new int[] { 0, 0 });
 		double x = pos[0];
 		double y = pos[1];
-		bottomRight = iConfiguration.getBeamCameraMapping().pixelToBeam(iConfiguration.getBeamCameraMap(), x, y);
+		bottomRight = MappedCalibrationUtils.pixelToBeam(iConfiguration.getBeamCameraMap(), x, y);
 
 		// Creates the context menu for the calibrated axes
 		MenuAction alternativeAxes = new MenuAction(ClientMessagesUtility.getMessage(AXES));

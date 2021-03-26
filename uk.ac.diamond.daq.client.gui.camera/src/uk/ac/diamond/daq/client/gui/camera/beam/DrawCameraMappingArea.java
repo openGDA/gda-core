@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
+import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.UIHelper;
@@ -213,6 +214,6 @@ public class DrawCameraMappingArea {
 	}
 
 	private Optional<RealVector> calculateSolution(double x, double y) {
-		return iCameraConfiguration.getBeamCameraMapping().beamToPixel(iCameraConfiguration.getBeamCameraMap(), x, y);
+		return MappedCalibrationUtils.beamToPixel(iCameraConfiguration.getBeamCameraMap(), x, y);
 	}
 }
