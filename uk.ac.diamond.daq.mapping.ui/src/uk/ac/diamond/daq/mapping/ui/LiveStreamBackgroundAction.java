@@ -8,7 +8,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamMappingSupport;
 import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
@@ -98,21 +97,13 @@ public class LiveStreamBackgroundAction {
 			if (bms == null) {
 				Optional.ofNullable(helper.getAssociatedCameraConfiguration())
 						.map(CameraConfiguration::getName)
-						.map(this::associateBeamMappingSupport)
+						.map(CameraHelper::getICameraConfigurationByConfigurationName)
 						.ifPresent(cc -> bms = new BeamMappingSupport(cc, getMap()));
 			}
 			if (helper.isPlotted()) {
 				Optional.ofNullable(bms)
 					.ifPresent(s -> s.activateListener(helper.isPlotted()));
 			}
-		}
-
-		private ICameraConfiguration associateBeamMappingSupport(String cameraConfigurationName) {
-			return CameraHelper.getAllCameraConfigurationProperties().stream()
-				.filter(cp -> cp.getConfiguration().equals(cameraConfigurationName))
-				.findFirst()
-				.map(CameraHelper::createICameraConfiguration)
-				.orElse(null);
 		}
 	}
 
