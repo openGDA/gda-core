@@ -66,6 +66,16 @@ public final class ClientSWTElements {
 		return new Point(10, 10);
 	}
 
+	/**
+	 * @param parent
+	 * @param style
+	 * @param columns
+	 * @return a new {@code composite}
+	 * @deprecated use {@link #createClientCompositeWithGridLayout(Composite, int, int)}. This has been done to support
+	 *             a more consistent approach described in
+	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>. To be removed on GDA 9.25
+	 */
+	@Deprecated
 	public static final Composite createComposite(final Composite parent, int style, int columns) {
 		return createComposite(parent, style, columns, SWT.LEFT, SWT.TOP);
 	}
@@ -82,7 +92,7 @@ public final class ClientSWTElements {
 	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
 	 */
 	@Deprecated
-	public static final Composite createComposite(final Composite parent, int style, int columns, int hAlign,
+	private static final Composite createComposite(final Composite parent, int style, int columns, int hAlign,
 			int vAlign) {
 		Composite composite = createClientCompositeWithGridLayout(parent, style, columns);
 		GridDataFactory gdf = createGridDataFactory(hAlign, vAlign).grab(true, false);
@@ -101,51 +111,6 @@ public final class ClientSWTElements {
 	@Deprecated
 	private static final GridDataFactory createGridDataFactory(int hAlign, int vAlign) {
 		return GridDataFactory.swtDefaults().grab(true, true).align(hAlign, vAlign);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientCompositeWithGridLayout(Composite, int, int)}. This has been done to support
-	 *             a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Composite createComposite(final Composite parent, int style) {
-		return createComposite(parent, style, 1);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
-	 *             been done to support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
-			final ClientMessages tooltip) {
-		return createButton(parent, style, message, tooltip, Optional.empty(), Optional.empty());
-	}
-
-	/**
-	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
-	 *             been done to support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Button createButton(final Composite parent, int style, final ClientMessages message,
-			final ClientMessages tooltip, ClientImages image) {
-		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
-				ClientMessagesUtility.getMessage(tooltip), Optional.empty(), Optional.ofNullable(image));
-	}
-
-	/**
-	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
-	 *             been done to support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	private static final Button createButton(final Composite parent, int style, final ClientMessages message,
-			final ClientMessages tooltip, final Optional<Point> span, final Optional<ClientImages> image) {
-		return createButton(parent, style, ClientMessagesUtility.getMessage(message),
-				ClientMessagesUtility.getMessage(tooltip), span, image);
 	}
 
 	public static final void updateButton(final Button button, ClientMessages message, ClientMessages tooltip,
@@ -170,33 +135,6 @@ public final class ClientSWTElements {
 			button.setSize(DEFAULT_BUTTON_SIZE);
 		}
 		button.getParent().layout(true, true);
-	}
-
-	/**
-	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, Optional)}. This has
-	 *             been done to support a more consistent approach described in
-	 *             <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 */
-	@Deprecated
-	public static final Button createButton(final Composite parent, int style, String message, String tooltip,
-			final Optional<Point> span, final Optional<ClientImages> imageCode) {
-		Button button = new Button(parent, style);
-		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
-		button.setText(message);
-		button.setToolTipText(tooltip);
-		imageCode.ifPresent(i -> {
-			Image image = ClientSWTElements.getImage(i);
-			button.setImage(image);
-			button.setSize(image.getImageData().width, image.getImageData().height);
-		});
-		if (!imageCode.isPresent()) {
-			button.setSize(DEFAULT_BUTTON_SIZE);
-		}
-		GridData gridData = new GridData();
-		gridData.horizontalIndent = 5;
-		gridData.verticalIndent = 5;
-		button.setLayoutData(gridData);
-		return button;
 	}
 
 	public static final Combo createCombo(final Composite parent, int style, final String[] items,
@@ -319,7 +257,7 @@ public final class ClientSWTElements {
 	 * @deprecated Use instead {@link #createClientLabel(Composite, int, ClientMessages, FontDescriptor)}
 	 */
 	@Deprecated
-	public static final Label createClientLabel(final Composite parent, int style, final ClientMessages message,
+	private static final Label createClientLabel(final Composite parent, int style, final ClientMessages message,
 			Optional<FontDescriptor> fontDescriptor) {
 		Label label = new Label(parent, style);
 		label.setText(ClientMessagesUtility.getMessage(message));
@@ -369,38 +307,6 @@ public final class ClientSWTElements {
 		label.setFont(ClientResourceManager.getInstance().getLabelDefaultFont());
 		label.setText(message);
 		return label;
-	}
-
-	/**
-	 * Creates a basic {@link Button} component. This supports the approach described in
-	 * <a href="https://confluence.diamond.ac.uk/display/DIAD/User+Interfaces+for+DIAD">Confluence</a>
-	 *
-	 * @param parent
-	 *            where materialise the component
-	 * @param style
-	 *            the style to apply to the the button (SWP.PUSH, SWT.CHECK, SWT.RADIO, ...)
-	 * @param message
-	 *            the text to display in the button
-	 * @param tooltip
-	 *            the tooltip to display
-	 * @param imageCode
-	 *            the button image. May be empty
-	 * @return a new Label component
-	 * @deprecated use {@link #createClientButton(Composite, int, ClientMessages, ClientMessages, ClientImages)}
-	 */
-	@Deprecated
-	public static final Button createClientButton(final Composite parent, int style, ClientMessages message,
-			ClientMessages tooltip, final Optional<ClientImages> imageCode) {
-		Button button = new Button(parent, style);
-		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
-		button.setText(ClientMessagesUtility.getMessage(message));
-		button.setToolTipText(ClientMessagesUtility.getMessage(tooltip));
-		imageCode.ifPresent(i -> {
-			Image image = ClientSWTElements.getImage(i);
-			button.setImage(image);
-			button.setSize(image.getImageData().width, image.getImageData().height);
-		});
-		return button;
 	}
 
 	/**
@@ -469,7 +375,7 @@ public final class ClientSWTElements {
 	 * @deprecated Please use either {@link #createClientText(Composite, int, ClientMessages, VerifyListener)} or {@link #createClientText(Composite, int, ClientMessages)}
 	 */
 	@Deprecated
-	public static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
+	private static final Text createClientText(final Composite parent, int style, final ClientMessages tooltip,
 			final Optional<VerifyListener> listener) {
 		VerifyListener vl = listener.isPresent() ? listener.get() : null;
 		return createClientText(parent, style, tooltip, vl);

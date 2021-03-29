@@ -27,10 +27,15 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientResourceManager;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
@@ -86,19 +91,43 @@ public class SlimPositionerComposite extends NudgePositionerComposite {
 		final GridDataFactory buttonDataFactory = GridDataFactory.fillDefaults().grab(true, false);
 
 		// Increment button
-		setIncrementButton(ClientSWTElements.createButton(nudgeAmountComposite, SWT.FLAT, ClientMessages.EMPTY_MESSAGE,
-				ClientMessages.EMPTY_MESSAGE, ClientImages.TRIANGLE_UP));
+		Button incrementButton = createButton(nudgeAmountComposite, SWT.FLAT, ClientMessages.EMPTY_MESSAGE,
+				ClientMessages.EMPTY_MESSAGE, ClientImages.TRIANGLE_UP);
+		setIncrementButton(incrementButton);
 		buttonDataFactory.applyTo(getIncrementButton());
 		getIncrementButton().addSelectionListener(widgetSelectedAdapter(e -> doIncrementValue()));
 
 		// Decrement button
-		setDecrementButton(ClientSWTElements.createButton(nudgeAmountComposite, SWT.FLAT, ClientMessages.EMPTY_MESSAGE,
-				ClientMessages.EMPTY_MESSAGE, ClientImages.TRIANGLE_DOWN));
+		Button decrementButton = createButton(nudgeAmountComposite, SWT.FLAT, ClientMessages.EMPTY_MESSAGE,
+				ClientMessages.EMPTY_MESSAGE, ClientImages.TRIANGLE_DOWN);
+		setDecrementButton(decrementButton);
 		buttonDataFactory.applyTo(getDecrementButton());
 		getDecrementButton().addSelectionListener(widgetSelectedAdapter(e -> doDecrementValue()));
 
 		// Increment text box
 		setIncrementText(new Text(this, SWT.BORDER));
 		getIncrementText().addListener(SWT.Modify, event -> setIncrement(getIncrementText().getText()));
+	}
+
+
+	private Button createButton(final Composite parent, int style, ClientMessages cMessage, ClientMessages cTooltip,
+			ClientImages imageCode) {
+		String message = ClientMessagesUtility.getMessage(cMessage);
+		String tooltip = ClientMessagesUtility.getMessage(cTooltip);
+		Button button = new Button(parent, style);
+		button.setFont(ClientResourceManager.getInstance().getButtonDefaultFont());
+		button.setText(message);
+		button.setToolTipText(tooltip);
+
+		Image image = ClientSWTElements.getImage(imageCode);
+		button.setImage(image);
+		button.setSize(image.getImageData().width, image.getImageData().height);
+		button.setSize(ClientSWTElements.DEFAULT_BUTTON_SIZE);
+
+		GridData gridData = new GridData();
+		gridData.horizontalIndent = 5;
+		gridData.verticalIndent = 5;
+		button.setLayoutData(gridData);
+		return button;
 	}
 }
