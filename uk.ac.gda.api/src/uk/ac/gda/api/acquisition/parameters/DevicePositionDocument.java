@@ -105,6 +105,14 @@ public class DevicePositionDocument {
 				+ ", labelledPosition=" + labelledPosition + "]";
 	}
 
+	/**
+	 * Returns a compact tuple formatted as (device, value)
+	 *
+	 * @return a compatted expression
+	 */
+	public String toCompactString() {
+		return String.format("(%s, %s)", device, ValueType.NUMERIC.equals(getValueType()) ? position : labelledPosition);
+	}
 
 	@JsonPOJOBuilder
 	public static class Builder {

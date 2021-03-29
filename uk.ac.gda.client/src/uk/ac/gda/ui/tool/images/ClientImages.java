@@ -31,6 +31,8 @@ public enum ClientImages {
 	// --- GENERAL IMAGES ---
 	ADD(ClientImagesGroup.GENERAL, "add-16.png"),
 	DELETE(ClientImagesGroup.GENERAL, "delete-16.png"),
+	INFO(ClientImagesGroup.GENERAL, "info-16.png"),
+	MOVE_TO(ClientImagesGroup.GENERAL, "timing-belt-16.png"),
 	NEW(ClientImagesGroup.GENERAL, "new-file-16.png"),
 	NO_IMAGE(ClientImagesGroup.GENERAL, "no-image-16.png"),
 	OPEN(ClientImagesGroup.GENERAL, "open-16.png"),

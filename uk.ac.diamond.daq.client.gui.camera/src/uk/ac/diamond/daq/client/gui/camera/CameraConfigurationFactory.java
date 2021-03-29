@@ -183,7 +183,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
 		CompositeFactory cf = new CameraPositioningComposite();
 		group.setCompositeFactory(cf);
-		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.POSITIONING));
+		group.setLabel(ClientMessagesUtility.getMessage(ClientMessages.POSITIONS));
 		return group;
 	}
 

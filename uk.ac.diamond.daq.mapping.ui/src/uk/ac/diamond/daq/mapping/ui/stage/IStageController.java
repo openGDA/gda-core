@@ -23,6 +23,7 @@ import java.util.Set;
 
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
  * Defines a minimal set of methods for a stage controller. May change in future.
@@ -31,7 +32,25 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
  */
 public interface IStageController {
 
+	/**
+	 * Stores a sets of position documents and associates it to a {@link Position}
+	 * @param position the {@code Position} associated with the documents collection to set
+	 * @return the removed document set, eventually an empty {@code Set}
+	 */
 	Set<DevicePosition<Double>> savePosition(Position position);
+
+	/**
+	 * Removes a sets of position documents previously associated with a {@link Position}
+	 * @param position the {@code Position} associated with the documents set to remove
+	 * @return the removed document set, eventually an empty {@code Set}
+	 */
+	Set<DevicePositionDocument> removePosition(Position position);
+
+	/**
+	 * Moves the devices to the position specified by the documents associated with {@link Position}
+	 * @param position the {@code Position} associated with the documents set to use for the movement
+	 */
+	void moveToPosition(Position position);
 
 	Map<String, String> getMetadata();
 

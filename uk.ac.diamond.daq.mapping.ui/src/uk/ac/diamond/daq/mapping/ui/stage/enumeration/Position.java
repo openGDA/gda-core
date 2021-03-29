@@ -18,11 +18,35 @@
 
 package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
 
+import uk.ac.gda.ui.tool.ClientMessages;
+
 /**
  * A collection of standard position definitions
+ *
+ * @author Maurizio Nagni
  */
 public enum Position {
 
-	DEFAULT, OUT_OF_BEAM, START, END, Open, Close;
+	DEFAULT(ClientMessages.EMPTY_MESSAGE, ClientMessages.EMPTY_MESSAGE),
+	OUT_OF_BEAM(ClientMessages.OUT_OF_BEAM_POSITION, ClientMessages.OUT_OF_BEAM_POSITION_TP),
+	START(ClientMessages.IN_BEAM, ClientMessages.START_POSITION_TP),
+	END(ClientMessages.EMPTY_MESSAGE, ClientMessages.EMPTY_MESSAGE),
+	Open(ClientMessages.EMPTY_MESSAGE, ClientMessages.EMPTY_MESSAGE),
+	Close(ClientMessages.EMPTY_MESSAGE, ClientMessages.EMPTY_MESSAGE);
 
+	private final ClientMessages name;
+	private final ClientMessages tooltip;
+
+	private Position(ClientMessages name, ClientMessages tooltip) {
+		this.name = name;
+		this.tooltip = tooltip;
+	}
+
+	public ClientMessages getName() {
+		return name;
+	}
+
+	public ClientMessages getTooltip() {
+		return tooltip;
+	}
 }

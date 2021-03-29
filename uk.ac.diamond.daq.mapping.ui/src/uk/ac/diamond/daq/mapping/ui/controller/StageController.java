@@ -36,12 +36,15 @@ import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
+import uk.ac.diamond.daq.mapping.ui.stage.event.UpdateStagePositionEvent;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.client.properties.stage.DefaultManagedScannable;
+import uk.ac.gda.client.properties.stage.DevicePositionDocumentHelper;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  *
@@ -51,6 +54,9 @@ public class StageController implements IStageController {
 
 	@Autowired
 	private DevicePositionDocumentService devicePositionDocumentService;
+
+	@Autowired
+	private DevicePositionDocumentHelper devicePositionHelper;
 
 	@Autowired
 	private ScannablesPropertiesHelper helper;
@@ -78,7 +84,22 @@ public class StageController implements IStageController {
 	public Set<DevicePosition<Double>> savePosition(Position position) {
 		savePositionDocuments(position);
 		motorsPosition.put(position, getStageDescription().getMotorsPosition());
+		SpringApplicationContextFacade.publishEvent(new UpdateStagePositionEvent(this, position));
 		return motorsPosition.get(position);
+	}
+
+	@Override
+	public Set<DevicePositionDocument> removePosition(Position position) {
+		Set<DevicePositionDocument> deleted = devicesPosition.remove(position);
+		Optional.ofNullable(deleted)
+			.ifPresent(d -> SpringApplicationContextFacade.publishEvent(new UpdateStagePositionEvent(this, position)));
+		return deleted;
+	}
+
+	@Override
+	public void moveToPosition(Position position) {
+		Set<DevicePositionDocument> positionDocuments = devicesPosition.get(position);
+		positionDocuments.forEach(devicePositionHelper::moveTo);
 	}
 
 	@Override
@@ -111,13 +132,16 @@ public class StageController implements IStageController {
 	}
 
 	public Set<DevicePositionDocument> getPositionDocuments(Position position, Set<String> scannables) {
-		if (scannables == null || !devicesPosition.containsKey(position))
+		if (scannables == null)
 			return new HashSet<>();
-		return devicesPosition.get(position).stream()
+		return getPositionDocuments(position).stream()
 				.filter(d -> scannables.contains(d.getDevice()))
 				.collect(Collectors.toSet());
 	}
 
+	public Set<DevicePositionDocument> getPositionDocuments(Position position) {
+		return devicesPosition.getOrDefault(position, new HashSet<>());
+	}
 
 	public DevicePositionDocument createShutterClosedRequest() {
 		// The "CLOSED" string has to be linked to a property
