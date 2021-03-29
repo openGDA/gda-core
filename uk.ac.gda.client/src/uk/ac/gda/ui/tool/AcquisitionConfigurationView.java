@@ -25,6 +25,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.swt.SWT;
@@ -43,7 +44,9 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
+import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
  * This {@link ViewPart} allows to create, edit and run a {@link ScanningParameters} object for a generic acquisitions configuration.
@@ -74,9 +77,12 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().applyTo(container);
 		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		setContextAcquisitionController(createAcquisitionController());
 
-		getAcquisitionController().setDefaultNewAcquisitionSupplier(newScanningAcquisition());
-		getAcquisitionController().createNewAcquisition();
+		getAcquisitionController().ifPresent(c -> {
+			c.setDefaultNewAcquisitionSupplier(newScanningAcquisition());
+			c.createNewAcquisition();
+		});
 
 		AcquisitionCompositeFactoryBuilder builder = new AcquisitionCompositeFactoryBuilder();
 		builder.addTopArea(getTopArea(builder.getControlButtonsContainerSupplier()));
@@ -92,7 +98,8 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 
 	@Override
 	public void dispose() {
-		getAcquisitionController().releaseResources();
+		getAcquisitionController()
+			.ifPresent(AcquisitionController::releaseResources);
 		super.dispose();
 	}
 
@@ -121,12 +128,6 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	 * @return a new acquisition document
 	 */
 	protected abstract Supplier<ScanningAcquisition> newScanningAcquisition();
-	/**
-	 * The {@link AcquisitionController} associated with this view.
-	 *
-	 * @return an acquisition controller
-	 */
-	protected abstract AcquisitionController<ScanningAcquisition> getAcquisitionController();
 
 	private void buildSavedComposite(Composite parent) {
 		Group group = createClientGroup(parent, SWT.NONE, 1, SAVED_SCAN_DEFINITION);
@@ -143,5 +144,25 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 			buildSavedComposite(parent);
 			return parent;
 		};
+	}
+
+	protected abstract AcquisitionController<ScanningAcquisition> createAcquisitionController();
+
+	private void setContextAcquisitionController(AcquisitionController<ScanningAcquisition> controller) {
+		Optional.ofNullable(controller)
+			.ifPresent(getClientSpringContext()::setAcquisitionController);
+	}
+
+	/**
+	 * The {@link AcquisitionController} associated with this view.
+	 *
+	 * @return an acquisition controller
+	 */
+	protected final Optional<AcquisitionController<ScanningAcquisition>> getAcquisitionController() {
+		return getClientSpringContext().getAcquisitionController();
+	}
+
+	private ClientSpringContext getClientSpringContext() {
+		return SpringApplicationContextFacade.getBean(ClientSpringContext.class);
 	}
 }
