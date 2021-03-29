@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
@@ -27,16 +29,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.BoundingLine;
-import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
-import org.eclipse.scanning.api.points.models.IBoundingLineModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
@@ -80,81 +77,21 @@ public class PathInfoCalculatorJob extends Job {
 	@Override
 	public IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Calculating points for scan path", IProgressMonitor.UNKNOWN);
-		PathInfo pathInfo = new PathInfo();
+
+		// Deduces the names of the X and Y axes from the scan model. Defaults to "x" and "y"
+		// if it can't find any
 		String xAxisName = "x";
 		String yAxisName = "y";
-
 		if (scanPathModel instanceof IMapPathModel) {
 			IMapPathModel mapPathModel = (IMapPathModel) scanPathModel;
 			xAxisName = mapPathModel.getxAxisName();
 			yAxisName = mapPathModel.getyAxisName();
-
-			if (scanRegion != null && scanRegion.toROI() != null) {
-				if (scanPathModel instanceof IBoundingBoxModel) {
-					IBoundingBoxModel boxModel = (IBoundingBoxModel) scanPathModel;
-					// We set the roi to the bounds of the first region.
-					// TODO Is this correct?
-					IRectangularROI roi = scanRegion.toROI().getBounds();
-					if (roi != null) {
-						BoundingBox box = boxModel.getBoundingBox();
-						if (box == null) {
-							box = new BoundingBox();
-							boxModel.setBoundingBox(box);
-						}
-						box.setxAxisStart(roi.getPointX());
-						box.setyAxisStart(roi.getPointY());
-						box.setxAxisLength(roi.getLength(0));
-						box.setyAxisLength(roi.getLength(1));
-					}
-				} else if (scanPathModel instanceof IBoundingLineModel) {
-					IBoundingLineModel lineModel = (IBoundingLineModel) scanPathModel;
-					IROI roi = scanRegion.toROI();
-					if (roi instanceof LinearROI) {
-						LinearROI linearROI = (LinearROI) roi;
-						BoundingLine line = lineModel.getBoundingLine();
-						if (line == null) {
-							line = new BoundingLine();
-							lineModel.setBoundingLine(line);
-						}
-						line.setxStart(linearROI.getPointX());
-						line.setyStart(linearROI.getPointY());
-						line.setAngle(linearROI.getAngle());
-						line.setLength(linearROI.getLength());
-					}
-				}
-			}
 		}
 
 		try {
-			final Iterable<IPosition> pointIterable = pointGeneratorFactory.createGenerator(scanPathModel, scanRegion.toROI());
-			double lastX = Double.NaN;
-			double lastY = Double.NaN;
-			for (IPosition point : pointIterable) {
-				if (monitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				}
-				pathInfo.pointCount++;
-
-				if (pathInfo.pointCount > 1) {
-					double thisXStep = Math.abs(point.getValue(xAxisName) - lastX);
-					double thisYStep = Math.abs(point.getValue(yAxisName) - lastY);
-					double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
-					if (thisXStep > 0) {
-						pathInfo.smallestXStep = Math.min(pathInfo.smallestXStep, thisXStep);
-					}
-					if (thisYStep > 0) {
-						pathInfo.smallestYStep = Math.min(pathInfo.smallestYStep, thisYStep);
-					}
-					pathInfo.smallestAbsStep = Math.min(pathInfo.smallestAbsStep, thisAbsStep);
-				}
-
-				lastX = point.getValue(xAxisName);
-				lastY = point.getValue(yAxisName);
-				if (pathInfo.xCoordinates.size() <= MAX_POINTS_IN_ROI) {
-					pathInfo.xCoordinates.add(Double.valueOf(lastX));
-					pathInfo.yCoordinates.add(Double.valueOf(lastY));
-				}
-			}
+			PathInfo pathInfo = calculatePathInfo(
+					xAxisName,
+					yAxisName);
 			monitor.done();
 
 			// The consumer decides how to handle the path info event
@@ -164,4 +101,77 @@ public class PathInfoCalculatorJob extends Job {
 		}
 		return Status.OK_STATUS;
 	}
+
+    private PathInfo calculatePathInfo(
+    		String xAxisName,
+    		String yAxisName) throws Exception {
+		// Invokes ScanPointGenerator to create the points
+		final IPointGenerator<CompoundModel> pointGenerator = pointGeneratorFactory
+				.createGenerator(scanPathModel, scanRegion.toROI());
+
+		// Computes metadata that PathInfo requires (see PathInfo fields)
+		return calculatePathInfo(
+				pointGenerator,
+				xAxisName,
+				yAxisName);
+	}
+
+    private PathInfo calculatePathInfo(
+    		Iterable<IPosition> points,
+    		String xAxisName,
+    		String yAxisName) {
+    	// Initialise with sensible starting values
+    	int pointCount = 0;
+		double smallestXStep = Double.MAX_VALUE;
+		double smallestYStep = Double.MAX_VALUE;
+		double smallestAbsStep = Double.MAX_VALUE;
+		List<Double> xCoordinates = new ArrayList<>();
+		List<Double> yCoordinates = new ArrayList<>();
+		double lastX = Double.NaN;
+		double lastY = Double.NaN;
+
+		// Iterates through the points, stores the x and y positions in separate
+		// lists and keeps track of:
+		//  - The number of points
+		//  - The smallest distance between two consecutive x positions
+		//  - The smallest distance between two consecutive y positions
+		//  - The smallest distance between two consecutive positions in 2D space
+		for (IPosition point : points) {
+			pointCount++;
+
+			if (pointCount > 1) {
+				// Updates the smallest distance tracking variables if the distance
+				// between this point and the last is smaller than the smallest
+				// distance we've seen so far. Do this for x, y and 2D space.
+				double thisXStep = Math.abs(point.getValue(xAxisName) - lastX);
+				double thisYStep = Math.abs(point.getValue(yAxisName) - lastY);
+				double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
+				if (thisXStep > 0) {
+					smallestXStep = Math.min(smallestXStep, thisXStep);
+				}
+				if (thisYStep > 0) {
+					smallestYStep = Math.min(smallestYStep, thisYStep);
+				}
+				smallestAbsStep = Math.min(smallestAbsStep, thisAbsStep);
+			}
+
+			// Ensures no more than MAX_POINTS_IN_ROI points are inserted into
+			// the PathInfo. Still need to iterate through the rest of the points
+			// to accurately calculate step sizes and number of points.
+			lastX = point.getValue(xAxisName);
+			lastY = point.getValue(yAxisName);
+			if (xCoordinates.size() <= MAX_POINTS_IN_ROI) {
+				xCoordinates.add(Double.valueOf(lastX));
+				yCoordinates.add(Double.valueOf(lastY));
+			}
+		}
+
+		return new PathInfo(
+				pointCount,
+				smallestXStep,
+				smallestYStep,
+				smallestAbsStep,
+				xCoordinates,
+				yCoordinates);
+    }
 }

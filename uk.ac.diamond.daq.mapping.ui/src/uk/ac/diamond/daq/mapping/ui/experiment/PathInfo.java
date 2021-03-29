@@ -18,55 +18,112 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
- * Simple class to hold information about a scan path
+ * Simple class to hold information about a 2D mapping scan path for plotting/metadata
  */
-public class PathInfo {
+public final class PathInfo {
+	private static final String POINT_COUNT_FORMAT = "%,d";
+	private static final String DOUBLE_FORMAT = "%.4g";
 
-	int pointCount = 0;
-	double smallestXStep = Double.MAX_VALUE;
-	double smallestYStep = Double.MAX_VALUE;
-	double smallestAbsStep = Double.MAX_VALUE;
-	List<Double> xCoordinates = new ArrayList<>();
-	List<Double> yCoordinates = new ArrayList<>();
+	/*
+	 * Number of 2D points in the scan
+	 */
+	private final int pointCount;
 
-	private String pointCountFormat = "%,d";
-	private String doubleFormat = "%.4g";
+	/*
+	 * Smallest change in x position between any two points
+	 */
+	private final double smallestXStep;
 
-	String getFormattedPointCount() {
-		return String.format(pointCountFormat, pointCount);
+	/*
+	 * Smallest change in y position between any two points
+	 */
+	private final double smallestYStep;
+
+	/*
+	 * Smallest change in position between any two points
+	 */
+	private final double smallestAbsStep;
+
+	/*
+	 * Positions in x axis of all coordinates
+	 */
+	private final Collection<Double> xCoordinates;
+
+	/*
+	 * Positions in y axis of all coordinates
+	 */
+	private final Collection<Double> yCoordinates;
+
+	public PathInfo(
+			final int pointCount,
+			final double smallestXStep,
+			final double smallestYStep,
+			final double smallestAbsStep,
+			final Collection<Double> xCoordinates,
+			final Collection<Double> yCoordinates) {
+		super();
+		this.pointCount = pointCount;
+		this.smallestXStep = smallestXStep;
+		this.smallestYStep = smallestYStep;
+		this.smallestAbsStep = smallestAbsStep;
+		this.xCoordinates = Collections.unmodifiableCollection(xCoordinates);
+		this.yCoordinates = Collections.unmodifiableCollection(yCoordinates);
 	}
-	String getFormattedSmallestXStep() {
+
+	public int getPointCount() {
+		return pointCount;
+	}
+
+	public double getSmallestXStep() {
+		return smallestXStep;
+	}
+
+	public double getSmallestYStep() {
+		return smallestYStep;
+	}
+
+	public double getSmallestAbsStep() {
+		return smallestAbsStep;
+	}
+
+	public String getFormattedPointCount() {
+		return String.format(POINT_COUNT_FORMAT, pointCount);
+	}
+
+	public String getFormattedSmallestXStep() {
 		return formatDouble(smallestXStep);
 	}
-	String getFormattedSmallestYStep() {
+
+	public String getFormattedSmallestYStep() {
 		return formatDouble(smallestYStep);
 	}
-	String getFormattedSmallestAbsStep() {
+
+	public String getFormattedSmallestAbsStep() {
 		return formatDouble(smallestAbsStep);
-	}
-	double[] getXCoordinates() {
-		double[] xCoords = new double[xCoordinates.size()];
-		for (int index = 0; index < xCoordinates.size(); index++) {
-			xCoords[index] = xCoordinates.get(index).doubleValue();
-		}
-		return xCoords;
-	}
-	double[] getYCoordinates() {
-		double[] yCoords = new double[yCoordinates.size()];
-		for (int index = 0; index < yCoordinates.size(); index++) {
-			yCoords[index] = yCoordinates.get(index).doubleValue();
-		}
-		return yCoords;
 	}
 
 	private String formatDouble(double value) {
 		if (value == Double.MAX_VALUE) {
 			return "N/A";
 		}
-		return String.format(doubleFormat, value);
+		return String.format(DOUBLE_FORMAT, value);
+	}
+
+	public double[] getXCoordinates() {
+		return asArray(xCoordinates);
+	}
+
+	public double[] getYCoordinates() {
+		return asArray(yCoordinates);
+	}
+
+	private double[] asArray(Collection<Double> coordinates) {
+		return coordinates.stream()
+				.mapToDouble(Double::doubleValue)
+				.toArray();
 	}
 }
