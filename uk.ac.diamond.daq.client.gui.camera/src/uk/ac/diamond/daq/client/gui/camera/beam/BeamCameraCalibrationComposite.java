@@ -25,6 +25,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy.addDisposableApplicationListener;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -184,7 +185,9 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	private void updateCamera(CameraConfigurationProperties cameraProperties) {
 		iCameraConfiguration = CameraHelper.createICameraConfiguration(cameraProperties);
 		boolean enable = Optional.ofNullable(cameraProperties)
-				.map(cp -> cp.getCameraToBeamMap().isActive())
+				.map(CameraConfigurationProperties::getCameraToBeamMap)
+				.filter(Objects::nonNull)
+				.map(CameraToBeamMap::isActive)
 				.orElseGet(() -> false);
 		doCalibration.setEnabled(enable);
 	}
