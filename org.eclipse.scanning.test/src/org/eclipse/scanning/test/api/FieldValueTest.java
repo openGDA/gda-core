@@ -97,8 +97,8 @@ public class FieldValueTest {
 	public void testGetDisplayNameBlankLabel() {
 		// If the label annotation in the field is blank, getDisplayName() will construct a value from the field name,
 		// including an extra space at the end
-		assertThat(fieldValueSampleName.getDisplayName(), is(equalTo("Sample Name ")));
-		assertThat(fieldValueSampleNameSub.getDisplayName(), is(equalTo("Sample Name ")));
+		assertThat(fieldValueSampleName.getDisplayName(), is(equalTo("Sample Name")));
+		assertThat(fieldValueSampleNameSub.getDisplayName(), is(equalTo("Sample Name")));
 	}
 
 	@Test
@@ -262,9 +262,10 @@ public class FieldValueTest {
 		assertThat(fieldValueNoFieldSub.get(true), is(nullValue()));
 	}
 
-	@Test(expected = InstantiationException.class)
+	@Test(expected = NoSuchMethodException.class)
 	public void testGetCreateFailsForInteger() throws Exception {
-		// Fails because Integer has no zero-argument constructor
+		// get() has been refactored to call the preferred method getDeclaredConstructor()
+		// This throws a different exception than newInstance()
 		fieldValueSampleIdSub.get(true);
 	}
 
@@ -309,9 +310,8 @@ public class FieldValueTest {
 		assertThat(FieldValue.isModelField(fieldValueObjectSub, FieldValueTestConstants.INITIALISED_FIELD), is(false));
 	}
 
-	@Test(expected = NullPointerException.class)
 	public void testIsModelFieldNonExistent() throws Exception {
-		// isModelField() for field that doesn't exist throws a NPE: this may not be the intended behaviour
-		FieldValue.isModelField(fieldValueObject, FieldValueTestConstants.NO_FIELD);
+		// Method has been refactored to check for non-existent field, avoiding NPE
+		assertThat(FieldValue.isModelField(fieldValueObject, FieldValueTestConstants.NO_FIELD), is(false));
 	}
 }

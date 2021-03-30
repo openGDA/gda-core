@@ -19,61 +19,60 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FieldUtils {
 
+	private FieldUtils() {
+		// prevent instantiation
+	}
 
 	public static boolean isFileType(Class<? extends Object> clazz) {
-		if (File.class.isAssignableFrom(clazz))       return true;
-		if (Path.class.isAssignableFrom(clazz))       return true;
-		if (clazz.getName().equals("org.eclipse.core.resources.IResource"))  return true;
-		return false;
+		return File.class.isAssignableFrom(clazz)
+			|| Path.class.isAssignableFrom(clazz)
+			|| clazz.getName().equals("org.eclipse.core.resources.IResource");
 	}
 
-	public static FieldDescriptor getAnnotation(Object model, String fieldName) throws NoSuchFieldException, SecurityException{
-
-		Field field = getField(model, fieldName);
-		if (field!=null) {
-			FieldDescriptor anot = field.getAnnotation(FieldDescriptor.class);
-			if (anot!=null) {
-				return anot;
-			}
-		}
-		return null;
-
-	}
-
-	public static Field getField(Object model, String fieldName) throws NoSuchFieldException, SecurityException {
-
-	Field field;
-	Class<? extends Object> cls = model.getClass();
-	while (!cls.equals(Object.class)) {
-			try {
-				field = cls.getDeclaredField(fieldName);
-				return field;
-			} catch (Exception ne) {
-				cls = cls.getSuperclass();
-			}
-	}
-	throw new NoSuchFieldException(fieldName);
+	public static FieldDescriptor getAnnotation(Object model, String fieldName) throws NoSuchFieldException, SecurityException {
+		final Field field = getField(model, fieldName);
+		return (field == null) ? null : field.getAnnotation(FieldDescriptor.class);
 	}
 
 	/**
-	 * Get a collection of the fields of the model that should be edited in the User interface
-	 * for editing the model.
+	 * Search for a field in a model class or its superclasses
+	 *
+	 * @param model
+	 *            an object which is an instance of a model class
+	 * @param fieldName
+	 *            the {@link Field} to find
+	 * @return the {@link Field} (if it exists): otherwise, an exception is thrown
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 */
+	public static Field getField(Object model, String fieldName) throws NoSuchFieldException, SecurityException {
+		Class<? extends Object> cls = model.getClass();
+		while (!cls.equals(Object.class)) {
+			try {
+				return cls.getDeclaredField(fieldName);
+			} catch (Exception ne) {
+				cls = cls.getSuperclass();
+			}
+		}
+		throw new NoSuchFieldException(fieldName);
+	}
+
+	/**
+	 * Get a collection of the fields of the model that should be edited in the User interface for editing the model.
 	 *
 	 * @return collection of fields.
 	 * @throws Exception
 	 */
 	public static Collection<FieldValue> getModelFields(Object model) throws Exception {
-
 		// Decided not to use the obvious BeanMap here because class problems with
 		// GDA and we have to read annotations anyway.
-		final List<Field> allFields = new ArrayList<Field>(31);
+		final List<Field> allFields = new ArrayList<>(31);
 		Class<? extends Object> cls = model.getClass();
 
 		while (!cls.equals(Object.class)) {
@@ -94,33 +93,30 @@ public class FieldUtils {
 			}
 		}
 
-		List<FieldValue> ret = new ArrayList<>(map.values());
-		Collections.sort(ret, new Comparator<FieldValue>() {
-			@Override
-			public int compare(FieldValue o1, FieldValue o2) {
-				FieldDescriptor an1, an2;
-				try {
-					an1 = FieldUtils.getAnnotation(o1.getModel(), o1.getName());
-					an2 = FieldUtils.getAnnotation(o2.getModel(), o2.getName());
-				} catch (NoSuchFieldException | SecurityException e) {
-					throw new RuntimeException("Cannot get field from model, "+o1.getName()+", "+o2.getName(), e);
-				}
-				if (an1!=null && an2 !=null) {
-					if (an1.fieldPosition() != Integer.MAX_VALUE && an2.fieldPosition() != Integer.MAX_VALUE) {
-						return (an1.fieldPosition() - an2.fieldPosition());
-					}
-					else if (an1.fieldPosition() != Integer.MAX_VALUE) {
-						return -1;
-					}
-					else if (an2.fieldPosition() != Integer.MAX_VALUE) {
-						return 1;
-					}
-				}
-				return o1.getDisplayName().toLowerCase().compareTo(o2.getDisplayName().toLowerCase());
-			}
-		});
-
+		final List<FieldValue> ret = new ArrayList<>(map.values());
+		Collections.sort(ret, FieldUtils::compareFieldValues);
 		return ret;
 	}
 
+	private static int compareFieldValues(FieldValue o1, FieldValue o2) {
+		final FieldDescriptor an1;
+		final FieldDescriptor an2;
+		try {
+			an1 = FieldUtils.getAnnotation(o1.getModel(), o1.getName());
+			an2 = FieldUtils.getAnnotation(o2.getModel(), o2.getName());
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new RuntimeException("Cannot get field from model, " + o1.getName() + ", " + o2.getName(), e);
+		}
+
+		if (an1 != null && an2 != null) {
+			if (an1.fieldPosition() != Integer.MAX_VALUE && an2.fieldPosition() != Integer.MAX_VALUE) {
+				return (an1.fieldPosition() - an2.fieldPosition());
+			} else if (an1.fieldPosition() != Integer.MAX_VALUE) {
+				return -1;
+			} else if (an2.fieldPosition() != Integer.MAX_VALUE) {
+				return 1;
+			}
+		}
+		return o1.getDisplayName().toLowerCase().compareTo(o2.getDisplayName().toLowerCase());
+	}
 }

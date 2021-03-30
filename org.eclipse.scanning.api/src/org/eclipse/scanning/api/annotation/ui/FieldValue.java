@@ -20,19 +20,17 @@ import org.eclipse.scanning.api.points.models.IScanPathModel;
 
 /**
  * Class to be used for editing the field of a Model
- *
- * Reads annotations used on the models field and provides
- * discovery information about the field.
- *
+ * <p>
+ * Reads annotations used on the models field and provides discovery information about the field.
  */
 public class FieldValue {
 
-	private Object  model;
-	private String  name;
+	private Object model;
+	private String name;
 
 	public FieldValue(Object model, String name) {
 		this.model = model;
-		this.name  = name;
+		this.name = name;
 	}
 
 	public Object getModel() {
@@ -52,41 +50,40 @@ public class FieldValue {
 	}
 
 	public String getDisplayName() {
-
-	FieldDescriptor anot;
+		final FieldDescriptor anot;
 		try {
 			anot = FieldUtils.getAnnotation(model, name);
 		} catch (NoSuchFieldException | SecurityException e) {
 			return e.getMessage();
 		}
-	if (anot!=null) {
-		String label = anot.label();
-		if (label!=null && !"".equals(label)) return label;
-	}
-	return decamel(name);
+		if (anot != null) {
+			final String label = anot.label();
+			if (label != null && !label.isEmpty())
+				return label;
+		}
+		return decamel(name);
 	}
 
 	/**
 	 * Method to decamel case field names.
+	 *
 	 * @param fieldName
-	 * @return
+	 * @return decamelled version of name
 	 */
 	private static String decamel(String fieldName) {
 		try {
-		    String[] words = fieldName.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
-		    StringBuilder buf = new StringBuilder();
-		    for (String string : words) {
-			buf.append(String.valueOf(string.charAt(0)).toUpperCase());
-			buf.append(string.substring(1));
-			buf.append(" ");
+			final String[] words = fieldName.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+			final StringBuilder buf = new StringBuilder();
+			for (String string : words) {
+				buf.append(String.valueOf(string.charAt(0)).toUpperCase());
+				buf.append(string.substring(1));
+				buf.append(" ");
 			}
-		    return buf.toString();
+			return buf.toString().trim();
 		} catch (Exception ne) {
 			return fieldName;
 		}
 	}
-
-
 
 	@Override
 	public int hashCode() {
@@ -120,10 +117,9 @@ public class FieldValue {
 	}
 
 	public Class<? extends Object> getType() throws NoSuchFieldException, SecurityException {
-		Field field = FieldUtils.getField(model, name);
+		final Field field = FieldUtils.getField(model, name);
 		return field.getType();
 	}
-
 
 	public FieldDescriptor getAnnotation() {
 		try {
@@ -134,11 +130,12 @@ public class FieldValue {
 	}
 
 	public boolean isFileProperty() {
+		final FieldDescriptor anot = getAnnotation();
+		if (anot != null && anot.file() != FileType.NONE) {
+			return true;
+		}
 
-	final FieldDescriptor anot = getAnnotation();
-	if (anot!=null && anot.file()!=FileType.NONE) return true;
-
-		Class<? extends Object> clazz;
+		final Class<? extends Object> clazz;
 		try {
 			clazz = getType();
 		} catch (NoSuchFieldException | SecurityException e) {
@@ -149,6 +146,7 @@ public class FieldValue {
 
 	/**
 	 * Set fields value
+	 *
 	 * @param value
 	 * @throws Exception
 	 */
@@ -158,31 +156,33 @@ public class FieldValue {
 
 	/**
 	 * Get fields value
+	 *
 	 * @return value
 	 */
 	public Object get() {
 		try {
-		    return get(model, name);
+			return get(model, name);
 		} catch (Exception ne) {
 			return null;
 		}
 	}
 
-
-	public Object get(boolean create) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
-		Object value = get();
-		if (value !=null ||!create) return value;
-		Method method = getMethod(model.getClass(), name);
-		if (method!=null) {
-			return method.getReturnType().newInstance();
+	public Object get(boolean create) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException, NoSuchMethodException, SecurityException {
+		final Object value = get();
+		if (value != null || !create) {
+			return value;
+		}
+		final Method method = getMethod(model.getClass(), name);
+		if (method != null) {
+			return method.getReturnType().getDeclaredConstructor().newInstance();
 		}
 		return null;
 	}
 
 	/**
-	 * Tries to find the no-argument getter for this field, ignoring case
-	 * so that camel case may be used in method names. This means that this
-	 * method is not particularly fast, so avoid calling in big loops!
+	 * Tries to find the no-argument getter for this field, ignoring case so that camel case may be used in method
+	 * names. This means that this method is not particularly fast, so avoid calling in big loops!
+	 *
 	 * @throws InvocationTargetException
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
@@ -190,32 +190,36 @@ public class FieldValue {
 	public static Object get(Object model, String name) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<? extends Object> cls = model.getClass();
 		while (!cls.equals(Object.class)) {
-			Object val = get(model, cls, name);
-			if (val != null) return val;
+			final Object val = get(model, cls, name);
+			if (val != null) {
+				return val;
+			}
 			cls = cls.getSuperclass();
 		}
 		return null;
 	}
 
 	private static Object get(Object model, Class<?> clazz, String name) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		if (clazz == null || clazz.equals(Object.class)) {
+			return null;
+		}
 
-		if (clazz==null || clazz.equals(Object.class)) return null;
+		final Method[] methods = clazz.getMethods();
 
-		final String getter = getGetterName(name).toLowerCase();
-		Method[] methods = clazz.getMethods();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(getter)) {
-				if (method.getParameterTypes().length<1) {
+		final String getter = getGetterName(name);
+		if (getter != null && !getter.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(getter) && method.getParameterTypes().length < 1) {
 					method.setAccessible(true);
 					return method.invoke(model);
 				}
 			}
 		}
 
-		final String isser  = getIsserName(name).toLowerCase();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(isser)) {
-				if (method.getParameterTypes().length<1) {
+		final String isser = getIsserName(name);
+		if (isser != null && !isser.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(isser) && method.getParameterTypes().length < 1) {
 					method.setAccessible(true);
 					return method.invoke(model);
 				}
@@ -224,24 +228,26 @@ public class FieldValue {
 		return null;
 	}
 
-	private static Method getMethod(Class<?> clazz, String name) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private static Method getMethod(Class<?> clazz, String name) throws IllegalArgumentException {
+		if (clazz == null || clazz.equals(Object.class)) {
+			return null;
+		}
 
-		if (clazz==null || clazz.equals(Object.class)) return null;
+		final Method[] methods = clazz.getMethods();
 
-		final String getter = getGetterName(name).toLowerCase();
-		Method[] methods = clazz.getMethods();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(getter)) {
-				if (method.getParameterTypes().length<1) {
+		final String getter = getGetterName(name);
+		if (getter != null && !getter.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(getter) && method.getParameterTypes().length < 1) {
 					return method;
 				}
 			}
 		}
 
-		final String isser  = getIsserName(name).toLowerCase();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(isser)) {
-				if (method.getParameterTypes().length<1) {
+		final String isser = getIsserName(name);
+		if (isser != null && !isser.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(isser) && method.getParameterTypes().length < 1) {
 					return method;
 				}
 			}
@@ -249,60 +255,63 @@ public class FieldValue {
 		return null;
 	}
 
-
-
-	public static boolean isModelField(Object model, String name) throws NoSuchFieldException, SecurityException {
-
+	public static boolean isModelField(Object model, String name) throws SecurityException {
 		Field field = null;
 		Class<? extends Object> cls = model.getClass();
-	while (!cls.equals(Object.class)) {
-		try {
-			field = cls.getDeclaredField(name);
-			break;
-		} catch (Exception ne) {
-			cls = cls.getSuperclass();
+		while (!cls.equals(Object.class)) {
+			try {
+				field = cls.getDeclaredField(name);
+				break;
+			} catch (Exception ne) {
+				cls = cls.getSuperclass();
+			}
 		}
-	}
+		if (field == null) {
+			return false;
+		}
 
-		FieldDescriptor omf = field.getAnnotation(FieldDescriptor.class);
-		if (omf!=null && !omf.visible()) return false;
+		final FieldDescriptor omf = field.getAnnotation(FieldDescriptor.class);
+		if (omf != null && !omf.visible()) {
+			return false;
+		}
 
-		final String getter = getGetterName(name).toLowerCase();
-		Method[] methods = model.getClass().getMethods();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(getter)) {
-				if (method.getParameterTypes().length<1) {
+		final Method[] methods = model.getClass().getMethods();
+
+		final String getter = getGetterName(name);
+		if (getter != null && !getter.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(getter) && method.getParameterTypes().length < 1) {
 					return true;
 				}
 			}
 		}
 
-		final String isser  = getIsserName(name).toLowerCase();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(isser)) {
-				if (method.getParameterTypes().length<1) {
+		final String isser = getIsserName(name);
+		if (isser != null && !isser.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(isser) && method.getParameterTypes().length < 1) {
 					return true;
 				}
 			}
 		}
 
-	    return false;
+		return false;
 	}
 
 	/**
 	 * Set a field by name using reflection.
+	 *
 	 * @param name
-	 * @return fields old value, or null
+	 * @return field's old value, or null
 	 */
-	private static Object set(Object model, String name, Object value)throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private static Object set(Object model, String name, Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		final Object oldValue = get(model, name);
+		final Method[] methods = model.getClass().getMethods();
 
-		Object oldValue = get(model, name);
-
-		final String setter = getSetterName(name).toLowerCase();
-		Method[] methods = model.getClass().getMethods();
-		for (Method method : methods) {
-			if (method.getName().toLowerCase().equals(setter)) {
-				if (method.getParameterTypes().length==1) {
+		final String setter = getSetterName(name);
+		if (setter != null && !setter.isEmpty()) {
+			for (Method method : methods) {
+				if (method.getName().equalsIgnoreCase(setter) && method.getParameterTypes().length == 1) {
 					method.setAccessible(true);
 					method.invoke(model, value);
 				}
@@ -311,11 +320,10 @@ public class FieldValue {
 		return oldValue;
 	}
 
-
 	private static String getSetterName(final String fieldName) {
-		if (fieldName == null) return null;
-		return getName("set", fieldName);
+		return fieldName == null ? null : getName("set", fieldName);
 	}
+
 	/**
 	 * There must be a smarter way of doing this i.e. a JDK method I cannot find. However it is one line of Java so
 	 * after spending some time looking have coded self.
@@ -324,18 +332,17 @@ public class FieldValue {
 	 * @return String
 	 */
 	private static String getGetterName(final String fieldName) {
-		if (fieldName == null) return null;
-		return getName("get", fieldName);
+		return fieldName == null ? null : getName("get", fieldName);
 	}
 
 	private static String getIsserName(final String fieldName) {
-		if (fieldName == null)
-			return null;
-		return getName("is", fieldName);
+		return fieldName == null ? null : getName("is", fieldName);
 	}
+
 	private static String getName(final String prefix, final String fieldName) {
 		return prefix + getFieldWithUpperCaseFirstLetter(fieldName);
 	}
+
 	private static String getFieldWithUpperCaseFirstLetter(final String fieldName) {
 		return fieldName.substring(0, 1).toUpperCase(Locale.US) + fieldName.substring(1);
 	}
@@ -344,5 +351,4 @@ public class FieldValue {
 	public String toString() {
 		return "FieldValue [name=" + name + "]";
 	}
-
 }
