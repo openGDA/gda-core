@@ -69,14 +69,25 @@ public class DevicePositionDocumentService {
 	private DeviceHandler deviceHandler;
 
 	/**
-	 * Returns a {@link DevicePositionDocument} for the required findable device.
+	 * Returns a {@link DevicePositionDocument} for the required device which extends {@link Scannable}
 	 * @param device the device to interrogate
 	 * @return the document otherwise {@code null} if the device is not available
 	 */
 	public final DevicePositionDocument devicePositionAsDocument(String device) {
-		Optional<Scannable> scannable = Optional.empty();
+		return devicePositionAsDocument(device, Scannable.class);
+	}
+
+	/**
+	 * Returns a {@link DevicePositionDocument} for the required device which extends {@link Scannable}
+	 * @param <T>
+	 * @param device the device to interrogate
+	 * @param clazz the specific class to interrogate
+	 * @return the document otherwise {@code null} if the device is not available
+	 */
+	public final <T extends Scannable> DevicePositionDocument devicePositionAsDocument(String device, Class<T> clazz) {
+		Optional<T> scannable = Optional.empty();
 		try {
-			scannable = finder.getFindableObject(device);
+			scannable = finder.getFindableObject(device, clazz);
 		} catch (ClassCastException e) {
 			// If the device is of an un-castable class, does nothing
 		}

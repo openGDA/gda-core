@@ -130,7 +130,7 @@ public class ManagedScannable<T> {
 	}
 
 	private Scannable retrieveScannable() {
-		scannable = getFinder().getFindableObject(getDevice())
+		scannable = getFinder().getFindableObject(getDevice(), Scannable.class)
 				.filter(Scannable.class::isInstance)
 				.map(Scannable.class::cast)
 				.orElseGet(() -> null);

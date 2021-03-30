@@ -151,7 +151,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	public void testRunScanningAcquisition() throws AcquisitionControllerException, ScanningAcquisitionServiceException {
 		CameraControl cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
-		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
+		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control", CameraControl.class);
 
 		doReturn(createDevicePositionDocument()).when(stageController).createShutterOpenRequest();
 		doReturn(createDevicePositionDocuments()).when(stageController)
@@ -183,7 +183,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	public void testRunScanningAcquisitionNoOutOfBeam() throws AcquisitionControllerException {
 		CameraControl cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
-		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control");
+		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control", CameraControl.class);
 
 		doReturn(new HashSet<>()).when(stageController)
 			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());

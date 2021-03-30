@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
+import gda.factory.Findable;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
@@ -479,7 +480,7 @@ public final class CameraHelper {
 		private Optional<CameraControl> getCameraControl(int cameraIndex) {
 			String findableName = getCameraProperies().get(cameraIndex).getCameraControl();
 			if (findableName != null) {
-				return getCameraConfiguration(findableName, CameraControl.class);
+				return getFindable(findableName, CameraControl.class);
 			}
 			return Optional.empty();
 		}
@@ -487,14 +488,14 @@ public final class CameraHelper {
 		public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
 			String findableName = getCameraConfigurationInstance(cameraIndex);
 			if (findableName != null) {
-				return getCameraConfiguration(findableName, CameraConfiguration.class);
+				return getFindable(findableName, CameraConfiguration.class);
 			}
 			return Optional.empty();
 		}
 
-		private static <T> Optional<T> getCameraConfiguration(String findableName, Class<T> clazz) {
+		private static <T extends Findable> Optional<T> getFindable(String findableName, Class<T> clazz) {
 			return Optional.ofNullable(getFinderService())
-					.map(f -> f.getFindableObject(findableName))
+					.map(f -> f.getFindableObject(findableName, clazz))
 					.filter(Optional::isPresent)
 					.map(Optional::get)
 					.map(clazz::cast);
