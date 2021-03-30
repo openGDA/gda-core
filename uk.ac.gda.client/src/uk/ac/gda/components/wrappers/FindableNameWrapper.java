@@ -18,7 +18,6 @@
 
 package uk.ac.gda.components.wrappers;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -140,35 +139,37 @@ public class FindableNameWrapper extends TextWrapper {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			final Optional<Findable> optionalObject = Finder.findOptionalOfType(name, Findable.class);
-			getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (name.equals(mostRecentStarted)) {
-						// Only do the update if there isn't another job about to come along behind us
-						if (optionalObject.isPresent()) {
-							if (!(findableClass.isInstance(optionalObject.get()))) {
-								setWrongNameError(name);
-							} else {
+			getDisplay().syncExec( () -> {
+
+				// Only do the update if there isn't another job about to come along behind us
+				if (!name.equals(mostRecentStarted)) { return; }
+
+				optionalObject.ifPresentOrElse(
+					obj-> {
+							if(findableClass.isInstance(obj)) {
 								setRightName(name);
+							} else {
+								setWrongNameError(name);
 							}
-						} else {
+						},
+					() -> {
 							try {
-								Map<String, Object> allFromJythonNamespace = JythonServerFacade.getInstance().getAllFromJythonNamespace();
-								if(allFromJythonNamespace.containsKey(name)){
-									Object jythonServerResult = JythonServerFacade.getInstance().evaluateCommand(name);
-									if (jythonServerResult != null)
-										setRightName(name);
-									else
-										setNotFindableError(name);
-								}
+								if( ! JythonServerFacade.getInstance()
+														.getAllFromJythonNamespace()
+														.containsKey(name)) return;
+
+								Object jythonServerResult = JythonServerFacade.getInstance().evaluateCommand(name);
+								if (jythonServerResult != null)
+									setRightName(name);
+								else
+									setNotFindableError(name);
+
 							} catch (DeviceException e) {
 								text.setToolTipText("Expression has invalid syntax");
 							}
 						}
-					}
-				}
+				);
 			});
-
 			return Status.OK_STATUS;
 		}
 

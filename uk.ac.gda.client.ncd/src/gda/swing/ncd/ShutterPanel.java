@@ -96,22 +96,18 @@ public class ShutterPanel extends JPanel implements IObserver, Runnable,Configur
 		timer = new Timer(1000, null);
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public void configure() {
 		if (configured) {
 			return;
 		}
-		if (shutter == null) {
-			if (shutterName == null)
+		if (shutter == null && shutterName == null) {
 				return;
 		}
 		try {
 			if (shutter == null) {
 				Optional<EnumPositioner> optionalShutter = Finder.findOptionalOfType(shutterName, EnumPositioner.class);
-				if (!optionalShutter.isPresent()) {
+				if (optionalShutter.isEmpty()) {
 					return;
 				}
 				shutter = optionalShutter.get();

@@ -203,12 +203,12 @@ public class ScannablePositionerControl extends LiveControlBase {
 	@Override
 	public void createControl(Composite composite) {
 		// Get the scannable with the finder
-		final Optional<Scannable> optionalScannable = Finder.findOptionalOfType(getScannableName(), Scannable.class);
-		if (!optionalScannable.isPresent()) {
+		Optional<Scannable> optionalScannable = Finder.findOptionalOfType(getScannableName(), Scannable.class);
+		if (optionalScannable.isEmpty()) {
 			logger.warn("Could not get scannable '{}' for live control", getScannableName());
 			return;
 		}
-		final Scannable scannable = optionalScannable.get();
+		Scannable scannable = optionalScannable.get();
 
 		int layoutStyle = horizontalLayout ? SWT.HORIZONTAL : SWT.NONE;
 

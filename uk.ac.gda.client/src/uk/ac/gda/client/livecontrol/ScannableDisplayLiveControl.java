@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.livecontrol;
 
-import java.util.Optional;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -48,27 +46,23 @@ public class ScannableDisplayLiveControl extends LiveControlBase {
 
 	@Override
 	public void createControl(Composite parent) {
-		Optional<Scannable> optionalScannable = Finder.findOptionalOfType(getScannableName(), Scannable.class);
-		if (!optionalScannable.isPresent()) {
-			logger.warn("Could not get scannable '{}' for live control", getScannableName());
-			return;
-		}
-		Scannable scannable = optionalScannable.get();
+		Finder.findOptionalOfType(getScannableName(), Scannable.class)
+				.ifPresentOrElse( scannable -> {
+					ScannableDisplayComposite composite = new ScannableDisplayComposite(parent, getStyle());
+					composite.setScannable(scannable);
+					composite.setDisplayName(getDisplayName());
+					composite.setTextWidth(getTextWidth());
+					composite.setLabelSize(getLabelTextSize());
+					composite.setValueSize(getValueTextSize());
+					composite.setLabelColour(getLabelColour());
+					composite.setValueColour(getValueColour());
+					composite.setTextInput(isTextInput());
+					composite.setValueBold(isBoldValue());
 
-		ScannableDisplayComposite composite = new ScannableDisplayComposite(parent, getStyle());
-		composite.setScannable(scannable);
-		composite.setDisplayName(getDisplayName());
-		composite.setTextWidth(getTextWidth());
-		composite.setLabelSize(getLabelTextSize());
-		composite.setValueSize(getValueTextSize());
-		composite.setLabelColour(getLabelColour());
-		composite.setValueColour(getValueColour());
-		composite.setTextInput(isTextInput());
-		composite.setValueBold(isBoldValue());
-
-		if (getUserUnits() != null) {
-			composite.setUserUnit(getUserUnits());
-		}
+					if (getUserUnits() != null) {
+						composite.setUserUnit(getUserUnits());
+					}
+				}, () -> logger.warn("Could not get scannable '{}' for live control", getScannableName()) );
 	}
 
 	public String getDisplayName() {

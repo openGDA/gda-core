@@ -19,7 +19,6 @@
 package uk.ac.gda.client.livecontrol;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -47,21 +46,17 @@ public class MultiFieldsScannableControl extends LiveControlBase {
 
 	@Override
 	public void createControl(Composite composite) {
-		final Optional<Scannable> optionalScannable = Finder.findOptionalOfType(getScannableName(), Scannable.class);
-		if (!optionalScannable.isPresent()) {
-			logger.warn("Could not get scannable '{}' for live control", getScannableName());
-			return;
-		}
-		final Scannable scannable = optionalScannable.get();
-
-		final ScannableFieldsComposite sfc = new ScannableFieldsComposite(composite, SWT.None);
-		sfc.setScannable(scannable);
-		if (getDisplayName() != null) {
-			sfc.setDisplayName(displayName);
-		}
-		if (showStop != null && !showStop) {
-			sfc.hideStopButton();
-		}
+		Finder.findOptionalOfType(getScannableName(), Scannable.class)
+				.ifPresentOrElse( scannable -> {
+					ScannableFieldsComposite sfc = new ScannableFieldsComposite(composite, SWT.None);
+					sfc.setScannable(scannable);
+					if (getDisplayName() != null) {
+						sfc.setDisplayName(displayName);
+					}
+					if (showStop != null && !showStop) {
+						sfc.hideStopButton();
+					}
+				}, () -> logger.warn("Could not get scannable '{}' for live control", getScannableName()) );
 	}
 
 	public String getScannableName() {

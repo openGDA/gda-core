@@ -191,23 +191,24 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 	}
 
 	private RmiObjectInfo findAndExport(String name) {
-		// Find using local we are about to export something so it should not be remote already
-		final Optional<Findable> optionalFindable = Finder.findOptionalOfType(name, Findable.class);
-		if (!optionalFindable.isPresent()) { // there is no object available in the server with this name
+		Optional<Findable> maybeFindable = Finder.findOptionalOfType(name, Findable.class);
+
+		Optional<Class<?>> maybeBeanClass = maybeFindable.map(Findable::getClass);
+		if(maybeBeanClass.isEmpty()) { // there is no object available in the server with this name
 			logger.debug("No object with name '{}' found", name);
 			return null;
 		}
-		final Findable object = optionalFindable.get();
-		final Class<?> beanClass = object.getClass();
-		final ServiceInterface serviceInterface = beanClass.getAnnotation(ServiceInterface.class);
-		if (serviceInterface == null) {
+
+		Optional<Class<?>> maybeServiceValue =
+				maybeBeanClass.map( beanClass -> beanClass.getAnnotation(ServiceInterface.class) )
+								.map(ServiceInterface::value);
+		if(maybeServiceValue.isEmpty()) {
 			logger.error("Not exporting '{}' as it has no @ServiceInterface annotation", name);
 			return null;
-		} else {
-			boolean eventsSupported = export(name, object, serviceInterface.value());
-			return new RmiObjectInfo(name, AUTO_EXPORT_RMI_PREFIX + name, serviceInterface.value().getCanonicalName(),
-					eventsSupported);
 		}
+		Class<?> value = maybeServiceValue.get();
+		boolean eventsSupported = export(name, maybeFindable.get(),value);
+		return new RmiObjectInfo(name, AUTO_EXPORT_RMI_PREFIX + name, value.getCanonicalName(), eventsSupported);
 	}
 
 	@Override
