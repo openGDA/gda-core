@@ -35,15 +35,16 @@ public final class FinderHelper {
 
 	private FinderHelper() {}
 
+	@SuppressWarnings("unchecked")
 	public static synchronized <T extends Findable> Optional<T> getFindableDevice(String beanId) {
-		return Finder.findOptional(beanId);
+		return (Optional<T>) Finder.findOptionalOfType(beanId, Findable.class);
 	}
 
 	public static synchronized Optional<Scannable> getScannable(String beanId) {
-		return Finder.findOptional(beanId);
+		return Finder.findOptionalOfType(beanId, Scannable.class);
 	}
 
 	public static synchronized Optional<IScannableMotor> getIScannableMotor(String beanId) {
-		return Finder.findOptional(beanId);
+		return Finder.findOptionalOfType(beanId, IScannableMotor.class);
 	}
 }

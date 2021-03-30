@@ -47,7 +47,7 @@ public class MultiFieldsScannableControl extends LiveControlBase {
 
 	@Override
 	public void createControl(Composite composite) {
-		final Optional<Scannable> optionalScannable = Finder.findOptional(getScannableName());
+		final Optional<Scannable> optionalScannable = Finder.findOptionalOfType(getScannableName(), Scannable.class);
 		if (!optionalScannable.isPresent()) {
 			logger.warn("Could not get scannable '{}' for live control", getScannableName());
 			return;
