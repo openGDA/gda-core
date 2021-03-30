@@ -20,7 +20,6 @@ package uk.ac.gda.server.exafs.scan;
 
 import java.io.File;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,17 +90,16 @@ public class DetectorPreparerFunctions {
 	 */
 	public Detector configureDetector(FluorescenceDetectorParameters params) throws Exception {
 		String detName = params.getDetectorName();
-		Optional<FluorescenceDetector> det = Finder.findOptionalOfType(detName, FluorescenceDetector.class);
-		if (!det.isPresent()) {
-			throw new NoSuchElementException("Unable to find detector called "+detName+" on server\n");
-		}
-		det.get().applyConfigurationParameters(params);
+		FluorescenceDetector det = Finder.findOptionalOfType(detName, FluorescenceDetector.class)
+				.orElseThrow(() -> new NoSuchElementException("Unable to find detector called "+detName+" on server\n") );
 
-		// For Xmap, return NexusXmap object since is this detector actually used for scans.
-		if (det.get() instanceof NexusXmapFluorescenceDetectorAdapter) {
-			return ((NexusXmapFluorescenceDetectorAdapter)det.get()).getXmap();
+		det.applyConfigurationParameters(params);
+
+		// For Xmap return NexusXmap detector actually used for scans.
+		if (det instanceof NexusXmapFluorescenceDetectorAdapter) {
+			return NexusXmapFluorescenceDetectorAdapter.class.cast(det).getXmap();
 		}
-		return (Detector) det.get();
+		return Detector.class.cast(det);
 	}
 
 	public void setupAmplifierSensitivity(IonChamberParameters ionChamberParams, int index) throws DeviceException {

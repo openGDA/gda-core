@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.nfunk.jep.JEP;
 import org.slf4j.Logger;
@@ -351,40 +350,37 @@ public abstract class ExafsValidator extends AbstractValidator {
 	 */
 	public void checkDetectorElements(List<InvalidBeanMessage> errors, IDetectorParameters iDetectorParams) throws Exception {
 
-		if (iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) {
-			FluorescenceParameters params = iDetectorParams.getFluorescenceParameters();
+		if (!iDetectorParams.getExperimentType().equalsIgnoreCase(DetectorParameters.FLUORESCENCE_TYPE)) return;
 
-			// Get full path to detector config XML file
-			String configFileName = params.getConfigFileName();
-			String fullPathToConfig = bean.getFolder().getFile(configFileName).getLocation().toString();
+		FluorescenceParameters params = iDetectorParams.getFluorescenceParameters();
 
-			// Load from XML file and make bean object
-			FluorescenceDetectorParameters detParams = (FluorescenceDetectorParameters) XMLHelpers.getBean(new File(fullPathToConfig));
+		// Get full path to detector config XML file
+		String configFileName = params.getConfigFileName();
+		String fullPathToConfig = bean.getFolder().getFile(configFileName).getLocation().toString();
 
-			String detectorName = "";
-			int numElementsInXml = 0;
-			if (detParams != null) {
-				numElementsInXml = detParams.getDetectorList().size();
-				detectorName = detParams.getDetectorName();
-			}
+		// Load from XML file and make bean object
+		FluorescenceDetectorParameters detParams = FluorescenceDetectorParameters.class.cast(XMLHelpers.getBean(new File(fullPathToConfig)));
+		// final modifier unfortunately required by Optional of FluorescenceDetector
+		final String detectorName = detParams == null ? "" : detParams.getDetectorName();
+		final int numElementsInXml = detParams == null ? 0 : detParams.getDetectorList().size();
 
-			// Try to get detector object (should have been exported from server to client using FluorescenceDetector interface)
-			Optional<FluorescenceDetector> optionalDetector = Finder.findOptionalOfType(detectorName, FluorescenceDetector.class);
-			if (!optionalDetector.isPresent()) {
-				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find detector '" + detectorName +"'.\nIs name of detector in XML file " + configFileName + " correct?");
-				errors.add(msg);
-				return;
-			}
-
-			FluorescenceDetector detector = optionalDetector.get();
-			int numElementsOnDetector = detector.getNumberOfElements();
-
-			if (numElementsInXml != numElementsOnDetector) {
-				InvalidBeanMessage msg = new InvalidBeanMessage("Number of detector elements specified in " + configFileName + " does not match number of elements on detector \'" + detectorName + "\'.\n" +
-						"Expected "+ numElementsOnDetector + " elements but xml has " + numElementsInXml);
-				errors.add(msg);
-			}
-		}
+		// Try to get detector object (should have been exported from server to client using FluorescenceDetector interface)
+		Finder.findOptionalOfType(detectorName,FluorescenceDetector.class)
+				.ifPresentOrElse( detector -> {
+									int numElementsOnDetector = detector.getNumberOfElements();
+									if (numElementsInXml != numElementsOnDetector) {
+										String messageFormat = "Number of detector elements specified in {0} does not match number of elements on detector \'{1}\'.\n" +
+												"Expected {2} elements but xml has {3}.";
+										String message = String.format(messageFormat,configFileName,detectorName,numElementsOnDetector,numElementsInXml);
+										InvalidBeanMessage msg = new InvalidBeanMessage(message);
+										errors.add(msg);
+									}
+								}, () -> {
+									String messageFormat = "Cannot find detector '{0}'.\\nIs name of detector in XML file {1} correct?";
+									String message = String.format(messageFormat, detectorName,configFileName);
+									InvalidBeanMessage msg = new InvalidBeanMessage(message);
+									errors.add(msg);
+								});
 	}
 
 	public List<InvalidBeanMessage> validateIDetectorParameters(IDetectorParameters iDetectorParams) {
@@ -525,8 +521,8 @@ public abstract class ExafsValidator extends AbstractValidator {
 		return false;
 	}
 
-	protected void checkFindable(final String label, final String deviceName, final Class<? extends Findable> clazz,
-			final List<InvalidBeanMessage> errors, final String... messages) {
+	protected void checkFindable(String label, String deviceName, Class<? extends Findable> clazz,
+			List<InvalidBeanMessage> errors, String... messages) {
 
 		if (deviceName == null) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("The " + label + " has no value and this is not allowed.",
@@ -537,24 +533,16 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		try {
-			final Optional<Findable> optionalFindable = Finder.findOptionalOfType(deviceName, Findable.class);
-			if (!optionalFindable.isPresent()) {
-				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find '" + deviceName + "' for input '" + label
-						+ "'.", messages);
+			Finder.findOptionalOfType(deviceName,clazz)
+					.or( () -> {
+				String primaryMessageFormat = "Cannot find '{0}' (of type {1}) for input '{2}'.";
+				String primaryMessage = String.format(primaryMessageFormat, deviceName, clazz.getName(), label);
+				InvalidBeanMessage msg = new InvalidBeanMessage(primaryMessage, messages);
 				msg.setLabel(label);
 				errors.add(msg);
-				return;
-			}
 
-			Findable findable = optionalFindable.get();
-
-			if (!clazz.isInstance(findable)) {
-				InvalidBeanMessage msg = new InvalidBeanMessage("'" + deviceName + "' should be a '" + clazz.getName()
-						+ "' but is a '" + findable.getClass() + "'.", messages);
-				msg.setLabel(label);
-				errors.add(msg);
-			}
-
+				return null; // a dummy null which is ignored
+			} );
 		} catch (Exception ne) {
 			InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find '" + deviceName + "' for input '" + label
 					+ "'.", messages);

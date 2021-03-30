@@ -279,26 +279,28 @@ public class SpreadsheetViewTable {
 	}
 
 	/**
-	 * Get scannable to be moved from ParameterValue : i.e. scannable to be moved by a {@link SampleParameterMotorPosition} setting
-	 * @param ParameterValue
+	 * Infers from a {@code ParameterValue} a {@code Scannable} to be moved by a {@link SampleParameterMotorPosition} setting
+	 * @param ParameterValue value from which the Scannable is inferred
 	 * @return Scannable to be moved (optional)
 	 */
 	private Optional<Scannable> getScannable(ParameterValue v) {
-		Optional<Scannable> scannable = Optional.empty();
+
 		// Split the getter string at () and . symbols
 		// (getter string format is : getSampleParameterMotorPosition(<name of scannable>).getDemandPosition() )
 		String[] splitString = v.getFullPathToGetter().split("[().]+");
-		if (splitString != null && splitString.length == 3 &&
-				splitString[0].equals(ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME) &&
-				splitString[2].equals(SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME) ) {
-			String scannableName = splitString[1];
-			logger.debug("Getting position of scannable {}", scannableName);
-			Optional<Scannable> f = Finder.findOptionalOfType(scannableName, Scannable.class);
-			if (f.isPresent()) {
-				scannable = f;
-			}
+
+		if(splitString == null || splitString.length != 3) return Optional.empty();
+
+		boolean criteriaMet =
+				ISampleParametersWithMotorPositions.MOTOR_POSITION_GETTER_NAME.equals(splitString[0]) &&
+				SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME.equals(splitString[2]);
+
+		if (!criteriaMet) {
+			return Optional.empty();
 		}
-		return scannable;
+		String scannableName = splitString[1];
+		logger.debug("Getting position of scannable {}", scannableName);
+		return Finder.findOptionalOfType(scannableName,Scannable.class);
 	}
 
 	/**
