@@ -369,7 +369,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 			}
 
 			// Try to get detector object (should have been exported from server to client using FluorescenceDetector interface)
-			Optional<FluorescenceDetector> optionalDetector = Finder.findOptional(detectorName);
+			Optional<FluorescenceDetector> optionalDetector = Finder.findOptionalOfType(detectorName, FluorescenceDetector.class);
 			if (!optionalDetector.isPresent()) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find detector '" + detectorName +"'.\nIs name of detector in XML file " + configFileName + " correct?");
 				errors.add(msg);
@@ -537,7 +537,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 		}
 
 		try {
-			final Optional<Findable> optionalFindable = Finder.findOptional(deviceName);
+			final Optional<Findable> optionalFindable = Finder.findOptionalOfType(deviceName, Findable.class);
 			if (!optionalFindable.isPresent()) {
 				InvalidBeanMessage msg = new InvalidBeanMessage("Cannot find '" + deviceName + "' for input '" + label
 						+ "'.", messages);

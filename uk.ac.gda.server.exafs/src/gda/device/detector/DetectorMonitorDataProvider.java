@@ -333,7 +333,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 	private List<Scannable> getScannables(List<String> scannableNames) {
 		List<Scannable> scannables = new ArrayList<>();
 		for (String scnName : scannableNames) {
-			Optional<Scannable> scannable = Finder.findOptional(scnName);
+			Optional<Scannable> scannable = Finder.findOptionalOfType(scnName, Scannable.class);
 			if (scannable.isPresent()) {
 				scannables.add(scannable.get());
 			} else {

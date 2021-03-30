@@ -81,7 +81,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import uk.ac.gda.beans.exafs.ISampleParametersWithMotorPositions;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -294,9 +293,9 @@ public class SpreadsheetViewTable {
 				splitString[2].equals(SampleParameterMotorPosition.DEMAND_POSITION_GETTER_NAME) ) {
 			String scannableName = splitString[1];
 			logger.debug("Getting position of scannable {}", scannableName);
-			Optional<Findable> f = Finder.findOptional(scannableName);
-			if (f.isPresent() && f.get() instanceof Scannable) {
-				scannable = Optional.of((Scannable)f.get());
+			Optional<Scannable> f = Finder.findOptionalOfType(scannableName, Scannable.class);
+			if (f.isPresent()) {
+				scannable = f;
 			}
 		}
 		return scannable;
