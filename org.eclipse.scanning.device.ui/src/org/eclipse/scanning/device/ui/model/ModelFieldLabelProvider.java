@@ -12,42 +12,26 @@
 package org.eclipse.scanning.device.ui.model;
 
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.Collection;
 
-import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.annotation.ui.EditType;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.FieldUtils;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
-import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.ui.CommandConstants;
 import org.eclipse.scanning.device.ui.Activator;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.scanning.device.ui.util.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
-	private static final Logger logger = LoggerFactory.getLogger(ModelFieldLabelProvider.class);
-
 	private Image ticked;
 	private Image unticked;
 
-	private IScannableDeviceService cservice;
 	private final ModelViewer<?> viewer;
 
 	public ModelFieldLabelProvider(ModelViewer<?> viewer) {
 		this.viewer = viewer;
-		try {
-			cservice = ServiceHolder.getEventService().createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), IScannableDeviceService.class);
-		} catch (Exception e) {
-			logger.error("Unable to make a remote connection to {}", IScannableDeviceService.class.getSimpleName());
-		}
 	}
 
 	@Override
@@ -85,7 +69,7 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 		}
 
 		final FieldValue field = (FieldValue) ofield;
-		Object element = field.get();
+		final Object element = field.get();
 		if (element instanceof Boolean) {
 			if (ticked == null) {
 				ticked = Activator.getImageDescriptor("icons/ticked.png").createImage();
@@ -128,34 +112,25 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 		return buf.toString();
 	}
 
-	private void appendFieldText(StringBuilder buf, FieldValue ofield) throws Exception {
-		final FieldValue field = ofield;
-		final Object element = field.get();
-		if (element == null) {
-			buf.append(field.getAnnotation().edit() == EditType.COMPOUND ? "..." : "");
-			return;
-		}
-		if (element instanceof Boolean) {
+	private void appendFieldText(StringBuilder buf, FieldValue ofield) {
+		final Object element = ofield.get();
+		if (element == null || element instanceof Boolean) {
 			return;
 		}
 
 		if (element.getClass() != null && element.getClass().isArray()) {
 			buf.append(StringUtils.toString(element));
 		} else {
-			appendLabel(buf, field, element);// $NON-NLS-1$
+			appendLabel(buf, ofield, element);
 		}
 	}
 
-	private void appendLabel(StringBuilder buf, FieldValue field, Object element) throws Exception {
-		if (field != null && field.getAnnotation() != null && field.getAnnotation().edit() == EditType.COMPOUND) {
-			appendCompoundText(buf, field.getAnnotation().compoundLabel(), element);
-		} else {
-			buf.append(element.toString());
-			buf.append(getUnit(field));
-		}
+	private void appendLabel(StringBuilder buf, FieldValue field, Object element) {
+		buf.append(element.toString());
+		buf.append(getUnit(field));
 	}
 
-	private String getLabel(FieldValue field, Object element) throws Exception {
+	private String getLabel(FieldValue field, Object element) {
 		final StringBuilder buf = new StringBuilder();
 		appendLabel(buf, field, element);
 		return buf.toString();
@@ -197,26 +172,8 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 
 	private String getUnit(FieldValue field) {
 		final FieldDescriptor anot = field.getAnnotation();
-		if (anot != null) {
-			if (anot.scannable().length() > 0 && cservice != null) {
-				try {
-					final String scannableName = (String) FieldValue.get(field.getModel(), anot.scannable());
-
-					if (scannableName != null && scannableName.length() > 0) {
-						final IScannable<?> scannable = cservice.getScannable(scannableName);
-						final String unit = scannable.getUnit();
-						if (unit != null && unit.length() > 0) {
-							return " " + scannable.getUnit();
-						}
-					}
-				} catch (Exception ne) {
-					ne.printStackTrace();
-				}
-			}
-
-			if (anot.unit().length() > 0) {
-				return " " + anot.unit();
-			}
+		if (anot != null && anot.unit().length() > 0) {
+			return " " + anot.unit();
 		}
 		return "";
 	}

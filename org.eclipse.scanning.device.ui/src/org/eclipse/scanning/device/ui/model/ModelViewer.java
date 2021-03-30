@@ -160,7 +160,7 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 		content.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridUtils.removeMargins(content);
 
-		this.viewer = createTableViewer(content);
+		this.viewer = createTableViewer();
 
 		this.typeEditor = new TypeEditor<>(this, content,  SWT.NONE);
 		typeEditor.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -190,15 +190,15 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 		return (U)content;
 	}
 
-	private TableViewer createTableViewer(Composite content2) {
-		TableViewer viewer = new TableViewer(content, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
-		viewer.setContentProvider(createContentProvider());
+	private TableViewer createTableViewer() {
+		TableViewer tableViewer = new TableViewer(content, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
+		tableViewer.setContentProvider(createContentProvider());
 
-		viewer.getTable().setLinesVisible(true);
-		viewer.getTable().setHeaderVisible(true);
-		viewer.getTable().setLayoutData(new GridData(GridData.FILL_BOTH));
+		tableViewer.getTable().setLinesVisible(true);
+		tableViewer.getTable().setHeaderVisible(true);
+		tableViewer.getTable().setLayoutData(new GridData(GridData.FILL_BOTH));
 		// resize the row height using a MeasureItem listener
-		viewer.getTable().addListener(SWT.MeasureItem, new Listener() {
+		tableViewer.getTable().addListener(SWT.MeasureItem, new Listener() {
 	        @Override
 			public void handleEvent(Event event) {
 	            event.height = 24;
@@ -206,15 +206,15 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 	    });
 
 	    //added 'event.height=rowHeight' here just to check if it will draw as I want
-		viewer.getTable().addListener(SWT.EraseItem, new Listener() {
+		tableViewer.getTable().addListener(SWT.EraseItem, new Listener() {
 	        @Override
 			public void handleEvent(Event event) {
 	            event.height=24;
 	        }
 	    });
 
-		TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(viewer, new FocusCellOwnerDrawHighlighter(viewer));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(viewer) {
+		TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(tableViewer, new FocusCellOwnerDrawHighlighter(tableViewer));
+		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(tableViewer) {
 			@Override
 			protected boolean isEditorActivationEvent(
 					ColumnViewerEditorActivationEvent event) {
@@ -226,7 +226,7 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 			}
 		};
 
-		TableViewerEditor.create(viewer, focusCellManager, actSupport,
+		TableViewerEditor.create(tableViewer, focusCellManager, actSupport,
 				ColumnViewerEditor.TABBING_HORIZONTAL
 						| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
 						| ColumnViewerEditor.TABBING_VERTICAL
@@ -234,10 +234,10 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 
 
 
-		createColumns(viewer);
-		createDropTarget(viewer);
+		createColumns(tableViewer);
+		createDropTarget(tableViewer);
 
-		viewer.getTable().addKeyListener(new KeyListener() {
+		tableViewer.getTable().addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 			}
@@ -249,19 +249,19 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 				}
 				if (e.character == SWT.DEL) {
 					try {
-						Object ob = ((IStructuredSelection)viewer.getSelection()).getFirstElement();
+						Object ob = ((IStructuredSelection)tableViewer.getSelection()).getFirstElement();
 						((FieldValue)ob).set(null);
-						viewer.setSelection(new StructuredSelection(ob));
+						tableViewer.setSelection(new StructuredSelection(ob));
 						refresh(); // Must do global refresh because might effect units of other parameters.
 					} catch (Exception ne) {
-						logger.error("Cannot delete item "+viewer.getSelection(), ne);
+						logger.error("Cannot delete item "+tableViewer.getSelection(), ne);
 					}
 
 				}
 			}
 		});
 
-		return viewer;
+		return tableViewer;
 	}
 
 	private void createActions() {
@@ -383,9 +383,9 @@ public class ModelViewer<T> implements IModelViewer<T>, ISelectionListener, ISel
 		var.getColumn().setText("Value");
 		var.getColumn().setWidth(300);
 
-		ColumnLabelProvider prov = new ModelFieldLabelProvider(this);
+		final ColumnLabelProvider prov = new ModelFieldLabelProvider(this);
 		var.setLabelProvider(prov);
-		var.setEditingSupport(new ModelFieldEditingSupport(this, viewer, prov));
+		var.setEditingSupport(new ModelFieldEditingSupport(this, viewer));
 	}
 
 	@Override

@@ -99,24 +99,6 @@ public class FieldUtils {
 	}
 
 	private static int compareFieldValues(FieldValue o1, FieldValue o2) {
-		final FieldDescriptor an1;
-		final FieldDescriptor an2;
-		try {
-			an1 = FieldUtils.getAnnotation(o1.getModel(), o1.getName());
-			an2 = FieldUtils.getAnnotation(o2.getModel(), o2.getName());
-		} catch (NoSuchFieldException | SecurityException e) {
-			throw new RuntimeException("Cannot get field from model, " + o1.getName() + ", " + o2.getName(), e);
-		}
-
-		if (an1 != null && an2 != null) {
-			if (an1.fieldPosition() != Integer.MAX_VALUE && an2.fieldPosition() != Integer.MAX_VALUE) {
-				return (an1.fieldPosition() - an2.fieldPosition());
-			} else if (an1.fieldPosition() != Integer.MAX_VALUE) {
-				return -1;
-			} else if (an2.fieldPosition() != Integer.MAX_VALUE) {
-				return 1;
-			}
-		}
 		return o1.getDisplayName().toLowerCase().compareTo(o2.getDisplayName().toLowerCase());
 	}
 }
