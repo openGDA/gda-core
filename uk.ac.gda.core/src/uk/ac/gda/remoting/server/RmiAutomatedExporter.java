@@ -192,7 +192,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 
 	private RmiObjectInfo findAndExport(String name) {
 		// Find using local we are about to export something so it should not be remote already
-		final Optional<Findable> optionalFindable = Finder.findOptional(name);
+		final Optional<Findable> optionalFindable = Finder.findOptionalOfType(name, Findable.class);
 		if (!optionalFindable.isPresent()) { // there is no object available in the server with this name
 			logger.debug("No object with name '{}' found", name);
 			return null;

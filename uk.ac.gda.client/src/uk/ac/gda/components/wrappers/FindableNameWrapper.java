@@ -139,7 +139,7 @@ public class FindableNameWrapper extends TextWrapper {
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			final Optional<Findable> optionalObject = Finder.findOptional(name);
+			final Optional<Findable> optionalObject = Finder.findOptionalOfType(name, Findable.class);
 			getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {

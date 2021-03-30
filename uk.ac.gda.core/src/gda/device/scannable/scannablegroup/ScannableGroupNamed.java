@@ -130,7 +130,7 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 	public void setGroupMembersNamesWithList(List<String> scannableNames, boolean toConfigure) throws FactoryException {
 		List<Scannable> scannables = new ArrayList<>(scannableNames.size());
 		for (String name : scannableNames) {
-			scannables.add((Scannable) Finder.findOptional(name).orElseThrow(() ->
+			scannables.add(Finder.findOptionalOfType(name, Scannable.class).orElseThrow(() ->
 				new FactoryException("Finder does not contain a Scannable of the name: " + name)));
 		}
 		setGroupMembersWithList(scannables, toConfigure);
@@ -178,7 +178,7 @@ public class ScannableGroupNamed extends ScannableGroup implements IScannableGro
 
 	@Override
 	public void addGroupMemberByName(String name) throws FactoryException {
-		Scannable toAdd = (Scannable) Finder.findOptional(name).orElseThrow(() ->
+		Scannable toAdd = Finder.findOptionalOfType(name, Scannable.class).orElseThrow(() ->
 			new FactoryException("Finder does not contain a Scannable of the name: " + name));
 		addGroupMember(toAdd);
 	}
