@@ -19,15 +19,21 @@
 package uk.ac.gda.exafs.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -153,9 +159,19 @@ public final class XesScanParametersComposite extends Composite {
 	private static final double minIntegrationTime = 0.01;
 	private static final double maxIntegrationTime = 30.0;
 
+	/**
+	 * Map with key = 'XES scan type' (integer), value = template file name.
+	 * <br> XES scan type is one of :
+	 * <li> {@link XesScanParameters#FIXED_XES_SCAN_XAS}
+	 * <li> {@link XesScanParameters#FIXED_XES_SCAN_XANES},
+	 * <li> {@link XesScanParameters#SCAN_XES_REGION_FIXED_MONO}.
+	 */
+	private Map<Integer, String> templateFilenames = Collections.emptyMap();
+
 	public XesScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
+		templateFilenames = getTemplateFilenameMap();
 		updateListener = new ValueAdapter("XesScanParametersComposite Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -219,6 +235,34 @@ public final class XesScanParametersComposite extends Composite {
 		});
 
 		createBounds();
+	}
+
+	/**
+	 * Create map from XES scan type to template name.
+	 * (for {@link #templateFilenames}).
+	 * @return Map with key scan type (integer), value = template file name.
+	 */
+	private Map<Integer,String> getTemplateFilenameMap() {
+		logger.info("Setting up template filenames map...");
+		List<Integer> types = Arrays.asList(XesScanParameters.FIXED_XES_SCAN_XAS, XesScanParameters.FIXED_XES_SCAN_XANES,
+				XesScanParameters.SCAN_XES_REGION_FIXED_MONO);
+
+		File templateDir = new File(ExperimentFactory.getTemplatesFolderPath());
+		Map<Integer, String> templateFiles = new HashMap<>();
+		types.forEach(type -> {
+			try {
+				List<String> templateForType = getBeanFileNames(type, templateDir);
+				if (!templateForType.isEmpty()) {
+					templateFiles.put(type, templateDir.toPath().resolve(templateForType.get(0)).toString());
+					logger.debug("Scan type : {}, filename : {}", type, templateFiles.get(type));
+				} else {
+					logger.warn("No template file found for scan type : {}", type);
+				}
+			}catch(Exception e) {
+				logger.error("Problem getting template file for scan type {}", type, e);
+			}
+		});
+		return templateFiles;
 	}
 
 	private void createAnalyserComposite(Composite parent) {
@@ -296,7 +340,7 @@ public final class XesScanParametersComposite extends Composite {
 	 * Return list of all scan bean files of scan type in specified folder
 	 * @param xesScanType
 	 * @param folder
-	 * @return
+	 * @return list of bean filenames sorted by length and alphabetical order.
 	 * @throws Exception
 	 */
 	private List<String> getBeanFileNames(int xesScanType, File folder) throws Exception {
@@ -318,6 +362,9 @@ public final class XesScanParametersComposite extends Composite {
 				filenames.add(beanFile.getName());
 			}
 		}
+		// Sort into length and alphabetical order
+		Comparator<String> comparator = Comparator.comparing(String::length).thenComparing(String::compareTo);
+		filenames.sort(comparator);
 		return filenames;
 	}
 
@@ -362,28 +409,30 @@ public final class XesScanParametersComposite extends Composite {
 	}
 
 	/**
-	 * Copy template xml for specified scan type from template directory into current editor folder.
+	 * Generate name of new file to go in specified directory, by converting the name to avoid name clashes
+	 * with files already present using {@link FileUtils#getUnique(File, String, String)}.
 	 * @param scanType
-	 * @return
+	 * @param folderName
+	 * @return name of new file
 	 * @throws Exception
 	 */
-	private String copyTemplate(int scanType) throws Exception {
-		String templateFilename = getTemplateFileName(scanType);
-		File newFile = FileUtils.getUnique(null, templateFilename.replace(".xml", ""), ".xml");
-		return copyTemplate(scanType, newFile);
+	private String getNewFileName(String templateFullPath, File folderName) {
+		String templateName = FilenameUtils.getBaseName(templateFullPath); // template name, minus full path and extension
+		File file = FileUtils.getUnique(folderName, templateName, ".xml");
+		return file.getName();
 	}
 
-	private String getTemplateFileName(int scanType) throws Exception {
-		File templateDir = new File(ExperimentFactory.getTemplatesFolderPath());
-		List<String> templateFiles = getBeanFileNames(scanType, templateDir);
-		return Paths.get(templateDir.getAbsolutePath(), templateFiles.get(0)).toString();
-	}
-
-	private String copyTemplate(int scanType, File newFile) throws Exception {
-		String templateFilename = getTemplateFileName(scanType);
-		File sourceTemplate = Paths.get(templateFilename).toFile();
-		FileUtils.copy(sourceTemplate, newFile);
-		return newFile.getName();
+	/**
+	 * Copy a file
+	 * @param sourceFileFullPath full path to source file
+ 	 * @param newFile Path of copy location
+	 * @return name of the newly generated file
+	 * @throws IOException
+	 */
+	private String copyFile(String sourceFileFullPath, Path newFile) throws IOException {
+		File sourceFile = Paths.get(sourceFileFullPath).toFile();
+		FileUtils.copy(sourceFile, newFile.toFile());
+		return newFile.toFile().getName();
 	}
 
 	private void createScanTypeCombo(Composite parent) {
@@ -409,11 +458,17 @@ public final class XesScanParametersComposite extends Composite {
 					String fileName = "";
 					if (!beanFileNames.isEmpty()) {
 						fileName = beanFileNames.get(0);
-					} else {
-						// Create one from the template if there is no file
-						fileName = copyTemplate(xesScanType);
+					} else if (checkTemplateExists(xesScanType)) {
+						// Get name of template file
+						String templateFilename = templateFilenames.get(xesScanType);
+
+						// generate name of new file to go in editor folder
+						fileName = getNewFileName(templateFilename, editorFolder);
 					}
-					scanFileName.setText(fileName);
+
+					if (!fileName.isEmpty()) {
+						scanFileName.setText(fileName);
+					}
 
 				} catch (Exception ne) {
 					logger.error("Cannot get bean file", ne);
@@ -527,23 +582,12 @@ public final class XesScanParametersComposite extends Composite {
 		Path paramPath = Paths.get(editorFolder.getPath(), paramFileName);
 
 		// Create new file if it doesn't exist
-		if (!paramPath.toFile().isFile()) {
-			if (MessageDialog.openQuestion(this.getParent().getShell(), "Create new scan parameter file",
+		if (!paramPath.toFile().isFile() &&
+			MessageDialog.openQuestion(this.getParent().getShell(),
+					"Create new scan parameter file",
 					"Scan parameter file "+paramFileName+" was not found. Do you want to create a new one from the default parameters?")) {
-				try {
-					int type = (int) scanType.getValue();
-					String newFileName;
-					if (paramFileName.isEmpty()) {
-						newFileName = copyTemplate(type);
-					} else {
-						newFileName = copyTemplate(type, paramPath.toFile());
-					}
-					logger.info("New scan parameters file written to {}", newFileName);
-					scanFileName.setText(newFileName);
-				} catch (Exception e) {
-					logger.warn("Problem creating new scan parameters file", e);
-				}
-			}
+
+			createNewParameterFile(paramPath, (int)scanType.getValue());
 		}
 
 		final IFolder folder = (IFolder) XesScanParametersComposite.this.editingFile.getParent();
@@ -557,6 +601,51 @@ public final class XesScanParametersComposite extends Composite {
 		if (scanFile.exists()) {
 			ExperimentFactory.getExperimentEditorManager().openEditor(scanFile);
 		}
+	}
+
+	/**
+	 * Create a new parameter file at the given path location.
+	 * If the path is a directory, a new file name is generated from the template name
+	 *
+	 * @param paramPath
+	 */
+	private void createNewParameterFile(Path paramPath, int type) {
+		if (checkTemplateExists(type)) {
+			try {
+				String templateFilename = templateFilenames.get(type);
+				Path newFilePath = paramPath;
+				if (paramPath.toFile().isDirectory()) {
+					// generate name of new file from template filename
+					String newFileName = getNewFileName(templateFilename, paramPath.toFile());
+					// set path to new file
+					newFilePath = paramPath.resolve(newFileName);
+				}
+
+				// copy the template file
+				String newFileName = copyFile(templateFilename, newFilePath);
+
+				logger.info("New scan parameters file written to {}", newFileName);
+				scanFileName.setText(newFileName);
+			} catch (Exception e) {
+				logger.warn("Problem creating new scan parameters file", e);
+			}
+		}
+	}
+
+	/**
+	 * Check to see if template for scan of given type exists.
+	 * Shows a Warning dialog box if the template cannot be found.
+	 *
+	 * @param xesScanTye
+	 * @return true if file exists, false otherwise
+	 */
+	private boolean checkTemplateExists(int xesScanTye) {
+		if (!templateFilenames.containsKey(xesScanTye)) {
+			MessageDialog.openWarning(this.getParent().getShell(), "Problem reading default parameters",
+					"No template file containing defaults was found - cannot create new parameters!");
+			return false;
+		}
+		return true;
 	}
 
 	private void createScanStepComposite(Composite parent) {
