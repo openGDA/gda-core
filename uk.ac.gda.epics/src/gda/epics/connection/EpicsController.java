@@ -40,6 +40,7 @@ import gov.aps.jca.dbr.BYTE;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_CTRL_Enum;
+import gov.aps.jca.dbr.DBR_LABELS_Enum;
 import gov.aps.jca.dbr.DOUBLE;
 import gov.aps.jca.dbr.ENUM;
 import gov.aps.jca.dbr.FLOAT;
@@ -365,6 +366,18 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return ((ENUM) getDBR(ch, DBRType.ENUM, 1)).getEnumValue()[0];
 	}
 
+	/**
+	 * gets current enum position label in String from the specified channel.
+	 *
+	 * @param ch
+	 *            the CA Channel.
+	 * @return short - the channel's enumerated position value
+	 * @throws TimeoutException
+	 * @throws CAException
+	 */
+	public String cagetLabel(Channel ch) throws TimeoutException, CAException, InterruptedException {
+		return ((DBR_LABELS_Enum) getDBR(ch, DBRType.LABELS_ENUM)).getLabels()[cagetEnum(ch)];
+	}
 	/**
 	 * gets labels in String for enumerated positions from the specified channel.
 	 *
