@@ -71,7 +71,7 @@ public class FieldValue {
 	 * @param fieldName
 	 * @return
 	 */
-	public static String decamel(String fieldName) {
+	private static String decamel(String fieldName) {
 		try {
 		    String[] words = fieldName.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
 		    StringBuilder buf = new StringBuilder();
@@ -251,10 +251,6 @@ public class FieldValue {
 
 
 
-	public boolean isModelField(String name) throws NoSuchFieldException, SecurityException {
-        return isModelField(model, name);
-	}
-
 	public static boolean isModelField(Object model, String name) throws NoSuchFieldException, SecurityException {
 
 		Field field = null;
@@ -340,7 +336,7 @@ public class FieldValue {
 	private static String getName(final String prefix, final String fieldName) {
 		return prefix + getFieldWithUpperCaseFirstLetter(fieldName);
 	}
-	public static String getFieldWithUpperCaseFirstLetter(final String fieldName) {
+	private static String getFieldWithUpperCaseFirstLetter(final String fieldName) {
 		return fieldName.substring(0, 1).toUpperCase(Locale.US) + fieldName.substring(1);
 	}
 
