@@ -46,6 +46,7 @@ import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.NexusDetector;
+import gda.device.detector.addetector.filewriter.FileWriterBase;
 import gda.device.detector.addetector.filewriter.NonAsyncSingleImagePerFileWriter;
 import gda.device.detector.addetector.filewriter.SingleImagePerFileWriter;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
@@ -883,7 +884,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 																	// so it must be important
 			} else {
 				if (firstReadoutInScan) {
-					data.addScanFileLink(getName(), "nxfile://" + filename + "#entry/instrument/detector/data");
+					data.addExternalFileLink(getName(), "data", "nxfile://" + filename + "#entry/instrument/detector/data", getNumDimensions());
 				}
 			}
 		}
@@ -896,6 +897,16 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			data.setPlottableValue(FRAME_NO_DATASET_NAME, (double) frameNo);
 		}
 
+	}
+
+	private int getNumDimensions() throws Exception {
+		if (getNdFile() != null) {
+			return getNdFile().getPluginBase().getNDimensions_RBV();
+		} else if (getFileWriter() instanceof FileWriterBase) {
+			return ((FileWriterBase) getFileWriter()).getNdFile().getPluginBase().getNDimensions_RBV();
+		}
+		// We don't know - default in NexusGroupData
+		return -1;
 	}
 
 	private void appendNXDetectorDataFromPlugins(NXDetectorData data) throws Exception {
