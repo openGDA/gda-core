@@ -20,7 +20,6 @@ package uk.ac.gda.tomography.view;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.eclipse.swt.widgets.Composite;
@@ -31,23 +30,19 @@ import gda.rcp.views.Browser;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.diamond.daq.mapping.ui.experiment.controller.ExperimentScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
-import uk.ac.gda.api.acquisition.configuration.MultipleScans;
-import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.acquisition.AcquisitionTypeProperties;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.browser.TomoBrowser;
 import uk.ac.gda.tomography.scan.editor.view.configuration.radiography.RadiographyButtonControlledCompositeFactory;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.TomographyButtonControlledCompositeFactory;
 import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.document.DocumentFactory;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 
@@ -75,16 +70,15 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 
 	@Override
 	protected CompositeFactory getTopArea(Supplier<Composite> controlButtonsContainerSupplier) {
-		// Theses are the on-demand composites for the specific acquisition configurations
-		List<NamedCompositeFactory> configurations = new ArrayList<>();
-		configurations.add(new TomographyButtonControlledCompositeFactory(getAcquisitionController(), controlButtonsContainerSupplier));
-		configurations.add(new RadiographyButtonControlledCompositeFactory(getAcquisitionController(), controlButtonsContainerSupplier));
-		return new SelectableContainedCompositeFactory(configurations, ClientMessages.ACQUISITIONS);
+		return new SelectableContainedCompositeFactory(initializeConfiguration(controlButtonsContainerSupplier),
+				ClientMessages.ACQUISITIONS);
 	}
 
 	@Override
 	protected Browser<?> getBrowser() {
-		return new TomoBrowser(getAcquisitionController());
+		return getAcquisitionController()
+				.map(TomoBrowser::new)
+				.orElseGet(() -> new TomoBrowser(null));
 	}
 
 	/**
@@ -95,44 +89,21 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 	 */
 	@Override
 	protected Supplier<ScanningAcquisition> newScanningAcquisition() {
-		return () -> {
-			ScanningAcquisition newConfiguration = new ScanningAcquisition();
-			newConfiguration.setUuid(UUID.randomUUID());
-			ScanningConfiguration configuration = new ScanningConfiguration();
-			newConfiguration.setAcquisitionConfiguration(configuration);
-
-			newConfiguration.setName("Default name");
-			ScanningParameters acquisitionParameters = new ScanningParameters();
-			configuration.setImageCalibration(new ImageCalibration.Builder().build());
-
-			// *-------------------------------
-			// When a new acquisitionType is selected, replaces the acquisition scanPathDocument
-			String acquisitionType = "tomography";
-			ScanpathDocument.Builder scanpathBuilder =
-					AcquisitionTypeProperties.getAcquisitionProperties(acquisitionType)
-					.buildScanpathBuilder(AcquisitionTemplateType.ONE_DIMENSION_LINE);
-			acquisitionParameters.setScanpathDocument(scanpathBuilder.build());
-
-			MultipleScans.Builder multipleScanBuilder = new MultipleScans.Builder();
-			multipleScanBuilder.withMultipleScansType(MultipleScansType.REPEAT_SCAN);
-			multipleScanBuilder.withNumberRepetitions(1);
-			multipleScanBuilder.withWaitingTime(0);
-			configuration.setMultipleScans(multipleScanBuilder.build());
-			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
-
-			// --- NOTE---
-			// The creation of the acquisition engine and the used detectors documents are delegated to the ScanningAcquisitionController
-			// --- NOTE---
-
-			return newConfiguration;
-		};
+		return SpringApplicationContextFacade.getBean(DocumentFactory.class).newScanningAcquisition(AcquisitionTemplateType.ONE_DIMENSION_LINE, "tomography");
 	}
 
 	@Override
-	protected AcquisitionController<ScanningAcquisition> getAcquisitionController() {
-		if (acquisitionController == null) {
-			acquisitionController = new ExperimentScanningAcquisitionController(AcquisitionPropertyType.TOMOGRAPHY);
-		}
-		return acquisitionController;
+	protected AcquisitionController<ScanningAcquisition> createAcquisitionController() {
+		return new ExperimentScanningAcquisitionController(AcquisitionPropertyType.TOMOGRAPHY);
+	}
+
+	private List<NamedCompositeFactory> initializeConfiguration(Supplier<Composite> controlButtonsContainerSupplier) {
+		List<NamedCompositeFactory> configurations = new ArrayList<>();
+		getAcquisitionController()
+			.ifPresent(c -> {
+				configurations.add(new TomographyButtonControlledCompositeFactory(c, controlButtonsContainerSupplier));
+				configurations.add(new RadiographyButtonControlledCompositeFactory(c, controlButtonsContainerSupplier));
+			});
+		return configurations;
 	}
 }
