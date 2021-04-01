@@ -205,7 +205,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 			throw new IllegalArgumentException("The requested gain '" + gain + "' is not available in supported gains " + positionLabels);
 
 		try {
-			epicsController.caput(getChannel(SENS_PV), gain);
+			epicsController.caput(getChannel(SENS_PV, false), gainPositions.indexOf(gain));
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + SENS_PV, e);
 		} catch (InterruptedException e) {
@@ -217,7 +217,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public String getGain() throws DeviceException {
 		try {
-			return epicsController.caget(getChannel(SENS_PV));
+			return gainPositions.get(epicsController.cagetEnum(getChannel(SENS_PV, false)));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + SENS_PV, e);
 		} catch (InterruptedException e) {
@@ -232,7 +232,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 			throw new IllegalArgumentException("The requested unit '" + unit + "' is not availabe in supported units " + gainUnitLabels);
 
 		try {
-			epicsController.caput(getChannel(SENS_UNIT_PV), unit);
+			epicsController.caput(getChannel(SENS_UNIT_PV, false), gainUnits.indexOf(unit));
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + SENS_UNIT_PV, e);
 		} catch (InterruptedException e) {
@@ -244,7 +244,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public String getGainUnit() throws DeviceException {
 		try {
-			return epicsController.caget(getChannel(SENS_UNIT_PV));
+			return gainUnits.get(epicsController.cagetEnum(getChannel(SENS_UNIT_PV, false)));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + SENS_UNIT_PV, e);
 		} catch (InterruptedException e) {
@@ -267,7 +267,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 			throw new IllegalArgumentException("The requested mode '" + mode + "' is not available in supported gain modes " + gainModeLabels);
 
 		try {
-			epicsController.caput(getChannel(MODE_PV), mode);
+			epicsController.caput(getChannel(MODE_PV, false), modePositions.indexOf(mode));
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + MODE_PV, e);
 		} catch (InterruptedException e) {
@@ -279,7 +279,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public String getMode() throws DeviceException {
 		try {
-			return epicsController.caget(getChannel(MODE_PV));
+			return modePositions.get(epicsController.cagetEnum(getChannel(MODE_PV, false)));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + MODE_PV, e);
 		} catch (InterruptedException e) {
@@ -331,7 +331,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public double getInstantaneousVoltage() throws DeviceException {
 		try {
-			return epicsController.cagetDouble(getChannel(instantaneousPV));
+			return epicsController.cagetDouble(getChannel(instantaneousPV, true));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + instantaneousPV, e);
 		} catch (InterruptedException e) {
@@ -353,7 +353,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public boolean isOffsetCurrentOn() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(OFFSET_CURRENT_ON_PV)) == 1;
+			return epicsController.cagetInt(getChannel(OFFSET_CURRENT_ON_PV, false)) == 1;
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + OFFSET_CURRENT_ON_PV, e);
 		} catch (InterruptedException e) {
@@ -365,7 +365,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public void setOffsetCurrentOn(boolean switchOn) throws DeviceException {
 		try {
-			epicsController.caput(getChannel(OFFSET_CURRENT_ON_PV), switchOn ? 1 : 0);
+			epicsController.caput(getChannel(OFFSET_CURRENT_ON_PV, false), switchOn ? 1 : 0);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + OFFSET_CURRENT_ON_PV, e);
 		} catch (InterruptedException e) {
@@ -377,7 +377,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public int getOffset() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(OFFSET_PV));
+			return epicsController.cagetInt(getChannel(OFFSET_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + OFFSET_PV, e);
 		} catch (InterruptedException e) {
@@ -389,7 +389,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public int getOffsetUnit() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(OFFSET_UNIT_PV));
+			return epicsController.cagetInt(getChannel(OFFSET_UNIT_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + OFFSET_UNIT_PV, e);
 		} catch (InterruptedException e) {
@@ -411,7 +411,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public void setOffset(int offset) throws DeviceException {
 		try {
-			epicsController.caput(getChannel(OFFSET_PV), offset);
+			epicsController.caput(getChannel(OFFSET_PV, false), offset);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + OFFSET_PV, e);
 		} catch (InterruptedException e) {
@@ -423,7 +423,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	@Override
 	public void setOffsetUnit(int unit) throws DeviceException {
 		try {
-			epicsController.caput(getChannel(OFFSET_UNIT_PV), unit);
+			epicsController.caput(getChannel(OFFSET_UNIT_PV, false), unit);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + OFFSET_UNIT_PV, e);
 		} catch (InterruptedException e) {
@@ -440,7 +440,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public boolean isBiasVoltageOn() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(BIAS_ON_PV)) == 1;
+			return epicsController.cagetInt(getChannel(BIAS_ON_PV, false)) == 1;
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + BIAS_ON_PV, e);
 		} catch (InterruptedException e) {
@@ -454,7 +454,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public void setBiasVoltageOn(boolean switchOn) throws DeviceException {
 		try {
-			epicsController.caput(getChannel(BIAS_ON_PV), switchOn ? 1 : 0);
+			epicsController.caput(getChannel(BIAS_ON_PV, false), switchOn ? 1 : 0);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + BIAS_ON_PV, e);
 		} catch (InterruptedException e) {
@@ -473,7 +473,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 		if (bias < -5 || bias > 5)
 			throw new IllegalArgumentException("Bias voltage must be between -5 and 5 Volts inclusively!");
 		try {
-			epicsController.caput(getChannel(BIAS_PV), bias);
+			epicsController.caput(getChannel(BIAS_PV, false), bias);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + BIAS_PV, e);
 		} catch (InterruptedException e) {
@@ -490,7 +490,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public double getBiasVoltage() throws DeviceException {
 		try {
-			return epicsController.cagetDouble(getChannel(BIAS_PV));
+			return epicsController.cagetDouble(getChannel(BIAS_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + BIAS_PV, e);
 		} catch (InterruptedException e) {
@@ -509,7 +509,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 		if (index < 0 || index > 5)
 			throw new IllegalArgumentException("Filter type index must be between 0 and 5 inclusively!");
 		try {
-			epicsController.caput(getChannel(FILTER_TYPE_PV), index);
+			epicsController.caput(getChannel(FILTER_TYPE_PV, false), index);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + FILTER_TYPE_PV, e);
 		} catch (InterruptedException e) {
@@ -526,7 +526,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public int getFilterType() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(FILTER_TYPE_PV));
+			return epicsController.cagetInt(getChannel(FILTER_TYPE_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + FILTER_TYPE_PV, e);
 		} catch (InterruptedException e) {
@@ -546,7 +546,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 		if (index < 0 || index > 11)
 			throw new IllegalArgumentException("Filter high pass frequency index must be between 0 and 11 inclusively!");
 		try {
-			epicsController.caput(getChannel(FILTER_HIGHPASS_FREQUENCY_PV), index);
+			epicsController.caput(getChannel(FILTER_HIGHPASS_FREQUENCY_PV, false), index);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + FILTER_HIGHPASS_FREQUENCY_PV, e);
 		} catch (InterruptedException e) {
@@ -564,7 +564,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public int getFilterHighpassFrequency() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(FILTER_HIGHPASS_FREQUENCY_PV));
+			return epicsController.cagetInt(getChannel(FILTER_HIGHPASS_FREQUENCY_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + FILTER_HIGHPASS_FREQUENCY_PV, e);
 		} catch (InterruptedException e) {
@@ -584,7 +584,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 		if (index < 0 || index > 15)
 			throw new IllegalArgumentException("Filter low pass frequency index must be between 0 and 15 inclusively!");
 		try {
-			epicsController.caput(getChannel(FILTER_LOWPASS_FREQUENCY_PV), index);
+			epicsController.caput(getChannel(FILTER_LOWPASS_FREQUENCY_PV, false), index);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + FILTER_LOWPASS_FREQUENCY_PV, e);
 		} catch (InterruptedException e) {
@@ -602,7 +602,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public int getFilterLowpassFrequency() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(FILTER_LOWPASS_FREQUENCY_PV));
+			return epicsController.cagetInt(getChannel(FILTER_LOWPASS_FREQUENCY_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + FILTER_LOWPASS_FREQUENCY_PV, e);
 		} catch (InterruptedException e) {
@@ -621,7 +621,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 		if (index < 0 || index > 1)
 			throw new IllegalArgumentException("Signal invert index must be either 0 or 1!");
 		try {
-			epicsController.caput(getChannel(SIGNAL_INVERT_PV), index);
+			epicsController.caput(getChannel(SIGNAL_INVERT_PV, false), index);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + SIGNAL_INVERT_PV, e);
 		} catch (InterruptedException e) {
@@ -638,7 +638,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public int getSignalInvert() throws DeviceException {
 		try {
-			return epicsController.cagetInt(getChannel(SIGNAL_INVERT_PV));
+			return epicsController.cagetInt(getChannel(SIGNAL_INVERT_PV, false));
 		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(ERROR_GET_FROM_EPICS + basePVName + SIGNAL_INVERT_PV, e);
 		} catch (InterruptedException e) {
@@ -654,7 +654,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public void restore() throws DeviceException {
 		try {
-			epicsController.caput(getChannel(DEFAULT_SETTING_RESTORE), 1);
+			epicsController.caput(getChannel(DEFAULT_SETTING_RESTORE, false), 1);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + DEFAULT_SETTING_RESTORE, e);
 		} catch (InterruptedException e) {
@@ -670,7 +670,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 */
 	public void clear() throws DeviceException {
 		try {
-			epicsController.caput(getChannel(INPUT_FILTER_OVERLOAD_CLEAR), 1);
+			epicsController.caput(getChannel(INPUT_FILTER_OVERLOAD_CLEAR, false), 1);
 		} catch (CAException e) {
 			throw new DeviceException(ERROR_SETTING_TO_EPICS + basePVName + INPUT_FILTER_OVERLOAD_CLEAR, e);
 		} catch (InterruptedException e) {
@@ -700,8 +700,13 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 	 * @param pvPostFix
 	 * @return channel
 	 */
-	private Channel getChannel(String pvPostFix) {
-		String fullPvName = getBasePVName() + pvPostFix;
+	private Channel getChannel(String pvPostFix, boolean fullPv) {
+		String fullPvName;
+		if (fullPv) {
+			fullPvName = pvPostFix;
+		} else {
+			fullPvName = getBasePVName() + pvPostFix;
+		}
 		ThrowingFunction<String, Channel> f = epicsController::createChannel;
 		Channel channel = channelMap.computeIfAbsent(fullPvName, f);
 		logger.trace("Created channel for PV: {}", fullPvName);
