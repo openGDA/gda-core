@@ -35,13 +35,15 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 
 public class HandlerBase {
-
-	ISpecsPhoibosAnalyser analyser;
+	private static final Logger logger = LoggerFactory.getLogger(HandlerBase.class);
+	protected ISpecsPhoibosAnalyser analyser;
+	protected ISpecsPhoibosAnalyserStatus status;
 	@Inject
 	IEventBroker eventBroker;
 	@Inject
@@ -59,9 +61,16 @@ public class HandlerBase {
 		}
 		analyser = analysers.get(0);
 		logger.debug("Connected to analyser: {}", analyser);
-	}
 
-	private static final Logger logger = LoggerFactory.getLogger(HandlerBase.class);
+		// Get analyser status
+		List<ISpecsPhoibosAnalyserStatus> analyserStatusList = Finder.listFindablesOfType(ISpecsPhoibosAnalyserStatus.class);
+		if (analyserStatusList.size() != 1) {
+			String msg = "No analyser status was found! (Or more than 1)";
+			logger.error(msg);
+			throw new IllegalStateException(msg);
+		}
+		status = analyserStatusList.get(0);
+	}
 
 	protected SpecsPhoibosSequenceValidation validateSequence(Shell shell, SpecsPhoibosSequence sequence,
 			ISpecsPhoibosAnalyser analyser) throws DeviceException {
