@@ -19,6 +19,8 @@ package uk.ac.diamond.daq.service.command.strategy;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.ac.gda.common.exception.GDAServiceException;
 
 /**
@@ -29,7 +31,7 @@ import uk.ac.gda.common.exception.GDAServiceException;
  * @param <T> a compliant document
  */
 public interface OutputStrategy<T> {
-
+	
 	 /**
 	 * Converts a list of documents to a byte array.
 	 * 
@@ -37,7 +39,7 @@ public interface OutputStrategy<T> {
 	 * @return the formatted output
 	 * @throws GDAServiceException
 	 */
-	byte[] write(final List<T> documents) throws GDAServiceException;
+	byte[] write(TypeReference<List<T>> typeReference, final List<T> documents) throws GDAServiceException;
 	
 	byte[] write(final T documents) throws GDAServiceException;
 

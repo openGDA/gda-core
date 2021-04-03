@@ -30,8 +30,8 @@ import org.springframework.stereotype.Service;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
-import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -60,10 +60,11 @@ public class ScanningAcquisitionRestServiceClient {
 	 * @param acquisition
 	 *            the scanning acquisition to process
 	 *
-	 * @throws ScanningAcquisitionServiceException
+	 * @throws GDAClientRestException
 	 *             if methods fails to submit the acquisition request
+	 * @throws GDAClientRestException
 	 */
-	public ResponseEntity<RunAcquisitionResponse> run(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) throws ScanningAcquisitionServiceException {
+	public ResponseEntity<RunAcquisitionResponse> run(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) throws GDAClientRestException {
 		String url = formatURL(getServiceEndpoint(), "/run");
 		return submitRequest(url, HttpMethod.POST, createHttpEntity(acquisition), RunAcquisitionResponse.class);
 	}

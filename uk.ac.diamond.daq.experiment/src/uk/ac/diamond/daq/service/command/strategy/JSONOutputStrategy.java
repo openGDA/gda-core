@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
@@ -47,9 +48,9 @@ public class JSONOutputStrategy<T> implements OutputStrategy<T> {
 	}
 
 	@Override
-	public byte[] write(List<T> ds) throws GDAServiceException {		
+	public byte[] write(TypeReference<List<T>> typeReference, List<T> ds) throws GDAServiceException {		
 		try {
-			return getObjectMapper().writeValueAsBytes(ds);
+			return getObjectMapper().writerFor(typeReference).writeValueAsBytes(ds);
 		} catch (JsonProcessingException e) {
 			throw new GDAServiceException("Cannot convert document");
 		}

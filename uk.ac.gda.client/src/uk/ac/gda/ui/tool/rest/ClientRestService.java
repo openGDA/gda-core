@@ -19,11 +19,13 @@
 package uk.ac.gda.ui.tool.rest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -36,9 +38,11 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
@@ -63,8 +67,11 @@ class ClientRestService {
 	 * @param requestEntity the entity (headers and/or body) to write to the request, may be {@code null}
 	 * @param responseType the type of the return value
 	 * @return the response as entity
+	 * @deprecated use {@link #submitRequest(String, HttpMethod, HttpEntity, Class)}. To be removed on before GDA 9.25
 	 */
+	@Deprecated
 	public static <T> T returnBody(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
+		logger.info("ClientRestService.returnBody is deprecated and will be removed before GDA 9.25");
 		ResponseEntity<T> response = getRestTemplate().exchange(url, method, requestEntity, responseType);
 		return response.getBody();
 	}
@@ -77,9 +84,40 @@ class ClientRestService {
 	 * @param requestEntity the entity (headers and/or body) to write to the request, may be {@code null}
 	 * @param responseType the type of the return value
 	 * @return the response as entity
+	 * @throws GDAClientRestException
 	 */
-	public static <T> ResponseEntity<T> submitRequest(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
-		return getRestTemplate().exchange(url, method, requestEntity, responseType);
+	public static <T> ResponseEntity<T> submitRequest(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) throws GDAClientRestException {
+		try {
+			return getRestTemplate().exchange(url, method, requestEntity, responseType);
+		} catch (RestClientException e) {
+			throw new GDAClientRestException("Client cannot submit request", e);
+		}
+	}
+
+	/**
+	 * Execute the HTTP method to the given URI template, writing the given
+	 * request entity to the request, and returns the response as {@link ResponseEntity}.
+	 * The given {@link ParameterizedTypeReference} is used to pass generic type information:
+	 *
+	 * <pre class="code">
+	 * ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new ParameterizedTypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+	 * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;http://example.com&quot;,HttpMethod.GET, null, myBean);
+	 * </pre>
+	 *
+	 * @param url the URL
+	 * @param method the HTTP method (GET, POST, etc)
+	 * @param requestEntity the entity (headers and/or body) to write to the
+	 * request, may be {@code null}
+	 * @param responseType the type of the return value
+	 * @return the response as entity
+	 * @throws GDAClientRestException
+	 */
+	public static <T> ResponseEntity<T> submitRequest(String url, HttpMethod method, HttpEntity<?> requestEntity, ParameterizedTypeReference<T> responseType) throws GDAClientRestException {
+		try {
+			return getRestTemplate().exchange(url, method, requestEntity, responseType);
+		} catch (RestClientException e) {
+			throw new GDAClientRestException("Client cannot submit request", e);
+		}
 	}
 
 	private static HttpHeaders createRequestHeader() {
@@ -141,8 +179,9 @@ class ClientRestService {
 	private static void addMessageConverters(RestTemplate restTemplate) {
 		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 		MappingJackson2HttpMessageConverter jacksonMapper = new MappingJackson2HttpMessageConverter();
+		jacksonMapper.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM));
 		jacksonMapper.setObjectMapper(getDocumentMapper().getJacksonObjectMapper());
-		messageConverters.add(new MappingJackson2HttpMessageConverter());
+		messageConverters.add(jacksonMapper);
 		restTemplate.setMessageConverters(messageConverters);
 	}
 

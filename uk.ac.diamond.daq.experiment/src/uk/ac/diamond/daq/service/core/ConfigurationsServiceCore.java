@@ -81,8 +81,8 @@ public class ConfigurationsServiceCore extends CommonDocumentService {
 	
 	private DocumentFilter getDocumentFilter(HttpServletRequest request) {
 		DocumentFilterBuilder builder = new DocumentFilterBuilder();
-		if (request.getParameterMap().containsKey("fileExtension")) {
-			builder.setFileExtension(request.getParameterMap().get("fileExtension")[0]);
+		if (request.getParameterMap().containsKey("configurationType")) {
+			builder.setFileExtension(request.getParameterMap().get("configurationType")[0]);
 		}
 		return builder.build();
 	}

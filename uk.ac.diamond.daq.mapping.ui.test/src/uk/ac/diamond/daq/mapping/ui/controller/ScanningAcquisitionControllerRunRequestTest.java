@@ -47,7 +47,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
@@ -59,6 +58,7 @@ import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
@@ -145,10 +145,10 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	/**
 	 * Submit an acquisition to the service which includes start positions
 	 * @throws AcquisitionControllerException
-	 * @throws ScanningAcquisitionServiceException
+	 * @throws GDAClientRestException
 	 */
 	@Test
-	public void testRunScanningAcquisition() throws AcquisitionControllerException, ScanningAcquisitionServiceException {
+	public void testRunScanningAcquisition() throws AcquisitionControllerException, GDAClientRestException {
 		CameraControl cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
 		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control", CameraControl.class);

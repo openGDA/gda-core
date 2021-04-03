@@ -48,7 +48,14 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	}
 
 	/**
+	 * Retrieves documents eventually filtering them by type.
+	 *  
+	 * Accepts {@code configurationType=[TOMO|MAP]} parameter 
 	 * 
+	 * <p>
+	 * Example: {@code /scanningAcquisitions?configurationType=MAP}
+	 * </p>
+	 *   
 	 * @return a list of AcquisitionBases with minimal informations (id, name, description)
 	 * @throws GDAServiceException 
 	 */
@@ -83,7 +90,7 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	 * @return
 	 */
 	@RequestMapping(value = "/scanningAcquisitions/diffraction", method = RequestMethod.POST)
-	public Document insertDiffraction(@RequestBody AcquisitionBase<?> acquisition, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public <T extends Document> T insertDiffraction(@RequestBody T acquisition, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		insertDocument(acquisition, AcquisitionConfigurationResourceType.MAP, request , response);
 		return acquisition;
 	}
@@ -97,7 +104,7 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	 * @return
 	 */
 	@RequestMapping(value = "/scanningAcquisitions/tomography", method = RequestMethod.POST)
-	public Document insertTomography(@RequestBody AcquisitionBase<?> acquisition, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public <T extends Document> T insertTomography(@RequestBody T acquisition, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		insertDocument(acquisition, AcquisitionConfigurationResourceType.TOMO, request , response);
 		return acquisition;
 	}

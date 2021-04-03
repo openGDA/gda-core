@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.service.ScanningAcquisitionFileService;
@@ -109,8 +112,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 				.map(this::parseDocument)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-	
-		getServiceUtils().writeOutput(document, outputStrategy, response);
+		getServiceUtils().writeOutput(new TypeReference<List<T>>() {}, document, outputStrategy, response);
 	}
 
 	@Override
@@ -132,8 +134,12 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	 */
 	@Override
 	public void insertDocument(T document, OutputStrategy<T> outputStrategy) throws GDAServiceException {
-		if (document.getUuid() == null)
-			insertId(document);
+		if (document.getUuid() == null) {
+			insertId(document);	
+		} else {
+			//Override existing document
+			deleteDocument(document.getUuid());
+		}
 		try {
 			getFileService().saveTextDocument(getDocumentMapper().convertToJSON(document), formatConfigurationFileName(document.getName()),
 					getType(), false);
@@ -145,19 +151,28 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 
 	@Override
 	public void deleteDocument(UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
+		T document = deleteDocument(id);
+		if (document != null) 
+			getServiceUtils() .writeOutput(document, outputStrategy, response);
+	}
+	
+	private T deleteDocument(UUID id) throws GDAServiceException {
 		for (File file : getFiles()) {
-			String content = readDocument(file);
-			if (content == null)
+			T document = Optional.ofNullable(readDocument(file))
+					.map(this::parseDocument)
+					.orElse(null);
+			
+			if (document == null || !document.getUuid().equals(id))
 				continue;
-			T document = parseDocument(content);
-			if (document == null)
-				continue;
-			if (document.getUuid().equals(id)) {
-				file.delete();
-				getServiceUtils() .writeOutput(document, outputStrategy, response);
-				break;
-			}			
+			
+			try {
+				Files.deleteIfExists(file.toPath());
+				return document;
+			} catch (IOException e) {
+				throw new GDAServiceException("Cannot delete document", e);
+			}		
 		}
+		return null;
 	}
 	
 	private void insertId(T document) {

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.exception.GDAServiceException;
 
@@ -27,8 +29,8 @@ public class ServiceUtils {
 	 * @param response
 	 * @throws GDAServiceException
 	 */
-	public <T> void writeOutput(List<T> document, OutputStrategy<T> outputStrategy,  final HttpServletResponse response) throws GDAServiceException {
-		writeOutput(outputStrategy.write(document), response);
+	public <T> void writeOutput(TypeReference<List<T>> typeReference, List<T> document, OutputStrategy<T> outputStrategy,  final HttpServletResponse response) throws GDAServiceException {
+		writeOutput(outputStrategy.write(typeReference, document), response);
 	}
 	
 	/**

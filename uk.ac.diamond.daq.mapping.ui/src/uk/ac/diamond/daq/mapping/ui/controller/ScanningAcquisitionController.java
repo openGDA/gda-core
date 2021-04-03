@@ -33,7 +33,6 @@ import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent;
-import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
@@ -51,6 +50,7 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
@@ -137,7 +137,7 @@ public class ScanningAcquisitionController
 		ResponseEntity<RunAcquisitionResponse> responseEntity;
 		try {
 			responseEntity = getScanningAcquisitionRestServiceClient().run(getAcquisition());
-		} catch (ScanningAcquisitionServiceException e) {
+		} catch (GDAClientRestException e) {
 			throw new AcquisitionControllerException(e);
 		}
 		RunAcquisitionResponse response = responseEntity.getBody();
