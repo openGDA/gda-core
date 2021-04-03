@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.api;
 
 import java.nio.file.Paths;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import gda.factory.FindableBase;
@@ -35,6 +36,9 @@ public class FileSystemBasedExperimentService extends FindableBase implements Ex
 
 	@Override
 	public void saveExperimentPlan(ExperimentPlanBean plan) {
+		if (plan.getUuid() == null) {
+			plan.setUuid(UUID.randomUUID());
+		}
 		saver.saveObject(plan, getValidName(plan.getPlanName()), PLAN_EXTENSION);
 	}
 

@@ -35,6 +35,7 @@ import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
+import uk.ac.gda.common.entity.Document;
 
 /**
  * A factory to generate a browser for {@link AcquisitionConfigurationResourceType} objects.
@@ -42,7 +43,7 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
  *
  * @author Maurizio Nagni
  */
-public class AcquisitionsBrowserCompositeFactory<T> implements CompositeFactory {
+public class AcquisitionsBrowserCompositeFactory<T extends Document> implements CompositeFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(AcquisitionsBrowserCompositeFactory.class);
 

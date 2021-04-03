@@ -18,9 +18,10 @@
 
 package uk.ac.gda.api.acquisition.resource.event;
 
-import java.net.URL;
+import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 
 /**
  * This event is published when a {@link AcquisitionConfigurationResource} is deleted.
@@ -34,12 +35,12 @@ public class AcquisitionConfigurationResourceDeleteEvent extends AcquisitionConf
 	 */
 	private static final long serialVersionUID = -454684975840133320L;
 
-	/**
-	 * Instantiates a delete event.
-	 * @param source the object which published this event
-	 * @param url the location from where the acquisition configuration has been deleted
-	 */
-    public AcquisitionConfigurationResourceDeleteEvent(Object source, URL url) {
-		super(source, url);
+	public AcquisitionConfigurationResourceDeleteEvent(Object source, UUID uuid,
+			AcquisitionConfigurationResourceType type) {
+		super(source, uuid, type);
+	}
+
+	public AcquisitionConfigurationResourceDeleteEvent(Object source, UUID uuid) {
+		super(source, uuid);
 	}
 }

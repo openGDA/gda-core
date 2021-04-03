@@ -18,7 +18,7 @@
 
 package uk.ac.gda.api.acquisition;
 
-import java.net.URL;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
@@ -72,16 +72,6 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	RunAcquisitionResponse runAcquisition() throws AcquisitionControllerException;
 
 	/**
-	 * Sets the controller active acquisition parsing a file
-	 *
-	 * @param url
-	 *            The location of the file to parse
-	 * @throws AcquisitionControllerException
-	 *             If the file is not found or cannot be parsed
-	 */
-	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
-
-	/**
 	 * Sets the controller active acquisition using an existing instance
 	 *
 	 * @param acquisition
@@ -92,50 +82,25 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	public void loadAcquisitionConfiguration(T acquisition) throws AcquisitionControllerException;
 
 	/**
-	 * Parse only an acquisition file. Similar to {@link #loadAcquisitionConfiguration(URL)} but does not set the parsed
-	 * acquisition as the active one.
+	 * Returns a document as {@link AcquisitionConfigurationResource}
 	 *
-	 * @param url
-	 *            The location of the file to parse
+	 * @param uuid The document id to retrieve
+	 *
 	 * @return an acquisition resource
 	 * @throws AcquisitionControllerException
-	 *             If the file is not found or cannot be parsed
+	 *             If the document is not found or cannot be parsed
 	 */
-	public AcquisitionConfigurationResource<T> parseAcquisitionConfiguration(URL url)
+	public AcquisitionConfigurationResource<T> createAcquisitionConfigurationResource(UUID uuid)
 			throws AcquisitionControllerException;
 
 	/**
-	 * Sets the controller active acquisition using an {@link AcquisitionConfigurationResource} with the following
-	 * priorities
-	 * <ol>
-	 * <li>If {@link AcquisitionConfigurationResource#getResource()} is not {@code null}, calls
-	 * {@link #loadAcquisitionConfiguration(AcquisitionConfigurationResource)}</li>
-	 * <li>If {@link AcquisitionConfigurationResource#getLocation()} is not {@code null}, calls
-	 * {@link #loadAcquisitionConfiguration(URL)}</li>
-	 * </ol>
+	 * Deletes acquisition on its {@link Acquisition#getUuid()}
 	 *
-	 * @param resource
-	 *            the resource object
-	 * @throws AcquisitionControllerException
-	 *             If the resource cannot be used
-	 */
-	default void loadAcquisitionConfiguration(AcquisitionConfigurationResource<T> resource)
-			throws AcquisitionControllerException {
-		if (resource.getResource() == null) {
-			loadAcquisitionConfiguration(resource.getLocation());
-		} else {
-			loadAcquisitionConfiguration(resource.getResource());
-		}
-	}
-
-	/**
-	 * Deletes an acquisition on a specified {@link URL}
-	 *
-	 * @param url
-	 *            the configuration location
+	 * @param uuid
+	 *            the document id to delete
 	 * @throws AcquisitionControllerException
 	 */
-	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException;
+	public void deleteAcquisitionConfiguration(UUID uuid) throws AcquisitionControllerException;
 
 	/**
 	 * Called before destroy the controller to release all the acquired resources or remove the used listeners

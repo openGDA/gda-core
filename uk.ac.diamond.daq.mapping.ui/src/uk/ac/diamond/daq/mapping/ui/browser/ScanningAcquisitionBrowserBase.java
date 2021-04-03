@@ -18,11 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.browser;
 
-import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
@@ -43,6 +41,7 @@ import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
@@ -59,7 +58,7 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionBrowserBase.class);
 	private final AcquisitionController<ScanningAcquisition> controller;
 
-	public ScanningAcquisitionBrowserBase(AcquisitionConfigurationResourceType type, AcquisitionController<ScanningAcquisition> controller) {
+	protected ScanningAcquisitionBrowserBase(AcquisitionConfigurationResourceType type, AcquisitionController<ScanningAcquisition> controller) {
 		super(type);
 		this.controller = controller;
 	}
@@ -81,68 +80,44 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 		@SuppressWarnings("unchecked")
 		@Override
 		public AcquisitionConfigurationResource<ScanningAcquisition>[] getInputElements(boolean reload) {
-			resources = getAcquisitionConfigurationResources(reload).stream()
-					.map(AcquisitionConfigurationResource::getLocation)
-					.map(ScanningAcquisitionBrowserBase.this::parseAcquisition)
-					.filter(Objects::nonNull).collect(Collectors.toList());
-
+			resources = getAcquisitionConfigurationResources(reload);
 			return resources.toArray(new AcquisitionConfigurationResource[0]);
 		}
 
 		@Override
-		protected void save(URL configuration) {
-			if (configurationIsRelevant(configuration)) {
-				logger.debug("Adding resource at '{}'", configuration);
+		protected void save(AcquisitionConfigurationResourceSaveEvent event) {
+			if (!getType().equals(event.getType()))
+				return;
 
-				// if overwriting, remove old version
-				removeOldConfiguration(configuration);
+			logger.debug("Adding resource at '{}'", event.getUuid());
+			Optional.ofNullable(event.getUuid())
+				.ifPresent(this::removeOldConfiguration);
 
-				try {
-					resources.add(controller.parseAcquisitionConfiguration(configuration));
-					updateContents();
-				} catch (AcquisitionControllerException e) {
-					logger.error("Could not add new resource to browser list - '{}'", configuration, e);
-				}
+			try {
+				resources.add(controller.createAcquisitionConfigurationResource(event.getUuid()));
+				updateContents();
+			} catch (AcquisitionControllerException e) {
+				logger.error("Could not add new resource to browser list - '{}'", event.getUuid(), e);
 			}
 		}
 
-		private void removeOldConfiguration(URL configuration) {
+		private void removeOldConfiguration(UUID configuration) {
 			resources.stream()
-				.filter(resource -> resource.getLocation().equals(configuration))
+				.filter(resource -> resource.getResource().getUuid().equals(configuration))
 				.findFirst()
 				.ifPresent(resources::remove);
 		}
 
 		@Override
-		protected void delete(URL configuration) {
-			if (configurationIsRelevant(configuration)) {
-				logger.debug("Removing resource at '{}'", configuration);
-				try {
-					resources.remove(controller.parseAcquisitionConfiguration(configuration));
-					updateContents();
-				} catch (AcquisitionControllerException e) {
-					logger.error("Could not remove resource '{}'", configuration, e);
-				}
-			}
+		protected void delete(UUID configuration) {
+			logger.debug("Removing resource at '{}'", configuration);
+			resources.removeIf(r -> r.getResource().getUuid().equals(configuration));
+			updateContents();
 		}
 
 		@SuppressWarnings("unchecked")
 		private void updateContents() {
 			updateContents(resources.toArray(new AcquisitionConfigurationResource[0]));
-		}
-
-		private boolean configurationIsRelevant(URL configuration) {
-			return configuration != null &&
-					configuration.getPath().endsWith(getType().getExtension());
-		}
-	}
-
-	private AcquisitionConfigurationResource<ScanningAcquisition> parseAcquisition(URL resourceLocation) {
-		try {
-			return controller.parseAcquisitionConfiguration(resourceLocation);
-		} catch (AcquisitionControllerException e) {
-			logger.error("Could not parse resource at {}", resourceLocation, e);
-			return null;
 		}
 	}
 
@@ -151,7 +126,6 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 		return event -> new ControllerRunnable("load", this::load).run();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ISelectionChangedListener getISelectionChangedListener(MenuManager contextMenu) {
 		if (contextMenu != null) {
@@ -164,15 +138,15 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 		return event ->
 			Optional.ofNullable(event.getStructuredSelection().getFirstElement())
 					.map(AcquisitionConfigurationResource.class::cast)
-					.map(AcquisitionConfigurationResource::getLocation)
-					.ifPresent(this::setParseAndSetSelected);
+					.ifPresent(this::setAcquisitionConfigurationResource);
 	}
 
-	private void setParseAndSetSelected(URL url) {
+	private void setAcquisitionConfigurationResource(AcquisitionConfigurationResource<ScanningAcquisition> resource) {
 		try {
-			setSelected(controller.parseAcquisitionConfiguration(url));
+			controller.loadAcquisitionConfiguration(resource.getResource());
+			setSelected(resource);
 		} catch (AcquisitionControllerException e) {
-			logger.error("Cannot parse acquisition configuration at {}", url);
+			logger.error("Cannot parse acquisition configuration at {}", resource);
 		}
 	}
 
@@ -191,7 +165,7 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 		boolean confirmed = UIHelper.showConfirm("Are you sure you want to delete this acquisition?");
 
 		if (confirmed) {
-			controller.deleteAcquisitionConfiguration(getSelected().getLocation());
+			controller.deleteAcquisitionConfiguration(getSelected().getResource().getUuid());
 		}
 	}
 

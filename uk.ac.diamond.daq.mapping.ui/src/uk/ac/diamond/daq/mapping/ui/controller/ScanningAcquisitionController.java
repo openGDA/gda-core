@@ -6,10 +6,10 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishE
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -41,10 +41,11 @@ import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
+import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceDeleteEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
-import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
@@ -129,7 +130,7 @@ public class ScanningAcquisitionController
 		updateImageCalibration();
 		try {
 			save(formatConfigurationFileName(getAcquisition().getName()), documentMapper.convertToJSON(getAcquisition()));
-		} catch (IOException | uk.ac.gda.common.exception.GDAException e) {
+		} catch (uk.ac.gda.common.exception.GDAException e) {
 			throw new AcquisitionControllerException(e);
 		}
 	}
@@ -152,36 +153,31 @@ public class ScanningAcquisitionController
 	}
 
 	@Override
-	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		loadAcquisitionConfiguration(parseAcquisitionConfiguration(url).getResource());
-	}
-
-	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		setAcquisition(acquisition);
-		publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, acquisition.getAcquisitionLocation()));
+		publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, acquisition.getUuid()));
 	}
 
 	@Override
-	public AcquisitionConfigurationResource<ScanningAcquisition> parseAcquisitionConfiguration(URL url)
+	public AcquisitionConfigurationResource<ScanningAcquisition> createAcquisitionConfigurationResource(UUID uuid)
 			throws AcquisitionControllerException {
-		ScanningAcquisition result = null;
 		try {
-			if (url.getProtocol().startsWith("http")) {
-				result = (ScanningAcquisition) configurationService.getDocument(url);
-			} else if (url.getProtocol().startsWith("file")) {
-				result = DocumentMapper.fromJSON(url, ScanningAcquisition.class);
-			}
-			return new AcquisitionConfigurationResource<>(url, result);
-		} catch (GDAException | GDAClientRestException e) {
-			throw new AcquisitionControllerException(e);
+			return new AcquisitionConfigurationResource<>(configurationService.getDocumentURL(uuid),
+					(ScanningAcquisition)configurationService.getDocument(uuid.toString()));
+		} catch (GDAClientRestException e) {
+			throw new AcquisitionControllerException("Error in clientRest", e);
 		}
 	}
 
 	@Override
-	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
+	public void deleteAcquisitionConfiguration(UUID uuid) throws AcquisitionControllerException {
 		try {
-			configurationService.deleteDocument(getAcquisition().getUuid().toString());
+			configurationService.deleteDocument(uuid.toString());
+			publishEvent(new AcquisitionConfigurationResourceDeleteEvent(this, uuid));
+			// Removed the document actually loaded, creates a new acquisition
+			if (getAcquisition().getUuid().equals(uuid)) {
+				createNewAcquisition();
+			}
 		} catch (GDAClientRestException e) {
 			logger.error("Cannot delete scanning acquisiton", e);
 		}
@@ -214,13 +210,17 @@ public class ScanningAcquisitionController
 			.orElseGet(() -> "noNameConfiguration");
 	}
 
-	private void save(String fileName, String acquisitionDocument) throws IOException, AcquisitionControllerException {
+	private void save(String fileName, String acquisitionDocument) throws AcquisitionControllerException {
 		ScanningAcquisition savedAcquisition = null;
+		AcquisitionConfigurationResourceType type = AcquisitionConfigurationResourceType.DEFAULT;
 		try {
 			if (AcquisitionPropertyType.TOMOGRAPHY.equals(getAcquisitionType())) {
 				savedAcquisition = configurationService.insertImaging(getAcquisition());
-			} else if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionType()))
+				type = AcquisitionConfigurationResourceType.TOMO;
+			} else if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionType())) {
 				savedAcquisition = configurationService.insertDiffraction(getAcquisition());
+				type = AcquisitionConfigurationResourceType.MAP;
+			}
 		} catch (GDAClientRestException e) {
 			logger.error("Cannot save the configuration", e);
 		}
@@ -228,7 +228,7 @@ public class ScanningAcquisitionController
 			loadAcquisitionConfiguration(savedAcquisition);
 		}
 
-		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, configurationService.getDocumentURL(getAcquisition())));
+		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, getAcquisition().getUuid(), type));
 		publishScanRequestSavedEvent(fileName);
 		publishSave(getAcquisition().getName(), acquisitionDocument);
 	}

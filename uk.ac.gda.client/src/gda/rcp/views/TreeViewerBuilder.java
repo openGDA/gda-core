@@ -23,6 +23,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -131,23 +132,23 @@ public abstract class TreeViewerBuilder<T> {
 	private ApplicationListener<AcquisitionConfigurationResourceSaveEvent> saveResourcesListener = new ApplicationListener<AcquisitionConfigurationResourceSaveEvent>() {
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceSaveEvent event) {
-			save(event.getUrl());
+			save(event);
 		}
 	};
 
 	private ApplicationListener<AcquisitionConfigurationResourceDeleteEvent> deleteResourcesListener = new ApplicationListener<AcquisitionConfigurationResourceDeleteEvent>() {
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceDeleteEvent event) {
-			delete(event.getUrl());
+				delete(event.getUuid());
 		}
 	};
 
 	/**
 	 * Default implementation updates viewer input according to {@link #getInputElements(boolean)}
 	 *
-	 * @param configuration URL of saved configuration
+	 * @param event URL of saved configuration
 	 */
-	protected void save(@SuppressWarnings("unused") URL configuration) {
+	protected void save(AcquisitionConfigurationResourceSaveEvent event) {
 		refreshResources();
 	}
 
@@ -155,8 +156,14 @@ public abstract class TreeViewerBuilder<T> {
 	 * Default implementation updates viewer input according to {@link #getInputElements(boolean)}
 	 *
 	 * @param configuration URL of deleted configuration
+	 * @deprecated use {@link #delete(UUID)}
 	 */
+	@Deprecated
 	protected void delete(@SuppressWarnings("unused") URL configuration) {
+		refreshResources();
+	}
+
+	protected void delete(@SuppressWarnings("unused") UUID configuration) {
 		refreshResources();
 	}
 

@@ -24,6 +24,7 @@ import static uk.ac.gda.ui.tool.rest.ClientRestService.submitRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -74,9 +75,9 @@ public class ConfigurationsRestServiceClient {
 		return response.getBody();
 	}
 
-	public List<ScanningAcquisition> getDocuments() throws GDAClientRestException {
+	public <T extends Document> List<T> getDocuments() throws GDAClientRestException {
 		String url = formatURL(getServiceEndpoint(), "/scanningAcquisitions");
-		ResponseEntity<List<ScanningAcquisition>> response = submitRequest(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<ScanningAcquisition>>() {});
+		ResponseEntity<List<T>> response = submitRequest(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<T>>() {});
 		return response.getBody();
 	}
 
@@ -103,11 +104,16 @@ public class ConfigurationsRestServiceClient {
 	/**
 	 * Utility to convert a configuration document id to its explicit URL so that may be retrieved using {@link #getDocument(URL)}
 	 *
-	 * @param document
-	 * @return the document URL
-	 * @throws MalformedURLException
+	 * @param uuid the document to delete
+	 * @return the document URL for the given uuid
+	 * @throws GDAClientRestException
+	 * @{@link Deprecated} use instead {@link #getDocumentURL(UUID)}
 	 */
-	public URL getDocumentURL(Document document) throws MalformedURLException {
-		return new URL(formatURL(getServiceEndpoint(), "/scanningAcquisitions/" + document.getUuid().toString()));
+	public URL getDocumentURL(UUID uuid) throws GDAClientRestException {
+		try {
+			return new URL(formatURL(getServiceEndpoint(), "/scanningAcquisitions/" + uuid.toString()));
+		} catch (MalformedURLException e) {
+			throw new GDAClientRestException("Cannot create docment URL", e);
+		}
 	}
 }

@@ -18,9 +18,10 @@
 
 package uk.ac.gda.api.acquisition.resource.event;
 
-import java.net.URL;
+import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 
 /**
  * This event is published when a {@link AcquisitionConfigurationResource} is saved.
@@ -34,13 +35,12 @@ public class AcquisitionConfigurationResourceSaveEvent extends AcquisitionConfig
 	 */
 	private static final long serialVersionUID = -454684975840133320L;
 
+	public AcquisitionConfigurationResourceSaveEvent(Object source, UUID uuid,
+			AcquisitionConfigurationResourceType type) {
+		super(source, uuid, type);
+	}
 
-	/**
-	 * Instantiates a save event.
-	 * @param source the object which published this event
-	 * @param url the location of the acquisition configuration has been saved
-	 */
-    public AcquisitionConfigurationResourceSaveEvent(Object source, URL url) {
-		super(source, url);
+	public AcquisitionConfigurationResourceSaveEvent(Object source, UUID uuid) {
+		super(source, uuid);
 	}
 }

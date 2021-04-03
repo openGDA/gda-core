@@ -22,6 +22,7 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
 import java.net.URL;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
@@ -88,24 +89,19 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 	}
 
 	@Override
-	public void loadAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		getAcquisitionController().loadAcquisitionConfiguration(url);
-	}
-
-	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		getAcquisitionController().loadAcquisitionConfiguration(acquisition);
 	}
 
 	@Override
-	public AcquisitionConfigurationResource<ScanningAcquisition> parseAcquisitionConfiguration(URL url)
+	public AcquisitionConfigurationResource<ScanningAcquisition> createAcquisitionConfigurationResource(UUID uuid)
 			throws AcquisitionControllerException {
-		return getAcquisitionController().parseAcquisitionConfiguration(url);
+		return getAcquisitionController().createAcquisitionConfigurationResource(uuid);
 	}
 
 	@Override
-	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		getAcquisitionController().deleteAcquisitionConfiguration(url);
+	public void deleteAcquisitionConfiguration(UUID uuid) throws AcquisitionControllerException {
+		getAcquisitionController().deleteAcquisitionConfiguration(uuid);
 	}
 
 	@Override

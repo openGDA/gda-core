@@ -18,15 +18,19 @@
 
 package gda.rcp.views;
 
+import static uk.ac.gda.api.acquisition.AcquisitionPredicates.isAcquisitionInstance;
+import static uk.ac.gda.api.acquisition.AcquisitionPredicates.isDiffractionType;
+import static uk.ac.gda.api.acquisition.AcquisitionPredicates.isTomographyType;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -34,10 +38,17 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
+import uk.ac.gda.client.exception.GDAClientRestException;
+import uk.ac.gda.common.entity.Document;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 
 /**
  * Defines the information necessary to create a {@link AcquisitionsBrowserCompositeFactory}
@@ -45,7 +56,9 @@ import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
  * @param <T>
  *            the type of objects displayed in the browser
  */
-public abstract class Browser<T> {
+public abstract class Browser<T extends Document> {
+
+	private static final Logger logger = LoggerFactory.getLogger(Browser.class);
 
 	/**
 	 * The location from where the class collects the objects, usually files, to display.
@@ -64,7 +77,7 @@ public abstract class Browser<T> {
 	 */
 	private AcquisitionConfigurationResource<T> selected;
 
-	public Browser(AcquisitionConfigurationResourceType type) {
+	protected Browser(AcquisitionConfigurationResourceType type) {
 		this.type = type;
 	}
 
@@ -77,11 +90,10 @@ public abstract class Browser<T> {
 	 */
 	public List<AcquisitionConfigurationResource<T>> getAcquisitionConfigurationResources(boolean reload) {
 		if (acquisitionConfigurationResources == null) {
-			acquisitionConfigurationResources = new ArrayList<AcquisitionConfigurationResource<T>>();
+			acquisitionConfigurationResources = new ArrayList<>();
 		}
 
-		if (acquisitionConfigurationResources == null || reload) {
-			acquisitionConfigurationResources.clear();
+		if (reload) {
 			refreshResourcesList();
 		}
 
@@ -108,7 +120,7 @@ public abstract class Browser<T> {
 				browserWorkingDir = new URL("file", "localhost",
 						PlatformUI.getWorkbench().getService(IFilePathService.class).getVisitConfigDir());
 			} catch (MalformedURLException e) {
-
+				logger.error("Cannot retrieve browser working directory", e);
 			}
 		}
 		return browserWorkingDir;
@@ -137,6 +149,7 @@ public abstract class Browser<T> {
 			File file = new File(element.getLocation().toURI().getPath());
 			name = file.getName();
 		} catch (URISyntaxException e) {
+			logger.error("Cannot retrieve tURLLastPathSegment", e);
 		}
 		return name;
 	}
@@ -187,19 +200,44 @@ public abstract class Browser<T> {
 
 	private void refreshResourcesList() {
 		acquisitionConfigurationResources.clear();
-		File[] resources = new File(getBrowserWorkingDir().getFile()).listFiles((dir, name) -> {
-			return (name.endsWith("." + type.getExtension()));
-		});
-		Optional.ofNullable(resources).ifPresent(parseFiles);
+		try {
+			List<T> documents = getConfigurationsRestServiceClient().getDocuments();
+			Optional.ofNullable(documents).ifPresent(parseDocument);
+		} catch (GDAClientRestException e) {
+			logger.error("Cannot get documents from service", e);
+		}
 	}
 
-	Consumer<File[]> parseFiles = (resources) -> {
-		Arrays.stream(resources).forEachOrdered(c -> {
-			try {
-				acquisitionConfigurationResources.add(new AcquisitionConfigurationResource(c.toURI().toURL(), null));
-			} catch (MalformedURLException e) {
-			}
-		});
-	};
+	private Consumer<List<T>> parseDocument = documents ->
+			documents.stream()
+			.filter(getTypeFilter())
+			.map(u -> new AcquisitionConfigurationResource<T>(getDocumentURL(u).get(), (T) u))
+			.forEach(c -> acquisitionConfigurationResources.add(c));
 
+    private Predicate<? super Document> getTypeFilter() {
+    	return isAcquisitionInstance().and(getTomoPredicateNew().or(getMapPredicateNew()));
+    }
+
+    private Predicate<? super Document> getTomoPredicateNew() {
+    	return document -> AcquisitionConfigurationResourceType.TOMO.equals(getType()) &&
+    			isTomographyType().test(Acquisition.class.cast(document));
+    }
+
+    private Predicate<? super Object> getMapPredicateNew() {
+    	return document -> AcquisitionConfigurationResourceType.MAP.equals(getType()) &&
+    			isDiffractionType().test(Acquisition.class.cast(document));
+    }
+
+	private Optional<URL> getDocumentURL(Document document) {
+		try {
+			return Optional.ofNullable(getConfigurationsRestServiceClient().getDocumentURL(document.getUuid()));
+		} catch (GDAClientRestException e) {
+			logger.error("Cannot add resource", e);
+			return Optional.empty();
+		}
+	}
+
+	private ConfigurationsRestServiceClient getConfigurationsRestServiceClient() {
+		return SpringApplicationContextFacade.getBean(ConfigurationsRestServiceClient.class);
+	}
 }

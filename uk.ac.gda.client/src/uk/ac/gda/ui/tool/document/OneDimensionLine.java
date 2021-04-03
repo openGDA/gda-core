@@ -18,7 +18,6 @@
 
 package uk.ac.gda.ui.tool.document;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
@@ -46,7 +45,6 @@ class OneDimensionLine implements ScanningAcquisitionFactory {
 	public Supplier<ScanningAcquisition> newScanningAcquisition(String acquisitionType) {
 		return () -> {
 			ScanningAcquisition newConfiguration = new ScanningAcquisition();
-			newConfiguration.setUuid(UUID.randomUUID());
 			ScanningConfiguration configuration = new ScanningConfiguration();
 			newConfiguration.setAcquisitionConfiguration(configuration);
 

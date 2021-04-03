@@ -18,11 +18,12 @@
 
 package uk.ac.gda.api.acquisition.resource.event;
 
-import java.net.URL;
+import java.util.UUID;
 
 import org.springframework.context.ApplicationEvent;
 
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
+import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 
 /**
  * Classes extending this one are published on events related to {@link AcquisitionConfigurationResource}.
@@ -36,23 +37,30 @@ public abstract class AcquisitionConfigurationResourceEvent extends ApplicationE
 	 *
 	 */
 	private static final long serialVersionUID = -5094032542760128396L;
-	private final URL url;
+	private final UUID uuid;
+	private final AcquisitionConfigurationResourceType type;
 
 	/**
 	 * Instantiates a resource event defining its {@code source} and {@code url} location
 	 * @param source the object which published this event
-	 * @param url the location of the acquisition configuration it is referring to
+	 * @param uuid the document id
 	 */
-	public AcquisitionConfigurationResourceEvent(Object source, URL url) {
+	protected AcquisitionConfigurationResourceEvent(Object source, UUID uuid, AcquisitionConfigurationResourceType type) {
 		super(source);
-		this.url = url;
+		this.uuid = uuid;
+		this.type = type;
 	}
 
-	/**
-	 * The location of the acquisition configuration resource for this event
-	 * @return a location
-	 */
-	public final URL getUrl() {
-		return url;
+
+	protected AcquisitionConfigurationResourceEvent(Object source, UUID uuid) {
+		this(source, uuid, null);
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public AcquisitionConfigurationResourceType getType() {
+		return type;
 	}
 }

@@ -138,7 +138,7 @@ public class PlanManagerView extends ViewPart {
 		ExperimentPlanBean bean = new ExperimentPlanBean();
 		if (openWizard(bean)) {
 			getExperimentService().saveExperimentPlan(bean);
-			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, null));
+			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, bean.getUuid()));
 		}
 	}
 
@@ -149,14 +149,14 @@ public class PlanManagerView extends ViewPart {
 				getExperimentService().deleteExperimentPlan(originalName);
 			}
 			getExperimentService().saveExperimentPlan(bean);
-			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, null));
+			publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, bean.getUuid()));
 		}
 	}
 
 	private void remove(ExperimentPlanBean bean) {
 		if (UIHelper.showConfirm("Do you want to delete experiment plan '" + bean.getPlanName() + "'?")) {
 			getExperimentService().deleteExperimentPlan(bean.getPlanName());
-			publishEvent(new AcquisitionConfigurationResourceDeleteEvent(this, null));
+			publishEvent(new AcquisitionConfigurationResourceDeleteEvent(this, bean.getUuid()));
 		}
 	}
 

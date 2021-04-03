@@ -61,7 +61,7 @@ public class NameLabelProvider extends LabelProvider implements IComparableStyle
 
 	@SuppressWarnings("unchecked")
 	private String getURLLastPath(Object element) {
-		return Browser.getURLLastPathSegment((AcquisitionConfigurationResource<ScanningAcquisition>) element);
+		return ((AcquisitionConfigurationResource<ScanningAcquisition>) element).getResource().getName();
 	}
 
 }

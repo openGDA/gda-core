@@ -4,12 +4,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
+import uk.ac.gda.common.entity.Document;
 
-public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
+public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener, Document {
 
 	public static final String DRIVER_PROPERTY = "driver";
 	public static final String NAME_PROPERTY = "name";
@@ -22,6 +24,7 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 	public static final String SEGMENTS_PROPERTY = "segments";
 
 	private static final long serialVersionUID = 2836310522704078875L;
+	private UUID uuid;
 	private String name;
 	private String description;
 
@@ -32,12 +35,32 @@ public class ExperimentPlanBean implements PlanRequest, PropertyChangeListener {
 	private final PropertyChangeSupport pcs;
 
 	public ExperimentPlanBean() {
+		super();
 		this.pcs = new PropertyChangeSupport(this);
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
 	}
 
 	@Override
 	public String getPlanName() {
 		return name;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
 	}
 
 	public void setPlanName(String name) {

@@ -23,4 +23,5 @@ Require-Bundle: uk.ac.gda.api,
  org.apache.commons.io
 Bundle-Vendor: Diamond Light Source
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.api 
-Import-Package: com.fasterxml.jackson.databind.annotation
+Import-Package: com.fasterxml.jackson.databind.annotation,
+ uk.ac.gda.common.entity
