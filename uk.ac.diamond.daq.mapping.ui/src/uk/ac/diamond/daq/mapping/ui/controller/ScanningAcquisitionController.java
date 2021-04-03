@@ -7,13 +7,10 @@ import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRe
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import javax.naming.directory.InvalidAttributesException;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -38,14 +35,12 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
-import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
@@ -54,6 +49,8 @@ import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
@@ -79,14 +76,21 @@ public class ScanningAcquisitionController
 	public static final String DEFAULT_CONFIGURATION_NAME = "UntitledConfiguration";
 
 	@Autowired
+	private DocumentMapper documentMapper;
+
+	@Autowired
+	private AcquisitionFileContext fileContext;
+
+	@Autowired
 	private StageController stageController;
 
 	@Autowired
 	private ClientRemoteServices remoteServices;
 
-	private ScanningAcquisition acquisition;
+	@Autowired
+	private ConfigurationsRestServiceClient configurationService;
 
-	private ScanningAcquisitionFileService fileService;
+	private ScanningAcquisition acquisition;
 
 	private Supplier<ScanningAcquisition> newAcquisitionSupplier;
 
@@ -124,8 +128,8 @@ public class ScanningAcquisitionController
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		updateImageCalibration();
 		try {
-			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()), false);
-		} catch (IOException | InvalidAttributesException | GDAException e) {
+			save(formatConfigurationFileName(getAcquisition().getName()), documentMapper.convertToJSON(getAcquisition()));
+		} catch (IOException | uk.ac.gda.common.exception.GDAException e) {
 			throw new AcquisitionControllerException(e);
 		}
 	}
@@ -161,16 +165,26 @@ public class ScanningAcquisitionController
 	@Override
 	public AcquisitionConfigurationResource<ScanningAcquisition> parseAcquisitionConfiguration(URL url)
 			throws AcquisitionControllerException {
+		ScanningAcquisition result = null;
 		try {
-			return new AcquisitionConfigurationResource<>(url, DocumentMapper.fromJSON(url, ScanningAcquisition.class));
-		} catch (GDAException e) {
+			if (url.getProtocol().startsWith("http")) {
+				result = (ScanningAcquisition) configurationService.getDocument(url);
+			} else if (url.getProtocol().startsWith("file")) {
+				result = DocumentMapper.fromJSON(url, ScanningAcquisition.class);
+			}
+			return new AcquisitionConfigurationResource<>(url, result);
+		} catch (GDAException | GDAClientRestException e) {
 			throw new AcquisitionControllerException(e);
 		}
 	}
 
 	@Override
 	public void deleteAcquisitionConfiguration(URL url) throws AcquisitionControllerException {
-		throw new AcquisitionControllerException("Delete not implemented");
+		try {
+			configurationService.deleteDocument(getAcquisition().getUuid().toString());
+		} catch (GDAClientRestException e) {
+			logger.error("Cannot delete scanning acquisiton", e);
+		}
 	}
 
 	@Override
@@ -200,26 +214,23 @@ public class ScanningAcquisitionController
 			.orElseGet(() -> "noNameConfiguration");
 	}
 
-	private void save(String fileName, String acquisitionDocument, boolean override) throws IOException, InvalidAttributesException {
-		Path path = saveTextDocument(fileName, acquisitionDocument, override);
-		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, path.toUri().toURL()));
+	private void save(String fileName, String acquisitionDocument) throws IOException, AcquisitionControllerException {
+		ScanningAcquisition savedAcquisition = null;
+		try {
+			if (AcquisitionPropertyType.TOMOGRAPHY.equals(getAcquisitionType())) {
+				savedAcquisition = configurationService.insertImaging(getAcquisition());
+			} else if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionType()))
+				savedAcquisition = configurationService.insertDiffraction(getAcquisition());
+		} catch (GDAClientRestException e) {
+			logger.error("Cannot save the configuration", e);
+		}
+		if (savedAcquisition != null) {
+			loadAcquisitionConfiguration(savedAcquisition);
+		}
+
+		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, configurationService.getDocumentURL(getAcquisition())));
 		publishScanRequestSavedEvent(fileName);
 		publishSave(getAcquisition().getName(), acquisitionDocument);
-	}
-
-	private Path saveTextDocument(String fileName, String acquisitionDocument, boolean override) throws IOException, InvalidAttributesException {
-		switch (getAcquisitionType()) {
-		case TOMOGRAPHY:
-			return getFileService().saveTextDocument(acquisitionDocument, fileName,
-					AcquisitionConfigurationResourceType.TOMO.getExtension(), override);
-		case DIFFRACTION:
-		case BEAM_SELECTOR:
-			return getFileService().saveTextDocument(acquisitionDocument, fileName,
-					AcquisitionConfigurationResourceType.MAP.getExtension(), override);
-		default:
-			return getFileService().saveTextDocument(acquisitionDocument, fileName,
-					AcquisitionConfigurationResourceType.DEFAULT.getExtension(), override);
-		}
 	}
 
 	private void publishScanRequestSavedEvent(String fileName) {
@@ -330,13 +341,6 @@ public class ScanningAcquisitionController
 			logger.error("Cannot read JSON document", e);
 		}
 		throw new AcquisitionControllerException("Cannot parse json document");
-	}
-
-	private ScanningAcquisitionFileService getFileService() {
-		if (fileService == null) {
-			fileService = new ScanningAcquisitionFileService();
-		}
-		return fileService;
 	}
 
 	private void publishSave(String name, String acquisition) {
