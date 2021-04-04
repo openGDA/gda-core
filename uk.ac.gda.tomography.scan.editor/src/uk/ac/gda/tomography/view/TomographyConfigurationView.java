@@ -66,8 +66,6 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 
 	public static final String ID = "uk.ac.gda.tomography.view.TomographyConfigurationView";
 
-	private AcquisitionController<ScanningAcquisition> acquisitionController;
-
 	@Override
 	protected CompositeFactory getTopArea(Supplier<Composite> controlButtonsContainerSupplier) {
 		return new SelectableContainedCompositeFactory(initializeConfiguration(controlButtonsContainerSupplier),

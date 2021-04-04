@@ -118,6 +118,9 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 	}
 
 	private void saveAcquisition() {
+		if (getAcquisitionController().getAcquisition().getUuid() != null && !UIHelper.showConfirm("Override the existing configuration?")) {
+			return;
+		}
 		try {
 			getAcquisitionController().saveAcquisitionConfiguration();
 		} catch (AcquisitionControllerException e) {
