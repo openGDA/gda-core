@@ -39,7 +39,7 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * An implementation of {@link DeviceCommandReceiver} which get or set properties from Spring bean defined by the GDA server
- * 
+ *
  * @author Maurizio Nagni
  *
  * @param <T>
@@ -70,7 +70,7 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 	public void setValue(DeviceRequest deviceRequest, OutputStrategy<T> outputStrategy)
 			throws GDAServiceException {
 		setPropertyValue(deviceRequest);
-		T document = (T)deviceRequest.getDeviceValue();
+		T document = (T) deviceRequest.getDeviceValue();
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 
@@ -101,10 +101,11 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 			e.printStackTrace();
 		}
 	}
-	
+
 	private T createDeviceValue(DeviceValue deviceValue, Object result) {
-		DeviceValue.Builder builder = new DeviceValue.Builder();			
+		DeviceValue.Builder builder = new DeviceValue.Builder();
 		builder.withValue(result);
+		builder.withServiceName(deviceValue.getServiceName());
 		builder.withProperty(deviceValue.getProperty());
 		builder.withName(deviceValue.getName());
 		builder.withUuid(UUID.randomUUID());

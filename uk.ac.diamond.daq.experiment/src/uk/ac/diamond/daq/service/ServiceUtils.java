@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,8 +14,8 @@ import uk.ac.diamond.daq.service.command.strategy.OutputStrategy;
 import uk.ac.gda.common.exception.GDAServiceException;
 
 /**
- * 
- * 
+ *
+ *
  * @author Maurizio Nagni
  *
  */
@@ -32,9 +33,9 @@ public class ServiceUtils {
 	public <T> void writeOutput(TypeReference<List<T>> typeReference, List<T> document, OutputStrategy<T> outputStrategy,  final HttpServletResponse response) throws GDAServiceException {
 		writeOutput(outputStrategy.write(typeReference, document), response);
 	}
-	
+
 	/**
-	 * Writes a single document into the {@link HttpServletResponse} 
+	 * Writes a single document into the {@link HttpServletResponse}
 	 * @param <T>
 	 * @param document
 	 * @param outputStrategy
@@ -44,9 +45,9 @@ public class ServiceUtils {
 	public <T> void writeOutput(T document, OutputStrategy<T> outputStrategy,  final HttpServletResponse response) throws GDAServiceException {
 		writeOutput(outputStrategy.write(document), response);
 	}
-	
+
 	/**
-	 * Writes a {@code byte[]} into the {@link HttpServletResponse} 
+	 * Writes a {@code byte[]} into the {@link HttpServletResponse}
 	 * @param output
 	 * @param response
 	 * @throws GDAServiceException
@@ -56,7 +57,10 @@ public class ServiceUtils {
 			response.getOutputStream().write(output);
 		} catch (IOException e) {
 			throw new GDAServiceException("Cannot write http response", e);
-		}		
+		}
 	}
-	
+
+	public UUID creteTimebasedUUID() {
+		return new UUID(System.currentTimeMillis(), System.currentTimeMillis());
+	}
 }
