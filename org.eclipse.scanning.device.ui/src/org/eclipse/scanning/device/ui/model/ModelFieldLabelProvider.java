@@ -33,128 +33,137 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
+	private static final Logger logger = LoggerFactory.getLogger(ModelFieldLabelProvider.class);
 
 	private Image ticked;
 	private Image unticked;
 
-	private static final Logger logger = LoggerFactory.getLogger(ModelFieldLabelProvider.class);
-
 	private IScannableDeviceService cservice;
-	private final ModelViewer       viewer;
+	private final ModelViewer<?> viewer;
 
-	public ModelFieldLabelProvider(ModelViewer viewer) {
+	public ModelFieldLabelProvider(ModelViewer<?> viewer) {
 		this.viewer = viewer;
 		try {
 			cservice = ServiceHolder.getEventService().createRemoteService(new URI(CommandConstants.getScanningBrokerUri()), IScannableDeviceService.class);
 		} catch (Exception e) {
-			logger.error("Unable to make a remote connection to "+IScannableDeviceService.class.getSimpleName());
+			logger.error("Unable to make a remote connection to {}", IScannableDeviceService.class.getSimpleName());
 		}
 	}
 
 	@Override
 	public void dispose() {
-		if (ticked!=null)   ticked.dispose();
-		if (unticked!=null) unticked.dispose();
+		if (ticked != null) {
+			ticked.dispose();
+		}
+		if (unticked != null) {
+			unticked.dispose();
+		}
 		super.dispose();
 	}
 
 	@Override
 	public Color getForeground(Object ofield) {
-		Color ret = super.getForeground(ofield);
-		if (ret!=null) return ret;
-		if (ofield instanceof FieldValue && viewer.isValidationError((FieldValue)ofield)) {
-			return Display.getDefault().getSystemColor(SWT.COLOR_RED);
-		} else {
-			return null;
+		final Color ret = super.getForeground(ofield);
+		if (ret != null) {
+			return ret;
 		}
+		if (ofield instanceof FieldValue && viewer.isValidationError((FieldValue) ofield)) {
+			return Display.getDefault().getSystemColor(SWT.COLOR_RED);
+		}
+		return null;
 	}
 
-
 	/**
-	 * The <code>LabelProvider</code> implementation of this
-	 * <code>ILabelProvider</code> method returns <code>null</code>.
+	 * The <code>LabelProvider</code> implementation of this <code>ILabelProvider</code> method returns
+	 * <code>null</code>.<br>
 	 * Subclasses may override.
 	 */
 	@Override
 	public Image getImage(Object ofield) {
+		if (ofield == null) {
+			return null;
+		}
 
-		if (ofield == null) return null;
-
-		FieldValue field  = (FieldValue)ofield;
-		Object   element  = field.get();
+		final FieldValue field = (FieldValue) ofield;
+		Object element = field.get();
 		if (element instanceof Boolean) {
-			if (ticked==null)   ticked   = Activator.getImageDescriptor("icons/ticked.png").createImage();
-			if (unticked==null) unticked = Activator.getImageDescriptor("icons/unticked.gif").createImage();
-			Boolean val = (Boolean)element;
+			if (ticked == null) {
+				ticked = Activator.getImageDescriptor("icons/ticked.png").createImage();
+			}
+			if (unticked == null) {
+				unticked = Activator.getImageDescriptor("icons/unticked.gif").createImage();
+			}
+			boolean val = (Boolean) element;
 			return val ? ticked : unticked;
 		}
 		return null;
 	}
 
 	/**
-	 * The <code>LabelProvider</code> implementation of this
-	 * <code>ILabelProvider</code> method returns the element's
-	 * <code>toString</code> string. Subclasses may override.
-	 *
-	 * This renderer is called by the table and some cell editors.
+	 * The <code>LabelProvider</code> implementation of this <code>ILabelProvider</code> method returns the element's
+	 * <code>toString</code> string.<br>
+	 * Subclasses may override.
+	 * <p>
+	 * This renderer is called by the table and some cell editors.<br>
 	 * It does not always get asked to render a FieldValue
 	 */
 	@Override
 	public String getText(Object ofield) {
+		if (ofield == null) {
+			return "";
+		}
 
-		if (ofield == null)            return "";
-
-		StringBuilder buf = new StringBuilder();
+		final StringBuilder buf = new StringBuilder();
 		try {
 			if (ofield instanceof FieldValue) {
-				appendFieldText(buf, (FieldValue)ofield);
+				appendFieldText(buf, (FieldValue) ofield);
 			} else {
 				appendCompoundText(buf, null, ofield);
 			}
 		} catch (Exception ne) {
-			// Do not keep logging this exception, it's a table render action and
-			// would repeat nausiously in the log file for no benefit.
+			// Do not keep logging this exception, it's a table render action and would repeat in the log file for no
+			// benefit.
 			buf.append(ne.getMessage());
 		}
 		return buf.toString();
 	}
 
 	private void appendFieldText(StringBuilder buf, FieldValue ofield) throws Exception {
-		FieldValue field  = ofield;
-		Object   element  = field.get();
-		if (element == null)    {
-			buf.append(field.getAnnotation().edit()==EditType.COMPOUND ? "..." :  "");
+		final FieldValue field = ofield;
+		final Object element = field.get();
+		if (element == null) {
+			buf.append(field.getAnnotation().edit() == EditType.COMPOUND ? "..." : "");
 			return;
 		}
-		if (element instanceof Boolean) return;
+		if (element instanceof Boolean) {
+			return;
+		}
 
-		if (element.getClass()!=null &&element.getClass().isArray()) {
-			buf.append( StringUtils.toString(element) );
+		if (element.getClass() != null && element.getClass().isArray()) {
+			buf.append(StringUtils.toString(element));
 		} else {
-		    appendLabel(buf, field, element);//$NON-NLS-1$
+			appendLabel(buf, field, element);// $NON-NLS-1$
 		}
 	}
 
 	private void appendLabel(StringBuilder buf, FieldValue field, Object element) throws Exception {
-
-		if (field!=null&&field.getAnnotation()!=null && field.getAnnotation().edit()==EditType.COMPOUND) {
+		if (field != null && field.getAnnotation() != null && field.getAnnotation().edit() == EditType.COMPOUND) {
 			appendCompoundText(buf, field.getAnnotation().compoundLabel(), element);
 		} else {
-			buf.append(element.toString());//$NON-NLS-1$
+			buf.append(element.toString());
 			buf.append(getUnit(field));
 		}
 	}
 
 	private String getLabel(FieldValue field, Object element) throws Exception {
-		StringBuilder buf = new StringBuilder();
+		final StringBuilder buf = new StringBuilder();
 		appendLabel(buf, field, element);
 		return buf.toString();
 	}
 
 	private void appendCompoundText(StringBuilder buf, final String compoundLabel, Object element) throws Exception {
-
 		try {
-		    Method ts = element.getClass().getMethod("toString");
+		    final Method ts = element.getClass().getMethod("toString");
 		    if (ts.getDeclaringClass()==element.getClass()) {
 		        buf.append(ts.invoke(element)); // They made a special impl of toString for us to use
 		        return;
@@ -163,18 +172,17 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 		    // We continue to the model's fields.
 		}
 
-		Collection<FieldValue> fields = FieldUtils.getModelFields( element );
-		if (compoundLabel!=null && compoundLabel.length()>0) {
+		final Collection<FieldValue> fields = FieldUtils.getModelFields( element );
+		if (compoundLabel != null && compoundLabel.length() > 0) {
 			String replace = compoundLabel;
 			for (FieldValue fieldValue : fields) {
-				String with = "${"+fieldValue.getName()+"}";
+				final String with = "${" + fieldValue.getName() + "}";
 				if (replace.contains(with)) {
-					String value = getLabel(fieldValue, fieldValue.get());
-				    replace = replace.replace(with, value);
+					final String value = getLabel(fieldValue, fieldValue.get());
+					replace = replace.replace(with, value);
 				}
 			}
 			buf.append(replace);
-
 		} else {
 			buf.append("[");
 			for (FieldValue fieldValue : fields) {
@@ -187,32 +195,29 @@ class ModelFieldLabelProvider extends EnableIfColumnLabelProvider {
 		}
 	}
 
-
 	private String getUnit(FieldValue field) {
-
-		FieldDescriptor anot = field.getAnnotation();
-		if (anot!=null) {
-			if (anot.scannable().length()>0 && cservice !=null) {
+		final FieldDescriptor anot = field.getAnnotation();
+		if (anot != null) {
+			if (anot.scannable().length() > 0 && cservice != null) {
 				try {
-				    String scannableName = (String)FieldValue.get(field.getModel(), anot.scannable());
+					final String scannableName = (String) FieldValue.get(field.getModel(), anot.scannable());
 
-				    if (scannableName!=null && scannableName.length()>0) {
-					    IScannable<?> scannable = cservice.getScannable(scannableName);
-
-					    String unit = scannable.getUnit();
-					    if (unit!=null && unit.length()>0) {
-					        return " "+scannable.getUnit();
-					    }
-				    }
-
+					if (scannableName != null && scannableName.length() > 0) {
+						final IScannable<?> scannable = cservice.getScannable(scannableName);
+						final String unit = scannable.getUnit();
+						if (unit != null && unit.length() > 0) {
+							return " " + scannable.getUnit();
+						}
+					}
 				} catch (Exception ne) {
 					ne.printStackTrace();
 				}
 			}
 
-			if (anot.unit().length()>0) return " "+anot.unit();
+			if (anot.unit().length() > 0) {
+				return " " + anot.unit();
+			}
 		}
 		return "";
 	}
-
 }
