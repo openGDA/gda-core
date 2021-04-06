@@ -6,11 +6,9 @@ import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_
 import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.STRETCH;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -18,7 +16,6 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.event.EventException;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.bean.IBeanListener;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.swt.SWT;
@@ -30,7 +27,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
@@ -45,6 +41,8 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
  * Through this view the user can create, edit, delete and run {@link ExperimentPlanBean}s
@@ -59,7 +57,6 @@ public class PlanManagerView extends ViewPart {
 	private static final String EXPERIMENT_ID = "";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlanManagerView.class);
-	private static IEventService eventService;
 
 	private Composite base;
 	
@@ -164,20 +161,14 @@ public class PlanManagerView extends ViewPart {
 	}
 
 	private boolean openWizard(ExperimentPlanBean planBean) {
-		PlanSetupWizard planWizard = new PlanSetupWizard(EXPERIMENT_ID, planBean); // TODO should be the experimentId
+		PlanSetupWizard planWizard = new PlanSetupWizard(EXPERIMENT_ID, planBean);
 		WizardDialog wizardDialog = new WizardDialog(base.getShell(), planWizard);
 		return wizardDialog.open() == Window.OK;
 	}
 
-	// OSGi use only!
-	public void setEventService(IEventService eventService) {
-		PlanManagerView.eventService = eventService; // NOSONAR used by OSGi only (I hope...)
-	}
-
 	private void createSubscriber() throws URISyntaxException, EventException {
-		Objects.requireNonNull(eventService);
-		URI activeMqUri = new URI(LocalProperties.getActiveMQBrokerURI());
-		subscriber = eventService.createSubscriber(activeMqUri, EXPERIMENT_PLAN_TOPIC);
+		subscriber = SpringApplicationContextFacade.getBean(ClientRemoteServices.class)
+						.createSubscriber(EXPERIMENT_PLAN_TOPIC);
 		subscriber.addListener(event -> {
 			final PlanStatusBean bean = event.getBean();
 			planComplete = bean.getStatus().isFinal();
