@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This file allows facilities to customise logging. e.g. if they want it all to be logged to a central server -->
+
+<included>
+
+	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- Only keep events originating from the local context -->
+		<filter class="gda.util.logging.SourceProcessFilter">
+			<contextSourceName>${GDA_SOURCE}</contextSourceName>
+		</filter>
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+		<encoder>
+			<pattern>${gda.logserver.console.pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- This is a bit dubious but it seems to work i.e. the Console appender
+		gets added to the root logger. It kind of looks like you are redefining the
+		root logger. If you set the level here it will override it on the core root
+		logger as the root logger can only have one overall level. -->
+	<root>
+		<appender-ref ref="Console" />
+	</root>
+
+	<!-- Classes for which INFO messages are excessive -->
+
+	<!-- Classes for which DEBUG messages are excessive -->
+
+	<!-- Classes for which TRACE messages are excessive -->
+
+	<!-- Classes where we want all messages -->
+	<logger name="uk.ac.gda.example.device.remote.RemoteDeviceView">					<level value="ALL"/></logger>
+
+	<!-- If this file exists it allows you to customise logging levels for each config -->
+	<include file="${gda.config}/properties/${gda.mode}/logging_customisation.xml" />
+</included>

@@ -21,14 +21,16 @@ See &lt;http://www.opengda.org/&gt;
 
    <launcherArgs>
       <vmArgs>-Dosgi.framework.extensions=org.eclipse.fx.osgi
--Dgda.root=${project_loc:uk.ac.gda.core}/../
--Dgda.config=${project_loc:example-config}
--Dgda.core.dir=${project_loc:core-config}
--Djava.library.path=${workspace_loc}/plugins/uk.ac.gda.nexus/lib/${target.os}-${target.arch}
--Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
--Djacorb.config.dir=${project_loc:example-config}/properties/dummy/jacorb
--Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/dummy/JCALibrary.properties
+-Drebel.log=true
 -Dgda.mode=dummy
+-Dgda.config=${project_loc:example-config}
+-Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
+-Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/dummy/JCALibrary.properties
+-Dgda.install.git.loc=${workspace_loc}/../workspace_git
+-Dgda.install.workspace.loc=${workspace_loc}
+-Dgda.logs.dir=${workspace_loc}/../gda_logs_non_live
+-Dgda.core.dir=${project_loc:core-config}
+-Dgda.group.dir=${project_loc:core-config}/no-group
 -Xms512m
 -Xmx1024m
       </vmArgs>
