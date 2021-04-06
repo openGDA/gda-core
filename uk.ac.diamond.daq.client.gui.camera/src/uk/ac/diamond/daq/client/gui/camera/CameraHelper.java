@@ -255,6 +255,26 @@ public final class CameraHelper {
 	}
 
 	/**
+	 * Returns the available client camera configuration
+	 * @return the available camera configurations
+	 */
+	private static Optional<CameraConfigurationProperties> getCameraConfigurationProperties(Predicate<? super CameraConfigurationProperties> filter) {
+		return getCameraProperies().stream()
+				.filter(filter)
+				.findFirst();
+	}
+
+	/**
+	 * Finds a camera configuration from the loaded ones by its cameraConfigurationName name,
+	 * @param cameraConfigurationName the configuration name
+	 * @return a camera configuration, otherwise {@link Optional#empty()}
+	 */
+	public static Optional<CameraConfigurationProperties> getCameraConfigurationPropertiesByConfigurationName(String cameraConfigurationName) {
+		Predicate<? super CameraConfigurationProperties> filter = c -> c.getConfiguration().equals(cameraConfigurationName);
+		return getCameraConfigurationProperties(filter);
+	}
+
+	/**
 	 * Returns the IDs of the camera requiring a camera monitoring button
 	 * @return a list of camera IDs
 	 */

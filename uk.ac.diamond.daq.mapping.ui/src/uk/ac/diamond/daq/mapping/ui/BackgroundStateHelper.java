@@ -20,21 +20,27 @@ package uk.ac.diamond.daq.mapping.ui;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
 import org.eclipse.january.dataset.IDynamicShape;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.ui.PlatformUI;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
+import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCameraAxesProvider;
 import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.calibration.PixelCalibration;
+import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
@@ -107,13 +113,24 @@ public class BackgroundStateHelper {
 		CameraStreamsManager manager = getBean(CameraStreamsManager.class);
 		if (cameraConfig.getCalibratedAxesProvider() == null) {
 			IDynamicShape dataset = manager.getDynamicShape(cameraConfig, streamType);
-			cameraConfig.setCalibratedAxesProvider(new PixelCalibration(dataset::getDataset));
+			cameraConfig.setCalibratedAxesProvider(getCalibratedAxedProvier(dataset::getDataset, cameraConfig));
 		} else {
 			try {
 				manager.getStreamConnection(cameraConfig, streamType).connect();
 			} catch (LiveStreamException e) {}
 		}
 		return Optional.ofNullable(manager.getLiveStreamPlottable(cameraConfig, streamType));
+	}
+
+	private CalibratedAxesProvider getCalibratedAxedProvier(Supplier<ILazyDataset> dataset, CameraConfiguration cameraConfig) {
+		Optional<CameraConfigurationProperties> cameraProperties = CameraHelper.getCameraConfigurationPropertiesByConfigurationName(cameraConfig.getName());
+		Optional<Supplier<CameraToBeamMap>> cameraToBeamMapSupplier = cameraProperties
+				.map(CameraConfigurationProperties::getCameraToBeamMap)
+				.map(c -> () -> c);
+
+		return cameraToBeamMapSupplier
+				.map(c -> new MappedCameraAxesProvider(dataset, c))
+				.orElseGet(() -> new MappedCameraAxesProvider(dataset));
 	}
 
 	private MappingRemoteServices getMappingRemoteServices() {

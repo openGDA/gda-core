@@ -11,17 +11,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 import javax.naming.directory.InvalidAttributesException;
 
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.RealVector;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
@@ -36,22 +31,16 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
-import uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.services.ScanningAcquisitionFileService;
 import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
@@ -70,7 +59,6 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
@@ -153,7 +141,6 @@ public class ScanningAcquisitionController
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		updateImageCalibration();
 		updateProcessingRequest();
-		transformPixelsToBeamDrivers();
 		try {
 			save(formatConfigurationFileName(getAcquisition().getName()), DocumentMapper.toJSON(getAcquisition()), false);
 		} catch (IOException | InvalidAttributesException | GDAException e) {
@@ -166,7 +153,6 @@ public class ScanningAcquisitionController
 		updateImageCalibration();
 		updateProcessingRequest();
 		updateStartPosition();
-		transformPixelsToBeamDrivers();
 		ResponseEntity<RunAcquisitionResponse> responseEntity;
 		try {
 			responseEntity = getScanningAcquisitionRestServiceClient().run(getAcquisition());
@@ -456,7 +442,6 @@ public class ScanningAcquisitionController
 		// eventually release already acquired resources, eventually
 		releaseResources();
 		this.acquisition = acquisition;
-		transformBeamDriversToPixel();
 		// associate a new helper with the new acquisition
 		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(getAcquisitionType(),
 				this::getAcquisition);
@@ -490,83 +475,5 @@ public class ScanningAcquisitionController
 
 	private void setAcquisitionType(AcquisitionPropertyType acquisitionType) {
 		this.acquisitionType = acquisitionType;
-	}
-
-	private void transformPixelsToBeamDrivers() {
-		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
-			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
-			.ifPresent(c -> transformCoordinates(MappedCalibrationUtils::pixelToBeam, c.getBeamCameraMap()));
-	}
-
-	private void transformBeamDriversToPixel() {
-		Optional.ofNullable(CameraHelper.createICameraConfiguration(CameraHelper.getCameraConfigurationProperties(0)))
-			.filter(c -> Objects.nonNull(c.getBeamCameraMapping()))
-			.ifPresent(c -> transformCoordinates(MappedCalibrationUtils::beamToPixel, c.getBeamCameraMap()));
-	}
-
-	private void transformCoordinates(BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation, CameraToBeamMap cameraToBeam) {
-		List<ScannableTrackDocument> trackDocuments = Optional.ofNullable(getAcquisition())
-			.map(ScanningAcquisition::getAcquisitionConfiguration)
-			.map(ScanningConfiguration::getAcquisitionParameters)
-			.map(ScanningParameters::getScanpathDocument)
-			.map(ScanpathDocument::getScannableTrackDocuments)
-			.orElseGet(ArrayList::new);
-	 	ScannableTrackDocumentHelper helper = new ScannableTrackDocumentHelper(this::getAcquisitionParameters);
-
-	 	int vectSize = Optional.ofNullable(cameraToBeam)
-	 			.map(CameraToBeamMap::getDriver)
-	 			.map(List::size)
-	 			.orElse(0);
-	 	if (vectSize == 0)
-	 		return;
-
-	 	updateStart(cameraToBeam, trackDocuments, helper, vectSize, transformation);
-	 	updateStop(cameraToBeam, trackDocuments, helper, vectSize, transformation);
-	}
-
-	private void updateStart(CameraToBeamMap cameraToBeam, List<ScannableTrackDocument> trackDocuments, ScannableTrackDocumentHelper helper, int vectSize,
-			BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation) {
-	 	RealVector start = new ArrayRealVector(vectSize);
-		IntStream.range(0, cameraToBeam.getDriver().size())
-		 	.forEach(i -> {
-		 		if (!scannableMatchesTrasformationAxis(cameraToBeam, trackDocuments, i))
-		 			return;
-		 		RealVector cameraVector = new ArrayRealVector(vectSize);
-		 		cameraVector.setEntry(i, trackDocuments.get(i).getStart());
-		 		transformation.apply(cameraToBeam, cameraVector).ifPresent(v -> start.addToEntry(i, v.getEntry(i)));
-		 	});
-		helper.updateScannableTrackDocumentsStarts(start.toArray());
-	}
-
-	private void updateStop(CameraToBeamMap cameraToBeam, List<ScannableTrackDocument> trackDocuments, ScannableTrackDocumentHelper helper, int vectSize,
-			BiFunction<CameraToBeamMap, RealVector, Optional<RealVector>> transformation) {
-		RealVector stop = new ArrayRealVector(vectSize);
-		IntStream.range(0, cameraToBeam.getDriver().size())
-	 		.forEach(i -> {
-		 		if (!scannableMatchesTrasformationAxis(cameraToBeam, trackDocuments, i))
-		 			return;
-	 			RealVector cameraVector = new ArrayRealVector(vectSize);
-		 		cameraVector.setEntry(i, trackDocuments.get(i).getStop());
-		 		transformation.apply(cameraToBeam, cameraVector).ifPresent(v -> stop.addToEntry(i, v.getEntry(i)));
-	 		});
-		helper.updateScannableTrackDocumentsStops(stop.toArray());
-	}
-
-	private boolean scannableMatchesTrasformationAxis(CameraToBeamMap cameraToBeam, List<ScannableTrackDocument> trackDocuments, int i) {
-		try {
-	 		String driverName = Optional.ofNullable(cameraToBeam)
-						.map(CameraToBeamMap::getDriver)
-						.map(l -> l.get(i))
-						.orElseGet(String::new);
-
-	 		String scannableName = Optional.ofNullable(trackDocuments)
-				.map(l -> l.get(i))
-				.map(ScannableTrackDocument::getScannable)
-				.orElseGet(String::new);
-
-	 		return driverName.equals(scannableName);
-		} catch (IndexOutOfBoundsException e) {
-			return false;
-		}
 	}
 }
