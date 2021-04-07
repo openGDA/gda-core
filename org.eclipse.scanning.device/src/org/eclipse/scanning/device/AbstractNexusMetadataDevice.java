@@ -41,7 +41,7 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	protected AbstractNexusMetadataDevice(NexusBaseClass nexusBaseClass) {
 		this();
-		metadataNode.setNexusBaseClass(nexusBaseClass);
+		setNexusBaseClass(nexusBaseClass);
 	}
 
 	@Override
@@ -121,5 +121,12 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return metadataNode.getNexusBaseClass();
 	}
 
+	protected void setNexusBaseClass(NexusBaseClass nexusClass) {
+		metadataNode.setNexusBaseClass(nexusClass);
+	}
+
+	protected void setNexusClass(String nxClass) {
+		metadataNode.setNexusClass(nxClass);
+	}
 
 }

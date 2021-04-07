@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmirror;
-import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
@@ -49,7 +48,8 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 
 	@Override
 	protected INexusDevice<NXmirror> setupNexusDevice() throws Exception {
-		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>(NexusBaseClass.NX_MIRROR);
+		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
+		nexusDevice.setNexusClass("NXmirror");
 
 		final List<MetadataNode> childNodes = new ArrayList<>();
 		childNodes.add(new ScalarField(NXmirror.NX_TYPE, EXPECTED_TYPE));

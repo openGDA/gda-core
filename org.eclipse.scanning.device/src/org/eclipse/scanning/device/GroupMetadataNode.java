@@ -63,7 +63,7 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 	 * @param nxClass
 	 */
 	public void setNexusClass(String nxClass) {
-		nexusBaseClass = NexusBaseClass.valueOf(nxClass);
+		nexusBaseClass = NexusBaseClass.getBaseClassForName(nxClass);
 	}
 
 	public void addChildNode(MetadataNode childNode) {
