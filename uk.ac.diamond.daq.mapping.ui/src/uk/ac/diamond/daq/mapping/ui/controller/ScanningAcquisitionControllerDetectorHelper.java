@@ -77,7 +77,6 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 class ScanningAcquisitionControllerDetectorHelper {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionControllerDetectorHelper.class);
 
-	private final List<AcquisitionConfigurationProperties> acquisitionPropertiesDocuments = new ArrayList<>();
 	private final Supplier<ScanningAcquisition> acquisitionSupplier;
 
 	/**
@@ -196,8 +195,9 @@ class ScanningAcquisitionControllerDetectorHelper {
 		if (getAcquisitionPropertiesDocuments().isEmpty()) {
 			return null;
 		}
-		int index = 0; // in future may be parametrised
-		return getAcquisitionPropertiesDocuments().get(index);
+		return getAcquisitionPropertiesDocuments().stream()
+				.filter(acquisition -> acquisition.getType().equals(getAcquisitionType()))
+				.findFirst().orElseThrow();
 	}
 
 	// At the moment is not possible to use anonymous lambda expression because it
