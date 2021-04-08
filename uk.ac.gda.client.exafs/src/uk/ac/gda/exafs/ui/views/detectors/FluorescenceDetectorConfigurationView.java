@@ -64,6 +64,10 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 	/** This will be set if view is being opened by {@link FluorescenceDetectorViewFactory} */
 	private String detectorName = "";
 
+	/** List of names of scannables whose positions should be include in MCA .dat output file */
+	private List<String> scannablesForMcaFiles = Collections.emptyList();
+
+
 	public FluorescenceDetectorConfigurationView() {
 		super();
 	}
@@ -89,6 +93,7 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 			fluorescenceDetectorComposite = new FluorescenceDetectorComposite(parent, SWT.NONE);
 			controller = new FluorescenceDetectorCompositeController(fluorescenceDetectorComposite);
 			controller.setDetector(detector);
+			controller.setScannablesForMcaFiles(getScannablesForMcaFiles());
 			controller.initialise();
 		}
 	}
@@ -284,5 +289,16 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 
 	public void setDetectorName(String detectorName) {
 		this.detectorName = detectorName;
+	}
+
+	public void setScannablesForMcaFiles(List<String> scannablesForMcaFiles) {
+		this.scannablesForMcaFiles = new ArrayList<>(scannablesForMcaFiles);
+	}
+
+	private List<String> getScannablesForMcaFiles() {
+		if (scannablesForMcaFiles == null) {
+			scannablesForMcaFiles = new ArrayList<>();
+		}
+		return scannablesForMcaFiles;
 	}
 }

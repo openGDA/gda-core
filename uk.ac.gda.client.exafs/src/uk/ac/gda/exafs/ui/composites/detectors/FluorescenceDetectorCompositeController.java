@@ -21,11 +21,14 @@ package uk.ac.gda.exafs.ui.composites.detectors;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -94,7 +97,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private FluorescenceDetector theDetector;
 	private FluorescenceDetectorComposite fluorescenceDetectorComposite;
 	private IBeanController<FluorescenceDetectorParameters> dataBindingController;
-	private FluoCompositeDataStore dataStore;
+	private Optional<FluoCompositeDataStore> dataStore;
 	private FileDialog openDialog;
 
 	// Controller state
@@ -116,6 +119,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 	/** Whether deadtime correction values are to be calculated (set by call to {@link #showDeadtimeCorrectionValues()} */
 	private boolean showDtcParameters;
+
+	private List<String> scannablesForMcaFiles = Collections.emptyList();
 
 	// Magic string
 	private static final String SPOOL_DIR_PROPERTY = "gda.fluorescenceDetector.spoolDir";
@@ -362,7 +367,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		// setup data store and fetch stored data, if any
 		createDataStore();
-		theData = dataStore.readDataFromFile();
+		dataStore.ifPresent(d -> theData = d.readDataFromFile());
 		plotTitle = "Saved data";
 
 		plotDataAndUpdateCounts();
@@ -431,9 +436,15 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	}
 
 	private void createDataStore() {
-		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		String fileName = varDir + "/" + theDetector.getName() + "_plot_data.xml";
-		dataStore = new FluoCompositeDataStore(fileName);
+		dataStore = Optional.ofNullable(LocalProperties.get(LocalProperties.GDA_VAR_DIR))
+				.map(v -> Paths.get(v, theDetector.getName() + "_plot_data.xml").toString())
+				.map(this::getDataStore);
+	}
+
+	private FluoCompositeDataStore getDataStore(String fileName) {
+		FluoCompositeDataStore fluoDataStore = new FluoCompositeDataStore(fileName);
+		fluoDataStore.setExtraScannables(scannablesForMcaFiles);
+		return fluoDataStore;
 	}
 
 	/**
@@ -775,7 +786,10 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 
 			checkDataDimensionsMatchDetectorSize();
-			dataStore.writeDataToFile(theData);
+			if (dataStore.isPresent()) {
+				dataStore.get().writeDataToFile(theData);
+			}
+
 
 			if (monitor != null) {
 				monitor.worked(1);
@@ -872,7 +886,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		openDialog.setFilterNames(new String[] { "*.mca" });
 		final String filePath = openDialog.open();
 		if (filePath != null) {
-			FluoCompositeDataStore newStore = new FluoCompositeDataStore(filePath);
+			FluoCompositeDataStore newStore = getDataStore(filePath);
 			dataLoadedFromFile = newStore.readDataFromFile();
 			plotTitle = "Saved data";
 			replot();
@@ -906,7 +920,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 
 			if (outputFilename != null) {
-				FluoCompositeDataStore newStore = new FluoCompositeDataStore(outputFilename);
+				FluoCompositeDataStore newStore = getDataStore(outputFilename);
 				newStore.writeDataToFile(theData);
 				newStore.writeDataToColumnFile(theData);
 
@@ -1081,4 +1095,8 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			fluorescenceDetectorComposite.setAcquireButtonEnabled(!scanIsRunning);
 		}
 	});
+
+	public void setScannablesForMcaFiles(List<String> scannablesForMcaFiles) {
+		this.scannablesForMcaFiles = scannablesForMcaFiles;
+	}
 }

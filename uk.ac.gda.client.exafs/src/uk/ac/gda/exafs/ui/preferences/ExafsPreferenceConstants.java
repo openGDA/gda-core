@@ -150,6 +150,12 @@ public class ExafsPreferenceConstants {
 	 */
 	public static final String DETECTOR_SAVE_ON_ACQUIRE = "exafs.editor.saveOnAcquireCheckbox.preference";
 
+	/**
+	 * Names of scannables whose positions should be recorded in MCA data files generated from FLuorescence
+	 * detector view. This can be a list of several scannables separated by whitespace, comma or semicolon.
+	 */
+	public static final String DETECTOR_MCA_FILE_SCANNABLES = "exafs.editor.mca.file.extra.scannables.preference";
+
 	/** Width of scaler/ROI window to use when doing 'set window from line' in fluorescence detector view */
 	public static final String DETECTOR_WINDOW_HALFWIDTH = "exafs.editor.detectorWindow.halfWidth";
 

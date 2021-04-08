@@ -22,11 +22,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
+import gda.factory.Finder;
 import uk.ac.gda.util.list.PrimitiveArrayEncoder;
 
 public class FluoCompositeDataStore {
@@ -36,6 +44,8 @@ public class FluoCompositeDataStore {
 	private String fileName;
 
 	private String columnFileName;
+
+	private List<String> extraScannables = Collections.emptyList();
 
 	public FluoCompositeDataStore(String fileName) {
 		this.fileName = fileName;
@@ -82,13 +92,19 @@ public class FluoCompositeDataStore {
 		int numElements = data.length;
 		int numChannels = data[0].length;
 
-		String header = "# Filename    : "+columnFileName+"\n"+
-					    "# Description : MCA data from file "+fileName+" saved in columns\n"+
-					    "# Number of elements : "+numElements+"\n"+
-					    "# Number of channels : "+numChannels+"\n#\n\n";
-
 		StringBuilder str = new StringBuilder();
-		str.append(header);
+
+		// Header
+		str.append("# Filename    : "+columnFileName+"\n"+
+				   "# Description : MCA data from file "+fileName+" saved in columns\n"+
+				   "# Number of elements : "+numElements+"\n"+
+				   "# Number of channels : "+numChannels+"\n");
+
+
+		// Positions of the scannables
+		getExtraScannables().forEach(name ->	getScannablePosition(name).ifPresent(pos -> str.append("# "+pos+"\n")));
+
+		str.append("#\n\n");
 
 		// Column labels
 		str.append("# Channel");
@@ -111,6 +127,24 @@ public class FluoCompositeDataStore {
 		//Write the file
 		writeStringToFile(columnFileName, str.toString());
 
+	}
+
+	private Optional<String> getScannablePosition(String scannableName) {
+		return Finder.findOptionalOfType(scannableName, Scannable.class)
+				.map(this::getFormattedCurrentPosition)
+				.orElseGet(() -> {
+					logger.warn("Could not get position of {} - scannable could not be found on server", scannableName);
+					return Optional.empty();
+				});
+	}
+
+	private Optional<String> getFormattedCurrentPosition(Scannable scannable) {
+		try {
+			return Optional.of(ScannableUtils.getFormattedCurrentPosition(scannable));
+		} catch (DeviceException e) {
+			logger.warn("Problem getting position of scannable {}", scannable, e);
+			return Optional.empty();
+		}
 	}
 
 	public String getColumnFileName() {
@@ -148,5 +182,16 @@ public class FluoCompositeDataStore {
 		} catch (IOException e) {
 			throw new IOException("IOException whilst writing detector editor MCA data to file "+fileName, e);
 		}
+	}
+
+	public void setExtraScannables(List<String> extraScannables) {
+		this.extraScannables = new ArrayList<>(extraScannables);
+	}
+
+	private List<String> getExtraScannables() {
+		if (extraScannables == null) {
+			extraScannables = new ArrayList<>();
+		}
+		return extraScannables;
 	}
 }

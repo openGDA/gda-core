@@ -18,9 +18,19 @@
 
 package uk.ac.gda.exafs.ui.views.detectors;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.FindableViewFactoryBase;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
 /**
  * Simple Factory class to create a {@link FluorescenceDetectorConfigurationView} for named detector.
@@ -60,8 +70,10 @@ import gda.rcp.views.FindableViewFactoryBase;
 
  */
 public class FluorescenceDetectorViewFactory extends FindableViewFactoryBase {
+	private static final Logger logger = LoggerFactory.getLogger(FluorescenceDetectorViewFactory.class);
 
 	private String detectorName = "";
+	private List<String> scannablesForMcaFiles = Collections.emptyList();
 
 	public String getDetectorName() {
 		return detectorName;
@@ -71,10 +83,42 @@ public class FluorescenceDetectorViewFactory extends FindableViewFactoryBase {
 		this.detectorName = detectorName;
 	}
 
+	public void setScannablesForMcaFiles(List<String> scannablesForMcaFiles) {
+		this.scannablesForMcaFiles = new ArrayList<>(scannablesForMcaFiles);
+	}
+
+	private List<String> getScannablesForMcaFiles() {
+		if (scannablesForMcaFiles == null) {
+			scannablesForMcaFiles = new ArrayList<>();
+		}
+		return scannablesForMcaFiles;
+	}
+
+	/**
+	 *
+	 * @return List of names of scannables to be recorded in MCA file - set in plugin_customization.ini.
+	 */
+	private List<String> getMcaScannablesFromPreference() {
+		String scannables = ExafsActivator.getDefault().getPreferenceStore().getString(ExafsPreferenceConstants.DETECTOR_MCA_FILE_SCANNABLES);
+		String[] splitStr = scannables.split("[,;\\s]+"); // split the string on the whitespace characters
+		return StringUtils.isNotEmpty(scannables) && splitStr.length > 0 ? Arrays.asList(splitStr) : Collections.emptyList();
+	}
+
 	@Override
 	public ViewPart createView() {
+		logger.debug("Creating view for : {}", detectorName);
+		if (getScannablesForMcaFiles().isEmpty()) {
+			List<String> scannables = getMcaScannablesFromPreference();
+			if (!scannables.isEmpty()) {
+				logger.debug("Setting MCA file scannable names from plugin_customization.ini");
+				setScannablesForMcaFiles(scannables);
+			}
+		}
+		logger.debug("Setting MCA file scannable names to : {}", scannablesForMcaFiles);
 		FluorescenceDetectorConfigurationView fluoDetectorView = new FluorescenceDetectorConfigurationView();
 		fluoDetectorView.setDetectorName(detectorName);
+		fluoDetectorView.setScannablesForMcaFiles(getScannablesForMcaFiles());
+
 		return fluoDetectorView;
 	}
 }
