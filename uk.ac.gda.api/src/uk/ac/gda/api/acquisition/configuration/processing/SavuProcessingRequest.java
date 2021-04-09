@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = SavuProcessingRequest.Builder.class)
 public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 
-	private static final String KEY = "savu";
+	public static final String KEY = "savu";
 	private final List<URL> processingFiles;
 
 	private SavuProcessingRequest(List<URL> processingFiles) {
@@ -57,10 +57,11 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	}
 
 	@JsonPOJOBuilder
-	public static class Builder {
+	public static class Builder implements ProcessingRequestBuilder<URL> {
 		private final List<URL> processingFiles = new ArrayList<>();
 
-	    public Builder withValue(List<URL> processingFiles) {
+	    @Override
+		public Builder withValue(List<URL> processingFiles) {
 	    	this.processingFiles.clear();
 	        this.processingFiles.addAll(processingFiles);
 	        return this;
@@ -70,15 +71,14 @@ public class SavuProcessingRequest implements ProcessingRequestPair<URL>{
 	     * @deprecated The 'key' property is currently serialised but set internally.
 	     * This method is only here to satisfy the deserialiser
 	     */
-	    @Deprecated
+	    @Override
+	    @Deprecated(since = "9.20")
 	    public Builder withKey(String key) {
-	    	/*
-	    	 * FIXME At some point the key should be read if we are to justify writing it.
-	    	 */
 	    	return this;
 	    }
 
-	    public SavuProcessingRequest build() {
+	    @Override
+		public SavuProcessingRequest build() {
 	        return new SavuProcessingRequest(processingFiles);
 	    }
 	}

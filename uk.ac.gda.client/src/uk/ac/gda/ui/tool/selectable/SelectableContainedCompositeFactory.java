@@ -156,6 +156,13 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 		CompositeFactory cf = getDataObject(event.widget, CompositeFactory.class, CONFIGURATION_FACTORY);
 		// build the selected NamedComposite
 		Composite newComposite = cf.createComposite(innerContainer, SWT.NONE);
+
+		newComposite.addPaintListener(e -> resize(newComposite));
+		resize(newComposite);
+		selectedWidget = event.widget;
+	}
+
+	private void resize(Composite newComposite) {
 		// layout the children
 		newComposite.layout();
 		// Even after the layout, the newCompsite.getSize() is {0,0}.
@@ -163,7 +170,6 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 		// In this way is possible to correctly set the size below which the scroll bars appear.
 		scrolledInnerContainer.setMinSize(newComposite.computeSize( SWT.DEFAULT, SWT.DEFAULT ));
 		scrolledInnerContainer.getShell().layout(true, true);
-		selectedWidget = event.widget;
 	}
 
 	/**

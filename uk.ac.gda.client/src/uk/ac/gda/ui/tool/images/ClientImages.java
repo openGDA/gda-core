@@ -38,6 +38,7 @@ public enum ClientImages {
 	OPEN(ClientImagesGroup.GENERAL, "open-16.png"),
 	RUN(ClientImagesGroup.GENERAL, "run-16.png"),
 	SAVE(ClientImagesGroup.GENERAL, "save-16.png"),
+	SELECT_DOCUMENT(ClientImagesGroup.GENERAL, "select_document-16.png"),
 	START(ClientImagesGroup.GENERAL, "play-16.png"),
 	STOP(ClientImagesGroup.GENERAL, "stop-16.png"),
 	TARGET(ClientImagesGroup.GENERAL, "target-16.png"),

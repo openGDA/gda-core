@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -37,7 +36,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = ApplyNexusTemplatesRequest.Builder.class)
 public class ApplyNexusTemplatesRequest implements ProcessingRequestPair<URL>{
 
-	private static final String KEY = "applyNexusTemplates";
+	public static final String KEY = "applyNexusTemplates";
 	private final List<URL> nexusTemplateFiles;
 
 	private ApplyNexusTemplatesRequest(List<URL> nexusTemplateFiles) {
@@ -49,7 +48,6 @@ public class ApplyNexusTemplatesRequest implements ProcessingRequestPair<URL>{
 	 * @return the identifier for this process
 	 */
 	@Override
-	@JsonIgnore
 	public String getKey() {
 		return KEY;
 	}
@@ -63,19 +61,31 @@ public class ApplyNexusTemplatesRequest implements ProcessingRequestPair<URL>{
 	}
 
 	@JsonPOJOBuilder
-	public static class Builder {
+	public static class Builder implements ProcessingRequestBuilder<URL> {
 		private final List<URL> nexusTemplateFiles = new ArrayList<>();
 
 	    /**
 	     * A list containing a nexus template files urls
 	     */
-	    public Builder withValue(List<URL> nexusTemplateFiles) {
+	    @Override
+		public Builder withValue(List<URL> nexusTemplateFiles) {
 	    	this.nexusTemplateFiles.clear();
 	        this.nexusTemplateFiles.addAll(nexusTemplateFiles);
 	        return this;
 	    }
 
-	    public ApplyNexusTemplatesRequest build() {
+	    /**
+	     * @deprecated The 'key' property is currently serialised but set internally.
+	     * This method is only here to satisfy the deserialiser
+	     */
+	    @Override
+	    @Deprecated(since = "9.20")
+	    public Builder withKey(String key) {
+	    	return this;
+	    }
+
+	    @Override
+		public ApplyNexusTemplatesRequest build() {
 	        return new ApplyNexusTemplatesRequest(nexusTemplateFiles);
 	    }
 	}

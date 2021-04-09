@@ -24,19 +24,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
-import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.experiment.structure.URLFactory;
-import uk.ac.gda.client.composites.ButtonGroupFactoryBuilder;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
 
 /**
@@ -48,36 +48,54 @@ import uk.ac.gda.ui.tool.images.ClientImages;
  *
  * @author Maurizio Nagni
  */
-public class SelectFileComposite implements CompositeFactory {
-
-	private static final Logger logger = LoggerFactory.getLogger(SelectFileComposite.class);
+public class SelectFileToolItem {
 
 	private static final URLFactory urlFactory = new URLFactory();
 
-	private Composite container;
-
-	private final ClientMessages title;
+	private final ToolItem toolItem;
 	private final ClientMessages tooltip;
 	private final String[] filterExtensions;
-	private final URL dirPath;
+	private Supplier<URL> dirPathSupplier;
 	private final Consumer<URL> consumeSelection;
 
-	private SelectFileComposite(ClientMessages title, ClientMessages tooltip, String[] filterExtensions,
-			URL dirPath, Consumer<URL> consumeSelection) {
-		this.title = title;
+
+
+	/**
+	 * Instantiates a new tool item
+	 *
+	 * @param toolBar the parent toolBar
+	 * @param tooltip the tooltip associated with the new tool item
+	 * @param filterExtensions the suffix used to filter specific file types. May be {@code null}
+	 * @param dirPathSupplier the source from where retrieve the files collection
+	 * @param consumeSelection the action following the selection of a file
+	 */
+	public SelectFileToolItem(ToolBar toolBar, ClientMessages tooltip, String[] filterExtensions,
+			Supplier<URL> dirPathSupplier, Consumer<URL> consumeSelection) {
+		this.toolItem = new ToolItem(toolBar, SWT.PUSH);
 		this.tooltip = tooltip;
 		this.filterExtensions = filterExtensions;
-		this.dirPath = dirPath;
+		this.dirPathSupplier = dirPathSupplier;
 		this.consumeSelection = consumeSelection;
+
+		initialize();
 	}
 
-	@Override
-	public Composite createComposite(Composite parent, int style) {
-		ButtonGroupFactoryBuilder builder = new ButtonGroupFactoryBuilder();
-		builder.addButton(title, tooltip,
-				widgetSelectedAdapter(this::load), ClientImages.ADD);
-		container = builder.build().createComposite(parent, SWT.NONE);
-		return container;
+	public Supplier<URL> getDirPathSupplier() {
+		return dirPathSupplier;
+	}
+
+	public String[] getFilterExtensions() {
+		return filterExtensions;
+	}
+
+	private ToolItem getToolItem() {
+		return toolItem;
+	}
+
+	private void initialize() {
+		getToolItem().setImage(ClientSWTElements.getImage(ClientImages.SELECT_DOCUMENT));
+		getToolItem().setToolTipText(ClientMessagesUtility.getMessage(tooltip));
+		getToolItem().addSelectionListener(widgetSelectedAdapter(this::load));
 	}
 
 	private void load(SelectionEvent event) {
@@ -85,8 +103,8 @@ public class SelectFileComposite implements CompositeFactory {
 	}
 
 	private void load() {
-		FileDialog fileDialog = new FileDialog(container.getShell(), SWT.OPEN);
-		Optional.ofNullable(dirPath)
+		FileDialog fileDialog = new FileDialog(getToolItem().getParent().getShell(), SWT.OPEN);
+		Optional.ofNullable(dirPathSupplier.get())
 			.map(URL::getFile)
 			.ifPresent(fileDialog::setFilterPath);
 
@@ -111,38 +129,6 @@ public class SelectFileComposite implements CompositeFactory {
 			return urlFactory.generateUrl(path);
 		} catch (MalformedURLException e) {
 			return null;
-		}
-	}
-
-	public static class SelectFileCompositeBuilder {
-		private ClientMessages title;
-		private ClientMessages tooltip;
-		private String[] filterExtensions;
-		private URL dirPath;
-		private Consumer<URL> consumeSelection;
-
-		public SelectFileCompositeBuilder setLayout(ClientMessages title, ClientMessages tooltip) {
-			this.title = title;
-			this.tooltip = tooltip;
-			return this;
-		}
-
-		public SelectFileCompositeBuilder setLogic(URL dirPath, Consumer<URL> consumeSelection) {
-			this.dirPath = dirPath;
-			this.consumeSelection = consumeSelection;
-			return this;
-		}
-
-		public SelectFileCompositeBuilder setFilter(String[] filterExtensions) {
-			this.filterExtensions = filterExtensions;
-			return this;
-		}
-
-		public SelectFileComposite build() {
-			return new SelectFileComposite(title, tooltip,
-					Optional.ofNullable(filterExtensions)
-						.orElse(new String[0]),
-					dirPath, consumeSelection);
 		}
 	}
 }
