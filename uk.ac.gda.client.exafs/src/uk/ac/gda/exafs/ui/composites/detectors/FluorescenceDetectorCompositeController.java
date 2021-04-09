@@ -37,9 +37,6 @@ import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
@@ -50,8 +47,7 @@ import org.eclipse.richbeans.widgets.selector.BeanSelectionEvent;
 import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.richbeans.widgets.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.PlatformUI;
@@ -157,15 +153,13 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		checkDetectorMatchesParameters();
 
 		if (fluorescenceDetectorComposite != null) {
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
+			runInGuiThread(() -> {
 					updateUIFromBean();
 					plotDataAndUpdateCounts();
 					fluorescenceDetectorComposite.autoscaleAxes();
 					updatePlottedRegion();
 				}
-			});
+			);
 		}
 	}
 
@@ -249,62 +243,37 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		fluorescenceDetectorComposite.addPlottedRegionListener(this);
 		fluorescenceDetectorComposite.addBeanSelectionListener(this);
+		fluorescenceDetectorComposite.addLoadButtonListener(SelectionListener.widgetSelectedAdapter(e -> loadAcquireDataFromFile()));
+		fluorescenceDetectorComposite.addSaveButtonListener(SelectionListener.widgetSelectedAdapter(e -> saveDataToFile(true)));
 
-		fluorescenceDetectorComposite.addLoadButtonListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				loadAcquireDataFromFile();
+		fluorescenceDetectorComposite.addAcquireButtonListener(SelectionListener.widgetSelectedAdapter(e -> {
+			if (applyParametersBeforeAcquire) {
+				applyConfigurationToDetector();
 			}
-		});
+			if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
+				continuousAcquire(fluorescenceDetectorComposite.getAcquisitionTime());
+			} else {
+				singleAcquire(fluorescenceDetectorComposite.getAcquisitionTime(),
+						fluorescenceDetectorComposite.getAutoSaveModeSelection());
+			}
+		}));
 
-		fluorescenceDetectorComposite.addSaveButtonListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				saveDataToFile(true);
-			}
-		});
+		fluorescenceDetectorComposite.addApplySettingsButtonListener(SelectionListener.widgetSelectedAdapter(e -> applyConfigurationToDetector()));
 
-		fluorescenceDetectorComposite.addAcquireButtonListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				if (applyParametersBeforeAcquire) {
-					applyConfigurationToDetector();
-				}
-				if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
-					continuousAcquire(fluorescenceDetectorComposite.getAcquisitionTime());
-				} else {
-					singleAcquire(fluorescenceDetectorComposite.getAcquisitionTime(), fluorescenceDetectorComposite.getAutoSaveModeSelection());
-				}
+		fluorescenceDetectorComposite.addContinuousModeButtonListener(SelectionListener.widgetSelectedAdapter(e -> {
+			if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
+				fluorescenceDetectorComposite.setContinuousAcquireMode();
+			} else {
+				fluorescenceDetectorComposite.setSingleAcquireMode();
 			}
-		});
+		}));
 
-		fluorescenceDetectorComposite.addApplySettingsButtonListener( new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-					applyConfigurationToDetector();
-			}
-		});
-
-		fluorescenceDetectorComposite.addContinuousModeButtonListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
-					fluorescenceDetectorComposite.setContinuousAcquireMode();
-				} else {
-					fluorescenceDetectorComposite.setSingleAcquireMode();
-				}
-			}
-		});
-
-		fluorescenceDetectorComposite.addRegionImportButtonSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				WizardDialog dialog = new WizardDialog(fluorescenceDetectorComposite.getShell(), new ImportFluoDetROIWizard(fluorescenceDetectorComposite
-						.getRegionList(), fluorescenceDetectorComposite.getDetectorList(), detectorParameters.getClass()));
-				dialog.create();
-				dialog.open();
-			}
-		});
+		fluorescenceDetectorComposite.addRegionImportButtonSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			WizardDialog dialog = new WizardDialog(fluorescenceDetectorComposite.getShell(), new ImportFluoDetROIWizard(fluorescenceDetectorComposite
+					.getRegionList(), fluorescenceDetectorComposite.getDetectorList(), detectorParameters.getClass()));
+			dialog.create();
+			dialog.open();
+		}));
 
 		// Listener for readout mode combo
 		fluorescenceDetectorComposite.addReadoutModeListener(new ValueAdapter("readoutModeListener") {
@@ -314,44 +283,23 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			}
 		} );
 
-		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
-					setRegionEditableFromPreference();
-				}
+		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(event -> {
+			if (event.getProperty().equals(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
+				setRegionEditableFromPreference();
 			}
 		});
 
-		fluorescenceDetectorComposite.addShowLoadedDataListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				fluorescenceDetectorComposite.showHideLoadedDataset();
-			}
-		});
+		fluorescenceDetectorComposite.addShowLoadedDataListener(SelectionListener.widgetSelectedAdapter(e -> fluorescenceDetectorComposite.showHideLoadedDataset()));
+		fluorescenceDetectorComposite.addElementEdgeListener(SelectionListener.widgetSelectedAdapter(e -> plotDataAndUpdateCounts()));
 
-		fluorescenceDetectorComposite.addElementEdgeListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				plotDataAndUpdateCounts();
-			}
-		});
+		fluorescenceDetectorComposite.addDtcEnergyUpdateListener(SelectionListener.widgetSelectedAdapter(e ->
+				fluorescenceDetectorComposite.updateDtcEnergyFromElementEdge()));
 
-		fluorescenceDetectorComposite.addDtcEnergyUpdateListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fluorescenceDetectorComposite.updateDtcEnergyFromElementEdge();
-			}
-		});
-
-		fluorescenceDetectorComposite.addSetWindowFromLineListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setWindowFromLine();
-			}
-		});
+		fluorescenceDetectorComposite.addSetWindowFromLineListener(SelectionListener.widgetSelectedAdapter(e ->
+				setWindowFromLine()));
 
 		InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
+		fluorescenceDetectorComposite.addDisposeListener( l -> InterfaceProvider.getScanDataPointProvider().deleteScanEventObserver(serverObserver));
 
 		// setup the default dragging behaviour
 		setRegionEditableFromPreference();
@@ -374,7 +322,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		fluorescenceDetectorComposite.autoscaleAxes();
 
-		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null ? true : false);
+		fluorescenceDetectorComposite.setEnableShowLoadedDataCheckBox(dataLoadedFromFile!=null);
 	}
 
 	private void setShowDTCEnergyFromPreference() {
@@ -453,12 +401,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 * SWT thread safe.
 	 */
 	private void replot() {
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				plotDataAndUpdateCounts();
-			}
-		});
+		runInGuiThread(this::plotDataAndUpdateCounts);
 	}
 
 	/**
@@ -710,7 +653,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 					}
 					acquire(null, collectionTime, false);
 				}
-				PlatformUI.getWorkbench().getDisplay().asyncExec(this::acquireFinished);
+				runInGuiThread(this::acquireFinished);
 			});
 		} catch (IllegalThreadStateException e) {
 			logger.error("Problem starting continuous acquire thread.", e);
@@ -745,12 +688,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 
 		IProgressService service = PlatformUI.getWorkbench().getService(IProgressService.class);
 		try {
-			service.run(true, false, new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					acquire(monitor, collectionTimeValue, writeToDisk);
-				}
-			});
+			service.run(true, false, progressMonitor -> acquire(progressMonitor, collectionTimeValue, writeToDisk));
 		} catch (InterruptedException cancellationIgnored) {
 		} catch (InvocationTargetException ex) {
 			logger.error("Error acquiring data from fluorescence detector: {}", theDetector, ex);
@@ -837,12 +775,11 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	}
 
 	private void displayErrorMessage(final String uiTitle, final String uiMessage) {
-		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), uiTitle, uiMessage);
-			}
-		});
+		runInGuiThread(() -> MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),	uiTitle, uiMessage));
+	}
+
+	private void runInGuiThread(Runnable runnable) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(runnable);
 	}
 
 	/**
@@ -906,7 +843,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			String fileName = snapshotPrefix + snapShotNumber + ".mca";
 
 			String spoolDirPath = InterfaceProvider.getPathConstructor().createFromProperty(SPOOL_DIR_PROPERTY);
-			File filePath = new File(spoolDirPath + "/" + fileName);
+			File filePath = Paths.get(spoolDirPath, fileName).toFile();
 			String outputFilename = filePath.getAbsolutePath();
 
 			// Display dialog box to specify output directory (only if *not* using 'save on acquire')
@@ -992,7 +929,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 		int windowStart = detectorParameters.getDetector(currentElementNumber).getWindowStart();
 		int windowEnd = detectorParameters.getDetector(currentElementNumber).getWindowEnd();
 
-		List<DetectorElement> elements = new ArrayList<DetectorElement>(detectorParameters.getDetectorList());
+		List<DetectorElement> elements = new ArrayList<>(detectorParameters.getDetectorList());
 		// Do not overwrite the regions of the current element - this is important to avoid synchronisation issues with updates from the UI
 		elements.remove(currentElementNumber);
 
@@ -1007,14 +944,14 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	private void applyCurrentRegionsToAllElements() {
 		final int currentElementNumber = getCurrentlySelectedElementNumber();
 		List<DetectorROI> regionsToCopy = detectorParameters.getDetector(currentElementNumber).getRegionList();
-		List<DetectorElement> elements = new ArrayList<DetectorElement>(detectorParameters.getDetectorList());
+		List<DetectorElement> elements = new ArrayList<>(detectorParameters.getDetectorList());
 
 		// Do not overwrite the regions of the current element - this is important to avoid synchronisation issues with updates from the UI
 		elements.remove(currentElementNumber);
 
 		for (DetectorElement element : elements) {
 			// Copy the regions list to avoid problems with shared objects
-			List<DetectorROI> copiedRegions = new ArrayList<DetectorROI>(regionsToCopy.size());
+			List<DetectorROI> copiedRegions = new ArrayList<>(regionsToCopy.size());
 			for (DetectorROI regionToCopy : regionsToCopy) {
 				copiedRegions.add(new DetectorROI(regionToCopy));
 			}
@@ -1084,7 +1021,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	final IJythonServerStatusObserver serverObserver = (theObserved, changeCode) -> Display.getDefault().asyncExec(() -> {
 		if (changeCode instanceof ScanEvent) {
 			ScanStatus status = ((ScanEvent) changeCode).getLatestStatus();
-			logger.debug("ScanEvent = {}, ScanStatus = {}",changeCode.toString(), status.toString());
+			logger.debug("ScanEvent = {}, ScanStatus = {}", changeCode, status);
 			if (status.isRunning()) {
 				stopContinuousAcquire();
 				scanIsRunning = true;

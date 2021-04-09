@@ -39,8 +39,6 @@ import org.eclipse.richbeans.widgets.selector.ListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.richbeans.widgets.wrappers.ComboWrapper;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -104,12 +102,7 @@ public class FluorescenceDetectorComposite extends Composite {
 			sashFormPlot.setXAxisLabel("Channel number");
 			sashFormPlot.setYAxisLabel("Counts");
 
-			addDisposeListener(new DisposeListener() {
-				@Override
-				public void widgetDisposed(DisposeEvent e) {
-					sashFormPlot.dispose();
-				}
-			});
+			addDisposeListener(l -> sashFormPlot.dispose());
 
 			GridDataFactory horizontalGrabGridData = GridDataFactory.fillDefaults().grab(true, false);
 
