@@ -114,6 +114,8 @@ public class ServiceHolder {
 	private static volatile NexusDataWriterConfiguration nexusDataWriterConfiguration;
 
 	public void setNexusWriterConfiguration(NexusDataWriterConfiguration nexusDataWriterConfiguration) {
+		// Note: this method is not typically called by OSGi as this bean is declared in spring which is loaded after OSGi wiring
+		// it should be set by unit tests that require it
 		ServiceHolder.nexusDataWriterConfiguration = nexusDataWriterConfiguration;
 	}
 
@@ -121,7 +123,8 @@ public class ServiceHolder {
 		if (nexusDataWriterConfiguration == null) {
 			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
 				if (nexusDataWriterConfiguration == null) {
-					nexusDataWriterConfiguration = new NexusDataWriterConfiguration();
+					nexusDataWriterConfiguration = GDACoreActivator.getService(NexusDataWriterConfiguration.class)
+							.orElseGet(NexusDataWriterConfiguration::new); // create an empty bean if not defined in spring
 				}
 			}
 		}
@@ -133,7 +136,7 @@ public class ServiceHolder {
 
 	public void setCommonBeamlineDevicesConfiguration(CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration) {
 		// note that this method is not typically set by OSGi as this bean is declared in spring which is loaded after OSGi wiring
-		// it should be set by unit tests
+		// it should be set by unit tests that require it
 		ServiceHolder.commonBeamlineDevicesConfiguration = commonBeamlineDevicesConfiguration;
 	}
 
@@ -142,6 +145,7 @@ public class ServiceHolder {
 			synchronized (ServiceHolder.class) { // safe double-checked locking idiom
 				if (commonBeamlineDevicesConfiguration == null && Platform.isRunning()) {
 					commonBeamlineDevicesConfiguration = GDACoreActivator.getService(CommonBeamlineDevicesConfiguration.class).orElse(null);
+					// note: this bean is optional, so this field will be null if the bean is not defined in spring
 				}
 			}
 		}
