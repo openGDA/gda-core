@@ -30,15 +30,19 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.NXbeam;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXmirror;
 import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXsample;
+import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -49,6 +53,7 @@ import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
 import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.MonochromatorNexusDevice;
+import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.SourceNexusDevice;
@@ -60,7 +65,6 @@ import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.Before;
 import org.junit.Test;
 
-import gda.device.DeviceException;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
@@ -72,6 +76,10 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final String MONOCHROMATOR_DEVICE_NAME = "monochromator";
 	private static final String SOURCE_DEVICE_NAME = "source";
 	private static final String USER_DEVICE_NAME = "user";
+	private static final String SLIT1_DEVICE_NAME = "slit1";
+	private static final String SLIT2_DEVICE_NAME = "slit2";
+	private static final String MIRROR1_DEVICE_NAME = "mirror1";
+	private static final String MIRROR2_DEVICE_NAME = "mirror2";
 
 	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
@@ -101,6 +109,25 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final String EXPECTED_USER_ID = "abc12345";
 	private static final String EXPECTED_USER_NAME = "Ted Jones";
 
+	// Note: these fields are based on those used by Fajin for i06. These fields are not part of
+	// the nexus base class definition for NXmirror: https://manual.nexusformat.org/classes/base_classes/NXmirror.html
+	private static final String MIRROR_FIELD_NAME_X = "x";
+	private static final String MIRROR_FIELD_NAME_PITCH = "pitch";
+	private static final String MIRROR_FIELD_NAME_YAW = "yaw";
+
+	private static final double MIRROR1_X = 0.0;
+	private static final double MIRROR1_PITCH = 3.5;
+	private static final double MIRROR1_YAW = 13.9;
+
+	private static final double MIRROR2_X = 0.0;
+	private static final double MIRROR2_PITCH = 3.5;
+	private static final double MIRROR2_YAW = 13.9;
+
+	private static final double EXPECTED_SLIT1_X_GAP = 2.3;
+	private static final double EXPECTED_SLIT1_Y_GAP = 5.1;
+	private static final double EXPECTED_SLIT2_X_GAP = 43.2;
+	private static final double EXPECTED_SLIT2_Y_GAP = 29.9;
+
 	private static final int[] SHAPE = { 5, 2 };
 
 	private IWritableDetector<MandelbrotModel> detector;
@@ -115,12 +142,15 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		setUpMetadata();
 	}
 
-	private void setUpCommonBeamlineDevices() throws DeviceException {
+	private void setUpCommonBeamlineDevices() {
 		createBeamDevice();
 		createInsertionDevice();
 		createMonochromatorDevice();
 		createSourceDevice();
 		createUserDevice();
+
+		createSlitDevices();
+		createMirrorDevices();
 
 		new ServiceHolder().setCommonBeamlineDevicesConfiguration(createCommonBeamlineDevicesConfiguration());
 	}
@@ -133,6 +163,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		deviceConfig.setSourceName(SOURCE_DEVICE_NAME);
 		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
+		deviceConfig.setAdditionalDeviceNames(Set.of(SLIT1_DEVICE_NAME,
+				SLIT2_DEVICE_NAME, MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME));
 		return deviceConfig;
 	}
 
@@ -214,6 +246,51 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		ServiceHolder.getNexusDeviceService().register(userDevice);
 	}
 
+	private void createSlitDevices() {
+		createSlitDevice(SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
+		createSlitDevice(SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
+	}
+
+	private void createSlitDevice(String name, double xGap, double yGap) {
+		final String xGapScannableName = name + NXslit.NX_X_GAP;
+		final String yGapScannableName = name + NXslit.NX_Y_GAP;
+
+		createScannable(xGapScannableName, xGap);
+		createScannable(yGapScannableName, yGap);
+
+		final NexusMetadataDevice<NXslit> slitDevice = new NexusMetadataDevice<>();
+		slitDevice.setName(name);
+		slitDevice.setNexusBaseClass(NexusBaseClass.NX_SLIT);
+		slitDevice.setCategory(NexusBaseClass.NX_INSTRUMENT); // NXslit is not in the list of defined child groups for any other group
+
+		final List<MetadataNode> fields = new ArrayList<>();
+		fields.add(new ScannableField(NXslit.NX_X_GAP, xGapScannableName));
+		fields.add(new ScannableField(NXslit.NX_Y_GAP, yGapScannableName));
+
+		slitDevice.setCustomNodes(fields);
+
+		ServiceHolder.getNexusDeviceService().register(slitDevice);
+	}
+
+	private void createMirrorDevices() {
+		createMirrorDevice(MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW);
+		createMirrorDevice(MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW);
+	}
+
+	private void createMirrorDevice(String name, double x, double pitch, double yaw) {
+		final NexusMetadataDevice<NXmirror> mirrorDevice = new NexusMetadataDevice<>();
+		mirrorDevice.setName(name);
+		mirrorDevice.setNexusBaseClass(NexusBaseClass.NX_MIRROR);
+
+		final List<MetadataNode> fields = new ArrayList<>();
+		fields.add(new ScalarField(MIRROR_FIELD_NAME_X, x));
+		fields.add(new ScalarField(MIRROR_FIELD_NAME_PITCH, pitch));
+		fields.add(new ScalarField(MIRROR_FIELD_NAME_YAW, yaw));
+		mirrorDevice.setCustomNodes(fields);
+
+		ServiceHolder.getNexusDeviceService().register(mirrorDevice);
+	}
+
 	private void createScannable(final String name, double value) {
 		final IScannable<?> scannable = new MockScannable(name, value);
 		connector.register(scannable);
@@ -238,13 +315,46 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		checkNexusFile(scanner, false, SHAPE);
 
 		final NXentry entry = getNexusRoot(scanner).getEntry();
+		final String detName = detector.getName();
+		assertThat(entry.getGroupNodeNames(), containsInAnyOrder("instrument", "sample",
+				detName, detName + "_spectrum", detName + "_value", "solstice_scan",
+				EXPECTED_USER_GROUP_NAME));
 		checkSampleGroup(entry);
 		checkUsers(entry);
 
 		final NXinstrument instrument = entry.getInstrument();
+		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(
+				X_AXIS_NAME, Y_AXIS_NAME, detector.getName(),
+				MONOCHROMATOR_DEVICE_NAME, INSERTION_DEVICE_NAME, SOURCE_DEVICE_NAME,
+				MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME, SLIT1_DEVICE_NAME, SLIT2_DEVICE_NAME));
 		checkMonochromatorGroup(instrument);
 		checkInsertionDeviceGroup(instrument);
 		checkSourceGroup(instrument);
+		checkSlitGroup(instrument, SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
+		checkSlitGroup(instrument, SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
+		checkMirrorGroup(instrument, MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW);
+		checkMirrorGroup(instrument, MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW);
+	}
+
+	private void checkMirrorGroup(NXinstrument instrument, String mirrorName,
+			double expectedX, double expectedPitch, double expectedYaw) {
+		final NXmirror mirror = instrument.getMirror(mirrorName);
+		assertThat(mirror, is(notNullValue()));
+		assertThat(mirror.getDataNodeNames(), containsInAnyOrder(MIRROR_FIELD_NAME_X,
+				MIRROR_FIELD_NAME_PITCH, MIRROR_FIELD_NAME_YAW));
+		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_X), is(equalTo(expectedX)));
+		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_PITCH), is(equalTo(expectedPitch)));
+		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_YAW), is(equalTo(expectedYaw)));
+	}
+
+	private void checkSlitGroup(NXinstrument instrument, String slitName,
+			double expectedXGap, double expectedYGap) {
+		final NXslit slitGroup = (NXslit) instrument.getGroupNode(slitName);
+		assertThat(slitGroup, is(notNullValue()));
+
+		assertThat(slitGroup.getDataNodeNames(), containsInAnyOrder(NXslit.NX_X_GAP, NXslit.NX_Y_GAP));
+		assertThat(slitGroup.getX_gapScalar(), is(equalTo(expectedXGap)));
+		assertThat(slitGroup.getY_gapScalar(), is(equalTo(expectedYGap)));
 	}
 
 	private void checkUsers(NXentry entry) {

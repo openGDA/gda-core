@@ -84,6 +84,10 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 
 	@Override
 	public N createNode() throws NexusException {
+		if (nexusBaseClass == null) {
+			throw new NexusException("The nexus base class is not set for the device " + getName());
+		}
+
 		@SuppressWarnings("unchecked")
 		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 

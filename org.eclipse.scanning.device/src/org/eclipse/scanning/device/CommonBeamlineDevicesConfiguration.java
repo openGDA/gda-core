@@ -18,10 +18,16 @@
 
 package org.eclipse.scanning.device;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
@@ -44,7 +50,7 @@ import uk.ac.diamond.daq.osgi.OsgiService;
 @OsgiService(value = CommonBeamlineDevicesConfiguration.class)
 public class CommonBeamlineDevicesConfiguration {
 
-	private Logger logger = LoggerFactory.getLogger(CommonBeamlineDevicesConfiguration.class);
+	private static Logger logger = LoggerFactory.getLogger(CommonBeamlineDevicesConfiguration.class);
 
 	private String sourceName;
 
@@ -57,6 +63,8 @@ public class CommonBeamlineDevicesConfiguration {
 	private String beamName;
 
 	private String userDeviceName;
+
+	private Set<String> additionalDeviceNames;
 
 	/**
 	 * Returns the name of the {@link INexusDevice} that will contribute the {@link NXsource} group
@@ -133,6 +141,36 @@ public class CommonBeamlineDevicesConfiguration {
 		this.userDeviceName = userDeviceName;
 	}
 
+	public void setAdditionalDeviceNames(Set<String> additionalDeviceNames) {
+		this.additionalDeviceNames = additionalDeviceNames;
+	}
+
+	/**
+	 * Returns the set of additional metadata device names (i.e. additional to those with specific
+	 * fields in this class) to be added to all scans.
+	 * @return additional device names
+	 */
+	public Set<String> getAdditionalDeviceNames() {
+		if (additionalDeviceNames == null) {
+			return Collections.emptySet();
+		}
+		return additionalDeviceNames;
+	}
+
+	public void addAdditionalDeviceName(String deviceName) {
+		if (additionalDeviceNames == null) {
+			additionalDeviceNames = new HashSet<>();
+		}
+
+		additionalDeviceNames.add(deviceName);
+	}
+
+	public void removeAdditionalDeviceName(String deviceName) {
+		if (additionalDeviceNames != null) {
+			additionalDeviceNames.remove(deviceName);
+		}
+	}
+
 	public Set<String> getCommonDeviceNames() {
 		if (sourceName == null) logger.warn("Source device name must be set");
 		if (insertionDeviceName == null && bendingMagnetName == null) logger.warn("Insertion device or bending magnet name must be set");
@@ -141,9 +179,13 @@ public class CommonBeamlineDevicesConfiguration {
 		if (beamName == null) logger.warn("Beam name must be set");
 		if (userDeviceName == null) logger.warn("User device name must be set");
 
-		return Arrays.asList(sourceName, insertionDeviceName, bendingMagnetName, monochromatorName, beamName, userDeviceName).stream()
+		final List<String> commonDeviceNames = Arrays.asList(sourceName, insertionDeviceName, bendingMagnetName,
+				monochromatorName, beamName, userDeviceName);
+
+		return (additionalDeviceNames == null ? commonDeviceNames.stream() :
+			Stream.of(commonDeviceNames.stream(), getAdditionalDeviceNames().stream()).flatMap(Function.identity()))
 				.filter(Objects::nonNull)
-				.collect(Collectors.toSet());
+				.collect(toSet());
 	}
 
 }
