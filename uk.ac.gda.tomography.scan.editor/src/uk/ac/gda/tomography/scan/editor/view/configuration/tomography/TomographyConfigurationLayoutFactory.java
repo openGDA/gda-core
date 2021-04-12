@@ -48,14 +48,11 @@ import static uk.ac.gda.ui.tool.ClientMessages.NUM_FLAT;
 import static uk.ac.gda.ui.tool.ClientMessages.NUM_FLAT_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS;
 import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientMessages.PROCESS_REQUESTS;
 import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS;
 import static uk.ac.gda.ui.tool.ClientMessages.RANGE;
-import static uk.ac.gda.ui.tool.ClientMessages.REMOVE_SELECTION_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN;
 import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.SAVU;
-import static uk.ac.gda.ui.tool.ClientMessages.SELECT_SAVU_PROCESSING_FILE;
-import static uk.ac.gda.ui.tool.ClientMessages.SELECT_SAVU_PROCESSING_FILE_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.START;
 import static uk.ac.gda.ui.tool.ClientMessages.START_ANGLE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.STEP_SCAN;
@@ -86,10 +83,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
@@ -123,6 +120,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionConfigurationException;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
@@ -131,7 +129,8 @@ import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
-import uk.ac.gda.client.widgets.SelectFileComposite;
+import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
@@ -141,7 +140,10 @@ import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.Reloadable;
-import uk.ac.gda.ui.tool.images.ClientImages;
+import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
+import uk.ac.gda.ui.tool.processing.ProcessingRequestContext;
+import uk.ac.gda.ui.tool.processing.ProcessingRequestKey;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * This Composite allows to edit a {@link ScanningParameters} object.
@@ -151,7 +153,6 @@ import uk.ac.gda.ui.tool.images.ClientImages;
 public class TomographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationLayoutFactory.class);
-	private static final String NO_FILE_SELECTED = "No File selected";
 
 	/** Scan prefix **/
 	private Text name;
@@ -192,9 +193,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private ExpandItem multiplExpandItem;
 	private Composite multipleGroup;
 
-	private Composite selectProcessingFile;
-	private Label savuFileName;
-	private Button removeSavuFile;
+	private ProcessingRequestComposite processingRequest;
 
 	private final AcquisitionController<ScanningAcquisition> acquisitionController;
 
@@ -266,9 +265,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		createClientGridDataFactory().span(3, 1).applyTo(group);
 		imagesCalibrationContent(group, labelStyle, textStyle);
 
-		group = createClientGroup(parent, SWT.NONE, 3, SAVU);
+		group = createClientGroup(parent, SWT.NONE, 3, PROCESS_REQUESTS);
 		createClientGridDataFactory().span(3, 1).applyTo(group);
-		savuSelection(group, SWT.NONE);
+		createProcessRequestComposite(group, SWT.NONE);
 
 		//multipleScansContentAlternative(parent, labelStyle, textStyle);
 
@@ -472,23 +471,26 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		});
 	}
 
-	private void savuSelection(Composite parent, int labelStyle) {
-		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 3);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+	private List<ProcessingRequestContext> getProcessingRequestContext() {
+		// The selectable process elements
+		List<ProcessingRequestContext> processingRequestContexts = new ArrayList<>();
+		try {
+			// makes available for selection a ApplyNexusTemplatesRequest element
+			processingRequestContexts.add(new ProcessingRequestContext(ProcessingRequestKey.APPLY_NEXUS_TEMPLATE,
+					getNexusTemplatesProcessingDirectory(), getDefaultNexusTemplatesProcessingFile(), true));
+		} catch (AcquisitionConfigurationException e) {
+			logger.error("TODO put description of error here", e);
+		}
 
-		selectProcessingFile = new SelectFileComposite.SelectFileCompositeBuilder()
-				.setLayout(SELECT_SAVU_PROCESSING_FILE, SELECT_SAVU_PROCESSING_FILE_TP)
-				.setLogic(getProcessingFileDirectory(), this::setDefaultProcessingFile)
-				.build()
-				.createComposite(container, SWT.NONE);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).applyTo(selectProcessingFile);
+		// makes available for selection a SavuProcessingRequest element
+		processingRequestContexts.add(new ProcessingRequestContext(ProcessingRequestKey.SAVU,
+				getSavuProcessingFileDirectory(), getSavuDefaultProcessingFile(), false));
+		return processingRequestContexts;
+	}
 
-		savuFileName = createClientLabel(container, labelStyle, EMPTY_MESSAGE);
-		createClientGridDataFactory().align(SWT.FILL, SWT.END).grab(true, false).applyTo(savuFileName);
-
-		removeSavuFile = createClientButton(container, SWT.PUSH, EMPTY_MESSAGE, REMOVE_SELECTION_TP, ClientImages.DELETE);
-		createClientGridDataFactory().align(SWT.END, SWT.END).applyTo(removeSavuFile);
-		addWidgetDisposableListener(removeSavuFile, SWT.Selection, this::removeDefaultProcessingFile);
+	private void createProcessRequestComposite(Composite parent, int labelStyle) {
+		processingRequest = new ProcessingRequestComposite(getProcessingRequestContext());
+		processingRequest.createComposite(parent, labelStyle);
 	}
 
 	private void startAngleTextListener(ModifyEvent event) {
@@ -716,10 +718,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		updateAngularStep();
 
 		initializeImageCalibration();
-
 		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 		updateMultipleScan();
-		updateSavuComponent();
+		processingRequest.reload();
 	}
 
 	private void initializeScanType() {
@@ -903,10 +904,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		return bar;
 	}
 
-//	private ScanningConfiguration getConfigurationData() {
-//		return getController().getAcquisition().getAcquisitionConfiguration();
-//	}
-
 	private ScanningParameters getAcquisitionParameters() {
 		return getAcquisitionConfiguration().getAcquisitionParameters();
 	}
@@ -924,33 +921,26 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		return SpringApplicationContextFacade.getBean(AcquisitionFileContext.class);
 	}
 
-	private URL getProcessingFileDirectory() {
+	private URL getSavuProcessingFileDirectory() {
 		return getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_SAVU_DIRECTORY);
 	}
 
-	private void setDefaultProcessingFile(URL defaultProcessingFile) {
-		getClientContext().getTomographyContext()
-			.putFileInContext(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE, defaultProcessingFile);
-		updateSavuComponent();
+	private List<URL> getSavuDefaultProcessingFile() {
+		List<URL> urls = new ArrayList<>();
+		urls.add(getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE));
+		return urls;
 	}
 
-	private void removeDefaultProcessingFile(Event event) {
-		getClientContext().getTomographyContext()
-			.removeFileFromContext(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
-		updateSavuComponent();
+	private URL getNexusTemplatesProcessingDirectory() {
+		return null;
 	}
 
-	private void updateSavuComponent() {
-		savuFileName.setText(NO_FILE_SELECTED);
-		URL url = getClientContext().getTomographyContext().getContextFile(TomographyContextFile.TOMOGRAPHY_DEFAULT_PROCESSING_FILE);
-		if (url == null) {
-			savuFileName.setText(NO_FILE_SELECTED);
-			removeSavuFile.setEnabled(false);
-		} else {
-			savuFileName.setText(FilenameUtils.getName(url.getFile()));
-			removeSavuFile.setEnabled(true);
-		}
-		savuFileName.getParent().layout(true, true);
+	private List<URL> getDefaultNexusTemplatesProcessingFile() throws AcquisitionConfigurationException {
+		return SpringApplicationContextFacade.getBean(ClientSpringProperties.class).getAcquisitions().stream()
+				.filter(a -> a.getType().equals(AcquisitionPropertyType.TOMOGRAPHY))
+				.findFirst()
+				.map(AcquisitionConfigurationProperties::getNexusTemplates)
+				.orElseThrow(() -> new AcquisitionConfigurationException("There are no properties associated with the acqual acquisition"));
 	}
 
 	private StageController getStageController() {
