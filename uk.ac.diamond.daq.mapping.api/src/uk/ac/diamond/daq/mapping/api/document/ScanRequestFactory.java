@@ -57,6 +57,7 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.FlatCalibrationReade
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentReader;
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
+import uk.ac.diamond.daq.mapping.api.document.preparers.ScanRequestPreparerFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
@@ -83,6 +84,8 @@ public class ScanRequestFactory {
 		// Populate the {@link ScanRequest} with the assembled objects
 		ScanRequest scanRequest = new ScanRequest();
 
+		prepareScanRequestAccordingToScanType(scanRequest);
+
 		Optional.ofNullable(getAcquisition().getAcquisitionLocation())
 			.map(URL::getPath)
 			.ifPresent(scanRequest::setFilePath);
@@ -102,6 +105,10 @@ public class ScanRequestFactory {
 		Optional.ofNullable(parseBeforeScriptProcessingRequest())
 			.ifPresent(scanRequest::setBeforeScript);
 		return scanRequest;
+	}
+
+	private void prepareScanRequestAccordingToScanType(ScanRequest scanRequest) {
+		ScanRequestPreparerFactory.getPreparer(acquisitionReader.getData()).prepare(scanRequest);
 	}
 
 	private void addStartPosition(ScanRequest scanRequest) {

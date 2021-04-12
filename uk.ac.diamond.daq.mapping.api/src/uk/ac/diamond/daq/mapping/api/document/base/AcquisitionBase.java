@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
+import uk.ac.gda.api.acquisition.AcquisitionType;
 
 /**
  * Describes a specific tomography execution
@@ -40,6 +41,8 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 
 	private T acquisitionConfiguration;
 	private AcquisitionEngineDocument acquisitionEngine;
+
+	private AcquisitionType type;
 
 	@Override
 	public UUID getUuid() {
@@ -103,4 +106,15 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 	public void setAcquisitionEngine(AcquisitionEngineDocument acquisitionEngine) {
 		this.acquisitionEngine = acquisitionEngine;
 	}
+
+	@Override
+	public AcquisitionType getType() {
+		return type;
+	}
+
+	public void setType(AcquisitionType type) {
+		this.type = type;
+	}
+
+
 }

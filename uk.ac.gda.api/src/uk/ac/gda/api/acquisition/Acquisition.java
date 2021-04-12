@@ -60,4 +60,10 @@ public interface Acquisition<T extends AcquisitionConfiguration<? extends Acquis
 	 * @return the acquisition engine, otherwise {@code null} if the engine selection is delegated to an external controller
 	 */
 	AcquisitionEngineDocument getAcquisitionEngine();
+
+	/**
+	 * An identifier of the type of acquisition.
+	 * Default is {@code AcquisitionType.GENERIC}
+	 */
+	AcquisitionType getType();
 }

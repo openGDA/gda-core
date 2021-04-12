@@ -24,6 +24,7 @@ import static uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType.TWO
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTypeProperties;
 
 /**
@@ -61,6 +63,14 @@ public class DocumentFactory {
 	public final Supplier<ScanningAcquisition> newScanningAcquisition(AcquisitionTemplateType templateType, String acquisitionType) {
 		if (!defaultFactories.containsKey(templateType))
 				return ScanningAcquisition::new;
-		return defaultFactories.get(templateType).newScanningAcquisition(acquisitionType);
+		return () -> {
+			ScanningAcquisition acquisition = defaultFactories.get(templateType).newScanningAcquisition(acquisitionType).get();
+
+			acquisition.setType(Stream.of(AcquisitionType.values())
+					.filter(type -> type.getName().equals(acquisitionType))
+					.findFirst().orElse(AcquisitionType.GENERIC));
+
+			return acquisition;
+		};
 	}
 }
