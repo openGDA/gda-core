@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tschoonj.xraylib.Xraylib;
-import com.google.common.collect.ImmutableMap;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
@@ -58,15 +57,16 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	/**
 	 * Maps shell as string (as set in {@link ElementAndEdges} to the corresponding {@link Xraylib} constant
 	 */
-	private static final Map<String, Integer> edgeMap = ImmutableMap.of("K", K_SHELL, "L", L3_SHELL);
+	private static final Map<String, Integer> edgeMap = Map.of("K", K_SHELL, "L", L3_SHELL);
 
+	private Label label;
 	private ComboViewer elementsAndEdgeCombo;
 
 	public XanesEdgeCombo(Composite parent) {
-		final Composite content = new Composite(parent, SWT.NONE);
+		var content = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(content);
 
-		final Label label = new Label(content, SWT.WRAP);
+		label = new Label(content, SWT.WRAP);
 		label.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		label.setText(getMessage(XANES_ELEMENT_AND_EDGE));
 
@@ -112,8 +112,8 @@ public class XanesEdgeCombo implements ISelectionProvider {
 					logger.error("Unknown edge {}", edge);
 					continue;
 				}
-				final String entryFormat = elementEntry.isRadioactive() ? "*%s-%s*" : "%s-%s";
-				final String comboEntry = String.format(entryFormat, element, edge);
+				var entryFormat = elementEntry.isRadioactive() ? "*%s-%s*" : "%s-%s";
+				var comboEntry = String.format(entryFormat, element, edge);
 				result.add(new EdgeToEnergy(comboEntry, Xraylib.EdgeEnergy(atomicNumber, edgeNumber)));
 			}
 		}
@@ -147,5 +147,13 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	public double getSelectedEnergy() {
 		final EdgeToEnergy selection = (EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement();
 		return selection == null ? 0.0 : selection.getEnergy();
+	}
+
+	/**
+	 * Enable/disable the wrapped controls
+	 */
+	public void setEnabled(boolean enabled) {
+		elementsAndEdgeCombo.getCombo().setEnabled(enabled);
+		label.setEnabled(enabled);
 	}
 }

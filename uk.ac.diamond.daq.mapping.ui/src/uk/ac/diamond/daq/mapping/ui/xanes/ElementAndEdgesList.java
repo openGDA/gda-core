@@ -38,4 +38,28 @@ public class ElementAndEdgesList extends FindableBase {
 		this.elementsAndEdges = elementsAndEdges;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((elementsAndEdges == null) ? 0 : elementsAndEdges.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ElementAndEdgesList other = (ElementAndEdgesList) obj;
+		if (elementsAndEdges == null) {
+			if (other.elementsAndEdges != null)
+				return false;
+		} else if (!elementsAndEdges.equals(other.elementsAndEdges))
+			return false;
+		return true;
+	}
 }

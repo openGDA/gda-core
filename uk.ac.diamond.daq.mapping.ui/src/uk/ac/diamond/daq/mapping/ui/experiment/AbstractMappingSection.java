@@ -18,6 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.databinding.Binding;
+import org.eclipse.core.databinding.DataBindingContext;
+
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.AbstractViewSection;
 
@@ -25,5 +31,24 @@ public abstract class AbstractMappingSection
 		extends AbstractViewSection<IMappingExperimentBean, MappingExperimentView> {
 
 	// this class implements no methods, but is useful for binding the type variables, avoiding having to do this for each subclass
+
+	protected DataBindingContext dataBindingContext;
+
+	/**
+	 * Remove all existing bindings in {@link #dataBindingContext}
+	 */
+	@Override
+	protected void removeOldBindings() {
+		if (dataBindingContext == null) {
+			return;
+		}
+
+		// copy the bindings to prevent concurrent modification exception
+		final List<Binding> bindings = new ArrayList<>(dataBindingContext.getBindings());
+		for (Binding binding : bindings) {
+			dataBindingContext.removeBinding(binding);
+			binding.dispose();
+		}
+	}
 
 }
