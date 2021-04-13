@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPosition;
@@ -254,25 +255,32 @@ public class ScanRequestFactory {
 				.orElseThrow(() -> new ScanningException("The AcquisitionEngine section does not contain the device id"));
 
 		IRunnableDevice<IDetectorModel> detector = runnableDeviceService.getRunnableDevice(id);
-		final IDetectorModel model = detector.getModel();
-		if (model == null) {
-			throw new ScanningException(String.format("Could not get model for detector %s",
-					detector.getName()));
-		}
-		model.setExposureTime(getCompensatedExposureTime());
+		IDetectorModel imodel = Optional.ofNullable(detector.getModel())
+				.orElseThrow(() -> new ScanningException(String.format("Could not get model for detector %s",
+						detector.getName())));
+
+		if (!IMalcolmModel.class.isInstance(imodel))
+			throw new ScanningException(String.format("Detector model is not an instance of of type %s", IMalcolmModel.class));
+
+		final IMalcolmModel model = IMalcolmModel.class.cast(imodel);
+		setDetectorsExposures(model);
 		ret.put(detector.getName(), model);
 	}
 
-	/**
-	 * This value is the required exposure plus the client.cameraConfiguration.INDEX.readoutTime
-	 * See <a href="https://confluence.diamond.ac.uk/display/DIAD/Cameras+configuration">Cameras configuration</a>
-	 *
-	 * @return the corrected exposure time
-	 *
-	 */
-	private double getCompensatedExposureTime() {
-		return getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getExposure()
-				+ getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getReadout();
+	private void setDetectorsExposures(IMalcolmModel model) {
+		double exposure = getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getExposure();
+		// Even if looking at the moment support only one detector (K11-1214)
+		model.getDetectorModels().stream()
+			.forEach(d -> d.setExposureTime(exposure));
+		/**
+		 * This exposure is the required exposure plus the client.cameraConfiguration.INDEX.readoutTime so Malcolm's "duration"
+		 * time is enough to acquire and readout
+		 * See <a href="https://confluence.diamond.ac.uk/display/DIAD/Cameras+configuration">Cameras configuration</a>
+		 *
+		 * @return the corrected exposure time
+		 *
+		 */
+		model.setExposureTime(exposure + getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getReadout());
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {
