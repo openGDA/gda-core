@@ -24,11 +24,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -521,7 +523,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	}
 
 	private void calculateAndDisplayCountTotals() {
-		if (theData != null) {
+		if (theData != null && theData.length>0) {
 			double enabledElementCounts = calculateEnabledElementTotal();
 			fluorescenceDetectorComposite.setEnabledElementsCounts(enabledElementCounts);
 
@@ -544,7 +546,18 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 			fluorescenceDetectorComposite.setSelectedRegionCounts(regionCounts);
 
 			displayDtcParameters(currentElement, regionCounts);
+			fluorescenceDetectorComposite.setElementCounts(calculateElementTotalCounts());
 		}
+	}
+
+	private List<Double> calculateElementTotalCounts() {
+		if (theData == null) {
+			return Collections.emptyList();
+		}
+		return Arrays.stream(theData)
+				.map(this::calculateSingleElementTotal)
+				.collect(Collectors.toList());
+
 	}
 
 	private void displayDtcParameters(int currentElement, double regionCounts) {

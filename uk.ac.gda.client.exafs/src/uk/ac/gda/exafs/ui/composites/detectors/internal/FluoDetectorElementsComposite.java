@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -36,9 +39,10 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -54,6 +58,8 @@ public class FluoDetectorElementsComposite extends Composite {
 	private BooleanWrapper excluded;
 	private GRID_ORDER gridOrder =  GRID_ORDER.LEFT_TO_RIGHT_TOP_TO_BOTTOM;
 	private FluoDetectorElementConfig elementConfiguration = null;
+	private double maxDetectorElementCounts = 250000;
+	private List<Double> elementCounts = Collections.emptyList();
 
 	public FluoDetectorElementsComposite(Composite parent, int style) {
 		super(parent, style);
@@ -88,7 +94,8 @@ public class FluoDetectorElementsComposite extends Composite {
 		detectorElementTable.setEditorUI(regionsComposite);
 		detectorElementTable.setEnabled(true);
 		detectorElementTable.setAdditionalLabelProvider(new ColumnLabelProvider() {
-			private final Color lightGray = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_GRAY);
+			private final Color lightGray = SWTResourceManager.getColor(SWT.COLOR_GRAY);
+			private final Color red = SWTResourceManager.getColor(SWT.COLOR_RED);
 
 			@Override
 			public Color getForeground(Object element) {
@@ -97,6 +104,10 @@ public class FluoDetectorElementsComposite extends Composite {
 					if (detectorElement.isExcluded()) {
 						return lightGray;
 					}
+					// Use red for any element with total counts that exceed the maximum value
+					if (maxCountsExceeded(element)) {
+						return red;
+					}
 				}
 				return null;
 			}
@@ -104,6 +115,15 @@ public class FluoDetectorElementsComposite extends Composite {
 			@Override
 			public String getText(Object element) {
 				return null;
+			}
+
+			private boolean maxCountsExceeded(Object element) {
+				// Use red for any element with total counts that are too large
+				if (!elementCounts.isEmpty() && element instanceof DetectorElement) {
+					int num = ((DetectorElement)element).getNumber();
+					return (num < elementCounts.size() && elementCounts.get(num)>maxDetectorElementCounts);
+				}
+				return false;
 			}
 		});
 	}
@@ -192,5 +212,27 @@ public class FluoDetectorElementsComposite extends Composite {
 
 	public void setElementConfiguration(FluoDetectorElementConfig elementConfiguration) {
 		this.elementConfiguration = elementConfiguration;
+	}
+
+	/**
+	 * Set total counts for each detector element and refresh the
+	 * element labels.
+	 * @param counts
+	 */
+	public void setElementCounts(List<Double> counts) {
+		elementCounts = counts;
+		if (detectorElementTable.getListSize() > 0) {
+			detectorElementTable.getViewer().refresh();
+		}
+	}
+
+
+	/**
+	 * Maximum number of counts for a detector element. Values exceeding this
+	 * will have the element number show in red.
+	 * @param maxDetectorCounts
+	 */
+	public void setMaxDetectorElementCounts(double maxDetectorCounts) {
+		maxDetectorElementCounts = maxDetectorCounts;
 	}
 }

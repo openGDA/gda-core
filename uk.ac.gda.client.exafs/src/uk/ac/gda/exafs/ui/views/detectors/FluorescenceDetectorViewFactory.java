@@ -74,6 +74,7 @@ public class FluorescenceDetectorViewFactory extends FindableViewFactoryBase {
 
 	private String detectorName = "";
 	private List<String> scannablesForMcaFiles = Collections.emptyList();
+	private double maxDetectorElementCounts = 250000;
 
 	public String getDetectorName() {
 		return detectorName;
@@ -104,6 +105,10 @@ public class FluorescenceDetectorViewFactory extends FindableViewFactoryBase {
 		return StringUtils.isNotEmpty(scannables) && splitStr.length > 0 ? Arrays.asList(splitStr) : Collections.emptyList();
 	}
 
+	public void setMaxDetectorElementCounts(int maxDetectorElementCounts) {
+		this.maxDetectorElementCounts  = maxDetectorElementCounts;
+	}
+
 	@Override
 	public ViewPart createView() {
 		logger.debug("Creating view for : {}", detectorName);
@@ -119,6 +124,8 @@ public class FluorescenceDetectorViewFactory extends FindableViewFactoryBase {
 		fluoDetectorView.setDetectorName(detectorName);
 		fluoDetectorView.setScannablesForMcaFiles(getScannablesForMcaFiles());
 
+		logger.debug("Setting saturation counts to : {}", maxDetectorElementCounts);
+		fluoDetectorView.setMaxDetectorElementCounts(maxDetectorElementCounts);
 		return fluoDetectorView;
 	}
 }

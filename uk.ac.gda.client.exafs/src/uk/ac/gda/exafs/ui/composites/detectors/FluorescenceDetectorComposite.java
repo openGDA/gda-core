@@ -453,6 +453,24 @@ public class FluorescenceDetectorComposite extends Composite {
 	}
 
 	/**
+	 * Set the total counts across all channels for each detector element
+	 * @param elementCounts
+	 */
+	public void setElementCounts(List<Double> elementCounts) {
+		elementsComposite.setElementCounts(elementCounts);
+	}
+
+	/**
+	 * Set the maximum detector element count value. Values exceeding this will have the
+	 * element label displayed in red.
+	 *
+	 * @param maxDetectorElementCounts
+	 */
+	public void setMaxDetectorElementCounts(double maxDetectorElementCounts) {
+		elementsComposite.setMaxDetectorElementCounts(maxDetectorElementCounts);
+	}
+
+	/**
 	 * Set the total counts for all enabled detector elements
 	 *
 	 * @param enabledElementCounts
@@ -831,5 +849,4 @@ public class FluorescenceDetectorComposite extends Composite {
 	public double getSelectedLineMcaChannel() {
 		return elementEdgeComposite.getLineMcaChannel();
 	}
-
 }

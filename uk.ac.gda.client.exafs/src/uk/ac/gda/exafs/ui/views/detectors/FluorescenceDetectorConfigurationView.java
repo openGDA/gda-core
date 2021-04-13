@@ -67,6 +67,8 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 	/** List of names of scannables whose positions should be include in MCA .dat output file */
 	private List<String> scannablesForMcaFiles = Collections.emptyList();
 
+	private double maxDetectorElementCounts;
+
 
 	public FluorescenceDetectorConfigurationView() {
 		super();
@@ -94,6 +96,7 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 			controller = new FluorescenceDetectorCompositeController(fluorescenceDetectorComposite);
 			controller.setDetector(detector);
 			controller.setScannablesForMcaFiles(getScannablesForMcaFiles());
+			fluorescenceDetectorComposite.setMaxDetectorElementCounts(maxDetectorElementCounts);
 			controller.initialise();
 		}
 	}
@@ -300,5 +303,9 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 			scannablesForMcaFiles = new ArrayList<>();
 		}
 		return scannablesForMcaFiles;
+	}
+
+	public void setMaxDetectorElementCounts(double maxDetectorElementCounts) {
+		this.maxDetectorElementCounts = maxDetectorElementCounts;
 	}
 }
