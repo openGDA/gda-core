@@ -97,6 +97,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	@SuppressWarnings("unused")
 	private static final short MSTA_CLOSED_LOOP = 5;
 	private static final short MSTA_FOLLOWING_ERROR = 6;
+	@SuppressWarnings("unused")
 	private static final short MSTA_AT_HOME = 7;
 	@SuppressWarnings("unused")
 	private static final short MSTA_ENCODER_PRESENT = 8;
@@ -107,7 +108,6 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	private static final short MSTA_GAIN_SUPPORT = 11;
 	private static final short MSTA_COMMS_ERROR = 12;
 	private static final short MSTA_LOWER_LIMIT = 13;
-	@SuppressWarnings("unused")
 	private static final short MSTA_HOMED = 14;
 
 	/**
@@ -1122,7 +1122,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	public boolean isHomedFromMSTAValue(double msta) {
 		int motorStatusAsInteger = new Double(msta).intValue();
-		return hasTrueBitAtPosition(motorStatusAsInteger, MSTA_AT_HOME);
+		return hasTrueBitAtPosition(motorStatusAsInteger, MSTA_HOMED);
 	}
 
 	@Override
