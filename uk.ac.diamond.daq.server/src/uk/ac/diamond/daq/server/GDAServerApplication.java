@@ -42,7 +42,6 @@ import gda.beamline.health.BeamlineHealthMonitor;
 import gda.beamline.health.BeamlineHealthResult;
 import gda.beamline.health.BeamlineHealthState;
 import gda.factory.Finder;
-import gda.jython.GDAJythonClassLoader;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 import gda.util.ObjectServer;
@@ -202,8 +201,6 @@ public class GDAServerApplication implements IApplication {
 			objectServers.clear();
 		}
 
-		GDAJythonClassLoader.closeJarClassLoaders();
-		ApplicationEnvironment.release();
 		shutdownLatch.countDown();
 	}
 
