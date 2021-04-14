@@ -29,9 +29,11 @@
 			<artifactId>uk.ac.diamond.daq.server.feature</artifactId>
 			<version>9.21.0-SNAPSHOT</version>
 		</dependency>
-		<!-- only build server docs for now until we can update to Tycho 2.3.0 
-			<dependency> <groupId>uk.ac.diamond</groupId> <artifactId>uk.ac.gda.client.feature</artifactId> 
-			<version>9.21.0-SNAPSHOT</version> </dependency> -->
+		<dependency>
+			<groupId>uk.ac.diamond</groupId>
+			<artifactId>uk.ac.gda.diamond.feature</artifactId>
+			<version>9.21.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<!-- Here a profile is used as tycho-document-bundle-plugin doesn't appear 
