@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -59,11 +60,14 @@ import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinsertion_device;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXmirror;
 import org.eclipse.dawnsci.nexus.NXmonochromator;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsample;
+import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -83,7 +87,11 @@ import org.eclipse.scanning.device.BeamNexusDevice;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice;
 import org.eclipse.scanning.device.InsertionDeviceNexusDevice.InsertionDeviceType;
+import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.MonochromatorNexusDevice;
+import org.eclipse.scanning.device.NexusMetadataDevice;
+import org.eclipse.scanning.device.ScalarField;
+import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
@@ -205,6 +213,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String MONOCHROMATOR_DEVICE_NAME = "monochromator";
 	private static final String SOURCE_DEVICE_NAME = "source";
 	private static final String USER_DEVICE_NAME = "user";
+	private static final String SLIT1_DEVICE_NAME = "slit1";
+	private static final String SLIT2_DEVICE_NAME = "slit2";
+	private static final String MIRROR1_DEVICE_NAME = "mirror1";
+	private static final String MIRROR2_DEVICE_NAME = "mirror2";
 
 	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
@@ -216,6 +228,25 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final double EXPECTED_BEAM_INCIDENT_DIVERGENCE = 1.23;
 	private static final double EXPECTED_BEAM_INCIDENT_POLARIZATION = 4.55;
 	private static final double EXPECTED_BEAM_FLUX = 92.2;
+
+	private static final double EXPECTED_SLIT1_X_GAP = 2.3;
+	private static final double EXPECTED_SLIT1_Y_GAP = 5.1;
+	private static final double EXPECTED_SLIT2_X_GAP = 43.2;
+	private static final double EXPECTED_SLIT2_Y_GAP = 29.9;
+
+	// Note: these fields are based on those used by Fajin for i06. These fields are not part of
+	// the nexus base class definition for NXmirror: https://manual.nexusformat.org/classes/base_classes/NXmirror.html
+	private static final String MIRROR_FIELD_NAME_X = "x";
+	private static final String MIRROR_FIELD_NAME_PITCH = "pitch";
+	private static final String MIRROR_FIELD_NAME_YAW = "yaw";
+
+	private static final double MIRROR1_X = 0.0;
+	private static final double MIRROR1_PITCH = 3.5;
+	private static final double MIRROR1_YAW = 13.9;
+
+	private static final double MIRROR2_X = 0.0;
+	private static final double MIRROR2_PITCH = 3.5;
+	private static final double MIRROR2_YAW = 13.9;
 
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
@@ -257,6 +288,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		deviceConfig.setSourceName(SOURCE_DEVICE_NAME);
 		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
+		deviceConfig.setAdditionalDeviceNames(Set.of(SLIT1_DEVICE_NAME,
+				SLIT2_DEVICE_NAME, MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME));
+
 		return deviceConfig;
 	}
 
@@ -291,6 +325,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		createMonochromatorDevice();
 		createSourceDevice();
 		createUserDevice();
+
+		createSlitDevices();
+		createMirrorDevices();
 	}
 
 	private void createBeamDevice() throws DeviceException {
@@ -365,6 +402,51 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		ServiceHolder.getNexusDeviceService().register(userDevice);
 	}
 
+	private void createSlitDevices() throws DeviceException {
+		createSlitDevice(SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
+		createSlitDevice(SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
+	}
+
+	private void createSlitDevice(String name, double xGap, double yGap) throws DeviceException {
+		final String xGapScannableName = name + NXslit.NX_X_GAP;
+		final String yGapScannableName = name + NXslit.NX_Y_GAP;
+
+		createScannable(xGapScannableName, xGap);
+		createScannable(yGapScannableName, yGap);
+
+		final NexusMetadataDevice<NXslit> slitDevice = new NexusMetadataDevice<>();
+		slitDevice.setName(name);
+		slitDevice.setNexusBaseClass(NexusBaseClass.NX_SLIT);
+		slitDevice.setCategory(NexusBaseClass.NX_INSTRUMENT); // NXslit is not in the list of defined child groups for any other group
+
+		final List<MetadataNode> fields = new ArrayList<>();
+		fields.add(new ScannableField(NXslit.NX_X_GAP, xGapScannableName));
+		fields.add(new ScannableField(NXslit.NX_Y_GAP, yGapScannableName));
+
+		slitDevice.setCustomNodes(fields);
+
+		ServiceHolder.getNexusDeviceService().register(slitDevice);
+	}
+
+	private void createMirrorDevices() throws DeviceException {
+		createMirrorDevice(MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW);
+		createMirrorDevice(MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR2_PITCH, MIRROR2_YAW);
+	}
+
+	private void createMirrorDevice(String name, double x, double pitch, double yaw) throws DeviceException {
+		final NexusMetadataDevice<NXmirror> mirrorDevice = new NexusMetadataDevice<>();
+		mirrorDevice.setName(name);
+		mirrorDevice.setNexusBaseClass(NexusBaseClass.NX_MIRROR);
+
+		final List<MetadataNode> fields = new ArrayList<>();
+		fields.add(new ScalarField(MIRROR_FIELD_NAME_X, x));
+		fields.add(new ScalarField(MIRROR_FIELD_NAME_PITCH, pitch));
+		fields.add(new ScalarField(MIRROR_FIELD_NAME_YAW, yaw));
+		mirrorDevice.setCustomNodes(fields);
+
+		ServiceHolder.getNexusDeviceService().register(mirrorDevice);
+	}
+
 	@Test
 	public void concurrentScanNexusDeviceDetector() throws Exception {
 		detector = new DummyNexusDeviceDetector();
@@ -416,7 +498,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 //		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
 		// group for each device, each common (metadata) device (e.g. NXMonochromator), plus source group scannables:NXcollection (for scannables in the locationMap)
-		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(getExpectedInstrumentGroupNames()));
+ 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(getExpectedInstrumentGroupNames()));
 	}
 
 	private String[] getExpectedInstrumentGroupNames() {
@@ -690,9 +772,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final NXsource source = instrument.getSource();
 		assertThat(source, is(notNullValue()));
 
-		assertThat(source.getNumberOfDataNodes(), is(4));
-		assertThat(source.getNumberOfGroupNodes(), is(0));
-
+		assertThat(source.getDataNodeNames(), containsInAnyOrder(NXsource.NX_NAME,
+				NXsource.NX_PROBE, NXsource.NX_TYPE, NXsource.NX_CURRENT));
 		assertThat(source.getNameScalar(), is(equalTo("Diamond Light Source")));
 		assertThat(source.getProbeScalar(), is(equalTo("x-ray")));
 		assertThat(source.getTypeScalar(), is(equalTo("Synchrotron X-ray Source")));
@@ -706,6 +787,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		final NXbeam beam = sample.getBeam();
 		assertThat(beam, is(notNullValue()));
+
+		assertThat(beam.getDataNodeNames(), containsInAnyOrder(NXbeam.NX_EXTENT, NXbeam.NX_DISTANCE,
+				NXbeam.NX_INCIDENT_ENERGY, NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, NXbeam.NX_INCIDENT_POLARIZATION,
+				NXbeam.NX_FLUX));
 		assertThat(beam.getDistanceScalar(), is(equalTo(0.0)));
 		assertThat(beam.getDouble(NXbeam.NX_EXTENT), is(equalTo(EXPECTED_BEAM_EXTENT)));
 		assertThat(beam.getIncident_energyScalar(), is(equalTo(EXPECTED_BEAM_INCIDENT_ENERGY)));
@@ -715,9 +800,24 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
+	protected void checkMetadataDeviceGroups(NXinstrument instrument) throws Exception {
+		super.checkMetadataDeviceGroups(instrument);
+
+		checkSlitGroup(instrument, SLIT1_DEVICE_NAME, EXPECTED_SLIT1_X_GAP, EXPECTED_SLIT1_Y_GAP);
+		checkSlitGroup(instrument, SLIT2_DEVICE_NAME, EXPECTED_SLIT2_X_GAP, EXPECTED_SLIT2_Y_GAP);
+
+		checkMirrorGroup(instrument, MIRROR1_DEVICE_NAME, MIRROR1_X, MIRROR1_PITCH, MIRROR1_YAW);
+		checkMirrorGroup(instrument, MIRROR2_DEVICE_NAME, MIRROR2_X, MIRROR1_PITCH, MIRROR1_YAW);
+	}
+
+	@Override
 	protected void checkInsertionDeviceGroup(NXinstrument instrument) {
 		final NXinsertion_device insertionDevice = instrument.getInsertion_device();
 		assertThat(insertionDevice, is(notNullValue()));
+
+		assertThat(insertionDevice.getDataNodeNames(), containsInAnyOrder(NXinsertion_device.NX_TYPE,
+				NXinsertion_device.NX_GAP, NXinsertion_device.NX_TAPER, NXinsertion_device.NX_HARMONIC));
+		assertThat(insertionDevice.getTypeScalar(), is(equalTo(InsertionDeviceType.WIGGLER.toString())));
 		assertThat(insertionDevice.getGapScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_GAP)));
 		assertThat(insertionDevice.getTaperScalar(), is(equalTo(EXPECTED_INSERTION_DEVICE_TAPER)));
 		// DummyScannable always returns a double which gets converted to a long
@@ -728,8 +828,31 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void checkMonochromatorGroup(NXinstrument instrument) {
 		final NXmonochromator monochromator = instrument.getMonochromator();
 		assertThat(monochromator, is(notNullValue()));
+		assertThat(monochromator.getDataNodeNames(), containsInAnyOrder(
+				NXmonochromator.NX_ENERGY, NXmonochromator.NX_ENERGY_ERROR));
 		assertThat(monochromator.getEnergyScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_ENERGY)));
 		assertThat(monochromator.getEnergy_errorScalar(), is(equalTo(EXPECTED_MONOCHROMATOR_ENERGY_ERROR)));
+	}
+
+	private void checkMirrorGroup(NXinstrument instrument, String mirrorName,
+			double expectedX, double expectedPitch, double expectedYaw) {
+		final NXmirror mirror = instrument.getMirror(mirrorName);
+		assertThat(mirror, is(notNullValue()));
+		assertThat(mirror.getDataNodeNames(), containsInAnyOrder(MIRROR_FIELD_NAME_X,
+				MIRROR_FIELD_NAME_PITCH, MIRROR_FIELD_NAME_YAW));
+		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_X), is(equalTo(expectedX)));
+		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_PITCH), is(equalTo(expectedPitch)));
+		assertThat(mirror.getDouble(MIRROR_FIELD_NAME_YAW), is(equalTo(expectedYaw)));
+	}
+
+	private void checkSlitGroup(NXinstrument instrument, String slitName,
+			double expectedXGap, double expectedYGap) {
+		final NXslit slitGroup = (NXslit) instrument.getGroupNode(slitName);
+		assertThat(slitGroup, is(notNullValue()));
+
+		assertThat(slitGroup.getDataNodeNames(), containsInAnyOrder(NXslit.NX_X_GAP, NXslit.NX_Y_GAP));
+		assertThat(slitGroup.getX_gapScalar(), is(equalTo(expectedXGap)));
+		assertThat(slitGroup.getY_gapScalar(), is(equalTo(expectedYGap)));
 	}
 
 }
