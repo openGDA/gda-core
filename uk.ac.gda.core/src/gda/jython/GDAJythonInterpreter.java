@@ -22,6 +22,7 @@ package gda.jython;
 import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
@@ -47,6 +48,8 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.python.core.ContextManager;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -74,6 +77,7 @@ import gda.jython.commands.ScannableCommands;
 import gda.jython.logging.JythonLogHandler;
 import gda.jython.logging.PythonException;
 import gda.jython.translator.Translator;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.gda.common.util.EclipseUtils;
 
 /**
@@ -90,6 +94,8 @@ public class GDAJythonInterpreter {
 	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
 	private static final String UTF_8 = "UTF-8";
 	private static final Properties sysProps;
+	/** Custom logger for loaded classes only, used with a specific appender */
+	private static final Logger classLoadLogger = LoggerFactory.getLogger("jython-class-loader");
 
 	private final OverwriteLock overwriteLock = new OverwriteLock();
 
@@ -107,7 +113,7 @@ public class GDAJythonInterpreter {
 	// folders where beamline and user scripts are held
 	private final ScriptPaths jythonScriptPaths;
 
-	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader(Py.class.getClassLoader());
+	private final ClassLoader classLoader = GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(Py.class, this::classLoadedSuccessfully);
 
 	/**
 	 * Static initializer bock to set all the static parameters on the PySystemState class
@@ -173,11 +179,8 @@ public class GDAJythonInterpreter {
 	 * Configures this interpreter.
 	 */
 	public void configure() {
-		// Check the OSGi aware Jython Classloader is properly initialized before proceeding
-		if (!GDAJythonClassLoader.useGDAClassLoader()) {
-			logger.error("GDAJythonClassLoader not initialized properly GDA-Server cannot Start");
-			throw new UnsupportedOperationException();
-		}
+		// Obtain script projects from extension point
+		GDAJythonScriptApi jythonScriptApiManager = new GDAJythonScriptApi();
 
 		logger.info("adding GDA package locations to Jython path...");
 
@@ -209,7 +212,7 @@ public class GDAJythonInterpreter {
 		final String bundlesRoot;
 		if (eclipseLaunch) {
 			bundlesRoot = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
-			iterateWorkspace(classLoader);
+			iterateWorkspace();
 		} else {
 			bundlesRoot = sysProps.getProperty("osgi.syspath");
 			iteratePluginsDirectory(bundlesRoot);
@@ -221,7 +224,7 @@ public class GDAJythonInterpreter {
 			// Add the paths for the standard script folders to the existing _jythonScriptPaths
 			// (the instance config scripts folders are handled by Spring injection into the JythonServer bean)
 			int index = 1;
-			for (Entry<String, String> scriptEntry : classLoader.getStandardFolders().entrySet()) {
+			for (Entry<String, String> scriptEntry : jythonScriptApiManager.getStandardFolders().entrySet()) {
 				String pathFragment = scriptEntry.getKey();
 				if (pathFragment.endsWith(URI_SEPARATOR)) {
 					pathFragment = pathFragment.substring(0, pathFragment.length() - 1);
@@ -280,7 +283,6 @@ public class GDAJythonInterpreter {
 				}
 			}
 		}
-		classLoader.setSysPath(pss.path); // Inform the ClassLoader of the sys.path contents
 
 		// Log the sys.path in jython so where things will be loaded from
 		logger.debug("sys.path: {}", pss.path);
@@ -307,11 +309,12 @@ public class GDAJythonInterpreter {
 	 * Retrieve the set of server plugin directories when running from the eclipse workspace and register
 	 * them with Jython as sources for full package import.
 	 *
-	 * @param classLoader	The class loader being used by the interpreter to allow non-server bundle filtering
 	 */
-	private void iterateWorkspace(final GDAJythonClassLoader classLoader) {
+	private void iterateWorkspace() {
 		logger.info("Retrieving eclipse workspace server plugin paths for Jython");
 
+		final Set<String> appBundleNames = Arrays.stream(FrameworkUtil.getBundle(getClass()).getBundleContext().getBundles())
+				.map(Bundle::getSymbolicName).collect(toSet());
 		final String unwanted = "^.*?(.feature|.releng|.test|.site|.git).*$";
 		final File workspaceGit = new File(System.getProperties().getProperty("gda.install.git.loc"));
 
@@ -324,9 +327,8 @@ public class GDAJythonInterpreter {
 			}
 			// filter 'non-bundle' and test directories
 			final File[]pluginDirectories = repoDir.listFiles(f -> f.isDirectory() && f.getName().contains(".") && !f.getName().matches(unwanted));
-
-			// Store only the paths for directories corresponding to server plugins from the workspace via isMappedBundle
-			Arrays.stream(pluginDirectories).filter(dir -> classLoader.isMappedBundle(dir.getName()))
+			// Store only the paths for directories corresponding to server plugins from the workspace that are present in the running app
+			Arrays.stream(pluginDirectories).filter(dir -> appBundleNames.contains(dir.getName()))
                                             .map(dir-> Paths.get(dir.getAbsolutePath(), "bin"))
                                             .forEach(classesPath -> PySystemState.add_classdir(classesPath.toString()));
 		}
@@ -762,6 +764,10 @@ public class GDAJythonInterpreter {
 
 	public InteractiveConsole getInterp() {
 		return interactiveConsole;
+	}
+
+	private void classLoadedSuccessfully(Class<?> cls) {
+		classLoadLogger.trace(cls.getName());
 	}
 
 	/**
