@@ -38,6 +38,8 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.LazyWriteableDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.dataset.SliceND;
@@ -126,7 +128,6 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		return dataset;
 	}
 
-
 	@Override
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
@@ -139,10 +140,33 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		logger.debug("End of processFrame");
 	}
 
+	public int getNRois() {
+		return rois.size();
+	}
+
+
+	public void processFrame(ILazyDataset data, SliceFromSeriesMetadata metaSlice) {
+		logger.debug("Start of processFrame");
+		for (RegionOfInterest roi : rois) {
+			Dataset roiDataset;
+			try {
+				roiDataset = DatasetUtils.convertToDataset(data.squeezeEnds().getSlice(roi.getSlice()));
+			} catch (DatasetException e) {
+				logger.error("Could not slice data", e);
+				return;
+			}
+			writeRoiStat(roi, roiDataset, metaSlice, Dataset::sum, datasets.get(roi).get(0));
+			//writeRoiStat(roi, roiDataset, metaSlice, Dataset::mean, datasets.get(roi).get(1));
+			//writeRoiStat(roi, roiDataset, metaSlice, Dataset::max, datasets.get(roi).get(2));
+		}
+		logger.debug("End of processFrame");
+	}
+
+
 	private void writeRoiStat(RegionOfInterest roi, Dataset roiData, SliceFromSeriesMetadata meta,
 			Function<Dataset, Object> stat, LazyWriteableDataset statDataset) {
 		Object statResult = stat.apply(roiData);
-		logger.info("Statistic: {}, ROI: {},  value: {}", statDataset.getName(), roi.getNamePrefix(), statResult);
+		logger.debug("Statistic: {}, ROI: {},  value: {}", statDataset.getName(), roi.getNamePrefix(), statResult);
 		Dataset newStatData = DatasetFactory.createFromObject(statResult);
 		SliceND statSlice = new SliceND(statDataset.getShape(), statDataset.getMaxShape(), (Slice[]) null);
 

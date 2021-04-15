@@ -57,9 +57,7 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	private SwmrMalcolmProcessingReader swmrReader;
 
-	private Collection<MalcolmSwmrProcessor> processors = Arrays.asList((MalcolmSwmrProcessor) new SumProc(),
-			(MalcolmSwmrProcessor) new MeanProc(), (MalcolmSwmrProcessor) new MaxValProc(),
-			(MalcolmSwmrProcessor) new RoiProc());
+	private Collection<MalcolmSwmrProcessor> processors = Arrays.asList((MalcolmSwmrProcessor) new RoiProc(), new PlotProc());
 
 	private String detFileNameSuffix = "-DIFFRACTION.h5";
 	private String detFrameEntry = "/entry/data";
@@ -101,6 +99,8 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 		int[] shape = info.getShape();
 		int count = Arrays.stream(shape).reduce(1, (l, r) -> l * r);
+
+
 
 		processors.forEach(p -> p.initialise(info, mDetWrapper));
 		swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, processors, detFrameEntry, detUidEntry);
@@ -151,11 +151,14 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	@ScanEnd
 	public void closeProc() {
+		long t = System.currentTimeMillis();
 		logger.debug("Scan complete, waiting for processing to complete");
 		if (swmrReader != null) {
 			swmrReader.waitUntilComplete();
 		}
 		logger.debug("End of scan processing complete");
+
+		logger.debug("Wait time: {}", System.currentTimeMillis() - t);
 	}
 
 	public Collection<MalcolmSwmrProcessor> getProcessors() {
