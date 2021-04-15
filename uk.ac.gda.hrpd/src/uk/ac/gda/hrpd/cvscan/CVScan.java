@@ -287,7 +287,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	}
 
 	@Override
-	public boolean rawIsBusy() {
+	public boolean isBusy() {
 		return controller.isBusy();
 	}
 
