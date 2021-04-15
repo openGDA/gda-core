@@ -96,16 +96,15 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 
 
 	@Override
-	public NXDetectorData getNXDetectorData(String detName, double acquireTime) {
+	public NXDetectorData getNXDetectorData(String detName, double acquireTime, int scanPoint) {
 		NXDetectorData data;
 		data = new NXDetectorData(getExtraNames(), getOutputFormat(), detName);
 		addDoubleItemToNXData(data, detName, FRAME_NO_NAME, Double.valueOf(controller.getNumFramesCaptured()));
 		addDoubleItemToNXData(data, detName, COUNT_TIME_NAME, acquireTime);
 		String filename = controller.getLatestFilename();
-
-		//TODO should this only be called for first point in scan
-		data.addScanFileLink(detName, "nxfile://" + filename + "#data");
-
+		if (scanPoint == 1) {
+			data.addScanFileLink(detName, "nxfile://" + filename + "#data");
+		}
 		return data;
 	}
 

@@ -101,7 +101,7 @@ public class OdinDetector extends DetectorBase implements NexusDetector, Positio
 
 	private NXDetectorData getNXDetectorData() throws DeviceException {
 		try {
-			return collectionStrategy.getNXDetectorData(getName(), collectionTime);
+			return collectionStrategy.getNXDetectorData(getName(), collectionTime, scanPointNumber);
 		} catch (Exception e) {
 			throw new DeviceException("Error in readout for " + getName(), e);
 		}

@@ -72,7 +72,7 @@ public class OdinMultipleFileStrategy implements OdinStrategy {
 	}
 
 	@Override
-	public NXDetectorData getNXDetectorData(String detName, double acquireTime) {
+	public NXDetectorData getNXDetectorData(String detName, double acquireTime, int scanPoint) {
 			NXDetectorData data;
 			data = new NXDetectorDataWithFilepathForSrs(getExtraNames(), getOutputFormat(), detName);
 			addDoubleItemToNXData(data, detName, "count_time", acquireTime);

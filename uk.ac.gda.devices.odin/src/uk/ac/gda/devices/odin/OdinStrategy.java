@@ -28,7 +28,7 @@ public interface OdinStrategy {
 	 * To be called during the detector's readout method
 	 * @return the appropriate Nexus structure
 	 */
-	NXDetectorData getNXDetectorData(String detName, double acquireTime);
+	NXDetectorData getNXDetectorData(String detName, double acquireTime, int scanPoint);
 
 	/**
 	 * Perform any required changes to the controller to prepare it for the start of a scan
