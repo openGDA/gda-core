@@ -55,8 +55,8 @@ class showtimeClass(ScannableMotionBase):
 	def stop(self):
 		self.waitUntilTime = 0
 
-	def rawIsBusy(self):
-		#print "Checking rawIsBusy"
+	def isBusy(self):
+		#print "Checking isBusy"
 		if self.timer()<self.waitUntilTime:
 			#print "Is busy"
 			return 1
@@ -81,7 +81,7 @@ class showincrementaltimeClass(ScannableMotionBase):
 		self.timer.reset()
 		return t
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 	
 	def atScanStart(self):
@@ -109,7 +109,7 @@ class waittimeClass(ScannableMotionBase):
 	def rawGetPosition(self):
 		return self.timer()-self.currenttime
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		if self.timer()<self.waitfortime:
 			return 1
 		else:
@@ -135,7 +135,7 @@ class waittimeClass2(ScannableMotionBase):
 	def rawGetPosition(self):
 		return 0.
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		if self.timer()<self.waitfortime:
 			return 1
 		else:
@@ -163,7 +163,7 @@ class waittimeClass3(ScannableMotionBase):
 	def rawGetPosition(self):
 		return self.waittime
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		if self.timer()<=self.waitfortime:
 			return 1
 		else:
@@ -183,7 +183,7 @@ class actualTimeClass(ScannableMotionBase):
 	def rawGetPosition(self):
 		return time.time()
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return False
 	
 class LogTimeClass(ScannableMotionBase):
@@ -199,7 +199,7 @@ class LogTimeClass(ScannableMotionBase):
 	def rawGetPosition(self):
 		return None
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return False
 	
 	def atScanStart(self):

@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.device.DeviceException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +29,8 @@ import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+
+import gda.device.DeviceException;
 
 public class DummyScannableTest {
 
@@ -49,11 +50,7 @@ public class DummyScannableTest {
 
 	@Test
 	public void testIsBusy() {
-		try {
-			assertFalse(theScannable.isBusy());
-		} catch (DeviceException e) {
-			fail("Exception thrown: " + e.getMessage());
-		}
+		assertFalse(theScannable.isBusy());
 	}
 
 	@Test

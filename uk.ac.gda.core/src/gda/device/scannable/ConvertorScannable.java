@@ -200,7 +200,7 @@ public class ConvertorScannable<S extends Quantity<S>, T extends Quantity<T>> ex
 	}
 
 	@Override
-	public boolean rawIsBusy() throws DeviceException {
+	public boolean isBusy() throws DeviceException {
 		return theScannable.isBusy();
 	}
 

@@ -83,7 +83,7 @@ class ContinuousRocking(ScannableGroup, Runnable):
         '''No action, just pass'''
         pass
     
-    def rawIsBusy(self):
+    def isBusy(self):
         '''always return False'''
         return 0
 

@@ -11,7 +11,7 @@ class GaussianX(ScannableMotionBase):
 		self.setInputNames([name])
 		self.X = 0
 		
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawGetPosition(self):
@@ -40,7 +40,7 @@ class GaussianY(ScannableMotionBase):
 		self.background = background
 		self.noise = noise
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawGetPosition(self):
@@ -63,7 +63,7 @@ class EdgeY(ScannableMotionBase):
 		self.end = end
 		self.noise = noise
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return False
 
 	def rawGetPosition(self):

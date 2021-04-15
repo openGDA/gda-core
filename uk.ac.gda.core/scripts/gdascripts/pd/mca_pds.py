@@ -29,14 +29,14 @@ class ctmcaClass(ScannableMotionBase):
 		self.mca.clear();
 		self.mca.setCollectionTime(time)
 		self.mca.startAcquisition()
-		#put a sleep in here so rawIsBusy cannot be called too fast as Epics not always ready
+		#put a sleep in here so isBusy cannot be called too fast as Epics not always ready
 		sleep(.5)
 		return
 
 	def rawGetPosition(self):
 		return self.mca.getElapsedParameters()[1]
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return self.mca.isActive()
 
 #
@@ -63,7 +63,7 @@ class rdmcaClass(ScannableMotionBase):
 	def rawGetPosition(self):
 		return self.mca.getData()[self.channel]
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 #
@@ -119,7 +119,7 @@ class rdROIClass(ScannableMotionBase):
 		output[0] = total
 		return output
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 #
@@ -154,7 +154,7 @@ class rdScaClass(ScannableMotionBase):
 			total += spectrum[i]
 		return total
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 

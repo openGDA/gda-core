@@ -3,7 +3,7 @@ from gda.device.scannable import ScannableMotionBase
 #
 # A template for all Scannable classes. 
 #
-# The rawIsBusy, rawGetPosition, and rawAsynchronousMoveTo methods must be 
+# The isBusy, rawGetPosition, and rawAsynchronousMoveTo methods must be 
 # implemented. 
 # 
 # The others (commented out here) are optional depending on how your scannable 
@@ -63,7 +63,7 @@ class scannableTemplate(ScannableMotionBase):
 	# Returns false (0) if the action started by rawAsynchronousMoveTo has been 
    # completed
 	#
-	def rawIsBusy(self):
+	def isBusy(self):
 		return self.iambusy
 
 	#

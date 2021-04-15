@@ -10,7 +10,7 @@ class SimpleEpicsScannable(ScannableMotionBase):
 		self.pvName = pvName
 		self.ca = CAClient()
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawGetPosition(self):

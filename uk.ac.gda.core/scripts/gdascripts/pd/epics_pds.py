@@ -43,7 +43,7 @@ class DisplayEpicsPVClass(ScannableMotionBase):
 	def rawAsynchronousMoveTo(self,position):
 		return
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 class EpicsReadWritePVClass(ScannableMotionBase):
@@ -79,7 +79,7 @@ class EpicsReadWritePVClass(ScannableMotionBase):
 		except:
 			print "error moving to position %f" % float(position)
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 # a pseudo device representing an Epics positioner
@@ -123,7 +123,7 @@ class SingleEpicsPositionerClass(ScannableMotionBase):
 		except:
 			print "error moving to position"
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		try:
 			if self.statecli.isConfigured():
 				self.status = self.statecli.caget()
@@ -155,7 +155,7 @@ class SingleEpicsPositionerClass(ScannableMotionBase):
 class SingleEpicsPositionerNoStatusClass(SingleEpicsPositionerClass):
 	"Class for PD devices without status "
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawAsynchronousMoveTo(self,new_position):
@@ -181,14 +181,14 @@ class SingleEpicsPositionerNoStatusClassDeadband(SingleEpicsPositionerNoStatusCl
 		self.deadband = deadband
 		SingleEpicsPositionerNoStatusClass.__init__(self, name, pvinstring, pvoutstring, pvstatestring, pvstopstring, unitstring, formatstring)
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		try:
 			if abs(self.new_position-self())<self.deadband:
 				return 0
 			else:
 				return 1
 		except:
-			print 'Warning - can''t get rawIsBusy status. Perhaps new_position or deadband attributes not set?'
+			print 'Warning - can''t get isBusy status. Perhaps new_position or deadband attributes not set?'
 			return 0
 
 
@@ -235,7 +235,7 @@ class SingleChannelBimorphClass(ScannableMotionBase):
 				#self.incli.clearup()
 		except:
 			print "error moving to position"
-	def rawIsBusy(self):
+	def isBusy(self):
 		try:
 			if self.statecli.isConfigured():
 				self.status=self.statecli.caget()

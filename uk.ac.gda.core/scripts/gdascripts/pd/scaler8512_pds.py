@@ -36,7 +36,7 @@ class ScalerChannelEpicsPVClass(ScannableMotionBase):
 		self.setCollectionTime(newPos);
 		self.collectData();
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return self.getStatus()
 
 	def atEnd(self):

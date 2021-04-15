@@ -8,7 +8,7 @@ class SimplestPD(ScannableMotionBase):
 		self.setInputNames([name])
 		self.X = position
 		
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawGetPosition(self):
@@ -27,7 +27,7 @@ class DummyPD(ScannableMotionBase):
 		self.setLevel(3)
 		self.currentposition=0.0
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawAsynchronousMoveTo(self,new_position):
@@ -49,7 +49,7 @@ class MultiInputExtraFieldsDummyPD(ScannableMotionBase):
 		self.currentposition=[0.0]*len(inputNames)
 		#self.completeInstantiation()
 		
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawAsynchronousMoveTo(self,new_position):
@@ -75,7 +75,7 @@ class ZeroInputExtraFieldsDummyPD(ScannableMotionBase):
 	def atScanStart(self):
 		print "In atScanStart() method of zero input/extra dummy pd"
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return 0
 
 	def rawAsynchronousMoveTo(self,new_position):

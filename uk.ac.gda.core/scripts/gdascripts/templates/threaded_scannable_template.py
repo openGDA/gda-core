@@ -40,7 +40,7 @@ class threadedScannableTemplate(ScannableMotionBase):
 	# Returns false (0) if the action started by rawAsynchronousMoveTo has been 
    # completed
 	#
-	def rawIsBusy(self):
+	def isBusy(self):
 		return self.iambusy
 
 

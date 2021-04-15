@@ -73,7 +73,7 @@ public class DummyScannable extends ScannableMotionBase {
 	}
 
 	@Override
-	public boolean rawIsBusy() {
+	public boolean isBusy() {
 		return false;
 	}
 
