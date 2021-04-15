@@ -68,7 +68,7 @@ class ScanAborter(ScannableMotionBase):
         self.mon = mon
         self.minValue=minValue
         
-    def rawIsBusy(self):
+    def isBusy(self):
         return False
     
     def getPosition(self):

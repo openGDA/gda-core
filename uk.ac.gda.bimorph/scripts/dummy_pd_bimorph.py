@@ -42,7 +42,7 @@ class Bimorph(ScannableMotionBase ):
     def configure(self):
         self.beamline=Finder.find("Beamline")
 
-    def rawIsBusy(self):
+    def isBusy(self):
         return self.IAmBusy
 
     def rawGetPosition(self):

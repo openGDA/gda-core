@@ -49,7 +49,7 @@ class Bimorph(ScannableMotionBase):
 	def configure(self):
 		self.beamline=Finder.find("Beamline")
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		return self.IAmBusy
 
 	def rawGetPosition(self):
@@ -153,7 +153,7 @@ class EemBimorph(Bimorph):
 		self._applyTargetProfile()
 		time.sleep(15)
 		
-	def rawIsBusy(self):
+	def isBusy(self):
 		for i in self.channelIndexes:
 			if self._isTargetStatusBusy(i): return True
 		return False
