@@ -217,7 +217,7 @@ class HexapodAxis(ScannableMotionBase):
 			print "Error returning current position" + err
 			return 0
 
-	def rawIsBusy(self):
+	def isBusy(self):
 		try:	
 			sleep(1) #EPICS update every second on these PVs
 			self.controller.statusUpdate()

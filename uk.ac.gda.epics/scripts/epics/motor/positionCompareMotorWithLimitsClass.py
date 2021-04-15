@@ -91,7 +91,7 @@ class PositionCompareMotorWithLimitsClass(ScannableMotionBase):
         except:
             print "error moving to position"
 
-    def rawIsBusy(self):
+    def isBusy(self):
         return ( not abs(self.rawGetPosition() - self.getTargetPosition()) < self._tolerance)
 
     def atScanEnd(self):

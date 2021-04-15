@@ -45,7 +45,7 @@ class RockingMotion(ScannableMotionBase, Runnable):
         '''rocking motion of the specified pd during scan'''
         moveToUpperLimit=True
         while(self.runThread):
-            if not self.rawIsBusy():
+            if not self.isBusy():
                 if (moveToUpperLimit):
                     if (abs(float(float(self.getPosition())-float(self.upperlimit)))>0.01):
                         print "move to upper limit " + str(self.upperlimit)
@@ -89,7 +89,7 @@ class RockingMotion(ScannableMotionBase, Runnable):
             self.pd.stop()         
             
     
-    def rawIsBusy(self):
+    def isBusy(self):
         '''always return origianl pd's status'''
         return self.pd.isBusy();
 

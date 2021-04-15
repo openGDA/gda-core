@@ -422,7 +422,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	}
 
 	@Override
-	public boolean rawIsBusy() throws DeviceException {
+	public boolean isBusy() throws DeviceException {
 		return busy;
 	}
 
