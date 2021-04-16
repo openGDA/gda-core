@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = DiffractionCalibrationMergeRequest.Builder.class)
 public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair<URL>{
 
-	private static final String KEY = "diffractionCalibrationMerge";
+	public static final String KEY = "diffractionCalibrationMerge";
 	private final List<URL> calibrationFiles;
 	private final String deviceName;
 
@@ -67,14 +67,15 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 	}
 
 	@JsonPOJOBuilder
-	public static class Builder {
+	public static class Builder implements ProcessingRequestBuilder<URL> {
 		private final List<URL> calibrationFiles = new ArrayList<>();
 		private String deviceName;
 
 	    /**
 	     * A list containing a single calibration file url
 	     */
-	    public Builder withValue(List<URL> processingFiles) {
+	    @Override
+		public Builder withValue(List<URL> processingFiles) {
 	    	this.calibrationFiles.clear();
 	        this.calibrationFiles.addAll(processingFiles);
 	        return this;
@@ -93,16 +94,14 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 	     * @deprecated The 'key' property is currently serialised but set internally.
 	     * This method is only here to satisfy the deserialiser
 	     */
-	    @Deprecated
+	    @Override
+	    @Deprecated(since = "9.20")
 	    public Builder withKey(String key) {
-	    	/*
-	    	 * FIXME At some point the key should be read if we are to justify writing it.
-	    	 */
 	    	return this;
-
 	    }
 
-	    public DiffractionCalibrationMergeRequest build() {
+	    @Override
+		public DiffractionCalibrationMergeRequest build() {
 	        return new DiffractionCalibrationMergeRequest(calibrationFiles, deviceName);
 	    }
 	}
