@@ -25,10 +25,10 @@ import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NA
 import static gda.data.scan.nexus.device.ScannableNexusDevice.COLLECTION_NAME_SCANNABLES;
 import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_VALUE_SET;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSolsticeScanGroup;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertTarget;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -25,9 +25,9 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertIndices;
-import static org.eclipse.scanning.test.utilities.scan.nexus.NexusAssert.assertSignal;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
