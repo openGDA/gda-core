@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_END_TIME;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_POINT_START_TIME;
@@ -34,12 +34,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SCANNABLE_N
 
 import java.io.File;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -51,8 +46,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -74,6 +71,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPosition;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -101,10 +99,11 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 
 	private static final Logger logger = LoggerFactory.getLogger(SolsticeScanMonitor.class);
 
-	// custom parser for converting durations to times. The only difference between this as
-	// DateTimeFormatter.ISO_LOCAL_TIME is that this one always outputs 3 digits for nanoseconds
-	private static final DateTimeFormatter formatter = new DateTimeFormatterBuilder().
-			appendPattern("HH:mm:ss").appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).toFormatter();
+	private static final int[] SINGLE_SHAPE = new int[] { 1 };
+	private static final int[] START_SHAPE = new int[] { 0 };
+
+	private static final String ATTRIBUTE_NAME_UNITS = "units";
+	private static final String ATTRIBUTE_VALUE_MILLISECONDS = "ms";
 
 	// Nexus
 	private List<NexusObjectProvider<?>> nexusObjectProviders = null;
@@ -125,7 +124,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 	private boolean isMalcolmScan;
 	private boolean writeGlobalUniqueKeys = true;
 	private final ScanModel model;
-	private Instant scanStartTime = null;
+	private ZonedDateTime scanStartTime = null;
 	private int[] scanShape = null;
 	private boolean writeAfterMovePerformed = false;
 
@@ -190,7 +189,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 	}
 
 	public NXcollection createNexusObject(NexusScanInfo info) {
-		scanStartTime = Instant.now(); // record the current time
+		scanStartTime = ZonedDateTime.now().truncatedTo(MILLIS); // record the current time
 
 		final NXcollection scanPointsCollection = NexusNodeFactory.createNXcollection();
 
@@ -207,7 +206,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 				logger.debug("Unable to write scan request", ne);
 			}
 			try {
-				List<?> models = request.getCompoundModel().getModels();
+				List<IScanPointGeneratorModel> models = request.getCompoundModel().getModels();
 				String json = marshallerService.marshal(models);
 				scanPointsCollection.setField(FIELD_NAME_SCAN_MODELS, json);
 			} catch (Exception ne) {
@@ -221,7 +220,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 //				FIELD_NAME_SCAN_FINISHED, new int[] { 1 }, Dataset.INT32);
 		// TODO: workaround for bug in HD5 loader, do not set size limit
 		scanFinishedDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_FINISHED, Integer.class,
-				new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
+				SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
 		scanFinishedDataset.setFillValue(0);
 		scanPointsCollection.createDataNode(FIELD_NAME_SCAN_FINISHED, scanFinishedDataset);
 
@@ -232,20 +231,24 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 
 		// write the estimated scan duration
 		long estimatedScanTimeMillis = model.getScanInformation().getEstimatedScanTime();
-		String estimatedScanTimeStr = durationInMillisToString(Duration.ofMillis(estimatedScanTimeMillis));
-		logger.info("Estimated scan time {}", estimatedScanTimeStr);
-		scanPointsCollection.setField(FIELD_NAME_SCAN_ESTIMATED_DURATION, estimatedScanTimeStr);
+		logger.info("Estimated scan time {}ms", estimatedScanTimeMillis);
+		final DataNode estimatedDurationNode = scanPointsCollection.setField(FIELD_NAME_SCAN_ESTIMATED_DURATION, estimatedScanTimeMillis);
+		setUnitsMillis(estimatedDurationNode);
 
 		// create lazy datasets for actual scan duration, dead time and dead time percent
 		// these are written to at the end of the scan
-		scanDurationDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_DURATION, String.class,
-				new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
-		scanPointsCollection.createDataNode(FIELD_NAME_SCAN_DURATION, scanDurationDataset);
-		scanDeadTimeDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_DEAD_TIME, String.class,
-				new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
-		scanPointsCollection.createDataNode(FIELD_NAME_SCAN_DEAD_TIME, scanDeadTimeDataset);
-		scanDeadTimePercentDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_DEAD_TIME_PERCENT, String.class,
-				new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
+		scanDurationDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_DURATION, Long.class,
+				SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
+		final DataNode scanDurationDatanode = scanPointsCollection.createDataNode(FIELD_NAME_SCAN_DURATION, scanDurationDataset);
+		setUnitsMillis(scanDurationDatanode);
+
+		scanDeadTimeDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_DEAD_TIME, Long.class,
+				SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
+		final DataNode deadTimeDatanode = scanPointsCollection.createDataNode(FIELD_NAME_SCAN_DEAD_TIME, scanDeadTimeDataset);
+		setUnitsMillis(deadTimeDatanode);
+
+		scanDeadTimePercentDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_DEAD_TIME_PERCENT, Float.class,
+				SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
 		scanPointsCollection.createDataNode(FIELD_NAME_SCAN_DEAD_TIME_PERCENT, scanDeadTimePercentDataset);
 
 		// create a sub-collection for the unique keys field and keys from each external file
@@ -269,8 +272,8 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 		// add external links to the unique key datasets for each external HD5 file
 		addLinksToExternalFiles(keysCollection);
 
-		scanStartTimeDataset = new LazyWriteableDataset(FIELD_NAME_START_TIME, String.class, new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
-		scanEndTimeDataset = new LazyWriteableDataset(FIELD_NAME_END_TIME, String.class, new int[] { 1 }, new int[] { -1 }, new int[] { 1 }, null);
+		scanStartTimeDataset = new LazyWriteableDataset(FIELD_NAME_START_TIME, String.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
+		scanEndTimeDataset = new LazyWriteableDataset(FIELD_NAME_END_TIME, String.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
 		scanPointsCollection.createDataNode(FIELD_NAME_START_TIME, scanStartTimeDataset);
 		scanPointsCollection.createDataNode(FIELD_NAME_END_TIME, scanEndTimeDataset);
 
@@ -282,6 +285,11 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 		return scanPointsCollection;
 	}
 
+	private void setUnitsMillis(DataNode dataset) {
+		final Attribute unitsAttribute = TreeFactory.createAttribute(ATTRIBUTE_NAME_UNITS, ATTRIBUTE_VALUE_MILLISECONDS);
+		dataset.addAttribute(unitsAttribute);
+	}
+
 	private Optional<ScanRequest> getScanRequest() {
 		// First check the bean to see if null, then check scan request.
 		// Return an empty optional unless both are present.
@@ -289,18 +297,6 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 				.ofNullable(model.getBean())
 				.map(ScanBean::getScanRequest)
 				.flatMap(Optional::ofNullable);
-	}
-
-	private static String durationInMillisToString(Duration duration) {
-		long days = duration.toDays(); // chop off any days as formatter can't handle them
-		duration = duration.minusDays(days);
-
-		// convert duration to a time by adding it to midnight
-		LocalTime durationAsTime = LocalTime.MIDNIGHT.plus(duration);
-		String result = formatter.format(durationAsTime);
-
-		if (days > 0) result = String.format("%dd ", days) + result;
-		return result;
 	}
 
 	/**
@@ -312,59 +308,51 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 	 * @throws ScanningException
 	 */
 	public void scanFinished() throws ScanningException {
-		final Instant scanEndTime = Instant.now();
+		final ZonedDateTime scanEndTime = ZonedDateTime.now().truncatedTo(MILLIS);
 		final Dataset startTime = DatasetFactory.createFromObject(scanStartTime.toString());
 		try {
-			scanStartTimeDataset.setSlice(null, startTime, null, null, null);
+			scanStartTimeDataset.setSlice(null, startTime, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (DatasetException e) {
 			throw new ScanningException("Could not write start_time to NeXus file", e);
 		}
 
 		final Dataset endTime = DatasetFactory.createFromObject(scanEndTime.toString());
 		try {
-			scanEndTimeDataset.setSlice(null, endTime, null, null, null);
+			scanEndTimeDataset.setSlice(null, endTime, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (DatasetException e) {
 			throw new ScanningException("Could not write stop_time to NeXus file", e);
 		}
 
 		// Note: we don't use scanFinally as that is called after the nexus file is closed.
-		final Dataset scanFinishedDataset = DatasetFactory.createFromObject(IntegerDataset.class, 1, null);
+		final Dataset scanFinished = DatasetFactory.createFromObject(IntegerDataset.class, 1);
 		try {
-			this.scanFinishedDataset.setSlice(null, scanFinishedDataset,
-					new int[] { 0 }, new int[] { 1 }, new int[] { 1 });
+			scanFinishedDataset.setSlice(null, scanFinished, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (Exception e) {
 			throw new ScanningException("Could not write scanFinished to NeXus file", e);
 		}
 
 		Duration scanDuration = Duration.between(scanStartTime, scanEndTime);
-		String scanDurationStr = durationInMillisToString(scanDuration);
-		logger.info("Scan finished in " + scanDurationStr);
+		logger.info("Scan finished in {}", scanDuration);
 
-		final Dataset scanDurationDataset = DatasetFactory.createFromObject(scanDurationStr);
+		final Dataset durationDataset = DatasetFactory.createFromObject(scanDuration.toMillis());
 		try {
-			this.scanDurationDataset.setSlice(null, scanDurationDataset,
-					new int[] { 0 }, new int[] { 1 }, new int[] { 1 });
+			scanDurationDataset.setSlice(null, durationDataset, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (Exception e) {
 			throw new ScanningException("Could not write scan duration to NeXus file", e);
 		}
 
 		final long estimatedScanTimeMillis = model.getScanInformation().getEstimatedScanTime();
-		Duration scanDeadTime = scanDuration.minus(estimatedScanTimeMillis, ChronoUnit.MILLIS);
-		String scanDeadTimeStr = durationInMillisToString(scanDeadTime);
-		final Dataset scanDeadTimeDataset = DatasetFactory.createFromObject(scanDeadTimeStr);
+		final Duration scanDeadTime = scanDuration.minus(estimatedScanTimeMillis, ChronoUnit.MILLIS);
+		final Dataset deadTimeDataset = DatasetFactory.createFromObject(scanDeadTime.toMillis());
 		try {
-			this.scanDeadTimeDataset.setSlice(null, scanDeadTimeDataset,
-					new int[] { 0 }, new int[] { 1 }, new int[] { 1 });
+			this.scanDeadTimeDataset.setSlice(null, deadTimeDataset, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (Exception e) {
 			throw new ScanningException("Could not write scan dead time to NeXus file", e);
 		}
 
-		double deadTimePercent = ((double) scanDeadTime.toMillis() / scanDuration.toMillis()) * 100.0;
-		final String deadTimePercentStr = String.format("%.2f", deadTimePercent);
-		final Dataset deadTimePercentDataset = DatasetFactory.createFromObject(deadTimePercentStr);
+		float deadTimePercent = ((float) scanDeadTime.toMillis() / scanDuration.toMillis()) * 100.0f;
 		try {
-			this.scanDeadTimePercentDataset.setSlice(null, deadTimePercentDataset,
-					new int[] { 0 }, new int[] { 1 }, new int[] { 1 });
+			this.scanDeadTimePercentDataset.setSlice(null, DatasetFactory.createFromObject(deadTimePercent), START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (Exception e) {
 			throw new ScanningException("Could not write scan dead time percent to NeXus file", e);
 		}
@@ -372,9 +360,8 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 		final ScanInformation scanInfo = model.getScanInformation();
 		final String filePath = scanInfo.getFilePath();
 		final String shapeStr = Arrays.toString(scanShape);
-		final String estimatedTimeStr = durationInMillisToString(Duration.ofMillis(scanInfo.getEstimatedScanTime()));
-		logger.info("MScan Details: scan file = {}, shape = {}, estimated time = {}, actual time = {}, dead time = {} ({}%)",
-				filePath, shapeStr, estimatedTimeStr, scanDurationStr, scanDeadTimeStr, deadTimePercentStr);
+		logger.info("MScan Details: scan file = {}, shape = {}, estimated time = {}ms, actual time = {}, dead time = {} ({}%)",
+				filePath, shapeStr, estimatedScanTimeMillis, scanDuration, scanDeadTime, deadTimePercent);
 	}
 
 	@Override
@@ -515,7 +502,8 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 	 * @return timestamp in ISO-8601 representation as String dataset
 	 */
 	private Dataset createTimeStamp() {
-		return DatasetFactory.createFromObject(ISO_DATE_TIME.format(ZonedDateTime.now()));
+		final ZonedDateTime now = ZonedDateTime.now().truncatedTo(MILLIS);
+		return DatasetFactory.createFromObject(now.toString());
 	}
 
 	private SliceND getPointSlice(IPosition position) {

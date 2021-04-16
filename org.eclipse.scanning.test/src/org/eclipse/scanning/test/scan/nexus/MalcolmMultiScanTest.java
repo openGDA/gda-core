@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertDatasetsEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDatasetsEqual;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

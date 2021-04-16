@@ -33,15 +33,13 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
@@ -56,12 +54,13 @@ import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.IntegerDataset;
+import org.eclipse.january.dataset.LongDataset;
 import org.eclipse.january.dataset.SliceND;
-import org.eclipse.january.dataset.StringDataset;
 import org.eclipse.january.io.ILazySaver;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -204,6 +203,8 @@ public class SolsticeScanMonitorTest {
 
 	private static final String MALCOLM_UNIQUE_KEYS_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
+	private static final int[] EMPTY_SHAPE = new int[0];
+
 	private static final String INTERNAL_UNIQUE_KEYS_PATH = "uniqueKeys";
 
 	private IPointGeneratorService pointGenService;
@@ -297,33 +298,33 @@ public class SolsticeScanMonitorTest {
 			throw new AssertionError("Could not get data from lazy dataset", e);
 		}
 
-		assertEquals(String.class, estimatedTimeDataset.getElementClass());
+		assertEquals(Long.class, estimatedTimeDataset.getElementClass());
 		assertEquals(0, estimatedTimeDataset.getRank());
-		assertArrayEquals(new int[]{}, estimatedTimeDataset.getShape());
-		String estimatedTime = estimatedTimeDataset.getString();
-		assertNotNull(estimatedTime);
-		assertEquals("00:00:02.500", estimatedTime);
+		assertArrayEquals(EMPTY_SHAPE, estimatedTimeDataset.getShape());
+		final long estimatedTime = estimatedTimeDataset.getLong();
+		assertEquals(2500, estimatedTime);
+		assertUnitsSet(estimatedTimeDataNode);
 
 		// assert the actual time dataset has been created - note it hasn't been written to yet
 		DataNode actualTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DURATION);
 		assertNotNull(actualTimeDataNode);
 		ILazyDataset actualTimeDataset = actualTimeDataNode.getDataset();
 		assertNotNull(actualTimeDataset);
-		assertEquals(String.class, actualTimeDataset.getElementClass());
+		assertEquals(Long.class, actualTimeDataset.getElementClass());
 
 		// assert the dead time dataset has been created - note it hasn't been written to yet
 		DataNode deadTimeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DEAD_TIME);
 		assertNotNull(deadTimeDataNode);
 		ILazyDataset deadTimeDataset = deadTimeDataNode.getDataset();
 		assertNotNull(deadTimeDataset);
-		assertEquals(String.class, deadTimeDataset.getElementClass());
+		assertEquals(Long.class, deadTimeDataset.getElementClass());
 
 		// assert the dead time percent dataset has been created - again note it hasn't been written to yet
 		DataNode deadTimePercentDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_DEAD_TIME_PERCENT);
 		assertNotNull(deadTimePercentDataNode);
 		ILazyDataset deadTimePercentDataset = deadTimePercentDataNode.getDataset();
 		assertNotNull(deadTimePercentDataset);
-		assertEquals(String.class, deadTimePercentDataset.getElementClass());
+		assertEquals(Float.class, deadTimePercentDataset.getElementClass());
 
 		// assert unique keys dataset created correctly
 		NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_KEYS);
@@ -334,7 +335,7 @@ public class SolsticeScanMonitorTest {
 			assertTrue(uniqueKeysDataNode == null);
 		} else {
 			assertTrue(uniqueKeysDataNode != null);
-			assertTrue(uniqueKeysDataNode.getDataset()!=null && uniqueKeysDataNode.getDataset() instanceof ILazyWriteableDataset);
+			assertTrue(uniqueKeysDataNode.getDataset() instanceof ILazyWriteableDataset);
 			ILazyWriteableDataset uniqueKeysDataset = (ILazyWriteableDataset) uniqueKeysDataNode.getDataset();
 			assertTrue(uniqueKeysDataset.getRank()==scanRank);
 			assertTrue(uniqueKeysDataset.getElementClass().equals(Integer.class));
@@ -370,6 +371,11 @@ public class SolsticeScanMonitorTest {
 		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), true, scanRank);
 		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_START_TIME), false, scanRank);
 		checkTimeStampDataset(solsticeScanCollection.getDataNode(FIELD_NAME_END_TIME), false, scanRank);
+	}
+
+	private void assertUnitsSet(DataNode node) {
+		Attribute unitsAttribute = node.getAttribute("units");
+		assertEquals("ms", unitsAttribute.getFirstElement());
 	}
 
 	private void checkTimeStampDataset(DataNode node, boolean perPoint, int scanRank) {
@@ -465,19 +471,20 @@ public class SolsticeScanMonitorTest {
 		}
 
 		// assert that the estimated time has been written
-		assertEquals(String.class, estimatedTimeDataset.getElementClass());
+		assertEquals(Long.class, estimatedTimeDataset.getElementClass());
 		assertEquals(0, estimatedTimeDataset.getRank());
 		assertArrayEquals(new int[]{}, estimatedTimeDataset.getShape());
-		String estimatedTime = estimatedTimeDataset.getString();
-		assertNotNull(estimatedTime);
-		assertEquals("00:00:02.500", estimatedTime);
+		long estimatedTime = estimatedTimeDataset.getLong();
+		assertEquals(2500, estimatedTime);
+		assertUnitsSet(actualTimeDataNode);
+
 
 		// assert the actual time dataset has been created - note it hasn't been written to yet
 		assertNotNull(actualTimeDataset);
-		assertEquals(String.class, actualTimeDataset.getElementClass());
+		assertEquals(Long.class, actualTimeDataset.getElementClass());
 
 		assertNotNull(deadTimeDataset);
-		assertEquals(String.class, deadTimePercentDataset.getElementClass());
+		assertEquals(Float.class, deadTimePercentDataset.getElementClass());
 
 		// TODO what can we assert about the value
 		// assert unique keys dataset created correctly
@@ -543,27 +550,22 @@ public class SolsticeScanMonitorTest {
 		IDataset writtenToActualTimeDataset = actualTimeSaver.getLastWrittenData();
 		assertNotNull(writtenToActualTimeDataset);
 		assertEquals(0, writtenToActualTimeDataset.getRank());
-		assertArrayEquals(new int[0], writtenToActualTimeDataset.getShape());
-		assertTrue(writtenToActualTimeDataset instanceof StringDataset);
-
-		DateTimeFormatter formatter = new DateTimeFormatterBuilder().
-				appendPattern("HH:mm:ss").appendFraction(ChronoField.NANO_OF_SECOND, 3, 3, true).toFormatter();
-		String actualTime = writtenToActualTimeDataset.getString();
-		formatter.parse(actualTime); // throws exception if not valid time
+		assertArrayEquals(EMPTY_SHAPE, writtenToActualTimeDataset.getShape());
+		assertTrue(writtenToActualTimeDataset instanceof LongDataset);
 
 		// check data written to dead time dataset
 		IDataset writtenToDeadTimeDataset = deadTimeSaver.getLastWrittenData();
 		assertNotNull(writtenToActualTimeDataset);
 		assertEquals(0, writtenToActualTimeDataset.getRank());
-		assertArrayEquals(new int[0], writtenToDeadTimeDataset.getShape());
-		assertTrue(writtenToDeadTimeDataset instanceof StringDataset);
+		assertArrayEquals(EMPTY_SHAPE, writtenToDeadTimeDataset.getShape());
+		assertTrue(writtenToDeadTimeDataset instanceof LongDataset);
 
 		// check data written to dead time percent dataset
 		IDataset writtenToDeadTimePercentDataset = deadTimePercentSaver.getLastWrittenData();
 		assertNotNull(writtenToDeadTimePercentDataset);
 		assertEquals(0, writtenToDeadTimePercentDataset.getRank());
-		assertArrayEquals(new int[0], writtenToDeadTimePercentDataset.getShape());
-		assertTrue(writtenToDeadTimePercentDataset instanceof StringDataset);
+		assertArrayEquals(EMPTY_SHAPE, writtenToDeadTimePercentDataset.getShape());
+		assertTrue(writtenToDeadTimePercentDataset instanceof FloatDataset);
 
 		// check data written to unique keys dataset
 		IDataset writtenToUniqueKeysData = uniqueKeysSaver.getLastWrittenData();

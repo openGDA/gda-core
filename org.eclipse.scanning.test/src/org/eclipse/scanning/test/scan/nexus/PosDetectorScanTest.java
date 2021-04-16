@@ -1,16 +1,16 @@
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_SOLSTICE_SCAN;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertAxes;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertDataNodesEqual;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertIndices;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertNXentryMetadata;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSignal;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertSolsticeScanGroup;
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertTarget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -208,7 +208,7 @@ public class PosDetectorScanTest extends NexusTest {
 			assertSame(dataGroup.getDataNode(demandFieldName),
 					positioner.getDataNode("value_set"));
 			assertIndices(dataGroup, demandFieldName, i);
-			NexusAssert.assertTarget(dataGroup, demandFieldName, rootNode,
+			assertTarget(dataGroup, demandFieldName, rootNode,
 					"/entry/instrument/" + positionerName + "/value_set");
 
 			// check value data node

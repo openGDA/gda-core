@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.eclipse.scanning.test.scan.nexus.NexusAssert.assertScanNotFinished;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

@@ -23,15 +23,15 @@ public final class SolsticeConstants {
 	public static final String FIELD_NAME_SCAN_FINISHED = "scan_finished";
 	public static final String FIELD_NAME_SCAN_REQUEST  = "scan_request";
 	public static final String FIELD_NAME_SCAN_MODELS   = "scan_models";
-	public static final String FIELD_NAME_SCAN_DURATION = "scan_duration";
+	public static final String FIELD_NAME_SCAN_DURATION = NXentry.NX_DURATION;
 	public static final String FIELD_NAME_SCAN_ESTIMATED_DURATION = "scan_estimated_duration";
 	public static final String FIELD_NAME_SCAN_DEAD_TIME = "scan_dead_time";
 	public static final String FIELD_NAME_SCAN_DEAD_TIME_PERCENT = "scan_dead_time_percent";
 	public static final String FIELD_NAME_SCAN_SHAPE    = "scan_shape";
 	public static final String FIELD_NAME_POINT_START_TIME = "point_start_times";
 	public static final String FIELD_NAME_POINT_END_TIME = "point_end_times";
-	public static final String FIELD_NAME_START_TIME = "start_time";
-	public static final String FIELD_NAME_END_TIME = "end_time";
+	public static final String FIELD_NAME_START_TIME = NXentry.NX_START_TIME;
+	public static final String FIELD_NAME_END_TIME = NXentry.NX_END_TIME;
 
 	/**
 	 * System property used to determine the name of the main {@link NXentry} within the nexus file.
