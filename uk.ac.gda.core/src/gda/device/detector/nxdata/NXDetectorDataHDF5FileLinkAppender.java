@@ -24,7 +24,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.NXDetectorData;
 
 /**
- * Adds a link to an external hdfFile. Use only at start of scan.
+ * Adds a link to an external HDF5 File. Use only at start of scan.
  */
 public class NXDetectorDataHDF5FileLinkAppender implements NXDetectorDataAppender {
 
