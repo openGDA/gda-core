@@ -85,21 +85,28 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		final ScanRequest scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
 		if (paramsSection.isEnforcedShape()) {
-			CompoundModel newModel = new CompoundModel(scanRequest.getCompoundModel());
-			List<IScanPointGeneratorModel> models = newModel.getModels();
-			List<IScanPointGeneratorModel> enforcedShapes = new ArrayList<>(models.size());
+			final CompoundModel newModel = new CompoundModel(scanRequest.getCompoundModel());
+			final List<IScanPointGeneratorModel> models = newModel.getModels();
+			final List<IScanPointGeneratorModel> enforcedShapes = new ArrayList<>(models.size());
 			for (IScanPointGeneratorModel model : models) {
 				enforcedShapes.add(enforce(model));
 			}
 			newModel.setModels(enforcedShapes);
 			scanRequest.setCompoundModel(newModel);
 		}
+
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
 
+		// Check that lines to track are set
+		final LinesToTrackEntry linesToTrackEntry = xanesEdgeParameters.getLinesToTrack();
+		if (linesToTrackEntry == null) {
+			MessageDialog.openError(getShell(), "No lines to track", "You must specify the lines to track");
+			return;
+		}
+
 		// Add XANES parameters as metadata to the ScanRequest, so they appear in the Nexus file
 		final ScanMetadata xanesMetadata = new ScanMetadata(MetadataType.ENTRY);
-		final LinesToTrackEntry linesToTrackEntry = xanesEdgeParameters.getLinesToTrack();
 		xanesMetadata.addField("line", linesToTrackEntry.getLine());
 		xanesMetadata.addField("file_paths", new ArrayList<String>(linesToTrackEntry.getFilePaths()));
 		xanesMetadata.addField("tracking_method", xanesEdgeParameters.getTrackingMethod());
