@@ -31,7 +31,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
@@ -124,7 +123,7 @@ public class AnalyserControlPart {
 			
 	private void addCameraButton(Composite composite) {
 		cameraButton = new Button(composite, SWT.TOGGLE);
-		cameraButton.setText("Camera");
+		cameraButton.setText("Streaming");
 		setTextToBold(cameraButton);
 		
 		RowData rowData = new RowData();
@@ -182,12 +181,14 @@ public class AnalyserControlPart {
 			Display.getDefault().asyncExec(() -> {
 				cameraButton.setSelection(true);
 				cameraButton.setImage(lightOn);
+				cameraButton.setText("Stop streaming");
 				cameraButton.setToolTipText("Stop analyser live stream");
 			});
 		} else {
 			Display.getDefault().asyncExec(() -> {
 				cameraButton.setSelection(false);
-				cameraButton.setImage(lightOff);				
+				cameraButton.setImage(lightOff);
+				cameraButton.setText("Start streaming");
 				cameraButton.setToolTipText("Start analyser live stream");
 			});			
 		}	
