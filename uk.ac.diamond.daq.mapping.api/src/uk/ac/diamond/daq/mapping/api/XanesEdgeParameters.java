@@ -33,9 +33,19 @@ public class XanesEdgeParameters {
 		EDGE
 	}
 
+	private EdgeToEnergy edgeToEnergy;
 	private LinesToTrackEntry linesToTrack;
 	private String trackingMethod = REFERENCE.toString();
 	private String visitId = "";
+	private boolean enforcedShape = true;
+
+	public EdgeToEnergy getEdgeToEnergy() {
+		return edgeToEnergy;
+	}
+
+	public void setEdgeToEnergy(EdgeToEnergy edgeToEnergy) {
+		this.edgeToEnergy = edgeToEnergy;
+	}
 
 	public LinesToTrackEntry getLinesToTrack() {
 		return linesToTrack;
@@ -61,10 +71,19 @@ public class XanesEdgeParameters {
 		this.visitId = visitId;
 	}
 
+	public boolean isEnforcedShape() {
+		return enforcedShape;
+	}
+
+	public void setEnforcedShape(boolean enforcedShape) {
+		this.enforcedShape = enforcedShape;
+	}
+
 	@Override
 	public String toString() {
-		return "XanesEdgeParameters [linesToTrack=" + linesToTrack + ", trackingMethod=" + trackingMethod + ", visitId="
-				+ visitId + "]";
+		return "XanesEdgeParameters [edgeToEnergy=" + edgeToEnergy + ", linesToTrack=" + linesToTrack
+				+ ", trackingMethod=" + trackingMethod + ", visitId=" + visitId + ", enforcedShape=" + enforcedShape
+				+ "]";
 	}
 
 	/**
@@ -100,8 +119,97 @@ public class XanesEdgeParameters {
 		}
 
 		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((line == null) ? 0 : line.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			LinesToTrackEntry other = (LinesToTrackEntry) obj;
+			if (line == null) {
+				if (other.line != null)
+					return false;
+			} else if (!line.equals(other.line))
+				return false;
+			return true;
+		}
+
+		@Override
 		public String toString() {
 			return "LinesToTrackEntry [line=" + line + ", filePaths=" + filePaths + "]";
+		}
+	}
+
+	/**
+	 * Maps element/edge in user-readable format (e.g. "Fe-K") to the corresponding edge energy<br>
+	 * Used as input for the combo box for the user to choose the edge to scan
+	 */
+	public static class EdgeToEnergy {
+		private String edge;
+		private double energy;
+
+		public EdgeToEnergy() {
+			// default constructor for JSON
+		}
+
+		public EdgeToEnergy(String edge, double energy) {
+			this.edge = edge;
+			this.energy = energy;
+		}
+
+		public String getEdge() {
+			return edge;
+		}
+
+		public void setEdge(String edge) {
+			this.edge = edge;
+		}
+
+		public double getEnergy() {
+			return energy;
+		}
+
+		public void setEnergy(double energy) {
+			this.energy = energy;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((edge == null) ? 0 : edge.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			EdgeToEnergy other = (EdgeToEnergy) obj;
+			if (edge == null) {
+				if (other.edge != null)
+					return false;
+			} else if (!edge.equals(other.edge))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "EdgeToEnergy [edge=" + edge + ", energy=" + energy + "]";
 		}
 	}
 }

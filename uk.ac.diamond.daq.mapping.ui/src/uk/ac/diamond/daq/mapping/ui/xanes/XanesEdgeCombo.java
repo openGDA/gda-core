@@ -29,12 +29,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -47,6 +50,7 @@ import com.google.common.collect.ImmutableMap;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 
 public class XanesEdgeCombo implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(XanesEdgeCombo.class);
@@ -116,31 +120,8 @@ public class XanesEdgeCombo implements ISelectionProvider {
 		return result;
 	}
 
-	/**
-	 * Maps element/edge in user-readable format (e.g. "Fe-K") to the corresponding edge energy<br>
-	 * Used as input for the combo box for the user to choose the edge to scan
-	 */
-	private static class EdgeToEnergy {
-		private final String edge;
-		private final double energy;
-
-		public EdgeToEnergy(String edge, double energy) {
-			this.edge = edge;
-			this.energy = energy;
-		}
-
-		public String getEdge() {
-			return edge;
-		}
-
-		public double getEnergy() {
-			return energy;
-		}
-
-		@Override
-		public String toString() {
-			return "EdgeToEnergy [edge=" + edge + ", energy=" + energy + "]";
-		}
+	public IViewerObservableValue<EdgeToEnergy> getObservableValue() {
+		return ViewerProperties.singleSelection(EdgeToEnergy.class).observe(elementsAndEdgeCombo);
 	}
 
 	@Override
@@ -149,8 +130,8 @@ public class XanesEdgeCombo implements ISelectionProvider {
 	}
 
 	@Override
-	public ISelection getSelection() {
-		return elementsAndEdgeCombo.getSelection();
+	public IStructuredSelection getSelection() {
+		return elementsAndEdgeCombo.getStructuredSelection();
 	}
 
 	@Override
@@ -160,10 +141,11 @@ public class XanesEdgeCombo implements ISelectionProvider {
 
 	@Override
 	public void setSelection(ISelection selection) {
-		elementsAndEdgeCombo.setSelection(selection);
+		elementsAndEdgeCombo.setSelection(selection, true);
 	}
 
 	public double getSelectedEnergy() {
-		return ((EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement()).getEnergy();
+		final EdgeToEnergy selection = (EdgeToEnergy) elementsAndEdgeCombo.getStructuredSelection().getFirstElement();
+		return selection == null ? 0.0 : selection.getEnergy();
 	}
 }

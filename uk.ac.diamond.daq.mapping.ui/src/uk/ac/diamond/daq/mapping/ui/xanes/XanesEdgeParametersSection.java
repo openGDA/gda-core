@@ -43,7 +43,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
@@ -54,7 +53,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
-import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -81,6 +79,7 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LinesToTrackEntry;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 
@@ -153,7 +152,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 		// Element/edge drop-down list
 		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(content);
-		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelectedEnergy()));
+		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 
 		// Lines to track combo box
 		createLabel(content, getMessage(XANES_LINES_TO_TRACK), 1);
@@ -170,10 +169,14 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		});
 		updateControls();
 
-		// Bind to model
-		final IViewerObservableValue<?> comboObservable = ViewerProperties.singleSelection().observe(linesToTrackCombo);
-		final IObservableValue<XanesEdgeParameters> modelObservable = BeanProperties.value("linesToTrack", XanesEdgeParameters.class).observe(scanParameters);
-		dataBindingContext.bindValue(comboObservable, modelObservable);
+		// Bind combo boxes to model
+		final IObservableValue<EdgeToEnergy> edgeComboObservable = elementsAndEdgeCombo.getObservableValue();
+		final IObservableValue<EdgeToEnergy> edgeModelObservable = PojoProperties.value("edgeToEnergy", EdgeToEnergy.class).observe(scanParameters);
+		dataBindingContext.bindValue(edgeComboObservable, edgeModelObservable);
+
+		final IObservableValue<LinesToTrackEntry> linesComboObservable = ViewerProperties.singleSelection(LinesToTrackEntry.class).observe(linesToTrackCombo);
+		final IObservableValue<LinesToTrackEntry> linesModelObservable = PojoProperties.value("linesToTrack", LinesToTrackEntry.class).observe(scanParameters);
+		dataBindingContext.bindValue(linesComboObservable, linesModelObservable);
 
 		// Radio buttons to choose tracking method (reference/edge)
 		final SelectObservableValue<String> radioButtonObservable = new SelectObservableValue<>();
@@ -182,7 +185,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		final Button btnUseEdge = createRadioButton(content, getMessage(XANES_USE_EDGE));
 		radioButtonObservable.addOption(EDGE.toString(), WidgetProperties.buttonSelection().observe(btnUseEdge));
 
-		// Bind to model
+		// Bind radio buttons to model
 		final IObservableValue<TrackingMethod> radioButtonModelObservable = PojoProperties.value("trackingMethod", TrackingMethod.class).observe(scanParameters);
 		dataBindingContext.bindValue(radioButtonObservable, radioButtonModelObservable);
 
@@ -195,6 +198,12 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		// Check box to switch Step -> Points models to prevent floating point issues changing the shape of a scan
 		enforcedShape = createCheckButton(content, getMessage(XANES_ENFORCE_SHAPE));
 		enforcedShape.setSelection(true);
+
+		// Bind check box to model
+		final IObservableValue<Boolean> enforcedShapeModelObservable = PojoProperties.value("enforcedShape", boolean.class).observe(scanParameters);
+		final IObservableValue<Boolean> enforcedShapeObservable = WidgetProperties.buttonSelection().observe(enforcedShape);
+		dataBindingContext.bindValue(enforcedShapeObservable, enforcedShapeModelObservable);
+
 		// Set initial visibility
 		setContentVisibility();
 	}
@@ -342,8 +351,12 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * @param edgeEnergy
 	 *            Energy of the edge selected by the user
 	 */
-	private void handleEdgeSelectionChanged(double edgeEnergy) {
-		final IScanPointGeneratorModel scanPathModel = createModelFromEdgeSelection(edgeEnergy, energyScannableName);
+	private void handleEdgeSelectionChanged(IStructuredSelection selection) {
+		final EdgeToEnergy selectedEdge = (EdgeToEnergy) selection.getFirstElement();
+		if (selectedEdge == null) {
+			return;
+		}
+		final IScanPointGeneratorModel scanPathModel = createModelFromEdgeSelection(selectedEdge.getEnergy(), energyScannableName);
 
 		final IScanModelWrapper<IScanPointGeneratorModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
 		if (energyScannable != null) {
@@ -393,9 +406,4 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	public void setEnergyScannableName(String energyScannableName) {
 		this.energyScannableName = energyScannableName;
 	}
-
-	public boolean isEnforcedShape() {
-		return (enforcedShape != null && enforcedShape.getSelection());
-	}
-
 }

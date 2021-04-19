@@ -84,7 +84,9 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		final IScriptService scriptService = getService(IScriptService.class);
 		final ScanRequest scanRequest = getScanRequest(getMappingBean());
 		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
-		if (paramsSection.isEnforcedShape()) {
+		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
+
+		if (xanesEdgeParameters.isEnforcedShape()) {
 			final CompoundModel newModel = new CompoundModel(scanRequest.getCompoundModel());
 			final List<IScanPointGeneratorModel> models = newModel.getModels();
 			final List<IScanPointGeneratorModel> enforcedShapes = new ArrayList<>(models.size());
@@ -95,7 +97,6 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 			scanRequest.setCompoundModel(newModel);
 		}
 
-		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
 
 		// Add XANES parameters as metadata to the ScanRequest, so they appear in the Nexus file
