@@ -35,6 +35,7 @@ import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SCANNABLE_N
 import java.io.File;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -98,6 +99,8 @@ import org.slf4j.LoggerFactory;
 public class SolsticeScanMonitor extends AbstractScannable<Object> implements IPositionListener, INexusDevice<NXcollection> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SolsticeScanMonitor.class);
+	// Always format with 3 decimal places of Millis, prevent truncating by default formatters being unreadable by DateDatasetImpl
+	private static final DateTimeFormatter MILLISECOND_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
 	private static final int[] SINGLE_SHAPE = new int[] { 1 };
 	private static final int[] START_SHAPE = new int[] { 0 };
@@ -309,14 +312,14 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 	 */
 	public void scanFinished() throws ScanningException {
 		final ZonedDateTime scanEndTime = ZonedDateTime.now().truncatedTo(MILLIS);
-		final Dataset startTime = DatasetFactory.createFromObject(scanStartTime.toString());
+		final Dataset startTime = DatasetFactory.createFromObject(MILLISECOND_DATE_FORMAT.format(scanStartTime));
 		try {
 			scanStartTimeDataset.setSlice(null, startTime, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (DatasetException e) {
 			throw new ScanningException("Could not write start_time to NeXus file", e);
 		}
 
-		final Dataset endTime = DatasetFactory.createFromObject(scanEndTime.toString());
+		final Dataset endTime = DatasetFactory.createFromObject(MILLISECOND_DATE_FORMAT.format(scanEndTime));
 		try {
 			scanEndTimeDataset.setSlice(null, endTime, START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 		} catch (DatasetException e) {
@@ -503,7 +506,7 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 	 */
 	private Dataset createTimeStamp() {
 		final ZonedDateTime now = ZonedDateTime.now().truncatedTo(MILLIS);
-		return DatasetFactory.createFromObject(now.toString());
+		return DatasetFactory.createFromObject(MILLISECOND_DATE_FORMAT.format(now));
 	}
 
 	private SliceND getPointSlice(IPosition position) {
