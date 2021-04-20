@@ -32,7 +32,7 @@ import uk.ac.gda.common.entity.Document;
  *
  * @author Maurizio Nagni
  */
-public interface Acquisition<T extends AcquisitionConfiguration<? extends AcquisitionParameters>> extends Document {
+public interface Acquisition<T extends AcquisitionConfiguration<? extends AcquisitionParameters>> extends Document, TypedAcquisition {
 
 	/**
 	 * The period between which the acquisition has been running
@@ -60,10 +60,4 @@ public interface Acquisition<T extends AcquisitionConfiguration<? extends Acquis
 	 * @return the acquisition engine, otherwise {@code null} if the engine selection is delegated to an external controller
 	 */
 	AcquisitionEngineDocument getAcquisitionEngine();
-
-	/**
-	 * An identifier of the type of acquisition.
-	 * Default is {@code AcquisitionType.GENERIC}
-	 */
-	AcquisitionType getType();
 }
