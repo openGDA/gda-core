@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.junit.Assert;
@@ -61,16 +62,29 @@ public class ScanRequestFactoryTest {
 	@SuppressWarnings("unchecked")
 	private IRunnableDevice<Object> detectorModel = Mockito.mock(IRunnableDevice.class);
 
-	private IDetectorModel model = Mockito.mock(IDetectorModel.class);
-
 	@Before
 	public void before() throws ScanningException {
 		when(runnableService.getRunnableDevice(anyString())).thenReturn(detectorModel);
+	}
+
+	/**
+	 * @throws ScanningException thrown when the ScanningAcquisition defines a MALCOLM engine
+	 * however the found detectorModel is not a malcolmModel
+	 */
+	@Test(expected = ScanningException.class)
+	public void testWrongDetectorModelFile() throws ScanningException {
+		IDetectorModel model = Mockito.mock(IDetectorModel.class);
 		when(detectorModel.getModel()).thenReturn(model);
+
+		new ScanRequestFactory(newScanningAcquisition())
+			.createScanRequest(runnableService);
 	}
 
 	@Test
 	public void testEmptyTemplateFile() throws Exception {
+		IMalcolmModel model = Mockito.mock(IMalcolmModel.class);
+		when(detectorModel.getModel()).thenReturn(model);
+
 		ScanRequestFactory scanRequestFactory = new ScanRequestFactory(newScanningAcquisition());
 		ScanRequest scanRequest = scanRequestFactory.createScanRequest(runnableService);
 
@@ -79,6 +93,9 @@ public class ScanRequestFactoryTest {
 
 	@Test
 	public void testNotEmptyTemplateFile() throws Exception {
+		IMalcolmModel model = Mockito.mock(IMalcolmModel.class);
+		when(detectorModel.getModel()).thenReturn(model);
+
 		ScanningAcquisition scanningAcquisition = newScanningAcquisition();
 
 		URL file1 = new URL("file:/lev1/lev2");
