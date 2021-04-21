@@ -22,18 +22,18 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.factory.Findable;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.observable.IObserver;
@@ -317,15 +317,15 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	public boolean switchUser(String username, String password) {
 		return false;
 	}
+	
+	@Override
+	public Set<String> getAllNamesForObject(Object obj) throws DeviceException {
+		return hashTable.entrySet().stream().filter(entry -> entry.getValue() == obj).map(Entry::getKey).collect(Collectors.toSet());
+	}
 
 	@Override
-	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException {
-		SortedSet<String> set = new TreeSet<String>(hashTable.keySet());
-		LinkedHashMap<String, Object> output = new LinkedHashMap<String, Object>();
-		for (String objName : set) {
-			output.put(objName, hashTable.get(objName));
-		}
-		return output;
+	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz) {
+		return hashTable.entrySet().stream().filter(entry -> clazz.isInstance(entry.getValue())).map(Entry::getKey).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -389,4 +389,5 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 		// not used
 //		this.scanObserverName = scanObserver;
 	}
+
 }
