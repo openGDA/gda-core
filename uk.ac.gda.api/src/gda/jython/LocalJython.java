@@ -18,6 +18,11 @@
 
 package gda.jython;
 
+import java.util.Map;
+import java.util.Set;
+
+import gda.factory.Findable;
+
 /**
  * Interface for the local JythonServer object.
  * <p>
@@ -33,5 +38,13 @@ package gda.jython;
  */
 public interface LocalJython extends Jython, ICurrentScanInformationHolder, IJythonServerNotifer,
 		IDefaultScannableProvider, IJythonServerStatusProvider {
+
+	public <F extends Findable> Map<String, F> getAllObjectsOfType(Class<F> clazz);
+
+	@Override
+	default <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz){
+		return getAllObjectsOfType(clazz).keySet();
+	}
+
 
 }

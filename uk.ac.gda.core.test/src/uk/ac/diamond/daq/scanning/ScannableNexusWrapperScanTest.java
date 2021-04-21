@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,6 +154,7 @@ import gda.factory.Factory;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServer;
 
 /**
  * Test {@link ScannableNexusWrapper}. In particular tests that it
@@ -168,9 +170,11 @@ import gda.jython.InterfaceProvider;
  */
 public class ScannableNexusWrapperScanTest {
 
+	private static JythonServer jythonServer;
+
 	@BeforeClass
 	public static void setServices() throws Exception {
-
+		jythonServer = mock(JythonServer.class);
 		connector   = new ScannableDeviceConnectorService();
 		sservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
 		gservice    = new PointGeneratorService();
@@ -360,6 +364,7 @@ public class ScannableNexusWrapperScanTest {
 		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(legacyMetadataScannables);
 
 		final Factory factory = TestHelpers.createTestFactory();
+		factory.addFindable(jythonServer);
 		factory.addFindable(new SampleAngleScannable("salong", false));
 		factory.addFindable(new SampleAngleScannable("saperp", true));
 		factory.addFindable(new DummyScannable("sax", 5.0));

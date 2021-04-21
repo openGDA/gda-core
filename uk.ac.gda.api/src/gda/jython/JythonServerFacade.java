@@ -26,7 +26,6 @@ import java.net.InetAddress;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -41,6 +40,7 @@ import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.AuthenticatorProvider;
@@ -798,8 +798,13 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	@Override
-	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException {
-		return commandServer.getAllFromJythonNamespace();
+	public Set<String> getAllNamesForObject(Object obj) throws DeviceException {
+		return commandServer.getAllNamesForObject(obj);
+	}
+	
+	@Override
+	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz) {
+		return commandServer.getAllNamesForType(clazz);
 	}
 
 	@Override
@@ -880,4 +885,5 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public AutoCompletion getCompletionsFor(String line, int posn) {
 		return commandServer.getCompletionsFor(line, posn);
 	}
+
 }

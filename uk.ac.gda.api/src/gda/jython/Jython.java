@@ -22,7 +22,7 @@ package gda.jython;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.python.core.PyException;
 import org.python.core.PyObject;
@@ -451,12 +451,20 @@ public interface Jython extends Findable, IObservable {
 	public void removeAlias(String command, String jsfIdentifier);
 
 	/**
-	 * Returns the contents of the top-level Jython namespace.
-	 *
-	 * @return Map
+	 * Returns all names for all Objects of a type in the Jython namespace
+	  * @param clazz
+	 *            a Class extending Findable
+	 * @return a set of all names of all objects of a type in the Jython namespace.
+	 */
+	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz);
+
+	/**
+	 * Returns all names for an Object in the Jython namespace
+	 * @param obj
+	 * @return All names that refer to the Object in the Jython namespace
 	 * @throws DeviceException
 	 */
-	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException;
+	public Set<String> getAllNamesForObject(Object obj) throws DeviceException;
 
 	/**
 	 * Finds a script in the server's script folders.

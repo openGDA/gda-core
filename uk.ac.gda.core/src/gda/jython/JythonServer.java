@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -69,6 +70,7 @@ import gda.device.Scannable;
 import gda.device.Stoppable;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.jython.authoriser.Authoriser;
 import gda.jython.authoriser.AuthoriserProvider;
@@ -747,8 +749,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	 *
 	 * @return Map<String, Object> of items in jython namespace
 	 */
-	@Override
-	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException {
+	private Map<String, Object> getAllFromJythonNamespace() {
 
 		PyStringMap locals = (PyStringMap) this.interp.getAllFromJythonNamepsace();
 
@@ -763,6 +764,22 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		}
 
 		return output;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <F extends Findable> Map<String, F> getAllObjectsOfType(Class<F> clazz) {
+		final Map<String, F> output = new LinkedHashMap<>();
+		final Set<Entry<String, Object>> fSet = getAllFromJythonNamespace().entrySet().stream().filter(entry -> clazz.isInstance(entry.getValue())).collect(Collectors.toSet());
+		for (Entry<String, Object> entry : fSet) {
+			output.put(entry.getKey(), (F) entry.getValue());
+		}
+		return output;
+	}
+
+	@Override
+	public Set<String> getAllNamesForObject(Object obj) throws DeviceException {
+		return getAllFromJythonNamespace().entrySet().stream().filter(entry -> entry.getValue() == obj).map(Entry::getKey).collect(Collectors.toSet());
 	}
 
 	/**

@@ -18,17 +18,17 @@
 
 package uk.ac.gda.server.ncd.config;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.jython.InterfaceProvider;
-
-import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.jython.JythonServer;
+
 public class DeviceLister {
 
-	
 	public static String generateDeviceListHTML() throws DeviceException {
 		return generateDeviceList("", "", "<p>", "</p>", " <b>", "</b> ", "", "", ",", "; ", "", "", ",", "; ", " (", ")");
 	}
@@ -39,22 +39,17 @@ public class DeviceLister {
 
 	public static String generateDeviceList(String bodyStart, String bodyEnd, String lineStart, String lineEnd, String nameStart, String nameEnd, String inputStart, String inputEnd, String inputInterSep, String inputFinalSep, String extraStart, String extraEnd, String extraIntersep, String extraFinalSep, String permissionStart, String permissionEnd) throws DeviceException {
 
-		SortedMap<String, Object> map = new TreeMap<String, Object>(InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace());
+		final SortedMap<String, Scannable> sortedMap = new TreeMap<>(Finder.findSingleton(JythonServer.class).getAllObjectsOfType(Scannable.class));
 		StringBuilder sb = new StringBuilder(bodyStart);
-		for (Iterator<String> iterator = map.keySet().iterator(); iterator.hasNext();) {
-			String name = iterator.next();
-			if (!(map.get(name) instanceof Scannable)) {
-				continue;
-			}
-			Scannable scannable = (Scannable) map.get(name);
+		for (Entry<String, Scannable> entry : sortedMap.entrySet()) {
 			sb.append(lineStart);
 			
 			sb.append(nameStart);
-			sb.append(name);
+			sb.append(entry.getKey());
 			sb.append(nameEnd);
 			
 			boolean first = true;
-			for (String in : scannable.getInputNames()) {
+			for (String in : entry.getValue().getInputNames()) {
 				if (!first) sb.append(inputInterSep);
 				sb.append(inputStart);
 				sb.append(in);
@@ -64,7 +59,7 @@ public class DeviceLister {
 			
 			first = true;
 			sb.append(inputFinalSep);
-			for (String en : scannable.getExtraNames()) {
+			for (String en : entry.getValue().getExtraNames()) {
 				if (!first) sb.append(extraIntersep);
 				sb.append(extraStart);
 				sb.append(en);
@@ -74,7 +69,7 @@ public class DeviceLister {
 			sb.append(extraFinalSep);
 
 			sb.append(permissionStart);
-			sb.append(scannable.getProtectionLevel());
+			sb.append(entry.getValue().getProtectionLevel());
 			sb.append(permissionEnd);
 			sb.append(lineEnd);
 		}
