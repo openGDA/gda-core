@@ -107,16 +107,13 @@ public class JythonInterpreterManager {
 			String jythonBundleName = System.getProperty("org.eclipse.scanning.jython.osgi.bundle.name",
 					"uk.ac.diamond.jython");
 			File loc = getBundleLocation(jythonBundleName); // TODO Name the jython OSGi bundle without Diamond in it!
-			if (loc == null)
-				return;
-			File jythonDir = find(loc, "jython");
-			if (jythonDir == null) {
+			if (loc == null) {
 				logger.warn("JythonDir not found while initializing PythonPath");
 				return;
 			}
 
 			Properties props = new Properties();
-			props.setProperty("python.home", jythonDir.getAbsolutePath());
+			props.setProperty("python.home", loc.getAbsolutePath());
 			props.setProperty("python.console.encoding", "UTF-8"); // Used to prevent: console: Failed to install '':
 																	// java.nio.charset.UnsupportedCharsetException:
 																	// cp0.
@@ -178,11 +175,10 @@ public class JythonInterpreterManager {
 
 			if (lib == null) {
 				logger.debug("Jython Lib not found on PySystemState path");
-				File jythonDir = find(loc, "jython");
-				lib = find(jythonDir, "Lib");
+				lib = find(loc, "Lib");
 				if (lib == null) {
 					logger.warn("Jython Lib not found in jythonDir {}, necessary scripts will not be added to path",
-							jythonDir);
+							loc);
 				} else {
 					logger.info("Adding Jython Lib to PythonPath");
 					state.path.add(new PyString(lib.getAbsolutePath()));
@@ -238,10 +234,6 @@ public class JythonInterpreterManager {
 			if (dir.exists())
 				return dir;
 
-			dir = new File("../../diamond-jython.git/" + bundleName);
-			if (dir.exists())
-				return dir;
-
 			dir = new File("../../scanning.git/" + bundleName);
 			if (dir.exists())
 				return dir;
@@ -249,14 +241,6 @@ public class JythonInterpreterManager {
 			// These paths refer to finding things in the travis build
 			// They will not resolve from the IDE or binary.
 			dir = new File("../../org.eclipse.scanning/" + bundleName);
-			if (dir.exists())
-				return dir;
-
-			dir = new File("../../diamond-jython/" + bundleName);
-			if (dir.exists())
-				return dir;
-
-			dir = new File("../../../diamond-jython/" + bundleName);
 			if (dir.exists())
 				return dir;
 		}
