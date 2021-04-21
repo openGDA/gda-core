@@ -25,6 +25,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.factory.FindableConfigurableBase;
 import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
@@ -34,10 +35,10 @@ import gda.observable.ObservableComponent;
  * A base implementation for all devices
  */
 public abstract class DeviceBase extends FindableConfigurableBase implements Device {
-
+	public static final String DEFAULT_PROTECTION_LEVEL_PROPERTY = "gda.device.defaultProtectionLevel";
 	private static final Logger logger = LoggerFactory.getLogger(DeviceBase.class);
 
-	private int protectionLevel = 1;
+	private int protectionLevel = LocalProperties.getAsInt(DEFAULT_PROTECTION_LEVEL_PROPERTY, 1);
 
 	private boolean configureAtStartup = true;
 
