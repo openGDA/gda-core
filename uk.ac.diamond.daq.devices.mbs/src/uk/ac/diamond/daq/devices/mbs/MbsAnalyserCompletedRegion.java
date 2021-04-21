@@ -32,7 +32,6 @@ public class MbsAnalyserCompletedRegion {
 	private double energyWidth;
 	private double deflectorX;
 	private double deflectorY;
-	private int numberOfScans;
 	private int numberOfSlices;
 	private int numberfSteps;
 	private int numberOfDitherSteps;
@@ -138,14 +137,6 @@ public class MbsAnalyserCompletedRegion {
 
 	public void setDeflectorY(double deflectorY) {
 		this.deflectorY = deflectorY;
-	}
-
-	public int getNumberOfScans() {
-		return numberOfScans;
-	}
-
-	public void setNumberOfScans(int numberOfScans) {
-		this.numberOfScans = numberOfScans;
 	}
 
 	public int getNumberOfSlices() {

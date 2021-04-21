@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -348,10 +349,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// This is to allow dynamic updates of PSU mode from EPICS
 		// Create a scannable to allow an observer to be added
-		Scannable psuModeScannable = Finder.find("psu_mode");
+		Optional<Scannable> psuModeScannable = Finder.findOptionalOfType("psu_mode", Scannable.class);
 
 		// Add an observer that updates the PSU mode when fired
-		psuModeScannable.addIObserver((source, arg) -> Display.getDefault().asyncExec(this::updatePsuMode));
+		psuModeScannable.ifPresent(s -> s.addIObserver((source, arg) -> Display.getDefault().asyncExec(this::updatePsuMode)));
 	}
 
 	private GridData controlGridData() {

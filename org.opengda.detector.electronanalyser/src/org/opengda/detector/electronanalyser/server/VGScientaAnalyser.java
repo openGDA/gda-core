@@ -1097,4 +1097,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	public void setIterations(int iterations) throws Exception {
 		controller.setIterations(iterations);
 	}
+
+	@Override
+	public short getDetectorState() throws Exception {
+		return getAdBase().getDetectorState_RBV();
+	}
+
+	@Override
+	public void setSingleImageMode() throws Exception {
+		getAdBase().setImageMode(0);
+	}
 }

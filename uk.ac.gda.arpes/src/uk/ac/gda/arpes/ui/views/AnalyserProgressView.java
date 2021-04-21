@@ -18,7 +18,7 @@
 
 package uk.ac.gda.arpes.ui.views;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -41,16 +41,16 @@ import gda.device.MotorStatus;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.SweptProgress;
 import uk.ac.gda.arpes.widgets.ProgressBarWithText;
-import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
-import uk.ac.gda.devices.vgscienta.SweptProgress;
 
 public class AnalyserProgressView extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserProgressView.class);
 
 	private Text completedIterTxt;
 	private Text scheduledIterTxt;
-	private IVGScientaAnalyserRMI analyser;
+	private IElectronAnalyser analyser;
 	private Device sweepUpdater;
 	private int scheduledIterations;
 	private int completedIterations;
@@ -98,13 +98,15 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 		scheduledIterTxt.setToolTipText("The number of iterations requested");
 		scheduledIterTxt.setLayoutData(new GridData(40, SWT.DEFAULT));
 
-		List<IVGScientaAnalyserRMI> analysers = Finder.listFindablesOfType(IVGScientaAnalyserRMI.class);
-		if (analysers.size() != 1) {
-			logger.error("Didn't find 1 analyser");
-		}
-		else {
-			this.analyser = analysers.get(0);
+		Optional<IElectronAnalyser> analyserRmiProxy = Finder.listLocalFindablesOfType(IElectronAnalyser.class)
+				.stream()
+				.findFirst();
+
+		if (analyserRmiProxy.isPresent()) {
+			this.analyser = analyserRmiProxy.get();
 			analyser.addIObserver(this);
+		} else {
+			logger.error("Could not find analyser over RMI");
 		}
 
 		Button btnStopNextIter = new Button(parent, SWT.NONE);

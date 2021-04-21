@@ -256,4 +256,8 @@ public interface IElectronAnalyser extends Device {
 	void setAcquisitionMode(String acquisitionMode) throws Exception;
 
 	void start() throws Exception;
+
+	short getDetectorState() throws Exception;
+
+	void setSingleImageMode() throws Exception;
 }

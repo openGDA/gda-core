@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.MotorStatus;
 import gda.device.detector.NXDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.factory.FactoryException;
@@ -59,7 +60,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		if (isConfigured()) {
 			return;
 		}
-		super.configure();
 
 		try {
 			validateRegions();
@@ -121,6 +121,13 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	public MbsAnalyser(MbsAnalyserController controller) {
 		this.controller = controller;
+		controller.addIObserver(this::notifyStatusChange);
+	}
+
+	private void notifyStatusChange(Object source, Object arg) {
+		if (arg instanceof MotorStatus) {
+			notifyIObservers(this, arg);
+		}
 	}
 
 	public String getDefaultPsuModeName() {
@@ -262,16 +269,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
-	public int getNumberOfScans() throws DeviceException {
-		return controller.getNumberOfScans();
-	}
-
-	@Override
-	public void setNumberOfScans(int numberOfScans) throws DeviceException {
-		controller.setNumberOfScans(numberOfScans);
-	}
-
-	@Override
 	public int getSlices() throws DeviceException {
 		return controller.getNumberOfSlices();
 	}
@@ -390,7 +387,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setEnergyWidth(getEnergyWidth());
 		completedRegion.setDeflectorX(getDeflectorX());
 		completedRegion.setDeflectorY(getDeflectorY());
-		completedRegion.setNumberOfScans(getNumberOfScans());
 		completedRegion.setNumberOfSlices(getSlices());
 		completedRegion.setNumberfSteps(getNumberOfSteps());
 		completedRegion.setNumberOfDitherSteps(getNumberOfDitherSteps());
@@ -570,6 +566,16 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	@Override
 	public double[] getImage() throws Exception {
 		return controller.getImageData();
+	}
+
+	@Override
+	public short getDetectorState() throws DeviceException {
+		return controller.getDetectorState();
+	}
+
+	@Override
+	public void setSingleImageMode() throws DeviceException {
+		controller.setSingleImageMode();
 	}
 
 	public DetectorConfiguration getFixedModeConfiguration() {

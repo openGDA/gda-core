@@ -26,19 +26,28 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cosylab.epics.caj.CAJChannel;
+
 import gda.device.DeviceException;
+import gda.device.MotorStatus;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.epics.connection.EpicsController;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 
-public class MbsAnalyserController extends ConfigurableBase {
+public class MbsAnalyserController extends ConfigurableBase implements MonitorListener, IObservable {
 
 	private static final Logger logger = LoggerFactory.getLogger(MbsAnalyserController.class);
 
@@ -48,11 +57,14 @@ public class MbsAnalyserController extends ConfigurableBase {
 	private String basePvName;
 	private final Map<String, Channel> channels = new HashMap<>();
 
+	private ObservableComponent observableComponent = new ObservableComponent();
+
 	private static final String EPICS_GET_ERROR_MESSAGE_TEMPLATE = "Unable to get %s from EPICS";
 	private static final String EPICS_SET_ERROR_MESSAGE_TEMPLATE = "Unable to set %s to %s via EPICS";
 
-	private static final String ITERATIONS = "CAM:NumExposures";
-	private static final String ITERATIONS_RBV = "CAM:NumExposures_RBV";
+	private static final String ACQUIRE_RBV = "CAM:Acquire_RBV";
+	private static final String ITERATIONS = "CAM:NumScans";
+	private static final String ITERATIONS_RBV = "CAM:NumScans_RBV";
 	private static final String PASS_ENERGY = "CAM:PassEnergy";
 	private static final String LENS_MODE = "CAM:LensMode";
 	private static final String ACQUISITION_MODE = "CAM:AcqMode";
@@ -67,8 +79,6 @@ public class MbsAnalyserController extends ConfigurableBase {
 	private static final String DEFLECTOR_X_RBV = "CAM:DeflX_RBV";
 	private static final String DEFLECTOR_Y = "CAM:DeflY";
 	private static final String DEFLECTOR_Y_RBV = "CAM:DeflY_RBV";
-	private static final String NUMBER_OF_SCANS = "CAM:NumScans";
-	private static final String NUMBER_OF_SCANS_RBV = "CAM:NumScans_RBV";
 	private static final String NUMBER_OF_SLICES = "CAM:NumSlice";
 	private static final String NUMBER_OF_SLICES_RBV = "CAM:NumSlice_RBV";
 	private static final String NUMBER_OF_STEPS = "CAM:NumSteps";
@@ -120,6 +130,13 @@ public class MbsAnalyserController extends ConfigurableBase {
 			logger.debug("Available acquisition modes: {}", acquisitionModes);
 		} catch (Exception e) {
 			throw new FactoryException("Configuring the analyser failed", e);
+		}
+
+		try {
+			epicsController.setMonitor(getChannel(ACQUIRE_RBV), this);
+		}
+		catch (Exception e) {
+			throw new FactoryException("Error setting up EPICS monitors", e);
 		}
 
 		logger.info("Finished configuring analyser");
@@ -407,25 +424,6 @@ public class MbsAnalyserController extends ConfigurableBase {
 		setDoubleValue(DEFLECTOR_Y, deflectorY, "deflector Y");
 	}
 
-	/**
-	 * Gets the number of scans
-	 *
-	 * @return The number of scans
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	public int getNumberOfScans() throws DeviceException {
-		return getIntegerValue(NUMBER_OF_SCANS_RBV, "number of scans");
-	}
-
-	/**
-	 * Sets the number of scans
-	 *
-	 * @param numberOfScans The number of scans
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	public void setNumberOfScans(int numberOfScans) throws DeviceException {
-		setIntegerValue(NUMBER_OF_SCANS, numberOfScans, "number of scans");
-	}
 
 	/**
 	 * Gets the number of slices
@@ -861,5 +859,48 @@ public class MbsAnalyserController extends ConfigurableBase {
 		}
 
 		return channel;
+	}
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		observableComponent.addIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		observableComponent.deleteIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
+	}
+
+	// Temporarily borrowed from {@link VGScientaAnalyserCamOnly}, may change later
+	@Override
+	public void monitorChanged(MonitorEvent event) {
+		if (((CAJChannel) event.getSource()).getName().endsWith(ACQUIRE_RBV)) {
+			logger.debug("EPICS has notified change of acquire status");
+			DBR_Enum enumeration = (DBR_Enum) event.getDBR();
+			short[] values = (short[]) enumeration.getValue();
+			MotorStatus currentstatus;
+			if (values[0] == 0) {
+				logger.info("Been informed of a stop. Notifying observers.");
+				currentstatus = MotorStatus.READY;
+			} else {
+				logger.info("Been informed of a start. Notifying observers.");
+				currentstatus = MotorStatus.BUSY;
+			}
+			observableComponent.notifyIObservers(this, currentstatus);
+		}
+	}
+
+	public short getDetectorState() throws DeviceException {
+		try {
+			return adBase.getDetectorState_RBV();
+		} catch (Exception exception) {
+			throw new DeviceException("Error getting detector state", exception);
+		}
+
 	}
 }
