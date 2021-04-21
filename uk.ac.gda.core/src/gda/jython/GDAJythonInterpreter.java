@@ -90,8 +90,7 @@ import uk.ac.gda.common.util.EclipseUtils;
  */
 public class GDAJythonInterpreter {
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
-	private static final String JYTHON_VERSION = "2.7";
-	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython/jython%s";
+	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython";
 	private static final String UTF_8 = "UTF-8";
 	private static final Properties sysProps;
 	/** Custom logger for loaded classes only, used with a specific appender */
@@ -135,7 +134,7 @@ public class GDAJythonInterpreter {
 		gdaCustomProperties.setProperty("python.cachedir", cacheDir.getAbsolutePath());
 
 		try {
-			final File jythonRoot = EclipseUtils.resolveBundleFolderFile(String.format(JYTHON_BUNDLE_PATH, JYTHON_VERSION));
+			final File jythonRoot = EclipseUtils.resolveBundleFolderFile(JYTHON_BUNDLE_PATH);
 			gdaCustomProperties.setProperty("python.home", jythonRoot.getAbsolutePath());
 		} catch (IOException e) {
 			throw new RuntimeException("Jython bundle not found", e);

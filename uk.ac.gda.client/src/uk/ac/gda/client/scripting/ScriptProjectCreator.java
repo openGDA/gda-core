@@ -82,7 +82,6 @@ public class ScriptProjectCreator {
 	private static final String JYTHON_MINOR_VERSION = "7";
 	private static final String JYTHON_VERSION = JYTHON_MAJOR_VERSION + "." + JYTHON_MINOR_VERSION;
 	private static final String JYTHON_BUNDLE = "uk.ac.diamond.jython";
-	private static final String JYTHON_DIR = "jython" + JYTHON_VERSION;
 	private static final String JYTHON_JAR = "jython.jar";
 
 	/**
@@ -104,8 +103,7 @@ public class ScriptProjectCreator {
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults.
 
-		final Path interpreterPath = Paths.get(BundleUtils.getBundleLocation(JYTHON_BUNDLE).getAbsolutePath(),
-				JYTHON_DIR);
+		final Path interpreterPath = Paths.get(BundleUtils.getBundleLocation(JYTHON_BUNDLE).getAbsolutePath());
 		final String executable = interpreterPath.resolve(JYTHON_JAR).toString();
 		if (!(new File(executable)).exists())
 			throw new Exception("Jython jar not found  :" + executable);
