@@ -29,7 +29,9 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.epics.pvaclient,
  org.epics.pvaccess,
  org.epics.pvdata,
- uk.ac.diamond.org.springframework
+ uk.ac.diamond.org.springframework,
+ org.eclipse.scanning.device,
+ org.eclipse.scanning.api;bundle-version="1.0.0"
 Export-Package: gda.data.metadata,
  gda.device,
  gda.device.adc,
