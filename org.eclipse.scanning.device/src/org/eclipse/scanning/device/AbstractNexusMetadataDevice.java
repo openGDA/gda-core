@@ -109,6 +109,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		return metadataNode.createNode();
 	}
 
+	public void setCategory(String nexusCategoryStr) {
+		setCategory(NexusBaseClass.getBaseClassForName(nexusCategoryStr));
+	}
+
 	public void setCategory(NexusBaseClass nexusCategory) {
 		this.nexusCategory = nexusCategory;
 	}

@@ -90,6 +90,9 @@ public abstract class NexusTest {
 
 	private static Logger logger = LoggerFactory.getLogger(NexusTest.class);
 
+	protected static final String X_AXIS_NAME = "xNex";
+	protected static final String Y_AXIS_NAME = "yNex";
+
 	protected static IScannableDeviceService connector;
 	protected static IScanService            scanService;
 	protected static IPointGeneratorService  pointGenService;
@@ -302,9 +305,9 @@ public abstract class NexusTest {
 	protected ScanModel createGridScanModel(final IRunnableDevice<? extends IDetectorModel> detector, File file, IROI region, boolean snake, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
-		gridModel.setxAxisName("xNex");
+		gridModel.setxAxisName(X_AXIS_NAME);
 		gridModel.setxAxisPoints(size[size.length-1]);
-		gridModel.setyAxisName("yNex");
+		gridModel.setyAxisName(Y_AXIS_NAME);
 		gridModel.setyAxisPoints(size[size.length-2]);
 		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gridModel.setAlternating(snake);
