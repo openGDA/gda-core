@@ -287,6 +287,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		logger.debug("Scan Command : {}", point.getCommand());
 		logger.debug("Instrument Name : {}", point.getInstrument());
 		logger.debug("Number of Points : {}", point.getNumberOfPoints());
+		terminalPrinter.print("Writing data to file: " + getCurrentFileName());
 
 		// This is where we create NexusScanModel
 		final NexusScanModel nexusScanModel = createNexusScanModel(point);
