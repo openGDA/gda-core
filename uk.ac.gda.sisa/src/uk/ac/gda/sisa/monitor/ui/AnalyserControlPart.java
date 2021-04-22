@@ -22,7 +22,7 @@ public class AnalyserControlPart extends MonitorPartsBase {
 		rowLayout.fill = true;
 		rowLayout.center = true;
 		scrollerContent.setLayout(rowLayout);
-		drawControls(scrollerContent, monitorConfig.getAnalyserControls(), 2);
+		drawGroupedControls(scrollerContent, monitorConfig.getAnalyserControls(), 2);
 		setScrollingComposite(scrollerContent, scroller);
 	}
 	
