@@ -57,6 +57,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	protected CameraControl cameraControl;
 	protected Composite mainComposite;
 
+
 	/**
 	 * Extensions to allow extra controls to be added to the basic set.<br>
 	 * Each extensions will be allocated one column in {@link #mainComposite}.
@@ -73,6 +74,8 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	 */
 	private boolean changeExposureWhileCameraAcquiring = false;
 
+	private boolean includeExposureTimeControl = true;
+
 	public LiveStreamViewCameraControls(CameraControl cameraControl) {
 		Objects.requireNonNull(cameraControl, "Camera control must not be null");
 		this.cameraControl = cameraControl;
@@ -84,8 +87,10 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 		GridLayoutFactory.fillDefaults().numColumns(6 + extensions.size()).applyTo(mainComposite);
 
 		// Exposure control
-		final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
-		GridDataFactory.swtDefaults().applyTo(exposureTimeComposite);
+		if (includeExposureTimeControl) {
+			final LiveStreamExposureTimeComposite exposureTimeComposite = new LiveStreamExposureTimeComposite(mainComposite, SWT.NONE, cameraControl, changeExposureWhileCameraAcquiring);
+			GridDataFactory.swtDefaults().applyTo(exposureTimeComposite);
+		}
 
 		// Start/stop acquisition
 		final Button playButton = new Button(mainComposite, SWT.PUSH);
@@ -163,4 +168,9 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	public void setChangeExposureWhileCameraAcquiring(boolean changeExposureWhileCameraAcquiring) {
 		this.changeExposureWhileCameraAcquiring = changeExposureWhileCameraAcquiring;
 	}
+
+	public void setIncludeExposureTimeControl(boolean includeExposureTimeControl) {
+		this.includeExposureTimeControl = includeExposureTimeControl;
+	}
+
 }
