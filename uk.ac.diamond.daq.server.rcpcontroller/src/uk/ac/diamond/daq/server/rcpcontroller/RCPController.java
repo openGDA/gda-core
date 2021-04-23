@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.server.rcpcontroller;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
-/*
+/**
  * Interface for object on server that can be used to open a view on the client
  */
 public interface RCPController extends IObservable, Findable {
