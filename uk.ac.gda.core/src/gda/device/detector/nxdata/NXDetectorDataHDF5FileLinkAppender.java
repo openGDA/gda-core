@@ -20,11 +20,12 @@ package gda.device.detector.nxdata;
 
 import org.springframework.util.StringUtils;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.NXDetectorData;
 
 /**
- * Adds a link to an external HDF5 File. Use only at start of scan.
+ * Adds a link to an external HDF5 Files created by multiple File Writers. Use only at start of scan.
  */
 public class NXDetectorDataHDF5FileLinkAppender implements NXDetectorDataAppender {
 
@@ -34,33 +35,30 @@ public class NXDetectorDataHDF5FileLinkAppender implements NXDetectorDataAppende
 	private final Double yPixelSize;
 	private final String xPixelSizeUnit;
 	private final String yPixelSizeUnit;
+	private final int dataRank;
 
 	public NXDetectorDataHDF5FileLinkAppender(String filename, String writerName) {
-		this.writerName=writerName;
-		this.filename = filename;
-		this.xPixelSize = null;
-		this.yPixelSize = null;
-		this.xPixelSizeUnit = null;
-		this.yPixelSizeUnit = null;
+		this(filename,null,null,null,null,writerName,-1);
 	}
 
 	public NXDetectorDataHDF5FileLinkAppender(String expectedFullFileName, Double xPixelSize, Double yPixelSize, String writerName) {
-		this.writerName=writerName;
-		this.filename = expectedFullFileName;
-		this.xPixelSize = xPixelSize;
-		this.yPixelSize = yPixelSize;
-		this.xPixelSizeUnit = null;
-		this.yPixelSizeUnit = null;
+		this(expectedFullFileName,xPixelSize,yPixelSize,null,null,writerName,-1);
 	}
 
 	public NXDetectorDataHDF5FileLinkAppender(String expectedFullFileName, Double xPixelSize, Double yPixelSize,
 			String xPixelSizeUnit, String yPixelSizeUnit, String writerName) {
+		this(expectedFullFileName,xPixelSize,yPixelSize,xPixelSizeUnit,yPixelSizeUnit,writerName,-1);
+	}
+
+	public NXDetectorDataHDF5FileLinkAppender(String expectedFullFileName, Double xPixelSize, Double yPixelSize,
+			String xPixelSizeUnit, String yPixelSizeUnit, String writerName, int dataRank) {
 		this.writerName=writerName;
 		this.filename = expectedFullFileName;
 		this.xPixelSize = xPixelSize;
 		this.yPixelSize = yPixelSize;
 		this.xPixelSizeUnit = xPixelSizeUnit;
 		this.yPixelSizeUnit = yPixelSizeUnit;
+		this.dataRank = dataRank;
 	}
 
 	@Override
@@ -70,10 +68,15 @@ public class NXDetectorDataHDF5FileLinkAppender implements NXDetectorDataAppende
 			throw new IllegalArgumentException("filename is null or zero length");
 		}
 
-		if (writerName == null || writerName.isEmpty() || writerName.equals("hdfwriter")) { //the default name coded in the HDF5 file writer, using String instead CONSTANT string to avoid dependency on epics plugin
-			data.addScanFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data");
+		if (LocalProperties.get(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter").equals("NexusScanDataWriter")) {
+			data.addExternalFileLink(detectorName, "data", "nxfile://" + filename + "#entry/instrument/detector/data", false, true, dataRank);
 		} else {
-			data.addExternalFileLink(detectorName, writerName, "nxfile://" + filename + "#entry/instrument/detector/data", false, false);
+			//keep the original way of handling filename for backward compatibility for now.
+			if (writerName == null || writerName.isEmpty() || writerName.equals("hdfwriter")) { //the default name coded in the HDF5 file writer, using String instead CONSTANT string to avoid dependency on epics plugin
+				data.addScanFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data");
+			} else {
+				data.addExternalFileLink(detectorName, writerName, "nxfile://" + filename + "#entry/instrument/detector/data", false, false);
+			}
 		}
 
 		if (xPixelSize!=null) {
