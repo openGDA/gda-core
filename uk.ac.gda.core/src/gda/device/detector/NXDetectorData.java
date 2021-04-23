@@ -21,6 +21,8 @@ package gda.device.detector;
 
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXdetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -29,6 +31,8 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NexusScanDataWriter;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
@@ -38,10 +42,14 @@ import gda.device.scannable.ScannableUtils;
  */
 public class NXDetectorData implements GDANexusDetectorData {
 
+	private static final Logger logger = LoggerFactory.getLogger(NXDetectorData.class);
+
 	public static final String DATA_FILE_CLASS_NAME = "data_file";
 	public static final String FILE_NAME_NODE_NAME = "file_name";
+	private static final String DEFAULT_DATA_NODE_NAME = NXdetector.NX_DATA;
+
 	private static final String DATA_FILENAME_ATTR_NAME = "data_filename";
-	private static final Logger logger = LoggerFactory.getLogger(NXDetectorData.class);
+
 	private INexusTree tree = null;
 	private Double[] doubleData = new Double[] { }; //must be empty on construction
 	protected String[] extraNames = new String[] {};
@@ -126,7 +134,7 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 * @return The node added.
 	 */
 	public INexusTree addData(String parent, NexusGroupData data) {
-		return addData(getDetTree(parent), "data", data, null, null);
+		return addData(getDetTree(parent), DEFAULT_DATA_NODE_NAME, data, null, null);
 	}
 
 	/**
@@ -136,7 +144,7 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 * @return The node added.
 	 */
 	public INexusTree addData(String parent, NexusGroupData data, String units) {
-		return addData(getDetTree(parent), "data", data, units, null);
+		return addData(getDetTree(parent), DEFAULT_DATA_NODE_NAME, data, units, null);
 	}
 
 	/**
@@ -166,7 +174,7 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 * @return The node added.
 	 */
 	public INexusTree addData(String parent, NexusGroupData data, String units, Integer signalVal) {
-		return addData(getDetTree(parent), "data", data, units, signalVal);
+		return addData(getDetTree(parent), DEFAULT_DATA_NODE_NAME, data, units, signalVal);
 	}
 
 	/**
@@ -206,7 +214,7 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 * @param signalVal - if not null a signal attribute is added
 	 */
 	public INexusTree addData(String detName, NexusGroupData data, String units, Integer signalVal, String interpretation) {
-		return addData(detName, "data", data, units, signalVal, interpretation, true);
+		return addData(detName, DEFAULT_DATA_NODE_NAME, data, units, signalVal, interpretation, true);
 	}
 
 	/**
@@ -283,43 +291,81 @@ public class NXDetectorData implements GDANexusDetectorData {
 	}
 
 	/**
-	 * create exactly one file link under a node named "data".
-	 * @param detName
-	 * @param hdfFileName
+	 * Create exactly one file link under a node named "data".
+	 * @param detName the detector name
+	 * @param linkTargetPath the path of the node to link to in the external file in the format
+	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
+	 * @deprecated use {@link #addExternalFileLink(String, String, int)} instead as {@link NexusScanDataWriter}
+	 *     requires the rank of the external data node in order to correctly tag the {@link NXdata} group
+	 *     according to the 2014 format.
 	 */
-	public void addScanFileLink(String detName, String hdfFileName) {
-		INexusTree detTree = getDetTree(detName);
-//		NexusGroupData dummy_sds = new NexusGroupData("dummy");
-		NexusTreeNode link = new NexusTreeNode("data", NexusExtractor.ExternalSDSLink, null, new NexusGroupData(hdfFileName));
-		link.setIsPointDependent(false);
-//		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
-		detTree.addChildNode(link);
+	@Deprecated
+	public void addScanFileLink(String detName, String linkTargetPath) {
+		addExternalFileLink(detName, linkTargetPath, -1);
 	}
 
 	/**
-	 * create one node called 'linkname' for each external file link.
+	 * Create exactly one file link under a node named "data".
+	 * Note: This method should not be called
 	 * @param detName the detector name
-	 * @param linknodename the name of the link node in the detector tree
 	 * @param linkTargetPath the path of the node to link to in the external file in the format
 	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
 	 */
-	public void addExternalFileLink(String detName, String linknodename, String linkTargetPath, boolean isPointDependent, boolean isDetectorEntryData) {
-		addExternalFileLink(detName, linknodename, linkTargetPath, isPointDependent, isDetectorEntryData, -1);
+	public void addExternalFileLink(String detName, String linkTargetPath, int dataRank) {
+		addExternalFileLink(detName, DEFAULT_DATA_NODE_NAME, linkTargetPath, false, true, dataRank);
 	}
 
 	/**
-	 * create one node called 'linkname' for each external file link.
+	 * Create a link node with the given name to the given external file path.
 	 * @param detName the detector name
-	 * @param linknodename the name of the link node in the detector tree
+	 * @param linkNodeName the name of the link node in the detector tree
 	 * @param linkTargetPath the path of the node to link to in the external file in the format
 	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
+	 * @deprecated use the version of this method that takes dataRank, as this is required
+	 *    by {@link NexusScanDataWriter}
 	 */
-	public void addExternalFileLink(String detName, String linknodename, String linkTargetPath, boolean isPointDependent, boolean isDetectorEntryData, int dataRank) {
-		INexusTree detTree = getDetTree(detName);
-//		NexusGroupData dummy_sds = new NexusGroupData("dummy");
-		NexusGroupData groupData = new NexusGroupData( linkTargetPath );
+	@Deprecated
+	public void addExternalFileLink(String detName, String linkNodeName, String linkTargetPath,
+			boolean isPointDependent, boolean isDetectorEntryData) {
+		addExternalFileLink(detName, linkNodeName, linkTargetPath, isPointDependent, isDetectorEntryData, -1);
+	}
+
+	/**
+	 * Create a link node with the given name to the given external file path.
+	 * @param detName the detector name
+	 * @param linkNodeName the name of the link node in the detector tree
+	 * @param linkTargetPath the path of the node to link to in the external file in the format
+	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
+	 * @param dataRank the rank of the external dataset, required by {@link NexusScanDataWriter} for
+	 *     correct tagging of the {@link NXdata} group according to the 2014 format.
+	 */
+	public void addExternalFileLink(String detName, String linkNodeName, String linkTargetPath, int dataRank) {
+		addExternalFileLink(detName, linkNodeName, linkTargetPath, false, true, dataRank);
+	}
+
+	/**
+	 * Create a link node with the given name to the given external file path.
+	 * @param detName the detector name
+	 * @param linkNodeName the name of the link node in the detector tree
+	 * @param linkTargetPath the path of the node to link to in the external file in the format
+	 * 		{@code nxfile://externalFilePath#nodePathWithinFile", getFilepath(), getInternalPath()}
+	 * @param isPointDependent ignored as we simply create a link
+	 * @param isDetectorEntryData <code>true</code> for the linked data set to also be linked to
+	 *    from an {@link NXdata} group, <code>false</code> otherwise. Note that {@link NexusDataWriter}
+	 *
+	 * @param dataRank the rank of the external dataset, required by {@link NexusScanDataWriter} for
+	 *     correct tagging of the {@link NXdata} group according to the 2014 format.
+	 * @deprecated call {@link #addExternalFileLink(String, String, String, int)} instead, as
+	 *    <code>isPointDependent</code> is always ignored and {@link NexusDataWriter} also ignores
+	 *    <code>isDetectorEntryData</code> ({@link NexusScanDataWriter} does not).
+	 */
+	@Deprecated
+	public void addExternalFileLink(String detName, String linkNodeName, String linkTargetPath,
+			boolean isPointDependent, boolean isDetectorEntryData, int dataRank) {
+		final INexusTree detTree = getDetTree(detName);
+		final NexusGroupData groupData = new NexusGroupData(linkTargetPath);
 		groupData.externalDataRank = dataRank;
-		NexusTreeNode link = new NexusTreeNode(linknodename, NexusExtractor.ExternalSDSLink, null, groupData);
+		final NexusTreeNode link = new NexusTreeNode(linkNodeName, NexusExtractor.ExternalSDSLink, null, groupData);
 		link.setIsPointDependent(isPointDependent);
 		groupData.isDetectorEntryData = isDetectorEntryData;
 //		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
@@ -327,7 +373,8 @@ public class NXDetectorData implements GDANexusDetectorData {
 	}
 
 	/**
-	 * Adds the specified Axis to the named detector
+	 * Adds the specified Axis to the named detector.
+	 * <em>Note:</em> This method tags the
 	 * @param detName The name of the detector to add data to
 	 * @param name The name of the Axis
 	 * @param axis_sds The implementation of NexusGroupData to be reported as the axis data
