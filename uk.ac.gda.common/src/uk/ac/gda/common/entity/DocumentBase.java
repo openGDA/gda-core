@@ -20,6 +20,7 @@ package uk.ac.gda.common.entity;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * @author Maurizio Nagni
  */
 @JsonDeserialize(builder = DocumentBase.Builder.class)
+@JsonTypeName("documentBase")
 public class DocumentBase implements Document {
 
 	private final UUID uuid;
