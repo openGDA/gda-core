@@ -19,8 +19,12 @@ import java.util.List;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends AbstractScanPointGenerator<T> {
+
+	private static final Logger logger = LoggerFactory.getLogger(AbstractGridGenerator.class);
 
 	protected AbstractGridGenerator(T model) {
 		super(model);
@@ -28,6 +32,7 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 
 	@Override
 	public PPointGenerator createPythonPointGenerator() {
+//		logger.info("Creating point generator from class {}\n{}", getClass().getName(), Arrays.toString(Thread.currentThread().getStackTrace()));
 		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		final T model = getModel();

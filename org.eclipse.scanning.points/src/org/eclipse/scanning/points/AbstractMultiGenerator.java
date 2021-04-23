@@ -52,7 +52,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 		// Need service to be set before validating, so cannot use super()
 		this(service);
 		this.model = model;
-		validateModel();
+		validate(model);
 		pointGenerator = createPythonPointGenerator();
 	}
 

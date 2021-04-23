@@ -14,7 +14,6 @@ package org.eclipse.scanning.api.points;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public abstract class AbstractGenerator<T extends IScanPathModel> implements IPo
 
 	protected AbstractGenerator(T model) {
 		this.model = model;
-		validateModel();
+		validate(model);
 	}
 
 	protected AbstractGenerator() {
@@ -42,25 +41,6 @@ public abstract class AbstractGenerator<T extends IScanPathModel> implements IPo
 
 	@Override
 	public T getModel() {
-		return model;
-	}
-
-	/**
-	 * If the given model is considered "invalid", this method throws a
-	 * ModelValidationException explaining why it is considered invalid.
-	 * Otherwise, just returns. A model should be considered invalid if its
-	 * parameters would cause the generator implementation to hang or crash.
-	 *
-	 * @throw exception if model invalid
-	 */
-	protected final void validateModel() throws ModelValidationException {
-		validate(this.model);
-	}
-
-	@Override
-	public T validate(T model) throws ModelValidationException {
-		logger.info("{} validating model: {}", getClass().getSimpleName(), model);
-		if (model.getScannableNames() == null || model.getScannableNames().contains(null)) throw new ModelValidationException("The model must have all the names of the scannables it is acting upon!", model, "name");
 		return model;
 	}
 

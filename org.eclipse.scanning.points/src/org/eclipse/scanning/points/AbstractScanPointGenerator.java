@@ -71,8 +71,15 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 
 	protected abstract PPointGenerator createPythonPointGenerator();
 
+	/**
+	 * If the given model is considered "invalid", this method throws a ModelValidationException explaining why it is
+	 * considered invalid. Otherwise, just returns. A model should be considered invalid if its parameters would cause
+	 * the generator implementation to hang or crash.
+	 *
+	 * @throw {@link ModelValidationException} if model invalid
+	 */
 	@Override
-	public T validate(T model) {
+	public T validate(T model) throws ModelValidationException {
 		if (model.getUnits().size() != model.getScannableNames().size()) {
 			throw new ModelValidationException("Model must have units for each scannable axis!", model, "name"); // Not actually name
 		}
@@ -122,7 +129,6 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	public List<Set<String>> getDimensionNames(){
 		return pointGenerator.getDimensionNames();
 	}
-
 
 	@Override
 	public PyDictionary toDict() {
@@ -185,7 +191,4 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	    return compoundGeneratorFactory.createObject(
 	    		generators, excluders, mutators, duration, continuous);
 	}
-
-
-
 }

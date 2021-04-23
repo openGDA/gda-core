@@ -86,13 +86,13 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
         		model.addRegions(((CompoundModel) g.getModel()).getRegions());
         	}
         }
-        this.model = model;
-        try {
-        	// Not guaranteed to catch all non-valid models because of NoModelGenerators
-           	validateModel();
-    	} catch(ModelValidationException e) {
-    		throw new GeneratorException(e);
-    	}
+		this.model = model;
+		try {
+			// Not guaranteed to catch all non-valid models because of NoModelGenerators
+			validate(model);
+		} catch (ModelValidationException e) {
+			throw new GeneratorException(e);
+		}
         this.generators = Arrays.asList(generators);
         pointGenerator = createPythonPointGenerator();
 	}
