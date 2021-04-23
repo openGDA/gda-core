@@ -45,6 +45,7 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
@@ -214,9 +215,13 @@ class ScanningAcquisitionControllerDetectorHelper {
 		}
 
 		private void updateDetectorDocument(CameraControl cameraControl, double acquireTime) {
-			double readoutTime = CameraHelper.getCameraPropertiesByCameraControl(cameraControl)
-					.map(CameraProperties::getReadoutTime)
-					.orElse(0.0);
+			double readoutTime = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
+				.map(CameraConfigurationProperties::getReadoutTime)
+				.orElse(0.0);
+
+			String malcolmDetectorName = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
+					.map(CameraConfigurationProperties::getMalcolmDetectorName)
+					.orElse("NotAvilable");
 			ScanningParameters acquisitionParameters = getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 			// The acquisition configuration may not include this detector
 			if (acquisitionParameters.getDetector() != null && !cameraControl.getName().equals(acquisitionParameters.getDetector().getName()))
@@ -227,6 +232,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 				.withName(cameraControl.getName())
 				.withExposure(acquireTime)
 				.withReadout(readoutTime)
+				.withMalcolmDetectorName(malcolmDetectorName)
 				.build();
 
 			acquisitionParameters.setDetector(detectorDocument);

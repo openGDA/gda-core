@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.api.document;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -54,6 +56,7 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionEngineRea
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionParametersReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.DarkCalibrationReader;
+import uk.ac.diamond.daq.mapping.api.document.helper.reader.DetectorDocumentReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.FlatCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentReader;
@@ -275,19 +278,31 @@ public class ScanRequestFactory {
 	}
 
 	private void setDetectorsExposures(IMalcolmModel model) {
-		double exposure = getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getExposure();
+		List<DetectorDocumentReader> detectors = new ArrayList<>();
+		detectors.add(getAcquisitionParameters().getDetector());
+
 		// Even if looking at the moment support only one detector (K11-1214)
 		model.getDetectorModels().stream()
-			.forEach(d -> d.setExposureTime(exposure));
-		/**
-		 * This exposure is the required exposure plus the client.cameraConfiguration.INDEX.readoutTime so Malcolm's "duration"
-		 * time is enough to acquire and readout
-		 * See <a href="https://confluence.diamond.ac.uk/display/DIAD/Cameras+configuration">Cameras configuration</a>
-		 *
-		 * @return the corrected exposure time
-		 *
-		 */
-		model.setExposureTime(exposure + getAcquisitionConfiguration().getAcquisitionParameters().getDetector().getReadout());
+			.forEach(detectorModel -> setDetectorExposure(detectorModel, detectors));
+
+		// Asks Malcolm to automatically estimate the duration
+		model.setExposureTime(0);
+
+		// If there is any detector with a readout time
+		if (detectors.stream().anyMatch(d -> d.getReadout() > 0)) {
+			// Sets Malcolm duration as the longest among the exposure + readout pairs
+			detectors.stream()
+					.map(d -> d.getReadout() + d.getExposure())
+					.max(Comparator.comparing(Double::valueOf))
+					.ifPresent(model::setExposureTime);
+		}
+	}
+
+	private void setDetectorExposure(IMalcolmDetectorModel malcolmDetectorModel, List<DetectorDocumentReader> detectors) {
+		detectors.stream()
+		.filter(d -> d.getMalcolmDetectorName().equals(malcolmDetectorModel.getName()))
+		.findFirst()
+		.ifPresent(d -> malcolmDetectorModel.setExposureTime(d.getExposure()));
 	}
 
 	private Collection<String> parseMonitorNamesPerPoint() {

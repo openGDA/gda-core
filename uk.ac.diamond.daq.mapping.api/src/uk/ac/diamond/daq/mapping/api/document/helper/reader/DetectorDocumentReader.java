@@ -59,9 +59,20 @@ public class DetectorDocumentReader extends AcquisitionReaderBase<DetectorDocume
 	 *
 	 * @return the existing value, otherwise {@code 0}
 	 */
+	@Deprecated
 	public double getReadout() {
 		return Optional.ofNullable(getData())
 			.map(DetectorDocument::getReadout)
 			.orElseGet(() -> 0d);
+	}
+
+	/**
+	 *
+	 * @return the detector name as in the Malcolm detectorTable, otherwise {@code null}
+	 */
+	public String getMalcolmDetectorName() {
+		return Optional.ofNullable(getData())
+			.map(DetectorDocument::getMalcolmDetectorName)
+			.orElseGet(() -> "NotAvailable");
 	}
 }

@@ -44,6 +44,8 @@ public class CameraConfigurationProperties {
 	private boolean withMonitor;
 
 	private double readoutTime;
+	private String malcolmDetectorName;
+
 
 	private List<ControllerConfiguration> motors;
 
@@ -107,12 +109,42 @@ public class CameraConfigurationProperties {
 		this.withMonitor = withMonitor;
 	}
 
+	/**
+	 * The detector readout time.
+	 * <p>
+	 * <b>NOTE</b> this is a temporary solution to mitigate the case where the acquisition engine acquisition time
+	 * accounts not only for the detector exposure but also for the readout time. This property should be removed as soon
+	 * an improved Malcolm version will be deployed (BC-1349)
+	 * </p>
+	 * @return the detector readout
+	 */
 	public double getReadoutTime() {
 		return readoutTime;
 	}
 
 	public void setReadoutTime(double readoutTime) {
 		this.readoutTime = readoutTime;
+	}
+
+	/**
+	 * The detector name, from the Malcolm DetectorTable, which accepts <i>exposure</i> property.
+	 * (from the web gui, http://beamline-control:8008/gui/MALCOLM_ID --> Malcolm --> Detectors --> Edit)
+	 * <p>
+	 * <b>NOTE</b> this is a temporary solution to mitigate the case where any element in the Malcolm DetectorTable
+	 * is parsed as IMalcolmDetectorModel however not all the element in the MalcolmDetector table contains the properties
+	 * defined by the IMalcolmDetectorModel.
+	 * One consequence of this is that using IMalcolmDetectorModel.setExposureTime (on the GDA side)
+	 * on an element which does not expect that value (on the Malcolm side), makes GDA generate a message that Malcolm will consider invalid.
+	 * (caused by bug K11-1228)
+	 * </p>
+	 * @return this detector name in the Malcolm's detectorTable
+	 */
+	public String getMalcolmDetectorName() {
+		return malcolmDetectorName;
+	}
+
+	public void setMalcolmDetectorName(String malcolmDetectorName) {
+		this.malcolmDetectorName = malcolmDetectorName;
 	}
 
 	public List<ControllerConfiguration> getMotors() {
