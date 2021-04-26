@@ -44,6 +44,8 @@ public class MbsAnalyserCompletedRegion {
 	private int regionSizeY;
 	private int sensorSizeX;
 	private int sensorSizeY;
+	private double[] energyAxis;
+	private double[] lensAxis;
 
 	public double getCollectionTime() {
 		return collectionTime;
@@ -233,5 +235,25 @@ public class MbsAnalyserCompletedRegion {
 
 	public void setSensorSizeY(int sensorSizeY) {
 		this.sensorSizeY = sensorSizeY;
+	}
+
+	public double[] getEnergyAxis() {
+		return energyAxis;
+	}
+
+	public void setEnergyAxis(double[] energyAxis) {
+		this.energyAxis = energyAxis;
+	}
+
+	public double[] getLensAxis() {
+		return lensAxis;
+	}
+
+	public void setLensAxis(double[] lensAxis) {
+		this.lensAxis = lensAxis;
+	}
+
+	public boolean isTransmissionLensMode() {
+		return getLensMode().toLowerCase().contains("spat");
 	}
 }

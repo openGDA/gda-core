@@ -35,7 +35,14 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
 		NexusGroupData imageData = new NexusGroupData(region.getImage());
 		imageData.isDetectorEntryData = true;
-		data.addData(detectorName, "data", imageData);
+		data.addData(detectorName, "data", imageData, null, 1);
+		double[] xAxis = region.getEnergyAxis();
+		data.addAxis(detectorName, "energies", new NexusGroupData(xAxis), 2, 1, "eV", true);
+
+		double[] yAxis = region.getLensAxis();
+		String yAxisName = region.isTransmissionLensMode() ? "location" : "angles";
+		String yAxisUnits = region.isTransmissionLensMode() ? "mm" : "degree";
+		data.addAxis(detectorName, yAxisName, new NexusGroupData(yAxis), 1, 1, yAxisUnits, false);
 
 		data.addData(detectorName, "time_for_frame", new NexusGroupData(region.getCollectionTime()), "sec", null);
 		data.addData(detectorName, "acquire_period", new NexusGroupData(region.getAcquirePeriod()), "sec", null);

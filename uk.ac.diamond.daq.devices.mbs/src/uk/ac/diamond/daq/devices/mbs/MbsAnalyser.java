@@ -399,6 +399,8 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setRegionSizeY(getRegionSizeY());
 		completedRegion.setSensorSizeX(getSensorSizeX());
 		completedRegion.setSensorSizeY(getSensorSizeY());
+		completedRegion.setEnergyAxis(getEnergyAxis());
+		completedRegion.setLensAxis(getAngleAxis());
 
 		return completedRegion;
 	}
@@ -496,12 +498,12 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
-	public double[] getEnergyAxis() throws Exception {
+	public double[] getEnergyAxis() throws DeviceException {
 		return controller.getEnergyAxis();
 	}
 
 	@Override
-	public double[] getAngleAxis() throws Exception {
+	public double[] getAngleAxis() throws DeviceException {
 		return controller.getAngleAxis();
 	}
 
