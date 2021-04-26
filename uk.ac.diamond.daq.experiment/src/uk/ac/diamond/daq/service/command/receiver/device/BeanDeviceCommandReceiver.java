@@ -82,6 +82,10 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 		Optional<Method> method = Arrays.stream(deviceRequest.getDevice().getClass().getMethods())
 				.filter(m -> m.getName().equals(deviceRequest.getDeviceValue().getProperty()))
 				.findFirst();
+		if (deviceRequest.getDeviceValue().getValue() == null) {
+			method.ifPresent(m -> invokeSetter(m, deviceRequest.getDevice()));
+			return;			
+		}
 		method.ifPresent(m -> invokeSetter(m, deviceRequest.getDevice(), deviceRequest.getDeviceValue().getValue()));
 		
 //		if (DeviceNumberValue.class.isInstance(deviceRequest.getDeviceValue())) {
