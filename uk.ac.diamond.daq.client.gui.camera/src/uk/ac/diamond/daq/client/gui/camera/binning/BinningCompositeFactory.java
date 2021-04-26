@@ -206,7 +206,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 
 	private Consumer<ChangeActiveCameraEvent> createChangeCameraControl(Consumer<? super CameraControl> ccConsumer) {
 		return event -> {
-			Display.getDefault().asyncExec(() -> CameraHelper.createICameraConfiguration(event.getActiveCamera().getCameraProperties()).getCameraControl()
+			Display.getDefault().asyncExec(() -> CameraHelper.createICameraConfiguration(event.getActiveCamera()).getCameraControl()
 					.ifPresent(ccConsumer));
 		};
 	}

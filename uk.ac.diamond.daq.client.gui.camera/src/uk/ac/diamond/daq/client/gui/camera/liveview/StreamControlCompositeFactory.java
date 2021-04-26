@@ -190,7 +190,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	private void updateStreamController() {
 		CameraComboItem selectedItem = getSelectedCombo();
 		// Changes camera
-		if (streamController.getControlData().getCamera() != selectedItem) {
+		if (streamController.getControlData().getCameraConfigurationProperties() != selectedItem.getCameraProperties()) {
 			streamTypeCombo.populateCombo(streamTypeItems(selectedItem));
 		}
 		streamTypeCombo.getSelectedItem().ifPresent(st -> streamController

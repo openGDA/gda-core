@@ -92,7 +92,7 @@ public class ListeningState implements StreamControlState {
 	public void listeningState(StreamController streamController) throws LiveStreamException {
 		try {
 			// get the new stream
-			final CameraConfiguration cc = CameraHelper.getCameraConfiguration(streamController.getControlData().getCamera());
+			final CameraConfiguration cc = CameraHelper.getCameraConfiguration(streamController);
 			final StreamType streamType = streamController.getControlData().getStreamType();
 			final ILiveStreamConnection newStream = new LiveStreamConnectionBuilder(cc, streamType).buildAndConnect();
 			streamController.setState(new ListeningState(newStream, rootUUID));

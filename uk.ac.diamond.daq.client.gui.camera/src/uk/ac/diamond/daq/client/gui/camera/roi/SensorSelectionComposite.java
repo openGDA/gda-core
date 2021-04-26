@@ -336,7 +336,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		updateCamera(event.getActiveCamera().getCameraProperties());
+		updateCamera(event.getActiveCamera());
 	};
 
 	private ApplicationListener<DrawableRegionRegisteredEvent> regionRegisteredEventListener(Composite parent) {

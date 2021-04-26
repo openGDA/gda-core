@@ -198,7 +198,7 @@ public class BeamCameraCalibrationComposite implements CompositeFactory {
 	 * @param cameraIndex the camera to be mapped against the beam
 	 */
 	private void updateCamera(ChangeActiveCameraEvent event) {
-		updateCamera(event.getActiveCamera().getCameraProperties());
+		updateCamera(event.getActiveCamera());
 	}
 
 	/**

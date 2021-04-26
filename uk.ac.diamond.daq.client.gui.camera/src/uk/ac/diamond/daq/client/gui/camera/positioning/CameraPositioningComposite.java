@@ -91,7 +91,7 @@ public class CameraPositioningComposite implements CompositeFactory {
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		cameraConfigurationProperties = Optional.ofNullable(event.getActiveCamera().getCameraProperties());
+		cameraConfigurationProperties = Optional.ofNullable(event.getActiveCamera());
 		buildMotorsGUI();
 	};
 }

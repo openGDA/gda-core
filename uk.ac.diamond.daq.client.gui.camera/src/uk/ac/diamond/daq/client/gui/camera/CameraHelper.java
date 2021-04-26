@@ -44,6 +44,8 @@ import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
+import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
+import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
 import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
@@ -596,5 +598,15 @@ public final class CameraHelper {
 				comboItemConsumer.accept(event);
 			}
 		};
+	}
+
+	public static final CameraConfiguration getCameraConfiguration(StreamController streamController) {
+		return Optional.ofNullable(streamController.getControlData())
+			.map(StreamControlData::getCameraConfigurationProperties)
+			.map(CameraHelper::createICameraConfiguration)
+			.map(ICameraConfiguration::getCameraConfiguration)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.orElse(null);
 	}
 }
