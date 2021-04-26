@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.client.gui.camera.exposure;
 
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createChangeCameraListener;
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createICameraConfiguration;
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getDefaultCameraConfigurationProperties;
 import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_LISTEN_CAMERA_PUBLISHER;
 import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
@@ -101,7 +104,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		createClientGridDataFactory().applyTo(container);
 
 		createElements(container, style);
-		cameraControl = CameraHelper.getCameraControl(CameraHelper.getDefaultCameraProperties().getIndex());
+		cameraControl = createICameraConfiguration(getDefaultCameraConfigurationProperties()).getCameraControl();
 		cameraControl.ifPresent(this::initialiseElements);
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		return container;
@@ -148,11 +151,11 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
-		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
+		return createChangeCameraListener(parent, changeCameraControl);
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		cameraControl = CameraHelper.getCameraControl(event.getActiveCamera().getIndex());
+		cameraControl = createICameraConfiguration(event.getActiveCamera().getCameraProperties()).getCameraControl();
 	};
 
 	// At the moment is not possible to use anonymous lambda expression because it
