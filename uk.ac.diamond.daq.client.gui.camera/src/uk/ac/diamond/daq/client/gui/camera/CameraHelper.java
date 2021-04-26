@@ -394,12 +394,6 @@ public final class CameraHelper {
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::removeIObserverFromCameraControl));
 	}
 
-	public static final Optional<CameraProperties> getCameraPropertiesByCameraControl(CameraControl cameraControl) {
-		return cameraPropertiesBySpring.values().stream()
-			.filter(p -> p.getCameraControl().equals(cameraControl.getName()))
-			.findFirst();
-	}
-
 	private static class ICameraConfigurationImpl implements ICameraConfiguration {
 
 		private final int cameraIndex;

@@ -35,7 +35,7 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.api.camera.TriggerMode;
-import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.WidgetUtilities;
@@ -252,11 +252,11 @@ class CameraMonitorButtonHelper {
 
 	private static void setAutoTriggerMode(CameraControl cameraControl) {
 		try {
-			Short triggerMode = CameraHelper.getCameraPropertiesByCameraControl(cameraControl)
-					.map(CameraProperties::getTriggerMode)
-					.filter(t -> t.containsKey(TriggerMode.INTERNAL))
-					.map(m -> m.get(TriggerMode.INTERNAL))
-					.orElse((short)-1);
+			Short triggerMode = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
+				.map(CameraConfigurationProperties::getTriggerMode)
+				.filter(t -> t.containsKey(TriggerMode.INTERNAL))
+				.map(m -> m.get(TriggerMode.INTERNAL))
+				.orElse((short)-1);
 			if (triggerMode < 0)
 				return;
 			cameraControl.setTriggerMode(triggerMode);
