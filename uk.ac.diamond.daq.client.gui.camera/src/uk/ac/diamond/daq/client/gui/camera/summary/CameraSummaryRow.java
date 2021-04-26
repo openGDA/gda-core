@@ -36,10 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureTextField;
 import uk.ac.diamond.daq.client.gui.camera.monitor.widget.CameraMonitorButton;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
  * Displays in tabular form some essential camera properties
@@ -63,12 +64,12 @@ class CameraSummaryRow {
 	 * @param cameraProperties
 	 *            the camera properties
 	 */
-	public CameraSummaryRow(Table table, CameraProperties cameraProperties) {
+	public CameraSummaryRow(Table table, CameraConfigurationProperties cameraProperties) {
 		this.tableItem = new TableItem(table, SWT.NONE);
 		addColumns(cameraProperties);
 	}
 
-	private void addColumns(CameraProperties cameraProperties) {
+	private void addColumns(CameraConfigurationProperties cameraProperties) {
 		Table table = tableItem.getParent();
 
 		TableEditor editor = new TableEditor(table);
@@ -78,7 +79,10 @@ class CameraSummaryRow {
 		editor.setEditor(nameLabel, tableItem, 0);
 
 		editor = new TableEditor(table);
-		Text exposureText = new ExposureTextField(table, SWT.NONE, () -> CameraHelper.getCameraControl(cameraProperties.getIndex())).getExposure();
+
+		ICameraConfiguration iCameraConfiguration = CameraHelper.createICameraConfiguration(cameraProperties);
+
+		Text exposureText = new ExposureTextField(table, SWT.NONE, iCameraConfiguration::getCameraControl).getExposure();
 		createClientGridDataFactory().applyTo(exposureText);
 		editor.grabHorizontal = true;
 		editor.setEditor(exposureText, tableItem, 1);
@@ -88,8 +92,7 @@ class CameraSummaryRow {
 			Composite container = createClientCompositeWithGridLayout(table, SWT.NONE, 10);
 			createClientGridDataFactory().grab(true, true).applyTo(container);
 			createClientEmptyCell(container, 5, 1);
-			Button monitor = new CameraMonitorButton(container,
-					CameraHelper.createICameraConfiguration(cameraProperties.getIndex())).getButton();
+			Button monitor = new CameraMonitorButton(container, iCameraConfiguration).getButton();
 			createClientGridDataFactory().align(SWT.END, SWT.BOTTOM).grab(true, true).span(5, 1).applyTo(monitor);
 
 			editor.grabHorizontal = true;

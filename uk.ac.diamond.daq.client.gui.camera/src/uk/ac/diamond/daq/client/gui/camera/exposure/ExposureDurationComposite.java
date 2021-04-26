@@ -152,9 +152,9 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		cameraControl = CameraHelper.getCameraControl(event.getActiveCamera().getIndex());	
+		cameraControl = CameraHelper.getCameraControl(event.getActiveCamera().getIndex());
 	};
-	
+
 	// At the moment is not possible to use anonymous lambda expression because it
 	// generates a class cast exception
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {

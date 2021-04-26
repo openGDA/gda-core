@@ -191,7 +191,7 @@ public final class CameraHelper {
 	 * @deprecated use instead {@link #getAllCameraConfigurationProperties()}. To be removed on GDA 9.21
 	 */
 	@Deprecated
-	public static List<CameraProperties> getAllCameraProperties() {
+	private static List<CameraProperties> getAllCameraProperties() {
 		return Collections.unmodifiableList(getCameraProperies().stream()
 				.map(CameraHelper::getCameraPropertiesBySpring)
 				.filter(Objects::nonNull)
@@ -372,10 +372,6 @@ public final class CameraHelper {
 		getAllCameraProperties().stream().forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
 	}
 
-	private static String getCameraConfigurationInstance(int cameraIndex) {
-		return getCameraProperties(cameraIndex).getCameraConfiguration();
-	}
-
 	private static void observeCameraProperties() {
 		cameraPropertiesBySpring.values().stream()
 			.map(CameraProperties::getIndex)
@@ -497,6 +493,10 @@ public final class CameraHelper {
 
 		private static FinderService getFinderService() {
 			return getBean(FinderService.class);
+		}
+
+		private static String getCameraConfigurationInstance(int cameraIndex) {
+			return getCameraConfigurationProperties(cameraIndex).getConfiguration();
 		}
 	}
 

@@ -32,42 +32,40 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
  * Builds a set of {@link CameraMonitorButton}s based on cameras parsed by the {@link CameraHelper}
- *  
+ *
  * @author Maurizio Nagni
  */
 public class CameraMonitorGroupFactory implements CompositeFactory {
 
 	private Composite container;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CameraMonitorGroupFactory.class);
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		int cols = CameraHelper.getAllCameraProperties().size();
+		int cols = CameraHelper.getAllCameraConfigurationProperties().size();
 		container = createClientCompositeWithGridLayout(parent, SWT.NONE, cols);
 		createClientGridDataFactory().align(SWT.CENTER, SWT.BEGINNING).applyTo(container);
 
 		Label labelName = createClientLabel(container, SWT.NONE, ClientMessages.CAMERAS_MONITORS);
 		createClientGridDataFactory().align(SWT.CENTER, SWT.BEGINNING).span(cols, 1).applyTo(labelName);
 
-		CameraHelper.getAllCameraProperties().stream()
-			.filter(p -> p.getId().map(CameraHelper.getCameraMonitors()::contains).orElseGet(() -> false))
-			.map(CameraProperties::getIndex)
+		CameraHelper.getAllCameraConfigurationProperties().stream()
+			.filter(p -> CameraHelper.getCameraMonitors().contains(p.getId()))
 			.map(CameraHelper::createICameraConfiguration)
 			.forEach(this::createButton);
 		return container;
 	}
 
-	private void createButton(ICameraConfiguration cameraConfiguration) {		
+	private void createButton(ICameraConfiguration cameraConfiguration) {
 		try {
 			new CameraMonitorButton(container, cameraConfiguration);
 		} catch (GDAClientException e) {
-			logger.error(e.getMessage()); 
+			logger.error(e.getMessage());
 		}
 	}
 }

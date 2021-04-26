@@ -88,9 +88,11 @@ public class ExposureTextField {
 	}
 
 	private void setAcquireTime(Widget widget) {
-		getCameraControl().ifPresent(c ->
-			setAcquireTime(c, Double.parseDouble(Text.class.cast(widget).getText()))
-		);
+		getCameraControl().ifPresent(c -> {
+			String text = Text.class.cast(widget).getText();
+			if (!text.isEmpty())
+				setAcquireTime(c, Double.parseDouble(text));
+		});
 	}
 
 	private void setAcquireTime(CameraControl cc, double exposure) {

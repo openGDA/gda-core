@@ -18,6 +18,10 @@
 
 package uk.ac.diamond.daq.client.gui.camera.monitor;
 
+
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getAllCameraConfigurationProperties;
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +29,11 @@ import java.util.concurrent.TimeUnit;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.api.camera.CameraState;
-import uk.ac.gda.client.properties.CameraProperties;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
  * Start a periodic runnable service to verify the cameras availability.
@@ -55,12 +58,11 @@ public class CameraAvailabilityMonitor {
 	private int period = LocalProperties.getInt("client.camera.state.polling", 5);
 
 	public CameraAvailabilityMonitor() {
-		executorService = Executors.newScheduledThreadPool(CameraHelper.getAllCameraProperties().size());
-		CameraHelper.getAllCameraProperties().stream()
-		.map(CameraProperties::getIndex)
-		.map(CameraHelper::getCameraControl)
-		.forEach(cc -> cc.ifPresent(this::attachMonitor));
-
+		executorService = Executors.newScheduledThreadPool(getAllCameraConfigurationProperties().size());
+		getAllCameraConfigurationProperties().stream()
+			.map(CameraHelper::createICameraConfiguration)
+			.map(ICameraConfiguration::getCameraControl)
+			.forEach(cc -> cc.ifPresent(this::attachMonitor));
 	}
 
 	private void attachMonitor(CameraControl cameraControl) {
@@ -81,6 +83,6 @@ public class CameraAvailabilityMonitor {
 		} catch (DeviceException e) {
 			event.setCameraState(CameraState.UNAVAILABLE);
 		}
-		SpringApplicationContextProxy.publishEvent(new CameraControlSpringEvent(CameraAvailabilityMonitor.class, event));
+		publishEvent(new CameraControlSpringEvent(CameraAvailabilityMonitor.class, event));
 	}
 }

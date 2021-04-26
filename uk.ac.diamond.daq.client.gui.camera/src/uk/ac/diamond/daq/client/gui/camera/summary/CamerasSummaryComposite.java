@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.client.gui.camera.summary;
 
-import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getAllCameraProperties;
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getAllCameraConfigurationProperties;
 import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getCameraMonitors;
 import static uk.ac.gda.ui.tool.ClientMessages.CAMERA;
 import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraConfigurationView;
-import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
@@ -60,14 +60,14 @@ public class CamerasSummaryComposite implements CompositeFactory {
 		createClientGridDataFactory().applyTo(table);
 		createTableColumns(table);
 
-		// Creates rows for the table
-		getAllCameraProperties().stream()
-		.filter(p -> p.getId().map(getCameraMonitors()::contains).orElseGet(() -> false))
-		.forEach(this::createTableRow);
+		getAllCameraConfigurationProperties().stream()
+			.filter(p -> getCameraMonitors().contains(p.getId()))
+			.forEach(this::createTableRow);
+
 		return table;
 	}
 
-	private void createTableRow(CameraProperties cameraProperties) {
+	private void createTableRow(CameraConfigurationProperties cameraProperties) {
 		new CameraSummaryRow(table, cameraProperties);
 	}
 
