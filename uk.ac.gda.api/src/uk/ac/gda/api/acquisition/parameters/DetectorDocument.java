@@ -44,13 +44,36 @@ public class DetectorDocument {
 
 	/**
 	 * The detector readout time.
+	 * <p>
+	 * <b>NOTE</b> this is a temporary solution to mitigate the case where the acquisition engine acquisition time
+	 * accounts not only for the detector exposure but also for the readout time. This property should be removed as soon
+	 * an improved Malcolm version will be deployed (BC-1349)
+	 * </p>
 	 */
+	@Deprecated
 	private final double readout;
 
-	private DetectorDocument(String name, double exposure, double readout) {
+	/**
+	 * The detector name, from the Malcolm DetectorTable, which accepts <i>exposure</i> property.
+	 * (from the web gui, http://beamline-control:8008/gui/MALCOLM_ID --> Malcolm --> Detectors --> Edit)
+	 * <p>
+	 * <b>NOTE</b> this is a temporary solution to mitigate the case where any element in the Malcolm DetectorTable
+	 * is parsed as IMalcolmDetectorModel however not all the element in the MalcolmDetector table contains the properties
+	 * defined by the IMalcolmDetectorModel.
+	 * One consequence of this is that using IMalcolmDetectorModel.setExposureTime (on the GDA side)
+	 * on an element which does not expect that value (on the Malcolm side), makes GDA generate a message that Malcolm will consider invalid.
+	 * (caused by bug K11-1228)
+	 * </p>
+	 */
+	private final String malcolmDetectorName;
+
+
+
+	private DetectorDocument(String name, double exposure, double readout, String malcolmDetectorName) {
 		this.name = name;
 		this.exposure = exposure;
 		this.readout = readout;
+		this.malcolmDetectorName= malcolmDetectorName;
 	}
 
 	public DetectorDocument(DetectorDocument detectorDocument) {
@@ -58,6 +81,7 @@ public class DetectorDocument {
 		this.name = detectorDocument.getName();
 		this.exposure = detectorDocument.getExposure();
 		this.readout = detectorDocument.getReadout();
+		this.malcolmDetectorName = detectorDocument.getMalcolmDetectorName();
 	}
 
 	public String getName() {
@@ -68,8 +92,17 @@ public class DetectorDocument {
 		return exposure;
 	}
 
+	/**
+	 * @return the readout for this detector
+	 * @deprecated this property is used to compensate the exposure in malcolm. However anew development in Malcolm made this unnecessary
+	 */
+	@Deprecated
 	public double getReadout() {
 		return readout;
+	}
+
+	public String getMalcolmDetectorName() {
+		return malcolmDetectorName;
 	}
 
 	@JsonPOJOBuilder
@@ -77,6 +110,7 @@ public class DetectorDocument {
 		private String name;
 		private double exposure;
 		private double readout;
+		private String malcolmDetectorName;
 
 	    public Builder withName(String name) {
 	        this.name = name;
@@ -88,13 +122,24 @@ public class DetectorDocument {
 	        return this;
 	    }
 
+	    /**
+	     * @param readout
+	     * @return the detector readout
+	     * @deprecated to be removed
+	     */
+		@Deprecated
 	    public Builder withReadout(double readout) {
 	        this.readout = readout;
 	        return this;
 	    }
 
+	    public Builder withMalcolmDetectorName(String malcolmDetectorName) {
+	        this.malcolmDetectorName = malcolmDetectorName;
+	        return this;
+	    }
+
 	    public DetectorDocument build() {
-	        return new DetectorDocument(name, exposure, readout);
+	        return new DetectorDocument(name, exposure, readout, malcolmDetectorName);
 	    }
 	}
 }
