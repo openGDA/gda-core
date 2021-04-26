@@ -47,6 +47,7 @@ import gda.jython.InterfaceProvider;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
 import gda.util.LocalPropertiesPropertySource;
 import gda.util.SpringObjectServer;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 /**
  * instance of this class provides method {@link #loadAdditionalBeans(List)}to create and add additional
@@ -89,6 +90,7 @@ public class LoadAdditionalBeansToObjectServer extends FindableConfigurableBase 
 			}
 			createdContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 			createdContext.setAllowBeanDefinitionOverriding(false);
+			createdContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
 			createdContext.refresh();
 			registerFactories();
 			configureAllConfigurablesInApplicationContext(createdContext);

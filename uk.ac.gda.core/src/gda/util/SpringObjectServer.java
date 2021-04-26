@@ -47,8 +47,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
+import org.springframework.beans.factory.xml.PluggableSchemaResolver;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.ConfigurableEnvironment;
 
@@ -68,6 +71,7 @@ import gda.jython.ScriptProject;
 import gda.jython.ScriptProjectType;
 import gda.spring.OsgiServiceBeanHandler;
 import gda.spring.SpringApplicationContextBasedObjectFactory;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.gda.remoting.client.RmiProxyMarker;
 
 /**
@@ -85,7 +89,7 @@ public class SpringObjectServer extends ObjectServer {
 
 	boolean allowExceptionInConfigure=LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
-	private FileSystemXmlApplicationContext applicationContext;
+	private GenericApplicationContext applicationContext;
 
 	/**
 	 * Creates an object server.
@@ -96,14 +100,22 @@ public class SpringObjectServer extends ObjectServer {
 	public SpringObjectServer(File xmlFile) {
 		super(xmlFile);
 
-		final String configLocation = "file:" + xmlFile.getAbsolutePath();
-		applicationContext = new FileSystemXmlApplicationContext(new String[] {configLocation}, false);
+        final String configLocation = "file:" + xmlFile.getAbsolutePath();
+		applicationContext = new GenericApplicationContext();
+		applicationContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
+		XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(applicationContext);
+		// For EntityResolver and NamespaceHandlerResolver provide a class from uk.ac.diamond.org.springframework
+		// which will contain all the namespaces and schemas
+		beanReader.setEntityResolver(new PluggableSchemaResolver(XmlBeanDefinitionReader.class.getClassLoader()));
+		beanReader.setNamespaceHandlerResolver(
+				new DefaultNamespaceHandlerResolver(XmlBeanDefinitionReader.class.getClassLoader()));
 		applicationContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 		setApplicationContextActiveProfiles(applicationContext);
 		applicationContext.setAllowBeanDefinitionOverriding(false);
 
 		// Load the context
 		try {
+			beanReader.loadBeanDefinitions(configLocation);
 			applicationContext.refresh();
 		} catch (BeanCreationException e) {
 			if (e.contains(JMSException.class)) {

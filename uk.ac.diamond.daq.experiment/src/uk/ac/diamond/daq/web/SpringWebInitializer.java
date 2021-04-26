@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.diamond.daq.context.web.SpringContextConfiguration;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
@@ -134,6 +135,7 @@ public class SpringWebInitializer {
 	private void onStartup(ServletContext container) {
 		// Create the application context
 		rootContext = new AnnotationConfigWebApplicationContext();
+		rootContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
 		rootContext.register(SpringContextConfiguration.class);
 
 		ServletRegistration.Dynamic dispatcher = container.addServlet("restServlet",
