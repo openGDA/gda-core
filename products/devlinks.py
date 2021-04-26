@@ -83,7 +83,7 @@ roots = [plugins_folder, plugins_folder + os.sep + up_one + "utilities"]
 # universal_newlines=True means that stdout is opened as a text stream and split('\n') works
 # in Python 3. This flag was kept for backwards compatibility with Python2 but
 # should be changed to text=True when Python 2 is no longer supported.
-process = subprocess.Popen('grep -Rl --include="plugin.xml" --exclude-dir=daq-platform.git "jython.api.scriptLocations" ' + 2 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+process = subprocess.Popen('grep -Rl --include="plugin.xml" --exclude-dir="target" "jython.api.scriptLocations" ' + 2 * up_one, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
 stdout, stderr = process.communicate()
 plugins_file_list = stdout.split('\n')
 
