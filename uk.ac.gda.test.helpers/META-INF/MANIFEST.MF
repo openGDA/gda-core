@@ -8,7 +8,6 @@ Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
- uk.ac.diamond.org.springframework;bundle-version="1.0.0",
  uk.ac.gda.common.client;bundle-version="1.0.0",
  uk.ac.gda.api,
  uk.ac.gda.core;bundle-version="8.26.0",
