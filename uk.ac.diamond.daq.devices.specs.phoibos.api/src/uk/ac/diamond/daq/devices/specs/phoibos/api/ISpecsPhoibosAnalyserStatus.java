@@ -23,5 +23,7 @@ import gda.observable.IObservable;
 
 public interface ISpecsPhoibosAnalyserStatus extends Findable, IObservable {
 
+	boolean isBusy();
+
 
 }

@@ -36,7 +36,7 @@ public class SetSequenceHandler extends HandlerBase implements IObserver {
 	@Execute
 	public void execute(MPart part, @Named(IServiceConstants.ACTIVE_SHELL) Shell shell) throws DeviceException {
 
-		if (!analyser.isNotBusy()) {
+		if (status.isBusy()) {
 			MessageBox validationDialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			validationDialog.setText("Analyser is busy");
 			validationDialog.setMessage("This sequence can't be set at the moment because the analyser is busy");

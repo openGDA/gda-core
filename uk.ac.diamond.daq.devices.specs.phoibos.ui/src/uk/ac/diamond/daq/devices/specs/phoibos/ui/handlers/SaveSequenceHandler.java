@@ -41,7 +41,7 @@ public class SaveSequenceHandler extends HandlerBase {
 		// Get the sequence open in the editor
 		SpecsPhoibosSequence sequence = (SpecsPhoibosSequence) part.getTransientData().get(SpecsUiConstants.OPEN_SEQUENCE);
 
-		if (!analyser.isNotBusy()) {
+		if (status.isBusy()) {
 			MessageBox messageBox = new MessageBox(shell, SWT.ICON | SWT.YES | SWT.NO);
 			messageBox.setText("Analyser is busy");
 			messageBox.setMessage("This sequence can't be validated at the moment because the analyser is busy, would you like to save it anyway?\n"

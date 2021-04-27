@@ -86,10 +86,12 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 	 * This method takes into account both collectionStrategy and SPECS status
 	 * and returns a true if either of them is busy
 	 */
-	private boolean isBusy() {
+	@Override
+	public boolean isBusy() {
 		return collectionStrategyStatus == Detector.BUSY
 				|| !(specsStatus == SpecsPhoibosStatus.IDLE
-				|| specsStatus == SpecsPhoibosStatus.ABORTED);
+				|| specsStatus == SpecsPhoibosStatus.ABORTED
+				|| specsStatus == SpecsPhoibosStatus.ERROR);
 	}
 
 	private Channel getChannel(String fullPvName) throws TimeoutException, CAException {
