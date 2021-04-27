@@ -142,6 +142,8 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private void updateGUI(double exposure) {
+		if (container.isDisposed())
+			return;
 		updateReadOut(exposure);
 		container.layout(true, true);
 	}

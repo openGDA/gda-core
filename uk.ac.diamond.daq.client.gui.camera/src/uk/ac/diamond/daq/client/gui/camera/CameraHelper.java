@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.client.gui.camera;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +52,6 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.exception.GDAClientException;
-import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.CameraProperties;
@@ -141,8 +139,6 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  */
 public final class CameraHelper {
 
-	private static final List<CameraComboItem> cameraComboItems = new ArrayList<>();
-
 	private static final Map<Integer, ICameraConfiguration> cameraConfigurations = new HashMap<>();
 
 	private static final Map<CameraConfigurationProperties, CameraProperties> cameraPropertiesBySpring = new HashMap<>();
@@ -152,12 +148,6 @@ public final class CameraHelper {
 	}
 
 	private CameraHelper() {
-	}
-
-	public static CameraConfiguration getCameraConfiguration(final CameraComboItem cameraItem)
-			throws LiveStreamException {
-		return createICameraConfiguration(cameraItem.getCameraProperties()).getCameraConfiguration()
-				.orElseThrow(() -> new LiveStreamException("No Camera Confguration found"));
 	}
 
 	public static Optional<CameraConfiguration> getCameraConfiguration(int cameraIndex) {
@@ -181,10 +171,6 @@ public final class CameraHelper {
 			return Optional.ofNullable(cc.get().cameraStreamTypes());
 		}
 		return Optional.empty();
-	}
-
-	public static List<CameraComboItem> getCameraComboItems() {
-		return Collections.unmodifiableList(cameraComboItems);
 	}
 
 	/**
@@ -370,11 +356,6 @@ public final class CameraHelper {
 			});
 	}
 
-	private static void createCameraComboItems() {
-		getAllCameraConfigurationProperties().stream()
-			.forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
-	}
-
 	private static void observeCameraProperties() {
 		cameraPropertiesBySpring.values().stream()
 			.map(CameraProperties::getIndex)
@@ -521,7 +502,6 @@ public final class CameraHelper {
 
 		convertAllCameraPropertiesBySpring();
 		observeCameraProperties();
-		createCameraComboItems();
 
 		monitorCameraAvailability();
 	}
