@@ -33,7 +33,6 @@ Require-Bundle: uk.ac.gda.api,
  uk.ac.diamond.daq.persistence,
  org.apache.commons.lang;bundle-version="2.6.0",
  org.apache.commons.math3,
- uk.ac.diamond.org.springframework,
  uk.ac.diamond.scisoft.analysis.processing,
  uk.ac.gda.core,
  org.apache.commons.csv

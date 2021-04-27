@@ -27,8 +27,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.databinding,
  org.dawnsci.datavis.model,
  org.dawnsci.january.model,
- com.google.guava,
- uk.ac.diamond.org.springframework;bundle-version="4.0.6"
+ com.google.guava
 Export-Package: uk.ac.diamond.daq.experiment.ui,
  uk.ac.diamond.daq.experiment.ui.driver,
  uk.ac.diamond.daq.experiment.ui.plan,
@@ -38,4 +37,5 @@ Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment.ui
 Import-Package: org.eclipse.dawnsci.analysis.api.tree,
  org.eclipse.dawnsci.nexus,
- org.slf4j;version="1.7.25"
+ org.slf4j;version="1.7.25",
+ org.springframework.context;version="4.0.6.RELEASE"

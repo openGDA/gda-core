@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.6.2",
  uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.tomography;bundle-version="1.0.0",
- uk.ac.diamond.org.springframework,
  uk.ac.diamond.daq.mapping.api,
  uk.ac.gda.core
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -21,3 +20,4 @@ Automatic-Module-Name: uk.ac.diamond.daq.experiment.scans
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.experiment.scans.mapping
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Import-Package: org.springframework.context;version="4.0.6.RELEASE"

@@ -7,7 +7,6 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api,
  uk.ac.gda.core,
  uk.ac.gda.api,
- uk.ac.diamond.org.springframework,
  uk.ac.diamond.daq.application.persistence,
  uk.ac.diamond.daq.persistence.manager,
  com.fasterxml.jackson.core.jackson-annotations,
@@ -36,4 +35,12 @@ Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.ecli
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.api
 Import-Package: 
  javax.annotation;version="1.2.0",
- org.slf4j
+ org.slf4j,
+ org.springframework.beans;version="4.0.6.RELEASE",
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ org.springframework.beans.factory.annotation;version="4.0.6.RELEASE",
+ org.springframework.cglib.core;version="4.0.6.RELEASE",
+ org.springframework.cglib.proxy;version="4.0.6.RELEASE",
+ org.springframework.context;version="4.0.6.RELEASE",
+ org.springframework.stereotype;version="4.0.6.RELEASE",
+ org.springframework.util;version="4.0.6.RELEASE"

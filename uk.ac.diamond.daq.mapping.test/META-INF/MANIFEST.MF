@@ -15,11 +15,13 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
  org.objenesis,
- com.fasterxml.jackson.core.jackson-databind,
- uk.ac.diamond.org.springframework.spring-test,
- uk.ac.diamond.org.springframework
+ com.fasterxml.jackson.core.jackson-databind
 Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  com.fasterxml.jackson.core.json;version="2.6.2",
  com.fasterxml.jackson.databind;version="2.6.2",
- org.osgi.framework
+ org.osgi.framework,
+ org.springframework.context.annotation;version="4.0.6.RELEASE",
+ org.springframework.test.annotation;version="4.0.6",
+ org.springframework.test.context;version="4.0.6",
+ org.springframework.test.context.junit4;version="4.0.6"
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.test
