@@ -29,7 +29,6 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.epics.pvaclient,
  org.epics.pvaccess,
  org.epics.pvdata,
- uk.ac.diamond.org.springframework,
  org.eclipse.scanning.device,
  org.eclipse.scanning.api;bundle-version="1.0.0"
 Export-Package: gda.data.metadata,
@@ -96,5 +95,8 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.6.2",
  org.springframework.expression;version="4.0.6.RELEASE",
  org.springframework.expression.spel.standard;version="4.0.6.RELEASE",
  org.springframework.expression.spel.support;version="4.0.6.RELEASE",
- org.springframework.util;version="3.0.4"
+ org.springframework.http;version="4.0.6.RELEASE",
+ org.springframework.util;version="3.0.4",
+ org.springframework.web.client;version="4.0.6.RELEASE",
+ org.springframework.web.util;version="4.0.6.RELEASE"
 Automatic-Module-Name: uk.ac.gda.epics
