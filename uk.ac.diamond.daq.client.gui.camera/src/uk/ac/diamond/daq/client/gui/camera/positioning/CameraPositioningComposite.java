@@ -73,7 +73,8 @@ public class CameraPositioningComposite implements CompositeFactory {
 
 	private void buildMotorsGUI() {
 		Arrays.stream(motorCompositeArea.getChildren()).forEach(Widget::dispose);
-		getICameraConfiguration().ifPresent(c -> c.getCameraProperties().getMotorProperties().stream()
+
+		getICameraConfiguration().ifPresent(c -> c.getCameraConfigurationProperties().getMotors().stream()
 				.forEach(motor -> {
 					MotorCompositeFactory mc = new MotorCompositeFactory(motor);
 					mc.createComposite(motorCompositeArea, SWT.HORIZONTAL);

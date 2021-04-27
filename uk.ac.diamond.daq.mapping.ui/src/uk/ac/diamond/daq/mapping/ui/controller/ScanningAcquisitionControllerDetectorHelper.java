@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
@@ -42,7 +43,6 @@ import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocume
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.client.properties.CameraProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
@@ -157,14 +157,15 @@ class ScanningAcquisitionControllerDetectorHelper {
 			return camerasControls;
 
 		camerasControls = dp.getCameras().stream()
-			.map(CameraHelper::getCameraPropertiesByID)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.map(CameraProperties::getIndex)
-			.map(CameraHelper::getCameraControl)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.collect(Collectors.toList());
+				.map(CameraHelper::getCameraConfigurationPropertiesByID)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.map(CameraHelper::createICameraConfiguration)
+				.map(ICameraConfiguration::getCameraControl)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
+
 		return camerasControls;
 	}
 

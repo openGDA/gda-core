@@ -26,7 +26,7 @@ import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
-import uk.ac.gda.client.properties.CameraProperties;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 
 /**
@@ -59,11 +59,7 @@ public interface ICameraConfiguration {
 	 */
 	RectangularROI getMaximumSizedROI() throws GDAClientException;
 
-	/**
-	 * @return the client camera configuration.<br>
-	 *         See <a href= "https://confluence.diamond.ac.uk/display/DIAD/K11+GDA+Properties">
-	 */
-	CameraProperties getCameraProperties();
+	CameraConfigurationProperties getCameraConfigurationProperties();
 
 	/**
 	 * When the beam illuminating the sample is driven by X/Y motors, this method returns a class containing information
