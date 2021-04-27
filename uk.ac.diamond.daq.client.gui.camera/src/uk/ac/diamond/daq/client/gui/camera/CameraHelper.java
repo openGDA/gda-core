@@ -255,17 +255,6 @@ public final class CameraHelper {
 	}
 
 	/**
-	 * Returns a {@link CameraProperties} by its index
-	 * @param cameraIndex the index of the requested camera
-	 * @return the required camera configuration
-	 * @deprecated use instead {@link #getCameraConfigurationProperties(int)}. To be removed on GDA 9.21
-	 */
-	 @Deprecated
-	public static CameraProperties getCameraProperties(int cameraIndex) {
-		return getCameraPropertiesBySpring(getCameraConfigurationProperties(cameraIndex));
-	}
-
-	/**
 	 * Returns a {@link CameraConfigurationProperties} by its index
 	 * @param cameraIndex the index of the requested camera
 	 * @return the required camera configuration
@@ -274,37 +263,10 @@ public final class CameraHelper {
 		return getCameraProperies().get(cameraIndex);
 	}
 
-	/**
-	 * Returns a {@link CameraProperties} by its id
-	 * @param id the client camera configuration id
-	 * @return the required camera configuration
-	 * @deprecated use instead {@link #getCameraConfigurationPropertiesByID(String)}. To be removed on GDA 9.21
-	 */
-	@Deprecated
-	public static Optional<CameraProperties> getCameraPropertiesByID(String id) {
-		return getCameraConfigurationPropertiesByID(id)
-				.map(CameraHelper::getCameraPropertiesBySpring);
-	}
-
 	public static Optional<CameraConfigurationProperties> getCameraConfigurationPropertiesByID(String id) {
 		return getCameraProperies().stream()
 				.filter(c -> c.getId().equals(id))
 				.findFirst();
-	}
-
-	/**
-	 * Returns the default camera properties. The actual implementation returns the
-	 * first camera as default but this should change in future.
-	 *
-	 * @return the camera properties, otherwise <code>null</code>
-	 * @deprecated uses {@link #getDefaultCameraConfigurationProperties()}. To be removed on GDA 9.21
-	 */
-	@Deprecated
-	public static CameraProperties getDefaultCameraProperties() {
-		if (getCameraProperies().isEmpty()) {
-			return null;
-		}
-		return getCameraProperties(0);
 	}
 
 	/**
@@ -350,7 +312,7 @@ public final class CameraHelper {
 			.map(Map.Entry::getKey)
 			.findFirst()
 			.ifPresent(cameraIndex -> {
-				BeamCameraMappingEvent cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
+				var cmEvent = new BeamCameraMappingEvent(CameraHelper.class, cameraIndex);
 				publishEvent(cmEvent);
 			});
 	}
@@ -412,7 +374,7 @@ public final class CameraHelper {
 			} catch (DeviceException e) {
 				throw new GDAClientException("Error", e);
 			}
-			RectangularROI max = new RectangularROI();
+			var max = new RectangularROI();
 			max.setPoint(0, 0);
 			max.setEndPoint(frameSize);
 			return max;
@@ -528,7 +490,7 @@ public final class CameraHelper {
 	private static CameraProperties convertProperties(CameraConfigurationProperties cc, int index) {
 		if (cc.getCameraControl() == null && cc.getName() == null)
 			return null;
-		CameraPropertiesBuilder builder = new CameraPropertiesBuilder();
+		var builder = new CameraPropertiesBuilder();
 		builder.setId(cc.getId());
 		builder.setIndex(index);
 		builder.setName(cc.getName());
@@ -547,7 +509,7 @@ public final class CameraHelper {
 			return Collections.emptyList();
 		return motors.stream()
 				.map(m -> {
-					MotorPropertiesBuilder motorBuilder = new MotorPropertiesBuilder();
+					var motorBuilder = new MotorPropertiesBuilder();
 					motorBuilder.setName(m.getName());
 					motorBuilder.setController(m.getController());
 					return motorBuilder.build();

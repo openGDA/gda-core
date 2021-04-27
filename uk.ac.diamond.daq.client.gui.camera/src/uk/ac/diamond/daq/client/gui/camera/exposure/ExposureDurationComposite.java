@@ -69,7 +69,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  *
  * <p>
  * At the start the component points at the camera defined by
- * {@link CameraHelper#getDefaultCameraProperties()}
+ * {@link CameraHelper#getDefaultCameraConfigurationProperties()}
  * </p>
  *
  * <p>
