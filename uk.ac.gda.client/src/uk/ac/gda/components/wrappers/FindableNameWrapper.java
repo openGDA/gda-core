@@ -18,7 +18,9 @@
 
 package uk.ac.gda.components.wrappers;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,7 +30,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.richbeans.widgets.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -39,7 +40,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
@@ -55,6 +56,7 @@ public class FindableNameWrapper<F extends Findable> extends TextWrapper {
 	private ModifyListener modifyListener;
 	private boolean found = false;
 	private boolean labelOnRight;
+	private List<String> allFindableNames;
 
 	public FindableNameWrapper(Composite parent, int style, final Class<F> findableClass) {
 		this(parent, style, findableClass, true);
@@ -84,13 +86,9 @@ public class FindableNameWrapper<F extends Findable> extends TextWrapper {
 		this.nameImage = SWTResourceManager.getImage(FindableNameWrapper.class, "/icons/tick.png");
 		this.checkingImage = SWTResourceManager.getImage(FindableNameWrapper.class, "/icons/eye.png");
 
-		this.modifyListener = new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				checkName();
-			}
-		};
+		this.modifyListener = event -> checkName();
 		text.addModifyListener(modifyListener);
+		storeAllFindableNames();
 	}
 
 
@@ -101,6 +99,20 @@ public class FindableNameWrapper<F extends Findable> extends TextWrapper {
 			text.dispose();
 		}
 		super.dispose();
+	}
+
+	private void storeAllFindableNames() {
+		allFindableNames = Finder.listFindablesOfType(Findable.class)
+				.stream()
+				.map(Findable::getName)
+				.collect(Collectors.toList());
+		allFindableNames.sort(null);
+	}
+
+	private List<String> getMatchingFindables(String firstNamePart) {
+		return allFindableNames.stream()
+				.filter(name -> name.startsWith(firstNamePart))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -146,12 +158,39 @@ public class FindableNameWrapper<F extends Findable> extends TextWrapper {
 				if (optionalObject.isPresent()) {
 					setRightName(name);
 				} else {
-					if (InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name) != null) {
-						setRightName(name);
-					} else setNotFindableError(name);
+					checkJythonObject(name, findableClass);
 				}
 			});
 			return Status.OK_STATUS;
+		}
+
+		/**
+		 * Check to see if named Jython object exists on the server and
+		 * if it is the correct class type
+		 *
+		 * @param <T>
+		 * @param name
+		 * @param clazz
+		 */
+		private <T> void checkJythonObject(String name, Class<T> clazz) {
+			// See if object exists
+			Object jythonServerResult = JythonServerFacade.getInstance().evaluateCommand("globals().has_key('"+name+"')");
+			if (resultIsTrue(jythonServerResult)) {
+				// Named object exists, check to see if it's an instance of required class
+				String instanceCommand = String.format("isinstance(%s, %s)", name, clazz.getSimpleName());
+				Object scnResult = JythonServerFacade.getInstance().evaluateCommand(instanceCommand);
+				if (resultIsTrue(scnResult)) {
+					setRightName(name);
+				} else {
+					setWrongNameError(name);
+				}
+			} else {
+				setNotFindableError(name);
+			}
+		}
+
+		private boolean resultIsTrue(Object obj) {
+			return obj != null && Boolean.TRUE.toString().equalsIgnoreCase(obj.toString());
 		}
 
 		private boolean worthRunning() {
@@ -238,6 +277,10 @@ public class FindableNameWrapper<F extends Findable> extends TextWrapper {
 			setToolTipText("Please enter a name.");
 		} else {
 			setToolTipText("Cannot find '" + name + "'");
+			String message = "Cannot find scannable called '" + name +"'. ";
+			String possibleMatches = getMatchingFindables(name).stream().collect(Collectors.joining("\n   ", "   ", ""));
+			String matchesMessage = possibleMatches.trim().isEmpty() ? "No matches found. " : "Possible matching scannables : \n"+possibleMatches;
+			setToolTipText(message + matchesMessage);
 		}
 		text.setForeground(RED);
 		GridUtils.layout(this);
