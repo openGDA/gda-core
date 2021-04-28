@@ -61,9 +61,12 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.device.ScannableMotionUnits;
@@ -106,6 +109,13 @@ public class ScanRequestConverterTest {
 	private MappingExperimentBean mappingBean;
 	private MappingExperimentBean newMappingBean;
 	private TwoAxisGridPointsModel scanPath;
+
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(new PointGeneratorService());
+	}
 
 	@Before
 	public void setUp() throws Exception {
