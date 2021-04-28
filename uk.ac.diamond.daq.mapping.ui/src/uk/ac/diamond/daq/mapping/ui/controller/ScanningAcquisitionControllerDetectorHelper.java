@@ -211,8 +211,8 @@ class ScanningAcquisitionControllerDetectorHelper {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 			getCamerasControls().stream()
-					.filter(camera -> camera.getName().equals(event.getName()))
-					.forEach(cameraName -> updateDetectorDocument(cameraName, event.getAcquireTime()));
+				.filter(camera -> CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), Optional.ofNullable(camera)))
+				.forEach(cameraName -> updateDetectorDocument(cameraName, event.getAcquireTime()));
 		}
 
 		private void updateDetectorDocument(CameraControl cameraControl, double acquireTime) {

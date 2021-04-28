@@ -61,20 +61,24 @@ public class CameraAvailabilityMonitor {
 		executorService = Executors.newScheduledThreadPool(getAllCameraConfigurationProperties().size());
 		getAllCameraConfigurationProperties().stream()
 			.map(CameraHelper::createICameraConfiguration)
-			.map(ICameraConfiguration::getCameraControl)
-			.forEach(cc -> cc.ifPresent(this::attachMonitor));
+			.forEach(this::attachMonitor);
 	}
 
-	private void attachMonitor(CameraControl cameraControl) {
-		executorService.scheduleWithFixedDelay(runnableMonitor(cameraControl), 1, period, TimeUnit.SECONDS);
+	private void attachMonitor(ICameraConfiguration iCameraConfiguration) {
+		executorService.scheduleWithFixedDelay(runnableMonitor(iCameraConfiguration), 1, period, TimeUnit.SECONDS);
 	}
 
-	private Runnable runnableMonitor(CameraControl cameraControl) {
-		return () -> checkCameraAvailability(cameraControl);
+	private Runnable runnableMonitor(ICameraConfiguration iCameraConfiguration) {
+		return () -> checkCameraAvailability(iCameraConfiguration);
 	}
 
-	private void checkCameraAvailability(CameraControl cameraControl) {
-		CameraControllerEvent event = new CameraControllerEvent();
+	private void checkCameraAvailability(ICameraConfiguration iCameraConfiguration) {
+		iCameraConfiguration.getCameraControl()
+			.ifPresent(c -> publishCameraControllerEvent(c, iCameraConfiguration));
+	}
+
+	private void publishCameraControllerEvent(CameraControl cameraControl, ICameraConfiguration iCameraConfiguration) {
+		var event = new CameraControllerEvent();
 		try {
 			event.setName(cameraControl.getName());
 			event.setCameraState(cameraControl.getAcquireState());
@@ -83,6 +87,6 @@ public class CameraAvailabilityMonitor {
 		} catch (DeviceException e) {
 			event.setCameraState(CameraState.UNAVAILABLE);
 		}
-		publishEvent(new CameraControlSpringEvent(CameraAvailabilityMonitor.class, event));
+		publishEvent(new CameraControlSpringEvent(CameraAvailabilityMonitor.class, event, iCameraConfiguration.getCameraConfigurationProperties().getId()));
 	}
 }

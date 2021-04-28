@@ -21,6 +21,8 @@ package uk.ac.diamond.daq.client.gui.camera.event;
 import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.api.camera.CameraState;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  *  Publishes a CameraControl event through Spring
@@ -28,35 +30,41 @@ import uk.ac.gda.api.camera.CameraState;
  * @author Maurizio Nagni
  */
 public class CameraControlSpringEvent extends CameraEvent {
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5829080723329070564L;
-	private final String name;
+	private final String cameraId;
 	private final double acquireTime;
 	private final BinningFormat binningFormat;
 	private final CameraState cameraState;
-	
-	public CameraControlSpringEvent(Object source, String name, double acquireTime, BinningFormat binningFormat,
-			CameraState cameraState) {
-		super(source);
-		this.name = name;
-		this.acquireTime = acquireTime;
-		this.binningFormat = binningFormat;
-		this.cameraState = cameraState;
-	}
 
-	public CameraControlSpringEvent(Object source, CameraControllerEvent event) {
+	/**
+	 * @param source the object generating the event
+	 * @param event a camera control event
+	 * @param cameraId the {@link CameraConfigurationProperties#getId()} to the event is referred
+	 */
+	public CameraControlSpringEvent(Object source, CameraControllerEvent event, String cameraId) {
 		super(source);
-		this.name = event.getName();
+		this.cameraId = cameraId;
 		this.acquireTime = event.getAcquireTime();
 		this.binningFormat = event.getBinningFormat();
 		this.cameraState = event.getCameraState();
 	}
-	
-	public String getName() {
-		return name;
+
+	/**
+	 * Identifies the camera.
+	 * <p>
+	 * Each GDA client has a configuration which assigns to each camera a unique id.
+	 * This id may be used by different GUI components to retrieve details or publish events regarding that camera.
+	 * </p>
+	 * @return an identification id
+	 *
+	 * @see ClientSpringProperties
+	 */
+	public String getCameraId() {
+		return cameraId;
 	}
 
 	public double getAcquireTime() {

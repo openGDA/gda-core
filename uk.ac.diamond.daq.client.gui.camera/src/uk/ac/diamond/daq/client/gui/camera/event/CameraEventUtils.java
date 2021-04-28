@@ -18,8 +18,11 @@
 
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getCameraConfigurationPropertiesByCameraControlName;
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getCameraControlObservers;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -29,6 +32,7 @@ import gda.observable.IObserver;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 public final class CameraEventUtils {
 
@@ -56,15 +60,22 @@ public final class CameraEventUtils {
 	 * @param cameraControl the camera controller to monitor
 	 */
 	public static void addIObserverToCameraControl(CameraControl cameraControl) {
-		cameraControl.addIObserver(cameraControlObserver);
+		getCameraControlObservers()
+			.putIfAbsent(cameraControl, cameraControlEventObserver(getCameraControlEventConsumer(cameraControl)));
+		Optional.ofNullable(getCameraControlObservers().get(cameraControl))
+			.ifPresent(cameraControl::addIObserver);
 	}
 	public static void removeIObserverFromCameraControl(CameraControl cameraControl) {
-		cameraControl.deleteIObserver(cameraControlObserver);
+		Optional.ofNullable(getCameraControlObservers().get(cameraControl))
+			.ifPresent(cameraControl::deleteIObserver);
 	}
-	private static Consumer<CameraControllerEvent> cameraControlEventConsumer = event -> {
-		publishEvent(new CameraControlSpringEvent(CameraHelper.class, event));
-		logger.debug("{}", event);
-	};
-	private static final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(cameraControlEventConsumer);
 
+	private static Consumer<CameraControllerEvent> getCameraControlEventConsumer(CameraControl cameraControl) {
+		return event -> {
+			getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
+				.map(CameraConfigurationProperties::getId)
+				.ifPresent(id -> publishEvent(new CameraControlSpringEvent(CameraHelper.class, event, id)));
+			logger.debug("{}", event);
+		};
+	}
 }

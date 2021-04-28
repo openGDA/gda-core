@@ -37,6 +37,7 @@ import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
 import gda.factory.Findable;
+import gda.observable.IObserver;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
@@ -134,6 +135,8 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 public final class CameraHelper {
 
 	private static final Map<Integer, ICameraConfiguration> cameraConfigurations = new HashMap<>();
+
+	private static final Map<CameraControl, IObserver> cameraControlObservers = new HashMap<>();
 
 	static {
 		loadAllProperties();
@@ -485,5 +488,26 @@ public final class CameraHelper {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.orElse(null);
+	}
+
+	public static Map<CameraControl, IObserver> getCameraControlObservers() {
+		return cameraControlObservers;
+	}
+
+	/**
+	 * Verify a {@link CameraControl} instance is derived from a given {@link CameraConfigurationProperties#getId()}
+	 * @param cameraId a camera property id
+	 * @param cameraControl a camera control
+	 * @return {@code true} is the {@code CameraControl} is derived from the cameraId properties
+	 */
+	public static final boolean cameraIdMatchesCameraControl(String cameraId, final Optional<CameraControl> cameraControl) {
+		return cameraControl
+				.map(CameraControl::getName)
+				.map(CameraHelper::getCameraConfigurationPropertiesByCameraControlName)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.map(CameraConfigurationProperties::getId)
+				.filter(id -> id.equals(cameraId))
+				.isPresent();
 	}
 }

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.device.DeviceException;
+import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
@@ -120,10 +121,9 @@ public class ExposureTextField {
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			 getCameraControl().ifPresent(cc -> {
-				if (event.getName().equals(cc.getName())) {
-					Display.getDefault().asyncExec(() -> updateModelToGUI(event));
-				}
+			Display.getDefault().asyncExec(() -> {
+				if (CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), getCameraControl()))
+					updateModelToGUI(event);
 			});
 		}
 

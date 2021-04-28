@@ -165,10 +165,9 @@ public class ExposureDurationComposite implements CompositeFactory {
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			cameraControl.ifPresent(cc -> {
-				if (event.getName().equals(cc.getName())) {
-					Display.getDefault().asyncExec(() -> updateModelToGUI(event));
-				}
+			Display.getDefault().asyncExec(() -> {
+				if (CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), cameraControl))
+					updateModelToGUI(event);
 			});
 		}
 
