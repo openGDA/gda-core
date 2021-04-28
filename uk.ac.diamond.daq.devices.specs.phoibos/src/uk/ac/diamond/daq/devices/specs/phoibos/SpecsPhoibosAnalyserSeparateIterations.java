@@ -148,6 +148,8 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private boolean shouldCheckExperimentalShutter = true;
 	private boolean shouldCheckPrelensValve = true;
 
+	private boolean immediateStopCalled;
+
 
 	@Override
 	public void configure() throws FactoryException {
@@ -754,9 +756,13 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	}
 
 	public void startAcquiringWait() throws DeviceException {
+		immediateStopCalled = false;
 		try {
 			clearCachedData();
 			for (currentIteration = 0; currentIteration < getIterations(); currentIteration++) {
+				if (immediateStopCalled) {
+					break;
+				}
 				startAcquiring();
 				controller.waitWhileStatusBusy();
 				// Always update observers when the acquire finishes
@@ -775,6 +781,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	public void stopAcquiring() {
 		logger.info("Stopping analyser");
 		try {
+			immediateStopCalled = true;
 			controller.stopAcquiring();
 		} catch (Exception e) {
 			final String msg = "Error stopping acquiring";
