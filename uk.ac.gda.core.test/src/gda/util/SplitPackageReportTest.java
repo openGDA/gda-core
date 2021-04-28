@@ -18,11 +18,15 @@
 
 package gda.util;
 
+import static java.util.Arrays.stream;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +34,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +46,7 @@ import java.util.jar.Manifest;
 import org.eclipse.osgi.util.ManifestElement;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,34 +57,37 @@ public class SplitPackageReportTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(SplitPackageReportTest.class);
 
+	private static final Attributes.Name BSN_ATTRIBUTE = new Attributes.Name("Bundle-SymbolicName");
+	private static final Attributes.Name RB_ATTRIBUTE = new Attributes.Name("Require-Bundle");
+	private static final Attributes.Name EP_ATTRIBUTE = new Attributes.Name("Export-Package");
+
+	// Caches so that multiple tests don't have to re-read files
 	private static final SetMultimap<String, String> packageMap = LinkedHashMultimap.create();
-	private static final Set<String> bundleNames = new HashSet<>();
+	private static final Map<String, Manifest> allBundleManifests = new HashMap<>();
 
 	/** package name -> list of bundles exporting it */
 	private static final Map<String, Set<String>> packagesExportedByMoreThanOneBundle = new TreeMap<>();
 
 	@BeforeClass
-	public static void findSplitPackages() throws Exception {
+	public static void readManifestsAndRecordSplitPackages() throws Exception {
+		// Just in case this were to be called multiple times
+		packageMap.clear();
+		allBundleManifests.clear();
+		packagesExportedByMoreThanOneBundle.clear();
 		final Path workspace_git = Paths.get("..", "..").toAbsolutePath().normalize();
-		final List<Path> manifests = findAllManifests(workspace_git);
-		final Attributes.Name bsnAttribute = new Attributes.Name("Bundle-SymbolicName");
-		final Attributes.Name exportPackageAttribute = new Attributes.Name("Export-Package");
-		for (Path manifestPath : manifests) {
-			final Manifest manifest = readManifest(manifestPath);
-			if (manifest.getMainAttributes().containsKey(bsnAttribute)) {
-				final String bsnValue = manifest.getMainAttributes().getValue(bsnAttribute);
-				final String bundleName = ManifestElement.parseHeader(bsnAttribute.toString(), bsnValue)[0].getValue();
-				bundleNames.add(bundleName);
-				if (manifest.getMainAttributes().containsKey(exportPackageAttribute)) {
-					final String exportedPackagesValue = manifest.getMainAttributes().getValue(exportPackageAttribute);
-					final ManifestElement[] exportedPackages = ManifestElement
-							.parseHeader(exportPackageAttribute.toString(), exportedPackagesValue);
-					for (ManifestElement element : exportedPackages) {
-						final String packageName = element.getValue();
-						packageMap.put(packageName, bundleName);
-					}
+		findAllManifests(workspace_git).stream().map(SplitPackageReportTest::readManifest).forEach(SplitPackageReportTest::storeBundle);
+		for (var bEntry : allBundleManifests.entrySet()) {
+			Manifest manifest = bEntry.getValue();
+			if (manifest.getMainAttributes().containsKey(EP_ATTRIBUTE)) {
+				final String exportedPackagesValue = manifest.getMainAttributes().getValue(EP_ATTRIBUTE);
+				final ManifestElement[] exportedPackages = ManifestElement.parseHeader(EP_ATTRIBUTE.toString(),
+						exportedPackagesValue);
+				for (ManifestElement element : exportedPackages) {
+					final String packageName = element.getValue();
+					packageMap.put(packageName, bEntry.getKey());
 				}
 			}
+
 		}
 		for (String pkg : packageMap.keySet()) {
 			final Set<String> exportingBundles = packageMap.get(pkg);
@@ -88,9 +97,59 @@ public class SplitPackageReportTest {
 		}
 	}
 
+	private static List<Path> findAllManifests(final Path root) throws IOException {
+
+		final Path manifestPath = Paths.get("META-INF", "MANIFEST.MF");
+		final List<Path> manifests = new ArrayList<>();
+		Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				if (attrs.isRegularFile() && file.endsWith(manifestPath)) {
+					manifests.add(file);
+				}
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+				// Skip Maven build output which can contain expanded dependency bundles
+				if (dir.endsWith("target")) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
+		return manifests;
+	}
+
+	private static Manifest readManifest(Path manifestPath) {
+		try (FileInputStream fis = new FileInputStream(manifestPath.toFile())) {
+			return new Manifest(fis);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	/**
+	 * If manifest corresponds to a valid bundle,
+	 * cache in the static map
+	 */
+	private static void storeBundle(Manifest manifest) {
+		if (manifest.getMainAttributes().containsKey(BSN_ATTRIBUTE)) {
+			try {
+				String bsnValue = manifest.getMainAttributes().getValue(BSN_ATTRIBUTE);
+				String bundleName = ManifestElement.parseHeader(BSN_ATTRIBUTE.toString(), bsnValue)[0].getValue();
+				allBundleManifests.put(bundleName, manifest);
+			} catch (BundleException e) {
+				throw new RuntimeException("Bundle problem", e);
+			}
+		}
+	}
+
+
 	@Test
 	public void reportSplitPackages() throws Exception {
-		logger.info("{} unique bundle names", bundleNames.size());
+		logger.info("{} unique bundle names", allBundleManifests.size());
 		logger.info("{} exported packages", packageMap.size());
 		logger.info("");
 		logger.info("{} packages are exported by more than one bundle:", packagesExportedByMoreThanOneBundle.size());
@@ -205,34 +264,27 @@ public class SplitPackageReportTest {
 				.forEach(sp -> assertThat("New split package detected: " + sp, knownSplitPackages, hasItem(sp)));
 	}
 
-	private static List<Path> findAllManifests(final Path root) throws IOException {
-
-		final Path manifestPath = Paths.get("META-INF", "MANIFEST.MF");
-		final List<Path> manifests = new ArrayList<>();
-		Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				if (attrs.isRegularFile() && file.endsWith(manifestPath)) {
-					manifests.add(file);
-				}
-				return FileVisitResult.CONTINUE;
+	/**
+	 * This test checks that any plugins with a dependency on Spring express this via
+	 * an Import-Package directive rather than Require-Bundle. This is to aid with
+	 * decoupling Spring usage from the name of the provider (particularly for moving
+	 * Spring to the target platform)
+	 * @see <a href="https://jira.diamond.ac.uk/browse/DAQ-3468">DAQ-3468</a>
+	 */
+	@Test
+	public void testNoRequireBundleForSpring() throws IOException, BundleException {
+		Set<String> bundlesRequiringSpring = new HashSet<>();
+		for (var bEntry : allBundleManifests.entrySet()) {
+			Manifest manifest = bEntry.getValue();
+			String bundleName = bEntry.getKey();
+			if (manifest.getMainAttributes().containsKey(RB_ATTRIBUTE)) {
+				String rbValue = manifest.getMainAttributes().getValue(RB_ATTRIBUTE);
+				ManifestElement[] rbEntries = ManifestElement.parseHeader(RB_ATTRIBUTE.toString(), rbValue);
+				stream(rbEntries).map(ManifestElement::getValue)
+						.filter(r -> r.equals("uk.ac.diamond.org.springframework")).findAny()
+						.ifPresent(r -> bundlesRequiringSpring.add(bundleName));
 			}
-
-			@Override
-			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-				// Skip Maven build output which can contain expanded dependency bundles
-				if (dir.endsWith("target")) {
-					return FileVisitResult.SKIP_SUBTREE;
-				}
-				return FileVisitResult.CONTINUE;
-			}
-		});
-		return manifests;
-	}
-
-	private static Manifest readManifest(Path manifestPath) throws IOException {
-		try (FileInputStream fis = new FileInputStream(manifestPath.toFile())) {
-			return new Manifest(fis);
 		}
+		assertThat("DAQ-3468 Please use Import-Package for Spring dependencies", bundlesRequiringSpring, is(empty()));
 	}
 }
