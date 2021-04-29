@@ -28,17 +28,20 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RasterTest {
 
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	private IPointGeneratorService service;
-
-	@Before
-	public void before() throws Exception {
-		service = new PointGeneratorService();
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
 	@Test
@@ -52,7 +55,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, boundingRectangle);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, boundingRectangle);
 
 		final int expectedSize = 9;
 		assertEquals(expectedSize, gen.size());
@@ -92,7 +95,7 @@ public class RasterTest {
 
 
 
-		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(model);
 		List<IPosition> pointList = gen.createPoints();
 
 		// Zeroth point is half a step in from each side, i.e. (0.5, 0.5).
@@ -122,7 +125,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(model);
 		List<IPosition> pointList = gen.createPoints();
 
 		// Zeroth point is (4.5, 0.5).
@@ -152,7 +155,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridStepModel> gen = service.createGenerator(model);
+		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(model);
 		List<IPosition> pointList = gen.createPoints();
 	}
 
@@ -177,7 +180,7 @@ public class RasterTest {
 		model.setyAxisStep(yStep);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		List<IPosition> pointList = gen.createPoints();
 
 		int rows = (int) (Math.floor((xStop - xStart) / xStep));
@@ -218,7 +221,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		final int expectedSize = 4;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
@@ -252,7 +255,7 @@ public class RasterTest {
 		rmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
 		final int[] expectedShape = new int[] { sizes[0], sizes[1] };
-		IPointGenerator<?> gen = service.createGenerator(rmodel);
+		IPointGenerator<?> gen = pointGeneratorService.createGenerator(rmodel);
 		final int expectedSize = expectedShape[0] * expectedShape[1];
 		assertEquals(expectedSize, gen.size());
 		assertEquals(sizes.length, gen.getRank());
@@ -282,7 +285,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		final int expectedSize = 6;
 		assertEquals(expectedSize , gen.size());
 		assertEquals(2, gen.getRank());
@@ -311,7 +314,7 @@ public class RasterTest {
 		model.setAlternating(true);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
+		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
 		final int expectedSize = 4;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(2, gen.getRank());

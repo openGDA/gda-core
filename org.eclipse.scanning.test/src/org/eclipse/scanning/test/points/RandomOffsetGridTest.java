@@ -24,18 +24,21 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RandomOffsetGridTest {
 
-	private IPointGeneratorService service;
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@Before
-	public void before() throws Exception {
-		service = new PointGeneratorService();
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
-
 	@Test
 	public void testSimpleBox() throws Exception {
 
@@ -59,8 +62,8 @@ public class RandomOffsetGridTest {
 		gm.setxAxisPoints(5);
 		gm.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridPointsRandomOffsetModel> r = service.createGenerator(rm);
-		IPointGenerator<TwoAxisGridPointsModel> g = service.createGenerator(gm);
+		IPointGenerator<TwoAxisGridPointsRandomOffsetModel> r = pointGeneratorService.createGenerator(rm);
+		IPointGenerator<TwoAxisGridPointsModel> g = pointGeneratorService.createGenerator(gm);
 		final int expectedSize = 25;
 		assertEquals(expectedSize, g.size());
 		assertEquals(2, g.getRank());

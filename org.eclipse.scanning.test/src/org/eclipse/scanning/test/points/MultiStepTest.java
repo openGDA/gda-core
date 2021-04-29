@@ -25,23 +25,27 @@ import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MultiStepTest {
 
-	private IPointGeneratorService service;
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@Before
-	public void before() {
-		service = new PointGeneratorService();
+	@BeforeClass
+	public static void beforeClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
 	@Test(expected = GeneratorException.class)
 	public void testNoName() throws Exception {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -50,7 +54,7 @@ public class MultiStepTest {
 		AxialMultiStepModel model = new AxialMultiStepModel();
 		model.setName("x");
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -61,7 +65,7 @@ public class MultiStepTest {
 
 		model.addRange(10, 20, 2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		final int expectedSize = 6;
@@ -83,7 +87,7 @@ public class MultiStepTest {
 
 		model.addRange(10.0, 20.0, -1.0);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -94,7 +98,7 @@ public class MultiStepTest {
 
 		model.addRange(20.0, 10.0, -2.0);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 		final int expectedSize = 6;
 		assertEquals(expectedSize, gen.size());
@@ -115,7 +119,7 @@ public class MultiStepTest {
 
 		model.addRange(20, 10, 2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -128,7 +132,7 @@ public class MultiStepTest {
 		model.addRange(25, 50, 5);
 		model.addRange(100, 500, 50);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 		final int expectedSize = 21; // 6 + 6 + 9
 		assertEquals(expectedSize, gen.size());
@@ -156,7 +160,7 @@ public class MultiStepTest {
 		model.addRange(50, 25, -5);
 		model.addRange(20, 10, -2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 
 		final int expectedSize = 21; // 6 + 6 + 9
@@ -187,7 +191,7 @@ public class MultiStepTest {
 
 		for (boolean bool : new boolean[] {true, false}) {
 			model.setContinuous(bool);
-			IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+			IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 			GeneratorUtil.testGeneratorPoints(gen);
 
 			final int expectedSize = 23; // 6 + 17
@@ -215,7 +219,7 @@ public class MultiStepTest {
 		model.addRange(0, 20, 2); // Bounds -1 -> 21
 		model.addRange(20, 100, 5); // Bounds 17.5 -> 102.5
 
-		service.createGenerator(model);
+		pointGeneratorService.createGenerator(model);
 	}
 
 	@Test
@@ -229,7 +233,7 @@ public class MultiStepTest {
 
 		for (boolean bool : new boolean[]{true, false}){
 			model.setContinuous(bool);
-			IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+			IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 			GeneratorUtil.testGeneratorPoints(gen);
 
 			final int expectedSize = 23; // 6 + 17
@@ -257,7 +261,7 @@ public class MultiStepTest {
 		model.addRange(100, 20, -5); // Bounds 102.5 -> 17.5
 		model.addRange(20, 0, -2); // Bounds 21 -> -1
 
-		service.createGenerator(model);
+		pointGeneratorService.createGenerator(model);
 	}
 
 	@Test
@@ -268,7 +272,7 @@ public class MultiStepTest {
 		model.addRange(10, 20, 2);
 		model.addRange(15, 50, 5);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -281,7 +285,7 @@ public class MultiStepTest {
 		model.addRange(10, 20, 2);
 		model.addRange(15, 50, 5);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -293,7 +297,7 @@ public class MultiStepTest {
 		model.addRange(50, 20, -5);
 		model.addRange(22, 10, -2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -306,7 +310,7 @@ public class MultiStepTest {
 		model.addRange(50, 20, -5);
 		model.addRange(22, 10, -2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -318,7 +322,7 @@ public class MultiStepTest {
 		model.addRange(10, 20, 2);
 		model.addRange(50, 25, -5);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -331,7 +335,7 @@ public class MultiStepTest {
 		model.addRange(10, 20, 2);
 		model.addRange(20, 10, -2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -344,7 +348,7 @@ public class MultiStepTest {
 		model.addRange(10, 20, 2);
 		model.addRange(25, 15, -2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -356,7 +360,7 @@ public class MultiStepTest {
 		model.addRange(50, 25, -5);
 		model.addRange(10, 20, 2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -369,7 +373,7 @@ public class MultiStepTest {
 		model.addRange(20, 10, -2);
 		model.addRange(10, 20, 2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -382,7 +386,7 @@ public class MultiStepTest {
 		model.addRange(50, 25, -5);
 		model.addRange(10, 20, 2);
 
-		IPointGenerator<AxialMultiStepModel> gen = service.createGenerator(model);
+		IPointGenerator<AxialMultiStepModel> gen = pointGeneratorService.createGenerator(model);
 		GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -401,7 +405,7 @@ public class MultiStepTest {
 			// 2 positions: 0, 1
 			CompoundModel cModel = new CompoundModel(new AxialStepModel("axis", 0, 1, 1));
 			cModel.addModel(model);
-			IPointGenerator<CompoundModel> gen = service.createGenerator(cModel);
+			IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(cModel);
 			assertEquals(30, gen.size());
 			List<IPosition> positions = gen.createPoints();
 			assertEquals(30, positions.size());
@@ -428,7 +432,7 @@ public class MultiStepTest {
 		model.addRange(21.5, 30, 1);
 		model.setAlternating(true);
 		cModel.addModel(model);
-		service.createGenerator(cModel);
+		pointGeneratorService.createGenerator(cModel);
 	}
 
 
@@ -440,34 +444,34 @@ public class MultiStepTest {
 		mmodel.setName("energy");
 		mmodel.addRange(1,2,1); // 2 points
 
-		assertEquals(2, service.createGenerator(mmodel).size());
+		assertEquals(2, pointGeneratorService.createGenerator(mmodel).size());
 
 
 		mmodel = new AxialMultiStepModel();
 		mmodel.setName("energy");
 		mmodel.addRange(10,20,10); // 2 points
 
-		assertEquals(2, service.createGenerator(mmodel).size());
+		assertEquals(2, pointGeneratorService.createGenerator(mmodel).size());
 
 
 		mmodel = new AxialMultiStepModel();
 		mmodel.setName("energy");
 		mmodel.addRange(100,200,100); // 2 points
 
-		assertEquals(2, service.createGenerator(mmodel).size());
+		assertEquals(2, pointGeneratorService.createGenerator(mmodel).size());
 
 		mmodel = new AxialMultiStepModel();
 		mmodel.setName("energy");
 		mmodel.addRange(1000,2000,1000); // 2 points
 
-		assertEquals(2, service.createGenerator(mmodel).size());
+		assertEquals(2, pointGeneratorService.createGenerator(mmodel).size());
 
 
 		mmodel = new AxialMultiStepModel();
 		mmodel.setName("energy");
 		mmodel.addRange(10000,20000,10000); // 2 points
 
-		assertEquals(2, service.createGenerator(mmodel).size());
+		assertEquals(2, pointGeneratorService.createGenerator(mmodel).size());
 
 	}
 }

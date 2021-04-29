@@ -20,7 +20,6 @@ package org.eclipse.scanning.points;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -28,14 +27,6 @@ class AxialPointsGenerator extends AbstractScanPointGenerator<AxialPointsModel> 
 
 	public AxialPointsGenerator(AxialPointsModel model) {
 		super(model);
-	}
-
-	@Override
-	public AxialPointsModel validate(AxialPointsModel model) {
-		if (model.getPoints() <= 0) {
-			throw new ModelValidationException("Model point size must be positive!", model, "points");
-		}
-		return super.validate(model);
 	}
 
 	@Override

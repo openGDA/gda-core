@@ -30,11 +30,9 @@ import org.eclipse.scanning.api.points.models.AbstractPointsModel;
  * IPointGenerator: passing it to a CompoundGenerator for example
  */
 
-@SuppressWarnings("rawtypes")
-public class NoModelGenerator extends AbstractScanPointGenerator {
+public class NoModelGenerator extends AbstractScanPointGenerator<AbstractPointsModel> {
 
-	@SuppressWarnings("unchecked")
-	public NoModelGenerator(PPointGenerator generator){
+	public NoModelGenerator(PPointGenerator generator) {
 		model = null;
 		this.pointGenerator = generator;
 	}
@@ -50,8 +48,8 @@ public class NoModelGenerator extends AbstractScanPointGenerator {
 	}
 
 	@Override
-	public AbstractPointsModel validate(AbstractPointsModel model) {
-		throw new ModelValidationException("Generator is not intended for validating models!", model);
+	protected void validateModel() {
+		throw new ModelValidationException("Generator has no model to validate!", model);
 	}
 
 	@Override

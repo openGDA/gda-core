@@ -14,7 +14,6 @@ package org.eclipse.scanning.points;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -23,15 +22,6 @@ public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<Axial
 
 	AxialCollatedStepGenerator(AxialCollatedStepModel model) {
 		super(model);
-	}
-
-	@Override
-	public AxialCollatedStepModel validate(AxialCollatedStepModel model) {
-		if (model.getNames() == null || model.getNames().isEmpty()) {
-			throw new ModelValidationException("AxialCollatedStepModel requires a list of names of axes to step in",
-					model, "names");
-		}
-		return super.validate(model);
 	}
 
 	@Override

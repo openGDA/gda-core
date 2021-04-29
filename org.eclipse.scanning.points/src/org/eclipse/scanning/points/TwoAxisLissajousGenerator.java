@@ -13,7 +13,6 @@ package org.eclipse.scanning.points;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
@@ -22,13 +21,6 @@ public class TwoAxisLissajousGenerator extends AbstractScanPointGenerator<TwoAxi
 
 	public TwoAxisLissajousGenerator(TwoAxisLissajousModel model) {
 		super(model);
-	}
-
-	@Override
-	public TwoAxisLissajousModel validate(TwoAxisLissajousModel model) {
-		if (model.getPoints() < 1)
-			throw new ModelValidationException("Must have one or more points in model!", model, "points");
-		return super.validate(model);
 	}
 
 	@Override

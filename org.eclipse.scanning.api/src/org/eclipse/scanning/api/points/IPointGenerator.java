@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.scanning.api.IModelProvider;
-import org.eclipse.scanning.api.IValidator;
 
 
 /**
@@ -30,7 +29,7 @@ import org.eclipse.scanning.api.IValidator;
  *
  * @param <T>
  */
-public interface IPointGenerator<T> extends Iterable<IPosition>, IValidator<T>, IModelProvider<T> {
+public interface IPointGenerator<T> extends Iterable<IPosition>, IModelProvider<T> {
 
 	/**
 	 * The model for the generator.

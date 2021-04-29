@@ -13,7 +13,6 @@ package org.eclipse.scanning.points;
 
 import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
@@ -32,7 +30,6 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
-import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +86,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 		this.model = model;
 		try {
 			// Not guaranteed to catch all non-valid models because of NoModelGenerators
-			validate(model);
+			validateModel();
 		} catch (ModelValidationException e) {
 			throw new GeneratorException(e);
 		}
@@ -99,46 +96,6 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 
 	public CompoundGenerator(CompoundModel model, IPointGeneratorService pgs) {
 		super(model, pgs);
-	}
-
-	@Override
-	public CompoundModel validate(CompoundModel model) {
-		List<String> axes = new ArrayList<>();
-		cachedGenerators = new ArrayList<>();
-		for (IScanPointGeneratorModel imodel : model.getModels()) {
-			for (String axis : imodel.getScannableNames()) {
-				if (axes.contains(axis)) {
-					throw new ModelValidationException("Cannot have repeated axis within CompoundModel", model, "models");
-				}
-				axes.add(axis);
-			}
-			try {
-				// Validates constituent models
-				service.setBounds(imodel, service.findRegions(imodel, model.getRegions()));
-				cachedGenerators.add(service.createGenerator(imodel));
-			} catch (GeneratorException e) {
-				throw new ModelValidationException(e);
-			}
-		}
-		// Generators could have been set by generator constructor, in which case model generators might not be complete representation
-		if (model == this.model && generators == null) generators = cachedGenerators;
-		if (model.getRegions() != null) for (ScanRegion region : model.getRegions()) {
-			if (!model.getScannableNames().containsAll(region.getScannables())) {
-				throw new ModelValidationException("CompoundModel contains regions that operate in scannable axes that it doesn't contain!",
-						model, "regions", "models");
-			}
-		}
-		if (model.getMutators() != null) for (IMutator mutator : model.getMutators()) {
-			if (mutator instanceof RandomOffsetMutator) {
-				RandomOffsetMutator rMut = (RandomOffsetMutator) mutator;
-				if (!model.getScannableNames().containsAll(rMut.getAxes()) || !CollectionUtils.isEqualCollection(rMut.getAxes(), rMut.getMaxOffsets().keySet())) {
-					throw new ModelValidationException("CompoundModel contains mutators that operate in scannable axes that it doesn't contain!",
-						model, "mutators", "models");
-				}
-			}
-		}
-		cachedGenerators = null;
-		return model;
 	}
 
 	@Override

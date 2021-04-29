@@ -11,13 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import java.util.List;
-
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 /**
@@ -29,37 +24,6 @@ class AxialMultiStepGenerator extends AbstractMultiGenerator<AxialMultiStepModel
 
 	protected AxialMultiStepGenerator(AxialMultiStepModel model, IPointGeneratorService pgs) {
 		super(model, pgs);
-	}
-
-	@Override
-	public AxialMultiStepModel validate(AxialMultiStepModel model) {
-		// Intensive validation so check super first
-		super.validate(model);
-		String axis = model.getScannableNames().get(0);
-		List<String> units = model.getUnits();
-		for (AxialStepModel models : model.getModels()) {
-			if (!models.getScannableNames().get(0).equals(axis)) {
-				throw new ModelValidationException("All models in ConsecutiveModel must be in the same axes!", model,
-						"models");
-			}
-			if (!models.getUnits().equals(units)) {
-				throw new ModelValidationException("All models in ConsecutiveModel must be in the same units!", model,
-						"models");
-			}
-		}
-		if (model.isContinuous()) {
-
-			for (int i = 1; i < cachedGenerators.size(); i++) {
-				IPosition previousModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i - 1)).finalBounds();
-				IPosition nextModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i)).initialBounds();
-				if (Math.abs(previousModel.getValue(axis) - nextModel.getValue(axis)) > DIFF_LIMIT)
-					throw new ModelValidationException(
-							String.format("Continuous ConsecutiveModels must have the final bounds of each model"
-								+ " within %s of the initial bounds of the next.", DIFF_LIMIT), model, "models");
-			}
-		}
-		cachedGenerators = null;
-		return model;
 	}
 
 	@Override

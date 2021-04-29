@@ -18,14 +18,8 @@
 
 package org.eclipse.scanning.points;
 
-import java.util.List;
-
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -47,44 +41,5 @@ public class ConsecutiveMultiGenerator extends AbstractMultiGenerator<Consecutiv
 	@Override
 	protected JythonObjectFactory<PPointGenerator> getFactory() {
 		return ScanPointGeneratorFactory.JConcatGeneratorFactory();
-	}
-
-	@Override
-	public ConsecutiveMultiModel validate(ConsecutiveMultiModel model) {
-		// Need cachedGenerators to be set, so call super.validate first
-		super.validate(model);
-		List<String> dimensions = model.getScannableNames();
-		List<String> units = model.getUnits();
-		for (IScanPointGeneratorModel models : model.getModels()) {
-			if (!models.getScannableNames().equals(dimensions)) {
-				throw new ModelValidationException("All models in ConsecutiveModel must be in the same axes!", model,
-						"models");
-			}
-			if (!(models.getUnits().equals(units))) {
-				throw new ModelValidationException("All models in ConsecutiveModel must be in the same units!", model,
-						"models");
-			}
-		}
-		if (model.isContinuous()) {
-
-			for (int i = 1; i < cachedGenerators.size(); i++) {
-				IPosition previousModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i - 1)).finalBounds();
-				IPosition nextModel = ((AbstractScanPointGenerator<?>) cachedGenerators.get(i)).initialBounds();
-				if (previousModel instanceof StaticPosition || nextModel instanceof StaticPosition) {
-					throw new ModelValidationException(
-							"All models within a Continuous ConsecutiveModel must be capable of continuousness", model,
-							"models");
-				}
-				for (String axis : model.getScannableNames()) {
-					if (Math.abs(previousModel.getValue(axis) - nextModel.getValue(axis)) > DIFF_LIMIT)
-						throw new ModelValidationException(
-								String.format("Continuous ConsecutiveModels must have the final bounds of each model"
-										+ " within %s of the initial bounds of the next.", DIFF_LIMIT),
-								model, "models");
-				}
-			}
-		}
-		cachedGenerators = null;
-		return model;
 	}
 }

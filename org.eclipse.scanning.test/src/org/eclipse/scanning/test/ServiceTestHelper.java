@@ -34,6 +34,7 @@ import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.NexusTemplateService;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.dawnsci.remotedataset.test.utilities.mock.LoaderServiceMock;
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.IDeviceWatchdogService;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -96,7 +97,7 @@ public final class ServiceTestHelper {
 	private static INexusDeviceService nexusDeviceService;
 	private static RunnableDeviceServiceImpl runnableDeviceService;
 	private static IPointGeneratorService pointGeneratorService;
-	private static ValidatorService validatorService;
+	private static IValidatorService validatorService;
 	private static MockScriptService scriptService;
 	private static ILoaderService loaderService;
 	private static IDeviceWatchdogService watchdogService;
@@ -152,6 +153,7 @@ public final class ServiceTestHelper {
 		setupOESServiceHolder();
 		setupOEDNServiceHolder();
 		setupOEDNSServiceHolder();
+		setupOESPServiceHolder();
 		setupOESEServices();
 		setupOESCServices();
 		setupOESDServices();
@@ -227,6 +229,12 @@ public final class ServiceTestHelper {
 		serviceHolder.setParserService(parserService);
 		serviceHolder.setRunnableDeviceService(runnableDeviceService);
 		serviceHolder.setWatchdogService(watchdogService);
+	}
+
+	private static void setupOESPServiceHolder() {
+		final org.eclipse.scanning.points.ServiceHolder serviceHolder = new org.eclipse.scanning.points.ServiceHolder();
+		serviceHolder.setValidatorService(validatorService);
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
 	private static IParserService createParserService() {
@@ -347,7 +355,7 @@ public final class ServiceTestHelper {
 		return filePathService;
 	}
 
-	public static ValidatorService getValidatorService() {
+	public static IValidatorService getValidatorService() {
 		return validatorService;
 	}
 }

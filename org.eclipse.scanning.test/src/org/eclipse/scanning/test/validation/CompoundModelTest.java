@@ -13,11 +13,12 @@ package org.eclipse.scanning.test.validation;
 
 import java.util.Arrays;
 
+import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.junit.Test;
 
 public class CompoundModelTest extends AbstractValidationTest {
@@ -45,7 +46,7 @@ public class CompoundModelTest extends AbstractValidationTest {
 		validator.validate(new CompoundModel(new AxialStepModel("fred", 10, 20, 1), gmodel));
 	}
 
-	@Test(expected=ValidationException.class)
+	@Test(expected = ModelValidationException.class)
 	public void nullAxisTest() throws ValidationException {
 
 		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel(null, "stage_y");

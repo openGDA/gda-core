@@ -52,12 +52,22 @@ import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.CompoundGenerator;
 import org.eclipse.scanning.points.NoModelGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NoModelTest {
 
-	private IPointGeneratorService pgs = new PointGeneratorService();
+	private static final IPointGeneratorService pgs = new PointGeneratorService();
+
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pgs);
+	}
 
 	@Test
 	public void testLissajousNoROI() throws GeneratorException {
@@ -169,13 +179,6 @@ public class NoModelTest {
 		assertArrayEquals(gen.getShape(), gen2.getShape());
 
 		compareIterators(gen.iterator(), gen2.iterator());
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void cannotValidateModels() {
-		NoModelGenerator nmg = new NoModelGenerator(null);
-		TwoAxisLissajousModel lsm = new TwoAxisLissajousModel();
-		nmg.validate(lsm);
 	}
 
 	@Test(expected = ModelValidationException.class)

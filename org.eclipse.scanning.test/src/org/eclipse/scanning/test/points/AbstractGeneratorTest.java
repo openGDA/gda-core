@@ -24,18 +24,26 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 
 public abstract class AbstractGeneratorTest {
 
-	protected IPointGeneratorService service;
+	protected static final IPointGeneratorService service = new PointGeneratorService();
 
-	@Before
-	public void before() throws Exception {
-		service = new PointGeneratorService();
+	@BeforeClass
+	public static void beforeClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setPointGeneratorService(service);
+		serviceHolder.setValidatorService(new ValidatorService());
 	}
 
-	public void checkWrtCompound(IScanPointGeneratorModel model, IROI roi, int size) throws Exception {
+	protected static void validateModel(IScanPointGeneratorModel model) {
+		ServiceHolder.getValidatorService().validate(model);
+	}
+
+	protected void checkWrtCompound(IScanPointGeneratorModel model, IROI roi, int size) throws Exception {
 
 		// Get the point list
 		IPointGenerator<? extends IScanPointGeneratorModel> generator = roi!=null ? service.createGenerator(model, roi) : service.createGenerator(model);

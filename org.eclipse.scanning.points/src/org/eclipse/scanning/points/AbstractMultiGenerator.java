@@ -26,7 +26,6 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AbstractMultiModel;
-import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -44,15 +43,13 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 
 	protected IPointGeneratorService service;
 	protected List<IPointGenerator<?>> generators;
-	// Used when validating a model that is not the model of this generator. Usually blank.
-	protected List<IPointGenerator<?>> cachedGenerators;
-	protected static final double DIFF_LIMIT = 1e-5;
 
 	protected AbstractMultiGenerator(T model, IPointGeneratorService service) {
 		// Need service to be set before validating, so cannot use super()
 		this(service);
 		this.model = model;
-		validate(model);
+		validateModel();
+		generators = createPointGenerators(model.getModels());
 		pointGenerator = createPythonPointGenerator();
 	}
 
@@ -60,33 +57,25 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 		this.service = service;
 	}
 
-	@Override
-	public T validate(T model) {
-		// Intensive validation so check super first
-		super.validate(model);
-		cachedGenerators = new ArrayList<>();
-		if (model.getModels() == null || model.getModels().isEmpty())
-			throw new ModelValidationException("MultiModel requires at least one internal model!", model, "models");
-		for (IScanPointGeneratorModel models : model.getModels()) {
-			if (models instanceof AbstractTwoAxisGridModel) {
-				throw new ModelValidationException("MultiGenerators cannot operate on already Compounded models, like grids.",
-						model, "models");
-			}
-			if (models.isAlternating()) {
-				throw new ModelValidationException("MultiGenerators cannot contain Alternating models, set it on the multimodel instead",
-						model, "models");
-			}
-			// Validates and adds generator to generators
+	/**
+	 * Create scan point generators corresponding to the models passed.<br>
+	 * This serves also to validate the models, as the constructor of each generator will validate its model.
+	 *
+	 * @param models
+	 *            list of models for which generators are to be created
+	 * @return list of generators created
+	 */
+	protected static List<IPointGenerator<?>> createPointGenerators(List<? extends IScanPointGeneratorModel> models) {
+		final IPointGeneratorService pointGeneratorService = ServiceHolder.getPointGeneratorService();
+		final List<IPointGenerator<?>> generators = new ArrayList<>(models.size());
+		for (IScanPointGeneratorModel model : models) {
 			try {
-				cachedGenerators.add(service.createGenerator(models));
+				generators.add(pointGeneratorService.createGenerator(model));
 			} catch (GeneratorException e) {
 				throw new ModelValidationException(e);
 			}
 		}
-		if (model == this.model) {
-			generators = cachedGenerators;
-		}
-		return model;
+		return generators;
 	}
 
 	@Override

@@ -18,7 +18,6 @@
 
 package org.eclipse.scanning.points;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 
 public class TwoAxisGridPointsGenerator extends AbstractGridGenerator<TwoAxisGridPointsModel> {
@@ -35,13 +34,6 @@ public class TwoAxisGridPointsGenerator extends AbstractGridGenerator<TwoAxisGri
 	@Override
 	protected int getYPoints() {
 		return model.getyAxisPoints();
-	}
-
-	@Override
-	public TwoAxisGridPointsModel validate(TwoAxisGridPointsModel model) {
-		if (model.getyAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
-		if (model.getxAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
-		return super.validate(model);
 	}
 
 	@Override

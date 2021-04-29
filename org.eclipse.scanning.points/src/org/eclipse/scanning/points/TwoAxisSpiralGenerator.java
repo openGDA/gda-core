@@ -14,7 +14,6 @@ package org.eclipse.scanning.points;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyList;
@@ -23,12 +22,6 @@ class TwoAxisSpiralGenerator extends AbstractScanPointGenerator<TwoAxisSpiralMod
 
 	TwoAxisSpiralGenerator(TwoAxisSpiralModel model) {
 		super(model);
-	}
-
-	@Override
-	public TwoAxisSpiralModel validate(TwoAxisSpiralModel model) {
-		if (model.getScale() == 0.0) throw new ModelValidationException("Scale must be non-zero!", model, "scale");
-		return super.validate(model);
 	}
 
 	@Override

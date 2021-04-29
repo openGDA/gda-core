@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.eclipse.scanning.api.IValidatorService;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.device.models.ScanMode;
@@ -34,14 +35,13 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredDetector;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredModel;
-import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 public abstract class AbstractValidationTest {
 
-    protected ValidatorService validator;
+    protected IValidatorService validator;
 
     @BeforeClass
     public static void initalise() {
