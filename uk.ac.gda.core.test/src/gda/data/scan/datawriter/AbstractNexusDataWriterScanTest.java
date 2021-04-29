@@ -34,6 +34,7 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_VALUE;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -53,15 +54,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javax.measure.quantity.Length;
 
@@ -84,7 +86,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.test.utilities.NexusAssert;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -138,7 +139,22 @@ import gda.scan.IScanDataPoint;
 public abstract class AbstractNexusDataWriterScanTest {
 
 	public enum DetectorType {
-		NONE, NEXUS_DEVICE, COUNTER_TIMER, GENERIC, FILE_CREATOR, NEXUS_DETECTOR
+		NONE(),
+		NEXUS_DEVICE(NXdetector.NX_DATA),
+		COUNTER_TIMER,
+		GENERIC(NXdetector.NX_DATA),
+		FILE_CREATOR,
+		NEXUS_DETECTOR(NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL);
+
+		private List<String> primaryFieldNames;
+
+		DetectorType(String... primaryFieldNames) {
+			this.primaryFieldNames = List.of(primaryFieldNames);
+		}
+
+		public List<String> getPrimaryFieldNames() {
+			return primaryFieldNames;
+		}
 	}
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
@@ -250,7 +266,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		public static final String FIELD_NAME_SPECTRUM = "spectrum";
 
 		public static final int SPECTRUM_SIZE = 8;
-		public static final int[] IMAGE_SIZE = new int[] { 8, 8 };
+		public static final int[] IMAGE_SIZE = { 8, 8 };
 
 		public static final String NOTE_TEXT = "This is a note";
 		public static final long DETECTOR_NUMBER = 1L;
@@ -434,6 +450,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double SCANNABLE_LOWER_BOUND = -123.456;
 	protected static final double SCANNABLE_UPPER_BOUND = 987.654;
 
+	public static final String[] COUNTER_TIMER_NAMES = { "one", "two", "three", "four" };
+
 	protected static final String EXPECTED_MONOCHROMATOR_NAME = "myMonochromator";
 	protected static final double EXPECTED_MONOCHROMATOR_ENERGY = 5.432;
 	protected static final double EXPECTED_MONOCHROMATOR_WAVELENGTH = 543.34;
@@ -524,8 +542,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	private void setupMetadataScannables() throws Exception {
 		final Multimap<Integer, Integer> dependencies = ArrayListMultimap.create();
 		dependencies.put(1, 5);
-		dependencies.putAll(2, Arrays.asList(0, 7));
-		dependencies.putAll(4, Arrays.asList(1, 6, 7));
+		dependencies.putAll(2, List.of(0, 7));
+		dependencies.putAll(4, List.of(1, 6, 7));
 		dependencies.put(5, 6);
 		dependencies.put(7, 8);
 
@@ -541,7 +559,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 
 		locationMap.put(scannables[0].getName(), createScannableWriter(scannables[0].getName(),
-				Arrays.asList(METADATA_SCANNABLE_NAMES[5])));
+				List.of(METADATA_SCANNABLE_NAMES[5])));
 
 		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
 		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1]));
@@ -550,12 +568,12 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final Map<String, Collection<String>> metadataScannablesPerDetectorMap = new HashMap<>();
 		if (detector != null) {
 			metadataScannablesPerDetectorMap.put(detector.getName(),
-					Arrays.asList(METADATA_SCANNABLE_NAMES[2], METADATA_SCANNABLE_NAMES[4]));
+					List.of(METADATA_SCANNABLE_NAMES[2], METADATA_SCANNABLE_NAMES[4]));
 		}
 		config.setMetadataScannablesPerDetectorMap(metadataScannablesPerDetectorMap);
 
 		// set the location of the template file
-		config.setNexusTemplateFiles(Arrays.asList(Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString()));
+		config.setNexusTemplateFiles(List.of(Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString()));
 
 		// create the set of expected metadata scannable names
 		createExpectedMetadataScannableNames();
@@ -595,25 +613,27 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	@Test
+	public void concurrentScanNoDetectorOrMonitor() throws Exception {
+		monitor = null;
+		concurrentScan(null, DetectorType.NONE, "NoDetectorOrMonitor");
+	}
+
+	@Test
 	public void concurrentScanCounterTimer() throws Exception {
 		final DummyCounterTimer detector = new DummyCounterTimer();
 		detector.setName("counterTimer");
 		detector.setDataDecimalPlaces(3);
 		detector.setUseGaussian(true);
 		detector.setInputNames(new String[0]);
-		final String[] names = new String[] { "one", "two", "three", "four" };
 
-		detector.setExtraNames(names);
-		detector.setTotalChans(names.length);
+		detector.setExtraNames(COUNTER_TIMER_NAMES);
+		detector.setTotalChans(COUNTER_TIMER_NAMES.length);
 		detector.setTimerName("timer");
 		detector.configure();
 		detector.setCollectionTime(10.0);
 
-		final String[] outputFormat = new String[4];
-		Arrays.fill(outputFormat, ScannableBase.DEFAULT_OUTPUT_FORMAT);
-		detector.setOutputFormat(outputFormat);
-//		detector.setOutputFormat(Collections.nCopies( // only works for Java 11+
-//				names.length, ScannableBase.DEFAULT_OUTPUT_FORMAT).toArray(String[]::new));
+		detector.setOutputFormat(Collections.nCopies(
+				COUNTER_TIMER_NAMES.length, ScannableBase.DEFAULT_OUTPUT_FORMAT).toArray(String[]::new));
 
 		concurrentScan(detector, DetectorType.COUNTER_TIMER, "CounterTimer");
 	}
@@ -691,7 +711,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 
 		// add monitor
-		scanArgs.add(monitor);
+		if (monitor != null) {
+			scanArgs.add(monitor);
+		}
 
 		// add detector if present
 		if (detector != null) {
@@ -712,7 +734,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected String[] getScannableAndMonitorNames() {
-		return Streams.concat(Arrays.stream(scannables), Stream.of(monitor))
+		return Streams.concat(Arrays.stream(scannables), Optional.ofNullable(monitor).stream())
 			.map(Scannable::getName)
 			.toArray(String[]::new);
 	}
@@ -786,8 +808,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
 		final Map<String, NXpositioner> positioners = instrument.getAllPositioner();
-		assertThat(positioners.size(), is(scannables.length + getNumMetadataScannables() + 1)); // extra 1 is for monitor
-		assertThat(positioners.keySet(), containsInAnyOrder(getExpectedPositionerNames()));
+		final String[] expectedPositionerNames = getExpectedPositionerNames();
+		assertThat(positioners.size(), is(expectedPositionerNames.length));
+		assertThat(positioners.keySet(), containsInAnyOrder(expectedPositionerNames));
 
 		checkScannables(positioners);
 		checkMonitor(instrument);
@@ -965,9 +988,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private void checkMonitor(NXinstrument instrument) throws Exception {
 		// check the monitor has been written correctly
-		final NXpositioner monitorPos = instrument.getPositioner(monitor.getName());
-		assertThat(monitorPos, is(notNullValue()));
-		checkMonitorPositioner(monitorPos);
+		final NXpositioner monitorPos = instrument.getPositioner(MONITOR_NAME);
+		if (monitor == null) {
+			assertThat(monitorPos, is(nullValue()));
+		} else {
+			assertThat(monitorPos, is(notNullValue()));
+			checkMonitorPositioner(monitorPos);
+		}
 	}
 
 	protected abstract void checkConfiguredScannablePositioner(String scannableName, NXpositioner positioner) throws Exception;
@@ -1019,8 +1046,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 			inDataset = dateTime.getDate(0);
 		}
 
-
-
 		assertThat(inDataset.before(Date.from(Instant.now())), is(true));
 		assertThat(inDataset.after(Date.from((Instant.now().minus(5, ChronoUnit.MINUTES)))), is(true));
 	}
@@ -1037,7 +1062,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 			assertThat(targetNode, is(notNullValue()));
 
 			if (dataNodeName.equals(FIELD_NAME_EXTERNAL)) {
-				NexusAssert.assertDataNodesEqual(targetPath, dataNode, targetNode);
+				assertDataNodesEqual(targetPath, dataNode, targetNode);
 			} else {
 				assertThat(dataNode, is(sameInstance(targetNode)));
 			}
