@@ -170,8 +170,6 @@ public class SplitPackageReportTest {
 				"gda.spring",
 				"gda.util",
 				"gda.util.converters",
-				"org.eclipse.dawnsci.analysis.dataset",
-				"org.eclipse.dawnsci.nexus",
 				"org.opengda.detector.electronanalyser.utils",
 				"uk.ac.diamond.scisoft.analysis",
 				"uk.ac.diamond.scisoft.analysis.io",
