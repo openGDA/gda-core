@@ -198,7 +198,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>... generators) throws GeneratorException {
+	public IPointGenerator<CompoundModel> createCompoundGenerator(List<IPointGenerator<? extends IScanPointGeneratorModel>> generators) throws GeneratorException {
 		return new CompoundGenerator(generators, this);
 	}
 

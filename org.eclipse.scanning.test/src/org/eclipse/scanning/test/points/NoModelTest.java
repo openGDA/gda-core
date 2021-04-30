@@ -175,7 +175,7 @@ public class NoModelTest {
 		cModel1.addMutators(Arrays.asList(rom));
 
 		gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createCompoundGenerator(cModel1);
-		AbstractGenerator<CompoundModel> gen2 = (AbstractGenerator<CompoundModel>) pgs.createCompoundGenerator(nmg, asg);
+		AbstractGenerator<CompoundModel> gen2 = (AbstractGenerator<CompoundModel>) pgs.createCompoundGenerator(Arrays.asList(nmg, asg));
 		assertArrayEquals(gen.getShape(), gen2.getShape());
 
 		compareIterators(gen.iterator(), gen2.iterator());
@@ -224,7 +224,7 @@ public class NoModelTest {
 
 		AbstractScanPointGenerator<CompoundModel> stepGen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(compoundModel);
 		NoModelGenerator staticNoModel = new NoModelGenerator(stepGen.getPointGenerator());
-		CompoundGenerator genFromGenerators = new CompoundGenerator(new IPointGenerator[] {staticNoModel}, pgs);
+		CompoundGenerator genFromGenerators = new CompoundGenerator(Arrays.asList(staticNoModel), pgs);
 
 		StaticPosition expected = new StaticPosition();
 		expected.setExposureTime(0.1);

@@ -85,7 +85,7 @@ public class CompoundTest {
 
 		IPointGenerator<AxialStepModel> pos1 = pointGeneratorService.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
 		IPointGenerator<AxialStepModel> pos2 = pointGeneratorService.createGenerator(new AxialStepModel("Position", 1, 4, 0.6));
-		pointGeneratorService.createCompoundGenerator(pos1, pos2);
+		pointGeneratorService.createCompoundGenerator(Arrays.asList(pos1, pos2));
 	}
 
 	@Test(expected=ModelValidationException.class)
@@ -109,7 +109,7 @@ public class CompoundTest {
 		assertEquals(1, pos.getRank());
 		assertArrayEquals(new int[] { 6 }, temp.getShape());
 
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(temp, pos);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp, pos));
 		assertTrue(scan.iterator().next()!=null);
 		assertEquals(36, scan.size());
 		assertEquals(2, scan.getRank());
@@ -138,7 +138,7 @@ public class CompoundTest {
 		assertEquals(1, pos.getRank());
 		assertArrayEquals(new int[] { 6 }, temp.getShape());
 
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(temp, pos);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp, pos));
 		assertEquals(36, scan.size());
 		assertEquals(2, scan.getRank());
 		assertArrayEquals(new int[] { 6, 6 }, scan.getShape());
@@ -176,7 +176,7 @@ public class CompoundTest {
 	public void testSimpleToDict() throws Exception {
 
 		IPointGenerator<AxialStepModel> temp = pointGeneratorService.createGenerator(new AxialStepModel("Temperature", 290, 295, 1));
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(temp);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp));
 
 		Map<?,?> dict = ((PySerializable)scan).toDict();
 
@@ -277,7 +277,7 @@ public class CompoundTest {
 		assertEquals(1, x.getRank());
 		assertArrayEquals(new int[] { 6 }, x.getShape());
 
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(temp, y, x);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp, y, x));
 		assertEquals(216, scan.size());
 		assertEquals(3, scan.getRank());
 		assertArrayEquals(new int[] { 6, 6, 6 }, scan.getShape());
@@ -344,7 +344,7 @@ public class CompoundTest {
 		assertEquals(2, grid.getRank());
 		assertArrayEquals(new int[] { 20, 20 }, grid.getShape());
 
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(temp, grid);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp, grid));
 		assertEquals(4400, scan.size());
 		assertEquals(3, scan.getRank());
 		assertArrayEquals(new int[] { 11, 20, 20 }, scan.getShape());
@@ -396,7 +396,7 @@ public class CompoundTest {
 		assertEquals(1, grid.getRank());
 		assertArrayEquals(new int[] { expectedInnerSize }, grid.getShape());
 
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(temp, grid);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(temp, grid));
 		final int expectedScanSize = expectedOuterSize * expectedInnerSize;
 		assertEquals(expectedScanSize, scan.size());
 		assertEquals(2, scan.getRank());
@@ -451,7 +451,7 @@ public class CompoundTest {
 		assertEquals(2, grid2.getRank());
 		assertArrayEquals(new int[] { 5, 5 }, grid2.getShape());
 
-		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(grid1, grid2);
+		IPointGenerator<CompoundModel> scan = pointGeneratorService.createCompoundGenerator(Arrays.asList(grid1, grid2));
 		assertEquals(625, scan.size());
 		assertEquals(4, scan.getRank());
 		assertArrayEquals(new int[] { 5, 5, 5, 5 }, scan.getShape());
@@ -539,7 +539,7 @@ public class CompoundTest {
 		AxialStepModel zmodel = new AxialStepModel("z", 0, 15, 5);
 		CompoundModel allInOne = new CompoundModel(xmodel, ymodel, zmodel);
 		IPointGenerator<AxialStepModel> compounder = pointGeneratorService.createGenerator(zmodel);
-		IPointGenerator<CompoundModel> secondCompound = pointGeneratorService.createCompoundGenerator(firstCompound, compounder);
+		IPointGenerator<CompoundModel> secondCompound = pointGeneratorService.createCompoundGenerator(Arrays.asList(firstCompound, compounder));
 
 		IPointGenerator<CompoundModel> result = pointGeneratorService.createCompoundGenerator(allInOne);
 
@@ -575,7 +575,7 @@ public class CompoundTest {
 		allInOne.addMutators(muts);
 		allInOne.addRegions(Arrays.asList(region));
 		IPointGenerator<AxialStepModel> compounder = pointGeneratorService.createGenerator(zmodel);
-		IPointGenerator<CompoundModel> secondCompound = pointGeneratorService.createCompoundGenerator(firstCompound, compounder);
+		IPointGenerator<CompoundModel> secondCompound = pointGeneratorService.createCompoundGenerator(Arrays.asList(firstCompound, compounder));
 
 		IPointGenerator<CompoundModel> result = pointGeneratorService.createCompoundGenerator(allInOne);
 

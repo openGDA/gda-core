@@ -13,7 +13,7 @@ package org.eclipse.scanning.points;
 
 import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -71,7 +71,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 	 * an incomplete representation of the scan, and any GeneratorException thrown may have less complete information.
 	 */
 
-	public CompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>[] generators, IPointGeneratorService pgs) throws GeneratorException {
+	public CompoundGenerator(List<IPointGenerator<? extends IScanPointGeneratorModel>> generators, IPointGeneratorService pgs) throws GeneratorException {
 		super(pgs);
         CompoundModel model = new CompoundModel();
         for (IPointGenerator<? extends IScanPointGeneratorModel> g : generators) {
@@ -90,7 +90,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 		} catch (ModelValidationException e) {
 			throw new GeneratorException(e);
 		}
-        this.generators = Arrays.asList(generators);
+        this.generators = new ArrayList<>(generators);
         pointGenerator = createPythonPointGenerator();
 	}
 

@@ -118,7 +118,7 @@ public interface IPointGeneratorService {
 	 * @return
 	 * @throws GeneratorException
 	 */
-	IPointGenerator<CompoundModel> createCompoundGenerator(IPointGenerator<? extends IScanPointGeneratorModel>... generators) throws GeneratorException;
+	IPointGenerator<CompoundModel> createCompoundGenerator(List<IPointGenerator<? extends IScanPointGeneratorModel>> generators) throws GeneratorException;
 
 	/**
 	 * Create a nested or compound generator from a list of models.
