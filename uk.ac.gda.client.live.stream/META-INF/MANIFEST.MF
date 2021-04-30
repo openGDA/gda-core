@@ -44,5 +44,6 @@ Export-Package: uk.ac.gda.client.live.stream,
  uk.ac.gda.client.live.stream.simulator.connector,
  uk.ac.gda.client.live.stream.simulator.stream,
  uk.ac.gda.client.live.stream.view,
- uk.ac.gda.client.live.stream.view.customui
+ uk.ac.gda.client.live.stream.view.customui,
+ uk.ac.gda.client.live.stream.view.customui.histogram
 Automatic-Module-Name: uk.ac.gda.client.live.stream

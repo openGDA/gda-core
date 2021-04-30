@@ -7,7 +7,8 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.stage
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: uk.ac.diamond.daq.stage,
- uk.ac.diamond.daq.stage.event
+ uk.ac.diamond.daq.stage.event,
+ uk.ac.diamond.daq.stage.impl
 Import-Package: gda.device,
  gda.device.scannable,
  gda.observable,

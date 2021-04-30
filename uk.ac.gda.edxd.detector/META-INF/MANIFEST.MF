@@ -22,3 +22,4 @@ Require-Bundle: uk.ac.gda.nexus,
 Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.edxd.detector
+Export-Package: uk.ac.gda.devices.edxd

@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
  uk.ac.diamond.daq.persistence;bundle-version="1.0.0",
  com.google.gson
 Bundle-ClassPath: .
-Export-Package: uk.ac.gda.server.ncd.beans,
+Export-Package: uk.ac.gda.server.ncd.actions,
+ uk.ac.gda.server.ncd.beans,
  uk.ac.gda.server.ncd.config,
  uk.ac.gda.server.ncd.data,
  uk.ac.gda.server.ncd.data.scan,
