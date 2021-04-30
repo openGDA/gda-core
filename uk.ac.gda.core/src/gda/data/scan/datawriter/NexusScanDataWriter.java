@@ -242,6 +242,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		}
 
 		try {
+			// if this is the first point, create the nexus file
 			if (currentPointNumber == 0) {
 				try {
 					createFile(point);
@@ -250,7 +251,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				}
 			}
 
-
+			// write to an SRS file (.dat file) if configured
 			if (srsFile != null) {
 				try {
 					srsFile.addData(point);
@@ -259,7 +260,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 				}
 			}
 
-
+			// write the data for this point into the nexus file
 			try {
 				writePoint(point);
 			} catch (Exception e) {
