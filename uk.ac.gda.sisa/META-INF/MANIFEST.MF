@@ -39,3 +39,6 @@ Import-Package: gda.device.detector.areadetector.v17,
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-Activator: uk.ac.gda.sisa.Activator
 Bundle-ActivationPolicy: lazy
+Export-Package: uk.ac.gda.sisa.feedback.ui,
+ uk.ac.gda.sisa.monitor.ui,
+ uk.ac.gda.sisa.ui
