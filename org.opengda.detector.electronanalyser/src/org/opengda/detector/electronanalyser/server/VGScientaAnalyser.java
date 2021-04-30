@@ -1060,8 +1060,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	}
 
 	@Override
-	public void startContinuious() throws Exception {
-		logger.info("Starting continious acquisition");
+	public void startContinuous() throws Exception {
+		logger.info("Starting continuous acquisition");
 		// For continuous acquisition in alignment use fixed mode
 		setFixedMode(true);
 		// Change to continuous
@@ -1089,7 +1089,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	}
 
 	@Override
-	public int getCurrentIterations() throws Exception {
+	public int getCurrentIteration() throws Exception {
 		return controller.getCurrentIterations();
 	}
 

@@ -36,6 +36,7 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 
 public class MbsAnalyserController extends ConfigurableBase {
 
@@ -78,8 +79,16 @@ public class MbsAnalyserController extends ConfigurableBase {
 	private static final String SPIN_OFFSET_RBV = "CAM:SpinOffs_RBV";
 	private static final String STEP_SIZE = "CAM:StepSize";
 	private static final String STEP_SIZE_RBV = "CAM:StepSize_RBV";
+	private static final String ESCALE_MULT_RBV = "CAM:EScaleMult_RBV";
 	private static final String IMAGE_DATA_WIDTH = "ARR:ArraySize0_RBV";
 	private static final String IMAGE_DATA_HEIGHT = "ARR:ArraySize1_RBV";
+	private static final String ENERGY_SCALE_RBV = "CAM:EScale_RBV";
+	private static final String ENERGY_SCALE_SIZE_RBV = "CAM:EScale_RBV.NORD";
+	private static final String LENS_SCALE_RBV = "CAM:LensScale_RBV";
+	private static final String LENS_SCALE_SIZE_RBV = "CAM:LensScale_RBV.NORD";
+	private static final String ACTUAL_SCANS_RBV = "CAM:ActScans_RBV";
+	private static final String CURRENT_SCAN_RBV = "CAM:CurrentScanNumber_RBV";
+	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
 
 	private final List<String> passEnergies = new ArrayList<>();
 	private final List<String> lensModes = new ArrayList<>();
@@ -335,7 +344,7 @@ public class MbsAnalyserController extends ConfigurableBase {
 	 * @return The end energy
 	 * @throws DeviceException If there is a problem with EPICS communication
 	 */
-	public double getCentreEnergy() throws DeviceException {
+	public Double getCentreEnergy() throws DeviceException {
 		return getDoubleValue(CENTRE_ENERGY_RBV, "centre energy");
 	}
 
@@ -522,9 +531,17 @@ public class MbsAnalyserController extends ConfigurableBase {
 		try {
 			adBase.setImageModeWait(ImageMode.SINGLE);
 		} catch (Exception exception) {
-			throw new DeviceException("Error while setting image mode", exception);
+			throw new DeviceException("Error while setting single image mode", exception);
 		}
 
+	}
+
+	public void setContinuousImageMode() throws DeviceException {
+		try {
+			adBase.setImageModeWait(ImageMode.CONTINUOUS);
+		} catch (Exception exception) {
+			throw new DeviceException("Error while setting continous image mode", exception);
+		}
 	}
 
 	public void startAcquiring() throws DeviceException {
@@ -571,6 +588,18 @@ public class MbsAnalyserController extends ConfigurableBase {
 		}
 	}
 
+	public double[] getImageData() throws DeviceException {
+		try {
+			return ndArray.getDoubleArrayData(getImageDataArraySize());
+		} catch (Exception exception) {
+			throw new DeviceException("Error while  getting image data", exception);
+		}
+	}
+
+	public int getImageDataArraySize() throws DeviceException {
+		return getIntegerValue(IMAGE_ARRAY_SIZE_RBV, "image array size");
+	}
+
 	public int getImageDataWidth() throws DeviceException {
 		return getIntegerValue(IMAGE_DATA_WIDTH, "image data width");
 	}
@@ -587,11 +616,27 @@ public class MbsAnalyserController extends ConfigurableBase {
 		}
 	}
 
+	public void setRegionStartX(int regionStartX) throws DeviceException {
+		try {
+			adBase.setMinX(regionStartX);
+		} catch (Exception exception) {
+			throw new DeviceException("Error while setting region start X", exception);
+		}
+	}
+
 	public int getRegionStartY() throws DeviceException {
 		try {
 			return adBase.getMinY_RBV();
 		} catch (Exception exception) {
 			throw new DeviceException("Error while getting region start X", exception);
+		}
+	}
+
+	public void setRegionStartY(int regionStartY) throws DeviceException {
+		try {
+			adBase.setMinY(regionStartY);
+		} catch (Exception exception) {
+			throw new DeviceException("Error while setting region start Y", exception);
 		}
 	}
 
@@ -603,11 +648,27 @@ public class MbsAnalyserController extends ConfigurableBase {
 		}
 	}
 
+	public void setRegionSizeX(int regionSizeX) throws DeviceException {
+		try {
+			adBase.setSizeX(regionSizeX);
+		} catch (Exception e) {
+			throw new DeviceException("Error setting region size X");
+		}
+	}
+
 	public int getRegionSizeY() throws DeviceException {
 		try {
 			return adBase.getSizeY_RBV();
 		} catch (Exception e) {
 			throw new DeviceException("Error getting region size Y");
+		}
+	}
+
+	public void setRegionSizeY(int regionSizeY) throws DeviceException {
+		try {
+			adBase.setSizeY(regionSizeY);
+		} catch (Exception e) {
+			throw new DeviceException("Error setting region size Y");
 		}
 	}
 
@@ -625,6 +686,87 @@ public class MbsAnalyserController extends ConfigurableBase {
 		} catch (Exception e) {
 			throw new DeviceException("Error while getting sensor size Y");
 		}
+	}
+
+	public void setInternalTriggerMode() throws DeviceException {
+		try {
+			adBase.setTriggerMode(0);
+		} catch (Exception e) {
+			throw new DeviceException("Error while setting internal trigger mode");
+		}
+	}
+
+	public double getEnergyStepPerPixel() throws DeviceException {
+		return getDoubleValue(ESCALE_MULT_RBV, "EScale Mult RBV");
+	}
+
+	public double[] getEnergyAxis() throws DeviceException {
+		return getDoubleArray(ENERGY_SCALE_RBV, getEnergyAxisSize(), "energy axis");
+	}
+
+	public int getEnergyAxisSize() throws DeviceException {
+		return getIntegerValue(ENERGY_SCALE_SIZE_RBV, "energy axis size");
+	}
+
+	public double[] getAngleAxis() throws DeviceException {
+		return getDoubleArray(LENS_SCALE_RBV, getAngleAxisSize(), "angle axis");
+	}
+
+	public int getAngleAxisSize() throws DeviceException {
+		return getIntegerValue(LENS_SCALE_SIZE_RBV, "angle axis size");
+	}
+
+	public int getCompletedIterations() throws DeviceException {
+		return getIntegerValue(ACTUAL_SCANS_RBV, "completed iterations");
+	}
+
+
+	public int getCurrentIteration() throws DeviceException {
+		return getIntegerValue(CURRENT_SCAN_RBV, "current scan number");
+	}
+
+	public void setDetectorConfiguration(DetectorConfiguration configuration) throws Exception {
+		int sensorSizeX = getSensorSizeX();
+		int sensorSizeY = getSensorSizeY();
+
+		logger.debug("setDetectorConfiguration called with configuration {}", configuration);
+		logger.debug("Currently Sensor Size X is {} and Sensor Size Y is {}", sensorSizeX, sensorSizeY);
+
+		// Validate configuration
+		if (configuration.getSizeX() > sensorSizeX) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI X size %d is bigger than detector X size %d",
+					configuration.getSizeX(), sensorSizeX));
+		}
+		if (configuration.getSizeY() > sensorSizeY) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI Y size %d is bigger than detector Y size %d",
+					configuration.getSizeY(), sensorSizeY));
+		}
+
+		if (configuration.getStartX() + configuration.getSizeX() - 1 > sensorSizeX) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI X stop %d is larger than detector X size %d",
+					configuration.getStartX() + configuration.getSizeX() - 1, sensorSizeX));
+		}
+
+		if (configuration.getStartY() + configuration.getSizeY() - 1 > sensorSizeY) {
+			throw new IllegalArgumentException(String.format("Configuration error: ROI Y stop %d is larger than detector Y size %d",
+					configuration.getStartY() + configuration.getSizeY() - 1, sensorSizeY));
+		}
+
+		if (configuration.getSlices() < 1) {
+			throw new IllegalArgumentException("There must be at least 1 slice!");
+		}
+
+		if (configuration.getSlices() > configuration.getSizeY()) {
+			throw new IllegalArgumentException(String.format("Number of slices (%d) must be less than or equal to Y size (%d)",
+					configuration.getSlices(), configuration.getSizeY()));
+		}
+		// Looks possible lets set it up
+		setRegionStartX(configuration.getStartX());
+		setRegionStartY(configuration.getStartY());
+		setRegionSizeX(configuration.getSizeX());
+		setRegionSizeY(configuration.getSizeY());
+		setNumberOfSlices(configuration.getSlices());
+		logger.info("Set detector ROI to: {}", configuration);
 	}
 
 	private void initialiseEnumChannel(String channel, List<String> list) throws Exception {
@@ -690,6 +832,22 @@ public class MbsAnalyserController extends ConfigurableBase {
 			epicsController.caputWait(getChannel(channelName), value);
 		} catch (Exception exception) {
 			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		}
+	}
+
+	private double[] getDoubleArray(String channelName, String fieldNameForErrorMessage) throws DeviceException {
+		try {
+			return epicsController.cagetDoubleArray(getChannel(channelName));
+		} catch (Exception exception) {
+			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
+		}
+	}
+
+	private double[] getDoubleArray(String channelName, int numberOfElements, String fieldNameForErrorMessage) throws DeviceException {
+		try {
+			return epicsController.cagetDoubleArray(getChannel(channelName), numberOfElements);
+		} catch (Exception exception) {
+			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
 		}
 	}
 
