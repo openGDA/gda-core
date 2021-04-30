@@ -13,6 +13,7 @@ Export-Package: fr.esrf.Tango,
  gda.device.base,
  gda.device.frelon,
  gda.device.frelon.impl,
+ gda.device.impl,
  gda.device.lima,
  gda.device.lima.impl
 Import-Package: org.slf4j;version="[1.7.2,2.0.0)",
