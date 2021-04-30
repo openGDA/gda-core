@@ -124,6 +124,7 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -201,8 +202,11 @@ public class ScannableNexusWrapperScanTest {
 		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
 		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
 		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-	}
 
+		final org.eclipse.scanning.points.ServiceHolder pointsServiceHolder = new org.eclipse.scanning.points.ServiceHolder();
+		pointsServiceHolder.setValidatorService(new ValidatorService());
+		pointsServiceHolder.setPointGeneratorService(new PointGeneratorService());
+	}
 
 	private static class SampleAngleScannable extends DummyUnitsScannable<Angle> {
 
