@@ -26,3 +26,4 @@ Import-Package: org.eclipse.draw2d,
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: uk.ac.diamond.daq.tomography.datacollection.ui
+Export-Package: uk.ac.diamond.daq.tomography.datacollection.ui.adviewer
