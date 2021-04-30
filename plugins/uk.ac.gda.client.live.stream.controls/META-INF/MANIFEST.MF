@@ -24,7 +24,8 @@ Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.gda.client.live.stream.controls,
  uk.ac.gda.client.live.stream.controls.camera.state,
  uk.ac.gda.client.live.stream.controls.custom.widgets,
- uk.ac.gda.client.live.stream.controls.handlers
+ uk.ac.gda.client.live.stream.controls.handlers,
+ uk.ac.gda.client.live.stream.controls.utils
 Import-Package: com.swtdesigner,
  gda.configuration.properties,
  org.eclipse.dawnsci.analysis.api.roi,
