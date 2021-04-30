@@ -22,7 +22,8 @@ Eclipse-RegisterBuddy: uk.ac.gda.core,
 Export-Package: uk.ac.gda.epics.client.pixium,
  uk.ac.gda.epics.client.pixium.perspective,
  uk.ac.gda.epics.client.pixium.viewfactories,
- uk.ac.gda.epics.client.pixium.views
+ uk.ac.gda.epics.client.pixium.views,
+ uk.ac.gda.epics.client.pixium.views.factories
 Import-Package: ch.qos.logback.classic;bundle-version="[1.0.7,2.0.0)",
  gov.aps.jca,
  org.slf4j;version="[1.7.2,2.0.0)",

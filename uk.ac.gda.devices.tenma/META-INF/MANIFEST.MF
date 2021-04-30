@@ -14,3 +14,4 @@ Require-Bundle: uk.ac.gda.devices.tenma.api,
  uk.ac.gda.epics,
  org.epics.jca
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
+Export-Package: uk.ac.gda.devices.tenma

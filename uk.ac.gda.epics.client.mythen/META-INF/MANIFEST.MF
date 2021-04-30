@@ -37,5 +37,6 @@ Import-Package: gda.observable,
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.client.experimentdefinition, uk.ac.gda.api,
  uk.ac.diamond.org.springframework
-Export-Package: uk.ac.gda.epics.client.mythen.views
+Export-Package: uk.ac.gda.epics.client.mythen.viewfactories,
+ uk.ac.gda.epics.client.mythen.views
 Automatic-Module-Name: uk.ac.gda.epics.client.mythen
