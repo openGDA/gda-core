@@ -52,5 +52,7 @@ Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
 Export-Package: org.javatuples,
  org.javatuples.valueintf,
  uk.ac.gda.client.hrpd.epicsdatamonitor,
- uk.ac.gda.client.hrpd.typedpvscannables
+ uk.ac.gda.client.hrpd.typedpvscannables,
+ uk.ac.gda.client.hrpd.viewfactories,
+ uk.ac.gda.client.hrpd.views
 Automatic-Module-Name: uk.ac.gda.client.hrpd

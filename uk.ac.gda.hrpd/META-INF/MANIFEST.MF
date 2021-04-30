@@ -27,7 +27,8 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.springframework.beans.factory;version="3.2.2.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.gda.api,
  uk.ac.diamond.org.springframework
-Export-Package: gda.hrpd.pmac,
+Export-Package: gda.hrpd.data,
+ gda.hrpd.pmac,
  gda.hrpd.sample,
  gda.hrpd.sample.api,
  gda.hrpd.sample.scans,
