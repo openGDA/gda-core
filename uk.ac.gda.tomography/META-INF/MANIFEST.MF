@@ -8,6 +8,7 @@ Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
 Export-Package: uk.ac.gda.tomography;uses:="org.osgi.framework,uk.ac.gda.tomography.parameters,org.eclipse.emf.ecore.resource",
  uk.ac.gda.tomography.devices;uses:="gda.factory",
+ uk.ac.gda.tomography.devices.p2r,
  uk.ac.gda.tomography.parameters;uses:="org.eclipse.emf.ecore,org.eclipse.emf.common.util",
  uk.ac.gda.tomography.parameters.impl;
   uses:="org.eclipse.emf.ecore,
@@ -25,7 +26,7 @@ Export-Package: uk.ac.gda.tomography;uses:="org.osgi.framework,uk.ac.gda.tomogra
    org.eclipse.emf.ecore.resource,
    org.eclipse.emf.ecore.xmi.impl,
    org.eclipse.emf.ecore.util",
-  uk.ac.gda.tomography.tilt
+ uk.ac.gda.tomography.tilt
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.13.0",
  uk.ac.gda.api;bundle-version="1.0.0",
  org.eclipse.emf.ecore;visibility:=reexport,
