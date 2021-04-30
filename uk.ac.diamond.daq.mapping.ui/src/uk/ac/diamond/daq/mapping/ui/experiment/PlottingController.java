@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 
 /**
  * A wrapper around an {@link IPlottingSystem} for drawing mapping regions and paths.
