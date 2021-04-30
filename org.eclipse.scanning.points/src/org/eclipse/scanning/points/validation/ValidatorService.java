@@ -27,11 +27,26 @@ import org.eclipse.scanning.api.device.models.ModelReflection;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
+import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.ConcurrentMultiModel;
+import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
+import org.eclipse.scanning.api.points.models.JythonGeneratorModel;
+import org.eclipse.scanning.api.points.models.StaticModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
+import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
+import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.ui.CommandConstants;
 import org.osgi.framework.ServiceReference;
@@ -89,14 +104,31 @@ public class ValidatorService implements IValidatorService {
 		context = lcontext;
 	}
 
-
 	@SuppressWarnings("rawtypes")
 	private static final Map<Class<?>, Class<? extends IValidator>> validators;
 	static {
 		@SuppressWarnings("rawtypes")
-		Map<Class<?>, Class<? extends IValidator>> tmp = new HashMap<>();
-		tmp.put(BoundingBox.class,   BoundingBoxValidator.class);
-		tmp.put(ScanRequest.class,   ScanRequestValidator.class);
+		final Map<Class<?>, Class<? extends IValidator>> tmp = new HashMap<>();
+		tmp.put(AxialArrayModel.class, AxialArrayModelValidator.class);
+		tmp.put(AxialCollatedStepModel.class, AxialCollatedStepModelValidator.class);
+		tmp.put(AxialMultiStepModel.class, AxialMultiStepModelValidator.class);
+		tmp.put(AxialPointsModel.class, AxialPointsModelValidator.class);
+		tmp.put(AxialStepModel.class, AxialStepModelValidator.class);
+		tmp.put(BoundingBox.class, BoundingBoxValidator.class);
+		tmp.put(CompoundModel.class, CompoundModelValidator.class);
+		tmp.put(ConcurrentMultiModel.class, ConcurrentMultiModelValidator.class);
+		tmp.put(ConsecutiveMultiModel.class, ConsecutiveMultiModelValidator.class);
+		tmp.put(JythonGeneratorModel.class, JythonGeneratorModelValidator.class);
+		tmp.put(ScanRequest.class, ScanRequestValidator.class);
+		tmp.put(StaticModel.class, StaticModelValidator.class);
+		tmp.put(TwoAxisGridPointsModel.class, TwoAxisGridPointsModelValidator.class);
+		tmp.put(TwoAxisGridStepModel.class, TwoAxisGridStepModelValidator.class);
+		tmp.put(TwoAxisLinePointsModel.class, TwoAxisLinePointsModelValidator.class);
+		tmp.put(TwoAxisLineStepModel.class, TwoAxisLineStepModelValidator.class);
+		tmp.put(TwoAxisLissajousModel.class, TwoAxisLissajousModelValidator.class);
+		tmp.put(TwoAxisPointSingleModel.class, TwoAxisPointSingleModelValidator.class);
+		tmp.put(TwoAxisPtychographyModel.class, TwoAxisPtychographyModelValidator.class);
+		tmp.put(TwoAxisSpiralModel.class, TwoAxisSpiralModelValidator.class);
 
 		validators = Collections.unmodifiableMap(tmp);
 	}
@@ -111,44 +143,43 @@ public class ValidatorService implements IValidatorService {
 		validator.validate(model);
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Get the validator corresponding to the model passed as parameter<br>
+	 * As we have separated model validation from point generation, we no longer try to get validators from point
+	 * generators.
+	 */
 	@Override
 	public <T> IValidator<T> getValidator(T model) throws ValidationException {
 
-		if (model==null) throw new NullPointerException("The model is null!");
+		if (model == null)
+			throw new NullPointerException("The model is null!");
 
-		if (model instanceof IValidator) throw new IllegalArgumentException("Models should be vanilla and not contain logic for validating themselves!");
+		if (model instanceof IValidator)
+			throw new IllegalArgumentException(
+					"Models should be vanilla and not contain logic for validating themselves!");
 
-		if (validators.containsKey(model.getClass())) {
-			try {
-				return validators.get(model.getClass()).newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new ValidationException("Could not create validator for model class: " + model.getClass(), e);
+		try {
+			final IValidator<T> validator = getValidatorForClass(model.getClass());
+			if (validator != null) {
+				return validator;
 			}
+		} catch (Exception e) {
+			throw new ValidationException("Could not create validator for model class: " + model.getClass(), e);
 		}
+		return getDeviceFromModel(model).orElseThrow(() -> new ValidationException(
+				"Could not find validator for model " + model + " using runnable device service"));
+	}
 
-		if (model instanceof IScanPathModel) { // Ask a generator
-			try {
-				IScanPathModel     pmodel = (IScanPathModel)model;
-				IPointGenerator<?> gen    = factory.createGenerator(pmodel);
-				return (IValidator<T>)gen;
-
-			} catch (GeneratorException e) {
-				throw new ValidationException("Could not create generator for model class: " + model.getClass());
+	@SuppressWarnings("unchecked")
+	private <T> IValidator<T> getValidatorForClass(Class<?> modelClass) throws Exception {
+		Class<?> clazz = modelClass;
+		while (clazz != Object.class) {
+			if (validators.containsKey(clazz)) {
+				return validators.get(clazz).getDeclaredConstructor().newInstance();
 			}
-		} else {
-			try {
-				IPointGenerator<?> gen    = factory.createGenerator(model);
-				return (IValidator<T>)gen;
-			} catch (Exception legallyPossible) {
-				// Do nothing
-			}
+			clazz = clazz.getSuperclass();
 		}
-
-		return getDeviceFromModel(model)
-				.orElseThrow(() -> new ValidationException(
-						"Could not find validator for model "
-						+ model + " using runnable device service"));
+		return null;
 	}
 
 	private <T> Optional<IRunnableDevice<T>> getDeviceFromModel(T model) {

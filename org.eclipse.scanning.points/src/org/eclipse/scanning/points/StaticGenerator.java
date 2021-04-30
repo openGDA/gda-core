@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -26,12 +25,6 @@ class StaticGenerator extends AbstractScanPointGenerator<StaticModel> {
 
 	StaticGenerator(StaticModel model) {
 		super(model);
-	}
-
-	@Override
-	public StaticModel validate(StaticModel model) {
-		if (model.getSize() < 1) throw new ModelValidationException("Size must be greater than zero!", model, "size");
-		return super.validate(model);
 	}
 
 	@Override

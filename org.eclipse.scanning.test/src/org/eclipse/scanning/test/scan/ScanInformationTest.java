@@ -41,16 +41,20 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ScanInformationTest {
 
-	private IPointGeneratorService pointGenService;
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@Before
-	public void setUp() {
-		pointGenService = new PointGeneratorService();
+	@BeforeClass
+	public static void beforeClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
+		serviceHolder.setValidatorService(new ValidatorService());
 	}
 
 	@Test
@@ -63,14 +67,14 @@ public class ScanInformationTest {
 		String filePath = "/path/to/nexusFile.nxs";
 		scanRequest.setFilePath(filePath);
 
-		ScanInformation scanInfo = new ScanInformation(pointGenService, scanRequest);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, scanRequest);
 		checkScanInfo(scanInfo);
 	}
 
 	@Test
 	public void testNewScanInformationFromPointGenAndDetectors() throws Exception {
 		CompoundModel compoundModel = createCompoundModel();
-		IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
+		IPointGenerator<CompoundModel> pointGen = pointGeneratorService.createCompoundGenerator(compoundModel);
 
 		String filePath = "/path/to/nexusFile.nxs";
 		Collection<IDetectorModel> detModels = createDetectorModels().values();

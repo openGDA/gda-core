@@ -13,19 +13,12 @@ package org.eclipse.scanning.points;
 
 import java.math.BigDecimal;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 
 class TwoAxisLineStepGenerator extends AbstractLineGenerator<TwoAxisLineStepModel> {
 
 	TwoAxisLineStepGenerator(TwoAxisLineStepModel model) {
 		super(model);
-	}
-
-	@Override
-	public TwoAxisLineStepModel validate(TwoAxisLineStepModel model) {
-		if (model.getStep() <= 0) throw new ModelValidationException("Model step size must be positive!", model, "step");
-		return super.validate(model);
 	}
 
 	@Override

@@ -34,6 +34,8 @@ import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,11 +53,13 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value=Parameterized.class)
 public class ScanShapeTest {
 
-	private static IPointGeneratorService service;
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
 	@BeforeClass
-	public static void beforeClass() throws Exception {
-		service = new PointGeneratorService();
+	public static void beforeClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
 	@Parameters(name="nestCount= {0}, snake= {1}")
@@ -87,7 +91,7 @@ public class ScanShapeTest {
 	public void testShapeGrid() throws Exception {
 		ScanRequest req = createGridScanRequest(nestCount, snake);
 
-		ScanInformation scanInfo = new ScanInformation(service, req);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 		final int expectedRank = nestCount + 2;
 		assertEquals(expectedRank, scanInfo.getRank());
 		int[] shape = scanInfo.getShape();
@@ -103,7 +107,7 @@ public class ScanShapeTest {
 	public void testShapeGridCircularRegion() throws Exception {
 		ScanRequest req = createGridWithCircleRegionScanRequest(nestCount, snake);
 
-		ScanInformation scanInfo = new ScanInformation(service, req);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 		int[] shape = scanInfo.getShape();
 		assertEquals(nestCount + 1, shape.length);
 		for (int i = 0; i < nestCount; i++) {
@@ -116,7 +120,7 @@ public class ScanShapeTest {
 	public void testShapeGridPolygonRegion() throws Exception {
 		ScanRequest req = createGridWithPolygonRegionScanRequest(nestCount, snake);
 
-		ScanInformation scanInfo = new ScanInformation(service, req);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 		int[] shape = scanInfo.getShape();
 		assertEquals(nestCount + 1, shape.length);
 		for (int i = 0; i < nestCount; i++) {
@@ -145,7 +149,7 @@ public class ScanShapeTest {
 
 		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
-		ScanInformation scanInfo = new ScanInformation(service, req);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 
 		final int expectedRank = nestCount + 1;
 		assertEquals(expectedRank, scanInfo.getRank());
@@ -178,7 +182,7 @@ public class ScanShapeTest {
 
 		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
-		ScanInformation scanInfo = new ScanInformation(service, req);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 
 		final int expectedRank = nestCount + 1;
 		assertEquals(expectedRank, scanInfo.getRank());
@@ -199,7 +203,7 @@ public class ScanShapeTest {
 		ScanRequest req = new ScanRequest();
 		req.setCompoundModel(compoundModel);
 
-		ScanInformation scanInfo = new ScanInformation(service, req);
+		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 
 		// Note: a StaticModel of size 1 produces a scan of rank 1, size 1
 		final int expectedRank = 1;

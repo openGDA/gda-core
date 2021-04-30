@@ -18,11 +18,6 @@
 
 package org.eclipse.scanning.points;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.ConcurrentMultiModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -39,25 +34,4 @@ public class ConcurrentMultiGenerator extends AbstractMultiGenerator<ConcurrentM
 	protected JythonObjectFactory<PPointGenerator> getFactory() {
 		return ScanPointGeneratorFactory.JZipGeneratorFactory();
 	}
-
-	@Override
-	public ConcurrentMultiModel validate(ConcurrentMultiModel model) {
-		// Need cachedGenerators to be set, so call super.validate first
-		super.validate(model);
-		final List<String> dimensions = new ArrayList<>();
-		final int size = cachedGenerators.get(0).size();
-		for (IPointGenerator<?> gen : cachedGenerators) {
-			if (gen.size() != size) {
-				throw new ModelValidationException("All models must be the same length in ConcurrentMultiGenerator!", model, "models");
-			}
-			for (String axis : gen.getNames()) {
-				if (dimensions.contains(axis)) throw new ModelValidationException("All models in ConcurrentModel must"
-						+ " be in mutually exclusive axes!", model, "models");
-				dimensions.add(axis);
-			}
-		}
-		cachedGenerators = null;
-		return model;
-	}
-
 }

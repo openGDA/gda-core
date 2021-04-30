@@ -15,18 +15,16 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
+import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
-import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.detector.PosDetectorModel;
@@ -38,28 +36,27 @@ import org.junit.Test;
 public class ModelTest extends AbstractValidationTest {
 
 	//TODO: Should all models be constructed valid?
-	private static Collection<Class<?>> COMPLETE_MODELS; // Models that come complete when they are created with a no-arg constructor
-	static {
-		COMPLETE_MODELS = new ArrayList<>();
-		COMPLETE_MODELS.add(TwoAxisLissajousModel.class);
-		COMPLETE_MODELS.add(StaticModel.class);
-		COMPLETE_MODELS.add(TwoAxisLinePointsModel.class);
-		COMPLETE_MODELS.add(TwoAxisLineStepModel.class);
-		COMPLETE_MODELS.add(TwoAxisPointSingleModel.class);
-	}
+	// Models that come complete when they are created with a no-arg constructor
+	private static final Set<Class<?>> COMPLETE_MODELS = Set.of(StaticModel.class, CompoundModel.class,
+			TwoAxisPointSingleModel.class);
 
 	@Test
 	public void emptyScanModels() throws Exception {
-		PointGeneratorService pservice = (PointGeneratorService) ValidatorService.getPointGeneratorService();
+		final PointGeneratorService pservice = (PointGeneratorService) ValidatorService.getPointGeneratorService();
 		for (Class<? extends IScanPathModel> modelType : pservice.getGenerators().keySet()) {
-			IScanPathModel empty = modelType.newInstance();
+			final IScanPathModel emptyModel = modelType.getDeclaredConstructor().newInstance();
+			final boolean completeModel = COMPLETE_MODELS.contains(modelType);
 			try {
-			    validator.validate(empty);
+				validator.validate(emptyModel);
+				// Validation successful
+			    if (!completeModel) {
+			    	fail("The model " + emptyModel + " validated but should not have done so");
+			    }
 			} catch (Exception ne) {
-				continue;
-			}
-			if (!COMPLETE_MODELS.contains(empty.getClass())) {
-			    fail("The model "+empty+" validated!");
+				// Validation failed
+				if (completeModel) {
+			    	fail("The model " + emptyModel + " did not validate but should have done so");
+				}
 			}
 		}
 	}

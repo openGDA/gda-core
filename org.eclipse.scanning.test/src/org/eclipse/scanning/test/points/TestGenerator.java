@@ -25,7 +25,9 @@ public class TestGenerator extends AbstractGenerator<TestGeneratorModel> {
 	}
 
 	@Override
-	public TestGeneratorModel validate(TestGeneratorModel model) { return model; }
+	protected void validateModel() {
+		// nothing to do
+	}
 
 	@Override
 	public int[] getShape() {

@@ -29,12 +29,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
-import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
 import org.python.core.PyObject;
@@ -53,7 +51,9 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 		pointGenerator = createPythonPointGenerator();
 	}
 
-	protected AbstractScanPointGenerator() {}
+	protected AbstractScanPointGenerator() {
+		// For subclasses such as NoModelGenerator that cannot validate a model
+	}
 
 	/**
 	 * To allow Models to be validated prior to the iterator ever being called (to allow {@code ModelValidationException} to be checked,
@@ -71,32 +71,9 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 
 	protected abstract PPointGenerator createPythonPointGenerator();
 
-	/**
-	 * If the given model is considered "invalid", this method throws a ModelValidationException explaining why it is
-	 * considered invalid. Otherwise, just returns. A model should be considered invalid if its parameters would cause
-	 * the generator implementation to hang or crash.
-	 *
-	 * @throw {@link ModelValidationException} if model invalid
-	 */
 	@Override
-	public T validate(T model) throws ModelValidationException {
-		if (model.getUnits().size() != model.getScannableNames().size()) {
-			throw new ModelValidationException("Model must have units for each scannable axis!", model, "name"); // Not actually name
-		}
-		if (!AbstractPointsModel.supportsContinuous(model.getClass()) && model.isContinuous())
-			throw new ModelValidationException(model.getClass().getSimpleName() + " cannot be continuous!", model, "continuous");
-		if (!AbstractPointsModel.supportsAlternating(model.getClass()) && model.isAlternating())
-			throw new ModelValidationException(model.getClass().getSimpleName() + " cannot be alternating!", model, "alternating");
-		if (model instanceof IBoundingBoxModel) {
-			IBoundingBoxModel boxModel = (IBoundingBoxModel) model;
-			if (boxModel.getBoundingBox() == null)
-				throw new ModelValidationException("The model must have a Bounding Box!", boxModel, "boundingBox");
-			// As implemented, model width and/or height can be negative,
-			// and this flips the slow and/or fast point order.
-			if (boxModel.getBoundingBox().getxAxisLength()==0 || boxModel.getBoundingBox().getyAxisLength()==0)
-	        	throw new ModelValidationException("The length must not be 0!", boxModel, "boundingBox");
-		}
-		return model;
+	protected void validateModel() {
+		ServiceHolder.getValidatorService().validate(model);
 	}
 
 	@Override

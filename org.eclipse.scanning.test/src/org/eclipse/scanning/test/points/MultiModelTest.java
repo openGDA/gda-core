@@ -32,12 +32,22 @@ import org.eclipse.scanning.api.points.models.ConcurrentMultiModel;
 import org.eclipse.scanning.api.points.models.ConsecutiveMultiModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class MultiModelTest {
 
-	private IPointGeneratorService service = new PointGeneratorService();
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
+
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
+	}
 
 	@Test
 	@Ignore("Currently failing because Array([u'x', u'y'] != Array(['x', 'y']); pull request for SPG created since u'x' = u'x'")
@@ -59,11 +69,11 @@ public class MultiModelTest {
 		consecutive.addModel(concurrent);
 		consecutive.addModel(xy);
 		consecutive.setContinuous(false);
-		IPointGenerator<ConsecutiveMultiModel> gen = service.createGenerator(consecutive);
+		IPointGenerator<ConsecutiveMultiModel> gen = pointGeneratorService.createGenerator(consecutive);
 		// 7 + 503 points = 510 points, 1 dimension in (xxxxx, yajhf)
 		assertArrayEquals(new int[] { 510 }, gen.getShape());
-		Iterator<IPosition> one = service.createGenerator(concurrent).iterator();
-		Iterator<IPosition> two = service.createGenerator(xy).iterator();
+		Iterator<IPosition> one = pointGeneratorService.createGenerator(concurrent).iterator();
+		Iterator<IPosition> two = pointGeneratorService.createGenerator(xy).iterator();
 		ConsecutiveTest.equalIterators(gen.iterator(), true, one, two);
 	}
 
@@ -80,8 +90,7 @@ public class MultiModelTest {
 		zp.setBoundingBox(xy.getBoundingBox());
 		consecutive.addModel(zp);
 		consecutive.addModel(xy);
-		IPointGenerator<ConsecutiveMultiModel> gen = service.createGenerator(consecutive);
-
+		pointGeneratorService.createGenerator(consecutive);
 	}
 
 	@Test
@@ -102,9 +111,9 @@ public class MultiModelTest {
 		outerConsecutive.addModel(innerConsecutive);
 		outerConsecutive.addModel(x3);
 		outerConsecutive.setContinuous(false);
-		IPointGenerator<ConsecutiveMultiModel> gen = service.createGenerator(outerConsecutive);
-		Iterator<IPosition> one = service.createGenerator(innerConsecutive).iterator();
-		Iterator<IPosition> two = service.createGenerator(x3).iterator();
+		IPointGenerator<ConsecutiveMultiModel> gen = pointGeneratorService.createGenerator(outerConsecutive);
+		Iterator<IPosition> one = pointGeneratorService.createGenerator(innerConsecutive).iterator();
+		Iterator<IPosition> two = pointGeneratorService.createGenerator(x3).iterator();
 		ConsecutiveTest.equalIterators(gen.iterator(), true, one, two);
 	}
 
@@ -124,9 +133,9 @@ public class MultiModelTest {
 		pq.setBoundingBox(new BoundingBox(0, 0, 5, 5));
 		outerConcurrent.addModel(innerConcurrent);
 		outerConcurrent.addModel(pq);
-		IPointGenerator<ConcurrentMultiModel> gen = service.createGenerator(outerConcurrent);
-		Iterator<IPosition> one = service.createGenerator(innerConcurrent).iterator();
-		Iterator<IPosition> two = service.createGenerator(pq).iterator();
+		IPointGenerator<ConcurrentMultiModel> gen = pointGeneratorService.createGenerator(outerConcurrent);
+		Iterator<IPosition> one = pointGeneratorService.createGenerator(innerConcurrent).iterator();
+		Iterator<IPosition> two = pointGeneratorService.createGenerator(pq).iterator();
 		ConcurrentTest.equalIterators(gen.iterator(), one, two);
 	}
 
@@ -144,9 +153,9 @@ public class MultiModelTest {
 		AxialStepModel y = new AxialStepModel("y", 0, 6.5, 0.5);
 		concurrent.addModel(consecutive);
 		concurrent.addModel(y);
-		IPointGenerator<ConcurrentMultiModel> gen = service.createGenerator(concurrent);
-		Iterator<IPosition> one = service.createGenerator(consecutive).iterator();
-		Iterator<IPosition> two = service.createGenerator(y).iterator();
+		IPointGenerator<ConcurrentMultiModel> gen = pointGeneratorService.createGenerator(concurrent);
+		Iterator<IPosition> one = pointGeneratorService.createGenerator(consecutive).iterator();
+		Iterator<IPosition> two = pointGeneratorService.createGenerator(y).iterator();
 		ConcurrentTest.equalIterators(gen.iterator(), one, two);
 	}
 }

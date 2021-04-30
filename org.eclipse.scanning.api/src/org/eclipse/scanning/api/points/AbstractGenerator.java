@@ -32,12 +32,15 @@ public abstract class AbstractGenerator<T extends IScanPathModel> implements IPo
 
 	protected AbstractGenerator(T model) {
 		this.model = model;
-		validate(model);
+		validateModel();
 	}
 
 	protected AbstractGenerator() {
-		// For validating models only
+		// For subclasses such as NoModelGenerator that do not have a model to validate
+		// Most subclasses should not define a noargs constructor
 	}
+
+	protected abstract void validateModel();
 
 	@Override
 	public T getModel() {

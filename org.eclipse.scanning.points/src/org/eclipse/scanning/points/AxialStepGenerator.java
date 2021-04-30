@@ -14,7 +14,6 @@ package org.eclipse.scanning.points;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -22,22 +21,6 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 
 	public AxialStepGenerator(AxialStepModel model) {
 		super(model);
-	}
-
-	AxialStepGenerator() {
-		// For validating AxialMultiStepModels only
-	}
-
-	@Override
-	public AxialStepModel validate(AxialStepModel model) {
-		if (model.getStep() == 0) {
-			throw new ModelValidationException("Model step size must be nonzero!", model, "step");
-		}
-		final int dir = Integer.signum(BigDecimal.valueOf(model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue() );
-		if (dir < 0) {
-			throw new ModelValidationException("Model step is directed in the wrong direction!", model, "start", "stop", "step", "count");
-		}
-		return super.validate(model);
 	}
 
 	@Override

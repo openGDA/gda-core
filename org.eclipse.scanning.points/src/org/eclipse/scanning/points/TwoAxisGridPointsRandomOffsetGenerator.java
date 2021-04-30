@@ -13,7 +13,6 @@ package org.eclipse.scanning.points;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyDictionary;
@@ -62,12 +61,4 @@ public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerato
 
 		return new PyObject[] { randomOffsetMutatorFactory.createObject(seed, axes, offset) };
 	}
-
-	@Override
-	public TwoAxisGridPointsRandomOffsetModel validate(TwoAxisGridPointsRandomOffsetModel model) {
-		if (model.getyAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
-		if (model.getxAxisPoints() <= 0) throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
-		return super.validate(model);
-	}
-
 }

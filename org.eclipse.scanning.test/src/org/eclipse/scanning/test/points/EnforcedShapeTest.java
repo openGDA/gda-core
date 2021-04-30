@@ -37,18 +37,22 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class EnforcedShapeTest {
 
 	private static final String FAIL_MESSAGE = "Enforced shape model has more points than stepped model";
 
-	private IPointGeneratorService pgs;
+	private static final IPointGeneratorService pgs = new PointGeneratorService();
 
-	@Before
-	public void setUp() {
-		pgs = new PointGeneratorService();
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setPointGeneratorService(pgs);
+		serviceHolder.setValidatorService(new ValidatorService());
 	}
 
 	/**

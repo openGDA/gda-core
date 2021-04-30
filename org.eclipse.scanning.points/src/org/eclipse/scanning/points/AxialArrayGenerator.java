@@ -13,7 +13,6 @@ package org.eclipse.scanning.points;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
@@ -21,13 +20,6 @@ public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayMo
 
 	public AxialArrayGenerator(AxialArrayModel model) {
 		super(model);
-	}
-
-	@Override
-	public AxialArrayModel validate(AxialArrayModel model) throws ModelValidationException {
-		if (getModel().getPositions()==null) throw new ModelValidationException("There are no positions!", model, "positions");
-		if (getModel().getPositions().length < 2) throw new ModelValidationException("ArrayModel requires at least 2 positions, did you want SinglePointModel?", model, "positions");
-		return super.validate(model);
 	}
 
 	@Override

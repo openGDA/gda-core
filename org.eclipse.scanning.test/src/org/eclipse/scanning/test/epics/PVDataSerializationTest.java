@@ -54,7 +54,9 @@ import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.connector.epics.MalcolmEpicsV4Connection;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.epics.pvdata.factory.FieldFactory;
 import org.epics.pvdata.factory.PVDataFactory;
 import org.epics.pvdata.pv.FieldCreate;
@@ -73,6 +75,7 @@ import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvdata.pv.Union;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -85,16 +88,22 @@ public class PVDataSerializationTest {
 
 	private MalcolmEpicsV4Connection connectorService;
 
-	private IPointGeneratorService pgService;
+	private static final IPointGeneratorService pgService = new PointGeneratorService();
 
 	private FieldCreate fieldCreate = FieldFactory.getFieldCreate();
 
 	private PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
+	@BeforeClass
+	public static void setUpClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pgService);
+	}
+
 	@Before
 	public void setUp() {
 		connectorService = new MalcolmEpicsV4Connection();
-		pgService = new PointGeneratorService();
 		fieldCreate = FieldFactory.getFieldCreate();
 		pvDataCreate = PVDataFactory.getPVDataCreate();
 	}

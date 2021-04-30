@@ -37,7 +37,9 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -53,11 +55,13 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value=Parameterized.class)
 public class ScanRankTest {
 
-	private IPointGeneratorService service;
+	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@Before
-	public void before() throws Exception {
-		service = new PointGeneratorService();
+	@BeforeClass
+	public static void beforeClass() {
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setValidatorService(new ValidatorService());
+		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
 	@Parameters(name="nestCount= {0}")
@@ -86,7 +90,7 @@ public class ScanRankTest {
 
 		cModel.addData(model,  Arrays.asList(roi));
 
-		final IPointGenerator<?> generator = service.createCompoundGenerator(cModel);
+		final IPointGenerator<?> generator = pointGeneratorService.createCompoundGenerator(cModel);
 		checkGenerator(generator, 10);
 	}
 
@@ -108,7 +112,7 @@ public class ScanRankTest {
 		}
 		cModel.addModel(model);
 
-		final IPointGenerator<?> gen = service.createCompoundGenerator(cModel);
+		final IPointGenerator<?> gen = pointGeneratorService.createCompoundGenerator(cModel);
 		checkGenerator(gen, 15);
 	}
 
@@ -194,7 +198,7 @@ public class ScanRankTest {
 		}
 		cModel.addData(model, region == null ? Collections.<IROI>emptyList() : Arrays.<IROI>asList(region));
 
-		return service.createCompoundGenerator(cModel);
+		return pointGeneratorService.createCompoundGenerator(cModel);
 	}
 
 }

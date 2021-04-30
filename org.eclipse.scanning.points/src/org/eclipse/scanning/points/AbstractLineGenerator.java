@@ -20,7 +20,6 @@ package org.eclipse.scanning.points;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -29,12 +28,6 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 
 	protected AbstractLineGenerator(T model) {
 		super(model);
-	}
-
-	@Override
-	public T validate(T model) {
-		if (model.getBoundingLine() == null) throw new ModelValidationException("Model must have BoundingLine!", model, "boundingLine");
-		return super.validate(model);
 	}
 
 	@Override
