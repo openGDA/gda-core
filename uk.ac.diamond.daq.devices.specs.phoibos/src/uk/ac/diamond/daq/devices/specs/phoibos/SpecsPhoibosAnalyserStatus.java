@@ -47,6 +47,8 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 	private SpecsPhoibosStatus specsStatus;
 	private int collectionStrategyStatus;
 
+	private String[] positions;
+
 	@Override
 	public void configure() {
 		try {
@@ -59,6 +61,9 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 				collectionStrategy.addIObserver(this::processCollectionStrategyUpdate);
 				collectionStrategyStatus = collectionStrategy.getStatus();
 			}
+			// Get labels from epics
+			positions = epicsController.cagetLabels(getChannel(pvName));
+
 			// Handle events from epics controller
 			epicsController.setMonitor(getChannel(pvName), evt -> {
 				logger.trace("Received event: {}", evt);
@@ -66,10 +71,9 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 				int status = dbr.getEnumValue()[0];
 				specsStatus = SpecsPhoibosStatus.get(status);
 				observableComponent.notifyIObservers(this, isBusy());
+				observableComponent.notifyIObservers(this, positions[status]);
 			});
 			specsStatus = SpecsPhoibosStatus.get(epicsController.cagetEnum(getChannel(pvName)));
-
-
 			setConfigured(true);
 		} catch (Exception e){
 			logger.error("Could not set status monitor");
@@ -92,6 +96,15 @@ public class SpecsPhoibosAnalyserStatus extends ConfigurableBase implements ISpe
 				|| !(specsStatus == SpecsPhoibosStatus.IDLE
 				|| specsStatus == SpecsPhoibosStatus.ABORTED
 				|| specsStatus == SpecsPhoibosStatus.ERROR);
+	}
+
+	@Override
+	public String getCurrentPosition() {
+		try {
+			return epicsController.cagetLabel(getChannel(pvName));
+		} catch (Exception e) {
+			return "UNKNOWN";
+		}
 	}
 
 	private Channel getChannel(String fullPvName) throws TimeoutException, CAException {
