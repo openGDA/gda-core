@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.devices.mbs;
 public class MbsAnalyserCompletedRegion {
 
 	private double collectionTime;
+	private double acquireTime;
 	private double acquirePeriod;
 	private int iterations;
 	private int passEnergy;
@@ -46,6 +47,10 @@ public class MbsAnalyserCompletedRegion {
 	private int sensorSizeY;
 	private double[] energyAxis;
 	private double[] lensAxis;
+	private double countPerSecond;
+	private int[] cpsRegionOrigin;
+	private int[] cpsRegionSize;
+
 
 	public double getCollectionTime() {
 		return collectionTime;
@@ -255,5 +260,37 @@ public class MbsAnalyserCompletedRegion {
 
 	public boolean isTransmissionLensMode() {
 		return getLensMode().toLowerCase().contains("spat");
+	}
+
+	public double getCountPerSecond() {
+		return countPerSecond;
+	}
+
+	public void setCountPerSecond(double countPerSecond) {
+		this.countPerSecond = countPerSecond;
+	}
+
+	public int[] getCpsRegionOrigin() {
+		return cpsRegionOrigin;
+	}
+
+	public void setCpsRegionOrigin(int[] cpsRegionOrigin) {
+		this.cpsRegionOrigin = cpsRegionOrigin;
+	}
+
+	public int[] getCpsRegionSize() {
+		return cpsRegionSize;
+	}
+
+	public void setCpsRegionSize(int[] cpsRegionSize) {
+		this.cpsRegionSize = cpsRegionSize;
+	}
+
+	public double getAcquireTime() {
+		return acquireTime;
+	}
+
+	public void setAcquireTime(double acquireTime) {
+		this.acquireTime = acquireTime;
 	}
 }

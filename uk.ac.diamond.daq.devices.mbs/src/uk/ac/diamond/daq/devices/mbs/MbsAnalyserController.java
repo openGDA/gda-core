@@ -100,6 +100,8 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 	private static final String CURRENT_SCAN_RBV = "CAM:CurrentScanNumber_RBV";
 	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
 
+	private static final String FIXED_MODE_NAME = "Fixed";
+
 	private final List<String> passEnergies = new ArrayList<>();
 	private final List<String> lensModes = new ArrayList<>();
 	private final List<String> acquisitionModes = new ArrayList<>();
@@ -300,6 +302,14 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 	 */
 	public String getAcquisitionMode() throws DeviceException {
 		return getStringValue(ACQUISITION_MODE, "acquisition mode");
+	}
+
+	/** Checks whether the analyser is in fixed mode
+	 *
+	 * @return A boolean indicating whether the analyser is in Fixed mode
+	 */
+	public boolean isInFixedMode() throws DeviceException {
+		return getAcquisitionMode().equalsIgnoreCase(FIXED_MODE_NAME);
 	}
 
 	/**

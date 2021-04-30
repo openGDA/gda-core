@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +32,13 @@ import gda.device.DeviceException;
 import gda.device.MotorStatus;
 import gda.device.detector.NXDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.devices.mbs.api.IMbsAnalyser;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
+import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IElectronAnalyser.class)
@@ -46,6 +51,8 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private AnalyserEnergyRangeConfiguration energyRange;
 	private DetectorConfiguration fixedModeConfiguration;
 	private DetectorConfiguration sweptModeConfiguration;
+	private PlotServerROISelectionProvider cpsRoiProvider;
+	private RectangularROI cpsRoi;
 
 	private double energyStepPerPixel = 0.000855;
 
@@ -73,7 +80,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			logger.warn("Unable to update energy step per pixel from EPICS. Using default value of {}", energyStepPerPixel);
 		}
 
-		setConfigured(true);
+		super.configure();
 	}
 
 	private void validateRegions() throws DeviceException {
@@ -376,6 +383,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		MbsAnalyserCompletedRegion completedRegion = new MbsAnalyserCompletedRegion();
 
 		completedRegion.setCollectionTime(getCollectionTime());
+		completedRegion.setAcquireTime(getCollectionTime());
 		completedRegion.setAcquirePeriod(getAcquirePeriod());
 		completedRegion.setIterations(getIterations());
 		completedRegion.setPassEnergy(getPassEnergy());
@@ -402,7 +410,42 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setEnergyAxis(getEnergyAxis());
 		completedRegion.setLensAxis(getAngleAxis());
 
+		if (cpsRoi != null) {
+			completedRegion.setCpsRegionOrigin(cpsRoi.getIntPoint());
+			completedRegion.setCpsRegionSize(cpsRoi.getIntLengths());
+		} else {
+			completedRegion.setCpsRegionOrigin(new int[] {0,0});
+			completedRegion.setCpsRegionSize(new int[] { controller.getImageDataWidth(), controller.getImageDataHeight() });
+		}
+
+		completedRegion.setCountPerSecond(calculateCps(completedRegion.getImage(), completedRegion.getAcquireTime()));
+
 		return completedRegion;
+	}
+
+	private double calculateCps(double[][] data, double acquireTime) {
+		Dataset dataSet = DatasetFactory.createFromObject(data);
+
+		if (cpsRoi != null && roiIsWithinDatasetBounds(cpsRoi, dataSet)) {
+			dataSet = ROIProfile.box(dataSet, cpsRoi)[0];
+		}
+
+		return ((Number)dataSet.sum()).doubleValue() / acquireTime;
+	}
+
+	/**
+	 * Method to check that ROI is within bounds of
+	 * the dataset
+	 */
+	private boolean roiIsWithinDatasetBounds(RectangularROI roi, Dataset dataset) {
+
+		double[] roiBottomLeft = roi.getPoint();
+		double[] roiTopRight = roi.getEndPoint();
+
+		int[] dataShape = dataset.getShape();
+
+		return roiBottomLeft[0] >= 0 && roiBottomLeft[1] >= 0
+				&& roiTopRight[0] <= dataShape[0] && roiTopRight[1] <= dataShape[1];
 	}
 
 	public int getRegionStartX() throws DeviceException {
@@ -624,5 +667,36 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		controller.setDetectorConfiguration(sweptModeConfiguration);
 		controller.setSingleImageMode();
 		controller.setInternalTriggerMode();
+	}
+
+	public PlotServerROISelectionProvider getCpsRoiProvider() {
+		return cpsRoiProvider;
+	}
+
+	public void setCpsRoiProvider(PlotServerROISelectionProvider cpsRoiProvider) {
+		this.cpsRoiProvider = cpsRoiProvider;
+	}
+
+	@Override
+	public void atScanStart() throws DeviceException {
+		super.atScanStart();
+		try {
+			controller.stopAcquiring();
+		} catch (DeviceException exception) {
+			// If the thing wasn't acquiring then there's no problem
+			// If there's another problem it'll show up in a minute anyway, so no need to rethrow.
+			logger.error("Error stopping acquisition before running scan", exception);
+		}
+
+		try {
+			if (controller.isInFixedMode()) {
+				cpsRoi = cpsRoiProvider.getScisoftRoiListFromSDAPlotter().get(0);
+			} else {
+				cpsRoi = null;
+			}
+		} catch (Exception e) {
+			logger.error("Error retrieving cps ROI, cps will be calculated over entire active detector", e);
+			cpsRoi = null;
+		}
 	}
 }

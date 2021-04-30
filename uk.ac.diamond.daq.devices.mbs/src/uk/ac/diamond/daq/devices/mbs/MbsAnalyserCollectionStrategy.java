@@ -38,7 +38,7 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	private Future<Integer> acquisitionTask;
 	private MbsAnalyserCompletedRegion completedRegion;
 
-	private static final String REGION_OUTPUT_FORMAT = "%5.5g";
+	private static final String CPS_OUTPUT_FORMAT = "%5.5g";
 
 	public MbsAnalyser getAnalyser() {
 		return analyser;
@@ -163,12 +163,12 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return Arrays.asList(analyser.getName());
+		return Arrays.asList("cps");
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		return Arrays.asList(REGION_OUTPUT_FORMAT);
+		return Arrays.asList(CPS_OUTPUT_FORMAT);
 	}
 
 	@Override
