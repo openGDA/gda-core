@@ -19,9 +19,6 @@
 package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
-import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -423,7 +420,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	private String[] getExpectedInstrumentGroupNames() {
-		final Set<String> expectedGroupNames = new HashSet<>(Arrays.asList(getScannableAndMonitorNames()));
+		final Set<String> expectedGroupNames = new HashSet<>(List.of(getScannableAndMonitorNames()));
 		if (detector != null) {
 			expectedGroupNames.add(detector.getName());
 		}
@@ -431,7 +428,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.add(GROUP_NAME_SCANNABLES);
 		expectedGroupNames.addAll(getExpectedMetadataScannableNames());
 		expectedGroupNames.addAll(ServiceHolder.getCommonBeamlineDevicesConfiguration().getCommonDeviceNames());
-		expectedGroupNames.removeAll(Arrays.asList(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
+		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
 
 		return expectedGroupNames.toArray(new String[expectedGroupNames.size()]);
 	}
@@ -596,10 +593,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void checkDataGroups(NXentry entry) {
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 
-		final boolean detectorIsPrimaryDevice = detector != null && detectorType != DetectorType.FILE_CREATOR;
-		final String dataDeviceName = detectorIsPrimaryDevice ? detector.getName() : monitor.getName();  // An NXdata group is created for the monitor if the scan has no detectors
-		final List<String> primaryFieldNames = detectorIsPrimaryDevice ? getPrimaryFieldNames() :
-			Arrays.asList(NXpositioner.NX_VALUE); // the primary field names of the primary device
+		final String dataDeviceName = getDataDeviceName();
+		final List<String> primaryFieldNames = getPrimaryFieldNames();
 		final List<String> expectedDataGroupNames = getExpectedDataGroupNames(dataDeviceName, primaryFieldNames);
 
 		assertThat(dataGroups.keySet(), containsInAnyOrder(expectedDataGroupNames.toArray()));
@@ -608,13 +603,30 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 			final String groupName = expectedDataGroupNames.get(i);
 			final NXdata dataGroup = dataGroups.get(groupName);
 			final String primaryFieldName = primaryFieldNames.get(i);
-			final String signalFieldName = detectorIsPrimaryDevice ? primaryFieldName : MONITOR_NAME;
-			checkDataGroup(entry, dataGroup, signalFieldName, dataDeviceName, primaryFieldNames.get(i), detectorIsPrimaryDevice);
+			final String signalFieldName = getSignalFieldName(primaryFieldName);
+			checkDataGroup(entry, dataGroup, signalFieldName, dataDeviceName, primaryFieldNames.get(i));
 		}
 	}
 
+	private boolean isDetectorPrimaryDevice() {
+		return detector != null && detectorType != DetectorType.FILE_CREATOR;
+	}
+
+	private String getDataDeviceName() {
+		if (isDetectorPrimaryDevice()) {
+			return detector.getName();
+		}
+
+		// An NXdata group is created for the monitor if the scan has no detectors, or the first scannable if there is also no monitor
+		return monitor != null ? monitor.getName() : scannables[0].getName();
+	}
+
+	private String getSignalFieldName(String primaryFieldName) {
+		return isDetectorPrimaryDevice() ? primaryFieldName : NXpositioner.NX_VALUE;
+	}
+
 	private void checkDataGroup(NXentry entry, final NXdata data, final String signalFieldName,
-			final String dataDeviceName, String primaryFieldName, final boolean detectorIsPrimaryDevice) {
+			final String dataDeviceName, String primaryFieldName) {
 		assertThat(data, is(notNullValue()));
 
 		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
@@ -627,10 +639,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedAttributeNames.addAll(Arrays.stream(scannables)
 				.map(Scannable::getName).map(name -> name + "_indices").collect(toSet()));
 
-		// check that the signal field points to the value of the detector (or monitor if no detector)
-		expectedDataNodeLinks.put(signalFieldName, String.format("instrument/%s/%s", dataDeviceName, primaryFieldName));
+		// check that the signal field points to the value of the detector (or monitor if no detector, and the first scannable if no monitor)
+		expectedDataNodeLinks.put(signalFieldName, String.format("instrument/%s/%s", dataDeviceName,
+				dataDeviceName.equals(scannables[0].getName()) ? dataDeviceName : primaryFieldName));
 
-		if (monitor != null && detectorIsPrimaryDevice) {
+		if (monitor != null && isDetectorPrimaryDevice()) {
 			// monitor value already added as the signal field if monitor is primary device
 			expectedDataNodeLinks.put(MONITOR_NAME, String.format("instrument/%s/%s", MONITOR_NAME, NXpositioner.NX_VALUE));
 			expectedAttributeNames.add(MONITOR_NAME + "_indices");
@@ -641,7 +654,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		// check that the attributes have been added according to the 2014 NXdata format
 		// attributes created for each scannable, monitor (if signal field not from monitor), signal, axes, NXclass
-		expectedAttributeNames.addAll(Arrays.asList(NXdata.NX_ATTRIBUTE_SIGNAL, NXdata.NX_ATTRIBUTE_AXES, NexusConstants.NXCLASS));
+		expectedAttributeNames.addAll(List.of(NXdata.NX_ATTRIBUTE_SIGNAL, NXdata.NX_ATTRIBUTE_AXES, NexusConstants.NXCLASS));
 
 		assertThat(data.getAttributeNames(), containsInAnyOrder(expectedAttributeNames.toArray()));
 		assertSignal(data, signalFieldName);
@@ -653,18 +666,14 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final int[] expectedIndices = IntStream.range(0, scanRank).toArray();
 		Arrays.stream(scannables).map(Scannable::getName).forEach(
 				scannableName -> assertIndices(data, scannableName, expectedIndices));
-		if (detectorIsPrimaryDevice) {
+		if (isDetectorPrimaryDevice()) {
 			assertIndices(data, MONITOR_NAME, expectedIndices);
 		}
 	}
 
 	private List<String> getPrimaryFieldNames() {
-		final String primaryFieldName = getPrimaryFieldName();
-		if (detectorType == DetectorType.NEXUS_DETECTOR) {
-			return Arrays.asList(primaryFieldName, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL);
-		} else {
-			return Arrays.asList(primaryFieldName);
-		}
+		// return the primary fields of the primary device
+		return isDetectorPrimaryDevice() ? detectorType.getPrimaryFieldNames() : List.of(NXpositioner.NX_VALUE);
 	}
 
 	private List<String> getExpectedDataGroupNames(String dataDeviceName, List<String> primaryFieldNames) {
@@ -673,19 +682,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(Collectors.toList());
 		}
 
-		return Arrays.asList(dataDeviceName);
-	}
-
-	private String getPrimaryFieldName() {
-		switch (detectorType) {
-			case NONE: throw new IllegalArgumentException(); // this method is not called in this case
-			case NEXUS_DEVICE: return NXdetector.NX_DATA;
-			case COUNTER_TIMER: return detector.getExtraNames()[0];
-			case GENERIC: return NXdetector.NX_DATA;
-			case FILE_CREATOR: throw new IllegalArgumentException("File creator detector does not have primary fields.");
-			case NEXUS_DETECTOR: return NXdetector.NX_DATA;
-			default: throw new IllegalArgumentException("Unknown detector type: " + detectorType);
-		}
+		return List.of(dataDeviceName);
 	}
 
 	@Override

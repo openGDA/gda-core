@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.scanning;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -107,8 +108,8 @@ public class NXObjectProvider<T extends NXobject> implements NexusObjectProvider
 	}
 
 	@Override
-	public Boolean getUseDeviceNameInNXdata() {
-		return null;
+	public Optional<Boolean> isUseDeviceNameInNXdata() {
+		return Optional.empty();
 	}
 
 	@Override
