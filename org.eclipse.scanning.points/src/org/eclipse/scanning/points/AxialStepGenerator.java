@@ -24,7 +24,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
         final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		final AxialStepModel model = getModel();

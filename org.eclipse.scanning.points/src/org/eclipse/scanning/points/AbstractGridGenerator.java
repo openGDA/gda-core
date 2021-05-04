@@ -31,7 +31,7 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 //		logger.info("Creating point generator from class {}\n{}", getClass().getName(), Arrays.toString(Thread.currentThread().getStackTrace()));
 		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 

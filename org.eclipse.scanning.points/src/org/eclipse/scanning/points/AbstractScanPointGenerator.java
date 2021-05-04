@@ -52,7 +52,8 @@ public abstract class AbstractScanPointGenerator<T extends AbstractPointsModel> 
 	}
 
 	protected AbstractScanPointGenerator() {
-		// For subclasses such as NoModelGenerator that cannot validate a model
+		// For subclasses such as NoModelGenerator that do not have a model
+		// Most subclasses should not define a noargs constructor
 	}
 
 	/**

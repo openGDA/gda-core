@@ -24,7 +24,7 @@ public class TwoAxisLissajousGenerator extends AbstractScanPointGenerator<TwoAxi
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> lissajousGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLissajousGeneratorFactory();
 
 		final TwoAxisLissajousModel model = getModel();

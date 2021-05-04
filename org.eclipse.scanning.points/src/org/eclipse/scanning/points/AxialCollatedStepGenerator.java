@@ -25,7 +25,7 @@ public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<Axial
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
         final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 
 		final AxialCollatedStepModel model = getModel();

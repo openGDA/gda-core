@@ -48,19 +48,23 @@ class AxialMultiStepModelValidator extends AbstractMultiModelValidator<AxialMult
 			}
 		}
 
-		// For a continuous scan, check that there are no significant gaps (or overlaps) between adjacent models
 		if (multiModel.isContinuous()) {
-			final List<IPointGenerator<IScanPointGeneratorModel>> pointGenerators = createPointGenerators(multiModel.getModels());
-			for (int i = 1; i < pointGenerators.size(); i++) {
-				final IPosition previousModelEndPosition = ((AbstractScanPointGenerator<?>) pointGenerators.get(i - 1)).finalBounds();
-				final IPosition nextModelStartPosition = ((AbstractScanPointGenerator<?>) pointGenerators.get(i)).initialBounds();
-
-				if (Math.abs(previousModelEndPosition.getValue(axis) - nextModelStartPosition.getValue(axis)) > DIFF_LIMIT)
-					throw new ModelValidationException(
-							String.format("Continuous ConsecutiveModels must have the final bounds of each model"
-								+ " within %s of the initial bounds of the next.", DIFF_LIMIT), multiModel, "models");
-			}
+			validateContinuousModel(multiModel, axis);
 		}
 		return multiModel;
+	}
+
+	// For a continuous scan, check that there are no significant gaps (or overlaps) between adjacent models
+	private void validateContinuousModel(AxialMultiStepModel multiModel, final String axis) {
+		final List<IPointGenerator<IScanPointGeneratorModel>> pointGenerators = createPointGenerators(multiModel.getModels());
+		for (int i = 1; i < pointGenerators.size(); i++) {
+			final IPosition previousModelEndPosition = ((AbstractScanPointGenerator<?>) pointGenerators.get(i - 1)).finalBounds();
+			final IPosition nextModelStartPosition = ((AbstractScanPointGenerator<?>) pointGenerators.get(i)).initialBounds();
+
+			if (Math.abs(previousModelEndPosition.getValue(axis) - nextModelStartPosition.getValue(axis)) > DIFF_LIMIT)
+				throw new ModelValidationException(
+						String.format("Continuous ConsecutiveModels must have the final bounds of each model"
+							+ " within %s of the initial bounds of the next.", DIFF_LIMIT), multiModel, "models");
+		}
 	}
 }

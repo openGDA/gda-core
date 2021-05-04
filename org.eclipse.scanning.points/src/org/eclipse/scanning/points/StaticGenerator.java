@@ -33,7 +33,7 @@ class StaticGenerator extends AbstractScanPointGenerator<StaticModel> {
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> staticGeneratorFactory = ScanPointGeneratorFactory.JStaticGeneratorFactory();
 
 		final StaticModel model = getModel();

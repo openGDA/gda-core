@@ -41,8 +41,10 @@ class ConcurrentMultiModelValidator extends AbstractMultiModelValidator<Concurre
 				throw new ModelValidationException("All models must be the same length in ConcurrentMultiGenerator!", multiModel, "models");
 			}
 			for (String axis : gen.getNames()) {
-				if (dimensions.contains(axis)) throw new ModelValidationException("All models in ConcurrentModel must"
-						+ " be in mutually exclusive axes!", multiModel, "models");
+				if (dimensions.contains(axis)) {
+					throw new ModelValidationException(
+							"All models in ConcurrentModel must" + " be in mutually exclusive axes!", multiModel, "models");
+				}
 				dimensions.add(axis);
 			}
 		}

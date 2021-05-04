@@ -36,7 +36,7 @@ public abstract class AbstractGenerator<T extends IScanPathModel> implements IPo
 	}
 
 	protected AbstractGenerator() {
-		// For subclasses such as NoModelGenerator that do not have a model to validate
+		// For subclasses such as NoModelGenerator that do not have a model
 		// Most subclasses should not define a noargs constructor
 	}
 

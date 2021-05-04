@@ -99,7 +99,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> compoundGeneratorFactory = getFactory();
 
 		final CompoundModel model = getModel();

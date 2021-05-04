@@ -42,7 +42,7 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
 public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> extends AbstractScanPointGenerator<T> {
 
 	protected IPointGeneratorService service;
-	protected List<IPointGenerator<?>> generators;
+	protected List<IPointGenerator<? extends IScanPointGeneratorModel>> generators;
 
 	protected AbstractMultiGenerator(T model, IPointGeneratorService service) {
 		// Need service to be set before validating, so cannot use super()
@@ -65,9 +65,9 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 	 *            list of models for which generators are to be created
 	 * @return list of generators created
 	 */
-	protected static List<IPointGenerator<?>> createPointGenerators(List<? extends IScanPointGeneratorModel> models) {
+	protected static List<IPointGenerator<? extends IScanPointGeneratorModel>> createPointGenerators(List<? extends IScanPointGeneratorModel> models) {
 		final IPointGeneratorService pointGeneratorService = ServiceHolder.getPointGeneratorService();
-		final List<IPointGenerator<?>> generators = new ArrayList<>(models.size());
+		final List<IPointGenerator<? extends IScanPointGeneratorModel>> generators = new ArrayList<>(models.size());
 		for (IScanPointGeneratorModel model : models) {
 			try {
 				generators.add(pointGeneratorService.createGenerator(model));
@@ -79,7 +79,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
         final JythonObjectFactory<PPointGenerator> generatorFactory = getFactory();
         final T model = getModel();
         final boolean alternating = model.isAlternating();
@@ -97,7 +97,7 @@ public abstract class AbstractMultiGenerator<T extends AbstractMultiModel<?>> ex
 				.toArray(PPointGenerator[]::new);
 	}
 
-	protected List<IPointGenerator<?>> getGenerators() {
+	protected List<IPointGenerator<? extends IScanPointGeneratorModel>> getGenerators() {
 		return generators;
 	}
 

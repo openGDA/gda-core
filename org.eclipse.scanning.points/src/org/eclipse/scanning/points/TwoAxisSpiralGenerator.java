@@ -25,7 +25,7 @@ class TwoAxisSpiralGenerator extends AbstractScanPointGenerator<TwoAxisSpiralMod
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
         final JythonObjectFactory<PPointGenerator> spiralGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisSpiralGeneratorFactory();
 
 		final TwoAxisSpiralModel model = getModel();

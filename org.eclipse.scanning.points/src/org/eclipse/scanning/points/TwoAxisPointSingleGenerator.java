@@ -30,7 +30,7 @@ public class TwoAxisPointSingleGenerator extends AbstractScanPointGenerator<TwoA
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 
 		final TwoAxisPointSingleModel model = getModel();

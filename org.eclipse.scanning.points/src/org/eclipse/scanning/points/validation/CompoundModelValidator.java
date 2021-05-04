@@ -19,6 +19,7 @@
 package org.eclipse.scanning.points.validation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -36,9 +37,15 @@ class CompoundModelValidator extends AbstractMultiModelValidator<CompoundModel> 
 
 	@Override
 	public CompoundModel validate(CompoundModel compoundModel) {
+		validateConstituentModels(compoundModel);
+		validateRegions(compoundModel);
+		validateMutators(compoundModel);
+		return compoundModel;
+	}
+
+	private void validateConstituentModels(CompoundModel compoundModel) {
 		final List<String> axes = new ArrayList<>();
 
-		// Validate constituent models
 		for (IScanPointGeneratorModel model : compoundModel.getModels()) {
 			for (String axis : model.getScannableNames()) {
 				if (axes.contains(axis)) {
@@ -54,32 +61,38 @@ class CompoundModelValidator extends AbstractMultiModelValidator<CompoundModel> 
 			}
 			ServiceHolder.getValidatorService().validate(model);
 		}
+	}
 
-		// Check regions
-		if (compoundModel.getRegions() != null) {
-			for (ScanRegion region : compoundModel.getRegions()) {
-				if (!compoundModel.getScannableNames().containsAll(region.getScannables())) {
+	private void validateRegions(CompoundModel compoundModel) {
+		final Collection<ScanRegion> regions = compoundModel.getRegions();
+		if (regions == null) {
+			return;
+		}
+		for (ScanRegion region : regions) {
+			if (!compoundModel.getScannableNames().containsAll(region.getScannables())) {
+				throw new ModelValidationException(
+						"CompoundModel contains regions that operate in scannable axes that it doesn't contain!",
+						compoundModel, "regions", "models");
+			}
+		}
+	}
+
+	// Check that any mutators correspond to the axes
+	private void validateMutators(CompoundModel compoundModel) {
+		final List<IMutator> mutators = compoundModel.getMutators();
+		if (mutators == null) {
+			return;
+		}
+		for (IMutator mutator : mutators) {
+			if (mutator instanceof RandomOffsetMutator) {
+				final RandomOffsetMutator rMut = (RandomOffsetMutator) mutator;
+				if (!compoundModel.getScannableNames().containsAll(rMut.getAxes())
+						|| !CollectionUtils.isEqualCollection(rMut.getAxes(), rMut.getMaxOffsets().keySet())) {
 					throw new ModelValidationException(
-							"CompoundModel contains regions that operate in scannable axes that it doesn't contain!",
-							compoundModel, "regions", "models");
+							"CompoundModel contains mutators that operate in scannable axes that it doesn't contain!",
+							compoundModel, "mutators", "models");
 				}
 			}
 		}
-
-		// Check that any mutators correspond to the axes
-		if (compoundModel.getMutators() != null) {
-			for (IMutator mutator : compoundModel.getMutators()) {
-				if (mutator instanceof RandomOffsetMutator) {
-					final RandomOffsetMutator rMut = (RandomOffsetMutator) mutator;
-					if (!compoundModel.getScannableNames().containsAll(rMut.getAxes())
-							|| !CollectionUtils.isEqualCollection(rMut.getAxes(), rMut.getMaxOffsets().keySet())) {
-						throw new ModelValidationException(
-								"CompoundModel contains mutators that operate in scannable axes that it doesn't contain!",
-								compoundModel, "mutators", "models");
-					}
-				}
-			}
-		}
-		return compoundModel;
 	}
 }

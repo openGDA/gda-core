@@ -31,7 +31,7 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JTwoAxisLineGeneratorFactory();
 
 		final T model =  getModel();

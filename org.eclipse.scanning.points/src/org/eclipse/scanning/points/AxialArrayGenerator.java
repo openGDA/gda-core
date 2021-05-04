@@ -23,7 +23,7 @@ public class AxialArrayGenerator extends AbstractScanPointGenerator<AxialArrayMo
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
         final JythonObjectFactory<PPointGenerator> arrayGeneratorFactory = ScanPointGeneratorFactory.JOneAxisArrayGeneratorFactory();
 
 		final AxialArrayModel model = getModel();

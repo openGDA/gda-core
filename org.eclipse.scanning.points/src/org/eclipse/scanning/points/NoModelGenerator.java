@@ -38,7 +38,7 @@ public class NoModelGenerator extends AbstractScanPointGenerator<AbstractPointsM
 	}
 
 	@Override
-	public PPointGenerator createPythonPointGenerator() {
+	protected PPointGenerator createPythonPointGenerator() {
 		return pointGenerator;
 	}
 
