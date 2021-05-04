@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.client.gui.camera.liveview;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
  * Represents a stream connection configuration.
@@ -29,16 +30,16 @@ import uk.ac.gda.client.live.stream.view.StreamType;
  */
 public class StreamControlData {
 
-	private final CameraComboItem camera;
+	private final CameraConfigurationProperties cameraConfigurationProperties;
 	private final StreamType streamType;
 
 	public StreamControlData(CameraComboItem camera, StreamType streamType) {
-		this.camera = camera;
+		this.cameraConfigurationProperties = camera.getCameraProperties();
 		this.streamType = streamType;
 	}
 
-	public CameraComboItem getCamera() {
-		return camera;
+	public CameraConfigurationProperties getCameraConfigurationProperties() {
+		return cameraConfigurationProperties;
 	}
 
 	public StreamType getStreamType() {

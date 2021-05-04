@@ -90,6 +90,6 @@ public class StreamController {
 
 	private void publishCameraChange() {
 		publishEvent(new ChangeActiveCameraEvent(getState(),
-				getControlData().getCamera(), Optional.ofNullable(rootUUID)));
+				getControlData().getCameraConfigurationProperties(), Optional.ofNullable(rootUUID)));
 	}
 }

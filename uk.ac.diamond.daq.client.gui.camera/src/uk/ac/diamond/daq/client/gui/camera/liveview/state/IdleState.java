@@ -27,7 +27,7 @@ import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.event.ListenToConnectionEvent;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Defines a state where a consumer do not listen to a stream
@@ -79,11 +79,11 @@ public class IdleState implements StreamControlState {
 	 */
 	@Override
 	public void listeningState(StreamController streamController) throws LiveStreamException {
-		final CameraConfiguration cc = CameraHelper.getCameraConfiguration(streamController.getControlData().getCamera());
+		final CameraConfiguration cc = CameraHelper.getCameraConfiguration(streamController);
 		final StreamType streamType = streamController.getControlData().getStreamType();
 		final ILiveStreamConnection stream = new LiveStreamConnectionBuilder(cc, streamType).buildAndConnect();
 		streamController.setState(new ListeningState(stream, rootUUID));
-		SpringApplicationContextProxy.publishEvent(new ListenToConnectionEvent(stream, rootUUID));
+		SpringApplicationContextFacade.publishEvent(new ListenToConnectionEvent(stream, rootUUID));
 	}
 
 	/*
