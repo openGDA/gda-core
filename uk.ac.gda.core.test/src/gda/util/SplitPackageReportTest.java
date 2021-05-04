@@ -19,10 +19,13 @@
 package gda.util;
 
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toCollection;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isIn;
+import static org.junit.Assert.fail;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,12 +37,14 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -60,6 +65,7 @@ public class SplitPackageReportTest {
 	private static final Attributes.Name BSN_ATTRIBUTE = new Attributes.Name("Bundle-SymbolicName");
 	private static final Attributes.Name RB_ATTRIBUTE = new Attributes.Name("Require-Bundle");
 	private static final Attributes.Name EP_ATTRIBUTE = new Attributes.Name("Export-Package");
+	private static final String SPLIT_PACKAGE_RESOLVER_NAME = "uk.ac.diamond.daq.splitpackagesresolver";
 
 	// Caches so that multiple tests don't have to re-read files
 	private static final SetMultimap<String, String> packageMap = LinkedHashMultimap.create();
@@ -131,8 +137,7 @@ public class SplitPackageReportTest {
 	}
 
 	/**
-	 * If manifest corresponds to a valid bundle,
-	 * cache in the static map
+	 * If manifest corresponds to a valid bundle, cache in the static map
 	 */
 	private static void storeBundle(Manifest manifest) {
 		if (manifest.getMainAttributes().containsKey(BSN_ATTRIBUTE)) {
@@ -166,102 +171,57 @@ public class SplitPackageReportTest {
 	}
 
 	/**
-	 * Ensure that no new split packages are introduced
-	 * @throws Exception
+	 * Ensure that no new split packages are introduced and check exports of split packages
+	 * to verify that all split packages are exported by the split package resolver
+	 *
 	 */
 	@Test
-	public void checkStatus() throws Exception {
-		Set<String> knownSplitPackages = Set.of(
-				"com.swtdesigner",
-				"gda.analysis.io",
-				"gda.beamline.health",
-				"gda.commandqueue",
-				"gda.data",
-				"gda.data.metadata",
-				"gda.data.metadata.icat",
-				"gda.data.nexus",
-				"gda.data.scan.datawriter",
-				"gda.device",
-				"gda.device.adc",
-				"gda.device.attenuator",
-				"gda.device.continuouscontroller",
-				"gda.device.controlpoint",
-				"gda.device.currentamplifier",
-				"gda.device.detector",
-				"gda.device.detector.analyser",
-				"gda.device.detector.areadetector",
-				"gda.device.detector.countertimer",
-				"gda.device.detector.multichannelscaler",
-				"gda.device.detector.mythen",
-				"gda.device.detector.nxdetector.plugin",
-				"gda.device.detector.odccd",
-				"gda.device.detector.pilatus",
-				"gda.device.detector.xmap",
-				"gda.device.enumpositioner",
-				"gda.device.frelon",
-				"gda.device.monitor",
-				"gda.device.motor",
-				"gda.device.robot",
-				"gda.device.scannable",
-				"gda.device.scannable.scannablegroup",
-				"gda.device.temperature",
-				"gda.device.zebra",
-				"gda.exafs.scan",
-				"gda.exafs.validation",
-				"gda.factory",
-				"gda.images.camera",
-				"gda.jython",
-				"gda.jython.accesscontrol",
-				"gda.jython.authenticator",
-				"gda.jython.authoriser",
-				"gda.jython.batoncontrol",
-				"gda.jython.commandinfo",
-				"gda.jython.scriptcontroller",
-				"gda.jython.scriptcontroller.logging",
-				"gda.jython.translator",
-				"gda.observable",
-				"gda.px.detector",
-				"gda.px.sampleChanger",
-				"gda.px.stac.bridge",
-				"gda.rcp.mx.views",
-				"gda.rcp.util",
-				"gda.scan",
-				"gda.spring",
-				"gda.util",
-				"gda.util.converters",
-				"org.opengda.detector.electronanalyser.utils",
-				"uk.ac.diamond.scisoft.analysis",
-				"uk.ac.diamond.scisoft.analysis.io",
-				"uk.ac.diamond.scisoft.analysis.optimize",
-				"uk.ac.diamond.scisoft.analysis.plotserver",
-				"uk.ac.diamond.scisoft.analysis.rcp",
-				"uk.ac.diamond.scisoft.analysis.rcp.editors",
-				"uk.ac.diamond.scisoft.analysis.rcp.plotting",
-				"uk.ac.diamond.scisoft.analysis.rcp.util",
-				"uk.ac.diamond.scisoft.analysis.rcp.views",
-				"uk.ac.diamond.scisoft.analysis.rcp.views.plot",
-				"uk.ac.gda.beans",
-				"uk.ac.gda.client.experimentdefinition",
-				"uk.ac.gda.client.experimentdefinition.ui.handlers",
-				"uk.ac.gda.devices.detector.xspress3.controllerimpl",
-				"uk.ac.gda.exafs.experiment.ui.data",
-				"uk.ac.gda.exafs.ui",
-				"uk.ac.gda.exafs.ui.data",
-				"uk.ac.gda.jython",
-				"uk.ac.gda.mx.model",
-				"uk.ac.gda.server.exafs.scan",
-				"uk.ac.gda.server.exafs.scan.iterators",
-				"uk.ac.gda.server.exafs.scan.preparers",
-				"uk.ac.gda.server.ncd.subdetector",
-				"uk.ac.gda.ui.viewer"
-				);
+	public void checkSplitPackageExports() {
 
-		Set<String> actualSplitPackages = packagesExportedByMoreThanOneBundle.keySet();
+		// Packages that we are currently allowing to be split but not in resolver
+		Set<String> exceptions = Set.of("com.swtdesigner");
 
-		knownSplitPackages.stream().forEach(
-				sp -> assertThat("Package no longer split (remove package from this test): " + sp, actualSplitPackages, hasItem(sp)));
-		actualSplitPackages.stream()
-				.forEach(sp -> assertThat("New split package detected: " + sp, knownSplitPackages, hasItem(sp)));
+		for (var pkg : packagesExportedByMoreThanOneBundle.entrySet()) {
+			String pkgName = pkg.getKey();
+			Set<String> exportingBundles = pkg.getValue();
+			if (exceptions.contains(pkgName)) {
+				continue;
+			}
+			if (exportingBundles.size() == 2 && exportingBundles.contains(SPLIT_PACKAGE_RESOLVER_NAME)) {
+				fail("Package: " + pkgName + " is no longer split - remove from splitpackage resolver");
+			}
+			if (exportingBundles.size() > 1 && !exportingBundles.contains(SPLIT_PACKAGE_RESOLVER_NAME)) {
+				fail(String.format("New split package detected: %s Refactor change or add to splitpackage resolver",
+						pkgName));
+			}
+		}
+	}
+
+    /**
+     * Verify that all bundles exporting split packages are required by the
+     * split package resolver
+     */
+    @Test
+	public void checkSplitPackageResolverBundles() throws BundleException {
+		Manifest splitPackageResolver = allBundleManifests.get(SPLIT_PACKAGE_RESOLVER_NAME);
+		String rbValue = splitPackageResolver.getMainAttributes().getValue(RB_ATTRIBUTE);
+		ManifestElement[] rbEntries = ManifestElement.parseHeader(RB_ATTRIBUTE.toString(), rbValue);
+
+		// Plugins required by the split package resolver
+		Set<String> resolverRequiredBundles = stream(rbEntries).map(ManifestElement::getValue)
+				.collect(toCollection(TreeSet::new));
+
+		// Plugins contributing split packages
+		Set<String> actualSplitProviders = packagesExportedByMoreThanOneBundle.values().stream()
+				.flatMap(Collection::stream).collect(toCollection(TreeSet::new));
+
+		actualSplitProviders.remove(SPLIT_PACKAGE_RESOLVER_NAME);
+
+		assertThat("New bundle contributing split package - add to split package resolver", actualSplitProviders,
+				everyItem(isIn(resolverRequiredBundles)));
+		assertThat(
+				"Split package resolver requires a bundle which is no longer providing a split package - remove from resolver",
+				resolverRequiredBundles, everyItem(isIn(actualSplitProviders)));
 	}
 
 	/**
