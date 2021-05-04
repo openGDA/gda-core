@@ -154,7 +154,7 @@ public final class CameraHelper {
 
 	public static CameraConfiguration getCameraConfiguration(final CameraComboItem cameraItem)
 			throws LiveStreamException {
-		return getCameraConfiguration(cameraItem.getIndex())
+		return createICameraConfiguration(cameraItem.getCameraProperties()).getCameraConfiguration()
 				.orElseThrow(() -> new LiveStreamException("No Camera Confguration found"));
 	}
 
@@ -369,7 +369,8 @@ public final class CameraHelper {
 	}
 
 	private static void createCameraComboItems() {
-		getAllCameraProperties().stream().forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
+		getAllCameraConfigurationProperties().stream()
+			.forEach(k -> cameraComboItems.add(new CameraComboItem(k)));
 	}
 
 	private static void observeCameraProperties() {

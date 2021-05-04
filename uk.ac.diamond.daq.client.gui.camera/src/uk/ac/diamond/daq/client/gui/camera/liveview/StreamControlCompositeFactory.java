@@ -55,7 +55,9 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.ListeningState;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.gda.client.live.stream.LiveStreamException;
+import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.widgets.SmartCombo;
 
 
@@ -117,9 +119,11 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		return container;
 	}
 
-	private List<ImmutablePair<String, StreamType>> streamTypeItems(int cameraIndex) {
+	private List<ImmutablePair<String, StreamType>> streamTypeItems(CameraComboItem comboItem) {
 		List<ImmutablePair<String, StreamType>> ip = new ArrayList<>();
-		CameraHelper.getCameraStreamTypes(cameraIndex).ifPresent(
+		CameraHelper.createICameraConfiguration(comboItem.getCameraProperties()).getCameraConfiguration()
+			.map(CameraConfiguration::cameraStreamTypes)
+			.ifPresent(
 				types -> types.forEach(type -> ip.add(new ImmutablePair<>(type.toString(), type))));
 		return ip;
 	}
@@ -128,14 +132,26 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		// initialises the camera combo
 		cameraCombo.select(0);
 		// initialises the streamType combo
-		streamTypeCombo.populateCombo(streamTypeItems(0));
+		streamTypeCombo.populateCombo(streamTypeItems(getComboByIndex(cameraCombo.getSelectionIndex())));
+	}
+
+	private CameraComboItem getComboByIndex(int index) {
+		return comboItems.get(index);
+	}
+
+	private CameraComboItem getSelectedCombo() {
+		return getComboByIndex(cameraCombo.getSelectionIndex());
 	}
 
 	private String[] getCameras() {
 		if (comboItems == null) {
 			comboItems = CameraHelper.getCameraComboItems();
 		}
-		return comboItems.stream().map(CameraComboItem::getName).collect(Collectors.toList()).toArray(new String[0]);
+		return comboItems.stream()
+				.map(CameraComboItem::getCameraProperties)
+				.map(CameraConfigurationProperties::getName)
+				.collect(Collectors.toList())
+				.toArray(new String[0]);
 	}
 
 	private void changeStreamController(Event e) {
@@ -172,12 +188,13 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	}
 
 	private void updateStreamController() {
+		CameraComboItem selectedItem = getSelectedCombo();
 		// Changes camera
-		if (streamController.getControlData().getCamera().getIndex() != cameraCombo.getSelectionIndex()) {
-			streamTypeCombo.populateCombo(streamTypeItems(cameraCombo.getSelectionIndex()));
+		if (streamController.getControlData().getCamera() != selectedItem) {
+			streamTypeCombo.populateCombo(streamTypeItems(selectedItem));
 		}
 		streamTypeCombo.getSelectedItem().ifPresent(st -> streamController
-				.setControlData(new StreamControlData(comboItems.get(cameraCombo.getSelectionIndex()), st.getValue())));
+				.setControlData(new StreamControlData(selectedItem, st.getValue())));
 	}
 
 	private void handleException(LiveStreamException ex) {

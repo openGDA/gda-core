@@ -38,6 +38,7 @@ import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.MotorCompositeFactory;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
  * Assembles different {@link Composite} as control panel for a camera. Listen
@@ -49,14 +50,14 @@ import uk.ac.gda.client.exception.GDAClientException;
 public class CameraPositioningComposite implements CompositeFactory {
 
 	private Composite motorCompositeArea;
-	private Optional<Integer> activeCameraIndex;
+	private Optional<CameraConfigurationProperties> cameraConfigurationProperties;
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		Composite container = createClientCompositeWithGridLayout(parent, style, 1);
 		 createClientGridDataFactory().applyTo(container);
 
-		activeCameraIndex = Optional.ofNullable(CameraHelper.getDefaultCameraProperties().getIndex());
+		cameraConfigurationProperties = Optional.ofNullable(CameraHelper.getDefaultCameraConfigurationProperties());
 
 		// Motors Components
 		motorCompositeArea = createClientCompositeWithGridLayout(container, style, 1);
@@ -82,15 +83,15 @@ public class CameraPositioningComposite implements CompositeFactory {
 	}
 
 	private Optional<ICameraConfiguration> getICameraConfiguration() {
-		return activeCameraIndex.map(CameraHelper::createICameraConfiguration);
+		return cameraConfigurationProperties.map(CameraHelper::createICameraConfiguration);
 	}
-	
+
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
 		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		activeCameraIndex = Optional.of(event.getActiveCamera().getIndex());
-		buildMotorsGUI();	
+		cameraConfigurationProperties = Optional.ofNullable(event.getActiveCamera().getCameraProperties());
+		buildMotorsGUI();
 	};
 }
