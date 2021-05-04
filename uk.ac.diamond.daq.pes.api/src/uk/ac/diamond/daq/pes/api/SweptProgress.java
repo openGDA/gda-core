@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.vgscienta;
+package uk.ac.diamond.daq.pes.api;
 
 import java.io.Serializable;
 

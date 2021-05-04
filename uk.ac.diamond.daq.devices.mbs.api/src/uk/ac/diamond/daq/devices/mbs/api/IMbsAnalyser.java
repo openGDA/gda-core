@@ -129,21 +129,6 @@ public interface IMbsAnalyser extends IElectronAnalyser {
 	 */
 	public void setDeflectorY(double deflectorY) throws DeviceException;
 
-	/**
-	 * Gets the number of scans
-	 *
-	 * @return The number of scans
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public int getNumberOfScans() throws DeviceException;
-
-	/**
-	 * Sets the number of scans
-	 *
-	 * @param numberOfScans The number of scans
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setNumberOfScans(int numberOfScans) throws DeviceException;
 
 	/**
 	 * Sets the number of slices.

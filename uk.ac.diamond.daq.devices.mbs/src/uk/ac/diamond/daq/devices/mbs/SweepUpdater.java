@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.vgscienta;
+package uk.ac.diamond.daq.devices.mbs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

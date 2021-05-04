@@ -949,4 +949,14 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void start() throws Exception {
 		getCollectionStrategy().collectData();
 	}
+
+	@Override
+	public short getDetectorState() throws Exception {
+		return getAdBase().getDetectorState_RBV();
+	}
+
+	@Override
+	public void setSingleImageMode() throws Exception {
+		getAdBase().setImageMode(0);
+	}
 }
