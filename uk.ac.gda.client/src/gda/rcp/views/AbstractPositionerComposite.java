@@ -285,7 +285,10 @@ public abstract class AbstractPositionerComposite extends Composite {
 
 					// Update the GUI
 					updateBaseGui(moving);
-					updatePositionerControl(getCurrentPosition(), moving);
+					Object currentPosition = getCurrentPosition(); // this method capable returning null!
+					if (currentPosition != null) {
+						updatePositionerControl(currentPosition, moving);
+					}
 				}
 				return Status.OK_STATUS;
 			}
