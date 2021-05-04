@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.ListeningState;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
@@ -68,7 +67,7 @@ import uk.ac.gda.client.widgets.SmartCombo;
 public class StreamControlCompositeFactory implements CompositeFactory {
 
 	private Combo cameraCombo;
-	private List<CameraComboItem> comboItems;
+	private List<CameraConfigurationProperties> comboItems;
 
 	private SmartCombo<StreamType> streamTypeCombo;
 
@@ -119,9 +118,9 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		return container;
 	}
 
-	private List<ImmutablePair<String, StreamType>> streamTypeItems(CameraComboItem comboItem) {
+	private List<ImmutablePair<String, StreamType>> streamTypeItems(CameraConfigurationProperties comboItem) {
 		List<ImmutablePair<String, StreamType>> ip = new ArrayList<>();
-		CameraHelper.createICameraConfiguration(comboItem.getCameraProperties()).getCameraConfiguration()
+		CameraHelper.createICameraConfiguration(comboItem).getCameraConfiguration()
 			.map(CameraConfiguration::cameraStreamTypes)
 			.ifPresent(
 				types -> types.forEach(type -> ip.add(new ImmutablePair<>(type.toString(), type))));
@@ -132,23 +131,22 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 		// initialises the camera combo
 		cameraCombo.select(0);
 		// initialises the streamType combo
-		streamTypeCombo.populateCombo(streamTypeItems(getComboByIndex(cameraCombo.getSelectionIndex())));
+		streamTypeCombo.populateCombo(streamTypeItems(getSelectedCombo()));
 	}
 
-	private CameraComboItem getComboByIndex(int index) {
+	private CameraConfigurationProperties getComboByIndex(int index) {
 		return comboItems.get(index);
 	}
 
-	private CameraComboItem getSelectedCombo() {
+	private CameraConfigurationProperties getSelectedCombo() {
 		return getComboByIndex(cameraCombo.getSelectionIndex());
 	}
 
 	private String[] getCameras() {
 		if (comboItems == null) {
-			comboItems = CameraHelper.getCameraComboItems();
+			comboItems = CameraHelper.getAllCameraConfigurationProperties();
 		}
 		return comboItems.stream()
-				.map(CameraComboItem::getCameraProperties)
 				.map(CameraConfigurationProperties::getName)
 				.collect(Collectors.toList())
 				.toArray(new String[0]);
@@ -188,9 +186,9 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 	}
 
 	private void updateStreamController() {
-		CameraComboItem selectedItem = getSelectedCombo();
+		CameraConfigurationProperties selectedItem = getSelectedCombo();
 		// Changes camera
-		if (streamController.getControlData().getCameraConfigurationProperties() != selectedItem.getCameraProperties()) {
+		if (streamController.getControlData().getCameraConfigurationProperties() != selectedItem) {
 			streamTypeCombo.populateCombo(streamTypeItems(selectedItem));
 		}
 		streamTypeCombo.getSelectedItem().ifPresent(st -> streamController

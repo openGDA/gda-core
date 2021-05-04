@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import uk.ac.diamond.daq.client.gui.camera.CameraComboItem;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
@@ -33,8 +32,8 @@ public class StreamControlData {
 	private final CameraConfigurationProperties cameraConfigurationProperties;
 	private final StreamType streamType;
 
-	public StreamControlData(CameraComboItem camera, StreamType streamType) {
-		this.cameraConfigurationProperties = camera.getCameraProperties();
+	public StreamControlData(CameraConfigurationProperties cameraConfigurationProperties, StreamType streamType) {
+		this.cameraConfigurationProperties = cameraConfigurationProperties;
 		this.streamType = streamType;
 	}
 

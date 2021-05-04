@@ -209,7 +209,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	}
 
 	private void configureController(UUID uuid) throws GDAClientException {
-		streamController = CameraHelper.getCameraComboItems().stream()
+		streamController = CameraHelper.getAllCameraConfigurationProperties().stream()
 				.findFirst()
 				.map(i -> new StreamController(new StreamControlData(i, StreamType.EPICS_ARRAY), uuid))
 				.orElseThrow(() -> new GDAClientException("No camera available"));
