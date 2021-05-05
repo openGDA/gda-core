@@ -28,11 +28,13 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.remoting.rmi.RmiServiceExporter;
 
 import com.google.common.base.Stopwatch;
 
 import gda.observable.IObservable;
 import gda.observable.ObservableComponent;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 /**
  * Implementation of {@link MethodInterceptor} that handles calls to methods in the {@link IObservable} interface, using
@@ -62,6 +64,7 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
+
 		final Method method = invocation.getMethod();
 		final Class<?> declaringClass = method.getDeclaringClass();
 
@@ -72,9 +75,12 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 		}
 		// Otherwise allow the method call to proceed
 		final Stopwatch invokeStopwatch = Stopwatch.createStarted();
+		ClassLoader cccl = Thread.currentThread().getContextClassLoader();
 		try {
+			Thread.currentThread().setContextClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(RmiServiceExporter.class));
 			return invocation.proceed();
 		} finally {
+			Thread.currentThread().setContextClassLoader(cccl);
 			final long elapsedTime = invokeStopwatch.elapsed(MILLISECONDS);
 			if (elapsedTime > RMI_CALL_TIME_LOGGING_THRESHOLD_MS && logger.isWarnEnabled()) {
 				logRmiCalls(method, declaringClass, elapsedTime);

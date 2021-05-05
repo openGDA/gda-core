@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.remoting.rmi.RmiServiceExporter;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.ConfigurableBase;
@@ -41,6 +41,7 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.remoting.server.RmiAutomatedExporter;
 import uk.ac.gda.remoting.server.RmiObjectInfo;
@@ -79,10 +80,10 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 			+ AUTO_EXPORT_RMI_PREFIX;
 
 	/**
-	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
+	 * This is the dynamic OSGi bundle classloader. It's needed here because you might want to
 	 * import any class Spring has instantiated.
 	 */
-	private static final ClassLoader SPRING_BUNDLE_LOADER = InitializingBean.class.getClassLoader();
+	private static final ClassLoader GDA_CLASS_LOADER = GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(RmiServiceExporter.class);
 
 	/** This {@link Map} caches the {@link Object}s this factory has imported */
 	private final ConcurrentMap<String, Object> importedObjects = new ConcurrentHashMap<>();
@@ -110,6 +111,7 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	private <T> T createProxy(String name, Class<T> serviceInterface) throws Exception {
 		final GdaRmiProxyFactoryBean proxyFactory = new GdaRmiProxyFactoryBean();
 		proxyFactory.setObjectName(name);
+		proxyFactory.setBeanClassLoader(GDA_CLASS_LOADER);
 		proxyFactory.setServiceUrl(serviceUrlPrefix + name);
 		proxyFactory.setServiceInterface(serviceInterface);
 		proxyFactory.setRefreshStubOnConnectFailure(true);
@@ -154,12 +156,14 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 	}
 
 	private Object importObject(String name) {
+		ClassLoader ccl = Thread.currentThread().getContextClassLoader();
 		try {
+			Thread.currentThread().setContextClassLoader(GDA_CLASS_LOADER);
 			logger.debug("Asking server for '{}'...", name);
 			RmiObjectInfo remoteObject = remoteObjectProvider.getRemoteObject(name);
 			if (remoteObject != null) {
 				logger.debug("Importing '{}'", name);
-				Class<?> serviceInterface = SPRING_BUNDLE_LOADER.loadClass(remoteObject.getServiceInterface());
+				Class<?> serviceInterface = GDA_CLASS_LOADER.loadClass(remoteObject.getServiceInterface());
 				Object proxy = createProxy(name, serviceInterface);
 				logger.debug("Sucessfully imported '{}', '{}'", name, proxy);
 				return proxy;
@@ -170,6 +174,8 @@ public class RmiProxyFactory extends ConfigurableBase implements Factory {
 		} catch (Exception e) {
 			logger.error("Failed to import remote object '{}'", name, e);
 			return null;
+		} finally {
+			Thread.currentThread().setContextClassLoader(ccl);
 		}
 	}
 

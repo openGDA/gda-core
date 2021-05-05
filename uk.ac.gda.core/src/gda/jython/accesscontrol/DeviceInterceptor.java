@@ -28,10 +28,10 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.Factory;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.context.ApplicationContext;
 
 import gda.device.Device;
 import gda.jython.JythonServer.JythonServerThread;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 /**
  * Implementation of the CGLIB MethodInterceptor interface. This object acts as a proxy around other objects and
@@ -45,10 +45,10 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 	private ProtectedMethodComponent protectedMethods;
 
 	/**
-	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
+	 * This is the dynamic OSGi bundle classloader. It's needed here because you might want to
 	 * RBAC wrap any class Spring has instantiated.
 	 */
-	private static final ClassLoader SPRING_BUNDLE_LOADER = ApplicationContext.class.getClassLoader();
+	private static final ClassLoader GDA_CLASS_LOADER = GDAClassLoaderService.getClassLoaderService().getClassLoader();
 
 	/**
 	 * Factory method to create a copy of the supplied object encapsulated by an RBACInterceptor object. This object
@@ -63,7 +63,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 
 		Enhancer enhancer = new Enhancer();
 		// Set the classloader to the Spring one if were here Spring has already instantiated the class so it must be able to load it.
-		enhancer.setClassLoader(SPRING_BUNDLE_LOADER);
+		enhancer.setClassLoader(GDA_CLASS_LOADER);
 		enhancer.setSuperclass(theObject.getClass());
 		enhancer.setCallback(interceptor);
 

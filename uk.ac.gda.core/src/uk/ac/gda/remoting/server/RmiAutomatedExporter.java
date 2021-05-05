@@ -39,6 +39,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObservable;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -80,10 +81,10 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 	private final int rmiPort = LocalProperties.getAsInt(RMI_PORT_PROPERTY, 1099);
 
 	/**
-	 * This is the uk.ac.diamond.org.springframework OSGi bundle classloader. It's needed here because you might want to
+	 * This is the dynamic OSGi bundle classloader. It's needed here because you might want to
 	 * export any class Spring has instantiated.
 	 */
-	private static final ClassLoader SPRING_BUNDLE_LOADER = RmiServiceExporter.class.getClassLoader();
+	private static final ClassLoader GDA_CLASS_LOADER = GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(RmiServiceExporter.class);
 
 	/** List of all the exporters this is to allow them to be unbound at shutdown */
 	private final List<RmiServiceExporter> exporters = new ArrayList<>();
@@ -92,6 +93,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 
 	public RmiAutomatedExporter() throws RemoteException {
 		final RmiServiceExporter serviceExporter = new RmiServiceExporter();
+		serviceExporter.setBeanClassLoader(GDA_CLASS_LOADER);
 		serviceExporter.setRegistryPort(rmiPort);
 		serviceExporter.setServicePort(rmiPort);
 		serviceExporter.setService(this);
@@ -102,7 +104,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 		// We need to switch the TCCL to the Spring bundle loader here as the first time and RMI registry is created it uses it to load classes.
 		final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(SPRING_BUNDLE_LOADER);
+			Thread.currentThread().setContextClassLoader(GDA_CLASS_LOADER);
 			// Actually export the service here
 			serviceExporter.prepare();
 			logger.debug("Enabled remote object RMI requests");
@@ -214,7 +216,7 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 	@Override
 	public Set<String> getRemoteObjectNamesImplementingType(String clazz) {
 		try {
-			Class<?> type = SPRING_BUNDLE_LOADER.loadClass(clazz);
+			Class<?> type = GDA_CLASS_LOADER.loadClass(clazz);
 			if (Findable.class.isAssignableFrom(type)) {
 				@SuppressWarnings("unchecked") // It will extend Findable here we just checked
 				Class<? extends Findable> findableType = (Class<? extends Findable>) type;
