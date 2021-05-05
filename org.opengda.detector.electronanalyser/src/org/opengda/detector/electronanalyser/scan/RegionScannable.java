@@ -121,6 +121,9 @@ public class RegionScannable extends ScannableBase implements Scannable {
 				setNewRegion(region);
 				adArray.setRegionName(region.getName());
 				pvArray.setRegionName(region.getName());
+			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				throw new DeviceException("Set new region to analyser failed.",
 						e);
@@ -193,6 +196,9 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			}
 			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 5.0);
 			firstInScan=false;
+		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			throw e;
 		} finally {
