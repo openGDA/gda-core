@@ -18,8 +18,6 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,6 +25,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import gda.device.DeviceException;
 
 /**
  * A PositionInputStream that combines N multiple PositionInputStreams of type <T> and returns N point Lists of <T>.
@@ -65,6 +65,9 @@ public class PositionInputStreamCombiner<T> implements PositionInputStream<List<
 		try {
 			fairReadLock.lockInterruptibly();
 		} catch (InterruptedException e) {
+			// Reset interrupt status, we need to do this even when throwing a new InterruptedException
+			// See https://gdacore-sonarqube.diamond.ac.uk/coding_rules?open=java%3AS2142&rule_key=java%3AS2142
+			Thread.currentThread().interrupt();
 			throw new InterruptedException("Interrupted while waiting to read from PositionInputStreamCombiner");
 		}
 		// Visit each queue and read into any that are empty

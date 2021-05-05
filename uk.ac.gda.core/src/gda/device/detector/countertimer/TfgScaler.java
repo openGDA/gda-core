@@ -326,6 +326,8 @@ public class TfgScaler extends TFGCounterTimer {
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 				throw new DeviceException("InterruptedException during minimumReadoutDelay", e);
 			}
 		}

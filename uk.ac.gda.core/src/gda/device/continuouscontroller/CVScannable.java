@@ -18,13 +18,13 @@
 
 package gda.device.continuouscontroller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class CVScannable extends ScannableBase implements ConstantVelocityMoveController{
 	private static final Logger logger = LoggerFactory.getLogger(CVScannable.class);
@@ -56,6 +56,10 @@ class CVScannable extends ScannableBase implements ConstantVelocityMoveControlle
 		logger.info("getNumberTriggers");
 		try {
 			return ScannableUtils.getNumberSteps(scannableBeingMoved, new Double(start),new Double(end),new Double(step))+1;
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.info("Interrupted while getting number of triggers", e);
+			return 0;
 		} catch (Exception e) {
 			logger.error("Error getting number of triggers", e);
 			return 0;

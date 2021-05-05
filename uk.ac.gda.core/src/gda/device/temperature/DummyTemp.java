@@ -372,7 +372,8 @@ public class DummyTemp extends TemperatureBase {
 				}
 				wait(100);
 			} catch (InterruptedException e1) {
-				// deliberately do nothing
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

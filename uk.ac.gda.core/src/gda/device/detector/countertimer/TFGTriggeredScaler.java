@@ -18,14 +18,6 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.DeviceException;
-import gda.device.continuouscontroller.HardwareTriggerProvider;
-import gda.device.detector.DAServer;
-import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.PositionInputStream;
-import gda.device.scannable.PositionStreamIndexer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +28,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.continuouscontroller.HardwareTriggerProvider;
+import gda.device.detector.DAServer;
+import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
+import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.PositionInputStream;
+import gda.device.scannable.PositionStreamIndexer;
 
 public class TFGTriggeredScaler extends TfgScalerWithLogValues implements HardwareTriggeredDetector,
 		PositionCallableProvider<double[]> {
@@ -264,6 +264,8 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 				readingOut.set(false);
 				throw e;
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 				readingOut.set(false);
 				throw e;
 			} catch (DeviceException e) {

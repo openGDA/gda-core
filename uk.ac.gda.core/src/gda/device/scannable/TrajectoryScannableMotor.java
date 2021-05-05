@@ -119,6 +119,8 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 			try {
 				controller.stopAndReset();
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 				throw new DeviceException("InterruptedException while stopping and resetting " + controller.getName());
 			}
 		}

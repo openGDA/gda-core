@@ -89,6 +89,10 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		} else {
 			try {
 				dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory();
+			} catch(InterruptedException e) {
+				// Restore interrupt status
+				Thread.currentThread().interrupt();
+				throw new FactoryException(getName() + " Interrupted while creating datawriter", e);
 			} catch (Exception e) {
 				throw new FactoryException(getName() + " Error creating datawriter", e);
 			}

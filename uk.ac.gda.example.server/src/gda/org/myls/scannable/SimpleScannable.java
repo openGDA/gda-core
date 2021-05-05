@@ -64,6 +64,8 @@ public class SimpleScannable extends ScannableBase {
 		try {
 			Thread.sleep(10);
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
 		}
 		this.position = position;
 	}
