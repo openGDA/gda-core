@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,6 +114,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private static final int[] START_SHAPE = new int[] { 0 };
 	private static final int[] SINGLE_SHAPE = new int[] { 1 };
 
+	// Always format with 3 decimal places of Millis, prevent truncating by default formatters being unreadable by DateDatasetImpl
+	private static final DateTimeFormatter MILLISECOND_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
 	/**
 	 * Property to control the level of instrumentation of the nexus api
@@ -922,7 +925,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			ILazyWriteableDataset endTime = file.getData(g, NXentry.NX_END_TIME).getWriteableDataset();
 			endTime.setSlice(
 					null,
-					DatasetFactory.createFromObject(finishTime.toString()),
+					DatasetFactory.createFromObject(MILLISECOND_DATE_FORMAT.format(finishTime)),
 					START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 			applyTemplates();
 		}
@@ -1070,7 +1073,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				}
 				NexusUtils.writeString(file, g, "title", title);
 			}
-			NexusUtils.writeString(file, g, NXentry.NX_START_TIME,  startTime.toString());
+			NexusUtils.writeString(file, g, NXentry.NX_START_TIME,  MILLISECOND_DATE_FORMAT.format(startTime));
 			ILazyWriteableDataset endTime = NexusUtils.createLazyWriteableDataset(
 					NXentry.NX_END_TIME, String.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
 			file.createData(g, endTime);
