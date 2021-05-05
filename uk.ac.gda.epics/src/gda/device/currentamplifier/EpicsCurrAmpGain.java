@@ -69,6 +69,8 @@ public class EpicsCurrAmpGain extends ScannableBase implements IObserver {
 		} catch (NumberFormatException e) {
 			logger.error("NumberFormatException", e);
 		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
 			logger.error("InterruptedException", e);
 		}
 		return null;
@@ -85,6 +87,8 @@ public class EpicsCurrAmpGain extends ScannableBase implements IObserver {
 				} catch (TimeoutException e) {
 					logger.error("TimeoutException", e);
 				} catch (InterruptedException e) {
+					// Restore interrupt status
+					Thread.currentThread().interrupt();
 					logger.error("InterruptedException", e);
 				}
 		}

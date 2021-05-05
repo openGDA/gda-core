@@ -60,7 +60,11 @@ public class GapControlCheckingEnergyController extends ScannableMotionUnitsBase
 
 		try {
 			checkControlSelectScannable();
-		} catch (TimeoutException | CAException | InterruptedException e) {
+		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
+			throw new FactoryException(String.format("%s interrupted while getting position of ID Gap Control PV during configuration.", this.getName()), e);
+		} catch (TimeoutException | CAException e) {
 			throw new FactoryException(String.format("%s couldn't get position of ID Gap Control PV during configuration.", this.getName()), e);
 		}
 		gapControlDisabledEnergyController.addIObserver(this);
@@ -78,8 +82,12 @@ public class GapControlCheckingEnergyController extends ScannableMotionUnitsBase
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
 			checkControlSelectScannable();
-		} catch (TimeoutException | CAException | InterruptedException e) {
-			logger.warn(String.format("Couldn't get position of ID Gap Control PV. Moving most recently used energy controller: %s", chosenScannable.getName()), e);
+		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
+			logger.warn("Interrupted while getting position of ID Gap Control PV. Moving most recently used energy controller: {}", chosenScannable.getName(), e);
+		} catch (TimeoutException | CAException e) {
+			logger.warn("Couldn't get position of ID Gap Control PV. Moving most recently used energy controller: {}", chosenScannable.getName(), e);
 		}
 		chosenScannable.asynchronousMoveTo(position);
 	}

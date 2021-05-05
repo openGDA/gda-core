@@ -59,7 +59,11 @@ public class PVStringScannable extends PVScannable {
 			} else {
 				return controller.cagetString(theChannel);
 			}
-		} catch (InterruptedException | TimeoutException | CAException e) {
+		} catch(InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
+			throw new DeviceException(getName() + " interrupted during getPosition", e);
+		} catch (TimeoutException | CAException e) {
 			throw new DeviceException(getName() + " exception in getPosition", e);
 		}
 	}
@@ -69,8 +73,12 @@ public class PVStringScannable extends PVScannable {
 		try {
 			// TODO: This should be made asynchronous
 			controller.caput(theChannel, position.toString());
-		} catch (CAException | InterruptedException | NullPointerException e) {
-			throw new DeviceException("Could not set the position of {}", getName(), e);
+		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Interrupted while setting the position of " + getName(), e);
+		} catch (CAException | NullPointerException e) {
+			throw new DeviceException("Could not set the position of " + getName(), e);
 		}
 	}
 

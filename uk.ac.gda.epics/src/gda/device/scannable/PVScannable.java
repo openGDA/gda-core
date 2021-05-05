@@ -174,6 +174,8 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		try {
 			return controller.cagetDouble(theChannel);
 		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
 			throw new DeviceException(getName() + " exception in getPosition", e);
 		} catch (CAException e) {
 			throw new DeviceException(getName() + " exception in getPosition", e);
@@ -238,6 +240,8 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 			try {
 				return ca.caget(unitsPvName);
 			} catch (InterruptedException e) {
+				// Restore interrupt status
+				Thread.currentThread().interrupt();
 				throw new DeviceException(getName() + " exception in getAttribute for " + attributename, e);
 			} catch (CAException e) {
 				throw new DeviceException(getName() + " exception in getAttribute for " + attributename, e);

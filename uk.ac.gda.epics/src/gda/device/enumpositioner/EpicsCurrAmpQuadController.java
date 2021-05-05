@@ -391,6 +391,8 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 				logger.error("CAException on get intensity from" + current1Ch.getName(), e);
 				throw new DeviceException("CAException on get intensity from" + current1Ch.getName(), e);
 			} catch (InterruptedException e) {
+				// Restore interrupt status
+				Thread.currentThread().interrupt();
 				logger.error("Interrupted Exception on get intensity from" + current1Ch.getName(), e);
 				throw new DeviceException("Interrupted Exception on get intensity from" + current1Ch.getName(), e);
 			}
