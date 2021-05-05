@@ -38,7 +38,6 @@ import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PySlice;
-import org.python.core.PyString;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -307,13 +306,13 @@ public class ScannableBaseTest {
 	@Test
 	public void test__str__() throws DeviceException {
 		configureTwoExtraFields();
-		assertEquals(new PyString(repr), getSB().__str__());
+		assertEquals(repr, getSB().__str__());
 	}
 
 	@Test
 	public void test__repr__() throws DeviceException {
 		configureTwoExtraFields();
-		assertEquals(new PyString(repr), getSB().__repr__());
+		assertEquals(repr, getSB().__repr__());
 	}
 
 	@Test

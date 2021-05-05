@@ -32,7 +32,6 @@ import java.util.concurrent.Callable;
 import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyException;
-import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -216,12 +215,12 @@ public class NXDetector extends DetectorBase implements InitializingBean, NXPlug
 	 * of all the plugins.
 	 */
 	@Override
-	public PyString __str__() {
+	public String __str__() {
 		String string = toFormattedString() + "\n";
 		for (NXPluginBase plugin : getPluginList()) {
 			string += "  " + plugin.getName() + ": " + plugin.toString() + "\n";
 		}
-		return new PyString(string);
+		return string;
 	}
 
 	/**
