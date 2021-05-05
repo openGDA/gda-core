@@ -114,6 +114,8 @@ public class AsciiReaderScannable extends SimpleScannable {
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
+				// Restore interrupt status
+				Thread.currentThread().interrupt();
 			}
 			if (line == null)
 				line = previousLine;

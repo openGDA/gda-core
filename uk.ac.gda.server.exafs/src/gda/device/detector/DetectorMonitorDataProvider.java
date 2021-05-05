@@ -128,6 +128,9 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		try {
 			collectFrameIsRunning = true;
 			data = collectFrameOfData(allScannableNames, collectionTime);
+		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
 		} finally {
 			collectFrameIsRunning = false;
 		}
@@ -211,6 +214,10 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 				outputData.addAll(formattedValues);
 			}
 			return outputData;
+		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
+			throw new DeviceException(e);
 		} finally {
 			restoreDetectorSettings(allScannables);
 		}
@@ -451,8 +458,12 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		logger.debug("waitWhileBusy started");
 		try {
 			super.waitWhileBusy();
-		} catch (DeviceException|InterruptedException e) {
-			logger.error("Thread interrupted in waitWhileBusy", e);
+		} catch (InterruptedException e) {
+			// Restore interrupt status
+			Thread.currentThread().interrupt();
+			logger.info("Thread interrupted in waitWhileBusy", e);
+		} catch (DeviceException e) {
+			logger.error("Error in waitWhileBusy", e);
 		}
 		logger.debug("waitWhileBusy finished");
 	}
