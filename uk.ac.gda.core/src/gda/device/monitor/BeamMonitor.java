@@ -248,7 +248,8 @@ public class BeamMonitor extends MonitorBase implements IObserver {
 				logger.info("no of reads above threshold now " + nOkReads + " (requires "
 						+ consecutiveCountsAboveThreshold + ")");
 			} catch (InterruptedException e) {
-				// Deliberately do nothing
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 		}
 		logger.debug("scan stopped waiting for beam on ");
@@ -276,6 +277,8 @@ public class BeamMonitor extends MonitorBase implements IObserver {
 				}
 			} catch (DeviceException ex) {
 			} catch (InterruptedException ex) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 		}
 		return countsReached;
