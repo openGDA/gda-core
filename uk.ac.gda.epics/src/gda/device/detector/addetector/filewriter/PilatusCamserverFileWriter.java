@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
+package gda.device.detector.addetector.filewriter;
 
 public class PilatusCamserverFileWriter extends SingleImagePerFileWriter {
 
