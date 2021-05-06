@@ -561,6 +561,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		// configure, and we can't validate the point generator returned from malcolm, so pointGenerator holds on
 		// to the original one. The pointGenerator field can be removed when this is fixed. See DAQ-2707.
 		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
+		setPointGenerator(pointGen);
 
 		setModel(model);
 	}
@@ -591,8 +592,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 * @return
 	 */
 	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model) throws MalcolmDeviceException {
-		// get the point generator for the scan
-		final IPointGenerator<?> pointGen = createPointGenerator(model);
+		// get the point generator for the scan, with the duration set
+		this.pointGenerator = createPointGenerator(model);
 
 		// set the file template and output dir
 		final String outputDir = this.outputDir == null ? Services.getFilePathService().getTempDir() : this.outputDir;
@@ -600,8 +601,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 		// get the axes to move
 		List<String> axesToMove = model.getAxesToMove();
-		if (axesToMove == null && pointGen != null) {
-			axesToMove = calculateAxesToMove(getAvailableAxes(), pointGen);
+		if (axesToMove == null) {
+			axesToMove = calculateAxesToMove(getAvailableAxes(), pointGenerator);
 		}
 
 		// convert the detector models to a MalcolmTable
@@ -609,7 +610,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 		// create the EpicsMalcolmModel with all the arguments that malcolm's configure and validate methods require
 		final int[] breakpoints = getBreakpoints();
-		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGen, detectorTable, breakpoints);
+		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGenerator, detectorTable, breakpoints);
 	}
 
 	/**
@@ -625,7 +626,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 * @return
 	 * @throws GeneratorException
 	 */
-	private IPointGenerator<?> createPointGenerator(IMalcolmModel model) throws MalcolmDeviceException {
+	private IPointGenerator<CompoundModel> createPointGenerator(IMalcolmModel model) throws MalcolmDeviceException {
 		// set the exposure time and mutators in the points generator
 		final CompoundModel compoundModel = this.pointGenerator == null ?
 				new CompoundModel(new StaticModel()) :
@@ -633,10 +634,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		compoundModel.setDuration(model.getExposureTime());
 		compoundModel.setMutators(Collections.emptyList());
 		try {
-			IPointGenerator<CompoundModel> pointGen = Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
-			if (this.pointGenerator != null) this.pointGenerator = pointGen;
-			if (this.scanModel != null) this.scanModel.setPointGenerator(pointGen);
-			return pointGen;
+			return Services.getPointGeneratorService().createCompoundGenerator(compoundModel);
 		} catch (GeneratorException e) {
 			throw new MalcolmDeviceException("Could not create point generator.");
 		}
