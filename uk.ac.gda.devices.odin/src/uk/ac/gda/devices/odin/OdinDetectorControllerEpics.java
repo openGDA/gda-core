@@ -38,12 +38,14 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 	private static final Logger logger = LoggerFactory.getLogger(OdinDetectorControllerEpics.class);
 
-	private static final int ODIN_TIMEOUT = 5;
+	private static final int ODIN_TIMEOUT = 10;
 
 	/**
 	 * Datawriter constant
 	 */
 	private static final String ACTIVE = "Capturing";
+
+	private static final String ACQUIRE = "Acquire";
 
 	private boolean configured;
 	private String basePv;
@@ -52,17 +54,20 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 	private PV<String> dataDirectory;
 	private PV<String> filename;
-	private PV<Integer> odinFrameCount;
+	private PV<Integer> odinFramesToCapture;
 	private PV<Integer> startDataWriter;
 	private PV<String> acquiring;
 	private PV<String> imageMode;
 	private PV<Integer> numImages;
 	private PV<String> triggerMode;
-	private PV<String> timeoutDataWriter;
+	private PV<Integer> timeoutDataWriter;
 	private PV<Integer> timeoutDataWriterPeriod;
 	private PV<String> odDataType;
-	private ReadOnlyPV<Integer> captured;
-	private ReadOnlyPV<String> errorState;
+	private ReadOnlyPV<Integer> odinFramesCaptured;
+	private ReadOnlyPV<String> fp1ErrorState;
+	private ReadOnlyPV<String> fp2ErrorState;
+	private PV<Integer> fp1ClearErrors;
+	private PV<Integer> fp2ClearErrors;
 	private PV<Double> acquireTime;
 	private PV<Double> acquirePeriod;
 	private ReadOnlyPV<String> dataWriter;
@@ -103,19 +108,23 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 					LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FilePath_RBV"));
 			filename = new PVWithSeparateReadback<>(LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FileName"),
 					LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FileName_RBV"));
-			odinFrameCount = new PVWithSeparateReadback<>(LazyPVFactory.newIntegerPV(basePv + "OD:NumCapture"),
+			odinFramesToCapture = new PVWithSeparateReadback<>(LazyPVFactory.newIntegerPV(basePv + "OD:NumCapture"),
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCapture_RBV"));
-			startDataWriter = LazyPVFactory.newEnumPV(basePv + "OD:Capture", Integer.class);
+			startDataWriter = new PVWithSeparateReadback<>(LazyPVFactory.newEnumPV(basePv + "OD:Capture", Integer.class),
+					LazyPVFactory.newEnumPV(basePv + "OD:Capture_RBV", Integer.class));
 			dataWriter = LazyPVFactory.newReadOnlyEnumPV(basePv + "OD:Capture_RBV", String.class);
 
-			timeoutDataWriter = LazyPVFactory.newEnumPV(basePv + "OD:StartTimeout", String.class);
+			timeoutDataWriter = LazyPVFactory.newIntegerPV(basePv + "OD:StartTimeout");
 			timeoutDataWriterPeriod = new PVWithSeparateReadback<>(
 					LazyPVFactory.newIntegerPV(basePv + "OD:CloseFileTimeout"),
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:CloseFileTimeout_RBV"));
 			odDataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
-			captured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
+			odinFramesCaptured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
 			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize");
-			errorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
+			fp1ErrorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
+			fp2ErrorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD2:FPErrorMessage_RBV");
+			fp1ClearErrors = LazyPVFactory.newIntegerPV(basePv + "OD1:FPClearErrors");
+			fp2ClearErrors = LazyPVFactory.newIntegerPV(basePv + "OD2:FPClearErrors");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
 			odinCompression = LazyPVFactory.newEnumPV(basePv + "OD:CompressionMode", String.class);
@@ -125,7 +134,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 	@Override
 	public void setDataOutput(String directory, String filePrefix) throws DeviceException {
-		logger.trace("Setting output to {} and {}", directory, filePrefix);
+		logger.debug("Setting output to {} and {}", directory, filePrefix);
 		try {
 			dataDirectory.putWait(directory);
 			filename.putWait(filePrefix);
@@ -137,19 +146,21 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 	@Override
 	public void startRecording() throws DeviceException {
-		logger.trace("Starting data writer");
+		logger.debug("Starting data writer");
 		try {
 			if (startDataWriter.get() == 1) {
 				throw new DeviceException("DataWriter already recording");
 			}
 			startDataWriter.putNoWait(1);
 			dataWriter.waitForValue(ACTIVE::equals, ODIN_TIMEOUT);
+			// Check zero frames captured at the start
+			if (odinFramesCaptured.get() != 0) {
+				throw new DeviceException("Initial frames captures is not zero");
+			}
 		} catch (IOException e) {
-			logger.error("Couldn't start data writer", e);
-			throw new DeviceException("Couldn't start data writers", e);
+			throw new DeviceException("Couldn't start data writer(s)", e);
 		} catch (IllegalStateException | TimeoutException e) {
-			logger.error("Error while waiting for odin to initialise", e);
-			throw new DeviceException("Error while waiting for Odin", e);
+			throw new DeviceException("Error while waiting for Odin to initialise", e);
 		} catch (InterruptedException e) {
 			logger.error("Recording interrupted", e);
 			Thread.currentThread().interrupt();
@@ -158,49 +169,47 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 	@Override
 	public void startCollection() throws DeviceException {
-		logger.debug("Starting collection");
+		logger.debug("Starting acquire");
 		try {
-			logger.debug("Starting acquire");
-			acquiring.putNoWait("Acquire");
-			logger.debug("Waiting for odin to start");
-			acquiring.waitForValue(state -> state.equals("Acquire"), ODIN_TIMEOUT);
-			logger.debug("Acq started");
+			acquiring.putNoWait(ACQUIRE);
+			acquiring.waitForValue(ACQUIRE::equals, ODIN_TIMEOUT);
+			logger.debug("Acquisition started");
 		} catch (IOException e) {
-			logger.error("Timeout setting camera to acquire", e);
 			throw new DeviceException("Timeout setting camera to acquire", e);
-		} catch (Exception e) {
-			logger.error("Error waiting for odin to be ready", e);
-			throw new DeviceException("Error waiting for Odin", e);
+		} catch (IllegalStateException | TimeoutException e) {
+			throw new DeviceException("Error while waiting for Detector to start acquiring", e);
+		} catch (InterruptedException e) {
+			logger.error("Collection interrupted", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 
 	@Override
 	public void stopCollection() throws DeviceException {
 		try {
-			logger.trace("Stopping collection");
+			logger.debug("Stopping collection");
 			acquiring.putNoWait("Done");
 		} catch (IOException e) {
-			logger.error("Timeout stopping camera", e);
-			throw new DeviceException("Timeout stopping camera", e);
+			throw new DeviceException("Timeout stopping collection", e);
 		}
 	}
 
 	@Override
 	public void endRecording() {
-		logger.trace("Ending recording");
+		logger.debug("Ending recording");
 		try {
 			if (startDataWriter.get() != 1) {
 				logger.debug("Data writer already stopped");
 				checkWriterErrors();
 			} else {
-				logger.trace("Stopping data writer (via timeout)");
-				timeoutDataWriter.putNoWait("Capture");
+				logger.debug("Stopping data writer (via timeout)");
+				timeoutDataWriter.putNoWait(1);
 				while (startDataWriter.get() == 1) {
 					Thread.sleep(200);
 				}
 				checkWriterErrors();
-				int imagesCaptured = captured.get();
-				int imagesExpected = odinFrameCount.get();
+				int imagesCaptured = odinFramesCaptured.get();
+				int imagesExpected = odinFramesToCapture.get();
 				if (imagesExpected != imagesCaptured) {
 					logger.warn("Did not collect expected number of frames. {} expected, {} written.", imagesExpected,
 							imagesCaptured);
@@ -260,9 +269,13 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	}
 
 	private void checkWriterErrors() throws IOException {
-		String error = errorState.get();
-		if (error != null && !error.isEmpty()) {
-			logger.warn("Data writer was in error state: {}", error);
+		String error1 = fp1ErrorState.get();
+		String error2 = fp2ErrorState.get();
+		if (error1 != null && !error1.isEmpty()) {
+			logger.warn("Data writer 1 was in error state: {}", error1);
+		}
+		if (error2 != null && !error2.isEmpty()) {
+			logger.warn("Data writer 2 was in error state: {}", error2);
 		}
 	}
 
@@ -319,9 +332,12 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	public void prepareDataWriter(int frames) throws DeviceException {
 
 		try {
+			// Clear any writer errors from previous run
+			fp1ClearErrors.putWait(1);
+			fp2ClearErrors.putWait(1);
 			fileWriterDataType = odDataType.get(); // Record this in case we need it later e.g. vds
 			// Ensure that the datawriter is set to receive frames of the correct size
-			odinFrameCount.putWait(frames);
+			odinFramesToCapture.putWait(frames);
 			framesPerBlock.putWait(frames);
 			timeoutDataWriterPeriod.putWait(fileWritingTimeout, ODIN_TIMEOUT);
 			// disable compression
@@ -353,7 +369,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		try {
 			return counterDepth.get();
 		} catch (IOException e) {
-			logger.error("Could not get Counter Depth from detector {}", e);
+			logger.error("Could not get Counter Depth from detector {}", counterDepth.getPvName(), e);
 			return null;
 		}
 	}
@@ -402,7 +418,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	@Override
 	public int getNumFramesCaptured() {
 		try {
-			return captured.get();
+			return odinFramesCaptured.get();
 		} catch (IOException e) {
 			logger.error("Error reading detector PV", e);
 			return 0;
@@ -413,7 +429,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	public void waitForWrittenFrames(int noFrames) {
 		try {
 			logger.debug("Waiting for {} frames to have been captured", noFrames);
-			captured.waitForValue(value -> value == noFrames, 0);
+			odinFramesCaptured.waitForValue(value -> value == noFrames, 0);
 		} catch (TimeoutException | IOException e) {
 			logger.error("Error waiting for captured pv", e);
 		} catch (InterruptedException e) {

@@ -103,7 +103,7 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 		addDoubleItemToNXData(data, detName, COUNT_TIME_NAME, acquireTime);
 		String filename = controller.getLatestFilename();
 		if (scanPoint == 1) {
-			data.addScanFileLink(detName, "nxfile://" + filename + "#data");
+			data.addExternalFileLink(detName, "data", "nxfile://" + filename + "#data", 2);
 		}
 		return data;
 	}
