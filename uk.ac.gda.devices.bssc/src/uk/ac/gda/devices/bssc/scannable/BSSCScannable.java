@@ -52,6 +52,9 @@ public class BSSCScannable extends ScannableBase {
 						Thread.sleep(100);
 					}
 				} catch (InterruptedException e) {
+					// Reset interrupt status and terminate loop
+					Thread.currentThread().interrupt();
+					return;
 				}
 				if (cachedPosition != null && cachedPosition != lastUpdateSent) {
 					notifyIObservers(us, cachedPosition);
