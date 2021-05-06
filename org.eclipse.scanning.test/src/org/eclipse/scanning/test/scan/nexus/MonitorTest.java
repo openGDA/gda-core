@@ -138,7 +138,7 @@ public class MonitorTest extends NexusTest {
 
 	@Test
 	public void test8DOuter() throws Exception {
-		testScan(2, 1, 1, 1, 1, 1, 1, 1);
+		testScan(2, 2, 2, 2, 2, 2, 2, 2);
 	}
 
 	private void testScan(int... shape) throws Exception {

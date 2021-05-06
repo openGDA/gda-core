@@ -53,15 +53,15 @@ public class PtychographyGridPathTest extends AbstractGeneratorTest {
 
 		// number of points in first dimension:
 		// 1) beam size of 0.3 with 55% overlap -> 0.3*0.45 = 0.135 step size
-		// 2) 2 length / 0.135 = 14 rounded down -1 fortrimming at either end of box
-		// 3) + 1 because there is a point at the origin = 14
-		int pointsInFirstDimension = 14;
+		// 2) 2 length / 0.135 = 14 rounded down
+		// 3) + 1 because there is a point at the origin = 15
+		int pointsInFirstDimension = 15;
 
 		// number of points in second dimension:
 		// 1) beam size of 0.1 with 55% overlap -> 0.1*0.45 = 0.045 step size
-		// 2) 5 length / 0.045 = 111 rounded down -1 fortrimming at either end of box
-		// 3) + 1 because there is a point at the origin = 111
-		int pointsInSecondDimension = 111;
+		// 2) 5 length / 0.045 = 111 rounded down
+		// 3) + 1 because there is a point at the origin = 112
+		int pointsInSecondDimension = 112;
 
 		assertArrayEquals(
 				new int[] {pointsInSecondDimension, pointsInFirstDimension},

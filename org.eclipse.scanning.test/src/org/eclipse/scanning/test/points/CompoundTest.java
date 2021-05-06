@@ -391,7 +391,7 @@ public class CompoundTest {
 		IROI region = new CircularROI(2, 1, 1);
 		IPointGenerator<CompoundModel> grid = pointGeneratorService.createGenerator(model, region);
 
-		final int expectedInnerSize = 316;
+		final int expectedInnerSize = 276;
 		assertEquals(expectedInnerSize, grid.size());
 		assertEquals(1, grid.getRank());
 		assertArrayEquals(new int[] { expectedInnerSize }, grid.getShape());
@@ -414,7 +414,7 @@ public class CompoundTest {
 		for (int i = expectedScanSize - 1, min = expectedScanSize - expectedInnerSize; i >= min; i--) {
 			assertEquals(300.0, points.get(i).get("Temperature"));
 		}
-        GeneratorUtil.testGeneratorPoints(scan);
+        GeneratorUtil.testGeneratorPoints(scan, expectedOuterSize, expectedInnerSize);
 	}
 
 
@@ -463,18 +463,21 @@ public class CompoundTest {
 		// Check correct number of points
 		assertEquals(20 * 20, pointList.size());
 
+		final double start = 0;
+		final double step = 3.0/19;
+
 		// Check some random points are correct
-		assertEquals(0.075, (Double)pointList.get(0).get("x"), 1e-8);
-		assertEquals(0.075, (Double)pointList.get(0).get("y"), 1e-8);
+		assertEquals(start, (Double)pointList.get(0).get("x"), 1e-8);
+		assertEquals(start, (Double)pointList.get(0).get("y"), 1e-8);
 
-		assertEquals(0.075 + 3 * (3.0 / 20.0), (Double)pointList.get(3).get("x"), 1e-8);
-		assertEquals(0.075 + 0.0, (Double)pointList.get(3).get("y"), 1e-8);
+		assertEquals(start + 3 * step, (Double)pointList.get(3).get("x"), 1e-8);
+		assertEquals(start + 0.0, (Double)pointList.get(3).get("y"), 1e-8);
 
-		assertEquals(0.075 + 2 * (3.0 / 20.0), (Double)pointList.get(22).get("x"), 1e-8);
-		assertEquals(0.075 + 1 * (3.0 / 20.0), (Double)pointList.get(22).get("y"), 1e-8);
+		assertEquals(start + 2 * step, (Double)pointList.get(22).get("x"), 1e-8);
+		assertEquals(start + 1 * step, (Double)pointList.get(22).get("y"), 1e-8);
 
-		assertEquals(0.075 + 10 * (3.0 / 20.0), (Double)pointList.get(350).get("x"), 1e-8);
-		assertEquals(0.075 + 17 * (3.0 / 20.0), (Double)pointList.get(350).get("y"), 1e-8);
+		assertEquals(start + 10 * step, (Double)pointList.get(350).get("x"), 1e-8);
+		assertEquals(start + 17 * step, (Double)pointList.get(350).get("y"), 1e-8);
 
 	}
 

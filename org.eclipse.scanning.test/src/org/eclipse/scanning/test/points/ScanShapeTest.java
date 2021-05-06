@@ -82,6 +82,17 @@ public class ScanShapeTest {
 
 	private boolean snake;
 
+	private int circularSize = 48;
+	private int polygonSize = 32;
+
+	private int nestSize(int nest) {
+		int size = 1;
+		for (int i = 1; i < nest + 1; i++) {
+			size *= i;
+		}
+		return size;
+	}
+
 	public ScanShapeTest(int nestCount, boolean snake) {
 		this.nestCount = nestCount; // the number of outer dimensions
 		this.snake = snake; // only relevent for grid scans
@@ -97,7 +108,7 @@ public class ScanShapeTest {
 		int[] shape = scanInfo.getShape();
 		assertEquals(expectedRank, shape.length);
 		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
+			assertEquals(i + 2, shape[i]);
 		}
 		assertEquals(4, shape[shape.length - 2]);
 		assertEquals(25, shape[shape.length - 1]);
@@ -109,11 +120,12 @@ public class ScanShapeTest {
 
 		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 		int[] shape = scanInfo.getShape();
+		assertEquals(nestSize(nestCount + 1) * circularSize, scanInfo.getSize());
 		assertEquals(nestCount + 1, shape.length);
 		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
+			assertEquals(i + 2, shape[i]);
 		}
-		assertEquals(84, shape[shape.length - 1]);
+		assertEquals(circularSize, shape[shape.length - 1]);
 	}
 
 	@Test
@@ -123,10 +135,11 @@ public class ScanShapeTest {
 		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
 		int[] shape = scanInfo.getShape();
 		assertEquals(nestCount + 1, shape.length);
+		assertEquals(nestSize(nestCount + 1) * polygonSize, scanInfo.getSize());
 		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
+			assertEquals(i + 2, shape[i]);
 		}
-		assertEquals(52, shape[shape.length - 1]);
+		assertEquals(polygonSize, shape[shape.length - 1]);
 	}
 
 	@Test
@@ -141,7 +154,7 @@ public class ScanShapeTest {
 		spiralModel.setBoundingBox(box);
 
 		List<IScanPointGeneratorModel> models = new ArrayList<>();
-		for (int i = 0; i < nestCount; i++) {
+		for (int i = 1; i < nestCount + 1; i++) {
 			models.add(new AxialStepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10));
 		}
 		models.add(spiralModel);
@@ -156,7 +169,7 @@ public class ScanShapeTest {
 		int[] shape = scanInfo.getShape();
 		assertEquals(expectedRank, shape.length);
 		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
+			assertEquals(i + 2, shape[i]);
 		}
 		assertEquals(15, shape[shape.length - 1]);
 	}
@@ -173,7 +186,7 @@ public class ScanShapeTest {
 		lineModel.setyAxisName("y");
 
 		List<IScanPointGeneratorModel> models = new ArrayList<>();
-		for (int i = 0; i < nestCount; i++) {
+		for (int i = 1; i < nestCount + 1; i++) {
 			models.add(new AxialStepModel("T" + (nestCount - 1- i), 100, 100 + (10 * i), 10));
 		}
 		models.add(lineModel);
@@ -189,7 +202,7 @@ public class ScanShapeTest {
 		int[] shape = scanInfo.getShape();
 		assertEquals(expectedRank, shape.length);
 		for (int i = 0; i < nestCount; i++) {
-			assertEquals(i + 1, shape[i]);
+			assertEquals(i + 2, shape[i]);
 		}
 		assertEquals(10, shape[shape.length - 1]);
 	}
@@ -226,7 +239,7 @@ public class ScanShapeTest {
 		gridModel.setAlternating(snake);
 
 		List<IScanPointGeneratorModel> models = new ArrayList<>();
-		for (int i = 0; i < nestCount; i++) {
+		for (int i = 1; i < nestCount + 1; i++) {
 			models.add(new AxialStepModel("T" + (nestCount - 1 - i), 100, 100 + (10 * i), 10));
 		}
 		models.add(gridModel);

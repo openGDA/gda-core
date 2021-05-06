@@ -11,12 +11,14 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
-import java.math.BigDecimal;
+public abstract class AbstractBoundingLineModel extends AbstractMapModel implements IBoundingLineModel, IBoundsToFit {
 
-import org.eclipse.scanning.api.ModelValidationException;
-
-public abstract class AbstractBoundingLineModel extends AbstractMapModel implements IBoundingLineModel {
 	private BoundingLine boundingLine;
+	private boolean boundsToFit;
+
+	protected AbstractBoundingLineModel() {
+		defaultBoundsToFit();
+	}
 
 	@Override
 	public BoundingLine getBoundingLine() {
@@ -31,22 +33,44 @@ public abstract class AbstractBoundingLineModel extends AbstractMapModel impleme
 	}
 
 	@Override
+	public boolean isBoundsToFit() {
+		return boundsToFit;
+	}
+
+	@Override
+	public void setBoundsToFit(boolean boundsToFit) {
+		pcs.firePropertyChange(PROPERTY_DEFAULT_BOUNDS_FIT, this.boundsToFit, boundsToFit);
+		this.boundsToFit = boundsToFit;
+	}
+
+
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((boundingLine == null) ? 0 : boundingLine.hashCode());
+		result = prime * result + (boundsToFit ? 1231 : 1237);
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
 		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
 			return false;
 		AbstractBoundingLineModel other = (AbstractBoundingLineModel) obj;
 		if (boundingLine == null) {
-			return (other.boundingLine == null);
-		}
-		return boundingLine.equals(other.boundingLine);
+			if (other.boundingLine != null)
+				return false;
+		} else if (!boundingLine.equals(other.boundingLine))
+			return false;
+		if (boundsToFit != other.boundsToFit)
+			return false;
+		return true;
 	}
 
 	@Override
@@ -75,6 +99,7 @@ public abstract class AbstractBoundingLineModel extends AbstractMapModel impleme
 		}
 		pointsModel.setAlternating(model.isAlternating());
 		pointsModel.setContinuous(model.isContinuous());
+		pointsModel.setBoundsToFit(model.isBoundsToFit());
 		pointsModel.setxAxisName(model.getxAxisName());
 		pointsModel.setyAxisName(model.getyAxisName());
 		pointsModel.setxAxisUnits(model.getxAxisUnits());
@@ -90,18 +115,13 @@ public abstract class AbstractBoundingLineModel extends AbstractMapModel impleme
 		}
 
 		final double step = model.getStep();
-		if (step < 0) {
-			throw new ModelValidationException("Steps must be in the same direction as the bounding line!", model, "step");
-		}
 
-		final int points = Math.max(1, BigDecimal.valueOf(copy.getLength()).divideToIntegralValue(BigDecimal.valueOf(step)).intValue());
+		final int points = model.getPointsOnLine(copy.getLength(), step);
 		pointsModel.setPoints(points);
 
-		// Trim region that would not have been stepped in, unless 1 step in which case retain
-		// but place only a single point in the centre of the box, ignoring that the step was > half length
-		if (points > 1) {
-			copy.setLength(step * points);
-		}
+		// Trim region that would not have been stepped in (-1 point because of point at end)
+		final int steps = model.isBoundsToFit() ? points : (int) (points - (Math.signum(points)));
+		copy.setLength(step * steps);
 		pointsModel.setBoundingLine(copy);
 
 		return pointsModel;

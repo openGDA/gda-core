@@ -16,7 +16,7 @@ package org.eclipse.scanning.api.points.models;
  *
  * Previously StepModel
  */
-public class AxialStepModel extends AbstractPointsModel {
+public class AxialStepModel extends AbstractAxialModel {
 
 	/** Start position for the scan */
 	private double start;

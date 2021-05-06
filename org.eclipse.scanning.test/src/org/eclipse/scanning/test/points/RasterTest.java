@@ -11,9 +11,13 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.points;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,25 +61,12 @@ public class RasterTest {
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, boundingRectangle);
 
-		final int expectedSize = 9;
+		final int expectedSize = 16;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 3, 3 }, gen.getShape());
+		assertArrayEquals(new int[] { 4, 4 }, gen.getShape());
 
-		// Check correct number of points
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(expectedSize, pointList.size());
-
-		// Check some random points are correct
-		assertEquals(0.5, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.5, pointList.get(0).getValue("y"), 1e-8);
-
-		assertEquals(0.5, pointList.get(3).getValue("x"), 1e-8);
-		assertEquals(1.5, pointList.get(3).getValue("y"), 1e-8);
-
-		assertEquals(1.5, pointList.get(7).getValue("x"), 1e-8);
-		assertEquals(2.5, pointList.get(7).getValue("y"), 1e-8);
-
+		checkRasterPoints(gen);
         GeneratorUtil.testGeneratorPoints(gen);
 	}
 
@@ -93,18 +84,8 @@ public class RasterTest {
 		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
-
-
 		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(model);
-		List<IPosition> pointList = gen.createPoints();
-
-		// Zeroth point is half a step in from each side, i.e. (0.5, 0.5).
-		assertEquals(0.5, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.5, pointList.get(0).getValue("y"), 1e-8);
-
-		// First point is (1.5, 0.5).
-		assertEquals(1.5, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(0.5, pointList.get(1).getValue("y"), 1e-8);
+		checkRasterPoints(gen);
 	}
 
 	@Test
@@ -126,15 +107,7 @@ public class RasterTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(model);
-		List<IPosition> pointList = gen.createPoints();
-
-		// Zeroth point is (4.5, 0.5).
-		assertEquals(4.5, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.5, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (3.5, 0.5).
-		assertEquals(3.5, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(0.5, pointList.get(1).getValue("y"), 1e-8);
+		checkRasterPoints(gen);
 	}
 
 	@Test(expected=GeneratorException.class)
@@ -155,8 +128,7 @@ public class RasterTest {
 		model.setyAxisStep(1);
 		model.setBoundingBox(box);
 
-		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(model);
-		List<IPosition> pointList = gen.createPoints();
+		pointGeneratorService.createGenerator(model);
 	}
 
 	// Note this is a bit of a integration test not a strict unit test
@@ -181,27 +153,11 @@ public class RasterTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
-		List<IPosition> pointList = gen.createPoints();
 
-		int rows = (int) (Math.floor((xStop - xStart) / xStep));
-		int cols = (int) (Math.floor((yStop - yStart) / yStep));
-		// Check the list size
-		assertEquals("Point list size should be correct", rows * cols, pointList.size());
+		int rows = (int) (Math.floor((xStop - xStart) / xStep) + 1);
+		int cols = (int) (Math.floor((yStop - yStart) / yStep) + 1);
 
-		// Offset by half a step
-		xStart += xStep/2;
-		yStart += yStep/2;
-		// Check some points
-		assertEquals(new Point(0, xStart, 0, yStart, 0), pointList.get(0));
-		assertEquals(xStart + 3 * xStep, pointList.get(3).getValue("x"), 1e-8);
-		assertEquals(yStart + 0 * yStep, pointList.get(3).getValue("y"), 1e-8);
-
-		assertEquals(xStart + xStep, pointList.get(1+1*rows).getValue("x"), 1e-8);
-		assertEquals(yStart + yStep, pointList.get(1+1*rows).getValue("y"), 1e-8);
-
-		assertEquals(xStart + 5*xStep, pointList.get(5+2*rows).getValue("x"), 1e-8);
-		assertEquals(yStart + 2*yStep, pointList.get(5+2*rows).getValue("y"), 1e-8);
-
+		checkRasterPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, cols, rows);
 	}
 
@@ -221,23 +177,33 @@ public class RasterTest {
 		model.setyAxisStep(1);
 
 		// Get the point list
-		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
-		final int expectedSize = 4;
+		IPointGenerator<?> gen = pointGeneratorService.createGenerator(model, roi);
+		// By argument of symmetry, radius 1 and step 1 can only have points on either (centre + 4 axes crossings) or (4
+		// points at +-0.5 in x,y)
+		int expectedSize = 5;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
 
-		// Check the length of the points list
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(expectedSize, pointList.size());
+		// Check the points are correct and the order is maintained
+        GeneratorUtil.testGeneratorPoints(gen, expectedSize);
+
+        model.setBoundsToFit(true);
+        gen = pointGeneratorService.createGenerator(model, roi);
+		expectedSize = 4;
+
+		assertEquals(expectedSize, gen.size());
+		assertEquals(1, gen.getRank());
+		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
 
 		// Check the points are correct and the order is maintained
-        assertEquals(new Point(0, -0.5, 0, -0.5, 0, false), pointList.get(0));
-        assertEquals(new Point(1, 0.5, 1, -0.5, 1, false), pointList.get(1));
-        assertEquals(new Point(2, -0.5, 2, 0.5, 2, false), pointList.get(2));
-        assertEquals(new Point(3, 0.5, 3, 0.5, 3, false), pointList.get(3));
+		GeneratorUtil.testGeneratorPoints(gen, expectedSize);
 
-        GeneratorUtil.testGeneratorPoints(gen, 4);
+        gen = pointGeneratorService.createGenerator(model);
+
+        // Applying non-rectangular ROI flattens points, manually check points of
+        checkRasterPoints(gen);
+
 	}
 
 
@@ -249,28 +215,15 @@ public class RasterTest {
 		// Create scan points for a grid and make a generator
 		TwoAxisGridStepModel rmodel = new TwoAxisGridStepModel("x", "y");
 		rmodel.setxAxisName("xNex");
-		rmodel.setxAxisStep(3d/sizes[1]);
+		// Allow for 1 point on end: 3/N gives N+1 points: 0, 3/N, 6/N ... 3(N/N), so 3/(N-1) -> 0, 3/(N-1)... 3(N-1/N-1) gives N points
+		rmodel.setxAxisStep(3d/(sizes[1] - 1));
 		rmodel.setyAxisName("yNex");
-		rmodel.setyAxisStep(3d/sizes[0]);
+		rmodel.setyAxisStep(3d/(sizes[0] - 1));
 		rmodel.setBoundingBox(new BoundingBox(0,0,3,3));
 
-		final int[] expectedShape = new int[] { sizes[0], sizes[1] };
-		IPointGenerator<?> gen = pointGeneratorService.createGenerator(rmodel);
-		final int expectedSize = expectedShape[0] * expectedShape[1];
-		assertEquals(expectedSize, gen.size());
-		assertEquals(sizes.length, gen.getRank());
-		assertArrayEquals(expectedShape, gen.getShape());
-
-		IPosition first = gen.iterator().next();
-		assertEquals(1.5/sizes[1], first.get("xNex"));
-		assertEquals(1.5/sizes[0], first.get("yNex"));
-
-		IPosition last = null;
-		Iterator<IPosition> it = gen.iterator();
-		while(it.hasNext()) last = it.next();
-
-		assertEquals(3d-1.5/sizes[1], (double) last.get("xNex"), 0.001);
-		assertEquals(3d-1.5/sizes[0], (double) last.get("yNex"), 0.001);
+		IPointGenerator<TwoAxisGridStepModel> gen = pointGeneratorService.createGenerator(rmodel);
+		checkRasterPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, sizes);
 	}
 
 	@Test
@@ -286,19 +239,15 @@ public class RasterTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
-		final int expectedSize = 6;
+		final int expectedSize = 12;
 		assertEquals(expectedSize , gen.size());
 		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 3, 2 }, gen.getShape());
+		assertArrayEquals(new int[] { 4, 3 }, gen.getShape());
 
 		List<IPosition> pointList = gen.createPoints();
 		assertEquals(expectedSize, pointList.size());
 
-		// Check some points
-		assertEquals(new Point(0, -9.5, 0, 5.5, 0), pointList.get(0));
-		assertEquals(new Point(1, -8.5, 0, 5.5, 1), pointList.get(1));
-		assertEquals(new Point(1, -8.5, 1, 6.5, 3), pointList.get(3));
-		assertEquals(new Point(1, -8.5, 2, 7.5, 5), pointList.get(5));
+		checkRasterPoints(gen);
 	}
 
 	@Test
@@ -315,19 +264,56 @@ public class RasterTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = pointGeneratorService.createGenerator(model, roi);
-		final int expectedSize = 4;
+		final int expectedSize = 9;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 2, 2 }, gen.getShape());
+		assertArrayEquals(new int[] { 3, 3 }, gen.getShape());
 
 		List<IPosition> pointList = gen.createPoints();
 		assertEquals(expectedSize, pointList.size());
 
-		// Check some points
-		assertEquals(new Point(0, 1.5, 0, 1.5, 0), pointList.get(0));
-		assertEquals(new Point(1, 2.5, 0, 1.5, 1), pointList.get(1));
-		assertEquals(new Point(1, 2.5, 1, 2.5, 2), pointList.get(2));
-		assertEquals(new Point(0, 1.5, 1, 2.5, 3), pointList.get(3));
+		checkRasterPoints(gen);
+	}
+
+	void checkRasterPoints(IPointGenerator<?> gen) {
+
+		final TwoAxisGridStepModel model;
+		if (gen.getModel() instanceof CompoundModel) {
+			model = (TwoAxisGridStepModel) ((CompoundModel) gen.getModel()).getModels().get(0);
+		} else {
+			model = (TwoAxisGridStepModel) gen.getModel();
+		}
+
+		final int fastAxisPoints = gen.getShape()[1];
+		final int slowAxisPoints = gen.getShape()[0];
+		assertThat(gen.size(), is(equalTo(fastAxisPoints * slowAxisPoints)));
+		final double xStep = model.getxAxisStep();
+		final double yStep = model.getyAxisStep();
+		final double xStart = model.isBoundsToFit() ?
+				model.getBoundingBox().getxAxisStart() + xStep / 2 : model.getBoundingBox().getxAxisStart();
+		final double yStart = model.isBoundsToFit() ?
+				model.getBoundingBox().getyAxisStart() + yStep / 2 : model.getBoundingBox().getyAxisStart();
+		final String xName = model.getxAxisName();
+		final String yName = model.getyAxisName();
+		final List<IPosition> expectedPositions = new ArrayList<>();
+		int index = 0;
+		for (int slowAxisIndex = 0; slowAxisIndex < slowAxisPoints; slowAxisIndex ++) {
+			final boolean isBackwards = model.isAlternating() && slowAxisIndex % 2 == 1;
+			for (int fastAxisIndex = 0; fastAxisIndex < fastAxisPoints; fastAxisIndex ++) {
+				if (isBackwards) {
+					final int backwardsIndex = fastAxisPoints - 1 - fastAxisIndex;
+					expectedPositions.add(new Point(xName, backwardsIndex, xStart + backwardsIndex * xStep, yName, slowAxisIndex, yStart + slowAxisIndex * yStep, index, true));
+				} else {
+					expectedPositions.add(new Point(xName, fastAxisIndex, xStart + fastAxisIndex * xStep, yName, slowAxisIndex, yStart + slowAxisIndex * yStep, index, true));
+				}
+				index ++;
+			}
+		}
+		final Iterator<IPosition> generatedPositions = gen.iterator();
+		gen.createPoints();
+		for (int i = 0; i < expectedPositions.size(); i++) {
+			assertThat(generatedPositions.next(), is(equalTo(expectedPositions.get(i))));
+		}
 	}
 
 }

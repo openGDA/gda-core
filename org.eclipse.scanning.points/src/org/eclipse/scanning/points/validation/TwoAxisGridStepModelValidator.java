@@ -45,6 +45,16 @@ class TwoAxisGridStepModelValidator extends AbstractPointsModelValidator<TwoAxis
 		if (model.getyAxisStep() / model.getBoundingBox().getyAxisLength() < 0) {
 			throw new ModelValidationException("Model y-axis step is directed so as to produce no points!", model, "yAxisStep");
 		}
+
+		// DAQ-3426, discourage use of ambiguous case where step > length, unsure whether to put 1 point at start or mid.
+		// In the case of a single step > length, an Axial model should be used, and in the case of both, a TwoAxisPoint
+		if (model.getxAxisStep() / model.getBoundingBox().getxAxisLength() > 1) {
+			throw new ModelValidationException("Model x step larger than its x length", model, "xAxisStep");
+		}
+		if (model.getyAxisStep() / model.getBoundingBox().getyAxisLength() > 1) {
+			throw new ModelValidationException("Model y step larger than its y length", model, "yAxisStep");
+		}
+
 		return model;
 	}
 }

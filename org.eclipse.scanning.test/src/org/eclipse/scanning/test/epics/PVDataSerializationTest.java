@@ -1214,10 +1214,10 @@ public class PVDataSerializationTest {
 		String[] units1 = new String[] {"mm"};
 		unitsVal1.put(0, units1.length, units1, 0);
 		PVDoubleArray gstartVal1 = expectedGeneratorsPVStructure1.getSubField(PVDoubleArray.class, "start");
-		double[] gstart1 = new double[] {2.7};
+		double[] gstart1 = new double[] {1};
 		gstartVal1.put(0, gstart1.length, gstart1, 0);
 		PVDoubleArray stopVal1 = expectedGeneratorsPVStructure1.getSubField(PVDoubleArray.class, "stop");
-		double[] stop1 = new double[] {16.3};
+		double[] stop1 = new double[] {18};
 		stopVal1.put(0, stop1.length, stop1, 0);
 		PVInt numVal1 = expectedGeneratorsPVStructure1.getSubField(PVInt.class, "size");
 		numVal1.put(5);
@@ -1232,10 +1232,10 @@ public class PVDataSerializationTest {
 		String[] units2 = new String[] {"mm"};
 		unitsVal.put(0, units2.length, units2, 0);
 		PVDoubleArray startVal = expectedGeneratorsPVStructure2.getSubField(PVDoubleArray.class, "start");
-		double[] start = new double[] {-12.95};
+		double[] start = new double[] {-14};
 		startVal.put(0, start.length, start, 0);
 		PVDoubleArray stopVal = expectedGeneratorsPVStructure2.getSubField(PVDoubleArray.class, "stop");
-		double[] stop = new double[] {5.950000000000003};
+		double[] stop = new double[] {7};
 		stopVal.put(0, stop.length, stop, 0);
 		PVInt numVal = expectedGeneratorsPVStructure2.getSubField(PVInt.class, "size");
 		numVal.put(10);

@@ -199,12 +199,13 @@ public class NoModelTest {
 	 */
 	@Test
 	public void equivalentScans() throws GeneratorException {
+		// (0, 0) -> (10, 10) inclusive, 11x11 points
 		BoundingBox box = new BoundingBox(0, 0, 10, 10);
 		TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("x", "y");
 		stepModel.setxAxisStep(1);
 		stepModel.setyAxisStep(1);
 		stepModel.setBoundingBox(box);
-		TwoAxisGridPointsModel pointsModel = new TwoAxisGridPointsModel("x", "y", 10, 10);
+		TwoAxisGridPointsModel pointsModel = new TwoAxisGridPointsModel("x", "y", 11, 11);
 		pointsModel.setBoundingBox(box);
 
 		AbstractScanPointGenerator<TwoAxisGridStepModel> stepGen = (AbstractScanPointGenerator<TwoAxisGridStepModel>) pgs.createGenerator(stepModel);

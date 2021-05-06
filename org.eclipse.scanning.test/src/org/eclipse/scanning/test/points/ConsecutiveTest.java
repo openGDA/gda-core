@@ -94,13 +94,13 @@ public class ConsecutiveTest {
 		lsm.setPoints(40);
 		TwoAxisLinePointsModel talpm = new TwoAxisLinePointsModel();
 		talpm.setBoundingLine(new BoundingLine(0, 0, 10, 10));
-		talpm.setPoints(40);
+		talpm.setPoints(41);
 		talpm.setxAxisName("stage_x");
 		talpm.setyAxisName("stage_y");
 		// Gives talpm points but offset by 40 indices
 		TwoAxisLinePointsModel talpmExtended = new TwoAxisLinePointsModel();
 		talpmExtended.setBoundingLine(new BoundingLine(-10, -10, 20, 20));
-		talpmExtended.setPoints(80);
+		talpmExtended.setPoints(81);
 		talpmExtended.setxAxisName("stage_x");
 		talpmExtended.setyAxisName("stage_y");
 		Map<String, Double> offsets = new HashMap<>();

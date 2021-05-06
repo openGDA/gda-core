@@ -11,16 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.points;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanInformation;
 
 /**
@@ -41,35 +40,20 @@ class GeneratorUtil {
 	 */
 	public static void testGeneratorPoints(IPointGenerator<?> gen, int... expectedShape) throws GeneratorException {
 
-		final List<IPosition> points = gen.createPoints();
-		final List<IPosition> its   = new ArrayList<>(gen.size());
-		final Iterator<IPosition> it = gen.iterator();
-		while(it.hasNext()) its.add(it.next());
-
-		IPosition[] pnts1 = array(points);
-		IPosition[] pnts2 = array(its);
-
-		if (pnts2.length!=pnts1.length) {
-			throw new GeneratorException("Not the same size! Iterator size is "+its.size()+" full list size is "+points.size());
-		}
-        for (int i = 0; i < pnts1.length; i++) {
-			if (!pnts1[i].equals(pnts2[i])) {
-				throw new GeneratorException(pnts1[i]+" does not equal "+pnts2[i]);
-			}
-		}
-
 		// Check the estimator. In this case it is not doing anything
 		// that we don't already know, so we can test it.
 		final ScanInformation scanInfo = new ScanInformation(gen, Collections.emptySet(), null);
-		if (points.size()!=scanInfo.getSize()) throw new GeneratorException("Different size from shape estimator!");
+		assertThat("Different size from shape estimator!", scanInfo.getSize(), is(equalTo(gen.size())));
 
 		if (expectedShape!=null && expectedShape.length>0) {// They set one
 		    int[] shape = gen.getShape();
+		    int size = 1;
+			for (int dim : expectedShape) {
+				size *= dim;
+			}
+			assertThat("Different size from expected!", gen.size(), is(equalTo(size)));
 		    assertArrayEquals(expectedShape, shape);
 		}
 	}
 
-	private static IPosition[] array(List<IPosition> p) {
-		return p.toArray(new IPosition[p.size()]);
-	}
 }

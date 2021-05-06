@@ -20,17 +20,14 @@ package org.eclipse.scanning.api.points.models;
 
 import static org.eclipse.scanning.api.constants.PathConstants.ORIENTATION;
 
-import java.math.BigDecimal;
 import java.util.Map;
-
-import org.eclipse.scanning.api.ModelValidationException;
 
 /**
  * Abstract superclass for models representing a raster scan within a rectangular box in two-dimensional space.
  *
  * Previously AbstractGridModel
  */
-public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel {
+public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel implements IBoundsToFit {
 
 	private Orientation orientation = Orientation.HORIZONTAL;
 
@@ -54,6 +51,11 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 	 * e->f    e<-f
 	 */
 	private boolean alternateBothAxes = true;
+	private boolean boundsToFit;
+
+	protected AbstractTwoAxisGridModel(){
+		defaultBoundsToFit();
+	}
 
 	public enum Orientation {
 		HORIZONTAL("Horizontal"), VERTICAL("Vertical");
@@ -92,6 +94,17 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 	}
 
 	@Override
+	public boolean isBoundsToFit() {
+		return boundsToFit;
+	}
+
+	@Override
+	public void setBoundsToFit(boolean boundsToFit) {
+		pcs.firePropertyChange(PROPERTY_DEFAULT_BOUNDS_FIT, this.boundsToFit, boundsToFit);
+		this.boundsToFit = boundsToFit;
+	}
+
+	@Override
 	public void updateFromPropertiesMap(Map<String, Object> properties) {
 		super.updateFromPropertiesMap(properties);
 		if (properties.containsKey(ORIENTATION)) {
@@ -103,16 +116,28 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (isVerticalOrientation() ? 1231 : 1237);
+		result = prime * result + (alternateBothAxes ? 1231 : 1237);
+		result = prime * result + (boundsToFit ? 1231 : 1237);
+		result = prime * result + ((orientation == null) ? 0 : orientation.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
 		if (!super.equals(obj))
 			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		AbstractTwoAxisGridModel other = (AbstractTwoAxisGridModel) obj;
-		return (orientation.equals(other.orientation));
+		if (alternateBothAxes != other.alternateBothAxes)
+			return false;
+		if (boundsToFit != other.boundsToFit)
+			return false;
+		if (orientation != other.orientation)
+			return false;
+		return true;
 	}
 
 	@Override
@@ -145,6 +170,7 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 		pointsModel.setyAxisUnits(model.getyAxisUnits());
 		pointsModel.setAlternating(model.isAlternating());
 		pointsModel.setContinuous(model.isContinuous());
+		pointsModel.setBoundsToFit(model.isBoundsToFit());
 		pointsModel.setOrientation(model.getOrientation());
 
 		final BoundingBox copy = new BoundingBox();
@@ -161,30 +187,18 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 		final double xStep = model.getxAxisStep();
 		final double yStep = model.getyAxisStep();
 
-		final int xPoints = BigDecimal.valueOf(copy.getxAxisLength()).divideToIntegralValue(BigDecimal.valueOf(xStep)).intValue();
-		final int yPoints = BigDecimal.valueOf(copy.getyAxisLength()).divideToIntegralValue(BigDecimal.valueOf(yStep)).intValue();
+		final int xPoints = model.getPointsOnLine(copy.getxAxisLength(), xStep);
+		final int yPoints = model.getPointsOnLine(copy.getyAxisLength(), yStep);
 
-		if (xPoints < 0 || yPoints < 0) {
-			throw new ModelValidationException("Steps must be in the same direction as the bounding box!", model, "xAxisStep", "yAxisStep");
-		}
+		pointsModel.setxAxisPoints(xPoints);
+		pointsModel.setyAxisPoints(yPoints);
 
-		/** If xStep > xAxisLength, the half step at the edges to allow for bounds will meet past the middle and would
-		 * appear to run the scan backwards (and if the step was too long, exceed the boundingBox entirely). To ensure that
-		 * behaviour is expected and consistent, we force any step that is longer than its bounding to lie in the middle of the
-		 * axis.
-		 */
-		pointsModel.setxAxisPoints(Math.max(1, xPoints));
-		pointsModel.setyAxisPoints(Math.max(1, yPoints));
+		// Trim region that would not have been stepped in (-1 point because of point at end)
+		final int xSteps = model.isBoundsToFit() ? xPoints : (int) (xPoints - (Math.signum(xPoints)));
+		final int ySteps = model.isBoundsToFit() ? yPoints : (int) (yPoints - (Math.signum(yPoints)));
 
-		// Trim region that would not have been stepped in, unless 1 step in either direction which case retain
-		// but place only a single point in the centre of the box, ignoring that the step was > half length
-
-		if (xPoints > 1) {
-			copy.setxAxisLength(xStep * xPoints);
-		}
-		if (yPoints > 1) {
-			copy.setyAxisLength(yStep * yPoints);
-		}
+		copy.setxAxisLength(xStep * xSteps);
+		copy.setyAxisLength(yStep * ySteps);
 		pointsModel.setBoundingBox(copy);
 
 		return pointsModel;

@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.api.points.models;
 
-public class AxialPointsModel extends AbstractPointsModel {
+public class AxialPointsModel extends AbstractAxialModel {
 
 	/** Start position for the scan */
 	private double start;
@@ -104,4 +104,5 @@ public class AxialPointsModel extends AbstractPointsModel {
 			return false;
 		return true;
 	}
+
 }

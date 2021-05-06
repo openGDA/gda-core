@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final JythonObjectFactory<PPointGenerator> lineGeneratorFactory = ScanPointGeneratorFactory.JOneAxisLineGeneratorFactory();
 
 		final T model = getModel();
+		final BoundingBox box = model.getBoundingBox();
 
 		final int columns = getXPoints();
 		final int rows = getYPoints();
@@ -44,20 +46,21 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final String xUnits = model.getxAxisUnits();
 		final String yName = model.getyAxisName();
 		final String yUnits = model.getyAxisUnits();
-		// length/step<2 => step>length/2, just put point in middle
-		final double xStep = getXPoints() == 1 ? model.getBoundingBox().getxAxisLength() : getXStep();
-		final double yStep = getYPoints() == 1 ? model.getBoundingBox().getyAxisLength() : getYStep();
-		final double minX = model.getBoundingBox().getxAxisStart() + xStep / 2;
-		final double minY = model.getBoundingBox().getyAxisStart() + yStep / 2;
+		final double xStep = getXStep();
+		final double yStep = getYStep();
+		final double minX = model.getStart(box.getxAxisStart(), xStep);
+		final double minY = model.getStart(box.getyAxisStart(), yStep);
+		final double maxX = model.getStop(minX, box.getxAxisLength(), xStep);
+		final double maxY = model.getStop(minY, box.getyAxisLength(), yStep);
 		final boolean alternating = model.isAlternating();
 		final boolean continuous = model.isContinuous();
 
 		final PPointGenerator yLine = lineGeneratorFactory.createObject(
-				yName, yUnits, minY, minY + (rows - 1) * yStep, rows,
+				yName, yUnits, minY, maxY, rows,
 				// If !model.isAlternateBothAxes(), we only want to alternate the innermost axis
 				alternating && (model.isAlternateBothAxes() || model.isVerticalOrientation()));
 		final PPointGenerator xLine = lineGeneratorFactory.createObject(
-				xName, xUnits, minX, minX + (columns - 1) * xStep, columns,
+				xName, xUnits, minX, maxX, columns,
 				alternating && (model.isAlternateBothAxes() || !model.isVerticalOrientation()));
 
 		final PPointGenerator[] generators = new PPointGenerator[2];
@@ -68,13 +71,21 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 				-1d, continuous);
 	}
 
-	protected abstract int getXPoints();
+	protected int getXPoints() {
+		return model.getPointsOnLine(model.getBoundingBox().getxAxisLength(), getXStep());
+	}
 
-	protected abstract double getXStep();
+	protected int getYPoints() {
+		return model.getPointsOnLine(model.getBoundingBox().getyAxisLength(), getYStep());
+	}
 
-	protected abstract int getYPoints();
+	protected double getXStep() {
+		return model.getBoundingBox().getxAxisLength() / getXPoints();
+	}
 
-	protected abstract double getYStep();
+	protected double getYStep() {
+		return model.getBoundingBox().getyAxisLength() / getYPoints();
+	}
 
 	protected PyObject[] getMutator() {
 		return EMPTY_PY_ARRAY;

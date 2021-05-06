@@ -24,9 +24,4 @@ public class TwoAxisLinePointsGenerator extends AbstractLineGenerator<TwoAxisLin
 		return getModel().getPoints();
 	}
 
-	@Override
-	protected double getStep() {
-		return model.getBoundingLine().getLength() / model.getPoints();
-	}
-
 }

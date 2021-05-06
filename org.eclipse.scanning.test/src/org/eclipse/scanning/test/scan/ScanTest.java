@@ -419,9 +419,9 @@ public class ScanTest extends BrokerTest {
 
 		// NOTE Did with Mockito but caused dependency issues.
 		MockScannable ms = (MockScannable)p;
-		ms.verify(0.3, new Point("p",0,0.3, "q",0,0.3));
-		ms.verify(0.3, new Point("p",0,0.3, "q",2,1.5));
-		ms.verify(1.5, new Point("p",2,1.5, "q",0,0.3));
+		ms.verify(0, new Point("p",0,0, "q",0,0));
+		ms.verify(0, new Point("p",0,0, "q",2,1.5));
+		ms.verify(1.5, new Point("p",2,1.5, "q",0,0));
 		ms.verify(1.5, new Point("p",2,1.5, "q",2,1.5));
 	}
 
@@ -437,9 +437,9 @@ public class ScanTest extends BrokerTest {
 
 		// NOTE Did with Mockito but caused dependency issues.
 		MockScannable ms = (MockScannable)monitor;
-		ms.verify(null, new Point(0,0.3,0,0.3));
-		ms.verify(null, new Point(0,0.3,2,1.5));
-		ms.verify(null, new Point(2,1.5,0,0.3));
+		ms.verify(null, new Point(0,0,0,0));
+		ms.verify(null, new Point(0,0,2,1.5));
+		ms.verify(null, new Point(2,1.5,0,0));
 		ms.verify(null, new Point(2,1.5,2,1.5));
 	}
 

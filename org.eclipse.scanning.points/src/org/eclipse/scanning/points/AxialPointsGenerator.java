@@ -39,9 +39,11 @@ class AxialPointsGenerator extends AbstractScanPointGenerator<AxialPointsModel> 
         final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();
+        final double length = model.getStop() - model.getStart();
         final int numPoints = model.getPoints();
-        final double start  = model.getStart();
-        final double stop   = model.getStop();
+        final double step = length / numPoints;
+        final double start = model.getStart(model.getStart(), step);
+        final double stop   = model.getStop(start, length, step);
 
         final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 

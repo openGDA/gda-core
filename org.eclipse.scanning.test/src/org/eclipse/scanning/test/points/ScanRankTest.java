@@ -72,6 +72,10 @@ public class ScanRankTest {
 	@Parameter
 	public int nestCount;
 
+	private int polygonSize = 180;
+	private int circularSize = 276;
+	private int sizePerNest = 11;
+
 	@Test
 	public void testRankLine() throws Exception {
 		final LinearROI roi = new LinearROI(new double[]{0,0}, new double[]{3,3});
@@ -126,7 +130,7 @@ public class ScanRankTest {
 	public void testRankGridWithCircularRegion() throws Exception {
 		final IROI region = new CircularROI(2, 1, 1);
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, region);
-		checkGenerator(gen, 316);
+		checkGenerator(gen, circularSize);
 	}
 
 	@Test
@@ -137,7 +141,7 @@ public class ScanRankTest {
 		diamond.insertPoint(new double[] { 0, 1.5 });
 
 		final IPointGenerator<?> gen = createGridGenerator(nestCount, diamond);
-		checkGenerator(gen, 194);
+		checkGenerator(gen, polygonSize);
 	}
 
 	private int[] getExpectedShape(int... innerShape) {

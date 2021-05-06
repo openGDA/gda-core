@@ -12,6 +12,9 @@
 
 package org.eclipse.scanning.test.points;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -56,14 +59,7 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		final int expectedSize = 400;
-		assertEquals(expectedSize, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 20, 20 }, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(expectedSize, pointList.size());
-		checkPoints(pointList);
+		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 20, 20);
 	}
 
@@ -103,24 +99,8 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		assertEquals(25, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(25, pointList.size());
-
-		// Zeroth point is (0, 0).
-		assertEquals(0.0, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (1, 0).
-		assertEquals(1.0, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
-
-		// Fifth point is (0, 1).
-		assertEquals(0.0, pointList.get(5).getValue("x"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
 
 	@Test
@@ -139,24 +119,8 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		assertEquals(25, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 5, 5}, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(25, pointList.size());
-
-		// Zeroth point is (0, 0).
-		assertEquals(0.0, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (1, 0).
-		assertEquals(1.0, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
-
-		// Fifth point is (4, 1).
-		assertEquals(4.0, pointList.get(5).getValue("x"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
 
 	@Test
@@ -174,24 +138,8 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		assertEquals(25, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(25, pointList.size());
-
-		// Zeroth point is (4, 0).
-		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (3, 0).
-		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
-
-		// Fifth point is (4, 1).
-		assertEquals(4.0, pointList.get(5).getValue("x"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
 
 	@Test
@@ -210,24 +158,8 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		assertEquals(25, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(25, pointList.size());
-
-		// Zeroth point is (4, 0).
-		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (3, 0).
-		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(0.0, pointList.get(1).getValue("y"), 1e-8);
-
-		// Fifth point is (0, 1).
-		assertEquals(0.0, pointList.get(5).getValue("x"), 1e-8);
-		assertEquals(1.0, pointList.get(5).getValue("y"), 1e-8);
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
 
 	@Test
@@ -245,24 +177,8 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		assertEquals(25, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 5, 5 }, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(25, pointList.size());
-
-		// Zeroth point is (4, 4).
-		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(4.0, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (3, 4).
-		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(4.0, pointList.get(1).getValue("y"), 1e-8);
-
-		// Fifth point is (4, 3).
-		assertEquals(4.0, pointList.get(5).getValue("x"), 1e-8);
-		assertEquals(3.0, pointList.get(5).getValue("y"), 1e-8);
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
 
 	@Test
@@ -281,24 +197,8 @@ public class GridTest extends AbstractGeneratorTest {
 		model.setBoundingBox(box);
 
 		IPointGenerator<TwoAxisGridPointsModel> gen = service.createGenerator(model);
-		assertEquals(25, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 5, 5}, gen.getShape());
-
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(25, pointList.size());
-
-		// Zeroth point is (4, 4).
-		assertEquals(4.0, pointList.get(0).getValue("x"), 1e-8);
-		assertEquals(4.0, pointList.get(0).getValue("y"), 1e-8);
-
-		// Oneth point is (3, 4).
-		assertEquals(3.0, pointList.get(1).getValue("x"), 1e-8);
-		assertEquals(4.0, pointList.get(1).getValue("y"), 1e-8);
-
-		// Fifth point is (0, 3).
-		assertEquals(0.0, pointList.get(5).getValue("x"), 1e-8);
-		assertEquals(3.0, pointList.get(5).getValue("y"), 1e-8);
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 5, 5);
 	}
 
 	@Test
@@ -316,17 +216,8 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
-		final int expectedSize = 400;
-		assertEquals(expectedSize, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 20, 20 }, gen.getShape());
 
-		List<IPosition> pointList = gen.createPoints();
-		assertEquals(expectedSize, pointList.size());
-
-		assertEquals(pointList.size(), gen.size());
-
-		checkPoints(pointList);
+		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 20, 20);
 	}
 
@@ -361,17 +252,8 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
-		assertEquals(400, gen.size());
-		assertEquals(2, gen.getRank());
-		assertArrayEquals(new int[] { 20, 20 }, gen.getShape());
 
-		Iterator<IPosition> it = gen.iterator();
-		List<IPosition> pointList = new ArrayList<>();
-		while (it.hasNext()) pointList.add(it.next());
-
-		assertArrayEquals(pointList.toArray(), gen.createPoints().toArray());
-
-		checkPoints(pointList);
+		checkPoints(gen);
 		GeneratorUtil.testGeneratorPoints(gen, 20, 20);
 	}
 
@@ -390,7 +272,7 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = service.createGenerator(gridScanPath, circle);
-		final int expectedSize = 316;
+		final int expectedSize = 276;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
@@ -408,6 +290,7 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Create a raster scan path
 		TwoAxisGridPointsModel gridScanPath = new TwoAxisGridPointsModel("x", "y");
+		gridScanPath.setBoundsToFit(true);
 		gridScanPath.setyAxisPoints(20);
 		gridScanPath.setxAxisPoints(200);
 
@@ -460,7 +343,7 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = service.createGenerator(model, diamond);
-		final int expectedSize = 194;
+		final int expectedSize = 180;
 		assertEquals(expectedSize, gen.size());
 		assertEquals(1, gen.getRank());
 		assertArrayEquals(new int[] { expectedSize }, gen.getShape());
@@ -469,35 +352,6 @@ public class GridTest extends AbstractGeneratorTest {
 		assertEquals(expectedSize, pointList.size());
 
 		GeneratorUtil.testGeneratorPoints(gen);
-	}
-
-	private void checkPoints(List<IPosition> pointList) {
-
-		// Check correct number of points
-		assertEquals(20 * 20, pointList.size());
-
-		// Check some random points are correct
-		assertEquals(0.075, pointList.get(0).getValue("x"), 1e-8);
-		for (int i = 0; i < 20; i++) {
-			assertEquals(i, pointList.get(i).getIndex("x"));
-			assertEquals(0, pointList.get(i).getIndex("y"));
-		}
-		for (int i = 20; i < 40; i++) {
-			assertEquals(i-20, pointList.get(i).getIndex("x"));
-			assertEquals(1, pointList.get(i).getIndex("y"));
-		}
-
-		assertEquals(0.075, pointList.get(0).getValue("y"), 1e-8);
-
-		assertEquals(0.075 + 3 * (3.0 / 20.0), pointList.get(3).getValue("x"), 1e-8);
-		assertEquals(0.075 + 0.0, pointList.get(3).getValue("y"), 1e-8);
-
-		assertEquals(0.075 + 2 * (3.0 / 20.0), pointList.get(22).getValue("x"), 1e-8);
-		assertEquals(0.075 + 1 * (3.0 / 20.0), pointList.get(22).getValue("y"), 1e-8);
-
-		assertEquals(0.075 + 10 * (3.0 / 20.0), pointList.get(350).getValue("x"), 1e-8);
-		assertEquals(0.075 + 17 * (3.0 / 20.0), pointList.get(350).getValue("y"), 1e-8);
-
 	}
 
 	@Test
@@ -515,16 +369,8 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
-		List<IPosition> pointList = gen.createPoints();
-
-		assertEquals(9, pointList.size());
-
-		// Check some points
-		assertEquals(new Point(0, -9.5, 0, 5.5, 0), pointList.get(0));
-		assertEquals(new Point(1, -8.5, 0, 5.5, 1), pointList.get(1));
-		assertEquals(new Point(0, -9.5, 1, 6.5, 3), pointList.get(3));
-		assertEquals(new Point(2, -7.5, 1, 6.5, 5), pointList.get(5));
-		assertEquals(new Point(1, -8.5, 2, 7.5, 7), pointList.get(7));
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 3, 3);
 	}
 
 	@Test
@@ -541,15 +387,8 @@ public class GridTest extends AbstractGeneratorTest {
 
 		// Get the point list
 		IPointGenerator<CompoundModel> gen = service.createGenerator(model, roi);
-		List<IPosition> pointList = gen.createPoints();
-
-		assertEquals(9, pointList.size());
-
-		// Check some points
-		assertEquals(new Point(0, 0.5, 0, 0.5, 0), pointList.get(0));
-		assertEquals(new Point(1, 1.5, 0, 0.5, 1), pointList.get(1));
-		assertEquals(new Point(2, 2.5, 1, 1.5, 3), pointList.get(3));
-		assertEquals(new Point(1, 1.5, 2, 2.5, 7), pointList.get(7));
+		checkPoints(gen);
+		GeneratorUtil.testGeneratorPoints(gen, 3, 3);
 	}
 
 	/**
@@ -595,6 +434,49 @@ public class GridTest extends AbstractGeneratorTest {
 				assertTrue(((AbstractPosition) pointListBothAlternating.get(i)).equals(expected.get(i - 9), false));
 			}
 			else assertTrue(pointListBothAlternating.get(i).equals(pointListInnerAlternating.get(i)));
+		}
+	}
+
+	void checkPoints(IPointGenerator<?> gen) {
+
+		final TwoAxisGridPointsModel model;
+		if (gen.getModel() instanceof CompoundModel) {
+			model = (TwoAxisGridPointsModel) ((CompoundModel) gen.getModel()).getModels().get(0);
+		} else {
+			model = (TwoAxisGridPointsModel) gen.getModel();
+		}
+
+		final int fastAxisPoints = gen.getShape()[1];
+		final int slowAxisPoints = gen.getShape()[0];
+		assertThat(gen.size(), is(equalTo(fastAxisPoints * slowAxisPoints)));
+		final double xStep = model.getBoundingBox().getxAxisLength() /
+				(model.isBoundsToFit() ? fastAxisPoints : fastAxisPoints - 1);
+		final double yStep = model.getBoundingBox().getyAxisLength() /
+				(model.isBoundsToFit() ? slowAxisPoints : slowAxisPoints - 1);
+		final double xStart = model.isBoundsToFit() ?
+				model.getBoundingBox().getxAxisStart() + xStep / 2 : model.getBoundingBox().getxAxisStart();
+		final double yStart = model.isBoundsToFit() ?
+				model.getBoundingBox().getyAxisStart() + yStep / 2 : model.getBoundingBox().getyAxisStart();
+		final String xName = model.getxAxisName();
+		final String yName = model.getyAxisName();
+		final List<IPosition> expectedPositions = new ArrayList<>();
+		int index = 0;
+		for (int slowAxisIndex = 0; slowAxisIndex < slowAxisPoints; slowAxisIndex ++) {
+			final boolean isBackwards = model.isAlternating() && slowAxisIndex % 2 == 1;
+			for (int fastAxisIndex = 0; fastAxisIndex < fastAxisPoints; fastAxisIndex ++) {
+				if (isBackwards) {
+					final int backwardsIndex = fastAxisPoints - 1 - fastAxisIndex;
+					expectedPositions.add(new Point(xName, backwardsIndex, xStart + backwardsIndex * xStep, yName, slowAxisIndex, yStart + slowAxisIndex * yStep, index, true));
+				} else {
+					expectedPositions.add(new Point(xName, fastAxisIndex, xStart + fastAxisIndex * xStep, yName, slowAxisIndex, yStart + slowAxisIndex * yStep, index, true));
+				}
+				index ++;
+			}
+		}
+		final Iterator<IPosition> generatedPositions = gen.iterator();
+		gen.createPoints();
+		for (int i = 0; i < expectedPositions.size(); i++) {
+			assertThat(generatedPositions.next(), is(equalTo(expectedPositions.get(i))));
 		}
 	}
 

@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.points;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -33,18 +32,15 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
         final List<String> units = model.getUnits();
         final boolean alternating = model.isAlternating();
         final boolean continuous = model.isContinuous();
-        final int numPoints = size(model);
-        final double start  = model.getStart();
-        final double stop   = numPoints == 1 ? model.getStop() : start + model.getStep() * (numPoints - 1);
+        final double step = model.getStep();
+        final double start  = model.getStart(model.getStart(), step);
+        final double length = model.getStop() - model.getStart();
+        final int numPoints = model.getPointsOnLine(length, step);
+        final double stop   = model.getStop(start, length, step);
 
         final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 
         return createWrappingCompoundGenerator(pointGen, continuous);
-	}
-
-	private int size(AxialStepModel model) {
-		// Includes point if would be within 1% (of step length) of end
-		return 1 + BigDecimal.valueOf(0.01*model.getStep()+model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue();
 	}
 
 }

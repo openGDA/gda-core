@@ -35,16 +35,6 @@ public class TwoAxisGridPointsRandomOffsetGenerator extends AbstractGridGenerato
 	}
 
 	@Override
-	protected double getXStep() {
-		return model.getBoundingBox().getxAxisLength() / model.getxAxisPoints();
-	}
-
-	@Override
-	protected double getYStep() {
-		return model.getBoundingBox().getyAxisLength() / model.getyAxisPoints();
-	}
-
-	@Override
 	protected PyObject[] getMutator() {
 		final JythonObjectFactory<PyObject> randomOffsetMutatorFactory = ScanPointGeneratorFactory.JRandomOffsetMutatorFactory();
 

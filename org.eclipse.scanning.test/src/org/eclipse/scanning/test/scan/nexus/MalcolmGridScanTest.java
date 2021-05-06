@@ -35,8 +35,8 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 			{ 3, false, Arrays.asList( 3, 2, 5 )}, // 3D grid scan
 			{ 3, true, Arrays.asList( 3, 2, 5 )}, // 3D snake scan
 			{ 4, false, Arrays.asList( 3, 3, 2, 2 )}, // 4D malcolm scan
-			{ 5, false, Arrays.asList( 1, 1, 1, 2, 2 )}, // 5D malcolm scan
-			{ 8, false, Arrays.asList( 1, 1, 1, 1, 1, 1, 2, 2 )} // 8D malcolm scan
+			{ 5, false, Arrays.asList( 2, 2, 2, 2, 2 )}, // 5D malcolm scan
+			{ 8, false, Arrays.asList( 2, 2, 2, 2, 2, 2, 2, 2 )} // 8D malcolm scan
 		});
 	}
 

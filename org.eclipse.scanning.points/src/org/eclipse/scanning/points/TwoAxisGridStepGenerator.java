@@ -20,30 +20,12 @@ class TwoAxisGridStepGenerator extends AbstractGridGenerator<TwoAxisGridStepMode
 	}
 
 	@Override
-	protected int getXPoints() {
-		final double xStep = model.getxAxisStep();
-		return (int) Math.max(1, Math.floor(model.getBoundingBox().getxAxisLength() / xStep));
-	}
-
-	@Override
-	protected int getYPoints() {
-		final double yStep = model.getyAxisStep();
-		return (int) Math.max(1, Math.floor(model.getBoundingBox().getyAxisLength() / yStep));
-	}
-
-	@Override
 	protected double getXStep() {
-		if (getXPoints() == 1){
-			return model.getBoundingBox().getxAxisLength();
-		}
 		return model.getxAxisStep();
 	}
 
 	@Override
 	protected double getYStep() {
-		if (getYPoints() == 1){
-			return model.getBoundingBox().getyAxisLength();
-		}
 		return model.getyAxisStep();
 	}
 

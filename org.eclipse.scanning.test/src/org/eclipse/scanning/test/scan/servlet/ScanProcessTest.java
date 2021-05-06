@@ -190,7 +190,7 @@ public class ScanProcessTest {
 		final ScanBean scanBean = new ScanBean();
 		final ScanRequest scanRequest = new ScanRequest();
 
-		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("T", 290, 291, 2), new TwoAxisGridPointsModel("xNex", "yNex", 2, 2)));
+		final CompoundModel cmodel = new CompoundModel(Arrays.asList(new AxialStepModel("T", 290, 291, 1), new TwoAxisGridPointsModel("xNex", "yNex", 2, 2)));
 		cmodel.setRegions(Arrays.asList(new ScanRegion(new RectangularROI(0, 0, 3, 3, 0), "xNex", "yNex")));
 		scanRequest.setCompoundModel(cmodel);
 

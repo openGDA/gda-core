@@ -136,13 +136,10 @@ public class StepTest {
 		}
 	}
 
-	@Test
+	@Test(expected = GeneratorException.class)
 	public void testTooLargeStep() throws GeneratorException {
 
-		IPointGenerator<AxialStepModel> gen = pointGeneratorService.createGenerator(new AxialStepModel("stage_x", 0, 3, 5));
-		assertEquals(1, gen.size());
-		// A single point, halfway between the limit- limits are still passed to Jython, to allow a continuous scan to pass from centre + step * (-0.5->+0.5)
-		assertEquals(1.5, gen.iterator().next().get("stage_x"));
+		pointGeneratorService.createGenerator(new AxialStepModel("stage_x", 0, 3, 5));
 	}
 
 	@Test(expected = GeneratorException.class)

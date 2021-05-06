@@ -39,17 +39,18 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 		final BoundingLine line = model.getBoundingLine();
 
 		final int numPoints = getPoints();
-		// length/step<2 => step>length/2, just put point in middle
-		final double step = getPoints() == 1 ? model.getBoundingLine().getLength() : getStep();
+		final double step = getStep();
 		final double xStep = step * Math.cos(line.getAngle());
 		final double yStep = step * Math.sin(line.getAngle());
-		final double minX = line.getxStart() + xStep/2;
-		final double minY = line.getyStart() + yStep/2;
+		final double minX = model.getStart(line.getxStart(), xStep);
+		final double minY = model.getStart(line.getyStart(), yStep);
+		final double xLength = line.getLength() * Math.cos(line.getAngle());
+		final double yLength = line.getLength() * Math.sin(line.getAngle());
 
 		final List<String> axes =  model.getScannableNames();
 		final List<String> units = model.getUnits();
 		final double[] start = {minX, minY};
-		final double[] stop = {minX + (numPoints - 1) * xStep, minY + (numPoints - 1) * yStep};
+		final double[] stop = {model.getStop(minX, xLength, xStep), model.getStop(minY, yLength, yStep)};
 		final boolean alternating = model.isAlternating();
 		final boolean continuous = model.isContinuous();
 
@@ -59,9 +60,13 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 
 	}
 
-	protected abstract double getStep();
+	protected double getStep() {
+		return model.getBoundingLine().getLength() / getPoints();
+	}
 
-	protected abstract int getPoints();
+	protected int getPoints() {
+		return model.getPointsOnLine(model.getBoundingLine().getLength(), getStep());
+	}
 
 
 }

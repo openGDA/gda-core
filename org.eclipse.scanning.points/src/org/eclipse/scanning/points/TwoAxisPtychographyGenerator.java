@@ -32,16 +32,6 @@ public class TwoAxisPtychographyGenerator extends AbstractGridGenerator<TwoAxisP
 	}
 
 	@Override
-	protected int getXPoints() {
-		return (int) Math.floor(model.getBoundingBox().getxAxisLength() / getXStep());
-	}
-
-	@Override
-	protected int getYPoints() {
-		return (int) Math.floor(model.getBoundingBox().getyAxisLength() / getYStep());
-	}
-
-	@Override
 	protected double getXStep() {
 		return (1 - model.getOverlap()) * model.getxBeamSize();
 	}

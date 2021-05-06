@@ -224,12 +224,12 @@ public class MandelbrotExampleTest extends NexusTest {
 
 	@Test
 	public void test5DGridScan() throws Exception {
-		testGridScan(false,1,1,1,2, 2);
+		testGridScan(false, 2, 2, 2, 2, 2);
 	}
 
 	@Test
 	public void test8DGridScan() throws Exception {
-		testGridScan(false,1,1,1,1,1,1,2, 2);
+		testGridScan(false, 2, 2, 2, 2, 2, 2, 2, 2);
 	}
 
 	private void testGridScan(boolean snake, int... shape) throws Exception {
@@ -244,14 +244,16 @@ public class MandelbrotExampleTest extends NexusTest {
 	private void testGridScanWithCircularRegion(boolean snake, int... shape) throws Exception {
 		IROI region = new CircularROI(2, 1, 1);
 
+		final int circularShape = 7; // size of inner grid scan in circular region
+		// note: this assumes the last two shape dimensions are 3 and 5
+
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, region, snake, shape);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
 
 		int[] datasetShape = new int[shape.length - 1];
 		System.arraycopy(shape, 0, datasetShape, 0, shape.length - 2);
-		datasetShape[datasetShape.length - 1] = 11; // size of inner grid scan in circular region
-				// note: this assumes the last two shape dimensions are 3 and 5
+		datasetShape[datasetShape.length - 1] = circularShape;
 
 		checkNexusFile(scanner, snake, true, datasetShape);
 	}

@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 
-import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
@@ -61,7 +60,7 @@ public class EnforcedShapeTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void GridThatFitsTest() throws GeneratorException {
+	public void gridThatFitsTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 
@@ -78,10 +77,10 @@ public class EnforcedShapeTest {
 		expectedPointsModel.setBoundingBox(box);
 		expectedPointsModel.setContinuous(false);
 		expectedPointsModel.setAlternating(true);
-		// 0.1 -> 4.9 in steps o 0.2
-		expectedPointsModel.setxAxisPoints(25);
-		// 0.5 -> 4.5 in steps of
-		expectedPointsModel.setyAxisPoints(5);
+		// 0 -> 5 inclusive in steps of 0.2
+		expectedPointsModel.setxAxisPoints(26);
+		// in steps of 1
+		expectedPointsModel.setyAxisPoints(6);
 		expectedPointsModel.setName("notRaster");
 		expectedPointsModel.setxAxisUnits("microns");
 		expectedPointsModel.setyAxisUnits("Astronomical Units");
@@ -98,7 +97,7 @@ public class EnforcedShapeTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void GridThatDoesntFitTest() throws GeneratorException {
+	public void gridThatDoesntFitTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 		stepModel.setBoundingBox(box);
@@ -115,10 +114,10 @@ public class EnforcedShapeTest {
 		expectedPointsModel.setBoundingBox(shrunkBox);
 		expectedPointsModel.setContinuous(false);
 		expectedPointsModel.setAlternating(true);
-		// 0.15 -> 4.65 in steps of 0.3
-		expectedPointsModel.setxAxisPoints(16);
-		// 0.85, 2.55 in steps of 1.7
-		expectedPointsModel.setyAxisPoints(2);
+		// 0 -> 4.8 inclusive in steps of 0.3
+		expectedPointsModel.setxAxisPoints(17);
+		// 0 -> 3.4 in 1.7
+		expectedPointsModel.setyAxisPoints(3);
 		expectedPointsModel.setName("notRaster");
 		expectedPointsModel.setxAxisUnits("microns");
 		expectedPointsModel.setyAxisUnits("Astronomical Units");
@@ -131,13 +130,12 @@ public class EnforcedShapeTest {
 	/**
 	 * A grid for which its steps are too long to fit into the bounding box.
 	 *
-	 * Should return a model with the same boundingbox, that produces a single point in the middle of the box,
-	 * which should be the same behaviour as a stepmodel with a step too long.
+	 * Should return a model with the same boundingbox, that throws an exception when the generator is created
 	 *
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
-	@Test
-	public void GridTooSmallForAnyStepsTest() throws GeneratorException {
+	@Test(expected = GeneratorException.class)
+	public void gridTooSmallForAnyStepsTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 1, 1);
 		stepModel.setBoundingBox(box);
@@ -150,20 +148,18 @@ public class EnforcedShapeTest {
 		stepModel.setyAxisUnits("Astronomical Units");
 
 		final TwoAxisGridPointsModel expectedPointsModel = new TwoAxisGridPointsModel("xAxisName", "yAxisName");
-		expectedPointsModel.setBoundingBox(box);
+		expectedPointsModel.setBoundingBox(new BoundingBox(0, 0, 0, 0.6));
 		expectedPointsModel.setContinuous(false);
 		expectedPointsModel.setAlternating(true);
-		// 0.5
-		expectedPointsModel.setxAxisPoints(1);
-		// 0.5
-		expectedPointsModel.setyAxisPoints(1);
+		expectedPointsModel.setxAxisPoints(0);
+		expectedPointsModel.setyAxisPoints(2);
 		expectedPointsModel.setName("notRaster");
 		expectedPointsModel.setxAxisUnits("microns");
 		expectedPointsModel.setyAxisUnits("Astronomical Units");
 
 		final TwoAxisGridPointsModel actualPointsModel = AbstractTwoAxisGridModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		testPoints(stepModel, actualPointsModel);
+		pgs.createGenerator(actualPointsModel);
 	}
 
 	/**
@@ -173,7 +169,7 @@ public class EnforcedShapeTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void GridNegativeStepsTest() throws GeneratorException {
+	public void gridNegativeStepsTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, -5, -5);
 		stepModel.setBoundingBox(box);
@@ -182,6 +178,7 @@ public class EnforcedShapeTest {
 		stepModel.setxAxisStep(-1);
 		stepModel.setyAxisStep(-0.2);
 		stepModel.setName("notRaster");
+		stepModel.setBoundsToFit(true);
 		stepModel.setxAxisUnits("microns");
 		stepModel.setyAxisUnits("Astronomical Units");
 
@@ -189,6 +186,7 @@ public class EnforcedShapeTest {
 		expectedPointsModel.setBoundingBox(box);
 		expectedPointsModel.setContinuous(false);
 		expectedPointsModel.setAlternating(true);
+		expectedPointsModel.setBoundsToFit(true);
 		// -0.5 -> -4.5
 		expectedPointsModel.setxAxisPoints(5);
 		// -0.1 -> -4.9
@@ -207,14 +205,11 @@ public class EnforcedShapeTest {
 	 * One axis is not stepping up to the edge of the bounding box.
 	 * The other axis is too short for its step length.
 	 *
-	 * The returned bounding box should be the same in the direction where the step length is too long,
-	 * shorter in the direction that the step doesn't reach the edge of the box, and should handle negative
-	 * box length, step correctly to give the same IPositions.
-	 *
-	 * Continuous/Alternating/name/units set just to have non default values for those fields.
+	 * As the Step is longer than the Box's length, an exception should be thrown when the generator is created
+	 * @throws GeneratorException
 	 */
-	@Test
-	public void GridMixedTest() throws GeneratorException {
+	@Test(expected=GeneratorException.class)
+	public void gridMixedTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, -1.7, -5);
 		stepModel.setBoundingBox(box);
@@ -223,40 +218,50 @@ public class EnforcedShapeTest {
 		stepModel.setxAxisStep(-0.3);
 		stepModel.setyAxisStep(-12);
 		stepModel.setName("notRaster");
+		stepModel.setBoundsToFit(true);
 		stepModel.setxAxisUnits("microns");
 		stepModel.setyAxisUnits("Astronomical Units");
 
-		final BoundingBox shrunkBox = new BoundingBox(0, 0, -1.5, -5);
+		final BoundingBox shrunkBox = new BoundingBox(0, 0, -1.5, -0.0);
 		final TwoAxisGridPointsModel expectedPointsModel = new TwoAxisGridPointsModel("xAxisName", "yAxisName");
 		expectedPointsModel.setBoundingBox(shrunkBox);
 		expectedPointsModel.setContinuous(false);
 		expectedPointsModel.setAlternating(true);
+		expectedPointsModel.setBoundsToFit(true);
 		// -0.15 -> -1.35 (-1.65 less than 1/2 step from edge)
 		expectedPointsModel.setxAxisPoints(5);
-		// -2.5
-		expectedPointsModel.setyAxisPoints(1);
+		// Will throw an exception when the generator is created
+		expectedPointsModel.setyAxisPoints(0);
 		expectedPointsModel.setName("notRaster");
 		expectedPointsModel.setxAxisUnits("microns");
 		expectedPointsModel.setyAxisUnits("Astronomical Units");
 
 		final TwoAxisGridPointsModel actualPointsModel = AbstractTwoAxisGridModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		testPoints(stepModel, actualPointsModel);
-
+		pgs.createGenerator(actualPointsModel);
 	}
 
 	/**
 	 * A Step model stepping in the opposite direction to its box length would give 0 points (and create an exception at validation)
 	 * so we throw an exception rather than allowing an invalid model to be created without warning.
+	 * @throws GeneratorException
 	 */
-	@Test(expected = ModelValidationException.class)
-	public void GridWrongDirectionTest() {
+	@Test(expected = GeneratorException.class)
+	public void gridWrongDirectionTest() throws GeneratorException {
 		final TwoAxisGridStepModel stepModel = new TwoAxisGridStepModel("xAxisName", "yAxisName");
 		final BoundingBox box = new BoundingBox(0, 0, 5, 5);
 		stepModel.setBoundingBox(box);
 		stepModel.setxAxisStep(-0.3);
 		// All other values default, i.e. yAxisStep = 1
-		AbstractTwoAxisGridModel.enforceShape(stepModel);
+		final BoundingBox shrunkBox = new BoundingBox(0, 0, 4.8, 5);
+		final TwoAxisGridPointsModel expectedPointsModel = new TwoAxisGridPointsModel("xAxisName", "yAxisName");
+		expectedPointsModel.setBoundingBox(shrunkBox);
+		expectedPointsModel.setxAxisPoints(-17);
+		expectedPointsModel.setyAxisPoints(6);
+
+		final TwoAxisGridPointsModel actualPointsModel = AbstractTwoAxisGridModel.enforceShape(stepModel);
+		assertEquals(expectedPointsModel, actualPointsModel);
+		pgs.createGenerator(actualPointsModel);
 	}
 
 	/**
@@ -265,13 +270,14 @@ public class EnforcedShapeTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void LineThatFitsTest() throws GeneratorException {
+	public void lineThatFitsTest() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		// Starting at 0, length 5
 		final BoundingLine line = new BoundingLine(0, 0, 3, 4);
 		stepModel.setBoundingLine(line);
 		stepModel.setAlternating(true);
 		stepModel.setContinuous(false);
+		stepModel.setBoundsToFit(true);
 		// Not "Step"
 		stepModel.setName("Diagonal");
 		stepModel.setxAxisName("Temperature");
@@ -286,6 +292,7 @@ public class EnforcedShapeTest {
 		expectedPointsModel.setBoundingLine(line);
 		expectedPointsModel.setAlternating(true);
 		expectedPointsModel.setContinuous(false);
+		expectedPointsModel.setBoundsToFit(true);
 		expectedPointsModel.setName("Diagonal");
 		expectedPointsModel.setxAxisName("Temperature");
 		expectedPointsModel.setxAxisUnits("Farenheit");
@@ -304,13 +311,14 @@ public class EnforcedShapeTest {
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
 	 */
 	@Test
-	public void LineThatDoesntFitsTest() throws GeneratorException {
+	public void lineThatDoesntFitsTest() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		// Starting at 0, length 5
 		final BoundingLine line = new BoundingLine(0, 0, 3, 4);
 		stepModel.setBoundingLine(line);
 		stepModel.setAlternating(true);
 		stepModel.setContinuous(false);
+		stepModel.setBoundsToFit(true);
 		// Not "Step"
 		stepModel.setName("Diagonal");
 		stepModel.setxAxisName("Temperature");
@@ -326,6 +334,7 @@ public class EnforcedShapeTest {
 		expectedPointsModel.setBoundingLine(shrunkLine);
 		expectedPointsModel.setAlternating(true);
 		expectedPointsModel.setContinuous(false);
+		expectedPointsModel.setBoundsToFit(true);
 		expectedPointsModel.setName("Diagonal");
 		expectedPointsModel.setxAxisName("Temperature");
 		expectedPointsModel.setxAxisUnits("Farenheit");
@@ -340,13 +349,12 @@ public class EnforcedShapeTest {
 
 	/**
 	 * A line that is too short for its step length. The returned bounding line should be
-	 * the same as the input bounding line, and there should be one position in the centre,
-	 * which should match the behaviour of a step model.
+	 * the same as the input bounding line, and there should be one point, which will cause a validation exception when the generator is created
 	 * Continuous/Alternating/name/units set just to have non default values for those fields.
+	 * @throws GeneratorException
 	 */
-
-	@Test
-	public void LineTooSmallForAnyPoints() throws GeneratorException {
+	@Test(expected = GeneratorException.class)
+	public void lineTooSmallForAnyPoints() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		// Starting at 0, length 13
 		final BoundingLine line = new BoundingLine(0, 0, 5, 12);
@@ -359,10 +367,13 @@ public class EnforcedShapeTest {
 		stepModel.setxAxisUnits("Farenheit");
 		stepModel.setyAxisName("Energy");
 		stepModel.setyAxisUnits("Horsepower");
-		stepModel.setStep(9);
+		stepModel.setStep(19);
+
+		final BoundingLine copyLine = new BoundingLine(0, 0, 0, 0);
+		copyLine.setAngle(line.getAngle());
 
 		final TwoAxisLinePointsModel expectedPointsModel = new TwoAxisLinePointsModel();
-		expectedPointsModel.setBoundingLine(line);
+		expectedPointsModel.setBoundingLine(copyLine);
 		expectedPointsModel.setAlternating(true);
 		expectedPointsModel.setContinuous(false);
 		expectedPointsModel.setName("Diagonal");
@@ -370,27 +381,37 @@ public class EnforcedShapeTest {
 		expectedPointsModel.setxAxisUnits("Farenheit");
 		expectedPointsModel.setyAxisName("Energy");
 		expectedPointsModel.setyAxisUnits("Horsepower");
-		expectedPointsModel.setPoints(1);
+		expectedPointsModel.setPoints(0);
 
 		final TwoAxisLinePointsModel actualPointsModel = AbstractBoundingLineModel.enforceShape(stepModel);
 		assertEquals(expectedPointsModel, actualPointsModel);
-		testPoints(stepModel, actualPointsModel);
+		pgs.createGenerator(actualPointsModel);
 	}
 
 	/**
 	 * LineModels will except with a negative step length anyway, so this shouldn't ever be attempted,
 	 * but to make sure that our points=0 doesn't throw an exception later, we throw it now.
+	 * @throws GeneratorException
 	 */
 
-	@Test(expected = ModelValidationException.class)
-	public void LineWrongDirectionTest() {
+	@Test(expected = GeneratorException.class)
+	public void lineWrongDirectionTest() throws GeneratorException {
 		final TwoAxisLineStepModel stepModel = new TwoAxisLineStepModel();
 		final BoundingLine line = new BoundingLine(0, 0, 1, 1);
 		stepModel.setBoundingLine(line);
 		stepModel.setStep(-0.3);
 		// All other values default
-		AbstractBoundingLineModel.enforceShape(stepModel);
 
+		final TwoAxisLinePointsModel expectedPointsModel = new TwoAxisLinePointsModel();
+		final BoundingLine lineCopy = new BoundingLine(0, 0, 0, 0);
+		lineCopy.setAngle(line.getAngle());
+		lineCopy.setLength(1.2);
+		expectedPointsModel.setBoundingLine(lineCopy);
+		expectedPointsModel.setPoints(-5); // 1.2, 0.9, 0.6, 0.3, 0 (hypothetically)
+
+		final TwoAxisLinePointsModel actualPointsModel = AbstractBoundingLineModel.enforceShape(stepModel);
+		assertEquals(expectedPointsModel, actualPointsModel);
+		pgs.createGenerator(actualPointsModel);
 	}
 
 	/**

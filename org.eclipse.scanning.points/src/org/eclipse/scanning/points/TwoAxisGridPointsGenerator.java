@@ -36,14 +36,4 @@ public class TwoAxisGridPointsGenerator extends AbstractGridGenerator<TwoAxisGri
 		return model.getyAxisPoints();
 	}
 
-	@Override
-	protected double getXStep() {
-		return model.getBoundingBox().getxAxisLength() / model.getxAxisPoints();
-	}
-
-	@Override
-	protected double getYStep() {
-		return model.getBoundingBox().getyAxisLength() / model.getyAxisPoints();
-	}
-
 }
