@@ -63,6 +63,9 @@ public class PowerSupplyScannable extends ScannableBase {
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			e.printStackTrace();
 		}
 		return false;

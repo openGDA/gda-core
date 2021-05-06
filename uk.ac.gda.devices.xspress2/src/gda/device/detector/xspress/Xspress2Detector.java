@@ -828,6 +828,9 @@ public class Xspress2Detector extends XspressSystem implements XspressFluorescen
 			logger.info("MCA collection finished");
 
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
 		}
 	}

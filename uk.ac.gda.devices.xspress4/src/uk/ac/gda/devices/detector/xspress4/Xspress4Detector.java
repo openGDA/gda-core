@@ -265,6 +265,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			Thread.sleep((long)collectionTimeMillis);
 			xspress4Controller.waitForCounterToIncrement(numFramesBeforeAcquire, (long)timeoutMillis);
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.warn("Interrupted while waiting for acquire");
 		}
 		logger.info("Wait for acquire finished");
@@ -310,6 +313,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			logger.debug("MCA collection finished");
 
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
 		}
 	}

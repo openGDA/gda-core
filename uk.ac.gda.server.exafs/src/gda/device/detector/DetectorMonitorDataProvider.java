@@ -459,7 +459,7 @@ public class DetectorMonitorDataProvider extends ScannableBase implements Detect
 		try {
 			super.waitWhileBusy();
 		} catch (InterruptedException e) {
-			// Restore interrupt status
+			// Reset interrupt status
 			Thread.currentThread().interrupt();
 			logger.info("Thread interrupted in waitWhileBusy", e);
 		} catch (DeviceException e) {

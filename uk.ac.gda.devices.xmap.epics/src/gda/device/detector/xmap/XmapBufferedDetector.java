@@ -139,6 +139,9 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.error("Error performing sleep", e);
 		}
 		// for Xmap, as data written to file and not accessible during data collection,
@@ -515,6 +518,9 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		} catch (CAException e) {
 			logger.error("Could not stop xmap capture", e);
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.error("Could not stop xmap capture", e);
 		}
 	}

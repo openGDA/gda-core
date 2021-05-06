@@ -86,6 +86,9 @@ public class ShutterChecker extends ScannableBase {
 			if (!first)
 				updateUser("Experimental shutter re-opened, so continuing scan...");
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.error("Interrupted exception while checking shutter is open. Will rethrow as a DeviceException", e);
 			throw new DeviceException("Interrupted exception while checking shutter is open.", e);
 		}
@@ -144,6 +147,9 @@ public class ShutterChecker extends ScannableBase {
 				logger.error("IOException while checking shutter is open. Will rethrow as a DeviceException.", e);
 				throw new DeviceException("IOException while checking shutter is open", e);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+
 				logger.error("Interrupted exception while checking shutter is open. Will rethrow as a DeviceException.", e);
 				throw new DeviceException("Interrupted exception while checking shutter is open", e);
 			}

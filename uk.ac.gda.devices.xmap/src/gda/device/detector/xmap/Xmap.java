@@ -305,6 +305,9 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 		try {
 			Thread.sleep(15);
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			throw new DeviceException("interruption during clear and start");
 		}
 	}
@@ -328,6 +331,9 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 		try {
 			waitWhileControllerBusy();
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			throw new DeviceException("InterruptedException while waiting for Xmap controller to return to Done state",e);
 		}
 		return controller.getData(mcaNumber);
@@ -339,6 +345,9 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 		try {
 			waitWhileControllerBusy();
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			throw new DeviceException("InterruptedException while waiting for Xmap controller to return to Done state",e);
 		}
 		return controller.getData();
@@ -583,6 +592,9 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 					if (total >= 5000)
 						break;
 				} catch (InterruptedException e) {
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
+
 					logger.error("Sleep interrupted", e);
 				}
 			}

@@ -75,6 +75,8 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 					if (total >= 5000)
 						break;
 				} catch (InterruptedException e) {
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
 					// logger.error("Sleep interrupted", e);
 				}
 			}
@@ -253,7 +255,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	public void loadConfigurationFromFile() throws Exception {
 		super.loadConfigurationFromFile();
 		// Define all the extra names
-		final List<String> names = new ArrayList<String>(31);
+		final List<String> names = new ArrayList<>(31);
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++) {
 			DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())

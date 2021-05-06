@@ -59,6 +59,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		try {
 			xspress3Detector.waitWhileBusy();
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.warn("Interrupted exception in clearMemory() - detector might still be busy when clearing the data!");
 		}
 		xspress3Detector.getController().doStop();

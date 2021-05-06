@@ -451,6 +451,9 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			try {
 				Thread.sleep(sleepTime_ms);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+
 				shouldStop = true;
 			}
 		}

@@ -565,6 +565,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			waitWhileBusy();
 			logger.debug("MCA collection finished");
 		} catch (InterruptedException e) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
+
 			logger.warn("Thread interrupted waiting for MCA collection to finish", e);
 		}
 	}
@@ -587,6 +590,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 					try {
 						wait(100);
 					} catch (InterruptedException e) {
+						// Reset interrupt status
+						Thread.currentThread().interrupt();
 					}
 				}
 			} while (((Timer) Finder.find("tfg")).getStatus() == Timer.ACTIVE);
