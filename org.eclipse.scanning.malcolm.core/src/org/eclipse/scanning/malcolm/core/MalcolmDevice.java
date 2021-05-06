@@ -561,7 +561,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		// configure, and we can't validate the point generator returned from malcolm, so pointGenerator holds on
 		// to the original one. The pointGenerator field can be removed when this is fixed. See DAQ-2707.
 		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
-		setPointGenerator(pointGen);
 
 		setModel(model);
 	}
