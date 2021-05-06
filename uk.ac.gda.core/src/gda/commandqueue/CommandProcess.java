@@ -26,7 +26,6 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
 /**
@@ -85,7 +84,7 @@ public class CommandProcess extends AbstractLockingPausableProcess<CommandBean> 
 		if (status.isFinal()) {
 			logger.error("Cannot terminate scan {}, status is {}", bean.getName(), bean.getStatus());
 		} else {
-			JythonServerFacade.getInstance().requestFinishEarly();
+			command.abort();
 		}
 	}
 
