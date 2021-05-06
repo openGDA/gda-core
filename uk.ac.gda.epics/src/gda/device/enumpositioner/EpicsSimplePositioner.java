@@ -166,7 +166,11 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			if (values == null || values.isEmpty()) {
 				try {
 					setMapFromEpics();
-				} catch (TimeoutException | CAException | InterruptedException e) {
+				} catch (InterruptedException e) {
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
+					logger.info("Interrupted generating map from Epics values", e);
+				} catch (TimeoutException | CAException e) {
 					logger.error("Problem generating map from Epics values", e);
 				}
 			}

@@ -271,6 +271,9 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				logger.error("CAException on get intensity from" + intensityCh.getName(), e);
 				throw new DeviceException("CAException on get intensity from" + intensityCh.getName(), e);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+
 				logger.error("Interrupted Exception on get intensity from" + intensityCh.getName(), e);
 				throw new DeviceException("Interrupted Exception on get intensity from" + intensityCh.getName(), e);
 			}
@@ -293,6 +296,9 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				logger.error("CAException on get intensity from" + xPosCh.getName(), e);
 				throw new DeviceException("CAException on get intensity from" + xPosCh.getName(), e);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+
 				logger.error("Interrupted Exception on get intensity from" + xPosCh.getName(), e);
 				throw new DeviceException("Interrupted Exception on get intensity from" + xPosCh.getName(), e);
 			}
@@ -315,6 +321,9 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 				logger.error("CAException on get intensity from" + yPosCh.getName(), e);
 				throw new DeviceException("CAException on get intensity from" + yPosCh.getName(), e);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+
 				logger.error("Interrupted Exception on get intensity from" + yPosCh.getName(), e);
 				throw new DeviceException("Interrupted Exception on get intensity from" + yPosCh.getName(), e);
 			}

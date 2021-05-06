@@ -310,6 +310,9 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 			try {
 				value = controller.cagetInt(jobChannel);
 			} catch (InterruptedException e) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+
 				logger.error("Interrupted on get Job from Epics", e);
 			}
 		} catch (TimeoutException e) {
@@ -337,6 +340,9 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 				try {
 					controller.caput(startChannel, 1, pcbl);
 				} catch (InterruptedException e) {
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
+
 					logger.error("caput to 'start' interrupted", e);
 					throw new DeviceException("failed to start the JOB " + this.getJob().toString(), e);
 				}
@@ -348,6 +354,9 @@ public class RobotNX100Controller extends DeviceBase implements InitializationLi
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
+
 					logger.error("robot action interrupted", e);
 					throw new DeviceException("interrupt the JOB " + this.getJob().toString(), e);
 				}

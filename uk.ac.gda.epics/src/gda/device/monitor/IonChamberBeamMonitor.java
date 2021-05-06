@@ -248,7 +248,8 @@ public class IonChamberBeamMonitor extends MonitorBase implements IObserver, IBe
 		try {
 			Thread.sleep(timeInMilliSeconds);
 		} catch (InterruptedException e) {
-			// no op
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
 		}
 	}
 

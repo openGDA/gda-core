@@ -133,7 +133,8 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					// noop
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
 				}
 				i++;
 			}

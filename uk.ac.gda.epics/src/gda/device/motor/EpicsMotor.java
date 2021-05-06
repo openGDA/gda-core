@@ -427,7 +427,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			try {
 				Thread.sleep(timeout_ms / 5); // TODO: Are we sure!?
 			} catch (InterruptedException e) {
-				// do nothing
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 		}
 		if (!isInitialised())
@@ -786,7 +787,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					// do nothing
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
 				}
 			}
 			controller.caput(val, position, moveListener);
@@ -1388,6 +1390,9 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
+					// Reset interrupt status
+					Thread.currentThread().interrupt();
+
 					logger.error("Interrupted waiting for callback", e);
 				}
 			}

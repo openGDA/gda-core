@@ -267,7 +267,8 @@ public class EpicsBeamMonitor extends MonitorBase implements MonitorListener {
 				logger.info("no of reads above threshold now " + nOkReads + " (requires "
 						+ consecutiveCountsAboveThreshold + ")");
 			} catch (InterruptedException e) {
-				// Deliberately do nothing
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 			// if you abort or halt or stop scan during no beam, this thread should stop
 			if (JythonServerFacade.getInstance().getScanStatus() == JythonStatus.IDLE) {
@@ -314,6 +315,8 @@ public class EpicsBeamMonitor extends MonitorBase implements MonitorListener {
 				}
 			} catch (DeviceException ex) {
 			} catch (InterruptedException ex) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 		}
 		return countsReached;
