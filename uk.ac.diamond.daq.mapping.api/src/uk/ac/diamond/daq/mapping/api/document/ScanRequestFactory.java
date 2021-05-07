@@ -63,7 +63,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentRead
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.diamond.daq.mapping.api.document.preparers.ScanRequestPreparerFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.exception.GDAException;
@@ -86,7 +85,7 @@ public class ScanRequestFactory {
 
 	public ScanRequest createScanRequest(IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		// Populate the {@link ScanRequest} with the assembled objects
-		ScanRequest scanRequest = new ScanRequest();
+		var scanRequest = new ScanRequest();
 
 		prepareScanRequestAccordingToScanType(scanRequest);
 
@@ -116,39 +115,15 @@ public class ScanRequestFactory {
 	}
 
 	private void addStartPosition(ScanRequest scanRequest) {
-		final IPosition iPosition = createPositionMap(getAcquisitionParameters().getPosition());
+		final var iPosition = createPositionMap(getAcquisitionParameters().getPosition());
 		Optional.ofNullable(iPosition)
 			.ifPresent(scanRequest::setStartPosition);
 	}
 
 	private CompoundModel createCompoundModel() throws GDAException {
-		AcquisitionTemplate acquisitionTemplate = AcquisitionTemplateFactory
+		var acquisitionTemplate = AcquisitionTemplateFactory
 				.buildModelDocument(getScanpathDocument().getData());
-
-		// The second condition, ONE_DIMENSION_LINE is not strictly necessary but the breakpoints for malcom is such a
-		// custom implementation that at the moment is preferred to be considered as an exception more than a possible case.
-		if (requireDarkOrFlat()
-				&& AcquisitionTemplateType.ONE_DIMENSION_LINE.equals(getScanpathDocument().getModelDocument())) {
-			return createInterpolatedCompoundModel(acquisitionTemplate);
-		}
-		return createCompoundModel(acquisitionTemplate);
-	}
-
-	private boolean requireDarkOrFlat() {
-		return Optional.ofNullable(getDarkCalibration().getNumberExposures() > 0)
-					.orElseGet(() -> false)
-				||  Optional.ofNullable(getFlatCalibration().getNumberExposures() > 0)
-					.orElseGet(() -> false);
-	}
-
-	private CompoundModel createCompoundModel(AcquisitionTemplate modelDocument) {
-		CompoundModel compoundModel = new CompoundModel();
-		compoundModel.setModels(new ArrayList<>());
-		compoundModel.setRegions(new ArrayList<>());
-		compoundModel.setMutators(new ArrayList<>());
-
-		compoundModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
-		return compoundModel;
+		return createInterpolatedCompoundModel(acquisitionTemplate);
 	}
 
 	/**
@@ -158,7 +133,7 @@ public class ScanRequestFactory {
 	 * @return
 	 */
 	private CompoundModel createInterpolatedCompoundModel(AcquisitionTemplate acquisitionTemplate) {
-		final InterpolatedMultiScanModel multiScanModel = new InterpolatedMultiScanModel();
+		final var multiScanModel = new InterpolatedMultiScanModel();
 
 		// --- Preparation ---
 		// Each new multiscanModel must set this start position and image type
@@ -240,7 +215,7 @@ public class ScanRequestFactory {
 
 	private void parseAcquisitionEngine(ScanRequest scanRequest, IRunnableDeviceService runnableDeviceService)
 			throws ScanningException {
-		AcquisitionEngineType acquisitionEngineType = Optional.ofNullable(getAcquisitionEngine())
+		var acquisitionEngineType = Optional.ofNullable(getAcquisitionEngine())
 			.map(AcquisitionEngineReader::getType)
 			.orElseThrow(() -> new ScanningException("The document does not containan AcquisitionEngine section"));
 		switch (acquisitionEngineType) {
@@ -269,7 +244,7 @@ public class ScanRequestFactory {
 				.orElseThrow(() -> new ScanningException(String.format("Could not get model for detector %s",
 						detector.getName())));
 
-		if (!IMalcolmModel.class.isInstance(imodel))
+		if (!(imodel instanceof IMalcolmModel))
 			throw new ScanningException(String.format("Detector model is not an instance of of type %s", IMalcolmModel.class));
 
 		final IMalcolmModel model = IMalcolmModel.class.cast(imodel);
@@ -321,9 +296,9 @@ public class ScanRequestFactory {
 	private ProcessingRequest parseProcessingRequest() {
 		Map<String, Collection<Object>> requests = new HashMap<>();
 		getAcquisitionConfiguration().getProcessingRequest().stream()
-			.filter(a -> !ApplyNexusTemplatesRequest.class.isInstance(a))
+			.filter(a -> !(a instanceof ApplyNexusTemplatesRequest))
 			.forEach(p -> requests.put(p.getKey(), getProcessingRequestHandlerService().translateToCollection(p)));
-		ProcessingRequest pr = new ProcessingRequest();
+		var pr = new ProcessingRequest();
 		pr.setRequest(requests);
 		return pr;
 	}
