@@ -123,7 +123,22 @@ public class ScanRequestFactory {
 	private CompoundModel createCompoundModel() throws GDAException {
 		var acquisitionTemplate = AcquisitionTemplateFactory
 				.buildModelDocument(getScanpathDocument().getData());
+
+		// Coumponded models, like grids, cannot use MultiGenerators (like the InterpolatedCompondModel below)
+		if (AcquisitionTemplateType.TWO_DIMENSION_GRID.equals(getScanpathDocument().getModelDocument())) {
+			return createCompoundModel(acquisitionTemplate);
+		}
+
 		return createInterpolatedCompoundModel(acquisitionTemplate);
+	}
+
+	private CompoundModel createCompoundModel(AcquisitionTemplate modelDocument) {
+		var compoundModel = new CompoundModel();
+		compoundModel.setModels(new ArrayList<>());
+		compoundModel.setRegions(new ArrayList<>());
+		compoundModel.setMutators(new ArrayList<>());
+		compoundModel.setData(modelDocument.getIScanPointGeneratorModel(), modelDocument.getROI());
+		return compoundModel;
 	}
 
 	/**
