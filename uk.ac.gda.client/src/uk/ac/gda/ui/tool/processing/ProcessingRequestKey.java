@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
+import uk.ac.gda.api.acquisition.configuration.processing.DawnProcessingRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestBuilder;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
@@ -49,6 +50,10 @@ public enum ProcessingRequestKey {
 			ClientMessages.DIFFRACTION_CALIBRATION_MERGE,
 			ClientMessages.DIFFRACTION_CALIBRATION_MERGE_TP,
 			DiffractionCalibrationMergeRequest.Builder.class),
+	DAWN(DawnProcessingRequest.KEY,
+			ClientMessages.DAWN,
+			ClientMessages.DAWN_TP,
+			DawnProcessingRequest.Builder.class),
 	SAVU(SavuProcessingRequest.KEY,
 			ClientMessages.SAVU,
 			ClientMessages.SAVU_TP,
