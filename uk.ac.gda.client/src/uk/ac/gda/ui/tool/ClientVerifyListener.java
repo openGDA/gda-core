@@ -29,42 +29,52 @@ public final class ClientVerifyListener {
 	private ClientVerifyListener() {
 	}
 
-	public static final VerifyListener verifyOnlyIntegerText = verifyDigitText(true);
-	public static final VerifyListener verifyOnlyDoubleText = verifyDigitText(false);
+	public static final VerifyListener verifyOnlyIntegerText = verifyDigitText(true, false);
+	public static final VerifyListener verifyOnlyPositiveIntegerText = verifyDigitText(true, true);
+	public static final VerifyListener verifyOnlyDoubleText = verifyDigitText(false, false);
+	public static final VerifyListener verifyOnlyPositiveDoubleText = verifyDigitText(false, true);
 
 
-	private static VerifyListener verifyDigitText(boolean integerOnly) {
+//	private static VerifyListener verifyDigitText(boolean integerOnly) {
+//		return verifyDigitText(integerOnly, false);
+//	}
+
+	private static VerifyListener verifyDigitText(boolean integerOnly, boolean positiveOnly) {
 		return e -> {
 			Text widget = Text.class.cast(e.widget);
 			String currentText = widget.getText().trim();
-			String newText = (currentText.substring(0, e.start) + e.text + currentText.substring(e.end));
-			if (stringIsNumber(newText.trim(), integerOnly)) {
-				if (newText.trim().isEmpty()) {
-					widget.setText("0");
+			String newText = (currentText.substring(0, e.start) + e.text + currentText.substring(e.end)).trim();
+
+			if (stringIsNumber(newText, integerOnly, positiveOnly)) {
+				if (newText.isEmpty()) {
+					widget.setText("0.0");
+					if (integerOnly) {
+						widget.setText("0");
+					}
+					WidgetUtilities.hideDecorator(widget);
+					return;
 				}
-				WidgetUtilities.hideDecorator(widget);
 				return;
 			}
-//			widget.setToolTipText(TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED));
-//			WidgetUtilities.addErrorDecorator(widget,
-//					TomographyMessagesUtility.getMessage(TomographyMessages.ONLY_NUMBERS_ALLOWED)).show();
 			e.doit = false;
 		};
 	}
 
-	private static final boolean stringIsNumber(String text, boolean integerOnly) {
-		if (text == null) {
-			return false;
-		}
-		boolean isNumber = integerOnly ? stringIsIntegerNumber(text) : stringIsDoubleNumber(text);
-		return text.isEmpty() || isNumber;
-	}
-
 	public static final boolean stringIsDoubleNumber(String text) {
-		return text.matches("\\d*\\.\\d*") || stringIsIntegerNumber(text);
+		return stringIsNumber(text, false, false);
 	}
 
-	private static final boolean stringIsIntegerNumber(String text) {
-		return text.matches("\\d+");
+	private static final boolean stringIsNumber(String text, boolean integerOnly, boolean positiveOnly) {
+		var signed = "[+-]?";
+		var positiveOnlyRegEx = "[+]?";
+		var integerRegEx = "\\d*";
+		var doubleRegEx = "(\\d*)?(\\.)?(\\d*)?";
+
+		String matchSign = positiveOnly ? positiveOnlyRegEx : signed;
+		String matchType = integerOnly ? integerRegEx : doubleRegEx;
+
+		var regEx = String.format("\\s*?%s(%s)\\s*", matchSign, matchType);
+
+		return text.matches(regEx);
 	}
 }
