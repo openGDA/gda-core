@@ -31,7 +31,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
-import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
+import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyPositiveIntegerText;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -109,7 +109,7 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 		Label label = createClientLabel(parent, labelStyle, TOTAL_PROJECTIONS);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		totalProjections = createClientText(parent, textStyle, TOTAL_PROJECTIONS_TOOLTIP, verifyOnlyIntegerText);
+		totalProjections = createClientText(parent, textStyle, TOTAL_PROJECTIONS_TOOLTIP, verifyOnlyPositiveIntegerText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(totalProjections);
 	}

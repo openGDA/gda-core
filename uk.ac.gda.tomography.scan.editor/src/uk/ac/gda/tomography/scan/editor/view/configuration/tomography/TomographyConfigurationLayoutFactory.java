@@ -76,7 +76,8 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
-import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyIntegerText;
+import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyPositiveDoubleText;
+import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyPositiveIntegerText;
 import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
 
 import java.net.URL;
@@ -343,7 +344,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		Label label = createClientLabel(parent, labelStyle, TOTAL_PROJECTIONS);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		totalProjections = createClientText(parent, textStyle, TOTAL_PROJECTIONS_TOOLTIP, verifyOnlyIntegerText);
+		totalProjections = createClientText(parent, textStyle, TOTAL_PROJECTIONS_TOOLTIP, verifyOnlyPositiveIntegerText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(totalProjections);
 
@@ -358,7 +359,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		Label label = createClientLabel(parent, labelStyle, NUM_DARK);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(5, SWT.DEFAULT).applyTo(label);
 
-		numberDark = createClientText(parent, textStyle, NUM_DARK_TOOLTIP, verifyOnlyIntegerText);
+		numberDark = createClientText(parent, textStyle, NUM_DARK_TOOLTIP, verifyOnlyPositiveIntegerText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(numberDark);
 
 		createClientEmptyCell(parent, new Point(50, 10));
@@ -366,21 +367,21 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		label = createClientLabel(parent, labelStyle, DARK_EXPOSURE);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(20, SWT.DEFAULT).applyTo(label);
 
-		darkExposure = createClientText(parent, textStyle, DARK_EXPOSURE_TP, verifyOnlyIntegerText);
+		darkExposure = createClientText(parent, textStyle, DARK_EXPOSURE_TP, verifyOnlyPositiveDoubleText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(darkExposure);
 
 		label = createClientLabel(parent, labelStyle, NUM_FLAT);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(5, SWT.DEFAULT).applyTo(label);
 
-		numberFlat = createClientText(parent, textStyle, NUM_FLAT_TOOLTIP, verifyOnlyIntegerText);
+		numberFlat = createClientText(parent, textStyle, NUM_FLAT_TOOLTIP, verifyOnlyPositiveIntegerText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(numberFlat);
 
 		label = createClientLabel(parent, labelStyle, ClientMessagesUtility.getMessage(FLAT_EXPOSURE) + ":");
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).indent(20, SWT.DEFAULT).applyTo(label);
 
-		flatExposure = createClientText(parent, textStyle, FLAT_EXPOSURE_TP, verifyOnlyIntegerText);
+		flatExposure = createClientText(parent, textStyle, FLAT_EXPOSURE_TP, verifyOnlyPositiveDoubleText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).span(2, 1)
 				.applyTo(flatExposure);
 
@@ -429,7 +430,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		Label label = createClientLabel(container, SWT.NONE, NUM_REPETITIONS);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
-		numberRepetitions = createClientText(container, SWT.NONE, NUM_REPETITIONS_TOOLTIP, verifyOnlyIntegerText);
+		numberRepetitions = createClientText(container, SWT.NONE, NUM_REPETITIONS_TOOLTIP, verifyOnlyPositiveIntegerText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(numberRepetitions);
 
 		createClientEmptyCell(container, new Point(10, 10));
@@ -438,7 +439,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 		label.setText(label.getText() + " (s)");
 
-		waitingTime = createClientText(container, SWT.NONE, WAITING_TIME_TOOLTIP, verifyOnlyIntegerText);
+		waitingTime = createClientText(container, SWT.NONE, WAITING_TIME_TOOLTIP, verifyOnlyPositiveDoubleText);
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.CENTER).hint(DEFAULT_TEXT_SIZE).applyTo(waitingTime);
 
 		repeateMultipleScansType = createClientButton(container, SWT.RADIO, REPEATE_SCAN,
