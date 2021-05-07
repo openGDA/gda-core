@@ -219,11 +219,14 @@ public class SolsticeScanMonitor extends AbstractScannable<Object> implements IP
 
 
 		// create the scan finished dataset and set the initial value to false
-//		scanFinished = scanPointsCollection.initializeFixedSizeLazyDataset(
-//				FIELD_NAME_SCAN_FINISHED, new int[] { 1 }, Dataset.INT32);
-		// TODO: workaround for bug in HD5 loader, do not set size limit
+
+		//The -1 max shape here is critical for the DAWN live processing.
+		//DAWN caches any scalar values on loading that are unlikely to change
+		//for performance reasons, the -1 max shape stops DAWN caching the
+		//scan finished value, allowing the changing of the value to be seen.
+		//CHECK BEFORE CHANGING
 		scanFinishedDataset = new LazyWriteableDataset(FIELD_NAME_SCAN_FINISHED, Integer.class,
-				SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE, null);
+				SINGLE_SHAPE, new int[] { -1 }, SINGLE_SHAPE, null);
 		scanFinishedDataset.setFillValue(0);
 		scanPointsCollection.createDataNode(FIELD_NAME_SCAN_FINISHED, scanFinishedDataset);
 
