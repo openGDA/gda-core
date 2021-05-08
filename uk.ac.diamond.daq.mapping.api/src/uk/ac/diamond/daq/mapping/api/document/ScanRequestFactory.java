@@ -23,13 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -45,7 +44,6 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.eclipse.scanning.api.script.ScriptRequest;
 
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
@@ -64,7 +62,7 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.ScanpathDocumentRead
 import uk.ac.diamond.daq.mapping.api.document.model.AcquisitionTemplateFactory;
 import uk.ac.diamond.daq.mapping.api.document.preparers.ScanRequestPreparerFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
@@ -87,6 +85,7 @@ public class ScanRequestFactory {
 	public ScanRequest createScanRequest(IRunnableDeviceService runnableDeviceService) throws ScanningException {
 		// Populate the {@link ScanRequest} with the assembled objects
 		var scanRequest = new ScanRequest();
+		scanRequest.setTemplateFilePaths(new HashSet<>());
 
 		prepareScanRequestAccordingToScanType(scanRequest);
 
@@ -107,10 +106,13 @@ public class ScanRequestFactory {
 		addStartPosition(scanRequest);
 
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
-		scanRequest.setTemplateFilePaths(parseTemplateFilePaths());
-		scanRequest.setProcessingRequest(parseProcessingRequest());
-		Optional.ofNullable(parseBeforeScriptProcessingRequest())
-			.ifPresent(scanRequest::setBeforeScript);
+
+		scanRequest.setProcessingRequest(new ProcessingRequest());
+		scanRequest.getProcessingRequest().setRequest(new HashMap<>());
+		for (ProcessingRequestPair<?> request : getAcquisitionConfiguration().getProcessingRequest()) {
+			getProcessingRequestHandlerService().handle(request, scanRequest);
+		}
+
 		return scanRequest;
 	}
 
@@ -308,42 +310,6 @@ public class ScanRequestFactory {
 
 	private Collection<String> parseMonitorNamesPerPoint() {
 		return new ArrayList<>();
-	}
-
-	private Set<String> parseTemplateFilePaths() {
-		return getAcquisitionConfiguration().getProcessingRequest().stream()
-			.filter(ApplyNexusTemplatesRequest.class::isInstance)
-			.map(getProcessingRequestHandlerService()::translateToCollection)
-			.flatMap(Collection::stream)
-			.map(String.class::cast)
-			.collect(Collectors.toSet());
-	}
-
-	private ProcessingRequest parseProcessingRequest() {
-		Map<String, Collection<Object>> requests = new HashMap<>();
-		getAcquisitionConfiguration().getProcessingRequest().stream()
-			.filter(a -> !(a instanceof ApplyNexusTemplatesRequest))
-			.forEach(p -> requests.put(p.getKey(), getProcessingRequestHandlerService().translateToCollection(p)));
-		var pr = new ProcessingRequest();
-		pr.setRequest(requests);
-		return pr;
-	}
-
-	/**
-	 * As the ProcessingRequest has no concept of before/after acquisition is impossible to discriminate where the generated script should go.
-	 * At the same time is not good practice to select here the handler type in order to bind this method to the single implementation.
-	 * Consequently the decision to add the first generated ScriptRequest is clearly forced.
-	 * This however is mitigated by the fact the the
-	 * {@link ProcessingRequestHandlerService#generateScriptRequest(uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair)}
-	 * is deprecated and consequently any implementation relying on this method should be avoided
-	 * @return
-	 */
-	private ScriptRequest parseBeforeScriptProcessingRequest() {
-		return getAcquisitionConfiguration().getProcessingRequest().stream()
-			.map(p -> getProcessingRequestHandlerService().generateScriptRequest(p))
-			.filter(Objects::nonNull)
-			.findFirst()
-			.orElse(null);
 	}
 
 	private ProcessingRequestHandlerService getProcessingRequestHandlerService() {

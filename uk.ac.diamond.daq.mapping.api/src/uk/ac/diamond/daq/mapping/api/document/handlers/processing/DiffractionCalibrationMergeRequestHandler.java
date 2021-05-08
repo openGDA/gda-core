@@ -25,17 +25,19 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.script.ScriptRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
-import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 
@@ -45,19 +47,13 @@ import uk.ac.gda.core.tool.spring.DiffractionContextFile;
  * @author Maurizio Nagni
  */
 @Component
-class DiffractionCalibrationMergeRequestHandler extends ProcessingRequestHandler {
+class DiffractionCalibrationMergeRequestHandler implements ProcessingRequestHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(DiffractionCalibrationMergeRequestHandler.class);
 
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
 
-	@Override
-	Collection<Object> translateToCollection(ProcessingRequestPair<?> processingRequest) throws GDAException {
-		return Optional.ofNullable(processingRequest)
-			.filter(DiffractionCalibrationMergeRequest.class::isInstance)
-			.map(DiffractionCalibrationMergeRequest.class::cast)
-			.map(this::translateValue)
-			.orElse(Collections.emptyList());
-	}
 
 	private Collection<Object> translateValue(DiffractionCalibrationMergeRequest request) {
 		return request.getValue().stream()
@@ -65,21 +61,12 @@ class DiffractionCalibrationMergeRequestHandler extends ProcessingRequestHandler
 			.collect(Collectors.toList());
 	}
 
-	@Override
-	ScriptRequest createScriptRequest(ProcessingRequestPair<?> processingRequest) throws GDAException {
-		return Optional.ofNullable(processingRequest)
-					.filter(DiffractionCalibrationMergeRequest.class::isInstance)
-					.map(DiffractionCalibrationMergeRequest.class::cast)
-					.map(this::generateScriptRequest)
-					.orElse(null);
-	}
-
 	private ScriptRequest generateScriptRequest(DiffractionCalibrationMergeRequest request) {
 		URL calibrationFile = request.getValue().iterator().next();
 		String deviceName = request.getDeviceName();
 		String scriptBody = generateScript(calibrationFile, deviceName);
 		try {
-			File scriptfile = createFile();
+			var scriptfile = createFile();
 			writeScript(scriptBody, scriptfile);
 			return new ScriptRequest(scriptfile.getAbsolutePath());
 		} catch (IOException e) {
@@ -89,7 +76,7 @@ class DiffractionCalibrationMergeRequestHandler extends ProcessingRequestHandler
 	}
 
 	private File createFile() throws IOException {
-		File file = Paths.get(acquisitionFileContext.getDiffractionContext()
+		var file = Paths.get(acquisitionFileContext.getDiffractionContext()
 				.getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY).getFile(),
 				"update_calibration.py").toFile();
 		file.createNewFile();
@@ -115,5 +102,28 @@ class DiffractionCalibrationMergeRequestHandler extends ProcessingRequestHandler
 				.append("del nds\n")
 				.append("del calibration_merger")
 				.toString();
+	}
+
+	@Override
+	public boolean handle(ProcessingRequestPair<?> requestingPair, ScanRequest scanRequest) {
+		if (!(requestingPair instanceof DiffractionCalibrationMergeRequest)) {
+			return false;
+		}
+
+		internalHandling(requestingPair, scanRequest);
+
+		return true;
+	}
+
+	private void internalHandling(ProcessingRequestPair<?> requestingPair, ScanRequest scanRequest) {
+		Optional.ofNullable(requestingPair)
+			.map(DiffractionCalibrationMergeRequest.class::cast)
+			.filter(s -> scanRequest.getBeforeScript() == null)
+			.ifPresentOrElse(d -> {
+				scanRequest.getProcessingRequest().getRequest().putIfAbsent(requestingPair.getKey(), translateValue(d));
+				scanRequest.setBeforeScript(generateScriptRequest(d));
+			}, () -> {
+				logger.warn("Cannot set ScanRequest.BeforeScript because not empty.");
+			});
 	}
 }

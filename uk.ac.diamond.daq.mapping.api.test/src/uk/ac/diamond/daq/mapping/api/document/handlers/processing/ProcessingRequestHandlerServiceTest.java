@@ -19,9 +19,12 @@
 package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +67,12 @@ public class ProcessingRequestHandlerServiceTest {
 			}
 		};
 
-		Collection<Object> outCollection = service.translateToCollection(customPair);
-		Assert.assertEquals(0, outCollection.size());
+
+		ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setProcessingRequest(new ProcessingRequest());
+		scanRequest.getProcessingRequest().setRequest(new HashMap<>());
+		service.handle(customPair, scanRequest);
+
+		Assert.assertEquals(0, scanRequest.getProcessingRequest().getRequest().size());
 	}
 }
