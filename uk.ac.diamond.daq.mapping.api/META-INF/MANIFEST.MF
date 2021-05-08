@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  com.fasterxml.jackson.core.jackson-databind,
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.6.2",
  uk.ac.gda.common,
- org.eclipse.dawnsci.analysis.dataset;bundle-version="1.1.0"
+ org.eclipse.dawnsci.analysis.dataset;bundle-version="1.1.0",
+ org.eclipse.dawnsci.nexus;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.eclipse.dawnsci.plotting.api.region",
