@@ -20,6 +20,7 @@ package uk.ac.gda.client.livecontrol;
 
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
@@ -40,7 +41,8 @@ public class ScannablePositionerControl extends LiveControlBase {
 	private String displayName;
 	private String scannableName; // Used by the finder to get the scannable
 	private Boolean showStop; // Show stop by default
-	private String userUnits; // Use to override the scannable units (if required)
+	private String userUnits = ""; // Use to override the scannable units (if required)
+	private boolean unitDisplayOutsideTextBox = false; // control the location of unit
 	private Double increment; // The increment to set when then control is created Double allows null i.e. default
 	private int incrementTextWidth = 60; // Passed down to NudgePositionerComposite
 	private Boolean showIncrement;
@@ -49,7 +51,6 @@ public class ScannablePositionerControl extends LiveControlBase {
 	private int displayNameWidth;
 	private boolean nonEditableIncrement;
 	private boolean readOnly;
-
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
@@ -217,18 +218,16 @@ public class ScannablePositionerControl extends LiveControlBase {
 		}
 
 		if (scannable instanceof EnumPositioner) {
-			positionerComposite = new EnumPositionerComposite(composite, layoutStyle);
+			positionerComposite = new EnumPositionerComposite(composite, layoutStyle, unitDisplayOutsideTextBox);
 			if (boldLabel) {
-				((EnumPositionerComposite)positionerComposite).setLabelToBold();
+				((EnumPositionerComposite) positionerComposite).setLabelToBold();
 			}
 		} else {
 			// Create the NudgePositionerComposite and set the scannable
-			positionerComposite = new NudgePositionerComposite(composite, layoutStyle);
+			positionerComposite = new NudgePositionerComposite(composite, layoutStyle, unitDisplayOutsideTextBox);
 			NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
 
-			if (getUserUnits() != null) {
-				npc.setUserUnits(getUserUnits());
-			}
+			npc.setUserUnits(StringUtils.defaultString(userUnits));
 			if (getIncrement() != null) {
 				npc.setIncrement(getIncrement());
 			}
@@ -242,6 +241,7 @@ public class ScannablePositionerControl extends LiveControlBase {
 			if (nonEditableIncrement) {
 				npc.setFixedIncrementInput();
 			}
+
 		}
 
 		if (displayNameWidth > 0) {
@@ -265,7 +265,7 @@ public class ScannablePositionerControl extends LiveControlBase {
 	 */
 	public void toggleIncrementControlDisplay() {
 		if (positionerComposite instanceof NudgePositionerComposite) {
-			NudgePositionerComposite npc=(NudgePositionerComposite)positionerComposite;
+			NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
 			if (npc.isIncrementControlVisible()) {
 				npc.hideIncrementControl();
 				showIncrement = false;
@@ -276,12 +276,30 @@ public class ScannablePositionerControl extends LiveControlBase {
 		}
 	}
 
+	public void toggleShowStop() {
+		if (positionerComposite instanceof NudgePositionerComposite) {
+			NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
+			if (npc.isStopButtonVisible()) {
+				npc.hideStopButton();
+				showStop = false;
+			} else {
+				npc.showStopButton();
+				showStop = true;
+			}
+		}
+	}
+
+
 	@Override
 	public String toString() {
 		return "ScannablePositionerControl [displayName=" + displayName + ", scannableName=" + scannableName
 				+ ", showStop=" + showStop + ", userUnits=" + userUnits + ", increment=" + increment
 				+ ", incrementTextWidth=" + incrementTextWidth + ", showIncrement=" + showIncrement + ", boldLabel="
 				+ boldLabel + ", positionerComposite=" + positionerComposite + "]";
+	}
+
+	public void setUnitDisplayOutsideTextBox(boolean unitDisplayOutsideTextBox) {
+		this.unitDisplayOutsideTextBox = unitDisplayOutsideTextBox;
 	}
 
 }

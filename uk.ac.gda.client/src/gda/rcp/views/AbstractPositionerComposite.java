@@ -76,13 +76,19 @@ public abstract class AbstractPositionerComposite extends Composite {
 	// Update job
 	private Job updateReadbackJob;
 
+	protected boolean unitDisplayOutsideTextBox = false;
+
 	/**
 	 * @param parent the parent composite on which to draw this one
 	 * @param style SWT.HORIZONTAL or SWT.VERTICAL will define a horizontal or vertical (default) layout
 	 */
-	public AbstractPositionerComposite(Composite parent, int style) {
-		super(parent, style & ~SWT.HORIZONTAL & ~SWT.VERTICAL);
+	protected AbstractPositionerComposite(Composite parent, int style) {
+		this(parent, style, false);
+	}
 
+	protected AbstractPositionerComposite(Composite parent, int style, boolean unitDisplayOutsideTextBox) {
+		super(parent, style & ~SWT.HORIZONTAL & ~SWT.VERTICAL);
+		this.unitDisplayOutsideTextBox = unitDisplayOutsideTextBox;
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
