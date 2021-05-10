@@ -93,6 +93,9 @@ public class LivePlottingComposite extends Composite {
 	private IDataListener dataShapeChangeListener;
 	private IDataListener titleUpdateListener;
 
+	private IRegion xCrossHairRegion = null;
+	private IRegion yCrossHairRegion = null;
+
 	/**
 	 * Simple constructor for use in wizard pages etc. where there are no action bars or workspace part
 	 * <p>
@@ -257,25 +260,35 @@ public class LivePlottingComposite extends Composite {
 	}
 
 	public void setCrosshairs(double xPos, double yPos) throws Exception {
+		removeCrosshairs();
 		if (connected) {
 			final int[] maxShape = dataset.getMaxShape();
 			if (maxShape != null && maxShape.length > 1) {
 				final Color crosshairColour = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 
 				// X-axis crosshair
-				final IRegion xRegion = plottingSystem
+				xCrossHairRegion = plottingSystem
 						.createRegion(RegionUtils.getUniqueName("Crosshair X", plottingSystem), RegionType.XAXIS_LINE);
-				xRegion.setRegionColor(crosshairColour);
-				xRegion.setROI(new XAxisLineBoxROI(xPos, 0, 6, maxShape[1], 0));
-				plottingSystem.addRegion(xRegion);
+				xCrossHairRegion.setRegionColor(crosshairColour);
+				xCrossHairRegion.setROI(new XAxisLineBoxROI(xPos, 0, 6, maxShape[1], 0));
+				plottingSystem.addRegion(xCrossHairRegion);
 
 				// Y-axis crosshair
-				final IRegion yRegion = plottingSystem
+				yCrossHairRegion = plottingSystem
 						.createRegion(RegionUtils.getUniqueName("Crosshair Y", plottingSystem), RegionType.YAXIS_LINE);
-				yRegion.setRegionColor(crosshairColour);
-				yRegion.setROI(new YAxisBoxROI(0, yPos, maxShape[0], 6, 0));
-				plottingSystem.addRegion(yRegion);
+				yCrossHairRegion.setRegionColor(crosshairColour);
+				yCrossHairRegion.setROI(new YAxisBoxROI(0, yPos, maxShape[0], 6, 0));
+				plottingSystem.addRegion(yCrossHairRegion);
 			}
+		}
+	}
+
+	public void removeCrosshairs() {
+		if (xCrossHairRegion != null) {
+			plottingSystem.removeRegion(xCrossHairRegion);
+		}
+		if (yCrossHairRegion != null) {
+			plottingSystem.removeRegion(yCrossHairRegion);
 		}
 	}
 

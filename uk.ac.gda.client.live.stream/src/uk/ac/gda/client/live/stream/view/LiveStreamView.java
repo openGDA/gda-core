@@ -441,10 +441,14 @@ public class LiveStreamView extends ViewPart {
 			page.hideView(this);
 		}
 		try {
-			page.showView(LiveStreamView.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
+			page.showView(getID(), secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
 			logger.error("Error activating Live MJPEG view with secondary ID {}", secondaryId, e);
 		}
+	}
+
+	protected String getID() {
+		return LiveStreamView.ID;
 	}
 
 	/**
@@ -564,5 +568,13 @@ public class LiveStreamView extends ViewPart {
 			return null;
 		}
 		return plottingComposite.getITrace();
+	}
+
+	protected LivePlottingComposite getPlottingComposite() {
+		return plottingComposite;
+	}
+
+	protected void setPlottingComposite(LivePlottingComposite plottingComposite) {
+		this.plottingComposite = plottingComposite;
 	}
 }

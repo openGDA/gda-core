@@ -98,19 +98,21 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 		xanesEdgeParameters.setVisitId(InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID());
 
-		// Check that lines to track are set
-		final LinesToTrackEntry linesToTrackEntry = xanesEdgeParameters.getLinesToTrack();
-		if (linesToTrackEntry == null) {
-			MessageDialog.openError(getShell(), "No lines to track", "You must specify the lines to track");
-			return;
-		}
-
 		// Add XANES parameters as metadata to the ScanRequest, so they appear in the Nexus file
 		final ScanMetadata xanesMetadata = new ScanMetadata(MetadataType.ENTRY);
-		xanesMetadata.addField("line", linesToTrackEntry.getLine());
-		xanesMetadata.addField("file_paths", new ArrayList<String>(linesToTrackEntry.getFilePaths()));
 		xanesMetadata.addField("tracking_method", xanesEdgeParameters.getTrackingMethod());
 		xanesMetadata.addField("visit_id", xanesEdgeParameters.getVisitId());
+
+		final LinesToTrackEntry linesToTrackEntry = xanesEdgeParameters.getLinesToTrack();
+		if (linesToTrackEntry == null || linesToTrackEntry.getLine() == null || linesToTrackEntry.getLine().isEmpty()) {
+			// The entry for a blank "lines to track" contains an unmodifiable Collection, which causes problems in
+			// marshalling, so make sure it is set null.
+			xanesEdgeParameters.setLinesToTrack(null);
+			xanesMetadata.addField("line", "None");
+		} else {
+			xanesMetadata.addField("line", linesToTrackEntry.getLine());
+			xanesMetadata.addField("file_paths", new ArrayList<String>(linesToTrackEntry.getFilePaths()));
+		}
 
 		final List<ScanMetadata> scanMetadata = new ArrayList<>(scanRequest.getScanMetadata());
 		scanMetadata.add(xanesMetadata);
