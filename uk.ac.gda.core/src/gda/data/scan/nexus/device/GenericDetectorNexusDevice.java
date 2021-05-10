@@ -30,6 +30,7 @@ import org.eclipse.january.dataset.SliceND;
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
+import gda.device.DeviceException;
 
 /**
  * An instance of this class wraps a {@link Detector} to implement {@link INexusDevice}, for generic detectors,
@@ -38,6 +39,8 @@ import gda.device.Detector;
  * This code is derived from {@link NexusDataWriter}.makeGenericDetector.
  */
 public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter {
+
+	private static final int[] SCALAR_DATA_DIMENSIONS = new int[0];
 
 	private ILazyWriteableDataset writableDataset;
 
@@ -62,8 +65,8 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 	@Override
 	protected void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException {
 		try {
-			final int[] dataDimensions = getDetector().getDataDimensions();
-			final int datasetRank = info.getRank() + dataDimensions.length; // always 1?
+			final int[] dataDimensions = getDataDimensionsToWrite();
+			final int datasetRank = info.getRank() + dataDimensions.length; // scan rank + rank of data at each point
 			writableDataset = detGroup.initializeLazyDataset(NXdetector.NX_DATA, datasetRank, Double.class);
 			final String floatFill = LocalProperties.get("gda.nexus.floatfillvalue", "nan"); // Do we need this property? see DAQ-3175
 			writableDataset.setFillValue(floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill));
@@ -72,6 +75,12 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 		} catch (Exception e) {
 			throw new NexusException("Could not create dataset for detector " + getName(), e);
 		}
+	}
+
+	private int[] getDataDimensionsToWrite() throws DeviceException {
+		// a 1-dimensional array of size 1 is written as if it was scalar
+		final int[] dataDims = getDetector().getDataDimensions();
+		return dataDims.length == 1 && dataDims[0] == 1 ? SCALAR_DATA_DIMENSIONS : dataDims;
 	}
 
 	@Override
