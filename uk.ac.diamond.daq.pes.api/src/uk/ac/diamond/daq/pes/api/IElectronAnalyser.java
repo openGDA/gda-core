@@ -241,6 +241,22 @@ public interface IElectronAnalyser extends Device {
 	 */
 	void setIterations(int iterations) throws Exception;
 
+	/**
+	 * Gets the step size
+	 *
+	 * @return step size
+	 * @throws DeviceException If there is a problem with EPICS communication
+	 */
+	public double getEnergyStep() throws Exception;
+
+	/**
+	 * Sets the step size
+	 *
+	 * @param stepSize The step size
+	 * @throws DeviceException If there is a problem with EPICS communication
+	 */
+	public void setEnergyStep(double stepSize) throws Exception;
+
 	double[] getSpectrum() throws Exception;
 
 	double[] getImage() throws Exception;
@@ -255,7 +271,7 @@ public interface IElectronAnalyser extends Device {
 
 	void setAcquisitionMode(String acquisitionMode) throws Exception;
 
-	void start() throws Exception;
+	void startAcquiring() throws Exception;
 
 	short getDetectorState() throws Exception;
 

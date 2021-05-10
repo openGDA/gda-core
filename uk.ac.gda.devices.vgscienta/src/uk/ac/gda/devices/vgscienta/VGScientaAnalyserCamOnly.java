@@ -656,11 +656,13 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return controller.getEndEnergy();
 	}
 
-	public void setEnergyStep(Double value) throws Exception {
+	@Override
+	public void setEnergyStep(double value) throws Exception {
 		controller.setEnergyStep(value);
 	}
 
-	public Double getEnergyStep() throws Exception {
+	@Override
+	public double getEnergyStep() throws Exception {
 		return controller.getEnergyStep();
 	}
 
@@ -946,8 +948,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	}
 
 	@Override
-	public void start() throws Exception {
-		getCollectionStrategy().collectData();
+	public void startAcquiring() throws Exception {
+		getAdBase().startAcquiring();
 	}
 
 	@Override

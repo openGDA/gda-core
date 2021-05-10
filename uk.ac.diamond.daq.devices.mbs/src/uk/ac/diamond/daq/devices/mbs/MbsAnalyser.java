@@ -316,12 +316,12 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
-	public double getStepSize() throws DeviceException {
+	public double getEnergyStep() throws DeviceException {
 		return controller.getStepSize();
 	}
 
 	@Override
-	public void setStepSize(double stepSize) throws DeviceException {
+	public void setEnergyStep(double stepSize) throws DeviceException {
 		controller.setStepSize(stepSize);
 	}
 
@@ -358,6 +358,11 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			Thread.currentThread().interrupt(); // Re-interrupt the thread.
 			throw new DeviceException("Interrupted while waiting for acquisition to complete", exception);
 		}
+	}
+
+	@Override
+	public void startAcquiring() throws DeviceException {
+		controller.startAcquiring();
 	}
 
 	public void stopAcquiring() throws DeviceException {
@@ -399,7 +404,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setNumberfSteps(getNumberOfSteps());
 		completedRegion.setNumberOfDitherSteps(getNumberOfDitherSteps());
 		completedRegion.setSpinOffset(getSpinOffset());
-		completedRegion.setStepSize(getStepSize());
+		completedRegion.setStepSize(getEnergyStep());
 		completedRegion.setImage(get2DImageArray());
 		completedRegion.setRegionStartX(getRegionStartX());
 		completedRegion.setRegionStartY(getRegionStartY());
@@ -601,11 +606,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	public double[] getExtIO(int length) throws Exception {
 		logger.warn("No external I/O.");
 		return new double[0];
-	}
-
-	@Override
-	public void start() throws Exception {
-		mbsCollectionStrategy.collectData();
 	}
 
 	@Override

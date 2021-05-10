@@ -186,21 +186,5 @@ public interface IMbsAnalyser extends IElectronAnalyser {
 	 */
 	public void setSpinOffset(double spinOffset) throws DeviceException;
 
-	/**
-	 * Gets the step size
-	 *
-	 * @return step size
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	public double getStepSize() throws DeviceException;
-
-	/**
-	 * Sets the step size
-	 *
-	 * @param stepSize The step size
-	 * @throws DeviceException If there is a problem with EPICS communication
-	 */
-	public void setStepSize(double stepSize) throws DeviceException;
-
 	public double[][] get2DImageArray() throws DeviceException;
 }

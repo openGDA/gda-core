@@ -36,12 +36,12 @@ class ARPESRun:
             # Change to single frame mode
             self.analyser.setSingleImageMode()
             # Set short acquire time
-            self.analyser.adBase.setAcquireTime(0.100)
+            self.analyser.setCollectionTime(0.100)
             # acquire to get one frame and recover from an error condition back to idle
-            self.analyser.adBase.startAcquiring()
+            self.analyser.startAcquiring()
             time.sleep(1.5)
             # Check i recovering has worked if not tell users
-            if(self.analyser.adBase.getDetectorState_RBV() != 0):
+            if(self.analyser.getDetectorState() != 0):
                 msg = "Analyser recovery failed, check EPICS!"
                 logger.error(msg)
                 print msg
@@ -72,9 +72,6 @@ class ARPESRun:
         self.analyser.setEnergyStep(self.bean.getStepEnergy() / 1000.0)
         # Set the exposure time and iterations
         self.analyser.setCollectionTime(self.bean.getTimePerStep())
-        
-        # Temporary remove iterations as VGanalyserAnalyserCamOnly only doesn't support it yet
-        # This won't work properly on i05 HR as it is this needs resolving!
         self.analyser.setIterations(self.bean.getIterations())
 
         # Check if its configure only
