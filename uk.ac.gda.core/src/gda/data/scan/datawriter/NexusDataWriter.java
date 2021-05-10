@@ -1505,50 +1505,17 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		}
 
 		List<SelfCreatingLink> links = new ArrayList<>();
-		if (detector.getExtraNames().length > 0) {
-			// Detectors with multiple extra names can act like counter-timers
+		// even make data area for detectors that first create their own files
+		int[] dataDim = generateDataDim(true, scanDimensions, dataDimensions);
 
-			int[] dataDim = generateDataDim(true, scanDimensions, null);
-			boolean first = true;
-			for (String extra : detector.getExtraNames()) {
+		// make the data array to store the data...
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Double.class, dataDim, null, null);
+		lazy.setFillValue(getFillValue(Double.class));
+		DataNode data = file.createData(detectorGroup, lazy);
+		NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, detectorName));
 
-				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(extra, Double.class, dataDim, null, null);
-				lazy.setFillValue(getFillValue(Double.class));
-				DataNode data = file.createData(detectorGroup, lazy);
-
-				NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, extra));
-
-				// Get a link ID to this data set
-				SelfCreatingLink detectorID = new SelfCreatingLink(data);
-
-				path.setLength(0);
-				NexusUtils.addToAugmentPath(path, entryName, NexusExtractor.NXEntryClassName);
-				NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDataClassName);
-				// If this is the first channel then we need to create (and
-				// open) the NXdata item and link to the scannables.
-				final GroupNode dataGroup = file.getGroup(path.toString(), first);
-				if (first) {
-					first = false;
-					makeAxesLinks(dataGroup);
-				}
-
-				// Make a link to the data array
-				detectorID.create(file, dataGroup);
-			}
-
-		} else {
-			// even make data area for detectors that first create their own files
-			int[] dataDim = generateDataDim(true, scanDimensions, dataDimensions);
-
-			// make the data array to store the data...
-			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Double.class, dataDim, null, null);
-			lazy.setFillValue(getFillValue(Double.class));
-			DataNode data = file.createData(detectorGroup, lazy);
-			NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", detectorName, detectorName));
-
-			// Get a link ID to this data set.
-			links.add(new SelfCreatingLink(data));
-		}
+		// Get a link ID to this data set.
+		links.add(new SelfCreatingLink(data));
 
 		// Make and open NXdata
 		path.setLength(0);
