@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
@@ -51,6 +52,7 @@ public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<I
 	protected void makeCommonOptionsControls(Composite parent) {
 		makeAlternatingControl(parent);
 		makeContinuousControl(parent);
+		if (isBoundingFitCapable()) makeBoundsFitControl(parent);
 	}
 
 	/**
@@ -73,6 +75,24 @@ public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<I
 		alternatingLabel.setText("Alternating");
 		Button alternatingButton = new Button(parent, SWT.CHECK);
 		binder.bind(alternatingButton, "alternating", getModel());
+	}
+
+	private void makeBoundsFitControl(Composite parent) {
+		Label boundsFitLabel = new Label(parent, SWT.NONE);
+		boundsFitLabel.setText("Half-step buffer");
+		Button boundsButton = new Button(parent, SWT.CHECK);
+		boundsButton.setToolTipText("Should the model step in half a step from all edges, to allow continuous motion to never leave the region?");
+		Binding boundsBind = binder.bind(boundsButton, "boundsToFit", getModel());
+		boundsButton.setSelection(Boolean.getBoolean("gda.mapping.boundsToFit"));
+		// Default could be True or False
+		boundsBind.updateTargetToModel();
+	}
+
+	private boolean isBoundingFitCapable() {
+		if (getModel() instanceof IBoundsToFit) {
+			return ((IBoundsToFit) getModel()).isBoundsToFit();
+		}
+		return false;
 	}
 
 	/**
