@@ -6,6 +6,7 @@ import java.util.Set;
 
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.stage.ScannableProperties;
 
 /**
  * Describes which acquisition engine and detectors are associated to a specific acquisition context. <p>
@@ -26,6 +27,8 @@ public class AcquisitionConfigurationProperties {
 	 * The engine associated with this acquisition
 	 */
 	private AcquisitionEngineDocument engine;
+
+	private List<AcquisitionTemplateConfiguration> templates;
 
 	/**
 	 * A collection of {@link CameraConfigurationProperties#getId()} associated with this acquisition type.
@@ -70,6 +73,14 @@ public class AcquisitionConfigurationProperties {
 
 	public void setEngine(AcquisitionEngineDocument engine) {
 		this.engine = engine;
+	}
+
+	public List<AcquisitionTemplateConfiguration> getTemplates() {
+		return templates;
+	}
+
+	public void setTemplates(List<AcquisitionTemplateConfiguration> templates) {
+		this.templates = templates;
 	}
 
 	public Set<String> getCameras() {
