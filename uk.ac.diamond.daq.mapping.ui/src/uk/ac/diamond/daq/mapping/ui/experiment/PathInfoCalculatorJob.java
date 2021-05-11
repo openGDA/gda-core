@@ -19,159 +19,70 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
-
-import javax.inject.Inject;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.e4.core.services.events.IEventBroker;
-import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
-import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IMapPathModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
 
 public class PathInfoCalculatorJob extends Job {
 
-	public static final String PATH_CALCULATION_TOPIC = "uk/ac/diamond/daq/mapping/client/events/PathCalculationEvent";
-	static final int MAX_POINTS_IN_ROI = 100000; // 100,000
+	private static final Logger logger = LoggerFactory.getLogger(PathInfoCalculatorJob.class);
 
-	private String pathCalculationTopic = PATH_CALCULATION_TOPIC;
+	private final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
 
-	@Inject
-	private IPointGeneratorService pointGeneratorFactory;
-	@Inject
-	private IEventBroker eventBroker;
+	private final Consumer<PathInfo> onComplete;
 
-	private IScanPointGeneratorModel scanPathModel;
-	private IMappingScanRegionShape scanRegion;
+	private PathInfoRequest request;
 
-	private Consumer<PathInfo> consumer;
-
-	PathInfoCalculatorJob() {
+	public PathInfoCalculatorJob(
+			final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator,
+			final Consumer<PathInfo> onComplete) {
 		super("Calculating scan path");
 		setPriority(SHORT);
-		consumer = pathInfo -> eventBroker.post(pathCalculationTopic, pathInfo);
+		this.pathInfoCalculator = Objects.requireNonNull(pathInfoCalculator);
+		this.onComplete = Objects.requireNonNull(onComplete);
 	}
 
-	public void setPathInfoConsumer(Consumer<PathInfo> consumer) {
-		this.consumer = consumer;
-	}
-
-	public void setScanPathModel(IScanPointGeneratorModel scanPathModel) {
-		this.scanPathModel = scanPathModel;
-	}
-
-	public void setScanRegion(IMappingScanRegionShape scanRegion) {
-		this.scanRegion = scanRegion;
+	public void setPathInfoRequest(PathInfoRequest request) {
+		this.request = request;
 	}
 
 	@Override
 	public IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Calculating points for scan path", IProgressMonitor.UNKNOWN);
 
-		// Deduces the names of the X and Y axes from the scan model. Defaults to "x" and "y"
-		// if it can't find any
-		String xAxisName = "x";
-		String yAxisName = "y";
-		if (scanPathModel instanceof IMapPathModel) {
-			IMapPathModel mapPathModel = (IMapPathModel) scanPathModel;
-			xAxisName = mapPathModel.getxAxisName();
-			yAxisName = mapPathModel.getyAxisName();
-		}
-
 		try {
-			PathInfo pathInfo = calculatePathInfo(
-					xAxisName,
-					yAxisName);
+			logger.info("Starting calculation");
+			Future<PathInfo> future = pathInfoCalculator.calculatePathInfoAsync(request);
+
+			// Poll the asynchronous computation until finished, cancel it if requested
+			// by the user
+			while (!future.isDone()) {
+				if (monitor.isCanceled()) {
+					logger.info("Calculation cancelled");
+					future.cancel(false);
+					return Status.CANCEL_STATUS;
+				}
+			}
 			monitor.done();
 
 			// The consumer decides how to handle the path info event
-			consumer.accept(pathInfo);
+			PathInfo pathInfo = future.get();
+			logger.info("Calculation complete, {}", pathInfo);
+			onComplete.accept(pathInfo);
 		} catch (Exception e) {
 			return new Status(IStatus.WARNING, "uk.ac.diamond.daq.mapping.ui", "Error calculating scan path", e);
 		}
 		return Status.OK_STATUS;
 	}
-
-    private PathInfo calculatePathInfo(
-    		String xAxisName,
-    		String yAxisName) throws Exception {
-		// Invokes ScanPointGenerator to create the points
-		final IPointGenerator<CompoundModel> pointGenerator = pointGeneratorFactory
-				.createGenerator(scanPathModel, scanRegion.toROI());
-
-		// Computes metadata that PathInfo requires (see PathInfo fields)
-		return calculatePathInfo(
-				pointGenerator,
-				xAxisName,
-				yAxisName);
-	}
-
-    private PathInfo calculatePathInfo(
-    		Iterable<IPosition> points,
-    		String xAxisName,
-    		String yAxisName) {
-    	// Initialise with sensible starting values
-    	int pointCount = 0;
-		double smallestXStep = Double.MAX_VALUE;
-		double smallestYStep = Double.MAX_VALUE;
-		double smallestAbsStep = Double.MAX_VALUE;
-		List<Double> xCoordinates = new ArrayList<>();
-		List<Double> yCoordinates = new ArrayList<>();
-		double lastX = Double.NaN;
-		double lastY = Double.NaN;
-
-		// Iterates through the points, stores the x and y positions in separate
-		// lists and keeps track of:
-		//  - The number of points
-		//  - The smallest distance between two consecutive x positions
-		//  - The smallest distance between two consecutive y positions
-		//  - The smallest distance between two consecutive positions in 2D space
-		for (IPosition point : points) {
-			pointCount++;
-
-			if (pointCount > 1) {
-				// Updates the smallest distance tracking variables if the distance
-				// between this point and the last is smaller than the smallest
-				// distance we've seen so far. Do this for x, y and 2D space.
-				double thisXStep = Math.abs(point.getValue(xAxisName) - lastX);
-				double thisYStep = Math.abs(point.getValue(yAxisName) - lastY);
-				double thisAbsStep = Math.sqrt(Math.pow(thisXStep, 2) + Math.pow(thisYStep, 2));
-				if (thisXStep > 0) {
-					smallestXStep = Math.min(smallestXStep, thisXStep);
-				}
-				if (thisYStep > 0) {
-					smallestYStep = Math.min(smallestYStep, thisYStep);
-				}
-				smallestAbsStep = Math.min(smallestAbsStep, thisAbsStep);
-			}
-
-			// Ensures no more than MAX_POINTS_IN_ROI points are inserted into
-			// the PathInfo. Still need to iterate through the rest of the points
-			// to accurately calculate step sizes and number of points.
-			lastX = point.getValue(xAxisName);
-			lastY = point.getValue(yAxisName);
-			if (xCoordinates.size() <= MAX_POINTS_IN_ROI) {
-				xCoordinates.add(Double.valueOf(lastX));
-				yCoordinates.add(Double.valueOf(lastY));
-			}
-		}
-
-		return new PathInfo(
-				pointCount,
-				smallestXStep,
-				smallestYStep,
-				smallestAbsStep,
-				xCoordinates,
-				yCoordinates);
-    }
 }

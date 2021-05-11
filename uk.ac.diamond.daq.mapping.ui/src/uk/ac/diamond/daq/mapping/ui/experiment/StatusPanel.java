@@ -19,17 +19,11 @@
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.points.GeneratorException;
-import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
-import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -38,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 
 public class StatusPanel extends AbstractMappingSection {
 
@@ -45,13 +40,8 @@ public class StatusPanel extends AbstractMappingSection {
 	private String message;
 	private PathInfo pathInfo;
 	private IMappingExperimentBean mappingBean;
-	private final IPointGeneratorService pointGeneratorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
-
-	public StatusPanel() {
-		pointGeneratorService = ServiceHolder.getGeneratorService();
-	}
 
 	@Override
 	public void createControls(Composite parent) {
@@ -89,12 +79,16 @@ public class StatusPanel extends AbstractMappingSection {
 	}
 
 	private String getNumberOfPointsString() {
-		int totalPoints = getScanPoints();
-		if (totalPoints > PathInfoCalculatorJob.MAX_POINTS_IN_ROI) {
-			return String.format(" (Only displaying the first %,d points)",
-								PathInfoCalculatorJob.MAX_POINTS_IN_ROI);
-		}
-		return "Map points: " + totalPoints;
+		int innerPoints = pathInfo.getInnerPointCount();
+		int totalPoints = pathInfo.getTotalPointCount();
+		int actualPoints = pathInfo.getReturnedPointCount();
+
+		String pointsMessage = String.format("Map points: %,d",
+				totalPoints);
+		if (actualPoints < innerPoints)
+			pointsMessage += String.format(" (Only displaying the first %,d points)",
+								actualPoints);
+		return pointsMessage;
 	}
 
 	private String getExposureString() {
@@ -112,42 +106,8 @@ public class StatusPanel extends AbstractMappingSection {
 				pathInfo.getFormattedSmallestAbsStep());
 	}
 
-	private int getScanPoints() {
-		if (mappingBean == null || mappingBean.getScanDefinition().getMappingScanRegion().getScanPath() == null) {
-			// When starting the client from a fresh workspace,
-			// the mapping view won't have been fully initialised at this point.
-			// We'll return zero now; this method will be called again when the scan path is set.
-			return 0;
-		}
-
-		int points2d = get2DPoints();
-		int otherAxesPoints = getOuterScannables()
-								.stream()
-								.filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan)
-								.map(IScanModelWrapper<IScanPointGeneratorModel>::getModel)
-								.filter(Objects::nonNull)
-								.mapToInt(this::calculatePathPoints)
-								.reduce(1, (a, b) -> a * b);
-
-		return points2d * otherAxesPoints;
-	}
-
 	protected List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
 		return mappingBean.getScanDefinition().getOuterScannables();
-	}
-
-	private int calculatePathPoints(IScanPathModel outerPath) {
-		try {
-			IPointGenerator<?> generator = pointGeneratorService.createGenerator(outerPath);
-			return generator.size();
-		} catch (GeneratorException e) {
-			logger.error("Could not get size of outer path '{}'", outerPath.getName(), e);
-			return 1;
-		}
-	}
-
-	private int get2DPoints() {
-		return pathInfo.getPointCount();
 	}
 
 	void setPathInfo(PathInfo pathInfo) {
@@ -169,6 +129,6 @@ public class StatusPanel extends AbstractMappingSection {
 		return mappingBean.getDetectorParameters().stream()
 				.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 				.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
-				.max().orElse(0) * getScanPoints();
+				.max().orElse(0) * pathInfo.getTotalPointCount();
 	}
 }

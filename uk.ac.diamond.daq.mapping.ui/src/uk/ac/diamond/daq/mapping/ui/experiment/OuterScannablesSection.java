@@ -195,10 +195,11 @@ public class OuterScannablesSection extends AbstractMappingSection {
 			deleteScannableButton.addListener(SWT.Selection, event -> deleteScannable(scannableAxisParameters));
 
 			// when the include in scan checkbox is changed we need to revalidate the model
-			// as this determines the severity of the validation status.
+			// as this determines the severity of the validation status. We also call for the
+			// scan path to be recalculated in case any change to the preview is needed
 			checkBoxBinding.getModel().addChangeListener(evt -> {
 				scanPathEditor.revalidate();
-				updateStatusLabel();
+				updatePoints();
 			});
 		}
 
@@ -215,7 +216,11 @@ public class OuterScannablesSection extends AbstractMappingSection {
 
 	@SuppressWarnings("unused")
 	private void handleScanPathUpdate(Object source, Object arg) {
-		updateStatusLabel();
+		updatePoints();
+	}
+
+	private void updatePoints() {
+		getService(RegionAndPathController.class).updatePoints();
 	}
 
 	private void deleteScannable(IScanModelWrapper<IScanPointGeneratorModel> scannable) {

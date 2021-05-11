@@ -73,6 +73,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 
@@ -87,6 +88,8 @@ import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
 public class MappingExperimentView implements IAdaptable {
 
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
+
+	public static final String PATH_CALCULATION_TOPIC = "uk/ac/diamond/daq/mapping/client/events/PathCalculationEvent";
 
 	private static final String STATE_KEY_MAPPING_BEAN_JSON = "mappingBean.json";
 
@@ -285,7 +288,7 @@ public class MappingExperimentView implements IAdaptable {
 
 	@Inject
 	@Optional
-	private void updateUiWithPathInfo(@UIEventTopic(PathInfoCalculatorJob.PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
+	private void updateUiWithPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
 		statusPanel.setPathInfo(pathInfo);
 	}
 

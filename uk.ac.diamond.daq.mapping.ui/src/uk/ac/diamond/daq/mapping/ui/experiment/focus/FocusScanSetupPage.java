@@ -43,13 +43,13 @@ import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.conversion.Converter;
 import org.eclipse.core.databinding.conversion.NumberToStringConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.MetadataPlotUtils;
-import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.january.dataset.IDataset;
@@ -98,12 +98,16 @@ import uk.ac.diamond.daq.mapping.api.EnergyFocusBean;
 import uk.ac.diamond.daq.mapping.api.FocusScanBean;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBeanProvider;
+import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
 import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper;
+import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 import uk.ac.gda.client.NumberUnitsWidgetProperty;
 
@@ -230,11 +234,11 @@ class FocusScanSetupPage extends WizardPage {
 	}
 
 	private PathInfoCalculatorJob createPathCalculationJob() {
-		final PathInfoCalculatorJob job = ContextInjectionFactory.make(PathInfoCalculatorJob.class,
-				injectionContext);
-		job.setPathInfoConsumer(pathInfo -> uiSync.asyncExec(() -> plottingController.plotPath(pathInfo)));
-		job.setScanRegion(focusScanBean.getLineRegion());
-		job.setScanPathModel(linePathModel);
+		IPathInfoCalculator<PathInfoRequest> pathInfoCalculator =
+				new PointGeneratorPathInfoCalculator();
+		final PathInfoCalculatorJob job = new PathInfoCalculatorJob(
+				pathInfoCalculator,
+				this::plotPath);
 
 		job.addJobChangeListener(new JobChangeAdapter() {
 
@@ -246,14 +250,19 @@ class FocusScanSetupPage extends WizardPage {
 			@Override
 			public void done(IJobChangeEvent event) {
 				uiSync.asyncExec(() -> {
-					if (!event.getResult().isOK()) { // TODO: set status message?
+					if (event.getResult() == Status.CANCEL_STATUS)
+						logger.info("Scan path calculation cancelled");
+					else if (!event.getResult().isOK())  // TODO: set status message?
 						logger.warn("Error in scan path calculation", event.getResult().getException());
-					}
 				});
 			}
 		});
 
 		return job;
+	}
+
+	private void plotPath(PathInfo pathInfo) {
+		uiSync.asyncExec(() -> plottingController.plotPath(pathInfo));
 	}
 
 	@Override
@@ -517,6 +526,11 @@ class FocusScanSetupPage extends WizardPage {
 
 	private void updatePoints() {
 		pathCalculationJob.cancel();
+		// Ensure the job is using the latest model and ROI
+		pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+				.withScanPathModel(linePathModel)
+				.withScanRegion(focusScanBean.getLineRegion().toROI())
+				.build());
 		pathCalculationJob.schedule();
 	}
 

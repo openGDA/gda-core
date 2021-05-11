@@ -25,10 +25,12 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
@@ -38,8 +40,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.e4.core.contexts.ContextInjectionFactory;
-import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -62,9 +63,14 @@ import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IMappingRegionManager;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
+import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.region.CentredRectangleMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
+import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
 
@@ -223,6 +229,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	private BeamPositionPlotter beamPositionPlotter;
 	private IMappingRegionManager mappingRegionManager;
 	private Set<Class<?>> scanRegionClasses;
+	private IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
 	private PathInfoCalculatorJob pathCalculationJob;
 	private IMappingScanRegionShape scanRegionShape = null;
 	private IScanPointGeneratorModel scanPathModel = null;
@@ -275,11 +282,21 @@ public class RegionAndPathController extends AbstractMappingController {
 
 		mappingRegionManager = getService(IMappingRegionManager.class);
 		initialiseScanRegionClasses(mappingRegionManager);
+		initialisePathInfoCalculator();
 		pathCalculationJob = createPathCalculationJob();
 		setScanRegionShape(getScanRegionFromBean().getRegion());	// Initialize the shape and
 		scanPathModel = getScanRegionFromBean().getScanPath();		// path to default values
 		pathBeanPropertyChangeListener = evt -> updatePoints();
 		listener = new RegionSelectorListener();
+	}
+
+	private void initialisePathInfoCalculator() {
+		// If pathInfoCalculator has not been set by Spring config, set it to
+		// an instance of PointGeneratorPathInfoCalculator by default
+		pathInfoCalculator = Objects.requireNonNullElseGet(
+				pathInfoCalculator,
+				PointGeneratorPathInfoCalculator::new);
+		logger.info("Initialised path info calculator: {}", pathInfoCalculator);
 	}
 
 	public void detachViewUpdater(Consumer<RegionPathState> viewUpdater) {
@@ -426,6 +443,10 @@ public class RegionAndPathController extends AbstractMappingController {
 		return mappingRegionManager.getValidPaths(scanRegionShape);
 	}
 
+	public void setPathInfoCalculator(IPathInfoCalculator<PathInfoRequest> pathInfoCalculator) {
+		this.pathInfoCalculator = pathInfoCalculator;
+	}
+
 	/**
 	 * Creates as default sized region of the currently selected type at the current position of the mapped stage. The
 	 * dimensions of the default region are obtained from the region definition in the Spring config and the local and
@@ -511,10 +532,26 @@ public class RegionAndPathController extends AbstractMappingController {
 		checkInitialised();
 		pathCalculationJob.cancel();
 		if (scanPathModel != null && scanRegionShape != null) {
-			pathCalculationJob.setScanPathModel(scanPathModel);
-			pathCalculationJob.setScanRegion(scanRegionShape);
+			pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+					.withScanPathModel(scanPathModel)
+					.withScanRegion(scanRegionShape.toROI())
+					.withOuterScannables(getOuterScannables())
+					.build());
+
 			pathCalculationJob.schedule();
 		}
+	}
+
+	private List<IScanPointGeneratorModel> getOuterScannables() {
+		IMappingExperimentBean mappingBean = getMappingBean();
+		return mappingBean
+				.getScanDefinition()
+				.getOuterScannables()
+				.stream()
+				.filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan)
+				.map(IScanModelWrapper<IScanPointGeneratorModel>::getModel)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 
 
@@ -562,7 +599,8 @@ public class RegionAndPathController extends AbstractMappingController {
 	 * @return	A reference to the created {@link Job}
 	 */
 	private PathInfoCalculatorJob createPathCalculationJob() {
-		PathInfoCalculatorJob job = ContextInjectionFactory.make(PathInfoCalculatorJob.class, getService(IEclipseContext.class));
+		PathInfoCalculatorJob job = new PathInfoCalculatorJob(
+				pathInfoCalculator, this::publishPathInfoEvent);
 		UISynchronize uiSync = getService(UISynchronize.class);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			@Override
@@ -587,6 +625,13 @@ public class RegionAndPathController extends AbstractMappingController {
 			}
 		});
 		return job;
+	}
+
+	private void publishPathInfoEvent(PathInfo pathInfo) {
+		IEventBroker eventBroker = getService(IEventBroker.class);
+		eventBroker.post(
+				MappingExperimentView.PATH_CALCULATION_TOPIC,
+				pathInfo);
 	}
 
 	/**
@@ -646,7 +691,9 @@ public class RegionAndPathController extends AbstractMappingController {
 		};
 
 		Dictionary<String, String> props = new Hashtable<>();
-		props.put(org.osgi.service.event.EventConstants.EVENT_TOPIC,PathInfoCalculatorJob.PATH_CALCULATION_TOPIC);
+		props.put(
+				org.osgi.service.event.EventConstants.EVENT_TOPIC,
+				MappingExperimentView.PATH_CALCULATION_TOPIC);
 		ctx.registerService(EventHandler.class, handler, props);
 	}
 }
