@@ -100,9 +100,9 @@ public interface ISpecsPhoibosAnalyser extends Findable, IObservable {
 	SpecsPhoibosRegion getRegion();
 
 	/**
-	 * Starts the analyser acquiring in continuous mode, this is intended for use in alignment. This is non blocking
+	 * Starts the analyser acquiring in single image mode, this is intended for use in alignment. This is non blocking
 	 */
-	void startContinuous();
+	void startAlignment(double passEnergy, double centreEnergy, double exposureTime);
 
 	void stopAcquiring();
 
