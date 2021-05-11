@@ -31,7 +31,7 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.appender.NexusMetadataAppender;
+import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
@@ -53,7 +53,7 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 			detMetadata.put(NXdetector.NX_DESCRIPTION, "description of " + detModel.getName());
 			detMetadata.put(NXdetector.NX_LAYOUT, "area");
 			detMetadata.put(NXdetector.NX_DETECTOR_NUMBER, i + 1l);
-			final NexusMetadataAppender<?> metadataAppender = new NexusMetadataAppender<>(detModel.getName());
+			final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detModel.getName());
 			metadataAppender.setNexusMetadata(detMetadata);
 			ServiceHolder.getNexusDeviceService().register(metadataAppender);
 			assertSame(metadataAppender, ServiceHolder.getNexusDeviceService().getDecorator(detModel.getName()));
@@ -91,7 +91,7 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 	private void checkMalcolmDetectorMetadata(NXinstrument instrument, String name) throws NexusException {
 		final NXdetector detector = instrument.getDetector(name);
 		assertNotNull(detector);
-		NexusMetadataAppender<?> metadataAppender = (NexusMetadataAppender<?>) ServiceHolder.getNexusDeviceService().getDecorator(name);
+		SimpleNexusMetadataAppender<?> metadataAppender = (SimpleNexusMetadataAppender<?>) ServiceHolder.getNexusDeviceService().getDecorator(name);
 		assertNotNull(metadataAppender);
 		for (Map.Entry<String, Object> metadataEntry : metadataAppender.getNexusMetadata().entrySet()) {
 			// annoyingly there doesn't seem to be a way to get the scalar value of a field

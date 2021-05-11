@@ -28,7 +28,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXinstrument;
-import org.eclipse.dawnsci.nexus.appender.NexusMetadataAppender;
+import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -56,7 +56,7 @@ public class DetectorMetadataTest extends NexusTest {
 		metadata.put(NXdetector.NX_LOCAL_NAME, "mandelbrot");
 		metadata.put(NXdetector.NX_TYPE, "dummy");
 		metadata.put(NXdetector.NX_DETECTOR_READOUT_TIME, 0.015);
-		final NexusMetadataAppender<?> metadataAppender = new NexusMetadataAppender<>(detector.getName());
+		final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detector.getName());
 		metadataAppender.setNexusMetadata(metadata);
 
 		ServiceHolder.getNexusDeviceService().register(metadataAppender);
