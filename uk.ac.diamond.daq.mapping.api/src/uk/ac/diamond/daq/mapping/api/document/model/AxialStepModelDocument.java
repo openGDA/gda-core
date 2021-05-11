@@ -34,7 +34,7 @@ import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Describes a model where an acquisition is performed on a single {@code Scannable}, that is on a single axis, and a

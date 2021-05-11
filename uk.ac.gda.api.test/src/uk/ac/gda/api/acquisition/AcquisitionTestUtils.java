@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 public class AcquisitionTestUtils {
 	public static final <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {

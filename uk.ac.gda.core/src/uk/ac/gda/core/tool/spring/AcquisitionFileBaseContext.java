@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.experiment.structure.URLFactory;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Encapsulates the application state so can be shared throughout the application.

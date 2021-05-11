@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 

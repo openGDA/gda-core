@@ -18,7 +18,7 @@
 
 package uk.ac.diamond.daq.experiment.api.structure;
 
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 public class ExperimentControllerException extends GDAException {
 

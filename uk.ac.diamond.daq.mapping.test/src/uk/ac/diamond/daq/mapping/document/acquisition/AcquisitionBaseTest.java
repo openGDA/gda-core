@@ -32,7 +32,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.document.DocumentTestBase;
 import uk.ac.gda.api.acquisition.Acquisition;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 public class AcquisitionBaseTest extends DocumentTestBase {
 

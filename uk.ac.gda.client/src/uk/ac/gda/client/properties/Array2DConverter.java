@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**

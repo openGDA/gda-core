@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.deserializer.MutatorDeserializer;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Tests for the {@link MutatorDeserializer}

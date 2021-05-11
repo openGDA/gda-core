@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Handler for {@link SavuProcessingRequest} devices
