@@ -64,7 +64,7 @@ import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.TestUtils;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Collection of utility functions to assist testing.
