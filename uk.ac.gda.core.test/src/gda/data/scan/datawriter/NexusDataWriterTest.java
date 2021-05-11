@@ -62,7 +62,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.appender.NexusMetadataAppender;
+import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.dawnsci.nexus.appender.impl.NexusFileAppenderService;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
@@ -153,7 +153,7 @@ public class NexusDataWriterTest {
 				super.createAndRegisterAppender();
 
 				// also create and register an appender for the monitor
-				final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(MONITOR_NAME);
+				final SimpleNexusMetadataAppender<NXdetector> appender = new SimpleNexusMetadataAppender<>(MONITOR_NAME);
 				final Map<String, Object> metadata = new HashMap<>();
 				metadata.put("name", MONITOR_NAME);
 				appender.setNexusMetadata(metadata);
@@ -599,7 +599,7 @@ public class NexusDataWriterTest {
 	}
 
 	public static void createAndRegisterAppender(String name, Map<String, Object> metadata) {
-		final NexusMetadataAppender<NXdetector> appender = new NexusMetadataAppender<>(name);
+		final SimpleNexusMetadataAppender<NXdetector> appender = new SimpleNexusMetadataAppender<>(name);
 		appender.setNexusMetadata(metadata);
 		ServiceHolder.getNexusFileAppenderService().register(appender);
 	}
