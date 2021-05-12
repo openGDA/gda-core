@@ -32,6 +32,7 @@ import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.device.NexusMetadataAppender;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -50,12 +51,8 @@ public class DetectorMetadataTest extends NexusTest {
 	}
 
 	@Test
-	public void testScanWithAddedDetectorMetadata() throws Exception {
-		final Map<String, Object> metadata = new HashMap<>();
-		metadata.put(NXdetector.NX_DESCRIPTION, "an example dummy detector that uses the mandelbrot set");
-		metadata.put(NXdetector.NX_LOCAL_NAME, "mandelbrot");
-		metadata.put(NXdetector.NX_TYPE, "dummy");
-		metadata.put(NXdetector.NX_DETECTOR_READOUT_TIME, 0.015);
+	public void testScanWithSimpleNexusMetadataAppender() throws Exception {
+		final Map<String, Object> metadata = createExpectedMetadata();
 		final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detector.getName());
 		metadataAppender.setNexusMetadata(metadata);
 
@@ -68,6 +65,33 @@ public class DetectorMetadataTest extends NexusTest {
 
 		// Check we reached ready (it will normally throw an exception on error)
 		checkNexusFile(scanner, shape, metadata); // Step model is +1 on the size
+	}
+
+	@Test
+	public void testScanWithNexusMetadataAppender() throws Exception {
+		final Map<String, Object> metadata = createExpectedMetadata();
+		final NexusMetadataAppender<?> metadataAppender = new NexusMetadataAppender<>();
+		metadataAppender.setName(detector.getName());
+		metadata.entrySet().forEach(entry -> metadataAppender.addScalarField(entry.getKey(), entry.getValue()));
+
+		ServiceHolder.getNexusDeviceService().register(metadataAppender);
+
+		final int[] shape = { 8, 5 };
+		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
+		assertScanNotFinished(getNexusRoot(scanner).getEntry());
+		scanner.run(null);
+
+		// Check we reached ready (it will normally throw an exception on error)
+		checkNexusFile(scanner, shape, metadata); // Step model is +1 on the size
+	}
+
+	private Map<String, Object> createExpectedMetadata() {
+		final Map<String, Object> metadata = new HashMap<>();
+		metadata.put(NXdetector.NX_DESCRIPTION, "an example dummy detector that uses the mandelbrot set");
+		metadata.put(NXdetector.NX_LOCAL_NAME, "mandelbrot");
+		metadata.put(NXdetector.NX_TYPE, "dummy");
+		metadata.put(NXdetector.NX_DETECTOR_READOUT_TIME, 0.015);
+		return metadata;
 	}
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] shape, Map<String, Object> metadata) throws Exception {

@@ -91,11 +91,22 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 		@SuppressWarnings("unchecked")
 		final N nexusObject = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 
+		appendNodes(nexusObject);
+
+		return nexusObject;
+	}
+
+	/**
+	 * Appends the configured nodes to an existing nexus object. Use this method
+	 * instead of {@link #createNode()} if the group node already exists.
+	 *
+	 * @param nexusObject
+	 * @throws NexusException
+	 */
+	public void appendNodes(N nexusObject) throws NexusException {
 		for (MetadataNode node : nodes.values()) {
 			nexusObject.addNode(node.getName(), node.createNode());
 		}
-
-		return nexusObject;
 	}
 
 }

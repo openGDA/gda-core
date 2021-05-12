@@ -22,6 +22,9 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.api.INameable;
 
+/**
+ * An object that knows how to create a {@link Node}, see subtypes for details, e.g. {@link ScalarField}
+ */
 public interface MetadataNode extends INameable {
 
 	/**
