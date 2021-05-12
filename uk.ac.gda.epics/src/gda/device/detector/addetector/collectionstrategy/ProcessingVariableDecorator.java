@@ -20,18 +20,23 @@ package gda.device.detector.addetector.collectionstrategy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.expression.Expression;
+import org.springframework.context.ApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import gda.configuration.properties.LocalProperties;
 import gda.epics.connection.EpicsController;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import gda.util.functions.ThrowingFunction;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
@@ -42,12 +47,11 @@ import gov.aps.jca.TimeoutException;
  *
  *<p>
  * This can be used to configure a PV of different device that does not appear in the scan command.
- * For an example use case see https://jira.diamond.ac.uk/browse/I06-456.
  *<p>
  * It supports Spring <a href="https://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/expressions.html">SPEL</a>
- * expression String in bean definition which depends on area detector acquire time.
- * In order to evaluate the expression dynamically, plain String text expression must be used in bean definition,
- * Not the expression template surrounded by #{..}.
+ * expression in bean definition.
+ * In order to evaluate the expression lazily and dynamically, plain String text expression must be used in bean definition,
+ * NOT the expression surrounded by #{..}.
  *<br/>
  * This decorator must be inside of {@link ConfigureAcquireTimeDecorator} in collection strategy bean definition
  * if the specified expression depends on acquire time (see example below). Otherwise it can be at any place in the decorator chain before {@link SoftwareStartStop}.
@@ -59,51 +63,12 @@ import gov.aps.jca.TimeoutException;
  * Example usage:
  * <pre>
  * {@code
- <bean id="pcocontroller" class="gda.device.detector.pco.DummyPCODriverController" init-method="afterPropertiesSet">
- <bean id="pcoArm" class="gda.device.detector.pco.collectionstrategy.PCOArmDecorator">
-		<property name="restoreArm" value="true"/>
-		<property name="pcoController" ref="pcocontroller"/>
-		<property name="decoratee">
-			<bean class="gda.device.detector.addetector.collectionstrategy.SoftwareStartStop">
-				<property name="adBase" ref="pco_adbase" />
-				<property name="restoreAcquireState" value="true"/>
-				<property name="stopAquiringInPreparation" value="false"/>
-			</bean>
-		</property>
-	</bean>
-   	<bean id="kbRasteringFreq" class="gda.device.detector.addetector.collectionstrategy.ProcessingVariableDecorator">
-   		<property name="pvName" value="BL06I-OP-KBM-01:VFM:FPITCH:FREQ"/>
-   		<property name="expression" value="1/#acquireTime lt 10.0 ? 1/#acquireTime : 10.0"/>
-   		<property name="enabled" value="true"/>
-   		<property name="restorePvValue" value="true"/>
-		<property name="decoratee" ref="pcoArm"/>
-   	</bean>
-	<bean id="pcotriggermode_soft" class="gda.device.detector.pco.collectionstrategy.PCOTriggerModeDecorator">
-		<property name="restoreTriggerMode" value="true"/>
-		<property name="triggerMode" value="SOFT"/> <!-- possible values: AUTO, SOFT, EXTSOFT, EXTPULSE, EXTONLY -->
-		<property name="decoratee" ref="kbRasteringFreq"/>
-	</bean>
-	<bean id="pcoacquireperiod_soft" class="gda.device.detector.pco.collectionstrategy.PCOConfigureAcquireTimeAcquirePeriodDecorator">
-		<property name="restoreAcquireTime" value="true" />
-		<property name="restoreAcquirePeriod" value="true"/>
-		<property name="acquirePeriod" value="0.1"/>
-		<property name="decoratee" ref="pcotriggermode_soft"/>
-	</bean>
-	<bean id="pcoimagemodesingle" class="gda.device.detector.pco.collectionstrategy.PCOImageModeDecorator">
-		<property name="restoreNumImagesAndImageMode" value="true"/>
-		<property name="imageMode" value="SINGLE"/> <!-- possible modes: SINGLE, MULTIPLE, CONTINUOUS-->
-		<property name="decoratee" ref="pcoacquireperiod_soft"/>
-	</bean>
-	<bean id="pcoCollectionStrategy" class="gda.device.detector.pco.collectionstrategy.PCOStopDecorator">
-		<property name="restoreAcquireState" value="true"/>
-		<property name="decoratee">
-			<bean class="gda.device.detector.pco.collectionstrategy.PCOADCModeDecorator">
-				<property name="restoreADCMode" value="true"/>
-				<property name="adcMode" value="OneADC"/> <!-- possible values: OneADC, TwoADC -->
-				<property name="pcoController" ref="pcocontroller"/>
-				<property name="decoratee" ref="pcoimagemodesingle"/>
-			</bean>
-		</property>
+	<bean id="kbRasteringPeriod" class="gda.device.detector.addetector.collectionstrategy.ProcessingVariableDecorator">
+		<property name="pvName" value="BL06I-EA-SGEN-01:PERIOD" />
+   		<property name="expression" value="@medipix_adbase.getAcquireTime() gt 0.1 ? @medipix_adbase.getAcquireTime() : 0.1"/>
+		<property name="enabled" value="true" />
+		<property name="restorePvValue" value="true" />
+		<property name="decoratee" ref="softstatrstop"/>
 	</bean>
 	}
  *</pre>
@@ -113,11 +78,11 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	/**
 	 * EPICS Utility
 	 */
-	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	/**
 	 * Map that stores the channel against the PV name
 	 */
-	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
+	private Map<String, Channel> channelMap = new HashMap<>();
 
 	private String pvName;
 	private String expression;
@@ -125,16 +90,17 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	private boolean restorePvValue = false;
 	private double pvValueSaved=1.0;
 
+	@Inject
+	private ApplicationContext appContext;
+
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 
 		if (isEnabled()) {
-			double acquireTime=getAdBase().getAcquireTime();
 			ExpressionParser parser=new SpelExpressionParser();
-			StandardEvaluationContext context = new StandardEvaluationContext();
-			context.setVariable("acquireTime", acquireTime);
-			Expression exp = parser.parseExpression(getExpression());
-			double newValue = exp.getValue(context, Double.class);
+			var context = new StandardEvaluationContext();
+			context.setBeanResolver((ec, name) -> Finder.find(name) != null ? Finder.find(name) :  appContext.getBean(name));
+			double newValue = parser.parseExpression(getExpression()).getValue(context, Double.class);
 
 			if (LocalProperties.isDummyModeEnabled()) {
 				print(String.format("set %s to %f", getPvName(), newValue));
@@ -191,40 +157,32 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 		getDecoratee().restoreState();
 	}
 
-	public double getPvValue() throws Exception {
-		try {
-			return EPICS_CONTROLLER.cagetDouble(getChannel(getPvName()));
-		} catch (Exception ex) {
-			logger.error("{}: Cannot getPvValue", getName());
-			throw ex;
-		}
+	public double getPvValue() throws TimeoutException, CAException, InterruptedException {
+		return EPICS_CONTROLLER.cagetDouble(getChannel(getPvName()).orElseThrow());
 	}
 
-	public void setPvValue(double value) throws Exception {
-		try {
-			EPICS_CONTROLLER.caput(getChannel(getPvName()), value);
-		} catch (Exception ex) {
-			logger.error("{}: Cannot setPvValue", getName());
-			throw ex;
-		}
+	public void setPvValue(double value) throws CAException, InterruptedException {
+		print(String.format("set %s to %f", getPvName(), value));
+		EPICS_CONTROLLER.caput(getChannel(getPvName()).orElseThrow(), value);
 	}
 
-	private Channel getChannel(String fullPvName) throws CAException, TimeoutException {
-		Channel channel = channelMap.get(fullPvName);
-		if (channel == null) {
-			//only create channel if not already existed!
-			try {
-				channel = EPICS_CONTROLLER.createChannel(fullPvName);
-			} catch (CAException cae) {
-				logger.warn("Problem creating channel", cae);
-				throw cae;
-			} catch (TimeoutException te) {
-				logger.warn("Problem creating channel", te);
-				throw te;
-			}
-			channelMap.put(fullPvName, channel);
+	/**
+	 * Lazy initialize channels and store them in a map for retrieval later. Intentionally designed to cope with channel creation failure. This way it will not
+	 * block data collection from other PVs.
+	 *
+	 * @param pv
+	 * @return channel - Optional<Channel>
+	 */
+	private Optional<Channel> getChannel(String pv) {
+		ThrowingFunction<String, Channel> f = EPICS_CONTROLLER::createChannel;
+		Channel channel = null;
+		try {
+			channel = channelMap.computeIfAbsent(pv, f);
+			logger.trace("Created channel for PV: {}", pv);
+		} catch (RuntimeException e) {
+			logger.error("Cannot create CA Channel for {}", pv, e);
 		}
-		return channel;
+		return Optional.ofNullable(channel);
 	}
 
 	public String getPvName() {
