@@ -20,6 +20,7 @@ package uk.ac.gda.ui.tool.document;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -62,17 +63,7 @@ public class DocumentFactory {
 			var acquisitionParameters = new ScanningParameters();
 			configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
-
-			List<AcquisitionTemplateConfiguration> templates = properties.getAcquisitions().stream()
-				.filter(a -> a.getType().equals(propertyType))
-				.findFirst()
-				.map(AcquisitionConfigurationProperties::getTemplates)
-				.orElseGet(Collections::emptyList);
-
-			templates.stream()
-				.filter(a -> templateType.equals(a.getTemplate()))
-				.findFirst()
-				.map(this::buildScanpathBuilder)
+			buildScanpathBuilder(propertyType, templateType)
 				.map(ScanpathDocument.Builder::build)
 				.ifPresent(acquisitionParameters::setScanpathDocument);
 
@@ -91,8 +82,20 @@ public class DocumentFactory {
 		};
 	}
 
+	public Optional<ScanpathDocument.Builder> buildScanpathBuilder(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
+		List<AcquisitionTemplateConfiguration> templates = properties.getAcquisitions().stream()
+				.filter(a -> a.getType().equals(propertyType))
+				.findFirst()
+				.map(AcquisitionConfigurationProperties::getTemplates)
+				.orElseGet(Collections::emptyList);
 
-	public ScanpathDocument.Builder buildScanpathBuilder(AcquisitionTemplateConfiguration acquisitionTemplate) {
+		return templates.stream()
+			.filter(a -> templateType.equals(a.getTemplate()))
+			.findFirst()
+			.map(this::buildScanpathBuilder);
+	}
+
+	private ScanpathDocument.Builder buildScanpathBuilder(AcquisitionTemplateConfiguration acquisitionTemplate) {
 		var builder = new ScanpathDocument.Builder();
 		builder.withModelDocument(acquisitionTemplate.getTemplate());
 		builder.withScannableTrackDocuments(getScannableTrackDocument(acquisitionTemplate.getTracks()));

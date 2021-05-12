@@ -21,10 +21,11 @@ package uk.ac.diamond.daq.mapping.api.document;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -37,25 +38,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
-import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
-import uk.ac.gda.client.properties.acquisition.AcquisitionTypeProperties;
+import uk.ac.gda.common.exception.GDAException;
+import uk.ac.gda.util.io.FileUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ScanRequestFactoryTestConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScanRequestFactoryTest {
+
+	@Autowired
+	private DocumentMapper documentMapper;
 
 	private IRunnableDeviceService runnableService = Mockito.mock(IRunnableDeviceService.class);
 
@@ -68,15 +68,15 @@ public class ScanRequestFactoryTest {
 	}
 
 	/**
-	 * @throws ScanningException thrown when the ScanningAcquisition defines a MALCOLM engine
-	 * however the found detectorModel is not a malcolmModel
+	 * @throws uk.ac.gda.api.exception.GDAException
+	 * @throws Exception
 	 */
 	@Test(expected = ScanningException.class)
-	public void testWrongDetectorModelFile() throws ScanningException {
+	public void testWrongDetectorModelFile() throws Exception {
 		IDetectorModel model = Mockito.mock(IDetectorModel.class);
 		when(detectorModel.getModel()).thenReturn(model);
 
-		new ScanRequestFactory(newScanningAcquisition())
+		new ScanRequestFactory(loadScanningAcquisition())
 			.createScanRequest(runnableService);
 	}
 
@@ -85,7 +85,7 @@ public class ScanRequestFactoryTest {
 		IMalcolmModel model = Mockito.mock(IMalcolmModel.class);
 		when(detectorModel.getModel()).thenReturn(model);
 
-		ScanRequestFactory scanRequestFactory = new ScanRequestFactory(newScanningAcquisition());
+		ScanRequestFactory scanRequestFactory = new ScanRequestFactory(loadScanningAcquisition());
 		ScanRequest scanRequest = scanRequestFactory.createScanRequest(runnableService);
 
 		Assert.assertTrue(scanRequest.getTemplateFilePaths().isEmpty());
@@ -96,7 +96,7 @@ public class ScanRequestFactoryTest {
 		IMalcolmModel model = Mockito.mock(IMalcolmModel.class);
 		when(detectorModel.getModel()).thenReturn(model);
 
-		ScanningAcquisition scanningAcquisition = newScanningAcquisition();
+		ScanningAcquisition scanningAcquisition = loadScanningAcquisition();
 
 		URL file1 = new URL("file:/lev1/lev2");
 		URL file2 = new URL("file:/lev3/lev4");
@@ -115,38 +115,16 @@ public class ScanRequestFactoryTest {
 	}
 
 
-	private ScanningAcquisition newScanningAcquisition() {
-			ScanningAcquisition newConfiguration = new ScanningAcquisition();
-			newConfiguration.setUuid(UUID.randomUUID());
-			ScanningConfiguration configuration = new ScanningConfiguration();
-			newConfiguration.setAcquisitionConfiguration(configuration);
+	private ScanningAcquisition loadScanningAcquisition() throws Exception {
+		return deserialiseDocument("test/resources/scanningAcquisition.json",
+				ScanningAcquisition.class);
+	}
 
-			AcquisitionEngineDocument acquisitionEngineDocument = new AcquisitionEngineDocument();
-			acquisitionEngineDocument.setType(AcquisitionEngineType.MALCOLM);
-			acquisitionEngineDocument.setId("testMalcolm");
-
-			newConfiguration.setAcquisitionEngine(acquisitionEngineDocument);
-
-			ScanningParameters acquisitionParameters = new ScanningParameters();
-			String acquisitionType = "diffraction";
-			ScanpathDocument.Builder scanpathBuilder =
-					AcquisitionTypeProperties.getAcquisitionProperties(acquisitionType)
-					.buildScanpathBuilder(AcquisitionTemplateType.ONE_DIMENSION_LINE);
-			List<ScannableTrackDocument> scanableTracks = new ArrayList<>();
-			ScannableTrackDocument scannableTrackDocument = (new ScannableTrackDocument.Builder())
-			.withAxis("x")
-			.withPoints(10)
-			.withStart(0d)
-			.withStop(20)
-			.build();
-			scanableTracks.add(scannableTrackDocument);
-			scanpathBuilder.withScannableTrackDocuments(scanableTracks);
-			acquisitionParameters.setScanpathDocument(scanpathBuilder.build());
-
-			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
-
-			configuration.setProcessingRequest(null);
-
-			return newConfiguration;
+	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws Exception {
+		try {
+			return documentMapper.convertFromJSON(FileUtils.readFile(new File(resourcePath)).toString(), clazz);
+		} catch (MalformedURLException e) {
+			throw new GDAException(e);
+		}
 	}
 }
