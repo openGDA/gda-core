@@ -161,21 +161,29 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	/**
 	 * A generic detector that extends DummyDetector to return an fixed-length double array.
-	 * Used by {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector()}
+	 * Used by {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector_scalarData()}
+	 * and {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector_arrayData()}
 	 */
 	protected static class DummyGenericDetector extends DummyDetector {
 
-		private static final int ARRAY_LENGTH = 6;
-		private static final int[] DATA_DIMENSIONS = new int[] { ARRAY_LENGTH };
+		private int dataSize;
+
+		public DummyGenericDetector(int dataSize) {
+			this.dataSize = dataSize;
+		}
 
 		@Override
 		protected Object acquireData() {
-			return random.doubles(ARRAY_LENGTH, 0, getMaxDataValue()).toArray();
+			if (dataSize == 1) {
+				return random.nextDouble(); // return as a scalar value
+			}
+
+			return random.doubles(dataSize, 0, getMaxDataValue()).toArray();
 		}
 
 		@Override
 		public int[] getDataDimensions() throws DeviceException {
-			return DATA_DIMENSIONS;
+			return new int[] { dataSize };
 		}
 
 		@Override
@@ -639,10 +647,17 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	@Test
-	public void concurrentScanGenericDetector() throws Exception {
-		detector = new DummyGenericDetector();
+	public void concurrentScanGenericDetector_scalarData() throws Exception {
+		detector = new DummyGenericDetector(1);
 		detector.setName("Generic Detector");
-		concurrentScan(detector, DetectorType.GENERIC, "GenericDetector");
+		concurrentScan(detector, DetectorType.GENERIC, "GenericDetector_scalarData");
+	}
+
+	@Test
+	public void concurrentScanGenericDetector_arrayData() throws Exception {
+		detector = new DummyGenericDetector(6);
+		detector.setName("Generic Detector");
+		concurrentScan(detector, DetectorType.GENERIC, "GenericDetector_arrayData");
 	}
 
 	@Test
@@ -912,7 +927,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 	}
 
-	private void checkGenericDetector(NXdetector detGroup) throws DatasetException {
+	private void checkGenericDetector(NXdetector detGroup) throws Exception {
 		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(
 				NXdetector.NX_DATA, NXdetector.NX_DESCRIPTION, NXdetector.NX_TYPE, "id"));
 		assertThat(detGroup.getDescriptionScalar(), is(equalTo("An example generic detector")));
@@ -921,7 +936,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		final DataNode dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
 		assertThat(dataNode, is(notNullValue()));
-		checkDatasetWritten(dataNode.getDataset(), DummyGenericDetector.DATA_DIMENSIONS);
+		checkDatasetWritten(dataNode.getDataset(), getDataDimensionsToWrite(detector));
+	}
+
+	private int[] getDataDimensionsToWrite(Detector detector) throws DeviceException {
+		// a 1-dimensional array of size 1 is written as if it was scalar
+		final int[] dataDims = detector.getDataDimensions();
+		return dataDims.length == 1 && dataDims[0] == 1 ? EMPTY_SHAPE : dataDims;
 	}
 
 	private void checkFileCreatorDetector(NXdetector detGroup) throws DatasetException {
