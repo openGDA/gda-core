@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
-import org.python.core.PyString;
 
 import gda.device.DeviceException;
 
@@ -195,12 +194,12 @@ public class DummyScannableTest {
 
 	@Test
 	public void test__str__() {
-		assertEquals(new PyString(OUTPUTSTRING), theScannable.__str__());
+		assertEquals(OUTPUTSTRING, theScannable.__str__());
 	}
 
 	@Test
 	public void test__repr__() {
-		assertEquals(new PyString(OUTPUTSTRING), theScannable.__repr__());
+		assertEquals(OUTPUTSTRING, theScannable.__repr__());
 	}
 
 	/**

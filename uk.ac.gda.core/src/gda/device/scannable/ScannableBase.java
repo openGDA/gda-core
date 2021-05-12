@@ -713,8 +713,8 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 *
 	 * @return the result of the toString method
 	 */
-	public PyString __str__() {
-		return new PyString(toFormattedString());
+	public String __str__() {
+		return toFormattedString();
 	}
 
 	/**
@@ -722,14 +722,14 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 *
 	 * @return the result of the toString method
 	 */
-	public PyString __repr__() {
+	public String __repr__() {
 		return __str__();
 	}
 
 	/**
-	 * @return PyString -the name of the object
+	 * @return the name of the scannable
 	 */
-	public PyString __doc__() {
-		return new PyString(getName());
+	public String __doc__() {
+		return getName();
 	}
 }

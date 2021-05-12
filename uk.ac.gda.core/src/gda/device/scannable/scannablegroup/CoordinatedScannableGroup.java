@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.python.core.PyString;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
@@ -305,7 +303,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	}
 
 	@Override
-	public PyString __str__() {
+	public String __str__() {
 		String output = getName() + " :: (collision avoidance rules)\n";
 		for (Entry<String, PositionValidator> validatorEntry : getAdditionalPositionValidators().entrySet()) {
 			if (!validatorEntry.getValue().equals("")){
@@ -318,11 +316,11 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 //		for (Scannable member : groupMembers) {
 //			output += member.toFormattedString() + "\n";
 //		}
-		return new PyString(output.trim());
+		return output.trim();
 	}
 
 	@Override
-	public PyString __repr__() {
+	public String __repr__() {
 		return __str__();
 	}
 
