@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.JythonScannableWrapper;
 import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.IScannableGroup;
 import gda.device.scannable.scannablegroup.ScannableGroup;
@@ -320,6 +321,12 @@ public final class GeneralCommands {
 		logger.info("Resetting Jython namespace");
 		Finder.findSingleton(JythonServer.class).restart();
 		reconfigureScriptControllers();
+		reconnectJythonScannableWrappers();
+	}
+
+	private static void reconnectJythonScannableWrappers() {
+		Map<String, JythonScannableWrapper> jythonScannableWrappers = Finder.getFindablesOfType(JythonScannableWrapper.class);
+		jythonScannableWrappers.values().stream().forEach(JythonScannableWrapper::connectScannable);
 	}
 
 	private static void reconfigureScriptControllers() {
@@ -329,7 +336,7 @@ public final class GeneralCommands {
 			try {
 				sc.reconfigure();
 			} catch (FactoryException ex) {
-				logger.error("Could not reconfigure '{}' script controller", ex);
+				logger.error("Could not reconfigure '{}' script controller", sc.getName(), ex);
 			}
 		}
 	}

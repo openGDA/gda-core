@@ -42,10 +42,14 @@ public class LiveControlGroup extends LiveControlBase {
 	}
 
 	public void toggleIncrementControlDisplay() {
-		controls.stream()
-			.filter(c -> c instanceof ScannablePositionerControl)
-			.map(c->(ScannablePositionerControl) c)
-			.forEach( ScannablePositionerControl::toggleIncrementControlDisplay);
+		controls.stream().filter(ScannablePositionerControl.class::isInstance)
+				.map(ScannablePositionerControl.class::cast)
+				.forEach(ScannablePositionerControl::toggleIncrementControlDisplay);
+	}
+
+	public void toggleShowStopButton() {
+		controls.stream().filter(ScannablePositionerControl.class::isInstance)
+				.map(ScannablePositionerControl.class::cast).forEach(ScannablePositionerControl::toggleShowStop);
 	}
 
 	public void setControls(List<LiveControl> controls) {

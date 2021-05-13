@@ -903,7 +903,14 @@
           commandId="uk.ac.gda.client.livecontrol.increment.toggle"
           icon="icons/table_refresh.png"
           label="Toggle Increment Control"
-          style="push">
+          style="toggle">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.livecontrol.stopbutton.toggle"
+          icon="icons/page_refresh.png"
+          label="Toggle show stop button"
+          style="toggle"
+          tooltip="Toggle show stop button">
     </command>
  </menuContribution>
  </extension>
@@ -1034,6 +1041,11 @@
          defaultHandler="uk.ac.gda.client.livecontrol.ToggleIncrementControlDisplay"
          id="uk.ac.gda.client.livecontrol.increment.toggle"
          name="Toggle Increment Control">
+   </command>
+   <command
+         defaultHandler="uk.ac.gda.client.livecontrol.ToggleShowStopButton"
+         id="uk.ac.gda.client.livecontrol.stopbutton.toggle"
+         name="Show Stop Button">
    </command>
 </extension>
 <extension

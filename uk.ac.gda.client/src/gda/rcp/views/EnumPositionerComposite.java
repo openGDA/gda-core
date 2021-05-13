@@ -48,7 +48,11 @@ public class EnumPositionerComposite extends AbstractPositionerComposite {
 	private SelectionListener selectionListener;
 
 	public EnumPositionerComposite(Composite parent, int style) {
-		super(parent, style);
+		super(parent, style,false);
+	}
+
+	public EnumPositionerComposite(Composite parent, int style, boolean unitDisplayOutsideTextBox) {
+		super(parent, style,unitDisplayOutsideTextBox);
 	}
 
 	@Override

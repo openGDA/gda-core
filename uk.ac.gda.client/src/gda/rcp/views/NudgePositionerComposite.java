@@ -21,17 +21,20 @@ package gda.rcp.views;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -76,12 +79,13 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 
 	private final DecimalFormat fourDecimalPlaces = new DecimalFormat("0.####");
 
-	private String userUnits;
+	private String userUnits = "";
 	private Double incrementValue = DEFAULT_INCREMENT;
 	private Double currentPosition;
 
 	private int incrementTextWidth = DEFAULT_INCREMENT_TEXT_WIDTH;
 	private boolean readOnlyPosition;
+	private CLabel displayUnitLabel;
 
 	/**
 	 * Constructor for a NudgePositionerComposite only requires the specification of minimal parameters.
@@ -102,6 +106,11 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		super(parent, style & ~SWT.READ_ONLY);
 		readOnlyPosition = (style & SWT.READ_ONLY) != 0;
 	}
+	public NudgePositionerComposite(Composite parent, int style, boolean unitDisplayOutsideTextBox) {
+		// Mask out style attributes that are intended for specific controls
+		super(parent, style & ~SWT.READ_ONLY, unitDisplayOutsideTextBox);
+		readOnlyPosition = (style & SWT.READ_ONLY) != 0;
+	}
 
 	@Override
 	protected void createPositionerControl() {
@@ -116,7 +125,12 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 					// If enter was pressed move to new position
 					if (key.character == SWT.CR) { // enter or numpad enter pressed
 						// Get the new position from the text box
-						double newPosition = Double.parseDouble(positionText.getText().split(" ")[0]);
+						double newPosition;
+						if (unitDisplayOutsideTextBox) {
+							newPosition = Double.parseDouble(positionText.getText());
+						} else {
+							newPosition = Double.parseDouble(positionText.getText().split(" ")[0]);
+						}
 						move(newPosition);
 					}
 					// If up was pressed increment position and move
@@ -136,6 +150,12 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 					scheduleUpdateReadbackJob();
 				}
 			});
+		}
+
+		if (unitDisplayOutsideTextBox) {
+			// Unit label
+			displayUnitLabel = new CLabel(this, SWT.CENTER);
+			displayUnitLabel.setLayoutData(new RowData());
 		}
 
 		Composite nudgeAmountComposite = new Composite(this, SWT.NONE);
@@ -158,6 +178,24 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		incrementButton.setText("+");
 		buttonDataFactory.applyTo(incrementButton);
 		incrementButton.addSelectionListener(widgetSelectedAdapter(e-> moveBy(incrementValue)));
+	}
+
+	/**
+	 * Sets a different name to be used in the GUI instead of the default which is the scannable name
+	 * <p>
+	 * After calling this method the control will be automatically redrawn.
+	 *
+	 * @param userUnits
+	 *            The name to be used in the GUI
+	 */
+	public void setDisplayUnit(String userUnits) {
+		Objects.requireNonNull(userUnits);
+		this.userUnits = userUnits;
+		displayUnitLabel.setText(userUnits);
+		if (userUnits.isEmpty()) {
+			((RowData)displayUnitLabel.getLayoutData()).exclude=true;
+		}
+		this.redraw();
 	}
 
 	private void moveBy(double amountToMove) {
@@ -224,7 +262,11 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 			} else if (userUnits == null || userUnits.equals("")) {
 				positionText.setText(currentPositionString);
 			} else {
-				positionText.setText(currentPositionString + " " + userUnits);
+				if (unitDisplayOutsideTextBox) {
+					positionText.setText(currentPositionString);
+				} else {
+					positionText.setText(currentPositionString + " " + userUnits);
+				}
 			}
 			// Update the controls enabled/disabled
 			decrementButton.setEnabled(!moving);
@@ -346,7 +388,12 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 			incrementText.setText(incrementValue.toString());
 
 			determineScannableLimits();
-			determineUserUnits();
+			if (userUnits.isBlank()) {
+				determineUserUnits();
+			}
+			if (unitDisplayOutsideTextBox) {
+				setDisplayUnit(userUnits);
+			}
 		} else {
 			// Clear the position and increments
 			positionText.setText("");
