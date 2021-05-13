@@ -329,8 +329,7 @@ public final class CameraHelper {
 	 * @return may return {@code null}
 	 */
 	public static ICameraConfiguration createICameraConfiguration(CameraConfigurationProperties cameraProperties) {
-		return Optional.ofNullable(getCameraPropertiesBySpring(cameraProperties))
-				.map(CameraProperties::getIndex)
+		return Optional.ofNullable(getCameraProperies().indexOf(cameraProperties))
 				.map(CameraHelper::createICameraConfiguration)
 				.orElse(null);
 	}
@@ -420,14 +419,14 @@ public final class CameraHelper {
 		}
 
 		@Override
-		public CameraProperties getCameraProperties() {
-			return getAllCameraProperties().get(cameraIndex);
+		public CameraConfigurationProperties getCameraConfigurationProperties() {
+			return getAllCameraConfigurationProperties().get(cameraIndex);
 		}
 
 		@Override
 		public CameraToBeamMap getBeamCameraMap() {
 			if (beamCameraMap == null) {
-				setBeamCameraMap(getCameraConfigurationProperties(getCameraIndex()).getCameraToBeamMap());
+				setBeamCameraMap(getCameraConfigurationProperties().getCameraToBeamMap());
 			}
 			return beamCameraMap;
 		}
@@ -478,10 +477,10 @@ public final class CameraHelper {
 		private static FinderService getFinderService() {
 			return getBean(FinderService.class);
 		}
+	}
 
-		private static String getCameraConfigurationInstance(int cameraIndex) {
-			return getCameraConfigurationProperties(cameraIndex).getConfiguration();
-		}
+	private static String getCameraConfigurationInstance(int cameraIndex) {
+		return getCameraConfigurationProperties(cameraIndex).getConfiguration();
 	}
 
 	/**

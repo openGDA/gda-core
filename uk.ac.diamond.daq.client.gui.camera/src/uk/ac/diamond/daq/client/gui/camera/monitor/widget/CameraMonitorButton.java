@@ -139,7 +139,7 @@ public class CameraMonitorButton {
 			ButtonLayout eventLayout = getButtonLayout(cameraState);
 			logger.debug("eventLayout {}", eventLayout);
 			if (buttonLayout != null && eventLayout.equals(buttonLayout)) return;
-			CameraMonitorButtonHelper.updateButtonLayoutAndListener(button, cameraConfiguration.getCameraProperties().getName(), cameraState);
+			CameraMonitorButtonHelper.updateButtonLayoutAndListener(button, cameraConfiguration.getCameraConfigurationProperties().getName(), cameraState);
 		}
 	};
 }

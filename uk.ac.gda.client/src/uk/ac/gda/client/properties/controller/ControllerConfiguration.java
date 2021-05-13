@@ -18,21 +18,25 @@
 
 package uk.ac.gda.client.properties.controller;
 
+import uk.ac.gda.client.properties.MotorProperties;
+
 /**
  * Represents a simple {@code name:controller} object
  *
  * @author Maurizio Nagni
  */
-public class ControllerConfiguration {
+public class ControllerConfiguration implements MotorProperties {
 
 	private String controller;
 	private String name;
+	@Override
 	public String getController() {
 		return controller;
 	}
 	public void setController(String controller) {
 		this.controller = controller;
 	}
+	@Override
 	public String getName() {
 		return name;
 	}
