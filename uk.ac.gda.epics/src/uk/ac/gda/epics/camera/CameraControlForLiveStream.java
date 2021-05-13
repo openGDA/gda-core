@@ -29,11 +29,15 @@ import gda.device.detector.areadetector.v17.NDROI;
  */
 public class CameraControlForLiveStream extends EpicsCameraControl {
 
-	private ADBase adBase;
+	private final ADBase adBase;
+
+	/** Image mode for streaming, this is an int as not all detectors use the standard enum ({@link ImageMode}) */
+	private int continuousImageMode;
 
 	public CameraControlForLiveStream(ADBase adBase, NDROI ndRoi) {
 		super(adBase, ndRoi);
 		this.adBase = adBase;
+		continuousImageMode = ImageMode.CONTINUOUS.ordinal();
 	}
 
 	public CameraControlForLiveStream(ADBase adBase) {
@@ -48,7 +52,7 @@ public class CameraControlForLiveStream extends EpicsCameraControl {
 	@Override
 	public void startAcquiring() throws DeviceException {
 		try {
-			adBase.setImageMode(ImageMode.CONTINUOUS);
+			adBase.setImageMode(continuousImageMode);
 			super.startAcquiring();
 		} catch (Exception e) {
 			throw new DeviceException("Error starting data acquisition", e);
@@ -73,6 +77,10 @@ public class CameraControlForLiveStream extends EpicsCameraControl {
 			throw new DeviceException("Error setting camera acquire time", e);
 		}
 
+	}
+
+	public void setContinuousImageMode(int continuousImageMode) {
+		this.continuousImageMode = continuousImageMode;
 	}
 
 }
