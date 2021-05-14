@@ -37,28 +37,39 @@ public class JythonInterpreterManager {
 	 */
 	public static synchronized void setupSystemState(String... bundleNames) {
 
-		ClassLoader loader = null;
-		if (configuredState == null) { // Relies on setupSystemState() being called early in the server startup.
-			loader = createJythonClassLoader(PySystemState.class.getClassLoader());
+		boolean jythonInitialsedInThisProcess = (Py.defaultSystemState != null);
+
+		// If alreadyInitialised before configuredState set then Jython is already
+		// in use for this process (e.g. GDA Server) so we don't want to modify the state too much:
+		// only add the required scripts to the path
+		// (Py.defaultSystemState is set after PySystemState is initialised)
+		PySystemState state;
+
+		if (jythonInitialsedInThisProcess) {
+			// Calling getSystemState static initialises PySystemState the first time
+			// So we can't call this outside of this block as initializePythonPath must be called first
+			state = Py.getSystemState();
+			if ((configuredState != null) && (configuredState == state)) {
+				return;
+			}
+			// A composite class loader is set just in case the existing loader is not
+			// capable of loading the Java classes from this plugin
+			ClassLoader loader = createJythonClassLoader(state.getClassLoader());
+			state.setClassLoader(loader);
+		} else {
+			// Create class loader using the Jython bundle loader as base
+			ClassLoader loader = createJythonClassLoader(PySystemState.class.getClassLoader());
 			initializePythonPath(loader);
+			state = Py.getSystemState();
+			state.setClassLoader(loader);
+			// Ensure that enough of jython is on the path
+			setJythonPaths(state);
+			// Restricted permissions cause issues in shared (writable) deployments (CVE-2013-2027 Jython 2.7.2)
+			state.dont_write_bytecode = true;
 		}
 
-		PySystemState state = Py.getSystemState();
-		if (state == configuredState)
-			return;
-
-		if (loader == null) {
-			// Then someone else has changed the PySystemState
-			// They will not have added our
-			loader = createJythonClassLoader(state.getClassLoader()); // Don't clobber their working.
-		}
-		state.setClassLoader(loader);
-		// Restricted permissions cause issues in shared (writable) deployments (CVE-2013-2027 Jython 2.7.2)
-		state.dont_write_bytecode = true;
-
-		setJythonPaths(state); // Tries to ensure that enough of jython is on the path
-		setSpgGeneratorPaths(state, bundleNames); // Adds the scripts directory from points
-		Py.setSystemState(state);
+		// Adds the scripts directory from points
+		setSpgGeneratorPaths(state, bundleNames);
 
 		configuredState = state;
 	}
