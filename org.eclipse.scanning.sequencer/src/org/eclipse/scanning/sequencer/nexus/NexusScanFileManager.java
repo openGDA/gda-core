@@ -77,7 +77,7 @@ public class NexusScanFileManager {
 	private final IScanDevice scanDevice;
 	private boolean isWritingNexus;
 	private NexusScanFile nexusScanFile = null;
-	private SolsticeScanMonitor solsticeScanMonitor;
+	private SolsticeScanMetadataWriter scanMetadataWriter;
 
 	public NexusScanFileManager(IScanDevice scanDevice) {
 		this.scanDevice = scanDevice;
@@ -98,12 +98,11 @@ public class NexusScanFileManager {
 
 		if (isWritingNexus) {
 			final NexusScanModel nexusScanModel = createNexusScanModel(scanModel);
-			solsticeScanMonitor = new SolsticeScanMonitor(scanModel);
-			nexusScanModel.setMetadataWriter(solsticeScanMonitor);
-			scanDevice.addPositionListener(solsticeScanMonitor);
+			scanMetadataWriter = new SolsticeScanMetadataWriter(scanDevice, scanModel);
+			nexusScanModel.setMetadataWriter(scanMetadataWriter);
 			try {
 				nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
-				solsticeScanMonitor.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
+				scanMetadataWriter.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
 			} catch (NexusException e) {
 				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
 			}
@@ -265,6 +264,7 @@ public class NexusScanFileManager {
         nexusScanInfo.setPerPointMonitorNames(getDeviceNames(scanModel.getMonitorsPerPoint()));
 		nexusScanInfo.setPerScanMonitorNames(getDeviceNames(scanModel.getMonitorsPerScan()));
 		nexusScanInfo.setFilePath(scanModel.getFilePath());
+		nexusScanInfo.setEstimatedScanTime(scanModel.getScanInformation().getEstimatedScanTime());
 
 		return nexusScanInfo;
 	}
@@ -292,7 +292,7 @@ public class NexusScanFileManager {
 	}
 
 	private boolean isMalcolmScan(ScanModel scanModel) {
-		return scanModel.getDetectors().stream().anyMatch(det -> (det instanceof IMultipleNexusDevice));
+		return scanModel.getDetectors().stream().anyMatch(IMultipleNexusDevice.class::isInstance);
 	}
 
 	protected Map<ScanRole, List<INexusDevice<?>>> extractNexusDevices(ScanModel model) {
@@ -354,8 +354,11 @@ public class NexusScanFileManager {
 	public void scanFinished() throws ScanningException {
 		if (!isWritingNexus) return;
 
-		solsticeScanMonitor.scanFinished();
-		scanDevice.removePositionListener(solsticeScanMonitor);
+		try {
+			scanMetadataWriter.scanFinished();
+		} catch (NexusException e) {
+			throw new ScanningException(e);
+		}
 
 		try {
 			nexusScanFile.scanFinished(); // writes final timestamps into NXentry and closes file

@@ -15,9 +15,8 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,8 +24,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -41,6 +39,7 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -140,43 +139,34 @@ public class BasicScanTest extends NexusTest {
 	}
 
 	protected void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception {
-
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
 
 		// check the scan points have been written correctly
 		assertNXentryMetadata(entry);
-		assertSolsticeScanGroup(entry, false, false, sizes);
-
-		DataNode dataNode = null;
-		IDataset dataset = null;
-		int[] shape = null;
+		assertDiamondScanGroup(entry, false, false, sizes);
 
 		// check metadata scannables
 		checkMetadataScannables(scanModel, instrument);
 
 		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final Collection<String> scannableNames = pos.getNames();
-
-		List<IScannable<?>> perPoint  = scanModel.getMonitorsPerPoint() != null
-                ? scanModel.getMonitorsPerPoint().stream()
-				.filter(scannable -> !scannable.getName().equals(SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR)).collect(Collectors.toList())
-                : null;
-        final boolean hasMonitor = perPoint != null && !perPoint.isEmpty();
-
-		String dataGroupName = hasMonitor ? perPoint.get(0).getName() : pos.getNames().get(0);
-		NXdata nxData = entry.getData(dataGroupName);
+		final Optional<IScannable<?>> firstMonitor = scanModel.getMonitorsPerPoint().stream().findFirst();
+        final String dataGroupName = firstMonitor.map(INameable::getName).orElse(pos.getNames().get(0));
+		final NXdata nxData = entry.getData(dataGroupName);
 		assertNotNull(nxData);
 
 		// Check axes
-		String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
+		final String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
 		assertAxes(nxData, expectedAxesNames);
 
-		int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+		final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 		int i = -1;
+		DataNode dataNode = null;
+		IDataset dataset = null;
+		int[] shape = null;
 		for (String  scannableName : scannableNames) {
 		    i++;
 			NXpositioner positioner = instrument.getPositioner(scannableName);

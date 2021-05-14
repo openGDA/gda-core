@@ -14,6 +14,7 @@ package org.eclipse.scanning.api.scan;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
@@ -47,11 +48,11 @@ public class ScanInformation {
 		this(pointGenService.createCompoundGenerator(scanRequest.getCompoundModel()), scanRequest.getDetectors().values(), scanRequest.getFilePath());
 	}
 
-	public ScanInformation(IPointGenerator<?> pointGen, ScanRequest scanRequest) throws GeneratorException {
+	public ScanInformation(IPointGenerator<?> pointGen, ScanRequest scanRequest) {
 		this(pointGen, scanRequest.getDetectors().values(), scanRequest.getFilePath());
 	}
 
-	public ScanInformation(IPointGenerator<?> pointGen, Collection<IDetectorModel> detectorModels, String filePath) throws GeneratorException {
+	public ScanInformation(IPointGenerator<?> pointGen, Collection<IDetectorModel> detectorModels, String filePath) {
 		boolean isMalcolmScan = detectorModels.stream().anyMatch(IMalcolmModel.class::isInstance);
 		this.scanMode = isMalcolmScan ? ScanMode.HARDWARE : ScanMode.SOFTWARE;
 
@@ -63,7 +64,7 @@ public class ScanInformation {
 
 		// the time per point is the maximum exposure time of a detector
 		this.timePerPoint = detectorModels.stream()
-				.filter(m -> m != null)
+				.filter(Objects::nonNull)
 				.mapToDouble(IDetectorModel::getExposureTime)
 				.map(e -> e * 1000)
 				.mapToLong(Math::round)

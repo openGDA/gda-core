@@ -14,7 +14,7 @@ package org.eclipse.scanning.test.scan.nexus;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -83,7 +83,7 @@ public class MandelbrotAcquireTest extends NexusTest {
 		final NXinstrument instrument = entry.getInstrument();
 
 		assertNXentryMetadata(entry);
-		assertSolsticeScanGroup(entry, false, false);
+		assertDiamondScanGroup(entry, false, false);
 
 		final LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
 		// axis for additional dimensions of a datafield, e.g. image

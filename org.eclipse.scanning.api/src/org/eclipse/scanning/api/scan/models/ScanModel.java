@@ -24,6 +24,7 @@ import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
@@ -360,6 +361,10 @@ public class ScanModel {
 
 	public void setScanInformation(ScanInformation scanInformation) {
 		this.scanInformation = scanInformation;
+	}
+
+	public boolean isMalcolmScan() {
+		return getDetectors().stream().anyMatch(IMalcolmDevice.class::isInstance);
 	}
 
 	@Override

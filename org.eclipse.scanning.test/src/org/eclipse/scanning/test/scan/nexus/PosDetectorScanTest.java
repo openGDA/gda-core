@@ -1,16 +1,16 @@
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_UNIQUE_KEYS;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_UNIQUE_KEYS;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_UNIQUE_KEYS;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_KEYS;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.GROUP_NAME_SOLSTICE_SCAN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -123,8 +123,8 @@ public class PosDetectorScanTest extends NexusTest {
 				NXroot root = (NXroot) nexusTree.getGroupNode();
 				NXentry entry = root.getEntry();
 
-				NXcollection solsticeScanCollection = entry.getCollection(GROUP_NAME_SOLSTICE_SCAN);
-				NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_KEYS);
+				NXcollection solsticeScanCollection = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
+				NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_UNIQUE_KEYS);
 				DataNode dataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
 				uniqueKeysDataset = dataNode.getDataset();
 
@@ -155,7 +155,7 @@ public class PosDetectorScanTest extends NexusTest {
 
 		// check that the scan points have been written correctly
 		assertNXentryMetadata(entry);
-		assertSolsticeScanGroup(entry, false, false, 8, 5);
+		assertDiamondScanGroup(entry, false, false, 8, 5);
 
 		final String detectorName = detector.getName();
 		final NXdetector nxDetector = instrument.getDetector(detectorName);

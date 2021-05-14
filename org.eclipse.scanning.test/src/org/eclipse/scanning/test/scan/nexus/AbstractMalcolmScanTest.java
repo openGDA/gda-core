@@ -17,7 +17,7 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -196,7 +196,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 		// check that the scan points have been written correctly
 		final List<String> expectedExternalFiles = getExpectedExternalFiles(dummyMalcolmModel);
-		assertSolsticeScanGroup(entry, true, snake, false, expectedExternalFiles, sizes);
+		assertDiamondScanGroup(entry, true, snake, false, expectedExternalFiles, sizes);
 
 		// map from detector name -> primary data fields
 		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();

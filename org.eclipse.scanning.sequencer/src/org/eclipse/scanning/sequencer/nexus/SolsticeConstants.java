@@ -15,24 +15,6 @@ import org.eclipse.dawnsci.nexus.NXentry;
 
 public final class SolsticeConstants {
 
-	public static final String SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR = "solsticeScanMonitor";
-	public static final String GROUP_NAME_SOLSTICE_SCAN = "solstice_scan";
-	public static final String GROUP_NAME_KEYS          = "keys";
-	public static final String FIELD_NAME_UNIQUE_KEYS   = "uniqueKeys";
-	public static final String FIELD_NAME_SCAN_RANK     = "scanRank";
-	public static final String FIELD_NAME_SCAN_FINISHED = "scan_finished";
-	public static final String FIELD_NAME_SCAN_REQUEST  = "scan_request";
-	public static final String FIELD_NAME_SCAN_MODELS   = "scan_models";
-	public static final String FIELD_NAME_SCAN_DURATION = NXentry.NX_DURATION;
-	public static final String FIELD_NAME_SCAN_ESTIMATED_DURATION = "scan_estimated_duration";
-	public static final String FIELD_NAME_SCAN_DEAD_TIME = "scan_dead_time";
-	public static final String FIELD_NAME_SCAN_DEAD_TIME_PERCENT = "scan_dead_time_percent";
-	public static final String FIELD_NAME_SCAN_SHAPE    = "scan_shape";
-	public static final String FIELD_NAME_POINT_START_TIME = "point_start_times";
-	public static final String FIELD_NAME_POINT_END_TIME = "point_end_times";
-	public static final String FIELD_NAME_START_TIME = NXentry.NX_START_TIME;
-	public static final String FIELD_NAME_END_TIME = NXentry.NX_END_TIME;
-
 	/**
 	 * System property used to determine the name of the main {@link NXentry} within the nexus file.
 	 */
@@ -43,16 +25,9 @@ public final class SolsticeConstants {
 	 */
 	public static final String PROPERTY_NAME_UNIQUE_KEYS_PATH = "uniqueKeys";
 
-	/**
-	 * Property name for a property used by GDA9+ to suppress writing the global unique keys dataset for a scan.
-	 * This dataset is not created if the value of this property is equal to {@link Boolean#TRUE} for any device a scan.
-	 * The global unique keys dataset is normally written to at the end of each position in a scan. It is used
-	 * to indicate that that position in a scan has been written to and processing can be performed. It should
-	 * be suppressed if processing is required in between points of the scan. This can be the case if a device in the
-	 * scan performs an inner scan, e.g. a malcolm device, or a detector writes data while a position in the scan is
-	 * being performed that required processing before the position is completed.
-	 */
-	public static final String PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS = "suppressGlobalUniqueKeys";
+	public static final String FIELD_NAME_SCAN_REQUEST  = "scan_request";
+
+	public static final String FIELD_NAME_SCAN_MODELS   = "scan_models";
 
 	private SolsticeConstants() {
 		// private constructor to prevent instantiation

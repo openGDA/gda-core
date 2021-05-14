@@ -11,12 +11,11 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -29,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -53,6 +53,7 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.AbstractScannable;
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -185,33 +186,22 @@ public class PerScanMonitorTest extends NexusTest {
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] sizes,
 			String[] expectedPerScanMonitorNames) throws Exception {
-
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-
 		final NXroot rootNode = getNexusRoot(scanner);
 		final NXentry entry = rootNode.getEntry();
 		final NXinstrument instrument = entry.getInstrument();
 
 		// check the scan points have been written correctly
 		assertNXentryMetadata(entry);
-		assertSolsticeScanGroup(entry, false, false, sizes);
-
-		DataNode dataNode = null;
-		IDataset dataset = null;
-		int[] shape = null;
+		assertDiamondScanGroup(entry, false, false, sizes);
 
 		// check metadata scannables
 		checkPerScanMonitors(scanModel, entry, new HashSet<>(Arrays.asList(expectedPerScanMonitorNames)));
 
 		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final List<String> scannableNames = pos.getNames();
-
-		List<IScannable<?>> perPoint  = scanModel.getMonitorsPerPoint().stream()
-				.filter(scannable -> !scannable.getName().equals(SCANNABLE_NAME_SOLSTICE_SCAN_MONITOR))
-				.collect(Collectors.toList());
-        final boolean hasMonitor = perPoint != null && !perPoint.isEmpty();
-
-		final String dataGroupName = hasMonitor ? perPoint.get(0).getName() : pos.getNames().get(0);
+        final Optional<IScannable<?>> firstMonitor = scanModel.getMonitorsPerPoint().stream().findFirst();
+        final String dataGroupName = firstMonitor.map(INameable::getName).orElse(pos.getNames().get(0));
 		final NXdata nxData = entry.getData(dataGroupName);
 		assertNotNull(nxData);
 
@@ -219,7 +209,10 @@ public class PerScanMonitorTest extends NexusTest {
 		final String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
 		assertAxes(nxData, expectedAxesNames);
 
-		int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+		final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+		DataNode dataNode = null;
+		IDataset dataset = null;
+		int[] shape = null;
 		for (int i = 0; i < scannableNames.size(); i++) {
 			final String scannableName = scannableNames.get(i);
 			NXpositioner positioner = instrument.getPositioner(scannableName);
@@ -254,7 +247,7 @@ public class PerScanMonitorTest extends NexusTest {
 	private void checkPerScanMonitors(final ScanModel scanModel, NXentry entry,
 			Set<String> expectedPerScanMonitorNames) throws Exception {
 		final Set<String> perScanMonitorNames = scanModel.getMonitorsPerScan().stream()
-				.map(scannable -> scannable.getName()).collect(Collectors.toSet());
+				.map(INameable::getName).collect(Collectors.toSet());
 		final Set<String> nexusDeviceNames = scanModel.getAdditionalScanObjects().stream()
 				.filter(INexusDevice.class::isInstance).map(INexusDevice.class::cast)
 				.map(INexusDevice::getName).collect(Collectors.toSet());

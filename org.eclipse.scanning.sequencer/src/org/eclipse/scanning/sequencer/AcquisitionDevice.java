@@ -64,7 +64,6 @@ import org.eclipse.scanning.api.malcolm.event.IMalcolmEventListener;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent.MalcolmEventType;
 import org.eclipse.scanning.api.malcolm.event.MalcolmStepsCompletedEvent;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -562,17 +561,13 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		setDeviceState(aborted ? DeviceState.ABORTED : DeviceState.FAULT); // broadcasts the ScanBean
 	}
 
-	private ScanInformation getScanInformation() throws ScanningException {
+	private ScanInformation getScanInformation() {
 		ScanInformation scanInfo = getModel().getScanInformation();
 		if (scanInfo == null) {
-			try {
-				@SuppressWarnings("unchecked")
-				final List<IDetectorModel> detectorModels = (List<IDetectorModel>) getModel().getDetectors().stream()
-						.map(IRunnableDevice::getModel).collect(toList());
-				scanInfo = new ScanInformation(getModel().getPointGenerator(), detectorModels, getModel().getFilePath());
-			} catch (GeneratorException e) {
-				throw new ScanningException("Could not create ScanInformation", e);
-			}
+			@SuppressWarnings("unchecked")
+			final List<IDetectorModel> detectorModels = (List<IDetectorModel>) getModel().getDetectors().stream()
+					.map(IRunnableDevice::getModel).collect(toList());
+			scanInfo = new ScanInformation(getModel().getPointGenerator(), detectorModels, getModel().getFilePath());
 			getModel().setScanInformation(scanInfo);
 		}
 

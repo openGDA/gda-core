@@ -17,7 +17,7 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -228,7 +228,7 @@ public class ScanMetadataTest extends NexusTest {
 		checkMetadata(entry, scanMetadata);
 		// check that the scan points have been written correctly
 		assertNXentryMetadata(entry);
-		assertSolsticeScanGroup(entry, false, false, sizes);
+		assertDiamondScanGroup(entry, false, false, sizes);
 
 		final NXinstrument instrument = entry.getInstrument();
 
