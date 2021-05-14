@@ -108,9 +108,13 @@ public class ScannablesPropertiesHelper {
 				.orElseGet(() -> null);
 	}
 
+	public ScannableProperties getScannablePropertiesDocument(DefaultManagedScannable scannableDefinition) {
+		return getScannablePropertiesDocument(scannableDefinition.groupId, scannableDefinition.getScannableId());
+	}
+
 	public ManagedScannable<?> getManagedScannable(DefaultManagedScannable scannableDefinition) {
 		return getManagedScannable(scannableDefinition.groupId, scannableDefinition.getScannableId(),
-				scannableDefinition.getDeclaringClass());
+				scannableDefinition.getScannableType());
 	}
 
 	public <T> ManagedScannable<T> getManagedScannable(DefaultManagedScannable scannableDefinition, Class<T> clazz) {

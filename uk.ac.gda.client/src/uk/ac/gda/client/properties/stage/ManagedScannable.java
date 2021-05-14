@@ -18,11 +18,14 @@
 
 package uk.ac.gda.client.properties.stage;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.util.Objects;
 import java.util.Optional;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.gda.client.event.ManagedScannableEvent;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.FinderService;
@@ -40,6 +43,10 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * assume to know the expected type. Using those parameters in
  * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)} the client component receives an object
  * which can drive the scannable. This class may be expanded in the future when other use cases will appear.
+ * </p>
+ *
+ * <p>
+ * 	Any successful {@link #moveTo(Object)} publishes a {@link ManagedScannableEvent}
  * </p>
  *
  * @author Maurizio Nagni
@@ -118,6 +125,7 @@ public class ManagedScannable<T> {
 		} catch (DeviceException e) {
 			throw new GDAClientException("Cannot handle device", e);
 		}
+		publishEvent(new ManagedScannableEvent<>(this, scannablePropertiesDocument, position));
 	}
 
 	private final void moveToEnumPosition(String position) throws DeviceException {

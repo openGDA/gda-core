@@ -52,7 +52,7 @@ public class SmartComboTest {
 	 */
 	@Test
 	public void emptyComboTest() {
-		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, Optional.empty(), Optional.empty());
+		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, null, Optional.empty());
 		assertFalse(sc.getSelectedItem().isPresent());
 	}
 
@@ -61,7 +61,7 @@ public class SmartComboTest {
 	 */
 	@Test
 	public void singleComboTest() {
-		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, Optional.empty(), Optional.empty());
+		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, null, Optional.empty());
 		List<ImmutablePair<String, SmartComboTestype>> items = new ArrayList<>();
 		items.add(new ImmutablePair<String, SmartComboTest.SmartComboTestype>("one", SmartComboTestype.ONE));
 		sc.populateCombo(items);
@@ -75,7 +75,7 @@ public class SmartComboTest {
 	 */
 	@Test
 	public void multipleComboTest() {
-		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, Optional.empty(), Optional.empty());
+		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, null, Optional.empty());
 		List<ImmutablePair<String, SmartComboTestype>> items = new ArrayList<>();
 		items.add(new ImmutablePair<String, SmartComboTest.SmartComboTestype>("one", SmartComboTestype.ONE));
 		items.add(new ImmutablePair<String, SmartComboTest.SmartComboTestype>("two", SmartComboTestype.TWO));
@@ -91,7 +91,7 @@ public class SmartComboTest {
 	 */
 	@Test
 	public void multipleComboWithSelectionTest() {
-		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, Optional.empty(), Optional.empty());
+		SmartCombo<SmartComboTestype> sc = new SmartCombo<>(new Shell(device), SWT.NONE, null, Optional.empty());
 		List<ImmutablePair<String, SmartComboTestype>> items = new ArrayList<>();
 		items.add(new ImmutablePair<String, SmartComboTest.SmartComboTestype>("one", SmartComboTestype.ONE));
 		items.add(new ImmutablePair<String, SmartComboTest.SmartComboTestype>("two", SmartComboTestype.TWO));

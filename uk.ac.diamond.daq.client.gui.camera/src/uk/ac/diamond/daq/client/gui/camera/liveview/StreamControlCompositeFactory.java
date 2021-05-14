@@ -99,8 +99,7 @@ public class StreamControlCompositeFactory implements CompositeFactory {
 				STAGE_TP);
 		createClientGridDataFactory().indent(5, 0).applyTo(cameraCombo);
 
-		streamTypeCombo = new SmartCombo<>(container, style, Optional.of(STAGE_TP),
-				Optional.of(this::changeStreamController));
+		streamTypeCombo = new SmartCombo<>(container, style, STAGE_TP, Optional.of(this::changeStreamController));
 		createClientGridDataFactory().indent(5, 0).applyTo(streamTypeCombo);
 
 		streamActivationButton = createClientButton(container, SWT.NONE, START_STREAM, START_STREAM);
