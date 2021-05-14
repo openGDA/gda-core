@@ -71,6 +71,8 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.points.PointGeneratorService;
+import org.eclipse.scanning.points.ServiceHolder;
+import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.nexus.SolsticeScanMonitor;
 import org.junit.Assert;
 import org.junit.Before;
@@ -212,6 +214,7 @@ public class SolsticeScanMonitorTest {
 	@Before
 	public void setUp() {
 		pointGenService = new PointGeneratorService();
+		new ServiceHolder().setValidatorService(new ValidatorService());
 	}
 
 	@Test
