@@ -66,9 +66,9 @@ public class NXDetectorDataFileLinkAppender implements NXDetectorDataAppender {
 			throw new IllegalArgumentException("filename is null or zero length");
 		}
 		if (LocalProperties.get(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter").equals("NexusScanDataWriter")) {
-			data.addExternalFileLink(detectorName, "data", "nxfile://" + filename + "#entry/instrument/detector/data", false, true, dataRank);
+			data.addExternalFileLink(detectorName, "data", "nxfile://" + filename + "#entry/instrument/detector/data", dataRank);
 		} else {
-			data.addScanFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data");
+			data.addExternalFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data",dataRank);
 		}
 		if (xPixelSize!=null) {
 			data.addData(detectorName, "x_pixel_size", new NexusGroupData(xPixelSize), xPixelSizeUnit);

@@ -25,10 +25,7 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.NXDetectorData;
 
 /**
- * This generic class only supports Integer or Double, see the validation in {@link #appendTo(NXDetectorData, String)}
- *
- * Since we can't say {@code <T extends Double | Integer>} we constrain it to Number, so most inappropriate uses will result in a
- * compile-time error rather than a run-time error.
+ * This generic class only supports String or Link target path, see the validation in {@link #appendTo(NXDetectorData, String)}
  *
  */
 public class NXDetectorDataStringAppender implements NXDetectorDataAppender {
@@ -50,6 +47,9 @@ public class NXDetectorDataStringAppender implements NXDetectorDataAppender {
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			String t = elementValues.get(i);
+			if (t.startsWith("nxfile://")) {
+				data.addExternalFileLink(detectorName, name, t, 0);
+			}
 			data.addData(detectorName, name, new NexusGroupData(t), null, null, null, false);
 		}
 	}
