@@ -121,7 +121,8 @@ public class AdcMonitor extends MonitorBase {
 			} catch (DeviceException e) {
 				logger.error("Error reading adc voltage", e);
 			} catch (InterruptedException ie) {
-				// do nothing just try again
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

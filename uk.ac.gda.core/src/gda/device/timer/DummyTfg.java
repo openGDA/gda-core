@@ -369,6 +369,8 @@ public class DummyTfg extends DeviceBase implements Timer {
 
 				}
 			} catch (InterruptedException iox) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
 				logger.debug("tfg run thread interrupted");
 			}
 		}

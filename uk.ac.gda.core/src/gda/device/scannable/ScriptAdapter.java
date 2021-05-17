@@ -107,6 +107,8 @@ public class ScriptAdapter extends ScannableBase {
 				Thread.sleep(1000);
 			}
 		} catch (InterruptedException ex) {
+			// Reset interrupt status
+			Thread.currentThread().interrupt();
 		}
 	}
 

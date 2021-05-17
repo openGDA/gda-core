@@ -67,6 +67,10 @@ public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {
 		try {
 			fairGetLock.lockInterruptibly();
 		} catch (InterruptedException e) {
+			// Reset interrupt status, we need to do this even when throwing a new InterruptedException
+			// See https://gdacore-sonarqube.diamond.ac.uk/coding_rules?open=java%3AS2142&rule_key=java%3AS2142
+			Thread.currentThread().interrupt();
+
 			logger.error("@{}.get({}) interrupted while waiting for element, lastIndexRead={}, readValuesNotGot now {} (size {})",
 					Integer.toHexString(hashCode()), index, lastIndexRead, readValuesNotGot, readValuesNotGot.size());
 			throw new InterruptedException("PositionStreamIndexer interrupted while waiting for element " + index);

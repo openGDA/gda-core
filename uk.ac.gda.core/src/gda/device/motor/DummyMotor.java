@@ -519,6 +519,10 @@ public class DummyMotor extends MotorBase {
 				do {
 					wait();
 				} while (!simulatedMoveRequired);
+			} catch(InterruptedException ex) {
+				// Reset interrupt status
+				Thread.currentThread().interrupt();
+				logger.debug("Interrupted while waiting for dummy motor move", ex);
 			} catch (Exception ex) {
 				logger.debug("Error while waiting for dummy motor move", ex);
 			}
