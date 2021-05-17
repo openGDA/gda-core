@@ -21,6 +21,8 @@ package uk.ac.gda.server.ncd.subdetector;
 import static gda.configuration.properties.LocalProperties.GDA_BEAMLINE_NAME;
 import static java.util.Objects.requireNonNull;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
@@ -135,7 +137,13 @@ public class NcdTetrammDetector extends NcdSubDetector {
 	public void writeout(int frames, NXDetectorData dataTree) throws DeviceException {
 		if (inactive()) return;
 		logger.debug("{} - Writing out {} frames", getName(), frames);
-		dataTree.addScanFileLink(getTreeName(), "nxfile://" + controller.getLastFilePath() + innerPath);
+		String filename = controller.getLastFilePath();
+		if (filename == null || filename.isBlank()) {
+			throw new DeviceException(getName() + " - No filename availble at end of scan");
+		} else if (Files.notExists(Paths.get(filename))) {
+			logger.warn("{} - File '{}' does not exist at the end of scan", getName(), filename);
+		}
+		dataTree.addScanFileLink(getTreeName(), "nxfile://" + filename + innerPath);
 
 		addMetadata(dataTree);
 	}
