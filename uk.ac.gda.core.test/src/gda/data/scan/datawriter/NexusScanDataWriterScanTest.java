@@ -23,6 +23,7 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_N
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -466,6 +467,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected void checkNexusMetadata(NXentry entry) {
 		super.checkNexusMetadata(entry);
+
+		// check unique keys and scan timings have been written into the diamond scan NXcollection
+		assertDiamondScanGroup(entry, false, false, scanDimensions);
 
 		// TODO: get metadata into nexus file (DAQ-3151)
 //		// entry_identifier

@@ -46,6 +46,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
+import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
 import org.eclipse.dawnsci.nexus.scan.NexusScanModel;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.SliceND;
@@ -138,6 +139,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private final boolean useSwmr;
 
 	private SrsDataFile srsFile = null;
+
+	private NexusScanMetadataWriter scanMetadataWriter;
 
 	public NexusScanDataWriter() {
 		outputDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
@@ -290,9 +293,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		logger.debug("Number of Points : {}", point.getNumberOfPoints());
 		terminalPrinter.print("Writing data to file: " + getCurrentFileName());
 
-		// This is where we create NexusScanModel
+		// This is where we create the NexusScanModel describing the scan in nexus terms
+		scanMetadataWriter = new NexusScanMetadataWriter();
 		final NexusScanModel nexusScanModel = createNexusScanModel(point);
 		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
+		scanMetadataWriter.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
 
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 	}
@@ -303,7 +308,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanModel.setFilePath(getCurrentFileName());
 		nexusScanModel.setNexusDevices(getNexusDevices(point));
 		nexusScanModel.setDimensionNamesByIndex(getDimensionNamesByIndex(point));
-		nexusScanModel.setMetadataWriter(null); // TODO add metadata writer? see DAQ-3151
+		nexusScanModel.setMetadataWriter(scanMetadataWriter);
 		nexusScanModel.setNexusMetadataProviders(null); // TODO do we need metadata providers? see DAQ-3151
 		nexusScanModel.setTemplateFilePaths(getTemplateFilePaths());
 		nexusScanModel.setMultipleNexusDevice(Optional.empty()); // no malcolm device in gda8 scans
@@ -487,6 +492,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 		writeScannables(point, sliceND);
 		writeDetectors(point, sliceND);
+		writeScanPointMetadata(point, sliceND);
 	}
 
 	private void writeScannables(IScanDataPoint point, final SliceND sliceND) throws Exception {
@@ -507,6 +513,15 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		final int[] start = scanPosition;
 		final int[] stop = Arrays.stream(start).map(pos -> pos + 1).toArray();
 		return new SliceND(scanShape, start, stop, null);
+	}
+
+	private void writeScanPointMetadata(IScanDataPoint point, final SliceND scanSlice) {
+		// writes unique keys
+		scanMetadataWriter.writePosition(scanSlice, point.getCurrentPointNumber());
+
+		// write point start and point end at the same time, as we only get called once per point
+		scanMetadataWriter.pointStarted(scanSlice);
+		scanMetadataWriter.pointFinished(scanSlice);
 	}
 
 	private int[] getScanPosition(IScanDataPoint point) throws NexusException {
@@ -571,6 +586,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 			if (nexusScanFile != null) {
 				nexusScanFile.scanFinished();
+				scanMetadataWriter.scanFinished();
 			}
 			if (srsFile != null) {
 				srsFile.releaseFile();
