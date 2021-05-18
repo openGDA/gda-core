@@ -67,13 +67,6 @@
       </view>
       <view
             category="gda.rcp.ncd"
-            class="gda.rcp.ncd.views.WatchView"
-            icon="icons/sample.gif"
-            id="gda.rcp.ncd.views.WatchView"
-            name="Watch">
-      </view>
-      <view
-            category="gda.rcp.ncd"
             class="gda.rcp.ncd.views.NcdRapidButtonView"
             icon="icons/sample.gif"
             id="uk.ac.gda.client.ncd.NcdRapidButtonPanelView"
