@@ -18,22 +18,28 @@
 
 package uk.ac.gda.ui.tool.document;
 
-import static uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType.ONE_DIMENSION_LINE;
-import static uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType.TWO_DIMENSION_POINT;
-
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.gda.api.acquisition.AcquisitionType;
-import uk.ac.gda.client.properties.acquisition.AcquisitionTypeProperties;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
+import uk.ac.gda.api.acquisition.configuration.MultipleScans;
+import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
+import uk.ac.gda.client.properties.acquisition.ScannableTrackDocumentProperty;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * Creates default acquisition documents.
@@ -43,34 +49,68 @@ import uk.ac.gda.client.properties.acquisition.AcquisitionTypeProperties;
 @Component
 public class DocumentFactory {
 
-	private final Map<AcquisitionTemplateType, ScanningAcquisitionFactory> defaultFactories = new EnumMap<>(AcquisitionTemplateType.class);
+	@Autowired
+	private ClientSpringProperties properties;
 
-	@PostConstruct
-    private void postConstruct() {
-		defaultFactories.put(ONE_DIMENSION_LINE, new OneDimensionLine());
-		defaultFactories.put(TWO_DIMENSION_POINT, new TwoDimensionPoint());
-    }
-
-	/**
-	 * Creates a new acquisition document.
-	 *
-	 * @param templateType the template type type
-	 * @param acquisitionType the acquisition type. See {@link AcquisitionTypeProperties#getAcquisitionProperties(String)}
-	 *
-	 * @return a new supplier either providing a new default document or an empty {@code ScanningAcquisition}
-	 *
-	 */
-	public final Supplier<ScanningAcquisition> newScanningAcquisition(AcquisitionTemplateType templateType, String acquisitionType) {
-		if (!defaultFactories.containsKey(templateType))
-				return ScanningAcquisition::new;
+	public Supplier<ScanningAcquisition> newScanningAcquisition(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
 		return () -> {
-			ScanningAcquisition acquisition = defaultFactories.get(templateType).newScanningAcquisition(acquisitionType).get();
+			var newConfiguration = new ScanningAcquisition();
+			var configuration = new ScanningConfiguration();
+			newConfiguration.setAcquisitionConfiguration(configuration);
 
-			acquisition.setType(Stream.of(AcquisitionType.values())
-					.filter(type -> type.getName().equals(acquisitionType))
-					.findFirst().orElse(AcquisitionType.GENERIC));
+			newConfiguration.setName("Untitled Acquisition");
+			var acquisitionParameters = new ScanningParameters();
+			configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
-			return acquisition;
+
+			List<AcquisitionTemplateConfiguration> templates = properties.getAcquisitions().stream()
+				.filter(a -> a.getType().equals(propertyType))
+				.findFirst()
+				.map(AcquisitionConfigurationProperties::getTemplates)
+				.orElseGet(Collections::emptyList);
+
+			templates.stream()
+				.filter(a -> templateType.equals(a.getTemplate()))
+				.findFirst()
+				.map(this::buildScanpathBuilder)
+				.map(ScanpathDocument.Builder::build)
+				.ifPresent(acquisitionParameters::setScanpathDocument);
+
+			var multipleScanBuilder = new MultipleScans.Builder();
+			multipleScanBuilder.withMultipleScansType(MultipleScansType.REPEAT_SCAN);
+			multipleScanBuilder.withNumberRepetitions(1);
+			multipleScanBuilder.withWaitingTime(0);
+			configuration.setMultipleScans(multipleScanBuilder.build());
+			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
+
+			// --- NOTE---
+			// The creation of the acquisition engine and the used detectors documents are delegated to the ScanningAcquisitionController
+			// --- NOTE---
+
+			return newConfiguration;
 		};
+	}
+
+
+	public ScanpathDocument.Builder buildScanpathBuilder(AcquisitionTemplateConfiguration acquisitionTemplate) {
+		var builder = new ScanpathDocument.Builder();
+		builder.withModelDocument(acquisitionTemplate.getTemplate());
+		builder.withScannableTrackDocuments(getScannableTrackDocument(acquisitionTemplate.getTracks()));
+		return builder;
+	}
+
+	private List<ScannableTrackDocument> getScannableTrackDocument(List<ScannableTrackDocumentProperty> tracks) {
+		return tracks.stream()
+			.map(this::createScannableTrackDocument)
+			.collect(Collectors.toList());
+	}
+
+	private ScannableTrackDocument createScannableTrackDocument(ScannableTrackDocumentProperty trackDocumentProperty) {
+		var builder = new ScannableTrackDocument.Builder();
+		return builder.withAxis(trackDocumentProperty.getAxis())
+			.withScannable(trackDocumentProperty.getScannable())
+			.withPoints(trackDocumentProperty.getPoints())
+			.withStep(trackDocumentProperty.getStep())
+			.build();
 	}
 }

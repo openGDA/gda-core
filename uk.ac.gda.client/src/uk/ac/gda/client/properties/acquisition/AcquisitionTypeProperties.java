@@ -18,6 +18,7 @@ import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * Hides the configuration structural design.
@@ -102,7 +103,10 @@ import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
  *
  * @see SelectableContainedCompositeFactory
  * @see AcquisitionTemplateType
+ *
+ * @deprecated use {@link ClientSpringProperties#getAcquisitions()}
  */
+@Deprecated
 public final class AcquisitionTypeProperties {
 
 	private static final  Map<String, AcquisitionTypeProperties> acquisitionProperties = new HashMap<>();
