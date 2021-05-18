@@ -27,7 +27,7 @@ import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_VALUE_S
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSolsticeScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -604,7 +604,7 @@ public class ScannableNexusWrapperScanTest {
 		final NXsample sample = entry.getSample();
 
 		// check the scan points have been written correctly
-		assertSolsticeScanGroup(entry, false, false, sizes);
+		assertDiamondScanGroup(entry, false, false, sizes);
 
 		DataNode dataNode = null;
 		IDataset dataset = null;
