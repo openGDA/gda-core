@@ -87,7 +87,8 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 	 */
 	@Override
 	protected Supplier<ScanningAcquisition> newScanningAcquisition() {
-		return SpringApplicationContextFacade.getBean(DocumentFactory.class).newScanningAcquisition(AcquisitionTemplateType.ONE_DIMENSION_LINE, "tomography");
+		return SpringApplicationContextFacade.getBean(DocumentFactory.class)
+				.newScanningAcquisition(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.ONE_DIMENSION_LINE);
 	}
 
 	@Override
