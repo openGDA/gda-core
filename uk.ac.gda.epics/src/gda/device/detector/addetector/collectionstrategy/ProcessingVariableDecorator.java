@@ -22,11 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -73,7 +72,7 @@ import gov.aps.jca.TimeoutException;
 	}
  *</pre>
  */
-public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDecorator {
+public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDecorator implements ApplicationContextAware {
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingVariableDecorator.class);
 	/**
 	 * EPICS Utility
@@ -90,8 +89,7 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	private boolean restorePvValue = false;
 	private double pvValueSaved=1.0;
 
-	@Inject
-	private ApplicationContext appContext;
+	private ApplicationContext applicationContext;
 
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
@@ -99,7 +97,7 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 		if (isEnabled()) {
 			ExpressionParser parser=new SpelExpressionParser();
 			var context = new StandardEvaluationContext();
-			context.setBeanResolver((ec, name) -> Finder.find(name) != null ? Finder.find(name) :  appContext.getBean(name));
+			context.setBeanResolver((ec, name) -> Finder.find(name) != null ? Finder.find(name) :  applicationContext.getBean(name));
 			double newValue = parser.parseExpression(getExpression()).getValue(context, Double.class);
 
 			if (LocalProperties.isDummyModeEnabled()) {
@@ -225,5 +223,10 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 }
