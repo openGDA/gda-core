@@ -51,6 +51,7 @@ import gda.device.DeviceException;
 import gda.observable.IObserver;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.gda.api.camera.BinningFormat;
 import uk.ac.gda.api.camera.CameraControl;
@@ -77,7 +78,7 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
  *
  * <p>
  * At the start the component points at the camera defined by
- * {@link CameraHelper#getDefaultCameraProperties()}
+ * {@link CameraHelper#getDefaultCameraConfigurationProperties()}
  * </p>
  *
  * <p>
@@ -113,23 +114,24 @@ public class BinningCompositeFactory implements CompositeFactory {
 	 */
 	private Label readOut;
 
-	private int cameraIndex;
+	private ICameraConfiguration iCameraConfiguration;
 
 	private static final Logger logger = LoggerFactory.getLogger(BinningCompositeFactory.class);
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		cameraIndex = CameraHelper.getDefaultCameraProperties().getIndex();
+		iCameraConfiguration = CameraHelper.createICameraConfiguration(CameraHelper.getDefaultCameraConfigurationProperties());
 
 		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
 		createElements(composite);
 		radios.forEach(this::bindRadio);
-		CameraHelper.getCameraControl(cameraIndex).ifPresent(cc -> {
-			initialiseElements(cc);
-			ClientBindingElements.addDisposableObserver(composite, cc, cameraControlObserver);
-		});
+		iCameraConfiguration.getCameraControl()
+			.ifPresent(cc -> {
+				initialiseElements(cc);
+				ClientBindingElements.addDisposableObserver(composite, cc, cameraControlObserver);
+			});
 		return composite;
 	}
 
@@ -185,10 +187,9 @@ public class BinningCompositeFactory implements CompositeFactory {
 
 	private Consumer<Button> configureRadio(Binning binning) {
 		// the widget is editable only if by-configuraiton
-		boolean editable = CameraHelper.getCameraProperties(cameraIndex).isPixelBinningEditable();
 		return radio -> {
 			radio.setSelection(radio.getData().equals(binning));
-			radio.setEnabled(editable);
+			radio.setEnabled(iCameraConfiguration.getCameraConfigurationProperties().isPixelBinningEditable());
 		};
 	}
 
@@ -223,6 +224,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 		// sets the button data (the shape it refers to)
 		button.setData(binning);
 		button.setSelection(false);
+		button.setText(Integer.toString(binning.getPixelSize()));
 		radios.put(binning, button);
 	}
 
@@ -230,13 +232,13 @@ public class BinningCompositeFactory implements CompositeFactory {
 		button.addSelectionListener(SelectionListener.widgetSelectedAdapter(widgetSelected));
 	}
 
-	private Consumer<SelectionEvent> widgetSelected = event -> CameraHelper.getCameraControl(cameraIndex)
-			.ifPresent(c -> {
-				try {
-					Binning binning = Binning.class.cast(event.widget.getData());
-					c.setBinningPixels(new BinningFormat(binning.getPixelSize(), binning.getPixelSize()));
-				} catch (DeviceException e) {
-					UIHelper.showError("Cannot update acquisition time", e, logger);
-				}
-			});
+	private Consumer<SelectionEvent> widgetSelected = event -> iCameraConfiguration.getCameraControl()
+		.ifPresent(c -> {
+			try {
+				Binning binning = Binning.class.cast(event.widget.getData());
+				c.setBinningPixels(new BinningFormat(binning.getPixelSize(), binning.getPixelSize()));
+			} catch (DeviceException e) {
+				UIHelper.showError("Cannot update acquisition time", e, logger);
+			}
+		});
 }

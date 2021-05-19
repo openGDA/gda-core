@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.client.gui.camera.roi;
 
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createChangeCameraListener;
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.createICameraConfiguration;
+import static uk.ac.diamond.daq.client.gui.camera.CameraHelper.getDefaultCameraConfigurationProperties;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
@@ -52,7 +55,6 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.DrawableRegionRegisteredEvent;
@@ -86,8 +88,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
-		cameraConfiguration = CameraHelper
-				.createICameraConfiguration(CameraHelper.getDefaultCameraProperties().getIndex());
+		cameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
 		Table table = new Table(parent, SWT.VIRTUAL | SWT.BORDER);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
@@ -99,7 +100,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 		createCameraRow(table);
 		createROIRow(table);
 
-		updateCamera(CameraHelper.getDefaultCameraConfigurationProperties());
+		updateCamera(getDefaultCameraConfigurationProperties());
 
 		try {
 			SpringApplicationContextProxy.addDisposableApplicationListener(table, getChangeActiveCameraListener(parent));
@@ -332,7 +333,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
-		return CameraHelper.createChangeCameraListener(parent, changeCameraControl);
+		return createChangeCameraListener(parent, changeCameraControl);
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
@@ -352,7 +353,7 @@ public class SensorSelectionComposite implements CompositeFactory {
 	}
 
 	private void updateCamera(CameraConfigurationProperties cameraConfigurationProperties) {
-		cameraConfiguration = CameraHelper.createICameraConfiguration(cameraConfigurationProperties);
+		cameraConfiguration = createICameraConfiguration(cameraConfigurationProperties);
 		updateRoi();
 	}
 
