@@ -30,7 +30,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.swt.widgets.Composite;
@@ -46,19 +45,14 @@ import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
 import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
-import uk.ac.diamond.daq.client.gui.camera.properties.CameraPropertiesBuilder;
-import uk.ac.diamond.daq.client.gui.camera.properties.MotorPropertiesBuilder;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.event.RootCompositeAware;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.client.properties.CameraProperties;
-import uk.ac.gda.client.properties.MotorProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
-import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -141,8 +135,6 @@ public final class CameraHelper {
 
 	private static final Map<Integer, ICameraConfiguration> cameraConfigurations = new HashMap<>();
 
-	private static final Map<CameraConfigurationProperties, CameraProperties> cameraPropertiesBySpring = new HashMap<>();
-
 	static {
 		loadAllProperties();
 	}
@@ -171,19 +163,6 @@ public final class CameraHelper {
 			return Optional.ofNullable(cc.get().cameraStreamTypes());
 		}
 		return Optional.empty();
-	}
-
-	/**
-	 * Returns the available client camera configuration
-	 * @return the available camera configurations
-	 * @deprecated use instead {@link #getAllCameraConfigurationProperties()}. To be removed on GDA 9.21
-	 */
-	@Deprecated
-	private static List<CameraProperties> getAllCameraProperties() {
-		return Collections.unmodifiableList(getCameraProperies().stream()
-				.map(CameraHelper::getCameraPropertiesBySpring)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList()));
 	}
 
 	/**
@@ -318,9 +297,9 @@ public final class CameraHelper {
 	}
 
 	private static void observeCameraProperties() {
-		cameraPropertiesBySpring.values().stream()
-			.map(CameraProperties::getIndex)
-			.map(CameraHelper::getCameraControl)
+		getAllCameraConfigurationProperties().stream()
+			.map(CameraHelper::createICameraConfiguration)
+			.map(ICameraConfiguration::getCameraControl)
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::addIObserverToCameraControl));
 	}
 
@@ -329,9 +308,9 @@ public final class CameraHelper {
 	}
 
 	private static void removeObserverCameraProperties() {
-		cameraPropertiesBySpring.values().stream()
-			.map(CameraProperties::getIndex)
-			.map(CameraHelper::getCameraControl)
+		getAllCameraConfigurationProperties().stream()
+			.map(CameraHelper::createICameraConfiguration)
+			.map(ICameraConfiguration::getCameraControl)
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::removeIObserverFromCameraControl));
 	}
 
@@ -461,7 +440,6 @@ public final class CameraHelper {
 	private static final void loadAllProperties() {
 		removeObserverCameraProperties();
 
-		convertAllCameraPropertiesBySpring();
 		observeCameraProperties();
 
 		monitorCameraAvailability();
@@ -472,48 +450,6 @@ public final class CameraHelper {
 				.getCameras()
 				.stream()
 				.filter(c -> c.getConfiguration() != null && c.getCameraControl() != null)
-				.collect(Collectors.toList());
-	}
-
-	private static void convertAllCameraPropertiesBySpring() {
-		List<CameraConfigurationProperties> cp = getCameraProperies();
-		IntStream.range(0, cp.size())
-			.forEach(index -> {
-				cameraPropertiesBySpring.put(cp.get(index), CameraHelper.convertProperties(cp.get(index), index));
-			});
-	}
-
-	private static CameraProperties getCameraPropertiesBySpring(CameraConfigurationProperties cc) {
-		return cameraPropertiesBySpring.get(cc);
-	}
-
-	private static CameraProperties convertProperties(CameraConfigurationProperties cc, int index) {
-		if (cc.getCameraControl() == null && cc.getName() == null)
-			return null;
-		var builder = new CameraPropertiesBuilder();
-		builder.setId(cc.getId());
-		builder.setIndex(index);
-		builder.setName(cc.getName());
-		builder.setCameraConfiguration(cc.getConfiguration());
-		builder.setCameraControl(cc.getCameraControl());
-		builder.setReadoutTime(cc.getReadoutTime());
-		builder.setPixelBinningEditable(cc.isPixelBinningEditable());
-		builder.setTriggerMode(cc.getTriggerMode());
-
-		builder.setMotorProperties(convertProperties(cc.getMotors()));
-		return builder.build();
-	}
-
-	private static List<MotorProperties> convertProperties(List<ControllerConfiguration> motors) {
-		if (motors == null)
-			return Collections.emptyList();
-		return motors.stream()
-				.map(m -> {
-					var motorBuilder = new MotorPropertiesBuilder();
-					motorBuilder.setName(m.getName());
-					motorBuilder.setController(m.getController());
-					return motorBuilder.build();
-				})
 				.collect(Collectors.toList());
 	}
 
