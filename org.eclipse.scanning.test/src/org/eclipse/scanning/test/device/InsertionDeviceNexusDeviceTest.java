@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.test.device;
 
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -47,10 +48,10 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(GAP_SCANNABLE_NAME, 2.3);
-		createMockScannable(TAPER_SCANNABLE_NAME, 7.24);
-		createMockScannable(HARMONIC_SCANNABLE_NAME, 2);
-		createMockScannable(BANDWIDTH_SCANNABLE_NAME, 15.2);
+		createMockScannable(GAP_SCANNABLE_NAME, 2.3, UNITS_ATTR_VAL_MILLIMETERS);
+		createMockScannable(TAPER_SCANNABLE_NAME, 7.24, UNITS_ATTR_VAL_DEGREES);
+		createMockScannable(HARMONIC_SCANNABLE_NAME, 2l, null);
+		createMockScannable(BANDWIDTH_SCANNABLE_NAME, 15.2, UNITS_ATTR_VAL_GEV);
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 		// set up custom fields
 		final List<MetadataNode> customFields = new ArrayList<>();
 		customFields.add(new ScannableField(NXinsertion_device.NX_BANDWIDTH, BANDWIDTH_SCANNABLE_NAME));
-		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, INSERTION_DEVICE_LENGTH));
+		customFields.add(new ScalarField(NXinsertion_device.NX_LENGTH, INSERTION_DEVICE_LENGTH, UNITS_ATTR_VAL_MILLIMETERS));
 		customFields.add(new ScalarField(CUSTOM_FIELD_NAME, CUSTOM_FIELD_VALUE));
 		insertionDevice.setCustomNodes(customFields);
 
@@ -75,14 +76,20 @@ public class InsertionDeviceNexusDeviceTest extends AbstractNexusMetadataDeviceT
 	}
 
 	@Override
-	protected void checkNexusObject(NXinsertion_device nxInsertionDevice) throws Exception {
-		assertThat(nxInsertionDevice.getTypeScalar(), is(InsertionDeviceType.WIGGLER.toString()));
-		assertThat(nxInsertionDevice.getGapScalar(), is(equalTo(getScannableValue(GAP_SCANNABLE_NAME))));
-		assertThat(nxInsertionDevice.getTaperScalar(), is(equalTo(getScannableValue(TAPER_SCANNABLE_NAME))));
+	protected void checkNexusObject(NXinsertion_device insertionDevice) throws Exception {
+		assertThat(insertionDevice.getTypeScalar(), is(InsertionDeviceType.WIGGLER.toString()));
+		assertThat(insertionDevice.getGapScalar(), is(equalTo(getScannableValue(GAP_SCANNABLE_NAME))));
+		assertUnits(insertionDevice, NXinsertion_device.NX_GAP, UNITS_ATTR_VAL_MILLIMETERS);
+		assertThat(insertionDevice.getTaperScalar(), is(equalTo(getScannableValue(TAPER_SCANNABLE_NAME))));
+		assertUnits(insertionDevice, NXinsertion_device.NX_TAPER, UNITS_ATTR_VAL_DEGREES);
+		assertThat(insertionDevice.getHarmonicScalar(), is(equalTo(getScannableValue(HARMONIC_SCANNABLE_NAME))));
+		assertUnits(insertionDevice, NXinsertion_device.NX_HARMONIC, null);
+		assertThat(insertionDevice.getBandwidthScalar(), is(equalTo(getScannableValue(BANDWIDTH_SCANNABLE_NAME))));
+		assertUnits(insertionDevice, NXinsertion_device.NX_BANDWIDTH, UNITS_ATTR_VAL_GEV);
 
-		assertThat(nxInsertionDevice.getBandwidthScalar(), is(equalTo(getScannableValue(BANDWIDTH_SCANNABLE_NAME))));
-		assertThat(nxInsertionDevice.getLengthScalar(), is(equalTo(INSERTION_DEVICE_LENGTH)));
-		assertThat(nxInsertionDevice.getDataset(CUSTOM_FIELD_NAME),
+		assertThat(insertionDevice.getLengthScalar(), is(equalTo(INSERTION_DEVICE_LENGTH)));
+		assertUnits(insertionDevice, NXinsertion_device.NX_LENGTH, UNITS_ATTR_VAL_MILLIMETERS);
+		assertThat(insertionDevice.getDataset(CUSTOM_FIELD_NAME),
 				is(equalTo(DatasetFactory.createFromObject(CUSTOM_FIELD_VALUE))));
 	}
 

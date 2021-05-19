@@ -18,26 +18,28 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.analysis.api.tree.Node;
-import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.scanning.api.INameable;
 
 /**
- * An object that knows how to create a {@link Node} to add to the {@link GroupNode} for an {@link INexusDevice},
- * e.g. a {@link ScalarField}.
+ * A {@link MetadataNode} that knows how to create a {@link DataNode}. If the units property is set
+ * (see {@link #setUnits(String)}), a {@code units} {@link Attribute} will be added to the trade
  */
-public interface MetadataNode extends INameable {
+public interface MetadataField extends MetadataNode {
+
+	public String getUnits() throws NexusException;
 
 	/**
-	 * Create and return the nexus {@link Node} for this object.
-	 * @throws NexusException if the node could not be created for any reason
+	 * The value to set the {@code units} {@link Attribute} to.
+	 * @param units
 	 */
-	public Node createNode() throws NexusException;
+	public void setUnits(String units);
 
-	public default boolean isDefaultValue() {
-		return false;
-	}
+	/**
+	 * Overrides {@link MetadataNode#createNode()} to always return a {@link DataNode}
+	 */
+	@Override
+	public DataNode createNode() throws NexusException;
 
 }

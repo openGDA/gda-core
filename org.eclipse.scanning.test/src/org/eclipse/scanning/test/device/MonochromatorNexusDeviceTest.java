@@ -18,10 +18,12 @@
 
 package org.eclipse.scanning.test.device;
 
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,8 +54,11 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(ENERGY_SCANNABLE_NAME, 358.89);
-		createMockScannable(ENERGY_ERROR_SCANNABLE_NAME, 0.1);
+		createMockScannable(ENERGY_SCANNABLE_NAME, 358.89, UNITS_ATTR_VAL_GEV);
+		createMockScannable(ENERGY_ERROR_SCANNABLE_NAME, 0.1, UNITS_ATTR_VAL_GEV);
+
+		createMockScannable(CRYSTAL1_TEMPERATURE_SCANNABLE_NAME, 52.5, UNITS_ATTR_VAL_KELVIN);
+		createMockScannable(CRYSTAL2_TEMPERATURE_SCANNABLE_NAME, 63.2, UNITS_ATTR_VAL_KELVIN);
 	}
 
 	@Override
@@ -79,7 +84,7 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 		crystalFields.add(new ScalarField(NXcrystal.NX_USAGE, EXPECTED_CRYSTAL_USAGE));
 		crystalFields.add(new ScalarField(NXcrystal.NX_TYPE, EXPECTED_CRYSTAL_TYPE));
 		crystalFields.add(new ScalarField(NXcrystal.NX_ORDER_NO, number));
-		crystalFields.add(new ScannableField(NXcrystal.NX_TEMPERATURE, temperatureScannableName));
+		crystalFields.add(new ScannableField(NXcrystal.NX_TEMPERATURE, temperatureScannableName, UNITS_ATTR_VAL_KELVIN));
 		crystal.addChildNodes(crystalFields);
 
 		return crystal;
@@ -88,9 +93,21 @@ public class MonochromatorNexusDeviceTest extends AbstractNexusMetadataDeviceTes
 	@Override
 	protected void checkNexusObject(NXmonochromator monochromator) throws Exception {
 		assertThat(monochromator.getEnergyScalar(), is(equalTo(getScannableValue(ENERGY_SCANNABLE_NAME))));
+		assertUnits(monochromator, NXmonochromator.NX_ENERGY, UNITS_ATTR_VAL_GEV);
 		assertThat(monochromator.getEnergy_errorScalar(), is(equalTo(getScannableValue(ENERGY_ERROR_SCANNABLE_NAME))));
+		assertUnits(monochromator, NXmonochromator.NX_ENERGY_ERROR, UNITS_ATTR_VAL_GEV);
 
-		assertThat(monochromator.getGroupNodeNames(), containsInAnyOrder(CRYSTAL1_GROUP_NAME, CRYSTAL2_GROUP_NAME));
-
+		final String[] crystalNames = { CRYSTAL1_GROUP_NAME, CRYSTAL2_GROUP_NAME };
+		final String[] crystalTempScannableNames = { CRYSTAL1_TEMPERATURE_SCANNABLE_NAME, CRYSTAL2_TEMPERATURE_SCANNABLE_NAME };
+		assertThat(monochromator.getGroupNodeNames(), containsInAnyOrder(crystalNames));
+		assertThat(monochromator.getAllCrystal().size(), is(crystalNames.length));
+		for (int i = 0; i < crystalNames.length; i++) {
+			final NXcrystal crystal = monochromator.getCrystal(crystalNames[i]);
+			assertThat(crystal, is(notNullValue()));
+			assertThat(crystal.getDataNodeNames(), containsInAnyOrder(
+					NXcrystal.NX_USAGE, NXcrystal.NX_TYPE, NXcrystal.NX_ORDER_NO, NXcrystal.NX_TEMPERATURE));
+			assertThat(crystal.getTemperatureScalar(), is(equalTo(getScannableValue(crystalTempScannableNames[i]))));
+			assertUnits(crystal, NXcrystal.NX_TEMPERATURE, UNITS_ATTR_VAL_KELVIN);
+		}
 	}
 }

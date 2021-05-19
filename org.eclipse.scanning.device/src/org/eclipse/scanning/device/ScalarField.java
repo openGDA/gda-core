@@ -19,15 +19,11 @@
 package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 
 /**
  * A field written to the nexus file as a scalar value.
  */
-public class ScalarField extends AbstractMetadataNode {
+public class ScalarField extends AbstractMetadataField {
 
 	private boolean isDefaultValue;
 
@@ -42,9 +38,18 @@ public class ScalarField extends AbstractMetadataNode {
 		this.value = value;
 	}
 
+	public ScalarField(String fieldName, Object value, String units) {
+		this(fieldName, value, units, false);
+	}
+
 	public ScalarField(String fieldName, Object value, boolean isDefault) {
+		this(fieldName, value, null, isDefault);
+	}
+
+	public ScalarField(String fieldName, Object value, String units, boolean isDefault) {
 		this(fieldName, value);
-		this.isDefaultValue = isDefault;
+		setDefaultValue(isDefault);
+		setUnits(units);
 	}
 
 	public Object getValue() {
@@ -65,12 +70,9 @@ public class ScalarField extends AbstractMetadataNode {
 	}
 
 	@Override
-	public DataNode createNode() throws NexusException {
-		final DataNode dataNode = NexusNodeFactory.createDataNode();
-		final Dataset dataset = DatasetFactory.createFromObject(getValue());
-		dataset.setName(getName());
-		dataNode.setDataset(dataset);
-		return dataNode;
+	protected DataNode createDataNode() {
+		final Object value = getValue();
+		return createDataNode(value);
 	}
 
 }

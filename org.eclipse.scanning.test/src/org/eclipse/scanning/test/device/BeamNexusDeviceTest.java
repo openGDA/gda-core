@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.test.device;
 
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
@@ -42,11 +43,11 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(INCIDENT_ENERGY_SCANNABLE_NAME, 234.88);
-		createMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME, 1.234);
+		createMockScannable(INCIDENT_ENERGY_SCANNABLE_NAME, 234.88, UNITS_ATTR_VAL_GEV);
+		createMockScannable(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME, 1.234, UNITS_ATTR_VAL_DEGREES);
 		createMockScannable(INCIDENT_POLARIZATION_SCANNABLE_NAME, 3.683);
-		createMockScannable(BEAM_EXTENT_SCANNABLE_NAME, 0.01);
-		createMockScannable(FLUX_SCANNABLE_NAME, 843.23);
+		createMockScannable(BEAM_EXTENT_SCANNABLE_NAME, 0.01, UNITS_ATTR_VAL_MILLIMETERS);
+		createMockScannable(FLUX_SCANNABLE_NAME, 843.23, UNITS_ATTR_VAL_FLUX);
 	}
 
 	@Override
@@ -75,9 +76,13 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 		assertThat(extentDataset.getDouble(), is(equalTo(getScannableValue(BEAM_EXTENT_SCANNABLE_NAME))));
 
 		assertThat(beam.getDistanceScalar(), is(closeTo(0.0, 1e-15)));
+		assertUnits(beam, NXbeam.NX_DISTANCE, UNITS_ATTR_VAL_MILLIMETERS);
 		assertThat(beam.getIncident_energyScalar(), is(equalTo(getScannableValue(INCIDENT_ENERGY_SCANNABLE_NAME))));
+		assertUnits(beam, NXbeam.NX_INCIDENT_ENERGY, UNITS_ATTR_VAL_GEV);
 		assertThat(beam.getIncident_beam_divergenceScalar(), is(equalTo(getScannableValue(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME))));
+		assertUnits(beam, NXbeam.NX_INCIDENT_BEAM_DIVERGENCE, UNITS_ATTR_VAL_DEGREES);
 		assertThat(beam.getIncident_polarizationScalar(), is(equalTo(getScannableValue(INCIDENT_POLARIZATION_SCANNABLE_NAME))));
+		assertUnits(beam, NXbeam.NX_INCIDENT_POLARIZATION, null);
 		assertThat(beam.getFluxScalar(), is(equalTo(getScannableValue(FLUX_SCANNABLE_NAME))));
 	}
 

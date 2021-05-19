@@ -30,7 +30,7 @@ public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 	public BeamNexusDevice() {
 		super(NexusBaseClass.NX_BEAM);
 		setCategory(NexusBaseClass.NX_SAMPLE);
-		addScalarField(NXbeam.NX_DISTANCE, 0.0);
+		addScalarField(NXbeam.NX_DISTANCE, 0.0, "mm");
 	}
 
 	public void setIncidentEnergyScannableName(String incidentEnergyScannableName) {

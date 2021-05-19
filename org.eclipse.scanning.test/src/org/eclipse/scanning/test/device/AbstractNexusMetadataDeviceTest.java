@@ -37,6 +37,13 @@ import org.junit.Test;
 
 public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 
+	protected static final String UNITS_ATTR_VAL_MILLIMETERS = "mm";
+	protected static final String UNITS_ATTR_VAL_DEGREES = "deg";
+	protected static final String UNITS_ATTR_VAL_GEV = "GeV";
+	protected static final String UNITS_ATTR_VAL_FLUX = "1/s/cm^2";
+	protected static final String UNITS_ATTR_VAL_KELVIN = "K";
+	protected static final String UNITS_ATTR_VAL_AMPS = "A";
+
 	protected IScannableDeviceService scannableDeviceService;
 
 	private INexusDevice<N> nexusDevice;
@@ -60,10 +67,15 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 	}
 
 	protected <T> IScannable<T> createMockScannable(String name, T position) throws Exception {
+		return createMockScannable(name, position, null);
+	}
+
+	protected <T> IScannable<T> createMockScannable(String name, T position, String units) throws Exception {
 		@SuppressWarnings("unchecked")
 		final IScannable<T> mockScannable = mock(IScannable.class);
 		when(mockScannable.getName()).thenReturn(name);
 		when(mockScannable.getPosition()).thenReturn(position);
+		when(mockScannable.getUnit()).thenReturn(units);
 		scannableDeviceService.register(mockScannable);
 		return mockScannable;
 	}
@@ -88,6 +100,5 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 	}
 
 	protected abstract void checkNexusObject(N nexusObject) throws Exception;
-
 
 }

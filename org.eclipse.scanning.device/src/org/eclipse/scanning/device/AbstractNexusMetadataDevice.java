@@ -65,6 +65,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue));
 	}
 
+	public void addScalarField(String fieldName, Object fieldValue, String units) {
+		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue, units));
+	}
+
 	protected void setDefaultValue(String nxName, Object defaultValue) {
 		metadataNode.addChildNode(new ScalarField(nxName, defaultValue, true));
 	}

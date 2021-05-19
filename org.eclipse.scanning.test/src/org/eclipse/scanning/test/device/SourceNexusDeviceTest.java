@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.test.device;
 
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -36,7 +37,7 @@ public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsou
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
-		createMockScannable(CURRENT_SCANNABLE_NAME, 12.34);
+		createMockScannable(CURRENT_SCANNABLE_NAME, 12.34, UNITS_ATTR_VAL_AMPS);
 	}
 
 	@Override
@@ -57,6 +58,7 @@ public class SourceNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXsou
 		assertThat(source.getTypeScalar(), is(equalTo(EXPECTED_TYPE)));
 		assertThat(source.getProbeScalar(), is(equalTo(EXPECTED_PROBE)));
 		assertThat(source.getCurrentScalar(), is(equalTo(getScannableValue(CURRENT_SCANNABLE_NAME))));
+		assertUnits(source, NXsource.NX_CURRENT, UNITS_ATTR_VAL_AMPS);
 	}
 
 }

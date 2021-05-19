@@ -20,16 +20,18 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.scan.ScanningException;
 
+import gda.device.ScannableMotionUnits;
+
 /**
- * A {@link AbstractMetadataNode} field that is written as the position of a scannable.
+ * A {@link MetadataNode} field that creates a {@link DataNode} the value of which is
+ * the position of a scannable identified by the {@code scannableName}.
+ * If the units property is not specified in this object, and the scannable has units,
+ * then these are written instead. See ({@link IScannable#getUnit()} {@link ScannableMotionUnits#getUserUnits()}.
  */
-public class ScannableField extends AbstractMetadataNode {
+public class ScannableField extends AbstractMetadataField {
 
 	public ScannableField() {
 		// no-arg constructor for spring initialization
@@ -38,6 +40,12 @@ public class ScannableField extends AbstractMetadataNode {
 	public ScannableField(String fieldName, String scannableName) {
 		super(fieldName);
 		setScannableName(scannableName);
+	}
+
+	public ScannableField(String fieldName, String scannableName, String units) {
+		super(fieldName);
+		setScannableName(scannableName);
+		setUnits(units);
 	}
 
 	private String scannableName;
@@ -51,21 +59,34 @@ public class ScannableField extends AbstractMetadataNode {
 	}
 
 	@Override
-	public DataNode createNode() throws NexusException {
-		final DataNode dataNode = NexusNodeFactory.createDataNode();
-		final Dataset dataset = DatasetFactory.createFromObject(getScannableValue(scannableName));
-		dataset.setName(getName());
-		dataNode.setDataset(dataset);
-		return dataNode;
+	public String getUnits() throws NexusException {
+		String units = super.getUnits();
+		if (units == null) {
+			units = getScannable().getUnit();
+		}
+
+		return units;
 	}
 
-	@SuppressWarnings("unchecked")
-	protected <T> T getScannableValue(String scannableName) throws NexusException {
+	@Override
+	protected DataNode createDataNode() throws NexusException {
+		final Object value = getScannableValue();
+		return createDataNode(value);
+	}
+
+	private IScannable<?> getScannable() throws NexusException {
 		try {
-			IScannable<?> scannable = Services.getScannableDeviceService().getScannable(scannableName);
-			return (T) scannable.getPosition();
+			return Services.getScannableDeviceService().getScannable(getScannableName());
 		} catch (ScanningException e) {
 			throw new NexusException("Could not find scannable with name: " + scannableName);
+		}
+	}
+
+	private Object getScannableValue() throws NexusException {
+		try {
+			return getScannable().getPosition();
+		} catch (ScanningException e) {
+			throw new NexusException("Could not get position for scannable with name: " + scannableName);
 		}
 	}
 
