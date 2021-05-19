@@ -18,91 +18,25 @@
 
 package uk.ac.gda.client.livecontrol;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-
-import com.swtdesigner.SWTResourceManager;
-
-import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
 
-public class JythonCommandControl extends LiveControlBase {
+/**
+ * Subclass of {@link CommandControl} to run the specified command in the Jython interpreter
+ */
+public class JythonCommandControl extends CommandControl {
 
-	private String buttonText;
-	private String jythonCommand;
-
-	public String getButtonText() {
-		return buttonText;
+	@Override
+	protected void runCommand(String command) {
+		InterfaceProvider.getCommandRunner().runCommand(command);
 	}
 
-	public void setButtonText(String buttonText) {
-		this.buttonText = buttonText;
-	}
+	// For backwards compatibility
 
 	public String getJythonCommand() {
-		return jythonCommand;
+		return getCommand();
 	}
 
 	public void setJythonCommand(String jythonCommand) {
-		this.jythonCommand = jythonCommand;
+		setCommand(jythonCommand);
 	}
-
-	@Override
-	public void createControl(Composite composite) {
-		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-		composite.setBackgroundMode(SWT.INHERIT_FORCE);
-
-		final ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
-		final Button button = new Button(composite, SWT.NONE);
-		button.setText(buttonText);
-
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				super.widgetSelected(e);
-				commandRunner.runCommand(jythonCommand);
-			}
-		});
-
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((buttonText == null) ? 0 : buttonText.hashCode());
-		result = prime * result + ((jythonCommand == null) ? 0 : jythonCommand.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		JythonCommandControl other = (JythonCommandControl) obj;
-		if (buttonText == null) {
-			if (other.buttonText != null)
-				return false;
-		} else if (!buttonText.equals(other.buttonText))
-			return false;
-		if (jythonCommand == null) {
-			if (other.jythonCommand != null)
-				return false;
-		} else if (!jythonCommand.equals(other.jythonCommand))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "JythonCommandControl [buttonText=" + buttonText + ", jythonCommand=" + jythonCommand + "]";
-	}
-
 }
