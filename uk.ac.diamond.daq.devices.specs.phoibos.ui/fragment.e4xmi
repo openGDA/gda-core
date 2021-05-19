@@ -57,9 +57,7 @@
           </children>
         </children>
         <children xsi:type="basic:PartSashContainer" xmi:id="_Rxh5IAfqEeuG1ItS5RK17g" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partsashcontainer.6" containerData="4000">
-          <children xsi:type="basic:PartStack" xmi:id="_fwojAAfDEeuatOovFPTZIQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.5">
-            <children xsi:type="basic:Part" xmi:id="_MtAhEAfDEeuatOovFPTZIQ" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:d22c_cam1#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="D22C"/>
-          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_fwojAAfDEeuatOovFPTZIQ" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.5"/>
           <children xsi:type="basic:PartStack" xmi:id="_luVJUAfrEeuG1ItS5RK17g" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.partstack.7">
             <children xsi:type="basic:Part" xmi:id="_M7fiADOpEequh-BNi-2a_Q" elementId="uk.ac.diamond.daq.devices.specs.phoibos.ui.part.alignmentcontrol" contributionURI="bundleclass://uk.ac.diamond.daq.devices.specs.phoibos.ui/uk.ac.diamond.daq.devices.specs.phoibos.ui.control.SpecsAlignmentView" label="Alignment Controls" closeable="true"/>
           </children>
