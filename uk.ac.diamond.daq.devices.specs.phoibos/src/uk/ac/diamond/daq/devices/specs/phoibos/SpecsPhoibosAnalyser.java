@@ -134,6 +134,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 
 	private boolean shouldCheckExperimentalShutter = true;
 	private boolean shouldCheckPrelensValve = true;
+	private double alignmentTimeout = 475;
 
 
 	@Override
@@ -654,19 +655,25 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	}
 
 	@Override
-	public void startContinuous() {
-		logger.info("Starting continious acquisition");
+	public void startAlignment(double passEnergy, double centreEnergy, double exposureTime) {
+		logger.info("Starting alignment");
 		try {
 			// Switch off safe state to make continuous performance much better
 			setSafeState(false);
-			// Change to continuous
-			controller.setImageMode(ImageMode.CONTINUOUS);
-			// Change to 1 iteration
+			// Change to single
+			controller.setImageMode(ImageMode.SINGLE);
+			// Set parameters of alignment
 			controller.setIterations(1);
+			controller.setAcquisitionMode("Fixed Energy");
+			controller.setLensMode("LargeArea");
+			controller.setPassEnergy(passEnergy);
+			controller.setCentreEnergy(centreEnergy);
+			controller.setExposureTime(exposureTime);
+			controller.setValues((int)(alignmentTimeout/exposureTime));
 			// Start acquiring
 			controller.startAcquiring();
 		} catch (Exception e) {
-			final String msg = "Error starting continuous acquire";
+			final String msg = "Error starting alignment";
 			logger.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
@@ -1285,5 +1292,9 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 	@Override
 	public void disablePrelensValveCheck() {
 		setShouldCheckPrelensValve(false);
+	}
+
+	public void setAlignmentTimeout(double alignmentTimeout) {
+		this.alignmentTimeout = alignmentTimeout;
 	}
 }

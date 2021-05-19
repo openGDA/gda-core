@@ -64,10 +64,6 @@ public class SpecsLiveAnalyserControlController {
 	}
 
 	public void start() {
-		// Setup the currently chosen settings
-		analyser.setRegion(model.getRegion());
-		// Start continuous acquisition
-		analyser.startContinuous();
 
 	}
 

@@ -44,7 +44,6 @@ import com.swtdesigner.SWTResourceManager;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 
 public class SpecsAlignmentView implements IObserver {
@@ -53,10 +52,8 @@ public class SpecsAlignmentView implements IObserver {
 
 	private Text passEnergyText;
 	private Text kineticEnergyText;
-	private Text valuesText;
 	private Text exposureText;
 	private Text countsText;
-	private Button setButton;
 	private Button startButton;
 	private Button stopButton;
 
@@ -94,12 +91,6 @@ public class SpecsAlignmentView implements IObserver {
 		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(passEnergyText);
 		passEnergyText.setText("40");
 
-		Label valuesLabel = new Label(controlsArea, SWT.NONE);
-		valuesLabel.setText("Values");
-		valuesText = new Text(controlsArea, SWT.BORDER);
-		GridDataFactory.swtDefaults().grab(true, false).hint(50, SWT.DEFAULT).applyTo(valuesText);
-		valuesText.setText("1000");
-
 		Label exposureLabel = new Label(controlsArea, SWT.NONE);
 		exposureLabel.setText("Dwell");
 		exposureText = new Text(controlsArea, SWT.BORDER);
@@ -110,26 +101,6 @@ public class SpecsAlignmentView implements IObserver {
 		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 10).applyTo(buttonsArea);
 		buttonsArea.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		// Set button
-		setButton = new Button(buttonsArea, SWT.DEFAULT);
-		setButton.setLayoutData(new GridData(100, SWT.DEFAULT));
-		setButton.setText("Set");
-		setButton.setToolTipText("Set Analyser");
-		setButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// Use values set by user
-				SpecsPhoibosRegion customRegion = new SpecsPhoibosRegion();
-				customRegion.setAcquisitionMode("Fixed Energy");
-				customRegion.setLensMode("LargeArea");
-				customRegion.setCentreEnergy(Double.valueOf(kineticEnergyText.getText()));
-				customRegion.setPassEnergy(Double.valueOf(passEnergyText.getText()));
-				customRegion.setExposureTime(Double.valueOf(exposureText.getText()));
-				customRegion.setValues(Integer.parseInt(valuesText.getText()));
-				analyser.setRegion(customRegion);
-				}
-		});
-
 		// Start button
 		startButton = new Button(buttonsArea, SWT.DEFAULT);
 		startButton.setLayoutData(new GridData(100, SWT.DEFAULT));
@@ -139,7 +110,10 @@ public class SpecsAlignmentView implements IObserver {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// Start Acquiring
-				analyser.startContinuous();
+				double passEnergy = Double.valueOf(passEnergyText.getText());
+				double centreEnergy = Double.valueOf(kineticEnergyText.getText());
+				double exposure = Double.valueOf(exposureText.getText());
+				analyser.startAlignment(passEnergy, centreEnergy, exposure);
 			}
 		});
 
@@ -152,7 +126,7 @@ public class SpecsAlignmentView implements IObserver {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				analyser.stopAcquiring();
-				}
+			}
 		});
 
 		Composite displayArea = new Composite(child, SWT.NONE);
@@ -225,12 +199,10 @@ public class SpecsAlignmentView implements IObserver {
 
 	private void checkRequiredFieldsArePresent(ModifyEvent e) {
 		if (kineticEnergyText.getText().isEmpty() || passEnergyText.getText().isEmpty() ||
-				valuesText.getText().isEmpty() || exposureText.getText().isEmpty()){
-			setButton.setEnabled(false);
+				exposureText.getText().isEmpty()){
 			startButton.setEnabled(false);
 			stopButton.setEnabled(false);
 		}else {
-			setButton.setEnabled(true);
 			startButton.setEnabled(true);
 			stopButton.setEnabled(true);
 		}
@@ -238,7 +210,7 @@ public class SpecsAlignmentView implements IObserver {
 
 	private void checkInputIsNumerical(VerifyEvent e) {
 		if (e.character == SWT.BS || e.keyCode == SWT.ARROW_LEFT || e.keyCode == SWT.ARROW_RIGHT
-				|| e.keyCode == SWT.DEL) {
+				|| e.keyCode == SWT.DEL || e.keyCode == SWT.KEYPAD_DECIMAL) {
 			e.doit = true;
 			return;
 		}
