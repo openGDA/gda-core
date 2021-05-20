@@ -125,7 +125,6 @@ import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionConfigurationException
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
@@ -714,12 +713,12 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private void initialiseElements() {
 		name.setText(getAcquisitionController().getAcquisition().getName());
 		initializeScanType();
-		initializeAngleRange();
+		initializeStartAngle();
 		initializeEndAngle();
-		updateAngularStep();
+		initializeProjections();
+		updateStartStop();
 
 		initializeImageCalibration();
-		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 		updateMultipleScan();
 		processingRequest.reload();
 	}
@@ -730,11 +729,13 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		addContinuous();
 	}
 
-	private void initializeAngleRange() {
+	private void initializeStartAngle() {
 		currentAngleButton.setSelection(false);
 		startAngleText.setText(Double.toString(getScannableTrackDocument().getStart()));
-		initializeEndAngle();
-		updateStartStop();
+	}
+
+	private void initializeProjections() {
+		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 	}
 
 	private void initializeEndAngle() {
@@ -744,7 +745,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		customRotationRangeType.setSelection(false);
 		customAngle.setText("");
 
-		String customAngleString = "";
+		var customAngleString = "";
 		if (getScannableTrackDocument().getStop() == 180.0) {
 			halfRotationRangeType.setSelection(true);
 			customAngleString = "180.0";
@@ -753,7 +754,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 			customAngleString = "360.0";
 		} else if (!Double.isNaN(getScannableTrackDocument().getStop())) {
 			customRotationRangeType.setSelection(true);
-			Event event = new Event();
+			var event = new Event();
 			event.widget = customRotationRangeType;
 			customAngleString = Double.toString(getScannableTrackDocument().getStop());
 			Arrays.stream(customRotationRangeType.getListeners(SWT.SELECTED))
@@ -764,7 +765,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	}
 
 	private void initializeImageCalibration() {
-		ImageCalibration ic = getAcquisitionConfiguration().getImageCalibration();
+		var ic = getAcquisitionConfiguration().getImageCalibration();
 		Optional.ofNullable(ic.getDarkCalibration())
 			.ifPresent(this::initializeDarkCalibration);
 
@@ -865,6 +866,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private void updateAngularStep() {
 		double newAngularStep = calculateAngularStep();
+		dataHelper.updateStep(newAngularStep);
 		angularStep.setText(Double.toString(newAngularStep));
 	}
 
