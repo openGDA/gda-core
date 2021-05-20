@@ -983,15 +983,20 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	}
 
 	private SpecsPhoibosRegionValidation validateRegion(SpecsPhoibosRegion region) throws DeviceException {
-		setRegion(region);
 		SpecsPhoibosRegionValidation validationForRegion = new SpecsPhoibosRegionValidation(region);
+
+		// Start with gda validation
+		validationForRegion.addErrors(validateRegionEnergy(region));
+		validationForRegion.addErrors(validateScannablePositions(region));
+
+		//Continue with epics validation
+		setRegion(region);
 		try {
 			controller.validateScanConfiguration();
 			String validityStatus = controller.getScanValidityStatus();
 			if (validityStatus.equals("INVALID")) {
 				validationForRegion.addErrors(Arrays.asList(getStatusMessage()));
 			}
-			validationForRegion.addErrors(validateScannablePositions(region));
 			return validationForRegion;
 		} catch (Exception e) {
 			final String msg = "Error validating scan configuration";
