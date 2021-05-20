@@ -69,14 +69,13 @@
 											<exclude>javax.*</exclude>
 											<exclude>oracle.*</exclude>
 											<exclude>persistence.*</exclude>
-											<exclude>uk.ac.gda.exafs.ui</exclude> <!-- This is here because it appears in the split package resolver, might 
-												be able to remove if the relevant client features are added later -->
 											<exclude>fr.esrf.*</exclude>
 											<exclude>org.python.*</exclude>
 											<exclude>astra.*</exclude>
 											<exclude>co.gphl.*</exclude>
 											<exclude>org.metawidget.*</exclude>
 											<exclude>de.jreality.*</exclude>
+											<exclude>org.edna.ifeffit</exclude>
 										</excludes>
 										<additionalArguments>
 											<additionalArgument>-link https://docs.oracle.com/en/java/javase/11/docs/api</additionalArgument>
