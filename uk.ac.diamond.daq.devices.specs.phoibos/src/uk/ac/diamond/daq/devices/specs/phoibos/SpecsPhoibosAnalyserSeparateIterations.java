@@ -985,7 +985,13 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private SpecsPhoibosRegionValidation validateRegion(SpecsPhoibosRegion region) throws DeviceException {
 		SpecsPhoibosRegionValidation validationForRegion = new SpecsPhoibosRegionValidation(region);
 
-		// Start with gda validation
+		//Start with gda validation block any further validation if problem with PSU mode
+		List<String> psuModeError = validatePsuMode(region);
+		if (!psuModeError.isEmpty()) {
+			validationForRegion.addErrors(psuModeError);
+			return validationForRegion;
+		}
+
 		validationForRegion.addErrors(validateRegionEnergy(region));
 		validationForRegion.addErrors(validateScannablePositions(region));
 
@@ -1026,6 +1032,21 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Compares PSU mode and start/end energy
+	 */
+	private List<String> validatePsuMode(SpecsPhoibosRegion region){
+		List<String> psuValidationError = new ArrayList<>();
+		double startEnergy = region.getStartEnergy();
+		double endEnergy = region.getEndEnergy();
+		String currentPsuMode = getPsuMode().replace("kV", "");
+		double comparablePsuValue = Double.parseDouble(currentPsuMode) * 1000;
+		if (startEnergy > comparablePsuValue || endEnergy > comparablePsuValue) {
+			psuValidationError.add("Kinetic energy of the scan exceeds limit of the current PSU mode");
+		}
+		return psuValidationError;
 	}
 
 	/**
