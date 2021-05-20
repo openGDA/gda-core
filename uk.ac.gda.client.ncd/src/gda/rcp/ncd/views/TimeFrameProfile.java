@@ -730,22 +730,6 @@ public class TimeFrameProfile extends TabItem {
 		}
 		frames *= tpp.getRepeat();
 		text1.setText(String.valueOf(frames));
-
-		// NcdMemoryUsage nmu = null;
-		// IWorkbench wb = PlatformUI.getWorkbench();
-		// if (wb != null) {
-		// IWorkbenchWindow wbw = wb.getActiveWorkbenchWindow();
-		// if (wbw != null) {
-		// IWorkbenchPage iwp = wbw.getActivePage();
-		// if (iwp != null) {
-		// nmu = (NcdMemoryUsage) iwp.findView("gda.rcp.ncd.views.NcdMemoryUsage");
-		// if (nmu != null) {
-		// nmu.setTimeFrameCount(frames);
-		// }
-		// }
-		// }
-		// }
-		// ExptDataModel.getInstance().setTotalFrames(frames);
 	}
 
 	public void displayTotalTime() {
