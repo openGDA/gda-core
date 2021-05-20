@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -64,7 +64,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 		Assert.assertEquals(0.1, scannableDocument.getStart(), 0.0);
 		Assert.assertEquals(0.2, scannableDocument.getStop(), 0.0);
 		Assert.assertEquals(0.5, scannableDocument.getStep(), 0.0);
-		Assert.assertEquals(Integer.MIN_VALUE, scannableDocument.getPoints(), 0.0);
+		Assert.assertEquals(0, scannableDocument.getPoints(), 0.0);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 		Assert.assertEquals("motor_y", scannableDocument.getScannable());
 		Assert.assertEquals(0.1, scannableDocument.getStart(), 0.0);
 		Assert.assertEquals(0.2, scannableDocument.getStop(), 0.0);
-		Assert.assertEquals(Double.MIN_VALUE, scannableDocument.getStep(), 0.0);
+		Assert.assertEquals(0, scannableDocument.getStep(), 0.0);
 		Assert.assertEquals(10, scannableDocument.getPoints(), 0.0);
 	}
 
@@ -86,6 +86,6 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 		builder.withStop(5.0);
 		builder.withStep(1.0);
 		ScannableTrackDocument scannableDocument = builder.build();
-		Assert.assertEquals(Integer.MIN_VALUE, scannableDocument.getPoints(), 0.0);
+		Assert.assertEquals(0, scannableDocument.getPoints(), 0.0);
 	}
 }

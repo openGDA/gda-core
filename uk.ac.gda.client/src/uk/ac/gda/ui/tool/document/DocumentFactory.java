@@ -55,11 +55,12 @@ public class DocumentFactory {
 
 	public Supplier<ScanningAcquisition> newScanningAcquisition(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
 		return () -> {
-			var newConfiguration = new ScanningAcquisition();
+			var newAcquisition = new ScanningAcquisition();
+			// Does not set UUID as it will be inserted by the save service
 			var configuration = new ScanningConfiguration();
-			newConfiguration.setAcquisitionConfiguration(configuration);
+			newAcquisition.setAcquisitionConfiguration(configuration);
 
-			newConfiguration.setName("Untitled Acquisition");
+			newAcquisition.setName("Untitled Acquisition");
 			var acquisitionParameters = new ScanningParameters();
 			configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
@@ -72,13 +73,13 @@ public class DocumentFactory {
 			multipleScanBuilder.withNumberRepetitions(1);
 			multipleScanBuilder.withWaitingTime(0);
 			configuration.setMultipleScans(multipleScanBuilder.build());
-			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
+			newAcquisition.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 
 			// --- NOTE---
 			// The creation of the acquisition engine and the used detectors documents are delegated to the ScanningAcquisitionController
 			// --- NOTE---
 
-			return newConfiguration;
+			return newAcquisition;
 		};
 	}
 
@@ -113,6 +114,8 @@ public class DocumentFactory {
 		return builder.withAxis(trackDocumentProperty.getAxis())
 			.withScannable(trackDocumentProperty.getScannable())
 			.withPoints(trackDocumentProperty.getPoints())
+			.withStart(trackDocumentProperty.getStart())
+			.withStop(trackDocumentProperty.getStop())
 			.withStep(trackDocumentProperty.getStep())
 			.build();
 	}

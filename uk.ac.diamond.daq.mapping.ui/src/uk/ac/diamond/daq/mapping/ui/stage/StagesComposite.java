@@ -31,6 +31,8 @@ import java.util.Optional;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
@@ -38,6 +40,7 @@ import uk.ac.diamond.daq.mapping.ui.position.summary.PositionSummaryComposite;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
 import uk.ac.gda.client.composites.StringManagedScannableCompositeFactory;
 import uk.ac.gda.client.event.ManagedScannableEvent;
+import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.stage.DefaultManagedScannable;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
@@ -54,6 +57,8 @@ public class StagesComposite {
 	private final Composite parent;
 	private Composite stageComposite;
 
+	private static final Logger logger = LoggerFactory.getLogger(StagesComposite.class);
+
 	private StagesComposite(Composite parent) {
 		this.parent = parent;
 	}
@@ -65,7 +70,7 @@ public class StagesComposite {
 	 */
 	public static final StagesComposite buildModeComposite(Composite parent) {
 		var pc = new StagesComposite(parent);
-		pc.buildStageComposite(getStageController().getStageDescription());
+		pc.buildStageComposite();
 		// Updates the mapping start/stop button following the mapping state
 		return pc;
 	}
@@ -78,9 +83,7 @@ public class StagesComposite {
 		return parent;
 	}
 
-	/**
-	 */
-	private void buildStageComposite(CommonStage stage) {
+	private void buildStageComposite() {
 		var group = createClientGroup(getParent(), SWT.NONE, 1, STAGE);
 		createClientGridDataFactory().grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 		var baseX = new StringManagedScannableCompositeFactory(getBaseX());
@@ -89,7 +92,14 @@ public class StagesComposite {
 		stageComposite = createComposite(group, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
 				.indent(5, SWT.DEFAULT).applyTo(stageComposite);
-		setStage(stage);
+
+		try {
+			var position = getBaseX().getPosition(); // never null, if it throws it becomes out of scope
+			var stage = temporaryManagedScannablePositionToCommonStage(position); // could throw, but never return null
+			setStage(stage); // with confidence!
+		} catch (GDAClientException e) {
+		  logger.error("Could not set stage", e);
+		}
 
 		new PositionSummaryComposite().createComposite(group, SWT.NONE);
 		SpringApplicationContextFacade.addDisposableApplicationListener(group, scannableStateEventListener);
@@ -112,8 +122,11 @@ public class StagesComposite {
 		public void onApplicationEvent(ManagedScannableEvent<String> event) {
 			if (!event.getScannablePropertiesDocument().equals(getBaseXProperties()))
 				return;
-			Optional.ofNullable(temporaryManagedScannablePositionToCommonStage(event.getPosition()))
-				.ifPresent(this::setStage);
+			try {
+				setStage(temporaryManagedScannablePositionToCommonStage(event.getPosition()));
+			} catch (GDAClientException e) {
+				logger.error("Cannot set new baseX Stage", e);
+			}
 		}
 
 		private void setStage(CommonStage stage) {
@@ -123,29 +136,33 @@ public class StagesComposite {
 			stage.getUI(stageComposite);
 			stageComposite.layout(true);
 		}
-
-		private CommonStage temporaryManagedScannablePositionToCommonStage(String position) {
-			String enumName = getBaseXProperties().getEnumsMap().entrySet().stream()
-				.filter(e -> e.getValue().equals(position))
-				.findFirst()
-				.map(Entry::getKey)
-				.orElse(null);
-			if (StageType.GTS.name().equals(enumName)) {
-				return StageType.GTS.getCommonStage();
-			} else if (StageType.TR6.name().equals(enumName)) {
-				return StageType.TR6.getCommonStage();
-			}
-			return null;
-		}
-
-		private ScannableProperties getBaseXProperties() {
-			return SpringApplicationContextFacade.getBean(ScannablesPropertiesHelper.class)
-						.getScannablePropertiesDocument(DefaultManagedScannable.BASE_X);
-		}
 	};
 
 	private ManagedScannable<String> getBaseX() {
-		return SpringApplicationContextFacade.getBean(ScannablesPropertiesHelper.class)
+		return getScannablesPropertiesHelper()
 					.getManagedScannable(DefaultManagedScannable.BASE_X, String.class);
+	}
+
+	private ScannableProperties getBaseXProperties() {
+		return getScannablesPropertiesHelper()
+				.getScannablePropertiesDocument(DefaultManagedScannable.BASE_X);
+	}
+
+	private CommonStage temporaryManagedScannablePositionToCommonStage(String position) throws GDAClientException {
+		String enumName = getBaseXProperties().getEnumsMap().entrySet().stream()
+			.filter(e -> e.getValue().equals(position))
+			.findFirst()
+			.map(Entry::getKey)
+			.orElseThrow(() -> new GDAClientException("No position defined for BaseX"));
+		if (StageType.GTS.name().equals(enumName)) {
+			return StageType.GTS.getCommonStage();
+		} else if (StageType.TR6.name().equals(enumName)) {
+			return StageType.TR6.getCommonStage();
+		}
+		throw new GDAClientException("No position defined for BaseX");
+	}
+
+	private ScannablesPropertiesHelper getScannablesPropertiesHelper() {
+		return SpringApplicationContextFacade.getBean(ScannablesPropertiesHelper.class);
 	}
 }

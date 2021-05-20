@@ -149,7 +149,7 @@ public abstract class CommonStage implements StageDescription {
 		try {
 			return getIScannableMotor(getBeanId(entry));
 		} catch (LoadException e) {
-			String errMsg = String.format("Cannot load motor %s", entry);
+			var errMsg = String.format("Cannot load motor %s", entry);
 			UIHelper.showError(errMsg, e);
 			logger.error(errMsg, e);
 		}
@@ -160,7 +160,7 @@ public abstract class CommonStage implements StageDescription {
 		try {
 			metadata.put(entry.getKey().name(), getBeanId(entry));
 		} catch (LoadException e) {
-			String errMsg = String.format("Cannot load Malcolm %s", entry.getKey());
+			var errMsg = String.format("Cannot load Malcolm %s", entry.getKey());
 			UIHelper.showError(errMsg, e);
 			logger.error(errMsg, e);
 		}
@@ -180,6 +180,7 @@ public abstract class CommonStage implements StageDescription {
 			createClientGridDataFactory().grab(true, false).applyTo(stageControls);
 			createStageControls();
 			stageControls.pack();
+			stageControls.getShell().layout(true, true);
 		}
 		return stageControls;
 	}
@@ -189,8 +190,8 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	protected final TabCompositeFactory createStageMotorsCompositeFactory(StageCompositeDefinition[] motors, ClientMessages message) {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		StageCompositeFactory scf = new StageCompositeFactory();
+		var group = new TabCompositeFactoryImpl();
+		var scf = new StageCompositeFactory();
 		group.setCompositeFactory(scf);
 		group.setLabel(ClientMessagesUtility.getMessage(message));
 		scf.setStageCompositeDefinitions(motors);
@@ -198,7 +199,7 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	protected StageCompositeDefinition createMotorElement(StageDevice device) throws StageException {
-		StageCompositeDefinition scd = new StageCompositeDefinition();
+		var scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
 			throw new StageException(String.format("Device %s not found", device));
@@ -209,7 +210,7 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	protected final void createStageControls() {
-		TabFolderBuilder builder = new TabFolderBuilder();
+		var builder = new TabFolderBuilder();
 		Arrays.stream(getTabsFactories()).forEach(builder::addTab);
 		builder.build().createComposite(getStageControls(), SWT.NONE);
 	}

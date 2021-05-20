@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
@@ -98,6 +99,9 @@ public class ScanRequestFactory {
 		} catch (GDAException e) {
 			throw new ScanningException("Cannot create compound model", e);
 		}
+
+		// Guarantee that at the end the acquisition will return at the start position
+		addPosition(createStartPosition(), scanRequest::setEnd);
 
 		parseAcquisitionEngine(scanRequest, runnableDeviceService);
 		addStartPosition(scanRequest);
@@ -176,28 +180,27 @@ public class ScanRequestFactory {
 		if (getFlatCalibration().isBeforeAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posBeforeMainScan, getFlatCalibration().getNumberExposures()));
-			interpolationPositions.add(flatPos);
+			addPosition(flatPos, interpolationPositions::add);
 			imageTypes.add(ImageType.FLAT);
 		}
 		// Dark Before Acquisition
 		if (getDarkCalibration().isBeforeAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posBeforeMainScan, getDarkCalibration().getNumberExposures()));
-			interpolationPositions.add(darkPos);
+			addPosition(darkPos, interpolationPositions::add);
 			imageTypes.add(ImageType.DARK);
 		}
 
 		// Acquisition
-		final IPosition startPos = createPositionMap(getAcquisitionParameters().getPosition());
+		addPosition(createStartPosition(), interpolationPositions::add);
 		multiScanModel.addModel(acquisitionTemplate.getIScanPointGeneratorModel());
-		interpolationPositions.add(startPos);
 		imageTypes.add(ImageType.NORMAL);
 
 		// Flat After Acquisition
 		if (getFlatCalibration().isAfterAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posAfterMainScan, getFlatCalibration().getNumberExposures()));
-			interpolationPositions.add(flatPos);
+			addPosition(flatPos, interpolationPositions::add);
 			imageTypes.add(ImageType.FLAT);
 		}
 
@@ -205,7 +208,7 @@ public class ScanRequestFactory {
 		if (getDarkCalibration().isAfterAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
 			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
 					posAfterMainScan, getDarkCalibration().getNumberExposures()));
-			interpolationPositions.add(darkPos);
+			addPosition(darkPos, interpolationPositions::add);
 			imageTypes.add(ImageType.DARK);
 		}
 
@@ -214,6 +217,14 @@ public class ScanRequestFactory {
 		multiScanModel.setInterpolatedPositions(interpolationPositions);
 		multiScanModel.setImageTypes(imageTypes);
 		return new CompoundModel(multiScanModel);
+	}
+
+	private void addPosition(IPosition startPos, Consumer<IPosition> consumer) {
+		consumer.accept(startPos);
+	}
+
+	private IPosition createStartPosition() {
+		return createPositionMap(getAcquisitionParameters().getPosition());
 	}
 
 	private IPosition createPositionMap(Set<DevicePositionDocument> devicePositions) {
