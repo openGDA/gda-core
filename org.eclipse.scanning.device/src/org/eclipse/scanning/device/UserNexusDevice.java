@@ -18,6 +18,8 @@
 
 package org.eclipse.scanning.device;
 
+import java.util.Optional;
+
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
@@ -25,6 +27,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
+import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
 
@@ -54,13 +57,22 @@ public class UserNexusDevice extends AbstractNexusMetadataDevice<NXuser> {
 		return new NexusObjectWrapper<>(userGroupName, nexusObject);
 	}
 
+	private static final String UNKNOWN_USER_NAME = "Unknown user";
+	private static final String UNKNOWN_USER_ID = "unknown";
+
 	@Override
 	protected NXuser createNexusObject(NexusScanInfo info) throws NexusException {
 		final NXuser userGroup = super.createNexusObject(info);
 
-		final ClientDetails userDetails = InterfaceProvider.getBatonStateProvider().getBatonHolder();
-		userGroup.setNameScalar(userDetails.getFullName());
-		userGroup.setFacility_user_idScalar(userDetails.getUserID());
+		final IBatonStateProvider batonProvider = InterfaceProvider.getBatonStateProvider();
+		// If the baton is not held by anyone then getBatonHolder returns null
+		final Optional<ClientDetails> userDetails = Optional.ofNullable(batonProvider.getBatonHolder());
+		final String userId = userDetails.map(ClientDetails::getUserID).orElse(UNKNOWN_USER_ID);
+		final String userFullName = userDetails.map(ClientDetails::getFullName).orElse(UNKNOWN_USER_NAME);
+
+		userGroup.setFacility_user_idScalar(userId);
+		userGroup.setNameScalar(userFullName);
+
 		return userGroup;
 	}
 
