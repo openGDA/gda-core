@@ -44,7 +44,7 @@ public class LdapAuthenticator implements Authenticator {
 	 */
 	public static final String LDAP_HOSTS_PROPERTY = "gda.jython.authenticator.ldap.hosts";
 
-	public static final String DEFAULT_LDAP_HOST = "altfed.cclrc.ac.uk";
+	public static final String DEFAULT_LDAP_HOST = "ralfed.cclrc.ac.uk";
 
 	/**
 	 * The java property to use to define the url of the ldap server
