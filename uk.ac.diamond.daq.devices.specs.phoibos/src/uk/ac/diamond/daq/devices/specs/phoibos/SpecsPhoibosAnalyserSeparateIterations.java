@@ -985,13 +985,20 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 	private SpecsPhoibosRegionValidation validateRegion(SpecsPhoibosRegion region) throws DeviceException {
 		SpecsPhoibosRegionValidation validationForRegion = new SpecsPhoibosRegionValidation(region);
 
-		//Start with gda validation block any further validation if problem with PSU mode
-		List<String> psuModeError = validatePsuMode(region);
-		if (!psuModeError.isEmpty()) {
-			validationForRegion.addErrors(psuModeError);
+		// Update photon energy once so that we don't have to update in each one of the individual validation methods
+		if(region.isBindingEnergy()) {
+			updatePhotonEnergy();
+		}
+		// Validate photon energy (applies only to BE mode), if test fails further testing is meaningless
+		if (!isPhotonEnergyValid(region, validationForRegion)) {
+			return validationForRegion;
+		}
+		// Check if PSU mode correct
+		if (!isPsuModeValid(region, validationForRegion)) {
 			return validationForRegion;
 		}
 
+		//Second round of validation will run the rest of the tests altogether
 		validationForRegion.addErrors(validateRegionEnergy(region));
 		validationForRegion.addErrors(validateScannablePositions(region));
 
@@ -1034,19 +1041,54 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		}
 	}
 
+	private boolean isPhotonEnergyValid(SpecsPhoibosRegion region, SpecsPhoibosRegionValidation validation){
+		if (region.isBindingEnergy()) {
+			double startBindingEnergy = region.getStartEnergy();
+			double endBindingEnergy = region.getEndEnergy();
+			double photonEnergy = getCorrectPhotonEnergy(region);
+			if (photonEnergy < startBindingEnergy || photonEnergy < endBindingEnergy) {
+				validation.addError("Binding energy exceeds photon energy of value of "+ photonEnergy);
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Compares PSU mode and start/end energy
 	 */
-	private List<String> validatePsuMode(SpecsPhoibosRegion region){
-		List<String> psuValidationError = new ArrayList<>();
+	private boolean isPsuModeValid(SpecsPhoibosRegion region, SpecsPhoibosRegionValidation validation){
+		//Extract region energies and convert to KE if needed
 		double startEnergy = region.getStartEnergy();
 		double endEnergy = region.getEndEnergy();
-		String currentPsuMode = getPsuMode().replace("kV", "");
-		double comparablePsuValue = Double.parseDouble(currentPsuMode) * 1000;
-		if (startEnergy > comparablePsuValue || endEnergy > comparablePsuValue) {
-			psuValidationError.add("Kinetic energy of the scan exceeds limit of the current PSU mode");
+		if (region.isBindingEnergy()) {
+			double photonEnergy = getCorrectPhotonEnergy(region);
+			startEnergy = toKineticEnergy(startEnergy, photonEnergy);
+			endEnergy = toKineticEnergy(endEnergy, photonEnergy);
 		}
-		return psuValidationError;
+
+		String currentPsuMode = region.getPsuMode();
+		boolean isKilovolts = currentPsuMode.contains("kV");
+		currentPsuMode = currentPsuMode.replaceAll("[^\\d.]", "");
+		double comparablePsuValue = Double.parseDouble(currentPsuMode);
+		if (isKilovolts) {
+			comparablePsuValue *= 1000;
+		}
+		if (startEnergy > comparablePsuValue || endEnergy > comparablePsuValue) {
+			validation.addError("Kinetic energy of the scan exceeds limit of the current PSU mode");
+			return false;
+		}
+		return true;
+	}
+
+	private double getCorrectPhotonEnergy(SpecsPhoibosRegion region) {
+		if (hasConfigurablePhotonEnergyScannable()) {
+			SpecsPhoibosScannableValue value = region.getScannableValue(getConfigurablePhotonEnergyScannable().getScannableName());
+			if (value != null && value.isEnabled()) {
+				return value.getScannableValue();
+			}
+		}
+		return currentPhotonEnergy;
 	}
 
 	/**
@@ -1070,14 +1112,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		if (region.isBindingEnergy()) {
 
 			// If the analyser has an energy scannable and the region has an enabled value for it, we need to validate with that instead of the current photon energy
-			double photonEnergy = currentPhotonEnergy;
-
-			if (hasConfigurablePhotonEnergyScannable()) {
-				SpecsPhoibosScannableValue value = region.getScannableValue(getConfigurablePhotonEnergyScannable().getScannableName());
-				if (value != null && value.isEnabled()) {
-					photonEnergy = value.getScannableValue();
-				}
-			}
+			double photonEnergy = getCorrectPhotonEnergy(region);
 
 			startEnergy = toKineticEnergy(startEnergy, photonEnergy);
 			endEnergy = toKineticEnergy(endEnergy, photonEnergy);

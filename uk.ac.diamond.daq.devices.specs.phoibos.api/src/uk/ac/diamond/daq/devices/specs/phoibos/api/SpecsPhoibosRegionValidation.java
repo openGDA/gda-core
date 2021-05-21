@@ -47,6 +47,10 @@ public class SpecsPhoibosRegionValidation implements Serializable {
 		this.errors.addAll(errors);
 	}
 
+	public void addError(String error) {
+		this.errors.add(error);
+	}
+
 	public boolean isValid() {
 		return errors.isEmpty();
 	}
