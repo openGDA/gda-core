@@ -23,6 +23,7 @@ import static java.lang.Thread.State.TERMINATED;
 import static java.text.MessageFormat.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -756,7 +757,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		PyList dict = locals.keys();
 		dict.sort();
 
-		LinkedHashMap<String, Object> output = new LinkedHashMap<>();
+		final Map<String, Object> output = new LinkedHashMap<>();
 
 		for (int i = 0; i < dict.__len__(); i++) {
 			PyObject key = dict.__getitem__(i);
@@ -766,15 +767,14 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		return output;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <F extends Findable> Map<String, F> getAllObjectsOfType(Class<F> clazz) {
-		final Map<String, F> output = new LinkedHashMap<>();
-		final Set<Entry<String, Object>> fSet = getAllFromJythonNamespace().entrySet().stream().filter(entry -> clazz.isInstance(entry.getValue())).collect(Collectors.toSet());
-		for (Entry<String, Object> entry : fSet) {
-			output.put(entry.getKey(), (F) entry.getValue());
-		}
-		return output;
+		return getAllFromJythonNamespace().entrySet().stream()
+				.filter(e -> clazz.isInstance(e.getValue()))
+				.collect(toMap(Entry::getKey,
+						e -> clazz.cast(e.getValue()),
+						(l, r) -> l, // merge entries with duplicate keys (though there won't actually be any)
+						LinkedHashMap::new));
 	}
 
 	@Override
