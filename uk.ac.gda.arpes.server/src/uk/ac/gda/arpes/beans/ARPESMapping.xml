@@ -5,8 +5,8 @@
 		<field name="lensMode" type="string">
 			<bind-xml name="lensMode" node="element"/>
 		</field>
-		<field name="sweptMode" type="boolean">
-			<bind-xml name="sweptMode" node="element"/>
+		<field name="acquisitionMode" type="string" handler="uk.ac.gda.arpes.beans.AcquisitionModeFieldHandler">
+			<bind-xml name="acquisitionMode" node="element" />
 		</field>
 		<field name="passEnergy" type="int">
 			<bind-xml name="passEnergy" node="element"/>
@@ -28,6 +28,9 @@
 		</field>
 		<field name="configureOnly" type="boolean">
 			<bind-xml name="configureOnly" node="element"/>
+		</field>
+		<field name="ditherSteps" type="int">
+			<bind-xml name="ditherSteps" node="element" />
 		</field>
 	</class>
 </mapping>

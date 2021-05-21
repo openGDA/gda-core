@@ -44,6 +44,7 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDProcess;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
@@ -634,23 +635,39 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		return controller.getImage(i);
 	}
 
-	public void setFixedMode(boolean fixed) throws Exception {
-		int[] region = fixedModeRegion;
-		if (fixed) {
-			controller.setAcquisitionMode("Fixed");
-		} else {
-			controller.setAcquisitionMode("Swept");
-			if (getSweptModeRegion() != null) {
-				region = getSweptModeRegion();
-			}
+	@Override
+	public void setupAcquisitionMode(AcquisitionMode acquisitionMode) throws Exception {
+		switch (acquisitionMode) {
+		case FIXED:
+			setupFixedMode();
+			break;
+		case SWEPT:
+			setupSweptMode();
+			break;
+		default:
+			throw new UnsupportedOperationException(acquisitionMode.toString() + " mode is not supported by this analyser");
 		}
+
+		getAdBase().setImageMode(0);
+		getAdBase().setTriggerMode(0);
+	}
+
+	private void setupFixedMode() throws Exception {
+		controller.setAcquisitionMode("Fixed");
+		setRegion(fixedModeRegion);
+	}
+
+	private void setupSweptMode() throws Exception {
+		controller.setAcquisitionMode("Swept");
+		setRegion(sweptModeRegion != null ? sweptModeRegion : fixedModeRegion);
+	}
+
+	private void setRegion (int[] region) throws Exception {
 		getAdBase().setMinX(region[0]);
 		getAdBase().setMinY(region[1]);
 		getAdBase().setSizeX(region[2]);
 		getAdBase().setSizeY(region[3]);
 		controller.setSlices(region[3]);
-		getAdBase().setImageMode(0);
-		getAdBase().setTriggerMode(0);
 	}
 
 	public int[] getSweptModeRegion() {
@@ -785,6 +802,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 
 	public String getAcquisitionMode() throws Exception {
 		return controller.getAcquisitionMode();
+	}
+
+	@Override
+	public List<AcquisitionMode> getSupportedAcquisitionModes() {
+		return List.of(AcquisitionMode.FIXED, AcquisitionMode.SWEPT);
 	}
 
 	public void setEnergyMode(String value) throws Exception {
@@ -1065,7 +1087,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	public void startContinuous() throws Exception {
 		logger.info("Starting continuous acquisition");
 		// For continuous acquisition in alignment use fixed mode
-		setFixedMode(true);
+		setupAcquisitionMode(AcquisitionMode.FIXED);
 		// Change to continuous
 		getAdBase().setImageMode(ImageMode.CONTINUOUS);
 		// Change to 1 iteration

@@ -21,9 +21,9 @@ package uk.ac.diamond.daq.devices.mbs.api;
 import java.util.List;
 
 import gda.device.DeviceException;
-import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
 
-public interface IMbsAnalyser extends IElectronAnalyser {
+public interface IMbsAnalyser extends IDitherScanningElectronAnalyser {
 
 	/**
 	 * Gets the acquisition period
@@ -153,22 +153,6 @@ public interface IMbsAnalyser extends IElectronAnalyser {
 	 * @throws DeviceException If there is a problem with communication
 	 */
 	public void setNumberOfSteps(int steps) throws DeviceException;
-
-	/**
-	 * Gets the number of dither steps
-	 *
-	 * @return The number of dither steps
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public int getNumberOfDitherSteps() throws DeviceException;
-
-	/**
-	 * Sets the number of dither steps
-	 *
-	 * @param ditherSteps The number of dither steps
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setNumberOfDitherSteps(int ditherSteps) throws DeviceException;
 
 	/**
 	 * Gets the spin offset

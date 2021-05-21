@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.devices.mbs;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,13 +36,14 @@ import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.factory.FactoryException;
 import uk.ac.diamond.daq.devices.mbs.api.IMbsAnalyser;
+import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
-import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@ServiceInterface(IElectronAnalyser.class)
+@ServiceInterface(IDitherScanningElectronAnalyser.class)
 public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	private static final Logger logger = LoggerFactory.getLogger(MbsAnalyser.class);
@@ -51,6 +53,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private AnalyserEnergyRangeConfiguration energyRange;
 	private DetectorConfiguration fixedModeConfiguration;
 	private DetectorConfiguration sweptModeConfiguration;
+	private DetectorConfiguration ditherModeConfiguration;
 	private PlotServerROISelectionProvider cpsRoiProvider;
 	private RectangularROI cpsRoi;
 
@@ -61,6 +64,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private String defaultPsuModeName = "N/A";
 
 	private double maxKE = 200.0;
+	private Map<AcquisitionMode, String> acquisitionModeNames = Map.of(
+			AcquisitionMode.FIXED, "Fixed",
+			AcquisitionMode.SWEPT, "Swept",
+			AcquisitionMode.DITHER, "Dither");
 
 	@Override
 	public void configure() throws FactoryException {
@@ -109,6 +116,20 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			sweptModeConfiguration.setSizeY(sensorSizeY);
 			sweptModeConfiguration.setSlices(sensorSizeY);
 			logger.warn("Swept mode region size changed to {} x {}, starting at 1, 1. Slices {}", sensorSizeX, sensorSizeY, sensorSizeY);
+		}
+		try {
+			// See if the dither mode configuration can be set
+			controller.setDetectorConfiguration(ditherModeConfiguration);
+			logger.debug("Dither region is ok");
+		} catch (Exception e3) {
+			logger.info("Dither mode detector configuration is invalid:", e3);
+			// If not, set the region size to the same as the sensor size
+			ditherModeConfiguration.setStartX(1);
+			ditherModeConfiguration.setStartY(1);
+			ditherModeConfiguration.setSizeX(sensorSizeX);
+			ditherModeConfiguration.setSizeY(sensorSizeY);
+			ditherModeConfiguration.setSlices(sensorSizeY);
+			logger.warn("Dither mode region size changed to {} x {}, starting at 1, 1. Slices {}", sensorSizeX, sensorSizeY, sensorSizeY);
 		}
 		try {
 			// See if the fixed mode configuration can be set leave it in that state
@@ -203,6 +224,11 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	@Override
 	public void setLensMode(String lensMode) throws DeviceException {
 		controller.setLensMode(lensMode);
+	}
+
+	@Override
+	public List<AcquisitionMode> getSupportedAcquisitionModes() {
+		return List.of(AcquisitionMode.FIXED, AcquisitionMode.SWEPT, AcquisitionMode.DITHER);
 	}
 
 	@Override
@@ -558,7 +584,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	@Override
 	public void startContinuous() throws Exception {
 		logger.info("Starting continuous acquisition");
-		setFixedMode(true);
+		setupAcquisitionMode(AcquisitionMode.FIXED);
 		controller.setContinuousImageMode();
 		controller.setIterations(1);
 		controller.startAcquiring();
@@ -639,34 +665,52 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		this.sweptModeConfiguration = sweptModeConfiguration;
 	}
 
-	public void setFixedMode(boolean fixed) throws Exception {
-		if (fixed) {
-			setupFixedMode();
-		} else {
-			setupSweptMode();
+	public DetectorConfiguration getDitherModeConfiguration() {
+		return ditherModeConfiguration;
+	}
+
+	public void setDitherModeConfiguration(DetectorConfiguration ditherModeConfiguration) {
+		this.ditherModeConfiguration = ditherModeConfiguration;
+	}
+
+	@Override
+	public void setupAcquisitionMode(AcquisitionMode acquisitionMode) throws Exception {
+		switch (acquisitionMode) {
+			case FIXED:
+				setupFixedMode();
+			 	break;
+			case SWEPT:
+				setupSweptMode();
+				break;
+			case DITHER:
+				setupDitherMode();
 		}
+
+		controller.setSingleImageMode();
+		controller.setInternalTriggerMode();
 	}
 
 	private void setupFixedMode() throws Exception {
 		// If already fixed, set the slices in the configuration to the value from EPICS. If not,
 		// reset it to the region Y size.
-		if (getAcquisitionMode().equals("Fixed")) {
+		if (getAcquisitionMode().equals(acquisitionModeNames.get(AcquisitionMode.FIXED))) {
 			fixedModeConfiguration.setSlices(getSlices());
 		} else {
 			fixedModeConfiguration.setSlices(fixedModeConfiguration.getSizeY());
 		}
 
-		setAcquisitionMode("Fixed");
+		setAcquisitionMode(acquisitionModeNames.get(AcquisitionMode.FIXED));
 		controller.setDetectorConfiguration(fixedModeConfiguration);
-		controller.setSingleImageMode();
-		controller.setInternalTriggerMode();
 	}
 
 	private void setupSweptMode() throws Exception {
-		setAcquisitionMode("Swept");
+		setAcquisitionMode(acquisitionModeNames.get(AcquisitionMode.SWEPT));
 		controller.setDetectorConfiguration(sweptModeConfiguration);
-		controller.setSingleImageMode();
-		controller.setInternalTriggerMode();
+	}
+
+	private void setupDitherMode() throws Exception {
+		setAcquisitionMode(acquisitionModeNames.get(AcquisitionMode.DITHER));
+		controller.setDetectorConfiguration(ditherModeConfiguration);
 	}
 
 	public PlotServerROISelectionProvider getCpsRoiProvider() {

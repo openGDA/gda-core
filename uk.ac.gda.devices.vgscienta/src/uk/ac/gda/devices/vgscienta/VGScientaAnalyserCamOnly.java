@@ -48,6 +48,7 @@ import gda.factory.FactoryException;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
@@ -451,38 +452,48 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		return "Fixed".equalsIgnoreCase(controller.getAcquisitionMode());
 	}
 
-	/**
-	 * Set up acquisition mode.
-	 * @param fixed True if fixed mode , False if swept mode.
-	 * @throws Exception If there is a problem setting acquisition mode
-	 */
-	public void setFixedMode(boolean fixed) throws Exception {
-		DetectorConfiguration regionConfiguration = fixedModeConfiguration;
-		if (fixed) {
-			// Before switching to Fixed mode, store the current mode state in a variable
-			boolean wasFixed = isFixedMode();
-			// Set Fixed mode
-			controller.setAcquisitionMode("Fixed");
-			if (wasFixed) {
-				// The previous mode was Fixed - set the slices in the configuration to the value from EPICS
-				regionConfiguration.setSlices(getSlices());
-			}
-			else {
-				// The previous mode was Swept - reset the slices in the configuration to the region Y size
-				regionConfiguration.setSlices(regionConfiguration.getSizeY());
-			}
-		} else {
-			// Swept mode - just use the number of slices already in the swept configuration (from Spring)
-			controller.setAcquisitionMode("Swept");
-			if (sweptModeConfiguration != null) {
-				regionConfiguration = sweptModeConfiguration;
-			}
+	@Override
+	public void setupAcquisitionMode(AcquisitionMode acquisitionMode) throws Exception {
+		switch (acquisitionMode) {
+
+		case FIXED:
+			setupFixedMode();
+			break;
+
+		case SWEPT:
+			setupSweptMode();
+			break;
+
+		default:
+			throw new UnsupportedOperationException(acquisitionMode.toString() + " mode is not supported by this analyser");
 		}
-		// Pass the appropriate detector configuration to the controller
-		controller.setDetectorConfiguration(regionConfiguration);
 
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
+	}
+
+	private void setupFixedMode() throws Exception {
+		// Before switching to Fixed mode, store the current mode state in a variable
+		boolean wasFixed = isFixedMode();
+		// Set Fixed mode
+		controller.setAcquisitionMode("Fixed");
+		if (wasFixed) {
+			// The previous mode was Fixed - set the slices in the configuration to the value from EPICS
+			fixedModeConfiguration.setSlices(getSlices());
+		}
+		else {
+			// The previous mode was Swept - reset the slices in the configuration to the region Y size
+			fixedModeConfiguration.setSlices(fixedModeConfiguration.getSizeY());
+		}
+
+		controller.setDetectorConfiguration(fixedModeConfiguration);
+	}
+
+	private void setupSweptMode() throws Exception {
+		controller.setAcquisitionMode("Swept");
+		if (sweptModeConfiguration != null) {
+			controller.setDetectorConfiguration(sweptModeConfiguration);
+		}
 	}
 
 	public DetectorConfiguration getSweptModeConfiguration() {
@@ -827,7 +838,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void startContinuous() throws Exception {
 		logger.info("Starting continuous acquisition");
 		// For continuous acquisition in alignment use fixed mode
-		setFixedMode(true);
+		setupAcquisitionMode(AcquisitionMode.FIXED);
 		// Change to continuous
 		getAdBase().setImageMode(ImageMode.CONTINUOUS);
 		// Change to 1 iteration
@@ -940,6 +951,11 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public int getFrames() throws Exception {
 		return controller.getFrames();
+	}
+
+	@Override
+	public List<AcquisitionMode> getSupportedAcquisitionModes() {
+		return List.of(AcquisitionMode.FIXED, AcquisitionMode.SWEPT);
 	}
 
 	@Override

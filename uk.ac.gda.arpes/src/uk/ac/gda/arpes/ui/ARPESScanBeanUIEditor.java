@@ -101,8 +101,12 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 		return beanComposite.getIterations();
 	}
 
-	public IFieldWidget getSweptMode() {
-		return beanComposite.getSweptMode();
+	public IFieldWidget getAcquisitionMode() {
+		return beanComposite.getAcquisitionMode();
+	}
+
+	public IFieldWidget getDitherSteps() {
+		return beanComposite.getDitherSteps();
 	}
 
 	public void replaceBean(ARPESScanBean read) {

@@ -64,6 +64,7 @@ import com.swtdesigner.SWTResourceManager;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
@@ -74,9 +75,6 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);
-
-	private static final String FIXED_MODE = "fixed";
-	private static final String SWEPT_MODE = "swept";
 
 	// Information from the analyser to make the GUI responsive
 	private final IElectronAnalyser analyser;
@@ -99,12 +97,14 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final NumberBox endEnergy;
 	private final Label lblStepEnergy;
 	private final NumberBox stepEnergy;
+	private final Label lblDitherSteps;
+	private final NumberBox ditherSteps;
 	private final Label lblTimePerStep;
 	private final NumberBox timePerStep;
 	private final Label lblIterations;
 	private final NumberBox iterations;
-	private final Label lblSweptMode;
-	private final RadioWrapper sweptMode;
+	private final Label lblEnergyMode;
+	private final RadioWrapper acquisitionMode;
 	private final Label lblCenterEnergy;
 	private final NumberBox centreEnergy;
 	private final Label lblEnergyWidth;
@@ -241,23 +241,35 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		passEnergy.setLayoutData(controlGridData());
 		passEnergy.addValueListener(this);
 
-		// Fixed or swept radio box
-		lblSweptMode = new Label(this, SWT.NONE);
-		lblSweptMode.setLayoutData(labelLayoutData());
-		lblSweptMode.setText("Swept Mode");
-		sweptMode = new RadioWrapper(this, SWT.NONE, new String[] { FIXED_MODE, SWEPT_MODE }) {
+		// Acquisition mode radio box
+		lblEnergyMode = new Label(this, SWT.NONE);
+		lblEnergyMode.setLayoutData(labelLayoutData());
+		lblEnergyMode.setText("Acquisition Mode");
+
+		String[] supportedAcquisitionModes = analyser.getSupportedAcquisitionModes()
+				.stream()
+				.map(AcquisitionMode::getLabel)
+				.toArray(String[]::new);
+
+		acquisitionMode = new RadioWrapper(this, SWT.NONE, supportedAcquisitionModes) {
 			@Override
 			public void setValue(Object value) {
-				super.setValue((Boolean) value ? SWEPT_MODE : FIXED_MODE);
+				if (value instanceof AcquisitionMode) {
+					super.setValue(((AcquisitionMode)value).getLabel());
+				}
 			}
 
 			@Override
 			public Object getValue() {
-				return SWEPT_MODE.equals(super.getValue());
+				var value = super.getValue();
+				if (value == null) {
+					return AcquisitionMode.FIXED;
+				}
+				return AcquisitionMode.valueOfLabel((String)value);
 			}
 		};
-		sweptMode.addValueListener(this);
-		sweptMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		acquisitionMode.addValueListener(this);
+		acquisitionMode.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		// Estimated time
 		lblEstimatedTime = new Label(this, SWT.NONE);
@@ -304,6 +316,14 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setUnit("meV");
 		stepEnergy.setDecimalPlaces(5);
 		stepEnergy.setMaximum(10000);
+
+		// Dither steps
+		lblDitherSteps = new Label(this, SWT.NONE);
+		lblDitherSteps.setLayoutData(labelLayoutData());
+		lblDitherSteps.setText("Dither Steps");
+		ditherSteps = new ScaleBox(this, SWT.NONE);
+		ditherSteps.setLayoutData(controlGridData());
+		ditherSteps.setDecimalPlaces(0);
 
 		// Energy width
 		lblEnergyWidth = new Label(this, SWT.NONE);
@@ -438,46 +458,69 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		}
 	}
 
+	private AcquisitionMode getSelectedAcquisitionMode() {
+		return (AcquisitionMode)acquisitionMode.getValue();
+	}
+
 	// This calculates the acquisition time excluding dead time (i.e. shortest possible)
 	private void updateEstimatedTime() {
 		Display.getDefault().asyncExec(() -> {
 
-			double estimatedTimeSecs = 0.0;
-			int numberOfIterations = iterations.getIntegerValue();
-			double stepTime = timePerStep.getNumericValue();
-			boolean isSweptMode = (Boolean) sweptMode.getValue();
+			switch (getSelectedAcquisitionMode()) {
+			case FIXED:
+				estimatedTime.setText(secondsToString(estimateFixedTimeInSeconds()));
+				break;
+			case SWEPT:
+				estimatedTime.setText(secondsToString(estimateSweptTimeInSeconds()));
+				break;
+			case DITHER:
+				estimatedTime.setText(secondsToString(estimateDitherTimeInSeconds()));
+				break;
+			default:
+				estimatedTime.setText("Unknown acquisition mode. Unable to calculate." );
 
-			if (isSweptMode) {
-				double startEnergyVal = startEnergy.getNumericValue();
-				double endEnergyVal = endEnergy.getNumericValue();
-				double stepEnergyVal = stepEnergy.getNumericValue();
-				int passEnergyVal = getSelectedPassEnergy();
-				estimatedTimeSecs = numberOfIterations * calculateSweptTime(stepTime, startEnergyVal, endEnergyVal, stepEnergyVal, passEnergyVal);
-			} else { // Fixed mode
-				estimatedTimeSecs = numberOfIterations * stepTime;
 			}
-
-			String time = msToString((long) (estimatedTimeSecs * 1000));
-			estimatedTime.setText(time + " (hh:mm:ss)");
 		});
 	}
 
-	public String msToString(long ms) {
-		long totalSecs = ms / 1000;
-		long hours = totalSecs / 3600;
-		long mins = (totalSecs / 60) % 60;
-		long secs = totalSecs % 60;
+	private String secondsToString(long totalSeconds) {
+		long hours = totalSeconds / 3600;
+		long mins = (totalSeconds / 60) % 60;
+		long secs = totalSeconds % 60;
 		String minsString = (mins == 0) ? "00" : ((mins < 10) ? "0" + mins : Long.toString(mins));
 		String secsString = (secs == 0) ? "00" : ((secs < 10) ? "0" + secs : Long.toString(secs));
-		return hours + ":" + minsString + ":" + secsString;
+		return hours + ":" + minsString + ":" + secsString + " (hh:mm:ss)";
 	}
 
-	private double calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, int passEnergyVal) {
-		// returns sweptTime estimate in milliseconds
+	private long estimateFixedTimeInSeconds() {
+		var numberOfIterations = iterations.getIntegerValue();
+		double stepTime = timePerStep.getNumericValue();
+
+		return (long)(numberOfIterations * stepTime);
+	}
+
+	private long estimateSweptTimeInSeconds() {
+		int passEnergyVal = getSelectedPassEnergy();
+		double stepEnergyVal = stepEnergy.getNumericValue();
 		double minStepEnergyValEv = determineMinimumStepEnergy(passEnergyVal) / 1000; // convert from meV to eV
 		double stepEnergyValEv = stepEnergyVal / 1000;                                // convert from meV to eV
-		double energyRangeEv   = Math.abs(startEn - endEn);
-		return stepTime * (sweptModeEnergyChannels * minStepEnergyValEv + energyRangeEv) / stepEnergyValEv;
+
+		double startEnergyVal = startEnergy.getNumericValue();
+		double endEnergyVal = endEnergy.getNumericValue();
+		double energyRangeEv   = Math.abs(startEnergyVal - endEnergyVal);
+		double stepTime = timePerStep.getNumericValue();
+
+		var numberOfIterations = iterations.getIntegerValue();
+
+		return (long)(numberOfIterations * (stepTime * (sweptModeEnergyChannels * minStepEnergyValEv + energyRangeEv) / stepEnergyValEv));
+	}
+
+	private long estimateDitherTimeInSeconds() {
+		var numberOfIterations = iterations.getIntegerValue();
+		double stepTime = timePerStep.getNumericValue();
+		var numberOfDitherSteps = ditherSteps.getIntegerValue();
+
+		return (long)(numberOfIterations * stepTime * numberOfDitherSteps);
 	}
 
 	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
@@ -516,12 +559,20 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return configureOnly;
 	}
 
-	public IFieldWidget getSweptMode() {
-		return sweptMode;
+	public IFieldWidget getAcquisitionMode() {
+		return acquisitionMode;
 	}
 
-	private boolean isSwept() {
-		return (Boolean) sweptMode.getValue();
+	public IFieldWidget getDitherSteps() {
+		return ditherSteps;
+	}
+
+	private boolean isSweptMode() {
+		return getSelectedAcquisitionMode() == AcquisitionMode.SWEPT;
+	}
+
+	private boolean isDitherMode() {
+		return getSelectedAcquisitionMode() == AcquisitionMode.DITHER;
 	}
 
 	@Override
@@ -532,7 +583,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			updatePassEnergy();
 		}
 
-		if ("passEnergy".equals(e.getFieldName()) && !isSwept()) { // Fixed mode
+		if ("passEnergy".equals(e.getFieldName()) && !isSweptMode() && !isDitherMode()) { // Fixed or dither mode
 			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 			startEnergy.setValue(getValue(centreEnergy)	- getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
@@ -540,7 +591,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		}
 
 		if ("startEnergy".equals(e.getFieldName())) {
-			// If you change startEnergy must be in swept therefore calculate centre and width
+			// If you change startEnergy must be in swept or dither therefore calculate centre and width
 			centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
 			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
 		}
@@ -552,13 +603,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		}
 
 		if ("endEnergy".equals(e.getFieldName())) {
-			// If you change stopEnergy must be in swept therefore calculate centre and width
+			// If you change stopEnergy must be in swept or dither therefore calculate centre and width
 			centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
 			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
 		}
 
 		updateEnergyLimits();
-		updateFixedSweptMode();
+		updateAcquisitionMode();
 		updateEstimatedTime();
 	}
 
@@ -569,21 +620,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	/**
 	 * This handles adding and removing listeners and setting controls enabled and disabled depending on the selected mode.
 	 */
-	private void updateFixedSweptMode() {
-		if (isSwept()) {
-			// In swept edit start, stop and step, not centre
-			startEnergy.setEditable(true);
-			centreEnergy.setEditable(false);
-			endEnergy.setEditable(true);
-			stepEnergy.setEditable(true);
-			// Stop watching for changes in centre energy as they are programmatic
-			startEnergy.addValueListener(this);
-			centreEnergy.removeValueListener(this);
-			endEnergy.addValueListener(this);
-			stepEnergy.addValueListener(this);
-			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+	private void updateAcquisitionMode() {
 
-		} else { // Fixed mode
+		switch (getSelectedAcquisitionMode()) {
+		case FIXED:
 			// In fixed edit centre only
 			startEnergy.setEditable(false);
 			centreEnergy.setEditable(true);
@@ -599,6 +639,39 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
 			stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
+			ditherSteps.setEditable(false);
+			break;
+
+		case SWEPT:
+			startEnergy.setEditable(true);
+			centreEnergy.setEditable(false);
+			endEnergy.setEditable(true);
+			stepEnergy.setEditable(true);
+			// Stop watching for changes in centre energy as they are programmatic
+			startEnergy.addValueListener(this);
+			centreEnergy.removeValueListener(this);
+			endEnergy.addValueListener(this);
+			stepEnergy.addValueListener(this);
+			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+			ditherSteps.setEditable(false);
+			break;
+
+		case DITHER:
+			startEnergy.setEditable(true);
+			centreEnergy.setEditable(false);
+			endEnergy.setEditable(true);
+			stepEnergy.setEditable(false);
+			stepEnergy.removeValueListener(this);
+			// Stop watching for changes in centre energy as they are programmatic
+			startEnergy.addValueListener(this);
+			centreEnergy.removeValueListener(this);
+			endEnergy.addValueListener(this);
+			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+			ditherSteps.setEditable(true);
+			break;
+
+		default:
+			// Nothing. This is here to satisfy the linter
 		}
 	}
 
@@ -617,7 +690,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			logger.error("Error calculating energy limits. Setting defualts min: {} max {}", min, max, e);
 		}
 
-		if (isSwept()) { // Swept mode
+		if (isSweptMode() || isDitherMode()) { // Swept mode
 			startEnergy.setMinimum(min);
 			startEnergy.setMaximum(max);
 			centreEnergy.setMinimum(-1);
@@ -644,7 +717,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		// Centre energy is not saved in the XML so need to be calculated from start and stop
 		centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
 
-		updateFixedSweptMode();
+		updateAcquisitionMode();
 		updateEnergyLimits();
 		updateEstimatedTime();
 	}
