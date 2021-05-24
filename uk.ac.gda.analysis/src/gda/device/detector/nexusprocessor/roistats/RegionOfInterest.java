@@ -43,10 +43,11 @@ public class RegionOfInterest {
 	}
 
 	private Set<RoiMetadata> createRoiMetaData(RectangularROI roi) {
-		Integer x = slice[0].getStart();
-		Integer y = slice[1].getStart();
-		Integer width = slice[0].getStop() - slice[0].getStart();
-		Integer height = slice[1].getStop() - slice[1].getStart();
+		// As the slice[] is [y, x], the indexing here is 0 for y, 1 for x
+		Integer x = slice[1].getStart();
+		Integer y = slice[0].getStart();
+		Integer width = slice[1].getStop() - slice[1].getStart();
+		Integer height = slice[0].getStop() - slice[0].getStart();
 
 		Set<RoiMetadata> data = new LinkedHashSet<>();
 		data.add(new RoiMetadata(namePrefix + "_X", "%.0f", x.doubleValue()));
@@ -70,6 +71,9 @@ public class RegionOfInterest {
 		return namePrefix;
 	}
 
+	/**
+	 * @return slice array is ordered [y, x] to match Dataset indexing
+	 */
 	public Slice[] getSlice() {
 		return slice;
 	}

@@ -160,19 +160,21 @@ public class DatasetStats extends DataSetProcessorBase {
 	 * Statistics for Dataset processing. Each is defined with a
 	 * default name and output format. The statistics are applied
 	 * using {@link #applyFunction(Dataset)}.
+	 * <p>
+	 * The dataset is assumed to use row major indexing
 	 */
 	public enum Statistic {
-		MIN_X("min_x", INT_FORMAT, dataset -> dataset.minPos()[0]),
-		MIN_Y("min_y", INT_FORMAT, dataset -> dataset.minPos()[1]),
+		MIN_X("min_x", INT_FORMAT, dataset -> dataset.minPos()[1]),
+		MIN_Y("min_y", INT_FORMAT, dataset -> dataset.minPos()[0]),
 		MIN_VAL("min_val", INT_FORMAT, dataset -> dataset.min()),
-		MAX_X("max_x", INT_FORMAT, dataset -> dataset.maxPos()[0]),
-		MAX_Y("max_y", INT_FORMAT, dataset -> dataset.maxPos()[1]),
+		MAX_X("max_x", INT_FORMAT, dataset -> dataset.maxPos()[1]),
+		MAX_Y("max_y", INT_FORMAT, dataset -> dataset.maxPos()[0]),
 		MAX_VAL("max_val", INT_FORMAT,	dataset -> dataset.max()),
 		MEAN("average", GENERAL_FORMAT, dataset -> (Number) dataset.mean()),
 		STDEV("std", FLOAT_FORMAT, dataset -> dataset.stdDeviation()),
 		SUM("total", GENERAL_FORMAT, dataset -> (Number) dataset.sum()),
-		PROFILE_X("profileX", INT_FORMAT, dataset -> (Number) dataset.sum(0).sum()),
-		PROFILE_Y("profileY", INT_FORMAT, dataset -> (Number) dataset.sum(1).sum());
+		PROFILE_X("profileX", INT_FORMAT, dataset -> (Number) dataset.sum(1).sum()),
+		PROFILE_Y("profileY", INT_FORMAT, dataset -> (Number) dataset.sum(0).sum());
 
 		private String defaultName;
 		private String defaultFormat;
