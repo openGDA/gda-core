@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.test.scan.nexus;
 
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -317,7 +318,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final NXentry entry = getNexusRoot(scanner).getEntry();
 		final String detName = detector.getName();
 		assertThat(entry.getGroupNodeNames(), containsInAnyOrder("instrument", "sample",
-				detName, detName + "_spectrum", detName + "_value", "solstice_scan",
+				detName, detName + "_spectrum", detName + "_value", GROUP_NAME_DIAMOND_SCAN,
 				EXPECTED_USER_GROUP_NAME));
 		checkSampleGroup(entry);
 		checkUsers(entry);

@@ -119,6 +119,9 @@ public class SolsticeScanMetadataWriter extends NexusScanMetadataWriter implemen
 
 	@Override
 	public void positionPerformed(PositionEvent event) throws ScanningException {
+		// don't write unique keys or point timestamps for a malcolm scan, as malcolm performs the inner scan
+		if (isHardwareScan()) return;
+
 		final IPosition position = event.getPosition();
 		final SliceND scanSlice = getSliceForPosition(position);
 		writePosition(scanSlice, position.getStepIndex());
@@ -127,6 +130,9 @@ public class SolsticeScanMetadataWriter extends NexusScanMetadataWriter implemen
 
 	@Override
 	public void positionMovePerformed(PositionEvent event) throws ScanningException {
+		// don't write unique keys or point timestamps for a malcolm scan, as malcolm performs the inner scan
+		if (isHardwareScan()) return;
+
 		final IPosition position = event.getPosition();
 		final SliceND scanSlice = getSliceForPosition(position);
 		if (writeAfterMovePerformed) {
@@ -136,9 +142,14 @@ public class SolsticeScanMetadataWriter extends NexusScanMetadataWriter implemen
 	}
 
 	private SliceND getSliceForPosition(IPosition scanPosition) {
-		final int[] scanShape = scanModel.getScanInformation().getShape();
+		int[] scanShape = getScanShape();
 		final IScanSlice scanSlice = IScanRankService.getScanRankService().createScanSlice(scanPosition);
 		return new SliceND(scanShape, scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
+	}
+
+	private int[] getScanShape() {
+		final int[] scanShape = scanModel.getScanInformation().getShape();
+		return scanShape.length == 0 ? SINGLE_SHAPE : scanShape;
 	}
 
 	@Override
