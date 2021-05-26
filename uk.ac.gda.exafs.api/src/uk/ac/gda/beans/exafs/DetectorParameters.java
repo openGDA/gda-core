@@ -46,6 +46,8 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 	private SoftXRaysParameters softXRaysParameters;
 	private ElectronYieldParameters electronYieldParameters;
 
+	private List<DetectorConfig> detectorConfigs = new ArrayList<>();
+
 	@Override
 	public String getExperimentType() {
 		return experimentType;
@@ -57,7 +59,7 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 
 	public DetectorParameters() {
 		super();
-		this.detectorGroups = new ArrayList<DetectorGroup>(3);
+		this.detectorGroups = new ArrayList<>(3);
 	}
 
 	@Override
@@ -193,8 +195,22 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 		detectorGroups.add(dg);
 	}
 
+	@Override
+	public List<DetectorConfig> getDetectorConfigurations() {
+		return detectorConfigs;
+	}
+
+	public void setDetectorConfigurations(List<DetectorConfig> detConfigs) {
+		detectorConfigs = new ArrayList<>(detConfigs);
+	}
+
+	public void addDetectorConfiguration(DetectorConfig detConfig) {
+		detectorConfigs.add(detConfig);
+	}
+
 	public void clear() {
 		if (detectorGroups!=null) detectorGroups.clear();
+		if (detectorConfigs!=null) detectorConfigs.clear();
 	}
 
 	@Override

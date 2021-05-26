@@ -74,4 +74,6 @@ public interface IDetectorParameters extends XMLRichBean{
 	 */
 	public boolean isShouldValidate();
 
+	public List<DetectorConfig> getDetectorConfigurations();
+
 }

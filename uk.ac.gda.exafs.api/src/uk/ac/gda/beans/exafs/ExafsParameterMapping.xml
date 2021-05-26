@@ -233,6 +233,10 @@
 		<field name="xesParameters" type="uk.ac.gda.beans.exafs.FluorescenceParameters">
 			<bind-xml name="xes" node="element" />
 		</field>
+		<field name="detectorConfigurations" type="uk.ac.gda.beans.exafs.DetectorConfig"
+			collection="collection" set-method="addDetectorConfiguration" get-method="getDetectorConfigurations">
+			<bind-xml name="detectorConfiguration" node="element" />
+		</field>
 	</class>
 
 	<class name="uk.ac.gda.beans.exafs.DetectorGroup">
@@ -245,6 +249,36 @@
 			<bind-xml name="detector" node="element" />
 		</field>
 	</class>
+	
+<!-- DetectorConfig class  -->
+	<class name="uk.ac.gda.beans.exafs.DetectorConfig">
+		<map-to xml="detectorConfig" />
+		<field name="description" type="string">
+			<bind-xml name="description" node="element" />
+		</field>
+		<field name="detectorName" type="string">
+			<bind-xml name="detectorName" node="element" />
+		</field>
+		<field name="configFileName" type="string">
+			<bind-xml name="configFileName" node="element" />
+		</field>
+		<field name="scriptCommand" type="string">
+			<bind-xml name="scriptCommand" node="element" />
+		</field>
+		<field name="useDetectorInScan" type="boolean">
+			<bind-xml name="useDetectorInScan" node="element" />
+		</field>
+		<field name="useScriptCommand" type="boolean">
+			<bind-xml name="useScriptCommand" node="element" />
+		</field>
+		<field name="useConfigFile" type="boolean">
+			<bind-xml name="useConfigFile" node="element" />
+		</field>
+		<field name="extraDetectorNames" type="string" collection="array"
+			set-method="setExtraDetectorNames" get-method="getExtraDetectorNames">
+			<bind-xml name="extraDetectorName" node="element" />
+		</field>
+	</class>	
 
 	<class name="uk.ac.gda.beans.exafs.TransmissionParameters">
 		<map-to xml="transmission" />
