@@ -43,7 +43,6 @@ import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.mapping.api.PtychographyParams;
 import uk.ac.diamond.daq.mapping.ui.SubmitScanToScriptSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathController;
-import uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathSection;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
@@ -57,6 +56,14 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	private static final Logger logger = LoggerFactory.getLogger(PtychographySubmitScanSection.class);
 
 	private static final int NUM_COLUMNS = 5;
+
+	// Step sizes (in mm) to set in the raster step model
+	private static final double DEFAULT_STEP_SIZE = 2.0e-4;
+	private double xStepSize = DEFAULT_STEP_SIZE;
+	private double yStepSize = DEFAULT_STEP_SIZE;
+
+	// Name of detector to use for ptychography
+	private String detectorName = "XRF/Imaging";
 
 	/**
 	 * Set to {@code false} to set low resolution when the view is opened or {@code true} to set high resolution
@@ -74,8 +81,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 	private Button lowResButton;
 	private Button highResButton;
-
-	private TwoAxisGridStepModel stepModel = null;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -110,11 +115,24 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	@Override
 	protected void onShow() {
 		// Ensure the scan path is set to Raster
-		stepModel = getRasterStepModel();
+		final TwoAxisGridStepModel stepModel = getRasterStepModel();
 		if (stepModel == null) {
 			logger.error("No Raster scanning model is defined");
 			return;
 		}
+
+		// Set x & y step size
+		// Ideally, the corresponding controls should be made read-only, but there is currently no way to do this.
+		stepModel.setxAxisStep(xStepSize);
+		stepModel.setyAxisStep(yStepSize);
+
+		// Select XRF/Imaging detector: deselect other detectors
+		// Ideally, all other detectors should be hidden, but there is currently no way to do this.
+		getMappingBean().getDetectorParameters().stream()
+			.forEach(d -> d.setIncludeInScan(d.getName().equals(detectorName)));
+
+		// Redraw mapping section
+		getMappingView().updateControls();
 
 		// Set initial resolution
 		if (defaultToHighResolution) {
@@ -148,8 +166,6 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 		if (model != null) {
 			controller.changePath(model);
-			final RegionAndPathSection regionAndPathSection = getMappingView().getSection(RegionAndPathSection.class);
-			regionAndPathSection.updateControls();
 		}
 		return model;
 	}
@@ -183,5 +199,17 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 	public void setScriptFilePath(String scriptFilePath) {
 		this.scriptFilePath = scriptFilePath;
+	}
+
+	public void setxStepSize(double xStepSize) {
+		this.xStepSize = xStepSize;
+	}
+
+	public void setyStepSize(double yStepSize) {
+		this.yStepSize = yStepSize;
+	}
+
+	public void setDetectorName(String detectorName) {
+		this.detectorName = detectorName;
 	}
 }
