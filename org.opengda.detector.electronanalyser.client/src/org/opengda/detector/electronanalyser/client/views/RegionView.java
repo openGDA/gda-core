@@ -868,6 +868,9 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			// on enter - change region name
 			if (e.getSource().equals(regionName)) {
 				String newName=regionName.getText().trim();
+				if (region.getName().equals(newName)) {
+					return;
+				}
 				if (getRegionNames().contains(newName)) {
 					MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Duplicated region name", null,
 							"Region name must be unique in the sequence definition. Select 'No' to re-enter it again, otherwise an unique name will be generated for you",
