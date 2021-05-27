@@ -36,7 +36,7 @@ import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Describes an acquisition on a 2D rectangle.

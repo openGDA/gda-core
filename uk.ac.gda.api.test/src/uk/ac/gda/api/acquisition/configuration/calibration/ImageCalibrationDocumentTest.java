@@ -18,7 +18,6 @@
 
 package uk.ac.gda.api.acquisition.configuration.calibration;
 
-import static gda.TestHelpers.deserialiseDocument;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -35,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.ac.gda.api.acquisition.AcquisitionTestUtils;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 public class ImageCalibrationDocumentTest {
 

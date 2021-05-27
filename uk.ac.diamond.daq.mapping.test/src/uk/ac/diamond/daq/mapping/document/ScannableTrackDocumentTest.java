@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Tests for the {@link ScannableTrackDocument}

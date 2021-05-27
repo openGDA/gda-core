@@ -25,7 +25,7 @@ import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Handler for {@link IScannableMotor} devices

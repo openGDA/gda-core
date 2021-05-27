@@ -65,7 +65,7 @@ import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * This nexus data writer makes use of the new nexus writing framework in the project

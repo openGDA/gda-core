@@ -30,7 +30,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.gda.api.acquisition.AcquisitionTestUtils;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 public class ScannablePositionDocumentTest {
 

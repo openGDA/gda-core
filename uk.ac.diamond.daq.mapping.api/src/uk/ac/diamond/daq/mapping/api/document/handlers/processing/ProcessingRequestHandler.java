@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Base implementation of the logic supporting the <i>Chain of Responsibility</i> to translate a {@link ProcessingRequestPair#getValue()}

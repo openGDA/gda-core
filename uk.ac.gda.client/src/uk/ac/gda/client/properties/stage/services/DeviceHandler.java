@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Base implementation of the logic supporting the <i>Chain of Responsibility</i> for the {@link DevicePositionDocumentService}.

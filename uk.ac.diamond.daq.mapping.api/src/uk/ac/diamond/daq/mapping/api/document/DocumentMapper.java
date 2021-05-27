@@ -37,8 +37,8 @@ import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesReq
 import uk.ac.gda.api.acquisition.configuration.processing.DawnProcessingRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
-import uk.ac.gda.api.exception.GDAException;
 import uk.ac.gda.common.entity.device.DeviceValue;
+import uk.ac.gda.common.exception.GDAException;
 
 /**
  * Wraps Jackson {@link ObjectMapper} in order to provide a simple and effective serializartion/deserialization service.

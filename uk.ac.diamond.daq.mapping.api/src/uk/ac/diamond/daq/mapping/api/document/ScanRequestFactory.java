@@ -65,7 +65,7 @@ import uk.ac.diamond.daq.mapping.api.document.preparers.ScanRequestPreparerFacto
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.exception.GDAException;
+import uk.ac.gda.common.exception.GDAException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
