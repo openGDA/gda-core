@@ -68,7 +68,6 @@ public class ScanRequestFactoryTest {
 	}
 
 	/**
-	 * @throws uk.ac.gda.api.exception.GDAException
 	 * @throws Exception
 	 */
 	@Test(expected = ScanningException.class)
