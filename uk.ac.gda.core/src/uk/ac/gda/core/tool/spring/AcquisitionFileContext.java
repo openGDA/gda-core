@@ -18,8 +18,6 @@
 
 package uk.ac.gda.core.tool.spring;
 
-import java.net.URL;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,49 +40,6 @@ public class AcquisitionFileContext {
 
 	@Autowired
 	private ExperimentFileContext experimentContext;
-
-	@Deprecated
-	public enum ContextFile {
-		ACQUISITION_CONFIGURATION_DIRECTORY,
-		DIFFRACTION_CALIBRATION_DIRECTORY,
-		DIFFRACTION_CALIBRATION,
-		ACQUISITION_EXPERIMENT_DIRECTORY
-	}
-
-	/**
-	 * Returns the location associated with the {@code contextFile}.
-	 *
-	 * @param contextFile
-	 * @return the resource URL, otherwise {@code null} if nothing is found.
-	 * @deprecated use instead the same method from {@link #getDiffractionContext()}, {@link #getTomographyContext()}, {@link #getExperimentContext()}
-	 */
-	@Deprecated
-	public final URL getContextFile(ContextFile contextFile) {
-		switch (contextFile) {
-		case ACQUISITION_CONFIGURATION_DIRECTORY:
-			return diffractionContext.getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
-		case DIFFRACTION_CALIBRATION_DIRECTORY:
-			return diffractionContext.getContextFile(DiffractionContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
-		case DIFFRACTION_CALIBRATION:
-			return diffractionContext.getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION);
-		case ACQUISITION_EXPERIMENT_DIRECTORY:
-			return experimentContext.getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
-		default:
-			return null;
-		}
-	}
-
-	/**
-	 * Set a {@code URL} to be used as default calibration file for any diffraction.
-	 * The file can then be retrieved using {@code getContextFile(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION)};
-	 * @param calibrationUrl
-	 * @return {@code true} if the file exists and the operation succeeds, otherwise {@code false}
-	 * @deprecated use {@code getDiffractionContext().putCalibrationFile(URL)}
-	 */
-	@Deprecated
-	public boolean putCalibrationFile(URL calibrationUrl) {
-		return diffractionContext.putCalibrationInContext(calibrationUrl);
-	}
 
 	/**
 	 * The diffraction file structure context

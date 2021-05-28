@@ -44,6 +44,7 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentNodeExistsException;
 import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 
 /**
  * {@link ExperimentController} implementation for use with NeXus-based acquisitions.
@@ -253,7 +254,7 @@ public class NexusExperimentController implements ExperimentController {
 
 	private URL getRootDir() throws ExperimentControllerException {
 		if (getAcquisitionFileContext() != null) {
-			return getAcquisitionFileContext().getContextFile(AcquisitionFileContext.ContextFile.ACQUISITION_EXPERIMENT_DIRECTORY);
+			return getAcquisitionFileContext().getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		}
 		throw new ExperimentControllerException("GDAContext not available");
 	}

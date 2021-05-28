@@ -5,7 +5,6 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
@@ -37,7 +32,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.stage.StageConfiguration;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
@@ -55,7 +49,6 @@ import uk.ac.gda.client.properties.mode.TestMode;
 import uk.ac.gda.client.properties.mode.TestModeElement;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
@@ -84,9 +77,6 @@ public class ScanningAcquisitionController
 
 	@Autowired
 	private DocumentMapper documentMapper;
-
-	@Autowired
-	private AcquisitionFileContext fileContext;
 
 	@Autowired
 	private StageController stageController;
@@ -358,23 +348,7 @@ public class ScanningAcquisitionController
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
 	}
 
-	protected StageConfiguration parseJsonData(String jsonData) throws AcquisitionControllerException {
-		return parseJsonData(jsonData.getBytes());
-	}
 
-	protected StageConfiguration parseJsonData(byte[] jsonData) throws AcquisitionControllerException {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			return mapper.readValue(jsonData, StageConfiguration.class);
-		} catch (JsonParseException e) {
-			logger.error("Cannot parse JSON document", e);
-		} catch (JsonMappingException e) {
-			logger.error("Cannot map JSON document", e);
-		} catch (IOException e) {
-			logger.error("Cannot read JSON document", e);
-		}
-		throw new AcquisitionControllerException("Cannot parse json document");
-	}
 
 	private void publishSave(String name, String acquisition) {
 		publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
