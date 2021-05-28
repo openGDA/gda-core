@@ -38,6 +38,15 @@ public class ScannableTrackDocumentProperty {
 	 * The required number of points from {@code start} to {@code stop}
 	 */
 	private int points;
+	/**
+	 * The interval starting point
+	 */
+	private double start;
+	/**
+	 * The interval ending point
+	 */
+	private double stop;
+
 	public String getScannable() {
 		return scannable;
 	}
@@ -61,5 +70,17 @@ public class ScannableTrackDocumentProperty {
 	}
 	public void setPoints(int points) {
 		this.points = points;
+	}
+	public double getStart() {
+		return start;
+	}
+	public void setStart(double start) {
+		this.start = start;
+	}
+	public double getStop() {
+		return stop;
+	}
+	public void setStop(double stop) {
+		this.stop = stop;
 	}
 }

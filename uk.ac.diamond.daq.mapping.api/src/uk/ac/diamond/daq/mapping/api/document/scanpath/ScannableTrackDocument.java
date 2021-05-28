@@ -219,8 +219,8 @@ public class ScannableTrackDocument {
 		private String axis;
 		private double start;
 		private double stop;
-		private double step = Double.MIN_VALUE;
-		private int points = Integer.MIN_VALUE;
+		private double step;
+		private int points;
 
 		public Builder() {
 		}
@@ -256,17 +256,11 @@ public class ScannableTrackDocument {
 
 		public Builder withStep(double step) {
 			this.step = step;
-			if (this.step > Double.MIN_NORMAL) {
-				this.points = Integer.MIN_VALUE;
-			}
 			return this;
 		}
 
 		public Builder withPoints(int points) {
 			this.points = points;
-			if (this.points > Integer.MIN_VALUE) {
-				this.step = Double.MIN_VALUE;
-			}
 			return this;
 		}
 

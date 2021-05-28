@@ -311,7 +311,8 @@ public class ScanningAcquisitionController
 		// Saves ALL the devices position and mark this set as Position.Start
 		// This collection is stored in the stage controller as it is responsible
 		// for uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position values
-		stageController.savePosition(Position.START);
+		if (!stageController.hasPosition(Position.START))
+			stageController.savePosition(Position.START);
 		// Filters out from the Position.START positions, the position document from AcquisitionPropertiesDocument::getOutOfBeamScannables
 		// See AcquisitionPropertiesDocument#outOfBeamScannables
 		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, detectorsHelper.getOutOfBeamScannables());

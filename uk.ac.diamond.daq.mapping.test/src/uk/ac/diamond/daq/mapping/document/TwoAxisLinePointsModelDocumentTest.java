@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,11 +85,11 @@ public class TwoAxisLinePointsModelDocumentTest extends DocumentTestBase {
 		ScannableTrackDocument std = modelDocument.getScannableTrackDocuments().get(0);
 		Assert.assertEquals("motor_x", std.getScannable());
 		Assert.assertEquals(1.0, std.getStep(), 0.0);
-		Assert.assertEquals(Integer.MIN_VALUE, std.getPoints(), 0.0);
+		Assert.assertEquals(0, std.getPoints(), 0.0);
 
 		std = modelDocument.getScannableTrackDocuments().get(1);
 		Assert.assertEquals("motor_y", std.getScannable());
-		Assert.assertEquals(Double.MIN_VALUE, std.getStep(), 0.0);
+		Assert.assertEquals(0, std.getStep(), 0.0);
 		Assert.assertEquals(2, std.getPoints(), 0.0);
 
 

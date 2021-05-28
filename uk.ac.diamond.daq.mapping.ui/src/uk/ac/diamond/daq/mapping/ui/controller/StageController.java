@@ -103,6 +103,11 @@ public class StageController implements IStageController {
 	}
 
 	@Override
+	public boolean hasPosition(Position position) {
+		return devicesPosition.containsKey(position);
+	}
+
+	@Override
 	public Map<String, String> getMetadata() {
 		return getStageDescription().getMetadata();
 	}
@@ -125,7 +130,6 @@ public class StageController implements IStageController {
 	public void changeStage(CommonStage commonStage) {
 		this.commonStage = commonStage;
 	}
-
 
 	public Set<DevicePositionDocument> savePositionDocuments(Position position) {
 		return devicesPosition.put(position, reportPositions());
