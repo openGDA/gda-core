@@ -11,13 +11,5 @@
             name="Camera Configuration"
             restorable="true">
       </view>
-      <view
-      		allowMultiple="false"
-      		class="uk.ac.diamond.daq.client.gui.camera.settings.views.ImagingCameraView"
-      		icon="icons/camera-lens.png"
-      		id="uk.ac.diamond.daq.client.gui.camera.settings.views.ImagingCameraView"
-      		name="Imaging Camera"
-      		restorable="true">
-      </view>
 </extension>
 </plugin>
