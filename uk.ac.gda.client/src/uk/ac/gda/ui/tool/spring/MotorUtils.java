@@ -20,14 +20,16 @@ package uk.ac.gda.ui.tool.spring;
 
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.observable.IObserver;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.event.ScannableStateEvent;
 
 /**
@@ -37,6 +39,9 @@ import uk.ac.gda.client.event.ScannableStateEvent;
  */
 @Component
 public class MotorUtils {
+
+	@Autowired
+	private FinderService finderService;
 
 	private static final Logger logger = LoggerFactory.getLogger(MotorUtils.class);
 
@@ -49,7 +54,7 @@ public class MotorUtils {
 	 * @param position where move the motor
 	 */
 	public void moveMotorAsynchronously(String findableMotor, double position) {
-		FinderHelper.getIScannableMotor(findableMotor)
+		getIScannableMotor(findableMotor)
 			.ifPresent(motor -> moveMotorAsynchronously(motor, position));
 	}
 
@@ -75,7 +80,7 @@ public class MotorUtils {
 	 * @param position where move the motor
 	 */
 	public void moveMotorSynchronously(String findableMotor, double position) {
-		FinderHelper.getIScannableMotor(findableMotor)
+		getIScannableMotor(findableMotor)
 			.ifPresent(motor -> moveMotorSynchronously(motor, position));
 	}
 
@@ -115,5 +120,9 @@ public class MotorUtils {
 				logger.error("Cannot read motor position at {}", position);
 			}
 		}
+	}
+
+	private Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+		return finderService.getFindableObject(findableMotor, IScannableMotor.class);
 	}
 }

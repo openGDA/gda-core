@@ -40,10 +40,11 @@ import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
  * Draws a {@link BeamCameraMappingEvent} as polygon on top of an
@@ -91,7 +92,7 @@ public class DrawCameraMappingArea {
 		if (Objects.isNull(cameraConfiguration.getBeamCameraMap())) {
 			throw new GDAClientException("no mapping from camera to beam is available");
 		}
-		DrawCameraMappingArea instance = new DrawCameraMappingArea(plottingSystem, cameraConfiguration);
+		var instance = new DrawCameraMappingArea(plottingSystem, cameraConfiguration);
 		instance.estimateBoundaries();
 	}
 
@@ -111,7 +112,7 @@ public class DrawCameraMappingArea {
 		try {
 			removeBeamBoundaries(plottingSystem);
 			IRegion boundary = plottingSystem.createRegion(BEAM_BOUNDARIES, RegionType.POLYLINE);
-			PolylineROI poly = new PolylineROI(ptx, pty);
+			var poly = new PolylineROI(ptx, pty);
 			poly.insertPoint(ptx + width, pty);
 			poly.insertPoint(ptx + width, pty + height);
 			poly.insertPoint(ptx, pty + height);
@@ -166,9 +167,9 @@ public class DrawCameraMappingArea {
 			return;
 		}
 
-		IScannableMotor driverX = FinderHelper.getIScannableMotor(beamCameraMap.getDriver().get(0))
+		IScannableMotor driverX = getIScannableMotor(beamCameraMap.getDriver().get(0))
 				.orElseThrow(() -> new GDAClientException("Cannot use beam driver X"));
-		IScannableMotor driverY = FinderHelper.getIScannableMotor(beamCameraMap.getDriver().get(1))
+		IScannableMotor driverY = getIScannableMotor(beamCameraMap.getDriver().get(1))
 				.orElseThrow(() -> new GDAClientException("Cannot use beam driver Y"));
 
 		Optional<RealVector> solutionMin;
@@ -215,5 +216,10 @@ public class DrawCameraMappingArea {
 
 	private Optional<RealVector> calculateSolution(double x, double y) {
 		return MappedCalibrationUtils.beamToPixel(iCameraConfiguration.getBeamCameraMap(), x, y);
+	}
+
+	private Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+		return SpringApplicationContextFacade.getBean(FinderService.class)
+				.getFindableObject(findableMotor, IScannableMotor.class);
 	}
 }

@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.stage;
 
-import static uk.ac.gda.client.composites.FinderHelper.getIScannableMotor;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createComposite;
 
@@ -52,8 +51,10 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
 
 /**
@@ -149,7 +150,7 @@ public abstract class CommonStage implements StageDescription {
 		try {
 			return getIScannableMotor(getBeanId(entry));
 		} catch (LoadException e) {
-			String errMsg = String.format("Cannot load motor %s", entry);
+			var errMsg = String.format("Cannot load motor %s", entry);
 			UIHelper.showError(errMsg, e);
 			logger.error(errMsg, e);
 		}
@@ -160,7 +161,7 @@ public abstract class CommonStage implements StageDescription {
 		try {
 			metadata.put(entry.getKey().name(), getBeanId(entry));
 		} catch (LoadException e) {
-			String errMsg = String.format("Cannot load Malcolm %s", entry.getKey());
+			var errMsg = String.format("Cannot load Malcolm %s", entry.getKey());
 			UIHelper.showError(errMsg, e);
 			logger.error(errMsg, e);
 		}
@@ -189,8 +190,8 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	protected final TabCompositeFactory createStageMotorsCompositeFactory(StageCompositeDefinition[] motors, ClientMessages message) {
-		TabCompositeFactoryImpl group = new TabCompositeFactoryImpl();
-		StageCompositeFactory scf = new StageCompositeFactory();
+		var group = new TabCompositeFactoryImpl();
+		var scf = new StageCompositeFactory();
 		group.setCompositeFactory(scf);
 		group.setLabel(ClientMessagesUtility.getMessage(message));
 		scf.setStageCompositeDefinitions(motors);
@@ -198,7 +199,7 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	protected StageCompositeDefinition createMotorElement(StageDevice device) throws StageException {
-		StageCompositeDefinition scd = new StageCompositeDefinition();
+		var scd = new StageCompositeDefinition();
 		scd.setScannable(getMotors().get(device));
 		if (Objects.isNull(scd.getScannable())) {
 			throw new StageException(String.format("Device %s not found", device));
@@ -209,7 +210,7 @@ public abstract class CommonStage implements StageDescription {
 	}
 
 	protected final void createStageControls() {
-		TabFolderBuilder builder = new TabFolderBuilder();
+		var builder = new TabFolderBuilder();
 		Arrays.stream(getTabsFactories()).forEach(builder::addTab);
 		builder.build().createComposite(getStageControls(), SWT.NONE);
 	}
@@ -265,5 +266,10 @@ public abstract class CommonStage implements StageDescription {
 
 	private static class LoadException extends GDAClientException {
 
+	}
+
+	private static Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+		return SpringApplicationContextFacade.getBean(FinderService.class)
+				.getFindableObject(findableMotor, IScannableMotor.class);
 	}
 }

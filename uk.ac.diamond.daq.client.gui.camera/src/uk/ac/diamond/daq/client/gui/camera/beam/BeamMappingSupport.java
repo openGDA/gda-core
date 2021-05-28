@@ -20,16 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.FinderService;
 import uk.ac.gda.ui.tool.spring.MotorUtils;
 
 /**
@@ -95,14 +96,19 @@ public final class BeamMappingSupport {
 		 * @param moveTo
 		 */
 		private void doMove(RealVector moveTo) {
-			IntStream.rangeClosed(0, 1).forEach(i -> {
-				FinderHelper.getIScannableMotor(iConfiguration.getBeamCameraMap().getDriver().get(i))
-					.ifPresent(m -> getMotorUtils() .moveMotorAsynchronously(m, moveTo.getEntry(i)));
-			});
+			IntStream.rangeClosed(0, 1).forEach(i ->
+				getIScannableMotor(iConfiguration.getBeamCameraMap().getDriver().get(i))
+					.ifPresent(m -> getMotorUtils() .moveMotorAsynchronously(m, moveTo.getEntry(i)))
+			);
 		}
 
 		private MotorUtils getMotorUtils() {
 			return SpringApplicationContextFacade.getBean(MotorUtils.class);
+		}
+
+		private Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+			return SpringApplicationContextFacade.getBean(FinderService.class)
+					.getFindableObject(findableMotor, IScannableMotor.class);
 		}
 	};
 
@@ -126,7 +132,7 @@ public final class BeamMappingSupport {
 		bottomRight = MappedCalibrationUtils.pixelToBeam(iConfiguration.getBeamCameraMap(), x, y);
 
 		// Creates the context menu for the calibrated axes
-		MenuAction alternativeAxes = new MenuAction(ClientMessagesUtility.getMessage(AXES));
+		var alternativeAxes = new MenuAction(ClientMessagesUtility.getMessage(AXES));
 		// Creates the action to display the motor calibrated axes
 		List<String> drivers = Optional.ofNullable(iConfiguration.getBeamCameraMap())
 				.map(CameraToBeamMap::getDriver)
