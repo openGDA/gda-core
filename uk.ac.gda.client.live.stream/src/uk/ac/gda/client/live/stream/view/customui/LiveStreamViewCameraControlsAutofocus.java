@@ -65,6 +65,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,7 @@ import uk.ac.diamond.scisoft.analysis.processing.operations.image.FourierTransfo
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
+import uk.ac.gda.client.live.stream.view.StreamType;
 
 /**
  * An extension to {@link LiveStreamView} to edit a series of autofocus points on the view and use these to focus the
@@ -121,8 +124,12 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 
 	@Override
 	public void createUi(Composite composite, CameraControl cameraControl) {
-		liveStreamView = (LiveStreamView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-				.findViewReference(LiveStreamView.ID, secondaryId).getView(false);
+		final IViewReference viewReference = getViewReference();
+		if (viewReference == null) {
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error opening view", "No view found with id " + secondaryId);
+			return;
+		}
+		liveStreamView = (LiveStreamView) viewReference.getView(false);
 
 		final Composite autofocusComposite = new Composite(composite, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(autofocusComposite);
@@ -144,6 +151,19 @@ public class LiveStreamViewCameraControlsAutofocus implements LiveStreamViewCame
 		autofocusButton.setToolTipText(getMessage(AUTOFOCUS_START_TP));
 		autofocusButton.addSelectionListener(widgetSelectedAdapter(e -> runAutofocus()));
 		targetImage.dispose();
+	}
+
+	// Find a view (of whatever type) with the given secondary id + stream type suffix
+	private IViewReference getViewReference() {
+		final IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		for (StreamType streamType : StreamType.values()) {
+			final String secondaryIdWithSuffix = String.format("%s#%s", secondaryId, streamType.name());
+			final IViewReference viewReference = activePage.findViewReference(LiveStreamView.ID, secondaryIdWithSuffix);
+			if (viewReference != null) {
+				return viewReference;
+			}
+		}
+		return null;
 	}
 
 	/**
