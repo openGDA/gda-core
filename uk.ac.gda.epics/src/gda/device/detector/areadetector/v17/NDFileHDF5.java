@@ -197,6 +197,19 @@ public interface NDFileHDF5 {
 	 */
 	boolean isSWMRSupported() throws Exception;
 
+	/**
+	 * @return true if HDF5 SWMR writing is currently enabled
+	 * @throws Exception
+	 */
+	boolean isUseSWMR() throws Exception;
+
+	/**
+	 * Enable HDF5 SWMR writing
+	 * @param useSwmr
+	 * @throws Exception
+	 */
+	void setUseSWMR(boolean useSwmr) throws Exception;
+
 	void setExtraDimensions(int[] actualDims) throws Exception;
 
 }

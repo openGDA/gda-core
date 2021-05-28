@@ -144,6 +144,10 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String IS_SWMR_SUPPORTED_RBV = "SWMRSupported_RBV";
 
+	private static final String USE_SWMR_RBV = "SWMRMode_RBV";
+
+	private static final String USE_SWMR = "SWMRMode";
+
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
@@ -891,15 +895,27 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	public boolean isSWMRSupported() throws Exception {
 		try {
 			String value = EPICS_CONTROLLER.cagetString(getChannel(IS_SWMR_SUPPORTED_RBV));
-			if (value.equalsIgnoreCase("Supported")) {
-				return true;
-			} else {
-				return false;
-			}
+			return value.equalsIgnoreCase("Supported");
 		} catch (Exception e) {
 			logger.warn("Exception while getting is SWMR supported");
 			throw e;
 		}
+	}
+
+	@Override
+	public boolean isUseSWMR() throws Exception {
+		try {
+			String value = EPICS_CONTROLLER.cagetString(getChannel(USE_SWMR_RBV));
+			return value.equalsIgnoreCase("On");
+		} catch (Exception e) {
+			logger.warn("Exception while getting is SWMR enabled");
+			throw e;
+		}
+	}
+
+	@Override
+	public void setUseSWMR(boolean useSWMR) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(USE_SWMR), useSWMR ? 1 : 0);
 	}
 
 	@Override
