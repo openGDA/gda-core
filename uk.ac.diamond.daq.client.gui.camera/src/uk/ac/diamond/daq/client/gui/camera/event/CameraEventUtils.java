@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.client.gui.camera.event;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
+
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -27,7 +29,6 @@ import gda.observable.IObserver;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 public final class CameraEventUtils {
 
@@ -42,7 +43,7 @@ public final class CameraEventUtils {
 	 */
 	private static final IObserver cameraControlEventObserver(Consumer<CameraControllerEvent> consumer) {
 		return (source, arg) -> {
-			if (CameraControllerEvent.class.isInstance(arg)) {
+			if (arg instanceof CameraControllerEvent) {
 				consumer.accept(CameraControllerEvent.class.cast(arg));
 			}
 		};
@@ -61,7 +62,7 @@ public final class CameraEventUtils {
 		cameraControl.deleteIObserver(cameraControlObserver);
 	}
 	private static Consumer<CameraControllerEvent> cameraControlEventConsumer = event -> {
-		SpringApplicationContextProxy.publishEvent(new CameraControlSpringEvent(CameraHelper.class, event));
+		publishEvent(new CameraControlSpringEvent(CameraHelper.class, event));
 		logger.debug("{}", event);
 	};
 	private static final IObserver cameraControlObserver = CameraEventUtils.cameraControlEventObserver(cameraControlEventConsumer);
