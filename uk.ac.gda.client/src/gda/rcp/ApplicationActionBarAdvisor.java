@@ -769,6 +769,11 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// (which is normally provided by org.eclipse.ui.ide) which does not allow easy
 		// changes to default location. So we replace with one of our own.
 		menu.add(new GroupMarker(NEW_GDA_EXT));
+		// Add NewWizardAction, override default name: "Other..."
+		if (LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_NEW, true)) {
+			newWizardAction.setText("New (from Wizard)...");
+			menu.add(newWizardAction);
+		}
 
 		menu.add(new Separator());
 		menu.add(closeAction);
@@ -806,10 +811,6 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		if (USE_TEST_ACTION) {
 			menu.add(new Separator());
 			menu.add(testAction);
-		}
-		// Add NewWizardAction, appears as  "Other..." on menu
-		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_NEW,true)) {
-			menu.add(newWizardAction);
 		}
 
 		// If we're on OS X we shouldn't show this command in the File menu. It
