@@ -32,6 +32,12 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
@@ -41,7 +47,13 @@ import uk.ac.gda.common.exception.GDAException;
 /**
  * @author Maurizio Nagni
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ApplyNexusTemplateTest {
+
+	@Autowired
+	private DocumentMapper documentMapper;
 
 	private String pathFile1 = "file:/lev1/lev2";
 	private String pathFile2 = "file:/lev3/lev4";
@@ -81,7 +93,7 @@ public class ApplyNexusTemplateTest {
 	public void testDeserialization() throws  GDAException {
 		String json = String.format("{\"type\":\"%s\", \"value\": [\"%s\", \"%s\"]}", "applyNexusTemplates", pathFile1, pathFile2);
 
-		ApplyNexusTemplatesRequest request = DocumentMapper.fromJSON(json, ApplyNexusTemplatesRequest.class);
+		ApplyNexusTemplatesRequest request = documentMapper.convertFromJSON(json, ApplyNexusTemplatesRequest.class);
 		assertEquals("applyNexusTemplates", request.getKey());
 		Assert.assertEquals(2, request.getValue().size());
 		Assert.assertEquals(request.getValue().get(0), file1);
@@ -97,7 +109,7 @@ public class ApplyNexusTemplateTest {
 			.withValue(paths)
 			.build();
 
-		String json = DocumentMapper.toJSON(request);
+		String json = documentMapper.convertToJSON(request);
 
 		assertTrue(json.contains("applyNexusTemplates"));
 		assertTrue(json.contains(pathFile1));

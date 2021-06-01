@@ -64,6 +64,9 @@ import uk.ac.gda.common.exception.GDAException;
 @Component("documentMapper")
 public class DocumentMapper {
 
+	private static final String ERR_CREATE_MESSAGE = "Cannot create json document";
+	private static final String ERR_READ_MESSAGE = "Cannot read json document";
+
 	private static Class<?>[] subtypes = {
 			ScanningAcquisition.class,
 			SavuProcessingRequest.class,
@@ -85,54 +88,11 @@ public class DocumentMapper {
 		return getStaticObjectMapper();
 	}
 
-	/**
-	 * @return a mapper for mapping.api.document classes
-	 * @deprecated use when possible {@link #getJacksonObjectMapper()}
-	 */
-	@Deprecated
-	public static ObjectMapper getObjectMapper() {
-		return getStaticObjectMapper();
-	}
-
-	/**
-	 * @param value the object to convert
-	 * @return the json converted document
-	 * @throws GDAException
-	 * @deprecated access it as normal instance or as Spring bean using {@link #convertToJSON(Object)}
-	 */
-	@Deprecated
-	public static final String toJSON(Object value) throws GDAException {
-		try {
-			return getStaticObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
-		} catch (JsonProcessingException e) {
-			throw new GDAException("Cannot create json document", e);
-		}
-	}
-
 	public final String convertToJSON(Object value) throws uk.ac.gda.common.exception.GDAException {
 		try {
 			return getStaticObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(value);
 		} catch (JsonProcessingException e) {
-			throw new uk.ac.gda.common.exception.GDAException("Cannot create json document", e);
-		}
-	}
-
-	/**
-	 * @param <T>
-	 * @param content the json document
-	 * @param clazz which class represents the json document
-	 * @return an instance of the class
-	 * @throws GDAException
-	 * @deprecated access it as normal instance or as Spring bean using {@link #convertFromJSON(String, Class)}
-	 */
-	@Deprecated
-	public static final <T> T fromJSON(String content, Class<T> clazz) throws GDAException {
-		try {
-			return getStaticObjectMapper().readValue(content, clazz);
-		} catch (JsonProcessingException e) {
-			throw new GDAException("Cannot create json document", e);
-		} catch (IOException e) {
-			throw new GDAException("Cannot read json document", e);
+			throw new uk.ac.gda.common.exception.GDAException(ERR_CREATE_MESSAGE, e);
 		}
 	}
 
@@ -140,19 +100,19 @@ public class DocumentMapper {
 		try {
 			return getStaticObjectMapper().readValue(content, clazz);
 		} catch (JsonProcessingException e) {
-			throw new uk.ac.gda.common.exception.GDAException("Cannot create json document", e);
+			throw new uk.ac.gda.common.exception.GDAException(ERR_CREATE_MESSAGE, e);
 		} catch (IOException e) {
-			throw new uk.ac.gda.common.exception.GDAException("Cannot read json document", e);
+			throw new uk.ac.gda.common.exception.GDAException(ERR_READ_MESSAGE, e);
 		}
 	}
 
-	public static final <T> T fromJSON(URL content, Class<T> clazz) throws GDAException {
+	public final <T> T convertFromJSON(URL content, Class<T> clazz) throws GDAException {
 		try {
 			return getStaticObjectMapper().readValue(content, clazz);
 		} catch (JsonProcessingException e) {
-			throw new GDAException("Cannot create json document", e);
+			throw new GDAException(ERR_CREATE_MESSAGE, e);
 		} catch (IOException e) {
-			throw new GDAException("Cannot read json document", e);
+			throw new GDAException(ERR_READ_MESSAGE, e);
 		}
 	}
 

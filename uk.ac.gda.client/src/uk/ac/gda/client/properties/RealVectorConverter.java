@@ -18,14 +18,16 @@
 
 package uk.ac.gda.client.properties;
 
+import java.io.IOException;
+
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.gda.common.exception.GDAException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -42,11 +44,15 @@ public class RealVectorConverter implements Converter<String, RealVector> {
 	@Override
 	public RealVector convert(String source) {
 		try {
-			return new ArrayRealVector(DocumentMapper.fromJSON(source, double[].class), false);
-		} catch (GDAException e) {
+			return new ArrayRealVector(convert(source, double[].class), false);
+		} catch (IOException e) {
 			logger.error("Cannot convert {}", source);
 		}
 		return null;
 	}
 
+	private <T> T convert(String value, Class<T> valueType) throws IOException {
+		var objectMapper = new ObjectMapper();
+		return objectMapper.readValue(value, valueType);
+	}
 }

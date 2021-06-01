@@ -22,6 +22,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,16 +36,23 @@ import uk.ac.gda.common.exception.GDAException;
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class DocumentTestBase {
 
+	@Autowired
+	private DocumentMapper documentMapper;
+
 	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {
-		File resource = new File(resourcePath);
+		var resource = new File(resourcePath);
 		try {
-			return DocumentMapper.fromJSON(resource.toURI().toURL(), clazz);
+			return documentMapper.convertFromJSON(resource.toURI().toURL(), clazz);
 		} catch (MalformedURLException e) {
 			throw new GDAException(e);
 		}
 	}
 
 	protected String serialiseDocument(Object modelDocument) throws GDAException {
-		return DocumentMapper.toJSON(modelDocument);
+		return documentMapper.convertToJSON(modelDocument);
+	}
+
+	protected DocumentMapper getDocumentMapper() {
+		return documentMapper;
 	}
 }

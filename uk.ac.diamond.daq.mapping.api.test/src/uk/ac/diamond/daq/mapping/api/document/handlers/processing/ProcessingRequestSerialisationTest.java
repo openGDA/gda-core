@@ -20,22 +20,33 @@ package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static uk.ac.diamond.daq.mapping.api.document.DocumentMapper.fromJSON;
-import static uk.ac.diamond.daq.mapping.api.document.DocumentMapper.toJSON;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 
 /**
  * Where we ensure all processing request implementations can be consistently de/serialised
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class })
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ProcessingRequestSerialisationTest {
+
+	@Autowired
+	private DocumentMapper documentMapper;
 
 	@Test
 	public void testSavuProcessingRequest() throws Exception {
@@ -48,9 +59,9 @@ public class ProcessingRequestSerialisationTest {
 		SavuProcessingRequest originalRequest = new SavuProcessingRequest.Builder()
 												.withValue(files).build();
 
-		String serialisedRequest = toJSON(originalRequest);
+		String serialisedRequest = documentMapper.convertToJSON(originalRequest);
 
-		SavuProcessingRequest deserialisedRequest = fromJSON(serialisedRequest, SavuProcessingRequest.class);
+		SavuProcessingRequest deserialisedRequest = documentMapper.convertFromJSON(serialisedRequest, SavuProcessingRequest.class);
 
 		assertEquals(files, deserialisedRequest.getValue());
 		assertTrue(serialisedRequest.contains("\"key\" : \"" + originalRequest.getKey() + "\""));
@@ -68,9 +79,9 @@ public class ProcessingRequestSerialisationTest {
 														.withValue(file)
 														.withDeviceName(datasetName).build();
 
-		String serialisedRequest = toJSON(originalRequest);
+		String serialisedRequest = documentMapper.convertToJSON(originalRequest);
 
-		DiffractionCalibrationMergeRequest deserialisedRequest = fromJSON(serialisedRequest, DiffractionCalibrationMergeRequest.class);
+		DiffractionCalibrationMergeRequest deserialisedRequest = documentMapper.convertFromJSON(serialisedRequest, DiffractionCalibrationMergeRequest.class);
 
 		assertEquals(datasetName, deserialisedRequest.getDeviceName());
 		assertEquals(file, deserialisedRequest.getValue());
