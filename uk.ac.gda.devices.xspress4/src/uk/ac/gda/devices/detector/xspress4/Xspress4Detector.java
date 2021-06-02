@@ -48,6 +48,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -68,7 +69,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 @ServiceInterface(FluorescenceDetector.class)
 @SuppressWarnings("serial")
-public class Xspress4Detector extends DetectorBase implements FluorescenceDetector, NexusDetector {
+public class Xspress4Detector extends DetectorBase implements FluorescenceDetector, NexusDetector, DetectorWithConfigurationFile {
 
 	/** Trigger modes (caget -d31 BL20I-EA-XSP4-01:TriggerMode). Use 'TTL veto' for hardware triggered scans, 'Software' for software triggered scans*/
 	public enum TriggerMode {Software, Hardware, Burst, TtlVeto, IDC, SoftwareStartStop, TtlBoth, LvdsVetoOnly, LvdsBoth};
@@ -394,10 +395,12 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		return parameters;
 	}
 
+	@Override
 	public String getConfigFileName() {
 		return configFileName;
 	}
 
+	@Override
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
 	}

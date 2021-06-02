@@ -37,6 +37,7 @@ import gda.observable.IObserver;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.util.CorrectionUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -44,7 +45,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * Implementation of the Vortex XMAP detector. XMAP detector works in two modes. FAst MApping mode and Normal mode. This
  * implementation is only for the Normal mode.
  */
-public class Xmap extends DetectorBase implements XmapDetector, IObserver {
+public class Xmap extends DetectorBase implements XmapDetector, IObserver, DetectorWithConfigurationFile {
 	private static final long serialVersionUID = 2780213150490777588L;
 
 	private static final Logger logger = LoggerFactory.getLogger(Xmap.class);
@@ -547,6 +548,7 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 	/**
 	 * @return the configFileName
 	 */
+	@Override
 	public String getConfigFileName() {
 		return configFileName;
 	}
@@ -555,6 +557,7 @@ public class Xmap extends DetectorBase implements XmapDetector, IObserver {
 	 * @param configFileName
 	 *            the configFileName to set
 	 */
+	@Override
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
 	}

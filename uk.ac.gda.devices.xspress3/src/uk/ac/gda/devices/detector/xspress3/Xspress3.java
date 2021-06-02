@@ -4,6 +4,7 @@ import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 /**
@@ -12,7 +13,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
  * @author rjw82
  *
  */
-public interface Xspress3 extends FluorescenceDetector, NexusDetector {
+public interface Xspress3 extends FluorescenceDetector, NexusDetector, DetectorWithConfigurationFile {
 
 	/**
 	 * Perform a 'snapshot' data collection and return the MCAs. No file writing is involved.
@@ -27,10 +28,6 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException;
 
 	public void clearAndStart() throws DeviceException;
-
-	public String getConfigFileName();
-
-	public void setConfigFileName(String configFileName);
 
 	public void loadConfigurationFromFile() throws Exception;
 

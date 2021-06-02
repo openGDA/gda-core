@@ -32,6 +32,7 @@ import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 
@@ -42,7 +43,7 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
  * settings on one of the instances affects the other, as users would expect.
  */
 @ServiceInterface(Xspress3.class)
-public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
+public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector, DetectorWithConfigurationFile,
 		FluorescenceDetector, Xspress3 {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3BufferedDetector.class);

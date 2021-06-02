@@ -30,9 +30,10 @@ import gda.factory.FactoryException;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public abstract class XspressSystem extends DetectorBase implements NexusDetector, XspressDetector {
+public abstract class XspressSystem extends DetectorBase implements NexusDetector, XspressDetector, DetectorWithConfigurationFile {
 	private static final Logger logger = LoggerFactory.getLogger(XspressSystem.class);
 
 	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
@@ -53,10 +54,12 @@ public abstract class XspressSystem extends DetectorBase implements NexusDetecto
 //	public void setAddDTScalerValuesToAscii(Boolean addDTScalerValuesToAscii);
 //	public void setSaveRawSpectrum(Boolean saveRawSpectrum);
 
+	@Override
 	public String getConfigFileName() {
 		return configFileName;
 	}
 
+	@Override
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
 	}
