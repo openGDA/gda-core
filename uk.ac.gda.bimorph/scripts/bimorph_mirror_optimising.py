@@ -96,7 +96,6 @@ def generatePositions(initialPos, increment):
         yield positions[:]
 
 def generateGroupedPositions(initialPos, increment, group_string):
-                 initialPos, increment, group_string)
     logger.debug('Generating positions for initial position: %s, increment: %d, and groups: %s',
                  initialPos, increment, group_string)
     # split string into tuples eg '1-2,3,4-5' -> (1,2),(3,3),(4,5)
