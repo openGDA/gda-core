@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.service.rest;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
+import static gda.configuration.properties.LocalProperties.GDA_VISIT_DIR;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
@@ -43,7 +46,6 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
@@ -67,7 +69,9 @@ public class ConfigurationsServiceTest {
 
 	@BeforeClass
 	public static void beforeClass() {
-		System.setProperty(LocalProperties.GDA_VISIT_DIR, "test/resources");
+		System.setProperty(GDA_VISIT_DIR, "test/resources");
+		System.setProperty(GDA_CONFIG, "test/resources/configurationsService");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/configurationsService/properties/_common/common_instance_java.properties");
 	}
 
 	@Test(expected = GDAHttpException.class)

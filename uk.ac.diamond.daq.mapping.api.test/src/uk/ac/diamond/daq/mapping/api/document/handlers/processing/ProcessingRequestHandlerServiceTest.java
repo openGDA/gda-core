@@ -18,6 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +29,7 @@ import java.util.Set;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +52,12 @@ public class ProcessingRequestHandlerServiceTest {
 
 	@Autowired
 	ProcessingRequestHandlerService service;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
 
 	@Test
 	public void testUnknownRequest() {

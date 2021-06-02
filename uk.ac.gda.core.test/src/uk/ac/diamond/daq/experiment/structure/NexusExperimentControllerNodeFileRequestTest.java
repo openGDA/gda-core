@@ -18,9 +18,11 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.event.status.Status;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -52,21 +55,28 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 
 	@Before
 	public void mockServiceResponse() throws Exception {
-		NodeFileCreationRequest response = new NodeFileCreationRequest();
+		var response = new NodeFileCreationRequest();
 		response.setStatus(Status.COMPLETE);
 		doReturn(response).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
 	}
 
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
+
+
 	@Test
 	public void stopExperimentCallsIndexFileCreator() throws Exception {
 
-		URL experimentRoot = controller.startExperiment(EXPERIMENT_NAME);
-		URL firstUrl = controller.prepareAcquisition(ACQUISITION_NAME + "1");
-		URL secondUrl = controller.prepareAcquisition(ACQUISITION_NAME + "2");
+		URL experimentRoot = getController().startExperiment(EXPERIMENT_NAME);
+		var firstUrl = getController().prepareAcquisition(ACQUISITION_NAME + "1");
+		var secondUrl = getController().prepareAcquisition(ACQUISITION_NAME + "2");
 
-		controller.stopExperiment();
+		getController().stopExperiment();
 
-		Set<URL> nxsUrls = new HashSet<>();
+		var nxsUrls = new HashSet<>();
 		nxsUrls.add(firstUrl);
 		nxsUrls.add(secondUrl);
 
@@ -80,13 +90,13 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 
 	@Test
 	public void multiPartAcquisitionRequestsNodeFileCreation() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
 
-		URL acquisition = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		URL scan1 = controller.prepareAcquisition(ACQUISITION_NAME+1);
-		URL scan2 = controller.prepareAcquisition(ACQUISITION_NAME+2);
+		URL acquisition = getController().startMultipartAcquisition(ACQUISITION_NAME);
+		URL scan1 = getController().prepareAcquisition(ACQUISITION_NAME+1);
+		URL scan2 = getController().prepareAcquisition(ACQUISITION_NAME+2);
 
-		controller.stopMultipartAcquisition();
+		getController().stopMultipartAcquisition();
 
 		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
@@ -94,7 +104,7 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 
 		assertThat(job.getNodeLocation(), is(equalTo(acquisition)));
 
-		Set<URL> scans = new HashSet<>();
+		var scans = new HashSet<>();
 		scans.add(scan1);
 		scans.add(scan2);
 		assertThat(job.getChildren(), is(equalTo(scans)));
@@ -102,18 +112,18 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 
 	@Test
 	public void stopExperimentClosesAllOpenMultipartAcquisitions() throws Exception {
-		URL experiment = controller.startExperiment(EXPERIMENT_NAME);
+		URL experiment = getController().startExperiment(EXPERIMENT_NAME);
 
-		URL firstLevel = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		URL secondLevel = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		controller.prepareAcquisition(ACQUISITION_NAME); // need a concrete child for the multipart to actually close
+		URL firstLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
+		URL secondLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
+		getController().prepareAcquisition(ACQUISITION_NAME); // need a concrete child for the multipart to actually close
 
-		Set<URL> expectedNodeFiles = new HashSet<>();
+		var expectedNodeFiles = new HashSet<>();
 		expectedNodeFiles.add(experiment);
 		expectedNodeFiles.add(firstLevel);
 		expectedNodeFiles.add(secondLevel);
 
-		controller.stopExperiment();
+		getController().stopExperiment();
 
 		verify(nodeFileRequesterService, times(3)).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
@@ -126,13 +136,13 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 
 	@Test
 	public void multiPartIsAbleToCloseWithoutChildren() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
 
 		// start multipart acquisition...
-		controller.startMultipartAcquisition(ACQUISITION_NAME);
+		getController().startMultipartAcquisition(ACQUISITION_NAME);
 
 		// on second thoughts... stop it (without generating acquisitions inside it)
-		controller.stopMultipartAcquisition();
+		getController().stopMultipartAcquisition();
 
 		verifyNoMoreInteractions(nodeFileRequesterService);
 	}

@@ -18,9 +18,11 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import java.net.URL;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -57,6 +60,13 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 		 treeCaptor = ArgumentCaptor.forClass(ExperimentTree.class);
 	}
 
+	@BeforeClass
+	public static void beforeClass() {
+		// This setProperties is necessary to not make ServerSpringProperties to fail.
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
+
 	@Test
 	public void readCacheWhenControllerCreated() throws Exception {
 		verify(experimentTreeCache).restore();
@@ -64,7 +74,7 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 
 	@Test
 	public void cacheStateWhenExperimentStarts() throws Exception {
-		URL experiment = controller.startExperiment(EXPERIMENT_NAME);
+		URL experiment = getController().startExperiment(EXPERIMENT_NAME);
 
 		verify(experimentTreeCache).store(treeCaptor.capture());
 
@@ -73,8 +83,8 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 
 	@Test
 	public void cacheStateWhenAcquisitionPrepared() throws Exception {
-		URL experiment = controller.startExperiment(EXPERIMENT_NAME);
-		controller.prepareAcquisition(ACQUISITION_NAME);
+		URL experiment = getController().startExperiment(EXPERIMENT_NAME);
+		getController().prepareAcquisition(ACQUISITION_NAME);
 
 		verify(experimentTreeCache, times(2)).store(treeCaptor.capture());
 
@@ -85,8 +95,8 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 
 	@Test
 	public void cacheStateWhenStartingMultipartAcquisition() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL multipart = controller.startMultipartAcquisition(ACQUISITION_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL multipart = getController().startMultipartAcquisition(ACQUISITION_NAME);
 
 		verify(experimentTreeCache, times(2)).store(treeCaptor.capture());
 
@@ -98,11 +108,11 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 
 		doReturn(new NodeFileCreationRequest()).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
 
-		URL root = controller.startExperiment(EXPERIMENT_NAME);
-		controller.startMultipartAcquisition(ACQUISITION_NAME);
-		controller.prepareAcquisition(ACQUISITION_NAME + "a");
-		controller.prepareAcquisition(ACQUISITION_NAME + "b");
-		controller.stopMultipartAcquisition();
+		URL root = getController().startExperiment(EXPERIMENT_NAME);
+		getController().startMultipartAcquisition(ACQUISITION_NAME);
+		getController().prepareAcquisition(ACQUISITION_NAME + "a");
+		getController().prepareAcquisition(ACQUISITION_NAME + "b");
+		getController().stopMultipartAcquisition();
 
 		verify(experimentTreeCache, times(5)).store(treeCaptor.capture());
 
@@ -112,8 +122,8 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 	@Test
 	public void cacheStateWhenEndingExperiment() throws Exception {
 		doReturn(new NodeFileCreationRequest()).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
-		controller.startExperiment(EXPERIMENT_NAME);
-		controller.stopExperiment();
+		getController().startExperiment(EXPERIMENT_NAME);
+		getController().stopExperiment();
 
 		verify(experimentTreeCache).store(null);
 	}

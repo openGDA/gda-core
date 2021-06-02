@@ -18,8 +18,9 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -31,40 +32,40 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
-import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
-import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 
 
 public class NexusExperimentControllerTest extends NexusExperimentControllerTestBase {
 
-	@Autowired
-	private AcquisitionFileContext context;
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
 
 	@Test
 	public void nullExperimentNameReplacedByDefaultPrefix() throws ExperimentControllerException {
-		URL experimentFolder = controller.startExperiment(null);
+		URL experimentFolder = getController().startExperiment(null);
 		assertThat(experimentFolder.getFile(), containsString(NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX));
 	}
 
 	@Test
 	public void emptyExperimentNameReplacedByDefaultPrefix() throws ExperimentControllerException {
-		URL experimentFolder = controller.startExperiment("");
+		URL experimentFolder = getController().startExperiment("");
 		assertThat(experimentFolder.getFile(), containsString(NexusExperimentController.DEFAULT_EXPERIMENT_PREFIX));
 	}
 
 	@Test
 	public void testExperimentDirectoryStructure() throws ExperimentControllerException {
-		URL experimentFolder = controller.startExperiment(EXPERIMENT_NAME);
+		URL experimentFolder = getController().startExperiment(EXPERIMENT_NAME);
 
-		File experimentFile = new File(experimentFolder.getPath());
-		File experimentDir = experimentFile.getParentFile();
-		File experimentsDir = experimentDir.getParentFile();
-		File visitDir = experimentsDir.getParentFile();
+		var experimentFile = new File(experimentFolder.getPath());
+		var experimentDir = experimentFile.getParentFile();
+		var experimentsDir = experimentDir.getParentFile();
+		var visitDir = experimentsDir.getParentFile();
 
 		// Experiments directory has to live under $VISIT folder
 		assertThat("Experiment URL is malformed", visitDir.getPath(), is(equalTo(filePathService.getVisitDir())));
@@ -72,22 +73,22 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 
 	@Test
 	public void experimentUrlIsFile() throws Exception {
-		URL experiment = controller.startExperiment(EXPERIMENT_NAME);
+		URL experiment = getController().startExperiment(EXPERIMENT_NAME);
 		assertTrue("Location of file, not directory, is expected", isFile(experiment));
 	}
 
 	@Test
 	public void acquisitionUrlIsFile() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL acquisition = controller.prepareAcquisition(ACQUISITION_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL acquisition = getController().prepareAcquisition(ACQUISITION_NAME);
 		assertTrue("Location of file, not directory, is expected", isFile(acquisition));
 	}
 
 	@Test
 	public void consecutiveAcquisitionsPreparedAtSameLevel() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL acq1 = controller.prepareAcquisition(ACQUISITION_NAME);
-		URL acq2 = controller.prepareAcquisition(ACQUISITION_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL acq1 = getController().prepareAcquisition(ACQUISITION_NAME);
+		URL acq2 = getController().prepareAcquisition(ACQUISITION_NAME);
 		assertTrue(urlsAtSameLevel(acq1, acq2));
 	}
 
@@ -95,8 +96,8 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	 * Test that two urls have the same parent node in tree
 	 */
 	private boolean urlsAtSameLevel(URL url1, URL url2) throws URISyntaxException {
-		Path path1 = getExperimentTreeParent(url1);
-		Path path2 = getExperimentTreeParent(url2);
+		var path1 = getExperimentTreeParent(url1);
+		var path2 = getExperimentTreeParent(url2);
 		return path1.equals(path2);
 	}
 
@@ -108,14 +109,14 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 
 	@Test
 	public void multiPartAcquisitionCreatesSubNode() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL standardAcquisition = controller.prepareAcquisition(ACQUISITION_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL standardAcquisition = getController().prepareAcquisition(ACQUISITION_NAME);
 
-		String pointAndShootName = "Point And Shoot";
+		var pointAndShootName = "Point And Shoot";
 
-		URL pointAndShoot = controller.startMultipartAcquisition(pointAndShootName);
-		URL child1 = controller.prepareAcquisition(pointAndShootName);
-		URL child2 = controller.prepareAcquisition(pointAndShootName);
+		URL pointAndShoot = getController().startMultipartAcquisition(pointAndShootName);
+		URL child1 = getController().prepareAcquisition(pointAndShootName);
+		URL child2 = getController().prepareAcquisition(pointAndShootName);
 
 		assertTrue(urlsAtSameLevel(standardAcquisition, pointAndShoot));
 		assertTrue(urlsAtSameLevel(child1, child2));
@@ -125,10 +126,10 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 
 	@Test
 	public void supportForMultiLevelMultiPartAcquisitions() throws Exception {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL firstLevel = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		URL secondLevel = controller.startMultipartAcquisition(ACQUISITION_NAME);
-		URL secondLevelPart = controller.prepareAcquisition(ACQUISITION_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL firstLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
+		URL secondLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
+		URL secondLevelPart = getController().prepareAcquisition(ACQUISITION_NAME);
 
 		assertTrue(isParent(firstLevel, secondLevel));
 		assertTrue(isParent(secondLevel, secondLevelPart));
@@ -145,7 +146,7 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	}
 
 	private boolean isFile(URL url) throws Exception {
-		File file = new File(url.getPath());
+		var file = new File(url.getPath());
 		if (!file.exists()) {
 			new File(file.getParent()).mkdirs();
 			if (!file.createNewFile()) throw new Exception("Couldn't create file: " + url.getPath());
@@ -156,62 +157,37 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 
 	@Test
 	public void acquisitionNameFoundInUrl() throws ExperimentControllerException {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL acquisitionUrl = controller.prepareAcquisition(ACQUISITION_NAME);
+		getController().startExperiment(EXPERIMENT_NAME);
+		var acquisitionUrl = getController().prepareAcquisition(ACQUISITION_NAME);
 		assertThat(acquisitionUrl.getFile(), containsString(ACQUISITION_NAME));
 	}
 
 	@Test
 	public void nullAcquisitionNameReplacedByDefaultPrefix() throws ExperimentControllerException {
-		controller.startExperiment(EXPERIMENT_NAME);
-		URL acquisitionFolder = controller.prepareAcquisition(null);
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL acquisitionFolder = getController().prepareAcquisition(null);
 		assertThat(acquisitionFolder.getFile(), containsString(NexusExperimentController.DEFAULT_ACQUISITION_PREFIX));
 	}
 
 	@Test
 	public void nonAlphaNumericCharactersReplaced() throws ExperimentControllerException {
-		URL experimentFolder = controller.startExperiment("$my experiment &");
+		URL experimentFolder = getController().startExperiment("$my experiment &");
 		assertThat(experimentFolder.getFile(), containsString("MyExperiment"));
 	}
 
 	@Test(expected = ExperimentControllerException.class)
 	public void createsTwoExperimentSoThrowException() throws ExperimentControllerException {
-		controller.startExperiment(null);
-		controller.startExperiment(null);
+		getController().startExperiment(null);
+		getController().startExperiment(null);
 	}
 
 	@Test(expected = ExperimentControllerException.class)
 	public void createsAcquisitionBeforeExperimentSoThrowException() throws ExperimentControllerException {
-		controller.prepareAcquisition(null);
+		getController().prepareAcquisition(null);
 	}
 
 	@Test(expected = ExperimentControllerException.class)
 	public void stopExperimentWhenNoneRunningThrows() throws ExperimentControllerException {
-		controller.stopExperiment();
+		getController().stopExperiment();
 	}
-
-	@Test
-	public void absoluteRootDirFromProperty() throws Exception {
-		File file = new File("/tmp/nexusTest");
-		if (file.exists()) file.delete();
-		loadProperties("test/resources/gdaContext/nexusExperimentAbsoluteContext.properties");
-		URL experimentUrl = controller.startExperiment(EXPERIMENT_NAME);
-		assertThat(experimentUrl.getPath(), startsWith("/tmp/nexusTest"));
-	}
-
-	@Test
-	public void relativeRootDirFromProperty() throws Exception {
-		loadProperties("test/resources/gdaContext/nexusExperimentRelativeContext.properties");
-		String experimentPath = controller.startExperiment(EXPERIMENT_NAME).getPath();
-		assertThat(experimentPath, startsWith(context.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY).getPath()));
-		assertThat(experimentPath, containsString("some/subpath"));
-	}
-
-	private void loadProperties(String resourcePath) {
-		File resource = new File(resourcePath);
-		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, resource.getPath());
-		LocalProperties.reloadAllProperties();
-	}
-
-
 }

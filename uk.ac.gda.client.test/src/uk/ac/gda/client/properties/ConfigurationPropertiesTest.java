@@ -19,8 +19,8 @@
 package uk.ac.gda.client.properties;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,11 +51,7 @@ public class ConfigurationPropertiesTest {
 	@BeforeClass
 	public static void beforeClass() {
 		System.setProperty(GDA_CONFIG, "test/resources/configurationPropertiesTest");
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		System.clearProperty(GDA_CONFIG);
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/configurationPropertiesTest/properties/_common/common_instance_java.properties");
 	}
 
 	@Test

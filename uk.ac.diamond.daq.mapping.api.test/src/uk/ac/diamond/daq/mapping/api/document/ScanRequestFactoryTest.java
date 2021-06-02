@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api.document;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +37,7 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -65,6 +68,12 @@ public class ScanRequestFactoryTest {
 	@Before
 	public void before() throws ScanningException {
 		when(runnableService.getRunnableDevice(anyString())).thenReturn(detectorModel);
+	}
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
 	}
 
 	/**

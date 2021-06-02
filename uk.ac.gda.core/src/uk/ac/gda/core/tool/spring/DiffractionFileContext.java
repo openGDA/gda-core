@@ -21,9 +21,11 @@ package uk.ac.gda.core.tool.spring;
 import java.net.URL;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.core.tool.spring.properties.AcquisitionFileContextProperties;
+import uk.ac.gda.core.tool.spring.properties.ExperimentDiffractionProperties;
 
 /**
  * Defines the diffraction operational file structure.
@@ -35,37 +37,40 @@ import gda.configuration.properties.LocalProperties;
 @Component
 public class DiffractionFileContext extends AcquisitionFileBaseContext<DiffractionContextFile>{
 
-	public static final String DIFFRACTION_OPERATIONAL_DIRECTORY_PROPERTY = "experiments.diffraction";
+	@Autowired
+	private ServerSpringProperties serverProperties;
+
 	public static final String DIFFRACTION_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT = "diffraction";
-
-	public static final String DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY =	"experiments.diffraction.configurations";
-	public static final String DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT =	"configurations";
-
-	public static final String DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY =	"experiments.diffraction.calibrations";
-	public static final String DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT =	"calibrations";
-
-	public static final String DIFFRACTION_CALIBRATION_DIRECTORY_PERMISSIONS_PROPERTY =	"experiments.diffraction.calibrations.permissions";
+	public static final String DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT = "configurations";
+	public static final String DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT = "calibrations";
 
 	private void initializeOperationalDir() {
-		initializeDirectoryInConfigDir(DIFFRACTION_OPERATIONAL_DIRECTORY_PROPERTY,
-				DIFFRACTION_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT,
+		String directoryPath = Optional.ofNullable(getExperimentDiffractionProperties())
+				.map(ExperimentDiffractionProperties::getDirectory)
+				.orElse(DIFFRACTION_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT);
+
+		initializeDirectoryInConfigDir(directoryPath,
 				DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY);
 	}
 
 	private void initializeConfigurationDir() {
+		String directoryPath = Optional.ofNullable(getExperimentDiffractionProperties())
+				.map(ExperimentDiffractionProperties::getConfigurations)
+				.orElse(DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT);
+
 		initializeDirectory(getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
-				DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY,
-				DIFFRACTION_CONFIGURATION_DIRECTORY_PROPERTY_DEFAULT,
+				directoryPath,
 				DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY);
 	}
 
 	private void initializeCalibrationDir() {
-		URL url = initializeDirectory(getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
-				DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY,
-				DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT,
+		String directoryPath = Optional.ofNullable(getExperimentDiffractionProperties())
+				.map(ExperimentDiffractionProperties::getCalibrations)
+				.orElse(DIFFRACTION_CALIBRATION_DIRECTORY_PROPERTY_DEFAULT);
+
+		initializeDirectory(getContextFile(DiffractionContextFile.DIFFRACTION_OPERATIONAL_DIRECTORY),
+				directoryPath,
 				DiffractionContextFile.DIFFRACTION_CALIBRATION_DIRECTORY);
-		Optional.ofNullable(LocalProperties.get(DIFFRACTION_CALIBRATION_DIRECTORY_PERMISSIONS_PROPERTY, null))
-			.ifPresent(permissions -> changeDirectoryPermissions(permissions, url));
 	}
 
 	@Override
@@ -83,5 +88,12 @@ public class DiffractionFileContext extends AcquisitionFileBaseContext<Diffracti
 	 */
 	public boolean putCalibrationInContext(URL calibrationUrl) {
 		return putFileInContext(DiffractionContextFile.DIFFRACTION_DEFAULT_CALIBRATION, calibrationUrl);
+	}
+
+	private ExperimentDiffractionProperties getExperimentDiffractionProperties() {
+		return Optional.ofNullable(serverProperties)
+				.map(ServerSpringProperties::getFileContexts)
+				.map(AcquisitionFileContextProperties::getDiffraction)
+				.orElse(null);
 	}
 }

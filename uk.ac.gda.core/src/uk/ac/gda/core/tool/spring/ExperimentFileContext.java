@@ -18,7 +18,13 @@
 
 package uk.ac.gda.core.tool.spring;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import uk.ac.gda.core.tool.spring.properties.AcquisitionFileContextProperties;
+import uk.ac.gda.core.tool.spring.properties.ExperimentProperties;
 
 /**
  * Defines the user experiment files structure
@@ -28,20 +34,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExperimentFileContext extends AcquisitionFileBaseContext<ExperimentContextFile> {
 
-	public static final String EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY = "experiments.raw";
-	public static final String EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT = "experiments";
+	@Autowired
+	private ServerSpringProperties serverProperties;
 
-	public static final String EXPERIMENTS_PROCESSED_DIRECTORY_PROPERTY = "experiments.processed";
+	public static final String EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT = "experiments";
 	public static final String EXPERIMENTS_PROCESSED_DIRECTORY_PROPERTY_DEFAULT = "processed";
 
 	private void initializeOperationalDir() {
-		initializeDirectoryInVisitDir(EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY,
-				EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT, ExperimentContextFile.EXPERIMENTS_DIRECTORY);
+		var directoryPath = Optional.ofNullable(getExperimentProperties())
+				.map(ExperimentProperties::getDirectory)
+				.orElse(EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY_DEFAULT);
+
+		initializeDirectoryInVisitDir(directoryPath, ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 	}
 
 	private void initializeProcessedDir() {
+		var directoryPath = Optional.ofNullable(getExperimentProperties())
+				.map(ExperimentProperties::getProcessed)
+				.orElse(EXPERIMENTS_PROCESSED_DIRECTORY_PROPERTY_DEFAULT);
+
 		initializeDirectory(getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY),
-				EXPERIMENTS_PROCESSED_DIRECTORY_PROPERTY, EXPERIMENTS_PROCESSED_DIRECTORY_PROPERTY_DEFAULT,
+				directoryPath,
 				ExperimentContextFile.EXPERIMENTS_PROCESSED_DIRECTORY);
 	}
 
@@ -49,5 +62,12 @@ public class ExperimentFileContext extends AcquisitionFileBaseContext<Experiment
 	protected void initializeFolderStructure() {
 		initializeOperationalDir();
 		initializeProcessedDir();
+	}
+
+	private ExperimentProperties getExperimentProperties() {
+		return Optional.ofNullable(serverProperties)
+				.map(ServerSpringProperties::getFileContexts)
+				.map(AcquisitionFileContextProperties::getExperiment)
+				.orElse(null);
 	}
 }

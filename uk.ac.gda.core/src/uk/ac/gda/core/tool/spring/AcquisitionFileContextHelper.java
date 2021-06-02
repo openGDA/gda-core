@@ -153,7 +153,10 @@ class AcquisitionFileContextHelper {
 	 * @return a new URL based on the parameters combination
 	 * @throws GDAException
 	 *             if both the parameters are {@code null} or their value is malformed
+	 * @deprecated use instead {@link #getCustomDirectory(URL, String)}. This is done in order to have an object approach instead of a properties one.
+	 * Typically the calling class uses a POJO pre-populated by Spring properties
 	 */
+	@Deprecated
 	static URL getCustomDirectory(URL rootDir, String propertyKey, String defaultValue) throws GDAException {
 		if (propertyKey == null) {
 			throw new GDAException("Cannot getDirectory with null parameters");
@@ -168,17 +171,53 @@ class AcquisitionFileContextHelper {
 			propertyValue = defaultValue;
 		}
 
-		if (new File(propertyValue).isAbsolute()) {
+		return getCustomDirectory(rootDir, propertyValue);
+	}
+
+	/**
+	 * Returns a URL based on a path defined by an application property.
+	 *
+	 * <p>
+	 * This methods combines several cases:
+	 * <ul>
+	 * <li>if {@code rootDir} is not {@code null} and the {@code value} defines a relative path (does not start with
+	 * backslash), the last is appended to the previous</li>
+	 * <li>if {@code rootDir} is not {@code null} and the {@code value} defines an absolute path (starts with backslash),
+	 * returns the last</li>
+	 * <li>if {@code rootDir} is {@code null} and the property defines an absolute path (starts with backslash), returns
+	 * the last</li>
+	 * <li>if {@code rootDir} is not {@code null} and the {@code value} is {@code null}, returns the first</li>
+	 * <li>if {@code rootDir} is {@code null} and the {@code value} defines a relative path throws a GDAException
+	 * </li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param rootDir
+	 *            the root directory if the {@code propertyKey} defines a relative path
+	 * @param value
+	 *            the file path relative to the rootDir
+	 * @return a new URL based on the parameters combination
+	 * @throws GDAException
+	 *             if both the parameters are {@code null} or their value is malformed
+	 */
+	static URL getCustomDirectory(URL rootDir, String value) throws GDAException {
+		if (value == null) {
+			throw new GDAException("Cannot getDirectory with null parameters");
+		}
+
+		if (rootDir == null) {
+			throw new GDAException("Cannot set a relative path for " + value + " without a root path");
+		}
+
+		if (new File(value).isAbsolute()) {
 			// property describes an absolute path
-			return generateURL(propertyValue);
+			return generateURL(value);
 		} else {
-			if (rootDir == null) {
-				throw new GDAException("Cannot set a relative path for " + propertyKey + " without a root path");
-			}
 			// property describes a relative path
-			return generateURL(rootDir, propertyValue);
+			return generateURL(rootDir, value);
 		}
 	}
+
 
 	private static Optional<IFilePathService> getFilePathService() {
 		return Optional.ofNullable(ServiceHolder.getFilePathService());

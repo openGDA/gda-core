@@ -34,10 +34,9 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
-import uk.ac.gda.core.tool.spring.ExperimentFileContext;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
 /**
  * Base class for {@link NexusExperimentController} tests,
@@ -52,7 +51,10 @@ public abstract class NexusExperimentControllerTestBase {
 	protected static final String ACQUISITION_NAME = "MyMeasurement";
 
 	@Autowired
-	protected ExperimentController controller;
+	private AcquisitionFileContext context;
+
+	@Autowired
+	private ExperimentController controller;
 
 	@Rule
 	public TemporaryFolder testDirectory = new TemporaryFolder();
@@ -63,12 +65,18 @@ public abstract class NexusExperimentControllerTestBase {
 	public void prepareFileSystem() throws IOException {
 		filePathService = mock(IFilePathService.class);
 
-		LocalProperties.clearProperty(ExperimentFileContext.EXPERIMENTS_OPERATIONAL_DIRECTORY_PROPERTY);
-
 		doReturn(testDirectory.newFolder("visit").getAbsolutePath()).when(filePathService).getVisitDir();
 		doReturn(testDirectory.newFolder("processing").getAbsolutePath()).when(filePathService).getProcessingDir();
 		doReturn(testDirectory.newFolder("xml").getAbsolutePath()).when(filePathService).getVisitConfigDir();
-		ServiceHolder sh = new ServiceHolder();
+		var sh = new ServiceHolder();
 		sh.setFilePathService(filePathService);
+	}
+
+	protected AcquisitionFileContext getContext() {
+		return context;
+	}
+
+	protected ExperimentController getController() {
+		return controller;
 	}
 }

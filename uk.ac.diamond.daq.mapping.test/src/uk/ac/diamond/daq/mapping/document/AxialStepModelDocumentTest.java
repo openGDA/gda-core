@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.document;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.mscan.element.Mutator;
@@ -45,6 +48,12 @@ import uk.ac.gda.common.exception.GDAException;
 public class AxialStepModelDocumentTest extends DocumentTestBase {
 
 	private static final String MOTOR_X = "motor_x";
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
 
 	@Test
 	public void serialiseDocumentTest() throws GDAException {

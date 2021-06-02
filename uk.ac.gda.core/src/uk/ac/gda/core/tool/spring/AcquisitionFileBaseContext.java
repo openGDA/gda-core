@@ -97,46 +97,35 @@ abstract class AcquisitionFileBaseContext<T> {
 
 	abstract void initializeFolderStructure();
 
-	protected URL initializeDirectory(URL rootDir, String propertyKey, String defaultValue, T contextFile) {
+	protected URL initializeDirectory(URL rootDir, String value, T contextFile) {
 		URL url = null;
 		try {
-			url = getCustomDirectory(rootDir, propertyKey, defaultValue);
+			url = getCustomDirectory(rootDir, value);
 		} catch (GDAException e) {
-			getLogger().error("Cannot initialize {} directory", propertyKey, e);
+			getLogger().error("Cannot initialize {} directory", value, e);
 		}
 		bindContextFile(url, contextFile);
 		return url;
 	}
 
-	protected URL initializeDirectoryInConfigDir(String propertyKey, String defaultValue, T contextFile) {
+	protected URL initializeDirectoryInConfigDir(String value, T contextFile) {
 		URL rootDir = null;
 		try {
 			rootDir = AcquisitionFileContextHelper.getConfigDir();
 		} catch (GDAException e) {
 			logger.error("Cannot initialize the directory in ConfigDir");
 		}
-		return initializeDirectory(rootDir, propertyKey, defaultValue, contextFile);
+		return initializeDirectory(rootDir, value, contextFile);
 	}
 
-	protected URL initializeDirectoryInVisitDir(String propertyKey, String defaultValue, T contextFile) {
+	protected URL initializeDirectoryInVisitDir(String value, T contextFile) {
 		URL rootDir = null;
 		try {
 			rootDir = AcquisitionFileContextHelper.getVisitDir();
 		} catch (GDAException e) {
 			logger.error("Cannot initialize the directory in VisitDir");
 		}
-		return initializeDirectory(rootDir, propertyKey, defaultValue, contextFile);
-	}
-
-	protected URL initializeDirectoryInProcessingDir(String propertyKey, String defaultValue, T contextFile) {
-		URL rootDir = null;
-		try {
-			rootDir = AcquisitionFileContextHelper.getProcessingDir();
-			return initializeDirectory(rootDir, propertyKey, defaultValue, contextFile);
-		} catch (GDAException e) {
-			logger.error("Cannot initialize the directory in ProcessingDir");
-		}
-		return initializeDirectory(rootDir, propertyKey, defaultValue, contextFile);
+		return initializeDirectory(rootDir, value, contextFile);
 	}
 
 	/**

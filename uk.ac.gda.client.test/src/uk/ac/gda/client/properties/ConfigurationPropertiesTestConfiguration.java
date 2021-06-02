@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Maurizio Nagni
  */
 @Configuration
-@ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring",
+@ComponentScan(basePackages = {
 		"uk.ac.gda.client.properties",
 		"uk.ac.gda.ui.tool.spring"})
 public class ConfigurationPropertiesTestConfiguration {

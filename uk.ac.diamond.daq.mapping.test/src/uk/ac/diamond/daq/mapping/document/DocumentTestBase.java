@@ -18,9 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.document;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
+
 import java.io.File;
 import java.net.MalformedURLException;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -38,6 +42,12 @@ public class DocumentTestBase {
 
 	@Autowired
 	private DocumentMapper documentMapper;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
 
 	protected <T> T deserialiseDocument(String resourcePath, Class<T> clazz) throws GDAException {
 		var resource = new File(resourcePath);
