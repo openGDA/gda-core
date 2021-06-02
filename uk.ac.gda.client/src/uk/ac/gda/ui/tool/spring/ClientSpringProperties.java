@@ -9,10 +9,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import uk.ac.gda.client.properties.RealVectorConverter;
 import uk.ac.gda.client.properties.Array2DConverter;
+import uk.ac.gda.client.properties.RealVectorConverter;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
+import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
 
 /**
@@ -35,7 +36,8 @@ import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
 // ------------------
 @EnableConfigurationProperties({CameraConfigurationProperties.class,
 	AcquisitionConfigurationProperties.class,
-	ScannableGroupProperties.class})
+	ScannableGroupProperties.class,
+	Modes.class})
 public class ClientSpringProperties {
 
 	@Autowired
@@ -47,6 +49,9 @@ public class ClientSpringProperties {
 	@Autowired
 	private List<ScannableGroupProperties> scannableGroups;
 
+	@Autowired
+	private Modes modes;
+
 	public List<CameraConfigurationProperties> getCameras() {
 		return cameras;
 	}
@@ -57,6 +62,10 @@ public class ClientSpringProperties {
 
 	public List<ScannableGroupProperties> getScannableGroups() {
 		return scannableGroups;
+	}
+
+	public Modes getModes() {
+		return modes;
 	}
 
 	@Bean

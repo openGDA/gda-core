@@ -47,7 +47,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -75,7 +74,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ScanningAcquisitionControllerConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class ScanningAcquisitionControllerRunRequestTest {
+public class ScanningAcquisitionControllerRunRequestTestModeTest {
 
 	private static final String MOTOR_X = "motor_x";
 	private static final String EH_SHUTTER = "eh_shutter";
@@ -99,8 +98,8 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 	@BeforeClass
 	public static void beforeClass() {
-		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTest");
-        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/scanningAcquisitionControllerTest/properties/_common/common_instance_java.properties");
+		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTestModeTest");
+        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/scanningAcquisitionControllerTestModeTest/properties/_common/common_instance_java.properties");
 	}
 
 	@AfterClass
@@ -152,13 +151,15 @@ public class ScanningAcquisitionControllerRunRequestTest {
 	}
 
 	/**
-	 * Submit an acquisition to the service which includes start positions
+	 * Submit an acquisition to the service which includes start positions but excludes eh_shutter
+	 * as required by the testMode properties configuration
+	 *
 	 * @throws AcquisitionControllerException
 	 * @throws GDAClientRestException
 	 */
 	@Test
 	public void testRunScanningAcquisition() throws AcquisitionControllerException, GDAClientRestException {
-		CameraControl cameraControl = mock(CameraControl.class);
+		var cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
 		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control", CameraControl.class);
 
@@ -167,7 +168,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		doReturn(createDevicePositionDocuments()).when(stageController)
 			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());
 
-		String responseText = "Done";
+		var responseText = "Done";
 		RunAcquisitionResponse mockResponse = new RunAcquisitionResponse.Builder()
 				.withMessage(responseText)
 				.withSubmitted(true)
@@ -184,30 +185,8 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		Assert.assertEquals(responseText, response.getMessage());
 		Assert.assertTrue(response.isSubmitted());
 
-		Assert.assertTrue(controller.getAcquisition().getAcquisitionConfiguration()
+		Assert.assertFalse(controller.getAcquisition().getAcquisitionConfiguration()
 				.getAcquisitionParameters().getPosition().contains(openShutterPosition));
 
-	}
-
-	/**
-	 * Request a flat calibration without OutOfBeam, consequently throws a {@link AcquisitionConfigurationException}
-	 * @throws AcquisitionControllerException
-	 */
-	@Test(expected = AcquisitionConfigurationException.class)
-	public void testRunScanningAcquisitionNoOutOfBeam() throws AcquisitionControllerException {
-		CameraControl cameraControl = mock(CameraControl.class);
-		doReturn("imaging_camera_control").when(cameraControl).getName();
-		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control", CameraControl.class);
-
-		doReturn(new HashSet<>()).when(stageController)
-			.getPositionDocuments(ArgumentMatchers.any(Position.START.getClass()), ArgumentMatchers.anySet());
-
-		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
-		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
-		controller.createNewAcquisition();
-		ImageCalibrationHelper imageCalibrationHelper = new ImageCalibrationHelper(controller.getAcquisition()::getAcquisitionConfiguration);
-		imageCalibrationHelper.updateFlatAfterAcquisitionExposures(true);
-
-		controller.runAcquisition();
 	}
 }

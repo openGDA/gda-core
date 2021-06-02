@@ -7,12 +7,14 @@ import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRe
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +50,15 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.mode.Modes;
+import uk.ac.gda.client.properties.mode.TestMode;
+import uk.ac.gda.client.properties.mode.TestModeElement;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -90,6 +96,9 @@ public class ScanningAcquisitionController
 
 	@Autowired
 	private ConfigurationsRestServiceClient configurationService;
+
+	@Autowired
+	private ClientSpringProperties clientProperties;
 
 	private ScanningAcquisition acquisition;
 
@@ -235,8 +244,8 @@ public class ScanningAcquisitionController
 
 	private void publishScanRequestSavedEvent(String fileName) {
 		try {
-			ScanRequestFactory srf = new ScanRequestFactory(getAcquisition());
-			ScanRequest scanRequest = srf.createScanRequest(remoteServices.getIRunnableDeviceService());
+			var srf = new ScanRequestFactory(getAcquisition());
+			var scanRequest = srf.createScanRequest(remoteServices.getIRunnableDeviceService());
 			publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
 		} catch (ScanningException e) {
 			logger.error("Canot create scanRequest", e);
@@ -274,9 +283,9 @@ public class ScanningAcquisitionController
 				&& flatPosition.isEmpty()) {
 			throw new AcquisitionConfigurationException("Save an OutOfBeam position to acquire flat images");
 		}
-		flatPosition.add(stageController.createShutterOpenRequest());
-		updateBeamSelectorPosition(flatPosition);
-		getImageCalibrationHelper().updateFlatDetectorPositionDocument(flatPosition);
+		addPosition(stageController.createShutterOpenRequest(), flatPosition::add);
+		positionsPostProcess(flatPosition);
+		updatePositionDocument(flatPosition, getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
 	}
 
 	private void validateDarkCalibrationParameters(ImageCalibrationReader ic) throws AcquisitionConfigurationException {
@@ -284,20 +293,36 @@ public class ScanningAcquisitionController
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
 			darkPosition.add(stageController.createShutterClosedRequest());
-			updateBeamSelectorPosition(darkPosition);
-			getImageCalibrationHelper().updateDarkDetectorPositionDocument(darkPosition);
+			positionsPostProcess(darkPosition);
+			updatePositionDocument(darkPosition, getImageCalibrationHelper()::updateDarkDetectorPositionDocument);
 		}
 	}
 
-	private void updateBeamSelectorPosition(Set<DevicePositionDocument> positions) {
-		ManagedScannable<String> beamSelector =  getBeamSelector();
-		if (beamSelector == null)
+	private void positionsPostProcess(Set<DevicePositionDocument> positions) {
+		Optional.ofNullable(getBeamSelector())
+			.filter(ManagedScannable::isAvailable)
+			.map(stageController::createDevicePositionDocument)
+			.ifPresent(d -> addPosition(d, positions::add));
+
+		filterTestScannable(positions);
+	}
+
+
+
+	private void filterTestScannable(Set<DevicePositionDocument> positions) {
+		boolean isActive = Optional.ofNullable(clientProperties.getModes())
+			.map(Modes::getTest)
+			.map(TestMode::isActive)
+			.orElse(false);
+		if (!isActive)
 			return;
 
-		if (beamSelector.isAvailable()) {
-			DevicePositionDocument beamSelectorPosition = stageController.createDevicePositionDocument(beamSelector);
-			positions.add(beamSelectorPosition);
-		}
+		List<String> toExclude = clientProperties.getModes().getTest().getElements().stream()
+			.filter(TestModeElement::isExclude)
+			.map(TestModeElement::getDevice)
+			.collect(Collectors.toList());
+
+		positions.removeIf(p -> toExclude.contains(p.getDevice()));
 	}
 
 	private ManagedScannable<String> getBeamSelector() {
@@ -316,10 +341,17 @@ public class ScanningAcquisitionController
 		// Filters out from the Position.START positions, the position document from AcquisitionPropertiesDocument::getOutOfBeamScannables
 		// See AcquisitionPropertiesDocument#outOfBeamScannables
 		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, detectorsHelper.getOutOfBeamScannables());
-		startPosition.add(stageController.createShutterOpenRequest());
-		updateBeamSelectorPosition(startPosition);
+		addPosition(stageController.createShutterOpenRequest(), startPosition::add);
+		positionsPostProcess(startPosition);
+		updatePositionDocument(startPosition, getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setPosition);
+	}
 
-		getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().setPosition(startPosition);
+	private void addPosition(DevicePositionDocument position, Consumer<DevicePositionDocument> consumer) {
+		consumer.accept(position);
+	}
+
+	private void updatePositionDocument(Set<DevicePositionDocument> positions, Consumer<Set<DevicePositionDocument>> consumer) {
+		consumer.accept(positions);
 	}
 
 	public ScanningParameters getAcquisitionParameters() {
