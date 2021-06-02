@@ -74,8 +74,10 @@ public class DatasetStats extends DataSetProcessorBase {
 
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
-		if (!enable)
+		if (!enable) {
 			return null;
+		}
+		String nxsDataName = dataName.isEmpty() ? "" : dataName + ".";
 		NXDetectorData res = new NXDetectorData(extraNames.stream().toArray(String[]::new), outputFormats.stream().toArray(String[]::new), dataName);
 		// Cast to larger type otherwise stats can overflow due to InterfaceUtils#toBiggestNumber in AbstractDataset#sum
 		Class<? extends Dataset> safeType = DTypeUtils.getLargestDataset(dataset.getClass());
@@ -87,7 +89,7 @@ public class DatasetStats extends DataSetProcessorBase {
 			// Convert to dataset here because there is no NexusGroupData constructor for general Number type
 			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));
 			data.isDetectorEntryData = true;
-			res.addData(detectorName, dataName + "." + statName, data, null, 1);
+			res.addData(detectorName, nxsDataName + statName, data, null, 1);
 			res.setPlottableValue(statName, statistic.doubleValue());
 		}
 		return res;
