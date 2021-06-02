@@ -552,8 +552,8 @@ public abstract class ScanBase implements NestableScan {
 				getPositionCallableThreadPoolSize());
 
 		scanDataPointPipeline = new MultithreadedScanDataPointPipeline(
-				new ScanDataPointPublisher(dataWriter, this), getPositionCallableThreadPoolSize(),
-				getScanDataPointQueueLength(), getName());
+				new ScanDataPointPublisher(dataWriter, this, point -> sendJsonScanMessage(EventType.UPDATED, point)),
+				getPositionCallableThreadPoolSize(), getScanDataPointQueueLength(), getName());
 	}
 
 	@Override
@@ -660,14 +660,28 @@ public abstract class ScanBase implements NestableScan {
 			getTerminalPrinter().print("=== Scan ended at "+new Timestamp(date.getTime()).toString()+" ===");
 		}
 		sendScanEvent(ScanEvent.EventType.FINISHED);
+		// Don't need !isChild() check here as this method is only called for non child scans
+		sendJsonScanMessage(EventType.FINISHED, getScanInformation().getNumberOfPoints() - 1);
 	}
 
 	protected void sendScanEvent(ScanEvent.EventType reason){
 		getJythonServerNotifer().notifyServer(this, new ScanEvent(reason, getScanInformation(),getStatus(),currentPointCount));
-		sendJsonScanMessage(reason);
 	}
 
-	private void sendJsonScanMessage(EventType reason) {
+	/**
+	 * <p>
+	 * Send scan status updates. Note that these Json messages are decoupled from the scanning event system
+	 * which is routed via the Jython server (e.g. sendScanEvent).
+	 * <p>
+	 * The primary purpose of the Json events is to allow analysis/visualisation software to be notified
+	 * when new data is available to read. For this reason the update messages are required to be driven
+	 * by the {@link ScanDataPointPublisher}, since data writing is asynchronous to the main scan control
+	 * loop.
+	 * <p>
+	 * <b>Note:</b> It is important to not use this object's data variables here as this is called async to the
+	 * scan loop (the exception is procReq which is initialised at start of scan).
+	 */
+	private void sendJsonScanMessage(EventType reason, int currentPoint) {
 		// Convert between status enums
 		final ScanMessage.ScanStatus status;
 		switch (reason) {
@@ -708,7 +722,7 @@ public abstract class ScanBase implements NestableScan {
 				info.getDimensions(),
 				Arrays.asList(info.getScannableNames()),
 				Arrays.asList(info.getDetectorNames()),
-				(100.0 * (currentPointCount + 1)) / info.getNumberOfPoints(),// Progress in %
+				(100.0 * (currentPoint + 1)) / info.getNumberOfPoints(),// Progress in %
 				procReq);
 
 		// If the optional is missing probably running in a unit test
@@ -1094,6 +1108,9 @@ public abstract class ScanBase implements NestableScan {
 		// At this point the DataWriter knows the scan number so can provide info on the file it will write.
 		// This allows the update to contain the path information of the data files from the start of the scan
 		sendScanEvent(EventType.UPDATED);
+		if (!isChild()) {
+			sendJsonScanMessage(EventType.STARTED, currentPointCount);
+		}
 	}
 
 

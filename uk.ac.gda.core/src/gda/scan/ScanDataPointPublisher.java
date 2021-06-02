@@ -19,23 +19,30 @@
 package gda.scan;
 
 import static gda.jython.InterfaceProvider.getJythonServerNotifer;
-import gda.data.scan.datawriter.DataWriter;
-import gda.device.DeviceException;
+
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.scan.datawriter.DataWriter;
+import gda.device.DeviceException;
 /**
- * Broadcasts {@link ScanDataPoint}s and writes them to a {@link DataWriter}.
+ * Broadcasts {@link ScanDataPoint}s and writes them to a {@link DataWriter}. This is also created
+ * with a pointWrittenCallback which acts to fire specific event updates once data has been written
+ * to disk.
  */
 public class ScanDataPointPublisher {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointPublisher.class);
-	protected final DataWriter dataWriter;
-	protected final ScanBase dataSourceForObservers;
+	private final DataWriter dataWriter;
+	private final ScanBase dataSourceForObservers;
+	private final Consumer<Integer> pointWrittenCallback;
 
-	public ScanDataPointPublisher(DataWriter dataWriter, ScanBase dataSourceForObservering) {
+	public ScanDataPointPublisher(DataWriter dataWriter, ScanBase dataSourceForObservering, Consumer<Integer> pointWrittenCallback) {
 		this.dataWriter = dataWriter;
 		this.dataSourceForObservers = dataSourceForObservering;
+		this.pointWrittenCallback = pointWrittenCallback;
 	}
 
 	protected void publish(IScanDataPoint point) throws Exception {
@@ -49,6 +56,9 @@ public class ScanDataPointPublisher {
 
 		// notify IObservers of this scan (e.g. GUI panels)
 		getJythonServerNotifer().notifyServer(dataSourceForObservers, point);
+
+		// Send update event now that data has been written and flushed to file
+		pointWrittenCallback.accept(point.getCurrentPointNumber());
 	}
 
 	public DataWriter getDataWriter() {
