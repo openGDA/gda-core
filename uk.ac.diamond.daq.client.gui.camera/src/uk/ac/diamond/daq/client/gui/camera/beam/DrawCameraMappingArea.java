@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,12 +39,12 @@ import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCalibrationUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.BeamCameraMappingEvent;
-import uk.ac.diamond.daq.client.gui.camera.liveview.CameraImageComposite;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.PredicateUtils;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
@@ -62,6 +63,8 @@ public class DrawCameraMappingArea {
 	private final ICameraConfiguration iCameraConfiguration;
 
 	private static final String BEAM_BOUNDARIES = "BeamBoundaries";
+
+	private static final Logger logger = LoggerFactory.getLogger(DrawCameraMappingArea.class);
 
 	private DrawCameraMappingArea(IPlottingSystem<Composite> plottingSystem, ICameraConfiguration cameraConfiguration) {
 		this.plottingSystem = plottingSystem;
@@ -106,8 +109,6 @@ public class DrawCameraMappingArea {
 			.ifPresent(plottingSystem::removeRegion);
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(CameraImageComposite.class);
-
 	private void addRegion(double ptx, double pty, double width, double height) {
 		try {
 			removeBeamBoundaries(plottingSystem);
@@ -127,7 +128,7 @@ public class DrawCameraMappingArea {
 	}
 
 	private void estimateBoundaries() throws GDAClientException {
-		int[] cameraSize = new int[2];
+		var cameraSize = new int[2];
 		try {
 			if (iCameraConfiguration.getCameraControl().isPresent()) {
 				cameraSize = iCameraConfiguration.getCameraControl().get().getFrameSize();
@@ -167,9 +168,20 @@ public class DrawCameraMappingArea {
 			return;
 		}
 
-		IScannableMotor driverX = getIScannableMotor(beamCameraMap.getDriver().get(0))
-				.orElseThrow(() -> new GDAClientException("Cannot use beam driver X"));
-		IScannableMotor driverY = getIScannableMotor(beamCameraMap.getDriver().get(1))
+		IScannableMotor driverX = Optional.ofNullable(beamCameraMap)
+			.map(CameraToBeamMap::getDriver)
+			.filter(PredicateUtils.not(Collection::isEmpty))
+			.map(l -> l.get(0))
+			.map(this::getIScannableMotor)
+			.map(Optional::get)
+			.orElseThrow(() -> new GDAClientException("Cannot use beam driver X"));
+
+		IScannableMotor driverY = Optional.ofNullable(beamCameraMap)
+				.map(CameraToBeamMap::getDriver)
+				.filter(PredicateUtils.not(Collection::isEmpty))
+				.map(l -> l.get(1))
+				.map(this::getIScannableMotor)
+				.map(Optional::get)
 				.orElseThrow(() -> new GDAClientException("Cannot use beam driver Y"));
 
 		Optional<RealVector> solutionMin;
