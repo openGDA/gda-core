@@ -20,6 +20,7 @@ package org.eclipse.scanning.device;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
+import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 
 /**
@@ -27,14 +28,27 @@ import org.eclipse.dawnsci.nexus.NexusBaseClass;
  */
 public final class BeamNexusDevice extends AbstractNexusMetadataDevice<NXbeam> {
 
+	private static final String UNITS_MILLIS = "mm";
+
 	public BeamNexusDevice() {
 		super(NexusBaseClass.NX_BEAM);
 		setCategory(NexusBaseClass.NX_SAMPLE);
-		addScalarField(NXbeam.NX_DISTANCE, 0.0, "mm");
+		addField(new ScalarField(NXbeam.NX_DISTANCE, 0.0, UNITS_MILLIS, true));
 	}
 
 	public void setIncidentEnergyScannableName(String incidentEnergyScannableName) {
 		addScannableField(NXbeam.NX_INCIDENT_ENERGY, incidentEnergyScannableName);
+	}
+
+	/**
+	 * Set the distance from the sample to be written to the {@link NXbeam#setDistanceScalar(Double)}
+	 * in the generated {@link NXbeam}. The default is {@code 0.0mm} as the {@link NXbeam}
+	 * is normally added to the nexus tree as a child group of the {@link NXsample}.
+	 * @param distance the distance from the sample
+	 */
+	public void setDistance(double distance) {
+		final ScalarField distanceField = (ScalarField) getNode(NXbeam.NX_DISTANCE);
+		distanceField.setValue(distance);
 	}
 
 	public void setIncidentEnergyLinkPath(String energyLinkPath) {

@@ -40,6 +40,7 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
     private static final String BEAM_EXTENT_SCANNABLE_NAME = "beam_extent";
 	private static final String INCIDENT_POLARIZATION_SCANNABLE_NAME = "incident_polarization";
 	private static final String FLUX_SCANNABLE_NAME = "flux";
+	private static final double BEAM_DISTANCE = 123.456;
 
 	@Override
 	protected void setupTestFixtures() throws Exception {
@@ -52,13 +53,14 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 
 	@Override
 	protected INexusDevice<NXbeam> setupNexusDevice() throws Exception {
-		final BeamNexusDevice beamScannable = new BeamNexusDevice();
-		beamScannable.setBeamExtentScannableName(BEAM_EXTENT_SCANNABLE_NAME);
-		beamScannable.setIncidentEnergyScannableName(INCIDENT_ENERGY_SCANNABLE_NAME);
-		beamScannable.setIncidentBeamDivergenceScannableName(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME);
-		beamScannable.setIncidentPolarizationScannableName(INCIDENT_POLARIZATION_SCANNABLE_NAME);
-		beamScannable.setFluxScannableName(FLUX_SCANNABLE_NAME);
-		return beamScannable;
+		final BeamNexusDevice beamNexusDevice = new BeamNexusDevice();
+		beamNexusDevice.setBeamExtentScannableName(BEAM_EXTENT_SCANNABLE_NAME);
+		beamNexusDevice.setIncidentEnergyScannableName(INCIDENT_ENERGY_SCANNABLE_NAME);
+		beamNexusDevice.setIncidentBeamDivergenceScannableName(INCIDENT_BEAM_DIVERGENCE_SCANNABLE_NAME);
+		beamNexusDevice.setIncidentPolarizationScannableName(INCIDENT_POLARIZATION_SCANNABLE_NAME);
+		beamNexusDevice.setFluxScannableName(FLUX_SCANNABLE_NAME);
+		beamNexusDevice.setDistance(BEAM_DISTANCE);
+		return beamNexusDevice;
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class BeamNexusDeviceTest extends AbstractNexusMetadataDeviceTest<NXbeam>
 		final IDataset extentDataset = extentDataNode.getDataset().getSlice();
 		assertThat(extentDataset.getDouble(), is(equalTo(getScannableValue(BEAM_EXTENT_SCANNABLE_NAME))));
 
-		assertThat(beam.getDistanceScalar(), is(closeTo(0.0, 1e-15)));
+		assertThat(beam.getDistanceScalar(), is(closeTo(BEAM_DISTANCE, 1e-15)));
 		assertUnits(beam, NXbeam.NX_DISTANCE, UNITS_ATTR_VAL_MILLIMETERS);
 		assertThat(beam.getIncident_energyScalar(), is(equalTo(getScannableValue(INCIDENT_ENERGY_SCANNABLE_NAME))));
 		assertUnits(beam, NXbeam.NX_INCIDENT_ENERGY, UNITS_ATTR_VAL_GEV);

@@ -109,4 +109,8 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 		}
 	}
 
+	public MetadataNode getChildNode(String nodeName) {
+		return nodes.get(nodeName);
+	}
+
 }

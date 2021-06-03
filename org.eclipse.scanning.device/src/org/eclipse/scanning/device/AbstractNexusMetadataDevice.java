@@ -53,8 +53,16 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		metadataNode.setName(name);
 	}
 
-	public void addField(MetadataNode node) {
+	public void addField(MetadataField field) {
+		addNode(field);
+	}
+
+	public void addNode(MetadataNode node) {
 		metadataNode.addChildNode(node);
+	}
+
+	public MetadataNode getNode(String nodeName) {
+		return metadataNode.getChildNode(nodeName);
 	}
 
 	public void addScannableField(String fieldName, String scannableName) {
