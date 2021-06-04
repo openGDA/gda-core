@@ -1,8 +1,0 @@
-
-<project name="Build scanning" default="build" basedir=".">
-
-<target name="build">
-	<echo message="Build not hooked yet!"/>
-</target>
-
-</project>
