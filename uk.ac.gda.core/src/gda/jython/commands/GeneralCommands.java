@@ -398,12 +398,16 @@ public final class GeneralCommands {
 	 */
 	@GdaJythonBuiltin("Add a command as an alias\n"
 			+ "This allows it to be called without the parentheses, eg\n"
-			+ "    >>> def add(*a): return sum(a)\n"
+			+ "    >>> def add(a): return sum(a)\n"
 			+ "    ... \n"
-			+ "    >>> alias('add')\n"
+			+ "    >>> vararg_alias('add')\n"
 			+ "    >>> add 1 2 3 4 5\n"
 			+ "    15\n"
-			+ "    >>>")
+			+ "    >>>"
+			+ "\n"
+			+ "This version differs from alias in that it is intended for functions that\n"
+			+ "accept a single (no-vararg) sequence argument (eg list or array), and is not\n"
+			+ "for functions that accept vararg arguments already.")
 	public static void vararg_alias(String commandName) {
 		Objects.requireNonNull(commandName, "Aliased command cannot be null");
 		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
@@ -417,12 +421,16 @@ public final class GeneralCommands {
 	 */
 	@GdaJythonBuiltin("Add a command as an alias\n"
 			+ "This allows it to be called without the parentheses, eg\n"
-			+ "    >>> def add(*a): return sum(a)\n"
+			+ "    >>> def add(a): return sum(a)\n"
 			+ "    ... \n"
-			+ "    >>> alias(add)\n"
+			+ "    >>> vararg_alias(add)\n"
 			+ "    >>> add 1 2 3 4 5\n"
 			+ "    15\n"
-			+ "    >>>")
+			+ "    >>>"
+			+ "\n"
+			+ "This version differs from alias in that it is intended for functions that\n"
+			+ "accept a single (no-vararg) sequence argument (eg list or array), and is not\n"
+			+ "for functions that accept vararg arguments already.")
 	public static void vararg_alias(PyObject callable) throws DeviceException {
 		vararg_alias(aliasName(callable));
 	}
