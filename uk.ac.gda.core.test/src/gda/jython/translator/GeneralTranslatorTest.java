@@ -19,6 +19,8 @@
 package gda.jython.translator;
 
 import static java.util.stream.Stream.iterate;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -97,7 +99,7 @@ public class GeneralTranslatorTest {
 	 * translation of a file with mixed tab and space indentation
 	 */
 	public void translateMixed() throws IOException {
-		setVarargs("pos", "inc");
+		setAliases("pos", "inc");
 		translateTestRunner("checkBeamPos100427.txt");
 	}
 
@@ -113,8 +115,7 @@ public class GeneralTranslatorTest {
 	 * translation of a typical GDA script file
 	 */
 	public void translateAdvancedOptions() throws IOException {
-		setAliases("pause");
-		setVarargs("scan");
+		setAliases("pause", "scan");
 		translateTestRunner("AdvancedOptions.txt");
 	}
 
@@ -123,7 +124,7 @@ public class GeneralTranslatorTest {
 	 * translation of a typical diffcalc file (note: the test translator does not include all the aliases)
 	 */
 	public void translateDiffcalc() throws IOException {
-		setVarargs("pos");
+		setAliases("pos");
 		translateTestRunner("diffcalc_session.txt");
 	}
 
@@ -142,13 +143,13 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void translatePosCommand() throws IOException {
-		setVarargs("pos");
+		setAliases("pos");
 		translateTestRunner("poscommand.txt");
 	}
 
 	@Test
 	public void translateSemiColonSplitCommands() throws IOException {
-		setVarargs("pos");
+		setAliases("pos");
 		translateTestRunner("semicolonSplitCommands.txt");
 	}
 
@@ -167,8 +168,8 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void testSimpleScanCommand(){
-		setVarargs("scan");
-		Assert.assertEquals("scan([a,1.,1.,1.])",translator.translate("scan a 1. 1. 1."));
+		setAliases("scan");
+		Assert.assertEquals("scan(a,1.,1.,1.)",translator.translate("scan a 1. 1. 1."));
 
 	}
 
@@ -192,23 +193,22 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void test_translate3(){
-		setVarargs("pos");
-		Assert.assertEquals("pos([posname,2,\"string with quote's\",5.0])",
+		setAliases("pos");
+		Assert.assertEquals("pos(posname,2,\"string with quote's\",5.0)",
 				translator.translate("pos posname 2 \"string with quote\'s\" 5.0"));
 	}
 
 	@Test
 	public void test_translate5(){
-		setVarargs("pos");
-		Assert.assertEquals("pos([posname,(1.0,1.0)])",
+		setAliases("pos");
+		Assert.assertEquals("pos(posname,(1.0,1.0))",
 				translator.translate("pos posname ( 1.0 1.0)"));
 	}
 
 	@Test
 	public void test_translate_GDA_4054(){
-		setVarargs("scan");
-		setAliases("myfunkyalias");
-		Assert.assertEquals("scan([scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode])",
+		setAliases("scan", "myfunkyalias");
+		Assert.assertEquals("scan(scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode)",
 				translator.translate("scan scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9) 0 10 1 x bsdiode"));
 		Assert.assertEquals("myfunkyalias(scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode)",
 				translator.translate("myfunkyalias scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9) 0 10 1 x bsdiode"));
@@ -229,8 +229,8 @@ public class GeneralTranslatorTest {
 
 	@Test
 	public void testSimpleScanCommand2(){
-		setVarargs("pos");
-		Assert.assertEquals("pos([posname,2,\"string with quote's\",5.0])",translator.translate("pos posname 2 \"string with quote's\" 5.0"));
+		setAliases("pos");
+		Assert.assertEquals("pos(posname,2,\"string with quote's\",5.0)",translator.translate("pos posname 2 \"string with quote's\" 5.0"));
 	}
 
 	@Test
@@ -266,5 +266,25 @@ public class GeneralTranslatorTest {
 		final String expectedTranslation = "cam.configure() ";
 		final String actualTranslation = translator.translate(originalText);
 		assertTrue(expectedTranslation.equals(actualTranslation));
+	}
+
+	@Test
+	public void testVarargAlias() throws Exception {
+		setVarargs("foo");
+		assertThat(translator.translate("foo bar 1 2 3"), is("foo([bar,1,2,3])"));
+		assertThat(translator.translate("foo 1"), is("foo([1])"));
+
+		// This is unexpected/inconsistent but is relied on as of 10/06/2021 for eg pos
+		// Should be translated to foo([])
+		assertThat(translator.translate("foo"), is("foo()"));
+	}
+
+	@Test
+	public void varargAliasCalledAsFunction() throws Exception {
+		setVarargs("foo");
+		assertThat(translator.translate("foo()"), is("foo([])"));
+		assertThat(translator.translate("foo([])"), is("foo([])"));
+		assertThat(translator.translate("foo([1, 2])"), is("foo([1, 2])"));
+		assertThat(translator.translate("foo(1, 2)"), is("foo([1,2])"));
 	}
 }

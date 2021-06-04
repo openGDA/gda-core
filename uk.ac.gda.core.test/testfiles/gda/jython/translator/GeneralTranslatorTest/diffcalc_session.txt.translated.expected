@@ -24,16 +24,16 @@ print ">>> ubcalc"
 ubcalc
 
 print ">>> pos en 12.39842/1.54"
-pos([en,12.39842/1.54])
+pos(en,12.39842/1.54)
 
 print ">>> pos sixc (0 60 0 30 0 0)"
-pos([sixc,(0,60,0,30,0,0)])
+pos(sixc,(0,60,0,30,0,0))
 
 print ">>> addref 1 0 0 'ref1'"
 addref 1 0 0 'ref1'
 
 print ">>> pos phi -9"
-pos([phi,-90])
+pos(phi,-90)
 
 print ">>> addref 0 1 0 'ref2'"
 addref 0 1 0 'ref2'
@@ -54,7 +54,7 @@ print ">>> pos hkl (0 1 0)"
 pos([hkl, (0,1,0)])
 
 print ">>> pos sixc"
-pos([(sixc)])
+pos((sixc))
 
 print ">>> hklmode"
 hklmode
