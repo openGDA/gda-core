@@ -134,12 +134,18 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	/** Generate and cache the doc string. Only called once to lazy load docs */
 	private void buildDoc() {
 		try {
-			doc = methods.stream()
+			var docstring = methods.stream()
+					.map(method -> method.getAnnotation(GdaJythonBuiltin.class))
+					.map(GdaJythonBuiltin::docstring)
+					.filter(docs -> !docs.isBlank())
+					.collect(joining("\n"));
+			var overloads = methods.stream()
 					.map(this::docsFor)
 					.sorted()
 					.collect(joining("\n"))
 				+ "\n\nfrom "
 				+ source.getCanonicalName();
+			doc = (docstring + "\n\n" + overloads).strip();
 		} catch (Exception e) {
 			logger.warn("Couldn't build docs for {}", getName(), e);
 			doc = "from " + source.getCanonicalName();
@@ -185,7 +191,7 @@ public class GdaBuiltin extends PyBuiltinFunction {
 
 		boolean deprecated = method.isAnnotationPresent(Deprecated.class);
 
-		String doc = Stream.of(builtin.value().split("\n"))
+		String doc = Stream.of(builtin.overload().split("\n"))
 				.collect(joining(INDENT));
 		return getName()
 				+ argList(method)

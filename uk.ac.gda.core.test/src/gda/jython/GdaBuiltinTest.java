@@ -57,7 +57,8 @@ public class GdaBuiltinTest {
 	@Test
 	public void testOverloadedDocString() throws Exception {
 		PyObject foo = builtinFor(Commands.class, "foo");
-		String docs = "foo(String)\n" +
+		String docs = "Foo strings\n\n"
+				+ "foo(String)\n" +
 				"    Foo a single String\n" +
 				"foo(String, String) -> String\n" +
 				"    Foo two strings into one\n"
@@ -155,23 +156,23 @@ public class GdaBuiltinTest {
 
 	/** Inner class with static methods */
 	public static class Commands {
-		@GdaJythonBuiltin("Foo a single String")
+		@GdaJythonBuiltin(docstring="Foo strings", overload="Foo a single String")
 		public static void foo(@SuppressWarnings("unused") String a) {}
 
-		@GdaJythonBuiltin("Foo two strings into one")
+		@GdaJythonBuiltin(overload="Foo two strings into one")
 		public static String foo(String one, String two) {
 			return one + two;
 		}
 
-		@GdaJythonBuiltin("Method with variable Strings")
+		@GdaJythonBuiltin(overload="Method with variable Strings")
 		public static void varargs(@SuppressWarnings("unused") String...strings) {}
 
-		@GdaJythonBuiltin("Bar an integer")
+		@GdaJythonBuiltin(overload="Bar an integer")
 		public static long bar(int j) {
 			return j << 6;
 		}
 
-		@GdaJythonBuiltin("Awkward types")
+		@GdaJythonBuiltin(overload="Awkward types")
 		public static List<String[]> awkward(
 				@SuppressWarnings("unused") Map<String, Set<? extends Findable>> map,
 				@SuppressWarnings("unused") List<String>[] strings,
@@ -180,7 +181,7 @@ public class GdaBuiltinTest {
 			return emptyList();
 		}
 
-		@GdaJythonBuiltin("Type variables")
+		@GdaJythonBuiltin(overload="Type variables")
 		public static <T extends Findable, S> T typed(@SuppressWarnings("unused") S foo) {
 			return null;
 		}
@@ -188,7 +189,7 @@ public class GdaBuiltinTest {
 		/** Method without annotation */
 		public static void ignored() {}
 
-		@GdaJythonBuiltin("Should be ignored")
+		@GdaJythonBuiltin(docstring="Should be ignored")
 		public void nonStatic() {}
 	}
 	/** Inner class without static methods */

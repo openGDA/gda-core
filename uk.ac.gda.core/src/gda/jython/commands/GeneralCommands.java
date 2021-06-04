@@ -76,7 +76,7 @@ public final class GeneralCommands {
 	/**
 	 * Print the default help message
 	 */
-	@GdaJythonBuiltin("Print the GDA specific help")
+	@GdaJythonBuiltin(docstring="Print the GDA specific help")
 	public static void gdahelp() {
 		final List<String> helpString = new ArrayList<>();
 
@@ -117,7 +117,7 @@ public final class GeneralCommands {
 	/**
 	 * List all the types of objects (interfaces) in use on this beamline
 	 */
-	@GdaJythonBuiltin("List all the interfaces of all the objects available from the finder.\n"
+	@GdaJythonBuiltin(overload="List all the interfaces of all the objects available from the finder.\n"
 			+ "(Except a selection of common ones)")
 	public static void ls() {
 		ls("");
@@ -128,7 +128,8 @@ public final class GeneralCommands {
 	 *
 	 * @param interfaceName
 	 */
-	@GdaJythonBuiltin("List all available types of objects or objects of a given type")
+	@GdaJythonBuiltin(overload="List available types of object in the namespace.\n"
+			+ "Argument must be None, 'all' or empty string.")
 	public static void ls(String interfaceName) {
 
 		if (interfaceName == null || interfaceName.compareTo("") == 0 || interfaceName.compareTo("all") == 0) {
@@ -183,7 +184,7 @@ public final class GeneralCommands {
 	 *
 	 * @param theInterface
 	 */
-	@GdaJythonBuiltin("List all the Findables in the Jython namespace")
+	@GdaJythonBuiltin(overload="List all the Objects of the given type in the Jython namespace")
 	public static <F extends Findable> void ls(Class<F> theInterface) {
 
 		final Map<String, F> objectsOfType = Finder.findSingleton(JythonServer.class).getAllObjectsOfType(theInterface);
@@ -206,7 +207,7 @@ public final class GeneralCommands {
 	/**
 	 * List the names of all Scannables whose name does not startwith __
 	 */
-	@GdaJythonBuiltin("List all the scannables in the namespace")
+	@GdaJythonBuiltin(overload="List all the scannables in the namespace")
 	public static void ls_names() {
 		ls_names(Scannable.class);
 	}
@@ -215,7 +216,7 @@ public final class GeneralCommands {
 	 *
 	 * @param theInterface
 	 */
-	@GdaJythonBuiltin("List all the Findables in the namespace that are instances of\n"
+	@GdaJythonBuiltin(overload="List all the Findables in the namespace that are instances of\n"
 			+ "the given interface")
 	public static <F extends Findable> void ls_names(Class<F> theInterface) {
 		StringBuilder output = new StringBuilder("\n");
@@ -229,7 +230,7 @@ public final class GeneralCommands {
 	 *
 	 * @param theScannable
 	 */
-	@GdaJythonBuiltin("Print the name of a scannable")
+	@GdaJythonBuiltin(overload="Print the name of a scannable")
 	public static void ls(Scannable theScannable) {
 		InterfaceProvider.getTerminalPrinter().print(theScannable.getName());
 	}
@@ -243,7 +244,7 @@ public final class GeneralCommands {
 	 *
 	 * @throws InterruptedException
 	 */
-	@GdaJythonBuiltin("Check if the script has been paused and wait if it has")
+	@GdaJythonBuiltin(docstring="Check if the script has been paused and wait if it has")
 	public static void pause() throws InterruptedException {
 		ScriptBase.checkForPauses();
 	}
@@ -257,7 +258,7 @@ public final class GeneralCommands {
 	 * @param scriptName
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a script from one of the configured script projects.\n"
+	@GdaJythonBuiltin(docstring="Run a script from one of the configured script projects.\n"
 			+ "Absolute script paths are also accepted.")
 	public static void run(String scriptName) throws Exception {
 		// NOTE: ideally this method would try the entire python sys.path, but this would
@@ -281,7 +282,7 @@ public final class GeneralCommands {
 
 	}
 
-	@GdaJythonBuiltin("Add a runnable to be executed before the namespace is reset.\n"
+	@GdaJythonBuiltin(docstring="Add a runnable to be executed before the namespace is reset.\n"
 			+ "Can be used for cleaning up resources/deregistering listeners etc.")
 	public static void add_reset_hook(Runnable hook) {
 		logger.info("Adding reset hook to JythonServer");
@@ -302,7 +303,7 @@ public final class GeneralCommands {
 	 * @param observer The Jython object to add as an observer
 	 * @param observable The object to observe
 	 */
-	@GdaJythonBuiltin("Add an observer to observable.\n"
+	@GdaJythonBuiltin(docstring="Add an observer to observable.\n"
 			+ "Adds a an observer while also registering a reset hook so that"
 			+ "the observer is removed when the Jython namespace is reset."
 			+ "Prevents Jython observers accumulating after multiple resets.")
@@ -316,7 +317,7 @@ public final class GeneralCommands {
 	 * localStation re-run. However, connections to hardware are not re-established i.e. Object Servers are not
 	 * reconfigured.
 	 */
-	@GdaJythonBuiltin("Reset the Jython environment")
+	@GdaJythonBuiltin(docstring="Reset the Jython environment")
 	public static void reset_namespace() {
 		logger.info("Resetting Jython namespace");
 		Finder.findSingleton(JythonServer.class).restart();
@@ -346,14 +347,15 @@ public final class GeneralCommands {
 	 *
 	 * @param commandName
 	 */
-	@GdaJythonBuiltin("Add a command as an alias\n"
+	@GdaJythonBuiltin(docstring="Add a command as an alias\n"
 			+ "This allows it to be called without the parentheses, eg\n"
 			+ "    >>> def add(a, b): return a + b\n"
 			+ "    ... \n"
 			+ "    >>> alias('add')\n"
 			+ "    >>> add 1 3\n"
 			+ "    4\n"
-			+ "    >>>")
+			+ "    >>>",
+			overload="String should be the name of the function to be aliased")
 	public static void alias(String commandName) {
 		Objects.requireNonNull(commandName, "Aliased command cannot be null");
 		JythonServerFacade.getInstance().addAliasedCommand(commandName);
@@ -365,14 +367,8 @@ public final class GeneralCommands {
 	 * @param callable
 	 * @throws DeviceException
 	 */
-	@GdaJythonBuiltin("Add a command as an alias\n"
-			+ "This allows it to be called without the parentheses, eg\n"
-			+ "    >>> def add(a, b): return a + b\n"
-			+ "    ... \n"
-			+ "    >>> alias(add)\n"
-			+ "    >>> add 1 3\n"
-			+ "    4\n"
-			+ "    >>>")
+	@GdaJythonBuiltin(overload="PyObject is the callable to be aliased and should be referenced\n"
+			+ "by a single name in the namespace.")
 	public static void alias(PyObject callable) throws DeviceException {
 		alias(aliasName(callable));
 	}
@@ -384,7 +380,7 @@ public final class GeneralCommands {
 	 * @deprecated Use {@link #vararg_alias(String)} instead
 	 */
 	@Deprecated
-	@GdaJythonBuiltin("This method is deprecated. Please use vararg_alias.")
+	@GdaJythonBuiltin(docstring="This method is deprecated. Please use vararg_alias.")
 	public static void vararg_regex(String commandName) {
 		logger.warn("'vararg_regex' is deprecated and will be removed, replace with 'vararg_alias'");
 		Objects.requireNonNull(commandName, "Aliased command cannot be null");
@@ -396,7 +392,7 @@ public final class GeneralCommands {
 	 *
 	 * @param commandName
 	 */
-	@GdaJythonBuiltin("Add a command as an alias\n"
+	@GdaJythonBuiltin(docstring="Add a command as an alias\n"
 			+ "This allows it to be called without the parentheses, eg\n"
 			+ "    >>> def add(a): return sum(a)\n"
 			+ "    ... \n"
@@ -406,8 +402,9 @@ public final class GeneralCommands {
 			+ "    >>>"
 			+ "\n"
 			+ "This version differs from alias in that it is intended for functions that\n"
-			+ "accept a single (no-vararg) sequence argument (eg list or array), and is not\n"
-			+ "for functions that accept vararg arguments already.")
+			+ "accept a single (non-vararg) sequence argument (eg list or array), and is not\n"
+			+ "for functions that accept vararg arguments already.",
+				overload="String should be the name of the function to be aliased")
 	public static void vararg_alias(String commandName) {
 		Objects.requireNonNull(commandName, "Aliased command cannot be null");
 		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
@@ -419,28 +416,21 @@ public final class GeneralCommands {
 	 * @param callable
 	 * @throws DeviceException
 	 */
-	@GdaJythonBuiltin("Add a command as an alias\n"
-			+ "This allows it to be called without the parentheses, eg\n"
-			+ "    >>> def add(a): return sum(a)\n"
-			+ "    ... \n"
-			+ "    >>> vararg_alias(add)\n"
-			+ "    >>> add 1 2 3 4 5\n"
-			+ "    15\n"
-			+ "    >>>"
-			+ "\n"
-			+ "This version differs from alias in that it is intended for functions that\n"
-			+ "accept a single (no-vararg) sequence argument (eg list or array), and is not\n"
-			+ "for functions that accept vararg arguments already.")
+	@GdaJythonBuiltin(overload="PyObject is the callable to be aliased and should be referenced\n"
+			+ "by a single name in the namespace.")
 	public static void vararg_alias(PyObject callable) throws DeviceException {
 		vararg_alias(aliasName(callable));
 	}
 
-	@GdaJythonBuiltin("Remove an alias command")
+	@GdaJythonBuiltin(docstring="Remove an aliased command. This removes commands aliased using either\n"
+			+ "alias or vararg_alias",
+			overload="String should be the name of an aliasedfunction.")
 	public static void remove_alias(String command) {
 		JythonServerFacade.getInstance().removeAliasedCommand(command);
 	}
 
-	@GdaJythonBuiltin("Remove an aliased command referring to a callable")
+	@GdaJythonBuiltin(overload="PyObject is the aliased callable to be removed and should be referenced\n"
+			+ "by a single name in the namespace.")
 	public static void remove_alias(PyObject callable) throws DeviceException {
 		remove_alias(aliasName(callable));
 	}
@@ -482,7 +472,7 @@ public final class GeneralCommands {
 	 *
 	 * @param command
 	 */
-	@GdaJythonBuiltin("Run a system command")
+	@GdaJythonBuiltin(docstring="Run a system command")
 	public static void cmd(String command) {
 		logger.info("About to execute '{}' in a new system process", command);
 		String s = null;
@@ -513,7 +503,7 @@ public final class GeneralCommands {
 		}
 	}
 
-	@GdaJythonBuiltin("Show details of a user from a given client index")
+	@GdaJythonBuiltin(docstring="Show details of a user from a given client index")
 	public static void whois(int id) {
 		ITerminalPrinter printer = InterfaceProvider.getTerminalPrinter();
 		if (id == 0) {
