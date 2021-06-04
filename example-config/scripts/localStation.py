@@ -14,7 +14,6 @@ def isLive():
 
 try:
     from gda.device import Scannable
-    from gda.jython.commands.GeneralCommands import ls_names, vararg_alias
     
     def ls_scannables():
         ls_names(Scannable)
