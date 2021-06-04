@@ -100,7 +100,7 @@ public class GdaBuiltinTest {
 
 	@Test
 	public void builtinHasCorrectName() throws Exception {
-		assertThat(builtinFor(Commands.class, "typed"), builtinNamed("typed"));
+		assertThat(builtinFor(Commands.class, "typed"), is(named("typed")));
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class GdaBuiltinTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void methodlessBultinThrows() {
+	public void methodlessBuiltinThrows() {
 		builtinFor(Commands.class, "missing");
 	}
 
@@ -127,13 +127,13 @@ public class GdaBuiltinTest {
 	@Test
 	public void notStaticMethodsAreIgnored() {
 		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Commands.class);
-		assertThat(builtins, not(hasItem(builtinNamed("nonStatic"))));
+		assertThat(builtins, does(not(hasItem(named("nonStatic")))));
 	}
 
 	@Test
 	public void methodsNeedAnnotations() {
 		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Commands.class);
-		assertThat(builtins, not(hasItem(builtinNamed("ignored"))));
+		assertThat(builtins, does(not(hasItem(named("ignored")))));
 	}
 
 	private GdaBuiltin builtinFor(Class<?> clazz, String name) {
@@ -144,7 +144,7 @@ public class GdaBuiltinTest {
 	}
 
 	/** Create a Matcher that checks the name of a GdaBuiltin, the methods used are ignored */
-	private Matcher<GdaBuiltin> builtinNamed(String name) {
+	private Matcher<GdaBuiltin> named(String name) {
 		return new FeatureMatcher<GdaBuiltin, String>(equalTo(name), "Builtin name should be", "name") {
 			@Override
 			protected String featureValueOf(GdaBuiltin actual) {
@@ -193,4 +193,9 @@ public class GdaBuiltinTest {
 	}
 	/** Inner class without static methods */
 	public static class Methodless {}
+
+	/** Pointless redirect method to make assertions read more fluently */
+	private static <T> Matcher<T> does(Matcher<T> matcher) {
+		return is(matcher);
+	}
 }
