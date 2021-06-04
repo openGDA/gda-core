@@ -377,20 +377,6 @@ public final class GeneralCommands {
 	 * Add a new vararg aliased command
 	 *
 	 * @param commandName
-	 * @deprecated Use {@link #vararg_alias(String)} instead
-	 */
-	@Deprecated
-	@GdaJythonBuiltin(docstring="This method is deprecated. Please use vararg_alias.")
-	public static void vararg_regex(String commandName) {
-		logger.warn("'vararg_regex' is deprecated and will be removed, replace with 'vararg_alias'");
-		Objects.requireNonNull(commandName, "Aliased command cannot be null");
-		JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
-	}
-
-	/**
-	 * Add a new vararg aliased command
-	 *
-	 * @param commandName
 	 */
 	@GdaJythonBuiltin(docstring="Add a command as an alias\n"
 			+ "This allows it to be called without the parentheses, eg\n"
