@@ -19,23 +19,16 @@
 
 package gda.jython.translator;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Base class for all classes using the Translator interface. This supplies the functionality for the translate method.
  */
-public abstract class TranslatorBase implements Translator {
+public abstract class TranslatorBase extends AliasingBase implements Translator {
 
 	private static final Pattern NOT_A_NEW_LINE_PATTERN = Pattern.compile("([^\n;]+)");
 	private static final Pattern NEW_LINE_SEMI_COLON_PATTERN = Pattern.compile("\\n;");
-
-	protected Collection<String> aliases = new CopyOnWriteArraySet<>();
-
-	protected Collection<String> varargAliases = new CopyOnWriteArraySet<>();
 
 	/**
 	 * The public function to perform the translation. This translates a complete instruction for the interpreter,
@@ -113,26 +106,6 @@ public abstract class TranslatorBase implements Translator {
 		} catch (Exception e) {
 			return original_command;
 		}
-	}
-
-	@Override
-	public Collection<String> getAliasedCommands(){
-		return new HashSet<>(aliases);
-	}
-	@Override
-	public Collection<String> getAliasedVarargCommands(){
-		return new HashSet<>(varargAliases);
-	}
-
-	@Override
-	public boolean hasAlias(String command) {
-		return aliases.contains(command) || varargAliases.contains(command);
-	}
-
-	@Override
-	public void removeAlias(String command) {
-		aliases.remove(command);
-		varargAliases.remove(command);
 	}
 
 	/**

@@ -429,18 +429,6 @@ public class GeneralTranslator extends TranslatorBase {
 	}
 
 	@Override
-	public void addAliasedCommand(String commandName) {
-		aliases.add(commandName);
-		logger.debug("Added alias command: {}", commandName);
-	}
-
-	@Override
-	public void addAliasedVarargCommand(String commandName) {
-		varargAliases.add(commandName);
-		logger.debug("Added vararg alias command: {}", commandName);
-	}
-
-	@Override
 	public boolean ignoreRestOfLine(String thisGroup) {
 		return thisGroup.trim().startsWith("#");
 	}
