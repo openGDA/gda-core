@@ -41,16 +41,6 @@ public interface Translator extends AliasedCommandProvider {
 	public String translate(String original_command);
 
 	/**
-	 * Called from within the translate method. This assumes that the original_command is a single, self contained
-	 * jython command - no line breaks or ;'s.
-	 * 
-	 * @param original_command
-	 *            String
-	 * @return String
-	 */
-	public String translateGroup(String original_command);
-
-	/**
 	 * Returns a string describing the commands the class responds to.
 	 * 
 	 * @return String
@@ -77,6 +67,4 @@ public interface Translator extends AliasedCommandProvider {
 	 * @param command to remove
 	 */
 	public void removeAlias(String command);
-
-	public boolean ignoreRestOfLine(String thisGroup);
 }

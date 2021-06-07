@@ -115,7 +115,6 @@ public abstract class TranslatorBase implements Translator {
 		}
 	}
 
-
 	@Override
 	public Collection<String> getAliasedCommands(){
 		return new HashSet<>(aliases);
@@ -135,4 +134,14 @@ public abstract class TranslatorBase implements Translator {
 		aliases.remove(command);
 		varargAliases.remove(command);
 	}
+
+	/**
+	 * Called from within the translate method. This assumes that the group is a single
+	 * jython command - no line breaks or ;'s.
+	 *
+	 * @param group Original command - Single line with no ';' splitting commands
+	 * @return String Translated command
+	 */
+	protected abstract String translateGroup(String group);
+	protected abstract boolean ignoreRestOfLine(String line);
 }
