@@ -18,7 +18,6 @@
 
 package gda.jython.translator;
 
-import static java.util.stream.Stream.iterate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -27,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.stream.Stream;
 
 import org.junit.AfterClass;
@@ -35,8 +33,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.google.common.collect.Streams;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
@@ -156,14 +152,9 @@ public class GeneralTranslatorTest {
 
 	public void translateTestRunner(String testFileName) throws IOException {
 		String expectedFilename = TEST_FILE_FOLDER + testFileName + ".translated.expected";
-
-		try (Stream<String> original = Files.lines(Paths.get(TEST_FILE_FOLDER + testFileName));
-				Stream<String> expected = Files.lines(Paths.get(expectedFilename));) {
-
-			Iterator<Integer> lineNo = iterate(1, i -> i+1).iterator();
-			Streams.forEachPair(expected, original.map(translator::translate),
-					(exp, act) -> assertEquals("Difference on line " + lineNo.next(), exp, act));
-		}
+		var script = Files.readString(Paths.get(TEST_FILE_FOLDER + testFileName));
+		var expected = Files.readString(Paths.get(expectedFilename));
+		assertEquals(translator.translate(script), expected);
 	}
 
 	@Test

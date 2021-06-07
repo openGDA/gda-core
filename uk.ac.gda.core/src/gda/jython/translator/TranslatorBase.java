@@ -19,6 +19,9 @@
 
 package gda.jython.translator;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +32,7 @@ public abstract class TranslatorBase extends AliasingBase implements Translator 
 
 	private static final Pattern NOT_A_NEW_LINE_PATTERN = Pattern.compile("([^\n;]+)");
 	private static final Pattern NEW_LINE_SEMI_COLON_PATTERN = Pattern.compile("\\n;");
+	private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\R");
 
 	/**
 	 * The public function to perform the translation. This translates a complete instruction for the interpreter,
@@ -48,12 +52,17 @@ public abstract class TranslatorBase extends AliasingBase implements Translator 
 	 * The full string will be split first by ;'s, then by \n's. Each sub section will be translated individually, then
 	 * the translated sub-sections are recombined with the \n's or \t's replaced.
 	 *
-	 * @param original_command
-	 *            String
-	 * @return String
+	 * @param command The command to be translated
+	 * @return The GDA syntax command translated to Jython
 	 */
 	@Override
-	public String translate(String original_command) {
+	public String translate(String command) {
+		return stream(NEW_LINE_PATTERN.split(command, -1))
+				.map(this::translateLine)
+				.collect(joining("\n"));
+	}
+
+	private String translateLine(String original_command) {
 		// take a copy. This will be returned in case of any errors.
 		String full_command = original_command;
 		try {

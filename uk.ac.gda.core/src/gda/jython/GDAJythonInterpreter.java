@@ -19,9 +19,7 @@
 
 package gda.jython;
 
-import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
@@ -611,7 +609,6 @@ public class GDAJythonInterpreter {
 			interactiveConsole.showexception(e);
 			throw e;
 		}
-
 	}
 
 	/**
@@ -720,9 +717,7 @@ public class GDAJythonInterpreter {
 	 *         thread
 	 */
 	public static String translateScriptToGDA(String input) {
-		return stream(input.split("\n", -1))
-				.map(translator::translate)
-				.collect(joining("\n"));
+		return translator.translate(input);
 	}
 
 	/**
