@@ -51,6 +51,7 @@ public class RoiProc implements MalcolmSwmrProcessor {
 	private String plotName = "Area Detector";
 	private NexusObjectWrapper<NXdetector> nexusProvider;
 	private Map<RegionOfInterest, List<LazyWriteableDataset>> datasets = new HashMap<>();
+	private Map<RegionOfInterest, Double> lastestStatForRoi = new HashMap<>();
 	private int[] scanShape;
 
 	@Override
@@ -126,6 +127,7 @@ public class RoiProc implements MalcolmSwmrProcessor {
 	private void writeRoiStat(RegionOfInterest roi, Dataset roiData, SliceFromSeriesMetadata meta,
 			Function<Dataset, Object> stat, LazyWriteableDataset statDataset) {
 		Object statResult = stat.apply(roiData);
+		lastestStatForRoi.put(roi, ((Number)statResult).doubleValue());
 		logger.debug("Statistic: {}, ROI: {},  value: {}", statDataset.getName(), roi.getName(), statResult);
 		Dataset newStatData = DatasetFactory.createFromObject(statResult);
 		SliceND statSlice = new SliceND(statDataset.getShape(), statDataset.getMaxShape(), (Slice[]) null);
@@ -138,6 +140,14 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		} catch (DatasetException e) {
 			logger.error("Error setting slice", e);
 		}
+	}
+
+	public Set<RegionOfInterest> getRois() {
+		return rois;
+	}
+
+	public Double latestStatForRoi(RegionOfInterest roi) {
+		return lastestStatForRoi.get(roi);
 	}
 
 	public String getPlotName() {
