@@ -23,15 +23,19 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -41,7 +45,6 @@ public class ApplyNexusTemplateTest {
 
 	private String pathFile1 = "file:/lev1/lev2";
 	private String pathFile2 = "file:/lev3/lev4";
-	private String key = "applyNexusTemplates";
 	private URL file1;
 	private URL file2;
 
@@ -53,7 +56,7 @@ public class ApplyNexusTemplateTest {
 
 	@Test
 	public void testApplyNexusTemplateRequest() throws Exception {
-		ApplyNexusTemplateHandler handler = new ApplyNexusTemplateHandler();
+		ProcessingRequestHandler handler = new ApplyNexusTemplateHandler();
 		List<URL> paths = new ArrayList<>();
 		paths.add(file1);
 		paths.add(file2);
@@ -61,7 +64,14 @@ public class ApplyNexusTemplateTest {
 			.withValue(paths)
 			.build();
 
-		Collection<Object> translated = handler.translateToCollection(request);
+		ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setProcessingRequest(new ProcessingRequest());
+		scanRequest.getProcessingRequest().setRequest(new HashMap<>());
+		handler.handle(request, scanRequest);
+
+
+
+		Set<String> translated = scanRequest.getTemplateFilePaths();
 		Assert.assertEquals(2, translated.size());
 		Assert.assertTrue(translated.contains(file1.getPath()));
 		Assert.assertTrue(translated.contains(file2.getPath()));

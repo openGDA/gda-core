@@ -19,49 +19,44 @@
 package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.scanning.api.script.ScriptRequest;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
-import uk.ac.gda.common.exception.GDAException;
 
 /**
- * Handler for {@link ApplyNexusTemplatesRequest} devices
+ * Handler for {@link ApplyNexusTemplatesRequest} instances.
  *
  * @author Maurizio Nagni
  */
 @Component
-class ApplyNexusTemplateHandler extends ProcessingRequestHandler {
+class ApplyNexusTemplateHandler implements ProcessingRequestHandler {
 	@Override
-	Collection<Object> translateToCollection(ProcessingRequestPair<?> processingRequest) throws GDAException {
-		return Optional.ofNullable(processingRequest)
-			.filter(ApplyNexusTemplatesRequest.class::isInstance)
+	public boolean handle(ProcessingRequestPair<?> requestingPair, ScanRequest scanRequest) {
+		if (!(requestingPair instanceof ApplyNexusTemplatesRequest)) {
+			return false;
+		}
+
+		internalHandling(requestingPair, scanRequest);
+
+		return true;
+	}
+
+	private void internalHandling(ProcessingRequestPair<?> requestingPair, ScanRequest scanRequest) {
+		Optional.ofNullable(requestingPair)
 			.map(ApplyNexusTemplatesRequest.class::cast)
-			.map(this::translateValue)
-			.orElse(Collections.emptyList());
+			.map(ApplyNexusTemplatesRequest::getValue)
+			.ifPresent(u -> {
+				Set<String> urlStrings = u.stream()
+					.map(URL::getPath)
+					.collect(Collectors.toSet());
+				scanRequest.setTemplateFilePaths(urlStrings);
+			});
 	}
-
-	/**
-	 * 	At the moment gda process does not handle any {@code URL} syntax as {@code file:/path1} consequently
-	 *	the method call {@link URL#getPath()} to strip the URL protocol
-	 * @param request the request object
-	 * @return the converted object suitable for a ScanRequest
-	 */
-	private Collection<Object> translateValue(ApplyNexusTemplatesRequest request) {
-		return request.getValue().stream()
-			.map(URL::getPath)
-			.collect(Collectors.toList());
-	}
-
-	@Override
-	ScriptRequest createScriptRequest(ProcessingRequestPair<?> processingRequest) throws GDAException {
-		return null;
-	}
-
 }

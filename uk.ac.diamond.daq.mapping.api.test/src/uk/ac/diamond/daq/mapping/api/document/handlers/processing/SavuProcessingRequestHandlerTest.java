@@ -21,13 +21,22 @@ package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.scanning.api.event.scan.ProcessingRequest;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 
+/**
+ * Test the {@link SavuProcessingRequestHandler}
+ *
+ * @author Maurizio Nagni
+ */
 public class SavuProcessingRequestHandlerTest {
 
 
@@ -43,7 +52,12 @@ public class SavuProcessingRequestHandlerTest {
 			.withValue(paths)
 			.build();
 
-		Collection<Object> translated = handler.translateToCollection(request);
+		ScanRequest scanRequest = new ScanRequest();
+		scanRequest.setProcessingRequest(new ProcessingRequest());
+		scanRequest.getProcessingRequest().setRequest(new HashMap<>());
+		handler.handle(request, scanRequest);
+
+		Collection<Object> translated = scanRequest.getProcessingRequest().getRequest().get(request.getKey());
 		Assert.assertEquals(2, translated.size());
 		Assert.assertTrue(translated.contains(file1.getPath()));
 		Assert.assertTrue(translated.contains(file2.getPath()));
