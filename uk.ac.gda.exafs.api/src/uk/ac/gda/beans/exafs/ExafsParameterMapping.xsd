@@ -307,7 +307,7 @@
 				<xsd:element name="shouldValidate" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
 				<xsd:element name="detectorGroup" maxOccurs="unbounded"
-					minOccurs="1">
+					minOccurs="0">
 					<xsd:complexType>
 						<xsd:sequence>
 							<xsd:element name="name" type="xsd:string" maxOccurs="1"
@@ -460,6 +460,22 @@
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
+				
+				<xsd:element name="detectorConfiguration" maxOccurs="unbounded" minOccurs="0">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="0" />
+							<xsd:element name="detectorName" type="xsd:string" maxOccurs="1" minOccurs="1" />
+							<xsd:element name="configFileName" type="xsd:string" maxOccurs="1" minOccurs="0" />
+							<xsd:element name="scriptCommand" type="xsd:string" maxOccurs="1" minOccurs="0" />
+							<xsd:element name="useDetectorInScan" type="xsd:boolean" maxOccurs="1" minOccurs="1" />
+							<xsd:element name="useScriptCommand" type="xsd:boolean" maxOccurs="1" minOccurs="0" />
+							<xsd:element name="useConfigFile" type="xsd:boolean" maxOccurs="1" minOccurs="0" />
+							<xsd:element name="extraDetectorName" maxOccurs="unbounded" minOccurs="0" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
