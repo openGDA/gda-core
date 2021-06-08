@@ -34,6 +34,8 @@ public class RegionOfInterest {
 	private final String namePrefix;
 	private final Slice[] slice;
 	private final Set<RoiMetadata> roiMetadata;
+	private Integer width;
+	private Integer height;
 
 	public RegionOfInterest(RectangularROI roi) {
 		slice = getSliceFromRoi(roi);
@@ -46,8 +48,8 @@ public class RegionOfInterest {
 		// As the slice[] is [y, x], the indexing here is 0 for y, 1 for x
 		Integer x = slice[1].getStart();
 		Integer y = slice[0].getStart();
-		Integer width = slice[1].getStop() - slice[1].getStart();
-		Integer height = slice[0].getStop() - slice[0].getStart();
+		width = slice[1].getStop() - slice[1].getStart();
+		height = slice[0].getStop() - slice[0].getStart();
 
 		Set<RoiMetadata> data = new LinkedHashSet<>();
 		data.add(new RoiMetadata(namePrefix + "_X", "%.0f", x.doubleValue()));
@@ -81,6 +83,10 @@ public class RegionOfInterest {
 
 	public Set<RoiMetadata> getRoiMetadata() {
 		return roiMetadata;
+	}
+
+	public int getArea() {
+		return width * height;
 	}
 
 	/**

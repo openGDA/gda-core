@@ -165,4 +165,8 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 		setConfigured(true);
 	}
 
+	public List<RegionOfInterest> getRoiList() {
+		return roiList;
+	}
+
 }
