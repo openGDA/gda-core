@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.springframework.stereotype.Component;
 
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 

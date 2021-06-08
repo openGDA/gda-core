@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 
 /**

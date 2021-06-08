@@ -35,7 +35,6 @@ import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.common.exception.GDAException;
 
 /**

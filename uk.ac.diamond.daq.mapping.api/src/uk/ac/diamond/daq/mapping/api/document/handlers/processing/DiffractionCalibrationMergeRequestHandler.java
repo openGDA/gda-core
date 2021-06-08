@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;

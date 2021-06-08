@@ -29,7 +29,6 @@ import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestHandler;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
 
 /**
