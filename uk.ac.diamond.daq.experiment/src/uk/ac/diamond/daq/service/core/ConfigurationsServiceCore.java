@@ -17,6 +17,7 @@
  */
 package uk.ac.diamond.daq.service.core;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,6 +67,9 @@ public class ConfigurationsServiceCore extends CommonDocumentService {
 		try {
 			insertDocument(ccr, document, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
+			if (e.getCause() instanceof FileAlreadyExistsException) {
+				throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_CONFLICT);	
+			}
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}		
 	}

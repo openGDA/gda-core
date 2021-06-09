@@ -27,12 +27,25 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 /**
- * Intercepts http communication in order to log their content. Is active only when {@link Logger#isDebugEnabled()} is {@code true}
+ * Intercepts http communication in order
+ * <ol>
+ * <li>
+ * Logs the request body, if the logger is in debug mode.
+ * </li>
+ * <li>
+ * Submits the request to the endpoint.
+ * </li>
+ * <li>
+ * Logs the response body, If the logger is in debug mode.
+ * </li>
+ * </ol>
+
  *
  * @author Maurizio Nagni
  */
@@ -49,14 +62,18 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
 		}
 
 		ClientHttpResponse response = ex.execute(req, reqBody);
-
 		// logs the response
-		if (logger.isDebugEnabled()) {
-			InputStreamReader isr = new InputStreamReader(response.getBody(), StandardCharsets.UTF_8);
+		// if the status code >= 400 getBody() throws a IOException
+		// if the staus code >= 400 the response is returned so to be handled by ResponseEntityErrorHandler
+		if (logger.isDebugEnabled() && !isError(response.getStatusCode())) {
+			var isr = new InputStreamReader(response.getBody(), StandardCharsets.UTF_8);
 			String body = new BufferedReader(isr).lines().collect(Collectors.joining("\n"));
-			logger.debug("Response body: {}", body);
+			logger.debug("Response - Status: {}, Body: {}", response.getStatusCode(), body);
 		}
 		return response;
 	}
 
+	private boolean isError(HttpStatus status) {
+		return status.is4xxClientError() || status.is5xxServerError();
+	}
 }

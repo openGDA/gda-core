@@ -44,6 +44,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.rest.response.ResponseEntityErrorHandler;
 
 /**
  * Provides basic functionalities for a rest service client
@@ -154,31 +155,32 @@ class ClientRestService {
 	private static RestTemplate createRestTemplate() {
 		restTemplate = doCreateRestTemplate();
 	    addMessageConverters(restTemplate);
+		// adds error handlers AFTER the messages converters are added to the restTemplate 
+		addErrorHandler(restTemplate);
 	    addLoggingInterceptor(restTemplate);
-
 		return restTemplate;
 	}
 
 	private static RestTemplate doCreateRestTemplate() {
 		ClientHttpRequestFactory factory;
 		if (logger.isDebugEnabled()) {
-		    factory = new BufferingClientHttpRequestFactory(createSimpleHttpRequestFactory());
+		    factory = new BufferingClientHttpRequestFactory(createClientHttpRequestFactory());
 		} else {
-			factory = createSimpleHttpRequestFactory();
+			factory = createClientHttpRequestFactory();
 		}
 	    return new RestTemplate(factory);
 	}
 
-	private static SimpleClientHttpRequestFactory createSimpleHttpRequestFactory() {
-		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-		requestFactory.setConnectTimeout(3000);
-		requestFactory.setReadTimeout(3000);
-		return requestFactory;
+	private static ClientHttpRequestFactory createClientHttpRequestFactory() {
+		var simpleClient = new SimpleClientHttpRequestFactory();
+		simpleClient.setConnectTimeout(3000);
+		simpleClient.setReadTimeout(3000);
+		return simpleClient;
 	}
 
 	private static void addMessageConverters(RestTemplate restTemplate) {
 		List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
-		MappingJackson2HttpMessageConverter jacksonMapper = new MappingJackson2HttpMessageConverter();
+		var jacksonMapper = new MappingJackson2HttpMessageConverter();
 		jacksonMapper.setSupportedMediaTypes(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM));
 		jacksonMapper.setObjectMapper(getDocumentMapper().getJacksonObjectMapper());
 		messageConverters.add(jacksonMapper);
@@ -192,6 +194,12 @@ class ClientRestService {
 		}
 		interceptors.add(new LoggingInterceptor());
 		restTemplate.setInterceptors(interceptors);
+	}
+
+	private static void addErrorHandler(RestTemplate restTemplate) {
+		Optional.ofNullable(restTemplate.getMessageConverters())
+			.map(ResponseEntityErrorHandler::new)
+			.ifPresent(restTemplate::setErrorHandler);
 	}
 
 	private static DocumentMapper getDocumentMapper() {
