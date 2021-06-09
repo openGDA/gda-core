@@ -585,8 +585,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			}
 
 			if (nexusScanFile != null) {
-				nexusScanFile.scanFinished();
 				scanMetadataWriter.scanFinished();
+				nexusScanFile.scanFinished();
 			}
 			if (srsFile != null) {
 				srsFile.releaseFile();
