@@ -127,7 +127,6 @@ public interface IElectronAnalyser extends Device {
 	 * @return The current pass energy
 	 * @throws Exception If there is a problem with the EPICS communication
 	 */
-	// TODO This should probably be changed to double to become consistent with SPECS analysers
 	Integer getPassEnergy() throws Exception;
 
 	/**
@@ -136,7 +135,6 @@ public interface IElectronAnalyser extends Device {
 	 * @param passEnergy The requested pass energy
 	 * @throws Exception If the pass energy is invalid or if there is a problem with the EPICS communication
 	 */
-	// TODO This should probably be changed to double to become consistent with SPECS analysers
 	void setPassEnergy(Integer passEnergy) throws Exception;
 
 	/**
@@ -257,23 +255,101 @@ public interface IElectronAnalyser extends Device {
 	 */
 	public void setEnergyStep(double stepSize) throws Exception;
 
+	/**
+	 * Gets the list of supported acquisition mode, using AcquisitionMode enum. Allows UIs to support different
+	 * models of electron analyser which may name their modes differently
+	 *
+	 * @return The list of supported acquisition modes
+	 */
+	List<AcquisitionMode> getSupportedAcquisitionModes();
+
+	/**
+	 * Gets the spectrum data acquired from the most recent acquisition
+	 *
+	 * @return The spectrum data
+	 * @throws Exception If there is a problem getting the spectrum
+	 */
 	double[] getSpectrum() throws Exception;
 
+	/**
+	 * Gets the image acquired during the most recent acquisition
+	 *
+	 * @return  The image data
+	 * @throws Exception If there is a problem getting the image
+	 */
 	double[] getImage() throws Exception;
 
+	/**
+	 * Gets the value of the slices parameter
+	 *
+	 * @return The number of slices
+	 * @throws Exception If there is a problem getting the slices
+	 */
 	int getSlices() throws Exception;
 
+	/**
+	 * Gets the value of the frames parameter
+	 *
+	 * @return The number of slices
+	 * @throws Exception If there is a problem getting the frames
+	 */
 	int getFrames() throws Exception;
 
-	double getExcitationEnergy() throws Exception;
-
+	/**
+	 * Gets data from an external I/O device
+	 *
+	 * @param length The number of data elements to return
+	 * @return The data
+	 * @throws Exception If there is a problem getting the data
+	 */
 	double[] getExtIO(int length) throws Exception;
 
+	/**
+	 * Sets the acquisition mode
+	 *
+	 * @param acquisitionMode The name of the acquisition mode
+	 * @throws Exception If there is a problem setting acquisition mode
+	 */
 	void setAcquisitionMode(String acquisitionMode) throws Exception;
 
+	/**
+	 * Sets the acquisition mode to the one specified and performs any configuration necessary
+	 * for the chosen mode, such as setting up ROIs
+	 *
+	 * @param acquisitionMode The requested acquisition mode
+	 * @throws Exception If there is a problem setting up the acquisition mode
+	 */
+	void setupAcquisitionMode(AcquisitionMode acquisitionMode) throws Exception;
+
+	/**
+	 * Starts the analyser acquiring data with the current parameters
+	 *
+	 * @throws Exception
+	 */
 	void startAcquiring() throws Exception;
 
+	/**
+	 * Gets the current state of the analyser
+	 *
+	 * @return The current analyser state
+	 * @throws Exception If there is a problem getting the current state
+	 */
 	short getDetectorState() throws Exception;
 
+	/**
+	 * Sets the analyser to single image mode
+	 *
+	 * @throws Exception If there is a problem setting single image mode
+	 */
 	void setSingleImageMode() throws Exception;
+
+	/**
+	 * Gets the excitation energy
+	 *
+	 * @return The excitation energy
+	 * @throws Exception If there is a problem getting the value
+	 * @deprecated This was deprecated on the old VG Scienta RMI interface so it's deprecated here too
+	 */
+	@Deprecated(since="9.20")
+	double getExcitationEnergy() throws Exception;
 }

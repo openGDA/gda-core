@@ -29,6 +29,7 @@ import gda.device.detector.areadetector.v17.ImageMode;
 import uk.ac.diamond.daq.detectors.addetector.ServiceHolder;
 import uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api.DA30LensMode;
 import uk.ac.diamond.daq.detectors.vgscienta.electronanalyser.api.ElectronAnalyserRunnableDeviceModel;
+import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.gda.devices.vgscienta.VGScientaAnalyserCamOnly;
 
 /**
@@ -81,7 +82,7 @@ public class ElectronAnalyserRunnableDevice extends AbstractRunnableDevice<Elect
 		try {
 			// Setup analyser specific parameters
 			// TODO Look at adding swept mode support, need a more complex model
-			analyser.setFixedMode(true);
+			analyser.setupAcquisitionMode(AcquisitionMode.FIXED);
 			// Set pass energy
 			analyser.setPassEnergy(model.getPassEnergy());
 			// Set lens mode

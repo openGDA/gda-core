@@ -4,6 +4,7 @@ import gda.factory.Finder
 import gda.jython.commands.ScannableCommands
 from org.slf4j import LoggerFactory
 import uk.ac.gda.arpes.beans.ARPESScanBean
+import uk.ac.diamond.daq.pes.api.AcquisitionMode
 
 logger = LoggerFactory.getLogger(__name__ + '.py')
 
@@ -61,9 +62,9 @@ class ARPESRun:
         self.analyser.setPassEnergy(self.bean.getPassEnergy())
         # Set the lens mode
         self.analyser.setLensMode(self.bean.getLensMode())
-        # Set fixed/swept
-        self.analyser.setFixedMode(not self.bean.isSweptMode())
-        # Set start stop and centre energy always set all even though start and stop are used in swept
+        # Set acquisition mode
+        self.analyser.setupAcquisitionMode(self.bean.getAcquisitionMode())
+        # Start stop and centre energy are always set  even though start and stop are used in swept
         # and centre is used in fixed because the readback values are saved into the data file
         self.analyser.setStartEnergy(self.bean.getStartEnergy())
         self.analyser.setEndEnergy(self.bean.getEndEnergy())
@@ -73,6 +74,10 @@ class ARPESRun:
         # Set the exposure time and iterations
         self.analyser.setCollectionTime(self.bean.getTimePerStep())
         self.analyser.setIterations(self.bean.getIterations())
+                
+        if self.bean.getAcquisitionMode() == uk.ac.diamond.daq.pes.api.AcquisitionMode.DITHER:     
+            print "Dither mode selected"
+            self.analyser.setNumberOfDitherSteps(self.bean.getDitherSteps())
 
         # Check if its configure only
         if self.bean.isConfigureOnly():

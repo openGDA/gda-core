@@ -44,7 +44,7 @@ public class MbsNXDetectorDataAppender implements NXDetectorDataAppender {
 		String yAxisUnits = region.isTransmissionLensMode() ? "mm" : "degree";
 		data.addAxis(detectorName, yAxisName, new NexusGroupData(yAxis), 1, 1, yAxisUnits, false);
 
-		data.addData(detectorName, "time_for_frame", new NexusGroupData(region.getCollectionTime()), "sec", null);
+		data.addData(detectorName, "time_for_frames", new NexusGroupData(region.getCollectionTime()), "sec", null);
 		data.addData(detectorName, "acquire_time", new NexusGroupData(region.getAcquireTime()), "sec", null);
 		data.addData(detectorName, "acquire_period", new NexusGroupData(region.getAcquirePeriod()), "sec", null);
 		data.addData(detectorName, "number_of_iterations", new NexusGroupData(region.getIterations()), null, null);
