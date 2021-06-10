@@ -64,7 +64,7 @@ public class NXObjectProvider<T extends NXobject> implements NexusObjectProvider
 
 	@Override
 	public Set<String> getExternalFileNames() {
-		return Collections.EMPTY_SET;
+		return Collections.emptySet();
 	}
 
 	@Override
