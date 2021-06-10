@@ -67,6 +67,18 @@ public class UIHelper {
 		showError(strMessage, cause);
 	}
 
+	/**
+	 * Utility to both log an error and show an error dialog
+	 * @param message the message to log and display
+	 * @param cause the cause responsible for the error
+	 * @param logger the logging instance to use
+	 */
+	public static void showError(final ClientMessages message, final String cause, Logger logger) {
+		String strMessage = ClientMessagesUtility.getMessage(message);
+		logger.error("{} - Cause: {}", strMessage, cause);
+		showError(strMessage, cause);
+	}
+
 	public static void showError(final ClientMessages message, final Exception cause) {
 		showMessage(MessageDialog.ERROR, ClientMessagesUtility.getMessage(message), cause.getMessage());
 	}

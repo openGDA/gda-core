@@ -49,13 +49,13 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 
 	/**
 	 * Retrieves documents eventually filtering them by type.
-	 *  
-	 * Accepts {@code configurationType=[TOMO|MAP]} parameter 
-	 * 
+	 *
+	 * Accepts {@code configurationType=[TOMO|MAP]} parameter
+	 *
 	 * <p>
 	 * Example: {@code /scanningAcquisitions?configurationType=MAP}
 	 * </p>
-	 *   
+	 *
 	 * @return a list of AcquisitionBases with minimal informations (id, name, description)
 	 * @throws GDAServiceException 
 	 */
@@ -66,7 +66,7 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 
 	/**
 	 * Delete an existing AcquisitionBase.
-	 * 
+	 *
 	 * @return
 	 * @throws GDAHttpException 
 	 */
@@ -80,10 +80,10 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 		}
 		deleteDocument(uuid, request, response);
 	}
-	
+
 	/**
 	 * Insert or update an existing diffraction.
-	 * 
+	 *
 	 * <p>
 	 * If {@link AcquisitionBase#getUuid()} is {@code empty}, a new document is inserted, otherwise is updated.
 	 * </p> 
@@ -94,10 +94,10 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 		insertDocument(acquisition, AcquisitionConfigurationResourceType.MAP, request , response);
 		return acquisition;
 	}
-	
+
 	/**
 	 * Insert or update an existing tomography.
-	 * 
+	 *
 	 * <p>
 	 * If {@link AcquisitionBase#getUuid()} is {@code empty}, a new document is inserted, otherwise is updated.
 	 * </p> 
@@ -108,9 +108,9 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 		insertDocument(acquisition, AcquisitionConfigurationResourceType.TOMO, request , response);
 		return acquisition;
 	}
-	
+
 	@ExceptionHandler(GDAHttpException.class)
-	public ResponseEntity<ErrorReport> activityExceptionHandler(GDAHttpException exc) {		
+	public ResponseEntity<ErrorReport> activityExceptionHandler(GDAHttpException exc) {
 		return new ResponseEntity<>(new ErrorReport(exc.getMessage()), HttpStatus.valueOf(exc.getStatus()));
 	}
 }

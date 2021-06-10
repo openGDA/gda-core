@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashSet;
@@ -144,7 +145,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 			getFileService().saveTextDocument(getDocumentMapper().convertToJSON(document), formatConfigurationFileName(document.getName()),
 					getType(), false);
 		} catch (InvalidAttributesException | IOException | GDAException e) {
-			throw new GDAServiceException("Cannot insert the document", e);
+			throw new GDAServiceException(e.getMessage(), e);
 		}	
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
