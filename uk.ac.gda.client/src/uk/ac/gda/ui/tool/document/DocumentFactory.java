@@ -33,6 +33,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
@@ -57,6 +58,7 @@ public class DocumentFactory {
 		return () -> {
 			var newAcquisition = new ScanningAcquisition();
 			// Does not set UUID as it will be inserted by the save service
+			newAcquisition.setType(getType(propertyType));
 			var configuration = new ScanningConfiguration();
 			newAcquisition.setAcquisitionConfiguration(configuration);
 
@@ -118,5 +120,16 @@ public class DocumentFactory {
 			.withStop(trackDocumentProperty.getStop())
 			.withStep(trackDocumentProperty.getStep())
 			.build();
+	}
+
+	private AcquisitionType getType(AcquisitionPropertyType propertyType) {
+		switch (propertyType) {
+			case DIFFRACTION:
+				return AcquisitionType.DIFFRACTION;
+			case TOMOGRAPHY:
+				return AcquisitionType.TOMOGRAPHY;
+			default:
+				return AcquisitionType.GENERIC;
+			}
 	}
 }
