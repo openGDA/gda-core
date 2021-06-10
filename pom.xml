@@ -61,17 +61,6 @@
 		<profile>
 			<id>dawn</id>
 			<modules>
-			</modules>
-		</profile>
-		<profile>
-			<id>dawn-dls</id>
-			<modules>
-				<module>uk.ac.diamond.daq.thirdparty.activemq.feature</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>dawn-full</id>
-			<modules>
 				<module>uk.ac.diamond.daq.thirdparty.activemq.feature</module>
 			</modules>
 		</profile>
