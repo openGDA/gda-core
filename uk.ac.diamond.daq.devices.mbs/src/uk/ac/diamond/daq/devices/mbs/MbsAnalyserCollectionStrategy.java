@@ -84,7 +84,7 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 
 	@Override
 	public int getStatus() throws Exception {
-		return analyser.getStatus();
+		return analyser.getDetectorState();
 	}
 
 	@Override
