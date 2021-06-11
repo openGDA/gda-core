@@ -19,6 +19,7 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,7 +45,7 @@ import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
-import org.eclipse.scanning.api.IScannable;
+import org.eclipse.dawnsci.nexus.validation.NexusValidationServiceImpl;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.scan.models.ScanModel;
@@ -63,7 +64,9 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import gda.jython.IBatonStateProvider;
@@ -82,7 +85,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final String MIRROR1_DEVICE_NAME = "mirror1";
 	private static final String MIRROR2_DEVICE_NAME = "mirror2";
 
-	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
+	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 0.123;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
 
 	private static final double EXPECTED_MONOCHROMATOR_ENERGY_ERROR = 2.53;
@@ -131,7 +134,24 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private static final int[] SHAPE = { 5, 2 };
 
+	private static final String UNITS_MILLIS = "mm";
+	private static final String UNITS_RADIANS = "rad";
+	private static final String UNITS_FLUX = "1/s/cm^2";
+	private static final String UNITS_ELECTRON_VOLT = "eV"; // GeV cannot be parsed
+	private static final String UNITS_AMPERES = "A";
+
 	private IWritableDetector<MandelbrotModel> detector;
+
+	@BeforeClass
+	public static void setupBeforeClass() {
+		new org.eclipse.dawnsci.nexus.scan.ServiceHolder().setNexusValidationService(new NexusValidationServiceImpl());
+		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(false));
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -141,6 +161,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		setUpCommonBeamlineDevices();
 
 		setUpMetadata();
+
 	}
 
 	private void setUpCommonBeamlineDevices() {
@@ -175,10 +196,10 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final String incidentBeamDivergenceScannableName = "incident_beam_divergence";
 		final String fluxScannableName = "flux";
 
-		createScannable(beamExtentScannableName, EXPECTED_BEAM_EXTENT);
-		createScannable(incidentBeamDivergenceScannableName, EXPECTED_BEAM_INCIDENT_DIVERGENCE);
-		createScannable(incidentPolarizationScannableName, EXPECTED_BEAM_INCIDENT_POLARIZATION);
-		createScannable(fluxScannableName, EXPECTED_BEAM_FLUX);
+		createScannable(beamExtentScannableName, EXPECTED_BEAM_EXTENT, UNITS_MILLIS);
+		createScannable(incidentBeamDivergenceScannableName, EXPECTED_BEAM_INCIDENT_DIVERGENCE, UNITS_RADIANS);
+		createScannable(incidentPolarizationScannableName, EXPECTED_BEAM_INCIDENT_POLARIZATION, null);
+		createScannable(fluxScannableName, EXPECTED_BEAM_FLUX, UNITS_FLUX);
 
 		final BeamNexusDevice beamDevice = new BeamNexusDevice();
 		beamDevice.setName(BEAM_DEVICE_NAME);
@@ -196,10 +217,10 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final String harmonicScannableName = "id_harmonic";
 		final String bandwidthScannableName = "id_bandwidth";
 
-		createScannable(gapScannableName, EXPECTED_INSERTION_DEVICE_GAP);
-		createScannable(taperScannableName, EXPECTED_INSERTION_DEVICE_TAPER);
-		createScannable(harmonicScannableName, EXPECTED_INSERTION_DEVICE_HARMONIC);
-		createScannable(bandwidthScannableName, EXPECTED_INSERTION_DEVICE_BANDWIDTH);
+		createScannable(gapScannableName, EXPECTED_INSERTION_DEVICE_GAP, UNITS_MILLIS);
+		createScannable(taperScannableName, EXPECTED_INSERTION_DEVICE_TAPER, UNITS_RADIANS);
+		createScannable(harmonicScannableName, EXPECTED_INSERTION_DEVICE_HARMONIC, null);
+		createScannable(bandwidthScannableName, EXPECTED_INSERTION_DEVICE_BANDWIDTH, UNITS_ELECTRON_VOLT);
 
 		final InsertionDeviceNexusDevice insertionDevice = new InsertionDeviceNexusDevice();
 		insertionDevice.setName(INSERTION_DEVICE_NAME);
@@ -220,8 +241,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final String energyScannableName = "mono_energy";
 		final String energyErrorScannableName = "mono_energy_error";
 
-		createScannable(energyScannableName, EXPECTED_MONOCHROMATOR_ENERGY);
-		createScannable(energyErrorScannableName, EXPECTED_MONOCHROMATOR_ENERGY_ERROR);
+		createScannable(energyScannableName, EXPECTED_MONOCHROMATOR_ENERGY, UNITS_ELECTRON_VOLT);
+		createScannable(energyErrorScannableName, EXPECTED_MONOCHROMATOR_ENERGY_ERROR, UNITS_ELECTRON_VOLT);
 
 		final MonochromatorNexusDevice monochromator = new MonochromatorNexusDevice();
 		monochromator.setName(MONOCHROMATOR_DEVICE_NAME);
@@ -232,7 +253,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private void createSourceDevice() {
 		final String sourceCurrentScannableName = "source_current";
-		createScannable(sourceCurrentScannableName, EXPECTED_SOURCE_CURRENT);
+		createScannable(sourceCurrentScannableName, EXPECTED_SOURCE_CURRENT, UNITS_AMPERES);
 
 		final SourceNexusDevice source = new SourceNexusDevice();
 		source.setName(SOURCE_DEVICE_NAME);
@@ -256,8 +277,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final String xGapScannableName = name + NXslit.NX_X_GAP;
 		final String yGapScannableName = name + NXslit.NX_Y_GAP;
 
-		createScannable(xGapScannableName, xGap);
-		createScannable(yGapScannableName, yGap);
+		createScannable(xGapScannableName, xGap, UNITS_MILLIS);
+		createScannable(yGapScannableName, yGap, UNITS_MILLIS);
 
 		final NexusMetadataDevice<NXslit> slitDevice = new NexusMetadataDevice<>();
 		slitDevice.setName(name);
@@ -292,8 +313,11 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		ServiceHolder.getNexusDeviceService().register(mirrorDevice);
 	}
 
-	private void createScannable(final String name, double value) {
-		final IScannable<?> scannable = new MockScannable(name, value);
+	private void createScannable(final String name, Number value, String unit) {
+		final MockScannable scannable = new MockScannable();
+		scannable.setName(name);
+		scannable.setInitialPosition(value);
+		scannable.setUnit(unit);
 		connector.register(scannable);
 	}
 

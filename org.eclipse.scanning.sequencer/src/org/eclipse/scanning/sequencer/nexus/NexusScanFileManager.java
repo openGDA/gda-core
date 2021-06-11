@@ -56,6 +56,8 @@ import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.Version;
+
 /**
  * Builds and manages the NeXus file for a scan given a {@link ScanModel}.
  */
@@ -211,9 +213,10 @@ public class NexusScanFileManager {
 		final List<NexusMetadataProvider> metadataProviders = scanModel.getScanMetadata().stream().
 				map(this::toNexusMetadataProvider).collect(toCollection(ArrayList::new));
 
-		// add an metadata provider to add 'experiment_identifier' to the NXentry.
+		// add an metadata provider for the NXentry group to write 'experiment_identifier' and 'program_name'
 		final MapBasedMetadataProvider entryMetadataProvider = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
 		entryMetadataProvider.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, scanModel.getBean().getExperimentId());
+		entryMetadataProvider.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
 		metadataProviders.add(entryMetadataProvider);
 
 		return metadataProviders;
