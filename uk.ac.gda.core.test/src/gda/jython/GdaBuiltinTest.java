@@ -57,7 +57,8 @@ public class GdaBuiltinTest {
 	@Test
 	public void testOverloadedDocString() throws Exception {
 		PyObject foo = builtinFor(Commands.class, "foo");
-		String docs = "foo(String)\n" +
+		String docs = "Foo strings\n\n"
+				+ "foo(String)\n" +
 				"    Foo a single String\n" +
 				"foo(String, String) -> String\n" +
 				"    Foo two strings into one\n"
@@ -100,7 +101,7 @@ public class GdaBuiltinTest {
 
 	@Test
 	public void builtinHasCorrectName() throws Exception {
-		assertThat(builtinFor(Commands.class, "typed"), builtinNamed("typed"));
+		assertThat(builtinFor(Commands.class, "typed"), is(named("typed")));
 	}
 
 	@Test
@@ -114,7 +115,7 @@ public class GdaBuiltinTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void methodlessBultinThrows() {
+	public void methodlessBuiltinThrows() {
 		builtinFor(Commands.class, "missing");
 	}
 
@@ -127,13 +128,13 @@ public class GdaBuiltinTest {
 	@Test
 	public void notStaticMethodsAreIgnored() {
 		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Commands.class);
-		assertThat(builtins, not(hasItem(builtinNamed("nonStatic"))));
+		assertThat(builtins, does(not(hasItem(named("nonStatic")))));
 	}
 
 	@Test
 	public void methodsNeedAnnotations() {
 		Collection<GdaBuiltin> builtins = GdaBuiltin.builtinMethodsFrom(Commands.class);
-		assertThat(builtins, not(hasItem(builtinNamed("ignored"))));
+		assertThat(builtins, does(not(hasItem(named("ignored")))));
 	}
 
 	private GdaBuiltin builtinFor(Class<?> clazz, String name) {
@@ -144,7 +145,7 @@ public class GdaBuiltinTest {
 	}
 
 	/** Create a Matcher that checks the name of a GdaBuiltin, the methods used are ignored */
-	private Matcher<GdaBuiltin> builtinNamed(String name) {
+	private Matcher<GdaBuiltin> named(String name) {
 		return new FeatureMatcher<GdaBuiltin, String>(equalTo(name), "Builtin name should be", "name") {
 			@Override
 			protected String featureValueOf(GdaBuiltin actual) {
@@ -155,23 +156,23 @@ public class GdaBuiltinTest {
 
 	/** Inner class with static methods */
 	public static class Commands {
-		@GdaJythonBuiltin("Foo a single String")
+		@GdaJythonBuiltin(docstring="Foo strings", overload="Foo a single String")
 		public static void foo(@SuppressWarnings("unused") String a) {}
 
-		@GdaJythonBuiltin("Foo two strings into one")
+		@GdaJythonBuiltin(overload="Foo two strings into one")
 		public static String foo(String one, String two) {
 			return one + two;
 		}
 
-		@GdaJythonBuiltin("Method with variable Strings")
+		@GdaJythonBuiltin(overload="Method with variable Strings")
 		public static void varargs(@SuppressWarnings("unused") String...strings) {}
 
-		@GdaJythonBuiltin("Bar an integer")
+		@GdaJythonBuiltin(overload="Bar an integer")
 		public static long bar(int j) {
 			return j << 6;
 		}
 
-		@GdaJythonBuiltin("Awkward types")
+		@GdaJythonBuiltin(overload="Awkward types")
 		public static List<String[]> awkward(
 				@SuppressWarnings("unused") Map<String, Set<? extends Findable>> map,
 				@SuppressWarnings("unused") List<String>[] strings,
@@ -180,7 +181,7 @@ public class GdaBuiltinTest {
 			return emptyList();
 		}
 
-		@GdaJythonBuiltin("Type variables")
+		@GdaJythonBuiltin(overload="Type variables")
 		public static <T extends Findable, S> T typed(@SuppressWarnings("unused") S foo) {
 			return null;
 		}
@@ -188,9 +189,14 @@ public class GdaBuiltinTest {
 		/** Method without annotation */
 		public static void ignored() {}
 
-		@GdaJythonBuiltin("Should be ignored")
+		@GdaJythonBuiltin(docstring="Should be ignored")
 		public void nonStatic() {}
 	}
 	/** Inner class without static methods */
 	public static class Methodless {}
+
+	/** Pointless redirect method to make assertions read more fluently */
+	private static <T> Matcher<T> does(Matcher<T> matcher) {
+		return is(matcher);
+	}
 }

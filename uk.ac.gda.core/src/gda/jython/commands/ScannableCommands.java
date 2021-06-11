@@ -82,7 +82,7 @@ public class ScannableCommands {
 	private static volatile boolean posCommandIsInTheProcessOfListingAllScannables = false;
 
 
-	@GdaJythonBuiltin("Print the position of the given scannables")
+	@GdaJythonBuiltin(overload="Print the position of the given scannables")
 	public static void pos(Scannable... scannables) {
 		logger.debug("Called 'pos(Scannable...)' with args: {}", Arrays.asList(scannables));
 		String positions = Stream.of(scannables)
@@ -104,7 +104,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 *             - any exception within this method
 	 */
-	@GdaJythonBuiltin("Move a scannables or scannables.\n"
+	@GdaJythonBuiltin(overload="Move a scannables or scannables.\n"
 			+ "To move a single scannable, pass the scannable and the target position, eg\n"
 			+ ">>> pos motor_x 1\n"
 			+ "Multiple scannables can be moved at once by passing alternating scannables and positions, eg\n"
@@ -254,7 +254,7 @@ public class ScannableCommands {
 	 * @throws Exception
 	 *             - any exception within this method
 	 */
-	@GdaJythonBuiltin("Similar to pos, but provide feedback as the devices are moving")
+	@GdaJythonBuiltin(docstring="Similar to pos, but provide feedback as the devices are moving")
 	public static void upos(Object... args) throws Exception {
 		logger.debug("Called 'upos' with args: {}", Arrays.asList(args));
 		if (args.length >= 2) {
@@ -320,7 +320,7 @@ public class ScannableCommands {
 	/**
 	 * Gets a list of names of all the scannables on the server
 	 */
-	@GdaJythonBuiltin("Get the names of all scannables currently available in the Jython namespace")
+	@GdaJythonBuiltin(docstring="Get the names of all scannables currently available in the Jython namespace")
 	public static List<String> getScannableNames() {
 		logger.debug("Called 'getScannableNames'");
 
@@ -335,7 +335,7 @@ public class ScannableCommands {
 	/**
 	 * prints to console all the scannables and their current position in the system
 	 */
-	@GdaJythonBuiltin("Print the position/state of all scannables in the Jython namespace")
+	@GdaJythonBuiltin(overload="Print the position/state of all scannables in the Jython namespace")
 	public static void pos() {
 		if (LocalProperties.check(GDA_POS_OVER_ALL_DISABLE)) {
 			InterfaceProvider.getTerminalPrinter().print("'pos' with no args is disabled by " + GDA_POS_OVER_ALL_DISABLE);
@@ -384,7 +384,7 @@ public class ScannableCommands {
 		unfilteredList.keySet().removeIf(scannablesInGroups::contains);
 	}
 
-	@GdaJythonBuiltin("Check if a pos command is still running")
+	@GdaJythonBuiltin(docstring="Check if a pos command is still running")
 	public static boolean isPosCommandIsInTheProcessOfListingAllScannables() {
 		logger.debug("Called 'isPosCommandIsInTheProcessOfListingAllScannables'");
 		return posCommandIsInTheProcessOfListingAllScannables;
@@ -396,7 +396,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Move a scannable or scannables relative to their current position.")
+	@GdaJythonBuiltin(docstring="Move a scannable or scannables relative to their current position.")
 	public static void inc(Object... args) throws Exception {
 		logger.debug("Called 'inc' with args: {}", Arrays.asList(args));
 		if (args.length == 1) {
@@ -455,7 +455,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Move a scannable or scannables relative to their current positions and\n"
+	@GdaJythonBuiltin(docstring="Move a scannable or scannables relative to their current positions and\n"
 			+ "provide feedback while they're moving.")
 	public static void uinc(Object... args) throws Exception {
 		logger.debug("Called 'uinc' with args: {}", Arrays.asList(args));
@@ -561,14 +561,14 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a concurrent scan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a concurrent scan. See scan documentation for usage.")
 	public static void scan(Object... args) throws Exception {
 		logger.debug("Called 'scan' with args: {}", Arrays.asList(args));
 		ConcurrentScan scan = createConcurrentScan(args);
 		scan.runScan();
 	}
 
-	@GdaJythonBuiltin("Create, but do not run, a concurrent scan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Create, but do not run, a concurrent scan. See scan documentation for usage.")
 	public static ConcurrentScan createConcurrentScan(Object... args) throws Exception {
 		logger.debug("Called 'createConcurrentScan' with args: {}", Arrays.asList(args));
 		ConcurrentScan scan = new ConcurrentScan(args);
@@ -590,7 +590,7 @@ public class ScannableCommands {
 	 * @return ScanPlotSettings with Xaxis and YAxes based on several properties
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Create ScanPlotSettings for the given scan")
+	@GdaJythonBuiltin(docstring="Create ScanPlotSettings for the given scan")
 	public static ScanPlotSettings createScanPlotSettings(ConcurrentScan theScan) throws Exception {
 		logger.debug("Called 'createScanPlotSettings' with: {}", theScan);
 
@@ -625,7 +625,7 @@ public class ScannableCommands {
 		return sps;
 	}
 
-	@GdaJythonBuiltin("Configure scan pipeline for a scan using local properties")
+	@GdaJythonBuiltin(docstring="Configure scan pipeline for a scan using local properties")
 	public static void configureScanPipelineParameters(ScanBase scan) {
 		logger.debug("Called 'configureScanPipelineParameters' with: {}", scan);
 
@@ -661,7 +661,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a PointsScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a PointsScan. See scan documentation for usage.")
 	public static void pscan(Object... args) throws Exception {
 		logger.debug("Called 'pscan' with args: {}", Arrays.asList(args));
 		PointsScan theScan = new PointsScan(args);
@@ -674,7 +674,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a CentroidScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a CentroidScan. See scan documentation for usage.")
 	public static void cscan(Object... args) throws Exception {
 		logger.debug("Called 'cscan' with args: {}", Arrays.asList(args));
 		CentroidScan theScan = new CentroidScan(args);
@@ -688,7 +688,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a StaticScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a StaticScan. See scan documentation for usage.")
 	public static void staticscan(Scannable... args) throws Exception {
 		logger.debug("Called 'staticscan' with args: {}", Arrays.asList(args));
 		StaticScan theScan = new StaticScan(args);
@@ -703,7 +703,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a GridScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a GridScan. See scan documentation for usage.")
 	public static void gscan(Object... args) throws Exception {
 		logger.debug("Called 'gscan' with args: {}", Arrays.asList(args));
 		int numberArgs = args.length;
@@ -731,7 +731,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a TimeScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a TimeScan. See scan documentation for usage.")
 	public static void timescan(Object... args) throws Exception {
 		logger.debug("Called 'timescan' with args: {}", Arrays.asList(args));
 		int numberArgs = args.length;
@@ -796,7 +796,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a Time Scan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a Time Scan. See scan documentation for usage.")
 	public static void tscan(Object... args) throws Exception {
 		logger.debug("Called 'tscan' with args: {}", Arrays.asList(args));
 		if (args.length < 3)
@@ -844,7 +844,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a TestScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a TestScan. See scan documentation for usage.")
 	public static void testscan(Object... args) throws Exception {
 		logger.debug("Called 'testscan' with args: {}", Arrays.asList(args));
 		TestScan theScan = new TestScan(args);
@@ -860,7 +860,7 @@ public class ScannableCommands {
 	 * @param args
 	 * @throws Exception
 	 */
-	@GdaJythonBuiltin("Run a ContinuousScan. See scan documentation for usage.")
+	@GdaJythonBuiltin(docstring="Run a ContinuousScan. See scan documentation for usage.")
 	public static void cv(Object... args) throws Exception {
 		logger.debug("Called 'cv' with args: {}", Arrays.asList(args));
 
@@ -909,7 +909,7 @@ public class ScannableCommands {
 	}
 
 	/** Get the level of a single scannable */
-	@GdaJythonBuiltin("Get the level of a scannable - equivalent to scannable.getLevel()")
+	@GdaJythonBuiltin(overload="Get the level of a scannable - equivalent to scannable.getLevel()")
 	public static int level(Scannable scannable) {
 		requireNonNull(scannable, "Can't get level of null scannable");
 		logger.debug("Using level to get level for {}", scannable.getName());
@@ -917,7 +917,7 @@ public class ScannableCommands {
 	}
 
 	/** Set the level of a single scannable */
-	@GdaJythonBuiltin("Set the level of a scannable. This is equivalent to scannable.setLevel(x)")
+	@GdaJythonBuiltin(overload="Set the level of a scannable. This is equivalent to scannable.setLevel(x)")
 	public static void level(Scannable scannable, int level) {
 		requireNonNull(scannable, "Can't set level of null scannable");
 		logger.debug("Using level to set the level of {} to {}", scannable.getName(), level);
@@ -928,7 +928,7 @@ public class ScannableCommands {
 	/**
 	 * List all the Scannable objects used implicitly in every scan
 	 */
-	@GdaJythonBuiltin("Print list of scannables included in all GDA software scans by default.")
+	@GdaJythonBuiltin(docstring="Print list of scannables included in all GDA software scans by default.")
 	public static void list_defaults() {
 		logger.debug("Called 'list_defaults'");
 		String output = get_defaults()
@@ -940,7 +940,7 @@ public class ScannableCommands {
 		InterfaceProvider.getTerminalPrinter().print(output);
 	}
 
-	@GdaJythonBuiltin("Get the current scannables added to all scans by default.")
+	@GdaJythonBuiltin(docstring="Get the current scannables added to all scans by default.")
 	public static Collection<Scannable> get_defaults() {
 		logger.debug("Called 'get_defaults'");
 		return InterfaceProvider.getDefaultScannableProvider().getDefaultScannables();
@@ -949,7 +949,7 @@ public class ScannableCommands {
 	/**
 	 * Set a Scannable to be used by default
 	 */
-	@GdaJythonBuiltin("Add a scannable (or scannables) to the list of default scannables included in all scans.")
+	@GdaJythonBuiltin(docstring="Add a scannable (or scannables) to the list of default scannables included in all scans.")
 	public static void add_default(Scannable... args) {
 		logger.debug("Called 'add_default' with args: {}", Arrays.asList(args));
 
@@ -966,7 +966,7 @@ public class ScannableCommands {
 	/**
 	 * Remove a Scannable from the list of defaults
 	 */
-	@GdaJythonBuiltin("Remove a scannable (or scannables) from the list of default scannables included in all scans.")
+	@GdaJythonBuiltin(docstring="Remove a scannable (or scannables) from the list of default scannables included in all scans.")
 	public static void remove_default(Scannable... args) {
 		logger.debug("Called 'remove_default' with args: {}", Arrays.asList(args));
 		JythonServer server = Finder.findSingleton(JythonServer.class);
@@ -979,7 +979,7 @@ public class ScannableCommands {
 		}
 	}
 
-	@GdaJythonBuiltin("Get the most recent scan data point")
+	@GdaJythonBuiltin(docstring="Get the most recent scan data point")
 	public static IScanDataPoint lastScanDataPoint() {
 		logger.debug("Called 'lastScanDataPoint'");
 		return InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
