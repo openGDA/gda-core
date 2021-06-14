@@ -20,9 +20,7 @@ package uk.ac.gda.epics.nexus.device;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusNodeFactory;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractMetadataNode;
 
 import gda.epics.CAClient;
@@ -32,7 +30,7 @@ import gov.aps.jca.TimeoutException;
 /**
  * A {@link AbstractMetadataNode} field that is written as the position of a Processing Variable - PV.
  */
-public class ProcessingVariableField extends AbstractMetadataNode {
+public class ProcessingVariableField extends AbstractMetadataField {
 
 	public ProcessingVariableField() {
 		// no-arg constructor for spring initialization
@@ -54,18 +52,14 @@ public class ProcessingVariableField extends AbstractMetadataNode {
 	}
 
 	@Override
-	public DataNode createNode() throws NexusException {
-		final DataNode dataNode = NexusNodeFactory.createDataNode();
-		final Dataset dataset = DatasetFactory.createFromObject(getPvValue(pvName));
-		dataset.setName(getName());
-		dataNode.setDataset(dataset);
-		return dataNode;
+	protected DataNode createDataNode() throws NexusException {
+		final Object value = getPvValue(pvName);
+		return createDataNode(value);
 	}
 
-	@SuppressWarnings("unchecked")
-	protected <T> T getPvValue(String pvName) throws NexusException {
+	private Object getPvValue(String pvName) throws NexusException {
 		try {
-			return (T) CAClient.get(pvName);
+			return CAClient.get(pvName);
 		} catch (CAException | TimeoutException e) {
 			throw new NexusException("Could not get data from: " + pvName, e);
 		} catch (InterruptedException e) {
