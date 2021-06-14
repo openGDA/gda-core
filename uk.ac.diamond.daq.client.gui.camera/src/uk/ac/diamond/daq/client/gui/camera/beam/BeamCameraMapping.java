@@ -31,11 +31,11 @@ import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import uk.ac.diamond.daq.client.gui.camera.beam.state.BeamMappingStateContext;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.FinderService;
 import uk.ac.gda.ui.tool.spring.MotorUtils;
 
 /**
@@ -75,7 +75,7 @@ public class BeamCameraMapping {
 	public void calibrate(final BeamMappingStateContext context) {
 		initialise(context.getxSamplePoints(), context.getySamplePoints());
 		if (!initializationFailed.reportErrorsToUser()) {
-			BeamCameraMappingHelper helper = new BeamCameraMappingHelper(context, beamX, beamY);
+			var helper = new BeamCameraMappingHelper(context, beamX, beamY);
 			helper.calibrate();
 		}
 	}
@@ -113,7 +113,7 @@ public class BeamCameraMapping {
 	}
 
 	private void initializeAxis(String axis, Consumer<ScannableIterator> consumer, int steps) {
-		FinderHelper.getIScannableMotor(axis)
+		getIScannableMotor(axis)
 			.map(ScannableIterator::new)
 			.ifPresent(b -> {
 				consumer.accept(b);
@@ -157,9 +157,9 @@ public class BeamCameraMapping {
 
 		public void reportErrorsToLog() {
 			if (hasErrors()) {
-				exceptions.stream().forEach(e -> {
-					logger.error("BeamCameraMapping not initialized", e);
-				});
+				exceptions.stream().forEach(e ->
+					logger.error("BeamCameraMapping not initialized", e)
+				);
 			}
 		}
 
@@ -190,5 +190,10 @@ public class BeamCameraMapping {
 
 	private MotorUtils getMotorUtils() {
 		return SpringApplicationContextFacade.getBean(MotorUtils.class);
+	}
+
+	private Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+		return SpringApplicationContextFacade.getBean(FinderService.class)
+				.getFindableObject(findableMotor, IScannableMotor.class);
 	}
 }

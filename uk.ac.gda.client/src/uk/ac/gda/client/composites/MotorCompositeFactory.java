@@ -30,6 +30,8 @@ import gda.rcp.views.EnumPositionerComposite;
 import gda.rcp.views.SlimPositionerComposite;
 import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.MotorProperties;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
  * A Composite to control a motor. This class automatically recognises Epics and ENUM motors displaying the proper layout.
@@ -59,9 +61,9 @@ public class MotorCompositeFactory implements CompositeFactory {
 		try {
 			scannable = getScannable();
 			obj = scannable.getPosition();
-			if (String.class.isInstance(obj)) {
+			if (obj instanceof String) {
 				return createEnumPositionComposite(parent, style, scannable);
-			} else if (Number.class.isInstance(obj)) {
+			} else if (obj instanceof Number) {
 				return createSlimPositionerComposite(parent, style, scannable);
 			}
 		} catch (GDAClientException e1) {
@@ -85,6 +87,8 @@ public class MotorCompositeFactory implements CompositeFactory {
 	}
 
 	private Scannable getScannable() throws GDAClientException {
-		return FinderHelper.getScannable(motorProperties.getController()).orElseThrow(GDAClientException::new);
+		return SpringApplicationContextFacade.getBean(FinderService.class)
+				.getFindableObject(motorProperties.getController(), Scannable.class)
+				.orElseThrow(GDAClientException::new);
 	}
 }

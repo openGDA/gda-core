@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.stage;
 
-import static uk.ac.gda.client.composites.FinderHelper.getIScannableMotor;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createComposite;
 
@@ -52,8 +51,10 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Stage;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
 
 /**
@@ -266,5 +267,10 @@ public abstract class CommonStage implements StageDescription {
 
 	private static class LoadException extends GDAClientException {
 
+	}
+
+	private static Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+		return SpringApplicationContextFacade.getBean(FinderService.class)
+				.getFindableObject(findableMotor, IScannableMotor.class);
 	}
 }

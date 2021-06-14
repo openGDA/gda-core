@@ -21,6 +21,7 @@ package uk.ac.gda.client.live.stream.simulator.stream;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.eclipse.january.dataset.DatasetFactory;
@@ -31,10 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
-import uk.ac.gda.client.composites.FinderHelper;
 import uk.ac.gda.client.live.stream.simulator.connector.BeamSimulationCamera;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.images.ClientImages;
+import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
  * A class able to stream point controlled by two {@link IScannableMotor}s. The constructor uses a
@@ -101,8 +103,8 @@ public class BeamSimulationStream implements Runnable {
 
 	private void initalise() {
 		dataArray = new long[beamCamera.getCameraWidth() * beamCamera.getCameraHeight()];
-		FinderHelper.getIScannableMotor(beamCamera.getDriverX()).ifPresent(this::setDriverX);
-		FinderHelper.getIScannableMotor(beamCamera.getDriverY()).ifPresent(this::setDriverY);
+		getIScannableMotor(beamCamera.getDriverX()).ifPresent(this::setDriverX);
+		getIScannableMotor(beamCamera.getDriverY()).ifPresent(this::setDriverY);
 	}
 
 	private void refreshImage() {
@@ -136,9 +138,9 @@ public class BeamSimulationStream implements Runnable {
 
 	private void updateDataArray(long x, long y) {
 		// The half width of the beam size. It could be parametrised in future.
-		int beamHalfWidth = 3;
+		var beamHalfWidth = 3;
 		// The beam brightness. It could be parametrised in future.
-		int elementValue = 110;
+		var elementValue = 110;
 		int reducedWidth = (beamHalfWidth - 1);
 		// loops around the pixel it thickness
 		for (int indexY = -1 * reducedWidth; indexY < beamHalfWidth; indexY++) {
@@ -179,5 +181,10 @@ public class BeamSimulationStream implements Runnable {
 	@Override
 	public String toString() {
 		return "BeamDrivenStream [beamCamera=" + beamCamera + "]";
+	}
+
+	private Optional<IScannableMotor> getIScannableMotor(String findableMotor) {
+		return SpringApplicationContextFacade.getBean(FinderService.class)
+				.getFindableObject(findableMotor, IScannableMotor.class);
 	}
 }
