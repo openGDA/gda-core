@@ -19,7 +19,7 @@
 package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,14 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.model.AxialStepModelDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -48,17 +44,13 @@ import uk.ac.gda.common.exception.GDAException;
  */
 public class AxialStepModelDocumentTest extends DocumentTestBase {
 
-	private final ObjectMapper objectMapper = DocumentMapper.getObjectMapper();
-
-	@Before
-	public void before() {
-	}
+	private static final String MOTOR_X = "motor_x";
 
 	@Test
 	public void serialiseDocumentTest() throws GDAException {
 		List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
-		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
-		builder.withScannable("motor_x");
+		var builder = new ScannableTrackDocument.Builder();
+		builder.withScannable(MOTOR_X);
 		builder.withAxis("x");
 		builder.withStart(2.0);
 		builder.withStop(2.0);
@@ -66,10 +58,10 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		scannableTrackDocuments.add(builder.build());
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
 		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
-		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE,
+		var modelDocument = new ScanpathDocument(AcquisitionTemplateType.ONE_DIMENSION_LINE,
 				scannableTrackDocuments, mutators);
 		String document = serialiseDocument(modelDocument);
-		assertThat(document, containsString("motor_x"));
+		assertThat(document, containsString(MOTOR_X));
 		assertThat(document, containsString("\"axis\" : \"x\""));
 		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
 	}
@@ -78,7 +70,7 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 	public void deserialiseDocumentTest() throws GDAException {
 		ScanpathDocument modelDocument = deserialiseDocument("test/resources/AxialStepModelDocument.json",
 				ScanpathDocument.class);
-		Assert.assertEquals("motor_x", modelDocument.getScannableTrackDocuments().get(0).getScannable());
+		Assert.assertEquals(MOTOR_X, modelDocument.getScannableTrackDocuments().get(0).getScannable());
 		Assert.assertTrue(modelDocument.getMutators().containsKey(Mutator.ALTERNATING));
 		Assert.assertTrue(modelDocument.getMutators().containsValue(Arrays.asList(1, 2)));
 	}

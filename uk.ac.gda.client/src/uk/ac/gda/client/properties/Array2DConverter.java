@@ -18,12 +18,14 @@
 
 package uk.ac.gda.client.properties;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.gda.common.exception.GDAException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -40,11 +42,16 @@ public class Array2DConverter implements Converter<String, double[][]> {
 	@Override
 	public double[][] convert(String source) {
 		try {
-			return DocumentMapper.fromJSON(source, double[][].class);
-		} catch (GDAException e) {
+			return convert(source, double[][].class);
+		} catch (IOException e) {
 			logger.error("Cannot convert {}", source);
 		}
-		return null;
+		return new double[0][0];
+	}
+
+	private <T> T convert(String value, Class<T> valueType) throws IOException {
+		var objectMapper = new ObjectMapper();
+		return objectMapper.readValue(value, valueType);
 	}
 
 }

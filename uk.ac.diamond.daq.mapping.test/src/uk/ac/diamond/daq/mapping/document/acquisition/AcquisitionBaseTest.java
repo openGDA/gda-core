@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
@@ -39,18 +38,18 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	@Test
 	public void serializeThenDeserializeDiffractionParameterAcquisition() throws GDAException {
 		Acquisition<?> acquisition = new ScanningAcquisition();
-		final String json = DocumentMapper.toJSON(acquisition);
-		final Acquisition<?> read = DocumentMapper.fromJSON(json, AcquisitionBase.class);
-		assertTrue(ScanningAcquisition.class.isInstance(read));
+		final String json = getDocumentMapper().convertToJSON(acquisition);
+		final Acquisition<?> read = getDocumentMapper().convertFromJSON(json, AcquisitionBase.class);
+		assertTrue(read instanceof ScanningAcquisition);
 	}
 
 	@Test
 	public void serializeDiffractionParameterAcquisition() throws GDAException {
-		ScanningAcquisition acquisition = new ScanningAcquisition();
-		ScanningConfiguration acquisitionConfiguration = new ScanningConfiguration();
+		var acquisition = new ScanningAcquisition();
+		var acquisitionConfiguration = new ScanningConfiguration();
 		acquisition.setAcquisitionConfiguration(acquisitionConfiguration);
 
-		ScanningParameters acquisitionParameters = new ScanningParameters();
+		var acquisitionParameters = new ScanningParameters();
 		acquisitionConfiguration.setAcquisitionParameters(acquisitionParameters);
 		String document = serialiseDocument(acquisition);
 		assertThat(document, containsString("\"documentType\" : \"scanningAcquisition\""));
@@ -85,7 +84,7 @@ public class AcquisitionBaseTest extends DocumentTestBase {
 	public void deserializeEmptyAcquisition() throws GDAException {
 		Acquisition<?> modelDocument = deserialiseDocument("test/resources/acquisitions/emptyAcquisition.json",
 				AcquisitionBase.class);
-		assertTrue(ScanningAcquisition.class.isInstance(modelDocument));
+		assertTrue(modelDocument instanceof ScanningAcquisition);
 	}
 
 	@Test(expected=GDAException.class)
