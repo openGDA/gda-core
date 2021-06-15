@@ -41,9 +41,12 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
+import org.eclipse.dawnsci.nexus.builder.NexusMetadataProvider;
+import org.eclipse.dawnsci.nexus.builder.impl.MapBasedMetadataProvider;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFile;
 import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
@@ -64,6 +67,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
+import gda.util.Version;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 import uk.ac.gda.common.exception.GDAException;
 
@@ -309,7 +313,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanModel.setNexusDevices(getNexusDevices(point));
 		nexusScanModel.setDimensionNamesByIndex(getDimensionNamesByIndex(point));
 		nexusScanModel.setMetadataWriter(scanMetadataWriter);
-		nexusScanModel.setNexusMetadataProviders(null); // TODO do we need metadata providers? see DAQ-3151
+		nexusScanModel.setNexusMetadataProviders(createNexusMetadataProviders());
 		nexusScanModel.setTemplateFilePaths(getTemplateFilePaths());
 		nexusScanModel.setMultipleNexusDevice(Optional.empty()); // no malcolm device in gda8 scans
 
@@ -480,6 +484,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		// if the file path is relative, resolve it relative to gda.var
 		final String gdaVar = InterfaceProvider.getPathConstructor().createFromProperty(LocalProperties.GDA_VAR_DIR);
 		return Paths.get(gdaVar).resolve(filePath).toString();
+	}
+
+	private List<NexusMetadataProvider> createNexusMetadataProviders() {
+		// TODO do we need more metadata providers, or provide a way to populate them from some configuration? see DAQ-3151
+		final MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
+		metadataProvider.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
+		return List.of(metadataProvider);
 	}
 
 	private void writePoint(IScanDataPoint point) throws Exception {
