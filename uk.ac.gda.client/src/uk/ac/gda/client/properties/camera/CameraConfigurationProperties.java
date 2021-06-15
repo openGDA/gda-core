@@ -45,6 +45,7 @@ public class CameraConfigurationProperties {
 
 	private double readoutTime;
 	private String malcolmDetectorName;
+	private String gdaDetectorName;
 
 
 	private List<ControllerConfiguration> motors;
@@ -145,6 +146,22 @@ public class CameraConfigurationProperties {
 
 	public void setMalcolmDetectorName(String malcolmDetectorName) {
 		this.malcolmDetectorName = malcolmDetectorName;
+	}
+
+	/**
+	 * Correspond to the prefix used to define the detector in GDA server.
+	 * <p>
+	 * For example, for camera beans like <i>pilatus_adbase</i> or <i>pilatus_roi</i>, it corresponds to {@code pilatus}.
+	 * In ths way the any available service can retrieve the associated services as {@code adbase} or {@code roi}.
+	 * </p>
+	 * @return a string used to prefix the detector plugins
+	 */
+	public String getGdaDetectorName() {
+		return gdaDetectorName;
+	}
+
+	public void setGdaDetectorName(String gdaDetectorName) {
+		this.gdaDetectorName = gdaDetectorName;
 	}
 
 	public List<ControllerConfiguration> getMotors() {

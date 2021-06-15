@@ -31,7 +31,6 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.eclipse.jface.resource.FontDescriptor;
@@ -45,17 +44,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
-import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
+import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
-import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientResourceManager;
+import uk.ac.gda.ui.tool.rest.CameraControlClient;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -90,7 +90,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 	 * The {@code cameraConfiguration} acquisition time
 	 */
 	private Label readOut;
-	private Optional<CameraControl> cameraControl;
+	private ICameraConfiguration iCameraConfiguration;
 
 	private Composite container;
 
@@ -104,20 +104,21 @@ public class ExposureDurationComposite implements CompositeFactory {
 		createClientGridDataFactory().applyTo(container);
 
 		createElements(container, style);
-		cameraControl = createICameraConfiguration(getDefaultCameraConfigurationProperties()).getCameraControl();
-		cameraControl.ifPresent(this::initialiseElements);
+		iCameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
+		iCameraConfiguration.getCameraControlClient()
+			.ifPresent(this::initialiseElements);
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		return container;
 	}
 
 	private void createElements(Composite parent, int style) {
-		Group group = createClientGroup(parent, SWT.NONE, 3, EXPOSURE);
+		var group = createClientGroup(parent, SWT.NONE, 3, EXPOSURE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 
-		exposureText = new ExposureTextField(group, style, () -> cameraControl).getExposure();
+		exposureText = new ExposureTextField(group, style, () -> iCameraConfiguration).getExposure();
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
 				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
-		Label unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL,
+		var unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL,
 				FontDescriptor.createFrom(ClientResourceManager.getInstance().getTextDefaultFont()));
 		createClientGridDataFactory().align(SWT.BEGINNING, SWT.END).span(2,1).applyTo(unit);
 
@@ -133,10 +134,10 @@ public class ExposureDurationComposite implements CompositeFactory {
 		}
 	}
 
-	private void initialiseElements(CameraControl cameraControl) {
+	private void initialiseElements(CameraControlClient operationsClient) {
 		try {
-			updateGUI(cameraControl.getAcquireTime());
-		} catch (DeviceException e) {
+			updateGUI(operationsClient.getAcquireTime());
+		} catch (GDAClientRestException e) {
 			logger.warn("Error reading detector exposure {}", e.getMessage());
 		}
 	}
@@ -157,7 +158,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		cameraControl = createICameraConfiguration(event.getActiveCamera()).getCameraControl();
+		iCameraConfiguration = createICameraConfiguration(event.getActiveCamera());
 	};
 
 	// At the moment is not possible to use anonymous lambda expression because it
@@ -166,7 +167,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 			Display.getDefault().asyncExec(() -> {
-				if (CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), cameraControl))
+				if (CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), iCameraConfiguration.getCameraControl()))
 					updateModelToGUI(event);
 			});
 		}

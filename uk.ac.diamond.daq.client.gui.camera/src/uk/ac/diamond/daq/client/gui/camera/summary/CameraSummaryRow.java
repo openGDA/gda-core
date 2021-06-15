@@ -82,7 +82,7 @@ class CameraSummaryRow {
 
 		ICameraConfiguration iCameraConfiguration = CameraHelper.createICameraConfiguration(cameraProperties);
 
-		Text exposureText = new ExposureTextField(table, SWT.NONE, iCameraConfiguration::getCameraControl).getExposure();
+		Text exposureText = new ExposureTextField(table, SWT.NONE, () -> iCameraConfiguration).getExposure();
 		createClientGridDataFactory().applyTo(exposureText);
 		editor.grabHorizontal = true;
 		editor.setEditor(exposureText, tableItem, 1);

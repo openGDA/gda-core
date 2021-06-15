@@ -110,6 +110,6 @@ public class DeviceRestServiceClient {
 	public void setProperty(DeviceValue deviceValue) throws GDAClientRestException {
 		String url = formatURL(getServiceEndpoint(), "/detector");
 		HttpEntity<DeviceValue> responseEntity = new HttpEntity<>(deviceValue);
-		submitRequest(url, HttpMethod.POST, responseEntity, new ParameterizedTypeReference<List<String>>() {});
+		submitRequest(url, HttpMethod.POST, responseEntity, new ParameterizedTypeReference<DeviceValue>() {});
 	}
 }

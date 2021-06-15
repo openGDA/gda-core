@@ -28,6 +28,7 @@ import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
+import uk.ac.gda.ui.tool.rest.CameraControlClient;
 
 /**
  * Provides information about a camera
@@ -52,6 +53,8 @@ public interface ICameraConfiguration {
 	 * @return an interface allowing access to basic camera operations
 	 */
 	Optional<CameraControl> getCameraControl();
+
+	Optional<CameraControlClient> getCameraControlClient();
 
 	/**
 	 * @return the maximum size of ROI permitted

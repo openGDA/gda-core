@@ -35,7 +35,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.swt.widgets.Composite;
 import org.springframework.context.ApplicationListener;
 
-import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.client.gui.camera.beam.BeamCameraMapping;
@@ -54,6 +53,8 @@ import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraToBeamMap;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.rest.CameraControlClient;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
@@ -327,6 +328,8 @@ public final class CameraHelper {
 
 		private BeamCameraMapping beamCameraMapping;
 
+		private CameraControlClient cameraControlClient;
+
 		public ICameraConfigurationImpl(int cameraIndex) {
 			super();
 			this.cameraIndex = cameraIndex;
@@ -342,20 +345,33 @@ public final class CameraHelper {
 			return cameraIndex;
 		}
 
+		/**
+		 * @deprecated use instead {@link #getCameraControlClient()}
+		 */
 		@Override
+		@Deprecated
 		public Optional<CameraControl> getCameraControl() {
 			return getCameraControl(cameraIndex);
 		}
 
 		@Override
-		public RectangularROI getMaximumSizedROI() throws GDAClientException {
-			int[] frameSize;
-			try {
-				frameSize = getCameraControl().orElseThrow(() -> new GDAClientException("No Camera Control defined"))
-						.getFrameSize();
-			} catch (DeviceException e) {
-				throw new GDAClientException("Error", e);
+		public Optional<CameraControlClient> getCameraControlClient() {
+			if (cameraControlClient == null) {
+				String gdaDetectorName = Optional.ofNullable(getCameraConfigurationProperties().getGdaDetectorName())
+						.orElse("");
+
+				if (!gdaDetectorName.isBlank()) {
+					cameraControlClient = (CameraControlClient) SpringApplicationContextFacade.getBean("cameraControlClient", gdaDetectorName);
+				}
 			}
+			return Optional.ofNullable(cameraControlClient);
+		}
+
+		@Override
+		public RectangularROI getMaximumSizedROI() throws GDAClientException {
+			int[] frameSize = getCameraControlClient()
+					.orElseThrow(() -> new GDAClientException("No Camera Control defined"))
+					.getFrameSize();
 			var max = new RectangularROI();
 			max.setPoint(0, 0);
 			max.setEndPoint(frameSize);
