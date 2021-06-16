@@ -73,13 +73,13 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	public void collectData() throws Exception {
 		acquisitionTask = executorService.submit(() -> {
 			analyser.startAcquiringWait();
-				if (analyser.getAnalyserStatus() != MbsAnalyserStatus.IDLE) {
-					return Detector.FAULT;
-				}
+			if (analyser.getAnalyserStatus() != MbsAnalyserStatus.IDLE) {
+				return Detector.FAULT;
+			}
 
-				completedRegion = analyser.getCompletedRegion();
-				return Detector.IDLE;
-			});
+			completedRegion = analyser.getCompletedRegion();
+			return Detector.IDLE;
+		});
 	}
 
 	@Override

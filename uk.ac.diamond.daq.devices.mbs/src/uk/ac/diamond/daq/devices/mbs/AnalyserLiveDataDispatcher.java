@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.devices.mbs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,10 @@ import org.slf4j.LoggerFactory;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
@@ -51,7 +55,11 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private String arrayPV;
 	private String frameNumberPV;
 	private String acquirePV;
+	private String acquisitionModePV;
+	private List<String> supportedAcquisitionModes = new ArrayList<>();
+	private boolean isSupportedAcquisitionMode;
 	private Channel arrayChannel;
+	private Channel acquisitionModeChannel;
 	private boolean sumFrames = false; // false by default to maintain backwards compatibility with Spring config
 	private Dataset summedFrames;
 
@@ -68,11 +76,10 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 			final Channel frameNumber = epicsController.createChannel(frameNumberPV);
 			epicsController.setMonitor(frameNumber, this::updatedFrameReceived);
 
-			// If we are accumulating frames need to know when a new acquisition starts so we can clear the summedFrames
-			if (sumFrames) {
-				final Channel acquireChannel = epicsController.createChannel(acquirePV);
-				epicsController.setMonitor(acquireChannel, this::acquireStatusChanged);
-			}
+			final Channel acquireChannel = epicsController.createChannel(acquirePV);
+			epicsController.setMonitor(acquireChannel, this::acquireStatusChanged);
+
+			acquisitionModeChannel = epicsController.createChannel(acquisitionModePV);
 
 		} catch (Exception e) {
 			logger.error("Error setting up analyser live visualisation", e);
@@ -84,21 +91,54 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private void updatedFrameReceived(final MonitorEvent event) {
 		logger.trace("Might soon be sending some thing to plot {} with axes from {} because of {}", plotName, analyser.getName(), event);
 
-		try {
-			executor.submit(this::plotNewArray);
-			logger.trace("Plot jobs for {} queued successfully", plotName);
-		} catch (RejectedExecutionException ree) {
-			logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
-			logger.trace("Exception for rejected execution", ree);
+		if (isSupportedAcquisitionMode()) {
+			try {
+				executor.submit(this::plotNewArray);
+				logger.trace("Plot jobs for {} queued successfully", plotName);
+			} catch (RejectedExecutionException ree) {
+				logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
+				logger.trace("Exception for rejected execution", ree);
+			}
 		}
 	}
 
 	private void acquireStatusChanged(final MonitorEvent event) {
-		// This could be a start or stop event but it doesn't actually matter so don't need to parse the event
 		logger.trace("Received change of acquire state: {}", event);
 
-		// Remove the existing summed data
+		DBR_Enum enumeration = (DBR_Enum) event.getDBR();
+		short[] values = (short[]) enumeration.getValue();
+
+		if (values[0] == 1) {
+			try {
+				SDAPlotter.clearPlot(plotName);
+			} catch (Exception e) {
+				logger.error("An error occured while attempting to clear plot " + plotName, e);
+			}
+			checkAcquisitionMode();
+		}
+
+		// Remove the existing summed data either way
 		summedFrames = null;
+	}
+
+	private void checkAcquisitionMode() {
+		try {
+			var acquisitionMode = epicsController.cagetString(acquisitionModeChannel);
+			if (supportedAcquisitionModes.contains(acquisitionMode)) {
+				isSupportedAcquisitionMode = true;
+				logger.info("Acquisition mode is {}. Plotting is enabled for {}", acquisitionMode, plotName);
+			} else {
+				isSupportedAcquisitionMode = false;
+				logger.info("Acquisition mode is {}. Plotting is disabled for {}", acquisitionMode, plotName);
+			}
+		} catch (TimeoutException | CAException exception) {
+			logger.error("Error while checking acquisition mode. Disabling plotting.", exception);
+			isSupportedAcquisitionMode = false;
+		} catch (InterruptedException exception) {
+			logger.error("Checking acquisition mode was interrupted. Disabling plotting", exception);
+			isSupportedAcquisitionMode = false;
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	private IDataset getArrayAsDataset(int x, int y) throws Exception {
@@ -131,7 +171,6 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 
 	private IDataset getXAxis() throws Exception {
 		double[] xdata = analyser.getEnergyAxis();
-		logger.info("X axis size is " + xdata.length);
 		IDataset xAxis = DatasetFactory.createFromObject(xdata);
 		xAxis.setName("energies (eV)");
 		return xAxis;
@@ -139,7 +178,6 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 
 	private IDataset getYAxis() throws Exception {
 		double[] ydata = analyser.getAngleAxis();
-		logger.info("Y axis size is " + ydata.length);
 		// Get as a list so we can reverse it easily
 		List<Double> list = Arrays.stream(ydata).boxed().collect(Collectors.toList());
 		Collections.reverse(list); // Flips the Y scale I05-221
@@ -221,4 +259,23 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		this.sumFrames = sumFrames;
 	}
 
+	public String getAcquisitionModePV() {
+		return acquisitionModePV;
+	}
+
+	public void setAcquisitionModePV(String acquisitionModePv) {
+		this.acquisitionModePV = acquisitionModePv;
+	}
+
+	public List<String> getSupportedAcquisitionModes() {
+		return supportedAcquisitionModes;
+	}
+
+	public void setSupportedAcquisitionModes(List<String> supportedAcquisitionModes) {
+		this.supportedAcquisitionModes = supportedAcquisitionModes;
+	}
+
+	public boolean isSupportedAcquisitionMode() {
+		return isSupportedAcquisitionMode;
+	}
 }
