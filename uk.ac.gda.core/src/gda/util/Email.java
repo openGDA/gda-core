@@ -32,7 +32,6 @@ import javax.activation.MailcapCommandMap;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.python.core.Py;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -40,6 +39,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -189,7 +189,7 @@ public class Email {
 		var original = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread()
-					.setContextClassLoader(Py.class.getClassLoader());
+					.setContextClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
 			mailSender.send(mimeMessage);
 		} finally {
 			Thread.currentThread().setContextClassLoader(original);
