@@ -651,15 +651,6 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void configureProcessingModel(IDetectorModel acquireDetectorModel, Optional<String> malcolmDetectorDatasetName) {
 
-		if (ProcessingMode.OTHER.equals(mode)) {
-			String path = existingConfigText.getText();
-			configWrapper.setAppName(appText.getText());
-			configWrapper.setName(new File(path).getName());
-			configWrapper.setPathToConfig(path);
-			return;
-		}
-
-
 		final File processingFile;
 		if (createNewButton.getSelection()) {
 			final String templateFileName = getSelectedTemplateFile().getName();
@@ -742,6 +733,15 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	@Override
 	public void finishPage() {
+
+		if (ProcessingMode.OTHER.equals(mode)) {
+			String path = existingConfigText.getText();
+			configWrapper.setAppName(appText.getText());
+			configWrapper.setName(new File(path).getName());
+			configWrapper.setPathToConfig(path);
+			return;
+		}
+
 		final IDetectorModel detectorModel = getSelectedDetector().getModel();
 		final Optional<String> malcolmDetectorDatasetName = detectorModel instanceof IMalcolmModel ? getDetectorDatasetNameForMalcolm((IMalcolmModel) detectorModel) : Optional.empty();
 		configureProcessingModel(detectorModel, malcolmDetectorDatasetName);
