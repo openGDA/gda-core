@@ -100,6 +100,14 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		metadataNode.addChildNodes(customNodes);
 	}
 
+	/**
+	 * Removes the node (field or child group node) with the given name.
+	 * @param nodeName name of node to remove
+	 */
+	public void removeNode(String nodeName) {
+		metadataNode.removeChildNode(nodeName);
+	}
+
 	@Override
 	public void register() {
 		INexusDevice.super.register();

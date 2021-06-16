@@ -54,7 +54,7 @@ import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
  */
 public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppender<N> {
 
-	protected final GroupMetadataNode<N> metadataNode = new GroupMetadataNode<>();
+	private final GroupMetadataNode<N> metadataNode = new GroupMetadataNode<>();
 
 	// addFields methods are useful for tests, but not spring configuration
 	public void addField(MetadataNode node) {
@@ -76,6 +76,14 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 	public void setChildNodes(List<MetadataNode> customNodes) {
 		// this is the method used by spring
 		metadataNode.addChildNodes(customNodes);
+	}
+
+	/**
+	 * Removes the node (field or child group node) with the given name.
+	 * @param nodeName name of node to remove
+	 */
+	public void removeNode(String nodeName) {
+		metadataNode.removeChildNode(nodeName);
 	}
 
 	@Override

@@ -113,4 +113,8 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 		return nodes.get(nodeName);
 	}
 
+	public void removeChildNode(String nodeName) {
+		nodes.remove(nodeName);
+	}
+
 }
