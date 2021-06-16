@@ -33,6 +33,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.scan.NexusScanFileService;
+import org.eclipse.scanning.api.annotation.scan.ScanEnd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,6 +157,10 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 		return null;
 	}
 
-
+	@Override
+	@ScanEnd
+	public void scanEnd() throws NexusException {
+		nexusObject = null;
+	}
 
 }

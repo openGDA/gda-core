@@ -542,6 +542,7 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 
 	@Override
 	public void scanEnd() throws NexusException {
+		super.scanEnd();
 		inputFieldNames = null;
 		outputFieldNames = null;
 
