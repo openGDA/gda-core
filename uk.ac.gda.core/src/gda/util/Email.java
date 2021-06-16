@@ -32,6 +32,7 @@ import javax.activation.MailcapCommandMap;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.python.core.Py;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -182,7 +183,17 @@ public class Email {
 		mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
 		mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
 		CommandMap.setDefaultCommandMap(mc);
-		mailSender.send(mimeMessage);
+
+		// javax.activation uses the TCCL to load classes so set TCCL to a loader which
+		// can load all exported packages
+		var original = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread()
+					.setContextClassLoader(Py.class.getClassLoader());
+			mailSender.send(mimeMessage);
+		} finally {
+			Thread.currentThread().setContextClassLoader(original);
+		}
 	}
 
 	private String formatFrom(final String beamlineName, String address) {
