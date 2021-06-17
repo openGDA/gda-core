@@ -39,6 +39,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.diamond.daq.concurrent.Async;
 
 /**
@@ -182,7 +183,17 @@ public class Email {
 		mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
 		mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
 		CommandMap.setDefaultCommandMap(mc);
-		mailSender.send(mimeMessage);
+
+		// javax.activation uses the TCCL to load classes so set TCCL to a loader which
+		// can load all exported packages
+		var original = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread()
+					.setContextClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
+			mailSender.send(mimeMessage);
+		} finally {
+			Thread.currentThread().setContextClassLoader(original);
+		}
 	}
 
 	private String formatFrom(final String beamlineName, String address) {
