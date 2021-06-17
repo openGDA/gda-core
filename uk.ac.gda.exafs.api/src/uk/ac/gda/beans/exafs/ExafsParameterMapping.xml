@@ -611,5 +611,18 @@
 		</field>
 	</class>
 
+	<class name="uk.ac.gda.beans.exafs.MythenParameters">
+		<map-to xml="MythenParameters" />
+		<field name="mythenEnergy" type="double">
+			<bind-xml name="mythenEnergy" node="element" />
+		</field>
+		<field name="mythenTime" type="double">
+			<bind-xml name="mythenTime" node="element" />
+		</field>
+		<field name="mythenFrames" type="integer">
+			<bind-xml name="mythenFrames" node="element" />
+		</field>
+	</class>
+
 </mapping>
 
