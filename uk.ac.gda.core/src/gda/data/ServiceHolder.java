@@ -29,6 +29,7 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 
 import gda.data.scan.datawriter.NexusDataWriterConfiguration;
+import gda.data.scan.nexus.device.ScannableNexusDeviceConfigurationRegistry;
 import uk.ac.gda.common.activemq.ISessionService;
 import uk.ac.gda.core.GDACoreActivator;
 
@@ -59,6 +60,16 @@ public class ServiceHolder {
 
 	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
 		ServiceHolder.scannableDeviceService = scannableDeviceService;
+	}
+
+	private static ScannableNexusDeviceConfigurationRegistry scannableNexusDeviceConfigurationRegistry;
+
+	public static ScannableNexusDeviceConfigurationRegistry getScannableNexusDeviceConfigurationRegistry() {
+		return scannableNexusDeviceConfigurationRegistry;
+	}
+
+	public void setScannableNexusDeviceConfigurationRegistry(ScannableNexusDeviceConfigurationRegistry registry) {
+		ServiceHolder.scannableNexusDeviceConfigurationRegistry = registry;
 	}
 
     private static IFilePathService filePathService;

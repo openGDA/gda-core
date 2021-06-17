@@ -251,11 +251,6 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		return null;
 	}
 
-	public List<String> getOutputFieldNames() {
-		// only used for testing
-		return getScannableNexusDevice(true).getOutputFieldNames();
-	}
-
 	@ScanFinally
 	public void scanFinally() {
 		// clear the nexus device for the next scan, allowing it and its datasets to be garbage collected

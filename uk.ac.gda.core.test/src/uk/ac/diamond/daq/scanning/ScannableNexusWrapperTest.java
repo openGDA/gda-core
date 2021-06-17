@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -43,7 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -62,9 +62,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-import com.google.common.collect.Sets;
-
-import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.scannable.DummyScannable;
@@ -255,67 +252,6 @@ public class ScannableNexusWrapperTest {
 	}
 
 	@Test
-	public void testGetFieldNames() throws Exception {
-		DummyScannable multiFieldDummyScannable = new DummyScannable("multiField");
-		multiFieldDummyScannable.setInputNames(new String[] { "input1", "input2", "input3" });
-		multiFieldDummyScannable.setExtraNames(new String[] { "extra1", "extra2" });
-		ScannableNexusWrapper<?> multiFieldScannable = new ScannableNexusWrapper<>(multiFieldDummyScannable);
-
-		assertThat(multiFieldScannable.getOutputFieldNames(),
-				contains("input1", "input2", "input3", "extra1", "extra2"));
-
-		// test that the first field name is 'value' where the first input name of the
-		// wrapped scannable is the same as the name of the scannable itself
-		DummyScannable dummyScannable = new DummyScannable("sax");
-		assertThat(dummyScannable.getInputNames(), is(equalTo(new String[] { "sax" })));
-		ScannableNexusWrapper<?> simpleScannable = new ScannableNexusWrapper<>(dummyScannable);
-		assertThat(simpleScannable.getOutputFieldNames(), contains("value"));
-	}
-
-	@Test
-	public void testGetFieldNamesRecalculated() throws Exception {
-		final DummyScannable dummyScannable = new DummyScannable("multiField") {
-			@Override
-			public Object getPosition() throws DeviceException {
-				return new double[getInputNames().length + getExtraNames().length];
-			}
-		};
-		dummyScannable.setInputNames(new String[] { "input1", "input2", "input3" });
-		dummyScannable.setExtraNames(new String[] { "extra1", "extra2" });
-		dummyScannable.setLowerGdaLimits(new Double[] { 0.0, 0.0, 0.0 });
-		dummyScannable.setUpperGdaLimits(new Double[] { 100.0, 100.0, 100.0 });
-		final ScannableNexusWrapper<?> scannableWrapper = new ScannableNexusWrapper<>(dummyScannable);
-
-		String[] expectedOutputNames = new String[] { "input1", "input2", "input3", "extra1", "extra2" };
-		assertThat(scannableWrapper.getOutputFieldNames(), contains(expectedOutputNames));
-
-		final NexusScanInfo scanInfo = new NexusScanInfo(Arrays.asList("xPos", "yPos"));
-		scanInfo.setPerPointMonitorNames(Sets.newHashSet("multiField"));
-		NexusObjectProvider<?> nexusObjectProvider = scannableWrapper.getNexusProvider(scanInfo);
-		NXpositioner nxPositioner = (NXpositioner) nexusObjectProvider.getNexusObject();
-
-		final String[] additionalNames = new String[] { NXpositioner.NX_NAME,
-				NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX };
-		String[] expectedDataNodeNames = ArrayUtils.addAll(expectedOutputNames, additionalNames);
-		assertThat(nxPositioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-
-		// update the names
-		dummyScannable.setInputNames(new String[] { "newInput1", "newInput2" });
-		dummyScannable.setExtraNames(new String[] { "newExtra" });
-		dummyScannable.setLowerGdaLimits(new Double[] { 0.0, 0.0 });
-		dummyScannable.setUpperGdaLimits(new Double[] { 100.0, 100.0 });
-
-		// calling getNexusProvider triggers fields to be recalculated
-		nexusObjectProvider = scannableWrapper.getNexusProvider(scanInfo);
-		nxPositioner = (NXpositioner) nexusObjectProvider.getNexusObject();
-		expectedOutputNames = new String[] { "newInput1", "newInput2", "newExtra" };
-		expectedDataNodeNames = ArrayUtils.addAll(expectedOutputNames, additionalNames);
-		assertThat(nxPositioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-
-		assertThat(scannableWrapper.getOutputFieldNames(), contains(expectedOutputNames));
-	}
-
-	@Test
 	public void testGetNexusProvider() throws Exception {
 		// NOTE: nexus writing is more fully tested in ScannableNexusWrapperScanTest
 		final ScannableMotionUnits mockScannable = mock(ScannableMotionUnits.class);
@@ -365,10 +301,8 @@ public class ScannableNexusWrapperTest {
 		assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
 				equalTo(ScanRole.SCANNABLE.toString().toLowerCase()));
 
-
-		final List<String> fieldNames = scannableNexusWrapper.getOutputFieldNames();
-		assertThat(fieldNames, contains(expectedFieldNames));
-		for (String fieldName : fieldNames) {
+		assertThat(nexusObject.getDataNodeNames(), hasItems(expectedFieldNames));
+		for (String fieldName : expectedFieldNames) {
 			final DataNode valueDataNode = nexusObject.getDataNode(fieldName);
 			assertThat(valueDataNode, notNullValue());
 			assertThat(nexusObject.getAttrString(fieldName, ATTR_NAME_LOCAL_NAME), is(equalTo("xPos." + fieldName)));

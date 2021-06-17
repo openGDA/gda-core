@@ -26,8 +26,8 @@ import static gda.data.scan.nexus.device.ScannableNexusDevice.COLLECTION_NAME_SC
 import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_VALUE_SET;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -711,7 +711,7 @@ public class ScannableNexusWrapperScanTest {
 
 				assertThat(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME), is(notNullValue()));
 				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_LOCAL_NAME),
-						is(equalTo(scannableName + "." + valueFieldName)));
+						is(equalTo(scannableName + "." + inputFieldNames.get(fieldIndex))));
 				assertThat(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME), is(notNullValue()));
 				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_GDA_FIELD_NAME),
 						is(equalTo(inputFieldNames.get(fieldIndex))));
