@@ -141,8 +141,9 @@ import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
-import uk.ac.gda.ui.tool.processing.ProcessingRequestContext;
-import uk.ac.gda.ui.tool.processing.ProcessingRequestKey;
+import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
+import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
+import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory.ProcessKey;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -471,19 +472,19 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		});
 	}
 
-	private List<ProcessingRequestContext> getProcessingRequestContext() {
+	private List<ProcessingRequestContext<?>> getProcessingRequestContext() {
 		// The selectable process elements
-		List<ProcessingRequestContext> processingRequestContexts = new ArrayList<>();
+		List<ProcessingRequestContext<?>> processingRequestContexts = new ArrayList<>();
 		try {
-			// makes available for selection a ApplyNexusTemplatesRequest element
-			processingRequestContexts.add(new ProcessingRequestContext(ProcessingRequestKey.APPLY_NEXUS_TEMPLATE,
+			// makes available for selection a ApplyNexusTemplatesRequest element			;
+			processingRequestContexts.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.NEXUS_TEMPLATE),
 					getNexusTemplatesProcessingDirectory(), getDefaultNexusTemplatesProcessingFile(), true));
 		} catch (AcquisitionConfigurationException e) {
 			logger.error("TODO put description of error here", e);
 		}
 
 		// makes available for selection a SavuProcessingRequest element
-		processingRequestContexts.add(new ProcessingRequestContext(ProcessingRequestKey.SAVU,
+		processingRequestContexts.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.SAVU),
 				getSavuProcessingFileDirectory(), getSavuDefaultProcessingFile(), false));
 		return processingRequestContexts;
 	}
@@ -948,5 +949,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private StageController getStageController() {
 		return getBean(StageController.class);
+	}
+
+	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
+		return SpringApplicationContextFacade.getBean(ProcessingRequestKeyFactory.class);
 	}
 }
