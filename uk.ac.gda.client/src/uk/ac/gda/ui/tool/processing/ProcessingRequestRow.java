@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.viewer.ThreeStateDisplay;
@@ -98,6 +97,9 @@ import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKey;
  * @author Maurizio Nagni
  *
  * @see ProcessingRequestComposite
+ */
+/**
+ *
  */
 class ProcessingRequestRow {
 	private static final Logger logger = LoggerFactory.getLogger(ProcessingRequestRow.class);

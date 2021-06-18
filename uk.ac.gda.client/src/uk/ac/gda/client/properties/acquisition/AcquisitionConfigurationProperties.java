@@ -1,6 +1,5 @@
 package uk.ac.gda.client.properties.acquisition;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -42,9 +41,9 @@ public class AcquisitionConfigurationProperties {
 	private Set<String> outOfBeamScannables;
 
 	/**
-	 * A list of nexus templates files paths
+	 * The processing requests configurations
 	 */
-	private List<URL> nexusTemplates;
+	private ProcessingRequestProperties processingRequest;
 
 	/**
 	 * The bean which is eventually responsible to merge an external Nexus file into an acquisition
@@ -107,11 +106,11 @@ public class AcquisitionConfigurationProperties {
 		this.nexusNodeCopyAppender = nexusNodeCopyAppender;
 	}
 
-	public List<URL> getNexusTemplates() {
-		return nexusTemplates;
+	public ProcessingRequestProperties getProcessingRequest() {
+		return processingRequest;
 	}
 
-	public void setNexusTemplates(List<URL> nexusTemplates) {
-		this.nexusTemplates = nexusTemplates;
+	public void setProcessingRequest(ProcessingRequestProperties processingRequest) {
+		this.processingRequest = processingRequest;
 	}
 }

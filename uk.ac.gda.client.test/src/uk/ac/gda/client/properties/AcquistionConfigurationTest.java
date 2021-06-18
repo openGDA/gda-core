@@ -79,9 +79,9 @@ public class AcquistionConfigurationTest {
 		Assert.assertEquals(AcquisitionPropertyType.TOMOGRAPHY, acp.getType());
 		Assert.assertEquals(1, acp.getCameras().size());
 
-		Assert.assertEquals(2, acp.getNexusTemplates().size());
-		Assert.assertEquals("file:/a/path/one.yaml", acp.getNexusTemplates().get(0).toString());
-		Assert.assertEquals("file:/a/path/two.yaml", acp.getNexusTemplates().get(1).toString());
+		Assert.assertEquals(2, acp.getProcessingRequest().getNexusTemplates().size());
+		Assert.assertEquals("file:/a/path/one.yaml", acp.getProcessingRequest().getNexusTemplates().get(0).toString());
+		Assert.assertEquals("file:/a/path/two.yaml", acp.getProcessingRequest().getNexusTemplates().get(1).toString());
 
 		Assert.assertEquals("localTest-ML-SCAN-02", acp.getEngine().getId());
 		Assert.assertEquals(AcquisitionEngineType.MALCOLM, acp.getEngine().getType());

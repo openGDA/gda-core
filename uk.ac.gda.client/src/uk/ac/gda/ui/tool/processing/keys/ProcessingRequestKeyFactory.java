@@ -28,7 +28,9 @@ import org.springframework.stereotype.Component;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DawnProcessingRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
+import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
@@ -49,7 +51,8 @@ public class ProcessingRequestKeyFactory {
 		DAWN(DawnProcessingRequest.KEY),
 		DIFFRACTION_CALIBRATION(DiffractionCalibrationMergeRequest.KEY),
 		NEXUS_TEMPLATE(ApplyNexusTemplatesRequest.KEY),
-		SAVU(SavuProcessingRequest.KEY);
+		SAVU(SavuProcessingRequest.KEY),
+		FRAME_CAPTURE(FrameCaptureRequest.KEY);
 
 		private final String key;
 		ProcessKey(String key) {
@@ -72,6 +75,8 @@ public class ProcessingRequestKeyFactory {
 				return processingRequestKeys.computeIfAbsent(processKey, this::createNexusTemplateProcessKey);
 			case SAVU:
 				return processingRequestKeys.computeIfAbsent(processKey, this::createSavuProcessKey);
+			case FRAME_CAPTURE:
+				return processingRequestKeys.computeIfAbsent(processKey, this::createFrameCaptureProcessKey);
 			default:
 				return null;
 		}
@@ -107,5 +112,11 @@ public class ProcessingRequestKeyFactory {
 		return new ProcessingRequestKey<>(URL.class, processKey.getKey(),
 				ClientMessages.SAVU, ClientMessages.SAVU_TP,
 				new SavuProcessingRequest.Builder());
+	}
+
+	private ProcessingRequestKey<DetectorDocument> createFrameCaptureProcessKey(ProcessKey processKey) {
+		return new ProcessingRequestKey<>(DetectorDocument.class, processKey.getKey(),
+				ClientMessages.FRAME_CAPTURE, ClientMessages.FRAME_CAPTURE_TP,
+				new FrameCaptureRequest.Builder());
 	}
 }
