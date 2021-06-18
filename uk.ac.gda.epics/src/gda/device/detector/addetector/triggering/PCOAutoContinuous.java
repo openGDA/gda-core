@@ -24,7 +24,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
-/*
+/**
  * Class to set PCO into Continuous acquire call prepareForCollection and then collectData to start
  */
 public class PCOAutoContinuous extends SimpleAcquire {

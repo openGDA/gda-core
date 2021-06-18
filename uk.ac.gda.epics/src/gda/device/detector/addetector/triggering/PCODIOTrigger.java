@@ -25,7 +25,7 @@ import gda.epics.PV;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-/*
+/**
  * Class of detector  to drive the PCO4000 camera using a DIOTrigger
  *
  */

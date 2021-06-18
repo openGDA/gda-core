@@ -23,7 +23,7 @@ import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
-/*
+/**
  * Class to run a camera continuously with software trigger
  *
  * Use prepareForCollection and then collectData

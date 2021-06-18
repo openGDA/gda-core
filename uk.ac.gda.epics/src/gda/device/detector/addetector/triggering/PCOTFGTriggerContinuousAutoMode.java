@@ -36,7 +36,7 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-/*
+/**
  * Class of detector  to drive the PCO4000 camera using a TFG2
  *
  * The TFG is configured for 1 cycle per image with each cycle containg the 3 frames:
