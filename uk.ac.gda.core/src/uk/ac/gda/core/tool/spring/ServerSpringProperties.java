@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import uk.ac.gda.core.tool.spring.properties.AcquisitionFileContextProperties;
+import uk.ac.gda.core.tool.spring.properties.processing.ProcessingRequestProperties;
 
 /**
  * Loads the server-side properties using spring.
@@ -39,15 +40,21 @@ import uk.ac.gda.core.tool.spring.properties.AcquisitionFileContextProperties;
 // --- To be enabled when in GDA when will be available springboot >= 2.2
 //@ConstructorBinding
 // ------------------
-@EnableConfigurationProperties({AcquisitionFileContextProperties.class})
+@EnableConfigurationProperties({AcquisitionFileContextProperties.class,
+	ProcessingRequestProperties.class})
 public class ServerSpringProperties {
 
 	@Autowired
 	private AcquisitionFileContextProperties fileContexts;
 
+	@Autowired
+	private ProcessingRequestProperties processingRequests;
+
 	public AcquisitionFileContextProperties getFileContexts() {
 		return fileContexts;
 	}
 
-
+	public ProcessingRequestProperties getProcessingRequests() {
+		return processingRequests;
+	}
 }

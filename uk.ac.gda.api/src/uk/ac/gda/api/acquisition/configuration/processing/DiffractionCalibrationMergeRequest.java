@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  * Diffraction Calibration file merge
  *
  *  @author Maurizio Nagni
+ *
+ *  @see <a href="https://confluence.diamond.ac.uk/display/DIAD/Diffraction+Calibration+Merge+Processing+Request">Diffraction Calibration Merge Processing Request</a>
  */
 @JsonTypeName("diffractionCalibrationMerge")
 @JsonDeserialize(builder = DiffractionCalibrationMergeRequest.Builder.class)
@@ -38,11 +40,9 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 
 	public static final String KEY = "diffractionCalibrationMerge";
 	private final List<URL> calibrationFiles;
-	private final String deviceName;
 
-	private DiffractionCalibrationMergeRequest(List<URL> processingFiles, String deviceName) {
+	private DiffractionCalibrationMergeRequest(List<URL> processingFiles) {
 		this.calibrationFiles = processingFiles;
-		this.deviceName = deviceName;
 	}
 
 	/**
@@ -52,10 +52,6 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 	@Override
 	public String getKey() {
 		return KEY;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
 	}
 
 	/**
@@ -69,7 +65,6 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 	@JsonPOJOBuilder
 	public static class Builder implements ProcessingRequestBuilder<URL> {
 		private final List<URL> calibrationFiles = new ArrayList<>();
-		private String deviceName;
 
 	    /**
 	     * A list containing a single calibration file url
@@ -79,15 +74,6 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 	    	this.calibrationFiles.clear();
 	        this.calibrationFiles.addAll(processingFiles);
 	        return this;
-	    }
-
-	    /**
-	     * The name of the device (and NeXus node)
-	     * the calibration data will be merged to
-	     */
-	    public Builder withDeviceName(String deviceName) {
-	    	this.deviceName = deviceName;
-	    	return this;
 	    }
 
 	    /**
@@ -102,7 +88,7 @@ public class DiffractionCalibrationMergeRequest implements ProcessingRequestPair
 
 	    @Override
 		public DiffractionCalibrationMergeRequest build() {
-	        return new DiffractionCalibrationMergeRequest(calibrationFiles, deviceName);
+	        return new DiffractionCalibrationMergeRequest(calibrationFiles);
 	    }
 	}
 

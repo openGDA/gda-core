@@ -18,20 +18,19 @@
 
 package uk.ac.gda.ui.tool.processing;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
@@ -44,17 +43,17 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
-import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.viewer.ThreeStateDisplay;
-import uk.ac.gda.client.widgets.SelectFileToolItem;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.WidgetUtilities;
 import uk.ac.gda.ui.tool.images.ClientImages;
-import uk.ac.gda.ui.tool.spring.ClientSpringContext;
+import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
+import uk.ac.gda.ui.tool.processing.context.handler.ProcessingRequestContextHandlerService;
+import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKey;
 
 /**
  * A single row into a {@link ProcessingRequestComposite} instance.
@@ -93,8 +92,8 @@ import uk.ac.gda.ui.tool.spring.ClientSpringContext;
  *
  *
  * <p>
- * If {@link AcquisitionController} is available through Spring, the row can automatically update the {@link ScanningAcquisition}
- * with the selected ProcessingRequestPair
+ * If {@link ProcessingRequestContextHandlerService} is available through Spring, the row can
+ * add or remove elements from the active the {@link ScanningAcquisition}
  * </p>
  * @author Maurizio Nagni
  *
@@ -106,10 +105,10 @@ class ProcessingRequestRow {
 	private final Table table;
 	private final TableItem tableItem;
 
-	private CCombo combo;
+	private CCombo comboKeys;
 	private ThreeStateDisplay state;
 	private Composite columnTwoContainer;
-	private SelectFileToolItem selectToolItem;
+	private ToolItem selectItem;
 	private ToolBar toolBar;
 	/**
 	 * Contains the elements added to the table item. This is a workaround as in the delete row action
@@ -117,20 +116,22 @@ class ProcessingRequestRow {
 	 */
 	private List<Control> controls = new ArrayList<>();
 
-	private final Supplier<List<ProcessingRequestContext>> processingRequestContexts;
+	private final List<ProcessingRequestKey<?>> processingRequestKeys;
+	private final Function<ProcessingRequestKey<?>, Optional<ProcessingRequestContext<?>>> contextFinder;
 
 	/**
 	 * The final processing request instance to inject into the {@link ScanningConfiguration#getProcessingRequest()}
 	 */
-	private ProcessingRequestPair<URL> processingPair;
+	private ProcessingRequestPair<?> processingPair;
+	private ProcessingRequestContext<?> selectedContext;
 
 	/**
-	 * @param table
-	 *            the {@link Table} where attach the {@link TableItem}
-	 * @param processingRequestContexts
-	 *            the available processing items
+	 * @param table where append the row
+	 * @param processingRequestKeys the keys used to populate the processes combo box
+	 * @param contextFinder the function to retrieve, from the composite, the context associated with the selected key
 	 */
-	public ProcessingRequestRow(Table table, Supplier<List<ProcessingRequestContext>> processingRequestContexts) {
+	public ProcessingRequestRow(Table table, List<ProcessingRequestKey<?>> processingRequestKeys, Function<ProcessingRequestKey<?>,
+			Optional<ProcessingRequestContext<?>>> contextFinder) {
 		this.table = table;
 		table.getChildren();
 		this.tableItem = new TableItem(table, SWT.NONE);
@@ -138,61 +139,37 @@ class ProcessingRequestRow {
 		// here we use the controls property
 		tableItem.addDisposeListener(e -> controls.forEach(Control::dispose) );
 
-		this.processingRequestContexts = processingRequestContexts;
-		addColumns();
-	}
-
-	public ProcessingRequestPair<URL> getProcessingPair() {
-		return processingPair;
-	}
-
-	/**
-	 * This method is used exclusively by the {@link ProcessingRequestComposite} to inject a mandatory {@link ProcessingRequestContext}
-	 * @param context
-	 */
-	void configureRow(ProcessingRequestContext context) {
-		List<URL> defaultConfiguration = context.getDefaultConfiguration();
-		if (defaultConfiguration == null || defaultConfiguration.isEmpty())
-			return;
-
-		String label = ClientMessagesUtility.getMessage(context.getKey().getLabel());
-		int index = ArrayUtils.indexOf(combo.getItems(), label);
-		combo.select(index);
-		ProcessingRequestKey processingKey = getSelectedProcessingRequestContext(label).getKey();
-		combo.setToolTipText(ClientMessagesUtility.getMessage(processingKey.getTooltip()));
-		updateSelectedURL(defaultConfiguration.get(0));
-		toolBar.setEnabled(!context.isMandatory());
-		if (context.isMandatory())
-			ClientSWTElements.createClientLabel(columnTwoContainer, SWT.NONE, "Madatory Process");
+		this.processingRequestKeys = processingRequestKeys;
+		this.contextFinder = contextFinder;
+		createRow();
 	}
 
 	private void populateCombo() {
-		processingRequestContexts.get().stream()
-		.forEach(context -> {
+		processingRequestKeys.stream()
+		.forEach(key -> {
 			logger.debug("Populate ProcessingRequestRow");
-			ProcessingRequestKey key = context.getKey();
 			String label = ClientMessagesUtility.getMessage(key.getLabel());
-			combo.add(label);
-			combo.setData(label, context);
+			comboKeys.add(label);
+			comboKeys.setData(label, key);
 		});
 	}
 
-	private void addColumns() {
+	private void createRow() {
 
 		//---------- Combo column --------------
-		TableEditor columnZero = new TableEditor(table);
+		var columnZero = new TableEditor(table);
 
-		combo = new CCombo (table, SWT.NONE);
-		combo.setEditable(false);
+		comboKeys = new CCombo (table, SWT.NONE);
+		comboKeys.setEditable(false);
 		populateCombo();
 		columnZero.grabHorizontal = true;
-		columnZero.setEditor(combo, tableItem, 0);
-		controls.add(combo);
+		columnZero.setEditor(comboKeys, tableItem, 0);
+		controls.add(comboKeys);
 
 		//---------- ThreeStateDisplay column --------------
-		TableEditor columnOne = new TableEditor(table);
+		var columnOne = new TableEditor(table);
 		columnOne.grabHorizontal = true;
-		Composite columnOneContainer = createClientCompositeWithGridLayout(table, SWT.NONE, 1);
+		var columnOneContainer = createClientCompositeWithGridLayout(table, SWT.NONE, 1);
 
 		columnOne.setEditor(columnOneContainer, tableItem, 1);
 		controls.add(columnOneContainer);
@@ -204,47 +181,20 @@ class ProcessingRequestRow {
 		toolBar = new ToolBar (columnTwoContainer, SWT.BORDER);
 		toolBar.setEnabled(false);
 		addSelectionListener(toolBar);
-		TableEditor columnTwo = new TableEditor(table);
+		var columnTwo = new TableEditor(table);
 		columnTwo.grabHorizontal = true;
 		columnTwo.setEditor(columnTwoContainer, tableItem, 2);
 		controls.add(columnTwoContainer);
-		selectToolItem = new SelectFileToolItem(toolBar, ClientMessages.SELECT_PROCESSING_FILE_TP, null, this::getDirPath, this::updateSelectedURL);
-		ToolItem deleteItem = new ToolItem (toolBar, SWT.PUSH);
+
+		setSelectItem(new ToolItem(toolBar, SWT.PUSH));
+		getSelectItem().setImage(ClientSWTElements.getImage(ClientImages.SELECT_DOCUMENT));
+		getSelectItem().setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.SELECT_PROCESSING_FILE_TP));
+		getSelectItem().addSelectionListener(widgetSelectedAdapter(this::selectProcessingDocument));
+
+		var deleteItem = new ToolItem (toolBar, SWT.PUSH);
 		deleteItem.setImage(ClientSWTElements.getImage(ClientImages.DELETE));
 		deleteItem.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.REMOVE_SELECTION_TP));
 		addDeleteListener(deleteItem);
-	}
-
-	private void updateSelectedURL(URL selectedURL) {
-		List<URL> selections = new ArrayList<>();
-		selections.add(selectedURL);
-		state.setToolTipText(selections.stream()
-				.map(URL::getPath)
-				.collect(Collectors.joining(", ")));
-		state.setGreen();
-		toolBar.setEnabled(true);
-		combo.setEnabled(false);
-		processingPair = createProcessingRequestPair(selections);
-		addProcessingRequest(processingPair);
-		// This setData is a trick to inform the ProcessingRequestComposite that the row is complete
-		// see ProcessingRequestComposite#rowsComplete()
-		tableItem.setData(processingPair);
-	}
-
-	private final ProcessingRequestPair<URL> createProcessingRequestPair(List<URL> selections) {
-		String key = combo.getItems()[combo.getSelectionIndex()];
-		try {
-			return getSelectedProcessingRequestContext(key).getKey()
-				.getBuilder()
-				.getConstructor()
-				.newInstance()
-				.withValue(selections)
-				.build();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			logger.error("Error creating ProcessingRequestBuilder for key: {}", key, e);
-		}
-		return null;
 	}
 
 	/**
@@ -253,14 +203,46 @@ class ProcessingRequestRow {
 	 */
 	private void addSelectionListener(ToolBar toolBar) {
 		Listener selectionListener = e -> {
-			// Extract the selected item label from the combo
-			String key = combo.getItems()[combo.getSelectionIndex()];
 			// Set the combo tooltip (process dependent)
-			combo.setToolTipText(ClientMessagesUtility.getMessage(getSelectedProcessingRequestContext(key).getKey().getTooltip()));
-			// Enable the tool bar
-			toolBar.setEnabled(true);
+			comboKeys.setToolTipText(ClientMessagesUtility.getMessage(getSelectedProcessingRequestKey().getTooltip()));
+
+			contextFinder.apply(getSelectedProcessingRequestKey())
+				.ifPresent(this::setSelectedContext);
+
+			if (getSelectedContext() != null) {
+				// Enable the tool bar
+				toolBar.setEnabled(true);
+			}
 		};
-		combo.addListener(SWT.Selection, selectionListener);
+		comboKeys.addListener(SWT.Selection, selectionListener);
+	}
+
+	private String getSelectedComboKey() {
+		return comboKeys.getItems()[comboKeys.getSelectionIndex()];
+	}
+
+	private ProcessingRequestKey<?> getSelectedProcessingRequestKey() {
+		return WidgetUtilities.getDataObject(comboKeys, ProcessingRequestKey.class, getSelectedComboKey());
+	}
+
+	private void selectProcessingDocument(SelectionEvent event) {
+		// Delegate the ProcessingRequestRowHelper to find the appropriate class to create the appropriate dialog to create a processingRequestPair
+		Optional.ofNullable(getProcessingRequestContextHandlerService()
+				.handle(getSelectItem().getParent().getShell(), getSelectedContext()))
+		.ifPresent(this::setProcessingPair);
+	}
+
+	private void setProcessingPair(ProcessingRequestPair<?> processingPair) {
+		this.processingPair = processingPair;
+		// This setData is a trick to inform the ProcessingRequestComposite that the row is complete
+		// see ProcessingRequestComposite#rowsComplete()
+		tableItem.setData(processingPair);
+
+		state.setToolTipText(getProcessingRequestContextHandlerService().assembleTooltip(processingPair));
+
+		state.setGreen();
+		toolBar.setEnabled(true);
+		comboKeys.setEnabled(false);
 	}
 
 	/**
@@ -274,7 +256,7 @@ class ProcessingRequestRow {
 				if (this.tableItem.equals(items[index])) {
 					table.remove(index);
 					table.getShell().layout(true, true);
-					removeProcessingRequest(processingPair);
+					getProcessingRequestContextHandlerService().removeProcessingRequest(processingPair);
 					break;
 				}
 			}
@@ -282,47 +264,51 @@ class ProcessingRequestRow {
 		deleteItem.addListener(SWT.Selection, selectionListener);
 	}
 
-	private ProcessingRequestContext getSelectedProcessingRequestContext(String key) {
-		return WidgetUtilities.getDataObject(combo, ProcessingRequestContext.class, key);
+	/**
+	 * This method is used exclusively by the {@link ProcessingRequestComposite} to inject a mandatory {@link ProcessingRequestContext}
+	 * @param processingContext
+	 */
+	<T> void configureRow(ProcessingRequestContext<T> processingContext) {
+		setSelectedContext(processingContext);
+		List<T> defaultConfiguration = processingContext.getDefaultConfiguration();
+		if (defaultConfiguration == null || defaultConfiguration.isEmpty())
+			return;
+
+		String label = ClientMessagesUtility.getMessage(processingContext.getKey().getLabel());
+		int index = ArrayUtils.indexOf(comboKeys.getItems(), label);
+		comboKeys.select(index);
+		ProcessingRequestKey<?> processingKey = processingContext.getKey();
+		comboKeys.setToolTipText(ClientMessagesUtility.getMessage(processingKey.getTooltip()));
+
+		Optional.ofNullable(getProcessingRequestContextHandlerService().handle(processingContext))
+			.ifPresent(this::setProcessingPair);
+
+		toolBar.setEnabled(!processingContext.isMandatory());
+		if (processingContext.isMandatory())
+			ClientSWTElements.createClientLabel(columnTwoContainer, SWT.NONE, "Madatory Process");
 	}
 
-	private void addProcessingRequest(ProcessingRequestPair<?> processingPair) {
-		getScanningAcquisition().ifPresent(acquisition -> {
-			if (acquisition.getAcquisitionConfiguration().getProcessingRequest() == null) {
-				acquisition.getAcquisitionConfiguration().setProcessingRequest(new ArrayList<>());
-			}
-
-			boolean exists = acquisition.getAcquisitionConfiguration().getProcessingRequest().stream()
-				.filter(p ->
-					 p.getKey().equals(processingPair.getKey())
-							&& p.getValue().containsAll(processingPair.getValue()))
-				.count() > 0;
-
-			if (!exists)
-				acquisition.getAcquisitionConfiguration().getProcessingRequest().add(processingPair);
-		});
+	public ProcessingRequestPair<?> getProcessingPair() {
+		return processingPair;
 	}
 
-	private void removeProcessingRequest(ProcessingRequestPair<?> processingPair) {
-		getScanningAcquisition().ifPresent(acquisition -> {
-			if (acquisition.getAcquisitionConfiguration().getProcessingRequest() == null) {
-				acquisition.getAcquisitionConfiguration().setProcessingRequest(new ArrayList<>());
-			}
-			acquisition.getAcquisitionConfiguration().getProcessingRequest().remove(processingPair);
-		});
+	private ToolItem getSelectItem() {
+		return selectItem;
 	}
 
-	private Optional<ScanningAcquisition> getScanningAcquisition() {
-		return SpringApplicationContextFacade.getBean(ClientSpringContext.class).getAcquisitionController()
-				.map(AcquisitionController::getAcquisition);
+	private void setSelectItem(ToolItem selectItem) {
+		this.selectItem = selectItem;
 	}
 
-//	private Supplier<URL> getDirPathSupplier(String label) {
-//		return () -> getSelectedProcessingRequestContext(label).getConfigurationSource();
-//	}
+	private ProcessingRequestContext<?> getSelectedContext() {
+		return selectedContext;
+	}
 
-	private URL getDirPath() {
-		String key = combo.getItems()[combo.getSelectionIndex()];
-		return getSelectedProcessingRequestContext(key).getConfigurationSource();
+	private void setSelectedContext(ProcessingRequestContext<?> selectedContext) {
+		this.selectedContext = selectedContext;
+	}
+
+	private ProcessingRequestContextHandlerService getProcessingRequestContextHandlerService() {
+		return SpringApplicationContextFacade.getBean(ProcessingRequestContextHandlerService.class);
 	}
 }

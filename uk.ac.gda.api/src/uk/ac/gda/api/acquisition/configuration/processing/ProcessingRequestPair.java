@@ -18,15 +18,22 @@
 
 package uk.ac.gda.api.acquisition.configuration.processing;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 // Remember to register any @JsonSubtype in DocumentMapper
+/**
+ * Represents a specific process request.
+ *
+ * @param <T> the document type contained in the process
+ *
+ * @author Maurizio Nagni
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "type")
 public interface ProcessingRequestPair<T> {
 
 	String getKey();
-	Collection<T> getValue();
+	List<T> getValue();
 }
