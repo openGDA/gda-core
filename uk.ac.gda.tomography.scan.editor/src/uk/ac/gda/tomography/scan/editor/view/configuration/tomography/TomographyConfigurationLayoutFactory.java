@@ -131,6 +131,7 @@ import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocume
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.ProcessingRequestProperties;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
@@ -943,7 +944,8 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		return SpringApplicationContextFacade.getBean(ClientSpringProperties.class).getAcquisitions().stream()
 				.filter(a -> a.getType().equals(AcquisitionPropertyType.TOMOGRAPHY))
 				.findFirst()
-				.map(AcquisitionConfigurationProperties::getNexusTemplates)
+				.map(AcquisitionConfigurationProperties::getProcessingRequest)
+				.map(ProcessingRequestProperties::getNexusTemplates)
 				.orElseThrow(() -> new AcquisitionConfigurationException("There are no properties associated with the acqual acquisition"));
 	}
 
