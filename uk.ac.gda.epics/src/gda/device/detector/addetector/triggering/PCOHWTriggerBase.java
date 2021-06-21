@@ -30,7 +30,7 @@ import gda.scan.ScanInformation;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-/*
+/**
  * Class of detector  to drive the PCO4000 camera using an external trigger
  * This class sets up the camera not the trigger source
  *

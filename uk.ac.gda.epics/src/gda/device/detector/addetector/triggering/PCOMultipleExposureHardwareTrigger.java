@@ -28,7 +28,7 @@ import gda.device.timer.Etfg;
 import gda.device.timer.Tfg;
 import gda.scan.ScanInformation;
 
-/*
+/**
  * Class of detector used to take multiple exposures that are then added together to make a single collection image
  * The TFG receives a trigger from a signal generator that is also used to vibrate the sample
  * The TFG responds by sending a trigger to the camera after a certain delay

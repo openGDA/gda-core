@@ -18,16 +18,16 @@
 
 package gda.device.detector.addetector.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.scan.ScanInformation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-/*
+/**
  * Class to configure PCO Software trigger - puts trigger into Auto mode and does not arm
  * Although very slow it works.
  */

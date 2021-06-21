@@ -18,6 +18,8 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.io.IOException;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
@@ -28,9 +30,7 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.scan.ScanInformation;
 
-import java.io.IOException;
-
-/*
+/**
  * Implementation of ADTriggeringStrategy that is used when multiple exposures are to be taken per
  * acquisition.
  * This can be required when the exposure time defined in a scan is greater than the maximum exposure time of

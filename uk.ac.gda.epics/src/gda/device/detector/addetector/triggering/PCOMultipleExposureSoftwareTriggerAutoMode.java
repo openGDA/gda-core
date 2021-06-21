@@ -23,7 +23,7 @@ import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.scan.ScanInformation;
 
-/*
+/**
  * Version of MultipleExposureSoftwareTriggerAutoMode that works with te PCO camera
  * The main  differences are:
  * In prepareCollection the PCo is armed and the triggerMode set to software

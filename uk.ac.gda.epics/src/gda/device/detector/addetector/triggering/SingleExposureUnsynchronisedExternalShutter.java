@@ -20,7 +20,10 @@ package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
 
-@Deprecated // Decorate SingleExposureStandard with UnsynchronisedExternalShutterDecorator
+/**
+ * @deprecated Decorate SingleExposureStandard with UnsynchronisedExternalShutterDecorator
+ */
+@Deprecated
 public final class SingleExposureUnsynchronisedExternalShutter extends SingleExposureStandard
 		implements UnsynchronisedExternalShutterNXCollectionStrategy {
 
