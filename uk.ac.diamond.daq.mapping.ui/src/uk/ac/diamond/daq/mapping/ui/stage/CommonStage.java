@@ -206,7 +206,7 @@ public abstract class CommonStage implements StageDescription {
 			throw new StageException(String.format("Device %s not found", device));
 		}
 		scd.setStepSize(1);
-		scd.setDecimalPlaces(2);
+		scd.setDecimalPlaces(3);
 		return scd;
 	}
 

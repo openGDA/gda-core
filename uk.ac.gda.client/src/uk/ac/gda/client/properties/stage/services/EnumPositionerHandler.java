@@ -20,6 +20,7 @@ package uk.ac.gda.client.properties.stage.services;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
@@ -27,6 +28,8 @@ import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -36,33 +39,53 @@ import uk.ac.gda.common.exception.GDAException;
  */
 @Component
 class EnumPositionerHandler extends DeviceHandler {
+
+	@Autowired
+	private ScannablesPropertiesHelper scannablesPropertiesHelper;
+
 	@Override
 	DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException {
+		return devicePositionAsDocument(device, null);
+	}
+
+	@Override
+	DevicePositionDocument devicePositionAsDocument(Scannable device, ScannablePropertiesValue scannablePropertiesValue)
+			throws GDAException {
 		if (device instanceof EnumPositioner) {
-			return createDocument(device);
+			var builder = createDocumentBuilder(device);
+			builder.withLabelledPosition(getPosition(device, scannablePropertiesValue));
+			return builder.build();
 		}
 		return null;
 	}
 
-	private DevicePositionDocument createDocument(Scannable positioner) throws GDAException {
+	private DevicePositionDocument.Builder createDocumentBuilder(Scannable device) {
 		return new DevicePositionDocument.Builder()
-			.withDevice(positioner.getName())
-			.withValueType(ValueType.LABELLED)
-			.withLabelledPosition(getPosition(positioner))
-			.build();
+			.withDevice(device.getName())
+			.withValueType(ValueType.LABELLED);
 	}
 
-	private String getPosition(Scannable positioner) throws GDAException {
+	private String getPosition(Scannable device, ScannablePropertiesValue scannablePropertiesValue) throws GDAException {
+		if (scannablePropertiesValue == null)
+			return getPosition(device);
+
+		var scannableProperties = scannablesPropertiesHelper
+				.getScannablePropertiesDocument(scannablePropertiesValue.getScannableKeys());
+
+		return scannableProperties.getEnumsMap().getOrDefault(scannablePropertiesValue.getLabelledPosition(),
+				scannablePropertiesValue.getLabelledPosition());
+	}
+
+	private String getPosition(Scannable device) throws GDAException {
 		Object position = null;
 		try {
-			position = positioner.getPosition();
+			position = device.getPosition();
 		} catch (DeviceException e) {
-			throw new GDAException("Cannot get position for device " + positioner.getName(), e);
+			throw new GDAException("Cannot get position for device " + device.getName(), e);
 		}
 		return Optional.ofNullable(position)
 				.filter(String.class::isInstance)
 				.map(String.class::cast)
-				.orElseThrow(() -> new GDAException("Cannot get position for device " + positioner.getName()));
+				.orElseThrow(() -> new GDAException("Cannot get position for device " + device.getName()));
 	}
-
 }

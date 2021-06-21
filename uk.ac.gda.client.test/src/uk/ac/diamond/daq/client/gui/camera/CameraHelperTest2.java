@@ -55,6 +55,5 @@ public class CameraHelperTest2 {
 		List<CameraConfigurationProperties> camerasProperties = CameraHelper.getAllCameraConfigurationProperties();
 		Assert.assertEquals(1, camerasProperties.size());
 		CameraConfigurationProperties cp = camerasProperties.get(0);
-		Assert.assertEquals(0.0, cp.getReadoutTime(), 0.0);
 	}
 }

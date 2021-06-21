@@ -24,10 +24,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
-import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
+import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 @Configuration
@@ -42,7 +42,8 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 		"uk.ac.diamond.daq.mapping.api.document"},
 excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class),
-		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = IStageController.class)})
+//		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = IStageController.class),
+		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = ClientRemoteServices.class)})
 public class ScanningAcquisitionControllerConfiguration {
 
 	@Bean
@@ -65,8 +66,13 @@ public class ScanningAcquisitionControllerConfiguration {
 		return Mockito.mock(ConfigurationsRestServiceClient.class);
 	}
 
+//	@Bean
+//	public StageController stageController() {
+//		return Mockito.mock(StageController.class);
+//	}
+
 	@Bean
-	public StageController stageController() {
-		return Mockito.mock(StageController.class);
+	public ClientRemoteServices getClientRemoteServices() {
+		return Mockito.mock(ClientRemoteServices.class);
 	}
 }

@@ -25,6 +25,7 @@ import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -37,17 +38,40 @@ class IScannableMotorHandler extends DeviceHandler {
 	@Override
 	DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException {
 		if (device instanceof IScannableMotor) {
-			return createDocument(device);
-	}
-	return null;
+			var builder = createDocumentBuilder(device);
+			builder.withPosition(getPosition(device));
+			return builder.build();
+		}
+		return null;
 	}
 
-	private DevicePositionDocument createDocument(Scannable device) throws GDAException {
+	@Override
+	DevicePositionDocument devicePositionAsDocument(Scannable device, ScannablePropertiesValue scannablePropertyValue)
+			throws GDAException {
+		if (device instanceof IScannableMotor) {
+			var builder = createDocumentBuilder(device);
+			builder.withPosition(getPosition(device, scannablePropertyValue));
+			return builder.build();
+		}
+		return null;
+	}
+
+	private DevicePositionDocument.Builder createDocumentBuilder(Scannable device) {
 		return new DevicePositionDocument.Builder()
 			.withDevice(device.getName())
-			.withValueType(ValueType.NUMERIC)
-			.withPosition(getPosition(device))
-			.build();
+			.withValueType(ValueType.NUMERIC);
+	}
+
+	private double getPosition(Scannable device, ScannablePropertiesValue scannablePropertyValue) throws GDAException {
+		double position = getPosition(device);
+
+		if (scannablePropertyValue == null)
+			return position;
+
+		if (scannablePropertyValue.getDelta() == 0)
+			return scannablePropertyValue.getPosition();
+
+		return position + scannablePropertyValue.getDelta();
 	}
 
 	private double getPosition(Scannable device) throws GDAException {

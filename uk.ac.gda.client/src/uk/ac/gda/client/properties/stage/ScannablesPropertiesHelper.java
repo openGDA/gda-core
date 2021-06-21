@@ -1,5 +1,6 @@
 package uk.ac.gda.client.properties.stage;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.client.properties.stage.position.Position;
+import uk.ac.gda.client.properties.stage.position.PositionScannableKeys;
 import uk.ac.gda.client.properties.stage.position.ScannableKeys;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
@@ -102,7 +105,7 @@ public class ScannablesPropertiesHelper {
 	 * @param scannableID
 	 * @return an existing document, otherwise {@code null}
 	 */
-	public ScannableProperties getScannablePropertiesDocument(String scannableGroupID,
+	private ScannableProperties getScannablePropertiesDocument(String scannableGroupID,
 			String scannableID) {
 		return Optional.ofNullable(getScannableGroupPropertiesDocument(scannableGroupID))
 				.map(ScannableGroupProperties::getScannables)
@@ -111,6 +114,8 @@ public class ScannablesPropertiesHelper {
 	}
 
 	public ScannableProperties getScannablePropertiesDocument(ScannableKeys scannableKeys) {
+		if (scannableKeys.getGroupId() == null && scannableKeys.getScannableId() == null)
+			return null;
 		return getScannablePropertiesDocument(scannableKeys.getGroupId(), scannableKeys.getScannableId());
 	}
 
@@ -155,6 +160,22 @@ public class ScannablesPropertiesHelper {
 				.filter(s -> s.getId().equals(scannableID))
 				.findFirst()
 				.orElseGet(() -> null);
+	}
+
+	public Optional<PositionScannableKeys> getPositionScannableKeys(Position position) {
+		return clientProperties.getPositions().stream()
+			.filter(p -> p.getPosition().equals(position))
+			.findFirst();
+	}
+
+	public List<ScannableProperties> getPositionScannableProperties(Position position) {
+		Optional<PositionScannableKeys> positionKeys = getPositionScannableKeys(position);
+		if (positionKeys.isPresent()) {
+			return positionKeys.get().getKeys().stream()
+				.map(this::getScannablePropertiesDocument)
+				.collect(Collectors.toList());
+		}
+		return Collections.emptyList();
 	}
 
 	private static DevicePositionDocumentService getDevicePositionDocumentService() {

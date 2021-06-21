@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -66,10 +67,26 @@ abstract class DeviceHandler {
 	/**
 	 * Creates a {@link DevicePositionDocument} from the passed {@code device} object
 	 * @param device The device to analyse
+	 * @param scannablePropertyValue the predefined position document
+	 * @return A position document otherwise {@code null} if cannot be handled
+	 */
+	public final DevicePositionDocument handleDevice(Scannable device, ScannablePropertiesValue scannablePropertyValue) {
+		try {
+			return doHandleDevice(device, scannablePropertyValue);
+		} catch (GDAException e) {
+			logger.error("Cannot handle device {} ", device, e);
+			return null;
+		}
+	}
+
+	/**
+	 * Creates a {@link DevicePositionDocument} from the passed {@code device} object
+	 * @param device The device to analyse
 	 * @return A position document otherwise {@code null} if cannot handle
 	 * @throws GDAException If the device has the correct type but an error occurred during the analysis
 	 */
 	abstract DevicePositionDocument devicePositionAsDocument(Scannable device) throws GDAException;
+	abstract DevicePositionDocument devicePositionAsDocument(Scannable device, ScannablePropertiesValue scannablePropertyValue) throws GDAException;
 
 	private DevicePositionDocument doHandleDevice(Scannable device) throws GDAException {
 		DevicePositionDocument document = devicePositionAsDocument(device);
@@ -77,6 +94,17 @@ abstract class DeviceHandler {
 			return document;
 		if (nextHandler != null) {
 			return nextHandler.handleDevice(device);
+		}
+		logger.error("No suitable handler found for device {} ", device);
+		return null;
+	}
+
+	private DevicePositionDocument doHandleDevice(Scannable device, ScannablePropertiesValue scannablePropertyValue) throws GDAException {
+		DevicePositionDocument document = devicePositionAsDocument(device, scannablePropertyValue);
+		if (document != null)
+			return document;
+		if (nextHandler != null) {
+			return nextHandler.handleDevice(device, scannablePropertyValue);
 		}
 		logger.error("No suitable handler found for device {} ", device);
 		return null;

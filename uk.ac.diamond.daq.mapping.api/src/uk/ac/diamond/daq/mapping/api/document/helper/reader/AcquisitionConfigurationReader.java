@@ -21,11 +21,13 @@ package uk.ac.diamond.daq.mapping.api.document.helper.reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 /**
  * Utility class to read {@link AcquisitionConfiguration} documents with the guarantee to not face a {@code NullPointerException} while drilling down the properties
@@ -64,5 +66,16 @@ public class AcquisitionConfigurationReader extends AcquisitionReaderBase<Acquis
 				.map(AcquisitionConfiguration::getProcessingRequest)
 				.map(Collections::unmodifiableList)
 				.orElseGet(Collections::emptyList);
+	}
+
+	/**
+	 * Get an unmodifiable set representing the acquisition end configuration.
+	 * @return an unmodifiable set
+	 */
+	public Set<DevicePositionDocument> getEndPosition() {
+		return Optional.ofNullable(getData())
+				.map(AcquisitionConfiguration::getEndPosition)
+				.map(Collections::unmodifiableSet)
+				.orElseGet(Collections::emptySet);
 	}
 }

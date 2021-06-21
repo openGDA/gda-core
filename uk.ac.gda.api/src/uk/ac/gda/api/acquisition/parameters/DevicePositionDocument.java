@@ -141,7 +141,6 @@ public class DevicePositionDocument {
 		return true;
 	}
 
-
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String device;

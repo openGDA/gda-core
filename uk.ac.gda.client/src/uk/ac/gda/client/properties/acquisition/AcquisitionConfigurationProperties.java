@@ -6,7 +6,6 @@ import java.util.Set;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
-import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 
 /**
@@ -35,12 +34,6 @@ public class AcquisitionConfigurationProperties {
 	 * A collection of {@link CameraConfigurationProperties#getId()} associated with this acquisition type.
 	 */
 	private Set<String> cameras;
-
-	/**
-	 * A collection of {@link ScannableProperties#getScannable()} associated with this acquisition type
-	 * defining the out of beam
-	 */
-	private Set<String> outOfBeamScannables;
 
 	/**
 	 * The processing requests configurations
@@ -94,14 +87,6 @@ public class AcquisitionConfigurationProperties {
 
 	public void setCameras(Set<String> cameras) {
 		this.cameras = cameras;
-	}
-
-	public Set<String> getOutOfBeamScannables() {
-		return outOfBeamScannables;
-	}
-
-	public void setOutOfBeamScannables(Set<String> outOfBeamScannables) {
-		this.outOfBeamScannables = outOfBeamScannables;
 	}
 
 	public String getNexusNodeCopyAppender() {

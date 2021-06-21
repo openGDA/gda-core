@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -28,17 +29,19 @@ public class GridPointsPathEditor extends AbstractGridPathEditor {
 	@Override
 	public Composite createEditorPart(Composite parent) {
 
-		final Composite composite = super.createEditorPart(parent);
+		final var composite = super.createEditorPart(parent);
 
 		(new Label(composite, SWT.NONE)).setText(getXAxisName() + " Points");
-		Spinner fastPoints = new Spinner(composite, SWT.BORDER);
+		var fastPoints = new Spinner(composite, SWT.BORDER);
+		fastPoints.addListener(SWT.MouseWheel, this::disableEvent);
 		fastPoints.setMinimum(1);
 		fastPoints.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(fastPoints);
 		binder.bind(fastPoints, "xAxisPoints", getModel());
 
 		(new Label(composite, SWT.NONE)).setText(getYAxisName() + " Points");
-		Spinner slowPoints = new Spinner(composite, SWT.BORDER);
+		var slowPoints = new Spinner(composite, SWT.BORDER);
+		slowPoints.addListener(SWT.MouseWheel, this::disableEvent);
 		slowPoints.setMinimum(1);
 		slowPoints.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(slowPoints);
@@ -47,6 +50,10 @@ public class GridPointsPathEditor extends AbstractGridPathEditor {
 		makeCommonGridOptionsControls(composite);
 
 		return composite;
+	}
+
+	private void disableEvent(Event event) {
+		event.doit = false;
 	}
 
 }

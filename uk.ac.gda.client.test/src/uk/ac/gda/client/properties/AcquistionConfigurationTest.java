@@ -85,11 +85,6 @@ public class AcquistionConfigurationTest {
 
 		Assert.assertEquals("localTest-ML-SCAN-02", acp.getEngine().getId());
 		Assert.assertEquals(AcquisitionEngineType.MALCOLM, acp.getEngine().getType());
-		Assert.assertEquals(3, acp.getOutOfBeamScannables().size());
-		Assert.assertTrue(acp.getOutOfBeamScannables().contains("gts_x"));
-		Assert.assertTrue(acp.getOutOfBeamScannables().contains("gts_y"));
-		Assert.assertTrue(acp.getOutOfBeamScannables().contains("gts_z"));
-
 
 		acp = cnf.getAcquisitions().get(2);
 		Assert.assertEquals("Beam Selector Scan", acp.getName());

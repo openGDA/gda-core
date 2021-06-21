@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.api.document;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,11 +98,9 @@ public class ScanRequestFactory {
 			throw new ScanningException("Cannot create compound model", e);
 		}
 
-		// Guarantee that at the end the acquisition will return at the start position
-		addPosition(createStartPosition(), scanRequest::setEnd);
-
 		parseAcquisitionEngine(scanRequest, runnableDeviceService);
-		addStartPosition(scanRequest);
+		addPosition(createStartPosition(), scanRequest::setStartPosition);
+		addPosition(createEndPosition(), scanRequest::setEnd);
 
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
 
@@ -118,12 +115,6 @@ public class ScanRequestFactory {
 
 	private void prepareScanRequestAccordingToScanType(ScanRequest scanRequest) {
 		ScanRequestPreparerFactory.getPreparer(acquisitionReader.getData()).prepare(scanRequest);
-	}
-
-	private void addStartPosition(ScanRequest scanRequest) {
-		final var iPosition = createPositionMap(getAcquisitionParameters().getPosition());
-		Optional.ofNullable(iPosition)
-			.ifPresent(scanRequest::setStartPosition);
 	}
 
 	private CompoundModel createCompoundModel() throws GDAException {
@@ -226,6 +217,10 @@ public class ScanRequestFactory {
 		consumer.accept(startPos);
 	}
 
+	private IPosition createEndPosition() {
+		return createPositionMap(getAcquisitionConfiguration().getEndPosition());
+	}
+
 	private IPosition createStartPosition() {
 		return createPositionMap(getAcquisitionParameters().getPosition());
 	}
@@ -291,15 +286,6 @@ public class ScanRequestFactory {
 
 		// Asks Malcolm to automatically estimate the duration
 		model.setExposureTime(0);
-
-		// If there is any detector with a readout time
-		if (detectors.stream().anyMatch(d -> d.getReadout() > 0)) {
-			// Sets Malcolm duration as the longest among the exposure + readout pairs
-			detectors.stream()
-					.map(d -> d.getReadout() + d.getExposure())
-					.max(Comparator.comparing(Double::valueOf))
-					.ifPresent(model::setExposureTime);
-		}
 	}
 
 	private void setDetectorExposure(IMalcolmDetectorModel malcolmDetectorModel, List<DetectorDocumentReader> detectors) {
