@@ -18,6 +18,7 @@
 
 package uk.ac.gda.ui.tool.rest.device.camera;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,11 +85,13 @@ public class EpicsCameraControlClient {
 	}
 
 	public int[] getFrameSize(String adName) throws GDAClientRestException {
-		return (int[]) service.getDeviceValue(adName, REMOTE_SERVICE, "getFrameSize").getValue();
+		List<Integer> frameSize = (List<Integer>) service.getDeviceValue(adName, REMOTE_SERVICE, "getFrameSize").getValue();
+		return frameSize.stream().mapToInt(i->i).toArray();
 	}
 
 	public int[] getRoi(String adName) throws GDAClientRestException {
-		return (int[]) service.getDeviceValue(adName, REMOTE_SERVICE, "getRoi").getValue();
+		List<Integer> roi = (List<Integer>) service.getDeviceValue(adName, REMOTE_SERVICE, "getRoi").getValue();
+		return roi.stream().mapToInt(i->i).toArray();
 	}
 
 	public void clearRoi(String adName) throws GDAClientRestException {
