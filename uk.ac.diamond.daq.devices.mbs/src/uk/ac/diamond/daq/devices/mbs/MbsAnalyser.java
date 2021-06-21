@@ -585,8 +585,8 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	public void startContinuous() throws Exception {
 		logger.info("Starting continuous acquisition");
 		setupAcquisitionMode(AcquisitionMode.FIXED);
-		controller.setContinuousImageMode();
-		controller.setIterations(1);
+		controller.setSingleImageMode();
+		controller.setIterations(0);
 		controller.startAcquiring();
 	}
 
