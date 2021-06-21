@@ -58,6 +58,7 @@ import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.ClientResourceManager;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
@@ -122,7 +123,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 	public Composite createComposite(Composite parent, int style) {
 		iCameraConfiguration = CameraHelper.createICameraConfiguration(CameraHelper.getDefaultCameraConfigurationProperties());
 
-		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
+		var composite = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
 		createElements(composite);
@@ -136,7 +137,7 @@ public class BinningCompositeFactory implements CompositeFactory {
 	}
 
 	private void createElements(Composite parent) {
-		Group group = createClientGroup(parent, SWT.NONE, 1, BINNING);
+		var group = createClientGroup(parent, SWT.NONE, 1, BINNING);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(group);
 
 		Arrays.stream(Binning.values()).forEach(binning -> createRadioButton(group, binning));
@@ -206,20 +207,19 @@ public class BinningCompositeFactory implements CompositeFactory {
 	}
 
 	private Consumer<ChangeActiveCameraEvent> createChangeCameraControl(Consumer<? super CameraControl> ccConsumer) {
-		return event -> {
+		return event ->
 			Display.getDefault().asyncExec(() -> CameraHelper.createICameraConfiguration(event.getActiveCamera()).getCameraControl()
 					.ifPresent(ccConsumer));
-		};
 	}
 
 	private final IObserver cameraControlObserver = (source, arg) -> {
-		if (CameraControllerEvent.class.isInstance(arg)) {
+		if (arg instanceof CameraControllerEvent) {
 			Display.getDefault().asyncExec(() -> updateModelToGUI(CameraControllerEvent.class.cast(arg)));
 		}
 	};
 
 	private void createRadioButton(Composite parent, Binning binning) {
-		Button button = createClientButton(parent, SWT.RADIO, EMPTY_MESSAGE, EMPTY_MESSAGE);
+		var button = createClientButton(parent, SWT.RADIO, EMPTY_MESSAGE, EMPTY_MESSAGE);
 		createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(button);
 		// sets the button data (the shape it refers to)
 		button.setData(binning);
@@ -232,13 +232,13 @@ public class BinningCompositeFactory implements CompositeFactory {
 		button.addSelectionListener(SelectionListener.widgetSelectedAdapter(widgetSelected));
 	}
 
-	private Consumer<SelectionEvent> widgetSelected = event -> iCameraConfiguration.getCameraControl()
-		.ifPresent(c -> {
-			try {
-				Binning binning = Binning.class.cast(event.widget.getData());
-				c.setBinningPixels(new BinningFormat(binning.getPixelSize(), binning.getPixelSize()));
-			} catch (DeviceException e) {
-				UIHelper.showError("Cannot update acquisition time", e, logger);
-			}
-		});
+	private Consumer<SelectionEvent> widgetSelected = event -> iCameraConfiguration.getCameraControlClient()
+			.ifPresent(c -> {
+				try {
+					var binning = Binning.class.cast(event.widget.getData());
+					c.setBinningPixels(new BinningFormat(binning.getPixelSize(), binning.getPixelSize()));
+				} catch (GDAClientRestException e) {
+					UIHelper.showError("Cannot update the camera binning", e, logger);
+				}
+			});
 }
