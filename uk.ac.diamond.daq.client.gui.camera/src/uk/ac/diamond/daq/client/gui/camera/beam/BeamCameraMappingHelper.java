@@ -142,7 +142,7 @@ public class BeamCameraMappingHelper {
 
 	private void updateCameraConfiguration(RealMatrix transformation) {
 		CameraToBeamMap cameraToBeamMap = new CameraToBeamMap();
-		cameraToBeamMap.setMap(transformation.getData());
+		cameraToBeamMap.setMap(transformation);
 		cameraToBeamMap.setDriver(new ArrayList<>());
 		cameraToBeamMap.getDriver().add(beamX.getScannableName());
 		cameraToBeamMap.getDriver().add(beamY.getScannableName());

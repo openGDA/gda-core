@@ -1,8 +1,8 @@
 package uk.ac.diamond.daq.client.gui.camera.beam;
 
+import java.util.Optional;
 import java.util.stream.IntStream;
 
-import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -50,7 +50,12 @@ class CameraMappingTable implements CompositeFactory {
 	}
 
 	void displayMatrix(CameraToBeamMap beamCameraMap) {
-		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
+		Optional.ofNullable(beamCameraMap.getMap())
+			.ifPresent(this::updateGUI);
+
+	}
+
+	private void updateGUI(RealMatrix transformation) {
 		row1.setText(0, Double.toString(transformation.getEntry(0, 0)));
 		row1.setText(1, Double.toString(transformation.getEntry(0, 1)));
 

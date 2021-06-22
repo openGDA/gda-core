@@ -20,6 +20,7 @@ package uk.ac.gda.client.properties.camera;
 
 import java.util.List;
 
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 /**
@@ -37,7 +38,8 @@ public class CameraToBeamMap {
 	/**
 	 * The matrix defining the transformation from the camera space to the beam space
 	 */
-	private double[][] map;
+	private RealMatrix map;
+
 	/**
 	 * The offset is defined in the beam space
 	 */
@@ -45,10 +47,10 @@ public class CameraToBeamMap {
 	private List<String> driver;
 	private boolean active;
 
-	public double[][] getMap() {
+	public RealMatrix getMap() {
 		return map;
 	}
-	public void setMap(double[][] map) {
+	public void setMap(RealMatrix map) {
 		this.map = map;
 	}
 
