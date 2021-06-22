@@ -72,6 +72,8 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private PV<Double> acquirePeriod;
 	private ReadOnlyPV<String> dataWriter;
 	private PV<String> counterDepth;
+	private PV<Integer> pausePolling;
+	private PV<Integer> continuePolling;
 	private PV<Integer> odinOffset;
 	private PV<Integer> odinUid;
 	private PV<Integer> framesPerBlock;
@@ -102,6 +104,8 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			numImages = LazyPVFactory.newIntegerPV(basePv + "CAM:NumImages");
 			triggerMode = LazyPVFactory.newEnumPV(basePv + "CAM:TriggerMode", String.class);
 			counterDepth = LazyPVFactory.newEnumPV(basePv + "CAM:CounterDepth", String.class);
+			pausePolling = LazyPVFactory.newIntegerPV(basePv + "CAM:PausePolling");
+			continuePolling = LazyPVFactory.newIntegerPV(basePv + "CAM:ContinuePolling");
 
 			// DATA WRITING PVs
 			dataDirectory = new PVWithSeparateReadback<>(LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FilePath"),
@@ -189,6 +193,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		try {
 			logger.debug("Stopping collection");
 			acquiring.putNoWait("Done");
+			continuePolling.putWait(1);
 		} catch (IOException e) {
 			throw new DeviceException("Timeout stopping collection", e);
 		}
@@ -235,6 +240,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 		double acquisition = requestedLiveTime + requestedDeadTime;
 		try {
+			pausePolling.putWait(1);
 			numImages.putWait(1);
 			acquireTime.putWait(requestedLiveTime);
 			acquirePeriod.putWait(acquisition);
