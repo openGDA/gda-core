@@ -32,6 +32,7 @@ import static gda.mscan.element.Scanpath.STATIC;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -65,6 +66,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ScanpathTest {
@@ -90,7 +92,7 @@ public class ScanpathTest {
 	private Map<Mutator, List<Number>> mutators;
 
 	@Mock
-	private Scannable scannable1;
+	private ScannableMotionUnits scannable1;
 
 	@Mock
 	private Scannable scannable2;
@@ -116,6 +118,7 @@ public class ScanpathTest {
 	public void setUp() throws Exception {
 		when(scannable1.getName()).thenReturn("name1");
 		when(scannable2.getName()).thenReturn("name2");
+		when(scannable1.getUserUnits()).thenReturn("Deg");
 
 		scannables = Arrays.asList(scannable1, scannable2);
 		axialScannables = Arrays.asList(scannable1);
@@ -518,6 +521,7 @@ public class ScanpathTest {
 		assertThat(Math.rint(Math.toDegrees(sModel.getBoundingLine().getAngle())), is(53.0));
 		assertThat(sModel.getStep(), is(0.5));
 		assertThat(sModel.isContinuous(), is(false));
+		assertThat(sModel.getUnits(), is(equalTo(List.of("Deg", "mm"))));
 	}
 
 	@Test
@@ -530,6 +534,7 @@ public class ScanpathTest {
 		assertThat(sModel.getStart(), is(2.0));
 		assertThat(sModel.getStop(), is(3.0));
 		assertThat(sModel.getStep(), is(0.5));
+		assertThat(sModel.getUnits(), is(equalTo(List.of("Deg"))));
 	}
 
 	@Test

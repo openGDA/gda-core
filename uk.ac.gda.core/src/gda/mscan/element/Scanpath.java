@@ -51,6 +51,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import com.google.common.collect.ImmutableMap;
 
 import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 
 /**
  * Links the revised mscan syntax to corresponding scanning model factory functions in a typed way for both paths
@@ -75,7 +76,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
 	private static final String PREFIX = "Invalid Scan clause: ";
 	private static final Map<Mutator, Function<Class<? extends AbstractPointsModel>, Boolean>> SUPPORT_LOOKUP =
-							ImmutableMap.of(RANDOM_OFFSET, AbstractPointsModel::supportsRandomOffset,
+							Map.of(RANDOM_OFFSET, AbstractPointsModel::supportsRandomOffset,
 											ALTERNATING, AbstractPointsModel::supportsAlternating,
 											CONTINUOUS, AbstractPointsModel::supportsContinuous);
 
@@ -481,6 +482,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 											scanParameters.get(AX_STEP).doubleValue() * sign);
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
+			model.setUnits(List.of(getUnit(scannables.get(0))));
 			return model;
 		}
 
@@ -506,6 +508,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 											scanParameters.get(AX_POINTS).intValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
+			model.setUnits(List.of(getUnit(scannables.get(0))));
 			return model;
 		}
 
@@ -569,6 +572,17 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		private static void setAxisNames(final AbstractMapModel model, final List<Scannable> scannables) {
 			model.setxAxisName(scannables.get(X_AXIS_INDEX).getName());
 			model.setyAxisName(scannables.get(Y_AXIS_INDEX).getName());
+			model.setxAxisUnits(getUnit(scannables.get(X_AXIS_INDEX)));
+			model.setyAxisUnits(getUnit(scannables.get(Y_AXIS_INDEX)));
+		}
+
+		private static String getUnit(Scannable scannable) {
+			// If Scannable has units, we get them.
+			if (scannable instanceof ScannableMotionUnits) {
+				return ((ScannableMotionUnits) scannable).getUserUnits();
+			}
+			// If it does not, we return "mm"- we don't know the units, but it's consistent with Mapping and the default
+			return "mm";
 		}
 	}
 

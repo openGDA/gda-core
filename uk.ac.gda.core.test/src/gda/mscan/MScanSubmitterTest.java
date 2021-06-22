@@ -200,7 +200,9 @@ public class MScanSubmitterTest {
 			when(detectorRunnableDevice.getModel()).thenReturn(detectorModel);
 			when(monitor.getName()).thenReturn("monitor");
 			when(scannable.getName()).thenReturn("stage_x");
+			when (scannable.getUserUnits()).thenReturn("mm");
 			when(anotherScannable.getName()).thenReturn("stage_y");
+			when (anotherScannable.getUserUnits()).thenReturn("mm");
 
 			point = new TwoAxisPointSingleModel();
 			point.setX(2.0);
