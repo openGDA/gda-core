@@ -42,6 +42,7 @@ interest (ROI) when using grid(). They are: circ(), rect(), poly().
 #   mscan() will send your updated detector model as part of the ScanRequest.
 
 import sys
+import logging
 
 from java.lang import System, String
 from java.net import URI
@@ -69,11 +70,15 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType as Metadat
 
 from org.eclipse.scanning.api.event.scan import ProcessingRequest
 
+logger = logging.getLogger("org.eclipse.scanning.command.scripts.mapping_scan_commands.py")
+
+
 # Grepping for 'mscan' in a GDA workspace shows up nothing, so it seems that
 # mscan is a free name.
 
 def mscan(path=None, monitorsPerPoint=None, monitorsPerScan=None, det=None, metadata=None, now=False, block=True,
           allow_preprocess=False, broker_uri=None, proc=None, submissionQueue=SUBMISSION_QUEUE):
+    logger.info("Running the mapping_scan_commands mscan ")
     """Create a ScanRequest and submit it to the GDA server.
 
     A simple usage of this function is as follows:
@@ -126,6 +131,8 @@ def submit(request, now=False, block=True, broker_uri=None, name=None, proc=None
 
     if (broker_uri is None):
         broker_uri = getScanningBrokerUri()
+        
+    logger.info("Using the submit method from mapping_scan_commands")
 
     """Submit an existing ScanRequest to the GDA server.
 
@@ -274,6 +281,8 @@ def step(axis=None, start=None, stop=None, step=None, alternating=False, continu
         raise ValueError(
             '`axis`, `start`, `stop` and `step` must be provided.')
 
+    logger.info("Using the repeat step command from mapping_scan_commands")
+
 
     # For the first argument, users can pass either a Scannable object
     # or a string. IScanPathModels are only interested in the string (i.e.
@@ -291,7 +300,8 @@ def step(axis=None, start=None, stop=None, step=None, alternating=False, continu
                  'stop': stop,
                  'step': step,
                  'alternating': alternating,
-                 'continuous': continuous})
+                 'continuous': continuous,
+                 'units': [_unitify(axis)]})
 
     return model, _listify(roi)
 
@@ -308,6 +318,8 @@ def mstep(axis=None, stepModels=None, **kwargs):
     except (TypeError, ValueError):
         raise ValueError(
             '`axis`, `steps`, must be provided.')
+
+    logger.info("Using the mstep mscan command from mapping_scan_commands")
 
 
     # For the first argument, users can pass either a Scannable object
@@ -334,8 +346,7 @@ def cstep(names=None, start=None, stop=None, step=None, alternating=False, conti
     >>> step(axis=my_scannable, start=0, stop=10, step=1)
     >>> step(['x','y'], 0, 10, 1)
 
-    TODO This command is untested and no scan point generator exists than can do
-    this on the Jython side.
+    TODO This command is untested
 
     """
     try:
@@ -343,6 +354,8 @@ def cstep(names=None, start=None, stop=None, step=None, alternating=False, conti
     except (TypeError, ValueError):
         raise ValueError(
             '`axis`, `start`, `stop` and `step` must be provided.')
+
+    logger.info("Using the cscan mscan command from mapping_scan_commands")
 
     # No such thing as ROIs for StepModels.
     roi = None
@@ -356,7 +369,8 @@ def cstep(names=None, start=None, stop=None, step=None, alternating=False, conti
                  'step': step,
                  'names': names,
                  'alternating': alternating,
-                 'continuous': continuous})
+                 'continuous': continuous,
+                 'units': [_unitify(axis) for axis in names]})
 
     return model, _listify(roi)
 
@@ -374,6 +388,8 @@ def repeat(axis=None, count=None, value=None, sleep=None, **kwargs):
     except (TypeError, ValueError):
         raise ValueError(
             '`axis`, `start`, `stop` and `step` must be provided.')
+
+    logger.info("Using the repeat mscan command from mapping_scan_commands")
 
     # For the first argument, users can pass either a Scannable object
     # or a string. IScanPathModels are only interested in the string (i.e.
@@ -443,6 +459,8 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, alternating=Tr
         except (TypeError, ValueError):
             raise ValueError('`count` must be a pair of integers (r, c).')
 
+        logger.info("Using the grid (points) mscan command from mapping_scan_commands")
+
         model = _instantiate(
                     TwoAxisGridPointsModel,
                     {'xAxisName': xName,
@@ -452,13 +470,16 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, alternating=Tr
                      'alternating': alternating,
                      'continuous' : continuous,
                      'verticalOrientation' : verticalOrientation,
-                     'boundingBox': bbox})
+                     'boundingBox': bbox,
+                     'units': [_unitify(axis) for axis in axes]})
 
     else:
         try:
             (xStep, yStep) = step
         except (TypeError, ValueError):
             raise ValueError('`step` must be a pair of numbers (dx, dy).')
+
+        logger.info("Using the grid (steps) mscan command from mapping_scan_commands")
 
         model = _instantiate(
                     TwoAxisGridStepModel,
@@ -469,7 +490,8 @@ def grid(axes=None, start=None, stop=None, step=None, count=None, alternating=Tr
                      'alternating': alternating,
                      'continuous' : continuous,
                      'verticalOrientation' : verticalOrientation,
-                     'boundingBox': bbox})
+                     'boundingBox': bbox,
+                     'units': [_unitify(axis) for axis in axes]})
 
     # We _listify() the ROI inputs, so users can type either
     # roi=circ(x, y, r) or roi=[circ(x, y, r), rect(x, y, w, h, angle)].
@@ -488,12 +510,15 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, alternating
     except (TypeError, ValueError):
         raise ValueError('`axes` must be a pair of scannables (x, y).')
 
+
     bbox = _makeBoundingBox(start, stop)
 
     try:
         (rows, cols) = count
     except (TypeError, ValueError):
         raise ValueError('`count` must be a pair of integers (r, c).')
+
+    logger.info("Using the ROG mscan command from mapping_scan_commands")
 
     model = _instantiate(
                 TwoAxisGridPointsRandomOffsetModel,
@@ -506,7 +531,8 @@ def random_offset_grid(axes=None, start=None, stop=None, count=None, alternating
                  'seed': seed,
                  'continuous': continuous,
                  'verticalOrientation': verticalOrientation,
-                 'offset': offset})
+                 'offset': offset,
+                 'units': [_unitify(axis) for axis in axes]})
     
     return model, _listify(roi)
 
@@ -522,6 +548,7 @@ def spiral(axes=None, start=None, stop=None, scale=1, alternating=False, continu
         (xName, yName) = map(_stringify, axes)
     except (TypeError, ValueError):
         raise ValueError('`axes` must be a pair of scannables (x, y).')
+    logger.info("Using the spiral mscan command from mapping_scan_commands")
 
     bbox = _makeBoundingBox(start, stop)
 
@@ -532,7 +559,8 @@ def spiral(axes=None, start=None, stop=None, scale=1, alternating=False, continu
                  'boundingBox': bbox,
                  'scale': scale,
                  'continuous': continuous,
-                 'alternating': alternating})
+                 'alternating': alternating,
+                 'units': [_unitify(axis) for axis in axes]})
     
     return model, _listify(roi)
 
@@ -548,6 +576,7 @@ def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, points=100, alter
     except (TypeError, ValueError):
         raise ValueError('`axes` must be a pair of scannables (x, y).')
 
+    logger.info("Using the lissajous mscan command from mapping_scan_commands")
     bbox = _makeBoundingBox(start, stop)
     
     model = _instantiate(
@@ -559,7 +588,8 @@ def lissajous(axes=None, start=None, stop=None, a=1.0, b=0.25, points=100, alter
                  'b': b,
                  'points': points,
                  'continuous': continuous,
-                 'alternating': alternating})
+                 'alternating': alternating,
+                 'units': [_unitify(axis) for axis in axes]})
     return model, _listify(roi)
 
 def line(origin=None, length=None, angle=None, count=None, step=None, alternating=False, continuous=True, **kwargs):
@@ -573,6 +603,7 @@ def line(origin=None, length=None, angle=None, count=None, step=None, alternatin
       * count: a number of points, equally spaced, along the line segment
       * step: a distance between points along the line segment
     """
+    logger.info("Using the line mscan command from mapping_scan_commands")
     try:
         assert None not in (origin, length, angle)
     except (TypeError, ValueError):
@@ -630,6 +661,7 @@ def array(axis=None, values=None, alternating=False, continuous=True, **kwargs):
     except AssertionError:
         raise ValueError('`axis` and `values` must be provided to array().')
 
+    logger.info("Using the array mscan command from mapping_scan_commands")
     axis = _stringify(axis)
     _processKeywords(axis, kwargs)
 
@@ -642,11 +674,13 @@ def array(axis=None, values=None, alternating=False, continuous=True, **kwargs):
     amodel.setPositions(*values)
     amodel.setAlternating(alternating)
     amodel.setContinuous(continuous)
+    amodel.setUnits([_unitify(axis)])
 
     return amodel, _listify(roi)
 
 
 def val(axis=None, value=None, **kwargs):
+    logger.info("Using the val mscan command from mapping_scan_commands")
     """Define a single axis position to be passed to mscan().
 
     This single-point scan "path" can be used as the innermost scan path in a
@@ -670,13 +704,16 @@ def val(axis=None, value=None, **kwargs):
 
 
 def point(x, y):
+    logger.info("Using the point mscan command from mapping_scan_commands")
     """Define a point scan path to be passed to mscan().
     """
     roi = None
-    return _instantiate(TwoAxisPointSingleModel, {'x': x, 'y': y}), _listify(roi)
+    return _instantiate(TwoAxisPointSingleModel, {'x': x, 'y': y,
+                     'units': [_unitify(x), _unitify(y)]}), _listify(roi)
 
 
 def static(size=1):
+    logger.info("Using the static mscan command from mapping_scan_commands")
     """ For repeated paths
         e.g. mscan([static(3), step(ix, 0, 5, 1)]) will repeat the step 3 times
         e.g. mscan([step(ix, 0, 5, 1)], static(3)] will repeat each point in the step path 3 times
@@ -809,6 +846,23 @@ def _stringify(scannable):
             raise ValueError(
                 str(scannable)+' has no getName() method and is not a string.')
             # TODO: Test for this exception.
+
+def _unitify(scannable):
+    # Returns the units set on the Scannable, or else "mm" to be consistent with new mscan, mapping perspective
+    #  and the default value.
+    if scannable == None:
+        return "mm"
+    if isinstance(scannable, basestring):
+        # Returns an IScannable
+        return _unitify(getScannable(scannable))
+    # Is scannable a ScannableMotionUnits?
+    if hasattr(scannable, "getUserUnits"):
+        return scannable.getUserUnits()
+    # Is scannable an IScannable?
+    if hasattr(scannable, "getUnit"):
+        return scannable.getUnit()
+    return "mm"
+            
 
 def _makeBoundingBox(start, stop):
     try:
