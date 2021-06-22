@@ -35,6 +35,7 @@ class ARPESRun:
             logger.error("Analyser was not in idle state - Trying to recover...")
             print "Analyser was not in idle state - Trying to recover..."
             # Change to single frame mode
+            self.analyser.setupAcquisitionMode(uk.ac.diamond.daq.pes.api.AcquisitionMode.FIXED)
             self.analyser.setSingleImageMode()
             # Set short acquire time
             self.analyser.setCollectionTime(0.100)
@@ -58,19 +59,22 @@ class ARPESRun:
     def run(self):
         # Check the analyser is ready to be setup
         self.checkDevice()
+        # Set acquisition mode
+        self.analyser.setupAcquisitionMode(self.bean.getAcquisitionMode())
         # Set the pass energy
         self.analyser.setPassEnergy(self.bean.getPassEnergy())
         # Set the lens mode
         self.analyser.setLensMode(self.bean.getLensMode())
-        # Set acquisition mode
-        self.analyser.setupAcquisitionMode(self.bean.getAcquisitionMode())
         # Start stop and centre energy are always set  even though start and stop are used in swept
         # and centre is used in fixed because the readback values are saved into the data file
         self.analyser.setStartEnergy(self.bean.getStartEnergy())
         self.analyser.setEndEnergy(self.bean.getEndEnergy())
         self.analyser.setCentreEnergy((self.bean.getEndEnergy() + self.bean.getStartEnergy()) / 2.0)
-        # Always set the step even though its only used in swept mode
-        self.analyser.setEnergyStep(self.bean.getStepEnergy() / 1000.0)
+        
+        # Set energy step size if in swept mode
+        if self.bean.getAcquisitionMode() == uk.ac.diamond.daq.pes.api.AcquisitionMode.SWEPT:     
+            self.analyser.setEnergyStep(self.bean.getStepEnergy() / 1000.0)
+        
         # Set the exposure time and iterations
         self.analyser.setCollectionTime(self.bean.getTimePerStep())
         self.analyser.setIterations(self.bean.getIterations())
