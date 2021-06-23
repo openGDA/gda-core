@@ -224,7 +224,7 @@ public final class JythonInterpreterManager {
 			if (Files.exists(dir) && Files.isDirectory(dir)) {
 				return dir;
 			}
-			dir = Paths.get("..", "..", "scanning.git" + bundleName);
+			dir = Paths.get("..", "..", "scanning.git", bundleName);
 			if (Files.exists(dir) && Files.isDirectory(dir)) {
 				return dir;
 			}
