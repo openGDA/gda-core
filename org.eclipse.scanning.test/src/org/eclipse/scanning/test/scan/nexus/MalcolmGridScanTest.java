@@ -29,15 +29,14 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 	@Parameters(name="{0}D scan, snake={1}, shape={2}")
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] {
-			// TODO: DO NOT COMMIT!!! REINSTATE LINES BELOW.
-			{ 2, false, Arrays.asList( 8, 5 )}, // 2D grid scan
-//			{ 2, true, Arrays.asList( 8, 5 )},  // 2D snake scan
-//			{ 2, true, Arrays.asList( 7, 5 )}, // 2D snake with odd number of lines
-//			{ 3, false, Arrays.asList( 3, 2, 5 )}, // 3D grid scan
-//			{ 3, true, Arrays.asList( 3, 2, 5 )}, // 3D snake scan
-//			{ 4, false, Arrays.asList( 3, 3, 2, 2 )}, // 4D malcolm scan
-//			{ 5, false, Arrays.asList( 2, 2, 2, 2, 2 )}, // 5D malcolm scan
-//			{ 8, false, Arrays.asList( 2, 2, 2, 2, 2, 2, 2, 2 )} // 8D malcolm scan
+			{ 2, false, Arrays.asList(8, 5)}, // 2D grid scan
+			{ 2, true, Arrays.asList(8, 5)}, // 2D snake scan
+			{ 2, true, Arrays.asList(7, 5)}, // 2D snake with odd number of lines
+			{ 3, false, Arrays.asList(3, 2, 5)}, // 3D grid scan
+			{ 3, true, Arrays.asList(3, 2, 5)}, // 3D snake scan
+			{ 4, false, Arrays.asList(3, 3, 2, 2)}, // 4D malcolm scan
+			{ 5, false, Arrays.asList(2, 2, 2, 2, 2)}, // 5D malcolm scan
+			{ 8, false, Arrays.asList(2, 2, 2, 2, 2, 2, 2, 2)} // 8D malcolm scan
 		});
 	}
 
