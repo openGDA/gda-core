@@ -66,8 +66,8 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals("imaging_camera_control", pco.getCameraControl());
 		Assert.assertEquals("customDriverX", pco.getCameraToBeamMap().getDriver().get(0));
 		Assert.assertEquals("customDriverY", pco.getCameraToBeamMap().getDriver().get(1));
-		Assert.assertEquals(1.0, pco.getCameraToBeamMap().getMap()[0][0], 0.0);
-		Assert.assertEquals(2.0, pco.getCameraToBeamMap().getMap()[0][1], 0.0);
+		Assert.assertEquals(1.0, pco.getCameraToBeamMap().getMap().getEntry(0, 0), 0.0);
+		Assert.assertEquals(2.0, pco.getCameraToBeamMap().getMap().getEntry(0, 1), 0.0);
 		Assert.assertEquals(-1.0, pco.getCameraToBeamMap().getOffset().getEntry(0), 0.0);
 		Assert.assertEquals(-2.0, pco.getCameraToBeamMap().getOffset().getEntry(1), 0.0);
 

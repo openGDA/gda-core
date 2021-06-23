@@ -23,8 +23,6 @@ import java.util.Optional;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.linear.SingularMatrixException;
 
@@ -49,8 +47,7 @@ public class MappedCalibrationUtils {
 	 * @return the vector in the beam space
 	 */
 	public static Optional<RealVector> pixelToBeam(CameraToBeamMap cameraToBeam, RealVector vector) {
-		return Optional.ofNullable(cameraToBeam)
-				.map(MappedCalibrationUtils::pixelToBeamSolver)
+		return pixelToBeamSolver(cameraToBeam)
 				.map(s -> transformCoordinates(s, vector))
 				.map(t -> addOffset(t, cameraToBeam.getOffset()));
 	}
@@ -66,8 +63,7 @@ public class MappedCalibrationUtils {
 	 * @return the vector in the camera space
 	 */
 	public static Optional<RealVector> beamToPixel(CameraToBeamMap cameraToBeam, RealVector vector) {
-		return Optional.ofNullable(cameraToBeam)
-				.map(MappedCalibrationUtils::beamToPixelSolver)
+		return beamToPixelSolver(cameraToBeam)
 				.map(s -> transformCoordinates(s, vector))
 				.map(t -> subtractOffset(t, cameraToBeam.getOffset()));
 	}
@@ -95,15 +91,17 @@ public class MappedCalibrationUtils {
 		return new ArrayRealVector(elements);
 	}
 
-	private static DecompositionSolver pixelToBeamSolver(CameraToBeamMap beamCameraMap) {
-		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
-		return new LUDecomposition(new LUDecomposition(transformation).getSolver().getInverse())
-				.getSolver();
+	private static Optional<DecompositionSolver> pixelToBeamSolver(CameraToBeamMap beamCameraMap) {
+		return beamToPixelSolver(beamCameraMap)
+			.map(DecompositionSolver::getInverse)
+			.map(LUDecomposition::new)
+			.map(LUDecomposition::getSolver);
 	}
 
-	private static DecompositionSolver beamToPixelSolver(CameraToBeamMap beamCameraMap) {
-		RealMatrix transformation = MatrixUtils.createRealMatrix(beamCameraMap.getMap());
-		return new LUDecomposition(transformation).getSolver();
+	private static Optional<DecompositionSolver> beamToPixelSolver(CameraToBeamMap beamCameraMap) {
+		return Optional.ofNullable(beamCameraMap.getMap())
+				.map(LUDecomposition::new)
+				.map(LUDecomposition::getSolver);
 	}
 
 	/**
