@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,7 +69,6 @@ import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation.ScanInformationBuilder;
 import gda.util.OSCommandRunner;
-import gda.util.ScannableLevelComparator;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -1152,7 +1152,7 @@ public abstract class ScanBase implements NestableScan {
 	 * Order the allScannables vector using the 'level' attribute.
 	 */
 	protected void reorderScannables() {
-		Collections.sort(allScannables, new ScannableLevelComparator());
+		Collections.sort(allScannables, Comparator.comparingInt(Scannable::getLevel));
 	}
 
 	@Override
