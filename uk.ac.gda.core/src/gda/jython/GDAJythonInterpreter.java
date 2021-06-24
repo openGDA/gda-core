@@ -107,7 +107,12 @@ public class GDAJythonInterpreter {
 	// folders where beamline and user scripts are held
 	private final ScriptPaths jythonScriptPaths;
 
-	private final GDAJythonClassLoader classLoader = new GDAJythonClassLoader(Py.class.getClassLoader());
+	private static final GDAJythonClassLoader classLoader = new GDAJythonClassLoader(Py.class.getClassLoader());
+
+	private static final boolean ECLIPSE_LAUNCH = Platform.inDevelopmentMode();
+
+	private static final String BUNDLES_ROOT;
+
 
 	/**
 	 * Static initializer bock to set all the static parameters on the PySystemState class
@@ -156,6 +161,18 @@ public class GDAJythonInterpreter {
 
 		// Initialise the Jython 'sys' class statics for use when constructing instances of it
 		PySystemState.initialize(sysProps, gdaCustomProperties);
+
+		// In an OSGi environment Jython's normal CLASSPATH based automatic way of
+		// discovering which packages are available in the JVM does not
+		// work. Therefore to support "from XXXX import *" Jython has to be
+		// told about the bundle locations.
+		if (ECLIPSE_LAUNCH) {
+			BUNDLES_ROOT = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
+			iterateWorkspace(classLoader);
+		} else {
+			BUNDLES_ROOT = sysProps.getProperty("osgi.syspath");
+			iteratePluginsDirectory(BUNDLES_ROOT);
+		}
 	}
 
 	public GDAJythonInterpreter(final ScriptPaths scriptPaths) {
@@ -201,20 +218,6 @@ public class GDAJythonInterpreter {
 			throw e;
 		}
 
-		// In an OSGi environment Jython's normal CLASSPATH based automatic way of
-		// discovering which packages are available in the JVM does not
-		// work. Therefore to support "from XXXX import *" Jython has to be
-		// told about the bundle locations.
-		final boolean eclipseLaunch = Platform.inDevelopmentMode();
-		final String bundlesRoot;
-		if (eclipseLaunch) {
-			bundlesRoot = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
-			iterateWorkspace(classLoader);
-		} else {
-			bundlesRoot = sysProps.getProperty("osgi.syspath");
-			iteratePluginsDirectory(bundlesRoot);
-		}
-
 		if (jythonScriptPaths == null) {
 			logger.warn("no jython script paths defined");
 		} else {
@@ -226,7 +229,7 @@ public class GDAJythonInterpreter {
 				if (pathFragment.endsWith(URI_SEPARATOR)) {
 					pathFragment = pathFragment.substring(0, pathFragment.length() - 1);
 				}
-				File scriptFolder = Paths.get(bundlesRoot, pathFragment).toFile(); // Default to non-plugin folder under workspace_git
+				File scriptFolder = Paths.get(BUNDLES_ROOT, pathFragment).toFile(); // Default to non-plugin folder under workspace_git
 				String frag = pathFragment;
 				URL scriptFolderURL = null;
 				try {
@@ -236,8 +239,8 @@ public class GDAJythonInterpreter {
 					}
 					if (scriptFolderURL != null) {
 						scriptFolder = EclipseUtils.resolveFileFromPlatformURL(scriptFolderURL);
-					} else if (!eclipseLaunch) {
-						scriptFolder = Paths.get(bundlesRoot, "..", "utilities", pathFragment).toFile(); // Add in non-plugin folder offset for exported product
+					} else if (!ECLIPSE_LAUNCH) {
+						scriptFolder = Paths.get(BUNDLES_ROOT, "..", "utilities", pathFragment).toFile(); // Add in non-plugin folder offset for exported product
 					}
 					if (scriptFolder.exists() && scriptFolder.isDirectory()) {
 						String title = scriptEntry.getValue() == null ? "Scripts: Std" + index++
@@ -309,7 +312,7 @@ public class GDAJythonInterpreter {
 	 *
 	 * @param classLoader	The class loader being used by the interpreter to allow non-server bundle filtering
 	 */
-	private void iterateWorkspace(final GDAJythonClassLoader classLoader) {
+	private static void iterateWorkspace(final GDAJythonClassLoader classLoader) {
 		logger.info("Retrieving eclipse workspace server plugin paths for Jython");
 
 		final String unwanted = "^.*?(.feature|.releng|.test|.site|.git).*$";
@@ -340,7 +343,7 @@ public class GDAJythonInterpreter {
 	 *
 	 * @param osgiSysPath	The path to the plugins directory in the exported product
 	 */
-	private void iteratePluginsDirectory(final String osgiSysPath) {
+	private static void iteratePluginsDirectory(final String osgiSysPath) {
 		logger.info("Retrieving server product plugin paths for Jython");
 
 		// Read in the target platform plugin names so that they can be skipped
@@ -380,7 +383,7 @@ public class GDAJythonInterpreter {
 	 * @return					The value requested if found successfully
 	 * @throws					UncheckedIOException if the attribute name or its terminating quote cannot be found
 	 */
-	private String getTPArtifactAttributeValue(final String artifactTag, final String attributeName) throws UncheckedIOException {
+	private static String getTPArtifactAttributeValue(final String artifactTag, final String attributeName) throws UncheckedIOException {
 		final String match = " " + attributeName + "='";
 		final int matchLength = match.length();
 		final int from = artifactTag.indexOf(match) + matchLength;	// indexOf will return -1 if not found in which case from will be < matchLength
