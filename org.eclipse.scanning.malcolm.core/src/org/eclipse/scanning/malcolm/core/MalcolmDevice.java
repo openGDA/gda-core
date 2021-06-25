@@ -135,7 +135,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 				malcolmConnection.subscribeToConnectionStateChange(MalcolmDevice.this, this);
 				connectedToMalcolm();
 			} catch (MalcolmDeviceException e) {
-				logger.error("Could not subscribe to malcolm state changes for device ''{}''", getName());
+				logger.error("Could not subscribe to malcolm state changes for device ''{}''", getName(), e);
 			}
 		}
 
@@ -342,7 +342,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 				logger.error("Error message encountered: {}", message);
 			}
 		} catch (Exception e) {
-			logger.error("Could not send scan state change message");
+			logger.error("Could not send scan state change message", e);
 		}
 	}
 

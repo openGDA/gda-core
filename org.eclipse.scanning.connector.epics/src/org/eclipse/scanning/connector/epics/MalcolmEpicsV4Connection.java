@@ -357,6 +357,7 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 		@Override
 		public void unlisten(PvaClientMonitor arg0) {
 			// TODO What to do when unlisten is called?
+			logger.debug("Unlisten called on monitor {}", arg0);
 		}
 	}
 
