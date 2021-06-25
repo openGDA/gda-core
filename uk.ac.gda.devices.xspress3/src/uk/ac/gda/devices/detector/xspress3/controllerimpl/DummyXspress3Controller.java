@@ -617,6 +617,11 @@ public class DummyXspress3Controller extends FindableConfigurableBase implements
 	}
 
 	@Override
+	public void setDeadTimeCorrectionInputArrayPort(String port) throws DeviceException {
+		logger.debug("Called DummyXspress3Controller.setDeadTimeCorrectionInputArrayPort({})", port);
+	}
+
+	@Override
 	public void setFileTemplate(String fileTemplate) throws DeviceException {
 		logger.debug("Called DummyXspress3Controller.setFileTemplate({})", fileTemplate);
 

@@ -135,7 +135,8 @@ public class Xspress3ScanOperations {
 	}
 
 	private void setHDFPVs() throws DeviceException  {
-		controller.setHDFNDArrayPort("XSP3");
+		controller.setHDFNDArrayPort("XSP3.DTC");
+		controller.setDeadTimeCorrectionInputArrayPort("XSP3");
 		controller.setFileTemplate("%sxsp3.hdf5");
 		controller.setHDFXML("");
 		controller.setHDFExtraDimensions(0);

@@ -307,4 +307,6 @@ public interface Xspress3Controller extends Findable {
 
 	public void setHDFPositionMode(boolean positionMode) throws DeviceException;
 
+	public void setDeadTimeCorrectionInputArrayPort(String port) throws DeviceException;
+
 }

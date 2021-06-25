@@ -621,6 +621,15 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		return mcas;
 	}
 
+	@Override
+	public void setDeadTimeCorrectionInputArrayPort(String port) throws DeviceException {
+		try {
+			getPvProvider().pvDtcInputArrayPort.putWait(port);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting DTC port", e);
+		}
+	}
+
 	protected void updateArrays() throws DeviceException {
 		updateArraysImpl();
 	}

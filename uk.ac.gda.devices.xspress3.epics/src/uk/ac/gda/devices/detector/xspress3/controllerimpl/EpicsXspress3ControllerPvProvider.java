@@ -98,6 +98,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static final String FILE_LAZYOPEN = ":HDF5:LazyOpen";
 	private static final String FILE_HDFXML = ":HDF5:XMLFileName";
 	private static final String FILE_POSITIONMODE = ":HDF5:PositionMode";
+	private static final String DTC_NDARRAYPORT = ":DTC:NDArrayPort";
 
 	// MCA and ROI
 	private static final String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
@@ -230,6 +231,8 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Boolean> pvHDFLazyOpen;
 	protected PV<String> pvHDFXML;
 	protected PV<Boolean> pvHDFPositionMode;
+
+	protected PV<String> pvDtcInputArrayPort;
 
 	// New PVs etc for using 'new' Epics interface.
 	private boolean useNewEpicsInterface = false;
@@ -388,6 +391,7 @@ public class EpicsXspress3ControllerPvProvider {
 		}
 
 		pvSquashAuxDim = LazyPVFactory.newEnumPV(generatePVName(getSquashAuxDimTemplate()), UPDATE_RBV.class);
+		pvDtcInputArrayPort = LazyPVFactory.newStringPV(generatePVName(getDtcInputArrayPort()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -673,6 +677,10 @@ public class EpicsXspress3ControllerPvProvider {
 
 	protected String getFileNDArrayPort() {
 		return FILE_NDARRAYPORT;
+	}
+
+	protected String getDtcInputArrayPort() {
+		return DTC_NDARRAYPORT;
 	}
 
 	protected String getFileAttr() {
