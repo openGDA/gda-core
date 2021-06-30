@@ -571,10 +571,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return getSelectedAcquisitionMode() == AcquisitionMode.SWEPT;
 	}
 
-	private boolean isDitherMode() {
-		return getSelectedAcquisitionMode() == AcquisitionMode.DITHER;
-	}
-
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
 
@@ -583,11 +579,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			updatePassEnergy();
 		}
 
-		if ("passEnergy".equals(e.getFieldName()) && !isSweptMode() && !isDitherMode()) { // Fixed or dither mode
+		if ("passEnergy".equals(e.getFieldName()) && !isSweptMode()) { // Fixed or dither mode
 			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 			startEnergy.setValue(getValue(centreEnergy)	- getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
-			stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
+			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
 		}
 
 		if ("startEnergy".equals(e.getFieldName())) {
@@ -638,7 +634,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
 			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
-			stepEnergy.setValue(determineMinimumStepEnergy(getSelectedPassEnergy()));
+			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
 			ditherSteps.setEditable(false);
 			break;
 
@@ -657,16 +653,18 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			break;
 
 		case DITHER:
-			startEnergy.setEditable(true);
-			centreEnergy.setEditable(false);
-			endEnergy.setEditable(true);
+			startEnergy.setEditable(false);
+			centreEnergy.setEditable(true);
+			endEnergy.setEditable(false);
 			stepEnergy.setEditable(false);
+			startEnergy.removeValueListener(this);
+			centreEnergy.addValueListener(this);
+			endEnergy.removeValueListener(this);
 			stepEnergy.removeValueListener(this);
-			// Stop watching for changes in centre energy as they are programmatic
-			startEnergy.addValueListener(this);
-			centreEnergy.removeValueListener(this);
-			endEnergy.addValueListener(this);
-			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+			energyWidth.setValue(determineFixedModeEnergyWidth(getSelectedPassEnergy()));
+			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
+			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
+			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
 			ditherSteps.setEditable(true);
 			break;
 
@@ -690,7 +688,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			logger.error("Error calculating energy limits. Setting defualts min: {} max {}", min, max, e);
 		}
 
-		if (isSweptMode() || isDitherMode()) { // Swept mode
+		if (isSweptMode()) { // Swept mode
 			startEnergy.setMinimum(min);
 			startEnergy.setMaximum(max);
 			centreEnergy.setMinimum(-1);
