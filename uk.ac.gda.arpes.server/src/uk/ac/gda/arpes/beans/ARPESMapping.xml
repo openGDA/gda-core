@@ -29,8 +29,5 @@
 		<field name="configureOnly" type="boolean">
 			<bind-xml name="configureOnly" node="element"/>
 		</field>
-		<field name="ditherSteps" type="int">
-			<bind-xml name="ditherSteps" node="element" />
-		</field>
 	</class>
 </mapping>

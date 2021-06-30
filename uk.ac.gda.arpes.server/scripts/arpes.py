@@ -79,10 +79,6 @@ class ARPESRun:
         self.analyser.setCollectionTime(self.bean.getTimePerStep())
         self.analyser.setIterations(self.bean.getIterations())
                 
-        if self.bean.getAcquisitionMode() == uk.ac.diamond.daq.pes.api.AcquisitionMode.DITHER:     
-            print "Dither mode selected"
-            self.analyser.setNumberOfDitherSteps(self.bean.getDitherSteps())
-
         # Check if its configure only
         if self.bean.isConfigureOnly():
             logger.info("(Config only) Analyser is set up!")
