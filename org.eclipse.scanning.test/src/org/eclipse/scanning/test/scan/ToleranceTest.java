@@ -1,6 +1,8 @@
 package org.eclipse.scanning.test.scan;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -16,6 +18,7 @@ import org.junit.Test;
 
 public class ToleranceTest {
 
+	private static final double DOUBLE_FP_TOLERANCE = 1e-10;
 	private static IRunnableDeviceService  dservice;
 	private static IScannableDeviceService connector;
 
@@ -46,7 +49,7 @@ public class ToleranceTest {
 		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("a:0:20"));
 
-        assertEquals(new Double(20d), a.getPosition());
+        assertThat(20d, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -60,7 +63,7 @@ public class ToleranceTest {
 		a.setTolerance(1d);
         pos.setPosition(new MapPosition("a:0:20.5"));
 
-        assertEquals(new Double(20d), a.getPosition());
+        assertThat(20d, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -74,7 +77,7 @@ public class ToleranceTest {
 		a.setTolerance(1d);
         pos.setPosition(new MapPosition("a:0:21.0"));
 
-        assertEquals(new Double(21d), a.getPosition());
+        assertThat(21d, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -88,7 +91,7 @@ public class ToleranceTest {
 		a.setTolerance(1d);
         pos.setPosition(new MapPosition("a:0:22.4"));
 
-        assertEquals(new Double(22.4), a.getPosition());
+        assertThat(22.4, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -101,10 +104,10 @@ public class ToleranceTest {
 
 		a.setTolerance(1d);
         pos.setPosition(new MapPosition("a:0:20.5"));
-        assertEquals(new Double(20d), a.getPosition());
+        assertThat(20d, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 		a.setTolerance(0.5d);
         pos.setPosition(new MapPosition("a:0:20.5"));
-        assertEquals(new Double(20.5d), a.getPosition());
+        assertThat(20.5, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -117,10 +120,10 @@ public class ToleranceTest {
 
 		a.setTolerance(1d);
         pos.setPosition(new MapPosition("a:0:20.5"));
-        assertEquals(new Double(20d), a.getPosition());
+        assertThat(20d, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 		a.setTolerance(null);
         pos.setPosition(new MapPosition("a:0:20.5"));
-        assertEquals(new Double(20.5d), a.getPosition());
+        assertThat(20.5, is(closeTo(a.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -128,7 +131,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> bnd   = connector.getScannable("bnd");
-        assertEquals(new Double(3.14), bnd.getPosition());
+		assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -136,7 +139,7 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> bnd   = connector.getScannable("bnd");
-        assertEquals(new Double(1.0), bnd.getTolerance());
+		assertThat(1d, is(closeTo(bnd.getTolerance(), DOUBLE_FP_TOLERANCE)));
 	}
 
 	@Test
@@ -144,21 +147,21 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> bnd   = connector.getScannable("bnd");
-        assertEquals(new Double(1.0), bnd.getTolerance());
+		assertThat(1d, is(closeTo(bnd.getTolerance(), DOUBLE_FP_TOLERANCE)));
 
 		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("bnd:0:3.14"));
-        assertEquals(new Double(3.14), bnd.getPosition());
+        assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
         pos.setPosition(new MapPosition("bnd:0:3.5"));
 
-        assertEquals(new Double(3.14), bnd.getPosition());
+        assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
         pos.setPosition(new MapPosition("bnd:0:4.15"));
-        assertEquals(new Double(4.15), bnd.getPosition());
+        assertThat(4.15, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
         pos.setPosition(new MapPosition("bnd:0:3.14"));
-        assertEquals(new Double(3.14), bnd.getPosition());
+        assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
 	}
 
@@ -167,16 +170,16 @@ public class ToleranceTest {
 
 		// Something without
 		IScannable<Double> bnd   = connector.getScannable("bnd");
-        assertEquals(new Double(1.0), bnd.getTolerance());
+		assertThat(1.0, is(closeTo(bnd.getTolerance(), DOUBLE_FP_TOLERANCE)));
 
         bnd.setTolerance(0d);
 		IPositioner     pos    = dservice.createPositioner("test");
         pos.setPosition(new MapPosition("bnd:0:3.14"));
-        assertEquals(new Double(3.14), bnd.getPosition());
+        assertThat(3.14, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
         pos.setPosition(new MapPosition("bnd:0:3.5"));
 
-        assertEquals(new Double(3.5), bnd.getPosition());
+        assertThat(3.5, is(closeTo(bnd.getPosition(), DOUBLE_FP_TOLERANCE)));
 
         pos.setPosition(new MapPosition("bnd:0:3.14"));
         bnd.setTolerance(1.0d);
