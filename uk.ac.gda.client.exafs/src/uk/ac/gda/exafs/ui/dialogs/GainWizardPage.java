@@ -401,7 +401,7 @@ public class GainWizardPage extends WizardPage {
 							edge    = ((XasScanParameters)params).getEdge();
 						}
 						Element ele = Element.getElement(element);
-						sampleEdgeEnergyValue = new Double(ele.getEdgeEnergy(edge)) - 20d;
+						sampleEdgeEnergyValue = ele.getEdgeEnergy(edge) - 20d;
 					}
 				} catch (Exception ne) {
 					logger.error("Cannot get edge energy for element.", ne);

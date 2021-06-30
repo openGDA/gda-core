@@ -43,7 +43,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 	private TwoDScanRowReverser indexer;
 	// this does the file writing, but in an asynchronous way
 	private DatapointCompletingDataWriter sink;
-	private Hashtable<Integer, IScanDataPoint> pointsBuffer = new Hashtable<Integer, IScanDataPoint>();
+	private Hashtable<Integer, IScanDataPoint> pointsBuffer = new Hashtable<>();
 	private XasAsciiNexusDataWriter xasAsciiNexusDataWriter;
 
 	public XasAsciiNexusDatapointCompletingDataWriter() {
@@ -76,7 +76,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 
 	private synchronized void addPointToBufferAndFlush(IScanDataPoint point) throws Exception {
 		// add to buffer
-		pointsBuffer.put(new Integer(point.getCurrentPointNumber()), point);
+		pointsBuffer.put(point.getCurrentPointNumber(), point);
 		flushBuffer();
 	}
 

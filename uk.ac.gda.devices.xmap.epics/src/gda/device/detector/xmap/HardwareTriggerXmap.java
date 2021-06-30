@@ -39,7 +39,7 @@ import gda.scan.ScanInformation;
  */
 public class HardwareTriggerXmap extends XmapSimpleAcquire {
 
-	protected Double index = new Double(0.0);
+	protected Double index = 0.0;
 
 	public HardwareTriggerXmap(EDXDMappingController xmap, double readoutTime) throws DeviceException {
 		super(xmap, -1);
@@ -52,7 +52,7 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 		int[] scanDims = scanInfo.getDimensions();
 		int totalFrames = scanDims[0] * scanDims[1];
 		getXmap().setPixelsPerRun(totalFrames);
-		index = new Double(0.0);
+		index = 0.0;
 	}
 
 	@Override
@@ -62,14 +62,14 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<String> names = new ArrayList<>();
 		names.add("index");
 		return names;
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<String> names = new ArrayList<>();
 		names.add("%d");
 		return names;
 	}
@@ -78,9 +78,9 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		index++;
-		ArrayList<Double> names = new ArrayList<Double>();
+		ArrayList<Double> names = new ArrayList<>();
 		names.add(index);
-		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
+		Vector<NXDetectorDataAppender> vector = new Vector<>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), names));
 		return vector;
 	}
