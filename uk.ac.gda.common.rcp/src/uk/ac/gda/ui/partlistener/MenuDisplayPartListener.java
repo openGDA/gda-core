@@ -57,7 +57,7 @@ public class MenuDisplayPartListener implements IPartListener {
 					try {
 						Field field = class1.getDeclaredField("mode");
 						field.setAccessible(true);
-						field.set(commandContributionItem, new Integer(1));
+						field.set(commandContributionItem, 1);
 					} catch (SecurityException e) {
 						logger.error("SecurityException - Problem setting mode", e);
 					} catch (IllegalArgumentException e) {
