@@ -28,17 +28,17 @@ import java.util.HashMap;
 import org.springframework.util.StringUtils;
 
 /**
- * Reads a simpler angular calibration file than AngularCalibrationParametersFile. 
+ * Reads a simpler angular calibration file than AngularCalibrationParametersFile.
  * <p>
  * The file simply contains two columns, modules and angle. Format: integer-tab-double.
  */
 public class SimpleAngularCalibrationParameters implements AngularCalibrationParameters {
 
 	protected HashMap<Integer,Double> parameters;
-	
+
 	/**
 	 * Reads the angular calibration parameters in the specified file.
-	 * 
+	 *
 	 * @param file the angular calibration file
 	 */
 	public SimpleAngularCalibrationParameters(File file) {
@@ -56,10 +56,10 @@ public class SimpleAngularCalibrationParameters implements AngularCalibrationPar
 		}
 	}
 
-	
+
 	@Override
 	public AngularCalibrationModuleParameters getParametersForModule(int module) {
-		Double centre = parameters.get(new Integer(module));
+		Double centre = parameters.get(module);
 		return new AngularCalibrationModuleParameters(module,centre,0.0,0.0);
 	}
 

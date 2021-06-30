@@ -373,7 +373,7 @@ public class CirrusController implements IEvents {
 	}
 
 	// want less than 1x10-5mbar or 0.001E-5bar
-	private static float PUMP_PRESSURE_THRESHOLD = new Float(0.0001); // in mbar
+	private static float PUMP_PRESSURE_THRESHOLD = 0.0001f; // in mbar
 
 	private void checkPressure() throws DeviceException {
 		float currentPressure = getPressure(); // returns 10E-5ubar

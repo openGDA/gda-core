@@ -168,7 +168,7 @@ public abstract class Column<T,V> {
 		@Override
 		protected void doSetValue(final Object value) {
 			if (value == null) {
-				super.doSetValue(String.valueOf(new Double(0)));
+				super.doSetValue(String.valueOf(0d));
 			} else {
 				super.doSetValue(String.valueOf(value));
 			}
@@ -194,7 +194,7 @@ public abstract class Column<T,V> {
 		@Override
 		protected void doSetValue(final Object value) {
 			if (value == null) {
-				super.doSetValue(String.valueOf(new Integer(0)));
+				super.doSetValue(String.valueOf(0));
 			} else {
 				super.doSetValue(String.valueOf(value.toString()));
 			}
