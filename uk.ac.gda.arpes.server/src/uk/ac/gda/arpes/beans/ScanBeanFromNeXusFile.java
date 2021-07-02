@@ -58,7 +58,13 @@ public class ScanBeanFromNeXusFile {
 
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/number_of_iterations").getDestination();
 			setIterations(shinynewbean, nodeLink.getDataset());
-						
+			
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/deflector_x").getDestination();
+			if (nodeLink != null) {
+				setDeflectorX(shinynewbean, nodeLink.getDataset());
+			}
+			
+			
 		} finally {
 
 		}
@@ -110,5 +116,10 @@ public class ScanBeanFromNeXusFile {
 	private static void setIterations(ARPESScanBean bean, ILazyDataset iter) {
 		int iterations = ((IDataset)iter).getInt(0);
 		bean.setIterations(iterations);
+	}
+	
+	private static void setDeflectorX(ARPESScanBean bean, ILazyDataset deflX) {
+		double deflectorX = ((IDataset)deflX).getDouble(0);
+		bean.setDeflectorX(deflectorX);
 	}
 }

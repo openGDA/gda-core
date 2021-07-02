@@ -39,11 +39,11 @@ import uk.ac.diamond.daq.devices.mbs.api.IMbsAnalyser;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
-import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyserWithDeflector;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@ServiceInterface(IDitherScanningElectronAnalyser.class)
+@ServiceInterface(IDitherScanningElectronAnalyserWithDeflector.class)
 public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	private static final Logger logger = LoggerFactory.getLogger(MbsAnalyser.class);

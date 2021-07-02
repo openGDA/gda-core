@@ -5,6 +5,7 @@ import gda.jython.commands.ScannableCommands
 from org.slf4j import LoggerFactory
 import uk.ac.gda.arpes.beans.ARPESScanBean
 import uk.ac.diamond.daq.pes.api.AcquisitionMode
+import uk.ac.diamond.daq.pes.api.IDeflector
 
 logger = LoggerFactory.getLogger(__name__ + '.py')
 
@@ -74,6 +75,9 @@ class ARPESRun:
         # Set energy step size if in swept mode
         if self.bean.getAcquisitionMode() == uk.ac.diamond.daq.pes.api.AcquisitionMode.SWEPT:     
             self.analyser.setEnergyStep(self.bean.getStepEnergy() / 1000.0)
+            
+        if isinstance(self.analyser, uk.ac.diamond.daq.pes.api.IDeflector):
+            self.analyser.setDeflectorX(self.bean.getDeflectorX())
         
         # Set the exposure time and iterations
         self.analyser.setCollectionTime(self.bean.getTimePerStep())

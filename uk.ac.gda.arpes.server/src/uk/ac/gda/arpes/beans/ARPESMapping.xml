@@ -26,6 +26,9 @@
 		<field name="iterations" type="int">
 			<bind-xml name="iterations" node="element"/>
 		</field>
+		<field name="deflectorX" type="double">
+			<bind-xml name="deflectorX" node="element" />
+		</field>
 		<field name="configureOnly" type="boolean">
 			<bind-xml name="configureOnly" node="element"/>
 		</field>

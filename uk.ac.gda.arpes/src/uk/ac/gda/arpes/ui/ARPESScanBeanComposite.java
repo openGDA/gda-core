@@ -67,6 +67,7 @@ import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.IDeflector;
 import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
@@ -114,6 +115,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final String[] lensModes;
 	private final Label lblEstimatedTime;
 	private final Label estimatedTime;
+	private final Label lblDeflectorX;
+	private final NumberBox deflectorX;
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
@@ -347,6 +350,20 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		iterations.setLayoutData(controlGridData());
 		iterations.addValueListener(this);
 
+		// DeflectorX
+		lblDeflectorX = new Label(this, SWT.NONE);
+		lblDeflectorX.setLayoutData(labelLayoutData());
+		lblDeflectorX.setText("Deflector X");
+		deflectorX = new ScaleBox(this, SWT.NONE);
+		deflectorX.setLayoutData(controlGridData());
+		energyWidth.setDecimalPlaces(3);
+		energyWidth.setFieldName("deflectorX");
+
+		if (!(analyser instanceof IDeflector)) {
+			deflectorX.setEnabled(false);
+			deflectorX.setToolTipText("The current electron analyser does not have a deflector.");
+		}
+
 		// Configure only
 		lblConfigureOnly = new Label(this, SWT.NONE);
 		lblConfigureOnly.setLayoutData(labelLayoutData());
@@ -564,6 +581,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	public IFieldWidget getAcquisitionMode() {
 		return acquisitionMode;
+	}
+
+	public IFieldWidget getDeflectorX() {
+		return deflectorX;
 	}
 
 	private boolean isSweptMode() {

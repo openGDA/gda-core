@@ -21,9 +21,9 @@ package uk.ac.diamond.daq.devices.mbs.api;
 import java.util.List;
 
 import gda.device.DeviceException;
-import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyserWithDeflector;
 
-public interface IMbsAnalyser extends IDitherScanningElectronAnalyser {
+public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflector {
 
 	/**
 	 * Gets the acquisition period
@@ -97,21 +97,6 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyser {
 	 */
 	public double getEnergyWidth() throws DeviceException;
 
-	/**
-	 * Gets the deflector X value
-	 *
-	 * @return The deflector X value
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public double getDeflectorX() throws DeviceException;
-
-	/**
-	 * Sets the deflector X value
-	 *
-	 * @param deflectorX The deflector X value
-	 * @throws DeviceException If there is a problem with communication
-	 */
-	public void setDeflectorX(double deflectorX) throws DeviceException;
 
 	/**
 	 * Gets the deflector Y value
