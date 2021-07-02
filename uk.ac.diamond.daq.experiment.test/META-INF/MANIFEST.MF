@@ -21,4 +21,5 @@ Import-Package: org.apache.commons.io,
  org.springframework.mock.web;version="4.0.6",
  org.springframework.test.annotation;version="4.0.6",
  org.springframework.test.context;version="4.0.6",
- org.springframework.test.context.junit4;version="4.0.6"
+ org.springframework.test.context.junit4;version="4.0.6",
+ uk.ac.gda.core.tool.spring

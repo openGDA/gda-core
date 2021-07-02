@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.core.tool.spring;
+package uk.ac.diamond.daq.service.context;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
@@ -36,6 +36,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.data.ServiceHolder;
+import uk.ac.gda.core.tool.spring.DiffractionContextFile;
+import uk.ac.gda.core.tool.spring.DiffractionFileContext;
+import uk.ac.gda.core.tool.spring.ExperimentContextFile;
+import uk.ac.gda.core.tool.spring.ExperimentFileContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
