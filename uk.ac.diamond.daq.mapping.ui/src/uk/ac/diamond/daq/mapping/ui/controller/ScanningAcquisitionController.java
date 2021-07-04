@@ -24,9 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
-import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionSaveEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
@@ -74,9 +72,6 @@ public class ScanningAcquisitionController
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionController.class);
 
 	public static final String DEFAULT_CONFIGURATION_NAME = "UntitledConfiguration";
-
-	@Autowired
-	private DocumentMapper documentMapper;
 
 	@Autowired
 	private StageController stageController;
@@ -127,11 +122,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		updateImageCalibration();
-		try {
-			save(formatConfigurationFileName(getAcquisition().getName()), documentMapper.convertToJSON(getAcquisition()));
-		} catch (uk.ac.gda.common.exception.GDAException e) {
-			throw new AcquisitionControllerException(e);
-		}
+		save(formatConfigurationFileName(getAcquisition().getName()));
 	}
 
 	@Override
@@ -209,7 +200,7 @@ public class ScanningAcquisitionController
 			.orElseGet(() -> "noNameConfiguration");
 	}
 
-	private void save(String fileName, String acquisitionDocument) throws AcquisitionControllerException {
+	private void save(String fileName) throws AcquisitionControllerException {
 		ScanningAcquisition savedAcquisition = null;
 		AcquisitionConfigurationResourceType type = AcquisitionConfigurationResourceType.DEFAULT;
 		try {
@@ -229,7 +220,6 @@ public class ScanningAcquisitionController
 
 		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, getAcquisition().getUuid(), type));
 		publishScanRequestSavedEvent(fileName);
-		publishSave(getAcquisition().getName(), acquisitionDocument);
 	}
 
 	private void publishScanRequestSavedEvent(String fileName) {
@@ -278,7 +268,7 @@ public class ScanningAcquisitionController
 		updatePositionDocument(flatPosition, getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
 	}
 
-	private void validateDarkCalibrationParameters(ImageCalibrationReader ic) throws AcquisitionConfigurationException {
+	private void validateDarkCalibrationParameters(ImageCalibrationReader ic) {
 		// Note - Uses a read-only acquisition object to avoid Null Pointer in ic
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			Set<DevicePositionDocument> darkPosition = new HashSet<>();
@@ -346,12 +336,6 @@ public class ScanningAcquisitionController
 
 	public ScanningParameters getAcquisitionParameters() {
 		return getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
-	}
-
-
-
-	private void publishSave(String name, String acquisition) {
-		publishEvent(new ScanningAcquisitionSaveEvent(this, name, acquisition));
 	}
 
 	private void setAcquisition(ScanningAcquisition acquisition) {
