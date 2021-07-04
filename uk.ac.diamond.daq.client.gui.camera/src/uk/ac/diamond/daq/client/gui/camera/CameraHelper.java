@@ -533,19 +533,14 @@ public final class CameraHelper {
 	}
 
 	/**
-	 * Verify a {@link CameraControl} instance is derived from a given {@link CameraConfigurationProperties#getId()}
-	 * @param cameraId a camera property id
-	 * @param cameraControl a camera control
-	 * @return {@code true} is the {@code CameraControl} is derived from the cameraId properties
+	 * Retrieve the CameraControl associated with a given CameraId
+	 * @param cameraId the camera identifier
+	 * @return an {@code Optional<CameraControl>}
 	 */
-	public static final boolean cameraIdMatchesCameraControl(String cameraId, final Optional<CameraControl> cameraControl) {
-		return cameraControl
-				.map(CameraControl::getName)
-				.map(CameraHelper::getCameraConfigurationPropertiesByCameraControlName)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.map(CameraConfigurationProperties::getId)
-				.filter(id -> id.equals(cameraId))
-				.isPresent();
+	public static final Optional<CameraControl> getCameraControlByCameraID(String cameraId) {
+		return getCameraConfigurationPropertiesByID(cameraId)
+				.map(CameraHelper::createICameraConfiguration)
+				.map(ICameraConfiguration::getCameraControl)
+				.map(Optional::get);
 	}
 }
