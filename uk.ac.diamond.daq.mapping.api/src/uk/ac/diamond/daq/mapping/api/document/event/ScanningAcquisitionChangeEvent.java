@@ -29,14 +29,8 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
  */
 public class ScanningAcquisitionChangeEvent extends ApplicationEvent {
 
-	private final ScanningAcquisition scanningAcquisition;
-
-	public ScanningAcquisitionChangeEvent(Object source, ScanningAcquisition scanningAcquisition) {
+	public ScanningAcquisitionChangeEvent(Object source) {
 		super(source);
-		this.scanningAcquisition = scanningAcquisition;
 	}
 
-	public ScanningAcquisition getScanningAcquisition() {
-		return scanningAcquisition;
-	}
 }

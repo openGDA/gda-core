@@ -238,7 +238,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 			acquisitionParameters.setDetector(detectorDocument);
 			imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);
 			imageCalibrationHelper.updateFlatDetectorDocument(detectorDocument);
-			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this, getAcquisition()));
+			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
 		}
 	};
 
