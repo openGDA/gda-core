@@ -23,9 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Primary;
 
-import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
@@ -49,12 +47,6 @@ public class ScanningAcquisitionControllerConfiguration {
 	@Bean
 	public FinderService finderService() {
 		return Mockito.mock(FinderService.class);
-	}
-
-	@Bean(name = "scanningAcquisitionService")
-	@Primary
-	public IScanningAcquisitionService scanningAcquisitionService() {
-		return Mockito.mock(IScanningAcquisitionService.class);
 	}
 
 	@Bean(name = "scanningAcquisitionRestServiceClient")
