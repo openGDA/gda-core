@@ -20,7 +20,7 @@ package gda.function;
 
 import static gda.function.lookup.AbstractColumnFile.LOOKUP_TABLE_DIRECTORY_PROPERTY;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.nio.file.Paths;
