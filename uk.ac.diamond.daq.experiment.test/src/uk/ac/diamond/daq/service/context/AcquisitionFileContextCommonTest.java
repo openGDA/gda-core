@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.core.tool.spring;
+package uk.ac.diamond.daq.service.context;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import gda.data.ServiceHolder;
+import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
 class AcquisitionFileContextCommonTest {
 

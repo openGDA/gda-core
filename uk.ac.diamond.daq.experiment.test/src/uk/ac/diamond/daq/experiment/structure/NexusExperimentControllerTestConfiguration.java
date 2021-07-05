@@ -24,7 +24,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
-import uk.ac.gda.core.tool.spring.AcquisitionFileContextTestConfiguration;
+
 
 /**
  * Configure the spring environment for testing {@link NexusExperimentController}
@@ -41,7 +41,11 @@ import uk.ac.gda.core.tool.spring.AcquisitionFileContextTestConfiguration;
 						// scanned by this configuration, it causes NodeFileRequesterService to be loaded
 						// instead of the mock below. Here is the reason to add it here.
 						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-								value = AcquisitionFileContextTestConfiguration.class)})
+								value = ExperimentStructureJobResponder.class)
+
+
+
+						})
 public class NexusExperimentControllerTestConfiguration {
 
 	@Bean
@@ -52,5 +56,10 @@ public class NexusExperimentControllerTestConfiguration {
 	@Bean
 	public ExperimentTreeCache experimentTreeCache() {
 		return Mockito.mock(ExperimentTreeCache.class);
+	}
+
+	@Bean
+	public ExperimentStructureJobResponder experimentStructureJobResponder() {
+		return Mockito.mock(ExperimentStructureJobResponder.class);
 	}
 }

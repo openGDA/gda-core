@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.experiment.structure;
+package uk.ac.gda.core.tool;
 
 import java.io.File;
 import java.net.MalformedURLException;

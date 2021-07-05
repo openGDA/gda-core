@@ -17,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.core.tool.spring;
+package uk.ac.diamond.daq.service.context;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,6 +28,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Test the {@link SpringApplicationContextFacade}

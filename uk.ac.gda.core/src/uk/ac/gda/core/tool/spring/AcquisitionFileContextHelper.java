@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
-import uk.ac.diamond.daq.experiment.structure.URLFactory;
 import uk.ac.gda.common.exception.GDAException;
+import uk.ac.gda.core.tool.URLFactory;
 
 /**
  * Hides the application from the external file service and is primarily dedicated to help the {@link AcquisitionFileContext}
