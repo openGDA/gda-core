@@ -17,7 +17,7 @@ import static org.eclipse.scanning.api.event.status.Status.RUNNING;
 import static org.eclipse.scanning.api.event.status.Status.SUBMITTED;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.URI;
 import java.util.ArrayList;
