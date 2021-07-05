@@ -4,7 +4,7 @@ package uk.ac.gda.common.rcp.test.inspector;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.metawidget.inspector.InspectionResultConstants.NAME;
 
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
