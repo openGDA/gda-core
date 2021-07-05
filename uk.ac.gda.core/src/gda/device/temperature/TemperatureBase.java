@@ -256,7 +256,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		// It requires 5 consecutive readings to be +/- accuracy to minimise errors
 		// caused be overheat or overcool.
 		if (busy) {
-			logger.info("{} isAt TargetTemperature()", getName());
+			logger.trace("{} isAt TargetTemperature()", getName());
 		}
 		currentTemp = getCurrentTemperature();
 		double diff = setPoint - currentTemp;
