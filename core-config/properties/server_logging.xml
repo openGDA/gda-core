@@ -54,10 +54,13 @@
 	</appender>
 
 	<!-- The root appender. By default we log all messages and send all messages
-		to the Log Panels. If you want to limit the messages * being received by
-		the Log panel, the ThresholdFilter in the LogPanel appender can be used.
-		* being saved in the log file, a ThresholdFilter can be added to the LogFile
-		appender. * being sent to both, you can change the root logger level below.
+		to the Log Panels. If you want to limit the messages
+		* being received by the Log panel,
+			the ThresholdFilter in the LogPanel appender can be used.
+		* being saved in the log file,
+			a ThresholdFilter can be added to the LogFile appender.
+		* being sent to both,
+			you can change the root logger level below.
 		Levels: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
 	<root>
 		<level value="${gda.logging.root.level}" />
