@@ -27,12 +27,14 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import gda.device.EnumPositioner;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
 import gda.device.detector.areadetector.v17.NDROI;
 import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.motor.MotorBase;
 import uk.ac.diamond.daq.service.CommonDeviceService;
 import uk.ac.diamond.daq.service.ServiceUtils;
 import uk.ac.diamond.daq.service.command.receiver.device.BeanDeviceCommandReceiver;
@@ -85,7 +87,7 @@ public class DeviceServiceCore extends CommonDeviceService {
 
 	protected void getServiceProperties(String serviceName, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		Class<?> service = getInterfaces().getOrDefault(serviceName, null);
-		DeviceMethods.Builder builder = new DeviceMethods.Builder();
+		var builder = new DeviceMethods.Builder();
 		Map<String, List<String>> map = new HashMap<>();
 		try {
 			Arrays.stream(service.getMethods())
@@ -107,7 +109,7 @@ public class DeviceServiceCore extends CommonDeviceService {
 	}
 
 	private DeviceValue createDeviceValue(String detectorName, String serviceName, String propertyName) {
-		DeviceValue.Builder builder = new DeviceValue.Builder();
+		var builder = new DeviceValue.Builder();
 		builder.withServiceName(serviceName);
 		builder.withProperty(propertyName);
 		builder.withName(detectorName);
@@ -116,16 +118,23 @@ public class DeviceServiceCore extends CommonDeviceService {
 	}
 
 	private <T> T getBean(String detectorName, String suffix, Class<T> clazz) {
+		if (EnumPositioner.class.isAssignableFrom(clazz) || MotorBase.class.isAssignableFrom(clazz))
+			return getBean(detectorName, clazz);
 		// ask the facade to retrieve the bean from the parent application context
-		return SpringApplicationContextFacade.getBean(String.format("%s_%s", detectorName, suffix), clazz, true);
+		return getBean(String.format("%s_%s", detectorName, suffix), clazz);
 	}
 
+	private <T> T getBean(String detectorName, Class<T> clazz) {
+		// ask the facade to retrieve the bean from the parent application context
+		return SpringApplicationContextFacade.getBean(detectorName, clazz, true);
+	}
+	
 	private ServiceUtils getServiceUtils() {
 		return SpringApplicationContextFacade.getBean(ServiceUtils.class);
 	}
 
 	protected DeviceRequest createDeviceRequest(String detectorName, String serviceName, String propertyName) {
-		DeviceValue deviceValue = createDeviceValue(detectorName, serviceName, propertyName);
+		var deviceValue = createDeviceValue(detectorName, serviceName, propertyName);
 		return createDeviceRequest(deviceValue);
 	}
 
@@ -145,6 +154,8 @@ public class DeviceServiceCore extends CommonDeviceService {
 			interfaces.put("fileHDF5", NDFileHDF5.class);
 			interfaces.put("roi", NDROI.class);
 			interfaces.put("stat", NDStats.class);
+			interfaces.put("positioner", EnumPositioner.class);
+			interfaces.put("motor", MotorBase.class);
 		}
 		return interfaces;
 	}

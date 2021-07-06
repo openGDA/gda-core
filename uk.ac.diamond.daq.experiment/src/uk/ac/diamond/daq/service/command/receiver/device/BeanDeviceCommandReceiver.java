@@ -62,7 +62,7 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 	@Override
 	public void getValue(DeviceRequest deviceRequest, OutputStrategy<T> outputStrategy)
 			throws GDAServiceException {
-		T document = getPropertyValue(deviceRequest);
+		var document = getPropertyValue(deviceRequest);
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 
@@ -70,7 +70,7 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 	public void setValue(DeviceRequest deviceRequest, OutputStrategy<T> outputStrategy)
 			throws GDAServiceException {
 		setPropertyValue(deviceRequest);
-		T document = (T) deviceRequest.getDeviceValue();
+		var document = (T) deviceRequest.getDeviceValue();
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 
@@ -87,27 +87,19 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 			return;			
 		}
 		method.ifPresent(m -> invokeSetter(m, deviceRequest.getDevice(), deviceRequest.getDeviceValue().getValue()));
-		
-//		if (DeviceNumberValue.class.isInstance(deviceRequest.getDeviceValue())) {
-//			DeviceNumberValue deviceNumberValue = DeviceNumberValue.class.cast(deviceRequest.getDeviceValue());
-//			Optional<Method> method = Arrays.stream(deviceRequest.getDevice().getClass().getMethods())
-//				.filter(m -> m.getName().equals(deviceRequest.getDeviceValue().getProperty()))
-//				.findFirst();
-//			method.ifPresent(m -> invokeSetter(m, deviceRequest.getDevice(), deviceNumberValue.getValue()));
-//		}
 	}
 
 	private void invokeSetter(Method method, Object instance, Object... args) {
 		try {
 			method.invoke(instance, args);
-			logger.info("Invoked!");
+			logger.debug("Invoked: {} {} {}", method.getClass().getSimpleName(), instance, args);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+			logger.error("Invoked: {} {} {}", method.getClass().getSimpleName(), instance, args);
 		}
 	}
 
 	private T createDeviceValue(DeviceValue deviceValue, Object result) {
-		DeviceValue.Builder builder = new DeviceValue.Builder();
+		var builder = new DeviceValue.Builder();
 		builder.withValue(result);
 		builder.withServiceName(deviceValue.getServiceName());
 		builder.withProperty(deviceValue.getProperty());
