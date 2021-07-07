@@ -16,48 +16,33 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.ui.tool.processing;
+package uk.ac.gda.ui.tool.processing.context;
 
-import java.net.URL;
 import java.util.List;
+
+import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
+import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKey;
 
 /**
  * Describes the configuration for a {@link ProcessingRequestComposite} element.
  *
- * <p>
- * This configuration defines the behaviour a {@link ProcessingRequestRow} inside the {@link ProcessingRequestComposite}.
- * For the defined {@link ProcessingRequestKey}, the behaviour is centered around the class properties
- * <ul>
- * <li>
- * <i>configurationSource</i>: a URL defining the source for valid processing files
- * </li>
- * <li>
- * <i>defaultConfiguration</i>: a URL defining the default processing files
- * </li>
- * <li>
- * <i>mandatory</i>: appends a {@code ProcessingRequestRow} if the {@link #getDefaultConfiguration()} is not {@code null}.
- * </li>
- * </ul>
- * </p>
- * Decouple the {@link ProcessingRequestKey} definitions from where are located the associated configuration.
- * Used by {@code ProcessingRequestComposite}
  *
  * @author Maurizio Nagni
  */
-public class ProcessingRequestContext {
+public class ProcessingRequestContext<T> {
 
 	/**
 	 * The processing request key for the client
 	 */
-	private final ProcessingRequestKey key;
+	private final ProcessingRequestKey<T> key;
 	/**
 	 * The source for the associated processing key
 	 */
-	private final URL configurationSource;
+	private final T configurationSource;
 	/**
 	 * The default processing request configuration for the associated processing key
 	 */
-	private final List<URL> defaultConfiguration;
+	private final List<T> defaultConfiguration;
 
 	/**
 	 * Indicates that this processing context has to be part of every ProcessingRequest.
@@ -72,7 +57,7 @@ public class ProcessingRequestContext {
 	 * @param mandatory if {@code true} indicates that this processing context has to be part of every ProcessingRequest.
 	 * If {@link #getDefaultConfiguration()} is {@code null} this property is ignored.
 	 */
-	public ProcessingRequestContext(ProcessingRequestKey key, URL configurationSource, List<URL> defaultConfiguration, boolean mandatory) {
+	public ProcessingRequestContext(ProcessingRequestKey<T> key, T configurationSource, List<T> defaultConfiguration, boolean mandatory) {
 		super();
 		this.key = key;
 		this.configurationSource = configurationSource;
@@ -81,10 +66,24 @@ public class ProcessingRequestContext {
 	}
 
 	/**
+	 * Creates an element from an existing instance.
+	 *
+	 * @param defaultConfiguration  The default processing request configuration
+	 * If {@link #getDefaultConfiguration()} is {@code null} this property is ignored.
+	 */
+	public ProcessingRequestContext(ProcessingRequestContext<T> processingRequest, List<T> defaultConfiguration) {
+		super();
+		this.key = processingRequest.getKey();
+		this.configurationSource = processingRequest.getConfigurationSource();
+		this.defaultConfiguration = defaultConfiguration;
+		this.mandatory = processingRequest.isMandatory();
+	}
+
+	/**
 	 * The key element for the gui.
 	 * @return the processing request key
 	 */
-	public ProcessingRequestKey getKey() {
+	public ProcessingRequestKey<T> getKey() {
 		return key;
 	}
 
@@ -92,7 +91,7 @@ public class ProcessingRequestContext {
 	 * The source associated with {@link #getKey()}
 	 * @return the source location
 	 */
-	public URL getConfigurationSource() {
+	public T getConfigurationSource() {
 		return configurationSource;
 	}
 
@@ -100,7 +99,7 @@ public class ProcessingRequestContext {
 	 * The default processing request configuration for the associated processing key
 	 * @return The default processing request configuration, otherwise {@code null}
 	 */
-	public List<URL> getDefaultConfiguration() {
+	public List<T> getDefaultConfiguration() {
 		return defaultConfiguration;
 	}
 

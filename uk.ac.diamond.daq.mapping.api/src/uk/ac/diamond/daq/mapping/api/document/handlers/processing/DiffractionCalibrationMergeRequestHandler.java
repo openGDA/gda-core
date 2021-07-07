@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
+import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.slf4j.Logger;
@@ -39,10 +41,23 @@ import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibration
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
+import uk.ac.gda.core.tool.spring.ServerSpringProperties;
 
 /**
- * Handler for {@link DiffractionCalibrationMergeRequest} devices
+ * Handler for {@link DiffractionCalibrationMergeRequest} devices.
  *
+ * <p>
+ * This handler delegates the {@link NexusDeviceService} to merge into the acquired file
+ * the file referenced by {@link DiffractionCalibrationMergeRequest#getValue()}. The process creates, on-demand, a python script,
+ * in the {@link DiffractionContextFile#DIFFRACTION_CONFIGURATION_DIRECTORY} which name is composed as
+ * <i>update_calibration_NameFileToMerge.py</i>
+ * </p>
+ *
+ * <p>
+ * This handler depends on
+ * </p>
+ *
+ * @author Douglas Winter
  * @author Maurizio Nagni
  */
 @Component
@@ -53,6 +68,8 @@ class DiffractionCalibrationMergeRequestHandler implements ProcessingRequestHand
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
 
+	@Autowired
+	private ServerSpringProperties serverSpringProperties;
 
 	private Collection<Object> translateValue(DiffractionCalibrationMergeRequest request) {
 		return request.getValue().stream()
@@ -62,10 +79,9 @@ class DiffractionCalibrationMergeRequestHandler implements ProcessingRequestHand
 
 	private ScriptRequest generateScriptRequest(DiffractionCalibrationMergeRequest request) {
 		URL calibrationFile = request.getValue().iterator().next();
-		String deviceName = request.getDeviceName();
-		String scriptBody = generateScript(calibrationFile, deviceName);
+		String scriptBody = generateScript(calibrationFile);
 		try {
-			var scriptfile = createFile();
+			var scriptfile = createFile(createScriptName(calibrationFile));
 			writeScript(scriptBody, scriptfile);
 			return new ScriptRequest(scriptfile.getAbsolutePath());
 		} catch (IOException e) {
@@ -74,12 +90,14 @@ class DiffractionCalibrationMergeRequestHandler implements ProcessingRequestHand
 		}
 	}
 
-	private File createFile() throws IOException {
-		var file = Paths.get(acquisitionFileContext.getDiffractionContext()
+	private File createFile(String scriptName) {
+		return Paths.get(acquisitionFileContext.getDiffractionContext()
 				.getContextFile(DiffractionContextFile.DIFFRACTION_CONFIGURATION_DIRECTORY).getFile(),
-				"update_calibration.py").toFile();
-		file.createNewFile();
-		return file;
+				scriptName).toFile();
+	}
+
+	private String createScriptName(URL calibrationFile) {
+		return "update_calibration_" + FilenameUtils.getBaseName(calibrationFile.getFile()) + ".py";
 	}
 
 	private void writeScript(String contents, File script) throws IOException {
@@ -88,11 +106,11 @@ class DiffractionCalibrationMergeRequestHandler implements ProcessingRequestHand
 		}
 	}
 
-	private String generateScript(URL calibrationFile, String deviceName) {
+	private String generateScript(URL calibrationFile) {
 		return new StringBuilder()
 				.append("nds = gda.data.ServiceHolder.getNexusDeviceService()\n")
 				.append("calibration_merger = nds.getDecorator('")
-				.append(deviceName)
+				.append(getDatasetName())
 				.append("')\n")
 				.append("calibration_merger.setExternalFilePath('")
 				.append(calibrationFile.getFile())
@@ -121,8 +139,10 @@ class DiffractionCalibrationMergeRequestHandler implements ProcessingRequestHand
 			.ifPresentOrElse(d -> {
 				scanRequest.getProcessingRequest().getRequest().putIfAbsent(requestingPair.getKey(), translateValue(d));
 				scanRequest.setBeforeScript(generateScriptRequest(d));
-			}, () -> {
-				logger.warn("Cannot set ScanRequest.BeforeScript because not empty.");
-			});
+			}, () ->  logger.warn("Cannot set ScanRequest.BeforeScript because not empty."));
+	}
+
+	private String getDatasetName() {
+		return serverSpringProperties.getProcessingRequests().getDiffractionCalibrationMerge().getDatasetName();
 	}
 }

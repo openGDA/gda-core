@@ -20,33 +20,37 @@ package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.scanning.FrameCollectingScannable;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.core.tool.spring.ServerSpringProperties;
+import uk.ac.gda.core.tool.spring.properties.processing.ProcessingRequestProperties;
 
 /**
  * Handler for {@link FrameCaptureRequest} instances.
  *
- * Depends on a {@link FrameCollectingScannable} with name given by the property {@value #FRAME_COLLECTOR_NAME_PROPERTY}.
+ * Depends on any {@link FrameCollectingScannable} instance referenced by {@link ProcessingRequestProperties#getFrameCaptureDecorator()}
  *
  * @author Maurizio Nagni
  */
 @Component
 class FrameCaptureRequestHandler implements ProcessingRequestHandler {
-
-	public static final String FRAME_COLLECTOR_NAME_PROPERTY = "frame.capture.decorator";
-
 	private static final Logger logger = LoggerFactory.getLogger(FrameCaptureRequestHandler.class);
+
+	@Autowired
+	private ServerSpringProperties serverProperties;
 
 	@Override
 	public boolean handle(ProcessingRequestPair<?> requestingPair, ScanRequest scanRequest) {
@@ -54,15 +58,29 @@ class FrameCaptureRequestHandler implements ProcessingRequestHandler {
 			return false;
 		}
 
-		internalHandling((FrameCaptureRequest) requestingPair, scanRequest);
+		try {
+			internalHandling((FrameCaptureRequest) requestingPair, scanRequest);
+		} catch (NoSuchElementException e) {
+			return false;
+		}
+
 
 		return true;
 	}
 
 	private void internalHandling(FrameCaptureRequest frameCaptureRequest, ScanRequest scanRequest) {
-
 		List<DetectorDocument> detectorDocuments = frameCaptureRequest.getValue();
-		String monitorName = LocalProperties.get(FRAME_COLLECTOR_NAME_PROPERTY);
+
+		String monitorName = null;
+		try {
+			monitorName = Optional.ofNullable(serverProperties)
+				.map(ServerSpringProperties::getProcessingRequests)
+				.map(ProcessingRequestProperties::getFrameCaptureDecorator)
+				.orElseThrow();
+		} catch (NoSuchElementException e) {
+			logger.error("No server.processingRequests.frameCaptureDecorator is define in properties");
+			return;
+		}
 
 		try {
 			FrameCollectingScannable scn = (FrameCollectingScannable) ScannableDeviceConnectorService.getInstance().getScannable(monitorName);

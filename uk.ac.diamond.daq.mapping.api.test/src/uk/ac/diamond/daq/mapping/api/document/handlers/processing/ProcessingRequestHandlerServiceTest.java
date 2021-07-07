@@ -21,10 +21,9 @@ package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -69,8 +68,8 @@ public class ProcessingRequestHandlerServiceTest {
 			}
 
 			@Override
-			public Collection<Double> getValue() {
-				Set<Double> weights = new HashSet<>();
+			public List<Double> getValue() {
+				List<Double> weights = new ArrayList<>();
 				weights.add(1.2);
 				weights.add(3.7);
 				return weights;

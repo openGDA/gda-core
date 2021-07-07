@@ -27,12 +27,12 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
@@ -54,6 +54,9 @@ import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.images.ClientImages;
+import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
+import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKey;
+import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -79,21 +82,21 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 	/**
 	 * The available processes for the user to select from
 	 */
-	private final List<ProcessingRequestContext> processingRequestContexts;
+	private final List<ProcessingRequestContext<?>> processingRequestContexts;
 
 	/**
 	 * Creates a composite able to add rows based on a user collection
 	 *
 	 * @param processingRequestContexts
 	 */
-	public ProcessingRequestComposite(List<ProcessingRequestContext> processingRequestContexts) {
+	public ProcessingRequestComposite(List<ProcessingRequestContext<?>> processingRequestContexts) {
 		this.processingRequestContexts = processingRequestContexts;
 	}
 
 	@Override
 	public Composite createComposite(final Composite parent, int style) {
-		Composite columnOneContainer = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-		Button addRow = createClientButton(columnOneContainer, SWT.PUSH, ADD,
+		var columnOneContainer = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		var addRow = createClientButton(columnOneContainer, SWT.PUSH, ADD,
 				SWITCHBACK_SCAN_TOOLTIP, ClientImages.ADD);
 		createClientGridDataFactory().grab(true, true).span(3, 1).applyTo(columnOneContainer);
 		addRowSelectionListener(addRow);
@@ -125,30 +128,20 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 
 		processes.stream()
 			.forEach(p -> {
-				// Find the associates ProcessingRequestKey
-				ProcessingRequestKey key = Arrays.stream(ProcessingRequestKey.values())
-					.filter(v -> v.getKey().equals(p.getKey()))
-					.findFirst()
-					.orElse(null);
-				// Recreate the stored urls
-				List<URL> urls = new ArrayList<>();
-				p.getValue().stream()
-					.forEach(u -> urls.add(URL.class.cast(u)));
+				// Find the ProcessingRequestKey associated to a ProcessingRequestPair
+				ProcessingRequestKey<?> key = getProcessingRequestKeyFactory().getProcessingKey(p.getKey());
 
+				ProcessingRequestContext<?> contextKey = this.processingRequestContexts.stream()
+						.filter(c -> c.getKey().getClass().equals(key.getClass()))
+						.findFirst()
+						.orElse(null);
 
-				ProcessingRequestContext contextKey = this.processingRequestContexts.stream()
-					.filter(c -> c.getKey().equals(key))
-					.findFirst()
-					.orElse(null);
-
-
-				boolean mandatory = contextKey.isMandatory();
-				URL contextSource = contextKey.getConfigurationSource();
-
-				ProcessingRequestContext processContext = new ProcessingRequestContext(key, contextSource, urls, mandatory);
-				createRow().configureRow(processContext);
+				createRow()
+					.configureRow(new ProcessingRequestContext(contextKey, p.getValue()));
 			});
 	}
+
+
 
 	private void appendMandatoryContexts() {
 		processingRequestContexts.stream()
@@ -158,8 +151,19 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 			.forEach(createRow()::configureRow);
 	}
 
+	private Function<ProcessingRequestKey<?>, Optional<ProcessingRequestContext<?>>> getProcessingRequestContext() {
+		return this::getProcessingRequestContext;
+	}
+
+	private Optional<ProcessingRequestContext<?>> getProcessingRequestContext(ProcessingRequestKey<?> key) {
+		return processingRequestContexts.stream()
+		.filter(Predicate.not(ProcessingRequestContext::isMandatory))
+		.filter(p -> p.getKey().equals(key))
+		.findFirst();
+	}
+
 	private ProcessingRequestRow createRow() {
-		ProcessingRequestRow row = new ProcessingRequestRow(table, getKeySupplier());
+		var row = new ProcessingRequestRow(table, getProcessingRequestKeys(), getProcessingRequestContext());
 		table.getShell().layout(true, true);
 		return row;
 	}
@@ -176,8 +180,10 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 		addRow.addListener(SWT.Selection, selectionListener);
 	}
 
-	private Supplier<List<ProcessingRequestContext>> getKeySupplier() {
-		return () -> processingRequestContexts;
+	private List<ProcessingRequestKey<?>> getProcessingRequestKeys() {
+		return processingRequestContexts.stream()
+			.map(ProcessingRequestContext::getKey)
+			.collect(Collectors.toList());
 	}
 
 	private boolean rowsComplete() {
@@ -191,7 +197,7 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 	private void createTableColumns(Table table) {
 		ClientMessages[] headers = { PROCESS, SELECTION, ACTIONS };
 		IntStream.range(0, headers.length).forEach(c -> {
-			TableColumn column = new TableColumn(table, SWT.NONE);
+			var column = new TableColumn(table, SWT.NONE);
 			column.setWidth(100);
 			column.setText(ClientMessagesUtility.getMessage(headers[c]));
 		});
@@ -200,5 +206,9 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 	private Optional<ScanningAcquisition> getScanningAcquisition() {
 		return SpringApplicationContextFacade.getBean(ClientSpringContext.class).getAcquisitionController()
 				.map(AcquisitionController::getAcquisition);
+	}
+
+	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
+		return SpringApplicationContextFacade.getBean(ProcessingRequestKeyFactory.class);
 	}
 }

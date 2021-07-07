@@ -71,19 +71,17 @@ public class ProcessingRequestSerialisationTest {
 	public void testDiffractionCalibrationMergeRequest() throws Exception {
 
 		String calibration = "file://processing/calibration.nxs";
-		String datasetName = "pilatus";
 
 		List<URL> file = Arrays.asList(new URL(calibration));
 
 		DiffractionCalibrationMergeRequest originalRequest = new DiffractionCalibrationMergeRequest.Builder()
 														.withValue(file)
-														.withDeviceName(datasetName).build();
+														.build();
 
 		String serialisedRequest = documentMapper.convertToJSON(originalRequest);
 
 		DiffractionCalibrationMergeRequest deserialisedRequest = documentMapper.convertFromJSON(serialisedRequest, DiffractionCalibrationMergeRequest.class);
 
-		assertEquals(datasetName, deserialisedRequest.getDeviceName());
 		assertEquals(file, deserialisedRequest.getValue());
 		assertTrue(serialisedRequest.contains("\"key\" : \"" + originalRequest.getKey() + "\""));
 	}

@@ -162,6 +162,7 @@ Export-Package: gda.beamline.beam,
  uk.ac.gda.core.tool,
  uk.ac.gda.core.tool.spring,
  uk.ac.gda.core.tool.spring.properties,
+ uk.ac.gda.core.tool.spring.properties.processing,
  uk.ac.gda.core.virtualaxis,
  uk.ac.gda.remoting.client,
  uk.ac.gda.remoting.server
