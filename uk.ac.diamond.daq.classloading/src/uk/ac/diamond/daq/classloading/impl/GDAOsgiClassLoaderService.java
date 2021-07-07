@@ -18,8 +18,14 @@
 
 package uk.ac.diamond.daq.classloading.impl;
 
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;
 
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
@@ -33,11 +39,9 @@ import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 @Component(name = "GDAOsgiClassLoaderService")
 public class GDAOsgiClassLoaderService implements GDAClassLoaderService {
 
-	private final GDAClassLoader defaultDynamicLoader = new GDAClassLoader();
-
 	@Override
 	public ClassLoader getClassLoader() {
-		return defaultDynamicLoader;
+		return new GDAClassLoader();
 	}
 
 	@Override
@@ -47,8 +51,32 @@ public class GDAOsgiClassLoaderService implements GDAClassLoaderService {
 
 	@Override
 	public ClassLoader getClassLoaderForLibrary(Class<?> libraryClass, Consumer<Class<?>> onSuccess) {
-		ClassLoader libloader = libraryClass.getClassLoader();
-		return new GDAClassLoader(libloader, onSuccess);
+		var libBundle = FrameworkUtil.getBundle(libraryClass);
+		return createClassLoader(libraryClass, onSuccess, Set.of(libBundle));
+	}
+
+	@Override
+	public ClassLoader getClassLoaderForLibrary(Class<?> libraryClass, Consumer<Class<?>> onSuccess,
+			Set<String> resourceBundleNames) {
+		var resourceBundles = resourceBundleNames.stream().map(this::getBundle).collect(Collectors.toSet());
+		return createClassLoader(libraryClass, onSuccess, resourceBundles);
+	}
+
+	private ClassLoader createClassLoader(Class<?> libraryClass, Consumer<Class<?>> onSuccess,
+			Set<Bundle> resourceBundles) {
+		var libloader = libraryClass.getClassLoader();
+		return new GDAClassLoader(libloader, onSuccess, resourceBundles);
+	}
+
+	/**
+	 * Get the Bundle object from the framework. In the case that there are multiple bundles with the same
+	 * BSN, it is not determined which will be provided.
+	 * @param bundleName Bundle-SymbolicName
+	 * @throws NoSuchElementException if the bundle is not in currently installed
+	 */
+	private Bundle getBundle(String bundleName) {
+		return Arrays.stream(FrameworkUtil.getBundle(getClass()).getBundleContext().getBundles())
+				.filter(b -> b.getSymbolicName().equals(bundleName)).findFirst().orElseThrow();
 	}
 
 }

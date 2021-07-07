@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.classloading;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.osgi.framework.Bundle;
@@ -37,7 +38,8 @@ public interface GDAClassLoaderService {
 	 * Obtain a class loader which is capable of loading classes from all bundles/plugins in the application provided
 	 * the containing package is exported from its plugin. <br />
 	 * This loader allows an additional ClassLoader to be searched first (typically this would be a class from the
-	 * library requiring this class loader)
+	 * library requiring this class loader)  <br />
+	 * The library bundle will be used to load resources.
 	 *
 	 * @param libraryClass
 	 *            the ClassLoader of this Class object will be searched first
@@ -48,13 +50,34 @@ public interface GDAClassLoaderService {
 	 * Obtain a class loader which is capable of loading classes from all bundles/plugins in the application provided
 	 * the containing package is exported from its plugin. <br />
 	 * This loader allows an additional ClassLoader to be searched first (typically this would be a class from the
-	 * library requiring this class loader)
+	 * library requiring this class loader) <br />
+	 * The library bundle will be used to load resources.
 	 *
 	 * @param libraryClass
 	 *            the ClassLoader of this Class object will be searched first
 	 * @param onSuccess callback when class is successfully loaded
 	 */
 	ClassLoader getClassLoaderForLibrary(Class<?> libraryClass, Consumer<Class<?>> onSuccess);
+
+
+	/**
+	 * Obtain a class loader which is capable of loading classes from all bundles/plugins in the application provided
+	 * the containing package is exported from its plugin. <br />
+	 * This loader allows an additional ClassLoader to be searched first (typically this would be a class from the
+	 * library requiring this class loader). <br />
+	 *
+	 * Resources may be loaded from any of the bundles provided in the {@code resourceBundleNames} parameter.
+	 *
+	 * @param libraryClass
+	 *            the ClassLoader of this Class object will be searched first
+	 * @param onSuccess
+	 *            callback when class is successfully loaded
+	 * @param resourceBundleNames
+	 *            set of Bundle-SymbolicNames for bundles to search for resources - they must all be currently installed in
+	 *            the OSGi framework
+	 */
+	ClassLoader getClassLoaderForLibrary(Class<?> libraryClass, Consumer<Class<?>> onSuccess,
+			Set<String> resourceBundleNames);
 
 	/**
 	 * Get the class loader service from OSGi
