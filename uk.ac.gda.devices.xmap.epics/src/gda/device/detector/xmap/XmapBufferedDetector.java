@@ -76,6 +76,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	private boolean deadTimeEnabled = true;
 	private String defaultSubDirectory = "xmapData";
 	private String qexafsEnergyName = "qexafs_energy";
+	private String windowsPathPrefix = "X:/";
 
 	public NexusXmap getXmap() {
 		return xmap;
@@ -187,7 +188,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				//sleep required for gda to recognise number of arrays has finalized.
 //				Thread.sleep(1000);
 				// change to linux format
-				fileNameOnDls = XmapFileUtils.getDataDirectoryDirName(lastFileName);
+				fileNameOnDls = convertPathFromWindows(lastFileName);
 
 				XmapFileUtils.waitForFileToBeReadable(fileNameOnDls);
 
@@ -377,8 +378,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 	private void setupFilename() throws Exception {
 		// filename prefix
-		String beamline = GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "base");
-		controller.setFilenamePrefix(beamline);
+		controller.setFilenamePrefix(getBeamlineName());
 
 		// scan number
 		NumTracker runNumber = new NumTracker("scanbase_numtracker");
@@ -417,8 +417,9 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			perms.add(PosixFilePermission.OTHERS_EXECUTE);
 			Files.setPosixFilePermissions(scanSubDir.toPath(), perms);
 		}
-		dataDir = dataDir.replace("/dls/" + beamline.toLowerCase()+"/data/", "X:/");
-		controller.setDirectory(dataDir);
+		String windowsDataDir = convertPathToWindows(dataDir);
+		logger.info("Setting XMap hdf writer file path to : {}", windowsDataDir);
+		controller.setDirectory(windowsDataDir);
 	}
 
 	private void setupContinuousOperation() throws DeviceException {
@@ -543,5 +544,24 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	 */
 	public void setDefaultSubDirectory(String defaultSubDirectory) {
 		this.defaultSubDirectory = defaultSubDirectory;
+	}
+
+	private String getBeamlineName() {
+		return GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "base").toLowerCase();
+	}
+
+	public String convertPathToWindows(String dataDirForScan) {
+		return XmapFileUtils.convertPathToWindows(windowsPathPrefix, dataDirForScan, getBeamlineName());	}
+
+	public String convertPathFromWindows(String windowsDirForScan) {
+		return XmapFileUtils.convertPathFromWindows(windowsPathPrefix, windowsDirForScan, getBeamlineName());
+	}
+
+	public String getWindowsPathPrefix() {
+		return windowsPathPrefix;
+	}
+
+	public void setWindowsPathPrefix(String windowsPathPrefix) {
+		this.windowsPathPrefix = windowsPathPrefix;
 	}
 }

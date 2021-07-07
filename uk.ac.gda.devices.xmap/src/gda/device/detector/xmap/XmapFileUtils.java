@@ -5,8 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 
 public final class XmapFileUtils {
@@ -66,31 +67,44 @@ public final class XmapFileUtils {
 		}
 	}
 
-
 	/**
-	 * @see {@link #getDataDirectoryDirName(String, String)}
-	 * @param xmapDir
-	 * @return path to dls data directory for beamline
-	 */
-	public static String getDataDirectoryDirName(String xmapDir) {
-		String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
-		return getDataDirectoryDirName(xmapDir, beamline);
-	}
-
-	/**
-	 * Convert path on X:/ used by XMap IOC to path to dls data directory
-	 * by replacing {@code X:/} with {@code /dls/<beamline>/data}. e.g.
+	 * Convert path from windows XMap IOC to path to a dls data directory
+	 * by replacing 'windowsPrefex' with path to data directory. i.e. {@code X:/} with {@code /dls/<beamline>/data}. e.g.
 	 * <p><p>
 	 * X:/2018/sp1234-5/temp/dir1/   --> /dls/b18/data/2018/sp1234-5/temp/dir1/
 	 * <p><p>
 	 * Any backslashes are also replaced with forward slashes.
 	 *
-	 * @param xmapDir
+	 * @param windowsPrefix
+	 * @param windowsDir
 	 * @param beamline
 	 * @return path to dls data directory for beamline
 	 */
-	public static String getDataDirectoryDirName(String xmapDir, String beamline) {
-		String dirName = xmapDir.replace("X:/", "/dls/" + beamline + "/data/");
-		return dirName.replaceAll("\\\\", "/"); // replace backslashes with forward ones
+	public static String convertPathFromWindows(String windowsPrefix, String windowsDir, String beamline) {
+		String windowsPath = windowsDir.replaceAll("\\\\", "/"); // replace backslashes with forward ones
+		String linuxPath = windowsPath.replace(windowsPrefix, "/dls/"+beamline+"/data/");
+		return Paths.get(linuxPath).toString();
+	}
+
+	/**
+	 * Convert dls data directory path to windows path
+	 * by replacing '{@code /dls/<beamline>/data}' with windowsPrefix. e.g.
+	 * <p><p>
+	 * /dls/b18/data/2018/sp1234-5/temp/dir1/ --> X:/2018/sp1234-5/temp/dir1/ , (windowsPrefix = X:/)
+	 * /dls/b18/data/2018/sp1234-5/temp/dir1/ --> X:/data/2018/sp1234-5/temp/dir1/ , (windowsPrefix = X:/data)
+
+	 * <p><p>
+	 *
+	 * @param windowsPrefix
+	 * @param dlsDir path to data directory (i.e. /dls/<beamline>/data/...)
+	 * @param beamline
+	 * @return path to dls data directory for beamline
+	 */
+	public static String convertPathToWindows(String windowsPrefix, String dlsDir, String beamline) {
+		Path relativePath = Paths.get("/dls", beamline, "data").relativize(Paths.get(dlsDir));
+		if (relativePath.toString().isEmpty()) {
+			return windowsPrefix;
+		}
+		return Paths.get(windowsPrefix).resolve(relativePath).toString();
 	}
 }
