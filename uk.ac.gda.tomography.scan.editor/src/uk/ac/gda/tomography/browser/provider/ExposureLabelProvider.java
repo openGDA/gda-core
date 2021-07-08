@@ -29,10 +29,10 @@ import org.eclipse.swt.SWT;
 
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
  * Shows the detector exposure in a resource's {@link ScanningParameters}

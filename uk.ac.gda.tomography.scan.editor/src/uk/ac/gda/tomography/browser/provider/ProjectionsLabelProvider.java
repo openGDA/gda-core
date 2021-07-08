@@ -28,7 +28,7 @@ import org.eclipse.swt.SWT;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
+import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
  * Shows the number of points in the first {@link ScannableTrackDocument} in a resource's {@link ScanningParameters}.
