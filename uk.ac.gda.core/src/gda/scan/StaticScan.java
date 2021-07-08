@@ -22,7 +22,8 @@ import gda.device.Detector;
 import gda.device.Scannable;
 
 /**
- * Similar to StaticScanNoCollection except that it will call collectData on all the given detectors.
+ * This 'scan' does not move anything but does instruct detectors to collect data, it calls getPosition() or readout()
+ * once and saves the data to a normal scan file.
  */
 public class StaticScan extends ScanBase {
 
