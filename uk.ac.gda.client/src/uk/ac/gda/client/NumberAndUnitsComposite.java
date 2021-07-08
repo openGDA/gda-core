@@ -142,6 +142,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 				return NonSIext.getUnitString((Unit<? extends Quantity<?>>) element);
 			}
 		});
+		unitsCombo.getCombo().addListener(SWT.MouseWheel, evt -> evt.doit = false);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
