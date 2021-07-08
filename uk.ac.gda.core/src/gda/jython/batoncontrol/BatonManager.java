@@ -252,6 +252,7 @@ public class BatonManager implements IBatonManager {
 	public ClientDetails getClientInformation(String myJSFIdentifier) {
 		boolean hasBaton = amIBatonHolder(myJSFIdentifier, false);
 		ClientInfo info = getClientInfo(myJSFIdentifier);
+		if (info == null) return null;
 		return new ClientDetails(info, hasBaton);
 	}
 
