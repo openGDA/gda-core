@@ -84,6 +84,8 @@ public class SpringObjectServer extends ObjectServer {
 	private static final String GDA_JYTHON_FINDABLES_MODULE_ENABLED = "gda.jython.findables.module.enabled";
 	private static final String GDA_JYTHON_FINDABLES_MODULE_NAME = "gda.jython.findables.module.name";
 	private static final String GDA_JYTHON_FINDABLES_MODULE_DIR = "gda.jython.findables.module.dir";
+	/** Set of bundle names containing resources required by Spring, e.g. spring.schemas */
+	private static final Set<String> SPRING_RESOURCE_BUNDLES = Set.of("uk.ac.diamond.org.springframework", "uk.ac.gda.core");
 
 	private final OsgiServiceBeanHandler osgiServiceBeanHandler = new OsgiServiceBeanHandler();
 
@@ -99,17 +101,15 @@ public class SpringObjectServer extends ObjectServer {
 	 */
 	public SpringObjectServer(File xmlFile) {
 		super(xmlFile);
-
 		final String configLocation = "file:" + xmlFile.getAbsolutePath();
 		applicationContext = new GenericApplicationContext();
-		applicationContext.setClassLoader(GDAClassLoaderService.getClassLoaderService()
-				.getClassLoaderForLibrary(getClass()));
+		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
+				.getClassLoaderForLibrary(XmlBeanDefinitionReader.class, c -> {
+				}, SPRING_RESOURCE_BUNDLES);
+		applicationContext.setClassLoader(cl);
 		XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(applicationContext);
-		// For EntityResolver and NamespaceHandlerResolver provide a class from uk.ac.diamond.org.springframework
-		// which will contain all the namespaces and schemas
-		beanReader.setEntityResolver(new PluggableSchemaResolver(XmlBeanDefinitionReader.class.getClassLoader()));
-		beanReader.setNamespaceHandlerResolver(
-				new DefaultNamespaceHandlerResolver(XmlBeanDefinitionReader.class.getClassLoader()));
+		beanReader.setEntityResolver(new PluggableSchemaResolver(cl));
+		beanReader.setNamespaceHandlerResolver(new DefaultNamespaceHandlerResolver(cl));
 		applicationContext.getEnvironment().getPropertySources().addFirst(new LocalPropertiesPropertySource());
 		setApplicationContextActiveProfiles(applicationContext);
 		applicationContext.setAllowBeanDefinitionOverriding(false);

@@ -135,7 +135,7 @@ public class SpringWebInitializer {
 	private void onStartup(ServletContext container) {
 		// Create the application context
 		rootContext = new AnnotationConfigWebApplicationContext();
-		rootContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
+		rootContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibrary(AnnotationConfigWebApplicationContext.class));
 		rootContext.register(SpringContextConfiguration.class);
 
 		ServletRegistration.Dynamic dispatcher = container.addServlet("restServlet",
