@@ -65,25 +65,6 @@ public class FinderTest {
 	}
 
 	@Test
-	public void findOptionalReturnsOptionalWithCorrectFindable() throws FactoryException {
-		prepareFactoryForFindAndFindOptionalTests();
-
-		Optional<Findable> findable = Finder.findOptional("findable1");
-
-		assertTrue(findable.isPresent());
-		assertEquals("findable1", findable.get().getName());
-	}
-
-	@Test
-	public void findOptionalReturnsOptionalWithNoFindable() throws FactoryException {
-		prepareFactoryForFindAndFindOptionalTests();
-
-		Optional<Findable> findable = Finder.findOptional("findable3");
-
-		assertFalse(findable.isPresent());
-	}
-
-	@Test
 	public void findOptionalOfTypeReturnsOptionalWithCorrectFindableWhenNameAndTypeMatch() throws FactoryException {
 		prepareFactoryForFindAndFindOptionalTests();
 
