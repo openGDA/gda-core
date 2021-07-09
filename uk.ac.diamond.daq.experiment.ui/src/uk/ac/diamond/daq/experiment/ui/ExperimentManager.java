@@ -36,8 +36,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.WidgetUtilities;
@@ -53,13 +53,13 @@ public class ExperimentManager implements CompositeFactory {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite composite = createClientCompositeWithGridLayout(parent, style, 1);
+		var composite = createClientCompositeWithGridLayout(parent, style, 1);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
-		Group group = createClientGroup(parent, style, 2, ClientMessages.EXPERIMENT);
+		var group = createClientGroup(parent, style, 2, ClientMessages.EXPERIMENT);
 		ClientSWTElements.createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(group);
 
-		Label name = createClientLabel(group, style, ClientMessages.NAME);
+		var name = createClientLabel(group, style, ClientMessages.NAME);
 		ClientSWTElements.createClientGridDataFactory().indent(5, SWT.DEFAULT).applyTo(name);
 
 		experimentName = createClientText(group, style, ClientMessages.EMPTY_MESSAGE, (VerifyListener) null);
@@ -94,14 +94,14 @@ public class ExperimentManager implements CompositeFactory {
 			// the button is ready to stop an experiment
 			try {
 				getExperimentController().stopExperiment();
-			} catch (ExperimentControllerException e) {
+			} catch (GDAClientRestException e) {
 				UIHelper.showError("Cannot stop the Experiment", e);
 			}
 		} else {
 			// the button is ready to start an experiment
 			try {
 				getExperimentController().startExperiment(experimentName.getText());
-			} catch (ExperimentControllerException e) {
+			} catch (GDAClientRestException e) {
 				UIHelper.showError("Cannot start the Experiment", e);
 			}
 		}

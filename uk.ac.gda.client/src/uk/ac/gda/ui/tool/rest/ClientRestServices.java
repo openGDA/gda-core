@@ -18,7 +18,6 @@
 
 package uk.ac.gda.ui.tool.rest;
 
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
@@ -32,11 +31,11 @@ public class ClientRestServices {
 	}
 
 	/**
-	 * Provides access to a {@link ExperimentController} service
+	 * Provides access to a {@link ExperimentControllerServiceClient} service
 	 *
 	 * @return an experiment controller service
 	 */
-	public static final ExperimentController getExperimentController() {
+	public static final ExperimentControllerServiceClient getExperimentController() {
 		return SpringApplicationContextFacade.getBean(ExperimentControllerServiceClient.class);
 	}
 
