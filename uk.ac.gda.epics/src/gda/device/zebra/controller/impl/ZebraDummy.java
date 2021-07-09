@@ -262,6 +262,11 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 	}
 
 	@Override
+	public void waitUntilArmed(int timeout) {
+		// do nothing
+	}
+
+	@Override
 	public void pcDisarm() throws Exception {
 		logger.trace("Dis-Arm Zebra Box");
 		pcArmed = false;

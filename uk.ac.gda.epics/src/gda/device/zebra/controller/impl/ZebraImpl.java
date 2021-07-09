@@ -29,6 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.google.common.base.Preconditions;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.zebra.LogicGateConfiguration;
 import gda.device.zebra.controller.SoftInputChangedEvent;
 import gda.device.zebra.controller.Zebra;
@@ -120,6 +121,8 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 
 	private static final double PulseWidthMin = 0.0001;
 	private static final double PulseWidthMax = 6.5535;
+
+	private static final int ArmDefaultTimeoutSeconds = 300;
 
 	private String zebraPrefix;
 
@@ -349,11 +352,18 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 			pvFactory.getPVInteger(PCArm).putWait(1);
 		}
 
-		while (!isPCArmed()) {
-			logger.info("Zebra not yet armed, waiting...");
-			Thread.sleep(100);
-		}
+		int timeout = LocalProperties.getAsInt("gda.epics.zebraArm.timeoutSeconds", ArmDefaultTimeoutSeconds);
+		waitUntilArmed(timeout);
 		logger.trace("...pcArm()");
+	}
+
+	@Override
+	public void waitUntilArmed(int timeout) throws Exception {
+		try {
+			pvFactory.getPVInteger(PCArmOut).waitForValue(x -> (x == 1), timeout);
+		} catch (TimeoutException e) {
+			throw new Exception(String.format("Zebra was not armed after %d seconds", timeout), e);
+		}
 	}
 
 	@Override
