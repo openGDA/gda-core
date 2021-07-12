@@ -317,7 +317,7 @@ public class Application implements IApplication {
 				MessageBox messageBox = new MessageBox(new Shell(display), SWT.ICON_ERROR);
 				messageBox.setText("Cannot Start GDA Client");
 				messageBox.setMessage("No visits found for user: " + user + ""
-						+ "\n\nAre you sure your logged in as the right user?"
+						+ "\n\nAre you sure you're logged in as the right user?"
 						+ "\n\nGDA will not start");
 				messageBox.open();
 				return EXIT_OK;
