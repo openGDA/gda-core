@@ -34,6 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -42,7 +43,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * @author Maurizio Nagni
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ConfigurationPropertiesTestConfiguration.class })
+@ContextConfiguration(classes = { ConfigurationPropertiesTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AcquistionConfigurationTest {
 

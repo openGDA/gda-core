@@ -40,9 +40,10 @@ import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.DiffractionFileContext;
 import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 import uk.ac.gda.core.tool.spring.ExperimentFileContext;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
+@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AcquisitionFileDefaultDirContextTest extends AcquisitionFileContextCommonTest {
 

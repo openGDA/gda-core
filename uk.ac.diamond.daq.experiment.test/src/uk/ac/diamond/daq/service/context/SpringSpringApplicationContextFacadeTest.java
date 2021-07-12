@@ -35,12 +35,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 /**
  * Test the {@link SpringApplicationContextFacade}
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
+@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class SpringSpringApplicationContextFacadeTest {
 

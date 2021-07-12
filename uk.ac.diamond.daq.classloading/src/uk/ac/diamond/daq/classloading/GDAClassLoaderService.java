@@ -21,10 +21,13 @@ package uk.ac.diamond.daq.classloading;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+
+import uk.ac.diamond.daq.classloading.impl.SystemClassLoadingService;
 
 public interface GDAClassLoaderService {
 
@@ -73,24 +76,40 @@ public interface GDAClassLoaderService {
 	 * @param onSuccess
 	 *            callback when class is successfully loaded
 	 * @param resourceBundleNames
-	 *            set of Bundle-SymbolicNames for bundles to search for resources - they must all be currently installed in
-	 *            the OSGi framework
+	 *            set of Bundle-SymbolicNames for bundles to search for resources
 	 */
 	ClassLoader getClassLoaderForLibrary(Class<?> libraryClass, Consumer<Class<?>> onSuccess,
 			Set<String> resourceBundleNames);
 
 	/**
-	 * Get the class loader service from OSGi
+	 * Obtain a class loader which is capable of loading classes from all bundles/plugins in the application provided
+	 * the containing package is exported from its plugin. <br />
+	 * This loader allows an additional ClassLoader to be searched first (typically this would be a class from the
+	 * library requiring this class loader). <br />
+	 *
+	 * Resources may be loaded from any of the bundles present in the application.
+	 *
+	 * @param libraryClass
+	 *            the ClassLoader of this Class object will be searched first
+	 */
+	ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass);
+
+	/**
+	 * Get the class loader service from OSGi if it is running otherwise a null service
+	 * will be returned. <br />
 	 * Possibly not required if there is a solution later implemented for DAQ-2239.
 	 *
-	 * @return the service instantiated by OSGi DS
+	 * @return the service instantiated by OSGi DS or a service providing null class loaders if OSGi is not running
 	 */
 	static GDAClassLoaderService getClassLoaderService() {
-		Bundle currentBundle = FrameworkUtil.getBundle(GDAClassLoaderService.class);
-		BundleContext bundleContext = currentBundle.getBundleContext();
-		ServiceReference<GDAClassLoaderService> serviceReference = bundleContext
-				.getServiceReference(GDAClassLoaderService.class);
-		return bundleContext.getService(serviceReference);
+		if (Platform.isRunning()) {
+			Bundle currentBundle = FrameworkUtil.getBundle(GDAClassLoaderService.class);
+			BundleContext bundleContext = currentBundle.getBundleContext();
+			ServiceReference<GDAClassLoaderService> serviceReference = bundleContext
+					.getServiceReference(GDAClassLoaderService.class);
+			return bundleContext.getService(serviceReference);
+		}
+		return new SystemClassLoadingService();
 	}
 
 }

@@ -34,9 +34,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.common.exception.GDAException;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { DocumentTestBaseConfiguration.class })
+@ContextConfiguration(classes = { DocumentTestBaseConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class DocumentTestBase {
 

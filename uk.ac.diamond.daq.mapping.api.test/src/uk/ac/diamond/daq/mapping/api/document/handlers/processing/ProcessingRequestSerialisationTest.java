@@ -36,12 +36,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 /**
  * Where we ensure all processing request implementations can be consistently de/serialised
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class })
+@ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ProcessingRequestSerialisationTest {
 

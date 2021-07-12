@@ -42,6 +42,7 @@ import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
@@ -50,7 +51,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * @author Maurizio Nagni
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { DevicePositionServiceTestConfiguration.class })
+@ContextConfiguration(classes = { DevicePositionServiceTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class DevicePositionServiceTest {
 

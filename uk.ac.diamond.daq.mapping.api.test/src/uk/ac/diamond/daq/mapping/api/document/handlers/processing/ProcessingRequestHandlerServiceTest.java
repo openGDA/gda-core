@@ -38,6 +38,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 /**
  * Tests the {@link ProcessingRequestHandlerService}
@@ -45,7 +46,7 @@ import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
  * @author Maurizio Nagni
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class })
+@ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ProcessingRequestHandlerServiceTest {
 

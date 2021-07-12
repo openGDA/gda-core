@@ -36,9 +36,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
+@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AcquisitionFileCustomExperimentContextTest extends AcquisitionFileContextCommonTest {
 

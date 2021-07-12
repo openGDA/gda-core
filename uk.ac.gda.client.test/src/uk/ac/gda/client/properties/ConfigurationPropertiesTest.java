@@ -36,6 +36,7 @@ import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationPropertie
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.controller.ControllerConfiguration;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -44,7 +45,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * @author Maurizio Nagni
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ConfigurationPropertiesTestConfiguration.class })
+@ContextConfiguration(classes = { ConfigurationPropertiesTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ConfigurationPropertiesTest {
 

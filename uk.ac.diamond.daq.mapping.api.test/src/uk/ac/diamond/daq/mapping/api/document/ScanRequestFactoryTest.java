@@ -50,10 +50,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.configuration.processing.ApplyNexusTemplatesRequest;
 import uk.ac.gda.common.exception.GDAException;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.util.io.FileUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ScanRequestFactoryTestConfiguration.class })
+@ContextConfiguration(classes = { ScanRequestFactoryTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScanRequestFactoryTest {
 

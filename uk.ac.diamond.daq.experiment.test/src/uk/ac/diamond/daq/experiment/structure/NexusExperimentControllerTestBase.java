@@ -37,13 +37,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
 /**
  * Base class for {@link NexusExperimentController} tests,
  * handling initialisation and mocking of all necessary components.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { NexusExperimentControllerTestConfiguration.class })
+@ContextConfiguration(classes = { NexusExperimentControllerTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public abstract class NexusExperimentControllerTestBase {
 

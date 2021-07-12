@@ -13,7 +13,8 @@ DynamicImport-PackageComment: The approach used here is needed to handle split p
 DynamicImport-Package: *;merged=true,
  *
 Require-Bundle: org.eclipse.osgi.services,
- org.eclipse.osgi
+ org.eclipse.osgi,
+ org.eclipse.core.runtime
 Export-Package: uk.ac.diamond.daq.classloading
 Import-Package: org.slf4j
 Service-Component: OSGI-INF/GDAOsgiClassLoaderService.xml
