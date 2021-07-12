@@ -18,12 +18,6 @@
 
 package gda.swing.ncd;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.device.DeviceException;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-import gda.rcp.ncd.NcdController;
-
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -38,14 +32,20 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
+import gda.rcp.ncd.NcdController;
+
 /**
  * A base class for all NCD panels except InstrumentPanels Class members have the start, clear, stop, output and restart
  * buttons at their bottom and their respective stuff above
  */
 public class NcdButtonPanel extends JPanel {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NcdButtonPanel.class);
-	
+
 	private JButton startButton;
 	private JButton clearButton;
 	private JButton haltButton;
@@ -172,7 +172,7 @@ public class NcdButtonPanel extends JPanel {
 
 					try {
 						GDAMetadataProvider.getInstance(true).setMetadataValue("title", title.trim());
-						JythonServerFacade.getInstance().evaluateCommand("gda.scan.StaticScanNoCollection(["+ncdController.getNcdDetectorSystem().getName()+"]).runScan()");
+						JythonServerFacade.getInstance().evaluateCommand("gda.scan.StaticScan(["+ncdController.getNcdDetectorSystem().getName()+"]).runScan()");
 						saved = true;
 					} catch (Exception de) {
 						logger.error("Exception during readout ", de);
@@ -253,7 +253,7 @@ public class NcdButtonPanel extends JPanel {
 
 	/**
 	 * Weirdly named and implemented observer pattern
-	 * 
+	 *
 	 * @param observer
 	 */
 	public void addObservability(@SuppressWarnings("unused") IObserver observer) {
@@ -261,7 +261,7 @@ public class NcdButtonPanel extends JPanel {
 
 	/**
 	 * get the name of the shutter configured
-	 * 
+	 *
 	 * @return the name of the shutter configured
 	 */
 	public String getShutterName() {
@@ -270,7 +270,7 @@ public class NcdButtonPanel extends JPanel {
 
 	/**
 	 * set the name of the shutter
-	 * 
+	 *
 	 * @param newShutterName
 	 */
 	public void setShutterName(String newShutterName) {
