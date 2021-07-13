@@ -19,6 +19,7 @@
 package gda.spring;
 
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleContext;
@@ -42,45 +43,45 @@ import uk.ac.gda.core.GDACoreActivator;
  * @since GDA 9.12
  */
 public class OsgiServiceBeanHandler {
+
 	private static final Logger logger = LoggerFactory.getLogger(OsgiServiceBeanHandler.class);
+
+	private static final Dictionary<String, ?> NO_PROPERTIES = new Hashtable<>();
 
 	private final BundleContext bundleContext = GDACoreActivator.getBundleContext();
 
 	public void processBean(Object bean, String beanName) {
 		logger.trace("Processing bean '{}'", beanName);
-		OsgiService[] osgiServiceAnnotations = bean.getClass().getAnnotationsByType(OsgiService.class);
+		final OsgiService[] osgiServiceAnnotations = bean.getClass().getAnnotationsByType(OsgiService.class);
 		for (OsgiService osgiService : osgiServiceAnnotations) {
-			Class<?> osigServiceInterface = osgiService.value();
+			final Class<?> osgiServiceInterface = osgiService.value();
 			// Check the bean implements the OSGi service interface
-			if (!osigServiceInterface.isInstance(bean)) {
+			if (!osgiServiceInterface.isInstance(bean)) {
 				// The bean does not implement the OSGi service interface
-				throw new BeanNotOfRequiredTypeException(beanName, osigServiceInterface, bean.getClass());
+				throw new BeanNotOfRequiredTypeException(beanName, osgiServiceInterface, bean.getClass());
 			}
 
-			if (alreadyInRegister(osigServiceInterface, bean)) {
-				logger.warn(
-						"'{}' is already registered as an OSGi service with interface '{}'. This could be done automatically so remove corresponding "
-								+ OSGiServiceRegister.class.getSimpleName() + " bean",
-						beanName, osigServiceInterface.getCanonicalName());
+			if (alreadyInRegister(osgiServiceInterface, bean)) {
+				logger.warn("'{}' is already registered as an OSGi service with interface '{}'. This could be done automatically so remove corresponding {} bean",
+						beanName, osgiServiceInterface.getCanonicalName(), OSGiServiceRegister.class.getSimpleName());
 			} else {
 				// We will register it
-				bundleContext.registerService(osigServiceInterface.getCanonicalName(), bean,
-						new Hashtable<String, Object>(0));
+				bundleContext.registerService(osgiServiceInterface.getCanonicalName(), bean, NO_PROPERTIES);
 				logger.info("Registered bean '{}' in OSGi service register with interface '{}'", beanName,
-						osigServiceInterface.getSimpleName());
+						osgiServiceInterface.getSimpleName());
 			}
 		}
 	}
 
-	private <S> boolean alreadyInRegister(Class<S> osigServiceInterface, Object bean) {
+	private <S> boolean alreadyInRegister(Class<S> osgiServiceInterface, Object bean) {
 		try {
 			// null for no filter we want all the services
-			Collection<ServiceReference<S>> serviceReferences = bundleContext.getServiceReferences(osigServiceInterface,
-					null);
+			final Collection<ServiceReference<S>> serviceReferences = bundleContext.getServiceReferences(osgiServiceInterface, null);
 			return serviceReferences.stream()
 					.anyMatch(serviceReference -> bundleContext.getService(serviceReference).equals(bean));
 		} catch (InvalidSyntaxException e) {
-			logger.error("Failed to check if '{}' is already an OSGi service. It might be registered twice", e);
+			logger.error("Failed to check if '{}' is already an OSGi service. It might be registered twice",
+					osgiServiceInterface.getCanonicalName(), e);
 			return false;
 		}
 	}
