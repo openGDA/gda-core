@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -120,8 +122,17 @@ public class ScanningParametersHelperBase {
 	}
 
 	private ScannableTrackDocument.Builder getScannableTrackDocumentPerAxisBuilder(List<ScannableTrackDocument> scannableTrackDocuments, String axis) {
+		// A static point is not expected to have any axis associated. However the scannableTrackDocument still contains information regarding the
+		// number of points in an acquisition
+		if (axis == null
+				&& AcquisitionTemplateType.STATIC_POINT.equals(getScanningParameters().getScanpathDocument().getModelDocument())
+				&& !scannableTrackDocuments.isEmpty()) {
+			return new ScannableTrackDocument.Builder(scannableTrackDocuments.get(0));
+		}
+
 		return scannableTrackDocuments.stream()
 				.filter(t -> t.getAxis().equals(axis))
+				.filter(Objects::nonNull)
 				.findFirst()
 				.map(ScannableTrackDocument.Builder::new)
 				.orElseGet(() -> null);
