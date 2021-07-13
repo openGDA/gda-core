@@ -103,7 +103,7 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 	}
 
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
-		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
+		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
 		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> newAcquisition()));
 		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> saveAcquisition()));
 		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> runAcquisition()));

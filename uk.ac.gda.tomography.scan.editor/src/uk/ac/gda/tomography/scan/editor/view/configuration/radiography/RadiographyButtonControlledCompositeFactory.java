@@ -21,6 +21,7 @@ package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDisposableApplicationListener;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.swt.widgets.Composite;
@@ -30,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
@@ -39,8 +42,10 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.Reloadable;
+import uk.ac.gda.ui.tool.document.DocumentFactory;
 import uk.ac.gda.ui.tool.selectable.ButtonControlledCompositeTemplate;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
@@ -57,16 +62,19 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 	private final Supplier<Composite> controlButtonsContainerSupplier;
 
 	private CompositeFactory acquistionConfigurationFactory;
+	private ScanpathDocumentHelper scanpathDocumentHelper;
 
 	public RadiographyButtonControlledCompositeFactory(AcquisitionController<ScanningAcquisition> acquisitionController,
 			Supplier<Composite> controlButtonsContainerSupplier) {
 		this.acquisitionController = acquisitionController;
 		this.controlButtonsContainerSupplier = controlButtonsContainerSupplier;
+		this.scanpathDocumentHelper = new ScanpathDocumentHelper(this::getScanningParameters);
 	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		addDisposableApplicationListener(this, new LoadListener());
+		acquistionConfigurationFactory = null;
 		return createButtonControlledComposite(parent, style);
 	}
 
@@ -82,10 +90,20 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 
 	@Override
 	public CompositeFactory getControlledCompositeFactory() {
-		if (acquistionConfigurationFactory == null) {
-			this.acquistionConfigurationFactory = new RadiographyConfigurationLayoutFactory(getAcquisitionController());
-		}
-		return acquistionConfigurationFactory;
+		return Optional.ofNullable(acquistionConfigurationFactory)
+				.orElseGet(this::createAcquistionConfigurationFactory);
+	}
+
+	private CompositeFactory createAcquistionConfigurationFactory() {
+		this.acquistionConfigurationFactory = new RadiographyConfigurationLayoutFactory(getAcquisitionController());
+		setAcquisitionTemplateType(AcquisitionTemplateType.STATIC_POINT);
+		return this.acquistionConfigurationFactory;
+	}
+
+	private void setAcquisitionTemplateType(AcquisitionTemplateType acquisitionTemplateType) {
+		getDocumentFactory()
+			.buildScanpathBuilder(AcquisitionPropertyType.TOMOGRAPHY, acquisitionTemplateType)
+			.ifPresent(scanpathDocumentHelper::updateScanPathDocument);
 	}
 
 	@Override
@@ -103,7 +121,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 	}
 
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
-		AcquisitionCompositeButtonGroupFactoryBuilder acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
+		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
 		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> newAcquisition()));
 		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> saveAcquisition()));
 		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> runAcquisition()));
@@ -147,5 +165,18 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 				PlatformUI.getWorkbench().getDisplay().asyncExec(((Reloadable)getControlledCompositeFactory())::reload);
 			}
 		}
+	}
+
+	// ------------ UTILS ----
+	private ScanningAcquisition getScanningAcquisition() {
+		return this.getAcquisitionController().getAcquisition();
+	}
+
+	private ScanningParameters getScanningParameters() {
+		return getScanningAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+	}
+
+	private DocumentFactory getDocumentFactory() {
+		return SpringApplicationContextFacade.getBean(DocumentFactory.class);
 	}
 }
