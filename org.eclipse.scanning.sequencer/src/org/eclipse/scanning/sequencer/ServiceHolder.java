@@ -179,7 +179,7 @@ public class ServiceHolder {
 
 	public void setCommonBeamlineDevicesConfiguration(CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration) {
 		// note that this method is not typically set by OSGi as this bean is declared in spring which is loaded after OSGi wiring
-		// it should be set by unit tests
+		// this method is intended to be called by unit tests where required
 		ServiceHolder.commonBeamlineDevicesConfiguration = commonBeamlineDevicesConfiguration;
 	}
 

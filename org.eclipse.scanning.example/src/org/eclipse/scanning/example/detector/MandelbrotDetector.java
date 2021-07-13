@@ -47,11 +47,11 @@ import org.eclipse.scanning.example.Services;
 public class MandelbrotDetector extends AbstractRunnableDevice<MandelbrotModel> implements IWritableDetector<MandelbrotModel>, INexusDevice<NXdetector> {
 
 	// Field names to be used in the NeXus file
-	private static final String FIELD_NAME_VALUE = "value";
-	private static final String FIELD_NAME_SPECTRUM = "spectrum";
-	private static final String FIELD_NAME_SPECTRUM_AXIS = "spectrum_axis";
-	private static final String FIELD_NAME_IMAGINARY_AXIS = "imaginary";
-	private static final String FIELD_NAME_REAL_AXIS = "real";
+	public static final String FIELD_NAME_VALUE = "value";
+	public static final String FIELD_NAME_SPECTRUM = "spectrum";
+	public static final String FIELD_NAME_SPECTRUM_AXIS = "spectrum_axis";
+	public static final String FIELD_NAME_IMAGINARY_AXIS = "imaginary";
+	public static final String FIELD_NAME_REAL_AXIS = "real";
 
 	// Data to be passed from run() to write()
 	private IDataset image;

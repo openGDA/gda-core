@@ -12,10 +12,10 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -90,6 +90,7 @@ public abstract class NexusTest {
 
 	private static Logger logger = LoggerFactory.getLogger(NexusTest.class);
 
+	protected static final String MANDELBROT_DETECTOR_NAME = "mandelbrot";
 	protected static final String X_AXIS_NAME = "xNex";
 	protected static final String Y_AXIS_NAME = "yNex";
 
@@ -134,9 +135,9 @@ public abstract class NexusTest {
 
 	protected static MandelbrotModel createMandelbrotModel() {
 		MandelbrotModel model = new MandelbrotModel();
-		model.setName("mandelbrot");
-		model.setRealAxisName("xNex");
-		model.setImaginaryAxisName("yNex");
+		model.setName(MANDELBROT_DETECTOR_NAME);
+		model.setRealAxisName(X_AXIS_NAME);
+		model.setImaginaryAxisName(Y_AXIS_NAME);
 		model.setColumns(64);
 		model.setRows(64);
 		model.setExposureTime(0.001);
