@@ -119,6 +119,7 @@ public class SpecsPhoibosSeparateIterationCollectionStrategy implements AsyncNXC
 		analyser.setSafeState(safeStateAfterScan);
 
 		logger.debug("Finished complete collection");
+		setStatus(Detector.IDLE);
 	}
 
 	public void setSafeStateAfterScan(boolean safeStateAfterScan) {
