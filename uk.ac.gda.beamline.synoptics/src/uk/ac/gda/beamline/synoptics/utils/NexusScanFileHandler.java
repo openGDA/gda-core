@@ -27,7 +27,7 @@ import java.util.HashSet;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.metadata.IMetadata;
 import org.slf4j.Logger;
@@ -54,15 +54,15 @@ public class NexusScanFileHandler extends FileNameFilteringFileHandler {
 			try {
 				IDataHolder data = LoaderFactory.getData(filename);
 				IMetadata meta = data.getMetadata();
-				DoubleDataset xData = null;
-				DoubleDataset yData = null;
+				IDataset xData = null;
+				IDataset yData = null;
 				for (String name: meta.getDataNames()) {
 					if (xData == null && "1".equals(meta.getMetaValue(name + X_ATTR))) {
 						logger.debug("Using {} for x axis", name);
-						xData = ((DoubleDataset) data.getLazyDataset(name).getSlice(new Slice(0, null, null)));
+						xData = data.getLazyDataset(name).getSlice(new Slice(0, null, null));
 					} else if (yData == null && "1".equals(meta.getMetaValue(name + Y_ATTR))) {
 						logger.debug("Using {} for y axis", name);
-						yData = ((DoubleDataset) data.getLazyDataset(name).getSlice((Slice)null));
+						yData = data.getLazyDataset(name).getSlice((Slice)null);
 					}
 				}
 				if (xData == null || yData == null) {
