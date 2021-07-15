@@ -30,6 +30,7 @@ public class AxialCollatedStepModel extends AxialStepModel {
 	public AxialCollatedStepModel(double start, double stop, double step, String... names) {
 		super();
 		this.names = Arrays.asList(names);
+		setUnits(getUnits());
 		setStart(start);
 		setStop(stop);
 		setStep(step);
@@ -54,6 +55,19 @@ public class AxialCollatedStepModel extends AxialStepModel {
 	public void setNames(List<String> name) {
 		pcs.firePropertyChange("names", this.names, name);
 		this.names = name;
+	}
+
+	@Override
+	public void setUnits(List<String> units) {
+		final List<String> copiedList = new ArrayList<>(units);
+		// TODO: Should we throw an IllegalArgumentException, or allow the ModelValidation to fail? Jython demands we
+		//   pass either 1 common unit, or 1 for each axis, so we expand here (other validation prevents passing len 1)
+		// ACSM isn't available from MScan or Mapping but can be instantiated in Jython and put into ScanRequest...
+		// Not all Scannables will have units, and if they don't we assume "mm" to match default, mapping, mscan.
+		while (copiedList.size() < names.size()) {
+			copiedList.add(HARDCODED_UNITS);
+		}
+		super.setUnits(copiedList);
 	}
 
 	@Override

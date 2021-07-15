@@ -16,7 +16,6 @@ import static org.eclipse.scanning.api.constants.PathConstants.CONTINUOUS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +38,8 @@ import org.eclipse.scanning.api.AbstractNameable;
  */
 public abstract class AbstractPointsModel extends AbstractNameable implements IScanPointGeneratorModel {
 
-	private static final String HARDCODED_UNITS = "mm";
-	private List<String> units;
+	protected static final String HARDCODED_UNITS = "mm";
+	private List<String> units = List.of(HARDCODED_UNITS);
 
 	/** Alternating/'Snake': if <code>true</code>, switches direction with every iteration of wrapping model */
 	private boolean alternating = false;
@@ -89,10 +88,6 @@ public abstract class AbstractPointsModel extends AbstractNameable implements IS
 
 	@Override
 	public List<String> getUnits(){
-		if (units == null) units = new ArrayList<>();
-		while (units.size() < getScannableNames().size()) {
-			units.add(HARDCODED_UNITS);
-		}
 		return units;
 	}
 
