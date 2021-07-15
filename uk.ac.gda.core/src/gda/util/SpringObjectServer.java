@@ -100,9 +100,10 @@ public class SpringObjectServer extends ObjectServer {
 	public SpringObjectServer(File xmlFile) {
 		super(xmlFile);
 
-        final String configLocation = "file:" + xmlFile.getAbsolutePath();
+		final String configLocation = "file:" + xmlFile.getAbsolutePath();
 		applicationContext = new GenericApplicationContext();
-		applicationContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
+		applicationContext.setClassLoader(GDAClassLoaderService.getClassLoaderService()
+				.getClassLoaderForLibrary(getClass()));
 		XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(applicationContext);
 		// For EntityResolver and NamespaceHandlerResolver provide a class from uk.ac.diamond.org.springframework
 		// which will contain all the namespaces and schemas
