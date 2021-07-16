@@ -88,6 +88,11 @@
             name="Run multi">
       </command>
       <command
+            description="Run several multiple experiments"
+            id="uk.ac.gda.client.experimentdefinition.RunSeveralMultiExperimentCommand"
+            name="Run several multi">
+      </command>
+      <command
             description="Queue and Run Single Scan Only"
             id="uk.ac.gda.client.experimentdefinition.QueueAndRunSingleScanOnlyCommand"
             name="Queue and Run single">
@@ -239,6 +244,25 @@
                label="Queue Multiple Scan"
                style="push"
                tooltip="Add multiple scan to command queue">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="true">
+                     <instanceof
+                           value="uk.ac.gda.client.experimentdefinition.IExperimentObjectManager">
+                     </instanceof>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="uk.ac.gda.client.experimentdefinition.RunSeveralMultiExperimentCommand"
+               icon="icons/page_white_text.png"
+               label="Queue Several Multiple Scans..."
+               style="push"
+               tooltip="Add several multiple scans to command queue">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -716,6 +740,10 @@
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.RunExperimentCommandHandler"
             commandId="uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand">
+      </handler>
+       <handler
+            class="uk.ac.gda.client.experimentdefinition.ui.handlers.RunExperimentCommandHandler"
+            commandId="uk.ac.gda.client.experimentdefinition.RunSeveralMultiExperimentCommand">
       </handler>
       <handler
             class="uk.ac.gda.client.experimentdefinition.ui.handlers.QueueAndRunExperimentCommandHandler"
