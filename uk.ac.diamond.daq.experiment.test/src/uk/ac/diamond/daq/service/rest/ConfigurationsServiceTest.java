@@ -63,7 +63,7 @@ import uk.ac.gda.common.exception.GDAException;
 public class ConfigurationsServiceTest {
 
 	@Autowired
-	private ConfigurationsService configurationsService;
+	private ConfigurationsRestService configurationsService;
 
 	@Autowired
 	private DocumentMapper documentMapper;

@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.service;
 
 import java.util.UUID;
 
+import org.springframework.stereotype.Controller;
+
 import uk.ac.diamond.daq.service.command.DeleteDocumentCollectionCommand;
 import uk.ac.diamond.daq.service.command.GetDocumentCollectionCommand;
 import uk.ac.diamond.daq.service.command.InsertDocumentCollectionCommand;
@@ -37,6 +39,7 @@ import uk.ac.gda.common.exception.GDAServiceException;
  * @author Maurizio Nagni
  *
  */
+@Controller
 public class CommonDocumentService {
 
 	/**
@@ -48,7 +51,7 @@ public class CommonDocumentService {
 	 * @param outputStrategy defines how write the output
 	 * @throws GDAServiceException
 	 */
-	protected <T extends Document> void selectDocument(CollectionCommandReceiver<T> ccr, UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public <T extends Document> void selectDocument(CollectionCommandReceiver<T> ccr, UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		ExecuteCommand cc = new GetDocumentCollectionCommand<>(ccr, id, outputStrategy);
 		cc.execute();
 	}
@@ -62,7 +65,7 @@ public class CommonDocumentService {
 	 * @param outputStrategy defines how write the output
 	 * @throws GDAServiceException
 	 */
-	protected <T extends Document> void selectDocuments(CollectionCommandReceiver<T> ccr, DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public <T extends Document> void selectDocuments(CollectionCommandReceiver<T> ccr, DocumentFilter filter, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		ExecuteCommand cc = new QueryDocumentCollectionCommand<>(ccr, filter, outputStrategy);
 		cc.execute();
 	}
@@ -76,7 +79,7 @@ public class CommonDocumentService {
 	 * @param outputStrategy defines how write the output
 	 * @throws GDAServiceException
 	 */	
-	protected <T extends Document> void insertDocument(CollectionCommandReceiver<T> ccr, T document, OutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public <T extends Document> void insertDocument(CollectionCommandReceiver<T> ccr, T document, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		ExecuteCommand cc = new InsertDocumentCollectionCommand<>(ccr, document, outputStrategy);
 		cc.execute();
 	}
@@ -90,7 +93,7 @@ public class CommonDocumentService {
 	 * @param outputStrategy defines how write the output
 	 * @throws GDAServiceException
 	 */	
-	protected <T extends Document> void deleteDocument(CollectionCommandReceiver<T> ccr, UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
+	public <T extends Document> void deleteDocument(CollectionCommandReceiver<T> ccr, UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		ExecuteCommand cc = new DeleteDocumentCollectionCommand<>(ccr, id, outputStrategy);
 		cc.execute();
 	}

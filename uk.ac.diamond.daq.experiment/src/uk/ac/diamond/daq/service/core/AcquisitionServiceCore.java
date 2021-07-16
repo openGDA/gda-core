@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
@@ -40,6 +41,7 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
  * @author Maurizio Nagni
  *
  */
+@Controller
 public class AcquisitionServiceCore {
 
 	private static final Logger logger = LoggerFactory.getLogger(AcquisitionServiceCore.class);
@@ -51,13 +53,13 @@ public class AcquisitionServiceCore {
 	 * @return
 	 * @throws ScanningAcquisitionServiceException
 	 */
-	protected ResponseEntity<RunAcquisitionResponse> runAcquisition(AcquisitionBase<?> acquisition) throws ScanningAcquisitionServiceException {
+	public ResponseEntity<RunAcquisitionResponse> runAcquisition(AcquisitionBase<?> acquisition) throws ScanningAcquisitionServiceException {
 		SpringApplicationContextFacade.getBean(ScanningAcquisitionService.class).run(acquisition);
 		RunAcquisitionResponse response = buildResponse(true, "Acquisition submitted");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	protected ResponseEntity<RunAcquisitionResponse> runMScan(MscanRequest request) throws ScanningAcquisitionServiceException {
+	public ResponseEntity<RunAcquisitionResponse> runMScan(MscanRequest request) throws ScanningAcquisitionServiceException {
 		new MScanServiceCoreHelper().runMScan(request);
 		RunAcquisitionResponse response = buildResponse(true, "mscan submitted");
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -68,8 +70,8 @@ public class AcquisitionServiceCore {
 				.build();
 	}
 
-	protected RunAcquisitionResponse buildResponse(boolean submitted, String message, Exception exception) {
-		ExceptionResponse.Builder exceptionResponseBuilder = new ExceptionResponse.Builder()
+	public RunAcquisitionResponse buildResponse(boolean submitted, String message, Exception exception) {
+		var exceptionResponseBuilder = new ExceptionResponse.Builder()
 				.withMessage(exception.getMessage());
 		Optional.ofNullable(exception.getCause())
 			.ifPresent(c -> exceptionResponseBuilder.withCauseMessage(c.getMessage()));

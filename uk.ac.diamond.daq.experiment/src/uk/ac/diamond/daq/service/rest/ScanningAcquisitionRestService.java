@@ -1,5 +1,6 @@
 package uk.ac.diamond.daq.service.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,8 +31,12 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
  */
 @RestController
 @RequestMapping("/acquisition")
-public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
+public class ScanningAcquisitionRestService {
 
+	@Autowired
+	private AcquisitionServiceCore serviceCore;
+	
+	
 	/**
 	 * Receives request for acquisitions.
 	 * @param acquisition
@@ -42,7 +47,7 @@ public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
 	public @ResponseBody ResponseEntity<RunAcquisitionResponse> runScan(
 			@RequestBody AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition)
 			throws ScanningAcquisitionServiceException {
-		return runAcquisition(acquisition);
+		return serviceCore.runAcquisition(acquisition);
 	}
 
 
@@ -57,7 +62,7 @@ public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
 	public @ResponseBody ResponseEntity<RunAcquisitionResponse> run(
 			@RequestBody MscanRequest request) 
 					throws ScanningAcquisitionServiceException {
-		return runMScan(request);
+		return serviceCore.runMScan(request);
 	}
 	
 	/**
@@ -69,7 +74,7 @@ public class ScanningAcquisitionRestService extends AcquisitionServiceCore {
 	 */
 	@ExceptionHandler({ ScanningAcquisitionServiceException.class })
 	public @ResponseBody ResponseEntity<RunAcquisitionResponse> handleException(ScanningAcquisitionServiceException e) {
-		RunAcquisitionResponse response = buildResponse(false, "Scanning Acquisition Service Error", e);
+		RunAcquisitionResponse response = serviceCore.buildResponse(false, "Scanning Acquisition Service Error", e);
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

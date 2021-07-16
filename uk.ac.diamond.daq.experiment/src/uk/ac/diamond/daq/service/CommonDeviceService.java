@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.service;
 
+import org.springframework.stereotype.Controller;
+
 import uk.ac.diamond.daq.service.command.device.GetDeviceValueCommand;
 import uk.ac.diamond.daq.service.command.device.SetDeviceValueCommand;
 import uk.ac.diamond.daq.service.command.receiver.device.DeviceCommandReceiver;
@@ -33,15 +35,16 @@ import uk.ac.gda.common.exception.GDAServiceException;
  * @author Maurizio Nagni
  *
  */
+@Controller
 public class CommonDeviceService {
 
-	protected <T extends DeviceValue> void getDeviceValue(DeviceRequest deviceRequest,  DeviceCommandReceiver<T> ccr,
+	public <T extends DeviceValue> void getDeviceValue(DeviceRequest deviceRequest,  DeviceCommandReceiver<T> ccr,
 			OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		ExecuteCommand cc = new GetDeviceValueCommand<T>(deviceRequest, ccr, outputStrategy);
 		cc.execute();
 	}
 
-	protected <T extends DeviceValue> void setDeviceValue(DeviceRequest deviceRequest, DeviceCommandReceiver<T> ccr,
+	public <T extends DeviceValue> void setDeviceValue(DeviceRequest deviceRequest, DeviceCommandReceiver<T> ccr,
 			OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		ExecuteCommand cc = new SetDeviceValueCommand<>(deviceRequest, ccr, outputStrategy);
 		cc.execute();

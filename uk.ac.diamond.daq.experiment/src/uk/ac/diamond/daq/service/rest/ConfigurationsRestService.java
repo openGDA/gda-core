@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,7 +30,9 @@ import uk.ac.gda.common.exception.GDAServiceException;
  */
 @RestController
 @RequestMapping("/configurations")
-public class ConfigurationsService extends ConfigurationsServiceCore {
+public class ConfigurationsRestService {
+	@Autowired
+	private ConfigurationsServiceCore serviceCore;
 
 	/**
 	 * 
@@ -40,11 +43,11 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	public void getDocument(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		UUID uuid;
 		try {
-			uuid = getUUID(id);
+			uuid = serviceCore.getUUID(id);
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException("Cannot convert the document", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
-		selectDocument(uuid, request, response);
+		serviceCore.selectDocument(uuid, request, response);
 	}
 
 	/**
@@ -61,7 +64,7 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	 */
 	@RequestMapping(value = "/scanningAcquisitions", method = RequestMethod.GET)
 	public void getDocuments(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		selectDocuments(request, response);
+		serviceCore.selectDocuments(request, response);
 	}
 
 	/**
@@ -74,11 +77,11 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	public void deleteDocument(@PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		UUID uuid;
 		try {
-			uuid = getUUID(id);
+			uuid = serviceCore.getUUID(id);
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException("Cannot convert the document", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
-		deleteDocument(uuid, request, response);
+		serviceCore.deleteDocument(uuid, request, response);
 	}
 
 	/**
@@ -91,7 +94,7 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	 */
 	@RequestMapping(value = "/scanningAcquisitions/diffraction", method = RequestMethod.POST)
 	public <T extends Document> T insertDiffraction(@RequestBody T acquisition, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		insertDocument(acquisition, AcquisitionConfigurationResourceType.MAP, request , response);
+		serviceCore.insertDocument(acquisition, AcquisitionConfigurationResourceType.MAP, request , response);
 		return acquisition;
 	}
 
@@ -105,7 +108,7 @@ public class ConfigurationsService extends ConfigurationsServiceCore {
 	 */
 	@RequestMapping(value = "/scanningAcquisitions/tomography", method = RequestMethod.POST)
 	public <T extends Document> T insertTomography(@RequestBody T acquisition, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		insertDocument(acquisition, AcquisitionConfigurationResourceType.TOMO, request , response);
+		serviceCore.insertDocument(acquisition, AcquisitionConfigurationResourceType.TOMO, request , response);
 		return acquisition;
 	}
 
