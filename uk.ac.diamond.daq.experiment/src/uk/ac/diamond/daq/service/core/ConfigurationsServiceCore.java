@@ -30,12 +30,12 @@ import uk.ac.diamond.daq.service.CommonDocumentService;
 import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
 import uk.ac.diamond.daq.service.command.receiver.FilesCollectionCommandReceiver;
 import uk.ac.diamond.daq.service.command.strategy.OutputStrategyFactory;
-import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
 import uk.ac.gda.common.entity.filter.DocumentFilterBuilder;
 import uk.ac.gda.common.exception.GDAServiceException;
+import uk.ac.gda.core.tool.GDAHttpException;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
 /**

@@ -16,12 +16,26 @@ public class ExperimentServiceResponse {
 
 	private final URL rootNode;
 
-	private final ExperimentErrorCode errorCode;
+	private ExperimentErrorCode errorCode;
 
+	/**
+	 * @param rootNode
+	 * @param errorCode
+	 *
+	 * @deprecated use instead {@link ExperimentServiceResponse#ExperimentServiceResponse(URL)}. Any error should be handled on the rest service level.
+	 *
+	 * @see @code{ExperimentRestService#exceptionHandler}
+	 */
+	@Deprecated
 	public ExperimentServiceResponse(URL rootNode, ExperimentErrorCode errorCode) {
 		super();
 		this.rootNode = rootNode;
 		this.errorCode = errorCode;
+	}
+
+	public ExperimentServiceResponse(URL rootNode) {
+		super();
+		this.rootNode = rootNode;
 	}
 
 	/**
@@ -33,6 +47,14 @@ public class ExperimentServiceResponse {
 		return rootNode;
 	}
 
+	/**
+	 * @return
+	 *
+	 * @deprecated this method will be remove in favour of a @code{ResponseEntity<ErrorReport>}
+	 *
+	 * @see @code{ExperimentRestService#exceptionHandler}
+	 */
+	@Deprecated
 	public ExperimentErrorCode getErrorCode() {
 		return errorCode;
 	}
@@ -45,6 +67,12 @@ public class ExperimentServiceResponse {
 		public void withRootNode(URL rootNode) {
 			this.rootNode = rootNode;
 		}
+
+		/**
+		 * @param errorCode
+	     * @deprecated this method will be remove in favour of a @code{ResponseEntity<ErrorReport>}
+		 */
+		@Deprecated
 		public void withErrorCode(ExperimentErrorCode errorCode) {
 			this.errorCode = errorCode;
 		}
@@ -52,6 +80,5 @@ public class ExperimentServiceResponse {
 	    public ExperimentServiceResponse build() {
 	        return new ExperimentServiceResponse(rootNode, errorCode);
 	    }
-
 	}
 }

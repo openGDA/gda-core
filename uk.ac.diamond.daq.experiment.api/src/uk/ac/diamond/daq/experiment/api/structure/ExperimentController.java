@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.experiment.api.structure;
 
 import java.net.URL;
+import java.util.List;
 
 /**
  * An experiment represents a collection of acquisitions performed during a
@@ -86,4 +87,12 @@ public interface ExperimentController {
 	void stopMultipartAcquisition() throws ExperimentControllerException;
 
 
+	/**
+	 * A collection of path to the closed experiment index files
+	 *
+	 * @return a collection of {@code URL}s, eventually {@code empty}
+	 *
+	 * @throws ExperimentControllerException if there are error reading the experiments storage location
+	 */
+	List<URL> closedExperiments() throws ExperimentControllerException;
 }
