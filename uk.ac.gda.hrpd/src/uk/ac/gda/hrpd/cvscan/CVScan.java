@@ -178,6 +178,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				logger.error("cvscan start being interrupted.", e);
 			}
 		} else {
+			// Ensure that controller is busy so that waitWhileBusy doesn't immediately return
+			controller.setBusy(true);
 			logger.info("{}  is in a PAUSED state", getName());
 		}
 	}
