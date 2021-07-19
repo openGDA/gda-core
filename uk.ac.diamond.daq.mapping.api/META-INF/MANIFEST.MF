@@ -31,7 +31,6 @@ Export-Package: uk.ac.diamond.daq.mapping.api;uses:="org.osgi.framework,org.ecli
  uk.ac.diamond.daq.mapping.api.document.preparers,
  uk.ac.diamond.daq.mapping.api.document.scanning,
  uk.ac.diamond.daq.mapping.api.document.scanpath,
- uk.ac.diamond.daq.mapping.api.document.service,
  uk.ac.diamond.daq.mapping.api.document.service.message
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.api
 Import-Package: 

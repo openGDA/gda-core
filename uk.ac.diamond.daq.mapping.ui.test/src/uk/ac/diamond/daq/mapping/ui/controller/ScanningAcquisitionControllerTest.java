@@ -39,7 +39,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.service.IScanningAcquisitionService;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.FinderService;
@@ -53,9 +52,6 @@ public class ScanningAcquisitionControllerTest {
 
 	@Autowired
 	FinderService finderService;
-
-	@Autowired
-	IScanningAcquisitionService scanningAcquisitionService;
 
 	@BeforeClass
 	public static void beforeClass() {
