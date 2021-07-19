@@ -61,10 +61,11 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 		String visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 		String userID = GDAMetadataProvider.getInstance().getMetadataValue("federalid");
 
-		String subject = visit + "/" + scannumber + ": " + title + " (" + command + ")";
+		String shortCommand= (command.length() > 40 ? command.substring(0, 37) + "..." : command);
+		String subject = visit + "/" + scannumber + ": " + title + " (" + shortCommand + ")";
 
 		ElogEntry entry = new ElogEntry(subject, userID, visit, logID, groupID)
-				.addHtml("Filename: <a href=\"file://"+filename+"</a>")
+				.addHtml("Filename: <a href=\"file://"+filename+"\">" + filename + "</a>")
 				.addText("Command: " + command + "\n"
 						+ "Points: " + points + "\n"
 						+ "Title: " + title + "\n");
