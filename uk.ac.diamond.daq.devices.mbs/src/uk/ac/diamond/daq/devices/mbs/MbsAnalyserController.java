@@ -99,8 +99,12 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 	private static final String ACTUAL_SCANS_RBV = "CAM:ActScans_RBV";
 	private static final String CURRENT_SCAN_RBV = "CAM:CurrentScanNumber_RBV";
 	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
+	private static final String AUTO_DETECTOR_OFF_OVERRIDE = "CAM:DetectorOffOverride";
 
 	private static final String FIXED_MODE_NAME = "Fixed";
+	private static final String AUTO_DETECTOR_OFF_ENABLE = "Auto";
+	private static final String AUTO_DETECTOR_OFF_DISABLE = "Override";
+
 
 	private final List<String> passEnergies = new ArrayList<>();
 	private final List<String> lensModes = new ArrayList<>();
@@ -775,6 +779,14 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 		setRegionSizeY(configuration.getSizeY());
 		setNumberOfSlices(configuration.getSlices());
 		logger.info("Set detector ROI to: {}", configuration);
+	}
+
+	public void enableAutomaticDetectorOff() throws DeviceException {
+		setStringValue(AUTO_DETECTOR_OFF_OVERRIDE, AUTO_DETECTOR_OFF_ENABLE, "DetectorOffOverride");
+	}
+
+	public void disableAutomaticDetectorOff() throws DeviceException {
+		setStringValue(AUTO_DETECTOR_OFF_OVERRIDE, AUTO_DETECTOR_OFF_DISABLE, "DetectorOffOverride");
 	}
 
 	private void initialiseEnumChannel(String channel, List<String> list) throws Exception {

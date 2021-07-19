@@ -67,6 +67,7 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	public void prepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo)
 			throws Exception {
 		analyser.setCollectionTime(collectionTime);
+		analyser.disableAutomaticDetectorOff();
 	}
 
 	@Override
@@ -148,6 +149,7 @@ public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 	public void completeCollection() throws Exception {
 		acquisitionTask = null;
 		completedRegion = null;
+		analyser.enableAutomaticDetectorOff();
 	}
 
 	@Override

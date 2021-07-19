@@ -743,4 +743,13 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			cpsRoi = null;
 		}
 	}
+
+	public void enableAutomaticDetectorOff() throws DeviceException {
+		controller.enableAutomaticDetectorOff();
+	}
+
+	public void disableAutomaticDetectorOff() throws DeviceException {
+		controller.disableAutomaticDetectorOff();
+	}
+
 }
