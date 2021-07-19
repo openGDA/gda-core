@@ -16,8 +16,10 @@
 			falls back to showing the logback thread.-->
 		<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
 			<file>${gda.logs.dir}/gda-server.log</file>
-			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-				<fileNamePattern>${gda.logs.dir}/gda-server-%d{yyyyMMdd}.log.gz</fileNamePattern>
+			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+				<fileNamePattern>${gda.logs.dir}/gda-server-%d{yyyyMMdd}-%i.log.gz</fileNamePattern>
+				<!-- the current file should be at most ${gda.logserver.logfile.maxSize} -->
+				<maxFileSize>${gda.logserver.logfile.maxSize}</maxFileSize>
 			</rollingPolicy>
 			<encoder>
 				<pattern>${gda.logserver.logfile.pattern}</pattern>
