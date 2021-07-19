@@ -167,7 +167,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 			Display.getDefault().asyncExec(() -> {
-				if (CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), iCameraConfiguration.getCameraControl()))
+				if (iCameraConfiguration.getCameraConfigurationProperties().getId().equals(event.getCameraId()))
 					updateModelToGUI(event);
 			});
 		}

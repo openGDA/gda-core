@@ -210,9 +210,8 @@ class ScanningAcquisitionControllerDetectorHelper {
 	private ApplicationListener<CameraControlSpringEvent> listenToExposureChange = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			getCamerasControls().stream()
-				.filter(camera -> CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), Optional.ofNullable(camera)))
-				.forEach(cameraName -> updateDetectorDocument(cameraName, event.getAcquireTime()));
+			CameraHelper.getCameraControlByCameraID(event.getCameraId())
+				.ifPresent(cameraControl -> updateDetectorDocument(cameraControl, event.getAcquireTime()));
 		}
 
 		private void updateDetectorDocument(CameraControl cameraControl, double acquireTime) {

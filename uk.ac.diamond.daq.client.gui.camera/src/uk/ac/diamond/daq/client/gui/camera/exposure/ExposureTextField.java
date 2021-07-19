@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.gda.api.camera.CameraState;
@@ -123,7 +122,7 @@ public class ExposureTextField {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 			Display.getDefault().asyncExec(() -> {
-				if (CameraHelper.cameraIdMatchesCameraControl(event.getCameraId(), iCameraConfigurationSupplier.get().getCameraControl()))
+				if (iCameraConfigurationSupplier.get().getCameraConfigurationProperties().getId().equals(event.getCameraId()))
 					updateModelToGUI(event);
 			});
 		}

@@ -60,6 +60,8 @@ public class CameraAvailabilityMonitor {
 	public CameraAvailabilityMonitor() {
 		executorService = Executors.newScheduledThreadPool(getAllCameraConfigurationProperties().size());
 		getAllCameraConfigurationProperties().stream()
+			.filter(prop -> prop.getStreamingConfiguration() != null)
+			.filter(prop -> prop.getStreamingConfiguration().isActive())
 			.map(CameraHelper::createICameraConfiguration)
 			.forEach(this::attachMonitor);
 	}
