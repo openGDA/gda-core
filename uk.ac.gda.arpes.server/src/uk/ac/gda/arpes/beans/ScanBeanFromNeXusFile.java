@@ -59,10 +59,11 @@ public class ScanBeanFromNeXusFile {
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/number_of_iterations").getDestination();
 			setIterations(shinynewbean, nodeLink.getDataset());
 			
-			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/dither_steps").getDestination();			
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/deflector_x").getDestination();
 			if (nodeLink != null) {
-				setDitherSteps(shinynewbean, nodeLink.getDataset());
+				setDeflectorX(shinynewbean, nodeLink.getDataset());
 			}
+			
 			
 		} finally {
 
@@ -117,8 +118,8 @@ public class ScanBeanFromNeXusFile {
 		bean.setIterations(iterations);
 	}
 	
-	private static void setDitherSteps(ARPESScanBean bean, ILazyDataset ditherSteps) {
-		int numberOfDitherSteps = ((IDataset)ditherSteps).getInt(0);
-		bean.setDitherSteps(numberOfDitherSteps);
+	private static void setDeflectorX(ARPESScanBean bean, ILazyDataset deflX) {
+		double deflectorX = ((IDataset)deflX).getDouble(0);
+		bean.setDeflectorX(deflectorX);
 	}
 }

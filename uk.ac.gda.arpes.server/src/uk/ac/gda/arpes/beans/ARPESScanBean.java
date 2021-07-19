@@ -38,7 +38,7 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	private double timePerStep = 1;
 	private int iterations = 1;
 	private AcquisitionMode acquisitionMode = AcquisitionMode.FIXED;
-	private int ditherSteps;
+	private double deflectorX = 0;
 	private boolean configureOnly = false;
 
 	public static ARPESScanBean createFromXML(String filename) throws Exception {
@@ -120,13 +120,13 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 	public void setAcquisitionMode(AcquisitionMode acquisitionMode) {
 		this.acquisitionMode = acquisitionMode;
 	}
-
-	public int getDitherSteps() {
-		return ditherSteps;
+	
+	public double getDeflectorX() {
+		return deflectorX;
 	}
 
-	public void setDitherSteps(int ditherSteps) {
-		this.ditherSteps = ditherSteps;
+	public void setDeflectorX(double deflectorX) {
+		this.deflectorX = deflectorX;
 	}
 
 	@Override
@@ -135,8 +135,9 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 		int result = 1;
 		result = prime * result + ((acquisitionMode == null) ? 0 : acquisitionMode.hashCode());
 		result = prime * result + (configureOnly ? 1231 : 1237);
-		result = prime * result + ditherSteps;
 		long temp;
+		temp = Double.doubleToLongBits(deflectorX);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(endEnergy);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + iterations;
@@ -164,7 +165,7 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 			return false;
 		if (configureOnly != other.configureOnly)
 			return false;
-		if (ditherSteps != other.ditherSteps)
+		if (Double.doubleToLongBits(deflectorX) != Double.doubleToLongBits(other.deflectorX))
 			return false;
 		if (Double.doubleToLongBits(endEnergy) != Double.doubleToLongBits(other.endEnergy))
 			return false;

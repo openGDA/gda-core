@@ -61,11 +61,14 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
+import uk.ac.diamond.daq.pes.api.IDeflector;
+import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
@@ -97,8 +100,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final NumberBox endEnergy;
 	private final Label lblStepEnergy;
 	private final NumberBox stepEnergy;
-	private final Label lblDitherSteps;
-	private final NumberBox ditherSteps;
 	private final Label lblTimePerStep;
 	private final NumberBox timePerStep;
 	private final Label lblIterations;
@@ -114,6 +115,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final String[] lensModes;
 	private final Label lblEstimatedTime;
 	private final Label estimatedTime;
+	private final Label lblDeflectorX;
+	private final NumberBox deflectorX;
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
@@ -317,13 +320,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setDecimalPlaces(5);
 		stepEnergy.setMaximum(10000);
 
-		// Dither steps
-		lblDitherSteps = new Label(this, SWT.NONE);
-		lblDitherSteps.setLayoutData(labelLayoutData());
-		lblDitherSteps.setText("Dither Steps");
-		ditherSteps = new ScaleBox(this, SWT.NONE);
-		ditherSteps.setLayoutData(controlGridData());
-		ditherSteps.setDecimalPlaces(0);
+
 
 		// Energy width
 		lblEnergyWidth = new Label(this, SWT.NONE);
@@ -352,6 +349,20 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		iterations = new IntegerBox(this, SWT.NONE);
 		iterations.setLayoutData(controlGridData());
 		iterations.addValueListener(this);
+
+		// DeflectorX
+		lblDeflectorX = new Label(this, SWT.NONE);
+		lblDeflectorX.setLayoutData(labelLayoutData());
+		lblDeflectorX.setText("Deflector X");
+		deflectorX = new ScaleBox(this, SWT.NONE);
+		deflectorX.setLayoutData(controlGridData());
+		energyWidth.setDecimalPlaces(3);
+		energyWidth.setFieldName("deflectorX");
+
+		if (!(analyser instanceof IDeflector)) {
+			deflectorX.setEnabled(false);
+			deflectorX.setToolTipText("The current electron analyser does not have a deflector.");
+		}
 
 		// Configure only
 		lblConfigureOnly = new Label(this, SWT.NONE);
@@ -518,7 +529,16 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private long estimateDitherTimeInSeconds() {
 		var numberOfIterations = iterations.getIntegerValue();
 		double stepTime = timePerStep.getNumericValue();
-		var numberOfDitherSteps = ditherSteps.getIntegerValue();
+
+		int numberOfDitherSteps = 1;
+
+		if (analyser instanceof IDitherScanningElectronAnalyser) {
+			try {
+				numberOfDitherSteps = ((IDitherScanningElectronAnalyser) analyser).getNumberOfDitherSteps();
+			} catch (DeviceException exception) {
+				logger.error("Error while retrieving current number of dither steps", exception);
+			}
+		}
 
 		return (long)(numberOfIterations * stepTime * numberOfDitherSteps);
 	}
@@ -563,8 +583,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return acquisitionMode;
 	}
 
-	public IFieldWidget getDitherSteps() {
-		return ditherSteps;
+	public IFieldWidget getDeflectorX() {
+		return deflectorX;
 	}
 
 	private boolean isSweptMode() {
@@ -635,7 +655,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
 			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
-			ditherSteps.setEditable(false);
 			break;
 
 		case SWEPT:
@@ -649,10 +668,9 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			endEnergy.addValueListener(this);
 			stepEnergy.addValueListener(this);
 			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
-			ditherSteps.setEditable(false);
 			break;
 
-		case DITHER:
+		case DITHER :
 			startEnergy.setEditable(false);
 			centreEnergy.setEditable(true);
 			endEnergy.setEditable(false);
@@ -665,7 +683,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			startEnergy.setValue(getValue(centreEnergy) - getValue(energyWidth) / 2.0);
 			endEnergy.setValue(getValue(centreEnergy) + getValue(energyWidth) / 2.0);
 			stepEnergy.setMinimum(determineMinimumStepEnergy(getSelectedPassEnergy()));
-			ditherSteps.setEditable(true);
 			break;
 
 		default:
