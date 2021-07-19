@@ -19,6 +19,8 @@
 package uk.ac.diamond.daq.devices.specs.phoibos.ui.control;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
@@ -44,11 +46,13 @@ import com.swtdesigner.SWTResourceManager;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 
 public class SpecsAlignmentView implements IObserver {
 
 	private ISpecsPhoibosAnalyser analyser;
+	private ISpecsPhoibosAnalyserStatus status;
 
 	private Text passEnergyText;
 	private Text kineticEnergyText;
@@ -57,15 +61,49 @@ public class SpecsAlignmentView implements IObserver {
 	private Button startButton;
 	private Button stopButton;
 
-	@PostConstruct
-	void createView(Composite parent) {
+	private Button indicator;
+	private Runnable blink;
+	private ExecutorService executor;
+	private boolean keepBlinking;
 
+	/**
+	 * Constructor
+	 */
+	public SpecsAlignmentView() {
+
+		executor = Executors.newSingleThreadExecutor();
+
+		blink = ()-> {
+			while(keepBlinking) {
+				color(SWT.COLOR_GREEN);
+				sleep(3000);
+				color(SWT.COLOR_WHITE);
+				sleep(3000);
+			}
+	    	color(SWT.COLOR_RED);
+		};
+
+		// Get analyser
 		List<ISpecsPhoibosAnalyser> analysers = Finder.listLocalFindablesOfType(ISpecsPhoibosAnalyser.class);
 		if (analysers.size() != 1) {
 			throw new RuntimeException("No Analyser was found! (Or more than 1)");
 		}
 		analyser = analysers.get(0);
 		analyser.addIObserver(this);
+
+		// Get status
+		List<ISpecsPhoibosAnalyserStatus> analyserStatusList = Finder.listFindablesOfType(ISpecsPhoibosAnalyserStatus.class);
+		if (analyserStatusList.size() != 1) {
+			String msg = "No analyser status was found! (Or more than 1)";
+			throw new IllegalStateException(msg);
+		}
+		status = analyserStatusList.get(0);
+		status.addIObserver(this::updateIndicator);
+
+	}
+
+	@PostConstruct
+	void createView(Composite parent) {
 
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
@@ -169,6 +207,21 @@ public class SpecsAlignmentView implements IObserver {
 		scrollComp.setExpandHorizontal(true);
 		scrollComp.setExpandVertical(true);
 		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+		indicator = new Button(displayArea, SWT.DEFAULT);
+		indicator.setText("RUN");
+		FontData fdindicator = indicator.getFont().getFontData()[0];
+		fdindicator.setHeight(20);
+		indicator.setFont(new Font(indicator.getDisplay(), fdtext));
+
+		// Initialize blinking state
+		String currentStatus = status.getCurrentPosition();
+		if (currentStatus.equals("Acquire") || currentStatus.equals("Initializing")) {
+			keepBlinking = true;
+			executor.submit(blink);
+		} else {
+			indicator.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+		}
 	}
 
 	/**
@@ -197,6 +250,19 @@ public class SpecsAlignmentView implements IObserver {
 		}
 	}
 
+	public void updateIndicator(Object source, Object arg) {
+		if (source == status && arg instanceof String) {
+			if (arg.equals("Initializing")) {
+				keepBlinking = true;
+				executor.submit(blink);
+			} else if (arg.equals("Acquire")) {
+				//do nothing
+			} else {
+				keepBlinking = false;
+			}
+		}
+	}
+
 	private void checkRequiredFieldsArePresent(ModifyEvent e) {
 		if (kineticEnergyText.getText().isEmpty() || passEnergyText.getText().isEmpty() ||
 				exposureText.getText().isEmpty()){
@@ -220,6 +286,20 @@ public class SpecsAlignmentView implements IObserver {
 		}
 		if(((Text)e.widget).getText().length() >= 5) {
 			e.doit = false;
+		}
+	}
+
+	private void color(int swtColor) {
+		Display.getDefault().asyncExec(() -> {
+			indicator.setBackground(SWTResourceManager.getColor(swtColor));
+		});
+	}
+
+	private void sleep(long sleepTime) {
+		try {
+			Thread.sleep(sleepTime);
+		} catch (InterruptedException e) {
+			// do nothing - never interrupted
 		}
 	}
 
