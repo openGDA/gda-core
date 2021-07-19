@@ -28,7 +28,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 
 public abstract class AbstractMetadataField extends AbstractMetadataNode implements MetadataField {
 
-	private static final String ATTRIBUTE_NAME_UNITS = "units";
+	public static final String ATTRIBUTE_NAME_UNITS = "units";
 
 	private String units = null;
 

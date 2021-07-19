@@ -124,6 +124,10 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		metadataNode.removeChildNode(nodeName);
 	}
 
+	public boolean hasChildNode() {
+		return metadataNode.hasChildNode();
+	}
+
 	@Override
 	public void register() {
 //		INexusDevice.super.register(); // no longer compiles after adding INexusMetadataDevice interface

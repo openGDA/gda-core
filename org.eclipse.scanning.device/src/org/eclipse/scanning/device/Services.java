@@ -25,6 +25,8 @@ public class Services {
 
 	private static ComponentContext context;
 
+	private static CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration;
+
 	private static <T> T getService(Class<T> clazz) {
 		if (context == null) return null;
 		try {
@@ -49,5 +51,16 @@ public class Services {
 
 	public void setScannableDeviceService(IScannableDeviceService scannableDeviceService) {
 		Services.scannableDeviceService = scannableDeviceService;
+	}
+
+	public static CommonBeamlineDevicesConfiguration getCommonBeamlineDevicesConfiguration() {
+		if (commonBeamlineDevicesConfiguration == null)
+			commonBeamlineDevicesConfiguration = getService(CommonBeamlineDevicesConfiguration.class);
+		return commonBeamlineDevicesConfiguration;
+	}
+
+	public static void setCommonBeamlineDevicesConfiguration(
+			CommonBeamlineDevicesConfiguration commonBeamlineDevicesConfiguration) {
+		Services.commonBeamlineDevicesConfiguration = commonBeamlineDevicesConfiguration;
 	}
 }
