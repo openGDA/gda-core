@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api.document.event;
 
+import org.springframework.context.ApplicationEvent;
+
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 
 /**
@@ -25,16 +27,10 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
  *
  * @author Maurizio Nagni
  */
-public class ScanningAcquisitionChangeEvent extends ScanningAcquisitionEvent {
+public class ScanningAcquisitionChangeEvent extends ApplicationEvent {
 
-	private final ScanningAcquisition scanningAcquisition;
-
-	public ScanningAcquisitionChangeEvent(Object source, ScanningAcquisition scanningAcquisition) {
+	public ScanningAcquisitionChangeEvent(Object source) {
 		super(source);
-		this.scanningAcquisition = scanningAcquisition;
 	}
 
-	public ScanningAcquisition getScanningAcquisition() {
-		return scanningAcquisition;
-	}
 }

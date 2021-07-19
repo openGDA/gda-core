@@ -33,7 +33,7 @@ import org.springframework.context.ApplicationListener;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionEvent;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -238,7 +238,7 @@ class ScanningAcquisitionControllerDetectorHelper {
 			acquisitionParameters.setDetector(detectorDocument);
 			imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);
 			imageCalibrationHelper.updateFlatDetectorDocument(detectorDocument);
-			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionEvent(getAcquisition()));
+			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
 		}
 	};
 
