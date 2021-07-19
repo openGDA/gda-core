@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,130 +19,136 @@
 package uk.ac.gda.client.experimentdefinition.components;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.eclipse.ui.IEditorInput;
+import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPerspectiveStack;
+import org.eclipse.e4.ui.workbench.UIEvents;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IPerspectiveListener4;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Stores refs to the open editors. Make sure that the editors are closed when the perspective is swictched and restores
- * them when the user returns to the experiment perspective.
+ * Unlike views, Editors in Eclipse are not bound to perspectives. The {@link ExperimentPerspective} uses
+ * editors to give the user control over scan parameters, but these editors make sense in that perspective
+ * only.
+ *
+ * This listener therefore stores references to the open editors when switching perspectives against
+ * the previous perspective. If the switch is to or from ExperimentPerspective, open editors are closed
+ * and those cached against the new perspective (if any) are restored.
  */
-public class ExperimentPerspectiveListener implements IPerspectiveListener4, IStartup {
+public class ExperimentPerspectiveListener implements IStartup {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExperimentPerspectiveListener.class);
 
-	private static HashMap<IEditorReference, IEditorInput> storedEditorRefs;
-	private static boolean ignoreEditorEvents = false;
-
-	@Override
-	public void perspectiveChanged(IWorkbenchPage page, IPerspectiveDescriptor perspective, String changeId) {
-		if (!ignoreEditorEvents) {
-			if (perspective.getId().equals(ExperimentPerspective.ID)) {
-				if (changeId.equalsIgnoreCase("editorOpen") || changeId.equalsIgnoreCase("editorClose")) {
-					storeMapOfEditors(page);
-				}
-			}
-		}
-	}
-
-	protected void storeMapOfEditors(IWorkbenchPage page) {
-		storedEditorRefs = new LinkedHashMap<IEditorReference, IEditorInput>();
-		for (IEditorReference thisRef : page.getEditorReferences()) {
-			try {
-				storedEditorRefs.put(thisRef, thisRef.getEditorInput());
-			} catch (PartInitException e) {
-				// ignore as we are not doing any work here, simply recording what is open
-			}
-		}
-	}
-
-	@Override
-	public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
-
-		if (perspective.getId().equals(ExperimentPerspective.ID)) {
-			try {
-				ignoreEditorEvents = true;
-
-				if (storedEditorRefs == null) {
-					page.closeAllEditors(true);
-				} else {
-					page.saveAllEditors(true);
-					openStoredEditors(page);
-				}
-
-			} finally {
-				ignoreEditorEvents = false;
-			}
-		}
-	}
-
-	protected void openStoredEditors(IWorkbenchPage page) {
-		IEditorReference[] liveRefs = page.getEditorReferences();
-		for (IEditorReference thisRef : liveRefs) {
-			if (!storedEditorRefs.keySet().contains(thisRef)) {
-				page.closeEditor(thisRef.getEditor(false), false);
-			}
-		}
-		for (IEditorReference thisRef : storedEditorRefs.keySet()) {
-			if (!ArrayUtils.contains(liveRefs, thisRef)) {
-				try {
-					page.openEditor(storedEditorRefs.get(thisRef), thisRef.getId());
-				} catch (PartInitException e) {
-					// fail silently - user can correct easily by clicking on the desired scan in Experiment Explorer
-					logger.warn("Exception trying to open stored editor", e);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void perspectiveClosed(IWorkbenchPage arg0, IPerspectiveDescriptor arg1) {
-	}
-
-	@Override
-	public void perspectiveDeactivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
-		// too late: editors would be closed by this point
-	}
-
-	@Override
-	public void perspectiveOpened(IWorkbenchPage arg0, IPerspectiveDescriptor arg1) {
-	}
-
-	@Override
-	public void perspectiveSavedAs(IWorkbenchPage arg0, IPerspectiveDescriptor arg1, IPerspectiveDescriptor arg2) {
-	}
-
-	@Override
-	public void perspectiveChanged(IWorkbenchPage arg0, IPerspectiveDescriptor arg1, IWorkbenchPartReference arg2,
-			String arg3) {
-	}
-
-	@Override
-	public void perspectivePreDeactivate(IWorkbenchPage arg0, IPerspectiveDescriptor arg1) {
-		if (arg1.getId().equals(ExperimentPerspective.ID)) {
-			storeMapOfEditors(arg0);
-			ignoreEditorEvents = true;
-			arg0.closeAllEditors(true);
-			ignoreEditorEvents = false;
-		}
-	}
+	private Map<String, IEditorReference[]> editorsPerPerspective = new HashMap<>();
+	private Map<String, IEditorPart> activeEditorPerPerspective = new HashMap<>();
 
 	@Override
 	public void earlyStartup() {
-		// Make sure we always have a listener for the perspective.
-		// Cannot add to the perspective class as its not always called when Workbench is started.
-		PlatformUI.getWorkbench().getWorkbenchWindows()[0].addPerspectiveListener(this);
+		IEventBroker brokerService = PlatformUI.getWorkbench().getService(IEventBroker.class);
+		// subscribe to topic where perspective switches are broadcast
+		brokerService.subscribe(UIEvents.ElementContainer.TOPIC_SELECTEDELEMENT, this::handlePerspectiveChange);
+	}
+
+	private void handlePerspectiveChange(Event event) {
+		Object changedElement = event.getProperty(UIEvents.EventTags.ELEMENT);
+
+		// only interested in a perspective switch
+		if (changedElement instanceof MPerspectiveStack) {
+
+			final String previousPerspectiveId = getPreviousPerspectiveId(event);
+
+			storeEditors(previousPerspectiveId);
+
+			final String newPerspectiveId = getNewPerspectiveId(event);
+
+			if (switchingToOrAwayFromExperimentPerspective(previousPerspectiveId, newPerspectiveId)) {
+				prepareEditorsForPerspective(newPerspectiveId);
+			}
+		}
+	}
+
+	/**
+	 * Extract from OSGi event the ID of perspective we are switching from
+	 */
+	private String getPreviousPerspectiveId(Event event) {
+		return getPerspectiveId(event, UIEvents.EventTags.OLD_VALUE);
+	}
+
+	/**
+	 * Extract from OSGi event the ID of perspective we are switching to
+	 */
+	private String getNewPerspectiveId(Event event) {
+		return getPerspectiveId(event, UIEvents.EventTags.NEW_VALUE);
+	}
+
+	/**
+	 * Extract from OSGi event the ID of perspective specified by the given property
+	 * ({@code UIEvents.EventTags.OLD_VALUE} or {@code UIEvents.EventTags.NEW_VALUE})
+	 */
+	private String getPerspectiveId(Event event, String property) {
+		MPerspective perspective = (MPerspective) event.getProperty(property);
+		return perspective.getElementId();
+	}
+
+	/**
+	 * Returns {@code true} if either previous or new perspective IDs equal {@code ExperimentPersperctive.ID}
+	 */
+	private boolean switchingToOrAwayFromExperimentPerspective(String previousPerspectiveId, String newPerspectiveId) {
+		return newPerspectiveId.equals(ExperimentPerspective.ID)
+				|| previousPerspectiveId.equals(ExperimentPerspective.ID);
+	}
+
+	/**
+	 * Stores the editors open in the current page against the given perspective ID
+	 */
+	private void storeEditors(String perspectiveId) {
+		editorsPerPerspective.put(perspectiveId, getOpenEditors());
+		activeEditorPerPerspective.put(perspectiveId, getActivePage().getActiveEditor());
+	}
+
+	/**
+	 * Closes the currently open perspectives and restores those cached against the given perspective ID.
+	 * Only call this method if {@link #switchingToOrAwayFromExperimentPerspective(String, String)}.
+	 */
+	private void prepareEditorsForPerspective(String perspectiveId) {
+		IWorkbenchPage page = getActivePage();
+		page.closeAllEditors(true);
+		if (editorsPerPerspective.containsKey(perspectiveId)) {
+			for (IEditorReference editor : editorsPerPerspective.get(perspectiveId)) {
+				try {
+					// we don't specify the 'active' flag because even if true,
+					// the next editor to be opened will be the active one...
+					page.openEditor(editor.getEditorInput(), editor.getId());
+				} catch (PartInitException e) {
+					logger.error("Could not open editor '{}'", editor.getId(), e);
+				}
+			}
+			IEditorPart activePart = activeEditorPerPerspective.get(perspectiveId);
+			if (activePart == null) return;
+			try {
+				// ...instead we open the active editor again to make it active
+				page.openEditor(activePart.getEditorInput(), activePart.getEditorSite().getId());
+			} catch (PartInitException e) {
+				logger.error("Could not set active editor '{}'", activePart.getEditorSite().getId(), e);
+			}
+		}
+	}
+
+	private IEditorReference[] getOpenEditors() {
+		return getActivePage().getEditorReferences();
+	}
+
+	private IWorkbenchPage getActivePage() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 	}
 
 }
