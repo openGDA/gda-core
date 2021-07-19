@@ -18,6 +18,8 @@
 
 package uk.ac.gda.epics.nexus.device;
 
+import java.text.MessageFormat;
+
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.device.AbstractMetadataField;
@@ -32,6 +34,9 @@ import gov.aps.jca.TimeoutException;
  */
 public class ProcessingVariableField extends AbstractMetadataField {
 
+	private String pvName;
+	private boolean blockIfGetFail = false;
+
 	public ProcessingVariableField() {
 		// no-arg constructor for spring initialization
 	}
@@ -41,7 +46,11 @@ public class ProcessingVariableField extends AbstractMetadataField {
 		setPvName(pvName);
 	}
 
-	private String pvName;
+	public ProcessingVariableField(String fieldName, String pvName, String units) {
+		super(fieldName);
+		setPvName(pvName);
+		setUnits(units);
+	}
 
 	public String getPvName() {
 		return pvName;
@@ -61,11 +70,26 @@ public class ProcessingVariableField extends AbstractMetadataField {
 		try {
 			return CAClient.get(pvName);
 		} catch (CAException | TimeoutException e) {
-			throw new NexusException("Could not get data from: " + pvName, e);
+			if (!blockIfGetFail) {
+				//the default behaviour is not blocking if the PV is not reachable.
+				return MessageFormat.format("Could not get data from {0}", pvName);
+			}
+			throw new NexusException(MessageFormat.format("{0}: Could not get data from {1}", getName(), pvName), e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new NexusException("Interrupted when getting data from: " + pvName);
+			if (!blockIfGetFail) {
+				return MessageFormat.format("Interrupted when getting data from {0}", pvName);
+			}
+			throw new NexusException(MessageFormat.format("{0}: Interrupted when getting data from {1}", getName(), pvName), e);
 		}
+	}
+
+	public boolean isBlockIfGetFail() {
+		return blockIfGetFail;
+	}
+
+	public void setBlockIfGetFail(boolean blockIfGetFail) {
+		this.blockIfGetFail = blockIfGetFail;
 	}
 
 }
