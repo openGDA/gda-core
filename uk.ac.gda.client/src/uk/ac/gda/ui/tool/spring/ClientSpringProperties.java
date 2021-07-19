@@ -5,12 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import uk.ac.gda.client.properties.RealMatrixConverter;
-import uk.ac.gda.client.properties.RealVectorConverter;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.mode.Modes;
@@ -66,17 +63,5 @@ public class ClientSpringProperties {
 
 	public Modes getModes() {
 		return modes;
-	}
-
-	@Bean
-	@ConfigurationProperties
-	public RealVectorConverter array1DConverter() {
-		return new RealVectorConverter();
-	}
-
-	@Bean
-	@ConfigurationProperties
-	public RealMatrixConverter array2DConverter() {
-		return new RealMatrixConverter();
 	}
 }
