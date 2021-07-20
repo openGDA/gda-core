@@ -39,6 +39,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.scan.ScanInformation.ScanInformationBuilder;
+import uk.ac.gda.api.scan.IScanObject;
 import uk.ac.gda.util.map.MapUtils;
 
 /**
@@ -99,6 +100,11 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * the 'scannables' vector;
 	 */
 	private Vector<Object> scannablePositions = new Vector<>();
+
+	/**
+	 * the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans
+	 */
+	private Vector<IScanObject> scanObjects = new Vector<>();
 
 	/**
 	 * Formatting information for the scannable positions - used in the toString method.
@@ -761,6 +767,16 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	@Override
 	public void setScannablePositions(Vector<Object> scannablePositions) {
 		this.scannablePositions = scannablePositions;
+	}
+
+	@Override
+	public Vector<IScanObject> getScanObjects() {
+		return scanObjects;
+	}
+
+	@Override
+	public void setScanObjects(Vector<IScanObject> scanObjects) {
+		this.scanObjects = scanObjects;
 	}
 
 	@Override

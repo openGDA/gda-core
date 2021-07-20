@@ -22,10 +22,12 @@ import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -66,6 +68,10 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
+import gda.util.TypeConverters;
+import uk.ac.gda.api.scan.IExplicitScanObject;
+import uk.ac.gda.api.scan.IImplicitScanObject;
+import uk.ac.gda.api.scan.IScanObject;
 
 /**
  * An instance of this type adapts a {@link Scannable} to {@link INexusDevice}.
@@ -114,7 +120,8 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 	public static final String FIELD_NAME_VALUE_SET = "value_set";
 
 	/**
-	 * The {@link DataNode}s for each field keyed by field path with the same iteration order as the values in {@link #getPositionArray(Object)}.
+	 * The {@link DataNode}s for each field keyed by output field path (i.e. the path within
+	 * the nexus node). This map has the same iteration order as the values in {@link #getPositionArray(Object)}.
 	 * Each data node corresponds to the field with the corresponding index position in the result of
 	 * concatenating the arrays returned by {@link Scannable#getInputNames()} and {@link Scannable#getExtraNames()}.
 	 * If the scannable role in the scan is {@link NexusRole#PER_POINT}, then each data node will contain
@@ -133,9 +140,11 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 	/**
 	 * The data node for the demand value
 	 */
-	private DataNode demandValueDatanode = null;
+	private DataNode demandValueDataNode = null;
 
-	private String primaryAxisFieldPath = null;
+	private int primaryDataFieldIndex = 0;
+
+	private IScanObject scanObject = null;
 
 	public ScannableNexusDevice(Scannable scannable) {
 		super(scannable);
@@ -151,22 +160,91 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 
 	@Override
 	protected void configureNexusWrapper(NexusObjectWrapper<N> nexusWrapper, NexusScanInfo info) throws NexusException {
-		super.configureNexusWrapper(nexusWrapper, info);
 
 		final NexusBaseClass category = getNexusCategory();
 		nexusWrapper.setCategory(category);
 
-		if (info.getScanRole(getName()) == ScanRole.SCANNABLE && writeDemandValue) {
-			nexusWrapper.addAxisDataFieldName(getPrimaryDataFieldName());
-			nexusWrapper.setDefaultAxisDataFieldName(FIELD_NAME_VALUE_SET);
-		} else {
-			nexusWrapper.setDefaultAxisDataFieldName(getPrimaryDataFieldName());
-		}
+		// add all input fields as axis fields
+		final int numInputFields = getScannable().getInputNames().length;
+		final String[] axisFieldNames = fieldDataNodes.keySet().stream().limit(numInputFields)
+				.toArray(String[]::new);
+		nexusWrapper.addAxisDataFieldNames(axisFieldNames);
+
+		// calculate primary data field name
+		primaryDataFieldIndex = calculatePrimaryDataFieldIndex();
+		super.configureNexusWrapper(nexusWrapper, info);
+
+		final boolean hasDemandValue = writeDemandValue && info.getScanRole(getName()) == ScanRole.SCANNABLE;
+		nexusWrapper.setDefaultAxisDataFieldName(hasDemandValue ? FIELD_NAME_VALUE_SET : getPrimaryDataFieldName());
 
 		final String collectionName = getScannableNexusDeviceConfiguration()
 				.map(ScannableNexusDeviceConfiguration::getCollectionName)
 				.orElseGet(() -> hasLocationMapEntry() ? COLLECTION_NAME_SCANNABLES : null);
 		nexusWrapper.setCollectionName(collectionName);
+	}
+
+	private int calculatePrimaryDataFieldIndex() {
+		if (fieldDataNodes.size() < 2 || scanObject == null) return 0;
+
+		switch (scanObject.getType()) {
+			case IMPLICIT:
+				return calculatePrimaryDataFieldIndex((IImplicitScanObject) scanObject);
+			case EXPLICIT:
+				return calculatePrimaryDataFieldIndex((IExplicitScanObject) scanObject);
+			default:
+				throw new IllegalStateException("Unknown scan object type: " + scanObject.getType());
+		}
+	}
+
+	private int calculatePrimaryDataFieldIndex(IImplicitScanObject scanObject) {
+		if (!scanObject.hasStart() || (!scanObject.hasStop() && !scanObject.hasStep())) {
+			return 0; // need start and either stop or step to be specified
+		}
+
+		final Object stopStep = scanObject.hasStop() ? scanObject.getStop() : scanObject.getStep();
+
+		final double[] startArray = TypeConverters.toDoubleArray(scanObject.getStart());
+		final double[] stopStepArray = TypeConverters.toDoubleArray(stopStep);
+
+		if (startArray.length != stopStepArray.length) {
+			throw new IllegalStateException("start and " + (scanObject.hasStop() ? "stop" : "step") +
+					" arrays must be of equal length");
+		}
+		if (startArray.length == 1) return 0;
+
+		return getMaxRangeIndex(startArray, stopStepArray);
+	}
+
+	private int calculatePrimaryDataFieldIndex(IExplicitScanObject scanObject) {
+		final Iterator<Object> pointIter = scanObject.iterator();
+		final double[] firstPoint = TypeConverters.toDoubleArray(pointIter.next());
+		final int numFields = firstPoint.length;
+		if (numFields < 2) return 0; // if only 1 field, no comparison required
+
+		final double[] minPoints = Arrays.stream(firstPoint).toArray(); // make copies
+		final double[] maxPoints = Arrays.stream(firstPoint).toArray();
+		while (pointIter.hasNext()) {
+			final double[] point = TypeConverters.toDoubleArray(pointIter.next());
+			for (int i = 0; i < point.length; i++) { // no nice way to do this with streams
+				minPoints[i] = Math.min(minPoints[i], point[i]);
+				maxPoints[i] = Math.max(maxPoints[i], point[i]);
+			}
+		}
+		return getMaxRangeIndex(minPoints, maxPoints);
+	}
+
+	private int getMaxRangeIndex(double[] first, double[] second) {
+		final double[] ranges = IntStream.range(0, first.length)
+				.mapToDouble(i -> Math.abs(second[i] - first[i])).toArray();
+		// find the index of the maximum range
+		return IntStream.range(0, ranges.length).boxed()
+				.max(Comparator.comparing(index -> ranges[index]))
+				.orElseThrow().intValue();
+	}
+
+	@Override
+	protected String getPrimaryDataFieldName() {
+		return fieldDataNodes.keySet().stream().skip(primaryDataFieldIndex).findFirst().orElse(null);
 	}
 
 	private Optional<ScannableNexusDeviceConfiguration> getScannableNexusDeviceConfiguration() {
@@ -193,11 +271,6 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		} catch (Exception e) { // DeviceException, ClassCastException or IllegalArgumentException (from Enum.valueOf)
 			throw new NexusException("Error getting Nexus category for device: " + getName(), e);
 		}
-	}
-
-	@Override
-	protected String getPrimaryDataFieldName() {
-		return primaryAxisFieldPath;
 	}
 
 	/**
@@ -271,6 +344,14 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		}
 	}
 
+	/**
+	 * Set the {@link IScanObject} describing the movement of this scannable in the scan.
+	 * @param scanObject
+	 */
+	public void setScanObject(IScanObject scanObject) {
+		this.scanObject = scanObject;
+	}
+
 	private NexusBaseClass getNexusBaseClass() throws NexusException {
 		try {
 			final Optional<NexusBaseClass> optNexusClass = getScannableNexusDeviceConfiguration().map(ScannableNexusDeviceConfiguration::getNexusBaseClass);
@@ -341,9 +422,9 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 			// getPositionArray, which does not include the demand value
 			final ILazyWriteableDataset demandValueDataset = createLazyWritableDataset(FIELD_NAME_VALUE_SET,
 					Double.class, 1, new int[] { 1 });
-			demandValueDatanode = NexusNodeFactory.createDataNode();
-			demandValueDatanode.setDataset(demandValueDataset);
-			nexusObject.addDataNode(FIELD_NAME_VALUE_SET, demandValueDatanode);
+			demandValueDataNode = NexusNodeFactory.createDataNode();
+			demandValueDataNode.setDataset(demandValueDataset);
+			nexusObject.addDataNode(FIELD_NAME_VALUE_SET, demandValueDataNode);
 			nexusObject.setAttribute(FIELD_NAME_VALUE_SET, ATTR_NAME_LOCAL_NAME,
 					getName() + "." + FIELD_NAME_VALUE_SET);
 		}
@@ -358,10 +439,6 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 				final DataNode dataNode = createDataField(nexusObject, scanInfo, nexusRole, fieldNames[fieldIndex],
 						outputFieldPath, unitsStr, positionArray[fieldIndex]);
 				fieldDataNodes.put(outputFieldPath, dataNode);
-
-				if (fieldIndex == 0) {
-					primaryAxisFieldPath = outputFieldPath;
-				}
 			}
 		}
 	}
@@ -529,7 +606,7 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 
 	private void writeDemandPosition(Object demandPosition, int index) throws NexusException, DatasetException {
 		// write the demand position to the demand dataset
-		if (demandPosition != null && demandValueDatanode != null) {
+		if (demandPosition != null && demandValueDataNode != null) {
 			if (index < 0) {
 				throw new NexusException("Incorrect data index for scan for value of '" + getName() + "'. The index is " + index);
 			}
@@ -538,7 +615,7 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 
 			// write demand position
 			final IDataset newDemandPositionData = DatasetFactory.createFromObject(demandPosition);
-			demandValueDatanode.getWriteableDataset().setSlice(null, newDemandPositionData, startPos, stopPos, null);
+			demandValueDataNode.getWriteableDataset().setSlice(null, newDemandPositionData, startPos, stopPos, null);
 		}
 	}
 
@@ -570,9 +647,8 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		super.scanEnd();
 
 		nexusObject = null;
-		demandValueDatanode = null;
+		demandValueDataNode = null;
 		fieldDataNodes = null;
-		primaryAxisFieldPath = null;
 	}
 
 }

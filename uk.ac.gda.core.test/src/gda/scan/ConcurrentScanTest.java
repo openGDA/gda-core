@@ -1198,6 +1198,23 @@ public class ConcurrentScanTest {
 			fail("inconsistent step scan should have failed");
 		} catch (Exception e) {
 		}
+
+		Double[] singleFieldStop = new Double[] { 0., 1., 0. };
+		Double[] singleFieldStep = new Double[] { 0., 0.1, 0.};
+
+		// should run
+		args = new Object[] { multiScannable, start, singleFieldStop, singleFieldStep };
+		scan = new ConcurrentScan(args);
+		scan.runScan();
+
+		// should fail (partialStep has step for wrong field)
+		try {
+			args = new Object[] { multiScannable, start, singleFieldStop, partialStep };
+			scan = new ConcurrentScan(args);
+			scan.runScan();
+			fail("zero step scan should have failed");
+		} catch (Exception e) {
+		}
 	}
 
 	@Test

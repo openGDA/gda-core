@@ -147,7 +147,7 @@ public class RepeatScanTest {
 		assertTrue(2 == scan.allScannables.size());
 		assertEquals("scan index FrameProvider [totalFrames=1] s1", scan.command);
 		ExplicitScanObject explicitScanObject = (ExplicitScanObject)scan.allScanObjects.get(0);
-		assertEquals( 1, explicitScanObject.points.size());
+		assertEquals(1, explicitScanObject.getNumberPoints());
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class RepeatScanTest {
 		assertTrue(1 == scan.allDetectors.size());
 		assertEquals("scan index FrameProvider [totalFrames=1] d1", scan.command);
 		ExplicitScanObject explicitScanObject = (ExplicitScanObject)scan.allScanObjects.get(0);
-		assertEquals( 1, explicitScanObject.points.size());
+		assertEquals(1, explicitScanObject.getNumberPoints());
 	}
 
 	@Test
@@ -173,7 +173,7 @@ public class RepeatScanTest {
 		assertTrue(1 == scan.allDetectors.size());
 		assertEquals("scan index FrameProvider [totalFrames=1] s1 d1", scan.command);
 		ExplicitScanObject explicitScanObject = (ExplicitScanObject)scan.allScanObjects.get(0);
-		assertEquals( 1, explicitScanObject.points.size());
+		assertEquals(1, explicitScanObject.getNumberPoints());
 	}
 
 	@Test
@@ -186,7 +186,7 @@ public class RepeatScanTest {
 		assertTrue(1 == scan.allDetectors.size());
 		assertEquals("scan index FrameProvider [totalFrames=10] s1 d1", scan.command);
 		ExplicitScanObject explicitScanObject = (ExplicitScanObject)scan.allScanObjects.get(0);
-		assertEquals( 10, explicitScanObject.points.size());
+		assertEquals( 10, explicitScanObject.getNumberPoints());
 	}
 
 	@Test
@@ -201,9 +201,9 @@ public class RepeatScanTest {
 		assertTrue(1 == scan.allDetectors.size());
 		assertEquals("scan index FrameProvider [totalFrames=10] s1 d2", scan.command);
 		ExplicitScanObject explicitScanObject = (ExplicitScanObject)scan.allScanObjects.get(0);
-		assertEquals( 10, explicitScanObject.points.size());
+		assertEquals(10, explicitScanObject.getNumberPoints());
 		scan.runScan();
-		assertEquals( 10,d2.getNumberOfFrames());
+		assertEquals(10, d2.getNumberOfFrames());
 	}
 
 	@Test
@@ -218,12 +218,12 @@ public class RepeatScanTest {
 		assertTrue(2 == scan.allDetectors.size());
 		assertEquals("scan index FrameProvider [totalFrames=10] s1 d2 d3", scan.command);
 		ExplicitScanObject explicitScanObject = (ExplicitScanObject)scan.allScanObjects.get(0);
-		assertEquals( 10, explicitScanObject.points.size());
+		assertEquals(10, explicitScanObject.getNumberPoints());
 		scan.runScan();
-		assertEquals( 10,d2.getNumberOfFrames());
-		assertEquals( 10,d3.getNumberOfFrames());
-		assertEquals( 1, scan.getPositionCallableThreadPoolSize());
-		assertEquals( 10, scan.getScanDataPointQueueLength());
+		assertEquals(10,d2.getNumberOfFrames());
+		assertEquals(10,d3.getNumberOfFrames());
+		assertEquals(1, scan.getPositionCallableThreadPoolSize());
+		assertEquals(10, scan.getScanDataPointQueueLength());
 	}
 
 	@Test
@@ -238,10 +238,10 @@ public class RepeatScanTest {
 		assertTrue(1 == scan.allDetectors.size());
 		ConcurrentScan outer = ScannableCommands.createConcurrentScan(s1, 1, 10, 1, scan);
 		outer.runScan();
-		assertEquals( 10,d3.getNumberOfFrames());
+		assertEquals(10,d3.getNumberOfFrames());
 		//value increased by createConcurrentScan to 3
-		assertEquals( 3, outer.getPositionCallableThreadPoolSize());
-		assertEquals( 10, outer.getScanDataPointQueueLength());
+		assertEquals(3, outer.getPositionCallableThreadPoolSize());
+		assertEquals(10, outer.getScanDataPointQueueLength());
 
 		assertArrayEquals(Files.readAllBytes(Paths.get(TestFileFolder + "testOuterScan/Data/expected.dat")),
 				Files.readAllBytes(Paths.get(testScratchDirectoryName + "/Data/" + ScanBaseFirstScanNumber + ".dat")));

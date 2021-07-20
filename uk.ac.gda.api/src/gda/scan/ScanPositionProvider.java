@@ -19,27 +19,48 @@
 
 package gda.scan;
 
+import java.util.Iterator;
 
 /**
  * Interface of object that supplied points for a scannable to be used in a ConcurrentScan
  */
-public interface ScanPositionProvider {
-    /**
-     * Returns the element at the specified position in this list.
-     *
-     * @param index index of the element to return
-     * @return the element at the specified position in this list
-     * @throws IndexOutOfBoundsException if the index is out of range
-     *         (<tt>index &lt; 0 || index &gt;= size()</tt>)
-     */	
+public interface ScanPositionProvider extends Iterable<Object> {
+	/**
+	 * Returns the element at the specified position in this list.
+	 *
+	 * @param index
+	 *            index of the element to return
+	 * @return the element at the specified position in this list
+	 * @throws IndexOutOfBoundsException
+	 *             if the index is out of range (<tt>index &lt; 0 || index &gt;= size()</tt>)
+	 */
 	Object get(int index);
-	
-    /**
-     * Returns the number of elements in this list.  If this list contains
-     * more than <tt>Integer.MAX_VALUE</tt> elements, returns
-     * <tt>Integer.MAX_VALUE</tt>.
-     *
-     * @return the number of elements in this list
-     */
-    int size();	
+
+	/**
+	 * Returns the number of elements in this list. If this list contains more than <tt>Integer.MAX_VALUE</tt> elements,
+	 * returns <tt>Integer.MAX_VALUE</tt>.
+	 *
+	 * @return the number of elements in this list
+	 */
+	int size();
+
+	@Override
+	default Iterator<Object> iterator() {
+		return new Iterator<Object>() {
+
+			private int cursor;
+
+			@Override
+			public boolean hasNext() {
+				return cursor != size();
+			}
+
+			@Override
+			public Object next() {
+				final Object element = get(cursor);
+				cursor++;
+				return element;
+			}
+		};
+	}
 }

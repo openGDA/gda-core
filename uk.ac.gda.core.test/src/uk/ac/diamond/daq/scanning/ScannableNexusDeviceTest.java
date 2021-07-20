@@ -38,9 +38,11 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
@@ -108,8 +110,8 @@ public class ScannableNexusDeviceTest {
 		assertThat(nexusObjectProvider.getNexusBaseClass(), is(NX_POSITIONER));
 		assertThat(nexusObjectProvider.getCategory(), is(nullValue()));
 		assertThat(nexusObjectProvider.getCollectionName(), is(nullValue()));
-		assertThat(nexusObjectProvider.getAxisDataFieldNames(),
-				contains("input1", FIELD_NAME_VALUE_SET));
+
+		assertThat(nexusObjectProvider.getAxisDataFieldNames(), contains(ArrayUtils.add(INPUT_NAMES, FIELD_NAME_VALUE_SET)));
 		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(FIELD_NAME_VALUE_SET)));
 
 		final String[] expectedFieldNames = Stream.of(INPUT_NAMES, EXTRA_NAMES)
@@ -185,8 +187,10 @@ public class ScannableNexusDeviceTest {
 		assertThat(nexusObjectProvider.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
 		assertThat(nexusObjectProvider.getCategory(), is(NexusBaseClass.NX_SAMPLE));
 		assertThat(nexusObjectProvider.getCollectionName(), is(equalTo(COLLECTION_NAME)));
-		assertThat(nexusObjectProvider.getAxisDataFieldNames(),
-				contains("theta:NXpositioner/" + NXpositioner.NX_VALUE, FIELD_NAME_VALUE_SET));
+		final String[] expectedAxisDataFieldNames = Stream.concat(
+				Arrays.stream(outputFieldPaths).limit(INPUT_NAMES.length),
+				Stream.of(FIELD_NAME_VALUE_SET)).toArray(String[]::new);
+		assertThat(nexusObjectProvider.getAxisDataFieldNames(), contains(expectedAxisDataFieldNames));
 		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(FIELD_NAME_VALUE_SET)));
 
 		final NXcollection nexusObject = (NXcollection) nexusObjectProvider.getNexusObject();

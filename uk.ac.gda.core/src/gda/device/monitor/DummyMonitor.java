@@ -37,6 +37,20 @@ public class DummyMonitor extends MonitorBase {
 	/** Interval between new values - in milliseconds */
 	private int updateInterval = 5000;
 
+	public DummyMonitor() {
+		// default constructor
+	}
+
+	public DummyMonitor(String name) {
+		this();
+		setName(name);
+	}
+
+	public DummyMonitor(String name, double constantValue) {
+		this(name);
+		setConstantValue(constantValue);
+	}
+
 	@Override
 	public void configure() {
 		if (isConfigured()) {

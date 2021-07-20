@@ -27,9 +27,10 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
+import uk.ac.gda.api.scan.IImplicitScanObject;
 
 
-public class ImplicitScanObject extends ScanObject {
+public class ImplicitScanObject extends ScanObject implements IImplicitScanObject {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImplicitScanObject.class);
 
@@ -54,7 +55,7 @@ public class ImplicitScanObject extends ScanObject {
 	 * @param step
 	 */
 	public ImplicitScanObject(Scannable scannable, Object start, Object stop, Object step) {
-		this.scannable = scannable;
+		super(scannable);
 		this.start = start;
 		this.stop = stop;
 		this.step = step;
@@ -71,6 +72,11 @@ public class ImplicitScanObject extends ScanObject {
 				}
 			}
 		}
+	}
+
+	@Override
+	public ScanObjectType getType() {
+		return ScanObjectType.IMPLICIT;
 	}
 
 	@Override
@@ -162,4 +168,31 @@ public class ImplicitScanObject extends ScanObject {
 	public boolean hasStop() {
 		return stop != null;
 	}
+
+	@Override
+	public boolean hasStep() {
+		return step != null;
+	}
+
+	@Override
+	public Object getStart() {
+		return start;
+	}
+
+	@Override
+	public Object getStop() {
+		return stop;
+	}
+
+	@Override
+	public Object getStep() {
+		return step;
+	}
+
+	@Override
+	public String toString() {
+		return "ImplicitScanObject [numberPoints=" + numberPoints + ", start=" + start + ", stop=" + stop + ", step="
+				+ step + "]";
+	}
+
 }

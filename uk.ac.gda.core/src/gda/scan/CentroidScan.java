@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.gda.api.scan.IScanObject;
 
 /**
  * Wrapper for the ConcurrentScan, except it takes centroid, width, step as arguments.
@@ -220,13 +221,13 @@ public class CentroidScan extends ScanBase {
 	private void moveToCentroids() throws Exception {
 		checkThreadInterrupted();
 		waitIfPaused();
-		for (ScanObject j : this.concurrentScan.allScanObjects) {
+		for (IScanObject j : this.concurrentScan.allScanObjects) {
 			checkThreadInterrupted();
 			j.moveToStart();
 		}
 		// pause here until all the movement has finished
-		for (ScanObject j : this.concurrentScan.allScanObjects) {
-			while (j.scannable.isBusy()) {
+		for (IScanObject j : this.concurrentScan.allScanObjects) {
+			while (j.getScannable().isBusy()) {
 				Thread.sleep(250);
 			}
 		}

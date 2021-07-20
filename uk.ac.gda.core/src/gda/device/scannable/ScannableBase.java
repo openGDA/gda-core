@@ -253,7 +253,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		return internalPosition;
 	}
 
-	final private void checkPositionLength(int length) {
+	private final void checkPositionLength(int length) {
 		final int numInputNames = getInputNames().length;
 		final int numExtraNames = getExtraNames().length;
 		final int numTotalNames = numInputNames + numExtraNames;

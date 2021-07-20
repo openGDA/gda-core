@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -278,7 +279,7 @@ public class ScannableNexusWrapperTest {
 		assertThat(nexusObjectProvider.getCategory(), is(nullValue()));
 		assertThat(nexusObjectProvider.getCollectionName(), is(nullValue()));
 		assertThat(nexusObjectProvider.getAxisDataFieldNames(),
-				contains("input1", FIELD_NAME_VALUE_SET));
+				contains(ArrayUtils.add(inputNames, FIELD_NAME_VALUE_SET)));
 		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(FIELD_NAME_VALUE_SET)));
 
 		final String[] expectedFieldNames = Stream.of(inputNames, extraNames).flatMap(Stream::of).toArray(String[]::new);

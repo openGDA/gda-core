@@ -21,6 +21,7 @@ package uk.ac.gda.api.scan;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.scan.IScanStepId;
+import gda.scan.ScanPositionProvider;
 
 /**
  * Interface for a ScanObject to reduce the incentive to split the gda.scan package across plugins just so you can get at the scannable member The ScanObject
@@ -30,9 +31,30 @@ import gda.scan.IScanStepId;
  */
 public interface IScanObject {
 
-	Scannable getScannable();
+	/**
+	 * The type of scan object.
+	 */
+	public enum ScanObjectType {
 
-	void setScannable(Scannable scannable);
+		/**
+		 * An implicit scan object, defined by start, stop and step.
+		 */
+		IMPLICIT,
+
+		/**
+		 * An explicit scan object, which explicitly knows each point in the scan,
+		 * via a {@link ScanPositionProvider}.
+		 */
+		EXPLICIT
+	}
+
+	ScanObjectType getType();
+
+	/**
+	 * The {@link Scannable} that this {@link IScanObject} moves.
+	 * @return the scananble
+	 */
+	Scannable getScannable();
 
 	/**
 	 * @return true if the object has a defined start position

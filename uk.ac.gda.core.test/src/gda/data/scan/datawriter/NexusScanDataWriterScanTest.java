@@ -20,6 +20,7 @@ package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
+import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
@@ -202,7 +203,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 	}
 
-	private static final String CLASS_NAME_NEXUS_SCAN_DATA_WRITER = NexusScanDataWriter.class.getSimpleName();
 	private static final String ATTRIBUTE_NAME_GDA_FIELD_NAME = "gda_field_name";
 	private static final String GROUP_NAME_SCANNABLES = "scannables";
 
@@ -315,7 +315,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, CLASS_NAME_NEXUS_SCAN_DATA_WRITER);
+		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
 		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
 	}

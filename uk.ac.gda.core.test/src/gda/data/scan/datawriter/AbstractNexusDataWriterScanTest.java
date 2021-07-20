@@ -86,6 +86,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusUtils;
+import org.eclipse.dawnsci.nexus.test.utilities.NexusTestUtils;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -413,7 +414,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 			externalDataset = data.initializeLazyDataset(NXdata.NX_DATA, datasetRank, Double.class);
 
 			try {
-				saveNexusFile(treeFile);
+				NexusTestUtils.saveNexusFile(treeFile);
 			} catch (NexusException e) {
 				throw new RuntimeException("Error creating external nexus file", e);
 			}
@@ -705,7 +706,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(scan.getDataWriter().getCurrentFileName(), is(equalTo(expectedNexusFilePath)));
 
 		// check the content of the nexus file
-		try (final NexusFile nexusFile = openNexusFile(expectedNexusFilePath)) {
+		try (final NexusFile nexusFile = NexusTestUtils.openNexusFile(expectedNexusFilePath)) {
 			checkNexusFile(nexusFile);
 		}
 
@@ -781,21 +782,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(nodePath, nodeLink, is(notNullValue()));
 		assertThat(nodePath, nodeLink.isDestinationData(), is(true));
 		return (DataNode) nodeLink.getDestination();
-	}
-
-	protected static NexusFile openNexusFile(String filePath) throws NexusException {
-		final NexusFile nexusFile = nexusFileFactory.newNexusFile(filePath);
-		nexusFile.openToRead();
-		return nexusFile;
-	}
-
-	protected static NexusFile saveNexusFile(TreeFile nexusTree) throws NexusException {
-		try (NexusFile nexusFile = nexusFileFactory.newNexusFile(nexusTree.getFilename(), true)) {
-			nexusFile.createAndOpenToWrite();
-			nexusFile.addNode("/", nexusTree.getGroupNode());
-			nexusFile.flush();
-			return nexusFile;
-		}
 	}
 
 	private void checkNexusFile(NexusFile nexusFile) throws Exception {

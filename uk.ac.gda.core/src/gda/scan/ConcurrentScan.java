@@ -37,6 +37,8 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 import gda.jython.commands.ScannableCommands;
+import uk.ac.gda.api.scan.IScanObject;
+import uk.ac.gda.api.scan.IScanObject.ScanObjectType;
 
 /**
  * Similar to 'scan' in CLAM (but order of arguments not the same). This moves several scannable objects simultaneously,
@@ -427,11 +429,11 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				}
 			} else {
 				// move the Scannable operated by this scan and then run the child scan
-				ScanObject principleScanObject = this.allScanObjects.get(0);
+				final IScanObject principleScanObject = this.allScanObjects.get(0);
 				// There will only be one scannable moved in this parent scan, so no
 				// need to sort by level!
-				principleScanObject.scannable.atLevelStart();
-				principleScanObject.scannable.atLevelMoveStart();
+				principleScanObject.getScannable().atLevelStart();
+				principleScanObject.getScannable().atLevelMoveStart();
 				stepId = principleScanObject.moveToStart();
 				checkThreadInterrupted();
 				checkAllMovesComplete();
@@ -439,7 +441,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				if (isFinishEarlyRequested()) {
 					return;
 				}
-				principleScanObject.scannable.atLevelEnd();
+				principleScanObject.getScannable().atLevelEnd();
 				runChildScan();
 				checkThreadInterrupted();
 				// note that some scan hooks not called (atPointStart,atLevelMoveStart,atPointEnd) as this scannable is ot part of the child scan
@@ -468,13 +470,13 @@ public class ConcurrentScan extends ConcurrentScanChild {
 						sendScanEvent(ScanEvent.EventType.UPDATED);
 					}
 				} else {
-					ScanObject principleScanObject = this.allScanObjects.get(0);
-					principleScanObject.scannable.atLevelStart();
-					principleScanObject.scannable.atLevelMoveStart();
+					final IScanObject principleScanObject = this.allScanObjects.get(0);
+					principleScanObject.getScannable().atLevelStart();
+					principleScanObject.getScannable().atLevelMoveStart();
 					stepId = principleScanObject.moveStep();
 					checkAllMovesComplete();
 					checkThreadInterrupted();
-					principleScanObject.scannable.atLevelEnd();
+					principleScanObject.getScannable().atLevelEnd();
 					runChildScan();
 					checkThreadInterrupted();
 				}
@@ -486,6 +488,13 @@ public class ConcurrentScan extends ConcurrentScanChild {
 			setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 			throw e;
 		}
+	}
+
+	@Override
+	protected ScanDataPoint createScanDataPoint() throws DeviceException {
+		final ScanDataPoint scanDataPoint = super.createScanDataPoint();
+		scanDataPoint.setScanObjects(new Vector<>(getAllScanObjects()));
+		return scanDataPoint;
 	}
 
 	private void reportDetectorsThatWillBeMovedConcurrentlyWithSomeOtherScannables() {
@@ -636,7 +645,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 			child.setTotalNumberOfPoints(parent.getTotalNumberOfPoints());
 
 			// share with the child scan all the ScanObjects that do not define other childScans
-			for (ScanObject scanObject : this.allScanObjects) {
+			for (IScanObject scanObject : this.allScanObjects) {
 				if (!scanObject.hasStop()) {
 					child.getAllScanObjects().add(scanObject);
 				}
@@ -650,7 +659,7 @@ public class ConcurrentScan extends ConcurrentScanChild {
 
 		// loop through all scan object to check if number of steps is consistent
 		int numberPoints = Integer.MIN_VALUE;
-		for (ScanObject scanObj : this.allScanObjects) {
+		for (IScanObject scanObj : this.allScanObjects) {
 			int thisScanNumber = scanObj.getNumberPoints();
 
 			if (thisScanNumber != 0) {
@@ -662,19 +671,19 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				}
 			}
 		}
-		for (ScanObject scanObj : this.allScanObjects) {
+		for (IScanObject scanObj : this.allScanObjects) {
 			scanObj.setNumberPoints(numberPoints);
 		}
 
 		// generate the scan positions for implicit scan objects
-		for (ScanObject scanObj : this.allScanObjects) {
-			if (scanObj instanceof ImplicitScanObject) {
+		for (IScanObject scanObj : this.allScanObjects) {
+			if (scanObj.getType() == ScanObjectType.IMPLICIT) {
 				((ImplicitScanObject) scanObj).calculateScanPoints();
 			}
 		}
 
 		// then check if all scan objects' positions are valid
-		for (ScanObject scanObj : this.allScanObjects) {
+		for (IScanObject scanObj : this.allScanObjects) {
 			String reason = scanObj.arePointsValid();
 			if (reason != null) {
 				throw new IllegalArgumentException(reason);

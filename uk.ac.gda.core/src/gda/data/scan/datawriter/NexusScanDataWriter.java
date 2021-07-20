@@ -63,12 +63,14 @@ import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.scan.nexus.device.AbstractDetectorNexusDeviceAdapter;
+import gda.data.scan.nexus.device.ScannableNexusDevice;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.util.Version;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
+import uk.ac.gda.api.scan.IScanObject;
 import uk.ac.gda.common.exception.GDAException;
 
 /**
@@ -79,6 +81,12 @@ import uk.ac.gda.common.exception.GDAException;
 public class NexusScanDataWriter extends DataWriterBase implements INexusDataWriter {
 
 	// TODO: will we ever use extenders with this datawriter? If not we don't need to extend DataWriterBase
+
+	/**
+	 * Call {@link LocalProperties#set(String, String)} with property name
+	 * {@link LocalProperties#GDA_DATA_SCAN_DATAWRITER_DATAFORMAT} and this value to use this nexus writer.
+	 */
+	public static final String PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN = NexusScanDataWriter.class.getSimpleName();
 
 	/**
 	 * Boolean property specifying whether nxs/dat filenames should be prefixed with the beamline name; if {@code true},
@@ -137,6 +145,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private final Map<String, IWritableNexusDevice<? extends NXobject>> nexusDevices = new HashMap<>();
 
 	private int currentPointNumber = -1;
+
+	private IScanDataPoint firstPoint = null;
 
 	private PositionIterator scanPositionIter = null;
 
@@ -252,7 +262,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			// if this is the first point, create the nexus file
 			if (currentPointNumber == 0) {
 				try {
-					createFile(point);
+					firstPoint = point;
+					createFile();
 				} catch (Exception e) {
 					throw new GDAException("Could not create nexus file: " + e.getMessage(), e);
 				}
@@ -287,46 +298,46 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		}
 	}
 
-	private void createFile(IScanDataPoint point) throws NexusException {
+	private void createFile() throws NexusException {
 		ensureScanNumberConfigured();
 
 		logger.debug("Creating new nexus file: {}", getNexusFileName());
 		logger.debug("Scan Parameters...");
-		logger.debug("Scan Command : {}", point.getCommand());
-		logger.debug("Instrument Name : {}", point.getInstrument());
-		logger.debug("Number of Points : {}", point.getNumberOfPoints());
+		logger.debug("Scan Command : {}", firstPoint.getCommand());
+		logger.debug("Instrument Name : {}", firstPoint.getInstrument());
+		logger.debug("Number of Points : {}", firstPoint.getNumberOfPoints());
 		terminalPrinter.print("Writing data to file: " + getCurrentFileName());
 
 		// This is where we create the NexusScanModel describing the scan in nexus terms
 		scanMetadataWriter = new NexusScanMetadataWriter();
-		final NexusScanModel nexusScanModel = createNexusScanModel(point);
+		final NexusScanModel nexusScanModel = createNexusScanModel();
 		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
 		scanMetadataWriter.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
 
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 	}
 
-	private NexusScanModel createNexusScanModel(IScanDataPoint point) throws NexusException {
+	private NexusScanModel createNexusScanModel() throws NexusException {
 		final NexusScanModel nexusScanModel = new NexusScanModel();
 		nexusScanModel.setEntryName(LocalProperties.get(PROPERTY_NAME_ENTRY_NAME, DEFAULT_ENTRY_NAME));
 		nexusScanModel.setFilePath(getCurrentFileName());
-		nexusScanModel.setNexusDevices(getNexusDevices(point));
-		nexusScanModel.setDimensionNamesByIndex(getDimensionNamesByIndex(point));
+		nexusScanModel.setNexusDevices(getNexusDevices());
+		nexusScanModel.setDimensionNamesByIndex(getDimensionNamesByIndex());
 		nexusScanModel.setMetadataWriter(scanMetadataWriter);
 		nexusScanModel.setNexusMetadataProviders(createNexusMetadataProviders());
 		nexusScanModel.setTemplateFilePaths(getTemplateFilePaths());
 		nexusScanModel.setMultipleNexusDevice(Optional.empty()); // no malcolm device in gda8 scans
+		nexusScanModel.setNexusScanInfo(createNexusScanInfo(nexusScanModel.getNexusDevices()));
 
-		nexusScanModel.setNexusScanInfo(createNexusScanInfo(point, nexusScanModel.getNexusDevices()));
 		return nexusScanModel;
 	}
 
-	private Map<ScanRole, List<INexusDevice<? extends NXobject>>> getNexusDevices(IScanDataPoint point) throws NexusException {
+	private Map<ScanRole, List<INexusDevice<? extends NXobject>>> getNexusDevices() throws NexusException {
 		final Map<ScanRole, List<INexusDevice<? extends NXobject>>> nexusDevices = new EnumMap<>(ScanRole.class);
-		nexusDevices.put(ScanRole.DETECTOR, getNexusDetectors(point));
-		nexusDevices.put(ScanRole.SCANNABLE, getScannables(point));
-		nexusDevices.put(ScanRole.MONITOR_PER_POINT, getPerPointMonitors(point));
-		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, getPerScanMonitors(point));
+		nexusDevices.put(ScanRole.DETECTOR, getNexusDetectors());
+		nexusDevices.put(ScanRole.SCANNABLE, getScannables());
+		nexusDevices.put(ScanRole.MONITOR_PER_POINT, getPerPointMonitors());
+		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, getPerScanMonitors());
 		nexusDevices.put(ScanRole.NONE, Collections.emptyList());
 
 		return nexusDevices;
@@ -336,58 +347,58 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return nexusDevices.stream().map(INexusDevice::getName).collect(toSet());
 	}
 
-	private NexusScanInfo createNexusScanInfo(IScanDataPoint point, Map<ScanRole, List<INexusDevice<?>>> nexusDevices) {
+	private NexusScanInfo createNexusScanInfo(Map<ScanRole, List<INexusDevice<?>>> nexusDevices) {
 		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
 		nexusScanInfo.setFilePath(getCurrentFileName());
 		nexusScanInfo.setDetectorNames(getNames(nexusDevices.get(ScanRole.DETECTOR)));
 		nexusScanInfo.setScannableNames(nexusDevices.get(ScanRole.SCANNABLE).stream().map(INexusDevice::getName).collect(toList())); // needs list not set
 		nexusScanInfo.setPerPointMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_POINT)));
 		nexusScanInfo.setPerScanMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_SCAN)));
-		nexusScanInfo.setRank(point.getScanDimensions().length);
-		nexusScanInfo.setShape(point.getScanDimensions());
+		nexusScanInfo.setRank(firstPoint.getScanDimensions().length);
+		nexusScanInfo.setShape(firstPoint.getScanDimensions());
 
 		return nexusScanInfo;
 	}
 
-	private List<Set<String>> getDimensionNamesByIndex(IScanDataPoint point) {
+	private List<Set<String>> getDimensionNamesByIndex() {
 		// assume for now that each scannable in the list of scannables corresponds to the same dimension of the scan
 		// as its index in the list, and that any scannables left over are monitors
-		return point.getScannables().stream()
-				.limit(point.getScanDimensions().length)
+		return firstPoint.getScannables().stream()
+				.limit(firstPoint.getScanDimensions().length)
 				.map(Scannable::getName)
 				.map(Arrays::asList).map(HashSet::new)
 				.collect(toList());
 	}
 
-	private List<INexusDevice<?>> getScannables(IScanDataPoint point) {
+	private List<INexusDevice<?>> getScannables() {
 		// assume for now that each scannable in the list of scannables corresponds to the same dimension of the scan
 		// as its index in the list, and that any scannables left over are monitors, see DAQ
-		return point.getScannables().stream().limit(point.getScanDimensions().length)
+		return firstPoint.getScannables().stream().limit(firstPoint.getScanDimensions().length)
 				.map(this::createNexusDevice).collect(toList());
 	}
 
-	private List<INexusDevice<?>> getPerPointMonitors(IScanDataPoint point) {
+	private List<INexusDevice<?>> getPerPointMonitors() {
 		// assume for now that each scannable in the list of scannables corresponds to the same dimension of the scan
 		// as its index in the list, and that any scannables left over are monitors
-		return point.getScannables().stream().skip(point.getScanDimensions().length)
+		return firstPoint.getScannables().stream().skip(firstPoint.getScanDimensions().length)
 				.map(this::createNexusDevice).collect(toList());
 	}
 
-	private List<INexusDevice<?>> getNexusDetectors(IScanDataPoint point) throws NexusException {
-		final List<String> detectorNames = point.getDetectorNames();
-		if (detectorNames.size() != point.getDetectorData().size()) {
+	private List<INexusDevice<?>> getNexusDetectors() throws NexusException {
+		final List<String> detectorNames = firstPoint.getDetectorNames();
+		if (detectorNames.size() != firstPoint.getDetectorData().size()) {
 			throw new NexusException("Detector name and data lists have different sizes");
 		}
 
-		return point.getDetectorNames().stream()
-				.map(detName -> createNexusDevice(detName, point))
+		return firstPoint.getDetectorNames().stream()
+				.map(detName -> createDetectorNexusDevice(detName))
 				.collect(toList());
 	}
 
-	private INexusDevice<?> createNexusDevice(String detectorName, IScanDataPoint firstPoint) {
+	private INexusDevice<?> createDetectorNexusDevice(String detectorName) {
 		final Detector detector = firstPoint.getDetector(detectorName);
 		final INexusDevice<?> device = createNexusDevice(detector);
-		final Object detectorData = getDetectorData(detectorName, firstPoint);
+		final Object detectorData = getDetectorData(detector.getName(), firstPoint);
 		if (device instanceof AbstractDetectorNexusDeviceAdapter) {
 			((AbstractDetectorNexusDeviceAdapter) device).setFirstPointData(detectorData);
 		}
@@ -395,22 +406,26 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return device;
 	}
 
-	private INexusDevice<?> createNexusDevice(Scannable device) {
-		return createNexusDevice(device, true);
+	private INexusDevice<?> createNexusDevice(Scannable scannable) {
+		final INexusDevice<?> nexusDevice = createNexusDevice(scannable, true);
+		if (nexusDevice instanceof ScannableNexusDevice<?>) {
+			((ScannableNexusDevice<?>) nexusDevice).setScanObject(getScanObject(scannable.getName()));
+		}
+		return nexusDevice;
 	}
 
-	private INexusDevice<?> createNexusDevice(Scannable device, boolean writeable) {
-		final String deviceName = device.getName();
+	private INexusDevice<?> createNexusDevice(Scannable scannable, boolean writeable) {
+		final String deviceName = scannable.getName();
 		final INexusDevice<?> nexusDevice;
-		if (device instanceof INexusDevice) {
-			nexusDevice = (INexusDevice<?>) device;
+		if (scannable instanceof INexusDevice) {
+			nexusDevice = (INexusDevice<?>) scannable;
 		} else {
 			final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
 			try {
 				if (nexusDeviceService.hasNexusDevice(deviceName)) {
 					nexusDevice = nexusDeviceService.getNexusDevice(deviceName);
 				} else {
-					nexusDevice = nexusDeviceService.getNexusDevice(device);
+					nexusDevice = nexusDeviceService.getNexusDevice(scannable);
 				}
 
 				if (nexusDevice == null) {
@@ -428,11 +443,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			throw new IllegalArgumentException("device must be an IWritableNexusDevice: " + deviceName);
 		}
 
-		nexusDevices.put(device.getName(), (IWritableNexusDevice<?>) nexusDevice);
+		nexusDevices.put(scannable.getName(), (IWritableNexusDevice<?>) nexusDevice);
 		return nexusDevice;
 	}
 
-	private INexusDevice<?> createNexusDevice(String scannableName) {
+	private INexusDevice<?> createScannableNexusDevice(String scannableName) {
 		final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 		if (scannable == null) {
 			// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
@@ -452,17 +467,24 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return createNexusDevice(scannable, false);
 	}
 
-	private List<INexusDevice<?>> getPerScanMonitors(IScanDataPoint point) throws NexusException {
+	private List<INexusDevice<?>> getPerScanMonitors() {
 		final MetadataScannableCalculator calculator = new MetadataScannableCalculator(
-				point.getDetectorNames(), point.getScannableNames());
+				firstPoint.getDetectorNames(), firstPoint.getScannableNames());
 		final Set<String> metadataScannableNames = new HashSet<>();
 		metadataScannableNames.addAll(calculator.calculateMetadataScannableNames());
 		metadataScannableNames.addAll(getCommonBeamlineDeviceNames());
 
 		return metadataScannableNames.stream().
-				map(this::createNexusDevice).
+				map(this::createScannableNexusDevice).
 				filter(Objects::nonNull).
 				collect(toList());
+	}
+
+	private IScanObject getScanObject(String scannableName) {
+		if (firstPoint.getScanObjects() == null) return null;
+		return firstPoint.getScanObjects().stream()
+				.filter(scanObj -> scannableName.equals(scanObj.getScannable().getName()))
+				.findFirst().orElse(null);
 	}
 
 	private Set<String> getCommonBeamlineDeviceNames() {

@@ -20,7 +20,7 @@ package gda.device.scannable.scannablegroup;
 
 import gda.device.DeviceException;
 
-class DummyScannableFieldScannableMotion extends ScannableMotionWithScannableFieldsBase {
+public class DummyScannableFieldScannableMotion extends ScannableMotionWithScannableFieldsBase {
 
 	Double[] inputPos;
 	Double[] extraPos;

@@ -18,15 +18,15 @@ public abstract class ScanObject implements IScanObject {
 	/**
 	 * The scannable this object operates.
 	 */
-	protected Scannable scannable;
+	protected final Scannable scannable;
+
+	public ScanObject(Scannable scannable) {
+		this.scannable = scannable;
+	}
 
 	@Override
 	public Scannable getScannable() {
 		return scannable;
 	}
 
-	@Override
-	public void setScannable(Scannable scannable) {
-		this.scannable = scannable;
-	}
 }

@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import org.python.core.Py;
-import org.python.core.PyList;
+import org.python.core.PyFloat;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
@@ -55,16 +55,18 @@ public class TypeConverters {
 
 		if (object instanceof double[]) {
 			return (double[]) object;
-		} else if (object instanceof PyList) {
-			// coerce PyList into double array.
-			final PyList list = (PyList)object;
-		    return IntStream.range(0, list.__len__())
-		            .mapToObj(list::pyget)
-		            .map(pyo -> pyo instanceof PyString
-		                    ? Double.valueOf(pyo.toString())
-		                    : Py.tojava(pyo, Number.class))
-		            .mapToDouble(Number::doubleValue)
-		            .toArray();
+		} else if (object instanceof PySequence) {
+			// coerce PySequence into double array.
+			final PySequence list = (PySequence)object;
+			return IntStream.range(0, list.__len__())
+					.mapToObj(list::__getitem__)
+					.map(pyo -> pyo instanceof PyString
+							? Double.valueOf(pyo.toString())
+									: Py.tojava(pyo, Number.class))
+					.mapToDouble(Number::doubleValue)
+					.toArray();
+		} else if (object instanceof List<?>) {
+			return ((List<?>) object).stream().mapToDouble(TypeConverters::toDouble).toArray();
 		} else if (object instanceof int[]) {
 			return Arrays.stream((int[]) object).mapToDouble(Double::valueOf).toArray();
 		} else if (object instanceof long[]) {
@@ -73,11 +75,25 @@ public class TypeConverters {
 			return Arrays.stream((String[]) object).mapToDouble(Double::valueOf).toArray();
 		} else if (object instanceof Number[]) {
 			return Arrays.stream((Number[]) object).mapToDouble(Number::doubleValue).toArray();
+		} else if (object instanceof PyFloat[]) {
+			return Arrays.stream((PyFloat[]) object).map(obj -> Py.tojava(obj, Number.class))
+					.mapToDouble(Number::doubleValue).toArray();
 		} else if (object instanceof Number) {
 			return new double[] { ((Number) object).doubleValue() };
+		} else if (object instanceof PyFloat) {
+			return new double[] { Py.tojava((PyFloat) object, Number.class).doubleValue() };
 		}
 
 		throw new IllegalArgumentException("Object cannot be converted to a double array: " + object);
+	}
+
+	private static double toDouble(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).doubleValue();
+		} else if (object instanceof String) {
+			return Double.parseDouble((String) object);
+		}
+		throw new IllegalArgumentException("Object cannot be converted to a double: " + object);
 	}
 
 	/**

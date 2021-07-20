@@ -19,16 +19,17 @@
 
 package gda.scan;
 
-import gda.device.scannable.ScannableUtils;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 import org.python.core.PyNone;
 import org.python.core.PySequence;
+
+import gda.device.scannable.ScannableUtils;
 
 /**
  *
@@ -80,6 +81,11 @@ class ScanPositionProviderFromList implements ScanPositionProvider{
 	public int size() {
 		return points.size();
 	}
+	@Override
+	public String toString() {
+		return "ScanPositionProviderFromList [points=" + points + "]";
+	}
+
 }
 
 class ScanPositionProviderFromArray<T> implements ScanPositionProvider{
@@ -95,6 +101,11 @@ class ScanPositionProviderFromArray<T> implements ScanPositionProvider{
 	public int size() {
 		return points.length;
 	}
+	@Override
+	public String toString() {
+		return "ScanPositionProviderFromArray [points=" + Arrays.toString(points) + "]";
+	}
+
 }
 
 
@@ -128,9 +139,15 @@ class ScanPositionProviderFromRegionalList implements ScanPositionProvider {
 	public int size() {
 		return points.size();
 	}
+
+	@Override
+	public String toString() {
+		return "ScanPositionProviderFromRegionalList [points=" + points + "]";
+	}
+
 }
 
-class ScanRegion{
+class ScanRegion {
 	private Object start;
 	private Object stop;
 	private Object step;
@@ -308,6 +325,12 @@ class ScanRegion{
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "ScanRegion [start=" + start + ", stop=" + stop + ", step=" + step + "]";
+	}
+
 
 }
 

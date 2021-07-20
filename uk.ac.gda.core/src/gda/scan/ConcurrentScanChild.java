@@ -36,6 +36,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import uk.ac.diamond.daq.concurrent.Async;
+import uk.ac.gda.api.scan.IScanObject;
 
 /**
  * Base class for scan classes which can act as a dimension in a multi-dimensional concurrentscan
@@ -46,7 +47,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 
 	protected TreeMap<Integer, Scannable[]> scannableLevels;
 	// the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans
-	protected Vector<ScanObject> allScanObjects = new Vector<ScanObject>();
+	protected Vector<IScanObject> allScanObjects = new Vector<IScanObject>();
 	// the list of child scans belonging to this parent
 	protected Vector<IConcurrentScanChild> allChildScans = new Vector<IConcurrentScanChild>();
 
@@ -104,12 +105,12 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	}
 
 	@Override
-	public Vector<ScanObject> getAllScanObjects() {
+	public Vector<IScanObject> getAllScanObjects() {
 		return allScanObjects;
 	}
 
 	@Override
-	public void setAllScanObjects(Vector<ScanObject> allScanObjects) {
+	public void setAllScanObjects(Vector<IScanObject> allScanObjects) {
 		this.allScanObjects = allScanObjects;
 	}
 
@@ -210,7 +211,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			for (Scannable device : scannablesAtThisLevel) {
 				if (!(device instanceof Detector)) {
 					// does this scan (is a hierarchy of nested scans) operate this scannable?
-					ScanObject scanObject = isScannableToBeMoved(device);
+					final IScanObject scanObject = isScannableToBeMoved(device);
 					if (scanObject != null) {
 						if (start) {
 							checkThreadInterrupted();
@@ -269,9 +270,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * @param scannable
 	 * @return the ScanObject
 	 */
-	protected ScanObject isScannableToBeMoved(Scannable scannable) {
-		for (ScanObject scanObject : allScanObjects) {
-			if (scanObject.scannable == scannable) {
+	protected IScanObject isScannableToBeMoved(Scannable scannable) {
+		for (IScanObject scanObject : allScanObjects) {
+			if (scanObject.getScannable() == scannable) {
 				return scanObject;
 			}
 		}
@@ -279,7 +280,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	}
 
 	final protected boolean isScannableActuallyToBeMoved(Scannable scannable) {
-		ScanObject scannableToBeMoved = isScannableToBeMoved(scannable);
+		final IScanObject scannableToBeMoved = isScannableToBeMoved(scannable);
 		return (scannableToBeMoved) == null ? false : scannableToBeMoved.hasStart();
 	}
 
@@ -287,11 +288,11 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * Waits until all the scannables of this scan are no longer moving. @throws InterruptedException
 	 */
 	protected void checkAllMovesComplete() throws Exception {
-		for (ScanObject scanObject : allScanObjects) {
+		for (IScanObject scanObject : allScanObjects) {
 			checkThreadInterrupted();
 			// only check those objects which we have moved are no longer busy
 			if (scanObject.hasStart()) {
-				scanObject.scannable.waitWhileBusy();
+				scanObject.getScannable().waitWhileBusy();
 			}
 		}
 	}
@@ -310,11 +311,11 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * doing this, any objects using the Detector interface in the allScanObjects vector will be removed.
 	 */
 	protected void reorderAllScanObjects() {
-		Vector<ScanObject> sortedAllScanObjects = new Vector<ScanObject>();
+		final Vector<IScanObject> sortedAllScanObjects = new Vector<IScanObject>();
 		int i = 0;
 		for (Object nextObject : allScannables) {
-			for (ScanObject nextScanObject : allScanObjects) {
-				if (nextScanObject.scannable.equals(nextObject)) {
+			for (IScanObject nextScanObject : allScanObjects) {
+				if (nextScanObject.getScannable().equals(nextObject)) {
 					sortedAllScanObjects.add(i, nextScanObject);
 					i++;
 				}

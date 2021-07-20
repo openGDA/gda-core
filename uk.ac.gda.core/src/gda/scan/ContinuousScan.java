@@ -34,6 +34,7 @@ import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.api.scan.IScanObject;
 
 /**
  * Performs a continuous scan using Histogram detectors. NOTE: bypasses the ScanDataPointPipeline mechanism.
@@ -99,7 +100,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 	 * a multi-dimensional scan.
 	 */
 	@Override
-	protected ScanObject isScannableToBeMoved(Scannable scannable) {
+	protected IScanObject isScannableToBeMoved(Scannable scannable) {
 		if (scannable == qscanAxis)
 			return null;
 		return super.isScannableToBeMoved(scannable);

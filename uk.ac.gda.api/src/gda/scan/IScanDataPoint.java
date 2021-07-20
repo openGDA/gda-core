@@ -24,6 +24,7 @@ import java.util.Vector;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import uk.ac.gda.api.scan.IScanObject;
 
 /**
  * Interface for ScanDataPoint - the data for a single point in a scan.
@@ -321,6 +322,10 @@ public interface IScanDataPoint {
 	public Vector<Object> getScannablePositions();
 
 	public void setScannablePositions(Vector<Object> scannablePositions);
+
+	public Vector<IScanObject> getScanObjects();
+
+	public void setScanObjects(Vector<IScanObject> scanObjects);
 
 	public String[][] getDetectorFormats();
 

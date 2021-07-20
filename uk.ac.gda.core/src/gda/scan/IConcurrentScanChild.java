@@ -18,11 +18,12 @@
 
 package gda.scan;
 
-import gda.device.Detector;
-import gda.device.Scannable;
-
 import java.util.TreeMap;
 import java.util.Vector;
+
+import gda.device.Detector;
+import gda.device.Scannable;
+import uk.ac.gda.api.scan.IScanObject;
 
 /**
  * Interface for access to scan objects which can be part of a multidimensional ConcurrentScan
@@ -51,13 +52,13 @@ public interface IConcurrentScanChild extends NestableScan {
 	/**
 	 * @return Returns the allScanObjects.
 	 */
-	public Vector<ScanObject> getAllScanObjects();
+	public Vector<IScanObject> getAllScanObjects();
 
 	/**
 	 * @param allScanObjects
 	 *            The allScanObjects to set.
 	 */
-	public void setAllScanObjects(Vector<ScanObject> allScanObjects);
+	public void setAllScanObjects(Vector<IScanObject> allScanObjects);
 
 	/**
 	 * @return Returns the allChildScans.

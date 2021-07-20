@@ -431,7 +431,13 @@ public abstract class ScanBase implements NestableScan {
 	protected void readDevicesAndPublishScanDataPoint() throws Exception {
 		// now can collate the data by creating a DataPoint
 		waitIfPaused();
-		ScanDataPoint point = new ScanDataPoint();
+
+		final ScanDataPoint point = createScanDataPoint();
+		readoutDetectorsAndPublish(point);
+	}
+
+	protected ScanDataPoint createScanDataPoint() throws DeviceException {
+		final ScanDataPoint point = new ScanDataPoint();
 		point.setUniqueName(name);
 		point.setCurrentFilename(getDataWriter().getCurrentFileName());
 		point.setHasChild(isChild());
@@ -452,6 +458,7 @@ public abstract class ScanBase implements NestableScan {
 				point.addScannable(scannable);
 			}
 		}
+
 		for (Detector scannable : allDetectors) {
 			point.addDetector(scannable);
 		}
@@ -461,8 +468,7 @@ public abstract class ScanBase implements NestableScan {
 		} catch (Exception e) {
 			throw wrappedException(e);
 		}
-
-		readoutDetectorsAndPublish(point);
+		return point;
 	}
 
 	/**
