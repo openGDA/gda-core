@@ -28,6 +28,8 @@ import gda.scan.ScanPositionProvider;
  */
 public class ScanPositionsTwoWay implements ScanPositionProvider {
 
+	// TODO: this class seems to be unused - can it be deleted?
+
 	private double start;
 	private double stop;
 	private double step;
@@ -81,4 +83,10 @@ public class ScanPositionsTwoWay implements ScanPositionProvider {
 	public int size() {
 		return points.length;
 	}
+
+	@Override
+	public String toString() {
+		return "ScanPositionsTwoWay [start=" + start + ", stop=" + stop + ", step=" + step + "]";
+	}
+
 }
