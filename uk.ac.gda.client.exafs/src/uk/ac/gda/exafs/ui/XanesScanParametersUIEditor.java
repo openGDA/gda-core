@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import java.util.List;
-
 import org.eclipse.richbeans.widgets.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -34,10 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
-import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.exafs.ui.composites.RegionComposite;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
@@ -54,6 +52,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 	private ScaleBox finalEnergy;
 	private RegionComposite regionsEditor;
+	private final DefaultXanesRegions regionsProvider;
 	private double edgeVal = 0;
 	private Button updateTable;
 	private ELEMENT_EVENT_TYPE type;
@@ -77,6 +76,11 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				showElementEdge = false;
 			}
 		}
+
+		regionsProvider = Finder.findOptionalSingleton(DefaultXanesRegions.class)
+							.orElse(new StandardXanesRegionsProvider());
+
+		logger.debug("Loaded {} as default XANES regions provider", regionsEditor.getClass().getName());
 	}
 
 	private void createDefaultsButton(Composite parent) {
@@ -86,43 +90,13 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		updateTable = new Button(parent, SWT.NONE);
 		updateTable.setText("             Get Defaults            ");
 
-		updateTable.addListener(SWT.Selection, e -> {
-
-			for(int i=0;i<((XanesScanParameters) editingBean).getRegions().size();i++){
-				if(i>4)
-					((XanesScanParameters) editingBean).getRegions().remove(i);
-			}
+		updateTable.addListener(SWT.Selection, selectionEvent -> {
 			try {
-				if (getEdgeValue()!=edgeVal) {
-					List<uk.ac.gda.beans.exafs.Region> regions = regionsEditor.getBeanRegions();
-					double coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
-					edgeVal = getEdgeValue();
-					for (int i = 0; i < regions.size(); i++) {
-						Region obj = regions.get(i);
-						if (i == 0) {
-							obj.setEnergy(edgeVal - 100 * coreHole);
-							obj.setStep(5 * coreHole);
-						} else if (i == 1) {
-							obj.setEnergy(edgeVal - 20 * coreHole);
-							obj.setStep(coreHole);
-						} else if (i == 2) {
-							obj.setEnergy(edgeVal - 10 * coreHole);
-							obj.setStep(coreHole / 5);
-						} else if (i == 3) {
-							obj.setEnergy(edgeVal + 10 * coreHole);
-							obj.setStep(coreHole);
-						} else if (i == 4) {
-							obj.setEnergy(edgeVal + 20 * coreHole);
-							obj.setStep(2 * coreHole);
-						}
-					}
-					getFinalEnergy().setValue(getFinalEnergyFromElement());
-					((XanesScanParameters) editingBean).setRegions(regions);
-					regionsEditor.updateTable();
-				}
-
-			} catch (Exception e1) {
-				logger.warn("Problem setting default region parameters", e);
+				((XanesScanParameters) editingBean).setRegions(regionsProvider.getDefaultRegions(getElementUseBean(), getEdgeUseBean()));
+				getFinalEnergy().setValue(regionsProvider.getFinalEnergy(getElementUseBean(), getEdgeUseBean()));
+				regionsEditor.updateTable();
+			} catch (Exception e) {
+				logger.error("Error setting default parameters", e);
 			}
 		});
 	}
