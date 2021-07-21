@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.exafs.scan.ScanObject;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
-import uk.ac.gda.beans.exafs.i18.SampleStageParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
@@ -56,14 +55,14 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 
 			if (isValid(selectedScans)) {
 				File project = controller.getProjectFolder();
-				String folder = selectedScans[0].substring(selectedScans[0].indexOf(')') + 1,
+				var folder = selectedScans[0].substring(selectedScans[0].indexOf(')') + 1,
 						selectedScans[0].indexOf(File.separator));
 				IExperimentObjectManager newScanManager = null;
 				try {
 					newScanManager = ExperimentProjectNature.createNewEmptyScan(controller.getIFolder(folder),
 							exafsView.getNewMultiScanName(), null);
 				} catch (Exception e) {
-					logger.error("Unable to create a new MultiScan: " + e.getMessage());
+					logger.error("Unable to create a new MultiScan", e);
 					return null;
 				}
 
@@ -75,9 +74,9 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 				// create a new multiscan
 				for (String selectedScan : selectedScans) {
 					// to provide the content
-					String xyz = selectedScan.substring(selectedScan.indexOf('(') + 1, selectedScan.indexOf(')'));
+					var xyz = selectedScan.substring(selectedScan.indexOf('(') + 1, selectedScan.indexOf(')'));
 					selectedScan = selectedScan.substring(selectedScan.indexOf(')') + 1);
-					File scanFile = new File(project.getAbsolutePath() + File.separator + selectedScan);
+					var scanFile = new File(project.getAbsolutePath() + File.separator + selectedScan);
 					try {
 						IExperimentObjectManager scManager = ExperimentFactory
 								.getManager(controller.getIFile(scanFile));
@@ -85,10 +84,10 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 						for (IExperimentObject exptScan : scanList) {
 							ScanObject scan = (ScanObject) exptScan;
 							I18SampleParameters sampleParameters = (I18SampleParameters) scan.getSampleParameters();
-							SampleStageParameters sampleStageParameters = sampleParameters.getSampleStageParameters();
-							StringTokenizer tokens = new StringTokenizer(xyz, ",");
-							double[] stageCoordinates = new double[tokens.countTokens()];
-							int tokenCount = 0;
+							var sampleStageParameters = sampleParameters.getSampleStageParameters();
+							var tokens = new StringTokenizer(xyz, ",");
+							var stageCoordinates = new double[tokens.countTokens()];
+							var tokenCount = 0;
 							while (tokens.hasMoreTokens()) {
 								stageCoordinates[tokenCount] = Double.valueOf(tokens.nextToken());
 								tokenCount++;
@@ -96,8 +95,6 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 							sampleStageParameters.setX(stageCoordinates[0]);
 							sampleStageParameters.setY(stageCoordinates[1]);
 							sampleStageParameters.setZ(stageCoordinates[2]);
-
-							setSampleStageName(sampleStageParameters, exafsView.getSampleStagePrefix());
 
 							String newSampleFileName = scan.getSampleFileName().substring(0,
 									scan.getSampleFileName().indexOf(".xml"))
@@ -113,7 +110,7 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 						}
 						newScanManager.write();
 					} catch (Exception e) {
-						logger.error("Unable to create/update the new Multiscan:" + e.getMessage());
+						logger.error("Unable to create/update the new Multiscan", e);
 						return null;
 					}
 				}
@@ -129,19 +126,13 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 	}
 
 	private boolean isValid(String[] selectedScans) {
-		String toMatch = selectedScans[0].substring(selectedScans[0].indexOf(')') + 1,
+		var toMatch = selectedScans[0].substring(selectedScans[0].indexOf(')') + 1,
 				selectedScans[0].indexOf(File.separator));
 		for (String selection : selectedScans) {
 			if (!selection.substring(selection.indexOf(')') + 1, selection.indexOf(File.separator)).equals(toMatch))
 				return false;
 		}
 		return true;
-	}
-
-	private void setSampleStageName(SampleStageParameters stageParameters, String sampleStagePrefix) {
-		stageParameters.setXName(sampleStagePrefix + "x");
-		stageParameters.setYName(sampleStagePrefix + "y");
-		stageParameters.setZName(sampleStagePrefix + "z");
 	}
 
 }

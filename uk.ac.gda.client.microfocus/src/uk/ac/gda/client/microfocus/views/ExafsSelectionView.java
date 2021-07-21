@@ -51,14 +51,6 @@ public class ExafsSelectionView extends ViewPart {
 	private Text multiScanNameText;
 	private DecimalFormat format = new DecimalFormat(".###");
 
-	/**
-	 * If the sample prefix is not consistent across mapping stage,
-	 * this label will be visible to warn the user.
-	 */
-	private Label warningLabel;
-
-	private String sampleStagePrefix;
-
 	public ExafsSelectionView() {
 		super();
 		controller = ExperimentFactory.getExperimentEditorManager();
@@ -66,13 +58,13 @@ public class ExafsSelectionView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		Composite exafsRunComp = new Composite(parent, SWT.BORDER);
-		GridLayout grid = new GridLayout();
+		var exafsRunComp = new Composite(parent, SWT.BORDER);
+		var grid = new GridLayout();
 		grid.numColumns = 2;
 		GridData gridData;
 		exafsRunComp.setLayout(grid);
 
-		Label pointLabel = new Label(exafsRunComp, SWT.LEFT);
+		var pointLabel = new Label(exafsRunComp, SWT.LEFT);
 		pointLabel.setText("Selected Point");
 		pointText = new Text(exafsRunComp, SWT.BORDER | SWT.READ_ONLY | SWT.RIGHT);
 		gridData = new GridData();
@@ -80,7 +72,7 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.grabExcessHorizontalSpace = true;
 		pointText.setLayoutData(gridData);
 
-		Label scanNameLabel = new Label(exafsRunComp, SWT.LEFT);
+		var scanNameLabel = new Label(exafsRunComp, SWT.LEFT);
 		scanNameLabel.setText("Scan Name");
 		multiScanNameText = new Text(exafsRunComp, SWT.BORDER | SWT.RIGHT);
 		gridData = new GridData();
@@ -88,18 +80,12 @@ public class ExafsSelectionView extends ViewPart {
 		gridData.grabExcessHorizontalSpace = true;
 		multiScanNameText.setLayoutData(gridData);
 
-		Label separator = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+		var separator = new Label(exafsRunComp, SWT.SEPARATOR | SWT.HORIZONTAL);
 		separator.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
-		Label availableExafsLabel = new Label(exafsRunComp, SWT.LEFT);
+		var availableExafsLabel = new Label(exafsRunComp, SWT.LEFT);
 		availableExafsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		availableExafsLabel.setText("Available Exafs Scans");
-
-		warningLabel = new Label(exafsRunComp, SWT.NONE);
-		warningLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		warningLabel.setText("Inconsistent axes selection!");
-		warningLabel.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-		hideWarning();
 
 		// List of scans to select
 		exafsScanList = new List(exafsRunComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
@@ -114,7 +100,7 @@ public class ExafsSelectionView extends ViewPart {
 		exafsScanList.setLayoutData(gridData);
 		populateExafsScanList();
 
-		Label selectedExafsLabel = new Label(exafsRunComp, SWT.LEFT);
+		var selectedExafsLabel = new Label(exafsRunComp, SWT.LEFT);
 		selectedExafsLabel.setText("Selected Scans");
 		gridData = new GridData();
 		gridData.horizontalSpan = 2;
@@ -140,7 +126,7 @@ public class ExafsSelectionView extends ViewPart {
 
 	private void populateExafsScanList() {
 		File projectDir = controller.getProjectFolder();
-		ScanFilter scanFilter = new ScanFilter();
+		var scanFilter = new ScanFilter();
 		File[] dirList = projectDir.listFiles();
 		for (File dir : dirList) {
 			if (dir.isDirectory()) {
@@ -216,26 +202,5 @@ public class ExafsSelectionView extends ViewPart {
 		public boolean accept(File dir, String name) {
 			return (name.endsWith(".scan"));
 		}
-	}
-
-	public void setSampleStagePrefix(String sampleStagePrefix) {
-		if (sampleStagePrefix != null) {
-			this.sampleStagePrefix = sampleStagePrefix;
-			hideWarning();
-		} else {
-			showWarning();
-		}
-	}
-
-	public String getSampleStagePrefix() {
-		return sampleStagePrefix;
-	}
-
-	private void hideWarning() {
-		warningLabel.setVisible(false);
-	}
-
-	private void showWarning() {
-		warningLabel.setVisible(true);
 	}
 }
