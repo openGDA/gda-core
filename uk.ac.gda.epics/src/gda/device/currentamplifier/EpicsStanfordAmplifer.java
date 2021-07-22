@@ -161,7 +161,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		return getGain() + " " + getGainUnit();
+		return getGainFromEpics() + " " + getGainUnit();
 	}
 
 	@Override
@@ -175,7 +175,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 			throw new IllegalArgumentException("The index increment must be 1 or -1");
 		}
 
-		final String gainString = getGain() + " " + getGainUnit();
+		final String gainString = getGainFromEpics() + " " + getGainUnit();
 		List<String> collect = gainStringToGainMap.keySet().stream().collect(Collectors.toList());
 
 		final int indexOfCurrentGain = collect.indexOf(gainString);
@@ -216,6 +216,11 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 
 	@Override
 	public String getGain() throws DeviceException {
+		final var gainString = getGainFromEpics() + " " + getGainUnit();
+		return String.valueOf(gainStringToGainMap.get(gainString));
+
+	}
+	private String getGainFromEpics() throws DeviceException {
 		try {
 			return gainPositions.get(epicsController.cagetEnum(getChannel(SENS_PV, false)));
 		} catch (TimeoutException | CAException e) {
@@ -255,7 +260,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 
 	@Override
 	public double getCurrent() throws DeviceException {
-		double value = Double.parseDouble(getGain()); // sensitivity
+		double value = Double.parseDouble(getGainFromEpics()); // sensitivity
 		Double scale = unitScale.get(getGainUnit()); // sensitivity unit scale
 		double gain = 1 / (value * scale);
 		return getInstantaneousVoltage() / gain;
@@ -342,7 +347,7 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 
 	@Override
 	public int getSensitivity() throws DeviceException {
-		return gainPositions.indexOf(getGain());
+		return gainPositions.indexOf(getGainFromEpics());
 	}
 
 	@Override
