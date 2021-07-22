@@ -19,13 +19,13 @@
 
 package gda.scan;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.python.core.PyNone;
 import org.python.core.PySequence;
@@ -37,11 +37,11 @@ import gda.device.scannable.ScannableUtils;
  */
 public class ScanPositionProviderFactory {
 
-	private static class ScanPositionProviderFromList<T> implements ScanPositionProvider {
+	private static class ListScanPositionProvider<T> implements ScanPositionProvider {
 
 		private final List<T> points;
 
-		ScanPositionProviderFromList(List<T> points){
+		public ListScanPositionProvider(List<T> points){
 			this.points = Collections.synchronizedList(new ArrayList<T>(points));
 		}
 
@@ -62,72 +62,12 @@ public class ScanPositionProviderFactory {
 
 	}
 
-	private static class ScanPositionProviderFromArray<T> implements ScanPositionProvider{
-
-		private final T [] points;
-
-		ScanPositionProviderFromArray(T [] points){
-			this.points = points;
-		}
-		@Override
-		public Object get(int index) {
-			return points[index];
-		}
-		@Override
-		public int size() {
-			return points.length;
-		}
-		@Override
-		public String toString() {
-			return "ScanPositionProviderFromArray [points=" + Arrays.toString(points) + "]";
-		}
-
-	}
-
-	private static class ScanPositionProviderFromRegionalList implements ScanPositionProvider {
-
-		@SuppressWarnings("rawtypes")
-		List points=new ArrayList();
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		ScanPositionProviderFromRegionalList(List regionList){
-			Iterator it = regionList.iterator();
-			while(it.hasNext()){
-				List l = (List)it.next();
-				Object start = l.get(0);
-				Object stop = l.get(1);
-				Object step = l.get(2);
-				ScanRegion nextRegion= new ScanRegion(start,stop,step);
-
-				Vector<Object> vol=nextRegion.getPoints();
-				points.addAll(vol);
-			}
-
-		}
-
-		@Override
-		public Object get(int index) {
-			return points.get(index);
-		}
-
-		@Override
-		public int size() {
-			return points.size();
-		}
-
-		@Override
-		public String toString() {
-			return "ScanPositionProviderFromRegionalList [points=" + points + "]";
-		}
-
-	}
-
 	private static class ScanRegion {
 		private Object start;
 		private Object stop;
 		private Object step;
 
-		private Vector<Object> points = new Vector<Object>();
+		private List<Object> points = new ArrayList<>();
 		private int numberOfPoints = 0;
 
 		ScanRegion(Object start, Object stop, Object step){
@@ -159,9 +99,10 @@ public class ScanPositionProviderFactory {
 			calculateScanPoints();
 		}
 
-		public Vector<Object> getPoints(){
+		public List<Object> getPoints(){
 			return this.points;
 		}
+
 		/**
 		 * Assuming the objects can be converted into doubles, this calculates the number of steps for the given InputLength
 		 *
@@ -170,8 +111,7 @@ public class ScanPositionProviderFactory {
 		 */
 		public int getNumberSteps(int parameterSize) throws Exception {
 			// the expected size of the start, stop and step objects
-//			int parameterSize = theScannable.getInputNames().length;
-			int numArgs = parameterSize;
+			final int numArgs = parameterSize;
 
 			// add a small amount to values to ensure that the final point in the scan is included
 			double fudgeFactor = 1e-10;
@@ -313,7 +253,7 @@ public class ScanPositionProviderFactory {
 	 * @return ScanPositionProvider
 	 */
 	public static <T> ScanPositionProvider create(List<T> pointsList){
-		return new ScanPositionProviderFromList<>(pointsList);
+		return new ListScanPositionProvider<>(pointsList);
 	}
 
 	/**
@@ -323,16 +263,19 @@ public class ScanPositionProviderFactory {
 	 * e.g. ScanPositionProviderFactory.create(new Double[]{0., 1., 2., 3.,4.,5.});
 	 */
 	public static <T> ScanPositionProvider create(T[] points){
-		return new ScanPositionProviderFromArray<T>(points);
+		return new ListScanPositionProvider<>(Arrays.asList(points));
 	}
 
 	/**
+	 * Creates a sccan
 	 * @param regionsList
 	 * @return ScanPositionProvider
 	 */
-	@SuppressWarnings("rawtypes")
-	public static ScanPositionProvider createFromRegion(List regionsList){
-		return new ScanPositionProviderFromRegionalList(regionsList);
+	public static ScanPositionProvider createFromRegion(List<List<Object>> regionsList) {
+		final List<Object> points = regionsList.stream()
+				.map(l -> new ScanRegion(l.get(0), l.get(1), l.get(2)))
+				.map(ScanRegion::getPoints).collect(toList());
+		return new ListScanPositionProvider<Object>(points);
 	}
 
 }
