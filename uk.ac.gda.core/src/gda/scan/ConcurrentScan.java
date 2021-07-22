@@ -170,18 +170,18 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				ScanObject firstScanObject = null;
 
 				// eg: scan m1 (0,3,5, ...)
-				if (args.length <= 2 && args[1] instanceof PyTuple) {
+				if (args.length <= 2 && args[1] instanceof PyTuple) { // TODO allow any List not just PyTuple
 					numberSteps = ((PyTuple) args[1]).__len__() - 1;
-					firstScanObject = new ExplicitScanObject(firstScannable, ScanPositionProviderFactory
-							.create(((PyTuple) args[1])));
+					firstScanObject = new ExplicitScanObject(firstScannable,
+							ScanPositionProviderFactory.create((List<?>) args[1]));
 					i = 2;
 				}
 
 				// eg: scan m1 (0,3,5, ...) m2 ...
 				else if (args[1] instanceof PyTuple && !(args[2] instanceof PyTuple)) {
 					numberSteps = ((PyTuple) args[1]).__len__() - 1;
-					firstScanObject = new ExplicitScanObject(firstScannable, ScanPositionProviderFactory
-							.create(((PyTuple) args[1])));
+					firstScanObject = new ExplicitScanObject(firstScannable,
+							ScanPositionProviderFactory.create(((List<?>) args[1])));
 					i = 2;
 				} else if ((args[1] instanceof ScanPositionProvider)) {
 					ScanPositionProvider posList = (ScanPositionProvider) args[1];
