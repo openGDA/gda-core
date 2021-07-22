@@ -232,10 +232,7 @@ public class SpecsAlignmentView implements IObserver {
 	 * @return A formatted string
 	 */
 	private String formatReading(double reading) {
-		if(reading >= 1000) {
-			return String.valueOf(reading/1000 + "\u22C5"+"10"+"\u00B3");
-		}
-		return String.valueOf(reading);
+		 return String.format("%8.2e", reading);
 	}
 
 	@Override
