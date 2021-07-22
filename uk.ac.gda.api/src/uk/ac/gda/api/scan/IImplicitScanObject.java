@@ -24,6 +24,18 @@ package uk.ac.gda.api.scan;
  */
 public interface IImplicitScanObject extends IScanObject {
 
+	/**
+	 * Set the number of points to move to. This should be used when the scan object
+	 * does not initially have enough information to know this, for example if
+	 * only start and stop are specified - this can be the case for scannable
+	 * s2 in the scan command {@code scan s1 0 5 1 s2 0 10}, where the second scannable
+	 * only has start and step defined. This method will be called with to set the size
+	 * of this scan object to be the same as that for scannable s1.
+	 *
+	 * @param numberPoints
+	 */
+	public void setNumberPoints(int numberPoints);
+
 	public Object getStart();
 
 	public Object getStop();
@@ -31,5 +43,12 @@ public interface IImplicitScanObject extends IScanObject {
 	public Object getStep();
 
 	public boolean hasStep();
+
+	/**
+	 * Calculate the points of the scan. This method must be called before {@link #arePointsValid()}
+	 * is called and before the scan starts. The method {@link #setNumberPoints(int)} should be called
+	 * before calling this method if necessary (for example if stop isn't set).
+	 */
+	public void calculateScanPoints();
 
 }

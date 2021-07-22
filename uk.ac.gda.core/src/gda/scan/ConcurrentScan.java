@@ -37,6 +37,7 @@ import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 import gda.jython.commands.ScannableCommands;
+import uk.ac.gda.api.scan.IImplicitScanObject;
 import uk.ac.gda.api.scan.IScanObject;
 import uk.ac.gda.api.scan.IScanObject.ScanObjectType;
 
@@ -656,29 +657,22 @@ public class ConcurrentScan extends ConcurrentScanChild {
 	}
 
 	private void generateScanPositions() throws Exception {
-
 		// loop through all scan object to check if number of steps is consistent
-		int numberPoints = Integer.MIN_VALUE;
-		for (IScanObject scanObj : this.allScanObjects) {
-			int thisScanNumber = scanObj.getNumberPoints();
-
-			if (thisScanNumber != 0) {
-				if (numberPoints == Integer.MIN_VALUE) {
-					numberPoints = thisScanNumber;
-				} else if (numberPoints != thisScanNumber) {
-					throw new IllegalArgumentException(
-							"Error while setting up scan: objects must have the same number of scan points");
-				}
-			}
-		}
-		for (IScanObject scanObj : this.allScanObjects) {
-			scanObj.setNumberPoints(numberPoints);
+		final int[] sizes = this.getAllScanObjects().stream()
+			.mapToInt(IScanObject::getNumberPoints).filter(size -> size != 0).distinct().toArray();
+		if (sizes.length == 0) {
+			throw new IllegalArgumentException("Error while setting up scan: Cannot determine number of points");
+		} else if (sizes.length > 1) {
+			throw new IllegalArgumentException("Error while setting up scan: objects must have the same number of scan points");
 		}
 
-		// generate the scan positions for implicit scan objects
+		// generate the scan positions for implicit scan objects and set the size for any where not set
+		final int numberOfPoints = sizes[0];
 		for (IScanObject scanObj : this.allScanObjects) {
 			if (scanObj.getType() == ScanObjectType.IMPLICIT) {
-				((ImplicitScanObject) scanObj).calculateScanPoints();
+				final IImplicitScanObject implicitScanObject =  (IImplicitScanObject) scanObj;
+				implicitScanObject.setNumberPoints(numberOfPoints); // required if stop not set
+				implicitScanObject.calculateScanPoints();
 			}
 		}
 
@@ -689,7 +683,6 @@ public class ConcurrentScan extends ConcurrentScanChild {
 				throw new IllegalArgumentException(reason);
 			}
 		}
-
 	}
 
 	@Override

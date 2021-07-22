@@ -88,14 +88,9 @@ public interface IScanObject {
 	int getNumberPoints();
 
 	/**
-	 * Set the size of the array of points to use.
-	 *
-	 * @param numberPoints
-	 */
-	void setNumberPoints(int numberPoints);
-
-	/**
-	 * @return null if all points in the array of points are valid for the scannable or the toString() of the point which is unacceptable
+	 * Checks whether the points in this scan object are valid. Note that for {@link IImplicitScanObject}s,
+	 * {@link IImplicitScanObject#calculateScanPoints()} must have been called first.
+	 * @return <code>null</code> if all points in the array of points are valid for the scannable, or the toString() of the point which is unacceptable
 	 * @throws DeviceException
 	 */
 	String arePointsValid() throws DeviceException;

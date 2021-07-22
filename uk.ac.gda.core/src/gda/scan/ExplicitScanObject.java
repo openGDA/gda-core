@@ -33,7 +33,7 @@ public class ExplicitScanObject extends ScanObject implements IExplicitScanObjec
 
 	private final ScanPositionProvider pointProvider;
 
-	private int lastPoint = -1;
+	private Iterator<?> pointIter = null;
 
 	/**
 	 * @param scannable
@@ -51,23 +51,19 @@ public class ExplicitScanObject extends ScanObject implements IExplicitScanObjec
 
 	@Override
 	public ScanStepId moveToStart() throws Exception {
-		Object pos = pointProvider.get(0);
-		logger.debug("Moving " + scannable.getName() + " to " + pos);
-		scannable.asynchronousMoveTo(pos);
-		lastPoint = 0;
-		return new ScanStepId(scannable.getName(), pos);
+		pointIter = pointProvider.iterator();
+		return moveStep();
 	}
 
 	@Override
 	public ScanStepId moveStep() throws Exception {
-		Object pos = null;
-
-		if (lastPoint != pointProvider.size()) {
-			pos = pointProvider.get(lastPoint + 1);
-			logger.debug("Moving " + scannable.getName() + " to " + pos);
-			scannable.asynchronousMoveTo(pos);
-			lastPoint++;
+		if (!pointIter.hasNext()) {
+			throw new IllegalStateException("moveStep() called after all points have already been moved to.");
 		}
+
+		final Object pos = pointIter.next();
+		logger.debug("Moving {} to {}", scannable.getName(), pos);
+		scannable.asynchronousMoveTo(pos);
 		return new ScanStepId(scannable.getName(), pos);
 	}
 
@@ -82,19 +78,16 @@ public class ExplicitScanObject extends ScanObject implements IExplicitScanObjec
 	}
 
 	@Override
-	public void setNumberPoints(int number) {
-		// do nothing
-	}
-
-	@Override
 	public String arePointsValid() throws DeviceException {
-		for (int i = 0; i < getNumberPoints(); i++) {
+		final Iterator<Object> pointsToCheck = pointProvider.iterator();
+		while (pointsToCheck.hasNext()) {
 			// if any points invalid then return false
-			String reason = this.scannable.checkPositionValid(pointProvider.get(i));
+			final String reason = this.scannable.checkPositionValid(pointsToCheck.next());
 			if (reason != null) {
 				return reason;
 			}
 		}
+
 		return null;
 	}
 

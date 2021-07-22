@@ -18,7 +18,11 @@
 
 package gda.scan;
 
-import java.util.Vector;
+import static java.util.stream.Collectors.toUnmodifiableList;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +46,7 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 
 	private Object step;
 
-	private Vector<Object> points = new Vector<Object>();
+	private List<Object> points = null;
 
 	private boolean isDetector = false;
 
@@ -64,7 +68,7 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 			isDetector = true;
 			if (start != null && !(start instanceof Scannable)) {
 				try {
-					((Detector) scannable).setCollectionTime(Double.valueOf(start.toString()).doubleValue());
+					((Detector) scannable).setCollectionTime(Double.parseDouble(start.toString()));
 				} catch (NumberFormatException e) {
 					logger.error("Detector setCollectionTime() throws ", e);
 				} catch (DeviceException e) {
@@ -90,15 +94,20 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 			return 0;
 		}
 		try {
-			int number = ScannableUtils.getNumberSteps(scannable, start, stop, step);
-			return number + 1; // to reflect the first point
+			return  ScannableUtils.getNumberSteps(scannable, start, stop, step) + 1; // + 1 for the first point
 		} catch (Exception e) {
 			return 0;
 		}
 	}
 
+	private void checkPointsCalculated() {
+		if (points == null) throw new IllegalStateException("Points not initialized"); // calculateScanPoints not called
+	}
+
 	@Override
 	public String arePointsValid() throws DeviceException {
+		checkPointsCalculated();
+
 		if (start != null) {
 			// loop through all points
 			for (Object thisPosition : this.points) {
@@ -114,13 +123,15 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 
 	@Override
 	public ScanStepId moveToStart() throws Exception {
+		checkPointsCalculated();
+
 		Object pos = null;
 		if (isDetector && start != null) {
 			pos = start;
 			((Detector) scannable).setCollectionTime(Integer.parseInt(start.toString()));
 		} else if (start != null) {
 			pos = points.get(0);
-			logger.debug("Moving " + scannable.getName() + " to " + pos);
+			logger.debug("Moving {} to {}", scannable.getName(), pos);
 			scannable.asynchronousMoveTo(pos);
 			lastCommandedPosition = 0;
 		}
@@ -129,13 +140,15 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 
 	@Override
 	public ScanStepId moveStep() throws Exception {
+		checkPointsCalculated();
+
 		Object pos = null;
 		if (step != null) {
-			logger.debug("Moving " + scannable.getName() + " by " + step);
+			logger.debug("Moving {} by {}", scannable.getName(), step);
 			lastCommandedPosition++;
 			pos = points.get(lastCommandedPosition);
 		} else if (start != null) {
-			logger.debug("Moving " + scannable.getName() + " to " + start);
+			logger.debug("Moving {} to {}", scannable.getName(), start);
 			pos = start;
 		}
 		if (pos != null)
@@ -146,16 +159,14 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 	/**
 	 * Fill the array of points to move the scannable to
 	 */
+	@Override
 	public void calculateScanPoints() {
-		points.add(start);
-		if (this.numberPoints != 0 && step != null) {
-			// loop through all points and create vector of points
-			Object previousPoint = start;
-			for (int i = 1; i < numberPoints; i++) {
-				Object nextPoint = ScannableUtils.calculateNextPoint(previousPoint, step);
-				points.add(nextPoint);
-				previousPoint = nextPoint;
-			}
+		if (numberPoints != 0 && step != null) {
+			points = Stream.iterate(start, prev -> ScannableUtils.calculateNextPoint(prev, step))
+					.limit(numberPoints)
+					.collect(toUnmodifiableList());
+		} else {
+			points = Arrays.asList(start);
 		}
 	}
 
@@ -191,8 +202,7 @@ public class ImplicitScanObject extends ScanObject implements IImplicitScanObjec
 
 	@Override
 	public String toString() {
-		return "ImplicitScanObject [numberPoints=" + numberPoints + ", start=" + start + ", stop=" + stop + ", step="
-				+ step + "]";
+		return "ImplicitScanObject [numberPoints=" + numberPoints + ", start=" + start + ", stop=" + stop + ", step=" + step + "]";
 	}
 
 }
