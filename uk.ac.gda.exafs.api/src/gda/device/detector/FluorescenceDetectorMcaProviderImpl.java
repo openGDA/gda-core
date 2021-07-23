@@ -43,7 +43,11 @@ public class FluorescenceDetectorMcaProviderImpl extends FindableBase implements
 		}
 		FluorescenceDetector detector = Finder.find(detectorName);
 		if (detector != null) {
-			if ( !((Detector)detector).isBusy()) {
+			boolean isBusy = false;
+			if (detector instanceof Detector) {
+				isBusy = ((Detector) detector).isBusy();
+			}
+			if (!isBusy) {
 				logger.debug("Returning MCA data from {}", detector.getName());
 				return detector.getMCAData(time);
 			}
