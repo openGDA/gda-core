@@ -33,6 +33,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -139,18 +140,21 @@ public class SpecsRegionEditor {
 		acquisitionModeCombo.add(acquisitionsModes.toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL)
 				.applyTo(acquisitionModeCombo.getControl());
+		disableMouseWheel(acquisitionModeCombo.getCombo());
 
 		Label lensModeLabel = new Label(child, SWT.NONE);
 		lensModeLabel.setText("Lens mode");
 		lensModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
 		lensModeCombo.add(analyser.getLensModes().toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(lensModeCombo.getControl());
+		disableMouseWheel(lensModeCombo.getCombo());
 
 		Label psuModeLabel = new Label(child, SWT.NONE);
 		psuModeLabel.setText("PSU mode");
 		psuModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
 		psuModeCombo.add(analyser.getPsuModes().toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(psuModeCombo.getControl());
+		disableMouseWheel(psuModeCombo.getCombo());
 
 		Group energyRange = new Group(child, SWT.SHADOW_NONE);
 		energyRange.setLayout(GridLayoutFactory.swtDefaults().numColumns(4).create());
@@ -231,6 +235,7 @@ public class SpecsRegionEditor {
 		iterationsSpinner.setMinimum(1);
 		iterationsSpinner.setMaximum(1000); // This is arbitrary but not expecting more that 1000 needed.
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(iterationsSpinner);
+		disableMouseWheel(iterationsSpinner);
 
 		Label slicesLabel = new Label(child, SWT.NONE);
 		slicesLabel.setText("Slices");
@@ -238,6 +243,7 @@ public class SpecsRegionEditor {
 		slicesSpinner.setMinimum(1);
 		slicesSpinner.setMaximum(1000); // Should be the detector width in Y, for now hard code to 1000.
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(slicesSpinner);
+		disableMouseWheel(slicesSpinner);
 
 		Label estimatedTimeLabel = new Label(child, SWT.NONE);
 		estimatedTimeLabel.setText("Estimated time");
@@ -253,6 +259,10 @@ public class SpecsRegionEditor {
 		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		logger.trace("Finished building composite");
+	}
+
+	private void disableMouseWheel(Control control) {
+		control.addListener(SWT.MouseVerticalWheel, event -> event.doit = false);
 	}
 
 	private void createConfigurableScannableEditControls(Group group, SpecsPhoibosConfigurableScannableInfo configurableScannableInfo) {
