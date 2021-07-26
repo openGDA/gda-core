@@ -35,10 +35,15 @@ public class ClientTextFormats {
 	public static final String DEFAULT_DECIMAL_FORMAT = "#0.000";
 
 	/**
+	 * Integer text format pattern
+	 */
+	public static final String DEFAULT_INTEGER_FORMAT = "#";
+
+	/**
 	 * Formats
 	 */
-
-	private static final DecimalFormat decimalFormat = new DecimalFormat(DEFAULT_DECIMAL_FORMAT);
+	public static final DecimalFormat decimalFormat = new DecimalFormat(DEFAULT_DECIMAL_FORMAT);
+	public static final DecimalFormat integerFormat = new DecimalFormat(DEFAULT_INTEGER_FORMAT);
 
 	private ClientTextFormats() {
 	}
@@ -47,24 +52,31 @@ public class ClientTextFormats {
 	 * Formats a double using {@link #DEFAULT_DECIMAL_FORMAT} as pattern
 	 * @param value
 	 *            the number to format
-	 * @return the formatted String
+	 * @return the formatted {@code double} as String
 	 */
-
 	public static final String formatDecimal(double value) {
 		return decimalFormat.format(value);
 	}
 
 	/**
-	 * Creates a DecimalFormat using the given pattern and the symbols
-	 * for the default {@link java.util.Locale.Category#FORMAT FORMAT} locale.
+	 * Formats a integer using {@link #DEFAULT_DECIMAL_FORMAT} as pattern
+	 * @param value
+	 *            the number to format
+	 * @return the formatted {@code integer} as String
+	 */
+	public static final String formatDecimal(int value) {
+		return integerFormat.format(value);
+	}
+
+	/**
+	 * Formats a {@code double} using a given pattern.
 	 * @param pattern
 	 *            how format the number.
 	 * @param value
 	 *            the number to format
-	 * @return the formatted String
+	 * @return the formatted {@code double} as String
 	 * @see java.text.NumberFormat#getInstance
 	 */
-
 	public static final String formatDecimal(String pattern, double value) {
 		return new DecimalFormat(pattern).format(value);
 	}

@@ -122,7 +122,7 @@ public class ScannableTrackDocumentHelper extends ScanningParametersHelperBase {
 	 * @param steps
 	 *            the step per each scannableTrackDocument
 	 */
-	public void updateScannableTrackDocumentsSteps(int... steps) {
+	public void updateScannableTrackDocumentsSteps(double... steps) {
 		if (steps.length != getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size()) {
 			return;
 		}

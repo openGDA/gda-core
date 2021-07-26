@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
-import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeListener;
@@ -37,9 +37,17 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
+import org.springframework.beans.InvalidPropertyException;
+import org.springframework.beans.PropertyAccessException;
+import org.springframework.beans.PropertyAccessor;
+import org.springframework.beans.PropertyAccessorFactory;
 
 public class WidgetUtilities {
 
+	/**
+	 * A standard key to store/retrieve a {@link DisposeListener} from a widget
+	 */
+	private static final String DISPOSE_LISTENER = "DISPOSE_LISTENER";
 	private static final Map<Integer, ControlDecoration> decoratorMap;
 
 	static {
@@ -62,8 +70,8 @@ public class WidgetUtilities {
 		if (decoratorMap.containsKey(control.hashCode())) {
 			return decoratorMap.get(control.hashCode());
 		}
-		ControlDecoration txtDecorator = new ControlDecoration(control, SWT.BOTTOM | SWT.TOP);
-		FieldDecoration fieldDecoration = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
+		var txtDecorator = new ControlDecoration(control, SWT.BOTTOM | SWT.TOP);
+		var fieldDecoration = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR);
 		txtDecorator.setImage(fieldDecoration.getImage());
 		txtDecorator.setDescriptionText(message);
 		decoratorMap.put(control.hashCode(), txtDecorator);
@@ -92,25 +100,24 @@ public class WidgetUtilities {
 	}
 
 	/**
-	 * Defines a standard key to store/retrieve a {@link DisposeListener} from a widget
-	 * @param listener a {@link SelectionListener} instance
-	 * @return the key associated with te dispose listner
-	 */
-	private static String getDisposeListener(SelectionListener listener) {
-		return "DISPOSE" + listener.toString();
-	}
-
-	/**
 	 * Adds both a {@link SelectionListener} and a {@link DisposeListener} to a {@link Button} so to remove the listener
 	 * before the {@code Button} is disposed.
 	 * @param button  the control to which the listener is add
 	 * @param listener the listen to add to the control
 	 */
 	public static final void addWidgetDisposableListener(Button button, SelectionListener listener) {
-		button.addSelectionListener(listener);
-		DisposeListener dl = ev -> button.removeSelectionListener(listener);
-		button.setData(getDisposeListener(listener), dl);
-		button.addDisposeListener(dl);
+		addWidgetDisposableListener(listener,
+				button::addSelectionListener, button::removeSelectionListener, button::addDisposeListener, button::setData);
+	}
+
+	public static final <T> void addWidgetDisposableListener(T listener,
+			Consumer<T> addListener, Consumer<T> removeListener, Consumer<DisposeListener> addDisposeListener,
+			BiConsumer<String, Object> setData) {
+		addListener.accept(listener);
+		DisposeListener dl = ev -> removeListener.accept(listener);
+		Optional.ofNullable(setData)
+			.ifPresent(sd -> sd.accept(DISPOSE_LISTENER, dl));
+		addDisposeListener.accept(dl);
 	}
 
 	/**
@@ -120,7 +127,7 @@ public class WidgetUtilities {
 	 */
 	public static final void removeWidgetDisposableListener(Button button, SelectionListener listener) {
 		button.removeSelectionListener(listener);
-		button.removeDisposeListener(getDataObject(button, DisposeListener.class, getDisposeListener(listener)));
+		button.removeDisposeListener(getDataObject(button, DisposeListener.class, DISPOSE_LISTENER));
 	}
 
 	/**
@@ -171,5 +178,60 @@ public class WidgetUtilities {
 	public static void selectAndNotify(Button button, boolean selection) {
 		button.setSelection(selection);
 		button.notifyListeners(SWT.Selection, new Event());
+	}
+
+	/**
+	 * Set the specified value as current property value.
+	 * @param target the target object owning the property to set
+	 * @param propertyName the name of the property to set the value of
+	 * (may be a nested path and/or an indexed/mapped property)
+	 * @param value the new value
+	 * @throws InvalidPropertyException if there is no such property or
+	 * if the property isn't writable
+	 * @throws PropertyAccessException if the property was valid but the
+	 * accessor method failed or a type mismatch occured
+	 */
+	public static void setPropertyValue(Object target, String propertyName, Object value) {
+		PropertyAccessor documentAccessor = PropertyAccessorFactory.forDirectFieldAccess(target);
+		documentAccessor.setPropertyValue(propertyName, value);
+	}
+	/**
+	 * Get the current value of the specified property.
+	 * @param target the target object owning the property to set
+	 * @param propertyName the name of the property to get the value of
+	 * (may be a nested path and/or an indexed/mapped property)
+	 * @return the value of the property
+	 * @throws InvalidPropertyException if there is no such property or
+	 * if the property isn't readable
+	 * @throws PropertyAccessException if the property was valid but the
+	 * accessor method failed
+	 */
+	public static Object getPropertyValue(Object target, String propertyName) {
+		PropertyAccessor documentAccessor = PropertyAccessorFactory.forDirectFieldAccess(target);
+		return documentAccessor.getPropertyValue(propertyName);
+	}
+	/**
+	 * Determine whether the specified property is readable.
+	 * <p>Returns {@code false} if the property doesn't exist.
+	 * @param target the object to query if the property to readable
+	 * @param propertyName the property to check
+	 * (may be a nested path and/or an indexed/mapped property)
+	 * @return whether the property is readable
+	 */
+	public static boolean isReadableProperty(Object target, String propertyName) {
+		PropertyAccessor documentAccessor = PropertyAccessorFactory.forDirectFieldAccess(target);
+		return documentAccessor.isReadableProperty(propertyName);
+	}
+	/**
+	 * Determine whether the specified property is writable.
+	 * <p>Returns {@code false} if the property doesn't exist.
+	 * @param target the object to query if the property to write
+	 * @param propertyName the property to check
+	 * (may be a nested path and/or an indexed/mapped property)
+	 * @return whether the property is writable
+	 */
+	public static boolean isWritableProperty(Object target, String propertyName) {
+		PropertyAccessor documentAccessor = PropertyAccessorFactory.forDirectFieldAccess(target);
+		return documentAccessor.isWritableProperty(propertyName);
 	}
 }

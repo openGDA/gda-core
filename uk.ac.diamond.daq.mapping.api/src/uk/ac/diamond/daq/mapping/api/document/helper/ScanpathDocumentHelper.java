@@ -98,7 +98,7 @@ public class ScanpathDocumentHelper extends ScanningParametersHelperBase {
 	 * @param step
 	 *            the new length for the existing scannableTrackDocument
 	 *
-	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsSteps(int...)}
+	 * @deprecated use {@link ScannableTrackDocumentHelper#updateScannableTrackDocumentsSteps(double...)}
 	 */
 	@Deprecated
 	public void updateStep(double step) {

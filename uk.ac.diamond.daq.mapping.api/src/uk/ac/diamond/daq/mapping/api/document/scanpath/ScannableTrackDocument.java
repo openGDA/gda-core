@@ -144,14 +144,14 @@ public class ScannableTrackDocument {
 	 */
 	@JsonIgnore
 	public double calculatedStep() {
-		if (getStep() > Double.MIN_VALUE) {
-			return getStep();
-		}
-		if (getPoints() == 1)
+//		if (getStep() > Double.MIN_VALUE) {
+//			return getStep();
+//		}
+		if (getPoints() == 2)
 			return length();
-		if (getPoints() == 0)
+		if (getPoints() == 0 || getPoints() == 1)
 			return 0;
-		return length() / getPoints();
+		return length() / (getPoints() - 1);
 	}
 
 	@JsonIgnore
