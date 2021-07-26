@@ -28,6 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.GdaMetadata;
+import gda.data.metadata.Metadata;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.authenticator.Authenticator;
@@ -48,6 +51,8 @@ public class BatonManagerTest {
 		MockJythonServerFacade mockJsf = new MockJythonServerFacade();
 		InterfaceProvider.setJythonServerNotiferForTesting(mockJsf);
 		InterfaceProvider.setBatonStateProviderForTesting(mockJsf);
+		Metadata metadata = new GdaMetadata();
+		GDAMetadataProvider.setInstanceForTesting(metadata);
 		manager = new BatonManager();
 		ClientDetails details1 = new ClientDetails(manager.getNewFacadeIndex(), "abc123", "ABC 123", "pc01234", 0, false, "mx123-1");
 		manager.addFacade("opq", details1);
@@ -65,6 +70,7 @@ public class BatonManagerTest {
 		LocalProperties.clearProperty(Authenticator.AUTHENTICATORCLASS_PROPERTY);
 		InterfaceProvider.setJythonServerNotiferForTesting(null);
 		InterfaceProvider.setBatonStateProviderForTesting(null);
+		GDAMetadataProvider.setInstanceForTesting(null);
 	}
 
 	@Test
