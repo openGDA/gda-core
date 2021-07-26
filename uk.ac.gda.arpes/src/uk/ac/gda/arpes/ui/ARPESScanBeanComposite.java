@@ -118,6 +118,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final Label lblDeflectorX;
 	private final NumberBox deflectorX;
 
+	private AcquisitionMode lastSelectedAcquisitionMode;
+	private Optional<Double> cachedFixedModeCentreEnergy = Optional.empty();
+	private Optional<Double> cachedDitherModeCentreEnergy = Optional.empty();
+	private Optional<Double> cachedSweptModeStartEnergy = Optional.empty();
+	private Optional<Double> cachedSweptModeEndEnergy = Optional.empty();
+
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
 
@@ -384,6 +390,9 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// Add an observer that updates the PSU mode when fired
 		psuModeScannable.ifPresent(s -> s.addIObserver((source, arg) -> Display.getDefault().asyncExec(this::updatePsuMode)));
+
+		lastSelectedAcquisitionMode = getSelectedAcquisitionMode();
+		cacheEnergyValues();
 	}
 
 	private GridData controlGridData() {
@@ -594,6 +603,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
 
+		if ("acquisitionMode".equals(e.getFieldName())) {
+			cacheEnergyValues();
+		}
+
 		if ("lensMode".equals(e.getFieldName())) {
 			// Changed lens mode so different pass energies might be available
 			updatePassEnergy();
@@ -626,11 +639,24 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		updateEnergyLimits();
 		updateAcquisitionMode();
+
+		if ("acquisitionMode".equals(e.getFieldName())) {
+			restoreCachedEnergyValues();
+		}
+
 		updateEstimatedTime();
 	}
 
 	private double getValue(NumberBox numberBox) {
 		return ((Number) numberBox.getValue()).doubleValue();
+	}
+
+	private Optional<Double> getOptionalValue(NumberBox numberBox) {
+		Object value = numberBox.getValue();
+		if (value != null) {
+			return Optional.of(((Number) value).doubleValue());
+		}
+		return Optional.empty();
 	}
 
 	/**
@@ -720,6 +746,42 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			centreEnergy.setMaximum(max);
 			endEnergy.setMinimum(-1);
 			endEnergy.setMaximum(10000);
+		}
+	}
+
+	private void cacheEnergyValues() {
+		switch (lastSelectedAcquisitionMode) {
+		case FIXED:
+			cachedFixedModeCentreEnergy = getOptionalValue(centreEnergy);
+			break;
+		case SWEPT:
+			cachedSweptModeStartEnergy = getOptionalValue(startEnergy);
+			cachedSweptModeEndEnergy = getOptionalValue(endEnergy);
+			break;
+		case DITHER:
+			cachedDitherModeCentreEnergy = getOptionalValue(centreEnergy);
+			break;
+		default:
+			// No-op
+		}
+
+		lastSelectedAcquisitionMode = getSelectedAcquisitionMode();
+	}
+
+	private void restoreCachedEnergyValues() {
+		switch (getSelectedAcquisitionMode()) {
+		case FIXED:
+			cachedFixedModeCentreEnergy.ifPresent(centreEnergy::setValue);
+			break;
+		case SWEPT:
+			cachedSweptModeStartEnergy.ifPresent(startEnergy::setValue);
+			cachedSweptModeEndEnergy.ifPresent(endEnergy::setValue);
+			break;
+		case DITHER:
+			cachedDitherModeCentreEnergy.ifPresent(centreEnergy::setValue);
+			break;
+		default:
+			// No-op
 		}
 	}
 
