@@ -30,8 +30,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.factory.Finder;
-
 public class ToggleShowStopButton extends AbstractHandler  {
 
 	private static final Logger logger = LoggerFactory.getLogger(ToggleShowStopButton.class);
@@ -40,19 +38,23 @@ public class ToggleShowStopButton extends AbstractHandler  {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		var liveControlsView = getLiveControlsView(event);
-		List<ControlSet> controlSets = Finder.listLocalFindablesOfType(ControlSet.class);
-		List<LiveControl> controls = controlSets.get(0).getControls();
-		controls.stream().filter(ScannablePositionerControl.class::isInstance).map(ScannablePositionerControl.class::cast)
-				.forEach(ScannablePositionerControl::toggleShowStop);
+		List<LiveControl> controls = liveControlsView.getDisplayedControlSet().getControls();
+
+		controls.stream()
+			.filter(ScannablePositionerControl.class::isInstance)
+			.map(ScannablePositionerControl.class::cast)
+			.forEach(ScannablePositionerControl::toggleShowStop);
 
 		// Toggle positioners in the LiveControlGroups
-		controls.stream().filter(LiveControlGroup.class::isInstance).map(LiveControlGroup.class::cast)
+		controls.stream()
+			.filter(LiveControlGroup.class::isInstance)
+			.map(LiveControlGroup.class::cast)
 			.forEach(LiveControlGroup::toggleShowStopButton);
 
 		IWorkbenchPage page = liveControlsView.getViewSite().getPage();
 		page.hideView(liveControlsView);
 		try {
-			page.showView(LiveControlsView.ID);
+			page.showView(LiveControlsView.ID, liveControlsView.getDisplayedControlSet().getName(), IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
 			logger.error("show veiw {} is failed.", LiveControlsView.ID, e);
 		}

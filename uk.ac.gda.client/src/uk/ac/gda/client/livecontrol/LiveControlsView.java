@@ -21,18 +21,26 @@ package uk.ac.gda.client.livecontrol;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.factory.Findable;
 import gda.factory.Finder;
 
 public class LiveControlsView extends ViewPart {
@@ -47,6 +55,10 @@ public class LiveControlsView extends ViewPart {
 
 	private List<ControlSet> controlSets;
 
+	private String configName = "";
+
+	private ControlSet displayedControlSet;
+
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -60,15 +72,79 @@ public class LiveControlsView extends ViewPart {
 			return;
 		}
 
-		if (controlSets.size() == 1) {
-			createControlsView(parent, controlSets.get(0));
+		// If configName is set then reopen the view, passing the ControlSet object name via the secondary Id
+		if (!configName.isEmpty()) {
+			logger.debug("Trying to create 'live controls' view using configuration : {}", configName);
+			Display.getDefault().asyncExec(() -> reopenWithSecondaryId(configName));
+			return;
+		}
+
+		// Try to open view from secondary Id - this should be the name of the ControlSet object to be used for the view
+		String secondaryId = getViewSite().getSecondaryId();
+		if (secondaryId != null) {
+			controlSets.stream()
+				.filter(s -> s.getName().equals(secondaryId))
+				.findFirst()
+				.ifPresentOrElse(controlSet -> createControlsView(parent, controlSet),
+						() -> displayAndLogError(parent, "Could not create 'live controls' view - configuration called "
+								+configName+" was not found") );
+			return;
+		}
+
+		// Show a dialog to allow user to select a control set
+		if (controlSets.size() > 1) {
+			selectControlSet(parent, controlSets);
 		} else {
-			// TODO if more than one control set is available allow user to choose
-			displayAndLogError(parent, "More than one controls set was found. This is not supported yet!");
+			createControlsView(parent, controlSets.get(0));
+		}
+	}
+
+	/**
+	 * Allow user to select a view to be opened from list of all available
+	 * ControlSet objects. The view is shown by opening a new view and passing
+	 * the ControlSet name as the secondaryId.
+	 * @param parent
+	 * @param controlSets
+	 */
+	private void selectControlSet(Composite parent, List<ControlSet> controlSets) {
+		ListDialog dialog = new ListDialog(parent.getShell());
+		dialog.setAddCancelButton(true);
+		dialog.setContentProvider(new ArrayContentProvider());
+		dialog.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return element == null ? "" : ((Findable)element).getName();
+			}
+		});
+		dialog.setInput(controlSets);
+		dialog.setTitle("Select name of the Live Cotrols view to open");
+		dialog.setBlockOnOpen(true);
+		if (dialog.open() == Window.OK) {
+			ControlSet selectedControlSet = (ControlSet) dialog.getResult()[0];
+			logger.debug("Opening 'live controls' view from user selected configuration : {}", selectedControlSet.getName());
+			Display.getDefault().asyncExec(() -> reopenWithSecondaryId(selectedControlSet.getName()));
+		}
+	}
+
+	/**
+	 * Close this view and open again with the secondary ID specified
+	 * (This function seems to need calling from the GUI thread to avoid NPE when closing the view).
+	 *
+	 * @param controlset
+	 */
+	private void reopenWithSecondaryId(String controlsetName) {
+		IWorkbenchPage page = getSite().getPage();
+		try {
+			page.hideView(LiveControlsView.this);
+			page.showView(LiveControlsView.ID, controlsetName, IWorkbenchPage.VIEW_ACTIVATE);
+		} catch (PartInitException e) {
+			logger.error("Error activating view with secondary ID {}", controlsetName, e);
 		}
 	}
 
 	private void createControlsView(Composite parent, ControlSet controlSet) {
+
+		displayedControlSet = controlSet;
 
 		List<LiveControl> controls = controlSet.getControls();
 
@@ -130,7 +206,9 @@ public class LiveControlsView extends ViewPart {
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setMinSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		scrolledComposite.setShowFocusedControl(true);
-}
+
+		setTitleToolTip(controlSet.getName());
+	}
 
 	@Override
 	public void setFocus() {
@@ -152,4 +230,21 @@ public class LiveControlsView extends ViewPart {
 		logger.error(errorMessage);
 	}
 
+	/**
+	 * Set the name of the ControlSet object to be used to create the view
+	 * in the call to {@link #createPartControl(Composite)}
+	 * @param configName
+	 */
+	public void setConfigName(String configName) {
+		this.configName = configName;
+	}
+
+	@Override
+	public void setPartName(String partName) {
+		super.setPartName(partName);
+	}
+
+	public ControlSet getDisplayedControlSet() {
+		return displayedControlSet;
+	}
 }
