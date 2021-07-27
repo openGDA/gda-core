@@ -19,7 +19,12 @@
 
 package uk.ac.diamond.daq.service.context;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
+
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationEvent;
@@ -38,6 +43,18 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 @ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class SpringSpringApplicationContextFacadeTest {
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+		System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_CONFIG);
+		System.clearProperty(GDA_PROPERTIES_FILE);
+	}
 
 	/**
 	 * Closes the running Spring context, started by {@link SpringJUnit4ClassRunner}
