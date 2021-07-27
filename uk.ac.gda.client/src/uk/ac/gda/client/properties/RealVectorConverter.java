@@ -24,10 +24,11 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -37,9 +38,13 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  *
  * @author Maurizio Nagni
  */
+@Component
 public class RealVectorConverter implements Converter<String, RealVector> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RealVectorConverter.class);
+
+	@Autowired
+	private DocumentMapper documentMapper;
 
 	@Override
 	public RealVector convert(String source) {
@@ -52,7 +57,6 @@ public class RealVectorConverter implements Converter<String, RealVector> {
 	}
 
 	private <T> T convert(String value, Class<T> valueType) throws IOException {
-		var objectMapper = new ObjectMapper();
-		return objectMapper.readValue(value, valueType);
+		return documentMapper.getJacksonObjectMapper().readValue(value, valueType);
 	}
 }

@@ -29,7 +29,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = {
 		"uk.ac.gda.client.properties",
-		"uk.ac.gda.ui.tool.spring"})
+		"uk.ac.gda.ui.tool.spring",
+		"uk.ac.gda.core.tool.spring",
+		"uk.ac.diamond.daq.mapping.api.document"})
 public class ConfigurationPropertiesTestConfiguration {
 
 }

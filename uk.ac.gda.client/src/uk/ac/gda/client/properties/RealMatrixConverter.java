@@ -25,6 +25,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,13 +38,13 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  *
  * @author Maurizio Nagni
  */
+@Component
 public class RealMatrixConverter implements Converter<String, RealMatrix> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RealMatrixConverter.class);
 
 	@Override
 	public RealMatrix convert(String source) {
-
 		try {
 			double[][] matrix = convert(source, double[][].class);
 			return MatrixUtils.createRealMatrix(matrix);
