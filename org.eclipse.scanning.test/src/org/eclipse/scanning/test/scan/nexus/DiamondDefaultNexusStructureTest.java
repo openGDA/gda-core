@@ -63,6 +63,7 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -132,6 +133,11 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final int[] SHAPE = { 5, 2 };
 
 	private IWritableDetector<MandelbrotModel> detector;
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		new ServiceHolder().setCommonBeamlineDevicesConfiguration(null);
+	}
 
 	@Before
 	public void setUp() throws Exception {
