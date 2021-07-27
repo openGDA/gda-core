@@ -35,6 +35,8 @@ public class PlotProc implements MalcolmSwmrProcessor {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotProc.class);
 
+	private String plotName = "Area Detector";
+
 	@Override
 	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
 		// not required for this processor as it doesn't contribute data
@@ -44,11 +46,19 @@ public class PlotProc implements MalcolmSwmrProcessor {
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
 		try {
-			SDAPlotter.imagePlot("Area Detector", data.squeeze());
+			SDAPlotter.imagePlot(plotName, data.squeeze());
 		} catch (Exception e) {
 			logger.error("Failed to plot detector frame", e);
 		}
 		logger.debug("End of processFrame");
+	}
+
+	public String getPlotName() {
+		return plotName;
+	}
+
+	public void setPlotName(String plotName) {
+		this.plotName = plotName;
 	}
 
 }

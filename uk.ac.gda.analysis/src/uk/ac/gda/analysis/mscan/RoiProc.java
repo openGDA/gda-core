@@ -182,4 +182,14 @@ public class RoiProc implements MalcolmSwmrProcessor {
 	}
 
 
+	public String getPlotName() {
+		return plotName;
+	}
+
+
+	public void setPlotName(String plotName) {
+		this.plotName = plotName;
+	}
+
+
 }
