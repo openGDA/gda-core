@@ -109,11 +109,6 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		short[] values = (short[]) enumeration.getValue();
 
 		if (values[0] == 1) {
-			try {
-				SDAPlotter.clearPlot(plotName);
-			} catch (Exception e) {
-				logger.error("An error occured while attempting to clear plot " + plotName, e);
-			}
 			checkAcquisitionMode();
 		}
 
@@ -129,6 +124,7 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 				logger.info("Acquisition mode is {}. Plotting is enabled for {}", acquisitionMode, plotName);
 			} else {
 				isSupportedAcquisitionMode = false;
+				SDAPlotter.clearPlot(plotName);
 				logger.info("Acquisition mode is {}. Plotting is disabled for {}", acquisitionMode, plotName);
 			}
 		} catch (TimeoutException | CAException exception) {
@@ -138,6 +134,8 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 			logger.error("Checking acquisition mode was interrupted. Disabling plotting", exception);
 			isSupportedAcquisitionMode = false;
 			Thread.currentThread().interrupt();
+		} catch (Exception e) {
+			logger.error("An error occured while attempting to clear plot " + plotName, e);
 		}
 	}
 
