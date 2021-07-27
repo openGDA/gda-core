@@ -229,6 +229,7 @@ public final class ServiceTestHelper {
 		serviceHolder.setParserService(parserService);
 		serviceHolder.setRunnableDeviceService(runnableDeviceService);
 		serviceHolder.setWatchdogService(watchdogService);
+		serviceHolder.setCommonBeamlineDevicesConfiguration(null); // clears if set by previous test
 	}
 
 	private static void setupOESPServiceHolder() {

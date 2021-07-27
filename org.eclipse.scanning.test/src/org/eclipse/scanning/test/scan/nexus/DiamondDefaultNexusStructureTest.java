@@ -151,6 +151,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	@AfterClass
 	public static void tearDownAfterClass() {
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(false));
+		new ServiceHolder().setCommonBeamlineDevicesConfiguration(null);
 	}
 
 	@Before
