@@ -73,8 +73,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private static final String ATTRIBUTE_NAME_LABEL = "label";
 	private static final String ATTRIBUTE_NAME_PRIMARY = "primary";
 
-	private static final String ENTRY_NAME = "entry1";
-
 	private static final String METADATA_KEY_MONOCHROMATOR_NAME = "instrument.monochromator.name";
 	private static final String METADATA_KEY_MONOCHROMATOR_ENERGY = "instrument.monochromator.energy";
 	private static final String METADATA_KEY_MONOCHROMATOR_WAVELENGTH = "instrument.monochromator.wavelength";

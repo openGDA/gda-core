@@ -350,10 +350,12 @@ public class NexusDataWriterTest {
 			final NXdetector detectorGroup = entry.getInstrument().getDetector(getName());
 			assertThat(detectorGroup, is(notNullValue()));
 			final NXdetector expectedDetectorGroup = createExpectedDetectorGroup(detectorGroup);
-			assertGroupNodesEqual("/entry1/instrument/" + getName(), expectedDetectorGroup, detectorGroup);
+			assertGroupNodesEqual("/" + ENTRY_NAME + "/instrument/" + getName(), expectedDetectorGroup, detectorGroup);
 		}
 
 	}
+
+	private static final String ENTRY_NAME = "entry1";
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
 
@@ -438,7 +440,7 @@ public class NexusDataWriterTest {
 		final TreeFile nexusTree = NexusUtils.loadNexusTree(nexusFile);
 		final NXroot nexusRoot = (NXroot) nexusTree.getGroupNode();
 		assertThat(nexusRoot, is(notNullValue()));
-		final NXentry entry = nexusRoot.getEntry("entry1");
+		final NXentry entry = nexusRoot.getEntry(ENTRY_NAME);
 		assertThat(entry, is (notNullValue()));
 
 		// check that the scan entry group created by the template has been added (note: we don't test the content here)
@@ -452,7 +454,7 @@ public class NexusDataWriterTest {
 		// check that the user group added by an INexusDevice has been added
 		final NXuser expectedUserGroup = userDevice.getNexusProvider(null).getNexusObject();
 		assertThat(userGroup, is(not(sameInstance(expectedUserGroup)))); // because its been read in from the file
-		assertGroupNodesEqual("/entry1/" + USER_DEVICE_NAME, expectedUserGroup, userGroup);
+		assertGroupNodesEqual("/"  + ENTRY_NAME + "/" + USER_DEVICE_NAME, expectedUserGroup, userGroup);
 
 		// check that the metadata has been added for each detector
 		for (DetectorType detectorType : DetectorType.values()) {
@@ -547,7 +549,7 @@ public class NexusDataWriterTest {
 
 		assertThat(scannableGroup, is(notNullValue()));
 		final GroupNode expectedScannableGroup = createExpectedScannableGroup(scannableName, isMetadata);
-		assertGroupNodesEqual("/entry1/instrument/" + scannableName, expectedScannableGroup, scannableGroup);
+		assertGroupNodesEqual("/" + ENTRY_NAME + "/instrument/" + scannableName, expectedScannableGroup, scannableGroup);
 	}
 
 	private NXobject createExpectedScannableGroup(String scannableName, boolean isMetadata) {
@@ -569,11 +571,11 @@ public class NexusDataWriterTest {
 		setAttribute(valueDataNode, "local_name", scannableName + "." + scannableName);
 
 		if (scannableName.equals(SCANNABLE_NAMES[0])) { // 'stage_y' is written by a SingleScannableWriter
-			setAttribute(valueDataNode, "target", "/entry1/instrument" + scannableName + "/" + scannableName);
+			setAttribute(valueDataNode, "target", "/" + ENTRY_NAME + "/instrument" + scannableName + "/" + scannableName);
 			setAttribute(valueDataNode, "label", "1");
 			setAttribute(valueDataNode, "primary", "1");
 		} else if (scannableName.equals(SCANNABLE_NAMES[1])) { // 'stage_x' is written by makeScannablesAndMonitors
-			setAttribute(valueDataNode, "target", "/entry1/instrument" + scannableName + "/" + scannableName);
+			setAttribute(valueDataNode, "target", "/" + ENTRY_NAME + "/instrument" + scannableName + "/" + scannableName);
 			setAttribute(valueDataNode, "units", "mm");
 		} else {
 			setAttribute(valueDataNode, "units", "mm");
