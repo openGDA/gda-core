@@ -63,13 +63,13 @@ public class ScanningAcquisitionService {
 	public void run(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) throws ScanningAcquisitionServiceException {
 		try {
 			// default path name
-			String pathName = "ScanningAcquisition";
-			final ScanBean scanBean = new ScanBean();
+			var pathName = "ScanningAcquisition";
+			var scanBean = new ScanBean();
 			scanBean.setName(String.format("%s - %s Scan", acquisition.getName(), pathName));
 			scanBean.setFilePath(acquisition.getAcquisitionLocation().toExternalForm());
 			scanBean.setBeamline(System.getProperty("BEAMLINE", "dummy"));
 
-			ScanRequestFactory tsr = new ScanRequestFactory(acquisition);
+			var tsr = new ScanRequestFactory(acquisition);
 			scanBean.setScanRequest(tsr.createScanRequest(getRunnableDeviceService()));
 			getScanBeanSubmitter().submit(scanBean);
 		} catch (Exception e) {
@@ -79,7 +79,7 @@ public class ScanningAcquisitionService {
 	
 	private ISubmitter<ScanBean> getScanBeanSubmitter() throws URISyntaxException {
 		if (Objects.isNull(scanBeanSubmitter)) {
-			URI queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
+			var queueServerURI = new URI(LocalProperties.getActiveMQBrokerURI());
 			scanBeanSubmitter = getEventService().createSubmitter(queueServerURI, EventConstants.SUBMISSION_QUEUE);			
 		}
 		return scanBeanSubmitter;

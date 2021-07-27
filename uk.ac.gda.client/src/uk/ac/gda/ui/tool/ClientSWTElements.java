@@ -55,6 +55,7 @@ public final class ClientSWTElements {
 	public static final Point DEFAULT_BUTTON_SIZE = new Point(100, 50);
 	public static final Point SMALL_BUTTON_SIZE = new Point(60, 30);
 	public static final Point DEFAULT_TEXT_SIZE = new Point(80, SWT.DEFAULT);
+	public static final Point DEFAULT_LABEL_SIZE = new Point(80, SWT.DEFAULT);
 	public static final Point DEFAULT_SPAN = new Point(1, 1);
 	public static final int DEFAULT_MARGIN_HEIGHT = 5;
 	public static final int DEFAULT_MARGIN_WIDTH = 5;

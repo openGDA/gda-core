@@ -73,6 +73,6 @@ public class DetectorDocumentReader extends AcquisitionReaderBase<DetectorDocume
 	public String getMalcolmDetectorName() {
 		return Optional.ofNullable(getData())
 			.map(DetectorDocument::getMalcolmDetectorName)
-			.orElseGet(() -> "NotAvailable");
+			.orElseGet(() -> NOT_AVAILABLE);
 	}
 }

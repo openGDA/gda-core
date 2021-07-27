@@ -28,6 +28,8 @@ import java.util.function.Supplier;
  */
 public class AcquisitionReaderBase<T> {
 
+	public static final String NOT_AVAILABLE = "Not Available";
+
 	private final Supplier<T> supplier;
 
 	public AcquisitionReaderBase(Supplier<T> supplier) {

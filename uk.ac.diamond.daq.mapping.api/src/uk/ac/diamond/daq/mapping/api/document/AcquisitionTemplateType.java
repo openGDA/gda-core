@@ -39,5 +39,9 @@ public enum AcquisitionTemplateType {
 	/**
 	 * Identifies a line in a 1D space
 	 */
-	ONE_DIMENSION_LINE
+	ONE_DIMENSION_LINE,
+	/**
+	 * Identifies a static point
+	 */
+	STATIC_POINT
 }

@@ -82,6 +82,8 @@ public class AcquisitionTemplateFactory {
 	private static final AcquisitionTemplate instantiateAcquisitionTemplate(ScanpathDocument scanpathDocument)
 			throws GDAException {
 		switch (scanpathDocument.getModelDocument()) {
+		case STATIC_POINT:
+			return new StaticPointModelDocument(scanpathDocument);
 		case ONE_DIMENSION_LINE:
 			return new AxialStepModelDocument(scanpathDocument);
 		case TWO_DIMENSION_POINT:
