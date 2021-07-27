@@ -104,7 +104,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans
 	 */
-	private Vector<IScanObject> scanObjects = new Vector<>();
+	private transient Vector<IScanObject> scanObjects = new Vector<>();
 
 	/**
 	 * Formatting information for the scannable positions - used in the toString method.
