@@ -1,13 +1,9 @@
 package org.opengda.lde.ui.views;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -19,17 +15,12 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.events.DataFileEvent;
 import org.opengda.lde.events.SampleChangedEvent;
@@ -38,13 +29,10 @@ import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
-import org.opengda.lde.ui.Activator;
-import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
-import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +66,7 @@ public class SampleGroupView extends ViewPart implements IObserver {
 	private Scriptcontroller eventAdmin;
 	private TableViewerColumn progressColumn;
 	private Sample currentSample;
-	private Image[] images;
-	protected AnimationEngine animation=null;
-	
+
 	private final String sampleColumnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, 
 			SampleTableConstants.SAMPLE_NAME, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, SampleTableConstants.SAMPLE_X_STEP, 
 			SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
@@ -168,41 +154,18 @@ public class SampleGroupView extends ViewPart implements IObserver {
 			}
 		}
 		progressColumn.setLabelProvider(progressLabelProvider);
-		
-		images = loadAnimatedGIF(viewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
-
 	}
 
-	private Image[] loadAnimatedGIF(Display display, String imagePath) {
-		URL url = FileLocator.find(Activator.getDefault().getBundle(), new Path(imagePath), null);
-		ImageLoader imageLoader = new ImageLoader();
-		try {
-			imageLoader.load(url.openStream());
-		} catch (IOException e) {
-			logger.error("Cannot load animated gif file {}", url.getPath());
-		}
-		Image[] images = new Image[imageLoader.data.length];
-		for (int i = 0; i < imageLoader.data.length; ++i) {
-			ImageData nextFrameData = imageLoader.data[i];
-			images[i] = new Image(display, nextFrameData);
-		}
-		return images;
-	}
-	
 	@Override
 	public void update(Object source, final Object arg) {
 		if (source==eventAdmin) {
 			if (arg instanceof ScanEndEvent) {
 				Display.getDefault().asyncExec(new Runnable() {
 
-					@SuppressWarnings("restriction")
 					@Override
 					public void run() {
 						if (currentSample!=null) {
 							updateSampleStatus(currentSample, STATUS.COMPLETED);
-						}
-						if (animation!=null) {
-							animation.cancelAnimation();
 						}
 					}
 				});
@@ -211,7 +174,6 @@ public class SampleGroupView extends ViewPart implements IObserver {
 				final String sampleID = event.getSampleID();
 				logger.debug("sample update to {}",sampleID);
 				Display.getDefault().asyncExec(new Runnable() {
-					@SuppressWarnings("restriction")
 					@Override
 					public void run() {
 						for (Sample sample : samples) {
@@ -223,17 +185,6 @@ public class SampleGroupView extends ViewPart implements IObserver {
 							}
 						}
 						viewer.setSelection(new StructuredSelection(currentSample));
-						if (animation!=null) {
-							animation.cancelAnimation();
-						}
-						try {
-							TableItem tableItem = viewer.getTable().getItem(samples.indexOf(currentSample));
-							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(viewer.getControl().getShell(),images, tableItem,SampleTableConstants.COL_STATUS);
-							animation= new AnimationEngine(feedback,-1,100);
-							animation.schedule();
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
 					}
 				});
 			} else if (arg instanceof SampleStatusEvent) {
@@ -248,11 +199,6 @@ public class SampleGroupView extends ViewPart implements IObserver {
 							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
 								updateSampleStatus(sample, status);
 							}
-						}
-						if (status==STATUS.PAUSED) {
-							animation.sleep();
-						} else if (status==STATUS.RUNNING) {
-							animation.wakeUp();
 						}
 					}
 				});
