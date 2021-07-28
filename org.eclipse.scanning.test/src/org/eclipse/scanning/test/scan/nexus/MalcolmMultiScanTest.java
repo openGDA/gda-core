@@ -19,12 +19,13 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDatasetsEqual;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -62,35 +64,36 @@ import org.junit.Test;
 public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 
 	private static final String FIELD_NAME_IMAGE_KEY = "image_key";
+	private static final String SCANNABLE_NAME_SHUTTER = "portshutter";
 
 	private static final int NUM_FLATS = 5;
 	private static final int NUM_DARKS = 3;
 	private static final int NUM_MAIN_SCAN_POINTS = 19;
 
-	private boolean withDarkAndFlat = true;
+	private boolean withDarksAndFlats = true;
 
 	@Override
 	protected DummyMalcolmModel createMalcolmModel() {
 		final DummyMalcolmModel model = createMalcolmModelTwoDetectors();
 		model.setExposureTime(0.001);
-		model.setAxesToMove(Arrays.asList("theta"));
-		model.setPositionerNames(Arrays.asList("theta"));
+		model.setAxesToMove(List.of("theta"));
+		model.setPositionerNames(List.of("theta"));
 
 		return model;
 	}
 
 	@Test
 	public void testMalcolmMultiScan() throws Exception {
-		testMalcolmMultiScanTemplate(true, NUM_MAIN_SCAN_POINTS + NUM_FLATS * 2 + NUM_DARKS * 2);
+		testMalcolmMultiScan(true);
 	}
 
 	@Test
-	public void testMalcolmMultiScanWithoutDarAndFlat() throws Exception {
-		testMalcolmMultiScanTemplate(false, NUM_MAIN_SCAN_POINTS);
+	public void testMalcolmMultiScanNoDarksOrFlats() throws Exception {
+		testMalcolmMultiScan(false);
 	}
 
-	private void testMalcolmMultiScanTemplate(boolean withDarkFlat, int expectedScanSize) throws Exception {
-		this.withDarkAndFlat = withDarkFlat;
+	private void testMalcolmMultiScan(boolean withDarksAndFlats) throws Exception {
+		this.withDarksAndFlats = withDarksAndFlats;
 		final CompoundModel compoundModel = createCompoundModel();
 
 		final IRunnableDevice<ScanModel> scanner = createMalcolmMultiScan(compoundModel);
@@ -101,12 +104,13 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		scanner.run();
 
 		// check the nexus file
+		final int expectedScanSize = NUM_MAIN_SCAN_POINTS + (withDarksAndFlats ? NUM_FLATS * 2 + NUM_DARKS * 2 : 0);
 		checkNexusFile(scanner, false, expectedScanSize);
 
 		// check the interpolated (between scan) positions were moved to
 		final InterpolatedMultiScanModel multiScanModel = (InterpolatedMultiScanModel) compoundModel.getModels().get(0);
 		final List<IPosition> expectedPositions =  multiScanModel.getInterpolatedPositions();
-		assertEquals(expectedPositions, positionsMovedTo);
+		assertThat(positionsMovedTo, is(equalTo(expectedPositions)));
 	}
 
 	private IRunnableDevice<ScanModel> createMalcolmMultiScan(CompoundModel compoundModel) throws Exception {
@@ -116,7 +120,7 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setScanPathModel(compoundModel);
 		scanModel.setPointGenerator(pointGen);
-		scanModel.setDetectors(Arrays.asList(malcolmDevice));
+		scanModel.setDetectors(List.of(malcolmDevice));
 
 		// Create a file to scan into.
 		scanModel.setFilePath(output.getAbsolutePath());
@@ -142,60 +146,58 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		final InterpolatedMultiScanModel multiScanModel = new InterpolatedMultiScanModel();
 		multiScanModel.setContinuous(true);
 		final AxialStepModel mainScanModel = new AxialStepModel("theta", 0.0, 180.0, 10.0);
-		 // darks and flats should be (step / 2) before the start of the main scan, and the same after
-		final double posBeforeMainScan = mainScanModel.getStart() - mainScanModel.getStep() / 2;
-		final double posAfterMainScan = mainScanModel.getStop() + mainScanModel.getStep() / 2;
-		if (withDarkAndFlat) {
-			multiScanModel.addModel(new AxialPointsModel("theta", posBeforeMainScan, NUM_FLATS));
-			multiScanModel.addModel(new AxialPointsModel("theta", posBeforeMainScan, NUM_DARKS));
-		}
-		multiScanModel.addModel(mainScanModel);
-		if (withDarkAndFlat) {
-			multiScanModel.addModel(new AxialPointsModel("theta", posAfterMainScan, NUM_FLATS));
-			multiScanModel.addModel(new AxialPointsModel("theta", posAfterMainScan, NUM_DARKS));
-		}
 
-		final List<IPosition> interpolationPositions = new ArrayList<>();
-		IPosition flatPos = null;
-		IPosition darkPos = null;
-		if (withDarkAndFlat) {
-			// flat, dark, tomo, flat, dark
-			final Map<String, Object> flatPosMap = new HashMap<>();
-			flatPosMap.put("x_stage", -10.0);
-			flatPosMap.put("y_stage", -10.0);
-			flatPos = new MapPosition(flatPosMap);
-
-			final Map<String, Object> darkPosMap = new HashMap<>();
-			darkPosMap.put("x_stage", 0.0);
-			darkPosMap.put("y_stage", 0.0);
-			darkPosMap.put("portshutter", "Closed");
-			darkPos = new MapPosition(darkPosMap);
-		}
-
-		if (withDarkAndFlat) {
-			interpolationPositions.add(flatPos);
-			interpolationPositions.add(darkPos);
-		}
-		interpolationPositions.add(new Scalar<>("portshutter", "Open"));
-		if (withDarkAndFlat) {
-			interpolationPositions.add(flatPos);
-			interpolationPositions.add(darkPos);
-		}
-		multiScanModel.setInterpolatedPositions(interpolationPositions);
-
-		final List<ImageType> imageTypes = new ArrayList<>();
-		if (withDarkAndFlat) {
-			imageTypes.add(ImageType.FLAT);
-			imageTypes.add(ImageType.DARK);
-		}
-		imageTypes.add(ImageType.NORMAL);
-		if (withDarkAndFlat) {
-			imageTypes.add(ImageType.FLAT);
-			imageTypes.add(ImageType.DARK);
-		}
-		multiScanModel.setImageTypes(imageTypes);
+		createPointsModels(mainScanModel).forEach(multiScanModel::addModel);
+		multiScanModel.setInterpolatedPositions(createInterpolationPositions());
+		multiScanModel.setImageTypes(createImageTypes());
 
 		return new CompoundModel(multiScanModel);
+	}
+
+	private List<IScanPointGeneratorModel> createPointsModels(final AxialStepModel mainScanModel) {
+		if (!withDarksAndFlats) return List.of(mainScanModel);
+
+		// darks and flats should be (step / 2) before the start of the main scan, and the same after
+		final double posBeforeMainScan = mainScanModel.getStart() - mainScanModel.getStep() / 2;
+		final double posAfterMainScan = mainScanModel.getStop() + mainScanModel.getStep() / 2;
+		final List<IScanPointGeneratorModel> models = new ArrayList<>();
+		models.add(new AxialPointsModel("theta", posBeforeMainScan, NUM_FLATS));
+		models.add(new AxialPointsModel("theta", posBeforeMainScan, NUM_DARKS));
+		models.add(mainScanModel);
+		models.add(new AxialPointsModel("theta", posAfterMainScan, NUM_FLATS));
+		models.add(new AxialPointsModel("theta", posAfterMainScan, NUM_DARKS));
+
+		return models;
+	}
+
+	private List<ImageType> createImageTypes() {
+		if (!withDarksAndFlats) {
+			return List.of(ImageType.NORMAL);
+		}
+
+		return List.of(ImageType.FLAT, ImageType.DARK, ImageType.NORMAL, ImageType.FLAT, ImageType.DARK);
+	}
+
+	private List<IPosition> createInterpolationPositions() {
+		if (!withDarksAndFlats) {
+			return List.of(new Scalar<>(SCANNABLE_NAME_SHUTTER, "Open"));
+		}
+
+		// flat, dark, tomo, flat, dark
+		final Map<String, Object> flatPosMap = new HashMap<>();
+		flatPosMap.put("x_stage", -10.0);
+		flatPosMap.put("y_stage", -10.0);
+		final IPosition flatPos = new MapPosition(flatPosMap);
+
+		final Map<String, Object> darkPosMap = new HashMap<>();
+		darkPosMap.put("x_stage", 0.0);
+		darkPosMap.put("y_stage", 0.0);
+		darkPosMap.put(SCANNABLE_NAME_SHUTTER, "Closed");
+		final IPosition darkPos = new MapPosition(darkPosMap);
+
+		final IPosition normalPos = new Scalar<>(SCANNABLE_NAME_SHUTTER, "Open");
+
+		return List.of(flatPos, darkPos, normalPos, flatPos, darkPos);
 	}
 
 	@Override
@@ -212,12 +214,12 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		assertArrayEquals(sizes, imageKeyDataset.getShape());
 
 		final List<Integer> expectedImageKeyValues = new ArrayList<>();
-		if (withDarkAndFlat) {
+		if (withDarksAndFlats) {
 			expectedImageKeyValues.addAll(Collections.nCopies(NUM_FLATS, ImageType.FLAT.getImageKey()));
 			expectedImageKeyValues.addAll(Collections.nCopies(NUM_DARKS, ImageType.DARK.getImageKey()));
 		}
 		expectedImageKeyValues.addAll(Collections.nCopies(NUM_MAIN_SCAN_POINTS, ImageType.NORMAL.getImageKey()));
-		if (withDarkAndFlat) {
+		if (withDarksAndFlats) {
 			expectedImageKeyValues.addAll(Collections.nCopies(NUM_FLATS, ImageType.FLAT.getImageKey()));
 			expectedImageKeyValues.addAll(Collections.nCopies(NUM_DARKS, ImageType.DARK.getImageKey()));
 		}
