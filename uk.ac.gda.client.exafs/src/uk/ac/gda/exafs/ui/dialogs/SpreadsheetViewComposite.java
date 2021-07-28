@@ -395,8 +395,10 @@ public class SpreadsheetViewComposite {
 				spreadsheetTable.addColumnsToTable(parameterValuesForScanFiles.get(0).getParameterValuesForScanBeans());
 				spreadsheetTable.refresh();
 				spreadsheetTable.adjustColumnWidths();
-			} catch (IOException e1) {
+			} catch (Exception e1) {
 				logger.error("Problem encountered loading table from XML file", e1);
+				MessageDialog.openError(parent.getShell(), "Problem loading Spreadsheet from file",
+						"Problem occured trying to load Spreadsheet data from "+filename+" : \n"+e1.getMessage());
 			}
 
 		}

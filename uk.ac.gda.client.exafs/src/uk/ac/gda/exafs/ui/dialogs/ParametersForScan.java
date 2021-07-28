@@ -116,19 +116,6 @@ public class ParametersForScan {
 	}
 
 	/**
-	 * Return text string of showing the values that will go in spreadsheet view table.
-	 * Used by {@link SpreadsheetViewTable#adjustColumnWidths()} only, to adjust column widths to fit the contents.
-	 * @return List of strings
-	 */
-	public List<String> getTextForTableColumns() {
-		List<String> columnText = new ArrayList<>();
-		for(ParameterValuesForBean paramValuesForBean : valuesForBeans) {
-			columnText.addAll(paramValuesForBean.getTextForTableColumns());
-		}
-		return columnText;
-	}
-
-	/**
 	 *
 	 * @return List of XML files names containing the scan beans
 	 */
