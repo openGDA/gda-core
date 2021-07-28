@@ -1,11 +1,16 @@
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.util.stream.Collectors.toList;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDatasetValue;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +139,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 			// Write the value. Note: we would initialize a lazy dataset if the scannable could be scanned
 			nxPositioner.setValueScalar(getPosition());
 
-			return new NexusObjectWrapper<NXpositioner>(getName(), nxPositioner);
+			return new NexusObjectWrapper<>(getName(), nxPositioner);
 		}
 
 	}
@@ -148,7 +153,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	public static void beforeClass() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 
 		beam = new BeamPerScanMonitor();
 		((MockScannableConnector) connector).register(beam);
@@ -206,7 +211,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		slitMotorScannables.add(new SlitMotorScannable("s1dsY", 2.0, "downstream_y", "Downstream Y position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1usX", 3.0, "upstream_x", "Upstream X position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1usY", 4.0, "upstream_y", "Upstream Y position"));
-		slitMotorScannables.forEach(scannable -> ((MockScannableConnector) connector).register(scannable));
+		slitMotorScannables.forEach(((MockScannableConnector) connector)::register);
 		motorsCompositeScannable.setChildNodes(slitMotorScannables.stream().
 				map(scannable -> new ChildGroupNode(scannable.getName(), scannable.getNexusGroupName())).
 				collect(Collectors.toList()));
@@ -226,15 +231,18 @@ public class CompositeNexusScannableTest extends NexusTest {
 		NXentry entry = root.getEntry();
 
 		// Assert: check the nexus file
-		assertEquals(6, entry.getNumberOfGroupNodes());
+		assertThat(entry.getGroupNodeNames(), containsInAnyOrder(
+				"instrument", "sample", GROUP_NAME_DIAMOND_SCAN,
+				detector.getName(), detector.getName() + "_spectrum", detector.getName() + "_value"));
 		NXinstrument instrument = entry.getInstrument();
-		assertEquals(4, instrument.getNumberOfGroupNodes());
+		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(
+				detector.getName(), "xNex", "yNex", "primary_slit"));
 
 		NXslit nxSlit = (NXslit) instrument.getGroupNode("primary_slit");
-		assertNotNull(nxSlit);
-		assertSame(NexusBaseClass.NX_SLIT, nxSlit.getNexusBaseClass());
-		assertEquals(3, nxSlit.getNumberOfGroupNodes());
-		assertEquals(2, nxSlit.getNumberOfDataNodes());
+		assertThat(nxSlit, is(notNullValue()));
+		assertThat(nxSlit.getNexusBaseClass(), is(NexusBaseClass.NX_SLIT));
+		assertThat(nxSlit.getGroupNodeNames(), containsInAnyOrder("beam", "motors", "transforms"));
+		assertThat(nxSlit.getDataNodeNames(), containsInAnyOrder("x_gap", "y_gap"));
 
 		// assertEquals(1.234, nxSlit.getX_gapScalar().doubleValue(), 1e-15);
 		// TODO reinstate when DAQ-599 fixed
@@ -259,23 +267,24 @@ public class CompositeNexusScannableTest extends NexusTest {
 		assertDatasetValue("y centre controller name", transforms.getAttr("y_centre", "controller_record"));
 
 		NXbeam beam = (NXbeam) nxSlit.getGroupNode("beam");
-		assertNotNull(beam);
+		assertThat(beam, is(notNullValue()));
 
-		assertEquals(0.123, beam.getIncident_beam_divergenceScalar(), 1e-15);
-		assertEquals(0.456, beam.getFinal_beam_divergenceScalar(), 1e-15);
+		assertThat(beam.getIncident_beam_divergenceScalar(), is(closeTo(0.123, 1e-15)));
+		assertThat(beam.getFinal_beam_divergenceScalar(), is(closeTo(0.456, 1e-15)));
 
 		NXcollection motors = (NXcollection) nxSlit.getGroupNode("motors");
-		assertNotNull(motors);
-		assertEquals(0, motors.getNumberOfDataNodes());
-		assertEquals(4, motors.getNumberOfGroupNodes());
+		assertThat(motors, is(notNullValue()));
+		assertThat(motors.getDataNodeNames(), is(empty()));
+		assertThat(motors.getGroupNodeNames(), containsInAnyOrder(
+				slitMotorScannables.stream().map(SlitMotorScannable::getNexusGroupName).toArray()));
 		for (SlitMotorScannable slitMotorScannable : slitMotorScannables) {
 			NXpositioner positioner = (NXpositioner) motors.getGroupNode(slitMotorScannable.getNexusGroupName());
-			assertNotNull(positioner);
+			assertThat(positioner, is(notNullValue()));
 
-			assertEquals(slitMotorScannable.getName(), positioner.getNameScalar());
-			assertEquals(slitMotorScannable.getDescription(), positioner.getDescriptionScalar());
-			assertEquals(slitMotorScannable.getName() + "_controller", positioner.getController_recordScalar());
-			assertEquals(slitMotorScannable.getPosition(), positioner.getValueScalar());
+			assertThat(positioner.getNameScalar(), is(equalTo(slitMotorScannable.getName())));
+			assertThat(positioner.getDescriptionScalar(), is(equalTo(slitMotorScannable.getDescription())));
+			assertThat(positioner.getController_recordScalar(), is(equalTo(slitMotorScannable.getName() + "_controller")));
+			assertThat(positioner.getValueScalar(), is(equalTo(positioner.getValueScalar())));
 		}
 	}
 
@@ -285,50 +294,55 @@ public class CompositeNexusScannableTest extends NexusTest {
 		final int numFieldNodes = 3;
 		final int numGroupNodes = 5;
 		final int numTotalNodes = numFieldNodes + numGroupNodes;
-		IntFunction<ChildNode> toNode = i -> i <= numFieldNodes
+		final IntFunction<ChildNode> toNode = i -> i <= numFieldNodes
 				? new ChildFieldNode("neXusScannable" + i, NXpositioner.NX_VALUE, "pos" + i)
 				: new ChildGroupNode("neXusScannable" + i);
-		List<ChildNode> childNodes = IntStream.range(1, numTotalNodes + 1).mapToObj(toNode)
-				.collect(Collectors.toList());
+		final List<ChildNode> childNodes = IntStream.range(1, numTotalNodes + 1)
+				.mapToObj(toNode).collect(toList());
 
-		CompositeNexusScannable<NXobject> composite = new CompositeNexusScannable<>();
+		final CompositeNexusScannable<NXobject> composite = new CompositeNexusScannable<>();
 		composite.setName("composite");
 		composite.setNexusClass(NexusBaseClass.NX_COLLECTION);
 		composite.setChildNodes(childNodes);
 		((MockScannableConnector) connector).register(composite);
 
-		NXroot root = createAndRunScan(composite);
-		NXentry entry = root.getEntry();
-		assertEquals(7, entry.getNumberOfGroupNodes()); // NXinstrument, NXdata groups, etc
-		NXinstrument instrument = entry.getInstrument();
-		assertEquals(3, instrument.getNumberOfGroupNodes()); // mandelbrot, xNex, yNex
+		final NXroot root = createAndRunScan(composite);
+		final NXentry entry = root.getEntry();
+		assertThat(entry.getGroupNodeNames(), containsInAnyOrder( // NXinstrument, NXdata groups, etc
+				"instrument", "sample", "composite", GROUP_NAME_DIAMOND_SCAN,
+				detector.getName(), detector.getName() + "_spectrum", detector.getName() + "_value"));
+		final NXinstrument instrument = entry.getInstrument();
+		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(detector.getName(), "xNex", "yNex"));
 
-		NXcollection compositeCollection = (NXcollection) entry.getGroupNode("composite");
-		assertNotNull(compositeCollection);
-		assertSame(NexusBaseClass.NX_COLLECTION, compositeCollection.getNexusBaseClass());
-		assertEquals(numFieldNodes, compositeCollection.getNumberOfDataNodes());
-		assertEquals(numGroupNodes, compositeCollection.getNumberOfGroupNodes());
+		final NXcollection compositeCollection = (NXcollection) entry.getGroupNode("composite");
+		assertThat(compositeCollection, is(notNullValue()));
+		assertThat(compositeCollection.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
+		assertThat(compositeCollection.getDataNodeNames(), containsInAnyOrder( // pos1-3
+				IntStream.range(1, numFieldNodes+1).mapToObj(i -> "pos"+i).toArray()));
+		assertThat(compositeCollection.getGroupNodeNames(), containsInAnyOrder( // NeXusScannable4-8
+				IntStream.range(0, numGroupNodes).map(i -> i + numFieldNodes + 1)
+					.mapToObj(i -> "neXusScannable" + i).toArray()));
 
 		for (ChildNode childNode : childNodes) {
 			final String scannableName = childNode.getScannableName();
 			if (childNode instanceof ChildGroupNode) {
 				// check scannables added as groups
-				NXpositioner positioner = (NXpositioner) compositeCollection.getGroupNode(scannableName);
-				assertNotNull(positioner);
-				assertEquals(scannableName, positioner.getNameScalar());
-				assertNotNull(positioner.getValue());
+				final NXpositioner positioner = (NXpositioner) compositeCollection.getGroupNode(scannableName);
+				assertThat(positioner, is(notNullValue()));
+				assertThat(positioner.getNameScalar(), is(equalTo(scannableName)));
+				assertThat(positioner.getValue(), is(notNullValue()));
 			} else if (childNode instanceof ChildFieldNode) {
 				// check scannables added as fields
-				DataNode fieldNode = compositeCollection
+				final DataNode fieldNode = compositeCollection
 						.getDataNode(((ChildFieldNode) childNode).getDestinationFieldName());
-				assertNotNull(fieldNode);
-				assertArrayEquals(new int[0], fieldNode.getDataset().getSlice().getShape());
+				assertThat(fieldNode, is(notNullValue()));
+				assertThat(fieldNode.getDataset().getSlice().getShape(), is(equalTo(new int[0])));
 			}
 		}
 	}
 
 	private NXroot createAndRunScan(CompositeNexusScannable<?> compositeScannable) throws Exception {
-		IRunnableDevice<ScanModel> scanner = createGridScan(compositeScannable);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(compositeScannable);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
 
@@ -336,7 +350,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel> createGridScan(IScannable<?> perScanMonitor) throws Exception {
-		TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
+		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");
 		gridModel.setxAxisPoints(SCAN_SIZE[1]);
 		gridModel.setyAxisName("yNex");
@@ -344,7 +358,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		gridModel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 		gridModel.setAlternating(false);
 
-		IPointGenerator<? extends IScanPointGeneratorModel> pointGen = pointGenService.createGenerator(gridModel);
+		final IPointGenerator<? extends IScanPointGeneratorModel> pointGen = pointGenService.createGenerator(gridModel);
 
 		// Create the model for a scan.
 		final ScanModel scanModel = new ScanModel();
@@ -362,7 +376,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {
