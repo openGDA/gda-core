@@ -41,15 +41,17 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.client.exception.GDAClientRestException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.mode.TestMode;
 import uk.ac.gda.client.properties.mode.TestModeElement;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
-import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -83,7 +85,10 @@ public class ScanningAcquisitionController
 	private ConfigurationsRestServiceClient configurationService;
 
 	@Autowired
-	private ClientSpringProperties clientProperties;
+	private ClientPropertiesHelper clientPropertiesHelper;
+
+	@Autowired
+	private ScanningAcquisitionTemporaryHelper tempHelper;
 
 	private ScanningAcquisition acquisition;
 
@@ -92,7 +97,6 @@ public class ScanningAcquisitionController
 	private AcquisitionPropertyType acquisitionType;
 
 	private ImageCalibrationHelper imageCalibrationHelper;
-	private ScanningAcquisitionControllerDetectorHelper detectorsHelper;
 
 	private AcquisitionReader acquisitionReader;
 
@@ -258,7 +262,7 @@ public class ScanningAcquisitionController
 
 	private void validateFlatCalibrationParameters(ImageCalibrationReader ic) throws AcquisitionConfigurationException {
 		// Note - Uses a read-only acquisition object to avoid Null Pointer in ic
-		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, detectorsHelper.getOutOfBeamScannables());
+		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, getOutOfBeamScannables());
 		if ((ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition())
 				&& flatPosition.isEmpty()) {
 			throw new AcquisitionConfigurationException("Save an OutOfBeam position to acquire flat images");
@@ -287,17 +291,15 @@ public class ScanningAcquisitionController
 		filterTestScannable(positions);
 	}
 
-
-
 	private void filterTestScannable(Set<DevicePositionDocument> positions) {
-		boolean isActive = Optional.ofNullable(clientProperties.getModes())
+		boolean isActive = Optional.ofNullable(clientPropertiesHelper.getModes())
 			.map(Modes::getTest)
 			.map(TestMode::isActive)
 			.orElse(false);
 		if (!isActive)
 			return;
 
-		List<String> toExclude = clientProperties.getModes().getTest().getElements().stream()
+		List<String> toExclude = clientPropertiesHelper.getModes().getTest().getElements().stream()
 			.filter(TestModeElement::isExclude)
 			.map(TestModeElement::getDevice)
 			.collect(Collectors.toList());
@@ -320,7 +322,7 @@ public class ScanningAcquisitionController
 			stageController.savePosition(Position.START);
 		// Filters out from the Position.START positions, the position document from AcquisitionPropertiesDocument::getOutOfBeamScannables
 		// See AcquisitionPropertiesDocument#outOfBeamScannables
-		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, detectorsHelper.getOutOfBeamScannables());
+		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, getOutOfBeamScannables());
 		addPosition(stageController.createShutterOpenRequest(), startPosition::add);
 		positionsPostProcess(startPosition);
 		updatePositionDocument(startPosition, getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setPosition);
@@ -342,9 +344,6 @@ public class ScanningAcquisitionController
 		// eventually release already acquired resources, eventually
 		releaseResources();
 		this.acquisition = acquisition;
-		// associate a new helper with the new acquisition
-		this.detectorsHelper = new ScanningAcquisitionControllerDetectorHelper(getAcquisitionType(),
-				this::getAcquisition);
 	}
 
 	@Override
@@ -375,5 +374,15 @@ public class ScanningAcquisitionController
 
 	private void setAcquisitionType(AcquisitionPropertyType acquisitionType) {
 		this.acquisitionType = acquisitionType;
+	}
+
+	private Set<String> getOutOfBeamScannables() {
+		return getAcquisitionPropertiesDocument()
+				.map(AcquisitionConfigurationProperties::getOutOfBeamScannables)
+				.orElseGet(HashSet::new);
+	}
+
+	private Optional<AcquisitionConfigurationProperties> getAcquisitionPropertiesDocument() {
+		return clientPropertiesHelper.getAcquisitionConfigurationProperties(tempHelper.getAcquisitionType());
 	}
 }

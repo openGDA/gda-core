@@ -33,6 +33,7 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 @Configuration
 @ComponentScan(basePackages = {"uk.ac.gda.core.tool.spring",
 		"uk.ac.gda.ui.tool.spring",
+		"uk.ac.gda.ui.tool.document",
 		"uk.ac.gda.client.properties",
 		"uk.ac.diamond.daq.client.gui.camera.beam",
 		"uk.ac.diamond.daq.client.gui.camera.beam.state",

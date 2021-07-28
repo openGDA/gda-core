@@ -33,15 +33,19 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
+import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
+import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
+import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.acquisition.ScannableTrackDocumentProperty;
-import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
+import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
  * Creates default acquisition documents.
@@ -52,7 +56,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 public class DocumentFactory {
 
 	@Autowired
-	private ClientSpringProperties properties;
+	private ClientPropertiesHelper clientPropertiesHelper;
 
 	public Supplier<ScanningAcquisition> newScanningAcquisition(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
 		return () -> {
@@ -77,16 +81,13 @@ public class DocumentFactory {
 			configuration.setMultipleScans(multipleScanBuilder.build());
 			newAcquisition.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 
-			// --- NOTE---
-			// The creation of the acquisition engine and the used detectors documents are delegated to the ScanningAcquisitionController
-			// --- NOTE---
-
+			DetectorDocumentHelper.getHelper(newAcquisition, clientPropertiesHelper).apply();
 			return newAcquisition;
 		};
 	}
 
 	public Optional<ScanpathDocument.Builder> buildScanpathBuilder(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
-		List<AcquisitionTemplateConfiguration> templates = properties.getAcquisitions().stream()
+		List<AcquisitionTemplateConfiguration> templates = clientPropertiesHelper.getAcquisitionPropertiesDocuments().stream()
 				.filter(a -> a.getType().equals(propertyType))
 				.findFirst()
 				.map(AcquisitionConfigurationProperties::getTemplates)
@@ -131,5 +132,106 @@ public class DocumentFactory {
 			default:
 				return AcquisitionType.GENERIC;
 			}
+	}
+
+	public static AcquisitionPropertyType getType(AcquisitionType acquisitionType) {
+		switch (acquisitionType) {
+			case DIFFRACTION:
+				return AcquisitionPropertyType.DIFFRACTION;
+			case TOMOGRAPHY:
+				return AcquisitionPropertyType.TOMOGRAPHY;
+			default:
+				return AcquisitionPropertyType.DEFAULT;
+			}
+	}
+
+	static class DetectorDocumentHelper {
+		private final ScanningAcquisition acquisition;
+		private final ClientPropertiesHelper clientPropertiesHelper;
+
+		public static DetectorDocumentHelper getHelper(ScanningAcquisition acquisition, ClientPropertiesHelper clientPropertiesHelper) {
+			return new DetectorDocumentHelper(acquisition, clientPropertiesHelper);
+		}
+
+		private DetectorDocumentHelper(ScanningAcquisition acquisition, ClientPropertiesHelper clientPropertiesHelper) {
+			this.acquisition = acquisition;
+			this.clientPropertiesHelper = clientPropertiesHelper;
+		}
+
+		public void apply() {
+			if (acquisition.getAcquisitionEngine() == null) {
+				var aed = createNewAcquisitionEngineDocument();
+				acquisition.setAcquisitionEngine(aed);
+			}
+
+			createDetectorDocument()
+				.ifPresent(acquisition.getAcquisitionConfiguration().getAcquisitionParameters()::setDetector);
+
+			if(acquisition.getAcquisitionConfiguration().getImageCalibration() == null) {
+				applyImageCalibrationDocument(acquisition);
+			}
+		}
+
+		private AcquisitionEngineDocument createNewAcquisitionEngineDocument() {
+			AcquisitionConfigurationProperties dp = getAcquisitionPropertiesDocument();
+			var engineBuilder = new AcquisitionEngineDocument.Builder();
+			if (dp != null) {
+				engineBuilder.withId(dp.getEngine().getId());
+				engineBuilder.withType(dp.getEngine().getType());
+			}
+			return engineBuilder.build();
+		}
+
+		private void applyImageCalibrationDocument(ScanningAcquisition acquisition) {
+			acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument(acquisition));
+		}
+
+		private Optional<DetectorDocument> createDetectorDocument() {
+			Optional<String> cameraId = getAcquisitionPropertiesDocument().getCameras().stream()
+				.findFirst();
+
+			if (cameraId.isPresent()) {
+				Optional<CameraConfigurationProperties> cameraProperties = clientPropertiesHelper.getAcquisitionPropertiesDocuments(cameraId.get());
+				if (cameraProperties.isPresent()) {
+					return Optional.ofNullable(new DetectorDocument.Builder()
+							.withName(cameraProperties.get().getCameraControl())
+							.withMalcolmDetectorName(cameraProperties.get().getMalcolmDetectorName())
+							.build());
+				}
+			}
+			return Optional.empty();
+		}
+
+		private ImageCalibration createNewImageCalibrationDocument(ScanningAcquisition acquisition) {
+			var imageCalibrationBuilder = new ImageCalibration.Builder();
+
+			var detectorDocument = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getDetector();
+
+			var builderDark = new DarkCalibrationDocument.Builder()
+				.withNumberExposures(0)
+				.withDetectorDocument(detectorDocument);
+			imageCalibrationBuilder.withDarkCalibration(builderDark.build());
+
+			var builderFlat = new FlatCalibrationDocument.Builder()
+					.withNumberExposures(0)
+					.withDetectorDocument(detectorDocument);
+			imageCalibrationBuilder.withFlatCalibration(builderFlat.build());
+			return imageCalibrationBuilder.build();
+		}
+
+		private AcquisitionConfigurationProperties getAcquisitionPropertiesDocument() {
+			if (clientPropertiesHelper.getAcquisitionPropertiesDocuments().isEmpty()) {
+				return null;
+			}
+			return clientPropertiesHelper.getAcquisitionPropertiesDocuments().stream()
+					.filter(acq -> acq.getType().equals(getAcquisitionType()))
+					.findFirst().orElseThrow();
+		}
+
+		public AcquisitionPropertyType getAcquisitionType() {
+			return clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisition.getType())
+					.map(AcquisitionConfigurationProperties::getType)
+					.orElseGet(() -> AcquisitionPropertyType.DEFAULT);
+		}
 	}
 }

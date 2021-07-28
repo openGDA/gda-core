@@ -33,6 +33,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -59,6 +60,12 @@ public class ScanningAcquisitionTemporaryHelper {
 
 	public Optional<AcquisitionController<ScanningAcquisition>> getAcquisitionController() {
 		return getClientSpringContext().getAcquisitionController();
+	}
+
+	public AcquisitionType getAcquisitionType() {
+		return getScanningAcquisition()
+				.map(ScanningAcquisition::getType)
+				.orElseGet(() -> AcquisitionType.GENERIC);
 	}
 
 	public Optional<ScanningAcquisition> getScanningAcquisition() {

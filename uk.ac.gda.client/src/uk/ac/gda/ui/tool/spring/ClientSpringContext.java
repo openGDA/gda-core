@@ -20,6 +20,7 @@ package uk.ac.gda.ui.tool.spring;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import gda.configuration.properties.LocalProperties;
@@ -42,6 +43,9 @@ public class ClientSpringContext {
 	public static final String REST_ENDPOINT_DEFAULT = "http://127.0.0.1:8888";
 
 	private AcquisitionController<ScanningAcquisition> acquisitionController;
+
+	@Autowired
+	private ClientSpringProperties clientProperties;
 
 	/**
 	 * Returns the GDA rest service endpoint
@@ -69,5 +73,14 @@ public class ClientSpringContext {
 	 */
 	public void setAcquisitionController(AcquisitionController<ScanningAcquisition> acquisitionController) {
 		this.acquisitionController = acquisitionController;
+	}
+
+	/**
+	 * Returns the client properties using spring.
+	 *
+	 * @return the client properties
+	 */
+	public ClientSpringProperties getClientProperties() {
+		return clientProperties;
 	}
 }
