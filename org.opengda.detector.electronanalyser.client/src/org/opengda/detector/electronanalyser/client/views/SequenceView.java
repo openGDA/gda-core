@@ -1,7 +1,6 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +11,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -60,9 +57,6 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -79,7 +73,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
@@ -87,7 +80,6 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
-import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
@@ -97,7 +89,6 @@ import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
-import org.opengda.detector.electronanalyser.client.sequenceeditor.AnimatedTableItemFeedback;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
@@ -247,12 +238,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private double hardXRayEnergy;
 	private double softXRayEnergy;
 
-	AnimationEngine animation = null;
-
 	private boolean first = true;
 
 	private Combo comboElementSet;
-	private Image[] images;
 	private double currentregiontimeremaining;
 	private boolean firstTime;
 	private Scannable dcmenergy;
@@ -941,7 +929,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
 		updateRegionNumber(crrentRegionNumber, numActives);
-		images = loadAnimatedGIF(sequenceTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
 		dcmenergy = Finder.find("dcmenergy");
 		if (dcmenergy == null) {
 			logger.error("Finder failed to find 'dcmenergy'");
@@ -1402,18 +1389,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		fireSelectionChanged(currentRegion);
 		sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
-		if (animation != null) {
-			animation.cancelAnimation();
-		}
-		try {
-			TableItem tableItem = sequenceTableViewer.getTable().getItem(regions.indexOf(currentRegion));
-			AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(sequenceTableViewer.getControl().getShell(), images, tableItem,
-					SequenceTableConstants.COL_STATUS);
-			animation = new AnimationEngine(feedback, -1, 100);
-			animation.schedule();
-		} catch (Exception e) {
-			logger.error("Error animating table item.", e);
-		}
 	}
 
 	private void handleRegionStatusChange(RegionStatusEvent event) {
@@ -1485,9 +1460,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					updateRegionStatus(region, STATUS.READY);
 				}
 			}
-			if (animation != null) {
-				animation.cancelAnimation();
-			}
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
 		});
@@ -1507,22 +1479,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (DeviceException e) {
 			logger.error("Cannot get X-ray energy from PGM.", e);
 		}
-	}
-
-	private Image[] loadAnimatedGIF(Display display, String imagePath) {
-		URL url = FileLocator.find(ElectronAnalyserClientPlugin.getDefault().getBundle(), new Path(imagePath), null);
-		ImageLoader imageLoader = new ImageLoader();
-		try {
-			imageLoader.load(url.openStream());
-		} catch (IOException e) {
-			logger.error("Cannot load animated gif file {}", url.getPath());
-		}
-		Image[] frames = new Image[imageLoader.data.length];
-		for (int i = 0; i < imageLoader.data.length; ++i) {
-			ImageData nextFrameData = imageLoader.data[i];
-			frames[i] = new Image(display, nextFrameData);
-		}
-		return frames;
 	}
 
 	public String getDetectorStatePV() {
