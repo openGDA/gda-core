@@ -91,10 +91,7 @@ public class AxialStepModelDocument implements AcquisitionTemplate {
 			return pathModel;
 		}
 
-		double step = scannableTrackDocument.getStep();
-		if (step == Double.MIN_VALUE) {
-			step = (scannableTrackDocument.getStop() - scannableTrackDocument.getStart()) / scannableTrackDocument.getPoints();
-		}
+		double step = scannableTrackDocument.calculatedStep();
 
 		AxialStepModel model = new AxialStepModel(scannableTrackDocument.getScannable(),
 				scannableTrackDocument.getStart(),

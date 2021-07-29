@@ -22,6 +22,8 @@ import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -73,6 +76,32 @@ public class AxialStepModelDocumentTest extends DocumentTestBase {
 		assertThat(document, containsString(MOTOR_X));
 		assertThat(document, containsString("\"axis\" : \"x\""));
 		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
+	}
+
+	@Test
+	public void withBoundsNotFit() {
+		final ScannableTrackDocument modelDocument = getCommonDocument();
+		assertThat(modelDocument.calculatedStep(), is(equalTo(0.5)));
+	}
+
+	@Test
+	public void withBoundsFit() {
+		try {
+			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
+			final ScannableTrackDocument modelDocument = getCommonDocument();
+			assertThat(modelDocument.calculatedStep(), is(equalTo(0.4)));
+		} finally {
+			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+		}
+	}
+
+	private ScannableTrackDocument getCommonDocument() {
+		final var builder = new ScannableTrackDocument.Builder();
+		builder.withScannable(MOTOR_X);
+		builder.withStart(0.0);
+		builder.withStop(2.0);
+		builder.withPoints(4);
+		return builder.build();
 	}
 
 	@Test

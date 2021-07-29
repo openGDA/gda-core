@@ -20,7 +20,10 @@ package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,5 +90,24 @@ public class ScannableTrackDocumentTest extends DocumentTestBase {
 		builder.withStep(1.0);
 		ScannableTrackDocument scannableDocument = builder.build();
 		Assert.assertEquals(0, scannableDocument.getPoints(), 0.0);
+	}
+
+	@Test
+	public void pointsWithinLimitsTest() {
+		ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
+		builder.withScannable("gts_theta").withStart(0).withStop(180).withStep(0.36);
+		assertThat(builder.build().calculatedPoints(), is(equalTo(501)));
+	}
+
+	@Test
+	public void pointsWithinLimitsBoundsFitTest() {
+		try {
+			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
+			ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
+			builder.withScannable("gts_theta").withStart(0).withStop(180).withStep(0.36);
+			assertThat(builder.build().calculatedPoints(), is(equalTo(500)));
+		} finally {
+			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+		}
 	}
 }

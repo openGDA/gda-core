@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.api.document.scanpath;
 
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -120,7 +122,7 @@ public class ScannableTrackDocument {
 	 * Calculates the points when {@link #getPoints()} == 0, with the following priorities
 	 * <ul>
 	 * <li>if points > 0 or step = 0 then points = getPoints()</li>
-	 * <li>if step > 0 then points = (stop - start) / step </li>
+	 * <li>if step > 0 then points = (stop - start) / step, + 1 if {@code IBoundsToFit} behaviour not expected </li>
 	 * </ul>
 	 * @return the steps for this track document
 	 */
@@ -129,29 +131,30 @@ public class ScannableTrackDocument {
 		if (getPoints() > 0 || getStep() == 0) {
 			return getPoints();
 		}
-		return (int) Math.abs(length() / getStep());
+		final var isBoundsToFit = Boolean.getBoolean(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+		return (isBoundsToFit ? 0 : 1) + (int) Math.abs(length() / getStep());
 	}
 
 	/**
 	 * Calculates the {@link #getStep()} when {@link #getStop()} - {@link #getStart()} is not zero and {@link #getStep()} > {@code Double.MIN_VALUE}
-	 * <ul>
+	 * <ul> If {@code IBoundsToFit} behaviour is expected, number of steps = number of points, else number steps = number points - 1
 	 * <li>if step > Double.MIN_VALUE then step = getStep()</li>
-	 * <li>if points = 0 then step = 0</li>
-	 * <li>if points = 1 then step = length</li>
-	 * <li>if points > 1 then (stop - start) / step</li>
+	 * <li>if number of steps = 0 then step = 0</li>
+	 * <li>if number of steps = 1 then step = length</li>
+	 * <li>if number of steps > 1 then step = (stop - start) / number of steps</li>
 	 * </ul>
 	 * @return the steps for this track document
 	 */
 	@JsonIgnore
 	public double calculatedStep() {
-//		if (getStep() > Double.MIN_VALUE) {
-//			return getStep();
-//		}
-		if (getPoints() == 2)
-			return length();
+		if (getStep() > Double.MIN_VALUE) {
+			return getStep();
+		}
 		if (getPoints() == 0 || getPoints() == 1)
 			return 0;
-		return length() / (getPoints() - 1);
+		final var isBoundsToFit = Boolean.getBoolean(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+		final var steps = isBoundsToFit ? (double) points + 1: (double) points;
+		return length() / steps;
 	}
 
 	@JsonIgnore
