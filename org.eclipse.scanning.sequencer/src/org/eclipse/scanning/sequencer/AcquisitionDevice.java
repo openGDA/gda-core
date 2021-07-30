@@ -207,6 +207,13 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		// set the scannables on the scan model if not already set
 		setScannables(model);
 
+		final ScanInformation scanInformation = getScanInformation();
+
+		// create the nexus file, if appropriate
+		nexusScanFileManager = new NexusScanFileManager(this);
+		nexusScanFileManager.configure(model);
+		nexusScanFileManager.createNexusFile(Boolean.getBoolean("org.eclipse.scanning.sequencer.nexus.async"));
+
 		// Create the manager and populate it
 		if (annotationManager!=null) annotationManager.dispose(); // It is allowed to configure more than once.
 		annotationManager = createAnnotationManager(model);
@@ -218,15 +225,10 @@ final class AcquisitionDevice extends AbstractRunnableDevice<ScanModel> implemen
 		positioner = createPositioner(model);
 
 		// add the scan information to the context - it is created if not set on the scan model
-		annotationManager.addContext(getScanInformation());
+		annotationManager.addContext(scanInformation);
 		annotationManager.addContext(getPublisher());
 		exposureManager = new ExposureTimeManager(this);
 		exposureManager.addDevices(model.getDetectors());
-
-		// create the nexus file, if appropriate
-		nexusScanFileManager = new NexusScanFileManager(this);
-		nexusScanFileManager.configure(model);
-		nexusScanFileManager.createNexusFile(Boolean.getBoolean("org.eclipse.scanning.sequencer.nexus.async"));
 
 		// create the runners and writers
 		if (model.getDetectors().isEmpty()) {
