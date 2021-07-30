@@ -36,26 +36,23 @@ public final class SpecsPhoibosTimeEstimator {
 	private static final Logger log = LoggerFactory.getLogger(SpecsPhoibosTimeEstimator.class);
 
 	private static final String TIME_OFFSET_KEY = "gda.specs.time.estimator.time.offset";
-	private static final String DETECTOR_SHIFT_KEY = "gda.specs.time.estimator.detector.shift";
 	private static final String DETECTOR_DEADTIME_KEY = "gda.specs.time.estimator.detector.deadtime";
 
 	private static final double TIME_OFFSET;
-	private static final double DETECTOR_SHIFT;
 	private static final double DETECTOR_DEADTIME;
 
 	static {
-		TIME_OFFSET = LocalProperties.getDouble(TIME_OFFSET_KEY, 2.4);
-		DETECTOR_SHIFT = LocalProperties.getDouble(DETECTOR_SHIFT_KEY, 0.11);
-		DETECTOR_DEADTIME = LocalProperties.getDouble(DETECTOR_DEADTIME_KEY, 0.082);
+		TIME_OFFSET = LocalProperties.getDouble(TIME_OFFSET_KEY, 0.73);
+		DETECTOR_DEADTIME = LocalProperties.getDouble(DETECTOR_DEADTIME_KEY, 0.0135);
 	}
 
 	private SpecsPhoibosTimeEstimator() {
 		// Prevent instances
 	}
 
-	public static String estimateSequenceRunTime(SpecsPhoibosSequence sequence) {
+	public static String estimateSequenceRunTime(SpecsPhoibosSequence sequence, double detectorWidth) {
 		long totalTimeMs = sequence.getEnabledRegions().stream(). // Only consider enabled regions
-				mapToLong(SpecsPhoibosTimeEstimator::estimateRegionTimeMs). // Get the time per region (ms)
+				mapToLong(region -> estimateRegionTimeMs(region, detectorWidth)). // Get the time per region (ms)
 				sum(); // Add them up
 
 		// Format the time and return
@@ -82,8 +79,8 @@ public final class SpecsPhoibosTimeEstimator {
 	 * @param region The region to estimate
 	 * @return time in H:mm:ss format
 	 */
-	public static String estimateRegionTime(SpecsPhoibosRegion region) {
-		return formatDuration(estimateRegionTimeMs(region));
+	public static String estimateRegionTime(SpecsPhoibosRegion region, double detectorWidth) {
+		return formatDuration(estimateRegionTimeMs(region, detectorWidth));
 	}
 
 
@@ -93,10 +90,10 @@ public final class SpecsPhoibosTimeEstimator {
 	 * @param region The region to estimate
 	 * @return The estimated run time of the region in ms
 	 */
-	private static long estimateRegionTimeMs(SpecsPhoibosRegion region) {
+	private static long estimateRegionTimeMs(SpecsPhoibosRegion region, double detectorWidth) {
 		double detectorMoveTime = 1;
 		if (isNotSnapshotMode(region)) {
-			detectorMoveTime = getEnergyWidth(region) + DETECTOR_SHIFT * region.getPassEnergy() / region.getStepEnergy();
+			detectorMoveTime = (getEnergyWidth(region) + detectorWidth * region.getPassEnergy()) / region.getStepEnergy();
 		}
 		double imagingTime  = region.getExposureTime() + DETECTOR_DEADTIME;
 		int iterations = region.getIterations();

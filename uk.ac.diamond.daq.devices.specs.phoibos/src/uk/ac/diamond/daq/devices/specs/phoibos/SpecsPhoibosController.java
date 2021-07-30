@@ -154,6 +154,9 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 	private static final String VALIDATE_SPECTRUM = "VALIDATE_SPECTRUM";
 	private static final String VALIDATE_SPECTRUM_SEVR = "VALIDATE_SPECTRUM.SEVR";
 
+	// Detector calibration values
+	private static final String DETECTOR_ENERGY_WIDTH = "SNAPSHOT_PE_RANGE";
+
 	// Lists for holding valid values of the enum PVs
 	private final Set<String> lensModes = new LinkedHashSet<>();
 	private final Set<String> psuModes = new LinkedHashSet<>();
@@ -908,6 +911,10 @@ public class SpecsPhoibosController extends ConfigurableBase implements IObserva
 
 	public String getScanValidityStatus() throws Exception {
 		return epicsController.cagetString(getChannel(VALIDATE_SPECTRUM_SEVR));
+	}
+
+	public double getDetectorEnergyWidth() throws Exception {
+		return epicsController.cagetDouble(getChannel(DETECTOR_ENERGY_WIDTH));
 	}
 }
 

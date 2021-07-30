@@ -64,6 +64,8 @@ import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.factory.Finder;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
@@ -93,12 +95,19 @@ public class SpecsSequenceEditor {
 	private Map<String, Object> transientData;
 	private SpecsPhoibosSequence sequence;
 
+	ISpecsPhoibosAnalyser analyser;
+
 	// When sequence fire property change events cause the table to refresh
 	private final PropertyChangeListener sequenceListener = evt -> {
 		sequenceTableViewer.refresh();
-		updateEstiamtedTime();
+		updateEstimatedTime();
 		updateDirty();
 	};
+
+	public SpecsSequenceEditor() {
+		analyser = Finder.findOptionalLocalSingleton(ISpecsPhoibosAnalyser.class)
+				.orElseThrow(() -> new RuntimeException("No analyser found"));
+	}
 
 	@PostConstruct
 	void createView(Composite parent) {
@@ -175,8 +184,8 @@ public class SpecsSequenceEditor {
 		}
 	}
 
-	private void updateEstiamtedTime() {
-		String estimatedTime = SpecsPhoibosTimeEstimator.estimateSequenceRunTime(sequence);
+	private void updateEstimatedTime() {
+		String estimatedTime = SpecsPhoibosTimeEstimator.estimateSequenceRunTime(sequence, analyser.getDetectorEnergyWidth());
 		estimatedTimeLabel.setText(estimatedTime);
 		statusBar.layout();
 	}
@@ -198,7 +207,7 @@ public class SpecsSequenceEditor {
 
 		sequenceTableViewer.setInput(sequence.getRegions());
 
-		updateEstiamtedTime(); // Refresh the time estimation
+		updateEstimatedTime(); // Refresh the time estimation
 
 		// Add the sequence listener
 		sequence.addPropertyChangeListener(sequenceListener);
@@ -350,7 +359,7 @@ public class SpecsSequenceEditor {
 		estimatedTimeCol.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return SpecsPhoibosTimeEstimator.estimateRegionTime((SpecsPhoibosRegion) element);
+				return SpecsPhoibosTimeEstimator.estimateRegionTime((SpecsPhoibosRegion) element, analyser.getDetectorEnergyWidth());
 			}
 		});
 

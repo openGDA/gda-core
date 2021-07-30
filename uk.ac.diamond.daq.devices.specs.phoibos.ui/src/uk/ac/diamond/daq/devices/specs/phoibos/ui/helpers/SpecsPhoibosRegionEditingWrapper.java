@@ -38,6 +38,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	private final SpecsPhoibosRegion region;
 	private final double detectorEnergyWidth;
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private String estimatedTime;
 
 	public SpecsPhoibosRegionEditingWrapper(SpecsPhoibosRegion region, double detectorEnergyWidth) {
 		this.region = region;
@@ -57,7 +58,7 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 	public void propertyChange(PropertyChangeEvent evt) {
 		// Fire through the events received from the wrapped region
 		pcs.firePropertyChange(evt);
-		pcs.firePropertyChange("estimatedTime", "", SpecsPhoibosTimeEstimator.estimateRegionTime(region));
+		setEstimatedTime(SpecsPhoibosTimeEstimator.estimateRegionTime(region, detectorEnergyWidth));
 	}
 
 	public void setAcquisitionMode(String acquisitionMode) {
@@ -241,4 +242,13 @@ public class SpecsPhoibosRegionEditingWrapper implements PropertyChangeListener 
 		region.setSlices(slices);
 	}
 
+	public String getEstimatedTime() {
+		return estimatedTime;
+	}
+
+	public void setEstimatedTime(String estimatedTime) {
+		String oldValue = getEstimatedTime();
+		this.estimatedTime = estimatedTime;
+		pcs.firePropertyChange("estimatedTime", oldValue, estimatedTime);
+	}
 }
