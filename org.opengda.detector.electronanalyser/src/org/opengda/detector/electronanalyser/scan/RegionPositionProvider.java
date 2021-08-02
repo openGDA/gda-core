@@ -21,15 +21,15 @@ import org.slf4j.LoggerFactory;
 import gda.scan.ScanPositionProvider;
 
 public class RegionPositionProvider implements ScanPositionProvider {
-	List<Region> points = new ArrayList<Region>();
-	// RegionDefinitionResourceUtil regionResourceutil = new RegionDefinitionResourceUtil();
+
+	private final List<Region> points = new ArrayList<>();
+
 	private static final Logger logger = LoggerFactory.getLogger(RegionPositionProvider.class);
 
 	public RegionPositionProvider(String filename) {
 
 		logger.debug("Sequence file changed to {}{}", FilenameUtils.getFullPath(filename), FilenameUtils.getName(filename));
 		try {
-			// List<Region> regions = regionResourceutil.getRegions(filename);
 			Resource resource = getResource(filename);
 			resource.unload();
 			resource.load(Collections.emptyMap());
@@ -96,4 +96,9 @@ public class RegionPositionProvider implements ScanPositionProvider {
 		}
 		return Collections.emptyList();
 	}
+	@Override
+	public String toString() {
+		return "RegionPositionProvider [points=" + points + "]";
+	}
+
 }
