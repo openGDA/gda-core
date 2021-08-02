@@ -142,6 +142,8 @@ public interface Zebra {
 
 	void pcArm() throws Exception;
 
+	void waitUntilArmed(int timeout) throws Exception;
+
 	void pcDisarm() throws Exception;
 
 	void waitUntilNotArmed(int timeout) throws Exception;
