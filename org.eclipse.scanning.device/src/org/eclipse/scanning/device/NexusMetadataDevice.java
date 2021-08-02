@@ -44,19 +44,15 @@ public class NexusMetadataDevice<N extends NXobject> extends AbstractNexusMetada
 		super(nexusBaseClass);
 	}
 
-	public void setChildNodes(List<MetadataNode> childNodes) {
-		setCustomNodes(childNodes);
-	}
-
 	@Override
 	public void setNexusBaseClass(NexusBaseClass nexusClass) {
-		// override to set visibility to public
+		// overridden to set visibility to public
 		super.setNexusBaseClass(nexusClass);
 	}
 
 	@Override
 	public void setNexusClass(String nxClass) {
-		// override to set visibility to public
+		// overridden to set visibility to public
 		super.setNexusClass(nxClass);
 	}
 

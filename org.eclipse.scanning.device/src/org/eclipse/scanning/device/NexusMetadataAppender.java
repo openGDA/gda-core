@@ -52,7 +52,7 @@ import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
  *
  * @param <N>
  */
-public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppender<N> {
+public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppender<N> implements INexusMetadataDevice<N> {
 
 	private final GroupMetadataNode<N> metadataNode = new GroupMetadataNode<>();
 
@@ -61,18 +61,22 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 		metadataNode.addChildNode(node);
 	}
 
+	@Override
 	public void addScannableField(String fieldName, String scannableName) {
 		metadataNode.addChildNode(new ScannableField(fieldName, scannableName));
 	}
 
+	@Override
 	public void addScalarField(String fieldName, Object fieldValue) {
 		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue));
 	}
 
+	@Override
 	public void addLinkedField(String fieldName, String linkPath) {
 		metadataNode.addChildNode(new LinkedField(fieldName, linkPath));
 	}
 
+	@Override
 	public void setChildNodes(List<MetadataNode> customNodes) {
 		// this is the method used by spring
 		metadataNode.addChildNodes(customNodes);
@@ -82,6 +86,7 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 	 * Removes the node (field or child group node) with the given name.
 	 * @param nodeName name of node to remove
 	 */
+	@Override
 	public void removeNode(String nodeName) {
 		metadataNode.removeChildNode(nodeName);
 	}
@@ -89,6 +94,37 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 	@Override
 	protected void appendNexusObject(N nexusObject) throws NexusException {
 		metadataNode.appendNodes(nexusObject);
+	}
+
+	@Override
+	public void addNode(MetadataNode childNode) {
+		metadataNode.addChildNode(childNode);
+	}
+
+	@Override
+	public void addField(MetadataField field) {
+		metadataNode.addChildNode(field);
+
+	}
+
+	@Override
+	public void addScalarField(String fieldName, Object fieldValue, String units) {
+		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue));
+	}
+
+	@Override
+	public void setDefaultValue(String fieldName, Object defaultValue) {
+		metadataNode.addChildNode(new ScalarField(fieldName, defaultValue, true));
+	}
+
+	@Override
+	public MetadataNode getNode(String nodeName) {
+		return metadataNode.getChildNode(nodeName);
+	}
+
+	@Override
+	public void clearNodes() {
+		metadataNode.clearChildNodes();
 	}
 
 }

@@ -28,7 +28,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 
-public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements INexusDevice<N> {
+public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements INexusMetadataDevice<N>, INexusDevice<N> {
 
 	private NexusBaseClass nexusCategory = null;
 
@@ -53,36 +53,49 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		metadataNode.setName(name);
 	}
 
+	@Override
 	public void addField(MetadataField field) {
 		addNode(field);
 	}
 
+	@Override
 	public void addNode(MetadataNode node) {
 		metadataNode.addChildNode(node);
 	}
 
+	@Override
 	public MetadataNode getNode(String nodeName) {
 		return metadataNode.getChildNode(nodeName);
 	}
 
+	@Override
 	public void addScannableField(String fieldName, String scannableName) {
 		metadataNode.addChildNode(new ScannableField(fieldName, scannableName));
 	}
 
+	@Override
 	public void addScalarField(String fieldName, Object fieldValue) {
 		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue));
 	}
 
+	@Override
 	public void addScalarField(String fieldName, Object fieldValue, String units) {
 		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue, units));
 	}
 
-	protected void setDefaultValue(String nxName, Object defaultValue) {
-		metadataNode.addChildNode(new ScalarField(nxName, defaultValue, true));
+	@Override
+	public void setDefaultValue(String fieldName, Object defaultValue) {
+		metadataNode.addChildNode(new ScalarField(fieldName, defaultValue, true));
 	}
 
+	@Override
 	public void addLinkedField(String fieldName, String linkPath) {
 		metadataNode.addChildNode(new LinkedField(fieldName, linkPath));
+	}
+
+	@Override
+	public void setChildNodes(List<MetadataNode> customNodes) {
+		metadataNode.addChildNodes(customNodes);
 	}
 
 	/**
@@ -92,25 +105,29 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	 * <p>
 	 * Note: this method isn't actually a setter, the name is for ease of use with spring. The
 	 * given nodes are added to any existing nodes rather than overwriting them.
-	 * TODO: is there a better way of doing this?
+	 * <p>
+	 * Also note: this method simply invokes {@link #setChildNodes(List)}. This name custom nodes
+	 * makes more sense for subclasses that have explicit setters for particular nodes.
 	 *
 	 * @param customNodes list of nodes to add
 	 */
 	public void setCustomNodes(List<MetadataNode> customNodes) {
-		metadataNode.addChildNodes(customNodes);
+		setChildNodes(customNodes);
 	}
 
 	/**
 	 * Removes the node (field or child group node) with the given name.
 	 * @param nodeName name of node to remove
 	 */
+	@Override
 	public void removeNode(String nodeName) {
 		metadataNode.removeChildNode(nodeName);
 	}
 
 	@Override
 	public void register() {
-		INexusDevice.super.register();
+//		INexusDevice.super.register(); // no longer compiles after adding INexusMetadataDevice interface
+		INexusMetadataDevice.super.register(); // actual implementation is in INexusDevice.register
 	}
 
 	@Override
@@ -151,6 +168,11 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 
 	protected void setNexusClass(String nxClass) {
 		metadataNode.setNexusClass(nxClass);
+	}
+
+	@Override
+	public void clearNodes() {
+		metadataNode.clearChildNodes();
 	}
 
 }
