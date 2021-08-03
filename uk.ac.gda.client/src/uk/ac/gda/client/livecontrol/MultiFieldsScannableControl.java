@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.livecontrol;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.swt.SWT;
@@ -26,13 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.Scannable;
+import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Finder;
 import gda.rcp.views.ScannableFieldsComposite;
+
 /**
- * A {@link LiveControl} for a {@link Scannable} with multiple inputs and multiple outputs.
+ * A {@link LiveControl} for a {@link Scannable} with multiple input names and/or extra names, and for a
+ * {@link ScannableGroup}.
  *
- * If units are required for each field, they should be set in {@link Scannable}'s output format property
- * which must be separated with its value by a single space!
+ * If units for the scannable are set in its output format strings which must be separated with its value by a single
+ * space, the field unit will appear inside text box. Otherwise units for each fields of the scannable can be set in
+ * Spring bean definition as a map of field names to field units.
  *
  * @since 9.16
  * @author Fajin Yuan
@@ -43,20 +49,22 @@ public class MultiFieldsScannableControl extends LiveControlBase {
 	private String displayName;
 	private String scannableName;
 	private Boolean showStop; // Show stop by default
+	private Map<String, String> userUnits = new HashMap<>();
 
 	@Override
 	public void createControl(Composite composite) {
-		Finder.findOptionalOfType(getScannableName(), Scannable.class)
-				.ifPresentOrElse( scannable -> {
-					ScannableFieldsComposite sfc = new ScannableFieldsComposite(composite, SWT.None);
-					sfc.setScannable(scannable);
-					if (getDisplayName() != null) {
-						sfc.setDisplayName(displayName);
-					}
-					if (showStop != null && !showStop) {
-						sfc.hideStopButton();
-					}
-				}, () -> logger.warn("Could not get scannable '{}' for live control", getScannableName()) );
+		Finder.findOptionalOfType(getScannableName(), Scannable.class).ifPresentOrElse(scannable -> {
+			final var sfc = new ScannableFieldsComposite(composite, SWT.None);
+			//units must be set before set scannable!
+			sfc.setUserUnits(userUnits);
+			sfc.setScannable(scannable);
+			if (getDisplayName() != null) {
+				sfc.setDisplayName(displayName);
+			}
+			if (showStop != null && !showStop) {
+				sfc.hideStopButton();
+			}
+		}, () -> logger.warn("Could not get scannable '{}' for live control", getScannableName()));
 	}
 
 	public String getScannableName() {
@@ -69,9 +77,9 @@ public class MultiFieldsScannableControl extends LiveControlBase {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final var prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(displayName, scannableName, showStop);
+		result = prime * result + Objects.hash(displayName, scannableName, showStop, userUnits);
 		return result;
 	}
 
@@ -85,7 +93,7 @@ public class MultiFieldsScannableControl extends LiveControlBase {
 			return false;
 		MultiFieldsScannableControl other = (MultiFieldsScannableControl) obj;
 		return Objects.equals(displayName, other.displayName) && Objects.equals(scannableName, other.scannableName)
-				&& Objects.equals(showStop, other.showStop);
+				&& Objects.equals(showStop, other.showStop) && Objects.equals(userUnits, other.userUnits);
 	}
 
 	public String getDisplayName() {
@@ -104,5 +112,8 @@ public class MultiFieldsScannableControl extends LiveControlBase {
 		this.showStop = showStop;
 	}
 
+	public void setUserUnits(Map<String, String> userUnits) {
+		this.userUnits = userUnits;
+	}
 
 }

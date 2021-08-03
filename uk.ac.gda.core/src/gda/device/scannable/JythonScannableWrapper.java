@@ -60,13 +60,18 @@ public class JythonScannableWrapper extends ScannableMotionBase {
 	}
 
 	/**
-	 * connect to the Jython scannable for the name set in this wrapper and add IOBserver to it
-	 * This method is required to re-connect this wrapper to Jython scannable on 'reset_namespace'
+	 * connect to the Jython scannable for the scannable name set in this wrapper and add IOBserver to it.
+	 * This method is required to re-connect this wrapper to Jython scannable on 'reset_namespace'.
+	 * This method must be called in localStation.py to initialize this wrapper properly after the wrapped scannable is available in Jython namespace.
 	 */
 	public void connectScannable() {
 		Object jythonObj = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 		if (jythonObj instanceof Scannable) {
 			scannable = (Scannable) jythonObj;
+			//initialize wrapper scannable attributes - this required to support Live Control GUI for this wrapper scannable!
+			this.setInputNames(scannable.getInputNames());
+			this.setExtraNames(scannable.getExtraNames());
+			this.setOutputFormat(scannable.getOutputFormat());
 			logger.debug("Add observer to scannable {}", scannableName);
 			scannable.addIObserver(this::notifyIObservers);
 		}
