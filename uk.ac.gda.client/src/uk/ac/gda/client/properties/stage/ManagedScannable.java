@@ -35,13 +35,13 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  *
  * <p>
  * It is assumed that instances of this class are available only through
- * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)}
+ * {@link ScannablesPropertiesHelper#getManagedScannable(String, String)}
  * </p>
  *
  * <p>
  * A client component, i.e. a widget, may parametrise a scannable using a pair of strings (groupID, scananbleID) and
  * assume to know the expected type. Using those parameters in
- * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)} the client component receives an object
+ * {@code ScannablesPropertiesHelper#getManagedScannable(String, String, Class)} the client component receives an object
  * which can drive the scannable. This class may be expanded in the future when other use cases will appear.
  * </p>
  *
@@ -58,7 +58,7 @@ public class ManagedScannable<T> {
 
 	/**
 	 * This constructor is restricted to the package in order to force the use of
-	 * {@link ScannablesPropertiesHelper#getManagedScannable(String, String, Class)}
+	 * {@code ScannablesPropertiesHelper#getManagedScannable(String, String)}
 	 *
 	 * @param scannablePropertiesDocument
 	 */

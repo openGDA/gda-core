@@ -186,7 +186,7 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest {
 		Assert.assertTrue(response.isSubmitted());
 
 		Assert.assertFalse(controller.getAcquisition().getAcquisitionConfiguration()
-				.getAcquisitionParameters().getPosition().contains(openShutterPosition));
+				.getAcquisitionParameters().getStartPosition().contains(openShutterPosition));
 
 	}
 }

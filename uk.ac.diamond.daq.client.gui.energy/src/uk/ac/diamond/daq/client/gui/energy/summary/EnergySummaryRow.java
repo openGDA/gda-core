@@ -332,12 +332,12 @@ class EnergySummaryRow {
 
 	private ManagedScannable<String> getEHShutter() {
 		return getBean(ScannablesPropertiesHelper.class)
-				.getManagedScannable(EH_SHUTTER, EH_SHUTTER.getScannableType());
+				.getManagedScannable(EH_SHUTTER);
 	}
 
 	private ManagedScannable<String> getBeamSelector() {
 		return getBean(ScannablesPropertiesHelper.class)
-				.getManagedScannable(BEAM_SELECTOR, BEAM_SELECTOR.getScannableType());
+				.getManagedScannable(BEAM_SELECTOR);
 	}
 
 

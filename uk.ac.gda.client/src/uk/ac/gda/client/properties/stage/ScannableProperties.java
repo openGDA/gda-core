@@ -1,11 +1,8 @@
 package uk.ac.gda.client.properties.stage;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 
 /**
  * Client side document associating a scannable, typically a motor, with a human readable label.
@@ -16,7 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
  *
  * @author Maurizio Nagni
  */
-@JsonDeserialize(builder = ScannableProperties.Builder.class)
 public class ScannableProperties {
 
 	/**
@@ -35,99 +31,52 @@ public class ScannableProperties {
 	 */
 	private String label;
 
+	/**
+	 * For a {@link ValueType#LABELLED} type scannable describe the map between
+	 * the internal reference key, that is in the application using it,
+	 * and the external key, that is the actuator which execute the command
+	 */
 	private Map<String, String> enumsMap;
-
-	public ScannableProperties() {
-	}
-
-	private ScannableProperties(String id, String scannable, String label, Map<String, String> enumsMap) {
-		super();
-		this.id = id;
-		this.scannable = scannable;
-		this.label = label;
-		this.enumsMap = enumsMap;
-	}
 
 	public String getId() {
 		return id;
-	}
-
-	public String getScannable() {
-		return scannable;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public Map<String, String> getEnumsMap() {
-		return enumsMap;
 	}
 
 	public void setId(String id) {
 		this.id = id;
 	}
 
+	public String getScannable() {
+		return scannable;
+	}
+
 	public void setScannable(String scannable) {
 		this.scannable = scannable;
+	}
+
+	public String getLabel() {
+		return label;
 	}
 
 	public void setLabel(String label) {
 		this.label = label;
 	}
 
+	public Map<String, String> getEnumsMap() {
+		return enumsMap;
+	}
+
 	public void setEnumsMap(Map<String, String> enumsMap) {
 		this.enumsMap = enumsMap;
 	}
 
-
-
-	@JsonPOJOBuilder
-	public static class Builder {
-		private String id;
-		private String scannable;
-		private String label;
-		private Map<String, String> enumsMap = new HashMap<>();
-
-		public Builder() {
-		}
-
-		public Builder(final ScannableProperties parent) {
-			this.scannable = parent.getScannable();
-			this.label = parent.getLabel();
-		}
-
-		public Builder withId(String id) {
-			this.id = id;
-			return this;
-		}
-
-		public Builder withScannable(String scannable) {
-			this.scannable = scannable;
-			return this;
-		}
-
-		public Builder withLabel(String label) {
-			this.label = label;
-			return this;
-		}
-
-		public Builder withEnumsMap(Map<String, String> enumsMap) {
-			this.enumsMap.clear();
-			this.enumsMap.putAll(enumsMap);
-			return this;
-		}
-
-		public ScannableProperties build() {
-			return new ScannableProperties(id, scannable, label, Collections.unmodifiableMap(this.enumsMap));
-		}
-	}
-
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
+		final var prime = 31;
+		var result = 1;
+		result = prime * result + ((enumsMap == null) ? 0 : enumsMap.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
 		result = prime * result + ((scannable == null) ? 0 : scannable.hashCode());
 		return result;
 	}
@@ -141,10 +90,20 @@ public class ScannableProperties {
 		if (getClass() != obj.getClass())
 			return false;
 		ScannableProperties other = (ScannableProperties) obj;
+		if (enumsMap == null) {
+			if (other.enumsMap != null)
+				return false;
+		} else if (!enumsMap.equals(other.enumsMap))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (label == null) {
+			if (other.label != null)
+				return false;
+		} else if (!label.equals(other.label))
 			return false;
 		if (scannable == null) {
 			if (other.scannable != null)
@@ -156,7 +115,6 @@ public class ScannableProperties {
 
 	@Override
 	public String toString() {
-		return "ScannablePropertiesDocument [id=" + id + ", scannable=" + scannable + ", label=" + label + ", enumsMap="
-				+ enumsMap + "]";
+		return "ScannableProperties [id=" + id + ", scannable=" + scannable + ", label=" + label + ", type=" + ", enumsMap=" + enumsMap + "]";
 	}
 }
