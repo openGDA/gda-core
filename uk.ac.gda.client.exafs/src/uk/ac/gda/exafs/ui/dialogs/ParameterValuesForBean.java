@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +77,7 @@ public class ParameterValuesForBean {
 		setBeanFileName(valuesForScanBean.getBeanFileName());
 		setBeanType(valuesForScanBean.getBeanType());
 		parameterValues.clear();
-		for(ParameterValue override : valuesForScanBean.getParameterValues()) {
-			addParameterValue(override.getFullPathToGetter(), override.getNewValue());
-		}
+		valuesForScanBean.getParameterValues().forEach(this::addParameterValue);
 	}
 
 	public void addParameterValue(ParameterValue paramValue) {
@@ -358,15 +355,6 @@ public class ParameterValuesForBean {
 			}
 		}
 		return valuesFromGetters;
-	}
-
-	public List<String> getTextForTableColumns() {
-		List<String> columnText = new ArrayList<>();
-		columnText.add(FilenameUtils.getName(beanFileName));
-		for(ParameterValue param : parameterValues) {
-			columnText.add(param.getNewValue().toString());
-		}
-		return columnText;
 	}
 
 	/**

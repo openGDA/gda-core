@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -231,32 +232,50 @@ public class ParameterCollection {
 		}
 
 		public static List<ParametersForScan> fromCSV(Reader csvInput) throws IOException {
-			List<ParametersForScan> paramsForAllScans = new ArrayList<>();
+			List<ParametersForScan> paramsForAllScans = Collections.emptyList();
 			CSVFormat format = CSVFormat.DEFAULT.withHeader().withIgnoreEmptyLines().withCommentMarker('#');
 			try(CSVParser parser = new CSVParser(csvInput, format)) {
+				// Make list of headers to be processed (everything apart from 'repetitions' value)
+				List<String> headersToProcess = parser.getHeaderMap().keySet()
+					.stream()
+					.filter(k -> !k.equals(REPETITIONS))
+					.collect(Collectors.toList());
+
+				checkHeaderFormat(headersToProcess);
+
 				// Read and parse the CSV records ...
-				List<CSVRecord> records = parser.getRecords();
-				Map<String, Integer> map = parser.getHeaderMap();
-				for(CSVRecord record : records) {
-					record.getComment();
-					ParametersForScan paramsForScan = parseCsvRecord(record, map);
-					paramsForAllScans.add(paramsForScan);
-				}
+				paramsForAllScans = parser.getRecords()
+					.stream()
+					.map(csvRecord -> parseCsvRecord(csvRecord, headersToProcess))
+					.collect(Collectors.toList());
 			}
 			return paramsForAllScans;
 		}
 
-		private static ParametersForScan parseCsvRecord(CSVRecord record, Map<String, Integer> headerMap) {
-			Map<String, ParameterValuesForBean> valuesForBeans = new LinkedHashMap<>();
+		/**
+		 * Check the headers to make sure they are correct format :
+		 * {@code <bean type>:<function> }
+		 *
+		 * @param headers
+		 * @throws IOException
+		 * @throws DataFormatException if header does not match expected format
+		 */
+		private static void checkHeaderFormat(List<String> headers) throws IOException {
+			for(String headerValue : headers) {
+				String[] splitHeader = headerValue.split(":");
+				if (splitHeader.length != 2) {
+					throw new IOException("Header "+headers.indexOf(headerValue)+" does not have expected format.\n"
+							+"Expected <type>:<function name> but found '"+headerValue+"'");
+				}
+			}
+		}
 
-			// Make list of headers to be processed (everything apart from 'repetitions' value)
-			List<String> headersToProcess = headerMap.keySet().stream()
-				.filter(k -> !k.equals(REPETITIONS))
-				.collect(Collectors.toList());
+		private static ParametersForScan parseCsvRecord(CSVRecord csvRecord, List<String> headersToProcess) {
+			Map<String, ParameterValuesForBean> valuesForBeans = new LinkedHashMap<>();
 
 			// Iterate over the columns in order :
 			for(String headerValue : headersToProcess) {
-				String value = record.get(headerValue); // get value from the CSVRecord
+				String value = csvRecord.get(headerValue); // get value from the CSVRecord
 
 				// Split the header value at the ':' :
 				//  first field is the bean type, 2nd field is the 'getter' string or class type of bean
@@ -266,9 +285,8 @@ public class ParameterCollection {
 
 				// Add new object to store bean parameters if necessary :
 				logger.info("Beantype : {}", beanType);
-				if (!valuesForBeans.containsKey(beanType)) {
-					valuesForBeans.put(beanType, new ParameterValuesForBean());
-				}
+				valuesForBeans.computeIfAbsent(beanType, key -> new ParameterValuesForBean());
+
 				// Get parameters for current bean type :
 				ParameterValuesForBean valuesForBean = valuesForBeans.get(beanType);
 				if (splitHeader.length==2) {
@@ -287,7 +305,7 @@ public class ParameterCollection {
 			ParametersForScan paramsForScan = new ParametersForScan();
 			valuesForBeans.values().forEach(paramsForScan::addValuesForScanBean);
 
-			int numRepetitions = (int) convertValue(record.get(REPETITIONS));
+			int numRepetitions = (int) convertValue(csvRecord.get(REPETITIONS));
 			paramsForScan.setNumberOfRepetitions(numRepetitions);
 
 			return paramsForScan;

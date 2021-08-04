@@ -392,10 +392,8 @@ public class SpreadsheetViewTable {
 		// Determine the maximum width of each column across values in all rows.
 		if (rowItems != null) {
 			for (TableItem rowData : rowItems) {
-				ParametersForScan param = ((ParametersForScan) rowData.getData());
-				List<String> columnText = param.getTextForTableColumns();
-				for (int i = 0; i < columnText.size(); i++) {
-					maxDataWidth[i] = Math.max(maxDataWidth[i], gc.stringExtent(columnText.get(i)).x);
+				for (int i = 0; i < tableColumns.length; i++) {
+					maxDataWidth[i] = Math.max(maxDataWidth[i], gc.stringExtent(rowData.getText(i)).x);
 				}
 			}
 		}
@@ -638,8 +636,12 @@ public class SpreadsheetViewTable {
 	 * @param paramIndex
 	 * @return
 	 */
-	private Object getDataForColumn(ParametersForScan param, int typeIndex, int index) {
-		return param.getParameterValuesForScanBeans().get(typeIndex).getParameterValues().get(index).getNewValue();
+	private String getDataForColumn(ParametersForScan param, int typeIndex, int index) {
+		Object newValue = param.getParameterValuesForScanBeans().get(typeIndex).getParameterValues().get(index).getNewValue();
+		if (newValue == null) {
+			return "";
+		}
+		return newValue.toString();
 	}
 
 	/**
@@ -657,7 +659,7 @@ public class SpreadsheetViewTable {
 		@Override
 		public String getText(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			return getDataForColumn(param, typeIndex, paramIndex).toString();
+			return getDataForColumn(param, typeIndex, paramIndex);
 		}
 	}
 
@@ -691,14 +693,13 @@ public class SpreadsheetViewTable {
 		@Override
 		protected boolean canEdit(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			boolean editable = param.getParameterValuesForScanBeans().get(typeIndex).getParameterValues().get(paramIndex).isEditable();
-			return editable;
+			return param.getParameterValuesForScanBeans().get(typeIndex).getParameterValues().get(paramIndex).isEditable();
 		}
 
 		@Override
 		protected Object getValue(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			return getDataForColumn(param, typeIndex, paramIndex).toString();
+			return getDataForColumn(param, typeIndex, paramIndex);
 		}
 	}
 
@@ -720,11 +721,11 @@ public class SpreadsheetViewTable {
 		@Override
 		public String getText(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			Object val = getDataForColumn(param, typeIndex, paramIndex).toString();
-			if (val == null || val.toString().trim().isEmpty()) {
+			String val = getDataForColumn(param, typeIndex, paramIndex);
+			if (val.trim().isEmpty()) {
 				return comboItems[0];
 			} else {
-				return val.toString();
+				return val;
 			}
 		}
 	}
@@ -779,7 +780,7 @@ public class SpreadsheetViewTable {
 		protected Object getValue(Object element) {
 			// get value from model and convert to int to update combobox
 			ParametersForScan param = (ParametersForScan) element;
-			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
+			String valueInModel = getDataForColumn(param, typeIndex, paramIndex);
 			int index = ArrayUtils.indexOf(comboItems, valueInModel);
 			return Math.max(index, 0);
 		}
@@ -817,7 +818,7 @@ public class SpreadsheetViewTable {
 		@Override
 		protected Object getValue(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
+			String valueInModel = getDataForColumn(param, typeIndex, paramIndex);
 			int index = detectorConfigFiles.indexOf(valueInModel);
 			return Math.max(index, 0);
 		}
@@ -933,8 +934,7 @@ public class SpreadsheetViewTable {
 		@Override
 		protected Object getValue(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			String valueInModel = getDataForColumn(param, typeIndex, paramIndex).toString();
-			return valueInModel;
+			return getDataForColumn(param, typeIndex, paramIndex);
 		}
 
 		@Override
@@ -1044,8 +1044,7 @@ public class SpreadsheetViewTable {
 		@Override
 		protected Object getValue(Object element) {
 			ParametersForScan param = (ParametersForScan)element;
-			String val = getDataForColumn(param, typeIndex, paramIndex).toString();
-			return Boolean.parseBoolean(val);
+			return Boolean.parseBoolean(getDataForColumn(param, typeIndex, paramIndex));
 		}
 
 		@Override
@@ -1140,8 +1139,8 @@ public class SpreadsheetViewTable {
 		@Override
 		public String getText(Object element) {
 			ParametersForScan param = (ParametersForScan) element;
-			String val = getDataForColumn(param, typeIndex, paramIndex).toString();
-			if (val.equalsIgnoreCase("true")) {
+			String val = getDataForColumn(param, typeIndex, paramIndex);
+			if (Boolean.parseBoolean(val)) {
 				return "\u2611";
 			} else {
 				return "\u2610";
@@ -1156,7 +1155,6 @@ public class SpreadsheetViewTable {
 			Display display = getTableViewer().getTable().getDisplay();
 			for(FontData f : display.getFontList(null, true)) {
 				if (f.getName().equalsIgnoreCase("serif")) {
-					logger.info("{}", f.toString());
 					desc = FontDescriptor.createFrom(f);
 					break;
 				}
