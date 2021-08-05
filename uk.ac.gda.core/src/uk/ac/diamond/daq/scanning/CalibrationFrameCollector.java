@@ -60,6 +60,14 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 		if (model.getDetectors().isEmpty()) {
 			return;
 		}
+
+		// This case, kept separate for sake of clarity, protect from overwriting an already set DetectorDocument.
+		// The typical case for this is when a FrameCaptureRequestHandler is involved in the workflow
+		// (see https://confluence.diamond.ac.uk/display/DIAD/Frame+Capture+Request)
+		if (getDetectorDocument() != null) {
+			return;
+		}
+
 		// At this point in the scan, the detector models directly in the ScanModel are not up-to-date, especially as
 		// regards their exposure time. However, the the models in the ScanRequest are correct, so copy the exposure
 		// time from there.
@@ -70,18 +78,16 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 			logger.error("Cannot find detector model for {}", mainScanDetectorName);
 			return;
 		}
-		final double exposureTime = modelFromRequest.getExposureTime();
 
+		final double exposureTime = modelFromRequest.getExposureTime();
 		// If no detector has been explicitly configured, use the "main scan" detector
 		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = getSnapshotDetector(mainScanDetector);
 		logger.debug("Setting exposure time on {} to {}", acquisitionDetector.getName(), exposureTime);
-
 		DetectorDocument detector = new DetectorDocument.Builder()
-			.withExposure(exposureTime)
-			.withName(acquisitionDetector.getName())
-			.withMalcolmDetectorName(getMalcolmDetectorName(acquisitionDetector))
-			.build();
-
+				.withExposure(exposureTime)
+				.withName(acquisitionDetector.getName())
+				.withMalcolmDetectorName(getMalcolmDetectorName(acquisitionDetector))
+				.build();
 		setDetectorDocument(detector);
 	}
 

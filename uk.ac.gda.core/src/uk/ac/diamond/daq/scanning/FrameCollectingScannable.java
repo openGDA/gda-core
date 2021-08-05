@@ -137,6 +137,10 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		this.detector = detector;
 	}
 
+	protected DetectorDocument getDetectorDocument() {
+		return this.detector;
+	}
+
 	private void configureBeamline() throws ScanningException {
 		if (previousConfiguration == null) previousConfiguration = new HashMap<>();
 		previousConfiguration.clear();
