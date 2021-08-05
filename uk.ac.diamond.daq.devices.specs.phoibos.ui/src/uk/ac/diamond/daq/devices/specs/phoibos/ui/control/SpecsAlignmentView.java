@@ -202,12 +202,6 @@ public class SpecsAlignmentView implements IObserver {
 			}
 		}
 
-		// Setup scroll composite
-		scrollComp.setContent(child);
-		scrollComp.setExpandHorizontal(true);
-		scrollComp.setExpandVertical(true);
-		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-
 		indicator = new Button(displayArea, SWT.DEFAULT);
 		indicator.setText("RUN");
 		FontData fdindicator = indicator.getFont().getFontData()[0];
@@ -222,11 +216,16 @@ public class SpecsAlignmentView implements IObserver {
 		} else {
 			indicator.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
 		}
+
+		// Setup scroll composite
+		scrollComp.setContent(child);
+		scrollComp.setExpandHorizontal(true);
+		scrollComp.setExpandVertical(true);
+		scrollComp.setMinSize(child.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	/**
-	 * Creates a formatted numeric string if input double is larger or equal to 1000.
-	 * For input which is smaller than 1000 the number is simply converted to String
+	 * Formats numeric string in scientific notation
 	 *
 	 * @param reading
 	 * @return A formatted string
