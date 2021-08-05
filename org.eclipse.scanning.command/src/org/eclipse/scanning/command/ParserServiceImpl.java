@@ -16,13 +16,11 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.scan.IParserResult;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ParsingException;
-import org.eclipse.scanning.command.factory.PyExpressionFactory;
 
 public class ParserServiceImpl implements IParserService {
 
@@ -158,17 +156,6 @@ public class ParserServiceImpl implements IParserService {
 
 		return (IParserResult<T>) parser;
 	}
-
-	/**
-	 * @deprecated for removal in 9.21. See DAQ-3292
-	 */
-	@Override
-	@Deprecated
-	public <T> String getCommand(ScanRequest req, boolean verbose) throws Exception {
-		PyExpressionFactory factory = new PyExpressionFactory();
-		return factory.pyExpress(req, verbose);
-	}
-
 
 	private static IPointGeneratorService pointGeneratorService;
 

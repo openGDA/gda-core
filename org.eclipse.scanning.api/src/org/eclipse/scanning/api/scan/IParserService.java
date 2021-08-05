@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.scan;
 
-import org.eclipse.scanning.api.event.scan.ScanRequest;
-
 /**
  * Naive long winded usage of the parser API below to show how it should perform.<br>
  * However in fact the parser will be embedded as a subsystem of the scan.<br>
@@ -61,14 +59,4 @@ public interface IParserService {
 	 * @return
 	 */
 	<T> IParserResult<T> createParser(String scan) throws ParsingException;
-
-	/**
-	 * Get the scan command for a given scan request which would be submitted to the server.
-	 * @param req
-	 * @param verbose
-	 * @return a command that should work in the python console.
-	 * @throws an exception. This can often happen if features of the scan not supported in the python command are used.
-	 * For instance generators which do not have a working alternative.
-	 */
-	<T> String getCommand(ScanRequest req, boolean verbose) throws Exception;
 }
