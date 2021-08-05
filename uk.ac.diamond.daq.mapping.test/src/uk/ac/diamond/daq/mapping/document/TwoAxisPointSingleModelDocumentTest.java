@@ -20,6 +20,8 @@ package uk.ac.diamond.daq.mapping.document;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +29,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +72,12 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 		builder.withPoints(1);
 		scannableTrackDocuments.add(builder.build());
 
+		assertThat(scannableTrackDocuments.get(0).calculatedStep(), is(equalTo(0.0)));
+		assertThat(scannableTrackDocuments.get(1).calculatedStep(), is(equalTo(0.0)));
+		assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
+		assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
+
+
 		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
 		mutators.put(Mutator.ALTERNATING, Arrays.asList(1, 2));
 		ScanpathDocument modelDocument = new ScanpathDocument(AcquisitionTemplateType.TWO_DIMENSION_POINT,
@@ -77,6 +86,35 @@ public class TwoAxisPointSingleModelDocumentTest extends DocumentTestBase {
 		assertThat(document, containsString("motor_x"));
 		assertThat(document, containsString("motor_y"));
 		assertThat(document, containsString("\"ALTERNATING\" : [ 1, 2 ]"));
+	}
+
+	@Test
+	public void serialiseDocumentTestWithBoundsFit() {
+		try {
+			System.setProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT, "true");
+			List<ScannableTrackDocument> scannableTrackDocuments = new ArrayList<>();
+
+			ScannableTrackDocument.Builder builder = new ScannableTrackDocument.Builder();
+			builder.withScannable("motor_x");
+			builder.withStart(2.0);
+			builder.withStop(2.0);
+			builder.withPoints(1);
+			scannableTrackDocuments.add(builder.build());
+
+			builder = new ScannableTrackDocument.Builder();
+			builder.withScannable("motor_y");
+			builder.withStart(1.0);
+			builder.withStop(1.0);
+			builder.withPoints(1);
+			scannableTrackDocuments.add(builder.build());
+
+			assertThat(scannableTrackDocuments.get(0).calculatedStep(), is(equalTo(0.0)));
+			assertThat(scannableTrackDocuments.get(1).calculatedStep(), is(equalTo(0.0)));
+			assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
+			assertThat(scannableTrackDocuments.get(0).calculatedPoints(), is(equalTo(1)));
+		} finally {
+			System.clearProperty(IBoundsToFit.PROPERTY_NAME_BOUNDS_TO_FIT);
+		}
 	}
 
 	@Test
