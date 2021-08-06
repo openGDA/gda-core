@@ -113,7 +113,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private static final String DEFAULT_FILENAME_TEMPLATE = "%d.nxs";
 
-	private static final String METADATA_ENTRY_NAME_INSTRUMENT = "instrument";
+	public static final String METADATA_ENTRY_NAME_INSTRUMENT = "instrument";
 	private static final String DEFAULT_BEAMLINE_NAME = "base";
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusScanDataWriter.class);
