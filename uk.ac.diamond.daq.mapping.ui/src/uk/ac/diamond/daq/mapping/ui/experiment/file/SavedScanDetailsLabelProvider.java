@@ -30,6 +30,7 @@ import org.eclipse.swt.SWT;
 
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory.PathParameterSource;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory.RegionParameterSource;
+import uk.ac.gda.ui.tool.browser.IComparableStyledLabelProvider;
 
 /**
  * Label provider for the Scan description column of the view which extracts its content from the pre-extension section

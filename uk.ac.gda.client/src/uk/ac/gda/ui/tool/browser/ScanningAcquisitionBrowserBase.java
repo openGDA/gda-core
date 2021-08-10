@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.browser;
+package uk.ac.gda.ui.tool.browser;
 
 import java.util.List;
 import java.util.Optional;

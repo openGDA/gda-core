@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.browser;
+package uk.ac.gda.ui.tool.browser;
 
 import java.util.Comparator;
 
@@ -29,7 +29,6 @@ import org.eclipse.swt.SWT;
 
 import gda.rcp.views.Browser;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.ui.experiment.file.IComparableStyledLabelProvider;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 
 /**
