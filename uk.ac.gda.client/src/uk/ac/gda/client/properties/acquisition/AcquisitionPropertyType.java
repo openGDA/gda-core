@@ -32,6 +32,10 @@ public enum AcquisitionPropertyType {
 	 */
 	BEAM_SELECTOR,
 	/**
+	 * Identifies an acquisition related to a calibration
+	 */
+	CALIBRATION,
+	/**
 	 * Identifies an acquisition not associated with a specific type
 	 */
 	DEFAULT
