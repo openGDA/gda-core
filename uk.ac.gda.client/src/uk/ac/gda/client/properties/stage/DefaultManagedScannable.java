@@ -39,27 +39,22 @@ package uk.ac.gda.client.properties.stage;
  */
 public enum DefaultManagedScannable {
 	// A beam selector is an object which can select a special type of beam (by energy, by size or other) either through a filter or a mechanical device.
-	BEAM_SELECTOR("beam_selector", "selector", String.class),
+	BEAM_SELECTOR("beam_selector", "selector"),
 	// A hutch shutter is an object which can open or close the beam either through a filter or a mechanical device.
-	EH_SHUTTER("shutter", "shutter", String.class),
+	EH_SHUTTER("shutter", "shutter"),
 	// A moving workbench with multiple stages
-	BASE_X("base_x", "selector", String.class);
+	BASE_X("base_x", "selector");
 
 	public final String groupId;
 	public final String scannableId;
-	public final Class<String> scannableType;
-	private DefaultManagedScannable(String groupId, String scannableId, Class<String> scannableType) {
+	private DefaultManagedScannable(String groupId, String scannableId) {
 		this.groupId = groupId;
 		this.scannableId = scannableId;
-		this.scannableType = scannableType;
 	}
 	public String getGroupId() {
 		return groupId;
 	}
 	public String getScannableId() {
 		return scannableId;
-	}
-	public Class<String> getScannableType() {
-		return scannableType;
 	}
 }

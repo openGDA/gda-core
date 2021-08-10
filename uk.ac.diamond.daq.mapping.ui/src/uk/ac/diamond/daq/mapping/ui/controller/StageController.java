@@ -160,18 +160,6 @@ public class StageController implements IStageController {
 	}
 
 	/**
-	 * Returns {@link DevicePositionDocument} from a scannable reference. PInternally works as {@link #createDevicePositionDocument(ManagedScannable)}
-	 * @param groupId the scannable group id
-	 * @param scannableId the scannable id inside the group id
-	 * @param type the expected scannable type
-	 * @return the related document with the actual position
-	 */
-	public DevicePositionDocument createDevicePositionDocument(String groupId, String scannableId, Class<?> type) {
-		ManagedScannable<?> managedScannable = helper.getManagedScannable(groupId, scannableId, type);
-		return createDevicePositionDocument(managedScannable);
-	}
-
-	/**
 	 * Returns {@link DevicePositionDocument} from a {@link ManagedScannable}
 	 * @param managedScannable the scannable manager
 	 * @return the related document with the actual position
@@ -189,7 +177,7 @@ public class StageController implements IStageController {
 			.orElse(null);
 		if (shutter == null)
 			return null;
-		DevicePositionDocument.Builder builder = new DevicePositionDocument.Builder(shutter);
+		var builder = new DevicePositionDocument.Builder(shutter);
 		builder.withLabelledPosition(position);
 		return builder.build();
 	}

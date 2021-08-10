@@ -25,7 +25,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 	 * but there are cases where motors others than the one involved in the scan should position the sample.
 	 * It is assumed that any engine can move the sample where {@link ScanpathDocument#getScannableTrackDocuments()}  command,
 	 * consequently the motors here may or may not include those last ones.
-	 * @see AcquisitionParameters#getPosition()
+	 * @see AcquisitionParameters#getStartPosition()
 	 */
 	private Set<DevicePositionDocument> position = new HashSet<>();
 
@@ -38,7 +38,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 		this.detector = configuration.getDetector();
 
 		this.scanpathDocument = configuration.getScanpathDocument();
-		this.position = configuration.getPosition();
+		this.position = configuration.getStartPosition();
 	}
 
 	@Override
@@ -60,11 +60,11 @@ public class ScanningParameters implements AcquisitionParametersBase {
 	}
 
 	@Override
-	public Set<DevicePositionDocument> getPosition() {
+	public Set<DevicePositionDocument> getStartPosition() {
 		return position;
 	}
 
-	public void setPosition(Set<DevicePositionDocument> position) {
+	public void setStartPosition(Set<DevicePositionDocument> position) {
 		this.position = position;
 	}
 

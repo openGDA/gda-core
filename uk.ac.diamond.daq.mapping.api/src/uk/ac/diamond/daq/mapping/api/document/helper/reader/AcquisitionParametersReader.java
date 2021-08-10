@@ -66,7 +66,7 @@ public class AcquisitionParametersReader extends AcquisitionReaderBase<Acquisiti
 	 */
 	public Set<DevicePositionDocument> getPosition() {
 		return Optional.ofNullable(getData())
-			.map(AcquisitionParametersBase::getPosition)
+			.map(AcquisitionParametersBase::getStartPosition)
 			.map(Collections::unmodifiableSet)
 			.orElseGet(() -> Collections.unmodifiableSet(new HashSet<>()));
 	}

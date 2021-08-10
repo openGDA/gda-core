@@ -20,10 +20,12 @@ package uk.ac.gda.api.acquisition.configuration;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
+import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 
 
 /**
@@ -68,4 +70,15 @@ public interface AcquisitionConfiguration<T extends AcquisitionParameters> {
 	 */
 	List<ProcessingRequestPair<?>> getProcessingRequest();
 
+
+	/**
+	 * Defines where the beamline is supposed to return at the end of the acquisition.
+	 * <p>
+	 * An Acquisition may be composed by multiple sections: acquisition, calibrations (that is dark, flat) eventually others.
+	 * Each of those section may well have its specific configuration so the beamline may change accordingly.
+	 * On the other hand this property, if not empty, represent the state where to move when all the other sections have been executed.
+	 * </p>
+	 * @return a set of position documents, otherwise an empty set.
+	 */
+	Set<DevicePositionDocument> getEndPosition();
 }

@@ -140,7 +140,7 @@ public class StagesComposite {
 
 	private ManagedScannable<String> getBaseX() {
 		return getScannablesPropertiesHelper()
-					.getManagedScannable(DefaultManagedScannable.BASE_X, String.class);
+					.getManagedScannable(DefaultManagedScannable.BASE_X);
 	}
 
 	private ScannableProperties getBaseXProperties() {

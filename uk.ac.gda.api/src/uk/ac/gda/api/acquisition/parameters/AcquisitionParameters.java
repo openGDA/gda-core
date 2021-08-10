@@ -51,6 +51,6 @@ public interface AcquisitionParameters {
 	 * may be overridden by multiple acquisition logic
 	 * @return a set of position documents, otherwise an empty set.
 	 */
-	Set<DevicePositionDocument> getPosition();
+	Set<DevicePositionDocument> getStartPosition();
 
 }

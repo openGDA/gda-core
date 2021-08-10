@@ -31,7 +31,8 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * client.scannableGroup.0.scannable.1.id=Y
  * client.scannableGroup.0.scannable.1.scannable=simy
  * client.scannableGroup.0.scannable.1.label=Y Axis
- * client.scannableGroup.0.scannable.1.enums=CLOSED:right position,OPEN:left position
+ * client.scannableGroup.0.scannable.1.enums.CLOSED=right position
+ * client.scannableGroup.0.scannable.1.enums.OPEN:left position
  * </pre>
  *
  * where
@@ -51,7 +52,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * <ol>
  * <li>{@link ScannablesPropertiesHelper} parses the existing scannableGroups from the properties</li>
  * <li>the external component can retrieve the required a ManagedScannable using
- * {@link #getManagedScannable(String, String, Class)};</li>
+ * {@link #getManagedScannable(String, String)};</li>
  * </ol>
  * </p>
  *
@@ -112,25 +113,18 @@ public class ScannablesPropertiesHelper {
 		return getScannablePropertiesDocument(scannableDefinition.groupId, scannableDefinition.getScannableId());
 	}
 
-	public ManagedScannable<?> getManagedScannable(DefaultManagedScannable scannableDefinition) {
-		return getManagedScannable(scannableDefinition.groupId, scannableDefinition.getScannableId(),
-				scannableDefinition.getScannableType());
-	}
-
-	public <T> ManagedScannable<T> getManagedScannable(DefaultManagedScannable scannableDefinition, Class<T> clazz) {
-		return getManagedScannable(scannableDefinition.groupId, scannableDefinition.getScannableId(), clazz);
+	public <T> ManagedScannable<T> getManagedScannable(DefaultManagedScannable scannableDefinition) {
+		return getManagedScannable(scannableDefinition.groupId, scannableDefinition.getScannableId());
 	}
 
 	/**
 	 * @param <T> The expected scannable movement type: {@code String} for {@code EnumPositioner} or {@code Double} for {@code IScannableMotor}
 	 * @param scannableGroupID the scannable group ID where the scannable belong to
 	 * @param scannableID the scannable ID inside the scannable group
-	 * @param clazz the expected scannable movement type
 	 * @return a managed scannable or {@code null} if the pair (groupID, scannableID) is not available from the client properties
 	 */
-	public <T> ManagedScannable<T> getManagedScannable(String scannableGroupID, String scannableID,
-			Class<T> clazz) {
-		ScannableProperties document = getScannablePropertiesDocument(scannableGroupID, scannableID);
+	public <T> ManagedScannable<T> getManagedScannable(String scannableGroupID, String scannableID) {
+		var document = getScannablePropertiesDocument(scannableGroupID, scannableID);
 		if (document == null)
 			return null;
 		if (!managedScannableMap.containsKey(document)) {
@@ -138,17 +132,11 @@ public class ScannablesPropertiesHelper {
 			ManagedScannable<?> managedScanable = null;
 			switch (type) {
 			case NUMERIC:
-				if (!clazz.isAssignableFrom(Double.class)) {
-					return null;
-				}
 				managedScanable = Optional.ofNullable(document)
 						.map(ManagedScannable<Double>::new)
 						.orElseGet(() -> null);
 				break;
 			case LABELLED:
-				if (!clazz.isAssignableFrom(String.class)) {
-					return null;
-				}
 				managedScanable = Optional.ofNullable(document)
 						.map(ManagedScannable<String>::new)
 						.orElseGet(() -> null);

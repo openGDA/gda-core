@@ -309,7 +309,7 @@ public class ScanningAcquisitionController
 
 	private ManagedScannable<String> getBeamSelector() {
 		return getBean(ScannablesPropertiesHelper.class)
-				.getManagedScannable(BEAM_SELECTOR, BEAM_SELECTOR.getScannableType());
+				.getManagedScannable(BEAM_SELECTOR);
 	}
 
 	private void updateStartPosition() {
@@ -324,7 +324,7 @@ public class ScanningAcquisitionController
 		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, getOutOfBeamScannables());
 		addPosition(stageController.createShutterOpenRequest(), startPosition::add);
 		positionsPostProcess(startPosition);
-		updatePositionDocument(startPosition, getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setPosition);
+		updatePositionDocument(startPosition, getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
 	}
 
 	private void addPosition(DevicePositionDocument position, Consumer<DevicePositionDocument> consumer) {
