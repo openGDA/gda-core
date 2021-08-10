@@ -404,6 +404,7 @@ public class FocusScanResultPage extends WizardPage {
 
 			final IDataset mapDataset = mapData.getMapForDims(0, 1);
 			if (mapDataset == null) return;
+			if (mapDataset.getRank() == 1) return;
 			final IImageTrace existingTrace = (IImageTrace) plottingSystem.getTrace(mapDataset.getName());
 			plottingSystem.setKeepAspect(false);
 
