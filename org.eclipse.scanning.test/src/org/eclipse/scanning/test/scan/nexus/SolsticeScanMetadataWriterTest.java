@@ -151,7 +151,7 @@ public class SolsticeScanMetadataWriterTest {
 
 		public ExternalFileWritingPositioner(String name) {
 			super(name, NexusBaseClass.NX_POSITIONER, NXpositioner.NX_VALUE);
-			addExternalFileName("panda.nxs");
+			addExternalFileName("p45-14-panda.nxs");
 			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, MALCOLM_UNIQUE_KEYS_PATH);
 		}
 
@@ -166,7 +166,7 @@ public class SolsticeScanMetadataWriterTest {
 
 	public static class ExternalFileWritingDetector extends AbstractNexusObjectProvider<NXdetector> {
 
-		public static final String EXTERNAL_FILE_NAME = "detector.nxs";
+		public static final String EXTERNAL_FILE_NAME = "p45-14-detector.nxs";
 
 		public ExternalFileWritingDetector() {
 			this("detector", EXTERNAL_FILE_NAME);
@@ -192,13 +192,13 @@ public class SolsticeScanMetadataWriterTest {
 
 		public InternalUniqueKeysWritingDetector() {
 			super("internal", NexusBaseClass.NX_DETECTOR);
-			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, INTERNAL_UNIQUE_KEYS_PATH);
+			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, PROPERTY_NAME_UNIQUE_KEYS_PATH);
 		}
 
 		@Override
 		protected NXdetector createNexusObject() {
 			final NXdetector detector = NexusNodeFactory.createNXdetector();
-			detector.initializeLazyDataset(INTERNAL_UNIQUE_KEYS_PATH, 2, Integer.class);
+			detector.initializeLazyDataset(PROPERTY_NAME_UNIQUE_KEYS_PATH, 2, Integer.class);
 
 			return detector;
 		}
@@ -220,8 +220,6 @@ public class SolsticeScanMetadataWriterTest {
 	private static final String MALCOLM_UNIQUE_KEYS_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
 	private static final int[] EMPTY_SHAPE = new int[0];
-
-	private static final String INTERNAL_UNIQUE_KEYS_PATH = "uniqueKeys";
 
 	private static final int[] SCAN_SHAPE = new int[] { 8, 5 };
 
@@ -412,6 +410,7 @@ public class SolsticeScanMetadataWriterTest {
 		// assert links to unique keys for devices that write their own
 		final int expectedNumUniqueKeys = (nexusObjectProviders.size() - 1) + (uniqueKeysDataNode == null ? 0 : 1);
 		assertThat(keysCollection.getNumberOfNodelinks(), is(expectedNumUniqueKeys));
+		// TODO: Extract logic that is duplicated in testWriteScanpoints
 		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
 			final String deviceName = objectProvider.getName();
 			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
@@ -419,14 +418,14 @@ public class SolsticeScanMetadataWriterTest {
 			if (externalFileNames.isEmpty()) {
 				assertThat(deviceName, is(equalTo("internal")));
 				final NXobject nexusObject = objectProvider.getNexusObject();
-				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH);
+				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH);
 				assertThat(uniqueKeysNodeLink, is(notNullValue()));
 				assertThat(uniqueKeysNodeLink.isDestinationData(), is(true));
-				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH).getDestination();
+				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH).getDestination();
 				assertThat(keysCollection.getDataNode(deviceName), is(sameInstance(uniqueKeysNode)));
 			} else {
 				final String externalFileName = externalFileNames.iterator().next();
-				final String datasetName = externalFileName.replace("/", "__");
+				String datasetName = externalFileName.contains(objectProvider.getName()) ? objectProvider.getName() : "panda";
 				final SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
 				assertThat(symbolicNode, is(notNullValue()));
 				assertThat(symbolicNode.getPath(), is(equalTo(uniqueKeysPath)));
@@ -577,6 +576,7 @@ public class SolsticeScanMetadataWriterTest {
 
 		// assert links to unique keys for devices that write their own
 		assertThat(keysCollection.getNumberOfNodelinks(), is(4));
+		// TODO: Extract logic that is duplicated in testCreateNexusObject
 		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
 			final String deviceName = objectProvider.getName();
 			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
@@ -584,14 +584,14 @@ public class SolsticeScanMetadataWriterTest {
 			if (externalFileNames.isEmpty()) {
 				assertThat(deviceName, is(equalTo("internal")));
 				final NXobject nexusObject = objectProvider.getNexusObject();
-				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH);
+				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH);
 				assertThat(uniqueKeysNodeLink, is(notNullValue()));
 				assertThat(uniqueKeysNodeLink.isDestinationData(), is(true));
-				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(INTERNAL_UNIQUE_KEYS_PATH).getDestination();
+				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH).getDestination();
 				assertThat(uniqueKeysNode, is(sameInstance(keysCollection.getDataNode(deviceName))));
 			} else {
 				final String externalFileName = externalFileNames.iterator().next();
-				String datasetName = externalFileName.replace("/", "__");
+				String datasetName = externalFileName.contains(objectProvider.getName()) ? objectProvider.getName() : "panda";
 				SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
 				assertThat(symbolicNode, is(notNullValue()));
 				assertThat(symbolicNode.getPath(), is(equalTo(uniqueKeysPath)));

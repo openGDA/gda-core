@@ -12,12 +12,11 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.scanning.example.malcolm.DummyMalcolmDevice.FILE_EXTENSION_HDF5;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -174,15 +173,15 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		return primaryDataFieldsPerDetector;
 	}
 
-	private List<String> getExpectedExternalFiles(DummyMalcolmModel dummyMalcolmModel) {
-		List<String> expectedFileNames = dummyMalcolmModel.getDetectorModels().stream()
-			.map(d -> d.getName() + FILE_EXTENSION_HDF5)
+	private List<String> getExpectedUniqueKeysPath(DummyMalcolmModel dummyMalcolmModel) {
+		List<String> expectedUniqueKeyPaths = dummyMalcolmModel.getDetectorModels().stream()
+			.map(IMalcolmDetectorModel::getName)
 			.collect(Collectors.toCollection(ArrayList::new));
 		if (!dummyMalcolmModel.getPositionerNames().isEmpty()) {
-			expectedFileNames.add("panda" + FILE_EXTENSION_HDF5);
+			expectedUniqueKeyPaths.add("panda");
 		}
 
-		return expectedFileNames;
+		return expectedUniqueKeyPaths;
 	}
 
 	@Override
@@ -195,8 +194,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final NXinstrument instrument = entry.getInstrument();
 
 		// check that the scan points have been written correctly
-		final List<String> expectedExternalFiles = getExpectedExternalFiles(dummyMalcolmModel);
-		assertDiamondScanGroup(entry, true, snake, false, expectedExternalFiles, sizes);
+		final List<String> expectedUniqueKeysPath = getExpectedUniqueKeysPath(dummyMalcolmModel);
+		assertDiamondScanGroup(entry, true, snake, false, expectedUniqueKeysPath, sizes);
 
 		// map from detector name -> primary data fields
 		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();
