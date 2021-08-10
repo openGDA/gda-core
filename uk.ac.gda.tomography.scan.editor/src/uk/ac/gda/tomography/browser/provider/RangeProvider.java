@@ -27,7 +27,7 @@ import gda.rcp.views.Browser;
 import gda.rcp.views.ComparableStyledLabelProvider;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.ui.browser.ScanningAcquisitionBrowserBase;
+import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
 
 /**
  * Formats the tomography range for a {@link Browser} column.
