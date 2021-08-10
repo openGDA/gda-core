@@ -356,6 +356,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanInfo.setPerScanMonitorNames(getNames(nexusDevices.get(ScanRole.MONITOR_PER_SCAN)));
 		nexusScanInfo.setRank(firstPoint.getScanDimensions().length);
 		nexusScanInfo.setShape(firstPoint.getScanDimensions());
+		nexusScanInfo.setScanCommand(firstPoint.getCommand());
 
 		return nexusScanInfo;
 	}

@@ -23,6 +23,12 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_N
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DURATION;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_END_TIME;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_SHAPE;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_START_TIME;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
@@ -35,6 +41,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -260,8 +267,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@BeforeClass
 	public static void setUpServices() {
-		AbstractNexusDataWriterScanTest.setUpServices();
-
 		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
 
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
@@ -472,15 +477,27 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// check unique keys and scan timings have been written into the diamond scan NXcollection
 		assertDiamondScanGroup(entry, false, false, scanDimensions);
 
-		// TODO: get metadata into nexus file (DAQ-3151)
-//		// entry_identifier
+		final Set<String> expectedLinkedFieldNames = Set.of(
+				FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_SHAPE,
+				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION);
+
+		final Set<String> otherDataNodeNames = Set.of(NXentry.NX_PROGRAM_NAME);
+		final Set<String> allDataNodeNames = Streams.concat(
+				expectedLinkedFieldNames.stream(), otherDataNodeNames.stream()).collect(toSet());
+		assertThat(entry.getDataNodeNames(), containsInAnyOrder(allDataNodeNames.toArray()));
+
+		final NXcollection diamondScanGroup = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
+		for (String dataNodeName : expectedLinkedFieldNames) {
+			assertThat(entry.getDataNode(dataNodeName), is(sameInstance(diamondScanGroup.getDataNode(dataNodeName))));
+		}
+
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_SHAPE), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
+
+		// TODO: what further metadata should be added to the nexus file (DAQ-3151)
+		// (fields below are added by NexusDataWriter get metadata into nexus file but not yet NexusScanDataWriter)
 //		assertThat(entry.getEntry_identifierScalar(), is(equalTo(EXPECTED_ENTRY_IDENTIFER))); // not set
-//		// program_name
 //		assertThat(entry.getProgram_nameScalar(), is(equalTo(EXPECTED_PROGRAM_NAME)));
-//		assertThat(entry.getDataset(DATASET_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
-//		// scan_dimensions
-//		assertThat(entry.getDataset(DATASET_NAME_SCAN_DIMENSIONS), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
-//		// title
 //		assertThat(entry.getTitleScalar(), is(equalTo(EXPECTED_SCAN_COMMAND))); // title seems to be same as scan command(!)
 	}
 
