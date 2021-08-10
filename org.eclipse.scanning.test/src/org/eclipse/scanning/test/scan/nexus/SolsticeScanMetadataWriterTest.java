@@ -15,6 +15,7 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.ATTRIBUTE_NAME_U
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.ATTRIBUTE_VALUE_MILLISECONDS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_POINT_END_TIME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_POINT_START_TIME;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DEAD_TIME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DEAD_TIME_PERCENT;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DURATION;
@@ -27,9 +28,10 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_UNIQUE_KEYS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_UNIQUE_KEYS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter.SINGLE_SHAPE;
-import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -53,12 +55,14 @@ import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdetector;
+import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
+import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
@@ -148,7 +152,7 @@ public class SolsticeScanMetadataWriterTest {
 		public ExternalFileWritingPositioner(String name) {
 			super(name, NexusBaseClass.NX_POSITIONER, NXpositioner.NX_VALUE);
 			addExternalFileName("panda.nxs");
-			setPropertyValue("uniqueKeys", MALCOLM_UNIQUE_KEYS_PATH);
+			setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH, MALCOLM_UNIQUE_KEYS_PATH);
 		}
 
 		@Override
@@ -219,7 +223,20 @@ public class SolsticeScanMetadataWriterTest {
 
 	private static final String INTERNAL_UNIQUE_KEYS_PATH = "uniqueKeys";
 
+	private static final int[] SCAN_SHAPE = new int[] { 8, 5 };
+
+	private static final String SCAN_COMMAND = "mscan(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(8, 5), count=(1, 1), snake=True)";
+
+	private static final String[] EXPECTED_ENTRY_FIELD_NAMES = {
+			FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION,
+			FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_SHAPE,
+	};
+
 	private IPointGeneratorService pointGenService;
+
+	private SolsticeScanMetadataWriter scanMetadataWriter;
+
+	private NXcollection diamondScanCollection;
 
 	@Before
 	public void setUp() {
@@ -237,6 +254,23 @@ public class SolsticeScanMetadataWriterTest {
 		testCreateNexusObject(true);
 	}
 
+	@Test
+	public void testCustomNexusModification() throws Exception {
+		testCreateNexusObject(false);
+
+		final CustomNexusEntryModification modification = scanMetadataWriter.getCustomNexusModification();
+		assertThat(modification, is(notNullValue()));
+
+		final NXentry entry = NexusNodeFactory.createNXentry();
+		modification.modifyEntry(entry);
+
+		assertThat(entry.getDataNodeNames(), containsInAnyOrder(EXPECTED_ENTRY_FIELD_NAMES));
+
+		for (String fieldName : EXPECTED_ENTRY_FIELD_NAMES) {
+			assertThat(entry.getDataNode(fieldName), is(sameInstance(diamondScanCollection.getDataNode(fieldName))));
+		}
+	}
+
 	private void testCreateNexusObject(boolean suppressGlobalUniqueKeys) throws Exception {
 		// Arrange
 		final List<NexusObjectProvider<?>> nexusObjectProviders = new ArrayList<>();
@@ -250,10 +284,9 @@ public class SolsticeScanMetadataWriterTest {
 			nexusObjectProviders.add(new ExternalFileWritingPositioner(positionerName));
 		}
 
-		final int[] scanShape = { 8, 5 };
-		final int scanRank = scanShape.length;
-		final int numPoints = scanShape[0] * scanShape[1];
-		final TwoAxisGridPointsModel gridModel = createGridModel(scanShape);
+		final int scanRank = SCAN_SHAPE.length;
+		final int numPoints = SCAN_SHAPE[0] * SCAN_SHAPE[1];
+		final TwoAxisGridPointsModel gridModel = createGridModel(SCAN_SHAPE);
 
 		final IPointGenerator<TwoAxisGridPointsModel> gen = pointGenService.createGenerator(gridModel);
 		final ScanModel scanModel = new ScanModel();
@@ -266,23 +299,30 @@ public class SolsticeScanMetadataWriterTest {
 		final IScanDevice scanDevice = mock(IScanDevice.class);
 		when(scanDevice.getName()).thenReturn("solstice_scan");
 
-		final SolsticeScanMetadataWriter scanMetadataWriter = new SolsticeScanMetadataWriter(scanDevice, scanModel);
+		scanMetadataWriter = new SolsticeScanMetadataWriter(scanDevice, scanModel);
 		scanMetadataWriter.setNexusObjectProviders(nexusObjectProviders);
 
 		final NexusScanInfo scanInfo = new NexusScanInfo();
 		scanInfo.setRank(scanRank);
-		scanInfo.setShape(scanShape);
+		scanInfo.setShape(SCAN_SHAPE);
 		scanInfo.setEstimatedScanTime(scanModel.getScanInformation().getEstimatedScanTime());
+		scanInfo.setScanCommand(SCAN_COMMAND);
 
 		final int[] expectedChunking = new int[scanInfo.getRank()];
 		Arrays.fill(expectedChunking, 1);
 		expectedChunking[expectedChunking.length-1] = 8;
 
-		// Act
-		final NXcollection diamondScanCollection = scanMetadataWriter.getNexusProvider(scanInfo).getNexusObject();
+		diamondScanCollection = scanMetadataWriter.getNexusProvider(scanInfo).getNexusObject();
 
 		// Assert
 		assertThat(diamondScanCollection, is(notNullValue()));
+
+		assertThat(diamondScanCollection.getDataNodeNames(), containsInAnyOrder(
+				FIELD_NAME_SCAN_SHAPE, FIELD_NAME_SCAN_RANK, FIELD_NAME_SCAN_COMMAND,
+				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION,
+				FIELD_NAME_SCAN_ESTIMATED_DURATION, FIELD_NAME_SCAN_FINISHED,
+				FIELD_NAME_SCAN_DEAD_TIME, FIELD_NAME_SCAN_DEAD_TIME_PERCENT,
+				FIELD_NAME_POINT_START_TIME, FIELD_NAME_POINT_END_TIME));
 
 		// assert scan finished dataset created correctly - value must be false
 		final DataNode scanFinishedDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_FINISHED);
@@ -293,6 +333,11 @@ public class SolsticeScanMetadataWriterTest {
 		assertThat(scanFinishedDataset.getShape(), is(equalTo(SINGLE_SHAPE)));
 		final MockLazySaver scanFinishedSaver = new MockLazySaver();
 		scanFinishedDataset.setSaver(scanFinishedSaver);
+
+		// assert scan command set correctly
+		final DataNode scanCommandDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_COMMAND);
+		assertThat(scanCommandDataNode, is(notNullValue()));
+		assertThat(scanCommandDataNode.getDataset().getSlice().getString(), is(SCAN_COMMAND));
 
 		// assert scan rank set correctly
 		final DataNode scanRankDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_RANK);
@@ -307,7 +352,7 @@ public class SolsticeScanMetadataWriterTest {
 		assertThat(shapeDataset.getRank(), is(1));
 		assertThat(shapeDataset.getElementClass(), is(equalTo(Integer.class)));
 		assertThat(shapeDataset.getShape(), is(equalTo(new int[] { scanRank })));
-		assertThat(IntStream.range(0, scanShape.length).map(shapeDataset::getInt).toArray(), is(equalTo(scanShape)));
+		assertThat(IntStream.range(0, SCAN_SHAPE.length).map(shapeDataset::getInt).toArray(), is(equalTo(SCAN_SHAPE)));
 
 		// assert that the estimated time has been written
 		final DataNode estimatedTimeDataNode = diamondScanCollection.getDataNode(FIELD_NAME_SCAN_ESTIMATED_DURATION);
