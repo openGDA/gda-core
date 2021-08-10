@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.properties.stage;
 
+import uk.ac.gda.client.properties.stage.position.ScannableKeys;
+
 /**
  * A predefined set of scannable.
  *
@@ -45,16 +47,17 @@ public enum DefaultManagedScannable {
 	// A moving workbench with multiple stages
 	BASE_X("base_x", "selector");
 
-	public final String groupId;
-	public final String scannableId;
+	private final String groupId;
+	private final String scannableId;
 	private DefaultManagedScannable(String groupId, String scannableId) {
 		this.groupId = groupId;
 		this.scannableId = scannableId;
 	}
-	public String getGroupId() {
-		return groupId;
-	}
-	public String getScannableId() {
-		return scannableId;
+
+	public ScannableKeys getScannableKey() {
+		var result = new ScannableKeys();
+		result.setGroupId(groupId);
+		result.setScannableId(scannableId);
+		return result;
 	}
 }

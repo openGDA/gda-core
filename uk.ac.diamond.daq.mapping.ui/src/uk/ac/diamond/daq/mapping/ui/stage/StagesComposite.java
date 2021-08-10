@@ -145,7 +145,7 @@ public class StagesComposite {
 
 	private ScannableProperties getBaseXProperties() {
 		return getScannablesPropertiesHelper()
-				.getScannablePropertiesDocument(DefaultManagedScannable.BASE_X);
+				.getScannablePropertiesDocument(DefaultManagedScannable.BASE_X.getScannableKey());
 	}
 
 	private CommonStage temporaryManagedScannablePositionToCommonStage(String position) throws GDAClientException {

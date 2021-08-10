@@ -35,7 +35,8 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  *
  * <p>
  * It is assumed that instances of this class are available only through
- * {@link ScannablesPropertiesHelper#getManagedScannable(String, String)}
+ * {@link ScannablesPropertiesHelper#getManagedScannable(uk.ac.gda.client.properties.stage.position.ScannableKeys)} or
+ * {@link ScannablesPropertiesHelper#getManagedScannable(DefaultManagedScannable)}
  * </p>
  *
  * <p>
