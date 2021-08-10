@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
+import uk.ac.gda.client.properties.stage.position.Position;
 
 /**
  * Represents both the acquisition and the hutch configuration

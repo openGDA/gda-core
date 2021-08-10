@@ -114,6 +114,34 @@ public class DevicePositionDocument {
 		return String.format("(%s, %s)", device, ValueType.NUMERIC.equals(getValueType()) ? position : labelledPosition);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((device == null) ? 0 : device.hashCode());
+		result = prime * result + ((valueType == null) ? 0 : valueType.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DevicePositionDocument other = (DevicePositionDocument) obj;
+		if (device == null) {
+			if (other.device != null)
+				return false;
+		} else if (!device.equals(other.device))
+			return false;
+		if (valueType != other.valueType)
+			return false;
+		return true;
+	}
+
+
 	@JsonPOJOBuilder
 	public static class Builder {
 		private String device;

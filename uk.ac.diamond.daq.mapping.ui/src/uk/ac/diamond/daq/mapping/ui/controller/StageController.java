@@ -33,7 +33,6 @@ import org.springframework.stereotype.Controller;
 import uk.ac.diamond.daq.mapping.ui.stage.CommonStage;
 import uk.ac.diamond.daq.mapping.ui.stage.DevicePosition;
 import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
 import uk.ac.diamond.daq.mapping.ui.stage.event.UpdateStagePositionEvent;
@@ -43,6 +42,8 @@ import uk.ac.gda.client.properties.stage.DevicePositionDocumentHelper;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.client.properties.stage.position.Position;
+import uk.ac.gda.client.properties.stage.position.ScannableKeys;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
@@ -166,6 +167,10 @@ public class StageController implements IStageController {
 	 */
 	public DevicePositionDocument createDevicePositionDocument(ManagedScannable<?> managedScannable) {
 		return devicePositionDocumentService.devicePositionAsDocument(managedScannable.getScannablePropertiesDocument().getScannable());
+	}
+
+	public ScannableProperties getScannablePropertiesDocument(ScannableKeys scannableKeys) {
+		return helper.getScannablePropertiesDocument(scannableKeys);
 	}
 
 	private DevicePositionDocument createShutterRequest(String position) {

@@ -51,7 +51,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -60,6 +59,7 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
 import uk.ac.gda.ui.tool.spring.FinderService;
@@ -180,9 +180,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 
 		doReturn(mockResponseEntity).when(scanningAcquisitionServer).run(controller.getAcquisition());
 
-		RunAcquisitionResponse response = controller.runAcquisition();
-		Assert.assertEquals(responseText, response.getMessage());
-		Assert.assertTrue(response.isSubmitted());
+		var response = controller.runAcquisition();
 
 		Assert.assertTrue(controller.getAcquisition().getAcquisitionConfiguration()
 				.getAcquisitionParameters().getStartPosition().contains(openShutterPosition));

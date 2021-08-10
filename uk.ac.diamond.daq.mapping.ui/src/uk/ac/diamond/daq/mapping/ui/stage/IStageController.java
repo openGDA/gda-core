@@ -21,9 +21,9 @@ package uk.ac.diamond.daq.mapping.ui.stage;
 import java.util.Map;
 import java.util.Set;
 
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
+import uk.ac.gda.client.properties.stage.position.Position;
 
 /**
  * Defines a minimal set of methods for a stage controller. May change in future.

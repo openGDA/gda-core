@@ -45,9 +45,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.diamond.daq.mapping.ui.stage.event.UpdateStagePositionEvent;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
+import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.client.viewer.ThreeStateDisplay;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
