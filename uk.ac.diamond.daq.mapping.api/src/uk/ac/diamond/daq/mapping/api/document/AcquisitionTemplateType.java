@@ -43,5 +43,13 @@ public enum AcquisitionTemplateType {
 	/**
 	 * Identifies a static point
 	 */
-	STATIC_POINT
+	STATIC_POINT,
+	/**
+	 * Identifies dark acquisition (shutter closed)
+	 */
+	DARK,
+	/**
+	 * Identifies flat acquisition (shutter open, no sample in camera view)
+	 */
+	FLAT
 }

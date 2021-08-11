@@ -27,8 +27,9 @@ public enum AcquisitionType {
 
 	TOMOGRAPHY("tomography"),
 
-	DIFFRACTION("diffraction");
+	DIFFRACTION("diffraction"),
 
+	CALIBRATION("calibration");
 
 	private final String name;
 
