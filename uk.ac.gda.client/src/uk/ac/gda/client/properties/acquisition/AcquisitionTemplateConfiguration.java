@@ -21,12 +21,15 @@ package uk.ac.gda.client.properties.acquisition;
 import java.util.List;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 
 public class AcquisitionTemplateConfiguration {
 
 	private AcquisitionTemplateType template;
 
 	private List<ScannableTrackDocumentProperty> tracks;
+
+	private List<ScannablePropertiesValue> startPosition;
 
 	private boolean defaultTemplate;
 
@@ -52,5 +55,13 @@ public class AcquisitionTemplateConfiguration {
 
 	public void setDefaultTemplate(boolean defaultTemplate) {
 		this.defaultTemplate = defaultTemplate;
+	}
+
+	public List<ScannablePropertiesValue> getStartPosition() {
+		return startPosition;
+	}
+
+	public void setStartPosition(List<ScannablePropertiesValue> startPosition) {
+		this.startPosition = startPosition;
 	}
 }
