@@ -26,7 +26,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 
@@ -72,9 +71,6 @@ public class FileCreatorDetectorNexusDevice extends AbstractDetectorNexusDeviceA
 	@Override
 	public void writePosition(Object data, SliceND scanSlice) throws NexusException {
 		try {
-			if (data instanceof Dataset) {
-				System.err.println("Is dataset");
-			}
 			IWritableNexusDevice.writeDataset(fileNameDataset, data, scanSlice);
 		} catch (DatasetException e) {
 			throw new NexusException("Could not write data for detector " + getName());
