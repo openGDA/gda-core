@@ -20,6 +20,8 @@ public final class SolsticeConstants {
 	 */
 	public static final String SYSTEM_PROPERTY_NAME_ENTRY_NAME = "org.eclipse.scanning.nexusEntryName";
 
+	public static final String DEFAULT_ENTRY_NAME = "entry";
+
 	/**
 	 * Property name for the path within an external (linked) nexus file to the unique keys dataset.
 	 */

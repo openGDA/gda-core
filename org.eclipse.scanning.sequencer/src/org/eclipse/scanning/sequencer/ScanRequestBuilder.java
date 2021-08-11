@@ -25,12 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.scan.NexusScanConstants;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
@@ -40,6 +42,8 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.script.ScriptRequest;
+import org.eclipse.scanning.sequencer.nexus.NexusScanFileManager;
+import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +74,8 @@ public class ScanRequestBuilder {
 	public static final String SCANPATHMODEL = "scanPathModel";
 	public static final String REGION = "region";
 	public static final String MUTATORS = "mutators";
+	public static final String ORIGINAL_SCAN_NAME = "solstice_scan";
+	public static final String SCAN_REQUEST = "scan_request";
 
 	private CompoundModel model;
 
@@ -278,7 +284,8 @@ public class ScanRequestBuilder {
 	}
 
 	/**
-	 * Retrieves a ScanRequest from a previously saved Nexus file if it contains one.
+	 * Retrieves a ScanRequest from a previously saved Nexus file if it contains one. The file must
+	 * contain a NxEntry with the default name or that specified by NexusScanFileManager.getEntryName().
 	 *
 	 * @param nxFilename	The filename of the Nexus file
 	 * @return				An Optional of the Scan Request, empty if the filename is null or blank
@@ -291,9 +298,49 @@ public class ScanRequestBuilder {
 
 			try (NexusFile nxFile = nxFileFactory.newNexusFile(nxFilename)) {
 				nxFile.openToRead();
-				DataNode json = nxFile.getData("/entry/solstice_scan/scan_request");
-				ScanRequest request = marshaller.unmarshal(json.toString(), ScanRequest.class);
-				return Optional.of(request);
+
+				Optional<StringJoiner> pathJoiner = getJoiner(nxFile);  // includes currently set entry name
+
+				if (pathJoiner.isPresent()) {
+					// solstice_scan has been renamed to 'diamond_scan' so this will be the case in older files
+					if (!nxFile.isPathValid(pathJoiner.get().add(NexusScanConstants.GROUP_NAME_DIAMOND_SCAN).toString())) {
+
+						pathJoiner = getJoiner(nxFile);						// sorry, no reset() so have to re-get it
+						pathJoiner.get().add(ORIGINAL_SCAN_NAME);
+					}
+					pathJoiner.get().add(SCAN_REQUEST);
+
+					DataNode json = nxFile.getData(pathJoiner.get().toString());
+					ScanRequest request = marshaller.unmarshal(json.toString(), ScanRequest.class);
+					return Optional.of(request);
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * Retrieves an Optional of a String Joiner preloaded with the NXEntry name if the file contains a NXEntry
+	 * whose name matches either the default name or that specified by NexusScanFileManager.getEntryName().
+	 * Otherwise an empty Optional is returned and a warning is logged
+	 *
+	 * @param nxFile	The file to be checked for the NXEntry
+	 * @return			Optional of the start of the path including the NXEntry name on successful match, or empty
+	 */
+	private static Optional<StringJoiner> getJoiner(NexusFile nxFile) {
+		StringJoiner joiner = new StringJoiner("/","/","");
+
+		// As we are only concerned with 'new' scanning files, we first try the appropriate constant
+		String nxEntryName = NexusScanFileManager.getEntryName();
+		if (nxFile.isPathValid(joiner.add(nxEntryName).toString())) {
+			return Optional.of(joiner);
+		} else {
+			joiner = new StringJoiner("/","/","");														// sorry, no reset()
+			if (nxFile.isPathValid(joiner.add(SolsticeConstants.DEFAULT_ENTRY_NAME).toString())) {
+				return Optional.of(joiner);
+			} else {
+				logger.warn(
+					"NXEntry name is neither the default, nor that set in the properties files ({}), cannot load Scan Definition", nxEntryName);
 			}
 		}
 		return Optional.empty();

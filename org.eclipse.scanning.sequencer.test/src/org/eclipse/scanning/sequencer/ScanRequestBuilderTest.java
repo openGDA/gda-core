@@ -35,28 +35,48 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.tree.impl.DataNodeImpl;
+import org.eclipse.dawnsci.nexus.INexusFileFactory;
+import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.scan.NexusScanConstants;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.sequencer.ScanRequestBuilder;
+import org.eclipse.scanning.sequencer.nexus.SolsticeConstants;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.script.ScriptRequest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
+@SuppressWarnings("restriction")
 public class ScanRequestBuilderTest {
 	private static final String DATA_DIRECTORY = "/dls_sw/ixx/data/2020/cm-1234/data";
+	
+	private static MockedStatic<ServiceHolder> holder;
+	private IMarshallerService marshaller;
+	private INexusFileFactory factory;
+	private NexusFile file;
+	private DataNode node;
 
 	private IDetectorModel model1;
 	private IDetectorModel model2;
@@ -71,9 +91,15 @@ public class ScanRequestBuilderTest {
 	private ScriptRequest beforeScript;
 	private ScriptRequest afterScript;
 	private ProcessingRequest processingRequest;
-
+	
 	@Before
 	public void setUp() {
+		holder  = mockStatic(ServiceHolder.class);
+		marshaller = mock(IMarshallerService.class);
+		factory = mock(INexusFileFactory.class);
+		file = mock(NexusFile.class);
+		node = new DataNodeImpl(1111);
+		
 		model1 = mock(IDetectorModel.class);
 		model2 = mock(IDetectorModel.class);
 		detectors = new HashMap<>();
@@ -89,6 +115,16 @@ public class ScanRequestBuilderTest {
 		beforeScript = mock(ScriptRequest.class);
 		afterScript = mock(ScriptRequest.class);
 		processingRequest = mock(ProcessingRequest.class);
+		
+		holder.when(ServiceHolder::getMarshallerService).thenReturn(marshaller);
+		holder.when(ServiceHolder::getNexusFileFactory).thenReturn(factory);
+		when(factory.newNexusFile(anyString())).thenReturn(file);
+		node.setString("{\"@type\":\"ScanRequest\",\"compoundModel\":{\"@type\":\"CompoundModel\",\"units\":[\"mm\",\"mm\"],\"alternating\":false,\"continuous\":false,\"models\":[{\"@type\":\"TwoAxisGridStepModel\",\"name\":\"Raster\",\"units\":[\"mm\",\"mm\"],\"alternating\":false,\"continuous\":false,\"xAxisName\":\"stagex\",\"yAxisName\":\"stagey\",\"xAxisUnits\":\"mm\",\"yAxisUnits\":\"mm\",\"boundingBox\":{\"@type\":\"BoundingBox\",\"xAxisName\":\"stage_x\",\"xAxisStart\":0.0,\"xAxisLength\":10.0,\"yAxisName\":\"stage_y\",\"yAxisStart\":0.0,\"yAxisLength\":10.0},\"orientation\":\"HORIZONTAL\",\"alternateBothAxes\":true,\"boundsToFit\":false,\"xAxisStep\":5.0,\"yAxisStep\":5.0}],\"regions\":[{\"@type\":\"ScanRegion\",\"roi\":{\"@type\":\"roi.rectangular\",\"lengths\":[10.0,10.0],\"angle\":0.0,\"point\":[0.0,0.0]},\"scannables\":[\"stagex\",\"stagey\"]}],\"mutators\":[],\"duration\":-1.0},\"detectors\":{},\"monitorNamesPerPoint\":[],\"monitorNamesPerScan\":[],\"templateFilePaths\":[],\"alwaysRunAfterScript\":false,\"ignorePreprocess\":false,\"processingRequest\":{\"@type\":\"ProcessingRequest\"}}");
+	}
+	
+	@After
+	public void cleanup() {
+		holder.close();
 	}
 
 	@Test
@@ -180,5 +216,47 @@ public class ScanRequestBuilderTest {
 		assertTrue(scanRequest.isAlwaysRunAfterScript());
 		assertTrue(scanRequest.isIgnorePreprocess());
 		assertTrue(scanRequest.getProcessingRequest() == processingRequest);
+	}
+	
+	@Test
+	public void loadsSolsticeScanScanRequestIfPresent() throws NexusException, Exception {
+		when(file.isPathValid("/" + SolsticeConstants.DEFAULT_ENTRY_NAME)).thenReturn(true);
+		when(file.isPathValid("/" + SolsticeConstants.DEFAULT_ENTRY_NAME + "/" + ScanRequestBuilder.ORIGINAL_SCAN_NAME)).thenReturn(true);
+		when(file.getData(anyString())).thenReturn(node);
+		when(marshaller.unmarshal(node.toString(), ScanRequest.class)).thenReturn(new ScanRequest());
+		
+		Optional<ScanRequest> result = ScanRequestBuilder.buildFromNexusFile("afile");
+		assert(result.isPresent());
+	}
+	
+	@Test
+	public void loadsDiamondScanScanRequestIfPresent() throws NexusException, Exception {
+		when(file.isPathValid("/" + SolsticeConstants.DEFAULT_ENTRY_NAME)).thenReturn(true);
+		when(file.isPathValid("/" + SolsticeConstants.DEFAULT_ENTRY_NAME + "/" + NexusScanConstants.GROUP_NAME_DIAMOND_SCAN)).thenReturn(true);
+		when(file.getData(anyString())).thenReturn(node);
+		when(marshaller.unmarshal(node.toString(), ScanRequest.class)).thenReturn(new ScanRequest());
+		
+		Optional<ScanRequest> result = ScanRequestBuilder.buildFromNexusFile("afile");
+		assert(result.isPresent());
+	}
+	
+	@Test
+	public void loadsDiamondScanScanRequestWithCustomEntryNameIfPresent() throws NexusException, Exception {
+		String nxEntryName = "banana";
+		System.setProperty(SolsticeConstants.SYSTEM_PROPERTY_NAME_ENTRY_NAME, nxEntryName);
+		when(file.isPathValid("/" + nxEntryName)).thenReturn(true);
+		when(file.isPathValid("/" + SolsticeConstants.DEFAULT_ENTRY_NAME + "/" + NexusScanConstants.GROUP_NAME_DIAMOND_SCAN)).thenReturn(true);
+		when(file.getData(anyString())).thenReturn(node);
+		when(marshaller.unmarshal(node.toString(), ScanRequest.class)).thenReturn(new ScanRequest());
+		
+		Optional<ScanRequest> result = ScanRequestBuilder.buildFromNexusFile("afile");
+		assert(result.isPresent());
+	}
+	
+	@Test
+	public void failsToLoadWithUnknownEntryName() throws NexusException, Exception {
+		
+		Optional<ScanRequest> result = ScanRequestBuilder.buildFromNexusFile("afile");
+		assert(result.isEmpty());
 	}
 }
