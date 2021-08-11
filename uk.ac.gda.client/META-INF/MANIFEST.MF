@@ -79,7 +79,8 @@ Require-Bundle: org.eclipse.help.ui,
  org.apache.httpcomponents.httpcore,
  org.apache.httpcomponents.httpclient,
  uk.ac.diamond.daq.experiment.api,
- uk.ac.diamond.daq.mapping.api
+ uk.ac.diamond.daq.mapping.api,
+ org.eclipse.scanning.device.ui
 Export-Package: com.swtdesigner,
  gda.gui.scriptcontroller.logging,
  gda.rcp,

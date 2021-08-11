@@ -108,8 +108,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	private void editBeamlineConfiguration() {
 		IMappingExperimentBean mappingBean = getMappingBean();
 		EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
-				scannableDeviceService);
-		dialog.setInitialBeamlineConfiguration(mappingBean.getBeamlineConfiguration());
+				scannableDeviceService, mappingBean.getBeamlineConfiguration());
 		dialog.create();
 		if (dialog.open() == Window.OK) {
 			Map<String, Object> configuredScannables = dialog.getModifiedBeamlineConfiguration();
