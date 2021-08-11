@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.client.properties.stage.position.ScannableKeys;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
@@ -32,7 +33,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * client.scannableGroup.0.scannable.1.scannable=simy
  * client.scannableGroup.0.scannable.1.label=Y Axis
  * client.scannableGroup.0.scannable.1.enums.CLOSED=right position
- * client.scannableGroup.0.scannable.1.enums.OPEN:left position
+ * client.scannableGroup.0.scannable.1.enums.OPEN=left position
  * </pre>
  *
  * where
@@ -52,7 +53,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * <ol>
  * <li>{@link ScannablesPropertiesHelper} parses the existing scannableGroups from the properties</li>
  * <li>the external component can retrieve the required a ManagedScannable using
- * {@link #getManagedScannable(String, String)};</li>
+ * {@link #getManagedScannable(ScannableKeys)};</li>
  * </ol>
  * </p>
  *
@@ -101,7 +102,7 @@ public class ScannablesPropertiesHelper {
 	 * @param scannableID
 	 * @return an existing document, otherwise {@code null}
 	 */
-	private ScannableProperties getScannablePropertiesDocument(String scannableGroupID,
+	public ScannableProperties getScannablePropertiesDocument(String scannableGroupID,
 			String scannableID) {
 		return Optional.ofNullable(getScannableGroupPropertiesDocument(scannableGroupID))
 				.map(ScannableGroupProperties::getScannables)
@@ -109,22 +110,21 @@ public class ScannablesPropertiesHelper {
 				.orElseGet(() -> null);
 	}
 
-	public ScannableProperties getScannablePropertiesDocument(DefaultManagedScannable scannableDefinition) {
-		return getScannablePropertiesDocument(scannableDefinition.groupId, scannableDefinition.getScannableId());
+	public ScannableProperties getScannablePropertiesDocument(ScannableKeys scannableKeys) {
+		return getScannablePropertiesDocument(scannableKeys.getGroupId(), scannableKeys.getScannableId());
 	}
 
 	public <T> ManagedScannable<T> getManagedScannable(DefaultManagedScannable scannableDefinition) {
-		return getManagedScannable(scannableDefinition.groupId, scannableDefinition.getScannableId());
+		return getManagedScannable(scannableDefinition.getScannableKey());
 	}
 
 	/**
 	 * @param <T> The expected scannable movement type: {@code String} for {@code EnumPositioner} or {@code Double} for {@code IScannableMotor}
-	 * @param scannableGroupID the scannable group ID where the scannable belong to
-	 * @param scannableID the scannable ID inside the scannable group
+	 * @param scannableKeys the keys identifying the scannable
 	 * @return a managed scannable or {@code null} if the pair (groupID, scannableID) is not available from the client properties
 	 */
-	public <T> ManagedScannable<T> getManagedScannable(String scannableGroupID, String scannableID) {
-		var document = getScannablePropertiesDocument(scannableGroupID, scannableID);
+	public <T> ManagedScannable<T> getManagedScannable(ScannableKeys scannableKeys) {
+		var document = getScannablePropertiesDocument(scannableKeys);
 		if (document == null)
 			return null;
 		if (!managedScannableMap.containsKey(document)) {
