@@ -58,6 +58,8 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
 
 /**
@@ -124,6 +126,14 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	}
 
 	@Override
+	protected void writeMetaDataFields(NXdetector detGroup, Detector detector) throws DeviceException {
+		// Override to not write the metadata fields written by this method in the superclass
+		// NexusDataWriter does not add these fields for this case, as the same NexusDetector can
+		// write multiple NXdetectors, with different names, types and IDs. If these fields are required
+		// they should be part of the INexusTree structure returned by the NexusDetector.readout() method
+	}
+
+	@Override
 	protected void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException {
 		this.detGroup = detGroup;
 		this.scanInfo = info;
@@ -167,12 +177,12 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 
 		if (isPrimaryField(group, linkTreeNode)) {
 			final String fieldName = linkTreeNode.getName();
-			final int rank = linkTreeNode.getData().externalDataRank;
-			if (rank < 0) {
+			final int dataRank = linkTreeNode.getData().externalDataRank;
+			if (dataRank < 0) {
 				logger.error("No rank set for field {}. This field will not be set as a primary field.", fieldName);
 			} else {
 				externalFileNames.add(externalLink.getSourceURI().toString());
-				externalDatasetRanks.put(fieldName, rank);
+				externalDatasetRanks.put(fieldName, dataRank + scanInfo.getRank());
 				primaryFieldNames.add(linkTreeNode.getName());
 			}
 		}
@@ -216,7 +226,7 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	private boolean isPrimaryField(NXobject group, INexusTree treeNode) {
 		final String nodeType = treeNode.getNxClass();
 		return group == detGroup && treeNode.getData() != null && treeNode.getData().isDetectorEntryData &&
-				((nodeType.equals(NexusExtractor.SDSClassName) && !treeNode.isPointDependent()) ||
+				((nodeType.equals(NexusExtractor.SDSClassName) && treeNode.isPointDependent()) ||
 						nodeType.equals(NexusExtractor.ExternalSDSLink));
 	}
 
