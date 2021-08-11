@@ -71,8 +71,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
-import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -157,8 +155,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 			return primaryFieldNames;
 		}
 	}
-
-	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
 
 	/**
 	 * A generic detector that extends DummyDetector to return an fixed-length double array.
@@ -422,6 +418,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	}
 
+	private static final String TEMPLATE_FILE_PATH = "testfiles/gda/scan/datawriter/simple-template.yaml";
 	protected static final String METADATA_KEY_FEDERAL_ID = "federalid";
 	protected static final String METADATA_KEY_INSTRUMENT = "instrument";
 
@@ -470,8 +467,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final double MONITOR_VALUE = 2.5;
 
-	private static INexusFileFactory nexusFileFactory;
-
 	private String outputDir;
 
 	protected final int scanRank;
@@ -494,11 +489,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 		for (int i = 0; i < scanRank; i++) {
 			scanDimensions[i] = i < GRID_SHAPE.length ? GRID_SHAPE[i] : DEFAULT_NUM_AXIS_POINTS;
 		}
-	}
-
-	public static void setUpServices() {
-		// must be called from @BeforeClass method of subclasses
-		nexusFileFactory = new NexusFileFactoryHDF5();
 	}
 
 	@AfterClass

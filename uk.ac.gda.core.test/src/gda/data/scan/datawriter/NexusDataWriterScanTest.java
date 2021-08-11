@@ -22,6 +22,7 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
 import static java.util.stream.Collectors.toMap;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -64,8 +65,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final int[] METADATA_DATASET_SHAPE = new int[] { 1 };
 
-	private static final String FIELD_NAME_SCAN_COMMAND = "scan_command";
-	private static final String FIELD_NAME_SCAN_DIMENSIONS = "scan_dimensions";
 	private static final String FIELD_NAME_USER_NAME = "username";
 	private static final String GROUP_NAME_DEFAULT = "default";
 
@@ -80,6 +79,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	private static final String METADATA_KEY_INSTRUMENT_SOURCE_ENERGY = "instrument.source.energy";
 	private static final String METADATA_KEY_INSTRUMENT_SOURCE_CURRENT = "instrument.source.current";
 
+	private static final String FIELD_NAME_SCAN_DIMENSIONS = "scan_dimensions";
+
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
@@ -91,8 +92,6 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	@BeforeClass
 	public static void setUpServices() {
-		AbstractNexusDataWriterScanTest.setUpServices();
-
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
 	}
