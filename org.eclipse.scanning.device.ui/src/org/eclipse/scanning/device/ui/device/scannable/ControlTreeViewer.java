@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.device.ui.device.scannable;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,13 +22,14 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationListener;
+import org.eclipse.jface.viewers.ColumnViewerEditorDeactivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -37,7 +37,6 @@ import org.eclipse.richbeans.widgets.internal.GridUtils;
 import org.eclipse.scanning.api.INamedNode;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
-import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.scan.ui.ControlGroup;
 import org.eclipse.scanning.api.scan.ui.ControlNode;
 import org.eclipse.scanning.api.scan.ui.ControlTree;
@@ -45,9 +44,7 @@ import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.DevicePreferenceConstants;
 import org.eclipse.scanning.device.ui.device.ControlTreeUtils;
 import org.eclipse.scanning.device.ui.util.ViewUtil;
-import org.eclipse.scanning.device.ui.util.ViewerUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -135,14 +132,15 @@ public class ControlTreeViewer {
 
 	// UI
 	private TreeViewer viewer;
-	private Composite  content;
+	private Composite content;
 	private List<IAction> editActions;
 	private boolean setUseFilteredTree = true;
 
 	// Data
-	private ControlTree       defaultTree;
-	private String            defaultGroupName = null;
+	private ControlTree defaultTree;
+	private String defaultGroupName = null;
 	private final ControlViewerMode controlViewerMode;
+	private List<Runnable> dataChangedCallbacks = new ArrayList<>();
 
 
 	/**
@@ -175,7 +173,7 @@ public class ControlTreeViewer {
 	 * Creates an editor for the tree passed in
 	 * @param parent
 	 * @param tree which is edited. If this ControlTreeViewer was created without specifiying a default, this is cloned for the default.
-	 * @param managers, may be null
+	 * @param managers may be null
 	 * @throws Exception
 	 */
 	public Composite createPartControl(Composite parent, ControlTree tree, IContributionManager... managers) throws Exception {
@@ -185,22 +183,24 @@ public class ControlTreeViewer {
 		if (defaultTree==null && tree==null) throw new IllegalArgumentException("No control tree has been defined!");
 
 		// Clone this tree so that they can reset it!
-		if (defaultTree==null) defaultTree = ControlTreeUtils.clone(tree);
-        if (tree == null)      tree        = ControlTreeUtils.clone(defaultTree);
+		if (defaultTree==null) {
+			defaultTree = ControlTreeUtils.clone(tree);
+		}
+        if (tree == null) {
+        	tree = ControlTreeUtils.clone(defaultTree);
+        }
 
-       if (setUseFilteredTree) {
-		FilteredTree ftree = new FilteredTree(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE, new NamedNodeFilter(), true);
-		this.viewer  = ftree.getViewer();
-		this.content = ftree;
-       } else {
-		this.viewer  = new TreeViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
-		this.content = viewer.getTree();
+        if (setUseFilteredTree) {
+        	var ftree = new FilteredTree(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE, new NamedNodeFilter(), false, false);
+        	this.viewer  = ftree.getViewer();
+        	this.content = ftree;
+        } else {
+        	this.viewer  = new TreeViewer(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE);
+        	this.content = viewer.getTree();
         }
 
 		viewer.getTree().setLinesVisible(true);
 		viewer.getTree().setHeaderVisible(false);
-		ViewerUtils.setItemHeight(viewer.getTree(), 30);
-		content.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createColumns(viewer);
 
@@ -215,12 +215,6 @@ public class ControlTreeViewer {
 		createActions(viewer, tree, managers);
 		setSearchVisible(false);
 
-		try {
-		    registerAll();
-		} catch (Exception ne) {
-			logger.error("Cannot listen to motor values changing...");
-		}
-
 		return content;
 	}
 
@@ -233,7 +227,7 @@ public class ControlTreeViewer {
 		viewer.setColumnProperties(new String[] { "Name", "Value"});
 		ColumnViewerToolTipSupport.enableFor(viewer);
 
-		TreeViewerColumn nameColumn = new TreeViewerColumn(viewer, SWT.LEFT, 0);
+		var nameColumn = new TreeViewerColumn(viewer, SWT.LEFT, 0);
 		nameColumn.getColumn().setText("Name");
 		nameColumn.getColumn().setWidth(200);
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
@@ -245,11 +239,45 @@ public class ControlTreeViewer {
 		});
 		nameColumn.setEditingSupport(new NameEditingSupport(this));
 
-		TreeViewerColumn valueColumn = new TreeViewerColumn(viewer, SWT.LEFT, 1);
+
+		var valueColumn = new TreeViewerColumn(viewer, SWT.LEFT, 1);
 		valueColumn.getColumn().setText("Value");
 		valueColumn.getColumn().setWidth(300);
 		valueColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(new ControlValueLabelProvider(cservice, this)));
 		valueColumn.setEditingSupport(new ControlEditingSupport(viewer, cservice, controlViewerMode));
+		valueColumn.getViewer().getColumnViewerEditor().addEditorActivationListener(new ValueEditedListener());
+	}
+
+	public void addDataChangedCallback(Runnable listener) {
+		dataChangedCallbacks.add(listener);
+	}
+
+	private void dataChanged() {
+		dataChangedCallbacks.forEach(Runnable::run);
+	}
+
+	private class ValueEditedListener extends ColumnViewerEditorActivationListener {
+
+		@Override
+		public void beforeEditorActivated(ColumnViewerEditorActivationEvent event) {
+			// not interested
+		}
+
+		@Override
+		public void afterEditorActivated(ColumnViewerEditorActivationEvent event) {
+			// not interested
+		}
+
+		@Override
+		public void beforeEditorDeactivated(ColumnViewerEditorDeactivationEvent event) {
+			// not interested
+		}
+
+		@Override
+		public void afterEditorDeactivated(ColumnViewerEditorDeactivationEvent event) {
+			dataChanged();
+		}
+
 	}
 
 	/**
@@ -258,7 +286,7 @@ public class ControlTreeViewer {
 	private void createActions(final TreeViewer tviewer, ControlTree tree, IContributionManager... managers) {
 
 		List<IContributionManager> mans = new ArrayList<>(Arrays.asList(managers));
-		MenuManager     rightClick     = new MenuManager();
+		var rightClick = new MenuManager();
 		mans.add(rightClick);
 
 		// Action to add a new ControlGroup
@@ -297,12 +325,7 @@ public class ControlTreeViewer {
 		IAction expandAll = new Action("Expand All", Activator.getImageDescriptor("icons/expand_all.png")) {
 			@Override
 			public void run() {
-				try {
-					registerAll();
-				} catch (Exception e) {
-					logger.error("Unable to reconnect all listeners!", e);
-				}
-				refresh();
+				viewer.expandAll();
 			}
 		};
 
@@ -337,7 +360,6 @@ public class ControlTreeViewer {
 		IAction setAllToCurrentValue;
 		if (controlViewerMode.isDirectlyConnected()) {
 			setToCurrentValue = null;
-			setAllToCurrentValue = null;
 		} else {
 			// Action to set the selected control node to the current value of the underlying scannable
 			setToCurrentValue = new Action("Set to current value", Activator.getImageDescriptor("icons/reset-value.png")) {
@@ -365,6 +387,7 @@ public class ControlTreeViewer {
 				if (!ok) return;
 				try {
 					setControlTree(ControlTreeUtils.clone(defaultTree));
+					dataChanged();
 				} catch (Exception e) {
 					logger.error("Unable to set input back to default!", e);
 				}
@@ -384,16 +407,13 @@ public class ControlTreeViewer {
 		setShowTip.setImageDescriptor(Activator.getImageDescriptor("icons/balloon.png"));
 		ViewUtil.addGroups("tip", mans, setShowTip);
 
-		tviewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				INamedNode selectedNode = getSelection();
-				ControlTree tree = (ControlTree)viewer.getInput(); // They might have called setControlTree()!
-				removeNode.setEnabled(tree.isTreeEditable() && selectedNode != null); // can only remove node if one is selected
-				addNode.setEnabled(tree.isTreeEditable() && selectedNode != null || defaultGroupName != null); // can only add a node if one is selected (can still add a group)
-				if (setToCurrentValue != null) {
-					setToCurrentValue.setEnabled(selectedNode instanceof ControlNode);
-				}
+		tviewer.addSelectionChangedListener(event -> {
+			INamedNode selectedNode = getSelection();
+			var controlTree = (ControlTree)viewer.getInput(); // They might have called setControlTree()!
+			removeNode.setEnabled(controlTree.isTreeEditable() && selectedNode != null); // can only remove node if one is selected
+			addNode.setEnabled(controlTree.isTreeEditable() && selectedNode != null || defaultGroupName != null); // can only add a node if one is selected (can still add a group)
+			if (setToCurrentValue != null) {
+				setToCurrentValue.setEnabled(selectedNode instanceof ControlNode);
 			}
 		});
 
@@ -480,29 +500,12 @@ public class ControlTreeViewer {
 		this.defaultGroupName = defaultGroupName;
 	}
 
-	public void dispose() {
-
-	}
-
-
-	/**
-	 * Clears all the current listeners and registers all the new ones.
-	 *
-	 * @throws EventException
-	 * @throws URISyntaxException
-	 */
-	private void registerAll() throws EventException, URISyntaxException {
-
-		if (!controlViewerMode.isDirectlyConnected()) return; // Nothing to monitor.
-
-	}
-
 	/**
 	 * Call to programmatically add a node. The user will be shown a combo of available scannable names.
 	 */
 	public void addNode() {
 		INamedNode selectedNode = getSelection();
-		ControlTree controlTree = getControlTree();
+		var controlTree = getControlTree();
 		if (selectedNode == null) {
 			if (defaultGroupName == null) return;
 			selectedNode = controlTree.getNode(defaultGroupName); // add new node to default group
@@ -516,7 +519,7 @@ public class ControlTreeViewer {
 
 	private void removeNode() {
 		final INamedNode selectedNode = getSelection();
-		ControlTree controlTree = getControlTree();
+		var controlTree = getControlTree();
 		INamedNode parent = controlTree.getNode(selectedNode.getParentName());
 		if (selectedNode.getChildren()==null || selectedNode.getChildren().length<1) {
 			controlTree.delete(selectedNode);
@@ -530,6 +533,7 @@ public class ControlTreeViewer {
 		} else {
 		    setSelection(parent);
 		}
+		dataChanged();
 	}
 
 	private void setSelectedToCurrentValue() {
@@ -538,6 +542,7 @@ public class ControlTreeViewer {
 			setToCurrentValue((ControlNode) selectedNode);
 			viewer.refresh(selectedNode);
 		}
+		dataChanged();
 	}
 
 	private void setToCurrentValue(ControlNode controlNode) {
@@ -550,7 +555,7 @@ public class ControlTreeViewer {
 	}
 
 	private void setAllToCurrentValue() {
-		ControlTree controlTree = (ControlTree) viewer.getInput();
+		var controlTree = (ControlTree) viewer.getInput();
 		setAllToCurrentValue(controlTree);
 		viewer.refresh();
 	}
@@ -563,13 +568,7 @@ public class ControlTreeViewer {
 				setToCurrentValue((ControlNode) childNode);
 			}
 		}
-	}
-
-	public void addSelectionChangedListener(ISelectionChangedListener i) {
-		viewer.addSelectionChangedListener(i);
-	}
-	public void removeSelectionChangedListener(ISelectionChangedListener i) {
-		viewer.removeSelectionChangedListener(i);
+		dataChanged();
 	}
 
 	public void applyEditorValue() {
