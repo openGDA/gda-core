@@ -44,7 +44,6 @@ import gda.device.Scannable;
 import gda.factory.Finder;
 import uk.ac.gda.beans.exafs.i18.AttenuatorParameters;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
-import uk.ac.gda.beans.exafs.i18.SampleStageParameters;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.FauxRichBeansEditor;
 
@@ -95,18 +94,18 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
 
-		Composite sampleParametersComposite = new Composite(scrolledComposite, SWT.NONE);
+		var sampleParametersComposite = new Composite(scrolledComposite, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(sampleParametersComposite);
 
 		scrolledComposite.setContent(sampleParametersComposite);
 
-		Composite details = formattedCompositeInGroup(sampleParametersComposite, "Sample Details");
+		var details = formattedCompositeInGroup(sampleParametersComposite, "Sample Details");
 		createSampleDetailsSection(details);
 
-		Composite sampleStage = formattedCompositeInGroup(sampleParametersComposite, "Sample Stage");
+		var sampleStage = formattedCompositeInGroup(sampleParametersComposite, "Sample Stage");
 		createSampleStageSection(sampleStage);
 
-		Composite attenuators = formattedCompositeInGroup(sampleParametersComposite, "Attenuators");
+		var attenuators = formattedCompositeInGroup(sampleParametersComposite, "Attenuators");
 		createAttenuatorsSection(attenuators);
 
 		createMirrorSection(sampleParametersComposite);
@@ -115,13 +114,13 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 	}
 
 	private Composite formattedCompositeInGroup(Composite parent, String groupName) {
-		final Group group = new Group(parent, SWT.NONE);
+		final var group = new Group(parent, SWT.NONE);
 		group.setText(groupName);
 
 		GridLayoutFactory.swtDefaults().applyTo(group);
 		GROUP_FORMAT.applyTo(group);
 
-		final Composite composite = new Composite(group, SWT.NONE);
+		final var composite = new Composite(group, SWT.NONE);
 		TWO_COLUMN_LAYOUT.applyTo(composite);
 
 		STRETCH.applyTo(composite);
@@ -132,18 +131,18 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 	private void createSampleDetailsSection(Composite details) {
 
 		// controls
-		Label nameLabel = new Label(details, SWT.NONE);
+		var nameLabel = new Label(details, SWT.NONE);
 		nameLabel.setText("Name");
 		RIGHT_ALIGN.applyTo(nameLabel);
 
-		Text name = new Text(details, SWT.BORDER);
+		var name = new Text(details, SWT.BORDER);
 		STRETCH.applyTo(name);
 
-		Label descriptionLabel = new Label(details, SWT.NONE);
+		var descriptionLabel = new Label(details, SWT.NONE);
 		descriptionLabel.setText("Description");
 		RIGHT_ALIGN.copy().align(SWT.RIGHT, SWT.TOP).applyTo(descriptionLabel);
 
-		Text description = new Text(details, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+		var description = new Text(details, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		STRETCH.copy().hint(SWT.DEFAULT, 50).applyTo(description);
 
 		// bindings
@@ -163,64 +162,36 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 	private void createSampleStageSection(Composite section) {
 
 		// controls
-		Label selectionLabel = new Label(section, SWT.NONE);
-		selectionLabel.setText("Selected stage");
-		RIGHT_ALIGN.applyTo(selectionLabel);
-
-		Composite stageSelection = new Composite(section, SWT.NONE);
-		TWO_COLUMN_LAYOUT.applyTo(stageSelection);
-		STRETCH.applyTo(stageSelection);
-
-		Button stage1 = new Button(stageSelection, SWT.RADIO);
-		stage1.setText("Table 1");
-		STRETCH.applyTo(stage1);
-
-		Button stage2 = new Button(stageSelection, SWT.RADIO);
-		stage2.setText("Table 3"); // [sic] blame the beamline staff
-		STRETCH.applyTo(stage2);
-
-		Label xLabel = new Label(section, SWT.NONE);
+		var xLabel = new Label(section, SWT.NONE);
 		RIGHT_ALIGN.applyTo(xLabel);
 		xLabel.setText("X");
 
-		Text x = new Text(section, SWT.BORDER);
+		var x = new Text(section, SWT.BORDER);
 		STRETCH.applyTo(x);
 
-		Label yLabel = new Label(section, SWT.NONE);
+		var yLabel = new Label(section, SWT.NONE);
 		RIGHT_ALIGN.applyTo(yLabel);
 		yLabel.setText("Y");
 
-		Text y = new Text(section, SWT.BORDER);
+		var y = new Text(section, SWT.BORDER);
 		STRETCH.applyTo(y);
 
-		Label zLabel = new Label(section, SWT.NONE);
+		var zLabel = new Label(section, SWT.NONE);
 		RIGHT_ALIGN.applyTo(zLabel);
 		zLabel.setText("Z");
 
-		Text z = new Text(section, SWT.BORDER);
+		var z = new Text(section, SWT.BORDER);
 		STRETCH.applyTo(z);
 
 		skipCell(section);
 
-		Button fetchPosition = new Button(section, SWT.PUSH);
+		var fetchPosition = new Button(section, SWT.PUSH);
 		fetchPosition.setText("Fetch stage position");
 		STRETCH.applyTo(fetchPosition);
 
 
 		// bindings
-		SampleStageParameters bean = getBean().getSampleStageParameters();
-
-		if (bean.getXName().equals("t1x")) stage1.setSelection(true);
-		else if (bean.getXName().equals("t3x")) stage2.setSelection(true);
-
-		stage1.addListener(SWT.Selection, event -> {
-			selectStage("t1", bean);
-			beanChanged();
-		});
-		stage2.addListener(SWT.Selection, event -> {
-			selectStage("t3", bean);
-			beanChanged();
-		});
+		var bean = getBean().getSampleStageParameters();
 
 		x.setText(String.valueOf(bean.getX()));
 		x.addListener(SWT.Modify, event -> {
@@ -267,22 +238,16 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		});
 	}
 
-	private void selectStage(String stagePrefix, SampleStageParameters bean) {
-		bean.setXName(stagePrefix + "x");
-		bean.setYName(stagePrefix + "y");
-		bean.setZName(stagePrefix + "z");
-	}
-
 	private void createAttenuatorsSection(Composite section) {
 
 		Map<String, Combo> attenuators = new HashMap<>();
 
 		for (AttenuatorParameters attenuator : getBean().getAttenuators()) {
-			Label label = new Label(section, SWT.NONE);
+			var label = new Label(section, SWT.NONE);
 			label.setText(attenuator.getName());
 			RIGHT_ALIGN.applyTo(label);
 
-			Combo combo = new Combo(section, SWT.READ_ONLY);
+			var combo = new Combo(section, SWT.READ_ONLY);
 			STRETCH.applyTo(combo);
 
 			List<String> attn1Positions = attenuator.getPosition();
@@ -298,7 +263,7 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 
 		skipCell(section);
 
-		Button fetch = new Button(section, SWT.PUSH);
+		var fetch = new Button(section, SWT.PUSH);
 		fetch.setText("Fetch positions");
 		STRETCH.applyTo(fetch);
 
@@ -321,7 +286,7 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 	private void createMirrorSection(Composite parent) {
 
 		//controls
-		final CheckBoxGroup group = new CheckBoxGroup(parent, SWT.NONE);
+		final var group = new CheckBoxGroup(parent, SWT.NONE);
 		group.setText("KB Mirror");
 
 		GridLayoutFactory.swtDefaults().applyTo(group);
@@ -331,16 +296,16 @@ public class I18SampleParametersUIEditor extends FauxRichBeansEditor<I18SamplePa
 		TWO_COLUMN_LAYOUT.applyTo(section);
 		STRETCH.applyTo(section);
 
-		Label xLabel = new Label(section, SWT.NONE);
+		var xLabel = new Label(section, SWT.NONE);
 		xLabel.setText("X");
 		RIGHT_ALIGN.applyTo(xLabel);
 
-		Text x = new Text(section, SWT.BORDER);
+		var x = new Text(section, SWT.BORDER);
 		STRETCH.applyTo(x);
 
 		skipCell(section);
 
-		Button fetch = new Button(section, SWT.PUSH);
+		var fetch = new Button(section, SWT.PUSH);
 		fetch.setText("Fetch position");
 		STRETCH.applyTo(fetch);
 

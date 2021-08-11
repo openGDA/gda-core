@@ -22,7 +22,6 @@ import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.eclipse.dawnsci.nexus.NexusConstants.POSITIONER;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -30,14 +29,11 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.mapping.ui.IMapClickEvent;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
-import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.IFindInTree;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
-import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeUtils;
 import org.eclipse.dawnsci.nexus.NXpositioner;
-import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.device.ScanRole;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
@@ -67,7 +63,7 @@ public class ExafsSelectionHandler implements EventHandler {
 		final IMapClickEvent mapClickEvent = (IMapClickEvent) event.getProperty("event");
 		// we handle only single-click events
 		if (!mapClickEvent.isDoubleClick()) {
-			ClickEvent clickEvent = mapClickEvent.getClickEvent();
+			var clickEvent = mapClickEvent.getClickEvent();
 			final double xLocation = clickEvent.getxValue();
 			final double yLocation = clickEvent.getyValue();
 
@@ -81,24 +77,12 @@ public class ExafsSelectionHandler implements EventHandler {
 	}
 
 	private void updateExafsSelectionView(Double xLocation, Double yLocation, Double zLocation) {
-		final Double[] locationArray = new Double[] { xLocation, yLocation, zLocation };
+		final var locationArray = new Double[] { xLocation, yLocation, zLocation };
 
-		final String sampleStagePrefix = stageConfigurationService.getPlotXAxisName().substring(0, 2);
-		boolean validPrefix = Arrays.asList(stageConfigurationService.getPlotXAxisName(),
-											stageConfigurationService.getPlotYAxisName(),
-											stageConfigurationService.getAssociatedAxis()).stream()
-											.allMatch(axis -> axis.startsWith(sampleStagePrefix));
-
-		ExafsSelectionView exafsSelectionView = (ExafsSelectionView) EclipseUtils.getActivePage().findView(ExafsSelectionView.ID);
+		var exafsSelectionView = (ExafsSelectionView) EclipseUtils.getActivePage().findView(ExafsSelectionView.ID);
 		if (exafsSelectionView == null) return;
 
 		exafsSelectionView.setSelectedPoint(locationArray);
-		if (validPrefix) {
-			exafsSelectionView.setSampleStagePrefix(sampleStagePrefix);
-		} else {
-			logger.warn("Inconsistent axes selected");
-			exafsSelectionView.setSampleStagePrefix(null);
-		}
 	}
 
 	/**
@@ -117,7 +101,7 @@ public class ExafsSelectionHandler implements EventHandler {
 		try {
 
 			final IDataHolder dataHolder = loaderService.getData(filePath, null);
-			Tree tree = dataHolder.getTree();
+			var tree = dataHolder.getTree();
 
 			IFindInTree perScanMonitorFinder = new PerScanMonitorFinder(scannable);
 			Map<String, NodeLink> nodeMap = TreeUtils.treeBreadthFirstSearch(tree.getGroupNode(), perScanMonitorFinder, true, null);
@@ -175,7 +159,7 @@ public class ExafsSelectionHandler implements EventHandler {
 		@Override
 		public boolean found(NodeLink node) {
 			if (node.getDestination() instanceof GroupNode) {
-				GroupNode groupNode = (GroupNode) node.getDestination();
+				var groupNode = (GroupNode) node.getDestination();
 				return attributeHasValue(groupNode, NXCLASS, POSITIONER) &&								// we are looking for an NXpositioner
 						attributeHasValue(groupNode, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName) &&	// with the scannable name provided
 						attributeHasValue(groupNode, ATTR_NAME_GDA_SCAN_ROLE,							// whose role is a per-scan monitor
@@ -186,7 +170,7 @@ public class ExafsSelectionHandler implements EventHandler {
 		}
 
 		private boolean attributeHasValue(GroupNode groupNode, String attrName, String expectedName) {
-			Attribute attribute = groupNode.getAttribute(attrName);
+			var attribute = groupNode.getAttribute(attrName);
 			return attribute != null && attribute.getFirstElement() != null
 					&& expectedName.equals(attribute.getFirstElement());
 		}
