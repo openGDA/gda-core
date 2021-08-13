@@ -43,17 +43,6 @@ public class DetectorDocument {
 	private final double exposure;
 
 	/**
-	 * The detector readout time.
-	 * <p>
-	 * <b>NOTE</b> this is a temporary solution to mitigate the case where the acquisition engine acquisition time
-	 * accounts not only for the detector exposure but also for the readout time. This property should be removed as soon
-	 * an improved Malcolm version will be deployed (BC-1349)
-	 * </p>
-	 */
-	@Deprecated
-	private final double readout;
-
-	/**
 	 * The detector name, from the Malcolm DetectorTable, which accepts <i>exposure</i> property.
 	 * (from the web gui, http://beamline-control:8008/gui/MALCOLM_ID --> Malcolm --> Detectors --> Edit)
 	 * <p>
@@ -69,10 +58,9 @@ public class DetectorDocument {
 
 
 
-	private DetectorDocument(String name, double exposure, double readout, String malcolmDetectorName) {
+	private DetectorDocument(String name, double exposure, String malcolmDetectorName) {
 		this.name = name;
 		this.exposure = exposure;
-		this.readout = readout;
 		this.malcolmDetectorName= malcolmDetectorName;
 	}
 
@@ -80,7 +68,6 @@ public class DetectorDocument {
 		super();
 		this.name = detectorDocument.getName();
 		this.exposure = detectorDocument.getExposure();
-		this.readout = detectorDocument.getReadout();
 		this.malcolmDetectorName = detectorDocument.getMalcolmDetectorName();
 	}
 
@@ -92,15 +79,6 @@ public class DetectorDocument {
 		return exposure;
 	}
 
-	/**
-	 * @return the readout for this detector
-	 * @deprecated this property is used to compensate the exposure in malcolm. However anew development in Malcolm made this unnecessary
-	 */
-	@Deprecated
-	public double getReadout() {
-		return readout;
-	}
-
 	public String getMalcolmDetectorName() {
 		return malcolmDetectorName;
 	}
@@ -109,7 +87,6 @@ public class DetectorDocument {
 	public static class Builder {
 		private String name;
 		private double exposure;
-		private double readout;
 		private String malcolmDetectorName;
 
 	    public Builder withName(String name) {
@@ -122,24 +99,13 @@ public class DetectorDocument {
 	        return this;
 	    }
 
-	    /**
-	     * @param readout
-	     * @return the detector readout
-	     * @deprecated to be removed
-	     */
-		@Deprecated
-	    public Builder withReadout(double readout) {
-	        this.readout = readout;
-	        return this;
-	    }
-
 	    public Builder withMalcolmDetectorName(String malcolmDetectorName) {
 	        this.malcolmDetectorName = malcolmDetectorName;
 	        return this;
 	    }
 
 	    public DetectorDocument build() {
-	        return new DetectorDocument(name, exposure, readout, malcolmDetectorName);
+	        return new DetectorDocument(name, exposure, malcolmDetectorName);
 	    }
 	}
 }

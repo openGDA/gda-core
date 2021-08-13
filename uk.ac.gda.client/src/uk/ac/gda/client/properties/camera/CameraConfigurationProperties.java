@@ -39,7 +39,6 @@ public class CameraConfigurationProperties {
 
 	private boolean pixelBinningEditable;
 
-	private double readoutTime;
 	private String malcolmDetectorName;
 	private String gdaDetectorName;
 
@@ -96,14 +95,6 @@ public class CameraConfigurationProperties {
 
 	public void setPixelBinningEditable(boolean pixelBinningEditable) {
 		this.pixelBinningEditable = pixelBinningEditable;
-	}
-
-	public double getReadoutTime() {
-		return readoutTime;
-	}
-
-	public void setReadoutTime(double readoutTime) {
-		this.readoutTime = readoutTime;
 	}
 
 	/**

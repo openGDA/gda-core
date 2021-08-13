@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.api.document;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -291,15 +290,6 @@ public class ScanRequestFactory {
 
 		// Asks Malcolm to automatically estimate the duration
 		model.setExposureTime(0);
-
-		// If there is any detector with a readout time
-		if (detectors.stream().anyMatch(d -> d.getReadout() > 0)) {
-			// Sets Malcolm duration as the longest among the exposure + readout pairs
-			detectors.stream()
-					.map(d -> d.getReadout() + d.getExposure())
-					.max(Comparator.comparing(Double::valueOf))
-					.ifPresent(model::setExposureTime);
-		}
 	}
 
 	private void setDetectorExposure(IMalcolmDetectorModel malcolmDetectorModel, List<DetectorDocumentReader> detectors) {

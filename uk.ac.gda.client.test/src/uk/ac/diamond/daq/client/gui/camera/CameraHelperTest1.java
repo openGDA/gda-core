@@ -59,7 +59,6 @@ public class CameraHelperTest1 {
 		Assert.assertEquals(5, camerasProperties.size());
 		CameraConfigurationProperties cp = camerasProperties.get(0);
 		Assert.assertEquals("PCO_CAMERA", cp.getId());
-		Assert.assertEquals(345.0, cp.getReadoutTime(), 0.0);
 
 		Assert.assertEquals("d5_cam_config", camerasProperties.get(3).getConfiguration());
 	}

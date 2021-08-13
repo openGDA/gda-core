@@ -89,10 +89,6 @@ public class ScanningAcquisitionDetectorUpdater {
 		}
 
 		private void updateDetectorDocument(CameraControl cameraControl, double acquireTime) {
-			double readoutTime = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
-				.map(CameraConfigurationProperties::getReadoutTime)
-				.orElse(0.0);
-
 			String malcolmDetectorName = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
 					.map(CameraConfigurationProperties::getMalcolmDetectorName)
 					.orElse("NotAvilable");
@@ -112,7 +108,6 @@ public class ScanningAcquisitionDetectorUpdater {
 					var detectorDocument = new DetectorDocument.Builder()
 						.withName(cameraControl.getName())
 						.withExposure(acquireTime)
-						.withReadout(readoutTime)
 						.withMalcolmDetectorName(malcolmDetectorName)
 						.build();
 
