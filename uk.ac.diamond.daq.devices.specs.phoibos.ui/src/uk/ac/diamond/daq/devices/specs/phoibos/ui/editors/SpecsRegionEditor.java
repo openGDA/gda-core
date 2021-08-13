@@ -248,6 +248,7 @@ public class SpecsRegionEditor {
 		Label estimatedTimeLabel = new Label(child, SWT.NONE);
 		estimatedTimeLabel.setText("Estimated time");
 		estimatedTimeText = new Text(child, SWT.NONE);
+		estimatedTimeText.setEditable(false);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(estimatedTimeText);
 
 		// Set the child as the scrolled content of the ScrolledComposite

@@ -126,9 +126,10 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 
 	/**
 	 * This is the width of the detector in snapshot mode at pass energy = 1 eV. It is used to calculate the required
-	 * low and high energy for fixed mode.
+	 * low and high energy for fixed mode. This is a fallback value. Real value will be attempted to read from EPICS.
+	 * If this fails, value from Spring will be used. If no value from Spring, this will be used.
 	 */
-	private double detectorEnergyWidth = 1;
+	private double detectorEnergyWidth = 0.12;
 
 	/**
 	 * Limit the rate of update events sent to the GUI to a max of 10 per sec
@@ -186,6 +187,23 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		else {
 			logger.debug("No prelens valve is configured");
 		}
+
+		// If the value is zero, the IOC hasn't auto-saved the record correctly so we won't
+		// update the field and will instead use the value that's already been set by spring
+		// use the fall-back value from the properties file.
+		//
+		// If we can't get the value, we will use the default too. A time of writing this has
+		// only been implemented on B07-1 and not I09-1 so this will time out there.
+		try {
+			double detectorEnergyWidthFromController = controller.getDetectorEnergyWidth();
+			if (detectorEnergyWidthFromController != 0) {
+				setDetectorEnergyWidth(detectorEnergyWidthFromController);
+			}
+
+		} catch (Exception exception) {
+			logger.warn("An error occured while trying to get the detector range. Fall-back default value will be used", exception);
+		}
+
 		setConfigured(true);
 	}
 
