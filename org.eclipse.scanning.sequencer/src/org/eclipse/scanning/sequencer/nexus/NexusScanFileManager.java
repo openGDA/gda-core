@@ -272,7 +272,7 @@ public class NexusScanFileManager {
 		return nexusScanInfo;
 	}
 
-	private String getEntryName() {
+	public static String getEntryName() {
 		String entryName = System.getProperty(SolsticeConstants.SYSTEM_PROPERTY_NAME_ENTRY_NAME);
 		if (entryName == null) {
 			entryName = System.getProperty("GDA/gda.nexus.entryName");
