@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TimerTask;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
@@ -247,6 +248,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Scannable pgmenergy;
 	private RegionValidator regionValidator;
 	private Button btnHardShutter;
+	private Future<?> analyserScanProgressUpdates;
 
 	private SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
 		@Override
@@ -608,6 +610,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
+		resetCurrentRegion();
 	}
 
 	private void setShutterState(Composite shutterState, int status) {
@@ -1153,12 +1156,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						currentRegion = region;
-						break;
-					}
-				}
+				resetCurrentRegion();
 				if (currentRegion == null) {
 					fireSelectionChanged(regions.get(0));
 				} else {
@@ -1214,6 +1212,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (!isAllRegionsValid()) {
 				logger.warn("File {} contains invalid active region {}.", regionDefinitionResourceUtil.getFileName(), invalidRegionName);
 			} else {
+				resetCurrentRegion();
 				logger.info("All active regions in file {} are valid.", regionDefinitionResourceUtil.getFileName());
 			}
 		} catch (IOException e) {
@@ -1426,7 +1425,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		firstTime = true;
 		time4ScanPointsCompleted=0.0;
 		time4RegionsCompletedInCurrentPoint=0.0;
-		Async.scheduleAtFixedRate(new TimerTask() {
+		analyserScanProgressUpdates = Async.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				Display.getDefault().asyncExec(() -> {
@@ -1463,6 +1462,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			txtTimeRemaining.setText(String.format("%.3f", 0.0));
 			progressBar.setSelection(100);
 		});
+		resetCurrentRegion();
+		analyserScanProgressUpdates.cancel(true);
+	}
+
+	/**
+	 * Sets {@link #currentRegion} to be the first enabled region from the list of regions
+	 */
+	private void resetCurrentRegion() {
+		currentRegion = regions.stream().filter(Region::isEnabled).findFirst().orElse(regions.get(0));
 	}
 
 	private void updateHardXRayEnergy() {
@@ -1544,11 +1552,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				case 6:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
 					running = false;
+					if (analyserScanProgressUpdates != null) {
+						analyserScanProgressUpdates.cancel(true);
+					}
 					logger.error("analyser in error state for region; {}", currentRegion.toString());
 					break;
 				case 10:
 					updateRegionStatus(currentRegion, STATUS.ABORTED);
 					running = false;
+					if (analyserScanProgressUpdates != null) {
+						analyserScanProgressUpdates.cancel(true);
+					}
 					logger.warn("analyser is in aborted state for currentregion: {}", currentRegion.toString());
 					break;
 				default:
