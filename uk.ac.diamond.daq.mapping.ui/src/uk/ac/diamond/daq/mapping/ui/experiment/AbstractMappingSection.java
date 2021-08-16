@@ -36,7 +36,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
 import org.eclipse.scanning.device.ui.device.MonitorView;
 import org.eclipse.scanning.device.ui.util.PageUtil;
@@ -223,22 +222,6 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		for (Binding binding : bindings) {
 			dataBindingContext.removeBinding(binding);
 			binding.dispose();
-		}
-	}
-
-	/**
-	 * @deprecated for removal in 9.21. See DAQ-3292
-	 */
-	@Deprecated
-	protected String createScanCommand() {
-		final ScanBean scanBean = createScanBean();
-		final IParserService parserService = getEclipseContext().get(IParserService.class);
-		try {
-			return parserService.getCommand(scanBean.getScanRequest(), true);
-		} catch (Exception e) {
-			final String message = "Error creating scan commmand";
-			logger.error(message, e);
-			return message;
 		}
 	}
 
