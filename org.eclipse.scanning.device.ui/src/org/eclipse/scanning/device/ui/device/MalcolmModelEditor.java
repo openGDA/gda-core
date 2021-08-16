@@ -22,10 +22,10 @@ import java.text.DecimalFormat;
 import java.util.Optional;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.preference.JFacePreferences;
@@ -189,8 +189,8 @@ public class MalcolmModelEditor extends AbstractModelEditor<IMalcolmModel> {
 		final Text stepTimeText = new Text(composite, SWT.BORDER);
 		stepTimeText.setToolTipText("The overall time for each frame of the scan");
 		GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(stepTimeText);
-		IObservableValue<Double> textFieldValue = WidgetProperties.text(SWT.Modify).observe(stepTimeText);
-		IObservableValue<Double> modelValue = PojoProperties.value("exposureTime").observe(getModel());
+		final IObservableValue<String> textFieldValue = WidgetProperties.text(SWT.Modify).observe(stepTimeText);
+		final IObservableValue<Object> modelValue = PojoProperties.value("exposureTime").observe(getModel());
 		// recalculate the derived values for the detectors when the step time changes
 		modelValue.addValueChangeListener(this::stepTimeChanged);
 		dataBindingContext.bindValue(textFieldValue, modelValue);
