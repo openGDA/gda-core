@@ -30,7 +30,6 @@ import java.util.function.Supplier;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +73,7 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		logger.debug("Creating {}", this);
 		// The overall container
-		Composite container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		var container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().applyTo(container);
 		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		setContextAcquisitionController(createAcquisitionController());
@@ -84,7 +83,7 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 			c.createNewAcquisition();
 		});
 
-		AcquisitionCompositeFactoryBuilder builder = new AcquisitionCompositeFactoryBuilder();
+		var builder = new AcquisitionCompositeFactoryBuilder();
 		builder.addTopArea(getTopArea(builder.getControlButtonsContainerSupplier()));
 		builder.addBottomArea(getBottomArea());
 		builder.build().createComposite(container, SWT.NONE);
@@ -121,7 +120,7 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	 */
 	protected abstract Browser<?> getBrowser();
 	/**
-	 * Creates a brand new {@link ScanningAcquisition} document and update the associated {@link #getAcquisitionController()}
+	 * Creates a brand new {@link ScanningAcquisition} document and update the associated {@link AcquisitionController}
 	 * <p>
 	 * The generated document has to be consisted with the acquisition type this view is related to. This method is usually called by a <i>New</i> button
 	 * </p>
@@ -130,10 +129,10 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	protected abstract Supplier<ScanningAcquisition> newScanningAcquisition();
 
 	private void buildSavedComposite(Composite parent) {
-		Group group = createClientGroup(parent, SWT.NONE, 1, SAVED_SCAN_DEFINITION);
+		var group = createClientGroup(parent, SWT.NONE, 1, SAVED_SCAN_DEFINITION);
 		createClientGridDataFactory().applyTo(group);
 		CompositeFactory cf = new AcquisitionsBrowserCompositeFactory<>(getBrowser());
-		Composite browser = cf.createComposite(group, SWT.BORDER);
+		var browser = cf.createComposite(group, SWT.BORDER);
 		createClientGridDataFactory().applyTo(browser);
 		standardMarginHeight(browser.getLayout());
 		standardMarginWidth(browser.getLayout());
@@ -158,7 +157,7 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	 *
 	 * @return an acquisition controller
 	 */
-	protected final Optional<AcquisitionController<ScanningAcquisition>> getAcquisitionController() {
+	private final Optional<AcquisitionController<ScanningAcquisition>> getAcquisitionController() {
 		return getClientSpringContext().getAcquisitionController();
 	}
 

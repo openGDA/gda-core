@@ -20,8 +20,12 @@ package uk.ac.gda.ui.tool.document;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +37,10 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.AcquisitionType;
+import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -51,6 +58,8 @@ import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 @Component
 public class ScanningAcquisitionTemporaryHelper {
 
+	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionTemporaryHelper.class);
+
 	@Autowired
 	private ClientSpringContext clientSpringContext;
 
@@ -60,6 +69,12 @@ public class ScanningAcquisitionTemporaryHelper {
 
 	public Optional<AcquisitionController<ScanningAcquisition>> getAcquisitionController() {
 		return getClientSpringContext().getAcquisitionController();
+	}
+
+	public AcquisitionController<ScanningAcquisition> getAcquisitionControllerElseThrow() {
+		return getClientSpringContext()
+				.getAcquisitionController()
+				.orElseThrow();
 	}
 
 	public AcquisitionType getAcquisitionType() {
@@ -114,4 +129,45 @@ public class ScanningAcquisitionTemporaryHelper {
 		return getAcquisitionConfiguration()
 				.map(s -> new ScannableTrackDocumentHelper(s::getAcquisitionParameters));
 	}
+
+	//------- NEW/SAVE/RUN -------
+	public void newAcquisition() {
+		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
+		if (confirmed) {
+			try {
+				getAcquisitionControllerElseThrow().createNewAcquisition();
+			} catch (NoSuchElementException e) {
+				UIHelper.showWarning(ClientMessages.NO_CONTROLLER, e);
+			}
+		}
+	}
+
+	public void saveAcquisition() {
+		boolean hasUUID = getScanningAcquisition()
+				.map(ScanningAcquisition::getUuid)
+				.map(Objects::nonNull)
+				.orElse(false);
+		if (hasUUID && !UIHelper.showConfirm("Override the existing configuration?")) {
+			return;
+		}
+
+		try {
+			getAcquisitionControllerElseThrow().saveAcquisitionConfiguration();
+		} catch (AcquisitionControllerException e) {
+			UIHelper.showError("Cannot save acquisition", e, logger);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(ClientMessages.NO_CONTROLLER, e);
+		}
+	}
+
+	public void runAcquisition() {
+		try {
+			getAcquisitionControllerElseThrow().runAcquisition();
+		} catch (AcquisitionControllerException e) {
+			UIHelper.showError(e.getMessage(), e.getCause().getMessage());
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(ClientMessages.NO_CONTROLLER, e);
+		}
+	}
+	//------- NEW/SAVE/RUN -------
 }
