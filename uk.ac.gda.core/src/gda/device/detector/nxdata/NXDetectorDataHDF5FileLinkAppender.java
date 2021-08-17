@@ -18,6 +18,7 @@
 
 package gda.device.detector.nxdata;
 
+import org.eclipse.dawnsci.nexus.NXdetector;
 import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
@@ -29,6 +30,8 @@ import gda.device.detector.NXDetectorData;
  */
 public class NXDetectorDataHDF5FileLinkAppender implements NXDetectorDataAppender {
 
+	private static final String ENTRY_INSTRUMENT_DETECTOR_DATA = "#entry/instrument/detector/data";
+	private static final String NXFILE_SCHEME = "nxfile://";
 	private final String writerName;
 	private final String filename;
 	private final Double xPixelSize;
@@ -68,15 +71,15 @@ public class NXDetectorDataHDF5FileLinkAppender implements NXDetectorDataAppende
 			throw new IllegalArgumentException("filename is null or zero length");
 		}
 
-		if (LocalProperties.get(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter").equals("NexusScanDataWriter")) {
-			data.addExternalFileLink(detectorName, "data", "nxfile://" + filename + "#entry/instrument/detector/data", false, true, dataRank);
-		} else {
-			//keep the original way of handling filename for backward compatibility for now.
-			if (writerName == null || writerName.isEmpty() || writerName.equals("hdfwriter")) { //the default name coded in the HDF5 file writer, using String instead CONSTANT string to avoid dependency on epics plugin
-				data.addScanFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data");
+		if (writerName == null || writerName.isEmpty() || writerName.equals("hdfwriter")) {
+			if (LocalProperties.get(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "NexusDataWriter").equals("NexusScanDataWriter")) {
+				data.addExternalFileLink(detectorName, NXdetector.NX_DATA, NXFILE_SCHEME + filename + ENTRY_INSTRUMENT_DETECTOR_DATA, dataRank);
 			} else {
-				data.addExternalFileLink(detectorName, writerName, "nxfile://" + filename + "#entry/instrument/detector/data", false, false);
+				//keep the original way of handling filename for backward compatibility for now.
+				data.addExternalFileLink(detectorName, NXFILE_SCHEME + filename + ENTRY_INSTRUMENT_DETECTOR_DATA, -1);
 			}
+		} else {
+			data.addExternalFileLink(detectorName, writerName, NXFILE_SCHEME + filename + ENTRY_INSTRUMENT_DETECTOR_DATA, dataRank);
 		}
 
 		if (xPixelSize!=null) {
