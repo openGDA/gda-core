@@ -20,8 +20,6 @@ package uk.ac.diamond.daq.devices.mbs;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.Dataset;
@@ -58,10 +56,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private RectangularROI cpsRoi;
 
 	private double energyStepPerPixel = 0.000855;
-
-	// MBS doesn't have PSU modes but the interface requires it so this string will be used
-	// where it's requested
-	private String defaultPsuModeName = "N/A";
 
 	private double maxKE = 200.0;
 	private Map<AcquisitionMode, String> acquisitionModeNames = Map.of(
@@ -156,14 +150,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		if (arg instanceof MotorStatus) {
 			notifyIObservers(this, arg);
 		}
-	}
-
-	public String getDefaultPsuModeName() {
-		return defaultPsuModeName;
-	}
-
-	public void setDefaultPsuModeName(String defaultPsuModeName) {
-		this.defaultPsuModeName = defaultPsuModeName;
 	}
 
 	@Override
@@ -552,13 +538,13 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	@Override
 	public String getPsuMode() throws Exception {
-		// MBS Analyser doesn't have PSU modes but this method is required to satisfy the interface
-		return getDefaultPsuModeName();
+		return controller.getPsuMode();
 	}
 
 	@Override
 	public List<String> getPsuModes() {
-		return Stream.of(getDefaultPsuModeName()).collect(Collectors.toList());
+		// The MBS PV for PSU mode isn't an enumeration so we have to use the Spring config here
+		return List.copyOf(getEnergyRange().getAllPsuModes());
 	}
 
 	@Override

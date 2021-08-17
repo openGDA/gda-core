@@ -99,6 +99,7 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 	private static final String ACTUAL_SCANS_RBV = "CAM:ActScans_RBV";
 	private static final String CURRENT_SCAN_RBV = "CAM:CurrentScanNumber_RBV";
 	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
+	private static final String PSU_MODE_RBV = "CAM:PsuMode_RBV";
 	private static final String AUTO_DETECTOR_OFF_OVERRIDE = "CAM:DetectorOffOverride";
 
 	private static final String FIXED_MODE_NAME = "Fixed";
@@ -735,6 +736,10 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 
 	public int getCurrentIteration() throws DeviceException {
 		return getIntegerValue(CURRENT_SCAN_RBV, "current scan number");
+	}
+
+	public String getPsuMode() throws DeviceException {
+		return getStringValue(PSU_MODE_RBV, "psu mode");
 	}
 
 	public void setDetectorConfiguration(DetectorConfiguration configuration) throws Exception {
