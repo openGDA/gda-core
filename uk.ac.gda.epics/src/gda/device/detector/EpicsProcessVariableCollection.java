@@ -18,22 +18,32 @@
 
 package gda.device.detector;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -53,40 +63,35 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
 /**
- * This class is designed to collect additional data from a specified set of EPICS Processing Variables given in {@link #getName2PVNestedMap()},
- * {@link #getName2PVSimpleMap()}, and/or {@link #getFieldsToAppend()} with configurable GDA name for each PV, String constant and Spring SPEL Expression are
- * also supported in {@link #getFieldsToAppend()}.
- * <p>
- * These maps can be set using {@link #setName2PVNestedMap(Map)}, {@link #setName2PVSimpleMap(Map)}, and {@link #setFieldsToAppend(Map)}, respectively.
+ * specify extra data items to be collected in a scan.
+ *
+ * These data items can be set in maps defined in Spring beans using following methods:
  * <p>
  * <ul>
- * <li>{@link #setName2PVNestedMap(Map)} supports map of maps which are used to generate {@link INexusTree} node with children nodes in
- * {@link #createPVCollectionNode(String)}.</li>
- * <li>{@link #getName2PVSimpleMap()} supports simple map which is used to generate {@link INexusTree} node with only fields, no children node in
- * {@link #createPVCollectionNode(String)}.</li>
- * <li>{@link #setFieldsToAppend(Map)} supports a multiple valued map and 3 different {@link InputType} ({@link InputType#CONSTANT}, {@link InputType#PV},
- * {@link InputType#EXPRESSION}), which is used to generate a map of configurable GDA name with its value for fields only.</li>
+ * <li>{@link #setName2PVNestedMap(Map)} - this supports nested map in which data from PVs are further grouped into children nodes under this group before adding into containing node.</li>
+ * <li>{@link #setName2PVSimpleMap(Map)} - this supports simple map in which data from all PVs are grouped together in this group before adding into containing node.</li>
+ * <li>{@link #setFieldsToAppend(Map)} - this supports a multiple valued map in which data from different type items are added directly to the containing node.
+ * <li>{@link #setName2PairMap(Map)} - this supports a simple map in which data from different type items are grouped together before adding into containing node.
  * </ul>
+ * All of these maps are optional, that is if it is not empty, data from PVs within the map will be collected, otherwise nothing will be collected in data file.
+ * <p>
+ * For the last 2 methods, there are 4 different {@link InputType} of items can be specified in Spring beans - ({@link InputType#CONSTANT}, {@link InputType#PV}, {@link InputType#LINK}, {@link InputType#EXPRESSION}).
  * <p>
  * <b>Important to know:</b>
  * <p>
- * Object of this class tolerant with any PV connection failure so it will not block data collection from others. Instead of throwing {@link RuntimeException}
- * when connection fails, it just returns value of "Not Available" in the data file as well as makes an ERROR log entry in the log file.
+ * Objects of this class tolerant with any PV access failure so it will not block data collection from others. Instead of throwing exception
+ * when PV access fails, it returns the error message of the PV access problem as well as makes ERROR log entry in the log file.
  * <p>
  * <b>Usage:</b>
  * <p>
- * Instance of this class can be injected into file writer {@link MultipleImagesPerHDF5FileWriter} or
- * {@link MultipleHDF5PluginsPerDetectorFileWriter} to contribute to the data collection. The original requirements are to capture active
- * detector setting parameters during data collection with the detector.
+ * Instance of this class can be injected into file writer {@link MultipleImagesPerHDF5FileWriter} or {@link MultipleHDF5PluginsPerDetectorFileWriter} to
+ * contribute to the data collection. The original requirements are to capture active detector setting parameters during data collection with the detector.
  *
  * @author Fajin Yuan
  * @since 23 March 2021
  * @version 9.21
  */
 public class EpicsProcessVariableCollection extends FindableBase {
-
-	private static final Logger logger = LoggerFactory.getLogger(EpicsProcessVariableCollection.class);
-	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	public enum InputType {
 
@@ -103,20 +108,26 @@ public class EpicsProcessVariableCollection extends FindableBase {
 
 			@Override
 			public String apply(String s1) {
-				try {
-					Optional<Channel> option = getChannel(s1);
-					if (option.isPresent()) {
-						return EPICS_CONTROLLER.caget(option.get());
+				return getChannel(s1).map(t -> {
+					try {
+						return EPICS_CONTROLLER.caget(t);
+					} catch (TimeoutException | CAException e) {
+						logger.error("Failed to get data from {}", s1, e);
+						return e.getMessage();
+					} catch (InterruptedException e) {
+						logger.error("Interrupted while getting data from {}", s1, e);
+						Thread.currentThread().interrupt();
+						return e.getMessage();
 					}
-				} catch (TimeoutException | CAException e) {
-					logger.error("Failed to get data from {}", s1, e);
-				} catch (InterruptedException e) {
-					logger.error("Interrupted while getting data from {}", s1, e);
-					Thread.currentThread().interrupt();
-				}
-				return ""; // failure get new value just return nothing - empty
+				}).orElse(String.format("Error create CA Channel for %s", s1));
 			}
+		},
 
+		LINK {
+			@Override
+			public String apply(String link) {
+				return link;
+			}
 		},
 
 		EXPRESSION {
@@ -125,7 +136,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 
 			@Override
 			public String apply(String s1) {
-				Expression exp = parser.parseExpression(s1);
+				var exp = parser.parseExpression(s1);
 				return exp.getValue(context, String.class);
 			}
 
@@ -134,26 +145,31 @@ public class EpicsProcessVariableCollection extends FindableBase {
 		public abstract String apply(String s1);
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(EpicsProcessVariableCollection.class);
+	private static final String NOT_AVAILABLE = "Not Available";
+	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
+	/**
+	 * a cached instance which maps EPICS PV to CA Channel created
+	 */
+	private static final Map<String, Channel> channelMap = new HashMap<>();
+
 	/**
 	 * Spring bean configurable map which maps user names to EPICS processing variable names
 	 */
 	private Map<String, String> name2PVSimpleMap = new HashMap<>();
 	/**
-	 * Spring bean property to configure if instance of this class use nested map or not
-	 */
-	private boolean nestedMap = false;
-	/**
 	 * Spring bean configurable map which maps group names to another map specifies user name as key and EPICS PV name as value
 	 */
 	private Map<String, Map<String, String>> name2PVNestedMap = new HashMap<>();
 	/**
-	 * a cached instance which maps EPICS PV to CA Channel created
-	 */
-	private static Map<String, Channel> channelMap = new HashMap<>();
-	/**
 	 * Spring bean configurable multi-valued map to be added as fields to existing node.
 	 */
 	private Map<String, List<ImmutablePair<InputType, String>>> fieldsToAppend = new HashMap<>();
+	/**
+	 * Spring bean configurable map which supports different {@link InputType}s.
+	 */
+	private Map<String, ImmutablePair<InputType, String>> name2PairMap = new HashMap<>();
+	private String expectedFullFileName;
 
 	/**
 	 * add specified filed with specified {@link InputType} and String value
@@ -199,7 +215,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	}
 
 	/**
-	 * add a Key value pair to the simple map returned by {@link #getName2PVSimpleMap()}
+	 * add a Key value pair to the simple map
 	 *
 	 * @param name
 	 *            - GDA name as key
@@ -211,7 +227,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	}
 
 	/**
-	 * remove an item from the simple map returned by {@link #getName2PVSimpleMap()}
+	 * remove an item from the simple map
 	 *
 	 * @param name
 	 *            - GDA name as key removed from map
@@ -222,7 +238,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	}
 
 	/**
-	 * add a key value pair to a specified group in the nested map returned by {@link #getName2PVNestedMap()}
+	 * add a key value pair to a specified group in the nested map
 	 *
 	 * @param group
 	 *            - the key to the inner map
@@ -300,18 +316,35 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	}
 
 	/**
-	 * create fields in a name-value map which can be added to other Nexus node directly. The data source comes from {@link #getFieldsToAppend()} which can be
-	 * set with {@link #setFieldsToAppend(Map)}
+	 * return an {@link Optional} of a {@link Map} containing name-value maps which can be added to other Nexus node directly.
 	 *
 	 * @return a map of name , value
 	 */
-	public Map<String, String> createFieldsToAppend() {
-		return Optional.ofNullable(getFieldsToAppend()).orElseGet(Collections::emptyMap) // Null-Safe
-				.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> processPairs(e.getValue())));
+	public Optional<Map<String, String>> createFieldsToAppend() {
+		return Optional.ofNullable(fieldsToAppend).map(e -> e.entrySet().stream().collect(Collectors.toMap(Entry::getKey, i -> processPairs(i.getValue()))));
+	}
+
+	public Optional<Map<String, DataNode>> createDataNodeToAppend() {
+		return Optional.ofNullable(fieldsToAppend).map(e -> e.entrySet().stream().collect(Collectors.toMap(Entry::getKey, i -> createDataNode(i.getValue()))));
+	}
+
+	private DataNode createDataNode(List<ImmutablePair<InputType, String>> value) {
+		var node = NexusNodeFactory.createDataNode();
+		node.setDataset(new NexusGroupData(processPairs(value)).toDataset());
+		return node;
 	}
 
 	private String calculate(String s1, InputType operator) {
 		return operator.apply(s1);
+	}
+
+	/**
+	 * return an {@link Optional} of an {@link INexusTree} which can be added to other Nexus node.
+	 *
+	 * @return a map of name , value
+	 */
+	public Optional<INexusTree> createNexusTreeFromName2PairMap(String name) {
+		return createGroupNodeFromName2PairMap().map(e -> translate(name, e));
 	}
 
 	/**
@@ -321,84 +354,157 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	 * @return String
 	 */
 	private String processPairs(List<ImmutablePair<InputType, String>> pairs) {
-		String value = Optional.ofNullable(pairs).map(Collection::stream).orElseGet(Stream::empty) // Null-Safe Stream
-				.map(e -> calculate(e.getRight(), e.getLeft())).collect(Collectors.joining(", "));
+		String value = Optional.ofNullable(pairs).map(Collection::stream).orElseGet(Stream::empty).map(e -> calculate(e.getRight(), e.getLeft()))
+				.collect(Collectors.joining(", "));
 		if (value.isBlank()) {
-			return "Not Available";
+			return NOT_AVAILABLE;
 		}
 		return value;
 	}
 
 	/**
-	 * create an {@link INexusTree} node as NXcollection from PV map specified in {@link #getName2PVNestedMap()} or {@link #getName2PVSimpleMap()}
+	 * create an {@Optional} of an {@link INexusTree} node as NXcollection from PV map specified in {@link #setName2PVNestedMap(Map)}
 	 *
 	 * @param name
 	 *            the name of the tree node
-	 * @return an {@link INexusTree} node
+	 * @return an {@link Optional} of an {@link INexusTree} node
 	 */
-	public INexusTree createPVCollectionNode(String name) {
-		INexusTree node = new NexusTreeNode(name, NexusExtractor.NXCollectionClassName, null);
-		if (isNestedMap()) {
-			Optional.ofNullable(getName2PVNestedMap()).orElseGet(Collections::emptyMap) // Null-safe
-					.entrySet().stream().map(e -> fillGroup(e.getValue(), createGroup(e.getKey()))).forEach(node::addChildNode);
+	public Optional<INexusTree> createNexusTreeFromName2PVNestedMap(String name) {
+		return createGroupNodeFromName2PVNestedMap().map(e -> translate(name, e));
+	}
+
+	/**
+	 * create an {@Optional} of an {@link INexusTree} node as NXcollection from PV map specified in {@link #setName2PVSimpleMap(Map)}
+	 *
+	 * @param name
+	 *            the name of the tree node
+	 * @return an {@link Optional} of an {@link INexusTree} node
+	 */
+	public Optional<INexusTree> createNexusTreeFromName2PVSimpleMap(String name) {
+		return createGroupNodeFromName2PVSimpleMap().map(e -> translate(name, e));
+	}
+
+	private INexusTree translate(String groupName, GroupNode node) {
+		INexusTree tnode = new NexusTreeNode(groupName, NexusExtractor.NXCollectionClassName, null);
+		for (Entry<String, GroupNode> group : node.getGroupNodeMap().entrySet()) {
+			tnode.addChildNode(translate(group.getKey(), group.getValue()));
+		}
+		for (Entry<String, DataNode> data : node.getDataNodeMap().entrySet()) {
+			try {
+				if (data.getValue().isDataNode()) {
+					tnode.addChildNode(new NexusTreeNode(data.getKey(), NexusExtractor.SDSClassName, null,
+							NexusGroupData.createFromDataset(data.getValue().getDataset().getSlice(null, null, null))));
+				}
+				if (data.getValue().isSymbolicNode()) {
+					tnode.addChildNode(new NexusTreeNode(data.getKey(), NexusExtractor.ExternalSDSLink, null,
+							NexusGroupData.createFromDataset(data.getValue().getDataset().getSlice(null, null, null))));
+				}
+			} catch (Exception e) {
+				logger.error("Cannot getSlice from dataset for {}", data.getKey(), e);
+			}
+		}
+		return tnode;
+	}
+
+	/**
+	 * return an {@link Optional} of an {@link INexusTree} which can be added to other Nexus node. The data source comes from {@link #setName2PairMap(Map)}
+	 * which can be set with {@link #setName2PairMap(Map)}
+	 *
+	 * @return a map of name , value
+	 */
+	public Optional<GroupNode> createGroupNodeFromName2PairMap() {
+		return Optional.of(name2PairMap).map(e -> createGroupNode2(e.entrySet()));
+	}
+
+	private GroupNode createGroupNode2(Set<Entry<String, ImmutablePair<InputType, String>>> entrySet) {
+		var group = NexusNodeFactory.createNXobjectForClass(NexusBaseClass.NX_COLLECTION);
+		entrySet.stream().map(e -> new ImmutablePair<>(e.getKey(), createNode(e.getValue()))).forEach(e -> group.addNode(e.getLeft(), e.getRight()));
+		return group;
+	}
+
+	private Node createNode(ImmutablePair<InputType, String> pair) {
+		Node node;
+		if (pair.getLeft() == InputType.LINK) {
+			try {
+				node = NexusNodeFactory.createSymbolicNode(new URI("nxfile://"+expectedFullFileName), pair.getRight());
+				logger.debug("External entry path = {}, source URI = {}", ((SymbolicNode)node).getPath(), ((SymbolicNode)node).getSourceURI());
+			} catch (URISyntaxException e) {
+				logger.error("URI {} is not valid.", expectedFullFileName, e);
+				// return error message instead throw exception so data collection will not stop
+				node = NexusNodeFactory.createDataNode();
+				((DataNode) node).setDataset(new NexusGroupData(e.getMessage()).toDataset());
+			}
 		} else {
-			Optional.ofNullable(getName2PVSimpleMap()).orElseGet(Collections::emptyMap) // Null-safe
-					.entrySet().stream().map(this::createData).forEach(node::addChildNode);
+			node = NexusNodeFactory.createDataNode();
+			((DataNode) node).setDataset(new NexusGroupData(calculate(pair.getRight(), pair.getLeft())).toDataset());
 		}
 		return node;
 	}
 
-	private INexusTree createGroup(String name) {
-		return new NexusTreeNode(name, NexusExtractor.NXCollectionClassName, null);
+	/**
+	 * create an {@link GroupNode} as NXcollection from PV map specified in {@link #setName2PVNestedMap(Map)} or {@link #setName2PVSimpleMap(Map)}. This is used
+	 * by new NexusScanDataWriter.
+	 *
+	 * @return a group node
+	 */
+	public Optional<GroupNode> createGroupNodeFromName2PVNestedMap() {
+		return Optional.of(name2PVNestedMap).map(e -> createGroupNode(e.entrySet()));
 	}
 
-	/**
-	 * fill the specified group with data from map source
-	 *
-	 * @param map
-	 * @param group
-	 * @return
-	 */
-	private INexusTree fillGroup(Map<String, String> map, INexusTree group) {
-		map.entrySet().stream().map(this::createData).forEach(group::addChildNode);
+	private GroupNode createGroupNode(Set<Map.Entry<String, Map<String, String>>> set) {
+		var group = NexusNodeFactory.createNXobjectForClass(NexusBaseClass.NX_COLLECTION);
+		set.stream().map(e -> new ImmutablePair<>(e.getKey(), createGroupNode(e.getValue()))).forEach(e -> group.addGroupNode(e.getLeft(), e.getRight()));
 		return group;
 	}
 
-	/**
-	 * build the data node and retrieve values from PVs, if PV access failed, return 'Not Available' instead.
-	 *
-	 * @param entry
-	 * @return
-	 */
-	private INexusTree createData(Entry<String, String> entry) {
-		Optional<Channel> option = getChannel(entry.getValue());
-		NexusGroupData groupData = new NexusGroupData("Not Available");
-		if (option.isPresent()) { // only collect data from PV when channel is present, otherwise return 'Not Available'
-			Channel channel = option.get();
-			try {
-				if (channel.getFieldType().isDOUBLE()) {
-					groupData = new NexusGroupData(EPICS_CONTROLLER.cagetDouble(channel));
-				} else if (channel.getFieldType().isFLOAT()) {
-					groupData = new NexusGroupData(EPICS_CONTROLLER.cagetFloat(channel));
-				} else if (channel.getFieldType().isINT()) {
-					groupData = new NexusGroupData(EPICS_CONTROLLER.cagetInt(channel));
-				} else if (channel.getFieldType().isSHORT()) {
-					groupData = new NexusGroupData(EPICS_CONTROLLER.cagetShort(channel));
-				} else if (channel.getFieldType().isBYTE()) {
-					groupData = new NexusGroupData(new String(EPICS_CONTROLLER.cagetByteArray(channel), StandardCharsets.UTF_8));
-				} else if (channel.getFieldType().isENUM()) {
-					groupData = new NexusGroupData(EPICS_CONTROLLER.cagetLabel(channel));
-				} else {
-					groupData = new NexusGroupData(EPICS_CONTROLLER.cagetString(channel));
-				}
-			} catch (TimeoutException | CAException e) {
-				logger.error("Failed to get value from {}", entry.getValue(), e);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted when getting value from {}", entry.getValue(), e);
-				Thread.currentThread().interrupt();
+	public Optional<GroupNode> createGroupNodeFromName2PVSimpleMap() {
+		return Optional.of(name2PVSimpleMap).map(this::createGroupNode);
+	}
+
+	private GroupNode createGroupNode(Map<String, String> map) {
+		var group = NexusNodeFactory.createNXobjectForClass(NexusBaseClass.NX_COLLECTION);
+		map.entrySet().stream().map(e -> new ImmutablePair<>(e.getKey(), createDataNode(e.getValue())))
+				.forEach(e -> group.addDataNode(e.getLeft(), e.getRight()));
+		return group;
+	}
+
+	private DataNode createDataNode(String value) {
+		var dataNode = NexusNodeFactory.createDataNode();
+		dataNode.setDataset(getNexusGroupData(value).toDataset());
+		return dataNode;
+	}
+
+	private NexusGroupData getNexusGroupData(String value) {
+		Optional<Channel> optionChannel = getChannel(value);
+		Optional<NexusGroupData> nexusGroupdData = optionChannel.map(this::getDataset).map(NexusGroupData::new);
+		return nexusGroupdData.orElseGet(() -> new NexusGroupData(NOT_AVAILABLE));
+	}
+
+	private IDataset getDataset(Channel channel) {
+		Object data = NOT_AVAILABLE;
+		try {
+			if (channel.getFieldType().isDOUBLE()) {
+				data = EPICS_CONTROLLER.cagetDouble(channel);
+			} else if (channel.getFieldType().isFLOAT()) {
+				data = EPICS_CONTROLLER.cagetFloat(channel);
+			} else if (channel.getFieldType().isINT()) {
+				data = EPICS_CONTROLLER.cagetInt(channel);
+			} else if (channel.getFieldType().isSHORT()) {
+				data = EPICS_CONTROLLER.cagetShort(channel);
+			} else if (channel.getFieldType().isBYTE()) {
+				data = new String(EPICS_CONTROLLER.cagetByteArray(channel), StandardCharsets.UTF_8);
+			} else if (channel.getFieldType().isENUM()) {
+				data = EPICS_CONTROLLER.cagetLabel(channel);
+			} else {
+				data = EPICS_CONTROLLER.cagetString(channel);
 			}
+		} catch (TimeoutException | CAException e) {
+			logger.error("Failed to get value from {}", channel.getName(), e);
+		} catch (InterruptedException e) {
+			logger.error("Interrupted when getting value from {}", channel.getName(), e);
+			Thread.currentThread().interrupt();
 		}
-		return new NexusTreeNode(entry.getKey(), NexusExtractor.SDSClassName, null, groupData);
+		return DatasetFactory.createFromObject(data, 1); //need to set shape to 1 otherwise single number will has shape of 0 which cause ArrayIndexOutOfBound in ArrayDescriptor class.
 	}
 
 	/**
@@ -415,13 +521,9 @@ public class EpicsProcessVariableCollection extends FindableBase {
 			channel = channelMap.computeIfAbsent(pv, f);
 			logger.trace("Created channel for PV: {}", pv);
 		} catch (RuntimeException e) {
-			logger.error("Error create CA Channel for {}", pv, e);
+			logger.error("Error create Channel Access for {}", pv, e);
 		}
 		return Optional.ofNullable(channel);
-	}
-
-	public Map<String, Map<String, String>> getName2PVNestedMap() {
-		return name2PVNestedMap;
 	}
 
 	/**
@@ -431,11 +533,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	 *            - map of maps
 	 */
 	public void setName2PVNestedMap(Map<String, Map<String, String>> name2pvNestedMap) {
-		name2PVNestedMap = name2pvNestedMap;
-	}
-
-	public Map<String, String> getName2PVSimpleMap() {
-		return name2PVSimpleMap;
+		name2PVNestedMap = Objects.requireNonNull(name2pvNestedMap);
 	}
 
 	/**
@@ -445,19 +543,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	 *            - map of GDA name to PV
 	 */
 	public void setName2PVSimpleMap(Map<String, String> name2pvSimpleMap) {
-		name2PVSimpleMap = name2pvSimpleMap;
-	}
-
-	public boolean isNestedMap() {
-		return nestedMap;
-	}
-
-	public void setNestedMap(boolean nestedMap) {
-		this.nestedMap = nestedMap;
-	}
-
-	public Map<String, List<ImmutablePair<InputType, String>>> getFieldsToAppend() {
-		return fieldsToAppend;
+		name2PVSimpleMap = Objects.requireNonNull(name2pvSimpleMap);
 	}
 
 	/**
@@ -466,17 +552,22 @@ public class EpicsProcessVariableCollection extends FindableBase {
 	 * @param fieldsToAppend
 	 */
 	public void setFieldsToAppend(Map<String, List<ImmutablePair<InputType, String>>> fieldsToAppend) {
-		this.fieldsToAppend = fieldsToAppend;
+		this.fieldsToAppend = Objects.requireNonNull(fieldsToAppend);
+	}
+
+	private void print(String msg) {
+		InterfaceProvider.getTerminalPrinter().print(msg);
+	}
+
+	public void setName2PairMap(Map<String, ImmutablePair<InputType, String>> name2PairMap) {
+		this.name2PairMap = Objects.requireNonNull(name2PairMap);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final var prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((fieldsToAppend == null) ? 0 : fieldsToAppend.hashCode());
-		result = prime * result + ((name2PVNestedMap == null) ? 0 : name2PVNestedMap.hashCode());
-		result = prime * result + ((name2PVSimpleMap == null) ? 0 : name2PVSimpleMap.hashCode());
-		result = prime * result + (nestedMap ? 1231 : 1237);
+		result = prime * result + Objects.hash(fieldsToAppend, name2PVNestedMap, name2PVSimpleMap, name2PairMap);
 		return result;
 	}
 
@@ -489,29 +580,11 @@ public class EpicsProcessVariableCollection extends FindableBase {
 		if (getClass() != obj.getClass())
 			return false;
 		EpicsProcessVariableCollection other = (EpicsProcessVariableCollection) obj;
-		if (fieldsToAppend == null) {
-			if (other.fieldsToAppend != null)
-				return false;
-		} else if (!fieldsToAppend.equals(other.fieldsToAppend))
-			return false;
-		if (name2PVNestedMap == null) {
-			if (other.name2PVNestedMap != null)
-				return false;
-		} else if (!name2PVNestedMap.equals(other.name2PVNestedMap))
-			return false;
-		if (name2PVSimpleMap == null) {
-			if (other.name2PVSimpleMap != null)
-				return false;
-		} else if (!name2PVSimpleMap.equals(other.name2PVSimpleMap))
-			return false;
-		if (nestedMap != other.nestedMap)
-			return false;
-
-		return true;
+		return Objects.equals(fieldsToAppend, other.fieldsToAppend) && Objects.equals(name2PVNestedMap, other.name2PVNestedMap)
+				&& Objects.equals(name2PVSimpleMap, other.name2PVSimpleMap) && Objects.equals(name2PairMap, other.name2PairMap);
 	}
 
-	private void print(String msg) {
-		InterfaceProvider.getTerminalPrinter().print(msg);
+	public void setHDF5Filename(String expectedFullFileName) {
+		this.expectedFullFileName = Objects.requireNonNull(expectedFullFileName);
 	}
-
 }
