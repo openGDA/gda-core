@@ -27,8 +27,6 @@ import java.util.function.Supplier;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
@@ -51,13 +49,15 @@ import uk.ac.gda.ui.tool.selectable.ButtonControlledCompositeTemplate;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
 /**
- * This Composite allows to edit a {@link ScanningParameters} object.
+ * This is the base for the radiography configuration.
+ *
+ * <p>
+ * Listening to {@link AcquisitionConfigurationResourceLoadEvent} refresh the view when a new configuration is loaded.
+ * </p>
  *
  * @author Maurizio Nagni
  */
 public class RadiographyButtonControlledCompositeFactory implements NamedCompositeFactory, ButtonControlledCompositeTemplate {
-
-	private static final Logger logger = LoggerFactory.getLogger(RadiographyButtonControlledCompositeFactory.class);
 
 	private final Supplier<Composite> controlButtonsContainerSupplier;
 

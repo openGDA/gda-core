@@ -18,38 +18,25 @@
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDisposableApplicationListener;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.ANGULAR_STEP;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_END;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_END_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_START;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_START_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
 import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE;
 import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.CUSTOM_END_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.DARK_EXPOSURE_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
-import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
 import static uk.ac.gda.ui.tool.ClientMessages.FINAL_ANGLE;
-import static uk.ac.gda.ui.tool.ClientMessages.FLAT_EXPOSURE_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.FLY_SCAN;
 import static uk.ac.gda.ui.tool.ClientMessages.FLY_SCAN_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.FULL_ANGLE;
 import static uk.ac.gda.ui.tool.ClientMessages.FULL_ANGLE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.IMAGE_CALIBRATION;
 import static uk.ac.gda.ui.tool.ClientMessages.MULTIPLE_SCANS;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_DARK;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_DARK_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_FLAT;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_FLAT_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS;
 import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.PROCESS_REQUESTS;
-import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS;
-import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.RANGE;
 import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN;
 import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN_TOOLTIP;
@@ -76,7 +63,6 @@ import static uk.ac.gda.ui.tool.GUIComponents.labelComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.labelledLabelContent;
 import static uk.ac.gda.ui.tool.GUIComponents.radioComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.textContent;
-import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -86,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -104,10 +91,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
+import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.MultipleScansHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
@@ -118,9 +106,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
-import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
-import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
@@ -165,18 +150,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private Button customRotationRangeType;
 	private Text customAngle;
 	private Label finalAngle;
-
-	/** The Projections Composite elements **/
-	private Text totalProjections;
 	private Label angularStep;
-
-	/** The Calibration Composite elements **/
-	private Text numberDark;
-	private Text darkExposure;
-	private Text numberFlat;
-	private Text flatExposure;
-	private Button beforeAcquisition;
-	private Button afterAcquisition;
 
 	/** The MultipleScans Composite elements **/
 	private Text numberRepetitions;
@@ -188,17 +162,17 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private ScanpathDocumentHelper dataHelper;
 	private MultipleScansHelper configurationHelper;
-	private ImageCalibrationHelper imageCalibrationHelper;
 
 	private DataBindingContext dbc = new DataBindingContext();
 
 	private Composite mainComposite;
 
+	private List<Reloadable> composites = new ArrayList<>();
+
 	public TomographyConfigurationLayoutFactory() {
 		try {
 			this.dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
 			this.configurationHelper = new MultipleScansHelper(this::getScanningConfiguration);
-			this.imageCalibrationHelper = new ImageCalibrationHelper(this::getScanningConfiguration);
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
 		}
@@ -217,6 +191,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 			bindElements();
 			initialiseElements();
 			addWidgetsListener();
+			addDisposableApplicationListener(this, new UpdateListener());
 			logger.debug("Created {}", this);
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
@@ -229,6 +204,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		try {
 			bindElements();
 			initialiseElements();
+			for (Reloadable reloadable : composites) {
+				reloadable.reload();
+			}
 			mainComposite.getShell().layout(true, true);
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
@@ -249,8 +227,19 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 		scanTypeContent(parent);
 		createRangeGroup(parent, labelStyle, textStyle);
-		createProjectionGroup(parent, labelStyle, textStyle);
-		createImagesCalibrationGroup(parent, labelStyle, textStyle);
+
+		//----- Reference for other configuration components
+		var projections = new ProjectionsCompositeFactory();
+		composites.add(projections);
+		projections.createComposite(parent, textStyle);
+		//----- Reference for other configuration components
+		var darkFlat = new DarkFlatCompositeFactory();
+		composites.add(darkFlat);
+		darkFlat.createComposite(parent, textStyle);
+		//----- Reference for other configuration components
+
+
+
 		createProcessRequestGroup(parent, SWT.NONE);
 		multipleScansContent(parent, labelStyle, textStyle);
 	}
@@ -287,13 +276,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 				ANGULAR_STEP, EMPTY_MESSAGE);
 	}
 
-	private void createProjectionGroup(Composite parent, int labelStyle, int textStyle) {
-		var group = createClientGroup(parent, SWT.NONE, 1, PROJECTIONS);
-		createClientGridDataFactory().applyTo(group);
-		this.totalProjections = integerPositiveContent(group, labelStyle, textStyle,
-				PROJECTIONS, PROJECTIONS_TOOLTIP);
-	}
-
 	/**
 	 * @param parent
 	 *            a three columns composite
@@ -323,26 +305,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 				EMPTY_MESSAGE, CUSTOM_END_TOOLTIP);
 		this.customAngle = doubleContent(mainCompositeContent, labelStyle, textStyle,
 				EMPTY_MESSAGE, CUSTOM_END_TOOLTIP);
-	}
-
-	private void createImagesCalibrationGroup(Composite parent, int labelStyle, int textStyle) {
-		var group = createClientGroup(parent, SWT.NONE, 2, IMAGE_CALIBRATION);
-		createClientGridDataFactory().applyTo(group);
-
-		this.numberDark = integerPositiveContent(group, labelStyle, textStyle,
-				NUM_DARK, NUM_DARK_TOOLTIP);
-		this.darkExposure = doublePositiveContent(group, labelStyle, textStyle,
-				EXPOSURE, DARK_EXPOSURE_TP);
-
-		this.numberFlat = integerPositiveContent(group, labelStyle, textStyle,
-				NUM_FLAT, NUM_FLAT_TOOLTIP);
-		this.flatExposure = doublePositiveContent(group, labelStyle, textStyle,
-				EXPOSURE, FLAT_EXPOSURE_TP);
-
-		this.beforeAcquisition = checkComponent(group,
-				AT_START, AT_START_TOOLTIP);
-		this.afterAcquisition = checkComponent(group,
-				AT_END, AT_END_TOOLTIP);
 	}
 
 	private void multipleScansContent(Composite parent, int labelStyle, int textStyle) {
@@ -414,17 +376,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 			return NumberUtils.toDouble(angle);
 		}
 		return 0.0;
-	}
-
-	private void totalProjectionsListener(ModifyEvent event) {
-		if (!event.getSource().equals(totalProjections))
-			return;
-		int points = Optional.ofNullable(totalProjections.getText())
-				.filter(s -> !s.isEmpty())
-				.map(Integer::parseInt)
-				.orElseGet(() -> 1);
-		dataHelper.updatePoints(points);
-		updateAngularStep();
 	}
 
 	private SelectionListener predefinedAngleListener = new SelectionListener() {
@@ -511,36 +462,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		configurationHelper.updateMultipleScanWaitingTime(wTime);
 	}
 
-	private void beforeAcquisitionListener(SelectionEvent event) {
-		if (!event.getSource().equals(beforeAcquisition))
-			return;
-		imageCalibrationHelper.updateDarkBeforeAcquisitionExposures(beforeAcquisition.getSelection());
-		imageCalibrationHelper.updateFlatBeforeAcquisitionExposures(beforeAcquisition.getSelection());
-	}
-
-	private void afterAcquisitionListener(SelectionEvent event) {
-		if (!event.getSource().equals(afterAcquisition))
-			return;
-		imageCalibrationHelper.updateDarkAfterAcquisitionExposures(afterAcquisition.getSelection());
-		imageCalibrationHelper.updateFlatAfterAcquisitionExposures(afterAcquisition.getSelection());
-	}
-
-	private void setNumberFlat(Widget widget) {
-		Optional.ofNullable(widget)
-			.map(Text.class::cast)
-			.map(Text::getText)
-			.map(Integer::parseInt)
-			.ifPresent(imageCalibrationHelper::updateFlatNumberExposures);
-	}
-
-	private void setNumberDark(Widget widget) {
-		Optional.ofNullable(widget)
-		.map(Text.class::cast)
-		.map(Text::getText)
-		.map(Integer::parseInt)
-		.ifPresent(imageCalibrationHelper::updateDarkNumberExposures);
-	}
-
 	private void switchbackScanTypeListener(SelectionEvent event) {
 		if (!event.getSource().equals(switchbackMultipleScansType))
 			return;
@@ -565,14 +486,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		customAngle.addFocusListener(FocusListener.focusLostAdapter(c -> updateAngularStep()));
 		currentAngleButton.addSelectionListener(predefinedAngleListener);
 		endGroupsListeners();
-
-		// Calibration fields
-		addWidgetDisposableListener(beforeAcquisition, SelectionListener.widgetSelectedAdapter(this::beforeAcquisitionListener));
-		addWidgetDisposableListener(afterAcquisition, SelectionListener.widgetSelectedAdapter(this::afterAcquisitionListener));
-		addWidgetDisposableListener(numberDark, SWT.Modify, event -> setNumberDark(event.widget));
-		addWidgetDisposableListener(numberFlat, SWT.Modify, event -> setNumberFlat(event.widget));
-
-		totalProjections.addModifyListener(this::totalProjectionsListener);
 
 		numberRepetitions.addModifyListener(this::numberRepetitionsListener);
 		waitingTime.addModifyListener(this::waitingTimeListener);
@@ -618,10 +531,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		initializeScanType();
 		initializeStartAngle();
 		initializeEndAngle();
-		initializeProjections();
 		updateStartStop();
-
-		initializeImageCalibration();
 		updateMultipleScan(getAcquisitionConfiguration());
 		processingRequest.reload();
 	}
@@ -635,10 +545,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private void initializeStartAngle() {
 		currentAngleButton.setSelection(false);
 		startAngleText.setText(Double.toString(getScannableTrackDocument().getStart()));
-	}
-
-	private void initializeProjections() {
-		totalProjections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 	}
 
 	private void initializeEndAngle() {
@@ -666,58 +572,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		}
 		customAngle.setText(customAngleString);
 	}
-
-	private void initializeImageCalibration() {
-		ScanningConfiguration configuration = getAcquisitionConfiguration();
-
-		var ic = configuration.getImageCalibration();
-		Optional.ofNullable(ic.getDarkCalibration())
-			.ifPresent(this::initializeDarkCalibration);
-
-		Optional.ofNullable(ic.getFlatCalibration())
-			.ifPresent(this::initializeFlatCalibration);
-	}
-
-	private void initializeDarkCalibration(DarkCalibrationDocument darkCalibrationDocument) {
-		int exposures = Optional.ofNullable(darkCalibrationDocument.getNumberExposures())
-				.orElse(0);
-		numberDark.setText(Integer.toString(exposures));
-
-		double exposure = Optional.ofNullable(darkCalibrationDocument.getDetectorDocument())
-				.map(DetectorDocument::getExposure)
-				.orElse(0d);
-		darkExposure.setText(Double.toString(exposure));
-
-
-		// For the moment dark and flat have the same boolean values
-		boolean selected = Optional.ofNullable(darkCalibrationDocument.isBeforeAcquisition())
-				.orElse(false);
-		beforeAcquisition.setSelection(selected);
-
-		// For the moment dark and flat have the same boolean values
-		selected = Optional.ofNullable(darkCalibrationDocument.isAfterAcquisition())
-				.orElse(false);
-		afterAcquisition.setSelection(selected);
-
-		forceFocusOnEmpty(numberDark, Integer.toString(exposures));
-	}
-
-
-
-
-	private void initializeFlatCalibration(FlatCalibrationDocument flatCalibrationDocument) {
-		int exposures = Optional.ofNullable(flatCalibrationDocument.getNumberExposures())
-				.orElse(0);
-		numberFlat.setText(Integer.toString(exposures));
-
-		double exposure = Optional.ofNullable(flatCalibrationDocument.getDetectorDocument())
-			.map(DetectorDocument::getExposure)
-			.orElse(0d);
-		flatExposure.setText(Double.toString(exposure));
-
-		forceFocusOnEmpty(numberFlat, Integer.toString(exposures));
-	}
-
 
 	private void updateMultipleScan(ScanningConfiguration configuration) {
 		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
@@ -761,18 +615,12 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		customRotationRangeType.addSelectionListener(activateGroupListener);
 	}
 
-	private void forceFocusOnEmpty(Text text, String defaultValue) {
-		text.addFocusListener(FocusListener.focusLostAdapter(c -> {
-			if (text.getText().trim().isEmpty()) {
-				text.setText(defaultValue);
-			}
-		}));
-	}
-
 	private void updateAngularStep() {
 		double newAngularStep = calculateAngularStep();
 		dataHelper.updateStep(newAngularStep);
-		angularStep.setText(Double.toString(newAngularStep));
+		Optional.ofNullable(angularStep)
+			.filter(Predicate.not(Widget::isDisposed))
+			.ifPresent(w -> w.setText(Double.toString(newAngularStep)));
 	}
 
 
@@ -833,6 +681,15 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 				.map(AcquisitionConfigurationProperties::getProcessingRequest)
 				.map(ProcessingRequestProperties::getNexusTemplates)
 				.orElseThrow(() -> new AcquisitionConfigurationException("There are no properties associated with the acqual acquisition"));
+	}
+
+	private class UpdateListener implements ApplicationListener<ScanningAcquisitionChangeEvent> {
+		@Override
+		public void onApplicationEvent(ScanningAcquisitionChangeEvent event) {
+			if ((event.getSource() instanceof ProjectionsCompositeFactory)) {
+				updateAngularStep();
+			}
+		}
 	}
 
 	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {

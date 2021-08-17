@@ -21,22 +21,16 @@ package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS;
-import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
@@ -44,14 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
-import uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.DarkFlatCompositeFactory;
+import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.ProjectionsCompositeFactory;
 import uk.ac.gda.ui.tool.GUIComponents;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
@@ -66,20 +57,9 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 	/** Scan prefix **/
 	private Text name;
 
-	/** The Projections Composite elements **/
-	private Text frames;
-
-	private ScannableTrackDocumentHelper scannableTrackDocumentHelper;
-
 	private Composite mainComposite;
 
-	public RadiographyConfigurationLayoutFactory() {
-		try {
-			this.scannableTrackDocumentHelper = new ScannableTrackDocumentHelper(this::getScanningParameters);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
-	}
+	private List<Reloadable> composites = new ArrayList<>();
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
@@ -89,12 +69,27 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 		standardMarginHeight(mainComposite.getLayout());
 		standardMarginWidth(mainComposite.getLayout());
 
-		createElements(mainComposite, SWT.NONE, SWT.BORDER);
-		bindElements();
-		initialiseElements();
-		addWidgetsListener();
-		logger.debug("Created {}", this);
+		try {
+			createElements(mainComposite, SWT.NONE, SWT.BORDER);
+			bindElements();
+			initialiseElements();
+			addWidgetsListener();
+			logger.debug("Created {}", this);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
+		}
 		return mainComposite;
+	}
+
+	@Override
+	public void reload() {
+		try {
+			bindElements();
+			initialiseElements();
+			mainComposite.getShell().layout(true, true);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
+		}
 	}
 
 	/**
@@ -109,17 +104,15 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 		// guarantee that fills the horizontal space
 		createClientGridDataFactory().grab(true, true).applyTo(name);
 
-		var group = createClientGroup(parent, SWT.NONE, 1, PROJECTIONS);
-		createClientGridDataFactory().applyTo(group);
-		this.frames = GUIComponents.integerPositiveContent(group, labelStyle, textStyle,
-				PROJECTIONS, PROJECTIONS_TOOLTIP);
-	}
-
-	@Override
-	public void reload() {
-		bindElements();
-		initialiseElements();
-		mainComposite.getShell().layout(true, true);
+		//----- Reference for other configuration components
+		var projections = new ProjectionsCompositeFactory();
+		composites.add(projections);
+		projections.createComposite(parent, textStyle);
+		//----- Reference for other configuration components
+		var darkFlat = new DarkFlatCompositeFactory();
+		composites.add(darkFlat);
+		darkFlat.createComposite(parent, textStyle);
+		//----- Reference for other configuration components
 	}
 
 	// ---- BINDING ----
@@ -141,59 +134,12 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 			.getScanningAcquisition()
 			.map(ScanningAcquisition::getName)
 			.ifPresent(name::setText);
-		initializeProjections();
 	}
-
-	private void initializeProjections() {
-		List<ScannableTrackDocument> tracks = getScanningAcquisitionTemporaryHelper()
-				.getScanpathDocument()
-				.map(ScanpathDocument::getScannableTrackDocuments)
-				.orElseGet(ArrayList::new);
-
-		if (!tracks.isEmpty()) {
-			frames.setText(Integer.toString(tracks.get(0).getPoints()));
-		}
-	}
-	// ------------------------
 
 
 	// ---- WIDGET LISTENER ----
 	private  void addWidgetsListener() {
-		frames.addModifyListener(this::frameListener);
-	}
-
-	private void frameListener(ModifyEvent event) {
-		if (!event.getSource().equals(frames))
-			return;
-		int points = Optional.ofNullable(frames.getText())
-				.filter(s -> !s.isEmpty())
-				.map(Integer::parseInt)
-				.orElseGet(() -> 1);
-		updateScannableTrackDocumentsPoints(points);
-	}
-
-	private void updateScannableTrackDocumentsPoints(int numPoints) {
-		int size = getScanningAcquisitionTemporaryHelper()
-			.getScanpathDocument()
-			.map(ScanpathDocument::getScannableTrackDocuments)
-			.map(List::size)
-			.orElse(0);
-
-		if (size != numPoints || size == 0) {
-			UIHelper.showError("The acquisition document has not enough points.", "Configuration Error");
-		}
-		var trackDocumentsPoints = new int[size];
-		Arrays.fill(trackDocumentsPoints, numPoints);
-		scannableTrackDocumentHelper.updateScannableTrackDocumentsPoints(trackDocumentsPoints);
-		SpringApplicationContextFacade.publishEvent(
-				new ScanningAcquisitionChangeEvent(this));
-	}
-
-	// ------------------------
-	private ScanningParameters getScanningParameters() {
-		return getScanningAcquisitionTemporaryHelper()
-				.getScanningParameters()
-				.orElseThrow();
+		// Nothing to do
 	}
 
 	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
