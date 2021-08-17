@@ -18,6 +18,7 @@
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 
+import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME;
 import static uk.ac.gda.ui.tool.ClientMessages.NAME_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.PROJECTIONS;
@@ -28,7 +29,10 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.eclipse.swt.SWT;
@@ -43,13 +47,14 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScannableTrackDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.GUIComponents;
 import uk.ac.gda.ui.tool.Reloadable;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 
 /**
  * @author Maurizio Nagni
@@ -64,14 +69,16 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 	/** The Projections Composite elements **/
 	private Text frames;
 
-	private final ScannableTrackDocumentHelper scannableTrackDocumentHelper;
-	private final AcquisitionController<ScanningAcquisition> acquisitionController;
+	private ScannableTrackDocumentHelper scannableTrackDocumentHelper;
 
 	private Composite mainComposite;
 
-	public RadiographyConfigurationLayoutFactory(AcquisitionController<ScanningAcquisition> acquisitionController) {
-		this.acquisitionController = acquisitionController;
-		this.scannableTrackDocumentHelper = new ScannableTrackDocumentHelper(this::getScanningParameters);
+	public RadiographyConfigurationLayoutFactory() {
+		try {
+			this.scannableTrackDocumentHelper = new ScannableTrackDocumentHelper(this::getScanningParameters);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
+		}
 	}
 
 	@Override
@@ -123,22 +130,29 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
 
 	private void updateAcquisitionName() {
-		getAcquisitionController().getAcquisition().setName(name.getText());
+		getScanningAcquisitionTemporaryHelper()
+			.getScanningAcquisition()
+			.ifPresent(a -> a.setName(name.getText()));
 	}
-
-	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
-		return acquisitionController;
-	}
-	// ------------------------
 
 	// ---- INITIALIZATION ----
 	private void initialiseElements() {
-		name.setText(getAcquisitionController().getAcquisition().getName());
+		getScanningAcquisitionTemporaryHelper()
+			.getScanningAcquisition()
+			.map(ScanningAcquisition::getName)
+			.ifPresent(name::setText);
 		initializeProjections();
 	}
 
 	private void initializeProjections() {
-		frames.setText(Integer.toString(getScannableTrackDocument().getPoints()));
+		List<ScannableTrackDocument> tracks = getScanningAcquisitionTemporaryHelper()
+				.getScanpathDocument()
+				.map(ScanpathDocument::getScannableTrackDocuments)
+				.orElseGet(ArrayList::new);
+
+		if (!tracks.isEmpty()) {
+			frames.setText(Integer.toString(tracks.get(0).getPoints()));
+		}
 	}
 	// ------------------------
 
@@ -159,7 +173,15 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 	}
 
 	private void updateScannableTrackDocumentsPoints(int numPoints) {
-		int size = getScanningParameters().getScanpathDocument().getScannableTrackDocuments().size();
+		int size = getScanningAcquisitionTemporaryHelper()
+			.getScanpathDocument()
+			.map(ScanpathDocument::getScannableTrackDocuments)
+			.map(List::size)
+			.orElse(0);
+
+		if (size != numPoints || size == 0) {
+			UIHelper.showError("The acquisition document has not enough points.", "Configuration Error");
+		}
 		var trackDocumentsPoints = new int[size];
 		Arrays.fill(trackDocumentsPoints, numPoints);
 		scannableTrackDocumentHelper.updateScannableTrackDocumentsPoints(trackDocumentsPoints);
@@ -168,16 +190,13 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 	}
 
 	// ------------------------
-	private ScannableTrackDocument getScannableTrackDocument() {
-		return getAcquisitionController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument().getScannableTrackDocuments()
-				.get(0);
-	}
-
-	private ScanningConfiguration getAcquisitionConfiguration() {
-		return getAcquisitionController().getAcquisition().getAcquisitionConfiguration();
-	}
-
 	private ScanningParameters getScanningParameters() {
-		return getAcquisitionConfiguration().getAcquisitionParameters();
+		return getScanningAcquisitionTemporaryHelper()
+				.getScanningParameters()
+				.orElseThrow();
+	}
+
+	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
+		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
 	}
 }

@@ -24,6 +24,7 @@ import static uk.ac.gda.ui.tool.ClientMessages.AT_END;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_END_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_START;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_START_TOOLTIP;
+import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
 import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE;
 import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.CUSTOM_END_TOOLTIP;
@@ -83,6 +84,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -112,14 +114,15 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionConfigurationException;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
-import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.ProcessingRequestProperties;
@@ -129,6 +132,7 @@ import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.tomography.scan.editor.view.ScanType;
 import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.Reloadable;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
 import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
 import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
@@ -182,8 +186,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private ProcessingRequestComposite processingRequest;
 
-	private final AcquisitionController<ScanningAcquisition> acquisitionController;
-
 	private ScanpathDocumentHelper dataHelper;
 	private MultipleScansHelper configurationHelper;
 	private ImageCalibrationHelper imageCalibrationHelper;
@@ -192,11 +194,14 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private Composite mainComposite;
 
-	public TomographyConfigurationLayoutFactory(AcquisitionController<ScanningAcquisition> acquisitionController) {
-		this.acquisitionController = acquisitionController;
-		this.dataHelper = new ScanpathDocumentHelper(this::getAcquisitionParameters);
-		this.configurationHelper = new MultipleScansHelper(this::getAcquisitionConfiguration);
-		this.imageCalibrationHelper = new ImageCalibrationHelper(this::getAcquisitionConfiguration);
+	public TomographyConfigurationLayoutFactory() {
+		try {
+			this.dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
+			this.configurationHelper = new MultipleScansHelper(this::getScanningConfiguration);
+			this.imageCalibrationHelper = new ImageCalibrationHelper(this::getScanningConfiguration);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
+		}
 	}
 
 	@Override
@@ -207,24 +212,27 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		standardMarginHeight(mainComposite.getLayout());
 		standardMarginWidth(mainComposite.getLayout());
 
-		createElements(mainComposite, SWT.NONE, SWT.BORDER);
-		bindElements();
-		initialiseElements();
-		addWidgetsListener();
-
-		logger.debug("Created {}", this);
+		try {
+			createElements(mainComposite, SWT.NONE, SWT.BORDER);
+			bindElements();
+			initialiseElements();
+			addWidgetsListener();
+			logger.debug("Created {}", this);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
+		}
 		return mainComposite;
 	}
 
 	@Override
 	public void reload() {
-		bindElements();
-		initialiseElements();
-		mainComposite.getShell().layout(true, true);
-	}
-
-	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
-		return acquisitionController;
+		try {
+			bindElements();
+			initialiseElements();
+			mainComposite.getShell().layout(true, true);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
+		}
 	}
 
 	/**
@@ -582,7 +590,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
 
 	private void updateAcquisitionName() {
-		getAcquisitionController().getAcquisition().setName(name.getText());
+		getScanningAcquisitionTemporaryHelper()
+			.getScanningAcquisition()
+			.ifPresent(a -> a.setName(name.getText()));
 	}
 
 	private void bindScanType(DataBindingContext dbc) {
@@ -601,7 +611,10 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	}
 
 	private void initialiseElements() {
-		name.setText(getAcquisitionController().getAcquisition().getName());
+		getScanningAcquisitionTemporaryHelper()
+			.getScanningAcquisition()
+			.map(ScanningAcquisition::getName)
+			.ifPresent(name::setText);
 		initializeScanType();
 		initializeStartAngle();
 		initializeEndAngle();
@@ -609,7 +622,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		updateStartStop();
 
 		initializeImageCalibration();
-		updateMultipleScan();
+		updateMultipleScan(getAcquisitionConfiguration());
 		processingRequest.reload();
 	}
 
@@ -655,7 +668,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	}
 
 	private void initializeImageCalibration() {
-		var ic = getAcquisitionConfiguration().getImageCalibration();
+		ScanningConfiguration configuration = getAcquisitionConfiguration();
+
+		var ic = configuration.getImageCalibration();
 		Optional.ofNullable(ic.getDarkCalibration())
 			.ifPresent(this::initializeDarkCalibration);
 
@@ -704,19 +719,19 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	}
 
 
-	private void updateMultipleScan() {
+	private void updateMultipleScan(ScanningConfiguration configuration) {
 		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
-				.filter(i -> getAcquisitionConfiguration().getMultipleScans().getMultipleScansType()
+				.filter(i -> configuration.getMultipleScans().getMultipleScansType()
 						.equals(i.getData()))
 				.findFirst()
 				.ifPresent(b -> b.setSelection(true));
 		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
-				.filter(i -> !getAcquisitionConfiguration().getMultipleScans().getMultipleScansType()
+				.filter(i -> !configuration.getMultipleScans().getMultipleScansType()
 						.equals(i.getData()))
 				.findFirst()
 				.ifPresent(b -> b.setSelection(false));
-		numberRepetitions.setText(Integer.toString(getAcquisitionConfiguration().getMultipleScans().getNumberRepetitions()));
-		waitingTime.setText(Integer.toString(getAcquisitionConfiguration().getMultipleScans().getWaitingTime()));
+		numberRepetitions.setText(Integer.toString(configuration.getMultipleScans().getNumberRepetitions()));
+		waitingTime.setText(Integer.toString(configuration.getMultipleScans().getWaitingTime()));
 	}
 
 	private void endGroupsListeners() {
@@ -771,17 +786,26 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		return totalAngle() / getScannableTrackDocument().getPoints();
 	}
 
-	private ScanningParameters getAcquisitionParameters() {
-		return getAcquisitionConfiguration().getAcquisitionParameters();
+	private Optional<ScanningParameters> getAcquisitionParameters() {
+		return getScanningAcquisitionTemporaryHelper().getScanningParameters();
 	}
 
 	private ScanningConfiguration getAcquisitionConfiguration() {
-		return getAcquisitionController().getAcquisition().getAcquisitionConfiguration();
+		return getScanningAcquisitionTemporaryHelper()
+			.getAcquisitionConfiguration()
+			.orElseThrow();
 	}
 
 	private ScannableTrackDocument getScannableTrackDocument() {
-		return getAcquisitionController().getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument().getScannableTrackDocuments()
-				.get(0);
+		List<ScannableTrackDocument> tracks = getScanningAcquisitionTemporaryHelper()
+				.getScanpathDocument()
+				.map(ScanpathDocument::getScannableTrackDocuments)
+				.orElseGet(ArrayList::new);
+
+		if (!tracks.isEmpty()) {
+			return tracks.get(0);
+		}
+		throw new NoSuchElementException("No track document available");
 	}
 
 	private AcquisitionFileContext getClientContext() {
@@ -813,5 +837,21 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
 		return SpringApplicationContextFacade.getBean(ProcessingRequestKeyFactory.class);
+	}
+
+	private ScanningParameters getScanningParameters() {
+		return getScanningAcquisitionTemporaryHelper()
+				.getScanningParameters()
+				.orElseThrow();
+	}
+
+	private ScanningConfiguration getScanningConfiguration() {
+		return getScanningAcquisitionTemporaryHelper()
+				.getAcquisitionConfiguration()
+				.orElseThrow();
+	}
+
+	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
+		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
 	}
 }

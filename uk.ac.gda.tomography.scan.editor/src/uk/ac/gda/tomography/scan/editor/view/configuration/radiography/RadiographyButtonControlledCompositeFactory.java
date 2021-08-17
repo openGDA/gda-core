@@ -21,6 +21,7 @@ package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDisposableApplicationListener;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -33,11 +34,8 @@ import org.springframework.context.ApplicationListener;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
@@ -46,6 +44,7 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.DocumentFactory;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.selectable.ButtonControlledCompositeTemplate;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
@@ -58,17 +57,18 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 
 	private static final Logger logger = LoggerFactory.getLogger(RadiographyButtonControlledCompositeFactory.class);
 
-	private final AcquisitionController<ScanningAcquisition> acquisitionController;
 	private final Supplier<Composite> controlButtonsContainerSupplier;
 
 	private CompositeFactory acquistionConfigurationFactory;
 	private ScanpathDocumentHelper scanpathDocumentHelper;
 
-	public RadiographyButtonControlledCompositeFactory(AcquisitionController<ScanningAcquisition> acquisitionController,
-			Supplier<Composite> controlButtonsContainerSupplier) {
-		this.acquisitionController = acquisitionController;
+	public RadiographyButtonControlledCompositeFactory(Supplier<Composite> controlButtonsContainerSupplier) {
 		this.controlButtonsContainerSupplier = controlButtonsContainerSupplier;
-		this.scanpathDocumentHelper = new ScanpathDocumentHelper(this::getScanningParameters);
+		try {
+			this.scanpathDocumentHelper = new ScanpathDocumentHelper(this::getScanningParameters);
+		} catch (NoSuchElementException e) {
+			UIHelper.showWarning("Tomography cannot be instantiated normally", e);
+		}
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 	}
 
 	private CompositeFactory createAcquistionConfigurationFactory() {
-		this.acquistionConfigurationFactory = new RadiographyConfigurationLayoutFactory(getAcquisitionController());
+		this.acquistionConfigurationFactory = new RadiographyConfigurationLayoutFactory();
 		setAcquisitionTemplateType(AcquisitionTemplateType.STATIC_POINT);
 		return this.acquistionConfigurationFactory;
 	}
@@ -116,67 +116,42 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 		return controlButtonsContainerSupplier;
 	}
 
-	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
-		return acquisitionController;
-	}
-
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
 		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> newAcquisition()));
-		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> saveAcquisition()));
-		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> runAcquisition()));
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().newAcquisition()));
+		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().saveAcquisition()));
+		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().runAcquisition()));
 		return acquisitionButtonGroup;
-	}
-
-	private void newAcquisition() {
-		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
-		if (confirmed) {
-			getAcquisitionController().createNewAcquisition();
-		}
-	}
-
-	private void saveAcquisition() {
-		try {
-			getAcquisitionController().saveAcquisitionConfiguration();
-		} catch (AcquisitionControllerException e) {
-			UIHelper.showError("Cannot save acquisition", e, logger);
-		}
-	}
-
-	private void runAcquisition() {
-		try {
-			getAcquisitionController().runAcquisition();
-		} catch (AcquisitionControllerException e) {
-			UIHelper.showError(e.getMessage(), e.getCause().getMessage());
-		}
 	}
 
 	private class LoadListener implements ApplicationListener<AcquisitionConfigurationResourceLoadEvent> {
 
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (!ScanningAcquisitionController.class.isInstance(event.getSource())) {
+			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
 				return;
 			}
 			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionType())) {
 				return;
 			}
-			if (Reloadable.class.isInstance(getControlledCompositeFactory())) {
+			if (getControlledCompositeFactory() instanceof Reloadable) {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(((Reloadable)getControlledCompositeFactory())::reload);
 			}
 		}
 	}
 
 	// ------------ UTILS ----
-	private ScanningAcquisition getScanningAcquisition() {
-		return this.getAcquisitionController().getAcquisition();
-	}
-
 	private ScanningParameters getScanningParameters() {
-		return getScanningAcquisition().getAcquisitionConfiguration().getAcquisitionParameters();
+		return getScanningAcquisitionTemporaryHelper()
+				.getScanningParameters()
+				.orElseThrow();
 	}
 
 	private DocumentFactory getDocumentFactory() {
 		return SpringApplicationContextFacade.getBean(DocumentFactory.class);
+	}
+
+	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
+		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
 	}
 }

@@ -43,6 +43,7 @@ import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.Tomography
 import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.document.DocumentFactory;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 
@@ -74,7 +75,7 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 
 	@Override
 	protected Browser<?> getBrowser() {
-		return getAcquisitionController()
+		return getScanningAcquisitionTemporaryHelper().getAcquisitionController()
 				.map(TomoBrowser::new)
 				.orElseGet(() -> new TomoBrowser(null));
 	}
@@ -98,11 +99,12 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 
 	private List<NamedCompositeFactory> initializeConfiguration(Supplier<Composite> controlButtonsContainerSupplier) {
 		List<NamedCompositeFactory> configurations = new ArrayList<>();
-		getAcquisitionController()
-			.ifPresent(c -> {
-				configurations.add(new TomographyButtonControlledCompositeFactory(c, controlButtonsContainerSupplier));
-				configurations.add(new RadiographyButtonControlledCompositeFactory(c, controlButtonsContainerSupplier));
-			});
+		configurations.add(new TomographyButtonControlledCompositeFactory(controlButtonsContainerSupplier));
+		configurations.add(new RadiographyButtonControlledCompositeFactory(controlButtonsContainerSupplier));
 		return configurations;
+	}
+
+	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
+		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
 	}
 }

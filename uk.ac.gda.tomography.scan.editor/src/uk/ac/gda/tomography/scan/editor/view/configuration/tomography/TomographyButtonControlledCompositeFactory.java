@@ -30,17 +30,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.Reloadable;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.selectable.ButtonControlledCompositeTemplate;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
@@ -53,14 +51,11 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 
 	private static final Logger logger = LoggerFactory.getLogger(TomographyButtonControlledCompositeFactory.class);
 
-	private final AcquisitionController<ScanningAcquisition> acquisitionController;
 	private final Supplier<Composite> controlButtonsContainerSupplier;
 
 	private CompositeFactory acquistionConfigurationFactory;
 
-	public TomographyButtonControlledCompositeFactory(AcquisitionController<ScanningAcquisition> acquisitionController,
-			Supplier<Composite> controlButtonsContainerSupplier) {
-		this.acquisitionController = acquisitionController;
+	public TomographyButtonControlledCompositeFactory(Supplier<Composite> controlButtonsContainerSupplier) {
 		this.controlButtonsContainerSupplier = controlButtonsContainerSupplier;
 	}
 
@@ -83,7 +78,7 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 	@Override
 	public CompositeFactory getControlledCompositeFactory() {
 		if (acquistionConfigurationFactory == null) {
-			this.acquistionConfigurationFactory = new TomographyConfigurationLayoutFactory(getAcquisitionController());
+			this.acquistionConfigurationFactory = new TomographyConfigurationLayoutFactory();
 		}
 		return acquistionConfigurationFactory;
 	}
@@ -98,57 +93,32 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 		return controlButtonsContainerSupplier;
 	}
 
-	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
-		return acquisitionController;
-	}
-
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
 		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> newAcquisition()));
-		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> saveAcquisition()));
-		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> runAcquisition()));
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().newAcquisition()));
+		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().saveAcquisition()));
+		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().runAcquisition()));
 		return acquisitionButtonGroup;
-	}
-
-	private void newAcquisition() {
-		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
-		if (confirmed) {
-			getAcquisitionController().createNewAcquisition();
-		}
-	}
-
-	private void saveAcquisition() {
-		if (getAcquisitionController().getAcquisition().getUuid() != null && !UIHelper.showConfirm("Override the existing configuration?")) {
-			return;
-		}
-		try {
-			getAcquisitionController().saveAcquisitionConfiguration();
-		} catch (AcquisitionControllerException e) {
-			UIHelper.showError("Cannot save acquisition", e, logger);
-		}
-	}
-
-	private void runAcquisition() {
-		try {
-			getAcquisitionController().runAcquisition();
-		} catch (AcquisitionControllerException e) {
-			UIHelper.showError("Cannot Run Acquisition", e);
-		}
 	}
 
 	private class LoadListener implements ApplicationListener<AcquisitionConfigurationResourceLoadEvent> {
 
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (!ScanningAcquisitionController.class.isInstance(event.getSource())) {
+			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
 				return;
 			}
 			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionType())) {
 				return;
 			}
-			if (Reloadable.class.isInstance(getControlledCompositeFactory())) {
+			if (getControlledCompositeFactory() instanceof Reloadable) {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(((Reloadable)getControlledCompositeFactory())::reload);
 			}
 		}
+	}
+
+	// ------------ UTILS ----
+	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
+		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
 	}
 }
