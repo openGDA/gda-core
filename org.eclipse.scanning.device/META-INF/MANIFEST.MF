@@ -19,5 +19,11 @@ Export-Package: org.eclipse.scanning.device,
  org.eclipse.scanning.device.utils
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.lang3.tuple;version="3.1.0",
- org.slf4j
+ org.slf4j,
+ org.springframework.beans;version="4.0.6.RELEASE",
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ org.springframework.context;version="4.0.6.RELEASE",
+ org.springframework.expression;version="4.0.6.RELEASE",
+ org.springframework.expression.spel.standard;version="4.0.6.RELEASE",
+ org.springframework.expression.spel.support;version="4.0.6.RELEASE"
 Automatic-Module-Name: org.eclipse.scanning.device
