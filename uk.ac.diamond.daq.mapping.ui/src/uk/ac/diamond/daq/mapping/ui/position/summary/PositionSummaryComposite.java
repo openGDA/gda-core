@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
+import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 

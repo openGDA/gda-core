@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.properties.mode;
 
+import uk.ac.gda.client.properties.stage.position.ScannableKeys;
+
 /**
  * Defines a device status in a client mode
  *
@@ -26,24 +28,22 @@ package uk.ac.gda.client.properties.mode;
 public class TestModeElement {
 
 	/**
-	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
-	 * device
+	 * Identifies a scannable by its keysID
 	 */
-	private String device;
+	private ScannableKeys device;
 
 	private boolean exclude;
 
 	/**
-	 * An identifier, usually a Spring bean name, to allow an acquisition controller to retrieve a real instance of the
-	 * device
+	 * Identifies a scannable by its keysID
 	 *
 	 * @return a device name
 	 */
-	public String getDevice() {
+	public ScannableKeys getDevice() {
 		return device;
 	}
 
-	public void setDevice(String device) {
+	public void setDevice(ScannableKeys device) {
 		this.device = device;
 	}
 

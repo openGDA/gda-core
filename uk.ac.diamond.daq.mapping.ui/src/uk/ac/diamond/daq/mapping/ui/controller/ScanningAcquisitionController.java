@@ -7,6 +7,7 @@ import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRe
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +31,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position;
 import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -47,7 +47,9 @@ import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.mode.TestMode;
 import uk.ac.gda.client.properties.mode.TestModeElement;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
+import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
@@ -302,6 +304,9 @@ public class ScanningAcquisitionController
 		List<String> toExclude = clientPropertiesHelper.getModes().getTest().getElements().stream()
 			.filter(TestModeElement::isExclude)
 			.map(TestModeElement::getDevice)
+			.map(stageController::getScannablePropertiesDocument)
+			.filter(Objects::nonNull)
+			.map(ScannableProperties::getScannable)
 			.collect(Collectors.toList());
 
 		positions.removeIf(p -> toExclude.contains(p.getDevice()));

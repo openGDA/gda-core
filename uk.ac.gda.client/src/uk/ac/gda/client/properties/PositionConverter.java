@@ -16,32 +16,26 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.stage.event;
+package uk.ac.gda.client.properties;
 
-import uk.ac.diamond.daq.mapping.ui.controller.StageController;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
+
 import uk.ac.gda.client.properties.stage.position.Position;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
- * An event published when a {@link Position} has been updated
+ * Converts a {@code String} to a {@link Position}.
  *
- * @see StageController#savePosition(Position)
+ * @see ClientSpringProperties
  *
  * @author Maurizio Nagni
  */
-public class UpdateStagePositionEvent extends StageEvent {
+@Component
+public class PositionConverter implements Converter<String, Position> {
 
-	private final Position position;
-
-	public UpdateStagePositionEvent(Object source, Position position) {
-		super(source);
-		this.position = position;
-	}
-
-	/**
-	 * Return the updated position of this event
-	 * @return the updated position
-	 */
-	public Position getPosition() {
-		return position;
+	@Override
+	public Position convert(String source) {
+		return Position.valueOf(source);
 	}
 }

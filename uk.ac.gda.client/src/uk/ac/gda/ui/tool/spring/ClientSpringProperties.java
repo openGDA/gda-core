@@ -12,6 +12,7 @@ import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationPropertie
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
+import uk.ac.gda.client.properties.stage.position.PositionScannableKeys;
 
 /**
  * Loads the client properties using spring.
@@ -34,7 +35,8 @@ import uk.ac.gda.client.properties.stage.ScannableGroupProperties;
 @EnableConfigurationProperties({CameraConfigurationProperties.class,
 	AcquisitionConfigurationProperties.class,
 	ScannableGroupProperties.class,
-	Modes.class})
+	Modes.class,
+	PositionScannableKeys.class})
 public class ClientSpringProperties {
 
 	@Autowired
@@ -48,6 +50,9 @@ public class ClientSpringProperties {
 
 	@Autowired
 	private Modes modes;
+
+	@Autowired
+	private List<PositionScannableKeys> positions;
 
 	public List<CameraConfigurationProperties> getCameras() {
 		return cameras;
@@ -63,5 +68,9 @@ public class ClientSpringProperties {
 
 	public Modes getModes() {
 		return modes;
+	}
+
+	public List<PositionScannableKeys> getPositions() {
+		return positions;
 	}
 }

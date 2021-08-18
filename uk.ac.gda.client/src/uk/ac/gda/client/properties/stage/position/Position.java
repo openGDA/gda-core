@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.stage.enumeration;
+package uk.ac.gda.client.properties.stage.position;
 
 import uk.ac.gda.ui.tool.ClientMessages;
 

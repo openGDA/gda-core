@@ -16,32 +16,30 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.stage.event;
+package uk.ac.gda.client.properties.stage.position;
 
-import uk.ac.diamond.daq.mapping.ui.controller.StageController;
-import uk.ac.gda.client.properties.stage.position.Position;
+import java.util.List;
 
 /**
- * An event published when a {@link Position} has been updated
- *
- * @see StageController#savePosition(Position)
+ * Defines the ScannableGroup/Properties which have to be associated with the specific {@link Position}
  *
  * @author Maurizio Nagni
  */
-public class UpdateStagePositionEvent extends StageEvent {
+public class PositionScannableKeys {
 
-	private final Position position;
-
-	public UpdateStagePositionEvent(Object source, Position position) {
-		super(source);
-		this.position = position;
-	}
-
-	/**
-	 * Return the updated position of this event
-	 * @return the updated position
-	 */
+	private Position position;
+	private List<ScannableKeys> keys;
 	public Position getPosition() {
 		return position;
 	}
+	public void setPosition(Position position) {
+		this.position = position;
+	}
+	public List<ScannableKeys> getKeys() {
+		return keys;
+	}
+	public void setKeys(List<ScannableKeys> keys) {
+		this.keys = keys;
+	}
+
 }
