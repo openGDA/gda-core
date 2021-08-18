@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -41,14 +42,22 @@ import gda.util.OSCommandRunner;
 import uk.ac.gda.server.ncd.subdetector.eiger.NcdEigerController;
 
 public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerController {
+	private static final String INVALID_STATE_WARNING = "Error during configuration left detector in inconsistent state "
+			+ "- try reconfiguring detector and contact support if problems continue.";
+
+	public enum ParameterState {
+		VALID, STALE;
+	}
+
 	private static final String ACTIVE = "Active";
 
 	private static final Logger logger = LoggerFactory.getLogger(NcdEpicsEiger.class);
 
-	private static final String SLOW_DATA_TYPE = "UInt32";
-	private static final String FAST_DATA_TYPE = "UInt16";
 	private static final String IMAGE_MODE = "Multiple";
 	private static final String TRIGGER_MODE = "External Enable";
+	private static final Map<Integer, String> BIT_DEPTH_MAP = Map.of(
+			16, "UInt16",
+			32, "UInt32");
 
 	private static final int ODIN_TIMEOUT = 5;
 
@@ -74,6 +83,8 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 	private PV<Integer> clearError;
 	private PV<Double> acquireTime;
 	private PV<Double> acquirePeriod;
+	/** The datatype being read by the detector. The datatype odin expects must be set to match */
+	private ReadOnlyPV<Integer> bitDepth;
 
 	private PV<String> odinInitialised;
 	private PV<Integer> odinReady;
@@ -99,6 +110,11 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 
 	private boolean reshaped;
 
+	/** Maintain a record of errors so that subsequent commands don't run with the detector in an inconsistent state */
+	// The exposure times of the detector are configured when they change, not at the start of each collection. This means
+	// that if the update fails, the next scan could otherwise continue even though the exposure times are incorrect.
+	private String errorMessage;
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		try {
@@ -114,6 +130,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 
 	@Override
 	public void startCollection() throws DeviceException {
+		checkErrors();
 		reshaped = false;
 		logger.trace("Starting collection");
 		setImageMode(IMAGE_MODE);
@@ -150,7 +167,6 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			throw new IllegalStateException("Cannot configure eiger detector with out base PV");
 		}
 		if (!isConfigured()) {
-
 			// CAMERA PVs
 			acquireTime = new PVWithSeparateReadback<Double>(
 					LazyPVFactory.newDoublePV(basePv + "CAM:AcquireTime"),
@@ -167,6 +183,8 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 
 			imageWidth = LazyPVFactory.newIntegerPV(basePv + "CAM:MaxSizeX_RBV");
 			imageHeight = LazyPVFactory.newIntegerPV(basePv + "CAM:MaxSizeY_RBV");
+
+			bitDepth = LazyPVFactory.newReadOnlyIntegerPV(basePv + "CAM:BitDepthImage_RBV");
 
 			// DATA WRITING PVs
 			dataDirectory = new PVWithSeparateReadback<String>(
@@ -270,7 +288,9 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 
 	@Override
 	public void startRecording() throws DeviceException {
+		checkErrors();
 		logger.trace("Starting data writer");
+		updateDataType();
 		reshaped = false;
 		try {
 			if (startDataWriter.get() == 1) {
@@ -334,22 +354,17 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 	@Override
 	public void setExposureTimes(int frames, double requestedLiveTime, double requestedDeadTime) throws DeviceException {
 		logger.trace("Setting exposure times: {} x {}/{}ms", frames, requestedLiveTime, requestedDeadTime);
+		// If anything fails here, leave error message so inconsistent state can be fixed.
+		errorMessage = INVALID_STATE_WARNING;
 		framesPerPoint = frames;
 		double acquisition = requestedLiveTime + requestedDeadTime;
 		try {
-			if (acquisition < 20) {// faster than 50 Hz
-				logger.trace("Setting data type to {}", FAST_DATA_TYPE);
-				dataType.putWait(FAST_DATA_TYPE);
-			} else {
-				logger.trace("Setting data type to {}", SLOW_DATA_TYPE);
-				dataType.putWait(SLOW_DATA_TYPE);
-			}
 			acquireTime.putWait(requestedLiveTime / 1000);
 			acquirePeriod.putWait(acquisition / 1000);
-		} catch (IOException e) {
+		} catch (IOException  e) {
 			throw new DeviceException("Could not set up data recording", e);
 		}
-
+		errorMessage = null;
 	}
 
 	public void setTriggerMode(String trigger) throws DeviceException {
@@ -419,5 +434,36 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		}
 		reshaped = true;
 		logger.trace("End of waiting. File {}found", i == 10 ? "not " : "");
+	}
+
+	/**
+	 * Update the datatype expected by odin to match the bit depth of the detector
+	 * @throws DeviceException if current data type or image can't be read or datatype can't be set
+	 */
+	private void updateDataType() throws DeviceException {
+		errorMessage = INVALID_STATE_WARNING;
+		try {
+			int depth = bitDepth.get();
+			String type = BIT_DEPTH_MAP.get(depth);
+			if (type == null) {
+				throw new DeviceException("Unrecognised bit depth (" + depth + ") - detector in inconsistent state");
+			}
+			if (type.equals(dataType.get())) {
+				logger.trace("Odin datatype already set to {}", type);
+			} else {
+				logger.trace("Setting odin data type to {}", type);
+				dataType.putWait(type);
+			}
+		} catch (IOException e) {
+			throw new DeviceException("Could not ensure correct datatype set for odin datawriter", e);
+		}
+		errorMessage = null;
+	}
+
+	/** Check if detector has been left in inconsistent state by previous errors */
+	private void checkErrors() throws DeviceException {
+		if (errorMessage != null) {
+			throw new DeviceException(errorMessage);
+		}
 	}
 }
