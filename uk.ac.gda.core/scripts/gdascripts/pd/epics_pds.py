@@ -7,6 +7,7 @@ from gda.device.scannable import ScannableMotionBase
 from gda.epics import CAClient
 from java import lang
 from time import sleep
+from random import random
 
 #
 # a pseudo device representing a PV.  It will not change the value of the 
@@ -45,7 +46,26 @@ class DisplayEpicsPVClass(ScannableMotionBase):
 
 	def isBusy(self):
 		return 0
+	
+class DummyDisplayEpicsPVClass(ScannableMotionBase):
+	'''Create PD to display a data value instead of get it from single EPICS PV'''
+	def __init__(self, name, scale_factor, unitstring, formatstring):
+		self.setName(name);
+		self.setInputNames([name])
+		self.Units=[unitstring]
+		self.setOutputFormat([formatstring])
+		self.setLevel(8)
+		self.scale=scale_factor
 
+	def rawGetPosition(self):
+		return random()*self.scale
+
+	def rawAsynchronousMoveTo(self,position):
+		return
+
+	def isBusy(self):
+		return 0
+	
 class EpicsReadWritePVClass(ScannableMotionBase):
 	'''Create PD to display single EPICS PV'''
 	def __init__(self, name, pvstring, unitstring, formatstring):
