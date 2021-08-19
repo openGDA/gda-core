@@ -68,23 +68,6 @@ class ClientRestService {
 	 * @param requestEntity the entity (headers and/or body) to write to the request, may be {@code null}
 	 * @param responseType the type of the return value
 	 * @return the response as entity
-	 * @deprecated use {@link #submitRequest(String, HttpMethod, HttpEntity, Class)}. To be removed on before GDA 9.25
-	 */
-	@Deprecated
-	public static <T> T returnBody(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) {
-		logger.info("ClientRestService.returnBody is deprecated and will be removed before GDA 9.25");
-		ResponseEntity<T> response = getRestTemplate().exchange(url, method, requestEntity, responseType);
-		return response.getBody();
-	}
-
-	/**
-	 * Submit a request to a service and return only the response body
-	 * @param <T> the expected response type
-	 * @param url the URL
-	 * @param method the HTTP method (GET, POST, etc)
-	 * @param requestEntity the entity (headers and/or body) to write to the request, may be {@code null}
-	 * @param responseType the type of the return value
-	 * @return the response as entity
 	 * @throws GDAClientRestException
 	 */
 	public static <T> ResponseEntity<T> submitRequest(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType) throws GDAClientRestException {
@@ -155,7 +138,7 @@ class ClientRestService {
 	private static RestTemplate createRestTemplate() {
 		restTemplate = doCreateRestTemplate();
 	    addMessageConverters(restTemplate);
-		// adds error handlers AFTER the messages converters are added to the restTemplate 
+		// adds error handlers AFTER the messages converters are added to the restTemplate
 		addErrorHandler(restTemplate);
 	    addLoggingInterceptor(restTemplate);
 		return restTemplate;

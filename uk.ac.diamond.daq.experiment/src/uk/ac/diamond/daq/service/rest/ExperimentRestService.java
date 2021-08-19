@@ -34,7 +34,7 @@ public class ExperimentRestService {
 	@Autowired
 	private ExperimentController experimentController;
 	
-	@RequestMapping(value = "/start/{experimentName}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/session/start/{experimentName}", method = RequestMethod.PUT)
 	public @ResponseBody ExperimentServiceResponse startExperiment(@PathVariable String experimentName) {
 		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
 		response.withErrorCode(ExperimentErrorCode.NONE);
@@ -48,22 +48,22 @@ public class ExperimentRestService {
 		return response.build();
 	}
 
-	@RequestMapping(value = "/name", method = RequestMethod.GET )
+	@RequestMapping(value = "/session/name", method = RequestMethod.GET )
 	public @ResponseBody String getExperimentName() {
 		return getExperimentController().getExperimentName();
 	}
 
-	@RequestMapping(value = "/stop", method = RequestMethod.POST)
+	@RequestMapping(value = "/session/stop", method = RequestMethod.POST)
 	public @ResponseBody void stopExperiment() throws ExperimentControllerException {
 		getExperimentController().stopExperiment();
 	}
 
-	@RequestMapping(value = "/inProgress", method = RequestMethod.GET)
+	@RequestMapping(value = "/session/inProgress", method = RequestMethod.GET)
 	public @ResponseBody boolean isExperimentInProgress() {
 		return getExperimentController().isExperimentInProgress();
 	}
 
-	@RequestMapping(value = "/prepareAcquisition/{acquisitionName}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/session/prepareAcquisition/{acquisitionName}", method = RequestMethod.PUT)
 	public @ResponseBody ExperimentServiceResponse prepareAcquisition(@PathVariable String acquisitionName) {
 		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
 		response.withErrorCode(ExperimentErrorCode.NONE);
@@ -77,7 +77,7 @@ public class ExperimentRestService {
 		return response.build();
 	}
 
-	@RequestMapping(value = "/startMultipartAcquisition/{acquisitionName}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/session/startMultipartAcquisition/{acquisitionName}", method = RequestMethod.PUT)
 	public @ResponseBody ExperimentServiceResponse startMultipartAcquisition(String acquisitionName) {
 		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
 		response.withErrorCode(ExperimentErrorCode.NONE);
@@ -91,7 +91,7 @@ public class ExperimentRestService {
 		return response.build();
 	}
 
-	@RequestMapping(value = "/stopMultipartAcquisition", method = RequestMethod.POST)
+	@RequestMapping(value = "/session/stopMultipartAcquisition", method = RequestMethod.POST)
 	public @ResponseBody void stopMultipartAcquisition() throws ExperimentControllerException {
 		getExperimentController().stopMultipartAcquisition();
 	}

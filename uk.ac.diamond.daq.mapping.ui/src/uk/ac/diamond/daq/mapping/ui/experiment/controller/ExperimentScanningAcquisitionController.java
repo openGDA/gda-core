@@ -33,6 +33,7 @@ import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 
@@ -82,7 +83,7 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 		try {
 			URL acquisitionPath = getExperimentController().prepareAcquisition(acquisitionController.getAcquisition().getName());
 			getAcquisitionController().getAcquisition().setAcquisitionLocation(acquisitionPath);
-		} catch (ExperimentControllerException e) {
+		} catch (GDAClientRestException e) {
 			throw new AcquisitionControllerException("Cannot start acquisition", new ExperimentControllerException("Cannot prepare the experiment URL"));
 		}
 		return getAcquisitionController().runAcquisition();

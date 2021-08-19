@@ -19,18 +19,22 @@
 package uk.ac.gda.ui.tool.rest;
 
 import static uk.ac.gda.ui.tool.rest.ClientRestService.formatURL;
-import static uk.ac.gda.ui.tool.rest.ClientRestService.returnBody;
+import static uk.ac.gda.ui.tool.rest.ClientRestService.submitRequest;
 
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import uk.ac.diamond.daq.experiment.api.entity.ExperimentErrorCode;
 import uk.ac.diamond.daq.experiment.api.entity.ExperimentServiceResponse;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
+import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -44,7 +48,9 @@ import uk.ac.gda.ui.tool.spring.ClientSpringContext;
  * @author Maurizio Nagni
  */
 @Service
-public class ExperimentControllerServiceClient implements ExperimentController {
+public class ExperimentControllerServiceClient {
+
+	private static final Logger logger = LoggerFactory.getLogger(ExperimentControllerServiceClient.class);
 
 	@Autowired
 	private ClientSpringContext clientContext;
@@ -61,31 +67,31 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 *
 	 * @return the experiment file URL; created at the end of the experiment ({@link #stopExperiment()}
 	 *
-	 * @throws ExperimentControllerException
-	 *             if methods fails to create the experiment location
+//	 * @throws ExperimentControllerException
+//	 *             if methods fails to create the experiment location
 	 */
-	@Override
-	public URL startExperiment(String experimentName) throws ExperimentControllerException {
-		String restPath = String.format("/start/%s", experimentName);
+	public URL startExperiment(String experimentName) throws GDAClientRestException {
+		var restPath = String.format("/session/start/%s", experimentName);
 		String url = formatURL(getServiceEndpoint(), restPath);
-		ExperimentServiceResponse response = returnBody(url, HttpMethod.PUT, null, ExperimentServiceResponse.class);
-		handleExperimentErrorCode(response.getErrorCode());
-		return response.getRootNode();
+		ResponseEntity<ExperimentServiceResponse> response;
+		response = submitRequest(url, HttpMethod.PUT, null, new ParameterizedTypeReference<ExperimentServiceResponse>() {});
+		handleExperimentErrorCode(response.getBody().getErrorCode());
+		return response.getBody().getRootNode();
 	}
 
-	private void handleExperimentErrorCode(ExperimentErrorCode errorCode) throws ExperimentControllerException {
+	private void handleExperimentErrorCode(ExperimentErrorCode errorCode) throws GDAClientRestException {
 		if (errorCode == null)
 			return;
 
 		switch (errorCode) {
 			case ACQUISITION_EXISTS:
-				throw new ExperimentControllerException("An acquisition with the same name already exists");
+				throw new GDAClientRestException("An acquisition with the same name already exists");
 			case EXPERIMENT_EXISTS:
-				throw new ExperimentControllerException("An experiment with the same name already exists");
+				throw new GDAClientRestException("An experiment with the same name already exists");
 			case CANNOT_CREATE_EXPERIMENT:
-				throw new ExperimentControllerException("Cannot create the experiment structure");
+				throw new GDAClientRestException("Cannot create the experiment structure");
 			case CANNOT_CREATE_ACQUISITION:
-				throw new ExperimentControllerException("Cannot create the acquisition structure");
+				throw new GDAClientRestException("Cannot create the acquisition structure");
 			case NONE:
 				break;
 			default:
@@ -96,22 +102,26 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	/**
 	 * Returns the experiment name, or {@code null} if no experiment is running
 	 */
-	@Override
 	public String getExperimentName() {
-		String url = formatURL(getServiceEndpoint(), "/name");
-		return returnBody(url, HttpMethod.GET, null, String.class);
+		String url = formatURL(getServiceEndpoint(), "/session/name");
+		ResponseEntity<String> response;
+		try {
+			response = submitRequest(url, HttpMethod.GET, null, new ParameterizedTypeReference<String>() {});
+		} catch (GDAClientRestException e) {
+			return null;
+		}
+		return response.getBody();
 	}
 
 	/**
 	 * Closes the active experiment. Closes also any open multipart acquisition.
 	 *
-	 * @throws ExperimentControllerException
-	 *             if methods fails or {@link #isExperimentInProgress()} returns {@code false}
+//	 * @throws ExperimentControllerException
+//	 *             if methods fails or {@link #isExperimentInProgress()} returns {@code false}
 	 */
-	@Override
-	public void stopExperiment() throws ExperimentControllerException {
-		String url = formatURL(getServiceEndpoint(), "/stop");
-		returnBody(url, HttpMethod.POST, null, Void.class);
+	public void stopExperiment() throws GDAClientRestException {
+		String url = formatURL(getServiceEndpoint(), "/session/stop");
+		submitRequest(url, HttpMethod.POST, null, new ParameterizedTypeReference<Void>() {});
 	}
 
 	/**
@@ -119,10 +129,14 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 *
 	 * @return {@code true} if the experiment is in progress, otherwise {@code false}
 	 */
-	@Override
 	public boolean isExperimentInProgress() {
-		String url = formatURL(getServiceEndpoint(), "/inProgress");
-		return returnBody(url, HttpMethod.GET, null, Boolean.class);
+		String url = formatURL(getServiceEndpoint(), "/session/inProgress");
+		try {
+			return submitRequest(url, HttpMethod.GET, null, new ParameterizedTypeReference<Boolean>() {}).getBody();
+		} catch (GDAClientRestException e) {
+			logger.warn("Cannot verify the experiment status", e);
+		}
+		return false;
 	}
 
 	/**
@@ -133,16 +147,16 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 *
 	 * @return The URL for the acquisition file
 	 *
-	 * @throws ExperimentControllerException
-	 *             if methods fails to create the acquisition location
+//	 * @throws ExperimentControllerException
+//	 *             if methods fails to create the acquisition location
 	 */
-	@Override
-	public URL prepareAcquisition(String acquisitionName) throws ExperimentControllerException {
-		String restPath = String.format("/prepareAcquisition/%s", acquisitionName);
+	public URL prepareAcquisition(String acquisitionName) throws GDAClientRestException {
+		var restPath = String.format("/session/prepareAcquisition/%s", acquisitionName);
 		String url = formatURL(getServiceEndpoint(), restPath);
-		ExperimentServiceResponse response = returnBody(url, HttpMethod.PUT, null, ExperimentServiceResponse.class);
-		handleExperimentErrorCode(response.getErrorCode());
-		return response.getRootNode();
+		ResponseEntity<ExperimentServiceResponse> response;
+		response = submitRequest(url, HttpMethod.PUT, null, new ParameterizedTypeReference<ExperimentServiceResponse>() {});
+		handleExperimentErrorCode(response.getBody().getErrorCode());
+		return response.getBody().getRootNode();
 	}
 
 	/**
@@ -155,26 +169,25 @@ public class ExperimentControllerServiceClient implements ExperimentController {
 	 *
 	 * @return the URL of the acquisition file, created when the multipart acquisition is stopped
 	 *
-	 * @throws ExperimentControllerException
+//	 * @throws ExperimentControllerException
 	 */
-	@Override
-	public URL startMultipartAcquisition(String acquisitionName) throws ExperimentControllerException {
-		String restPath = String.format("/startMultipartAcquisition/%s", acquisitionName);
+	public URL startMultipartAcquisition(String acquisitionName) throws GDAClientRestException {
+		var restPath = String.format("/session/startMultipartAcquisition/%s", acquisitionName);
 		String url = formatURL(getServiceEndpoint(), restPath);
-		ExperimentServiceResponse response = returnBody(url, HttpMethod.PUT, null, ExperimentServiceResponse.class);
-		handleExperimentErrorCode(response.getErrorCode());
-		return response.getRootNode();
+		ResponseEntity<ExperimentServiceResponse> response;
+		response = submitRequest(url, HttpMethod.PUT, null, new ParameterizedTypeReference<ExperimentServiceResponse>() {});
+		handleExperimentErrorCode(response.getBody().getErrorCode());
+		return response.getBody().getRootNode();
 	}
 
 	/**
 	 * Closes the current multipart acquisition is complete.
 	 *
-	 * @throws ExperimentControllerException
-	 *             if no open multipart acquisition exists
+//	 * @throws ExperimentControllerException
+//	 *             if no open multipart acquisition exists
 	 */
-	@Override
-	public void stopMultipartAcquisition() throws ExperimentControllerException {
-		String url = formatURL(getServiceEndpoint(), "/stopMultipartAcquisition");
-		returnBody(url, HttpMethod.POST, null, Void.class);
+	public void stopMultipartAcquisition() throws GDAClientRestException {
+		String url = formatURL(getServiceEndpoint(), "/session/stopMultipartAcquisition");
+		submitRequest(url, HttpMethod.POST, null, new ParameterizedTypeReference<Void>() {});
 	}
 }
