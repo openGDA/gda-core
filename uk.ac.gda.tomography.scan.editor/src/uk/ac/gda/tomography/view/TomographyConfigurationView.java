@@ -28,21 +28,15 @@ import org.eclipse.ui.part.ViewPart;
 import gda.rcp.views.AcquisitionCompositeFactoryBuilder;
 import gda.rcp.views.Browser;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
-import uk.ac.diamond.daq.mapping.ui.experiment.controller.ExperimentScanningAcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.browser.TomoBrowser;
 import uk.ac.gda.tomography.scan.editor.view.configuration.radiography.RadiographyButtonControlledCompositeFactory;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.TomographyButtonControlledCompositeFactory;
 import uk.ac.gda.ui.tool.AcquisitionConfigurationView;
 import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.document.DocumentFactory;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
@@ -78,23 +72,6 @@ public final class TomographyConfigurationView extends AcquisitionConfigurationV
 		return getScanningAcquisitionTemporaryHelper().getAcquisitionController()
 				.map(TomoBrowser::new)
 				.orElseGet(() -> new TomoBrowser(null));
-	}
-
-	/**
-	 * Creates a new {@link ScanningAcquisition} for a tomography acquisition. Note that the Detectors set by the
-	 * {@link ScanningAcquisitionController#createNewAcquisition()}
-	 *
-	 * @return a new scanning acquisition
-	 */
-	@Override
-	protected Supplier<ScanningAcquisition> newScanningAcquisition() {
-		return SpringApplicationContextFacade.getBean(DocumentFactory.class)
-				.newScanningAcquisition(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.ONE_DIMENSION_LINE);
-	}
-
-	@Override
-	protected AcquisitionController<ScanningAcquisition> createAcquisitionController() {
-		return new ExperimentScanningAcquisitionController(AcquisitionPropertyType.TOMOGRAPHY);
 	}
 
 	private List<NamedCompositeFactory> initializeConfiguration(Supplier<Composite> controlButtonsContainerSupplier) {

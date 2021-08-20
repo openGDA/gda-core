@@ -115,7 +115,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.diamond.daq.mapping.ui.controller.AcquisitionConfigurationException;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
@@ -123,6 +122,7 @@ import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocume
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.ProcessingRequestProperties;

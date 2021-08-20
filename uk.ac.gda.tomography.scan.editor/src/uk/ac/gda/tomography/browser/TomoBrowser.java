@@ -21,7 +21,6 @@ package uk.ac.gda.tomography.browser;
 import gda.rcp.views.Browser;
 import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
@@ -30,6 +29,7 @@ import uk.ac.gda.tomography.browser.provider.ProjectionsLabelProvider;
 import uk.ac.gda.tomography.browser.provider.RangeProvider;
 import uk.ac.gda.ui.tool.browser.NameLabelProvider;
 import uk.ac.gda.ui.tool.browser.ScanningAcquisitionBrowserBase;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 
 /**
  * Generates a {@link Browser} for the tomography configuration files, suitable for an {@link AcquisitionsBrowserCompositeFactory}

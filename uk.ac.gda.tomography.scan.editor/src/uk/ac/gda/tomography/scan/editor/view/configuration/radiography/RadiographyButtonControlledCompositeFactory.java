@@ -39,6 +39,8 @@ import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -94,6 +96,17 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 				.orElseGet(this::createAcquistionConfigurationFactory);
 	}
 
+	@Override
+	public AcquisitionKeys getAcquisitionKeys() {
+		return new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.STATIC_POINT);
+	}
+
+	@Override
+	public void createNewAcquisitionInController() throws AcquisitionControllerException {
+		getScanningAcquisitionTemporaryHelper()
+			.setNewScanningAcquisition(getAcquisitionKeys());
+	}
+
 	private CompositeFactory createAcquistionConfigurationFactory() {
 		this.acquistionConfigurationFactory = new RadiographyConfigurationLayoutFactory();
 		setAcquisitionTemplateType(AcquisitionTemplateType.STATIC_POINT);
@@ -102,7 +115,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 
 	private void setAcquisitionTemplateType(AcquisitionTemplateType acquisitionTemplateType) {
 		getDocumentFactory()
-			.buildScanpathBuilder(AcquisitionPropertyType.TOMOGRAPHY, acquisitionTemplateType)
+			.buildScanpathBuilder(new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, acquisitionTemplateType))
 			.ifPresent(scanpathDocumentHelper::updateScanPathDocument);
 	}
 
@@ -118,7 +131,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
 		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().newAcquisition()));
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> newAcquisitionButtonAction()));
 		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().saveAcquisition()));
 		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().runAcquisition()));
 		return acquisitionButtonGroup;
@@ -131,7 +144,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
 				return;
 			}
-			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionType())) {
+			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionKeys().getPropertyType())) {
 				return;
 			}
 			if (getControlledCompositeFactory() instanceof Reloadable) {

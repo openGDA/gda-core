@@ -30,10 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.rcp.views.CompositeFactory;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
@@ -89,13 +92,24 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 	}
 
 	@Override
+	public AcquisitionKeys getAcquisitionKeys() {
+		return new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.ONE_DIMENSION_LINE);
+	}
+
+	@Override
+	public void createNewAcquisitionInController() throws AcquisitionControllerException {
+		getScanningAcquisitionTemporaryHelper()
+			.setNewScanningAcquisition(getAcquisitionKeys());
+	}
+
+	@Override
 	public Supplier<Composite> getButtonControlsContainerSupplier() {
 		return controlButtonsContainerSupplier;
 	}
 
 	private AcquisitionCompositeButtonGroupFactoryBuilder getAcquistionButtonGroupFacoryBuilder() {
 		var acquisitionButtonGroup = new AcquisitionCompositeButtonGroupFactoryBuilder();
-		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().newAcquisition()));
+		acquisitionButtonGroup.addNewSelectionListener(widgetSelectedAdapter(event -> newAcquisitionButtonAction()));
 		acquisitionButtonGroup.addSaveSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().saveAcquisition()));
 		acquisitionButtonGroup.addRunSelectionListener(widgetSelectedAdapter(event -> getScanningAcquisitionTemporaryHelper().runAcquisition()));
 		return acquisitionButtonGroup;
@@ -108,7 +122,7 @@ public class TomographyButtonControlledCompositeFactory implements NamedComposit
 			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
 				return;
 			}
-			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionType())) {
+			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionKeys().getPropertyType())) {
 				return;
 			}
 			if (getControlledCompositeFactory() instanceof Reloadable) {
