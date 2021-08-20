@@ -24,10 +24,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -49,18 +47,18 @@ import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsPositioner;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.Acquisition;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
-import uk.ac.gda.ui.tool.document.DocumentFactory;
+import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 import uk.ac.gda.ui.tool.spring.FinderService;
@@ -82,13 +80,10 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest {
 	private static final String EH_SHUTTER = "eh_shutter";
 
 	@Autowired
-	private ScanningAcquisitionController controller;
-
-	@Autowired
 	private ScanningAcquisitionRestServiceClient scanningAcquisitionServer;
 
 	@Autowired
-	private DocumentFactory documentFactory;
+	private ExperimentControllerServiceClient experimentClient;
 
 	@Autowired
 	private FinderService finderService;
@@ -100,12 +95,11 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest {
 	StageController stageController;
 
 	@Autowired
-	private ClientSpringContext clientSpringContext;
+	private ClientSpringContext context;
 
 	@BeforeClass
 	public static void beforeClass() {
 		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTestModeTest");
-        System.setProperty(GDA_PROPERTIES_FILE, "test/resources/scanningAcquisitionControllerTestModeTest/properties/_common/common_instance_java.properties");
 	}
 
 	@AfterClass
@@ -117,9 +111,6 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest {
 	@Before
 	public void before() {
 		LocalProperties.reloadAllProperties();
-		controller = ScanningAcquisitionController.class
-				.cast(getBean("scanningAcquisitionController", AcquisitionPropertyType.TOMOGRAPHY));
-		clientSpringContext.setAcquisitionController(controller);
 	}
 
 	private DevicePositionDocument createShutterOpenRequest() {
@@ -143,6 +134,7 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest {
 		var cameraControl = mock(CameraControl.class);
 		doReturn("imaging_camera_control").when(cameraControl).getName();
 		doReturn(Optional.of(cameraControl)).when(finderService).getFindableObject("imaging_camera_control", CameraControl.class);
+		doReturn(true).when(experimentClient).isExperimentInProgress();
 
 		var ehShutter = spy(new EpicsPositioner());
 		doReturn(Optional.of(ehShutter)).when(finderService).getFindableObject(eq(EH_SHUTTER), ArgumentMatchers.any());
@@ -156,10 +148,9 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest {
 				.build();
 		ResponseEntity<RunAcquisitionResponse> mockResponseEntity = new ResponseEntity<>(mockResponse, HttpStatus.OK);
 
-		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = documentFactory
-				.newScanningAcquisition(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.ONE_DIMENSION_LINE);
-		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
-		controller.createNewAcquisition();
+		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.ONE_DIMENSION_LINE);
+		var controller = context.getAcquisitionController().orElseThrow();
+		controller.newScanningAcquisition(acquisitionKeys);
 
 		doReturn(mockResponseEntity).when(scanningAcquisitionServer).run(controller.getAcquisition());
 

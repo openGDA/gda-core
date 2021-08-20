@@ -18,23 +18,24 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.controller;
 
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getExperimentController;
 
 import java.net.URL;
 import java.util.UUID;
-import java.util.function.Supplier;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 
 /**
@@ -45,15 +46,11 @@ import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
  *
  * @author Maurizio Nagni
  */
+@Controller(value = "experimentAcquisitionController")
 public class ExperimentScanningAcquisitionController implements AcquisitionController<ScanningAcquisition> {
 
-	private final AcquisitionPropertyType acquisitionType;
-
+	@Autowired
 	private AcquisitionController<ScanningAcquisition> acquisitionController;
-
-	public ExperimentScanningAcquisitionController(AcquisitionPropertyType acquisitionType) {
-		this.acquisitionType = acquisitionType;
-	}
 
 	@Override
 	public ScanningAcquisition getAcquisition() {
@@ -61,13 +58,8 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 	}
 
 	@Override
-	public void createNewAcquisition() {
-		getAcquisitionController().createNewAcquisition();
-	}
-
-	@Override
-	public void setDefaultNewAcquisitionSupplier(Supplier<ScanningAcquisition> newAcquisitionSupplier) {
-		getAcquisitionController().setDefaultNewAcquisitionSupplier(newAcquisitionSupplier);
+	public void newScanningAcquisition(AcquisitionKeys acquisitionKey) throws AcquisitionControllerException {
+		getAcquisitionController().newScanningAcquisition(acquisitionKey);
 	}
 
 	@Override
@@ -110,14 +102,12 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 		getAcquisitionController().releaseResources();
 	}
 
-	public AcquisitionController<ScanningAcquisition> getAcquisitionController() {
-		if (acquisitionController == null) {
-			setAcquisitionController((AcquisitionController<ScanningAcquisition>) getBean("scanningAcquisitionController", acquisitionType));
-		}
-		return acquisitionController;
+	@Override
+	public AcquisitionKeys getAcquisitionKeys() {
+		return getAcquisitionController().getAcquisitionKeys();
 	}
 
-	public void setAcquisitionController(AcquisitionController<ScanningAcquisition> acquisitionController) {
-		this.acquisitionController = acquisitionController;
+	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
+		return acquisitionController;
 	}
 }

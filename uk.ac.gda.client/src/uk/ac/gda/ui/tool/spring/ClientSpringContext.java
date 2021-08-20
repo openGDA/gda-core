@@ -25,7 +25,8 @@ import org.springframework.stereotype.Component;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.gda.api.acquisition.AcquisitionController;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 
 /**
  * Defines the context for a spring/rest enabled client.
@@ -56,23 +57,11 @@ public class ClientSpringContext {
 		return LocalProperties.get(REST_ENDPOINT, REST_ENDPOINT_DEFAULT);
 	}
 
-
-	/**
-	 * Return the acquisition controller for this context.
-	 *
-	 * @return the active controller, otherwise {@link Optional#empty()}
-	 */
 	public Optional<AcquisitionController<ScanningAcquisition>> getAcquisitionController() {
+		if (acquisitionController == null) {
+			this.acquisitionController = SpringApplicationContextFacade.getBean("experimentAcquisitionController", AcquisitionController.class);
+		}
 		return Optional.ofNullable(acquisitionController);
-	}
-
-	/**
-	 * Sets the acquisition controller for the this context.
-	 *
-	 * @param acquisitionController
-	 */
-	public void setAcquisitionController(AcquisitionController<ScanningAcquisition> acquisitionController) {
-		this.acquisitionController = acquisitionController;
 	}
 
 	/**

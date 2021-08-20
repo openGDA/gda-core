@@ -29,10 +29,10 @@ import org.springframework.stereotype.Service;
 import uk.ac.diamond.daq.mapping.api.document.helper.ProcessingRequestHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
-import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestBuilder;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.exception.GDAClientException;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**

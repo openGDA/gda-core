@@ -20,13 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Supplier;
-
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,23 +31,25 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.gda.client.exception.AcquisitionConfigurationException;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
-import uk.ac.gda.ui.tool.spring.FinderService;
+import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
+import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ScanningAcquisitionControllerConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScanningAcquisitionControllerTest {
 
-	private ScanningAcquisitionController controller;
+	@Autowired
+	private ClientSpringContext context;
 
 	@Autowired
-	FinderService finderService;
+	private ScanningAcquisitionTemporaryHelper helper;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -64,43 +61,18 @@ public class ScanningAcquisitionControllerTest {
 		System.clearProperty(GDA_CONFIG);
 	}
 
-	@Before
-	public void before() {
-		controller = Optional.ofNullable(SpringApplicationContextFacade.getBean("scanningAcquisitionController",
-													AcquisitionPropertyType.TOMOGRAPHY))
-				.map(ScanningAcquisitionController.class::cast)
-				.orElseGet(() -> null);
+	@Test(expected = AcquisitionConfigurationException.class)
+	public void testControllerWithoutConfigurationProeprties() throws AcquisitionControllerException {
+		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionTemplateType.STATIC_POINT);
+		var controller = context.getAcquisitionController().orElseThrow();
+		controller.newScanningAcquisition(acquisitionKeys);
 	}
-
 
 	@Test
-	public void testControllerWithoutNewScanningAcquisitionSupplier() {
-		controller.createNewAcquisition();
-		Assert.assertNotNull(controller.getAcquisition());
-		Assert.assertNull(controller.getAcquisition().getAcquisitionConfiguration());
-	}
-
-	/**
-	 * The new scanning acquisition without configured acquisitions types does not create the ImageCalibration document
-	 */
-	@Test
-	public void testControllerWithNewScanningAcquisitionSupplierNoAcquistionProperties() {
-		Supplier<ScanningAcquisition> newScanningAcquisitionSupplier = getScanningAcquisitionSupplier();
-		controller.setDefaultNewAcquisitionSupplier(newScanningAcquisitionSupplier);
-		controller.createNewAcquisition();
-		Assert.assertNull(controller.getAcquisition().getAcquisitionConfiguration().getImageCalibration());
-	}
-
-	private Supplier<ScanningAcquisition> getScanningAcquisitionSupplier() {
-		return () -> {
-			ScanningAcquisition newConfiguration = new ScanningAcquisition();
-			newConfiguration.setUuid(UUID.randomUUID());
-			ScanningConfiguration configuration = new ScanningConfiguration();
-			newConfiguration.setAcquisitionConfiguration(configuration);
-
-			ScanningParameters acquisitionParameters = new ScanningParameters();
-			newConfiguration.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
-			return newConfiguration;
-		};
+	public void testControllerWithConfigurationProperties() throws AcquisitionControllerException {
+		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionTemplateType.TWO_DIMENSION_POINT);
+		var controller = context.getAcquisitionController().orElseThrow();
+		controller.newScanningAcquisition(acquisitionKeys);
+		Assert.assertEquals(acquisitionKeys, helper.getAcquisitionKeys(controller.getAcquisition()));
 	}
 }

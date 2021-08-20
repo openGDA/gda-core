@@ -39,7 +39,8 @@ import uk.ac.gda.ui.tool.spring.FinderService;
 		"uk.ac.diamond.daq.client.gui.camera.beam.state",
 		"uk.ac.diamond.daq.mapping.ui.controller",
 		"uk.ac.diamond.daq.mapping.ui.services.position",
-		"uk.ac.diamond.daq.mapping.api.document"},
+		"uk.ac.diamond.daq.mapping.api.document",
+		"uk.ac.diamond.daq.mapping.ui.experiment.controller"},
 excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class),
 //		@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = IStageController.class),

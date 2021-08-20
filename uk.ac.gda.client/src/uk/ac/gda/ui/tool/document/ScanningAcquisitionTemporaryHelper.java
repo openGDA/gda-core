@@ -36,11 +36,12 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
-import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
 /**
@@ -75,6 +76,11 @@ public class ScanningAcquisitionTemporaryHelper {
 		return getClientSpringContext()
 				.getAcquisitionController()
 				.orElseThrow();
+	}
+
+	public void setNewScanningAcquisition(AcquisitionKeys acquisitionKey) throws AcquisitionControllerException {
+		getAcquisitionControllerElseThrow()
+			.newScanningAcquisition(acquisitionKey);
 	}
 
 	public AcquisitionType getAcquisitionType() {
@@ -131,17 +137,6 @@ public class ScanningAcquisitionTemporaryHelper {
 	}
 
 	//------- NEW/SAVE/RUN -------
-	public void newAcquisition() {
-		boolean confirmed = UIHelper.showConfirm("Create new configuration? The existing one will be discarded");
-		if (confirmed) {
-			try {
-				getAcquisitionControllerElseThrow().createNewAcquisition();
-			} catch (NoSuchElementException e) {
-				UIHelper.showWarning(ClientMessages.NO_CONTROLLER, e);
-			}
-		}
-	}
-
 	public void saveAcquisition() {
 		boolean hasUUID = getScanningAcquisition()
 				.map(ScanningAcquisition::getUuid)
@@ -168,6 +163,35 @@ public class ScanningAcquisitionTemporaryHelper {
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(ClientMessages.NO_CONTROLLER, e);
 		}
+	}
+
+	public AcquisitionKeys getAcquisitionKeys() {
+		AcquisitionTemplateType templateType = getSelectedAcquisitionTemplateType().orElseGet(() -> AcquisitionTemplateType.STATIC_POINT);
+		return new AcquisitionKeys(DocumentFactory.getType(getAcquisitionType()), templateType);
+	}
+
+	/**
+	 * Returns the {@link AcquisitionKeys} of a {@link ScanningAcquisition} document.
+	 *
+	 * <p>
+	 * This method <b>does not</b> act on the active {@link AcquisitionController#getAcquisition()} but only on the one passsed as parameter.
+	 * </p>
+	 *
+	 * @param acquisition
+	 * @return the document acquisition keys, otherwise a ({@code AcquisitionType.GENERIC}, {@code AcquisitionTemplateType.STATIC_POINT} ) instance.
+	 */
+	public AcquisitionKeys getAcquisitionKeys(ScanningAcquisition acquisition) {
+		var acquisitionType = Optional.ofNullable(acquisition)
+			.map(ScanningAcquisition::getType)
+			.orElseGet(() -> AcquisitionType.GENERIC);
+
+		var templateType = Optional.ofNullable(acquisition)
+				.map(ScanningAcquisition::getAcquisitionConfiguration)
+				.map(ScanningConfiguration::getAcquisitionParameters)
+				.map(ScanningParameters::getScanpathDocument)
+				.map(ScanpathDocument::getModelDocument)
+				.orElseGet(() -> AcquisitionTemplateType.STATIC_POINT);
+		return new AcquisitionKeys(DocumentFactory.getType(acquisitionType), templateType);
 	}
 	//------- NEW/SAVE/RUN -------
 }

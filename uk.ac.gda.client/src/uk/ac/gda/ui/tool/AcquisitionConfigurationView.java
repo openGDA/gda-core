@@ -41,9 +41,9 @@ import gda.rcp.views.Browser;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.gda.api.acquisition.AcquisitionController;
 import uk.ac.gda.client.composites.AcquisitionsBrowserCompositeFactory;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.selectable.SelectableContainedCompositeFactory;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
@@ -76,13 +76,6 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 		var container = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().applyTo(container);
 		container.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		setContextAcquisitionController(createAcquisitionController());
-
-		getAcquisitionController().ifPresent(c -> {
-			c.setDefaultNewAcquisitionSupplier(newScanningAcquisition());
-			c.createNewAcquisition();
-		});
-
 		var builder = new AcquisitionCompositeFactoryBuilder();
 		builder.addTopArea(getTopArea(builder.getControlButtonsContainerSupplier()));
 		builder.addBottomArea(getBottomArea());
@@ -119,14 +112,6 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 	 * @return a {@code Browser} instance
 	 */
 	protected abstract Browser<?> getBrowser();
-	/**
-	 * Creates a brand new {@link ScanningAcquisition} document and update the associated {@link AcquisitionController}
-	 * <p>
-	 * The generated document has to be consisted with the acquisition type this view is related to. This method is usually called by a <i>New</i> button
-	 * </p>
-	 * @return a new acquisition document
-	 */
-	protected abstract Supplier<ScanningAcquisition> newScanningAcquisition();
 
 	private void buildSavedComposite(Composite parent) {
 		var group = createClientGroup(parent, SWT.NONE, 1, SAVED_SCAN_DEFINITION);
@@ -143,13 +128,6 @@ public abstract class AcquisitionConfigurationView extends ViewPart {
 			buildSavedComposite(parent);
 			return parent;
 		};
-	}
-
-	protected abstract AcquisitionController<ScanningAcquisition> createAcquisitionController();
-
-	private void setContextAcquisitionController(AcquisitionController<ScanningAcquisition> controller) {
-		Optional.ofNullable(controller)
-			.ifPresent(getClientSpringContext()::setAcquisitionController);
 	}
 
 	/**
