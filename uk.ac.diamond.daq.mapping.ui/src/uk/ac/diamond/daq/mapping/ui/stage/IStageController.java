@@ -46,8 +46,6 @@ public interface IStageController {
 	 */
 	Set<DevicePositionDocument> removePosition(Position position);
 
-	boolean hasPosition(Position position);
-
 	/**
 	 * Moves the devices to the position specified by the documents associated with {@link Position}
 	 * @param position the {@code Position} associated with the documents set to use for the movement
@@ -57,8 +55,6 @@ public interface IStageController {
 	Map<String, String> getMetadata();
 
 	CommonStage getStageDescription();
-
-	Map<Position, Set<DevicePosition<Double>>> getMotorsPositions();
 
 	double getMotorPosition(StageDevice device);
 

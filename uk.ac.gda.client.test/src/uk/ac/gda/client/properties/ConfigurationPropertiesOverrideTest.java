@@ -39,20 +39,25 @@ import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
- * Test ClientSpringProperties capabilities to parse a properties file.
+ * Test ClientSpringProperties capabilities to override multiple properties files
+ *
+ * @see ClientSpringProperties
  *
  * @author Maurizio Nagni
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ConfigurationPropertiesTestConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class ConfigurationPropertiesTest {
+public class ConfigurationPropertiesOverrideTest {
 
 	@Autowired
 	private ClientSpringProperties cnf;
 
 	@BeforeClass
 	public static void beforeClass() {
+		// Setting the "gda.mode" allows ClientSpringProperties to load the second @PropertySource
+		// which otherwise would have been unavailable
+		System.setProperty("gda.mode", "dummy");
 		System.setProperty(GDA_CONFIG, "test/resources/configurationPropertiesTest");
 	}
 
@@ -61,8 +66,10 @@ public class ConfigurationPropertiesTest {
 		Assert.assertEquals(3, cnf.getCameras().size());
 
 		CameraConfigurationProperties pco = cnf.getCameras().get(0);
-		Assert.assertEquals("pco_cam_config", pco.getConfiguration());
-		Assert.assertEquals("PCO_CAMERA", pco.getId());
+		//----OVERRIDE FROM DUMMY----
+		Assert.assertFalse(pco.getId().equals("PCO_CAMERA"));
+		Assert.assertTrue(pco.getId().equals("DummyPCO"));
+		//----OVERRIDE FROM DUMMY----
 		Assert.assertEquals("Imaging Camera", pco.getName());
 		Assert.assertEquals("imaging_camera_control", pco.getCameraControl());
 		Assert.assertEquals("customDriverX", pco.getCameraToBeamMap().getDriver().get(0));
@@ -100,7 +107,10 @@ public class ConfigurationPropertiesTest {
 
 		cameraMotor = pilatus.getMotors().get(0);
 		Assert.assertTrue(cameraMotor.getController().equals("pco_x"));
-		Assert.assertEquals("X", cameraMotor.getName());
+		//----OVERRIDE FROM DUMMY----
+		Assert.assertFalse(cameraMotor.getName().equals("X"));
+		Assert.assertTrue(cameraMotor.getName().equals("DummyMotor"));
+		//----OVERRIDE FROM DUMMY----
 		cameraMotor = pco.getMotors().get(1);
 		Assert.assertEquals("pco_z", cameraMotor.getController());
 		Assert.assertEquals("Z", cameraMotor.getName());
@@ -108,22 +118,34 @@ public class ConfigurationPropertiesTest {
 		CameraConfigurationProperties d4 = cnf.getCameras().get(2);
 		Assert.assertEquals("d4_cam_config", d4.getConfiguration());
 		Assert.assertEquals(null, d4.getId());
-		Assert.assertEquals("Diagnostic Camera 4", d4.getName());
+		//----OVERRIDE FROM DUMMY----
+		Assert.assertFalse(d4.getName().equals("Diagnostic Camera 4"));
+		Assert.assertTrue(d4.getName().equals("DummyCamera"));
+		//----OVERRIDE FROM DUMMY----
 		Assert.assertEquals("d4_camera_control", d4.getCameraControl());
 		Assert.assertFalse(d4.getCameraToBeamMap().isActive());
 
 		AcquisitionConfigurationProperties acquisition = cnf.getAcquisitions().get(0);
 		Assert.assertEquals("Diffraction engine", acquisition.getName());
-		Assert.assertTrue(acquisition.getType().equals(AcquisitionPropertyType.DIFFRACTION));
+		//----OVERRIDE FROM DUMMY----
+		Assert.assertFalse(AcquisitionPropertyType.DIFFRACTION.equals(acquisition.getType()));
+		Assert.assertTrue(AcquisitionPropertyType.CALIBRATION.equals(acquisition.getType()));
+		//----OVERRIDE FROM DUMMY----
+
 		Assert.assertEquals(1, acquisition.getCameras().size());
 		Assert.assertTrue(acquisition.getCameras().contains("PILATUS"));
 		Assert.assertEquals("localTest-ML-SCAN-01", acquisition.getEngine().getId());
 		Assert.assertTrue(acquisition.getEngine().getType().equals(AcquisitionEngineType.MALCOLM));
 
+		//----OVERRIDE FROM DUMMY----
 		acquisition = cnf.getAcquisitions().get(2);
-		Assert.assertEquals(2, acquisition.getCameras().size());
-		Assert.assertTrue(acquisition.getCameras().contains("PILATUS"));
-		Assert.assertTrue(acquisition.getCameras().contains("PCO_CAMERA"));
+		Assert.assertFalse(acquisition.getCameras().size() == 2);
+		Assert.assertFalse(acquisition.getCameras().contains("PILATUS"));
+		Assert.assertFalse(acquisition.getCameras().contains("PCO_CAMERA"));
+
+		Assert.assertEquals(1, acquisition.getCameras().size());
+		Assert.assertTrue(acquisition.getCameras().contains("DummyCamera"));
+		//----OVERRIDE FROM DUMMY----
 	}
 
 }

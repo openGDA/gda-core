@@ -110,6 +110,10 @@ public class ClientRemoteServices {
 	}
 
 	private <T> T getService(Class<T> klass) {
-		return PlatformUI.getWorkbench().getService(klass);
+		try {
+			return PlatformUI.getWorkbench().getService(klass);
+		} catch (IllegalStateException ex) {
+			return null;
+		}
 	}
 }

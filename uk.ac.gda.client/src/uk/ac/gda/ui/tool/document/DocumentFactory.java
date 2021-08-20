@@ -18,7 +18,6 @@
 
 package uk.ac.gda.ui.tool.document;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -87,15 +86,7 @@ public class DocumentFactory {
 	}
 
 	public Optional<ScanpathDocument.Builder> buildScanpathBuilder(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
-		List<AcquisitionTemplateConfiguration> templates = clientPropertiesHelper.getAcquisitionPropertiesDocuments().stream()
-				.filter(a -> a.getType().equals(propertyType))
-				.findFirst()
-				.map(AcquisitionConfigurationProperties::getTemplates)
-				.orElseGet(Collections::emptyList);
-
-		return templates.stream()
-			.filter(a -> templateType.equals(a.getTemplate()))
-			.findFirst()
+		return clientPropertiesHelper.getAcquisitionTemplateConfiguration(propertyType, templateType)
 			.map(this::buildScanpathBuilder);
 	}
 

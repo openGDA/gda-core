@@ -98,11 +98,9 @@ public class ScanRequestFactory {
 			throw new ScanningException("Cannot create compound model", e);
 		}
 
-		// Guarantee that at the end the acquisition will return at the start position
-		addPosition(createStartPosition(), scanRequest::setEnd);
-
 		parseAcquisitionEngine(scanRequest, runnableDeviceService);
-		addStartPosition(scanRequest);
+		addPosition(createStartPosition(), scanRequest::setStartPosition);
+		addPosition(createEndPosition(), scanRequest::setEnd);
 
 		scanRequest.setMonitorNamesPerPoint(parseMonitorNamesPerPoint());
 
@@ -117,12 +115,6 @@ public class ScanRequestFactory {
 
 	private void prepareScanRequestAccordingToScanType(ScanRequest scanRequest) {
 		ScanRequestPreparerFactory.getPreparer(acquisitionReader.getData()).prepare(scanRequest);
-	}
-
-	private void addStartPosition(ScanRequest scanRequest) {
-		final var iPosition = createPositionMap(getAcquisitionParameters().getPosition());
-		Optional.ofNullable(iPosition)
-			.ifPresent(scanRequest::setStartPosition);
 	}
 
 	private CompoundModel createCompoundModel() throws GDAException {
@@ -223,6 +215,10 @@ public class ScanRequestFactory {
 
 	private void addPosition(IPosition startPos, Consumer<IPosition> consumer) {
 		consumer.accept(startPos);
+	}
+
+	private IPosition createEndPosition() {
+		return createPositionMap(getAcquisitionConfiguration().getEndPosition());
 	}
 
 	private IPosition createStartPosition() {

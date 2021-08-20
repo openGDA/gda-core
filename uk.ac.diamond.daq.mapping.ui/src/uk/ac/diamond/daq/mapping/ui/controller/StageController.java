@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.controller;
 
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,15 +36,16 @@ import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageType;
 import uk.ac.diamond.daq.mapping.ui.stage.event.UpdateStagePositionEvent;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.client.properties.stage.DefaultManagedScannable;
 import uk.ac.gda.client.properties.stage.DevicePositionDocumentHelper;
 import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.client.properties.stage.position.ScannableKeys;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  *
@@ -83,7 +83,7 @@ public class StageController implements IStageController {
 
 	@Override
 	public Set<DevicePosition<Double>> savePosition(Position position) {
-		savePositionDocuments(position);
+		devicesPosition.put(position, reportPositions(position));
 		motorsPosition.put(position, getStageDescription().getMotorsPosition());
 		SpringApplicationContextFacade.publishEvent(new UpdateStagePositionEvent(this, position));
 		return motorsPosition.get(position);
@@ -104,18 +104,8 @@ public class StageController implements IStageController {
 	}
 
 	@Override
-	public boolean hasPosition(Position position) {
-		return devicesPosition.containsKey(position);
-	}
-
-	@Override
 	public Map<String, String> getMetadata() {
 		return getStageDescription().getMetadata();
-	}
-
-	@Override
-	public Map<Position, Set<DevicePosition<Double>>> getMotorsPositions() {
-		return Collections.unmodifiableMap(motorsPosition);
 	}
 
 	@Override
@@ -132,10 +122,6 @@ public class StageController implements IStageController {
 		this.commonStage = commonStage;
 	}
 
-	public Set<DevicePositionDocument> savePositionDocuments(Position position) {
-		return devicesPosition.put(position, reportPositions());
-	}
-
 	public Set<DevicePositionDocument> getPositionDocuments(Position position, Set<String> scannables) {
 		if (scannables == null)
 			return new HashSet<>();
@@ -144,20 +130,13 @@ public class StageController implements IStageController {
 				.collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns a copy of the saves {@link Position}
+	 * @param position
+	 * @return a new set, eventually empty
+	 */
 	public Set<DevicePositionDocument> getPositionDocuments(Position position) {
-		return devicesPosition.getOrDefault(position, new HashSet<>());
-	}
-
-	public DevicePositionDocument createShutterClosedRequest() {
-		// The "CLOSED" string has to be linked to a property
-		String position = Position.Close.toString();
-		return createShutterRequest(position);
-	}
-
-	public DevicePositionDocument createShutterOpenRequest() {
-		// The "OPEN" string has to be linked to a property
-		String position = Position.Open.toString();
-		return createShutterRequest(position);
+		return new HashSet<>(devicesPosition.getOrDefault(position, new HashSet<>()));
 	}
 
 	/**
@@ -173,24 +152,29 @@ public class StageController implements IStageController {
 		return helper.getScannablePropertiesDocument(scannableKeys);
 	}
 
-	private DevicePositionDocument createShutterRequest(String position) {
-		// The "device" string has to be linked to a property
-		DevicePositionDocument shutter = Optional.ofNullable(helper.getManagedScannable(DefaultManagedScannable.EH_SHUTTER))
-			.map(ManagedScannable::getScannablePropertiesDocument)
-			.map(ScannableProperties::getScannable)
-			.map(devicePositionDocumentService::devicePositionAsDocument)
-			.orElse(null);
-		if (shutter == null)
-			return null;
-		var builder = new DevicePositionDocument.Builder(shutter);
-		builder.withLabelledPosition(position);
-		return builder.build();
+	/**
+	 * Creates a {@link DevicePositionDocument} using a {@code ScannablePropertiesValue#getGroupId()}
+	 * and  {@code ScannablePropertiesValue#getScannableId()}
+	 * @param scannablePropertiesValue property to use
+	 * @return a new, optional, {@link DevicePositionDocument}
+	 */
+	public DevicePositionDocument createDevicePositionDocument(ScannablePropertiesValue scannablePropertiesValue) {
+		return devicePositionDocumentService.devicePositionAsDocument(scannablePropertiesValue);
 	}
 
-	private Set<DevicePositionDocument> reportPositions() {
-		return  helper.getScannables().stream()
-				.map(devicePositionDocumentService::devicePositionAsDocument)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toSet());
+	/**
+	 * Returns a set of {@link DevicePositionDocument} relative to the actual value of the
+	 * scannables cofigured as defining {@link Position}.
+	 *
+	 * @param position The requested position
+	 *
+	 * @return a set of documents, otherwise an empty set if not defined in {@link ClientSpringProperties#getPositions()}
+	 */
+	public Set<DevicePositionDocument> reportPositions(Position position) {
+		return helper.getPositionScannableProperties(position).stream()
+			.map(ScannableProperties::getScannable)
+			.map(devicePositionDocumentService::devicePositionAsDocument)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
 	}
 }

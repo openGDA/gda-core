@@ -32,6 +32,9 @@ import org.springframework.stereotype.Service;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
+import uk.ac.gda.client.properties.stage.ScannableProperties;
+import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
@@ -62,6 +65,9 @@ public class DevicePositionDocumentService {
 	@Autowired
 	private List<DeviceHandler> handlers;
 
+	@Autowired
+	private ScannablesPropertiesHelper scannablesPropertiesHelper;
+
 	/**
 	 * The chain first element. If {@code null} means either no handlers or the class
 	 * still has not created the responsibility chain.
@@ -85,14 +91,30 @@ public class DevicePositionDocumentService {
 	 * @return the document otherwise {@code null} if the device is not available
 	 */
 	public final <T extends Scannable> DevicePositionDocument devicePositionAsDocument(String device, Class<T> clazz) {
+		return getScannable(device, clazz)
+				.map(deviceHandler::handleDevice)
+				.orElse(null);
+	}
+
+	public final <T extends Scannable> Optional<T> getScannable(String device, Class<T> clazz) {
 		Optional<T> scannable = Optional.empty();
 		try {
 			scannable = finder.getFindableObject(device, clazz);
 		} catch (ClassCastException e) {
 			// If the device is of an un-castable class, does nothing
 		}
-		return scannable
-				.map(deviceHandler::handleDevice)
+		return scannable;
+	}
+
+	public final DevicePositionDocument devicePositionAsDocument(ScannablePropertiesValue scannablePropertiesValue) {
+		var scannableProperties = scannablesPropertiesHelper.getScannablePropertiesDocument(scannablePropertiesValue.getScannableKeys());
+
+		return Optional.ofNullable(scannableProperties)
+				.map(ScannableProperties::getScannable)
+				.map(scannableName -> getScannable(scannableName, Scannable.class))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.map(s -> deviceHandler.handleDevice(s, scannablePropertiesValue))
 				.orElse(null);
 	}
 

@@ -1,10 +1,9 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
-import static uk.ac.gda.client.properties.stage.DefaultManagedScannable.BEAM_SELECTOR;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishEvent;
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -12,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
@@ -43,17 +44,18 @@ import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.mode.TestMode;
 import uk.ac.gda.client.properties.mode.TestModeElement;
-import uk.ac.gda.client.properties.stage.ManagedScannable;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
-import uk.ac.gda.client.properties.stage.ScannablesPropertiesHelper;
 import uk.ac.gda.client.properties.stage.position.Position;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
+import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
  * A controller for ScanningAcquisition views.
@@ -127,14 +129,13 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
-		updateImageCalibration();
+		finalizeAcquisition();
 		save(formatConfigurationFileName(getAcquisition().getName()));
 	}
 
 	@Override
 	public RunAcquisitionResponse runAcquisition() throws AcquisitionControllerException {
-		updateImageCalibration();
-		updateStartPosition();
+		finalizeAcquisition();
 		ResponseEntity<RunAcquisitionResponse> responseEntity;
 		try {
 			responseEntity = getScanningAcquisitionRestServiceClient().run(getAcquisition());
@@ -228,6 +229,16 @@ public class ScanningAcquisitionController
 		publishScanRequestSavedEvent(fileName);
 	}
 
+	/**
+	 * Creates a ScanRequest for sake of the fully automated implementation.
+	 * @param fileName
+	 *
+	 * @deprecated the fully automated can, and should, use an approach consistent with the ScanningAcquisitionController
+	 * and compose its operations using the saved ScanningAcquisition.
+	 * While this class is a client side controller, this methods keeps this class dependent from objects,
+	 * like ScanRequestFactory, that instead live naturally in the server side.
+	 */
+	@Deprecated
 	private void publishScanRequestSavedEvent(String fileName) {
 		try {
 			var srf = new ScanRequestFactory(getAcquisition());
@@ -236,6 +247,39 @@ public class ScanningAcquisitionController
 		} catch (ScanningException e) {
 			logger.error("Canot create scanRequest", e);
 		}
+	}
+
+	/**
+	 * Finalises the acquisition so that is possible to save or run.
+	 *
+	 * <p>
+	 * When an acquisition is created does not contain element describing on which start/end positions the acquisition should happen.
+	 * This method is called before save or run, or any other output, that should describe a {@code ScanningAcquisition}) valid to be used as acquisition request
+	 * </p>
+	 *
+	 * @throws AcquisitionControllerException
+	 */
+	private void finalizeAcquisition() throws AcquisitionControllerException {
+		// Saves the scannables defined in the client.positions with position equal to Position.Start
+		Set<DevicePositionDocument> startPosition = stageController.reportPositions(Position.START);
+		updateStartPosition(startPosition);
+		updateImageCalibrationStartPosition(startPosition);
+	}
+
+	private void updateStartPosition(Set<DevicePositionDocument> startPosition) throws AcquisitionControllerException {
+		AcquisitionTemplateType templateType = tempHelper.getSelectedAcquisitionTemplateType()
+				.orElseThrow(() -> new AcquisitionControllerException("The actual scanning acquisition has no defined templateType"));
+
+		updateAcquisitionPositions(startPosition,
+				getAcquisitionType(), templateType,
+				AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
+				getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
+
+		// Guarantee that all the motors return to the start positions.
+		updateAcquisitionPositions(startPosition,
+				getAcquisitionType(), templateType,
+				AcquisitionConfigurationProperties::getEndPosition, null,
+				getAcquisition().getAcquisitionConfiguration()::setEndPosition);
 	}
 
 	/**
@@ -256,44 +300,128 @@ public class ScanningAcquisitionController
 	 * </li>
 	 * </ol>
 	 */
-	private void updateImageCalibration() throws AcquisitionControllerException {
+	private void updateImageCalibrationStartPosition(Set<DevicePositionDocument> startPosition) {
 		ImageCalibrationReader ic = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
-		validateFlatCalibrationParameters(ic);
-		validateDarkCalibrationParameters(ic);
-	}
-
-	private void validateFlatCalibrationParameters(ImageCalibrationReader ic) throws AcquisitionConfigurationException {
-		// Note - Uses a read-only acquisition object to avoid Null Pointer in ic
-		Set<DevicePositionDocument> flatPosition = stageController.getPositionDocuments(Position.OUT_OF_BEAM, getOutOfBeamScannables());
-		if ((ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition())
-				&& flatPosition.isEmpty()) {
-			throw new AcquisitionConfigurationException("Save an OutOfBeam position to acquire flat images");
+		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
+			updateAcquisitionPositions(startPosition,
+					AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.FLAT,
+					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
+					getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
 		}
-		addPosition(stageController.createShutterOpenRequest(), flatPosition::add);
-		positionsPostProcess(flatPosition);
-		updatePositionDocument(flatPosition, getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
-	}
 
-	private void validateDarkCalibrationParameters(ImageCalibrationReader ic) {
-		// Note - Uses a read-only acquisition object to avoid Null Pointer in ic
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
-			Set<DevicePositionDocument> darkPosition = new HashSet<>();
-			darkPosition.add(stageController.createShutterClosedRequest());
-			positionsPostProcess(darkPosition);
-			updatePositionDocument(darkPosition, getImageCalibrationHelper()::updateDarkDetectorPositionDocument);
+			updateAcquisitionPositions(startPosition,
+					AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.DARK,
+					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
+					getImageCalibrationHelper()::updateDarkDetectorPositionDocument);
 		}
 	}
 
-	private void positionsPostProcess(Set<DevicePositionDocument> positions) {
-		Optional.ofNullable(getBeamSelector())
-			.filter(ManagedScannable::isAvailable)
-			.map(stageController::createDevicePositionDocument)
-			.ifPresent(d -> addPosition(d, positions::add));
-
-		filterTestScannable(positions);
+	/**
+	 * Updates the scanning acquisition positions.
+	 *
+	 * <p>
+	 * This methods implements the finalisation of a scanning acquisition positions and the logic can be described as
+	 * <ol>
+	 * <li>
+	 * the {@code startPosition} is the {@code Set} of {@link DevicePositionDocument} generated by START in {@link ClientSpringProperties#getPositions()}
+	 * </li>
+	 * <li>
+	 * using {@code acquistionType} and {@code templateType}, retrieves {@link AcquisitionConfigurationProperties} and the specific {@link AcquisitionTemplateConfiguration}
+	 * </li>
+	 * <li>
+	 * from retrieved acquisition properties document, a list of required either start or end positions are extracted using respectively the @code {mapperAcquisition} and @code {mapperAcquisition}.
+	 * This will generate a specific acquisition {@code DevicePositionDocument} list
+	 * </li>
+	 * <li>
+	 * the generated list will then override the documents in {@code startPosition} and finally will be set by the {@code consumer}
+	 * </li>
+	 * </ol>
+	 * </p>
+	 * @param startPosition the actual beamline positions for the scannable defined in START in {@link ClientSpringProperties#getPositions()}
+	 * @param acquistionType the scanning acquisition acquisition type
+	 * @param templateType the specific template for the acquisition type
+	 * @param mapperAcquisition getter functions for an acquisition properties position list
+	 * @param mapperType getter functions for an acquisition type properties position list
+	 * @param consumer setter functions for the scanning acquisition type position list
+	 */
+	private void updateAcquisitionPositions(Set<DevicePositionDocument> startPosition,
+			AcquisitionPropertyType acquistionType,
+			AcquisitionTemplateType templateType,
+			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
+			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType,
+			Consumer<Set<DevicePositionDocument>> consumer) {
+		Set<DevicePositionDocument> positions  = new HashSet<>();
+		positions.addAll(startPosition);
+		processAcquisitionPositions(positions,
+				acquistionType, templateType,
+				mapperAcquisition, mapperType);
+		updatePositionDocument(positions, consumer);
 	}
 
-	private void filterTestScannable(Set<DevicePositionDocument> positions) {
+	/**
+	 * Overrides/amend the {@code positions} with the position defined in the acquisition type/template positions
+	 *
+	 * <p>
+	 * The logic can be described as
+	 * <ol>
+	 * using {@code acquistionType} and {@code templateType}, retrieves {@link AcquisitionConfigurationProperties} and the specific {@link AcquisitionTemplateConfiguration}
+	 * </li>
+	 * <li>
+	 * from retrieved acquisition properties document, a list of required either start or end positions are extracted using respectively the @code {mapperAcquisition} and @code {mapperAcquisition}.
+	 * This will generate a specific acquisition {@code DevicePositionDocument} list
+	 * </li>
+	 * <li>
+	 * the generated list will then override the documents in {@code startPosition}
+	 * </li>
+	 * </ol>
+	 * </p>
+	 * @param positions a set of default positions
+	 * @param acquistionType the scanning acquisition acquisition type
+	 * @param templateType the specific template for the acquisition type
+	 * @param mapperAcquisition getter functions for an acquisition properties position list
+	 * @param mapperType getter functions for an acquisition type properties position list
+	 */
+	private void processAcquisitionPositions(Set<DevicePositionDocument> positions,
+			AcquisitionPropertyType acquistionType,
+			AcquisitionTemplateType templateType,
+			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
+			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType) {
+		List<ScannablePropertiesValue> acquisitionPosition = new ArrayList<>();
+		Optional.ofNullable(mapperAcquisition).ifPresent(mapper -> {
+			clientPropertiesHelper.getAcquisitionConfigurationProperties(acquistionType)
+				.map(mapper)
+				.ifPresent(acquisitionPosition::addAll);
+		});
+
+		List<ScannablePropertiesValue> templatePosition = new ArrayList<>();
+		Optional.ofNullable(mapperType).ifPresent(mapper -> {
+			clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquistionType, templateType)
+				.map(mapper)
+				.ifPresent(templatePosition::addAll);
+		});
+
+		// Eventually override the acquisitionType position with the templateType
+		acquisitionPosition.removeAll(templatePosition);
+		acquisitionPosition.addAll(templatePosition);
+		processAcquisitionTemplatePositions(positions, acquisitionPosition);
+	}
+
+	private void processAcquisitionTemplatePositions(Set<DevicePositionDocument> positions, List<ScannablePropertiesValue> spv) {
+		var documentValue = spv.stream()
+				.map(stageController::createDevicePositionDocument)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+
+		// Removes the START positions (client.positions[0].position = START)
+		// existing in documentValue
+		positions.removeAll(documentValue);
+		// Append document value to the remaining START positions
+		positions.addAll(documentValue);
+		applyModesToScannables(positions);
+	}
+
+	private void applyModesToScannables(Set<DevicePositionDocument> positions) {
 		boolean isActive = Optional.ofNullable(clientPropertiesHelper.getModes())
 			.map(Modes::getTest)
 			.map(TestMode::isActive)
@@ -310,30 +438,6 @@ public class ScanningAcquisitionController
 			.collect(Collectors.toList());
 
 		positions.removeIf(p -> toExclude.contains(p.getDevice()));
-	}
-
-	private ManagedScannable<String> getBeamSelector() {
-		return getBean(ScannablesPropertiesHelper.class)
-				.getManagedScannable(BEAM_SELECTOR);
-	}
-
-	private void updateStartPosition() {
-		if (getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters() == null)
-			return;
-		// Saves ALL the devices position and mark this set as Position.Start
-		// This collection is stored in the stage controller as it is responsible
-		// for uk.ac.diamond.daq.mapping.ui.stage.enumeration.Position values
-		stageController.savePosition(Position.START);
-		// Filters out from the Position.START positions, the position document from AcquisitionPropertiesDocument::getOutOfBeamScannables
-		// See AcquisitionPropertiesDocument#outOfBeamScannables
-		Set<DevicePositionDocument> startPosition = stageController.getPositionDocuments(Position.START, getOutOfBeamScannables());
-		addPosition(stageController.createShutterOpenRequest(), startPosition::add);
-		positionsPostProcess(startPosition);
-		updatePositionDocument(startPosition, getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
-	}
-
-	private void addPosition(DevicePositionDocument position, Consumer<DevicePositionDocument> consumer) {
-		consumer.accept(position);
 	}
 
 	private void updatePositionDocument(Set<DevicePositionDocument> positions, Consumer<Set<DevicePositionDocument>> consumer) {
@@ -378,15 +482,5 @@ public class ScanningAcquisitionController
 
 	private void setAcquisitionType(AcquisitionPropertyType acquisitionType) {
 		this.acquisitionType = acquisitionType;
-	}
-
-	private Set<String> getOutOfBeamScannables() {
-		return getAcquisitionPropertiesDocument()
-				.map(AcquisitionConfigurationProperties::getOutOfBeamScannables)
-				.orElseGet(HashSet::new);
-	}
-
-	private Optional<AcquisitionConfigurationProperties> getAcquisitionPropertiesDocument() {
-		return clientPropertiesHelper.getAcquisitionConfigurationProperties(tempHelper.getAcquisitionType());
 	}
 }

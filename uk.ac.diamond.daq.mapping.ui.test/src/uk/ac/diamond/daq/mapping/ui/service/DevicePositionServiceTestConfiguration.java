@@ -32,8 +32,11 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  * @author Maurizio Nagni
  */
 @Configuration
-@ComponentScan(basePackages = { "uk.ac.gda.core.tool.spring", "uk.ac.diamond.daq.mapping.ui.services",
+@ComponentScan(basePackages = { "uk.ac.gda.core.tool.spring",
+		"uk.ac.gda.ui.tool.spring",
+		"uk.ac.diamond.daq.mapping.ui.services",
 		"uk.ac.diamond.daq.mapping.api.document",
+		"uk.ac.gda.client.properties.stage",
 		"uk.ac.gda.client.properties.stage.services" },
 				excludeFilters = {
 						@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FinderService.class) })
