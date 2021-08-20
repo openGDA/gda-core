@@ -19,10 +19,14 @@
 package gda.epics;
 
 import gda.factory.FindableBase;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 
-public class DummyAccessControl extends FindableBase implements IAccessControl {
+public class DummyAccessControl extends FindableBase implements IAccessControl, IObservable {
 
 	private Status status = Status.ENABLED;
+	private final ObservableComponent observableComponent = new ObservableComponent();
 
 	@Override
 	public Status getAccessControlState() {
@@ -31,11 +35,59 @@ public class DummyAccessControl extends FindableBase implements IAccessControl {
 
 	@Override
 	public Status getStatus() {
-		return status;
+		return this.status;
 	}
 
 	public void setStatus(Status status) {
-		this.status = status;
+		if (this.status != status) {
+			notifyIObservers(this, status);
+			this.status = status;
+		}
+	}
+
+	/**
+	 * Add an object to this objects's list of IObservers.
+	 *
+	 * @param anIObserver
+	 *            object that implement IObserver and wishes to be notified by this object
+	 */
+	@Override
+	public void addIObserver(IObserver anIObserver) {
+		observableComponent.addIObserver(anIObserver);
+
+	}
+
+	/**
+	 * Delete an object from this objects's list of IObservers.
+	 *
+	 * @param anIObserver
+	 *            object that implement IObserver and wishes to be notified by this object
+	 */
+	@Override
+	public void deleteIObserver(IObserver anIObserver) {
+		observableComponent.deleteIObserver(anIObserver);
+
+	}
+
+	/**
+	 * delete all IObservers from list of observing objects
+	 */
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
+
+	}
+
+	/**
+	 * Notify all observers on the list of the requested change.
+	 *
+	 * @param theObserved
+	 *            the observed component
+	 * @param theArgument
+	 *            the data to be sent to the observer.
+	 */
+	private void notifyIObservers(Object theObserved, Object theArgument) {
+		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
 
 }
