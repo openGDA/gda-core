@@ -25,12 +25,8 @@ public class Lakeshore340With4Outputs extends GdaLakeshore340 {
 	public Lakeshore340With4Outputs() {
 		setInputNames(new String[] { "Channel0Temp" });
 		setExtraNames(new String[] { "Channel1Temp", "Channel2Temp", "Channel3Temp" });
-		String[] outputFormats = new String[inputNames.length + extraNames.length];
-		for (int i = 0; i < outputFormats.length; i++) {
-			outputFormats[i] = "%5.2f";
-		}
-		setOutputFormat(outputFormats);
-
+		//see DAQ-1978 the following update!
+		setOutputFormat(new String[] {"%5.2f","%5.2f","%5.2f","%5.2f"});
 	}
 
 	@Override
