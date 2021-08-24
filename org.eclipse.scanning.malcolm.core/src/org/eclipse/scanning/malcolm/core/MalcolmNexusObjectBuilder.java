@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.malcolm.core;
 
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_PATH;
@@ -38,8 +40,9 @@ import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IntegerDataset;
 import org.eclipse.january.dataset.PositionIterator;
-import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
+import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
 import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
@@ -76,6 +79,8 @@ class MalcolmNexusObjectBuilder {
 
 	private final Map<String, NexusObjectWrapper<NXobject>> nexusWrappers;
 
+	private Map<String, Double> detectorExposureTimes = null;
+
 	static {
 		NEXUS_CLASS_FOR_DATASET_TYPE = new EnumMap<>(MalcolmDatasetType.class);
 		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.PRIMARY, NexusBaseClass.NX_DETECTOR);
@@ -101,7 +106,7 @@ class MalcolmNexusObjectBuilder {
 	 * @return nexus object
 	 * @throws ScanningException
 	 */
-	public List<NexusObjectProvider<?>> buildNexusObjects(NexusScanInfo scanInfo) throws ScanningException {
+	public List<NexusObjectProvider<?>> buildNexusObjects(@SuppressWarnings("unused") NexusScanInfo scanInfo) throws ScanningException {
 		logger.debug("Creating nexus objects from datasets table for malcolm device {}", malcolmDevice.getName());
 		final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
 
@@ -218,20 +223,24 @@ class MalcolmNexusObjectBuilder {
 	}
 
 	private double getDetectorExposureTime(String detectorName) {
-		if (malcolmDevice.getModel().getDetectorModels() != null) {
-			final Optional<IMalcolmDetectorModel> detectorModel =
-					malcolmDevice.getModel().getDetectorModels().stream()
-					.filter(det -> det.getName().equals(detectorName))
-					.findFirst();
-			if (detectorModel.isPresent()) {
-				return detectorModel.get().getExposureTime();
-			}
+		if (detectorExposureTimes == null) {
+			detectorExposureTimes = createExposureTimesMap();
 		}
 
-		// if we have no detector model for the given detector name, use the overall
-		// malcolm device exposure time as a default.
-		logger.warn("No detector model for detector: {}", detectorName);
-		return malcolmDevice.getModel().getExposureTime();
+		return detectorExposureTimes.getOrDefault(detectorName, malcolmDevice.getModel().getExposureTime());
+	}
+
+	private Map<String, Double> createExposureTimesMap() {
+		try {
+			final List<MalcolmDetectorInfo> detInfos = malcolmDevice.getDetectorInfos();
+			if (detInfos != null) {
+				return detInfos.stream().collect(
+						toMap(MalcolmDetectorInfo::getName, MalcolmDetectorInfo::getExposureTime));
+			}
+		} catch (MalcolmDeviceException e) {
+			logger.error("Could not get detector information from the malcolm device", e);
+		}
+		return emptyMap();
 	}
 
 	private void writeImageKey(NXdetector detector, InterpolatedMultiScanModel tomoModel) {
@@ -246,11 +255,11 @@ class MalcolmNexusObjectBuilder {
 		final int[] breakpoints = malcolmDevice.getBreakpoints();
 		final List<ImageType> imageTypes = tomoModel.getImageTypes();
 		if (breakpoints.length != imageTypes.size()) {
-			throw new IllegalArgumentException(String.format("Num of imageTypes was " + imageTypes.size() + ", but num of breakpoints was " + breakpoints.length));
+			throw new IllegalArgumentException(String.format("Num of imageTypes was %d, but num of breakpoints was %d",
+					imageTypes.size(), breakpoints.length));
 		}
 
 		final PositionIterator posIter = new PositionIterator(shape);
-
 		for (int scanIndex = 0; scanIndex < breakpoints.length; scanIndex++) {
 			final int imageKey = imageTypes.get(scanIndex).getImageKey();
 			for (int pointIndex = 0; pointIndex < breakpoints[scanIndex]; pointIndex++) {
@@ -258,8 +267,6 @@ class MalcolmNexusObjectBuilder {
 				imageKeyDataset.setItem(imageKey, posIter.getPos());
 			}
 		}
-
 	}
-
 
 }

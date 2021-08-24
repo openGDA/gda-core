@@ -90,8 +90,11 @@ public class MalcolmDetectorModel extends AbstractDetectorModel implements IMalc
 
 	@Override
 	public String toString() {
-		return "MalcolmDetectorModel [framesPerStep=" + framesPerStep +
-				", enabled=" + enabled + ", " + super.toString() + "]";
+		return "MalcolmDetectorModel [" +
+				"name=" + getName() +
+				", framesPerStep=" + framesPerStep +
+				", enabled=" + enabled +
+				", exposureTime=" + getExposureTime() + "]";
 	}
 
 }

@@ -246,7 +246,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	private ConnectionStateListener connectionStateListener;
 
-	// The malcolm detector infos describing controlled by this malcolm device
+	// The malcolm detector infos describing detectors controlled by this malcolm device
 	private LinkedHashMap<String, MalcolmDetectorInfo> detectorInfos = null;
 
 	public MalcolmDevice() {
@@ -373,16 +373,21 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	@Override
 	public IMalcolmModel getModel() {
 		final MalcolmModel model = (MalcolmModel) super.getModel();
-		if (detectorInfos == null) {
-			// initialize the detector infos, and use those
-			detectorInfos = fetchMalcolmDetectorInfos();
-			if (model.getDetectorModels() == null && detectorInfos != null) {
-				model.setDetectorModels(detectorInfos.values().stream().map(this::detectorInfoToModel).collect(toList()));
-			}
+		final List<MalcolmDetectorInfo> detectorInfos = getDetectorInfos();
+		if (model.getDetectorModels() == null && detectorInfos != null) {
+			// initialize the detector infos and use those to populate the model. This is necessary as
+			// we get the detectors from malcolm rather than including them in the spring configuration for the malcolm model
+			// The default values for frames per step and exposure time are 1 and 0.0 respectively (malcolm interprets an
+			// exposure time of 0.0 to use the maximum possible exposure time calculated from frames per step and step time)
+			model.setDetectorModels(detectorInfos.stream().map(this::detectorInfoToModel).collect(toList()));
 		}
 		return model;
 	}
 
+	/**
+	 * Fetch the malcolm infos from the actual malcolm device.
+	 * @return malcolmInfos keyed by name, using a {@link LinkedHashMap} to maintain insertion order
+	 */
 	private LinkedHashMap<String, MalcolmDetectorInfo> fetchMalcolmDetectorInfos() {
 		try {
 			final MalcolmMethodMeta configureMethodMeta = getEndpointValue(MalcolmMethod.CONFIGURE.toString());
@@ -399,23 +404,25 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			if (detectorsTableTypesMap == null) {
 				detectorsTableTypesMap = defaultDetectorsTable.getTableDataTypes();
 			}
-			// convert each row of the table to a MalcolmDetectorInfo, and build a map keyed by detector names
-			return defaultDetectorsTable.stream().map(this::malcolmTableRowToDetectorInfo).collect(
-					toMap(MalcolmDetectorInfo::getName, Function.identity(), (x, y) -> x, LinkedHashMap::new));
+
+			return toDetectorInfosMap(defaultDetectorsTable);
 		} catch (MalcolmDeviceException e) {
 			logger.error("Error getting malcolm detectors", e);
 			return null;
 		}
 	}
 
-	private MalcolmDetectorInfo malcolmTableRowToDetectorInfo(Map<String, Object> tableRow) {
+	private LinkedHashMap<String, MalcolmDetectorInfo> toDetectorInfosMap(final MalcolmTable defaultDetectorsTable) {
+		// convert each row of the table to a MalcolmDetectorInfo, and build a map keyed by detector names
+		return defaultDetectorsTable.stream().map(this::toDetectorInfo).collect(
+				toMap(MalcolmDetectorInfo::getName, Function.identity(), (x, y) -> x, LinkedHashMap::new));
+	}
+
+	private MalcolmDetectorInfo toDetectorInfo(Map<String, Object> tableRow) {
 		final MalcolmDetectorInfo info = new MalcolmDetectorInfo();
 
 		// TODO the enable column is only added for malcolm 4.2, so we need to deal with it not being present
-//		final boolean enabled = (Boolean) row.get(DETECTORS_TABLE_COLUMN_ENABLE),
-		final Boolean enabledWrapper = (Boolean) tableRow.get(DETECTORS_TABLE_COLUMN_ENABLE);
-		final boolean enabled = enabledWrapper == null || enabledWrapper.booleanValue();
-		info.setEnabled(enabled);
+		info.setEnabled((Boolean) tableRow.getOrDefault(DETECTORS_TABLE_COLUMN_ENABLE, true));
 		info.setId((String) tableRow.get(DETECTORS_TABLE_COLUMN_MRI));
 		info.setName((String) tableRow.get(DETECTORS_TABLE_COLUMN_NAME));
 		info.setFramesPerStep((Integer) tableRow.get(DETECTORS_TABLE_COLUMN_FRAMES_PER_STEP));
@@ -435,10 +442,11 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	@Override
-	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException {
-		detectorInfos = fetchMalcolmDetectorInfos();
-		if (detectorInfos == null) return null;
-		return detectorInfos.values().stream().collect(toList());
+	public List<MalcolmDetectorInfo> getDetectorInfos() {
+		if (detectorInfos == null) {
+			detectorInfos = fetchMalcolmDetectorInfos();
+		}
+		return detectorInfos == null ? null : detectorInfos.values().stream().collect(toList());
 	}
 
 	private MalcolmTable detectorModelsToTable(List<IMalcolmDetectorModel> detectorModels) throws MalcolmDeviceException {
@@ -562,7 +570,23 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		// to the original one. The pointGenerator field can be removed when this is fixed. See DAQ-2707.
 		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
 
+		updateDetectorInfos((MalcolmTable) result.get(FIELD_NAME_DETECTORS));
+
 		setModel(model);
+	}
+
+	private void updateDetectorInfos(MalcolmTable detectorsTable) {
+		final LinkedHashMap<String, MalcolmDetectorInfo> detInfos = toDetectorInfosMap(detectorsTable);
+
+		if (detectorInfos != null) {
+			final List<String> previousMris = detectorInfos.values().stream().map(MalcolmDetectorInfo::getId).collect(toList());
+			final List<String> newMris = detInfos.values().stream().map(MalcolmDetectorInfo::getId).collect(toList());
+			if (!previousMris.equals(newMris)) {
+				logger.error("Malcolm detectors not as expected, expected MRIS {}, was {}", previousMris, newMris);
+			}
+		}
+
+		detectorInfos = detInfos;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -694,7 +718,8 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	private void exceptionOnError(MalcolmMessage reply) throws MalcolmDeviceException {
 		if (reply == null) {
-			// the real malcolm device should never return a null reply, but Mockito tests can if not configured correctly
+			// the real malcolm device should never return a null reply, but Mockito tests will if
+			// Mockito.when has not been used to configure the mock to return a reply for a particular message
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + " got null reply");
 		} else if (reply.getType()==Type.ERROR) {
 			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());

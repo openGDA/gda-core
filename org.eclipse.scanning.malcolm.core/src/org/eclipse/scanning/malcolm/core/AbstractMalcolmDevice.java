@@ -63,7 +63,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	protected boolean isMultiScan = false;
 	private int[] breakpoints = null;
 
-	public AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
+	protected AbstractMalcolmDevice(IRunnableDeviceService runnableDeviceService) {
 		super(runnableDeviceService);
 		this.eventDelegate = new MalcolmEventDelegate(this);
 		setRole(DeviceRole.MALCOLM);
@@ -183,6 +183,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		return outputDir;
 	}
 
+	@SuppressWarnings("unused")
 	@ScanFinally
 	public void scanFinally() throws ScanningException {
 		// clear the configured scan model, point generator and output dir when the scan has finished. These are set per scan
