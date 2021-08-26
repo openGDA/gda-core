@@ -165,6 +165,14 @@ public class CommonBeamlineDevicesConfiguration {
 		additionalDeviceNames.add(deviceName);
 	}
 
+	public void addAdditionalDeviceNames(List<String> deviceNames) {
+		if (additionalDeviceNames == null) {
+			additionalDeviceNames = new HashSet<>();
+		}
+
+		additionalDeviceNames.addAll(deviceNames);
+	}
+
 	public void removeAdditionalDeviceName(String deviceName) {
 		if (additionalDeviceNames != null) {
 			additionalDeviceNames.remove(deviceName);
