@@ -16,6 +16,8 @@ def add_meta(device_name, field_name, field, unit=None, field_type=SCANNABLE, ne
     @param field_type: the type of field to be added, the default is SCANNABLE
     @param nexus_class: the nexus class of the device to be created for the new device_name, only required if creating a new group, the default is NXcollection
     """
+    if device_name in ['entry', 'instrument', 'sample']:
+        raise ValueError("device_name cannot be 'entry', 'instrument' or 'sample'. These are GDA reserved names! Please chose another name .")
     if field_type in [SCALAR, PV, LINK] and field_name is None:
         raise ArgumentError("field_name must be provided !")
     if field_type == PV:
