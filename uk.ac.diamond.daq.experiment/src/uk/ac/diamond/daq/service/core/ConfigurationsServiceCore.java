@@ -23,6 +23,9 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
 import uk.ac.diamond.daq.service.CommonDocumentService;
 import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
 import uk.ac.diamond.daq.service.command.receiver.FilesCollectionCommandReceiver;
@@ -41,31 +44,35 @@ import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
  * @author Maurizio Nagni
  *
  */
-public class ConfigurationsServiceCore extends CommonDocumentService {
+@Controller
+public class ConfigurationsServiceCore {
 
-	protected void selectDocument(UUID id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	@Autowired
+	private CommonDocumentService documentService;
+	
+	public void selectDocument(UUID id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		try {
-			selectDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
+			documentService.selectDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
 	}
 	
-	protected void selectDocuments(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void selectDocuments(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
-		DocumentFilter filter = getDocumentFilter(request);
+		var filter = getDocumentFilter(request);
 		try {
-			selectDocuments(ccr, filter, OutputStrategyFactory.getJSONOutputStrategy());
+			documentService.selectDocuments(ccr, filter, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
 	}
 	
-	protected void insertDocument(Document document, AcquisitionConfigurationResourceType type, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void insertDocument(Document document, AcquisitionConfigurationResourceType type, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request, type);
 		try {
-			insertDocument(ccr, document, OutputStrategyFactory.getJSONOutputStrategy());
+			documentService.insertDocument(ccr, document, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			if (e.getCause() instanceof FileAlreadyExistsException) {
 				throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_CONFLICT);	
@@ -74,24 +81,24 @@ public class ConfigurationsServiceCore extends CommonDocumentService {
 		}		
 	}
 	
-	protected void deleteDocument(UUID id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void deleteDocument(UUID id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		try {
-			super.deleteDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
+			documentService.deleteDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
 	}
 	
 	private DocumentFilter getDocumentFilter(HttpServletRequest request) {
-		DocumentFilterBuilder builder = new DocumentFilterBuilder();
+		var builder = new DocumentFilterBuilder();
 		if (request.getParameterMap().containsKey("configurationType")) {
 			builder.setFileExtension(request.getParameterMap().get("configurationType")[0]);
 		}
 		return builder.build();
 	}
 	
-	protected UUID getUUID(String id) throws GDAServiceException {
+	public UUID getUUID(String id) throws GDAServiceException {
 		try {
 			return UUID.fromString(id);
 		} catch (IllegalArgumentException e) {

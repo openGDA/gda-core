@@ -92,7 +92,6 @@ public class BeanDeviceCommandReceiver<T extends Document> implements DeviceComm
 	private void invokeSetter(Method method, Object instance, Object... args) {
 		try {
 			method.invoke(instance, args);
-			logger.debug("Invoked: {} {} {}", method.getClass().getSimpleName(), instance, args);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			logger.error("Invoked: {} {} {}", method.getClass().getSimpleName(), instance, args);
 		}

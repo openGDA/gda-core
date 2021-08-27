@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.service.rest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
-import uk.ac.diamond.daq.service.command.receiver.device.DeviceRequest;
 import uk.ac.diamond.daq.service.core.DeviceServiceCore;
 import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.common.entity.device.DeviceValue;
@@ -36,7 +36,10 @@ import uk.ac.gda.common.entity.device.DeviceValue;
  */
 @RestController
 @RequestMapping("/device")
-public class DeviceRestService extends DeviceServiceCore {
+public class DeviceRestService {
+	
+	@Autowired
+	private DeviceServiceCore serviceCore;
 
 	/**
 	 * Returns a {@code List<String>} of the available services
@@ -46,7 +49,7 @@ public class DeviceRestService extends DeviceServiceCore {
 	 */
 	@RequestMapping(value = "/detector/services", method = RequestMethod.GET)
 	public void getServices(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		super.getServices(request, response);
+		serviceCore.getServices(request, response);
 	}
 
 	/**
@@ -61,7 +64,7 @@ public class DeviceRestService extends DeviceServiceCore {
 	 */
 	@RequestMapping(value = "/detector/services/{service}/properties", method = RequestMethod.GET)
 	public void getServiceProperties(@PathVariable String service, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		super.getServiceProperties(service, request, response);
+		serviceCore.getServiceProperties(service, request, response);
 	}
 
 	/**
@@ -77,8 +80,8 @@ public class DeviceRestService extends DeviceServiceCore {
 	@RequestMapping(value = "/detector/{detectorName}/{serviceName}/{propertyName}", method = RequestMethod.GET)
 	public void getDeviceValue(@PathVariable String detectorName, @PathVariable String serviceName, @PathVariable String propertyName,
 			HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		DeviceRequest deviceRequest = createDeviceRequest(detectorName, serviceName, propertyName);
-		super.getDeviceValue(deviceRequest, request, response);
+		var deviceRequest = serviceCore.createDeviceRequest(detectorName, serviceName, propertyName);
+		serviceCore.getDeviceValue(deviceRequest, request, response);
 	}
 
 	/**
@@ -95,14 +98,14 @@ public class DeviceRestService extends DeviceServiceCore {
 	@RequestMapping(value = "/detector", method = RequestMethod.POST)
 	public void setDeviceValue(@RequestBody DeviceValue deviceValue, 
 			HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		DeviceRequest deviceRequest = createDeviceRequest(deviceValue);
-		super.setDeviceValue(deviceRequest, request, response);
+		var deviceRequest = serviceCore.createDeviceRequest(deviceValue);
+		serviceCore.setDeviceValue(deviceRequest, request, response);
 	}
 
 	/**
 	 * Handles the HTTP response for the {@link ExperimentControllerException} thrown by this rest service
 	 * @param e the thrown exception
-	 * @return the exeption message
+	 * @return the exception message
 	 */
 	@ExceptionHandler({ ExperimentControllerException.class })
     public @ResponseBody String handleException(ExperimentControllerException e) {

@@ -36,7 +36,7 @@ public class ExperimentRestService {
 	
 	@RequestMapping(value = "/session/start/{experimentName}", method = RequestMethod.PUT)
 	public @ResponseBody ExperimentServiceResponse startExperiment(@PathVariable String experimentName) {
-		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
+		var  response = new ExperimentServiceResponse.Builder();
 		response.withErrorCode(ExperimentErrorCode.NONE);
 		try {
 			response.withRootNode(getExperimentController().startExperiment(experimentName));
@@ -65,7 +65,7 @@ public class ExperimentRestService {
 
 	@RequestMapping(value = "/session/prepareAcquisition/{acquisitionName}", method = RequestMethod.PUT)
 	public @ResponseBody ExperimentServiceResponse prepareAcquisition(@PathVariable String acquisitionName) {
-		ExperimentServiceResponse.Builder  response = new ExperimentServiceResponse.Builder();
+		var  response = new ExperimentServiceResponse.Builder();
 		response.withErrorCode(ExperimentErrorCode.NONE);
 		try {
 			response.withRootNode(getExperimentController().prepareAcquisition(acquisitionName));
@@ -99,7 +99,7 @@ public class ExperimentRestService {
 	/**
 	 * Handles the HTTP response for the {@link ExperimentControllerException} thrown by this rest service
 	 * @param e the thrown exception
-	 * @return the exeption message
+	 * @return the exception message
 	 */
 	@ExceptionHandler({ ExperimentControllerException.class })
     public @ResponseBody String handleException(ExperimentControllerException e) {

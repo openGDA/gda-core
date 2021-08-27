@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
 import gda.device.EnumPositioner;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.NDArray;
@@ -53,29 +56,33 @@ import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
  * @author Maurizio Nagni
  *
  */
-public class DeviceServiceCore extends CommonDeviceService {
+@Controller
+public class DeviceServiceCore {
 
+	@Autowired
+	private CommonDeviceService deviceService;
+	
 	private final Map<String, Class<?>> interfaces = new HashMap<>();
 	
-	protected void getDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void getDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		DeviceCommandReceiver<DeviceValue> ccr = new BeanDeviceCommandReceiver<>(response, request);
 		try {
-			super.getDeviceValue(deviceRequest, ccr, OutputStrategyFactory.getJSONOutputStrategy());
+			deviceService.getDeviceValue(deviceRequest, ccr, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
 	}
 
-	protected void setDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void setDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		DeviceCommandReceiver<DeviceValue> ccr = new BeanDeviceCommandReceiver<>(response, request);
 		try {
-			super.setDeviceValue(deviceRequest, ccr, OutputStrategyFactory.getJSONOutputStrategy());
+			deviceService.setDeviceValue(deviceRequest, ccr, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
 	}
 
-	protected void getServices(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void getServices(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		List<String> services = new ArrayList<>(getInterfaces().keySet());
 		try {
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(services);
@@ -85,7 +92,7 @@ public class DeviceServiceCore extends CommonDeviceService {
 		}
 	}
 
-	protected void getServiceProperties(String serviceName, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void getServiceProperties(String serviceName, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
 		Class<?> service = getInterfaces().getOrDefault(serviceName, null);
 		var builder = new DeviceMethods.Builder();
 		Map<String, List<String>> map = new HashMap<>();
@@ -133,12 +140,12 @@ public class DeviceServiceCore extends CommonDeviceService {
 		return SpringApplicationContextFacade.getBean(ServiceUtils.class);
 	}
 
-	protected DeviceRequest createDeviceRequest(String detectorName, String serviceName, String propertyName) {
+	public DeviceRequest createDeviceRequest(String detectorName, String serviceName, String propertyName) {
 		var deviceValue = createDeviceValue(detectorName, serviceName, propertyName);
 		return createDeviceRequest(deviceValue);
 	}
 
-	protected DeviceRequest createDeviceRequest(DeviceValue deviceValue) {
+	public DeviceRequest createDeviceRequest(DeviceValue deviceValue) {
 		return new DeviceRequest(getService(deviceValue.getName(), deviceValue.getServiceName()), deviceValue);
 	}
 
