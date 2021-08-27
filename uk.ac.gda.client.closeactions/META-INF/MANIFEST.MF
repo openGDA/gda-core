@@ -19,6 +19,8 @@ Export-Package: uk.ac.gda.client.closeactions,
  uk.ac.gda.client.closeactions.contactinfo
 Import-Package: javax.mail.internet,
  org.slf4j;version="[1.7.2,2.0.0)",
+ org.springframework.core;version="4.0.6.RELEASE",
+ org.springframework.dao;version="4.0.6.RELEASE",
  org.springframework.jdbc;version="4.0.6.RELEASE",
  org.springframework.jdbc.core;version="4.0.6.RELEASE"
 Automatic-Module-Name: uk.ac.gda.client.closeactions
