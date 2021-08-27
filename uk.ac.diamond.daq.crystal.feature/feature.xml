@@ -55,12 +55,4 @@
          install-size="0"
          version="0.0.0"/>
 
-   <plugin
-         id="uk.ac.diamond.org.springframework.fragment.i19-shared-config"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
 </feature>
