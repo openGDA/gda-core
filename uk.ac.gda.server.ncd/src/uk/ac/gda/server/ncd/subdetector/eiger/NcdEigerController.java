@@ -47,7 +47,7 @@ public interface NcdEigerController {
 	void startRecording() throws DeviceException;
 
 	/** Stop the data writer */
-	void endRecording();
+	void endRecording() throws DeviceException;
 
 	void setDataOutput(String createFromDefaultProperty, String format) throws DeviceException;
 

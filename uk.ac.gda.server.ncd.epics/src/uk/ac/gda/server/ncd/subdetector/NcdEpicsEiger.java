@@ -195,7 +195,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 	}
 
 	@Override
-	public void endRecording() {
+	public void endRecording() throws DeviceException {
 		logger.trace("Ending recording");
 		try {
 			if (startDataWriter.get() != 1) {
@@ -222,12 +222,16 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			if (imagesExpected != imagesCaptured) {
 				logger.warn("Did not collect expected number of frames. {} expected, {} written.",
 						imagesExpected, imagesCaptured);
+				throw new DeviceException("Did not collect expected number of frames. "
+						+ imagesExpected + " expected, "
+						+ imagesCaptured + " written.");
 			} else {
 				reshape();
 			}
 		} catch (IOException e) {
 			logger.warn("Could not stop data writer", e);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			logger.warn("Thread interrupted while waiting for data writing to end", e);
 		}
 	}
@@ -261,10 +265,11 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 		}
 	}
 
-	private void checkWriterErrors() throws IOException {
+	private void checkWriterErrors() throws IOException, DeviceException {
 		String error = errorState.get();
-		if (error != null && !error.isEmpty()) {
+		if (error != null && !error.isBlank()) {
 			logger.warn("Data writer was in error state: {}", error);
+			throw new DeviceException("Data writer was in error state: " + error);
 		}
 	}
 
