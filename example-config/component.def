@@ -8,4 +8,6 @@
     id="example-config">
   <requirement
       name="dls-config"/>
+  <requirement
+      name="uk.ac.gda.example.feature.feature.group"/>
 </targlets:ComponentDefinition>
