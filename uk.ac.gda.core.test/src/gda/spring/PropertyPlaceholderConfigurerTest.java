@@ -18,19 +18,21 @@
 
 package gda.spring;
 
-import gda.util.TestUtils;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-public class PropertyPlaceholderConfigurerTest extends TestCase {
+import gda.util.TestUtils;
+
+public class PropertyPlaceholderConfigurerTest {
 
 	static class Bean {
 
-		String name;
+		private String name;
 
 		public void setName(String name) {
 			this.name = name;
@@ -38,42 +40,35 @@ public class PropertyPlaceholderConfigurerTest extends TestCase {
 
 	}
 
-	public void testPropertyPlaceholderElementCanAppearAfterBeanDefinitionUsingPlaceholder() throws Exception {
-		FileSystemXmlApplicationContext x = null;
-		try {
-			File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-1.xml");
-			x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
-			Bean b = (Bean) x.getBean("b");
-			assertEquals("value", b.name);
-		} finally {
-			if (x != null)
-				x.close();
+	private static final String VALUE = "value";
+
+	private FileSystemXmlApplicationContext getXMLSpringContext(String relativeFileName) throws FileNotFoundException {
+		var file = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, relativeFileName);
+		return new FileSystemXmlApplicationContext("file:" + file.getAbsolutePath());
+	}
+
+	@Test
+	public void testPropertyPlaceholderElementCanAppearAfterBeanDefinitionUsingPlaceholder()
+			throws FileNotFoundException {
+		try (var context = getXMLSpringContext("placeholder-test-1.xml")) {
+			Bean b = (Bean) context.getBean("b");
+			assertThat(b.name, is(VALUE));
 		}
 	}
 
-	public void testPropertyPlaceholderElementAffectsImportedBeanDefinitions() throws Exception {
-		FileSystemXmlApplicationContext x = null;
-		try {
-			File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-2a.xml");
-			x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
-			Bean b = (Bean) x.getBean("b");
-			assertEquals("value", b.name);
-		} finally {
-			if (x != null)
-				x.close();
+	@Test
+	public void testPropertyPlaceholderElementAffectsImportedBeanDefinitions() throws FileNotFoundException {
+		try (var context = getXMLSpringContext("placeholder-test-2a.xml")) {
+			Bean b = (Bean) context.getBean("b");
+			assertThat(b.name, is(VALUE));
 		}
 	}
 
-	public void testImportedPropertyPlaceholderElementAffectsNonImportedBeanDefinitions() throws Exception {
-		FileSystemXmlApplicationContext x = null;
-		try {
-			File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-3a.xml");
-			x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
-			Bean b = (Bean) x.getBean("b");
-			assertEquals("value", b.name);
-		} finally {
-			if (x != null)
-				x.close();
+	@Test
+	public void testImportedPropertyPlaceholderElementAffectsNonImportedBeanDefinitions() throws FileNotFoundException {
+		try (var context = getXMLSpringContext("placeholder-test-3a.xml")) {
+			Bean b = (Bean) context.getBean("b");
+			assertThat(b.name, is(VALUE));
 		}
 	}
 
