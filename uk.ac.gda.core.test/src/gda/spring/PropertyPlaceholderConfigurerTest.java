@@ -21,12 +21,17 @@ package gda.spring;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.junit.Test;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
+import org.springframework.beans.factory.xml.PluggableSchemaResolver;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.support.GenericApplicationContext;
 
 import gda.util.TestUtils;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 public class PropertyPlaceholderConfigurerTest {
 
@@ -42,9 +47,17 @@ public class PropertyPlaceholderConfigurerTest {
 
 	private static final String VALUE = "value";
 
-	private FileSystemXmlApplicationContext getXMLSpringContext(String relativeFileName) throws FileNotFoundException {
-		var file = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, relativeFileName);
-		return new FileSystemXmlApplicationContext("file:" + file.getAbsolutePath());
+	private GenericApplicationContext getXMLSpringContext(String relativeFileName) throws FileNotFoundException {
+		File file = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, relativeFileName);
+		GenericApplicationContext context = new GenericApplicationContext();
+		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
+				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class);
+		XmlBeanDefinitionReader defReader = new XmlBeanDefinitionReader(context);
+		defReader.setEntityResolver(new PluggableSchemaResolver(cl));
+		defReader.setNamespaceHandlerResolver(new DefaultNamespaceHandlerResolver(cl));
+		defReader.loadBeanDefinitions(file.toURI().toString());
+		context.refresh();
+		return context;
 	}
 
 	@Test
