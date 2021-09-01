@@ -17,11 +17,14 @@
  */
 package uk.ac.diamond.daq.service.core;
 
+import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +51,6 @@ import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.common.entity.device.DeviceMethods;
 import uk.ac.gda.common.entity.device.DeviceValue;
 import uk.ac.gda.common.exception.GDAServiceException;
-import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 /**
  * Implements the {@link CommonDeviceService} based on {@link DeviceRequest}
@@ -86,7 +88,7 @@ public class DeviceServiceCore {
 		List<String> services = new ArrayList<>(getInterfaces().keySet());
 		try {
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(services);
-			SpringApplicationContextFacade.getBean(ServiceUtils.class).writeOutput(output, response);
+			getServiceUtils().writeOutput(output, response);
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
@@ -109,7 +111,7 @@ public class DeviceServiceCore {
 			builder.withName(serviceName);
 			builder.withUuid(getServiceUtils().creteTimebasedUUID());
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(builder.build());
-			SpringApplicationContextFacade.getBean(ServiceUtils.class).writeOutput(output, response);
+			getServiceUtils().writeOutput(output, response);
 		} catch (GDAServiceException e) {
 			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}
@@ -124,20 +126,8 @@ public class DeviceServiceCore {
 		return builder.build();
 	}
 
-	private <T> T getBean(String detectorName, String suffix, Class<T> clazz) {
-		if (EnumPositioner.class.isAssignableFrom(clazz) || MotorBase.class.isAssignableFrom(clazz))
-			return getBean(detectorName, clazz);
-		// ask the facade to retrieve the bean from the parent application context
-		return getBean(String.format("%s_%s", detectorName, suffix), clazz);
-	}
-
-	private <T> T getBean(String detectorName, Class<T> clazz) {
-		// ask the facade to retrieve the bean from the parent application context
-		return SpringApplicationContextFacade.getBean(detectorName, clazz, true);
-	}
-	
 	private ServiceUtils getServiceUtils() {
-		return SpringApplicationContextFacade.getBean(ServiceUtils.class);
+		return getBean(ServiceUtils.class);
 	}
 
 	public DeviceRequest createDeviceRequest(String detectorName, String serviceName, String propertyName) {
@@ -150,7 +140,13 @@ public class DeviceServiceCore {
 	}
 
 	private Object getService(String detectorName, String service) {
-		return getBean(detectorName, service, getInterfaces().getOrDefault(service, null));
+		Class<?> clazz = Optional.ofNullable(getInterfaces().get(service))
+			.filter(c -> EnumPositioner.class.isAssignableFrom(c) || MotorBase.class.isAssignableFrom(c))
+			.orElse(null);
+		
+		var beanName = clazz != null ? detectorName : String.format("%s_%s", detectorName, service); 
+		// ask the facade to retrieve the bean from the parent application context
+		return getBean(beanName, clazz, true);
 	}
 
 	private Map<String, Class<?>> getInterfaces() {

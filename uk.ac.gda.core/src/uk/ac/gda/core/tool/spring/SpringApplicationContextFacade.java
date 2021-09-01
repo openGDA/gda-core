@@ -192,16 +192,16 @@ public class SpringApplicationContextFacade implements ApplicationEventPublisher
 	}
 
 	/**
+	 * Return an instance, which may be shared or independent, of the specified bean.
+	 *
 	 * @param <T>
 	 * @param name
 	 * 			   the name of the bean to retrieve
-	 * @param requiredType
-	 *            type the bean must match; can be an interface or superclass. {@code null} is disallowed.
-	 *            <p>
-	 *            This method goes into {@link ListableBeanFactory} by-type lookup territory but may also be translated
-	 *            into a conventional by-name lookup based on the name of the given type. For more extensive retrieval
-	 *            operations across sets of beans, use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
-	 * @param fromParent if {@code true} the bean is requested from the parent {@code ApplicationContext}, otherwise from the one in this instance 
+	 * @param requiredType type the bean must match. Can be an interface or superclass
+	 * 			of the actual class, or {@code null} for any match. For example, if the value
+	 * 			is {@code Object.class}, this method will succeed whatever the class of the
+	 *          returned instance.
+	 * @param fromParent if {@code true} the bean is requested from the parent {@code ApplicationContext}, otherwise from the one in this instance.
 	 * @return an instance of the single bean matching the required type
 	 * @throws NoSuchBeanDefinitionException
 	 *             if no bean of the given type was found
