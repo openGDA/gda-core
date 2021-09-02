@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.api.acquisition;
+package uk.ac.gda.client.exception;
 
 /**
  * Generic exception for tomography controllers

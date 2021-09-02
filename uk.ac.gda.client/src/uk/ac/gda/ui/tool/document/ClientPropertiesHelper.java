@@ -29,6 +29,7 @@ import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
@@ -83,15 +84,13 @@ public class ClientPropertiesHelper {
 	/**
 	 * Retrieves from the client properties a specific acquisition type for the given acquisition property type
 	 *
-	 * @param propertyType the acquisition property type
-	 * @param templateType the acquisition type template
+	 * @param acquisitionKey the acquisition keys
 	 * @return the template configuration, otherwise {@code Optional#empty()} if the client has no properties defined for the given pair
 	 *
 	 * @see <a href="https://confluence.diamond.ac.uk/display/DIAD/Acquisition+Configuration+Properties">Acquisition Configuration Properties</a>
 	 */
-	public Optional<AcquisitionTemplateConfiguration> getAcquisitionTemplateConfiguration(AcquisitionPropertyType propertyType,
-			AcquisitionTemplateType templateType) {
-		return getAcquisitionTemplateConfiguration(getAcquisitionConfigurationProperties(propertyType), templateType);
+	public Optional<AcquisitionTemplateConfiguration> getAcquisitionTemplateConfiguration(AcquisitionKeys acquisitionKey) {
+		return getAcquisitionTemplateConfiguration(getAcquisitionConfigurationProperties(acquisitionKey.getPropertyType()), acquisitionKey.getTemplateType());
 	}
 
 	/**

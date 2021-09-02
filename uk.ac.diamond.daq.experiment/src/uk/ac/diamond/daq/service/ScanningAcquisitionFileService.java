@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import uk.ac.diamond.daq.scanning.FilePathService;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
@@ -58,7 +57,7 @@ public class ScanningAcquisitionFileService {
 	 * @throws InvalidAttributesException if any of the parameters is {@code null}
 	 */
 	public Path saveTextDocument(String text, String fileName, AcquisitionConfigurationResourceType extension, boolean override) throws IOException, InvalidAttributesException {
-		Path path = buildPathToConfigDir(fileName, extension);
+		var path = buildPathToConfigDir(fileName, extension);
 		if (!override) {
 			fileExists(path);
 		}
@@ -91,7 +90,7 @@ public class ScanningAcquisitionFileService {
 	}
 
 	public Set<String> getSavedNames(String extension, String subdirectory) throws IOException {
-		Path path = Paths.get(getBaseDir(), subdirectory);
+		var path = Paths.get(getBaseDir(), subdirectory);
 		if (path.toFile().exists()) {
 			try (Stream<Path> paths = Files.list(Paths.get(getBaseDir(), subdirectory))) {
 				return paths.map(Path::getFileName).map(Path::toString).filter(fileName -> FilenameUtils.isExtension(fileName, extension))
@@ -164,7 +163,6 @@ public class ScanningAcquisitionFileService {
 	 * @throws InvalidAttributesException if any of the parameters is {@code null}
 	 */
 	private Path buildPathToConfigDir(String fileName, AcquisitionConfigurationResourceType extension) throws InvalidAttributesException {
-		//validateNameAndExtension(fileName, extension);
 		return Paths.get(getBaseDir(extension), String.format("%s.%s", fileName, extension));
 	}
 	
@@ -173,7 +171,7 @@ public class ScanningAcquisitionFileService {
 	/**
 	 * @param fileName
 	 * @param extension
-	 * @throws AcquisitionControllerException if any of the parameters is {@code null}
+	 * @throws InvalidAttributesException if any of the parameters is {@code null}
 	 */
 	private void validateNameAndExtension(String fileName, String extension) throws InvalidAttributesException {
 		if (fileName == null) {

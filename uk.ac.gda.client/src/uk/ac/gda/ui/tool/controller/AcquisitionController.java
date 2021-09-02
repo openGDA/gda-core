@@ -16,15 +16,21 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.api.acquisition;
+package uk.ac.gda.ui.tool.controller;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
+import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.ui.tool.document.DocumentFactory;
+import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
 /**
  * Controls how create, load, save run an {@link Acquisition}
@@ -42,18 +48,18 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	T getAcquisition();
 
 	/**
-	 * Creates a new acquisition based on the function defined with {@link #createNewAcquisition()}. If the function is
-	 * absent, returns an default instance of {@code T}
-	 */
-	void createNewAcquisition();
-
-	/**
-	 * Sets the controller function to create a new acquisition
+	 * Creates a new acquisition document then available through {@link #getAcquisition()}
 	 *
-	 * @param newAcquisitionSupplier
-	 *            the provided function
+	 * <p>
+	 * Requiring the controller to create a new acquisition, the requester is preparing the controller for a specific acquisition type.
+	 * While, earlier implementation, this action was delegated to specific gui component, with the adoption of the {@link DocumentFactory}
+	 * is it possible for the controller to take this responsibility and leave to the gui components,
+	 * typically classes implementing {@link NamedCompositeFactory} to specify only the [{@link AcquisitionPropertyType}, {@link AcquisitionTemplateType}] pair.
+	 * </p>
+	 *
+	 * @param acquisitionKey
 	 */
-	void setDefaultNewAcquisitionSupplier(Supplier<T> newAcquisitionSupplier);
+	void newScanningAcquisition(AcquisitionKeys acquisitionKey) throws AcquisitionControllerException;
 
 	/**
 	 * Saves the acquisition actually set in the controller
@@ -106,4 +112,11 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	 * Called before destroy the controller to release all the acquired resources or remove the used listeners
 	 */
 	public void releaseResources();
+
+	/**
+	 * The actual controller acquisition keys.
+	 *
+	 * @return the acquisition keys, otherwise {@code (AcquisitionPropertyType.DEFAULT, AcquisitionTemplateType.STATIC_POINT)} if {@code #getAcquisition()} {@code null}
+	 */
+	public AcquisitionKeys getAcquisitionKeys();
 }

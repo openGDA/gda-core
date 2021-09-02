@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.scanning.FilePathService;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
 
 /**
  * In future this class may be merged to a more common one. For now it does the work.

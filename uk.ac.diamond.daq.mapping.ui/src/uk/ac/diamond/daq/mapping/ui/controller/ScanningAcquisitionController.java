@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -32,8 +31,6 @@ import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
@@ -41,8 +38,11 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.mode.Modes;
@@ -51,7 +51,9 @@ import uk.ac.gda.client.properties.mode.TestModeElement;
 import uk.ac.gda.client.properties.stage.ScannableProperties;
 import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
+import uk.ac.gda.ui.tool.document.DocumentFactory;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
@@ -71,8 +73,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  *
  * @author Maurizio Nagni
  */
-@Controller(value = "scanningAcquisitionController")
-@Scope("prototype")
+@Controller
 public class ScanningAcquisitionController
 		implements AcquisitionController<ScanningAcquisition> {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionController.class);
@@ -94,32 +95,32 @@ public class ScanningAcquisitionController
 	@Autowired
 	private ScanningAcquisitionTemporaryHelper tempHelper;
 
+	@Autowired
+	private DocumentFactory documentFactory;
+
 	private ScanningAcquisition acquisition;
 
-	private Supplier<ScanningAcquisition> newAcquisitionSupplier;
-
-	private AcquisitionPropertyType acquisitionType;
+	private AcquisitionKeys acquisitionKeys;
 
 	private ImageCalibrationHelper imageCalibrationHelper;
 
 	private AcquisitionReader acquisitionReader;
 
 	public ScanningAcquisitionController() {
-		super();
-		setAcquisitionType(AcquisitionPropertyType.DEFAULT);
+		this(new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionTemplateType.STATIC_POINT));
 	}
 
 	/**
-	 * Creates a controller based on specific {@link AcquisitionPropertyType} in order to retrieves the associates
+	 * Creates a controller based on specific {@link AcquisitionKeys} in order to retrieves the associates
 	 * cameras and acquisition engines.
 	 *
-	 * @param acquisitionType
+	 * @param acquisitionKey
 	 *
 	 * @see AcquisitionPropertyType DetectorHelper
 	 */
-	public ScanningAcquisitionController(AcquisitionPropertyType acquisitionType) {
+	public ScanningAcquisitionController(AcquisitionKeys acquisitionKey) {
 		super();
-		setAcquisitionType(acquisitionType);
+		this.acquisitionKeys = acquisitionKey;
 	}
 
 	@Override
@@ -151,7 +152,28 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
+		var acquisitionKeysToload = tempHelper.getAcquisitionKeys(acquisition);
+		if (!getAcquisitionKeys().equals(acquisitionKeysToload)) {
+			var reason = String.format("Cannot load a %s file into a %s configuration view", acquisitionKeysToload, getAcquisitionKeys());
+			UIHelper.showWarning("Cannot load", reason);
+		} else {
+			updateAcquisitionConfiguration(acquisition, acquisitionKeysToload);
+		}
+	}
+
+	private void loadAcquisitionConfiguration(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException {
+		var acquisitionToLoad = documentFactory.newScanningAcquisition(acquisitionKeys);
+		updateAcquisitionConfiguration(acquisitionToLoad, acquisitionKeys);
+	}
+
+	/**
+	 * Handles the case when a new {@link ScanningAcquisition} has to be created from its identifying {@link AcquisitionKeys}
+	 * @param acquisitionKeys
+	 * @throws AcquisitionControllerException
+	 */
+	private void updateAcquisitionConfiguration(ScanningAcquisition acquisition, AcquisitionKeys acquisitionKeys) {
 		setAcquisition(acquisition);
+		this.acquisitionKeys = acquisitionKeys;
 		publishEvent(new AcquisitionConfigurationResourceLoadEvent(this, acquisition.getUuid()));
 	}
 
@@ -172,32 +194,22 @@ public class ScanningAcquisitionController
 			configurationService.deleteDocument(uuid.toString());
 			publishEvent(new AcquisitionConfigurationResourceDeleteEvent(this, uuid));
 			// Removed the document actually loaded, creates a new acquisition
-			if (getAcquisition().getUuid().equals(uuid)) {
-				createNewAcquisition();
-			}
+//			if (getAcquisition().getUuid().equals(uuid)) {
+//				createNewAcquisition();
+//			}
 		} catch (GDAClientRestException e) {
 			logger.error("Cannot delete scanning acquisiton", e);
 		}
 	}
 
 	@Override
-	public void createNewAcquisition() {
-		try {
-			// load the new acquisition in the controller
-			loadAcquisitionConfiguration(getDefaultNewAcquisitionSupplier().get());
-		} catch (AcquisitionControllerException e) {
-			// We do not expect this to happen
-			logger.error("Could not create new acquisition configuration");
-		}
+	public void newScanningAcquisition(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException {
+		loadAcquisitionConfiguration(acquisitionKeys);
 	}
 
 	@Override
-	public void setDefaultNewAcquisitionSupplier(Supplier<ScanningAcquisition> newAcquisitionSupplier) {
-		this.newAcquisitionSupplier = newAcquisitionSupplier;
-	}
-
-	private Supplier<ScanningAcquisition> getDefaultNewAcquisitionSupplier() {
-		return Optional.ofNullable(newAcquisitionSupplier).orElse(ScanningAcquisition::new);
+	public AcquisitionKeys getAcquisitionKeys() {
+		return acquisitionKeys;
 	}
 
 	private String formatConfigurationFileName(String fileName) {
@@ -211,10 +223,10 @@ public class ScanningAcquisitionController
 		ScanningAcquisition savedAcquisition = null;
 		AcquisitionConfigurationResourceType type = AcquisitionConfigurationResourceType.DEFAULT;
 		try {
-			if (AcquisitionPropertyType.TOMOGRAPHY.equals(getAcquisitionType())) {
+			if (AcquisitionPropertyType.TOMOGRAPHY.equals(acquisitionKeys.getPropertyType())) {
 				savedAcquisition = configurationService.insertImaging(getAcquisition());
 				type = AcquisitionConfigurationResourceType.TOMO;
-			} else if (AcquisitionPropertyType.DIFFRACTION.equals(getAcquisitionType())) {
+			} else if (AcquisitionPropertyType.DIFFRACTION.equals(acquisitionKeys.getPropertyType())) {
 				savedAcquisition = configurationService.insertDiffraction(getAcquisition());
 				type = AcquisitionConfigurationResourceType.MAP;
 			}
@@ -237,6 +249,7 @@ public class ScanningAcquisitionController
 	 * and compose its operations using the saved ScanningAcquisition.
 	 * While this class is a client side controller, this methods keeps this class dependent from objects,
 	 * like ScanRequestFactory, that instead live naturally in the server side.
+	 * This inconsistency is fixed in K11-1313
 	 */
 	@Deprecated
 	private void publishScanRequestSavedEvent(String fileName) {
@@ -271,13 +284,13 @@ public class ScanningAcquisitionController
 				.orElseThrow(() -> new AcquisitionControllerException("The actual scanning acquisition has no defined templateType"));
 
 		updateAcquisitionPositions(startPosition,
-				getAcquisitionType(), templateType,
+				new AcquisitionKeys(acquisitionKeys.getPropertyType(), templateType),
 				AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 				getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
 
 		// Guarantee that all the motors return to the start positions.
 		updateAcquisitionPositions(startPosition,
-				getAcquisitionType(), templateType,
+				new AcquisitionKeys(acquisitionKeys.getPropertyType(), templateType),
 				AcquisitionConfigurationProperties::getEndPosition, null,
 				getAcquisition().getAcquisitionConfiguration()::setEndPosition);
 	}
@@ -304,14 +317,14 @@ public class ScanningAcquisitionController
 		ImageCalibrationReader ic = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
 		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
 			updateAcquisitionPositions(startPosition,
-					AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.FLAT,
+					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.FLAT),
 					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 					getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
 		}
 
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			updateAcquisitionPositions(startPosition,
-					AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.DARK,
+					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.DARK),
 					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 					getImageCalibrationHelper()::updateDarkDetectorPositionDocument);
 		}
@@ -346,15 +359,14 @@ public class ScanningAcquisitionController
 	 * @param consumer setter functions for the scanning acquisition type position list
 	 */
 	private void updateAcquisitionPositions(Set<DevicePositionDocument> startPosition,
-			AcquisitionPropertyType acquistionType,
-			AcquisitionTemplateType templateType,
+			AcquisitionKeys acquisitionKey,
 			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
 			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType,
 			Consumer<Set<DevicePositionDocument>> consumer) {
 		Set<DevicePositionDocument> positions  = new HashSet<>();
 		positions.addAll(startPosition);
 		processAcquisitionPositions(positions,
-				acquistionType, templateType,
+				acquisitionKey,
 				mapperAcquisition, mapperType);
 		updatePositionDocument(positions, consumer);
 	}
@@ -383,20 +395,19 @@ public class ScanningAcquisitionController
 	 * @param mapperType getter functions for an acquisition type properties position list
 	 */
 	private void processAcquisitionPositions(Set<DevicePositionDocument> positions,
-			AcquisitionPropertyType acquistionType,
-			AcquisitionTemplateType templateType,
+			AcquisitionKeys acquisitionKey,
 			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
 			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType) {
 		List<ScannablePropertiesValue> acquisitionPosition = new ArrayList<>();
 		Optional.ofNullable(mapperAcquisition).ifPresent(mapper -> {
-			clientPropertiesHelper.getAcquisitionConfigurationProperties(acquistionType)
+			clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionKey.getPropertyType())
 				.map(mapper)
 				.ifPresent(acquisitionPosition::addAll);
 		});
 
 		List<ScannablePropertiesValue> templatePosition = new ArrayList<>();
 		Optional.ofNullable(mapperType).ifPresent(mapper -> {
-			clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquistionType, templateType)
+			clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquisitionKey)
 				.map(mapper)
 				.ifPresent(templatePosition::addAll);
 		});
@@ -476,11 +487,7 @@ public class ScanningAcquisitionController
 		return this.acquisitionReader;
 	}
 
-	public AcquisitionPropertyType getAcquisitionType() {
-		return acquisitionType;
-	}
-
-	private void setAcquisitionType(AcquisitionPropertyType acquisitionType) {
-		this.acquisitionType = acquisitionType;
+	private void setAcquisitionKey(AcquisitionKeys acquisitionKey) {
+		this.acquisitionKeys = acquisitionKey;
 	}
 }

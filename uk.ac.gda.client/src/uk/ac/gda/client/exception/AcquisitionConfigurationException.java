@@ -16,9 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.ui.controller;
-
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
+package uk.ac.gda.client.exception;
 
 /**
  * Thrown when a ScanningAcquisition request, either save or run, is incomplete.

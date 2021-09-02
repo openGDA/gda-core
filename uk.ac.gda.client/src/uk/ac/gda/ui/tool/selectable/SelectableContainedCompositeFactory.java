@@ -39,6 +39,11 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PerspectiveAdapter;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,10 +82,14 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 	private final ClientMessages groupName;
 
 	private ClientScrollableContainer clientScrollableContainer;
+	private Composite radioContainer;
+
 	/**
 	 * The actual selected widget
 	 */
 	private Widget selectedWidget;
+
+	private IPerspectiveDescriptor instancePerspective;
 
 	/**
 	 * Creates an factory instance.
@@ -95,6 +104,7 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		logger.trace("Creating {}", this);
+		instancePerspective = getActiveWindow().getActivePage().getPerspective();
 		// The main container
 		var mainContainer = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(mainContainer);
@@ -105,7 +115,7 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 		var acquisitionModes = createClientGroup(mainContainer, style, 1, groupName);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(acquisitionModes);
 
-		var radioContainer = createClientCompositeWithGridLayout(acquisitionModes, SWT.NONE, composites.size());
+		radioContainer = createClientCompositeWithGridLayout(acquisitionModes, SWT.NONE, composites.size());
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(radioContainer);
 		standardMarginHeight(radioContainer.getLayout());
 
@@ -121,11 +131,38 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 			// the selection lister which will build on-demand this NamedComposite
 			option.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::configurationRadioListener));
 		});
+
+		populateContainer();
+
+		getActiveWindow().addPerspectiveListener(new PerspectiveAdapter() {
+			/**
+			 * Updates the Mode combo box when a perspective switch is triggered by another control
+			 */
+			@Override
+			public void perspectiveActivated(IWorkbenchPage page, IPerspectiveDescriptor perspective) {
+				// Is the event arrived from the perspective activating this instance?
+				if (instancePerspective.equals(perspective)) {
+					populateContainer();
+					return;
+				}
+
+				// The event arrived from another perspective consequently this instance should be cleared?
+				// Deletes, if any the existing composites inside the internal scrollable area
+				// This action deletes the inner containers when the user moves from one perspective to another
+				clientScrollableContainer.cleanInnerContainer();
+				// sets this container as not initialised
+				selectedWidget = null;
+			}
+		});
+
+		logger.trace("Created {}", this);
+		return mainContainer;
+	}
+
+	private void populateContainer() {
 		Optional.ofNullable(radioContainer.getChildren())
 			.filter(ArrayUtils::isNotEmpty)
 			.ifPresent(radios -> selectAndNotify((Button)radios[0], true));
-		logger.trace("Created {}", this);
-		return mainContainer;
 	}
 
 	private void configurationRadioListener(SelectionEvent event) {
@@ -157,5 +194,9 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 		} else {
 			options.forEach(b -> b.setEnabled(true));
 		}
+	}
+
+	private IWorkbenchWindow getActiveWindow() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	}
 }

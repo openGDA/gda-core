@@ -18,15 +18,15 @@
 
 package uk.ac.gda.ui.tool.document;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -40,7 +40,9 @@ import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
+import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.acquisition.ScannableTrackDocumentProperty;
@@ -57,36 +59,34 @@ public class DocumentFactory {
 	@Autowired
 	private ClientPropertiesHelper clientPropertiesHelper;
 
-	public Supplier<ScanningAcquisition> newScanningAcquisition(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
-		return () -> {
-			var newAcquisition = new ScanningAcquisition();
-			// Does not set UUID as it will be inserted by the save service
-			newAcquisition.setType(getType(propertyType));
-			var configuration = new ScanningConfiguration();
-			newAcquisition.setAcquisitionConfiguration(configuration);
+	public ScanningAcquisition newScanningAcquisition(AcquisitionKeys acquisitionKeys) throws AcquisitionConfigurationException {
+		var newAcquisition = new ScanningAcquisition();
+		// Does not set UUID as it will be inserted by the save service
+		newAcquisition.setType(getType(acquisitionKeys.getPropertyType()));
+		var configuration = new ScanningConfiguration();
+		newAcquisition.setAcquisitionConfiguration(configuration);
 
-			newAcquisition.setName("Untitled Acquisition");
-			var acquisitionParameters = new ScanningParameters();
-			configuration.setImageCalibration(new ImageCalibration.Builder().build());
+		newAcquisition.setName("Untitled Acquisition");
+		var acquisitionParameters = new ScanningParameters();
+		configuration.setImageCalibration(new ImageCalibration.Builder().build());
 
-			buildScanpathBuilder(propertyType, templateType)
-				.map(ScanpathDocument.Builder::build)
-				.ifPresent(acquisitionParameters::setScanpathDocument);
+		buildScanpathBuilder(acquisitionKeys)
+			.map(ScanpathDocument.Builder::build)
+			.ifPresent(acquisitionParameters::setScanpathDocument);
 
-			var multipleScanBuilder = new MultipleScans.Builder();
-			multipleScanBuilder.withMultipleScansType(MultipleScansType.REPEAT_SCAN);
-			multipleScanBuilder.withNumberRepetitions(1);
-			multipleScanBuilder.withWaitingTime(0);
-			configuration.setMultipleScans(multipleScanBuilder.build());
-			newAcquisition.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
+		var multipleScanBuilder = new MultipleScans.Builder();
+		multipleScanBuilder.withMultipleScansType(MultipleScansType.REPEAT_SCAN);
+		multipleScanBuilder.withNumberRepetitions(1);
+		multipleScanBuilder.withWaitingTime(0);
+		configuration.setMultipleScans(multipleScanBuilder.build());
+		newAcquisition.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 
-			DetectorDocumentHelper.getHelper(newAcquisition, clientPropertiesHelper).apply();
-			return newAcquisition;
-		};
+		DetectorDocumentHelper.getHelper(newAcquisition, clientPropertiesHelper).apply();
+		return newAcquisition;
 	}
 
-	public Optional<ScanpathDocument.Builder> buildScanpathBuilder(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
-		return clientPropertiesHelper.getAcquisitionTemplateConfiguration(propertyType, templateType)
+	public Optional<ScanpathDocument.Builder> buildScanpathBuilder(AcquisitionKeys acquisitionKeys) {
+		return clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquisitionKeys)
 			.map(this::buildScanpathBuilder);
 	}
 
@@ -149,7 +149,7 @@ public class DocumentFactory {
 			this.clientPropertiesHelper = clientPropertiesHelper;
 		}
 
-		public void apply() {
+		public void apply() throws AcquisitionConfigurationException{
 			if (acquisition.getAcquisitionEngine() == null) {
 				var aed = createNewAcquisitionEngineDocument();
 				acquisition.setAcquisitionEngine(aed);
@@ -158,28 +158,28 @@ public class DocumentFactory {
 			createDetectorDocument()
 				.ifPresent(acquisition.getAcquisitionConfiguration().getAcquisitionParameters()::setDetector);
 
-			if(acquisition.getAcquisitionConfiguration().getImageCalibration() == null) {
-				applyImageCalibrationDocument(acquisition);
-			}
-		}
-
-		private AcquisitionEngineDocument createNewAcquisitionEngineDocument() {
-			AcquisitionConfigurationProperties dp = getAcquisitionPropertiesDocument();
-			var engineBuilder = new AcquisitionEngineDocument.Builder();
-			if (dp != null) {
-				engineBuilder.withId(dp.getEngine().getId());
-				engineBuilder.withType(dp.getEngine().getType());
-			}
-			return engineBuilder.build();
-		}
-
-		private void applyImageCalibrationDocument(ScanningAcquisition acquisition) {
 			acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument(acquisition));
 		}
 
-		private Optional<DetectorDocument> createDetectorDocument() {
-			Optional<String> cameraId = getAcquisitionPropertiesDocument().getCameras().stream()
-				.findFirst();
+		private AcquisitionEngineDocument createNewAcquisitionEngineDocument() throws AcquisitionConfigurationException {
+			var engineBuilder = new AcquisitionEngineDocument.Builder();
+			populateEngineDocumentBuilder(engineBuilder, getAcquisitionPropertiesDocument());
+			return engineBuilder.build();
+		}
+
+		private void populateEngineDocumentBuilder(AcquisitionEngineDocument.Builder engineBuilder, AcquisitionConfigurationProperties dp) throws AcquisitionConfigurationException {
+			AcquisitionEngineDocument engineDocument = Optional.ofNullable(dp.getEngine())
+				.orElseThrow(() -> new AcquisitionConfigurationException("No Engine document is configured"));
+			engineBuilder.withId(engineDocument.getId());
+			engineBuilder.withType(engineDocument.getType());
+		}
+
+		private Optional<DetectorDocument> createDetectorDocument() throws AcquisitionConfigurationException {
+			Set<String> cameras = Optional.ofNullable(getAcquisitionPropertiesDocument())
+				.map(AcquisitionConfigurationProperties::getCameras)
+				.orElseGet(HashSet::new);
+
+			Optional<String> cameraId = cameras.stream().findFirst();
 
 			if (cameraId.isPresent()) {
 				Optional<CameraConfigurationProperties> cameraProperties = clientPropertiesHelper.getAcquisitionPropertiesDocuments(cameraId.get());
@@ -210,13 +210,11 @@ public class DocumentFactory {
 			return imageCalibrationBuilder.build();
 		}
 
-		private AcquisitionConfigurationProperties getAcquisitionPropertiesDocument() {
-			if (clientPropertiesHelper.getAcquisitionPropertiesDocuments().isEmpty()) {
-				return null;
-			}
+		private AcquisitionConfigurationProperties getAcquisitionPropertiesDocument() throws AcquisitionConfigurationException {
 			return clientPropertiesHelper.getAcquisitionPropertiesDocuments().stream()
 					.filter(acq -> acq.getType().equals(getAcquisitionType()))
-					.findFirst().orElseThrow();
+					.findFirst()
+					.orElseThrow(() -> new AcquisitionConfigurationException("No acquisition configuration is present in properties"));
 		}
 
 		public AcquisitionPropertyType getAcquisitionType() {

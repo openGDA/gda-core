@@ -37,14 +37,14 @@ import gda.rcp.views.TreeViewerBuilder;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
-import uk.ac.gda.api.acquisition.AcquisitionController;
-import uk.ac.gda.api.acquisition.AcquisitionControllerException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
+import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
+import uk.ac.gda.ui.tool.controller.AcquisitionController;
 
 /**
  * Base implementation of {@link Browser} for {@link ScanningAcquisition}s, with the following features:
@@ -189,7 +189,7 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 			try {
 				operation.perform();
 			} catch (AcquisitionControllerException e) {
-				String message = String.format("Error performing '%s' operation", name);
+				var message = String.format("Error performing '%s' operation", name);
 				UIHelper.showError(message, e, logger);
 			}
 		}
