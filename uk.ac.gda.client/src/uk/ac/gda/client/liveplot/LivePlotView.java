@@ -306,11 +306,19 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 
 	private void openFile(OneDDataFilePlotDefinition data) throws Exception {
 		Vector<String> xyDatasetNames = new Vector<String>();
-		xyDatasetNames.add(data.x_axis);
-		for (String y_axis : data.y_axes) {
+		xyDatasetNames.add(data.getXAxis());
+		for (String y_axis : data.getYAxes()) {
 			xyDatasetNames.add(y_axis);
 		}
-		openFile(data.url, xyDatasetNames, data.yAxesMap);
+
+		String path = data.getUrl();
+		if (path == null) {
+			path = getPathFromFileDialog();
+			if (path == null) return;
+		}
+		final String finalPath = path;
+
+		openFile(finalPath, xyDatasetNames, data.getyAxesMap(), data.getScanNumber().orElseGet(() -> deriveScanNumberFromPath(finalPath)));
 	}
 
 	private List<String> getXYDataSetNames(Shell shell, String[] possibleXYDataSetNames) {
@@ -346,19 +354,13 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 
 	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap) throws Exception {
 		if (path == null) {
-			if (fileDialog == null) {
-				fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);
-				String[] filterNames = new String[] { "All Files (*)" };
-				String[] filterExtensions = new String[] { "*" };
-				fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
-				fileDialog.setFilterNames(filterNames);
-				fileDialog.setFilterExtensions(filterExtensions);
-			}
-			path = fileDialog.open();
-			if (path == null)
-				return;
+			path = getPathFromFileDialog();
+			if (path == null) return;
 		}
+		openFile(path, xyDataSetNames, yAxesMap, deriveScanNumberFromPath(path));
+	}
 
+	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap, int scanNumber) throws Exception {
 		// try to load as Srs
 		BufferedReader bfr = new BufferedReader(new FileReader(path));
 		String line = bfr.readLine();
@@ -400,8 +402,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 						if (yAxisName != null)
 							axisSpec = new AxisSpec(yAxisName);
 					}
-					int scanNumberFromPath = deriveScanNumberFromPath(path);
-					xyPlot.addData(scanNumberFromPath, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
+					xyPlot.addData(scanNumber, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
 							true, true, axisSpec);
 				} else {
 					logger.warn("Could not add dataset: '{}' from {}", xyDataSetName, path);
@@ -410,6 +411,18 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		} else {
 			logger.warn("Unrecognized file type - " + path);
 		}
+	}
+
+	private String getPathFromFileDialog() {
+			if (fileDialog == null) {
+				fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);
+				String[] filterNames = new String[] { "All Files (*)" };
+				String[] filterExtensions = new String[] { "*" };
+				fileDialog.setFilterPath(InterfaceProvider.getPathConstructor().createFromDefaultProperty());
+				fileDialog.setFilterNames(filterNames);
+				fileDialog.setFilterExtensions(filterExtensions);
+			}
+			return fileDialog.open();
 	}
 
 	private int deriveScanNumberFromPath(String path) {
