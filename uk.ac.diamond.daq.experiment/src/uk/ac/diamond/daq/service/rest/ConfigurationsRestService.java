@@ -17,11 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.service.core.ConfigurationsServiceCore;
-import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.common.entity.Document;
-import uk.ac.gda.common.entity.ErrorReport;
 import uk.ac.gda.common.exception.GDAServiceException;
+import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  * Exposes as REST service various acquisition configurations (diffraction, tomography, automated plans)
@@ -113,7 +112,7 @@ public class ConfigurationsRestService {
 	}
 
 	@ExceptionHandler(GDAHttpException.class)
-	public ResponseEntity<ErrorReport> activityExceptionHandler(GDAHttpException exc) {
-		return new ResponseEntity<>(new ErrorReport(exc.getMessage()), HttpStatus.valueOf(exc.getStatus()));
+	public ResponseEntity<GDAHttpException> exceptionHandler(GDAHttpException exc) {
+		return new ResponseEntity<>(exc, HttpStatus.valueOf(exc.getStatus()));
 	}
 }

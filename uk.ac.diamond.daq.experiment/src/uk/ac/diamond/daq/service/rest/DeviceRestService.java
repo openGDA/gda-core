@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.service.core.DeviceServiceCore;
-import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.common.entity.device.DeviceValue;
+import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  * Allows any client to communicate with GDA server side spring beans through a REST interface

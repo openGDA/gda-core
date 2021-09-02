@@ -47,10 +47,10 @@ import uk.ac.diamond.daq.service.command.receiver.device.BeanDeviceCommandReceiv
 import uk.ac.diamond.daq.service.command.receiver.device.DeviceCommandReceiver;
 import uk.ac.diamond.daq.service.command.receiver.device.DeviceRequest;
 import uk.ac.diamond.daq.service.command.strategy.OutputStrategyFactory;
-import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.common.entity.device.DeviceMethods;
 import uk.ac.gda.common.entity.device.DeviceValue;
 import uk.ac.gda.common.exception.GDAServiceException;
+import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  * Implements the {@link CommonDeviceService} based on {@link DeviceRequest}

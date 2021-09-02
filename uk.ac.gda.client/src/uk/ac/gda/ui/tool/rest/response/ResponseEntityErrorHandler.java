@@ -30,7 +30,7 @@ import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.common.entity.ErrorReport;
+import uk.ac.gda.core.tool.GDAHttpException;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
@@ -59,7 +59,7 @@ public class ResponseEntityErrorHandler implements ResponseErrorHandler {
 
 	@Override
 	public void handleError(ClientHttpResponse httpResponse) throws IOException {
-		HttpMessageConverterExtractor<ErrorReport> errorMessageExtractor = new HttpMessageConverterExtractor<>(ErrorReport.class, messageConverters);
+		HttpMessageConverterExtractor<GDAHttpException> errorMessageExtractor = new HttpMessageConverterExtractor<>(GDAHttpException.class, messageConverters);
 		var errorResponse = errorMessageExtractor.extractData(httpResponse);
 
 		if (httpResponse.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR) {

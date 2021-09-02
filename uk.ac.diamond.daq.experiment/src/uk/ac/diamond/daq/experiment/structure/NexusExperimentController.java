@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -27,8 +28,13 @@ import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
@@ -177,6 +183,29 @@ public class NexusExperimentController implements ExperimentController {
 		}
 	}
 
+	@Override
+	public List<URL> closedExperiments() throws ExperimentControllerException {
+		var rootFile = new File(getRootDir().getFile());
+		File[] experiments = rootFile.listFiles(File::isDirectory);
+		if (experiments != null) {
+			return Arrays.stream(experiments)
+				.map(f -> f.listFiles(i -> i.getName().endsWith("nxs")))
+				.flatMap(Stream::of)
+				.map(File::toURI)
+				.map(t -> {
+					try {
+						return t.toURL();
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		}
+		return Collections.emptyList();
+	}
+	
 	/**
 	 * Creates the root node.
 	 *

@@ -49,9 +49,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.service.rest.exception.GDAHttpException;
 import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.exception.GDAException;
+import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  *
