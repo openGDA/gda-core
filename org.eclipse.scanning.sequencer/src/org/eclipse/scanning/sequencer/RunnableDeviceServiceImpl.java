@@ -11,13 +11,15 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
@@ -253,23 +255,23 @@ public final class RunnableDeviceServiceImpl implements IRunnableDeviceService, 
 	}
 
 	private Collection<DeviceInformation<?>> getDeviceInformation(boolean getNonAliveDeviceInformation) throws ScanningException {
+		return getRunnableDeviceNames().stream()
+				.map(name -> getDeviceInformation(name, getNonAliveDeviceInformation))
+				.filter(Objects::nonNull)
+				.collect(toList());
+	}
 
-		Collection<DeviceInformation<?>> ret = new ArrayList<>();
-		final Collection<String> names = getRunnableDeviceNames();
-		for (String name : names) {
-			try {
-				if (name==null) continue;
-
-				IRunnableDevice<Object> device = getRunnableDevice(name);
-				if (device instanceof AbstractRunnableDevice) {
-					DeviceInformation<?> info = ((AbstractRunnableDevice<?>)device).getDeviceInformation(getNonAliveDeviceInformation);
-					ret.add(info);
-				}
-			} catch (Exception ex) {
-				logger.warn("Error getting device info for : " + name);
+	private DeviceInformation getDeviceInformation(String name, boolean includeNonAlive) {
+		if (name==null) return null;
+		try {
+			final IRunnableDevice<Object> device = getRunnableDevice(name);
+			if (device instanceof AbstractRunnableDevice) {
+				return ((AbstractRunnableDevice<?>)device).getDeviceInformation(includeNonAlive);
 			}
+		} catch (Exception e) {
+			logger.error("Error getting device info for device {}", name, e);
 		}
-		return ret;
+		return null;
 	}
 
 	@Override
