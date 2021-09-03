@@ -38,8 +38,8 @@ public class OdinMultipleFileStrategy implements OdinStrategy {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
-	private static final String IMAGE_MODE = "Single";
-	private static final String TRIGGER_MODE = "Internal";
+	private String imageMode = "Single";
+	private String triggerMode = "Internal";
 
 	private static final String FILEPATH_EXTRANAME = "filepath";
 
@@ -56,7 +56,7 @@ public class OdinMultipleFileStrategy implements OdinStrategy {
 	public void prepareWriterForScan(String detName, int scanNumber, double collectionTime) throws DeviceException {
 		controller.setOffsetAndUid(0, 0);
 		controller.prepareDataWriter(1);
-		controller.prepareCamera(1, collectionTime, 0.0, IMAGE_MODE, TRIGGER_MODE);
+		controller.prepareCamera(1, collectionTime, 0.0, imageMode, triggerMode);
 		fileDirectory = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		filePrefix = String.format("%sScan%dPoint", detName, scanNumber);
 
@@ -134,4 +134,19 @@ public class OdinMultipleFileStrategy implements OdinStrategy {
 		controller.waitWhileWriting();
 	}
 
+	public String getImageMode() {
+		return imageMode;
+	}
+
+	public void setImageMode(String imageMode) {
+		this.imageMode = imageMode;
+	}
+
+	public String getTriggerMode() {
+		return triggerMode;
+	}
+
+	public void setTriggerMode(String triggerMode) {
+		this.triggerMode = triggerMode;
+	}
 }
