@@ -71,13 +71,11 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private PV<Double> acquireTime;
 	private PV<Double> acquirePeriod;
 	private ReadOnlyPV<String> dataWriter;
-	private PV<String> counterDepth;
-	private PV<Integer> pausePolling;
-	private PV<Integer> continuePolling;
+
+
 	private PV<Integer> odinOffset;
 	private PV<Integer> odinUid;
 	private PV<Integer> framesPerBlock;
-	private PV<String> odinCompression;
 
 	/** The most recent file written by this detector */
 	private String latestFilename;
@@ -103,9 +101,8 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			imageMode = LazyPVFactory.newEnumPV(basePv + "CAM:ImageMode", String.class);
 			numImages = LazyPVFactory.newIntegerPV(basePv + "CAM:NumImages");
 			triggerMode = LazyPVFactory.newEnumPV(basePv + "CAM:TriggerMode", String.class);
-			counterDepth = LazyPVFactory.newEnumPV(basePv + "CAM:CounterDepth", String.class);
-			pausePolling = LazyPVFactory.newIntegerPV(basePv + "CAM:PausePolling");
-			continuePolling = LazyPVFactory.newIntegerPV(basePv + "CAM:ContinuePolling");
+
+
 
 			// DATA WRITING PVs
 			dataDirectory = new PVWithSeparateReadback<>(LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FilePath"),
@@ -131,7 +128,6 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			fp2ClearErrors = LazyPVFactory.newIntegerPV(basePv + "OD2:FPClearErrors");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
-			odinCompression = LazyPVFactory.newEnumPV(basePv + "OD:CompressionMode", String.class);
 		}
 		configured = true;
 	}
@@ -193,7 +189,6 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		try {
 			logger.debug("Stopping collection");
 			acquiring.putNoWait("Done");
-			continuePolling.putWait(1);
 		} catch (IOException e) {
 			throw new DeviceException("Timeout stopping collection", e);
 		}
@@ -240,7 +235,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 		double acquisition = requestedLiveTime + requestedDeadTime;
 		try {
-			pausePolling.putWait(1);
+
 			numImages.putWait(1);
 			acquireTime.putWait(requestedLiveTime);
 			acquirePeriod.putWait(acquisition);
@@ -346,12 +341,9 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			odinFramesToCapture.putWait(frames);
 			framesPerBlock.putWait(frames);
 			timeoutDataWriterPeriod.putWait(fileWritingTimeout, ODIN_TIMEOUT);
-			// disable compression
-			odinCompression.putWait("off");
 		} catch (IOException e) {
 			throw new DeviceException("Could not set data writer frame size", e);
 		}
-		// TODO need to set BL07I-EA-EXCBR-01:OD:Mode and BL07I-EA-EXCBR-01:OD:Compression as well?
 	}
 
 	@Override
@@ -368,31 +360,6 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		this.acquireTime = acquireTime;
 	}
 
-	/**
-	 * TODO This is Excalibur specific
-	 */
-	public String getCounterDepth() {
-		try {
-			return counterDepth.get();
-		} catch (IOException e) {
-			logger.error("Could not get Counter Depth from detector {}", counterDepth.getPvName(), e);
-			return null;
-		}
-	}
-
-	/**
-	 * TODO This is Excalibur specific
-	 *
-	 * @param depth
-	 *            e.g "12 bit"
-	 */
-	public void setCounterDepth(String depth) {
-		try {
-			counterDepth.putWait(depth);
-		} catch (IOException e) {
-			logger.error("Could not set Counter Depth to {}", depth);
-		}
-	}
 
 	public int getOdinOffset() throws IOException {
 		return odinOffset.get();
