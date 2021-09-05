@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.api.malcolm;
 
-import org.eclipse.january.INameable;
+import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 

@@ -335,7 +335,8 @@ public class EditDetectorModelDialog extends Dialog {
 				MessageDialog.openError(getShell(), "Validation Error",
 						"The given configuration is invalid: " + ((Exception) result).getMessage());
 			} else if (result instanceof Exception) {
-				logger.error("Error getting device '{}'", detectorModel.getName(), (Exception) result);
+				final Exception exception = (Exception) result;
+				logger.error("Error getting device '{}'", detectorModel.getName(), exception);
 				MessageDialog.openError(getShell(), "Error", "Could not get device " + detectorLabel);
 			} else if (!initialValidation) {
 				// only show message for ok if button pressed
