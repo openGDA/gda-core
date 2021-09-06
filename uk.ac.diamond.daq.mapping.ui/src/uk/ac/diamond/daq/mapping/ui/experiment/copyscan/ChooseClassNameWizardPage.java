@@ -49,7 +49,7 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * definition.<br>
  * The class name must conform to VALID_CLASS_NAME_REGEX.
  */
-class CopyScanEnterName extends WizardPage {
+class ChooseClassNameWizardPage extends WizardPage {
 	private static final int NUM_COLUMNS = 2;
 	private static final int TEXT_LENGTH = 500;
 
@@ -58,8 +58,8 @@ class CopyScanEnterName extends WizardPage {
 	private final DataBindingContext bindingContext = new DataBindingContext();
 	private final CopyScanConfig config;
 
-	protected CopyScanEnterName(CopyScanConfig config) {
-		super(CopyScanEnterName.class.getSimpleName());
+	protected ChooseClassNameWizardPage(CopyScanConfig config) {
+		super(ChooseClassNameWizardPage.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_DESCRIPTION));
 		this.config = config;

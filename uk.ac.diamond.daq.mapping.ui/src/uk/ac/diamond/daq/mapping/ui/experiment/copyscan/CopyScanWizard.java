@@ -30,12 +30,12 @@ import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
  */
 public class CopyScanWizard extends Wizard {
 
-	private final CopyScanEnterName chooseNamePage;
-	private final CopyScanSaveClass saveClassPage;
+	private final ChooseClassNameWizardPage chooseNamePage;
+	private final CopyOrSaveScanWizardPage saveClassPage;
 
 	public CopyScanWizard(ScanManagementController controller, CopyScanConfig config) {
-		chooseNamePage = new CopyScanEnterName(config);
-		saveClassPage = new CopyScanSaveClass(controller, config);
+		chooseNamePage = new ChooseClassNameWizardPage(config);
+		saveClassPage = new CopyOrSaveScanWizardPage(controller, config);
 	}
 
 	@Override

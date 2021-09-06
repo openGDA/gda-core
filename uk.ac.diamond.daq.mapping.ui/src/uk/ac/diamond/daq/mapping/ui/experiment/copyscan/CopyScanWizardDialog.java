@@ -32,8 +32,8 @@ public class CopyScanWizardDialog extends WizardDialog {
 	@Override
 	protected void nextPressed() {
 		final IWizardPage page = getCurrentPage().getNextPage();
-		if (page instanceof CopyScanSaveClass) {
-			((CopyScanSaveClass) page).onEnterPage();
+		if (page instanceof CopyOrSaveScanWizardPage) {
+			((CopyOrSaveScanWizardPage) page).onEnterPage();
 		}
 		super.nextPressed();
 	}

@@ -71,8 +71,8 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * Generate a class from the current scan definition, copy it to the clipboard, display it to the user and allow them to
  * save it to a file.
  */
-class CopyScanSaveClass extends WizardPage {
-	private static final Logger logger = LoggerFactory.getLogger(CopyScanSaveClass.class);
+class CopyOrSaveScanWizardPage extends WizardPage {
+	private static final Logger logger = LoggerFactory.getLogger(CopyOrSaveScanWizardPage.class);
 
 	private static final int TEXT_AREA_WIDTH = 800;
 	private static final int TEXT_AREA_HEIGHT = 500;
@@ -94,8 +94,8 @@ class CopyScanSaveClass extends WizardPage {
 	 */
 	private Text classText;
 
-	protected CopyScanSaveClass(ScanManagementController controller, CopyScanConfig config) {
-		super(CopyScanSaveClass.class.getSimpleName());
+	protected CopyOrSaveScanWizardPage(ScanManagementController controller, CopyScanConfig config) {
+		super(CopyOrSaveScanWizardPage.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_DESCRIPTION));
 		this.controller = controller;
