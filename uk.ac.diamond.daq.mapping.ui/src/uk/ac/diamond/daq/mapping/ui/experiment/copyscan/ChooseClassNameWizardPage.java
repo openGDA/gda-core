@@ -71,11 +71,11 @@ class ChooseClassNameWizardPage extends WizardPage {
 		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(mainComposite);
 
 		final Label classNameLabel = createClientLabel(mainComposite, SWT.NONE, COPY_SCAN_CLASS_NAME);
-		classNameLabel.setFont(config.getDefaultFont());
+		classNameLabel.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final Text classNameText = createClientText(mainComposite, SWT.LEFT, COPY_SCAN_CLASS_NAME);
 		GridDataFactory.swtDefaults().hint(TEXT_LENGTH, SWT.DEFAULT).applyTo(classNameText);
-		classNameText.setFont(config.getDefaultFont());
+		classNameText.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final IObservableValue<String> classNameModel = PojoProperties.value("className", String.class).observe(config);
 		final IObservableValue<String> classNameWidget = WidgetProperties.text(SWT.Modify).observe(classNameText);

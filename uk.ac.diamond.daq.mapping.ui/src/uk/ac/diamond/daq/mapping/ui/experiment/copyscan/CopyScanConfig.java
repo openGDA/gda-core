@@ -20,9 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment.copyscan;
 
 import java.io.File;
 
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.graphics.Font;
-
 /**
  * Configuration to be shared between the pages of the {@link CopyScanWizard}
  */
@@ -40,15 +37,6 @@ public class CopyScanConfig {
 	 */
 	private File lastSaveLocation;
 
-	private final Font defaultFont;
-
-	private final Font monospacedFont;
-
-	public CopyScanConfig() {
-		defaultFont = JFaceResources.getFontRegistry().get("Cantarell");
-		monospacedFont = JFaceResources.getTextFont();
-	}
-
 	public String getClassName() {
 		return className;
 	}
@@ -65,11 +53,4 @@ public class CopyScanConfig {
 		this.lastSaveLocation = lastSaveLocation;
 	}
 
-	public Font getDefaultFont() {
-		return defaultFont;
-	}
-
-	public Font getMonospacedFont() {
-		return monospacedFont;
-	}
 }

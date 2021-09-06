@@ -45,6 +45,7 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.SWT;
@@ -109,13 +110,13 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 
 		classText = new Text(mainComposite, SWT.READ_ONLY | SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		GridDataFactory.fillDefaults().hint(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT).grab(true, true).applyTo(classText);
-		classText.setFont(config.getMonospacedFont());
+		classText.setFont(JFaceResources.getTextFont());
 		classText.setTabs(4);
 
 		final Button saveButton = createClientButton(mainComposite, SWT.PUSH, SAVE, SAVE);
 		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(saveButton);
 		saveButton.setImage(Activator.getImage(SAVE_ICON_PATH));
-		saveButton.setFont(config.getDefaultFont());
+		saveButton.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final Listener saveButtonListener = e -> saveClass();
 		addWidgetDisposableListener(saveButton, SWT.Selection, saveButtonListener);
