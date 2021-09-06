@@ -313,7 +313,10 @@ public class MalcolmEpicsV4Connection implements IMalcolmConnection {
 			logger.error("Error sending call to {} to malcolm with argument {}",
 					message.getMethod(), message.getArguments(), e);
 			returnMessage.setType(Type.ERROR);
-			returnMessage.setMessage(e.getMessage());
+			// Remove redundant ", cause:" at end of exception message from RPCClientImpl
+			// See https://github.com/epics-base/epicsCoreJava/issues/117 (can remove when fixed)
+			String errMessage = e.getMessage().replaceAll(", cause:\n$","");
+			returnMessage.setMessage(errMessage);
 		} finally {
 			if (client != null) {
 				client.destroy();
