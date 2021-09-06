@@ -18,6 +18,7 @@
 
 package org.eclipse.scanning.device.ui.device;
 
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_TYPE;
 
@@ -25,6 +26,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.core.runtime.ICoreRunnable;
@@ -99,6 +103,10 @@ public class EditDetectorModelDialog extends Dialog {
 	 */
 	private static final int MAX_ELEMENTS = 20;
 
+	private static final Map<String, List<String>> malcolmDatasetNames = new HashMap<>();
+
+	private static final Map<String, Integer> selectedMalcolmDatasetIndex = new HashMap<>();
+
 	private final IRunnableDeviceService runnableDeviceService; // the remote service
 	private final IDetectorModel detectorModel;
 	private final String detectorLabel;
@@ -113,7 +121,7 @@ public class EditDetectorModelDialog extends Dialog {
 	private Button plotAsLine;
 	private Button plotAsImage;
 
-	private Combo datasetCombo;
+	private Combo malcolmDatasetsCombo;
 
 	private Button snapshotButton;
 
@@ -226,10 +234,15 @@ public class EditDetectorModelDialog extends Dialog {
 			label.setText("Dataset:");
 			GridDataFactory.swtDefaults().applyTo(label);
 
-			datasetCombo = new Combo(plotControlsComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(datasetCombo);
-			datasetCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(event ->
-					loadDatasetFromLatestFile(datasetCombo.getItem(datasetCombo.getSelectionIndex()))));
+			malcolmDatasetsCombo = new Combo(plotControlsComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+			GridDataFactory.fillDefaults().grab(true, false).applyTo(malcolmDatasetsCombo);
+			malcolmDatasetsCombo.addSelectionListener(SelectionListener.widgetSelectedAdapter(event -> {
+				selectedMalcolmDatasetIndex.put(getDetectorName(), malcolmDatasetsCombo.getSelectionIndex());
+				loadDatasetFromLatestFile(malcolmDatasetsCombo.getItem(malcolmDatasetsCombo.getSelectionIndex()));
+			}));
+
+			// try to populate the combo now - not possible if a scan is running
+			loadMalcolmDatasets();
 		}
 
 		snapshotButton = new Button(plotControlsComposite, SWT.PUSH);
@@ -237,33 +250,57 @@ public class EditDetectorModelDialog extends Dialog {
 		snapshotButton.setImage(Activator.getImage("icons/camera.png"));
 		snapshotButton.setToolTipText("Take snapshot");
 		snapshotButton.addListener(SWT.Selection, event -> takeSnapshot());
+		snapshotButton.setEnabled(!loadedMalcolmDatasets || malcolmDatasetsCombo.getItemCount() > 0);
+
 	}
 
 	private void loadMalcolmDatasets() {
+		final String malcolmDeviceName = getDetectorName();
+
+		// first check if we have cached the state of the combo for this malcolm device
+		if (malcolmDatasetNames.containsKey(malcolmDeviceName)) {
+			malcolmDatasetsCombo.setItems(malcolmDatasetNames.get(malcolmDeviceName).toArray(String[]::new));
+			malcolmDatasetsCombo.select(selectedMalcolmDatasetIndex.getOrDefault(malcolmDeviceName, 0));
+			loadedMalcolmDatasets = true;
+			return;
+		}
+
+		// we can't get the datasets from the malcolm device if a scan is running, that could crash a scan
+		if (SubmissionQueueUtils.isJobRunningOrPending()) {
+			String msg = String.format("Cannot get datasets for malcolm device %s while a scan is running", malcolmDeviceName);
+			logger.warn(msg);
+			MessageDialog.openInformation(getShell(), msg, msg);
+			return;
+		}
+
 		// populate the datasets combo with the datasets from the malcolm device
 		try {
-			final String[] datasetNames = getMalcolmDatasetNames();
-			datasetCombo.setItems(datasetNames);
-			if (datasetNames.length > 0) {
-				datasetCombo.select(0);
-			} else {
+			final List<String> datasetNames = getMalcolmDatasetNames();
+			malcolmDatasetNames.put(malcolmDeviceName, datasetNames);
+			selectedMalcolmDatasetIndex.put(malcolmDeviceName, 0);
+			malcolmDatasetsCombo.setItems(datasetNames.toArray(String[]::new));
+			if (datasetNames.isEmpty()) {
 				getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Error",
-						"No primary datasets defined for malcolm device " + detectorModel.getName()));
+						"No primary datasets defined for malcolm device " + malcolmDeviceName));
+			} else {
+				malcolmDatasetsCombo.select(0);
 			}
+			loadedMalcolmDatasets = true;
 		} catch (ScanningException e) {
 			logger.error("Could not get datasets for malcolm device {}", detectorModel.getName(), e);
 			getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Error",
-					"Could not get datasets for malcolm device " + detectorModel.getName() + "\nReason: " + e.getMessage()));
+					"Could not get datasets for malcolm device " + malcolmDeviceName + "\nReason: " + e.getMessage()));
 		}
 
-		snapshotButton.setEnabled(datasetCombo.getItemCount() > 0);
-		loadedMalcolmDatasets = true;
+		if (snapshotButton != null) {
+			snapshotButton.setEnabled(malcolmDatasetsCombo.getItemCount() > 0);
+		}
 	}
 
 	/**
 	 * @return name of datasets for malcolm device
 	 */
-	private String[] getMalcolmDatasetNames() throws ScanningException {
+	private List<String> getMalcolmDatasetNames() throws ScanningException {
 		logger.debug("Getting malcolm dataset names for malcolm device {}", detectorModel.getName());
 		IMalcolmDevice malcolmDevice = null;
 		try {
@@ -274,19 +311,13 @@ public class EditDetectorModelDialog extends Dialog {
 			// configure the detector, puts it in 'Armed' state
 			malcolmDevice.configure((IMalcolmModel) detectorModel);
 			final MalcolmTable datasetsTable = malcolmDevice.getDatasets();
-			final String[] datasetNames = datasetsTable.stream()
+			return datasetsTable.stream()
 				.filter(row -> MalcolmDatasetType.fromString((String) row.get(DATASETS_TABLE_COLUMN_TYPE)) == MalcolmDatasetType.PRIMARY) // filter out non-primary dataset
 				.map(row -> row.get(DATASETS_TABLE_COLUMN_NAME))
 				.map(String.class::cast)
 				.filter(name -> name.contains(".")) // sanity check, dataset names have 2 parts, e.g. 'detector.data'
 				.map(name -> name.split("\\.")[0]) // get the first part, e.g. 'detector'. This will be the name of the NXdata group in the nexus file
-				.toArray(String[]::new);
-			if (datasetNames.length == 0) {
-				getShell().getDisplay().asyncExec(() -> MessageDialog.openError(getShell(), "Warning",
-						"No datasets found for malcolm device " + detectorModel.getName()));
-			}
-
-			return datasetNames;
+				.collect(toList());
 		} finally {
 			if (malcolmDevice != null) {
 				try {
@@ -434,7 +465,7 @@ public class EditDetectorModelDialog extends Dialog {
 
 			if (response.getStatus() == Status.COMPLETE) {
 				lastSnapshotFilePath = response.getFilePath();
-				loadSnapshot(lastSnapshotFilePath);
+				loadSnapshot();
 			} else if (response.getStatus() == Status.FAILED) {
 				final String message = MessageFormat.format("Unable to acquire data for detector {0}: {1}",
 						detectorLabel, response.getMessage());
@@ -458,15 +489,15 @@ public class EditDetectorModelDialog extends Dialog {
 		}
 	}
 
-	private void loadSnapshot(final String filePath) throws Exception {
+	private void loadSnapshot() throws Exception {
 		final boolean isMalcolm = detectorModel instanceof IMalcolmModel;
 		if (isMalcolm && !loadedMalcolmDatasets) {
 			loadMalcolmDatasets();
 		}
 
 		final String datasetName = isMalcolm ?
-				datasetCombo.getItem(datasetCombo.getSelectionIndex()) : detectorModel.getName();
-		loadSnapshot(filePath, datasetName);
+				malcolmDatasetsCombo.getItem(malcolmDatasetsCombo.getSelectionIndex()) : detectorModel.getName();
+		loadSnapshot(lastSnapshotFilePath, datasetName);
 	}
 
 	private void loadSnapshot(final String filePath, String datasetName) throws Exception {
@@ -564,6 +595,10 @@ public class EditDetectorModelDialog extends Dialog {
 			}
 		};
 		updatePlotJob.schedule();
+	}
+
+	private String getDetectorName() {
+		return detectorModel.getName();
 	}
 
 	// Dialog overrides
