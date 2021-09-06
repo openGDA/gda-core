@@ -203,7 +203,6 @@ public class TimeSeriesScanView {
 			final IMalcolmModel malcolmModel = (IMalcolmModel) malcolmDevice.getModel();
 			final MalcolmModelEditor editor = new MalcolmModelEditor(getRunnableDeviceService(), malcolmModel);
 			editor.createEditorPart(parent);
-			runValidationJob(true);
 			return editor;
 		} catch (ScanningException e) {
 			logger.error("Could not get malcolm device: ", malcolmDeviceName, e);
@@ -220,6 +219,7 @@ public class TimeSeriesScanView {
 
 		malcolmModelEditor = createMalcolmModelEditor(malcolmModelEditorComposite, malcolmDeviceName);
 		viewComposite.layout(true, true);
+		runValidationJob(true);
 	}
 
 	private void createButtons(Composite parent) {
