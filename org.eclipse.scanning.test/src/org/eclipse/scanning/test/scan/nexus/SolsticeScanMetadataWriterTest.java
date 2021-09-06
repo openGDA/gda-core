@@ -32,6 +32,7 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_UN
 import static org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter.SINGLE_SHAPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -463,7 +464,7 @@ public class SolsticeScanMetadataWriterTest {
 		if (perPoint) {
 			assertThat(startTimeStampsDataset.getRank(), is(scanRank));
 		} else {
-			assertThat(startTimeStampsDataset.getShape(), is(equalTo(SINGLE_SHAPE)));
+			assertThat(startTimeStampsDataset.getShape(), is(either(equalTo(SINGLE_SHAPE)).or(equalTo(EMPTY_SHAPE))));
 		}
 	}
 
@@ -522,11 +523,6 @@ public class SolsticeScanMetadataWriterTest {
 		final ILazyWriteableDataset deadTimePercentDataset = (ILazyWriteableDataset) deadTimePercentDataNode.getDataset();
 		final MockLazySaver deadTimePercentSaver = new MockLazySaver();
 		deadTimePercentDataset.setSaver(deadTimePercentSaver);
-
-		final DataNode startTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_START_TIME);
-		final ILazyWriteableDataset startTimeDataset = (ILazyWriteableDataset) startTimeNode.getDataset();
-		startTimeDataset.setSaver(new MockLazySaver());
-
 		final DataNode stopTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_END_TIME);
 		final ILazyWriteableDataset stopTimeDataset = (ILazyWriteableDataset) stopTimeNode.getDataset();
 		stopTimeDataset.setSaver(new MockLazySaver());
