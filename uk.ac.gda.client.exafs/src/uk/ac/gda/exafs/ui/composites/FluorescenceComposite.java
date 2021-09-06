@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.resources.IFile;
@@ -81,12 +82,11 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private boolean fileNameChangeRequired = false;
 	private boolean autoChangeFluorescenceFile = LocalProperties.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
 	private IBeanController control;
-	private Map<String,String> detectorNameToParamTypeMap;
 	private Map<String,Class> detectorNameToClassMap;
 	private DetectorParameters detectorParameters;
 	private DetectorGroupTemplateConfiguration detectorConfigInformation = null;
 
-	public String[] getDetectorTypesFromConfig(boolean xesMode) {
+	private String[] getDetectorTypesFromConfig(boolean xesMode) {
 		if (detectorConfigInformation != null && detectorConfigInformation.getDetectorGroupsMap().size() > 0) {
 			String expType;
 			if (xesMode) {
@@ -105,7 +105,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		return null;
 	}
 
-	public String[] getDetectorTypes(boolean includeVortex, boolean includeGermanium, boolean includeXspress3, boolean includeMedipix) {
+	private String[] getDetectorTypes(boolean includeVortex, boolean includeGermanium, boolean includeXspress3, boolean includeMedipix) {
 		String[] items = new String[]{};
 		if (includeVortex){
 			items = (String[]) ArrayUtils.add(items, FluorescenceParameters.SILICON_DET_TYPE);
@@ -214,15 +214,14 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String detectorNameString =  (String) detectorType.getValue();
-				String paramTypeString = detectorNameToParamTypeMap.get(detectorNameString);
 				try {
 					// NOTE Currently editing local file.
 					checkConfigFile(detectorNameString);
 				} catch (Exception e1) {
-					logger.error("Cannot open "+paramTypeString+" parameters.", e1);
+					logger.error("Cannot open detector parameters for "+detectorNameString+" group", e1);
 
 					MessageDialog.open(MessageDialog.INFORMATION, getShell(), "Detector configuration problem",
-						"Problem creating default values to use for detector \'"+detectorNameString+"\'\n"+
+						"Problem creating default values to use for detector group \'"+detectorNameString+"\'\n"+
 						"Check log panel for more information.", SWT.NONE);
 
 				}
@@ -263,13 +262,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	 * @since 18/5/2016
 	 */
 	private void setupDetectorNameMaps() {
-		detectorNameToParamTypeMap = new HashMap<String, String>();
-		detectorNameToParamTypeMap.put(FluorescenceParameters.GERMANIUM_DET_TYPE, "Xspress");
-		detectorNameToParamTypeMap.put(FluorescenceParameters.SILICON_DET_TYPE, "Vortex");
-		detectorNameToParamTypeMap.put(FluorescenceParameters.XSPRESS3_DET_TYPE, "Xspress3");
-		detectorNameToParamTypeMap.put(FluorescenceParameters.MEDIPIX_DET_TYPE, "Medipix");
-
-		detectorNameToClassMap = new HashMap<String, Class>();
+		detectorNameToClassMap = new HashMap<>();
 		detectorNameToClassMap.put(FluorescenceParameters.GERMANIUM_DET_TYPE, XspressParameters.class);
 		detectorNameToClassMap.put(FluorescenceParameters.SILICON_DET_TYPE, VortexParameters.class);
 		detectorNameToClassMap.put(FluorescenceParameters.XSPRESS3_DET_TYPE, Xspress3Parameters.class);
@@ -359,49 +352,49 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		}
 	}
 
-	public void setFileNameChangeRequired(boolean fileNameChangeRequired) {
+	private void setFileNameChangeRequired(boolean fileNameChangeRequired) {
 		this.fileNameChangeRequired = fileNameChangeRequired;
 	}
 
-	public boolean isFileNameChangeRequired() {
+	private boolean isFileNameChangeRequired() {
 		return fileNameChangeRequired;
 	}
 
 	/**
 	 * Lookup the name of a detector configuration file to use for fluorescence detector in named detector group,
 	 * by using current instance of {@link DetectorGroupTemplateConfiguration}, as configured using
-	 * client-side spring.
+	 * client-side spring. The name from the first detector in the group that has a template file is used.
 	 * @param detectorGroup
 	 * @return Name of detector configuration file (full path). Empty string if no filename could be set.
 	 */
-	public String getDetectorTemplateFileName(String detectorGroup) {
+	private String getDetectorTemplateFileName(String detectorGroup) {
 		if (detectorConfigInformation != null && detectorConfigInformation.getDetectorTemplateMap().size() > 0) {
 
 			// Get list of detectors in currently selected detector group
-			String[] detList = new String[0];
-			for(DetectorGroup g : detectorParameters.getDetectorGroups()) {
-				if (g.getName().equalsIgnoreCase(detectorGroup)) {
-					detList = g.getDetector();
-					break;
-				}
-			}
-			if (detList.length==0) {
+			String[] detList = detectorParameters.getDetectorGroups()
+				.stream()
+				.filter(group -> group.getName().equalsIgnoreCase(detectorGroup))
+				.map(DetectorGroup::getDetector)
+				.findFirst()
+				.orElse(null);
+
+			if (detList == null) {
 				logger.warn("Detector group for {} not found in 'Detector Parameters' xml file", detectorGroup);
 				return "";
 			}
-			// Lookup name of the detector template settings file to use for detector in selected group
-			// (there should only be one match per group, only for fluorescence detector.)
+
+			// Get template name from first detector in the list that has a template file
 			Map<String, String> templateMap = detectorConfigInformation.getDetectorTemplateMap();
-			String configName = "";
-			for( String detName : detList) { // detname typically: xmapMca, xspress3system, xspress3 ...
-				if (templateMap.containsKey(detName)) {
-					configName = templateMap.get(detName);
-				}
-			}
-			if (StringUtils.isEmpty(configName)) {
+			String templateFileName = Stream.of(detList)
+				.filter(templateMap::containsKey)
+				.map(templateMap::get)
+				.findFirst()
+				.orElse("");
+
+			if (templateFileName.isEmpty()) {
 				logger.warn("No Spring configuration found for detectors in group {}", detectorGroup);
 			}
-			return configName;
+			return templateFileName;
 		} else {
 			return "";
 		}
@@ -414,7 +407,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	 * @param outputDirname directory to put the new file in
 	 * @return Name of the newly generated file
 	 */
-	public String copyConfigFromTemplate(String templateFilename, String outputDirname) {
+	private String copyConfigFromTemplate(String templateFilename, String outputDirname) {
 
 			File templateFileFullpath= new File(templateFilename); // full path to file
 			if (!templateFileFullpath.exists()){
