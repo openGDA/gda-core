@@ -28,7 +28,6 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +55,7 @@ public class SumProc implements MalcolmSwmrProcessor {
 		int[] ones = new int[info.getShape().length];
 		Arrays.fill(ones, 1);
 
-		sumDataset = new LazyWriteableDataset("full_sum", Double.class, ones, info.getShape(), null, null);
-		sumDataset.setChunking(info.getShape());
+		sumDataset = new LazyWriteableDataset("full_sum", Double.class, ones, info.getShape(), info.getShape(), null);
 		nexusProvider.getNexusObject().createDataNode("full_sum", sumDataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName("full_sum");
 	}
@@ -67,12 +65,7 @@ public class SumProc implements MalcolmSwmrProcessor {
 		logger.debug("Start of processFrame");
 		Object sum = data.sum();
 		Dataset s = DatasetFactory.createFromObject(sum);
-		SliceND sl = new SliceND(sumDataset.getShape(), sumDataset.getMaxShape(), (Slice[]) null);
-
-		Slice[] si = metaSlice.getSliceFromInput();
-		for (int i = 0; i < sumDataset.getRank(); i++) {
-			sl.setSlice(i, si[i]);
-		}
+		SliceND sl = new SliceND(sumDataset.getShape(), sumDataset.getMaxShape(), metaSlice.getSliceFromInput());
 
 		try {
 			sumDataset.setSlice(null, s, sl);

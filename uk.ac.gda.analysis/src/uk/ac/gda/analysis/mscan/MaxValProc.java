@@ -28,7 +28,6 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +55,7 @@ public class MaxValProc implements MalcolmSwmrProcessor {
 		int[] ones = new int[info.getShape().length];
 		Arrays.fill(ones, 1);
 
-		maxValDataset = new LazyWriteableDataset("global_max", Double.class, ones, info.getShape(), null, null);
-		maxValDataset.setChunking(info.getShape());
+		maxValDataset = new LazyWriteableDataset("global_max", Double.class, ones, info.getShape(), info.getShape(), null);
 		nexusProvider.getNexusObject().createDataNode("global_max",maxValDataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName("global_max");
 	}
@@ -68,12 +66,7 @@ public class MaxValProc implements MalcolmSwmrProcessor {
 		Object max = data.max();
 		// int[] maxCoords = data.maxPos(); // TODO add this
 		Dataset s = DatasetFactory.createFromObject(max);
-		SliceND sl = new SliceND(maxValDataset.getShape(), maxValDataset.getMaxShape(), (Slice[]) null);
-
-		Slice[] si = metaSlice.getSliceFromInput();
-		for (int i = 0; i < maxValDataset.getRank(); i++) {
-			sl.setSlice(i, si[i]);
-		}
+		SliceND sl = new SliceND(maxValDataset.getShape(), maxValDataset.getMaxShape(), metaSlice.getSliceFromInput());
 
 		try {
 			maxValDataset.setSlice(null, s, sl);

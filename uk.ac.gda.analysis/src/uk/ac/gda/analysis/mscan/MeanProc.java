@@ -28,7 +28,6 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.LazyWriteableDataset;
-import org.eclipse.january.dataset.Slice;
 import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +55,7 @@ public class MeanProc implements MalcolmSwmrProcessor {
 		int[] ones = new int[info.getShape().length];
 		Arrays.fill(ones, 1);
 
-		meanDataset = new LazyWriteableDataset("full_mean", Double.class, ones, info.getShape(), null, null);
-		meanDataset.setChunking(info.getShape());
+		meanDataset = new LazyWriteableDataset("full_mean", Double.class, ones, info.getShape(), info.getShape(), null);
 		nexusProvider.getNexusObject().createDataNode("full_mean", meanDataset);
 		nexusProvider.addAdditionalPrimaryDataFieldName("full_mean");
 	}
@@ -67,12 +65,7 @@ public class MeanProc implements MalcolmSwmrProcessor {
 		logger.debug("Start of processFrame");
 		Object mean = data.mean();
 		Dataset s = DatasetFactory.createFromObject(mean);
-		SliceND sl = new SliceND(meanDataset.getShape(), meanDataset.getMaxShape(), (Slice[]) null);
-
-		Slice[] si = metaSlice.getSliceFromInput();
-		for (int i = 0; i < meanDataset.getRank(); i++) {
-			sl.setSlice(i, si[i]);
-		}
+		SliceND sl = new SliceND(meanDataset.getShape(), meanDataset.getMaxShape(), metaSlice.getSliceFromInput());
 
 		try {
 			meanDataset.setSlice(null, s, sl);

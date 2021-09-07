@@ -111,8 +111,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
 
-	private static final int[] START_SHAPE = new int[] { 0 };
 	private static final int[] SINGLE_SHAPE = new int[] { 1 };
+	private static final int[] SCALAR_SHAPE = new int[0];
 
 	// Always format with 3 decimal places of Millis, prevent truncating by default formatters being unreadable by DateDatasetImpl
 	private static final DateTimeFormatter MILLISECOND_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
@@ -925,8 +925,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			ILazyWriteableDataset endTime = file.getData(g, NXentry.NX_END_TIME).getWriteableDataset();
 			endTime.setSlice(
 					null,
-					DatasetFactory.createFromObject(MILLISECOND_DATE_FORMAT.format(finishTime)),
-					START_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
+					DatasetFactory.createFromObject(MILLISECOND_DATE_FORMAT.format(finishTime)), new SliceND(SCALAR_SHAPE));
 			applyTemplates();
 		}
 		releaseFile();
@@ -1075,7 +1074,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			}
 			NexusUtils.writeString(file, g, NXentry.NX_START_TIME,  MILLISECOND_DATE_FORMAT.format(startTime));
 			ILazyWriteableDataset endTime = NexusUtils.createLazyWriteableDataset(
-					NXentry.NX_END_TIME, String.class, SINGLE_SHAPE, SINGLE_SHAPE, SINGLE_SHAPE);
+					NXentry.NX_END_TIME, String.class, SCALAR_SHAPE, null, null);
 			file.createData(g, endTime);
 			createCustomMetaData(g);
 		} catch (Exception e) {
