@@ -136,6 +136,25 @@ public class DocumentFactory {
 			}
 	}
 
+	public Optional<DetectorDocument> createDetectorDocument(String cameraId) {
+		return createDetectorDocument(cameraId, clientPropertiesHelper);
+	}
+
+	private static Optional<DetectorDocument> createDetectorDocument(String cameraId, ClientPropertiesHelper clientPropertiesHelper) {
+		if (cameraId == null) {
+			return Optional.empty();
+		}
+
+		Optional<CameraConfigurationProperties> cameraProperties = clientPropertiesHelper.getAcquisitionPropertiesDocuments(cameraId);
+		if (cameraProperties.isPresent()) {
+				return Optional.ofNullable(new DetectorDocument.Builder()
+						.withName(cameraProperties.get().getCameraControl())
+						.withMalcolmDetectorName(cameraProperties.get().getMalcolmDetectorName())
+						.build());
+		}
+		return Optional.empty();
+	}
+
 	static class DetectorDocumentHelper {
 		private final ScanningAcquisition acquisition;
 		private final ClientPropertiesHelper clientPropertiesHelper;
@@ -179,18 +198,9 @@ public class DocumentFactory {
 				.map(AcquisitionConfigurationProperties::getCameras)
 				.orElseGet(HashSet::new);
 
-			Optional<String> cameraId = cameras.stream().findFirst();
-
-			if (cameraId.isPresent()) {
-				Optional<CameraConfigurationProperties> cameraProperties = clientPropertiesHelper.getAcquisitionPropertiesDocuments(cameraId.get());
-				if (cameraProperties.isPresent()) {
-					return Optional.ofNullable(new DetectorDocument.Builder()
-							.withName(cameraProperties.get().getCameraControl())
-							.withMalcolmDetectorName(cameraProperties.get().getMalcolmDetectorName())
-							.build());
-				}
-			}
-			return Optional.empty();
+			String cameraId = cameras.stream().findFirst()
+					.orElse(null);
+			return DocumentFactory.createDetectorDocument(cameraId, clientPropertiesHelper);
 		}
 
 		private ImageCalibration createNewImageCalibrationDocument(ScanningAcquisition acquisition) {
