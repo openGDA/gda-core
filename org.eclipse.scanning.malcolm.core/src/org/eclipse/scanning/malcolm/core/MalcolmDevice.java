@@ -193,7 +193,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	// Constants, note: these constants are here instead of MalcolmConstants as they are not required outside of this class and tests
 	public static final String ATTRIBUTE_NAME_COMPLETED_STEPS = "completedSteps";
 	public static final String FILE_EXTENSION_H5 = "h5";
-	public static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm Device Connection: ";
+	public static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm: ";
 
 	// Frequencies and Timeouts
 	// broadcast every 250 milliseconds
