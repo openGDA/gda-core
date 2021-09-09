@@ -465,10 +465,14 @@ public class GDAJythonInterpreter {
 				translator.addAliasedCommand("remove_alias");
 				translator.addAliasedCommand("ls");
 				translator.addAliasedCommand("ls_names");
-				translator.addAliasedCommand("pos");
-				translator.addAliasedCommand("upos");
-				translator.addAliasedCommand("inc");
-				translator.addAliasedCommand("uinc");
+
+				// These shouldn't require vararg alias but a bug in Jython argument parsing requires it for now
+				// See https://github.com/jython/jython/issues/100
+				translator.addAliasedVarargCommand("pos");
+				translator.addAliasedVarargCommand("upos");
+				translator.addAliasedVarargCommand("inc");
+				translator.addAliasedVarargCommand("uinc");
+
 				translator.addAliasedCommand("help");
 				translator.addAliasedCommand("list_defaults");
 				translator.addAliasedCommand("add_default");
@@ -477,13 +481,14 @@ public class GDAJythonInterpreter {
 				translator.addAliasedCommand("pause");
 				translator.addAliasedCommand("reset_namespace");
 				translator.addAliasedCommand("run");
-				translator.addAliasedCommand("scan");
-				translator.addAliasedCommand("pscan");
-				translator.addAliasedCommand("cscan");
-				translator.addAliasedCommand("testscan");
-				translator.addAliasedCommand("gscan");
-				translator.addAliasedCommand("tscan");
-				translator.addAliasedCommand("timescan");
+
+				translator.addAliasedVarargCommand("scan");
+				translator.addAliasedVarargCommand("pscan");
+				translator.addAliasedVarargCommand("cscan");
+				translator.addAliasedVarargCommand("testscan");
+				translator.addAliasedVarargCommand("gscan");
+				translator.addAliasedVarargCommand("tscan");
+				translator.addAliasedVarargCommand("timescan");
 				translator.addAliasedCommand("staticscan");
 				translator.addAliasedCommand("lastScanDataPoint");
 
