@@ -2,7 +2,6 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import org.eclipse.scanning.api.event.IEventService;
@@ -12,10 +11,12 @@ import org.mockito.Mockito;
 
 import gda.TestHelpers;
 import uk.ac.diamond.daq.experiment.api.driver.DriverState;
+import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
+import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
 
 public class PlanTest {
@@ -78,7 +79,7 @@ public class PlanTest {
 	}
 
 	@Test
-	public void experimentplanWillSkipToCorrectInitialSegment() throws InterruptedException {
+	public void experimentplanWillSkipToCorrectInitialSegment() {
 		plan.addSegment(SEGMENT1_NAME, x->x>5);
 		plan.addSegment(SEGMENT2_NAME, x->x>10);
 		ISegment s3 = plan.addSegment(SEGMENT3_NAME, x->x>15);
@@ -87,7 +88,7 @@ public class PlanTest {
 
 		// starting ep will activate s1, but we want it to quickly skip to s3
 		plan.start();
-		assertTrue(s3.isActivated());
+		assertThat(s3.isActivated(), is(true));
 
 		sev.broadcast(16);
 
@@ -113,7 +114,7 @@ public class PlanTest {
 	}
 
 	@Test
-	public void planUsesExperimentController() throws Exception {
+	public void planUsesExperimentController() throws ExperimentControllerException {
 
 		plan.addSegment(SEGMENT1_NAME, s -> s >= 10.0,
 				plan.addTrigger(TRIGGER1_NAME, this::someJob, 3.0),
@@ -144,7 +145,7 @@ public class PlanTest {
 
 	@Test
 	public void segmentsShouldAssessSEVSignalsBeforeTriggers() {
-		// let's say the active segment reaches its limit when sev signal > 10;
+		// let's say the active segment reaches its limit when sev signal > 10
 		// the segment enables a single trigger - disabled in next segment - which triggers in sev signal intervals of 5
 		// if the next sev signal to be broadcast could both cause a segment transition *and* trigger activation,
 		// the segment should terminate first which means the trigger should *not* fire
@@ -172,11 +173,61 @@ public class PlanTest {
 		experimentDriver.setModel(new SingleAxisLinearSeries("Displacement"));
 		assertThat(experimentDriver.getState(), is(DriverState.IDLE));
 		plan.setDriver(experimentDriver);
-		plan.addSegment(SEGMENT1_NAME, sev -> false);
+		plan.addSegment(SEGMENT1_NAME, this::neverEnding);
 
 		plan.start();
 
 		assertThat(experimentDriver.hasRun(), is(true));
+	}
+
+	@Test
+	public void planAborted() {
+		plan.addSegment(SEGMENT1_NAME, this::neverEnding);
+		plan.start();
+		plan.abort();
+
+		assertThat(plan.isRunning(), is(false));
+	}
+
+	@Test
+	public void nothingTriggeredAfterAbortion() {
+		var trigger = (DummySEVTrigger) plan.addTrigger(TRIGGER1_NAME, this::someJob, sev, 5);
+		plan.addSegment(SEGMENT1_NAME, this::neverEnding, trigger);
+		plan.start();
+		plan.abort();
+
+		sev.ramp(50, 1);
+
+		assertThat(trigger.getTriggerCount(), is(0)); // would expect 10 events if plan were still running
+	}
+
+	@Test
+	public void driverStoppedOnAbort() {
+		@SuppressWarnings("unchecked")
+		IExperimentDriver<SingleAxisLinearSeries> driver = mock(IExperimentDriver.class);
+		var model = new SingleAxisLinearSeries();
+		model.setAxisName("model");
+		Mockito.when(driver.getName()).thenReturn("driver");
+		Mockito.when(driver.getModel()).thenReturn(model);
+		plan.setDriver(driver);
+		plan.addSegment(SEGMENT1_NAME, this::neverEnding);
+		plan.start();
+		plan.abort();
+
+		Mockito.verify(driver).abort();
+	}
+
+	@Test
+	public void experimentStoppedAfterAbortion() throws ExperimentControllerException {
+		plan.addSegment(SEGMENT1_NAME, this::neverEnding);
+		plan.start();
+		plan.abort();
+
+		ExperimentController controller = plan.experimentController;
+		Mockito.verify(controller).startExperiment(EXPERIMENT_NAME);
+		Mockito.verify(controller).startMultipartAcquisition(SEGMENT1_NAME);
+		Mockito.verify(controller).stopExperiment();
+		Mockito.verifyNoMoreInteractions(controller);
 	}
 
 	/**
@@ -184,5 +235,12 @@ public class PlanTest {
 	 */
 	private Object someJob() {
 		return null;
+	}
+
+	/**
+	 * A limit condition for never ending segments
+	 */
+	private boolean neverEnding(double ignored) {
+		return false;
 	}
 }

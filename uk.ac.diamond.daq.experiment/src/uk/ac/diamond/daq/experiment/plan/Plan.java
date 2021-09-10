@@ -39,7 +39,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	private Optional<IExperimentDriver<?>> experimentDriver = Optional.empty();
 	
 	private Queue<ISegment> segmentChain;
-	private ExperimentRecord record;
+	private ExperimentRecord experimentRecord;
 	
 	private IPlanFactory factory;	
 	private ISampleEnvironmentVariable lastDefinedSev;
@@ -55,7 +55,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	
 	@Override
 	public void start() {
-		record = new ExperimentRecord(getName());
+		experimentRecord = new ExperimentRecord(getName());
 		
 		try {
 			validatePlan();
@@ -66,7 +66,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		
 		if (experimentDriver.isPresent()) {
 			IExperimentDriver<?> driver = experimentDriver.get();
-			record.setDriverNameAndProfile(driver.getName(), driver.getModel().getName());
+			experimentRecord.setDriverNameAndProfile(driver.getName(), driver.getModel().getName());
 		}
 		
 		try {
@@ -77,7 +77,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 			return;
 		}
 			
-		record.start();
+		experimentRecord.start();
 		
 		logger.info("Plan '{}' execution started", getName());
 		printBanner("Plan '" + getName() + "' execution started");
@@ -87,6 +87,14 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		if (experimentDriver.isPresent()) {
 			experimentDriver.get().start();
 		}
+	}
+	
+	@Override
+	public void abort() {
+		activeSegment.abort();
+		experimentDriver.ifPresent(IExperimentDriver::abort);
+		experimentRecord.aborted();
+		endExperiment();
 	}
 	
 	private void validatePlan() {
@@ -123,9 +131,10 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		activeSegment = segmentChain.poll();
 		
 		if (activeSegment == null) {
-			terminateExperiment();
+			experimentRecord.complete();
+			endExperiment();
 		} else {
-			record.segmentActivated(activeSegment.getName(), activeSegment.getSampleEnvironmentName());
+			experimentRecord.segmentActivated(activeSegment.getName(), activeSegment.getSampleEnvironmentName());
 			
 			startSegmentMultipartAcquisition(activeSegment.getName());
 			
@@ -150,9 +159,8 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 		}
 	}
 	
-	private void terminateExperiment() {
-		record.complete();
-		String summary = record.summary();
+	private void endExperiment() {
+		String summary = experimentRecord.summary();
 		logger.info("End of experiment'{}'", getName());
 		logger.info(summary);
 		
@@ -167,7 +175,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	
 	private void logError(String msg, Exception exception) {
 		logger.error(msg, exception);
-		record.failed(msg);
+		experimentRecord.failed(msg);
 		printBanner(msg);
 	}
 	
@@ -191,22 +199,22 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	
 	@Override
 	public void triggerOccurred(ITrigger trigger) {
-		record.triggerOccurred(trigger.getName());
+		experimentRecord.triggerOccurred(trigger.getName());
 	}
 	
 	@Override
 	public void triggerComplete(ITrigger trigger, TriggerEvent event, String sampleEnvironmentName) {
-		record.triggerComplete(trigger.getName(), event, sampleEnvironmentName);
+		experimentRecord.triggerComplete(trigger.getName(), event, sampleEnvironmentName);
 	}
 	
 	@Override
 	public void segmentActivated(ISegment segment, String sampleEnvironmentName) {
-		record.segmentActivated(segment.getName(), sampleEnvironmentName);
+		experimentRecord.segmentActivated(segment.getName(), sampleEnvironmentName);
 	}
 
 	@Override
 	public void segmentComplete(ISegment completedSegment, double terminatingSignal) {
-		record.segmentComplete(completedSegment.getName(), terminatingSignal);
+		experimentRecord.segmentComplete(completedSegment.getName(), terminatingSignal);
 		activateNextSegment();
 	}
 	
@@ -222,7 +230,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 	
 	@Override
-	public void setDriver(IExperimentDriver experimentDriver) {
+	public void setDriver(IExperimentDriver<?> experimentDriver) {
 		this.experimentDriver = Optional.of(experimentDriver);
 	}
 	
@@ -267,7 +275,7 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	@Override
 	public IExperimentRecord getExperimentRecord() {
 		if (isRunning()) throw new IllegalStateException("Experiment " + getName() + " is still running!");
-		return record;
+		return experimentRecord;
 	}
 
 	@Override

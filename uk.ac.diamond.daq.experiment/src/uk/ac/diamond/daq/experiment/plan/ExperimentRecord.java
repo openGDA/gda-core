@@ -69,7 +69,10 @@ public class ExperimentRecord implements IExperimentRecord {
 	protected void complete() {
 		bean.setStatus(Status.COMPLETE);
 		broadcast();
-		
+		disconnectPublisher();
+	}
+	
+	private void disconnectPublisher() {
 		if (publisher != null) {
 			try {
 				publisher.disconnect();
@@ -77,6 +80,12 @@ public class ExperimentRecord implements IExperimentRecord {
 				logger.error("Error disconnecting publisher", e);
 			}
 		}
+	}
+	
+	protected void aborted() {
+		bean.setStatus(Status.TERMINATED);
+		broadcast();
+		disconnectPublisher();
 	}
 	
 	protected void failed(String message) {

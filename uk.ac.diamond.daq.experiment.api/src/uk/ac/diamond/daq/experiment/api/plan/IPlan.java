@@ -15,12 +15,17 @@ public interface IPlan extends IPlanFactory, Findable {
 	/**
 	 * We can optionally set an experiment driver to the plan, which is started when the plan starts
 	 */
-	void setDriver(IExperimentDriver experimentDriver);
+	void setDriver(IExperimentDriver<?> experimentDriver);
 
 	/**
 	 * Once the entire plan is defined, this method will initiate it by activating the first {@link ISegment}
 	 */
 	void start();
+
+	/**
+	 * Stop the plan wherever it is, aborting the experiment driver also (if configured)
+	 */
+	void abort();
 
 
 	/**
