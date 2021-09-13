@@ -56,6 +56,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 	@Autowired
 	private ProcessingRequestPairFactory processingRequestPairFactory;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ProcessingRequestPair<?> handle(ProcessingRequestContext<?> context) {
 		if (canHandle(context)) {
@@ -64,6 +65,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ProcessingRequestPair<?> handle(Shell shell, ProcessingRequestContext<?> context) {
 		if (canHandle(context)) {
@@ -72,6 +74,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String assembleTooltip(ProcessingRequestPair<?> processingPair) {
 		if (canHandle(processingPair)) {
@@ -80,6 +83,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeProcessingRequest(ProcessingRequestPair<?> processingPair) {
 		if (canHandle(processingPair)) {
@@ -177,6 +181,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 
 				@Override
 				public String getText(Object element) {
+
 					return Optional.ofNullable(element)
 						.map(DetectorDocument.class::cast)
 						.map(DetectorDocument::getName)
@@ -194,6 +199,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 			return input;
 		}
 
+		@SuppressWarnings("unchecked")
 		private DetectorDocument[] listToArray(Object inputElement) {
 			return Optional.ofNullable(inputElement)
 					.map(el -> ((List<DetectorDocument>) inputElement))

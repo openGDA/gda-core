@@ -34,7 +34,7 @@ import uk.ac.diamond.daq.scanning.FrameCollectingScannable;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 import uk.ac.gda.core.tool.spring.ServerSpringProperties;
 import uk.ac.gda.core.tool.spring.properties.processing.ProcessingRequestProperties;
 
@@ -64,12 +64,11 @@ class FrameCaptureRequestHandler implements ProcessingRequestHandler {
 			return false;
 		}
 
-
 		return true;
 	}
 
 	private void internalHandling(FrameCaptureRequest frameCaptureRequest, ScanRequest scanRequest) {
-		List<DetectorDocument> detectorDocuments = frameCaptureRequest.getValue();
+		List<FrameRequestDocument> detectorDocuments = frameCaptureRequest.getValue();
 
 		String monitorName = null;
 		try {
@@ -78,13 +77,13 @@ class FrameCaptureRequestHandler implements ProcessingRequestHandler {
 				.map(ProcessingRequestProperties::getFrameCaptureDecorator)
 				.orElseThrow();
 		} catch (NoSuchElementException e) {
-			logger.error("No server.processingRequests.frameCaptureDecorator is define in properties");
+			logger.error("No server.processingRequests.frameCaptureDecorator defined in properties");
 			return;
 		}
 
 		try {
 			FrameCollectingScannable scn = (FrameCollectingScannable) ScannableDeviceConnectorService.getInstance().getScannable(monitorName);
-			scn.setDetectorDocument(detectorDocuments.iterator().next());
+			scn.setFrameRequestDocument(detectorDocuments.iterator().next());
 		} catch (ScanningException e) {
 			logger.error("Error retrieving {} '{}'", FrameCollectingScannable.class.getName(), monitorName, e);
 			return;

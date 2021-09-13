@@ -30,7 +30,7 @@ import uk.ac.gda.api.acquisition.configuration.processing.DawnProcessingRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.DiffractionCalibrationMergeRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.configuration.processing.SavuProcessingRequest;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
@@ -114,8 +114,8 @@ public class ProcessingRequestKeyFactory {
 				new SavuProcessingRequest.Builder());
 	}
 
-	private ProcessingRequestKey<DetectorDocument> createFrameCaptureProcessKey(ProcessKey processKey) {
-		return new ProcessingRequestKey<>(DetectorDocument.class, processKey.getKey(),
+	private ProcessingRequestKey<FrameRequestDocument> createFrameCaptureProcessKey(ProcessKey processKey) {
+		return new ProcessingRequestKey<>(FrameRequestDocument.class, processKey.getKey(),
 				ClientMessages.FRAME_CAPTURE, ClientMessages.FRAME_CAPTURE_TP,
 				new FrameCaptureRequest.Builder());
 	}

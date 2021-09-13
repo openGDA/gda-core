@@ -53,6 +53,7 @@ import gda.data.ServiceHolder;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 
 /**
  * When included in a scan, this pseudoscannable will configure the beamline as instructed by the beamlineConfiguration
@@ -67,7 +68,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 
 	private static final String UNSUPPORTED_OPERATION_MESSAGE = "This isn't really a scannable";
 
-	private DetectorDocument detector;
+	private FrameRequestDocument frameRequestDocument;
 
 
 	/** Path of NeXus file */
@@ -119,7 +120,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	}
 
 	/**
-	 * Subclasses may override to perform any final configuration ({@link #setDetectorDocument(DetectorDocument)}).
+	 * Subclasses may override to perform any final configuration ({@link #setFrameRequestDocument(FrameRequestDocument)}).
 	 * The given scan model contains the configuration so far of the main scan,
 	 * and may prove useful in configuring this collection.
 	 */
@@ -133,12 +134,12 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	 * If this is to be a Malcolm scan, malcolmDetectorName must also be set
 	 * (the name of the real detector wrapped in the Malcolm scan).
 	 */
-	public void setDetectorDocument(DetectorDocument detector) {
-		this.detector = detector;
+	public void setFrameRequestDocument(FrameRequestDocument frameRequestDocument) {
+		this.frameRequestDocument = frameRequestDocument;
 	}
 
-	protected DetectorDocument getDetectorDocument() {
-		return this.detector;
+	protected FrameRequestDocument getFrameRequestDocument() {
+		return this.frameRequestDocument;
 	}
 
 	private void configureBeamline() throws ScanningException {
@@ -160,15 +161,15 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	}
 
 	private String collectFrame() throws EventException, ScanningException {
-		if (detector == null) {
+		if (getFrameRequestDocument() == null) {
 			throw new ScanningException("Detector document not set!");
 		}
 
 		var request = new AcquireRequest();
-		request.setDetectorName(detector.getName());
+		request.setDetectorName(getFrameRequestDocument().getName());
 
-		var model = getDetector(detector.getName()).getModel();
-		model.setExposureTime(detector.getExposure());
+		var model = getDetector(getFrameRequestDocument().getName()).getModel();
+		model.setExposureTime(getFrameRequestDocument().getExposure());
 
 		request.setDetectorModel(model);
 
@@ -189,10 +190,10 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 
 	private String generateNodePath() {
 		final String detectorName;
-		if (detector.getMalcolmDetectorName() != null) {
-			detectorName = detector.getMalcolmDetectorName();
+		if (getFrameRequestDocument().getMalcolmDetectorName() != null) {
+			detectorName = getFrameRequestDocument().getMalcolmDetectorName();
 		} else {
-			detectorName = detector.getName();
+			detectorName = getFrameRequestDocument().getName();
 		}
 		return "/entry/instrument/" + detectorName + "/data";
 	}

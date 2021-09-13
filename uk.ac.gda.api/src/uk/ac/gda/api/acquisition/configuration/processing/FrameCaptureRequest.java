@@ -19,7 +19,6 @@
 package uk.ac.gda.api.acquisition.configuration.processing;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,16 +26,16 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 
 @JsonTypeName("frameCaptureRequest")
 @JsonDeserialize(builder = FrameCaptureRequest.Builder.class)
-public class FrameCaptureRequest implements ProcessingRequestPair<DetectorDocument> {
+public class FrameCaptureRequest implements ProcessingRequestPair<FrameRequestDocument> {
 
 	public static final String KEY = "frameCapture";
-	private final List<DetectorDocument> detectorDocuments;
+	private final List<FrameRequestDocument> detectorDocuments;
 
-	private FrameCaptureRequest(List<DetectorDocument> processingFiles) {
+	private FrameCaptureRequest(List<FrameRequestDocument> processingFiles) {
 		this.detectorDocuments = processingFiles;
 	}
 
@@ -50,16 +49,16 @@ public class FrameCaptureRequest implements ProcessingRequestPair<DetectorDocume
 	}
 
 	@Override
-	public List<DetectorDocument> getValue() {
-		return Collections.unmodifiableList(detectorDocuments);
+	public List<FrameRequestDocument> getValue() {
+		return detectorDocuments;
 	}
 
 	@JsonPOJOBuilder
-	public static class Builder implements ProcessingRequestBuilder<DetectorDocument> {
-		private final List<DetectorDocument> detectorDocuments = new ArrayList<>();
+	public static class Builder implements ProcessingRequestBuilder<FrameRequestDocument> {
+		private final List<FrameRequestDocument> detectorDocuments = new ArrayList<>();
 
 	    @Override
-		public Builder withValue(List<DetectorDocument> processingFiles) {
+		public Builder withValue(List<FrameRequestDocument> processingFiles) {
 	    	this.detectorDocuments.clear();
 	        this.detectorDocuments.addAll(processingFiles);
 	        return this;
