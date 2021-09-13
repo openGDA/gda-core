@@ -124,7 +124,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			return new int[] {width, height};
 		} catch (IOException e) {
 			logger.error("Couldn't read image size", e);
-			throw new DeviceException("Couldn't read image dimensions", e);
+			throw new DeviceException("Couldn't read eiger image dimensions", e);
 		}
 	}
 
@@ -143,7 +143,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			odinReady.waitForValue(i -> i == 1, ODIN_TIMEOUT);
 		} catch (IOException e) {
 			logger.error("Timeout setting camera to acquire", e);
-			throw new DeviceException("Timeout setting camera to acquire", e);
+			throw new DeviceException("Timeout setting eiger to acquire", e);
 		} catch (Exception e) {
 			logger.error("Error waiting for odin to be ready", e);
 			throw new DeviceException("Error waiting for Odin", e);
@@ -157,7 +157,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			acquiring.putNoWait("Done");
 		} catch (IOException e) {
 			logger.error("Timeout stopping camera", e);
-			throw new DeviceException("Timeout stopping camera", e);
+			throw new DeviceException("Timeout stopping eiger", e);
 		}
 	}
 
@@ -301,7 +301,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			odinInitialised.waitForValue(s -> ACTIVE.equals(s), ODIN_TIMEOUT);
 		} catch (IOException e) {
 			logger.error("Couldn't start data writer", e);
-			throw new DeviceException("Couldn't start data writers", e);
+			throw new DeviceException("Couldn't start eiger data writers", e);
 		} catch (IllegalStateException | TimeoutException | InterruptedException e) {
 			logger.error("Error while waiting for odin to initialise", e);
 			throw new DeviceException("Error while waiting for Odin", e);
@@ -318,7 +318,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			prefix = filePrefix;
 			lastFilename = Paths.get(directory, filePrefix + fileSuffix).toString(); //default if reshaping fails
 		} catch (IOException e) {
-			throw new DeviceException("Could not set data directory or file name", e);
+			throw new DeviceException("Could not set data directory or file name for eiger", e);
 		}
 	}
 
@@ -330,7 +330,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			clearError.putWait(1, 3);
 		} catch (IOException e) {
 			logger.error("Timeout setting camera triggers", e);
-			throw new DeviceException("Could not set expected triggers");
+			throw new DeviceException("Could not set expected triggers for eiger");
 		}
 	}
 
@@ -346,7 +346,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 				.reduce((a, b) -> a*b)
 				.orElseThrow(() -> new IllegalArgumentException("Empty scan dimensions given to eiger controller"));
 		if (scanPoints == 0) {
-			throw new IllegalArgumentException("Scan dimensions cannot include 0");
+			throw new IllegalArgumentException("Scan dimensions for eiger cannot include 0");
 		}
 		return scanPoints * framesPerPoint;
 	}
@@ -362,7 +362,7 @@ public class NcdEpicsEiger extends ConfigurableBase implements NcdEigerControlle
 			acquireTime.putWait(requestedLiveTime / 1000);
 			acquirePeriod.putWait(acquisition / 1000);
 		} catch (IOException  e) {
-			throw new DeviceException("Could not set up data recording", e);
+			throw new DeviceException("Could not set up eiger data recording", e);
 		}
 		errorMessage = null;
 	}
