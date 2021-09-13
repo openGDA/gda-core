@@ -45,6 +45,7 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.SWT;
@@ -71,8 +72,8 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * Generate a class from the current scan definition, copy it to the clipboard, display it to the user and allow them to
  * save it to a file.
  */
-class CopyScanSaveClass extends WizardPage {
-	private static final Logger logger = LoggerFactory.getLogger(CopyScanSaveClass.class);
+class CopyOrSaveScanWizardPage extends WizardPage {
+	private static final Logger logger = LoggerFactory.getLogger(CopyOrSaveScanWizardPage.class);
 
 	private static final int TEXT_AREA_WIDTH = 800;
 	private static final int TEXT_AREA_HEIGHT = 500;
@@ -94,8 +95,8 @@ class CopyScanSaveClass extends WizardPage {
 	 */
 	private Text classText;
 
-	protected CopyScanSaveClass(ScanManagementController controller, CopyScanConfig config) {
-		super(CopyScanSaveClass.class.getSimpleName());
+	protected CopyOrSaveScanWizardPage(ScanManagementController controller, CopyScanConfig config) {
+		super(CopyOrSaveScanWizardPage.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_DESCRIPTION));
 		this.controller = controller;
@@ -109,13 +110,13 @@ class CopyScanSaveClass extends WizardPage {
 
 		classText = new Text(mainComposite, SWT.READ_ONLY | SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 		GridDataFactory.fillDefaults().hint(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT).grab(true, true).applyTo(classText);
-		classText.setFont(config.getMonospacedFont());
+		classText.setFont(JFaceResources.getTextFont());
 		classText.setTabs(4);
 
 		final Button saveButton = createClientButton(mainComposite, SWT.PUSH, SAVE, SAVE);
 		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(saveButton);
 		saveButton.setImage(Activator.getImage(SAVE_ICON_PATH));
-		saveButton.setFont(config.getDefaultFont());
+		saveButton.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final Listener saveButtonListener = e -> saveClass();
 		addWidgetDisposableListener(saveButton, SWT.Selection, saveButtonListener);

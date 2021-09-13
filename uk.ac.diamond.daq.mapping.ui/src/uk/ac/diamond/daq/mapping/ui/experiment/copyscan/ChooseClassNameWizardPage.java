@@ -49,7 +49,7 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  * definition.<br>
  * The class name must conform to VALID_CLASS_NAME_REGEX.
  */
-class CopyScanEnterName extends WizardPage {
+class ChooseClassNameWizardPage extends WizardPage {
 	private static final int NUM_COLUMNS = 2;
 	private static final int TEXT_LENGTH = 500;
 
@@ -58,8 +58,8 @@ class CopyScanEnterName extends WizardPage {
 	private final DataBindingContext bindingContext = new DataBindingContext();
 	private final CopyScanConfig config;
 
-	protected CopyScanEnterName(CopyScanConfig config) {
-		super(CopyScanEnterName.class.getSimpleName());
+	protected ChooseClassNameWizardPage(CopyScanConfig config) {
+		super(ChooseClassNameWizardPage.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_DESCRIPTION));
 		this.config = config;
@@ -71,11 +71,11 @@ class CopyScanEnterName extends WizardPage {
 		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(mainComposite);
 
 		final Label classNameLabel = createClientLabel(mainComposite, SWT.NONE, COPY_SCAN_CLASS_NAME);
-		classNameLabel.setFont(config.getDefaultFont());
+		classNameLabel.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final Text classNameText = createClientText(mainComposite, SWT.LEFT, COPY_SCAN_CLASS_NAME);
 		GridDataFactory.swtDefaults().hint(TEXT_LENGTH, SWT.DEFAULT).applyTo(classNameText);
-		classNameText.setFont(config.getDefaultFont());
+		classNameText.setFont(CopyScanWizard.DEFAULT_FONT);
 
 		final IObservableValue<String> classNameModel = PojoProperties.value("className", String.class).observe(config);
 		final IObservableValue<String> classNameWidget = WidgetProperties.text(SWT.Modify).observe(classNameText);
