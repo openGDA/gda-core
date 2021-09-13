@@ -411,7 +411,7 @@ public class ScanManagementController extends AbstractMappingController {
 	}
 
 	private CopyScanConfig getCopyScanConfig() {
-		if (!Optional.ofNullable(copyScanConfig).isPresent()) {
+		if (copyScanConfig == null) {
 			copyScanConfig = new CopyScanConfig();
 		}
 		return copyScanConfig;
