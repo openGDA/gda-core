@@ -47,7 +47,6 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
@@ -474,45 +473,36 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		}
 	}
 
-	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException, EventException {
+	private IDeviceController createRunnableDevice(ScanModel scanModel) throws ScanningException {
 
 		final ScanRequest scanRequest = bean.getScanRequest();
 		if (scanRequest == null) {
 			throw new ScanningException("There must be a scan request to run a scan!");
 		}
 
-		try {
-			configureDetectors(scanRequest.getDetectors(), scanModel);
+		configureDetectors(scanRequest.getDetectors(), scanModel);
 
-			final IScanService scanService = Services.getScanService();
+		final IScanService scanService = Services.getScanService();
 
-			final IPausableDevice<ScanModel> device = scanService.createScanDevice(scanModel, publisher, false);
-			final IDeviceController deviceController = Services.getWatchdogService().create(device, bean);
-			if (deviceController.getObjects() != null && !deviceController.getObjects().isEmpty()) {
-				final List<Object> scanObjects = new ArrayList<>();
-				if (scanModel.getAdditionalScanObjects() != null) {
-					scanObjects.addAll(scanModel.getAdditionalScanObjects());
-				}
-				scanObjects.addAll(deviceController.getObjects());
-				scanModel.setAdditionalScanObjects(scanObjects);
+		final IPausableDevice<ScanModel> device = scanService.createScanDevice(scanModel, publisher, false);
+		final IDeviceController deviceController = Services.getWatchdogService().create(device, bean);
+		if (deviceController.getObjects() != null && !deviceController.getObjects().isEmpty()) {
+			final List<Object> scanObjects = new ArrayList<>();
+			if (scanModel.getAdditionalScanObjects() != null) {
+				scanObjects.addAll(scanModel.getAdditionalScanObjects());
 			}
-
-			logger.debug("Configuring {} with {}", device.getName(), scanModel);
-			device.configure(scanModel);
-			logger.debug("Configured {}", device.getName());
-			return deviceController;
-
-		} catch (EventException e) {
-			updateBean(Status.FAILED, e.getMessage());
-			throw e;
-		} catch (Exception e) {
-			updateBean(Status.FAILED, e.getMessage());
-			throw new EventException(e);
+			scanObjects.addAll(deviceController.getObjects());
+			scanModel.setAdditionalScanObjects(scanObjects);
 		}
+
+		logger.debug("Configuring {} with {}", device.getName(), scanModel);
+		device.configure(scanModel);
+		logger.debug("Configured {}", device.getName());
+		return deviceController;
 	}
 
 	private ScanModel createScanModel(IPointGenerator<? extends IScanPointGeneratorModel> generator)
-			throws GeneratorException, EventException, ScanningException {
+			throws EventException, ScanningException {
 		// converts the ScanBean to a ScanModel
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setFilePath(bean.getFilePath());
@@ -546,7 +536,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		scanModel.setAdditionalScanObjects(getNexusDevices(metadataNamesByIsScannable.get(false)));
 	}
 
-	private void configureDetectors(Map<String, IDetectorModel> detectorModels, ScanModel model) throws Exception {
+	private void configureDetectors(Map<String, IDetectorModel> detectorModels, ScanModel model) throws ScanningException {
 		if (detectorModels == null || detectorModels.isEmpty()) {
 			logger.debug("No detectors to configure");
 			return;
