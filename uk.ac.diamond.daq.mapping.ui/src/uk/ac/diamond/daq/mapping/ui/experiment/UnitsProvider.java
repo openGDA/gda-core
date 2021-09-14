@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import static si.uom.NonSI.DEGREE_ANGLE;
 import static si.uom.NonSI.ELECTRON_VOLT;
+import static tec.units.indriya.AbstractUnit.ONE;
 import static tec.units.indriya.unit.MetricPrefix.KILO;
 import static tec.units.indriya.unit.MetricPrefix.MICRO;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
@@ -59,6 +60,7 @@ public class UnitsProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(UnitsProvider.class);
 
+	private static final Set<Unit<? extends Quantity<?>>> DIMENSIONLESS_OR_UNKNOWN_UNITS = ImmutableSet.of(ONE);
 	private static final Set<Unit<? extends Quantity<?>>> LENGTH_UNITS = ImmutableSet.of(MILLI(METRE), MICRO(METRE), NANO(METRE));
 	private static final Set<Unit<? extends Quantity<?>>> ANGLE_UNITS = ImmutableSet.of(MILLI(DEGREE_ANGLE), DEGREE_ANGLE);
 	private static final Set<Unit<? extends Quantity<?>>> ENERGY_UNITS = ImmutableSet.of(ELECTRON_VOLT, KILO(ELECTRON_VOLT));
@@ -91,6 +93,7 @@ public class UnitsProvider {
 	 * @return set of compatible units
 	 */
 	public static Set<Unit<? extends Quantity<?>>> getCompatibleUnits(Unit<? extends Quantity<?>> scannableUnit) {
+		if (ONE.equals(scannableUnit)) return DIMENSIONLESS_OR_UNKNOWN_UNITS;
 		if (scannableUnit.isCompatible(METRE)) {
 			return LENGTH_UNITS;
 		} else if (scannableUnit.isCompatible(RADIAN)) {
