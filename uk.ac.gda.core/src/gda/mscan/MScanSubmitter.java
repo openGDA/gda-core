@@ -252,7 +252,8 @@ public class MScanSubmitter extends ValidationUtils {
 		final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
 
 		try (final ISubmitter<ScanBean> submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
-				final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC)) {
+				final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
+				var queue = eventService.createJobQueueProxy(uri, EventConstants.SUBMISSION_QUEUE);) {
 
 			subscriber.addListener(new IScanListener() {
 				@Override
@@ -274,7 +275,13 @@ public class MScanSubmitter extends ValidationUtils {
 				}
 			});
 			if (block) {
-				submitter.blockingSubmit(bean);
+				try {
+					submitter.blockingSubmit(bean);
+				} catch (InterruptedException e) {
+					queue.terminateJob(bean);
+					facade.print("Scan terminated");
+					Thread.currentThread().interrupt();
+				}
 			} else {
 				submitter.submit(bean);
 			}
