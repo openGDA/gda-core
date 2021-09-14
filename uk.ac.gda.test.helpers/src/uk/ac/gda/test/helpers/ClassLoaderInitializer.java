@@ -18,6 +18,8 @@
 
 package uk.ac.gda.test.helpers;
 
+import static java.util.Collections.emptySet;
+
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.support.GenericApplicationContext;
 
@@ -30,7 +32,8 @@ public class ClassLoaderInitializer implements ApplicationContextInitializer<Gen
 
 	@Override
 	public void initialize(GenericApplicationContext applicationContext) {
-		var classLoader = GDAClassLoaderService.getClassLoaderService().getClassLoader();
+		var classLoader = GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibraryWithGlobalResourceLoading(GenericApplicationContext.class, emptySet());
+		applicationContext.setClassLoader(classLoader);
 		applicationContext.getBeanFactory().setBeanClassLoader(classLoader);
 	}
 }
