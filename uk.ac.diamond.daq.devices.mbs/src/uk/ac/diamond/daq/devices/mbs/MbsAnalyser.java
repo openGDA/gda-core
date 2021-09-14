@@ -363,7 +363,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	public void startAcquiringWait() throws DeviceException {
 		controller.setSingleImageMode();
-		controller.startAcquiring();
+		startAcquiring();
 		try {
 			controller.waitWhileStatusBusy();
 		} catch (InterruptedException exception) {
@@ -374,6 +374,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	@Override
 	public void startAcquiring() throws DeviceException {
+		if (getIterations() == 0) {
+			setIterations(1);
+		}
+
 		controller.startAcquiring();
 	}
 
