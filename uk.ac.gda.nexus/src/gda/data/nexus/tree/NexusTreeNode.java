@@ -41,21 +41,6 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	private List<INexusTree> childNodes = new Vector<>();
 
 	/**
-	 * @return Comparator that compares items by comparing the result of getName
-	 *
-	 */
-	public static Comparator<INexusTree> getNameComparator(){
-		return nameComparator;
-	}
-
-	private static Comparator<INexusTree> nameComparator = new Comparator<INexusTree>() {
-		@Override
-		public int compare(INexusTree o1, INexusTree o2) {
-			return o1.getName().compareTo(o2.getName());
-		}
-	};
-
-	/**
 	 * The name of the element read from the Nexus file
 	 */
 	public final String name;
@@ -199,7 +184,6 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	public void addChildNode(INexusTree e) {
 		childNodes.add(e);
 		e.setParentNode(this);
-		sort(nameComparator);
 	}
 
 	@Override
@@ -215,6 +199,22 @@ public class NexusTreeNode implements INexusTree, Serializable {
 
 	public int getChildCount() {
 		return childNodes.size();
+	}
+
+	@Override
+	public void setPriority() {
+		this.parentNode.setPrioritised(this);
+	}
+
+	@Override
+	public void setPrioritised(INexusTree child) {
+		if (this.childNodes.contains(child)) {
+			childNodes.sort(priorityComparator(child));
+		}
+	}
+
+	protected Comparator<INexusTree> priorityComparator(INexusTree priority) {
+		return Comparator.comparing(x -> !x.equals(priority));
 	}
 
 	@Override
@@ -433,4 +433,5 @@ public class NexusTreeNode implements INexusTree, Serializable {
 			return false;
 		return true;
 	}
+
 }

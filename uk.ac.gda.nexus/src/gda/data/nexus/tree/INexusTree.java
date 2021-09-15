@@ -17,11 +17,11 @@
  */
 
 package gda.data.nexus.tree;
-import gda.data.nexus.extractor.NexusGroupData;
-
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
+
+import gda.data.nexus.extractor.NexusGroupData;
 
 public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 
@@ -158,8 +158,20 @@ public interface INexusTree extends Iterable<INexusTree>, Serializable  {
 
 	/**
 	 * Get all attributes of current node
-	 * 
+	 *
 	 * @return a Map of attributes
 	 */
 	public Map<String, Serializable> getAttributes();
+
+	/**
+	 * Set that this NexusTree should be prioritised over its siblings
+	 * Allows for setting the primary field of the NexusObjectProvider that returns this tree
+	 */
+	public void setPriority();
+
+	/**
+	 * Set that the param tree, which should be a child of this node, should be prioritised over its siblings.
+	 */
+	public void setPrioritised(INexusTree child);
+
 }
