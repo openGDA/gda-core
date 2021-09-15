@@ -18,6 +18,10 @@
 
 package org.eclipse.scanning.device;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
@@ -25,10 +29,12 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 
 /**
- * A {@link MetadataNode} that adds a link to a {@link DataNode} at given path within the
- * nexus file.
+ * A {@link MetadataNode} that adds a link to a {@link DataNode} at given path within the same
+ * nexus file, or to an node in an external file.
  */
 public class LinkedField extends AbstractMetadataNode {
+
+	private String externalFilePath = null;
 
 	private String linkPath = null;
 
@@ -36,8 +42,13 @@ public class LinkedField extends AbstractMetadataNode {
 		// no-arg constructor for spring initialization
 	}
 
-	public LinkedField(String name, String linkPath) {
-		super(name);
+	public LinkedField(String fieldName, String linkPath) {
+		this(fieldName, null, linkPath);
+	}
+
+	public LinkedField(String fieldName, String externalFilePath, String linkPath) {
+		super(fieldName);
+		this.externalFilePath = externalFilePath;
 		this.linkPath = linkPath;
 	}
 
@@ -52,9 +63,30 @@ public class LinkedField extends AbstractMetadataNode {
 		this.linkPath = linkPath;
 	}
 
+	public String getExternalFilePath() {
+		return externalFilePath;
+	}
+
+	public void setExternalFilePath(String externalFilePath) {
+		this.externalFilePath = externalFilePath;
+	}
+
 	@Override
 	public SymbolicNode createNode() throws NexusException {
-		return NexusNodeFactory.createSymbolicNode(null, linkPath);
+		final Optional<URI> uri = getExternalFileUri();
+		return NexusNodeFactory.createSymbolicNode(uri.orElse(null), linkPath);
+	}
+
+	private Optional<URI> getExternalFileUri() throws NexusException {
+		if (externalFilePath != null) {
+			try {
+				return Optional.of(new URI(externalFilePath));
+			} catch (URISyntaxException e) {
+				throw new NexusException("external filename cannot be converted to a URI", e);
+			}
+		}
+
+		return Optional.empty();
 	}
 
 }
