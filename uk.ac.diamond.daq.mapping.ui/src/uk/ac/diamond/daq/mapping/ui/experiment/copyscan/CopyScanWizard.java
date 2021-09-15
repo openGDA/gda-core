@@ -20,9 +20,8 @@ package uk.ac.diamond.daq.mapping.ui.experiment.copyscan;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.graphics.Font;
-
-import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
 
 /**
  * Wizard to guide the user through the process of saving the scan currently configured in the mapping experiment view
@@ -37,9 +36,9 @@ public class CopyScanWizard extends Wizard {
 
 	protected static Font DEFAULT_FONT = JFaceResources.getFontRegistry().get("Cantarell");
 
-	public CopyScanWizard(ScanManagementController controller, CopyScanConfig config) {
+	public CopyScanWizard(ScanBean scanBean, CopyScanConfig config) {
 		chooseNamePage = new ChooseClassNameWizardPage(config);
-		saveClassPage = new CopyOrSaveScanWizardPage(controller, config);
+		saveClassPage = new CopyOrSaveScanWizardPage(scanBean, config);
 	}
 
 	@Override

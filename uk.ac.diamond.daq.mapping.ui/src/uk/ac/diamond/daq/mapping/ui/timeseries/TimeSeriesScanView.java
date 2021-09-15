@@ -71,6 +71,10 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.ui.Activator;
+import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanConfig;
+import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
+import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 
 /**
  * A view to set up a time series scan. This is a malcolm scan of one or more steps (scan points),
@@ -97,6 +101,8 @@ public class TimeSeriesScanView {
 
 	private ComboViewer malcolmDevicesComboViewer;
 	private Spinner numStepsSpinner;
+
+	private CopyScanConfig copyScanConfig = new CopyScanConfig(); // TODO persist using saveState? (should mapping view do same?)
 
 	@PostConstruct
 	public void createView(Composite parent, MPart part) {
@@ -227,13 +233,21 @@ public class TimeSeriesScanView {
 		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(buttonBar);
 		GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).applyTo(buttonBar);
 
+		final Button copyScanButton = new Button(buttonBar, SWT.PUSH);
+		copyScanButton.setImage(Activator.getImage("icons/copy.png"));
+		copyScanButton.setToolTipText("Copy the scan command to the system clipboard");
+		copyScanButton.addSelectionListener(widgetSelectedAdapter(event -> copyScanCommand()));
+		GridDataFactory.swtDefaults().applyTo(copyScanButton);
+
 		final Button validateButton = new Button(buttonBar, SWT.PUSH);
 		validateButton.setText("Validate");
+		validateButton.setToolTipText("Validate the malcolm device configuration");
 		validateButton.addSelectionListener(widgetSelectedAdapter(event -> runValidationJob(false)));
 		GridDataFactory.swtDefaults().applyTo(validateButton);
 
 		final Button submitButton = new Button(buttonBar, SWT.PUSH);
 		submitButton.setText("Submit");
+		submitButton.setToolTipText("Submit the scan to the queue");
 		submitButton.addSelectionListener(widgetSelectedAdapter(event -> submitScan()));
 		GridDataFactory.swtDefaults().applyTo(submitButton);
 	}
@@ -297,13 +311,13 @@ public class TimeSeriesScanView {
 		return scanBean;
 	}
 
-	private Shell getShell() {
-		return (Shell) eclipseContext.get(IServiceConstants.ACTIVE_SHELL);
-	}
-
 	private IDetectorModel validate(IDetectorModel model) throws ScanningException {
 		final IRunnableDevice<IDetectorModel> detector = getRunnableDeviceService().getRunnableDevice(model.getName());
 		return detector.validate(model);
+	}
+
+	private void copyScanCommand() {
+		new CopyScanWizardDialog(getShell(), new CopyScanWizard(createScanBean(), copyScanConfig)).open();
 	}
 
 	private IRunnableDeviceService getRunnableDeviceService() throws ScanningException {
@@ -319,5 +333,8 @@ public class TimeSeriesScanView {
 		return runnableDeviceService;
 	}
 
+	private Shell getShell() {
+		return (Shell) eclipseContext.get(IServiceConstants.ACTIVE_SHELL);
+	}
 
 }

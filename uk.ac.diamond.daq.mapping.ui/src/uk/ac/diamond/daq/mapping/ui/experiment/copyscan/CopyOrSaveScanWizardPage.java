@@ -65,7 +65,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.ui.Activator;
-import uk.ac.diamond.daq.mapping.ui.experiment.ScanManagementController;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 
 /**
@@ -86,7 +85,7 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	private static final String TEMPLATE_FILE_BUNDLE = "uk.ac.diamond.daq.mapping.ui";
 	private static final String TEMPLATE_FILE_PATH = "files/save_scan/jython_class_template.txt";
 
-	private final ScanManagementController controller;
+	private final ScanBean scanBean;
 	private final CopyScanConfig config;
 
 	/**
@@ -95,11 +94,11 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	 */
 	private Text classText;
 
-	protected CopyOrSaveScanWizardPage(ScanManagementController controller, CopyScanConfig config) {
+	protected CopyOrSaveScanWizardPage(ScanBean scanBean, CopyScanConfig config) {
 		super(CopyOrSaveScanWizardPage.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_DESCRIPTION));
-		this.controller = controller;
+		this.scanBean = scanBean;
 		this.config = config;
 	}
 
@@ -147,7 +146,6 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	}
 
 	private String createJythonClass() {
-		final ScanBean scanBean = controller.createScanBean();
 		try {
 			final IMarshallerService marshallerService = PlatformUI.getWorkbench().getService(IMarshallerService.class);
 			final String scanRequestJson = marshallerService.marshal(scanBean.getScanRequest());

@@ -407,7 +407,8 @@ public class ScanManagementController extends AbstractMappingController {
 	 * class
 	 */
 	public void copyScanToClipboard() {
-		new CopyScanWizardDialog(Display.getCurrent().getActiveShell(), new CopyScanWizard(this, getCopyScanConfig())).open();
+		final CopyScanWizard copyScanWizard = new CopyScanWizard(createScanBean(), getCopyScanConfig());
+		new CopyScanWizardDialog(Display.getCurrent().getActiveShell(), copyScanWizard).open();
 	}
 
 	private CopyScanConfig getCopyScanConfig() {
