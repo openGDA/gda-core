@@ -45,7 +45,6 @@ import gda.data.metadata.StoredMetadataEntry;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeNodeSelection;
 import gda.data.scan.datawriter.AsciiWriterExtender;
 import gda.data.scan.datawriter.AsciiWriterExtenderConfig;
@@ -67,6 +66,7 @@ import uk.ac.gda.util.io.FileUtils;
  * Class to test writing of nexus files during a scan
  */
 @Ignore("DAQ-368 Test temporarily ignored, due to unavailablility of a required network filesystem")
+// TODO: Will likely have test failures due to change in expected order of NexusTreeNodes if ever reinstated
 public class ScanToNexusTest {
 
 	final static String TestFileFolder = "testfiles/gda/data/nexus/";
@@ -259,7 +259,6 @@ public class ScanToNexusTest {
 		String filename = TestFileFolder + File.separator + "1.nxs";
 		NexusTreeNodeSelection metaDataSel = NexusTreeNodeSelection.createTreeForAllData();// createTreeForAllNXData();
 		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, metaDataSel);
-		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(2).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
 		assertEquals(val, "|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");
@@ -275,7 +274,6 @@ public class ScanToNexusTest {
 		String filename = TestFileFolder + File.separator + "1.nxs";
 		NexusTreeNodeSelection metaDataSel = NexusTreeNodeSelection.createTreeForAllNXData();// ();
 		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, metaDataSel);
-		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
 		assertEquals(val,
@@ -292,7 +290,6 @@ public class ScanToNexusTest {
 		String filename = TestFileFolder + File.separator + "1.nxs";
 		NexusTreeNodeSelection metaDataSel = NexusTreeNodeSelection.createTreeForAllNXEntries();// ();
 		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, metaDataSel);
-		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
 		assertEquals(val,
@@ -309,7 +306,6 @@ public class ScanToNexusTest {
 		String filename = TestFileFolder + File.separator + "1.nxs";
 		NexusTreeNodeSelection metaDataSel = NexusTreeNodeSelection.createTreeForAllMetaData();// ();
 		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, metaDataSel);
-		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(3).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
 		assertEquals(val,
@@ -324,7 +320,6 @@ public class ScanToNexusTest {
 		TestHelpers.setUpTest(ScanToNexusTest.class, "testSimpleExtractor_AllNXentry", true);
 		String filename = TestFileFolder + File.separator + "1.nxs";
 		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, NexusTreeBuilder.TREE_CONTENTS.ALLNXENTRY);
-		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(0).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
 		assertEquals(val,
@@ -339,7 +334,6 @@ public class ScanToNexusTest {
 		TestHelpers.setUpTest(ScanToNexusTest.class, "testSimpleExtractor_All", true);
 		String filename = TestFileFolder + File.separator + "1.nxs";
 		INexusTree tree = NexusTreeBuilder.getNexusTree(filename, NexusTreeBuilder.TREE_CONTENTS.ALL);
-		tree.sort(NexusTreeNode.getNameComparator());
 		INexusTree branch = tree.getChildNode(2).getChildNode(2).getChildNode(0).getChildNode(0);
 		String val = branch.toText("", ":", "=", "|");
 		assertEquals(val, "|Attr:target=dimensions:39=type:NX_CHAR=data:/entry1/instrument/SimpleDetector3/data\n");

@@ -807,7 +807,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	private List<String> getExpectedDataGroupNames(String dataDeviceName, List<String> primaryFieldNames) {
-		if (detectorType == DetectorType.NEXUS_DETECTOR) {
+		if (detectorType == DetectorType.NEXUS_DETECTOR || detectorType == DetectorType.MODIFIED_NEXUS_DETECTOR) {
 			return Streams.concat(Stream.of(dataDeviceName),
 					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(Collectors.toList());
 		}

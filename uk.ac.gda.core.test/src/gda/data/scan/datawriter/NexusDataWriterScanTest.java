@@ -302,6 +302,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 			case FILE_CREATOR:
 				// nothing to do in this case, no data node is added to the NXdata group for the detector
 				break;
+			case MODIFIED_NEXUS_DETECTOR:
 			case NEXUS_DETECTOR:
 				expectedDataNodeLinks.put(NXdata.NX_DATA, detectorPath + NXdetector.NX_DATA);
 				expectedDataNodeLinks.put(FIELD_NAME_SPECTRUM, detectorPath + FIELD_NAME_SPECTRUM);
