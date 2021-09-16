@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: EPICS JCA Fragment
 Bundle-SymbolicName: org.epics.jca.fragment.gov.aps.jca.event
