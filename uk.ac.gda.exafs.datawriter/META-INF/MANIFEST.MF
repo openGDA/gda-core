@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: Datawriter
 Bundle-SymbolicName: uk.ac.gda.exafs.datawriter;singleton:=true
