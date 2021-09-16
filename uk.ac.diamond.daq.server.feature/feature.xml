@@ -175,19 +175,22 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.diamond.daq.experiment.api"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.experiment"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.stage"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.messaging"

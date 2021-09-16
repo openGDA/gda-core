@@ -52,7 +52,8 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.gda.api"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.gda.core"
@@ -64,7 +65,8 @@ http://www.eclipse.org/legal/epl-v10.html
          id="uk.ac.gda.nexus"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.jython.api"
@@ -119,7 +121,8 @@ http://www.eclipse.org/legal/epl-v10.html
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"/>
+         fragment="true"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.gda.devices.odin"
