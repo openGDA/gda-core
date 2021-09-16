@@ -40,7 +40,12 @@ public final class DetectorParametersEditor extends ExperimentBeanMultiPageEdito
 
 	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new DetectorParametersUIEditor(path, getMappingUrl(),this,editingBean);
+		DetectorParameters detectorParameters = (DetectorParameters) editingBean;
+		if (!detectorParameters.getDetectorConfigurations().isEmpty()) {
+			return new GenericDetectorParametersUIEditor(path, getMappingUrl(),this, detectorParameters);
+		} else {
+			return new DetectorParametersUIEditor(path, getMappingUrl(), this, editingBean);
+		}
 	}
 
 	@Override
