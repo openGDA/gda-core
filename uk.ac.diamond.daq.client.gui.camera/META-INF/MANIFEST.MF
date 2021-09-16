@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: Generic Camera Configuration Dialog
 Bundle-SymbolicName: uk.ac.diamond.daq.client.gui.camera;singleton:=true

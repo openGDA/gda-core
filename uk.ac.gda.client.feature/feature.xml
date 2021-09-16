@@ -162,7 +162,8 @@
          id="uk.ac.gda.nexus"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="com.google.guava"
@@ -361,7 +362,8 @@
          id="org.eclipse.scanning.device"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.jline"
@@ -409,13 +411,15 @@
          id="uk.ac.diamond.daq.client.gui.camera"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.stage"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.persistence.classloader"
@@ -442,7 +446,8 @@
          id="uk.ac.diamond.daq.experiment.api"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="uk.ac.diamond.daq.logback.fragment"
