@@ -64,7 +64,8 @@
          id="org.eclipse.scanning.server"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.scanning.malcolm.core"
@@ -98,7 +99,8 @@
          id="org.eclipse.scanning.device"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.apache.activemq.activemq-osgi"
