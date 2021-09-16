@@ -65,6 +65,8 @@ public class SpecsAlignmentView implements IObserver {
 	private Runnable blink;
 	private ExecutorService executor;
 	private boolean keepBlinking;
+	private final String STOPPED_LABEL = "STOPPED";
+	private final String ACTIVE_LABEL = "ACTIVE";
 
 	/**
 	 * Constructor
@@ -203,14 +205,16 @@ public class SpecsAlignmentView implements IObserver {
 		}
 
 		indicator = new Button(displayArea, SWT.DEFAULT);
-		indicator.setText("RUN");
+		indicator.setText(STOPPED_LABEL);
 		FontData fdindicator = indicator.getFont().getFontData()[0];
 		fdindicator.setHeight(20);
 		indicator.setFont(new Font(indicator.getDisplay(), fdtext));
+		GridDataFactory.swtDefaults().grab(true, false).hint(200, SWT.DEFAULT).applyTo(indicator);
 
 		// Initialize blinking state
 		String currentStatus = status.getCurrentPosition();
 		if (currentStatus.equals("Acquire") || currentStatus.equals("Initializing")) {
+			indicator.setText(ACTIVE_LABEL);
 			keepBlinking = true;
 			executor.submit(blink);
 		} else {
@@ -249,12 +253,14 @@ public class SpecsAlignmentView implements IObserver {
 	public void updateIndicator(Object source, Object arg) {
 		if (source == status && arg instanceof String) {
 			if (arg.equals("Initializing")) {
+				setIndicatorLabel(ACTIVE_LABEL);
 				keepBlinking = true;
 				executor.submit(blink);
 			} else if (arg.equals("Acquire")) {
 				//do nothing
 			} else {
 				keepBlinking = false;
+				setIndicatorLabel(STOPPED_LABEL);
 			}
 		}
 	}
@@ -297,6 +303,12 @@ public class SpecsAlignmentView implements IObserver {
 		} catch (InterruptedException e) {
 			// do nothing - never interrupted
 		}
+	}
+
+	private void setIndicatorLabel(String label) {
+		Display.getDefault().asyncExec(() -> {
+			indicator.setText(label);
+		});
 	}
 
 }
