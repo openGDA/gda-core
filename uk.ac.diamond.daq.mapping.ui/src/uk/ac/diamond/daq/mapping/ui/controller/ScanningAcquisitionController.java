@@ -153,7 +153,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		var acquisitionKeysToload = tempHelper.getAcquisitionKeys(acquisition);
-		if (!getAcquisitionKeys().equals(acquisitionKeysToload)) {
+		if (!getAcquisitionKeys().getPropertyType().equals(acquisitionKeysToload.getPropertyType())) {
 			var reason = String.format("Cannot load a %s file into a %s configuration view", acquisitionKeysToload, getAcquisitionKeys());
 			UIHelper.showWarning("Cannot load", reason);
 		} else {
@@ -193,10 +193,6 @@ public class ScanningAcquisitionController
 		try {
 			configurationService.deleteDocument(uuid.toString());
 			publishEvent(new AcquisitionConfigurationResourceDeleteEvent(this, uuid));
-			// Removed the document actually loaded, creates a new acquisition
-//			if (getAcquisition().getUuid().equals(uuid)) {
-//				createNewAcquisition();
-//			}
 		} catch (GDAClientRestException e) {
 			logger.error("Cannot delete scanning acquisiton", e);
 		}
@@ -399,18 +395,16 @@ public class ScanningAcquisitionController
 			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
 			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType) {
 		List<ScannablePropertiesValue> acquisitionPosition = new ArrayList<>();
-		Optional.ofNullable(mapperAcquisition).ifPresent(mapper -> {
+		Optional.ofNullable(mapperAcquisition).ifPresent(mapper ->
 			clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionKey.getPropertyType())
 				.map(mapper)
-				.ifPresent(acquisitionPosition::addAll);
-		});
+				.ifPresent(acquisitionPosition::addAll));
 
 		List<ScannablePropertiesValue> templatePosition = new ArrayList<>();
-		Optional.ofNullable(mapperType).ifPresent(mapper -> {
+		Optional.ofNullable(mapperType).ifPresent(mapper ->
 			clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquisitionKey)
 				.map(mapper)
-				.ifPresent(templatePosition::addAll);
-		});
+				.ifPresent(templatePosition::addAll));
 
 		// Eventually override the acquisitionType position with the templateType
 		acquisitionPosition.removeAll(templatePosition);
