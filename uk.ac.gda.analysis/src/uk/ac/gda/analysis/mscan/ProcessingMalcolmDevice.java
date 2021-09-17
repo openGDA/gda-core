@@ -62,6 +62,7 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 	private String detFileNameSuffix = "-DIFFRACTION.h5";
 	private String detFrameEntry = "/entry/data";
 	private String detUidEntry = "/entry/uid";
+	private String primaryDataName = "DETECTOR";
 
 	private HklAdapter hklProvider;
 
@@ -83,9 +84,9 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 		List<NexusObjectProvider<?>> malcNxs = super.getNexusProviders(info);
 
-		// Here we are currently assuming that there will be only one detector in the malcolm scan
 		Optional<NexusObjectProvider<?>> interesting = malcNxs.stream()
 				.filter(pr -> pr.getNexusBaseClass().equals(NX_DETECTOR))
+				.filter(pr -> pr.getName().contains(primaryDataName))
 				.findFirst();
 		if (interesting.isEmpty()) {
 			return malcNxs;
@@ -199,6 +200,14 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	public void setHklProvider(HklAdapter hklProvider) {
 		this.hklProvider = hklProvider;
+	}
+
+	public String getPrimaryDataName() {
+		return primaryDataName;
+	}
+
+	public void setPrimaryDataName(String primaryDataName) {
+		this.primaryDataName = primaryDataName;
 	}
 
 }
