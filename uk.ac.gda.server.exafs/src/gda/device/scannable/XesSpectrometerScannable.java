@@ -20,7 +20,11 @@ package uk.ac.gda.beamline.i20.scannable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +34,8 @@ import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotionUnitsBase;
-import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableStatus;
+import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
@@ -53,13 +57,13 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	private static final Logger logger = LoggerFactory.getLogger(XesSpectrometerScannable.class);
 
 	private volatile boolean stopCalled = false;
-	private volatile Boolean isRunningTrajectoryMovement = false;
+	private volatile boolean isRunningTrajectoryMovement = false;
 
 	private double bragg = 80;
 	private double radius = 1000;
 	private double trajectoryStepSize = 0.02; // the size of each bragg angle step when moving the detector.
 
-	private Double[] additionalCrystalHorizontalOffsets = new Double[] { -137., 137. };
+	private double horizontalOffset = 137.0;
 
 	// Positioners that control which of the 3 crystals are allowed to be moved.
 	// If these are left as null allowedToMove is set to true.
@@ -67,21 +71,13 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	private EnumPositioner centreCrystalAllowedToMove;
 	private EnumPositioner plusCrystalAllowedToMove;
 
-	private ScannableMotor spectrometer_x; // also known as L
-	private ScannableMotor det_y;
-	private ScannableMotor det_x;
-	private ScannableMotor det_rot;
+	private Scannable spectrometerX; // also known as L
 	private Scannable radiusScannable;
 
-	private ScannableMotor[] xtalxs = new ScannableMotor[2];
-	private ScannableMotor[] xtalys = new ScannableMotor[3];
-	private ScannableMotor[] xtalbraggs = new ScannableMotor[3];
-	private ScannableMotor[] xtaltilts = new ScannableMotor[3];
-
 	/** Scannable groups to store the collections of scannables for each logical part of the spectrometer. */
-	private ScannableGroupAllowedToMove minusCrystal;
-	private ScannableGroupAllowedToMove centreCrystal;
-	private ScannableGroupAllowedToMove plusCrystal;
+	private XesSpectrometerCrystal minusCrystal;
+	private XesSpectrometerCrystal centreCrystal;
+	private XesSpectrometerCrystal plusCrystal;
 	private ScannableGroup detector;
 
 	// flag to prevent the warning about the position is an estimate being sent more than once at a time
@@ -98,67 +94,13 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		if (isConfigured()) {
 			return;
 		}
-		minusCrystal = new ScannableGroupAllowedToMove("minusCrystal",	Arrays.asList(xtalxs[0], xtalys[0], xtaltilts[0], xtalbraggs[0]));
-		minusCrystal.configure();
-
-		centreCrystal = new ScannableGroupAllowedToMove("centreCrystal", Arrays.asList(xtalbraggs[1]));
-		centreCrystal.configure();
-
-		plusCrystal = new ScannableGroupAllowedToMove("plusCrystal", Arrays.asList(xtalxs[1], xtalys[2], xtaltilts[2], xtalbraggs[2]));
-		plusCrystal.configure();
-
-		detector = new ScannableGroup("detector", new Scannable[] {det_x, det_y, det_rot});
-		detector.configure();
+		Objects.requireNonNull(minusCrystal, "minusCrystal scannable group has not been set");
+		Objects.requireNonNull(centreCrystal, "centreCrystal scannable group has not been set");
+		Objects.requireNonNull(plusCrystal, "plusCrystal scannable group has not been set");
+		Objects.requireNonNull(detector, "detector scannable group has not been set");
 
 		setConfigured(true);
 		updateActiveGroups();
-	}
-
-	/**
-	 * Extension of {@link ScannableGroup} which adds an 'allowedToMove' flag. If 'allowedToMove' is set to true,
-	 * it will behave as a normal ScannableGroup. If it is set to false :
-	 * <li> None of the scannables in the group will move when asynchronousMoveTo is called.
-	 * <li> {@link #isBusy()} will return false, and {@link #stop()} will do nothing.
-	 */
-	private class ScannableGroupAllowedToMove extends ScannableGroup {
-
-		private boolean isAllowedToMove = true;
-
-		public ScannableGroupAllowedToMove(String name, List<Scannable> scannables) throws FactoryException {
-			setName(name);
-			setGroupMembers(scannables);
-		}
-
-		@Override
-		public void asynchronousMoveTo(Object position) throws DeviceException {
-			if (isAllowedToMove) {
-				super.asynchronousMoveTo(position);
-			}
-		}
-
-		@Override
-		public boolean isBusy() throws DeviceException {
-			if (isAllowedToMove) {
-				return super.isBusy();
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		public void stop() throws DeviceException {
-			if (isAllowedToMove) {
-				super.stop();
-			}
-		}
-
-		public void setAllowedToMove(boolean isAllowedToMove) {
-			this.isAllowedToMove = isAllowedToMove;
-		}
-
-		public boolean isAllowedToMove() {
-			return isAllowedToMove;
-		}
 	}
 
 	/**
@@ -168,7 +110,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 * @param scnGroup
 	 * @param positioner
 	 */
-	private void setGroupActive(ScannableGroupAllowedToMove scnGroup, EnumPositioner positioner) {
+	private void setGroupActive(XesSpectrometerCrystal scnGroup, EnumPositioner positioner) {
 		boolean doMove = true;
 		if (positioner != null) {
 			try {
@@ -202,14 +144,14 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		centreCrystal.stop();
 		minusCrystal.stop();
 		plusCrystal.stop();
-		spectrometer_x.stop();
+		spectrometerX.stop();
 
 		try {
 			detector.waitWhileBusy();
 			centreCrystal.waitWhileBusy();
 			minusCrystal.waitWhileBusy();
 			plusCrystal.waitWhileBusy();
-			spectrometer_x.waitWhileBusy();
+			spectrometerX.waitWhileBusy();
 		} catch (InterruptedException e) {
 			// Reset interrupt status
 			Thread.currentThread().interrupt();
@@ -224,8 +166,8 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 				centreCrystal.isBusy() ||
 				minusCrystal.isBusy() ||
 				plusCrystal.isBusy() ||
-				spectrometer_x.isBusy() ||
-				xtalys[1].isBusy() || xtaltilts[1].isBusy() ||  radiusScannable.isBusy();
+				spectrometerX.isBusy() ||
+				radiusScannable.isBusy();
 	}
 
 	@Override
@@ -239,38 +181,33 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		radius = Double.parseDouble(radiusScannable.getPosition().toString());
 
 		isRunningTrajectoryMovement = false;
-
 		// Calculate detector trajectory points if doing a 'large' movement
-		final List<Double[]> trajectoryPoints;
-		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize){
-			isRunningTrajectoryMovement = true;
+		final List<double[]> trajectoryPoints;
+		if (Math.abs(currentPosition - targetBragg) > trajectoryStepSize) {
 			trajectoryPoints = getDetectorTrajectoryPoints(currentPosition, targetBragg);
 		} else {
-			trajectoryPoints = null;
+			trajectoryPoints = Collections.emptyList();
 		}
 
 		// test the final points are in limits
 
-		Double[] xyThetaValues = getXYTheta(radius, targetBragg);
-
 		// the detector and spectrometer overall position
 		double finalSpectrometerX = XesUtils.getL(radius, targetBragg);
-		checkPositionValid(spectrometer_x, finalSpectrometerX);
+		checkPositionValid(spectrometerX, finalSpectrometerX);
 
-		double[] finalDetectorPosition = {xyThetaValues[0], xyThetaValues[1], xyThetaValues[2]*2};
+		double[] finalDetectorPosition = getDetectorPosition(radius,  targetBragg);
 		checkPositionValid(detector, finalDetectorPosition);
 
 		// the centre crystal
-		double[] centreCrystalPosition = {xyThetaValues[2]};
-		checkPositionValid(centreCrystal, centreCrystalPosition);
+		double centreCrystalPosition =  XesUtils.getCrystalRotation(targetBragg);
+		checkPositionValid(centreCrystal.getPitchMotor(), centreCrystalPosition);
 
 		// the 'minus' crystal
-		double[] minusCrystalPosition = XesUtils.getAdditionalCrystalPositions(radius, targetBragg,	additionalCrystalHorizontalOffsets[0]);
+		double[] minusCrystalPosition = getCrystalPositions(minusCrystal, targetBragg);
 		checkPositionValid(minusCrystal, minusCrystalPosition);
 
 		// the 'plus' crystal
-		double[] plusCrystalPosition = Arrays.copyOf(minusCrystalPosition, minusCrystalPosition.length);
-		plusCrystalPosition[2] *= -1.0;
+		double[] plusCrystalPosition = getCrystalPositions(plusCrystal, targetBragg);
 		checkPositionValid(plusCrystal, plusCrystalPosition);
 
 		// reset the stop flag
@@ -282,16 +219,19 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		// now do moves ...
 		notifyIObservers(this, ScannableStatus.BUSY);
 
-		spectrometer_x.asynchronousMoveTo(finalSpectrometerX);
+		spectrometerX.asynchronousMoveTo(finalSpectrometerX);
 
-		centreCrystal.asynchronousMoveTo(centreCrystalPosition);
+		if (centreCrystal.isAllowedToMove()) {
+			centreCrystal.getPitchMotor().asynchronousMoveTo(centreCrystalPosition);
+		}
 
 		minusCrystal.asynchronousMoveTo(minusCrystalPosition);
 
 		plusCrystal.asynchronousMoveTo(plusCrystalPosition);
 
 		// loop over trajectory points for the detector only
-		if (isRunningTrajectoryMovement && trajectoryPoints != null) {
+		if (!trajectoryPoints.isEmpty()) {
+			isRunningTrajectoryMovement = true;
 			Async.execute(() -> executeDetectorTrajectory(trajectoryPoints) );
 		} else {
 			// move detector to final position
@@ -299,30 +239,30 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		}
 	}
 
+	private double[] getCrystalPositions(XesSpectrometerCrystal crystal, double braggAngle) {
+		return XesUtils.getAdditionalCrystalPositions(radius, braggAngle, crystal.getHorizontalIndex()*horizontalOffset);
+	}
 	/**
 	 * Calculate the detector positions (X, Y, 2*theta) required to go between current and target bragg angles
 	 * Bragg angle step size of {@link #trajectoryStepSize} are taken between detector positions.
 	 * @param currentPosition
 	 * @param targetBragg
 	 * @return List of (X, Y, theta)  values for points along trajectory
-	 * @throws DeviceException
 	 */
-	private List<Double[]> getDetectorTrajectoryPoints(double currentPosition, double targetBragg) throws DeviceException {
+	private List<double[]> getDetectorTrajectoryPoints(double currentPosition, double targetBragg) {
 
 		boolean positiveMove = true;
 		if (currentPosition > targetBragg)
 			positiveMove = false;
 
 		// create the trajectory points for the detector
-		List<Double[]> trajectoryPoints = new ArrayList<>();
+		List<double[]> trajectoryPoints = new ArrayList<>();
 
 		int numPoints = (int) Math.round(Math.abs(currentPosition - targetBragg) / trajectoryStepSize);
 		double braggAtNode = currentPosition;
+		logger.debug("Calculating detector trajector between Bragg angles {} and {} using {} points", currentPosition, targetBragg, numPoints);
 		for (int node = 0; node <= numPoints; node++) {
-			Double[] nodeDetectorPositions = getDetectorPosition(radius, braggAtNode);
-			if (nodeDetectorPositions[0] == null)
-				throw new DeviceException("Could not calculate target positions. Will not perform move");
-
+			double[] nodeDetectorPositions = getDetectorPosition(radius, braggAtNode);
 			trajectoryPoints.add(nodeDetectorPositions);
 			if (positiveMove)
 				braggAtNode += trajectoryStepSize;
@@ -338,8 +278,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 * Move the detector along trajectory
 	 * @param trajectoryPoints list of positions, as calculated by {@link #getDetectorTrajectoryPoints(double, double)}
 	 */
-	private void executeDetectorTrajectory(final List<Double[]> trajectoryPoints) {
+	private void executeDetectorTrajectory(final List<double[]> trajectoryPoints) {
 		try {
+			logger.info("Starting detector move along trajectory...");
 			for (int node=0; node < trajectoryPoints.size(); node++) {
 				if (stopCalled)
 					return;
@@ -354,12 +295,17 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 			// re-interrupted so the scanning engine aborts smoothly.
 			// See: https://alfred.diamond.ac.uk/documentation/manuals/GDA_Developer_Guide/master/java_development.html#handling-interrupts
 			Thread.currentThread().interrupt();
-			logger.warn("InterruptedException while running XESEnegry trajectory", e);
+			logger.warn("InterruptedException while running XESEnergy trajectory", e);
 		} catch (DeviceException e) {
-			logger.warn("DeviceException while running XESEnegry trajectory", e);
+			logger.warn("DeviceException while running XESEnergy trajectory", e);
 		} finally {
-//			logger.info("Spectrometer move complete. XES Spectrometer final move positions: X:"+targetDetXArray[numTrajPoints-1]+" Y:"+targetDetYArray[numTrajPoints-1]+" Theta:"+targetXtalThetaArray[numTrajPoints-1]);
 			isRunningTrajectoryMovement = false;
+			logger.info("Spectrometer detector trajectory move finished.");
+			try {
+				logger.info("Final X, Y, Theta position = {}", detector.getPosition());
+			} catch(DeviceException e) {
+				logger.warn("Problem getting final detector position", e);
+			}
 		}
 	}
 
@@ -369,9 +315,9 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 * @param braggAngle
 	 * @return Double [] X, Y, 2*theta
 	 */
-	private Double[] getDetectorPosition(double radius, double braggAngle) {
-		Double[] xytheta = getXYTheta(radius, braggAngle);
-		return new Double[] {xytheta[0], xytheta[1], xytheta[2]*2};
+	private double[] getDetectorPosition(double radius, double braggAngle) {
+		double[] xytheta = getXYTheta(radius, braggAngle);
+		return new double[] {xytheta[0], xytheta[1], xytheta[2]*2};
 	}
 
 	/**
@@ -381,11 +327,11 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 * @param bragg
 	 * @return Double[] X,Y,theta
 	 */
-	private Double[] getXYTheta(Double radius, Double bragg ){
+	private double[] getXYTheta(Double radius, Double bragg ){
 		double detX = XesUtils.getDx(radius, bragg);
 		double detY = XesUtils.getDy(radius, bragg);
 		double theta = XesUtils.getCrystalRotation(bragg);
-		return new Double[]{detX,detY,theta};
+		return new double[]{detX,detY,theta};
 	}
 
 	/**
@@ -394,33 +340,23 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	 * @param target
 	 * @throws DeviceException
 	 */
-	private void checkPositionValid(ScannableMotor scannable, double target) throws DeviceException {
-		Double min = scannable.getLowerMotorLimit();
-		Double max = scannable.getUpperMotorLimit();
-		if (min != null && max != null && (target > max || target < min)) {
-			String message = String.format("Move for %s is not valid. Target position %f outside of motor limits %f, %f",
-					scannable.getName(), target, min, max);
+	private void checkPositionValid(Scannable scannable, Object target) throws DeviceException {
+		String positionInvalidMessage = scannable.checkPositionValid(target);
+		if (positionInvalidMessage != null) {
+			String message = String.format("Move for %s is not valid. %s ", scannable.getName(), positionInvalidMessage);
 			throw new DeviceException(message);
 		}
 	}
 
 	/**
-	 * Check whether the target position array is value for a {@link ScannableGroup}
-	 * by calling {{@link #checkPositionValid(ScannableMotor, double)} for each scannable in the group.
+	 * Check that a target position is within limits of a scannable group. A DeviceException is thrown if it's not.
 	 * @param scannableGroup
 	 * @param target
 	 * @throws DeviceException
 	 */
-	private void checkPositionValid(ScannableGroup scannableGroup, double[] target) throws DeviceException {
-		List<Scannable> scannables = scannableGroup.getGroupMembers();
-		for (int i=0; i<target.length && i<scannables.size(); i++) {
-			checkPositionValid((ScannableMotor)scannables.get(i), target[i]);
-		}
-	}
-
-	private void checkPositionValid(ScannableGroupAllowedToMove scannableGroup, double[] target) throws DeviceException {
+	private void checkPositionValid(XesSpectrometerCrystal scannableGroup, Object target) throws DeviceException {
 		if (scannableGroup.isAllowedToMove()) {
-			checkPositionValid((ScannableGroup)scannableGroup, target);
+			checkPositionValid((Scannable) scannableGroup, target);
 		}
 	}
 
@@ -443,11 +379,23 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	}
 
 	private double braggBasedOnDetectorRotation() throws NumberFormatException, DeviceException {
-		double yPosition = Double.parseDouble(det_y.getPosition().toString());
-		double lPosition = Double.parseDouble(spectrometer_x.getPosition().toString());
+		double yPosition = Double.parseDouble(getDetYScannable().getPosition().toString());
+		double lPosition = Double.parseDouble(spectrometerX.getPosition().toString());
 		// In the Rowland condition: sin(2*(90-bragg)) = y/L
 		double derivedBragg = 90 - (0.5 * Math.toDegrees(Math.asin(yPosition / lPosition)));
 		return derivedBragg;
+	}
+
+	private Scannable getDetXScannable() {
+		return detector.getGroupMembers().get(0);
+	}
+
+	private Scannable getDetYScannable() {
+		return detector.getGroupMembers().get(1);
+	}
+
+	private Scannable getDetRotScannable() {
+		return detector.getGroupMembers().get(2);
 	}
 
 	@Override
@@ -457,7 +405,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 				final double position = braggBasedOnDetectorRotation();
 				final String formattedPosition = String.format(getOutputFormat()[0], position);
 				return getName() + "\t: " + formattedPosition + " " + "deg. NB: this is derived from only the "
-						+ det_y.getName() + " and " + spectrometer_x.getName() + " motor positions.";
+						+ getDetYScannable().getName() + " and " + spectrometerX.getName() + " motor positions.";
 			} else {
 				return super.toFormattedString();
 			}
@@ -475,120 +423,12 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		this.radius = rowlandRadius;
 	}
 
-	public void setDet_y(ScannableMotor det_y) {
-		this.det_y = det_y;
+	public Scannable getSpectrometerX() {
+		return spectrometerX;
 	}
 
-	public ScannableMotor getDet_x() {
-		return det_x;
-	}
-
-	public void setDet_x(ScannableMotor det_x) {
-		this.det_x = det_x;
-	}
-
-	public ScannableMotor getDet_rot() {
-		return det_rot;
-	}
-
-	public void setDet_rot(ScannableMotor det_rot) {
-		this.det_rot = det_rot;
-	}
-
-	public ScannableMotor getXtal_x() {
-		return spectrometer_x;
-	}
-
-	public void setXtal_x(ScannableMotor xtal_x) {
-		this.spectrometer_x = xtal_x;
-	}
-
-	public ScannableMotor getXtal_minus1_x() {
-		return xtalxs[0];
-	}
-
-	public void setXtal_minus1_x(ScannableMotor Xtal_minus1_x) {
-		this.xtalxs[0] = Xtal_minus1_x;
-	}
-
-	public ScannableMotor getXtal_minus1_y() {
-		return xtalys[0];
-	}
-
-	public void setXtal_minus1_y(ScannableMotor Xtal_minus1_y) {
-		this.xtalys[0] = Xtal_minus1_y;
-	}
-
-	public ScannableMotor getXtal_minus1_pitch() {
-		return xtalbraggs[0];
-	}
-
-	public void setXtal_minus1_pitch(ScannableMotor Xtal_minus1_pitch) {
-		this.xtalbraggs[0] = Xtal_minus1_pitch;
-	}
-
-	public ScannableMotor getXtal_minus1_rot() {
-		return xtaltilts[0];
-	}
-
-	public void setXtal_minus1_rot(ScannableMotor Xtal_minus1_rot) {
-		this.xtaltilts[0] = Xtal_minus1_rot;
-	}
-
-	public ScannableMotor getXtal_central_y() {
-		return xtalys[1];
-	}
-
-	public void setXtal_central_y(ScannableMotor Xtal_central_y) {
-		this.xtalys[1] = Xtal_central_y;
-	}
-
-	public ScannableMotor getXtal_central_pitch() {
-		return xtalbraggs[1];
-	}
-
-	public void setXtal_central_pitch(ScannableMotor Xtal_central_pitch) {
-		this.xtalbraggs[1] = Xtal_central_pitch;
-	}
-
-	public ScannableMotor getXtal_central_rot() {
-		return xtaltilts[1];
-	}
-
-	public void setXtal_central_rot(ScannableMotor Xtal_central_rot) {
-		this.xtaltilts[1] = Xtal_central_rot;
-	}
-
-	public ScannableMotor getxtal_plus1_x() {
-		return xtalxs[1];
-	}
-
-	public void setxtal_plus1_x(ScannableMotor xtal_plus1_x) {
-		this.xtalxs[1] = xtal_plus1_x;
-	}
-
-	public ScannableMotor getxtal_plus1_y() {
-		return xtalys[2];
-	}
-
-	public void setxtal_plus1_y(ScannableMotor xtal_plus1_y) {
-		this.xtalys[2] = xtal_plus1_y;
-	}
-
-	public ScannableMotor getxtal_plus1_pitch() {
-		return xtalbraggs[2];
-	}
-
-	public void setxtal_plus1_pitch(ScannableMotor xtal_plus1_pitch) {
-		this.xtalbraggs[2] = xtal_plus1_pitch;
-	}
-
-	public ScannableMotor getxtal_plus1_rot() {
-		return xtaltilts[2];
-	}
-
-	public void setxtal_plus1_rot(ScannableMotor xtal_plus1_rot) {
-		this.xtaltilts[2] = xtal_plus1_rot;
+	public void setSpectrometerX(Scannable spectrometerX) {
+		this.spectrometerX = spectrometerX;
 	}
 
 	public Double getTrajectoryStepSize() {
@@ -597,10 +437,6 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	public void setTrajectoryStepSize(Double trajectoryStepSize) {
 		this.trajectoryStepSize = trajectoryStepSize;
-	}
-
-	public ScannableMotor getDet_y() {
-		return det_y;
 	}
 
 	@Override
@@ -616,24 +452,12 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 		this.radiusScannable = radiusScannable;
 	}
 
-	public Double[] getAdditionalCrystalHorizontalOffsets() {
-		return additionalCrystalHorizontalOffsets;
+	public double getHorizontalCrystalOffset() {
+		return horizontalOffset;
 	}
 
 	public ScannableGroup getDetectorGroup() {
 		return detector;
-	}
-
-	public ScannableGroup getMinusCrystalGroup() {
-		return minusCrystal;
-	}
-
-	public ScannableGroup getPlusCrystalGroup() {
-		return plusCrystal;
-	}
-
-	public ScannableGroup getCentreCrystalGroup() {
-		return centreCrystal;
 	}
 
 	public EnumPositioner getMinusCrystalAllowedToMove() {
@@ -658,6 +482,62 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 
 	public void setPlusCrystalAllowedToMove(EnumPositioner plusCrystalAllowedToMove) {
 		this.plusCrystalAllowedToMove = plusCrystalAllowedToMove;
+	}
+
+	public XesSpectrometerCrystal getMinusCrystalGroup() {
+		return minusCrystal;
+	}
+
+	public void setMinusCrystalGroup(XesSpectrometerCrystal minusCrystal) {
+		this.minusCrystal = minusCrystal;
+	}
+
+	public void setCentreCrystalGroup(XesSpectrometerCrystal centreCrystal) {
+		this.centreCrystal = centreCrystal;
+	}
+
+	public XesSpectrometerCrystal getCentreCrystalGroup() {
+		return centreCrystal;
+	}
+
+	public void setPlusCrystalGroup(XesSpectrometerCrystal plusCrystal) {
+		this.plusCrystal = plusCrystal;
+	}
+
+	public XesSpectrometerCrystal getPlusCrystalGroup() {
+		return plusCrystal;
+	}
+
+	public ScannableGroup getDetector() {
+		return detector;
+	}
+
+	public void setDetector(ScannableGroup detector) {
+		this.detector = detector;
+	}
+
+	private List<Scannable> getScannables() {
+		Scannable[] scannables = {
+				getRadiusScannable(),
+				getDetXScannable(), getDetYScannable(), getDetRotScannable(),
+				getSpectrometerX(),
+				getMinusCrystalGroup().getxMotor(), getMinusCrystalGroup().getyMotor(), getMinusCrystalGroup().getPitchMotor(),	getMinusCrystalGroup().getRotMotor(),
+				getCentreCrystalGroup().getyMotor(), getCentreCrystalGroup().getPitchMotor(), getCentreCrystalGroup().getRotMotor(),
+				getPlusCrystalGroup().getxMotor(), getPlusCrystalGroup().getyMotor(), getPlusCrystalGroup().getPitchMotor(), getPlusCrystalGroup().getRotMotor() };
+
+		return Arrays.asList(scannables);
+	}
+	/**
+	 * Generate map containing position of each scannable in the spectrometer
+	 * @return map with key=scannable name, value=scannable position
+	 * @throws DeviceException
+	 */
+	public Map<String, Double> getScannablePositions() throws DeviceException {
+		Map<String, Double> map = new LinkedHashMap<>();
+		for(Scannable scn : getScannables()) {
+			map.put(scn.getName(), ScannableUtils.getCurrentPositionArray(scn)[0]);
+		}
+		return map;
 	}
 
 }

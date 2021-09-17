@@ -44,6 +44,7 @@ import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.diamond.daq.persistence.jythonshelf.LocalParameters;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.beamline.i20.scannable.XESEnergyScannable;
+import uk.ac.gda.beamline.i20.scannable.XesSpectrometerCrystal;
 import uk.ac.gda.beamline.i20.scannable.XesSpectrometerScannable;
 
 /**
@@ -267,40 +268,33 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 
 		double bragg = XesUtils.getBragg(energy, xesmaterial, crystalCut);
 
-		double detxExpected = XesUtils.getDx(rowlandRadius, bragg);
-		double detyExpected = XesUtils.getDy(rowlandRadius, bragg);
 		double xtalxExpected = XesUtils.getL(rowlandRadius, bragg);
 
 		XesSpectrometerScannable xesScannable = xesEnergyScannable.getXes();
-		Double[] additionalOffsets = xesScannable.getAdditionalCrystalHorizontalOffsets();
-
-		double[] xtalPositionsMinus1 = XesUtils.getAdditionalCrystalPositions(rowlandRadius, bragg, additionalOffsets[0]);
-		double[] xtalPositionsCentral = XesUtils.getAdditionalCrystalPositions(rowlandRadius, bragg, 0);
-		double[] xtalPositionsPlus1 = XesUtils.getAdditionalCrystalPositions(rowlandRadius, bragg, additionalOffsets[1]);
-		double analyserAngle = XesUtils.getCrystalRotation(bragg) * 2;
+		double offset = xesScannable.getHorizontalCrystalOffset();
 
 		Map<Scannable, Double> expectedValues = new HashMap<>();
-		expectedValues.put(xesScannable.getXtal_minus1_x(), xtalPositionsMinus1[0]);
-		expectedValues.put(xesScannable.getXtal_minus1_y(), xtalPositionsMinus1[1]);
-		expectedValues.put(xesScannable.getXtal_minus1_rot(), xtalPositionsMinus1[2]);
-		expectedValues.put(xesScannable.getXtal_minus1_pitch(), xtalPositionsMinus1[3]);
+		expectedValues.putAll(getResults(xesScannable.getMinusCrystalGroup(), rowlandRadius, bragg, -offset));
+		expectedValues.putAll(getResults(xesScannable.getCentreCrystalGroup(), rowlandRadius, bragg, 0));
+		expectedValues.putAll(getResults(xesScannable.getPlusCrystalGroup(), rowlandRadius, bragg, offset));
 
-		expectedValues.put(xesScannable.getXtal_central_y(), xtalPositionsCentral[1]);
-		expectedValues.put(xesScannable.getXtal_central_rot(), xtalPositionsCentral[2]);
-		expectedValues.put(xesScannable.getXtal_central_pitch(), xtalPositionsCentral[3]);
-
-		expectedValues.put(xesScannable.getxtal_plus1_x(), xtalPositionsPlus1[0]);
-		expectedValues.put(xesScannable.getxtal_plus1_y(), xtalPositionsPlus1[1]);
-		expectedValues.put(xesScannable.getxtal_plus1_rot(), xtalPositionsPlus1[2]);
-		expectedValues.put(xesScannable.getxtal_plus1_pitch(), xtalPositionsPlus1[3]);
-
-		expectedValues.put(xesScannable.getDet_x(), detxExpected);
-		expectedValues.put(xesScannable.getDet_y(), detyExpected);
-		expectedValues.put(xesScannable.getDet_rot(), analyserAngle);
-		expectedValues.put(xesScannable.getXtal_x(), xtalxExpected);
+		expectedValues.put(xesScannable.getSpectrometerX(), xtalxExpected);
 
 		logger.debug("Calculated spectrometer positions : {}", expectedValues);
         return expectedValues;
+    }
+
+    private Map<Scannable, Double> getResults(XesSpectrometerCrystal crystal, double rowlandRadius, double braggAngle, double offset) {
+		double[] xtalPositionsMinus1 = XesUtils.getAdditionalCrystalPositions(rowlandRadius, braggAngle, offset);
+		Map<Scannable, Double> expectedValues = new HashMap<>();
+
+		if (crystal.getHorizontalIndex() != 0) { // Include X value only for non central crystals
+			expectedValues.put(crystal.getxMotor(), xtalPositionsMinus1[0]);
+		}
+		expectedValues.put(crystal.getyMotor(), xtalPositionsMinus1[1]);
+		expectedValues.put(crystal.getRotMotor(), xtalPositionsMinus1[2]);
+		expectedValues.put(crystal.getPitchMotor(), xtalPositionsMinus1[3]);
+		return expectedValues;
     }
 
 	/**
