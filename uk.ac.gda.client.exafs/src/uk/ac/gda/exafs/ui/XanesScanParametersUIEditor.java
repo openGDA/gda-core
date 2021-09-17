@@ -80,7 +80,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 		regionsProvider = Finder.findOptionalSingleton(DefaultXanesRegions.class)
 							.orElse(new StandardXanesRegionsProvider());
 
-		logger.debug("Loaded {} as default XANES regions provider", regionsEditor.getClass().getName());
+		logger.debug("Loaded {} as default XANES regions provider", regionsProvider.getClass().getName());
 	}
 
 	private void createDefaultsButton(Composite parent) {
