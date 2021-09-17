@@ -40,9 +40,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanInformation;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.server.application.Activator;
@@ -59,7 +57,8 @@ public abstract class AbstractAcquisitionTest {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
 
-		detector = (IWritableDetector) ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("detector");
+		final IRunnableDevice<MockDetectorModel> det = ServiceTestHelper.getRunnableDeviceService().getRunnableDevice("detector");
+		detector = (IWritableDetector<MockDetectorModel>) det;
 	}
 
 	protected List<IPosition>            positions;
@@ -69,14 +68,7 @@ public abstract class AbstractAcquisitionTest {
 	public void beforeTest() throws Exception {
 		positions = new ArrayList<>(20);
 
-		runListener = new IRunListener() {
-			@Override
-			public void runPerformed(RunEvent evt) throws ScanningException{
-               //System.out.println("Ran mock detector @ "+evt.getPosition());
-               positions.add(evt.getPosition());
-			}
-		};
-
+		runListener = IRunListener.createRunPerformedListener(event -> positions.add(event.getPosition()));
 		detector.addRunListener(runListener);
 		detector.getModel().setExposureTime(0.08);
 	}
@@ -86,12 +78,6 @@ public abstract class AbstractAcquisitionTest {
 		positions.clear();
 		detector.removeRunListener(runListener);
 	}
-
-//	@AfterClass
-//	public static void cleanup() throws Exception {
-//		ServiceHolder.setRunnableDeviceService(null);
-//		ServiceHolder.setWatchdogService(null);
-//	}
 
 	protected IDeviceController createTestScanner(IScannable<?> monitor) throws Exception {
 		return createTestScanner(monitor, null, null, 2);
@@ -186,12 +172,7 @@ public abstract class AbstractAcquisitionTest {
 
 		List<DeviceState> states = new ArrayList<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		scanner.addRunListener(IRunListener.createStateChangedListener(evt -> states.add(evt.getDeviceState())));
 
 		if (asych) {
 			scanner.start(null);

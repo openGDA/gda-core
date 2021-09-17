@@ -26,9 +26,7 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.junit.Test;
@@ -72,12 +70,8 @@ public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
-		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquire scan for detector " + detector.getName());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				event -> System.out.println("Running acquire scan for detector " + detector.getName())));
 
 		return scanner;
 	}

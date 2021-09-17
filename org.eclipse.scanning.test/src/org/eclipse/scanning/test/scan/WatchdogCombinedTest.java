@@ -28,9 +28,7 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.ExpressionWatchdogModel;
 import org.eclipse.scanning.api.device.models.TopupWatchdogModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.example.scannable.MockTopupScannable;
 import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
@@ -219,12 +217,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		scanner.addRunListener(IRunListener.createStateChangedListener(event -> states.add(event.getDeviceState())));
 
 		scanner.start(null);
 		scanner.latch(200, TimeUnit.MILLISECONDS);
@@ -271,12 +264,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		scanner.addRunListener(IRunListener.createStateChangedListener(event -> states.add(event.getDeviceState())));
 
 		scanner.start(null);
 		scanner.latch(200, TimeUnit.MILLISECONDS);
@@ -320,12 +308,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		scanner.addRunListener(IRunListener.createStateChangedListener(event -> states.add(event.getDeviceState())));
 
 		scanner.start(null);
 		Thread.sleep(25);  // Do a bit

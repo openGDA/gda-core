@@ -45,7 +45,6 @@ import org.eclipse.scanning.api.scan.LevelRole;
 import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.eclipse.scanning.test.scan.nexus.NexusTest;
@@ -292,12 +291,8 @@ public class AnnotationScanTest extends NexusTest {
 		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquisition scan of size "+fgen.size());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				evt -> System.out.println("Running acquisition scan of size "+fgen.size())));
 
 		return scanner;
 	}

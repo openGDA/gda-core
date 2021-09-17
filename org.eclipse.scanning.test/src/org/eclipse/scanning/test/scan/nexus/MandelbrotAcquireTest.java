@@ -12,9 +12,9 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -46,9 +46,7 @@ import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.models.StaticModel;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -158,12 +156,8 @@ public class MandelbrotAcquireTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquire scan for detector " + detector.getName());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				event -> System.out.println("Running acquire scan for detector " + detector.getName())));
 
 		return scanner;
 	}

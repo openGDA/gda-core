@@ -12,6 +12,7 @@
 package org.eclipse.scanning.api.scan.event;
 
 import java.util.EventListener;
+import java.util.function.Consumer;
 
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -29,6 +30,7 @@ public interface IRunListener extends EventListener {
 	 * @param evt
 	 * @throws ScanningException which will terminate the scan
 	 */
+	@SuppressWarnings("unused")
 	default void stateChanged(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -39,6 +41,7 @@ public interface IRunListener extends EventListener {
 	 * @param evt
 	 * @throws ScanningException which will terminate the scan
 	 */
+	@SuppressWarnings("unused")
 	default void runWillPerform(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -48,6 +51,7 @@ public interface IRunListener extends EventListener {
 	 * @param evt
 	 * @throws ScanningException which will terminate the scan
 	 */
+	@SuppressWarnings("unused")
 	default void runPerformed(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -56,8 +60,9 @@ public interface IRunListener extends EventListener {
 	 * Called before a run() is made on the device. Can
 	 * be used to modify the model before a given run of the device.
 	 * @param evt
-	 * @throws scanning exception which will terminate the scan
+	 * @throws ScanningException which will terminate the scan
 	 */
+	@SuppressWarnings("unused")
 	default void writeWillPerform(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
@@ -65,9 +70,38 @@ public interface IRunListener extends EventListener {
 	/**
 	 * Used to notify that a given device as been run.
 	 * @param evt
-	 * @throws scanning exception which will terminate the scan
+	 * @throws ScanningException which will terminate the scan
 	 */
+	@SuppressWarnings("unused")
 	default void writePerformed(RunEvent evt) throws ScanningException {
 		// default implementation does nothing, subclasses should override as necessary
 	}
+
+	public static IRunListener createRunWillPerformListener(Consumer<RunEvent> eventConsumer) {
+		return new IRunListener() {
+			@Override
+			public void runWillPerform(RunEvent runEvent) {
+				eventConsumer.accept(runEvent);
+			}
+		};
+	}
+
+	public static IRunListener createRunPerformedListener(Consumer<RunEvent> eventConsumer) {
+		return new IRunListener() {
+			@Override
+			public void runPerformed(RunEvent runEvent) {
+				eventConsumer.accept(runEvent);
+			}
+		};
+	}
+
+	public static IRunListener createStateChangedListener(Consumer<RunEvent> eventConsumer) {
+		return new IRunListener() {
+			@Override
+			public void stateChanged(RunEvent runEvent) {
+				eventConsumer.accept(runEvent);
+			}
+		};
+	}
+
 }

@@ -38,7 +38,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockTopupScannable;
@@ -219,14 +218,9 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null, device, detectorModel, size);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>) controller.getDevice();
 
-		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		Set<DeviceState> states = new HashSet<>();
+		scanner.addRunListener(IRunListener.createStateChangedListener(evt -> states.add(evt.getDeviceState())));
 
 		scanner.run(null);
 		assertTrue(!controller.isActive());
@@ -248,14 +242,9 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		IDeviceController controller = createTestScanner(null);
 		IRunnableEventDevice<?> scanner = (IRunnableEventDevice<?>)controller.getDevice();
 
-		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		final Set<DeviceState> states = new HashSet<>();
+		scanner.addRunListener(IRunListener.createStateChangedListener(event -> states.add(event.getDeviceState())));
 
 		scanner.start(null);
 		scanner.latch(200, TimeUnit.MILLISECONDS);
@@ -292,12 +281,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 		Set<DeviceState> states = new HashSet<>();
 		// This run should get paused for beam and restarted.
-		scanner.addRunListener(new IRunListener() {
-			@Override
-			public void stateChanged(RunEvent evt) throws ScanningException {
-				states.add(evt.getDeviceState());
-			}
-		});
+		scanner.addRunListener(IRunListener.createStateChangedListener(event -> states.add(event.getDeviceState())));
 
 		scanner.start(null);
 		scanner.latch(200, TimeUnit.MILLISECONDS);

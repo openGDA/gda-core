@@ -12,10 +12,10 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -114,12 +114,7 @@ public class MandelbrotRemoteTest extends NexusTest {
 
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
-		detector.addRunListener(new IRunListener() {
-			@Override
-			public void runPerformed(RunEvent evt) throws ScanningException{
-                //System.out.println("Ran mandelbrot detector @ "+evt.getPosition());
-			}
-		});
+		detector.addRunListener(IRunListener.createRunPerformedListener(evt -> System.out.println("Ran mandelbrot detector @ "+evt.getPosition())));
 
 		dataService = new RemoteDatasetServiceImpl();
 		new org.eclipse.dawnsci.remotedataset.ServiceHolder().setLoaderService(new LoaderServiceMock());
@@ -329,12 +324,8 @@ public class MandelbrotRemoteTest extends NexusTest {
 		// Create a scan and run it without publishing events
 		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(smodel);
 
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquisition scan of size " + gen.size());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				event -> System.out.println("Running acquisition scan of size " + gen.size())));
 
 		return scanner;
 	}

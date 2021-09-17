@@ -34,9 +34,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.IScanService;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -103,12 +101,8 @@ public class ScanExecutionTest extends BrokerTest {
 		IWritableDetector<MockDetectorModel> detector = TestDetectorHelpers.createAndConfigureMockDetector(dmodel);
 		assertNotNull(detector);
 
-		detector.addRunListener(new IRunListener() {
-			@Override
-			public void runPerformed(RunEvent evt) throws ScanningException{
-                System.out.println("Ran detector @ "+evt.getPosition());
-			}
-		});
+		detector.addRunListener(IRunListener.createRunPerformedListener(
+				event -> System.out.println("Ran detector @ "+event.getPosition())));
 
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, 8, 5); // Outer scan of another scannable, for instance temp.
 		scanner.run(null);
@@ -149,12 +143,8 @@ public class ScanExecutionTest extends BrokerTest {
 		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(smodel);
 
 		final IPointGenerator<?> fgen = gen;
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException{
-				System.out.println("Running acquisition scan of size "+fgen.size());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				event -> System.out.println("Running acquisition scan of size "+fgen.size())));
 
 		return scanner;
 	}

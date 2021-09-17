@@ -60,9 +60,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDetectorModel;
@@ -95,12 +93,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 		malcolmDevice.setOutputDir(malcolmOutputDir);
 		assertNotNull(malcolmDevice);
-		((AbstractMalcolmDevice) malcolmDevice).addRunListener(new IRunListener() {
-			@Override
-			public void runPerformed(RunEvent evt) throws ScanningException {
-				System.out.println("Ran test malcolm device @ " + evt.getPosition());
-			}
-		});
+		((AbstractMalcolmDevice) malcolmDevice).addRunListener(IRunListener.createRunPerformedListener(
+				event -> System.out.println("Ran test malcolm device @ " + event.getPosition())));
 		participant = new MockScanParticpiant();
 		scanService.addScanParticipant(participant);
 	}
@@ -371,12 +365,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException {
-				System.out.println("Running acquisition scan of size "+fgen.size());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				event -> System.out.println("Running acquisition scan of size "+fgen.size())));
 
 		return scanner;
 	}

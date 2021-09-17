@@ -195,7 +195,7 @@ class MalcolmNexusObjectBuilder {
 	private NexusObjectWrapper<NXobject> getNexusProvider(String deviceName, MalcolmDatasetType datasetType) {
 		final NexusBaseClass nexusBaseClass = NEXUS_CLASS_FOR_DATASET_TYPE.get(datasetType);
 		if (nexusBaseClass == null) {
-			logger.warn("Unknown malcolm dataset type: " + datasetType);
+			logger.warn("Unknown malcolm dataset type: {}", datasetType);
 			return null;
 		}
 

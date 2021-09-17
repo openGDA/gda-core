@@ -12,11 +12,11 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -56,7 +56,6 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.ConstantVelocityModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -80,13 +79,7 @@ public class MonitorTest extends NexusTest {
 		detector = TestDetectorHelpers.createAndConfigureConstantVelocityDetector(model);
 		assertNotNull(detector);
 
-		detector.addRunListener(new IRunListener() {
-			@Override
-			public void runPerformed(RunEvent evt) throws ScanningException{
-                //System.out.println("Ran cv device detector @ "+evt.getPosition());
-			}
-		});
-
+		detector.addRunListener(IRunListener.createRunPerformedListener(evt -> System.out.println("Ran cv device detector @ "+evt.getPosition())));
 	}
 
 	@Test
@@ -329,13 +322,8 @@ public class MonitorTest extends NexusTest {
 
 		// Create a scan and run it without publishing events
 		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
-
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException{
-				System.out.println("Running acquisition scan of size " + pointGen.size());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
+				event -> System.out.println("Running acquisition scan of size " + pointGen.size())));
 
 		return scanner;
 	}

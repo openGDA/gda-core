@@ -45,7 +45,6 @@ import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IRunListener;
-import org.eclipse.scanning.api.scan.event.RunEvent;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
@@ -226,20 +225,15 @@ public class ScanFinishedTest {
 
 		return smodel;
 	}
-	private IScanDevice createStepScan(int... size) throws Exception {
 
+	private IScanDevice createStepScan(int... size) throws Exception {
 		ScanModel smodel = createStepModel(size);
 
 		// Create a scan and run it without publishing events
 		IScanDevice scanner = sservice.createScanDevice(smodel);
 
 		final IPointGenerator<?> fgen = smodel.getPointGenerator();
-		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {
-			@Override
-			public void runWillPerform(RunEvent evt) throws ScanningException{
-				System.out.println("Running acquisition scan of size "+fgen.size());
-			}
-		});
+		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(event -> System.out.println("Running acquisition scan of size "+fgen.size())));
 
 		return scanner;
 	}
