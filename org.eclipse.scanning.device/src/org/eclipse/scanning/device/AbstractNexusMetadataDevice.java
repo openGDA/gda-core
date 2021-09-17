@@ -94,6 +94,11 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	@Override
+	public void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath) {
+		metadataNode.addChildNode(new LinkedField(fieldName, externalFilePath, linkPath));
+	}
+
+	@Override
 	public void setChildNodes(List<MetadataNode> customNodes) {
 		metadataNode.addChildNodes(customNodes);
 	}

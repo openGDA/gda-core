@@ -18,13 +18,25 @@
 
 package org.eclipse.scanning.test.device;
 
+import static org.eclipse.dawnsci.nexus.NXdetector.NX_ANGULAR_CALIBRATION;
+import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_IMAGINARY_AXIS;
+import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_REAL_AXIS;
+import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_SPECTRUM;
+import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_SPECTRUM_AXIS;
+import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+
+import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXnote;
@@ -55,6 +67,9 @@ public class NexusMetadataAppenderTest {
 	private static final String SCANNABLE_NAME_DETECTOR_DISTANCE = "detDistance";
 	private static final String GROUP_NAME_CALIBRATION_METHOD = "calibration_method";
 	private static final String CALIBRATION_DESCRIPTION = "This is the calibration description";
+	private static final String INTERNAL_LINK_PATH = "/entry/calibration/angular";
+	private static final String EXTERNAL_FILE_PATH = "detFlatField.nxs";
+	private static final String EXTERNAL_LINK_PATH = "/entry/det/flatfield";
 
 	private INexusDeviceService nexusDeviceService;
 
@@ -96,6 +111,8 @@ public class NexusMetadataAppenderTest {
 		appender.addScalarField(NXdetector.NX_DETECTOR_NUMBER, DETECTOR_NUMBER);
 		appender.addScalarField(NXdetector.NX_DESCRIPTION, DETECTOR_DESCRIPTION);
 		appender.addScannableField(NXdetector.NX_DISTANCE, SCANNABLE_NAME_DETECTOR_DISTANCE);
+		appender.addLinkedField(NXdetector.NX_ANGULAR_CALIBRATION, INTERNAL_LINK_PATH);
+		appender.addExternalLinkedField(NXdetector.NX_FLATFIELD, EXTERNAL_FILE_PATH, EXTERNAL_LINK_PATH);
 
 		final GroupMetadataNode<NXnote> calibrationNoteNode = new GroupMetadataNode<>(
 				GROUP_NAME_CALIBRATION_METHOD, NexusBaseClass.NX_NOTE);
@@ -114,10 +131,25 @@ public class NexusMetadataAppenderTest {
 
 		// Assert
 		assertThat(nxDetector, is(notNullValue()));
+		assertThat(nxDetector.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_COUNT_TIME, NXdetector.NX_DATA,
+				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, "exposure_time", "escape_radius", "max_iterations",
+				FIELD_NAME_REAL_AXIS, FIELD_NAME_IMAGINARY_AXIS, FIELD_NAME_SPECTRUM_AXIS, "name",
+				NXdetector.NX_DESCRIPTION, NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DISTANCE));
 		assertThat(nxDetector.getDetector_numberScalar(), is(DETECTOR_NUMBER));
 		assertThat(nxDetector.getDescriptionScalar(), is(equalTo(DETECTOR_DESCRIPTION)));
 		assertThat(nxDetector.getDistanceScalar(), is(DETECTOR_DISTANCE));
 
+		assertThat(nxDetector.getSymbolicNodeNames(), containsInAnyOrder(NXdetector.NX_FLATFIELD, NX_ANGULAR_CALIBRATION));
+		final SymbolicNode angularCalibrationLink = nxDetector.getSymbolicNode(NXdetector.NX_ANGULAR_CALIBRATION);
+		assertThat(angularCalibrationLink, is(notNullValue()));
+		assertThat(angularCalibrationLink.getSourceURI(), is(nullValue()));
+		assertThat(angularCalibrationLink.getPath(), is(equalTo(INTERNAL_LINK_PATH)));
+		final SymbolicNode flatfieldLink = nxDetector.getSymbolicNode(NXdetector.NX_FLATFIELD);
+		assertThat(flatfieldLink, is(notNullValue()));
+		assertThat(flatfieldLink.getSourceURI(), is(equalTo(new URI(EXTERNAL_FILE_PATH))));
+		assertThat(flatfieldLink.getPath(), is(equalTo(EXTERNAL_LINK_PATH)));
+
+		assertThat(nxDetector.getGroupNodeNames(), contains(GROUP_NAME_CALIBRATION_METHOD));
 		final NXnote calibrationMethodNote = nxDetector.getCalibration_method();
 		assertThat(calibrationMethodNote, is(notNullValue()));
 		assertThat(calibrationMethodNote.getDescriptionScalar(), is(equalTo(CALIBRATION_DESCRIPTION)));

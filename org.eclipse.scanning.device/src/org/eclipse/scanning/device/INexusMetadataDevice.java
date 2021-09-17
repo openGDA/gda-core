@@ -20,6 +20,7 @@ package org.eclipse.scanning.device;
 
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.scanning.api.IScannable;
@@ -80,11 +81,20 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 
 	/**
 	 * Creates and adds a {@link LinkedField} to this device, which will add a link with the
-	 * given name to the given path within the nexus file.
+	 * given name to the {@link DataNode} with the path within the nexus file.
 	 * @param fieldName field name
 	 * @param linkPath path to link to within entry
 	 */
 	public void addLinkedField(String fieldName, String linkPath);
+
+	/**
+	 * Creates and adds a {@link LinkedField} to this device, which will add a link with the
+	 * given name to the dataset at the given path within the external nexus or hdf5 file at the given file path.
+	 * @param fieldName field name
+	 * @param externalFilePath path to external nexus file to link to
+	 * @param linkPath path to link to within external nexus file
+	 */
+	public void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
 
 	/**
 	 * Adds all given {@link MetadataNode}s to this device. This method is named so that it to make

@@ -77,6 +77,11 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 	}
 
 	@Override
+	public void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath) {
+		metadataNode.addChildNode(new LinkedField(fieldName, externalFilePath, linkPath));
+	}
+
+	@Override
 	public void setChildNodes(List<MetadataNode> customNodes) {
 		// this is the method used by spring
 		metadataNode.addChildNodes(customNodes);
