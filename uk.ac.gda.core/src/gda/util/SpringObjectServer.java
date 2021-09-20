@@ -102,7 +102,7 @@ public class SpringObjectServer extends ObjectServer {
 		final String configLocation = "file:" + xmlFile.getAbsolutePath();
 		applicationContext = new GenericApplicationContext();
 		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
-				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class);
+				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class, Set.of("org.apache.activemq.activemq-osgi"));
 		applicationContext.setClassLoader(cl);
 		XmlBeanDefinitionReader beanReader = new XmlBeanDefinitionReader(applicationContext);
 		beanReader.setEntityResolver(new PluggableSchemaResolver(cl));

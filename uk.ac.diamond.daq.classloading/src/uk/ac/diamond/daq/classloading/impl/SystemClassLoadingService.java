@@ -54,7 +54,7 @@ public class SystemClassLoadingService implements GDAClassLoaderService {
 	}
 
 	@Override
-	public ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass) {
+	public ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass, Set<String> excludedBundles) {
 		return LOADER;
 	}
 }

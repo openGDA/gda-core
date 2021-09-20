@@ -67,9 +67,10 @@ public class GDAOsgiClassLoaderService implements GDAClassLoaderService {
 	}
 
 	@Override
-	public ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass) {
-		Set<Bundle> allBundles = Arrays.stream(FrameworkUtil.getBundle(getClass()).getBundleContext().getBundles()).collect(Collectors.toSet());
-		return createClassLoader(libraryClass, c -> {}, allBundles);
+	public ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass, Set<String> excludedBundles) {
+		Set<Bundle> bundles = Arrays.stream(FrameworkUtil.getBundle(getClass()).getBundleContext().getBundles()).collect(Collectors.toSet());
+		bundles.removeIf(b -> excludedBundles.contains(b.getSymbolicName()));
+		return createClassLoader(libraryClass, c -> {}, bundles);
 	}
 
 	private ClassLoader createClassLoader(Class<?> libraryClass, Consumer<Class<?>> onSuccess,

@@ -18,6 +18,7 @@
 
 package gda.spring;
 
+import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -51,7 +52,7 @@ public class PropertyPlaceholderConfigurerTest {
 		File file = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, relativeFileName);
 		GenericApplicationContext context = new GenericApplicationContext();
 		ClassLoader cl = GDAClassLoaderService.getClassLoaderService()
-				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class);
+				.getClassLoaderForLibraryWithGlobalResourceLoading(XmlBeanDefinitionReader.class, emptySet());
 		XmlBeanDefinitionReader defReader = new XmlBeanDefinitionReader(context);
 		defReader.setEntityResolver(new PluggableSchemaResolver(cl));
 		defReader.setNamespaceHandlerResolver(new DefaultNamespaceHandlerResolver(cl));

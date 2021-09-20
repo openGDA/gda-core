@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.web;
 
+import static java.util.Collections.emptySet;
+
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
@@ -135,7 +137,7 @@ public class SpringWebInitializer {
 	private void onStartup(ServletContext container) {
 		// Create the application context
 		rootContext = new AnnotationConfigWebApplicationContext();
-		rootContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibraryWithGlobalResourceLoading(AnnotationConfigWebApplicationContext.class));
+		rootContext.setClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoaderForLibraryWithGlobalResourceLoading(AnnotationConfigWebApplicationContext.class, emptySet()));
 		rootContext.register(SpringContextConfiguration.class);
 
 		ServletRegistration.Dynamic dispatcher = container.addServlet("restServlet",

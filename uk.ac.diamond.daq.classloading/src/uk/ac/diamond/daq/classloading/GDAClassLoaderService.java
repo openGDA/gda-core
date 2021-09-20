@@ -91,8 +91,9 @@ public interface GDAClassLoaderService {
 	 *
 	 * @param libraryClass
 	 *            the ClassLoader of this Class object will be searched first
+	 * @param excludedBundles set of bundle symbolic names to exclude from the resource loading
 	 */
-	ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass);
+	ClassLoader getClassLoaderForLibraryWithGlobalResourceLoading(Class<?> libraryClass, Set<String> excludedBundles);
 
 	/**
 	 * Get the class loader service from OSGi if it is running otherwise a null service
