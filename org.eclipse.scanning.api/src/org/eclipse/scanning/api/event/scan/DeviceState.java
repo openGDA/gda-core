@@ -26,6 +26,7 @@ public enum DeviceState {
 	EDITING,
 	EDITABLE,
 	SAVING,
+	LOADING,
 	REVERTING,
 	ARMED,
 	CONFIGURING,
