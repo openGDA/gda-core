@@ -91,9 +91,4 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 
 	protected abstract void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException;
 
-	@Override
-	public void scanEnd() throws NexusException {
-		nexusObject = null;
-	}
-
 }

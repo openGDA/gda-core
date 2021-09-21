@@ -396,7 +396,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		}
 
 		return firstPoint.getDetectorNames().stream()
-				.map(detName -> createDetectorNexusDevice(detName))
+				.map(this::createDetectorNexusDevice)
 				.collect(toList());
 	}
 
@@ -411,10 +411,10 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return device;
 	}
 
-	private INexusDevice<?> createNexusDevice(Scannable scannable) {
-		final INexusDevice<?> nexusDevice = createNexusDevice(scannable, true);
+	private INexusDevice<?> createNexusDevice(Scannable device) {
+		final INexusDevice<?> nexusDevice = createNexusDevice(device, true);
 		if (nexusDevice instanceof ScannableNexusDevice<?>) {
-			((ScannableNexusDevice<?>) nexusDevice).setScanObject(getScanObject(scannable.getName()));
+			((ScannableNexusDevice<?>) nexusDevice).setScanObject(getScanObject(device.getName()));
 		}
 		return nexusDevice;
 	}

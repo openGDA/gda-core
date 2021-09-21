@@ -45,6 +45,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -388,17 +389,18 @@ public class HKLScanTest {
 		final NXinstrument instrument = entry.getInstrument();
 		assertThat(instrument, is(notNullValue()));
 
-		// check the NXpositioner for the hkl scannable
-		final NXpositioner hklPositioner = instrument.getPositioner(HKL_SCANNABLE_NAME);
-		assertThat(hklPositioner, is(notNullValue()));
+		// check the NXcollection for the hkl scannable
+		final NXcollection hklCollection = instrument.getCollection(HKL_SCANNABLE_NAME);
+		assertThat(hklCollection, is(notNullValue()));
 
 		final String[] allFieldNames = ArrayUtils.addAll(INPUT_NAMES, EXTRA_NAMES);
 		final String[] expectedDataNodeNames = ArrayUtils.add(allFieldNames, NXpositioner.NX_NAME);
-		assertThat(hklPositioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(hklCollection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 		for (int i = 0; i < allFieldNames.length; i++) {
 			final String fieldName = allFieldNames[i];
 			final boolean isInputField = i < INPUT_NAMES.length;
-			final DataNode dataNode = hklPositioner.getDataNode(fieldName);
+
+			final DataNode dataNode = hklCollection.getDataNode(fieldName);
 			assertThat(dataNode, is(notNullValue()));
 			assertThat(dataNode.getDataset().getShape(), is(equalTo(hklScan.getExpectedShape())));
 
@@ -408,6 +410,15 @@ public class HKLScanTest {
 			assertThat(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(fieldName)));
 			assertThat(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME).getFirstElement(),
 					is(equalTo(HKL_SCANNABLE_NAME + "." + fieldName)));
+
+			if (isInputField) {
+				final String positionerName = HKL_SCANNABLE_NAME + "." + fieldName;
+				final NXpositioner positioner = instrument.getPositioner(positionerName);
+				assertThat(positioner, is(notNullValue()));
+				assertThat(positioner.getDataNodeNames(), contains(NXpositioner.NX_NAME, NXpositioner.NX_VALUE));
+				assertThat(positioner.getNameScalar(), is(equalTo(positionerName)));
+				assertThat(positioner.getDataNode(NXpositioner.NX_VALUE), is(sameInstance(dataNode)));
+			}
 		}
 
 		// check the NXdata group
@@ -431,8 +442,8 @@ public class HKLScanTest {
 			final String dataFieldName = hklLinkedFieldNames[i];
 			final DataNode dataNode = dataGroup.getDataNode(dataFieldName);
 			assertThat(dataNode, is(notNullValue()));
-			assertThat(dataNode, is(sameInstance(hklPositioner.getDataNode(inputFieldName))));
-			assertIndices(dataGroup, dataFieldName, new int[] { 0 }); // each hkl field maps to the first dimension of the signal field
+			assertThat(dataNode, is(sameInstance(hklCollection.getDataNode(inputFieldName))));
+			assertIndices(dataGroup, dataFieldName, 0); // each hkl field maps to the first dimension of the signal field
 			assertTarget(dataGroup, dataFieldName, nexusRoot, "/entry/instrument/" + HKL_SCANNABLE_NAME + "/" + inputFieldName);
 		}
 	}
