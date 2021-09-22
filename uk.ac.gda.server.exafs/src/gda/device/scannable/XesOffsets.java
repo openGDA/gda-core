@@ -274,9 +274,8 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		double offset = xesScannable.getHorizontalCrystalOffset();
 
 		Map<Scannable, Double> expectedValues = new HashMap<>();
-		expectedValues.putAll(getResults(xesScannable.getMinusCrystalGroup(), rowlandRadius, bragg, -offset));
-		expectedValues.putAll(getResults(xesScannable.getCentreCrystalGroup(), rowlandRadius, bragg, 0));
-		expectedValues.putAll(getResults(xesScannable.getPlusCrystalGroup(), rowlandRadius, bragg, offset));
+		xesScannable.getCrystalsList().forEach( crystal ->
+			expectedValues.putAll(getResults(crystal, rowlandRadius, bragg, crystal.getHorizontalIndex()*offset)));
 
 		expectedValues.put(xesScannable.getSpectrometerX(), xtalxExpected);
 
