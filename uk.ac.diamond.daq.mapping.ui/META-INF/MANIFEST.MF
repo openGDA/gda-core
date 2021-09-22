@@ -94,10 +94,12 @@ Export-Package: uk.ac.diamond.daq.mapping.ui,
  uk.ac.diamond.daq.mapping.ui.experiment.focus,
  uk.ac.diamond.daq.mapping.ui.experiment.saver,
  uk.ac.diamond.daq.mapping.ui.position.summary,
+ uk.ac.diamond.daq.mapping.ui.ptychography,
  uk.ac.diamond.daq.mapping.ui.services,
  uk.ac.diamond.daq.mapping.ui.stage,
  uk.ac.diamond.daq.mapping.ui.stage.enumeration,
  uk.ac.diamond.daq.mapping.ui.stage.serializer,
+ uk.ac.diamond.daq.mapping.ui.tomography,
  uk.ac.diamond.daq.mapping.ui.xanes
 Bundle-Activator: uk.ac.diamond.daq.mapping.ui.Activator
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui
