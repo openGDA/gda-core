@@ -19,6 +19,7 @@
 package uk.ac.gda.hrpd.cvscan;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,8 @@ import gda.device.monitor.IonChamberBeamMonitor;
 import gda.device.scannable.ScannableMotionBase;
 import gda.factory.FactoryException;
 import gda.hrpd.data.EpicsCVscanDataWriter;
+import gda.hrpd.data.ProcessedMacData;
+import gda.hrpd.data.RawMacData;
 import gda.hrpd.pmac.SafePosition;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -53,6 +57,7 @@ import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
@@ -62,6 +67,10 @@ import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
  */
 @ServiceInterface(Scannable.class)
 public class CVScan extends ScannableMotionBase implements IObserver {
+
+	private static final String PROCESSED_EXTENSION_PROPERTY = "gda.data.file.extension.rebinned";
+
+	private static final String RAW_EXTENSION_PROPERTY = "gda.data.file.extension.raw";
 
 	private static final Logger logger = LoggerFactory.getLogger(CVScan.class);
 
@@ -102,6 +111,9 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	private ArrayList<Future<String>> list = new ArrayList<Future<String>>();
 
 	private Callable<?> safePositionSetup;
+
+	/** Whether raw data should be summed at the end of scans - only has effect when multiple files are collected */
+	private boolean summing = true;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -319,6 +331,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	public void atScanEnd() throws DeviceException {
 		paused = false;
 		isGDAScanning = false;
+		int finalCollectionNumber = (int)collectionNumber;
 		collectionNumber = 1;
 		controller.setCollectionNumber(collectionNumber);
 		controller.setGDAScanning(false);
@@ -336,6 +349,47 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 		}
 		if (!list.isEmpty()) {
 			list.clear();
+		}
+		// Check is for > 2 as the collection number is the next file that would be collected
+		if (finalCollectionNumber > 2 && summing) {
+			var dir = getDataWriter().getDataDir();
+			var name = getDataWriter().getCurrentFileName();
+			var rawExt = LocalProperties.get(RAW_EXTENSION_PROPERTY, "raw");
+			var procExt = LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat");
+			var summedRawFilename = String.format("%s-summed.%s", name, rawExt);
+			var summedProcessedFilename = String.format("%s-summed.%s", name, procExt);
+			Async.submit(() -> {
+				logger.debug("Writing summed raw data to {}", summedRawFilename);
+				// collection number is incremented at the end of each point so is
+				// exclusive range includes all files
+				IntStream.range(1, finalCollectionNumber)
+						.mapToObj(i -> buildFilename(dir, name, i, rawExt))
+						.map(RawMacData::readFile)
+						// If both are present, add them, else empty
+						.reduce((l, r) -> l.flatMap(lv -> r.map(lv::add)))
+						.ifPresent(d -> d.ifPresentOrElse(
+								f -> f.tryWrite(Paths.get(dir, summedRawFilename).toString())
+										.ifPresent(e -> logger.error("Error writing summed raw MAC data", e)),
+								() -> logger.error("Failed to read all raw MAC data")
+						));
+			}).onFailure(t -> logger.error("Error in background raw data summing task", t));
+
+			Async.submit(() -> {
+				logger.debug("Writing summed processed data to {}", summedProcessedFilename);
+				// collection number is incremented at the end of each point so is
+				// exclusive range includes all files
+				IntStream.range(1, finalCollectionNumber)
+						.mapToObj(i -> buildFilename(dir, name, i, procExt))
+						.map(ProcessedMacData::readFile)
+						// If both are present, add them, else empty
+						.reduce((l, r) -> l.flatMap(lv -> r.map(lv::add)))
+						.ifPresent(d -> d.ifPresentOrElse(
+								f -> f.tryWrite(Paths.get(dir, summedProcessedFilename).toString())
+										.ifPresent(e -> logger.error("Error writing summed processed MAC data", e)),
+								() -> logger.error("Failed to read all processed MAC data")
+						));
+			}).onFailure(t -> logger.error("Error in background processed data summing task", t));
+
 		}
 		if (controller != null) {
 			controller.deleteIObserver(this);
@@ -367,7 +421,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	// hack to satisfy scan framework requirement
 	private void filesToWriteTo() {
 		rebinnedfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get("gda.data.file.extension.rebinned", "dat"));
+				collectionNumber, LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat"));
 	}
 
 	/*
@@ -375,10 +429,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 */
 	private void createFilesToWriteTo() {
 		rawfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get("gda.data.file.extension.raw", "raw"));
+				collectionNumber, LocalProperties.get(RAW_EXTENSION_PROPERTY, "raw"));
 		InterfaceProvider.getTerminalPrinter().print("Raw data will be saved to file: " + rawfile.getAbsolutePath());
 		rebinnedfile = buildFile(getDataWriter().getDataDir(), getDataWriter().getCurrentFileName(),
-				collectionNumber, LocalProperties.get("gda.data.file.extension.rebinned", "dat"));
+				collectionNumber, LocalProperties.get(PROCESSED_EXTENSION_PROPERTY, "dat"));
 		InterfaceProvider.getTerminalPrinter().print(
 				"Rebinned data will be saved to file: " + rebinnedfile.getAbsolutePath());
 		InterfaceProvider.getTerminalPrinter().print("When constant velocity scan completed successfully.");
@@ -574,6 +628,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			InterfaceProvider.getTerminalPrinter().print(
 					getName() + ": 2nd motor is not available in the Current CVScan profile.");
 		}
+	}
+
+	private String buildFilename(String dir, String filename, long collectionNumber, String ext) {
+		return buildFile(dir, filename, collectionNumber, ext).getPath();
 	}
 
 	private File buildFile(String dir, String filename, long collectionNumber, String ext) {
@@ -938,6 +996,14 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 
 	public void setSafePositionSetup(Callable<?> safePositionSetup) {
 		this.safePositionSetup = safePositionSetup;
+	}
+
+	public boolean isSumming() {
+		return summing;
+	}
+
+	public void setSumming(boolean summing) {
+		this.summing = summing;
 	}
 
 }
