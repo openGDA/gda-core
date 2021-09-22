@@ -87,9 +87,9 @@ public abstract class ScriptBase extends FindableConfigurableBase {
 	private static boolean shouldRespectPauses() {
 		Boolean pause = respectPauses.get();
 		if (pause == null) {
-			Thread current = Thread.currentThread();
-			// This thread should only pause if it is representing a script
-			pause = (current instanceof JythonServerThread) && ((JythonServerThread)current).isScript();
+			var current = Thread.currentThread();
+			// This thread should only pause if it is representing a Jython command/script
+			pause = current instanceof JythonServerThread;
 			respectPauses.set(pause); //cache to prevent further casting/type checking
 			logger.debug("Thread ({}) set to {} ScriptBase.paused flag", current.getName(), pause ? "respect" : "ignore");
 		}
