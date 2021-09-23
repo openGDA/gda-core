@@ -39,8 +39,12 @@ import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.queue.QueueStatusBean;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class JobQueueProxy<U extends StatusBean> extends AbstractConnection implements IJobQueue<U> {
+
+	private static final Logger logger = LoggerFactory.getLogger(JobQueueProxy.class);
 
 	private final String commandTopicName;
 	private final String commandAckTopicName;
@@ -142,11 +146,21 @@ public final class JobQueueProxy<U extends StatusBean> extends AbstractConnectio
 	@Override
 	public synchronized void disconnect() throws EventException {
 		super.disconnect();
-		queueCommandRequestor.disconnect();
-		queueStatusTopicSubscriber.disconnect();
+		if (queueCommandRequestor != null) {
+			try {
+				queueCommandRequestor.disconnect();
+			} catch (EventException e) {
+				logger.error("Error disconnecting queueCommandRequestor", e);
+			}
+		}
+		try {
+			queueStatusTopicSubscriber.disconnect();
+		} catch (EventException e) {
+			logger.error("Error disconnecting queueStatusTopicSubscriber", e);
+		}
 	}
 
-	/*
+	/**
 	 *  Only called when a StatusBean is re-submitted, not on initial submit (see SubmitScanSection.submit()) or from mscan (old or new)
 	 *  Therefore, probably want to refresh the queue of all clients watching the JobQueueImpl
 	 */
