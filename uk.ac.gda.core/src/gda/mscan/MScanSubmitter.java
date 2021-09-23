@@ -270,7 +270,7 @@ public class MScanSubmitter extends ValidationUtils {
 					if ((bean.getStatus().equals(Status.PREPARING) || bean.getStatus().equals(Status.COMPLETE)) && bean.getFilePath() != null) {
 						printToJython(ImmutableMap.of("Output file: ", bean.getFilePath()));
 					} else if (bean.getStatus().equals(Status.FAILED)) {
-						printToJython(ImmutableMap.of("Failed: ", bean.getMessage()));
+						facade.print(bean.getMessage());
 					}
 				}
 			});
