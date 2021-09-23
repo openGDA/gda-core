@@ -34,7 +34,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.IBeanValueProperty;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -71,6 +72,7 @@ import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 
 /**
@@ -264,7 +266,7 @@ public class ScanManagementController extends AbstractMappingController {
 			final PersistenceServiceWrapper persistenceService = getService(PersistenceServiceWrapper.class);
 			persistenceService.save(persistableBean);
 
-			SpringApplicationContextProxy.publishEvent(new ScanRequestSavedEvent(this, persistableBean.getScanName(),
+			SpringApplicationContextFacade.publishEvent(new ScanRequestSavedEvent(this, persistableBean.getScanName(),
 					createScanBean().getScanRequest()));
 		} catch (PersistenceException e) {
 			final String errorMessage = "Could not save the mapping scan : " + persistableBean.getScanName();
@@ -424,9 +426,9 @@ public class ScanManagementController extends AbstractMappingController {
 	 *
 	 * @return An {@link IObservableValue} indicating if Ctrl-Click scanning is enabled
 	 */
-	@SuppressWarnings("unchecked")
 	public IObservableValue<Boolean> getClickToScanArmedObservableValue() {
-		return BeanProperties.value("clickToScanArmed").observe(this);
+		final IBeanValueProperty<ScanManagementController, Boolean> property = BeanProperties.value("clickToScanArmed");
+		return property.observe(this);
 	}
 
 	private void captureStageInfoSnapshot() {
@@ -436,12 +438,11 @@ public class ScanManagementController extends AbstractMappingController {
 
 	private void addMonitors(IMappingExperimentBean mappingBean) {
 		final IViewReference viewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
-		if (viewRef == null)
-			return;
-		final MonitorView monitorView = (MonitorView) viewRef.getView(true); // TODO should we restore the view?
+		if (viewRef == null) return;
 
-		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole = (map,
-				role) -> map.entrySet().stream()
+		final MonitorView monitorView = (MonitorView) viewRef.getView(true); // TODO should we restore the view?
+		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole =
+				(map, role) -> map.entrySet().stream()
 						.filter(entry -> entry.getValue() == role)
 						.map(Map.Entry::getKey).collect(toSet());
 
