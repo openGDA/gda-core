@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -411,27 +412,7 @@ public class SolsticeScanMetadataWriterTest {
 		// assert links to unique keys for devices that write their own
 		final int expectedNumUniqueKeys = (nexusObjectProviders.size() - 1) + (uniqueKeysDataNode == null ? 0 : 1);
 		assertThat(keysCollection.getNumberOfNodelinks(), is(expectedNumUniqueKeys));
-		// TODO: Extract logic that is duplicated in testWriteScanpoints
-		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
-			final String deviceName = objectProvider.getName();
-			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
-			final Set<String> externalFileNames = objectProvider.getExternalFileNames();
-			if (externalFileNames.isEmpty()) {
-				assertThat(deviceName, is(equalTo("internal")));
-				final NXobject nexusObject = objectProvider.getNexusObject();
-				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH);
-				assertThat(uniqueKeysNodeLink, is(notNullValue()));
-				assertThat(uniqueKeysNodeLink.isDestinationData(), is(true));
-				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH).getDestination();
-				assertThat(keysCollection.getDataNode(deviceName), is(sameInstance(uniqueKeysNode)));
-			} else {
-				final String externalFileName = externalFileNames.iterator().next();
-				String datasetName = externalFileName.contains(objectProvider.getName()) ? objectProvider.getName() : "panda";
-				final SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
-				assertThat(symbolicNode, is(notNullValue()));
-				assertThat(symbolicNode.getPath(), is(equalTo(uniqueKeysPath)));
-			}
-		}
+		assertDevicesWritingKeys(nexusObjectProviders, keysCollection);
 
 		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_START_TIME), true, scanRank);
 		checkTimeStampDataset(diamondScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME), true, scanRank);
@@ -448,6 +429,7 @@ public class SolsticeScanMetadataWriterTest {
 		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 		return gridModel;
 	}
+
 
 	private void assertUnitsSet(DataNode node) {
 		final Attribute unitsAttribute = node.getAttribute(ATTRIBUTE_NAME_UNITS);
@@ -572,27 +554,7 @@ public class SolsticeScanMetadataWriterTest {
 
 		// assert links to unique keys for devices that write their own
 		assertThat(keysCollection.getNumberOfNodelinks(), is(4));
-		// TODO: Extract logic that is duplicated in testCreateNexusObject
-		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
-			final String deviceName = objectProvider.getName();
-			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
-			final Set<String> externalFileNames = objectProvider.getExternalFileNames();
-			if (externalFileNames.isEmpty()) {
-				assertThat(deviceName, is(equalTo("internal")));
-				final NXobject nexusObject = objectProvider.getNexusObject();
-				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH);
-				assertThat(uniqueKeysNodeLink, is(notNullValue()));
-				assertThat(uniqueKeysNodeLink.isDestinationData(), is(true));
-				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH).getDestination();
-				assertThat(uniqueKeysNode, is(sameInstance(keysCollection.getDataNode(deviceName))));
-			} else {
-				final String externalFileName = externalFileNames.iterator().next();
-				String datasetName = externalFileName.contains(objectProvider.getName()) ? objectProvider.getName() : "panda";
-				SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
-				assertThat(symbolicNode, is(notNullValue()));
-				assertThat(symbolicNode.getPath(), is(equalTo(uniqueKeysPath)));
-			}
-		}
+		assertDevicesWritingKeys(nexusObjectProviders, keysCollection);
 
 		// test calling setPosition
 		// arrange
@@ -661,6 +623,29 @@ public class SolsticeScanMetadataWriterTest {
 		assertThat(uniqueKeysSlice.getStep(), is(equalTo(expectedShape))); // all ones
 		final int[] stopIndices = Arrays.stream(indices).map(x -> x + 1).toArray();
 		assertThat(uniqueKeysSlice.getStop(), is(equalTo(stopIndices)));
+	}
+
+	private void assertDevicesWritingKeys(Collection<NexusObjectProvider<?>> nexusObjectProviders, NXcollection keysCollection) {
+		for (NexusObjectProvider<?> objectProvider : nexusObjectProviders) {
+			final String deviceName = objectProvider.getName();
+			final String uniqueKeysPath = (String) objectProvider.getPropertyValue(PROPERTY_NAME_UNIQUE_KEYS_PATH);
+			final Set<String> externalFileNames = objectProvider.getExternalFileNames();
+			if (externalFileNames.isEmpty()) {
+				assertThat(deviceName, is(equalTo("internal")));
+				final NXobject nexusObject = objectProvider.getNexusObject();
+				final NodeLink uniqueKeysNodeLink = nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH);
+				assertThat(uniqueKeysNodeLink, is(notNullValue()));
+				assertThat(uniqueKeysNodeLink.isDestinationData(), is(true));
+				final DataNode uniqueKeysNode = (DataNode) nexusObject.findNodeLink(PROPERTY_NAME_UNIQUE_KEYS_PATH).getDestination();
+				assertThat(uniqueKeysNode, is(sameInstance(keysCollection.getDataNode(deviceName))));
+			} else {
+				final String externalFileName = externalFileNames.iterator().next();
+				String datasetName = externalFileName.contains(objectProvider.getName()) ? objectProvider.getName() : "panda";
+				SymbolicNode symbolicNode = keysCollection.getSymbolicNode(datasetName);
+				assertThat(symbolicNode, is(notNullValue()));
+				assertThat(symbolicNode.getPath(), is(equalTo(uniqueKeysPath)));
+			}
+		}
 	}
 
 }
