@@ -114,7 +114,7 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 
 	@Override
 	public void addScalarField(String fieldName, Object fieldValue, String units) {
-		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue));
+		metadataNode.addChildNode(new ScalarField(fieldName, fieldValue, units));
 	}
 
 	@Override

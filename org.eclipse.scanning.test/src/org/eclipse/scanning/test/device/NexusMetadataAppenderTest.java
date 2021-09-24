@@ -19,12 +19,14 @@
 package org.eclipse.scanning.test.device;
 
 import static org.eclipse.dawnsci.nexus.NXdetector.NX_ANGULAR_CALIBRATION;
+import static org.eclipse.scanning.device.AbstractMetadataField.ATTRIBUTE_NAME_UNITS;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_IMAGINARY_AXIS;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_REAL_AXIS;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_SPECTRUM;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_SPECTRUM_AXIS;
 import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAME_VALUE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -64,12 +66,14 @@ public class NexusMetadataAppenderTest {
 	private static final long DETECTOR_NUMBER = 4;
 	private static final String DETECTOR_DESCRIPTION = "Mandelbrot Detector";
 	private static final double DETECTOR_DISTANCE = 1.39;
+	private static final double DETECTOR_DIAMETER = 234.56;
 	private static final String SCANNABLE_NAME_DETECTOR_DISTANCE = "detDistance";
 	private static final String GROUP_NAME_CALIBRATION_METHOD = "calibration_method";
 	private static final String CALIBRATION_DESCRIPTION = "This is the calibration description";
 	private static final String INTERNAL_LINK_PATH = "/entry/calibration/angular";
 	private static final String EXTERNAL_FILE_PATH = "detFlatField.nxs";
 	private static final String EXTERNAL_LINK_PATH = "/entry/det/flatfield";
+	private static final String UNITS_MILLIS = "mm";
 
 	private INexusDeviceService nexusDeviceService;
 
@@ -110,6 +114,7 @@ public class NexusMetadataAppenderTest {
 		appender.setName(detector.getName());
 		appender.addScalarField(NXdetector.NX_DETECTOR_NUMBER, DETECTOR_NUMBER);
 		appender.addScalarField(NXdetector.NX_DESCRIPTION, DETECTOR_DESCRIPTION);
+		appender.addScalarField(NXdetector.NX_DIAMETER, DETECTOR_DIAMETER, UNITS_MILLIS);
 		appender.addScannableField(NXdetector.NX_DISTANCE, SCANNABLE_NAME_DETECTOR_DISTANCE);
 		appender.addLinkedField(NXdetector.NX_ANGULAR_CALIBRATION, INTERNAL_LINK_PATH);
 		appender.addExternalLinkedField(NXdetector.NX_FLATFIELD, EXTERNAL_FILE_PATH, EXTERNAL_LINK_PATH);
@@ -134,10 +139,12 @@ public class NexusMetadataAppenderTest {
 		assertThat(nxDetector.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_COUNT_TIME, NXdetector.NX_DATA,
 				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, "exposure_time", "escape_radius", "max_iterations",
 				FIELD_NAME_REAL_AXIS, FIELD_NAME_IMAGINARY_AXIS, FIELD_NAME_SPECTRUM_AXIS, "name",
-				NXdetector.NX_DESCRIPTION, NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DISTANCE));
+				NXdetector.NX_DESCRIPTION, NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DISTANCE, NXdetector.NX_DIAMETER));
 		assertThat(nxDetector.getDetector_numberScalar(), is(DETECTOR_NUMBER));
 		assertThat(nxDetector.getDescriptionScalar(), is(equalTo(DETECTOR_DESCRIPTION)));
-		assertThat(nxDetector.getDistanceScalar(), is(DETECTOR_DISTANCE));
+		assertThat(nxDetector.getDistanceScalar(), is(closeTo(DETECTOR_DISTANCE, 1e-15)));
+		assertThat(nxDetector.getDiameterScalar(), is(DETECTOR_DIAMETER));
+		assertThat(nxDetector.getAttrString(NXdetector.NX_DIAMETER, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_MILLIS)));
 
 		assertThat(nxDetector.getSymbolicNodeNames(), containsInAnyOrder(NXdetector.NX_FLATFIELD, NX_ANGULAR_CALIBRATION));
 		final SymbolicNode angularCalibrationLink = nxDetector.getSymbolicNode(NXdetector.NX_ANGULAR_CALIBRATION);
