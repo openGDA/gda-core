@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -29,8 +30,10 @@ import java.util.Set;
 
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +62,16 @@ public class ApplyNexusTemplateTest {
 	private String pathFile2 = "file:/lev3/lev4";
 	private URL file1;
 	private URL file2;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_CONFIG);
+	}
 
 	@Before
 	public void before() throws Exception {

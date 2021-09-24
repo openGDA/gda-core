@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api.document.handlers.processing;
 
+import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +26,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,16 @@ import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 @ContextConfiguration(classes = { ProcessingRequestHandlerServiceTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ProcessingRequestSerialisationTest {
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty(GDA_CONFIG, "test/resources/defaultContext");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_CONFIG);
+	}
 
 	@Autowired
 	private DocumentMapper documentMapper;
