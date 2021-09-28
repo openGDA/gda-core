@@ -81,6 +81,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final String FIELD_NAME_SCAN_DIMENSIONS = "scan_dimensions";
 
+	private static final String EXPECTED_INSTRUMENT_NAME = "i06";
+
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
@@ -110,6 +112,9 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		// Additional note: for some reason metadata values have to be strings.
 
 		// metadata entries for NXmonochromator
+
+		addMetadataEntry(METADATA_KEY_INSTRUMENT, EXPECTED_INSTRUMENT_NAME);
+
 		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_NAME, EXPECTED_MONOCHROMATOR_NAME);
 		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_ENERGY, EXPECTED_MONOCHROMATOR_ENERGY);
 		addMetadataEntry(METADATA_KEY_MONOCHROMATOR_WAVELENGTH, EXPECTED_MONOCHROMATOR_WAVELENGTH);

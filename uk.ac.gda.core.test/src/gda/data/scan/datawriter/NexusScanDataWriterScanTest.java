@@ -19,6 +19,10 @@
 package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
+import static gda.configuration.properties.LocalProperties.GDA_END_STATION_NAME;
+import static gda.configuration.properties.LocalProperties.GDA_INSTRUMENT;
+import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
+import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static java.util.stream.Collectors.toMap;
@@ -36,7 +40,6 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -104,6 +107,8 @@ import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
+import org.hamcrest.Matchers;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -229,6 +234,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 7.432;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
 
+	private static final String EXPECTED_INSTRUMENT_NAME = "ES1";
+	private static final String EXPECTED_BEAMLINE_NAME = "p66";
+	private static final String EXPECTED_END_STATION_NAME = EXPECTED_INSTRUMENT_NAME;
+
 	private static final double EXPECTED_MONOCHROMATOR_ENERGY_ERROR = 2.53;
 
 	private static final double EXPECTED_BEAM_EXTENT = 0.1;
@@ -263,6 +272,22 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	public NexusScanDataWriterScanTest(int scanRank) {
 		super(scanRank);
+	}
+
+	@BeforeClass
+	public static void setUpProperties() {
+		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
+		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
+		LocalProperties.set(GDA_INSTRUMENT, EXPECTED_BEAMLINE_NAME);
+		LocalProperties.set(GDA_END_STATION_NAME, EXPECTED_END_STATION_NAME);
+	}
+
+	@AfterClass
+	public static void tearDownProperties() {
+		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT); // TODO move properties to setUpServices/tearDownAfterclass
+		LocalProperties.clearProperty(PROPERTY_NAME_ENTRY_NAME);
+		LocalProperties.clearProperty(GDA_INSTRUMENT);
+		LocalProperties.clearProperty(GDA_END_STATION_NAME);
 	}
 
 	@BeforeClass
@@ -304,6 +329,9 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void setUpMetadata() throws Exception {
 		super.setUpMetadata();
 
+		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
+		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
+
 		final ClientDetails userDetails = new ClientDetails(0, EXPECTED_USER_ID, EXPECTED_USER_NAME, "ws001", 0, true, "visit1");
 		final IBatonStateProvider batonStateProvider = mock(IBatonStateProvider.class);
 		when(batonStateProvider.getBatonHolder()).thenReturn(userDetails);
@@ -311,19 +339,15 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	public void tearDown() { // inherits @After annotation from superclass
-		super.tearDown();
-		Finder.removeAllFactories();
-		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
-		LocalProperties.clearProperty(PROPERTY_NAME_ENTRY_NAME);
+	protected void setUpTest(String testName) throws Exception {
+		super.setUpTest(testName);
+		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
 	}
 
 	@Override
-	protected void setUpTest(String testName) throws Exception {
-		super.setUpTest(testName);
-		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
-		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
-		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
+	public void tearDown() { // inherits @After annotation from superclass
+		super.tearDown();
+		Finder.removeAllFactories();
 	}
 
 	private void setupCommonBeamlineDevices() throws DeviceException {
@@ -515,9 +539,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected void checkInstrumentGroupMetadata(final NXinstrument instrument) {
-		// TODO add instrument name (DAQ-3151), when this is same as NexusDataWriter, move this method up to superclass
-		assertThat(instrument.getDataNodeNames(), is(empty()));
-//		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
+		assertThat(instrument.getDataNodeNames(), Matchers.containsInAnyOrder(NXinstrument.NX_NAME,
+				NexusScanDataWriter.FIELD_NAME_BEAMLINE, NexusScanDataWriter.FIELD_NAME_END_STATION));
+		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
+		assertThat(instrument.getString(FIELD_NAME_BEAMLINE), is(equalTo(EXPECTED_BEAMLINE_NAME)));
+		assertThat(instrument.getString(FIELD_NAME_END_STATION), is(equalTo(EXPECTED_END_STATION_NAME)));
 
 		// group for each device, each common (metadata) device (e.g. NXMonochromator), plus source group scannables:NXcollection (for scannables in the locationMap)
  		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(getExpectedInstrumentGroupNames()));
