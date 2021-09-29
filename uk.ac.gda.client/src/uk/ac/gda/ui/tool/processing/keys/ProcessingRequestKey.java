@@ -90,4 +90,47 @@ public class ProcessingRequestKey<T> {
 		return builder;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((builder == null) ? 0 : builder.hashCode());
+		result = prime * result + ((documentClass == null) ? 0 : documentClass.hashCode());
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + ((tooltip == null) ? 0 : tooltip.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessingRequestKey<?> other = (ProcessingRequestKey<?>) obj;
+		if (builder == null) {
+			if (other.builder != null)
+				return false;
+		} else if (!builder.equals(other.builder))
+			return false;
+		if (documentClass == null) {
+			if (other.documentClass != null)
+				return false;
+		} else if (!documentClass.equals(other.documentClass))
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (label != other.label)
+			return false;
+		if (tooltip != other.tooltip)
+			return false;
+		return true;
+	}
+
 }

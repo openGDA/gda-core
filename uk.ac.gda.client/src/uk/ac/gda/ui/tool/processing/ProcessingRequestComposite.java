@@ -28,6 +28,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridL
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -113,35 +114,28 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void reload() {
 		table.removeAll();
 
 		List<ProcessingRequestPair<?>> processes = getScanningAcquisition()
 			.map(ScanningAcquisition::getAcquisitionConfiguration)
 			.map(AcquisitionConfiguration::getProcessingRequest)
-			.orElse(null);
+			.orElse(Collections.emptyList());
 
-		if (processes == null) {
+		if (processes.isEmpty()) {
 			appendMandatoryContexts();
 			return;
 		}
 
-		processes.stream()
-			.forEach(p -> {
-				// Find the ProcessingRequestKey associated to a ProcessingRequestPair
-				ProcessingRequestKey<?> key = getProcessingRequestKeyFactory().getProcessingKey(p.getKey());
-
-				ProcessingRequestContext<?> contextKey = this.processingRequestContexts.stream()
-						.filter(c -> c.getKey().getClass().equals(key.getClass()))
-						.findFirst()
-						.orElse(null);
-
-				createRow()
-					.configureRow(new ProcessingRequestContext(contextKey, p.getValue()));
-			});
+		for (var process : processes) {
+			ProcessingRequestKey<?> key = getProcessingRequestKeyFactory().getProcessingKey(process.getKey());
+			ProcessingRequestContext<?> contextKey = processingRequestContexts.stream()
+				.filter(context -> context.getKey().equals(key))
+				.findFirst().orElseThrow();
+			createRow().configureRow(new ProcessingRequestContext(contextKey, process.getValue()));
+		}
 	}
-
-
 
 	private void appendMandatoryContexts() {
 		processingRequestContexts.stream()
