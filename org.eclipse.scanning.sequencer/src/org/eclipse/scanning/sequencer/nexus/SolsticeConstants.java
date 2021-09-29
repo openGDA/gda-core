@@ -20,7 +20,13 @@ public final class SolsticeConstants {
 	 */
 	public static final String SYSTEM_PROPERTY_NAME_ENTRY_NAME = "org.eclipse.scanning.nexusEntryName";
 
+	public static final String SYSTEM_PROPERTY_NAME_INSTRUMENT = "GDA/gda.instrument";
+
+	public static final String SYSTEM_PROPERTY_NAME_END_STATION = "GDA/gda.endstation.name";
+
 	public static final String DEFAULT_ENTRY_NAME = "entry";
+
+	public static final String DEFAULT_BEAMLINE_NAME = "base";
 
 	/**
 	 * Property name for the path within an external (linked) nexus file to the unique keys dataset.
@@ -30,6 +36,10 @@ public final class SolsticeConstants {
 	public static final String FIELD_NAME_SCAN_REQUEST  = "scan_request";
 
 	public static final String FIELD_NAME_SCAN_MODELS   = "scan_models";
+
+	public static final String FIELD_NAME_BEAMLINE = "beamline";
+
+	public static final String FIELD_NAME_END_STATION = "end_station";
 
 	private SolsticeConstants() {
 		// private constructor to prevent instantiation

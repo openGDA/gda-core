@@ -20,6 +20,10 @@ package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_BEAMLINE;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_STATION;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SYSTEM_PROPERTY_NAME_END_STATION;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SYSTEM_PROPERTY_NAME_INSTRUMENT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -85,6 +89,9 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	private static final String MIRROR1_DEVICE_NAME = "mirror1";
 	private static final String MIRROR2_DEVICE_NAME = "mirror2";
 
+	private static final String BEAMLINE = "i99";
+	private static final String END_STATION = "ABC1";
+
 	private static final double EXPECTED_INSERTION_DEVICE_TAPER = 0.123;
 	private static final int EXPECTED_INSERTION_DEVICE_HARMONIC = 3;
 
@@ -145,12 +152,18 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	@BeforeClass
 	public static void setupBeforeClass() {
 		new org.eclipse.dawnsci.nexus.scan.ServiceHolder().setNexusValidationService(new NexusValidationServiceImpl());
+
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
+		System.setProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT, BEAMLINE);
+		System.setProperty(SYSTEM_PROPERTY_NAME_END_STATION, END_STATION);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() {
-		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(false));
+		System.clearProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS);
+		System.clearProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT);
+		System.clearProperty(SYSTEM_PROPERTY_NAME_END_STATION);
+
 		new ServiceHolder().setCommonBeamlineDevicesConfiguration(null);
 	}
 
@@ -162,7 +175,6 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		setUpCommonBeamlineDevices();
 
 		setUpMetadata();
-
 	}
 
 	private void setUpCommonBeamlineDevices() {
@@ -348,7 +360,17 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		checkSampleGroup(entry);
 		checkUsers(entry);
 
-		final NXinstrument instrument = entry.getInstrument();
+		checkInstrument(entry.getInstrument());
+	}
+
+	private void checkInstrument(final NXinstrument instrument) {
+		assertThat(instrument, is(notNullValue()));
+		assertThat(instrument.getDataNodeNames(), containsInAnyOrder(NXinstrument.NX_NAME,
+				FIELD_NAME_BEAMLINE, FIELD_NAME_END_STATION));
+		assertThat(instrument.getNameScalar(), is(equalTo(END_STATION)));
+		assertThat(instrument.getString(FIELD_NAME_BEAMLINE), is(equalTo(BEAMLINE)));
+		assertThat(instrument.getString(FIELD_NAME_END_STATION), is(equalTo(END_STATION)));
+
 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(
 				X_AXIS_NAME, Y_AXIS_NAME, detector.getName(),
 				MONOCHROMATOR_DEVICE_NAME, INSERTION_DEVICE_NAME, SOURCE_DEVICE_NAME,

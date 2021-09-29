@@ -15,6 +15,11 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.DEFAULT_BEAMLINE_NAME;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_BEAMLINE;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.FIELD_NAME_END_STATION;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SYSTEM_PROPERTY_NAME_END_STATION;
+import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SYSTEM_PROPERTY_NAME_INSTRUMENT;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,11 +33,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -185,10 +190,10 @@ public class NexusScanFileManager {
 		do {
 			// check the given set of scannable names for dependencies
 			// each iteration checks the scannable names added in the previous one
-			Set<String> requiredScannableNames = scannableNamesToCheck.stream()
+			final Set<String> requiredScannableNames = scannableNamesToCheck.stream()
 					.flatMap(name -> scannableDeviceService.getRequiredPerScanMonitorNames(name).stream())
 					.filter(name -> !newPerScanMonitorNames.contains(name))
-					.collect(Collectors.toSet());
+					.collect(toSet());
 
 			newPerScanMonitorNames.addAll(requiredScannableNames);
 			scannableNamesToCheck = requiredScannableNames;
@@ -210,14 +215,28 @@ public class NexusScanFileManager {
 	}
 
 	private List<NexusMetadataProvider> createScanMetadataProviders(ScanModel scanModel) {
-		final List<NexusMetadataProvider> metadataProviders = scanModel.getScanMetadata().stream().
-				map(this::toNexusMetadataProvider).collect(toCollection(ArrayList::new));
+		final List<NexusMetadataProvider> metadataProviders = new ArrayList<>();
 
 		// add an metadata provider for the NXentry group to write 'experiment_identifier' and 'program_name'
-		final MapBasedMetadataProvider entryMetadataProvider = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
-		entryMetadataProvider.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, scanModel.getBean().getExperimentId());
-		entryMetadataProvider.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
-		metadataProviders.add(entryMetadataProvider);
+		final MapBasedMetadataProvider entryMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
+		entryMetadata.addMetadataEntry(NXentry.NX_EXPERIMENT_IDENTIFIER, scanModel.getBean().getExperimentId());
+		entryMetadata.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
+		metadataProviders.add(entryMetadata);
+
+		// add a metadata provider for the NXinstrument to add 'name, 'beamline' and 'end_station'
+		final MapBasedMetadataProvider instrumentMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_INSTRUMENT);
+		final String beamlineName = System.getProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT, DEFAULT_BEAMLINE_NAME);
+		instrumentMetadata.addMetadataEntry(FIELD_NAME_BEAMLINE, beamlineName);
+		final String endStationName = System.getProperty(SYSTEM_PROPERTY_NAME_END_STATION);
+		if (endStationName != null) instrumentMetadata.addMetadataEntry(FIELD_NAME_END_STATION, endStationName);
+		final String instrumentName = endStationName != null ? endStationName : beamlineName;
+		instrumentMetadata.addMetadataEntry(NXinstrument.NX_NAME, instrumentName);
+		metadataProviders.add(instrumentMetadata);
+
+		// add metadata from the scan model afterwards, so that the can overwrite the built-in ones above
+		metadataProviders.addAll(scanModel.getScanMetadata().stream()
+				.map(this::toNexusMetadataProvider)
+				.collect(toCollection(ArrayList::new)));
 
 		return metadataProviders;
 	}

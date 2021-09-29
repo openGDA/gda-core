@@ -115,7 +115,7 @@ public class ScanMetadataTest extends NexusTest {
 		scanMetadata.add(entryMetadata);
 
 		ScanMetadata instrumentMetadata = new ScanMetadata(MetadataType.INSTRUMENT);
-		instrumentMetadata.addField(NXinstrument.NX_NAME, "i05-1");
+		instrumentMetadata.addField("beamline", "i05-1");
 		scanMetadata.add(instrumentMetadata);
 
 		ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
