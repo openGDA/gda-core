@@ -40,6 +40,7 @@ import java.util.Set;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -108,6 +109,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	 * to be the Diamond standard.
 	 */
 	public static final String PROPERTY_NAME_ENTRY_NAME = "gda.nexus.entryName";
+
+	public static final String FIELD_NAME_BEAMLINE = "beamline";
+	public static final String FIELD_NAME_END_STATION = "end_station";
 
 	public static final String DEFAULT_ENTRY_NAME = "entry";
 
@@ -520,9 +524,17 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private List<NexusMetadataProvider> createNexusMetadataProviders() {
 		// TODO do we need more metadata providers, or provide a way to populate them from some configuration? see DAQ-3151
-		final MapBasedMetadataProvider metadataProvider = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
-		metadataProvider.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
-		return List.of(metadataProvider);
+		final MapBasedMetadataProvider entryMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_ENTRY);
+		entryMetadata.addMetadataEntry(NXentry.NX_PROGRAM_NAME, "GDA " + Version.getRelease());
+
+		final MapBasedMetadataProvider instrumentMetadata = new MapBasedMetadataProvider(NexusBaseClass.NX_INSTRUMENT);
+		instrumentMetadata.addMetadataEntry(FIELD_NAME_BEAMLINE, beamlineName);
+		final String endStationName = LocalProperties.get(LocalProperties.GDA_END_STATION_NAME);
+		if (endStationName != null) instrumentMetadata.addMetadataEntry(FIELD_NAME_END_STATION, endStationName);
+		final String instrumentName = endStationName != null ? endStationName : beamlineName;
+		instrumentMetadata.addMetadataEntry(NXinstrument.NX_NAME, instrumentName);
+
+		return List.of(entryMetadata, instrumentMetadata);
 	}
 
 	private void writePoint(IScanDataPoint point) throws Exception {
