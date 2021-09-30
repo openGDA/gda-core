@@ -26,6 +26,7 @@ public enum DeviceState {
 	EDITING,
 	EDITABLE,
 	SAVING,
+	LOADING,
 	REVERTING,
 	ARMED,
 	CONFIGURING,
@@ -72,7 +73,7 @@ public enum DeviceState {
 	 * @return
 	 */
 	public boolean isBeforeRun() {
-		return this==ARMED || this==READY || this == CONFIGURING;
+		return this==ARMED || this==READY || this == CONFIGURING || isSaveOrLoad();
 	}
 
 	public boolean isRest() {
@@ -88,11 +89,15 @@ public enum DeviceState {
 	}
 
 	public boolean isTransient() {
-		return this==RUNNING || this==CONFIGURING || this==ABORTING || this==SEEKING || this==DISABLING || this==POSTRUN;
+		return this==RUNNING || this==CONFIGURING || this==ABORTING || this==SEEKING || this==DISABLING || this==POSTRUN || isSaveOrLoad();
 	}
 
 	public boolean isRestState() {
 		return this==READY || this==ARMED || this==FAULT || this==ABORTED || this==DISABLED;
+	}
+
+	private boolean isSaveOrLoad () {
+		return this == SAVING || this == LOADING;
 	}
 
 
