@@ -680,6 +680,14 @@
          </contentTypeBinding>
       </editor>
       <editor
+            class="uk.ac.gda.exafs.ui.detector.mythen.MythenParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/DetectorParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.detector.mythen.MythenParametersEditor"
+            name="Mythen Parameters">
+      </editor>
+      <editor
             class="uk.ac.gda.exafs.ui.XasScanParametersEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
@@ -795,9 +803,13 @@
             class="uk.ac.gda.beans.exafs.XesScanParameters"
             describer="uk.ac.gda.exafs.ui.describers.XesScanParametersDescriber">
       </bean>
-      <bean
+       <bean
             class="uk.ac.gda.beans.medipix.MedipixParameters"
             describer="uk.ac.gda.exafs.ui.describers.MedipixDescriber">
+      </bean>     
+      <bean
+            class="uk.ac.gda.beans.exafs.MythenParameters"
+            describer="uk.ac.gda.exafs.ui.describers.MythenDescriber">
       </bean>
    </extension>
 
