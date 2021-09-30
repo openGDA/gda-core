@@ -240,7 +240,20 @@ public final class LocalProperties {
 	 */
 	public static final String GDA_DEF_VISIT = "gda.defVisit";
 
+	/**
+	 * The name of the instrument. This property should always be defined.
+	 * <p>
+	 * If <code>gda.beamline.name</code> is defined, as it should be on all Diamond beamlines, then this property
+	 * should be considered a synonym for that one and therefore must always be set to the same value.
+	 * The more general name is intended for when GDA is used outside outside of a beamline.
+	 * <p>
+	 */
 	public static final String GDA_INSTRUMENT = "gda.instrument";
+
+	/**
+	 * An optional property giving the end station name, if different to the beamline name, e.g. PEEM or VXMi.
+	 */
+	public static final String GDA_END_STATION_NAME = "gda.endstation.name";
 
 	public static final String GDA_FACILITY = "gda.facility";
 
