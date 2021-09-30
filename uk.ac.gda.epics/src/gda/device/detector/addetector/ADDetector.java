@@ -68,9 +68,6 @@ import gda.scan.Scan;
 import gda.scan.ScanInformation;
 
 /**
- * <b>WARNING: This class is very much under development and will likely be until at least GDA 8.26 . <i>Please do use it though</i> so that we can learn from
- * your uses cases, but please let Rob Walton and Paul Gibbons know that you are!</b>. The way it is configured is likely to change.
- * <p>
  * A {@link Scannable} {@link Detector} driver for Epics Area Detectors suitable for use within {@link Scan}s that support detectors implementing
  * {@link PositionCallableProvider}.
  * </p>
