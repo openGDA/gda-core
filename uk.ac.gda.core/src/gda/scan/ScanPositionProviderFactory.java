@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -250,6 +251,7 @@ public class ScanPositionProviderFactory {
 		// TODO: DAQ-3626 merge this logic with that for ImplicitScanRegion to reduce duplication
 		final List<Object> points = regionsList.stream()
 				.map(l -> calculatePoints(l.get(0), l.get(1), l.get(2)))
+				.flatMap(Collection::stream)
 				.collect(toList());
 		return new ListScanPositionProvider<Object>(points);
 	}
