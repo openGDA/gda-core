@@ -410,6 +410,7 @@ public class SpecsSequenceEditor {
 	private void markInvalidRegions(
 		@UIEventTopic(SpecsUiConstants.REGION_VALIDATION_EVENT) SpecsPhoibosSequenceValidation sequenceValidationResult) {
 		unhighlightRegions();
+		sequenceTableViewer.getTable().deselectAll();
 		if (!sequenceValidationResult.isValid()) {
 			// Highlight invalid regions in yellow
 			Color yellow = Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);

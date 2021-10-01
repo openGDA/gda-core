@@ -1014,12 +1014,12 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		List<String> energyValidationErrors = new ArrayList<>();
 		if (startEnergy <= passEnergy) {
 			logger.debug("Start energy is lower than or equal to pass energy.");
-			energyValidationErrors.add("Start energy is lower than or equal to pass energy");
+			energyValidationErrors.add("Start (kinetic) energy is lower than or equal to pass energy");
 		}
 
 		if (endEnergy <= passEnergy) {
 			logger.debug("End energy is lower than or equal to pass energy");
-			energyValidationErrors.add("End energy is lower than or equal to pass energy");
+			energyValidationErrors.add("End (kinetic) energy is lower than or equal to pass energy");
 		}
 
 		if (energyValidationErrors.isEmpty()) {
