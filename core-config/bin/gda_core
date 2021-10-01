@@ -50,7 +50,6 @@ OPTIONS:
 
 SERVER ONLY:
  -b --debug-wait Start the server in debug mode waiting for a connection on port 8000
- --restart-activemq   i15-1 ONLY! Attempts to restart ActiveMQ if it appears to be in a bad state
 
 EXAMPLES:
 
@@ -88,7 +87,7 @@ done
 # All parameters are passed to the next script, but the current script also need to know the mode, and what we are starting
 bashlog debug "gda_core" "Parsing: $@"
 
-unset GDA_OPERATION GDA_COMPONENT PROCSERV_RESTART
+unset GDA_OPERATION GDA_COMPONENT
 for word in "$@"; do
     if [[ "${word}" == --help ]]; then
         gda_core_help
@@ -98,9 +97,6 @@ for word in "$@"; do
     fi
     if [[ "${word}" != -* ]]; then
         export GDA_COMPONENT=${word}
-    fi
-    if [[ "${word}" == "--stop" || "${word}" == "--start" || "${word}" == "--restart" ]]; then
-        export GDA_OPERATION=${word:2}
     fi
     if [[ "${word}" == "--restart-activemq" ]]; then
         export PROCSERV_RESTART=1
