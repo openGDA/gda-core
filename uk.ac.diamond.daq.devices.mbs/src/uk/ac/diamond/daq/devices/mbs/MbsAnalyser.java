@@ -430,6 +430,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setSensorSizeY(getSensorSizeY());
 		completedRegion.setEnergyAxis(getEnergyAxis());
 		completedRegion.setLensAxis(getAngleAxis());
+		completedRegion.setPsuMode(getPsuMode());
 
 		if (cpsRoi != null) {
 			completedRegion.setCpsRegionOrigin(cpsRoi.getIntPoint());
@@ -541,7 +542,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
-	public String getPsuMode() throws Exception {
+	public String getPsuMode() throws DeviceException {
 		return controller.getPsuMode();
 	}
 

@@ -50,6 +50,7 @@ public class MbsAnalyserCompletedRegion {
 	private double countPerSecond;
 	private int[] cpsRegionOrigin;
 	private int[] cpsRegionSize;
+	private String psuMode;
 
 
 	public double getCollectionTime() {
@@ -292,5 +293,13 @@ public class MbsAnalyserCompletedRegion {
 
 	public void setAcquireTime(double acquireTime) {
 		this.acquireTime = acquireTime;
+	}
+
+	public String getPsuMode() {
+		return psuMode;
+	}
+
+	public void setPsuMode(String psuMode) {
+		this.psuMode = psuMode;
 	}
 }
