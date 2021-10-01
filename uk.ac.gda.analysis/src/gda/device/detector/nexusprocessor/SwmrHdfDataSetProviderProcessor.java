@@ -33,7 +33,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.swmr.SwmrFileReader;
 import gda.device.detector.GDANexusDetectorData;
-import gda.device.detector.NXDetectorData;
 import gda.jython.InterfaceProvider;
 
 /**
@@ -78,11 +77,7 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 	}
 
 	@Override
-	public GDANexusDetectorData process(GDANexusDetectorData nexusTreeProvider) throws Exception {
-		if (!isEnabled()) {
-			return null;
-		}
-
+	protected Dataset extractDataset(GDANexusDetectorData nexusTreeProvider) throws Exception {
 		// First point
 		if (hdfFilePath == null) {
 			NexusGroupData dataFileGroup = nexusTreeProvider.getData(getDetName(), "data", NexusExtractor.ExternalSDSLink);
@@ -95,24 +90,7 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 			throw new IllegalArgumentException("No frame data found for detName: " + getDetName());
 		}
 		int frameNo = frameData.toDataset().getInt();
-		Dataset dataset = readDatasetFromFile(frameNo);
-
-	    return getProcessors().stream()
-	            .filter(DataSetProcessor::isEnabled)
-	            .map(processor -> processDataset(processor, dataset))
-	            .reduce(new NXDetectorData(), GDANexusDetectorData::mergeIn);
-	}
-
-	/**
-	 * Wrapper for {@link DataSetProcessor#process(String, String, Dataset)} to convert
-	 * Exception into a RuntimeException
-	 */
-	private GDANexusDetectorData processDataset(DataSetProcessor processor, Dataset dataset) {
-		try {
-			return processor.process(getDetName(), getDataName(), dataset);
-		} catch (Exception e) {
-			throw new IllegalStateException("Error from dataset processor: " + processor.getName(), e);
-		}
+		return readDatasetFromFile(frameNo);
 	}
 
 	private void openFile() throws ScanFileHolderException {

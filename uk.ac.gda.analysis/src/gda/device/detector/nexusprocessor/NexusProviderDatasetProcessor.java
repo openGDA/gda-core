@@ -18,18 +18,19 @@
 
 package gda.device.detector.nexusprocessor;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.january.dataset.Dataset;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
-
-import org.eclipse.january.dataset.Dataset;
-
 /**
- * Extracts dataset from NexusTreeprovider and passes to processors
+ * Extracts dataset from NexusTreeProvider and passes to processors. The dataset is optionally transformed by a
+ * {@link DatasetCreator}
  */
 public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor {
 
@@ -57,28 +58,38 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 
 	@Override
 	public GDANexusDetectorData process(final GDANexusDetectorData nexusTreeProvider) throws Exception {
-		if( !isEnabled())
+		if (!isEnabled()) {
 			return null;
+		}
+		var dataset = datasetCreator == null ? extractDataset(nexusTreeProvider)
+				: datasetCreator.createDataSet(extractDataset(nexusTreeProvider));
+
+		GDANexusDetectorData result = null;
+		result = getProcessors().stream().filter(DataSetProcessor::isEnabled)
+				.map(processor -> processDataset(processor, dataset))
+				.reduce(new NXDetectorData(), GDANexusDetectorData::mergeIn);
+		return result;
+	}
+
+	protected Dataset extractDataset(GDANexusDetectorData nexusTreeProvider) throws Exception {
 		NexusGroupData ngd = nexusTreeProvider.getData(detName, dataName, className);
 		if (ngd == null) {
-			throw new Exception("No data found for detName:" + detName + " dataName:" + dataName + "+ className:"
-					+ className);
+			throw new Exception(
+					"No data found for detName:" + detName + " dataName:" + dataName + "+ className:" + className);
 		}
-		Dataset dataset = getDatasetFromNexusGroupData(ngd);
-		if( datasetCreator != null)
-			dataset = datasetCreator.createDataSet(dataset);
+		return getDatasetFromNexusGroupData(ngd);
+	}
 
-		GDANexusDetectorData result=null;
-		for (DataSetProcessor processor : processors) {
-			GDANexusDetectorData res = processor.isEnabled() ? processor.process(detName, dataName, dataset) : null;
-			if (res != null){
-				if( result == null)
-					result = new NXDetectorData();
-				result = result.mergeIn(res);
-			}
-
+	/**
+	 * Wrapper for {@link DataSetProcessor#process(String, String, Dataset)} to convert
+	 * Exception into a RuntimeException
+	 */
+	private GDANexusDetectorData processDataset(DataSetProcessor processor, Dataset dataset) {
+		try {
+			return processor.process(getDetName(), getDataName(), dataset);
+		} catch (Exception e) {
+			throw new IllegalStateException("Error from dataset processor: " + processor.getName(), e);
 		}
-		return result;
 	}
 
 	public NexusProviderDatasetProcessor(String detName, String dataName, String className,
@@ -129,7 +140,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		if( !isEnabled())
 			return null;
 
-		Collection<String> allExtraNames = new Vector<String>();
+		Collection<String> allExtraNames = new ArrayList<>();
 		for (DataSetProcessor processor : processors) {
 			Collection<String> extraNames = processor.isEnabled() ? processor.getExtraNames() : null;
 			if (extraNames != null) {
@@ -144,7 +155,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		if( !isEnabled())
 			return null;
 
-		Collection<String> totalList = new Vector<String>();
+		Collection<String> totalList = new ArrayList<>();
 		for (DataSetProcessor processor : processors) {
 			Collection<String> itemList = processor.isEnabled() ? processor.getOutputFormat() : null;
 			if (itemList != null) {
