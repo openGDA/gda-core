@@ -86,6 +86,7 @@ public class SpecsRegionValidationView {
 	private void cacheValidationResults(
 		@UIEventTopic(SpecsUiConstants.REGION_VALIDATION_EVENT) SpecsPhoibosSequenceValidation validationResult) {
 		this.validationResult = validationResult;
+		table.removeAll();
 	}
 
 	@Optional
