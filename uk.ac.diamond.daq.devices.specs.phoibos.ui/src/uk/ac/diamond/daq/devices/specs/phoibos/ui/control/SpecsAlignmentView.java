@@ -39,10 +39,15 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
@@ -50,6 +55,8 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 
 public class SpecsAlignmentView implements IObserver {
+
+	private static final Logger logger = LoggerFactory.getLogger(SpecsAlignmentView.class);
 
 	private ISpecsPhoibosAnalyser analyser;
 	private ISpecsPhoibosAnalyserStatus status;
@@ -67,6 +74,11 @@ public class SpecsAlignmentView implements IObserver {
 	private boolean keepBlinking;
 	private final String STOPPED_LABEL = "STOPPED";
 	private final String ACTIVE_LABEL = "ACTIVE";
+	private final String PHOTON_ENERGY = "pgm_energy";
+
+	private Scannable photonEnergy;
+
+	private Composite child;
 
 	/**
 	 * Constructor
@@ -102,6 +114,8 @@ public class SpecsAlignmentView implements IObserver {
 		status = analyserStatusList.get(0);
 		status.addIObserver(this::updateIndicator);
 
+		photonEnergy =  Finder.find(PHOTON_ENERGY);
+
 	}
 
 	@PostConstruct
@@ -110,7 +124,7 @@ public class SpecsAlignmentView implements IObserver {
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		ScrolledComposite scrollComp = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
-		Composite child = new Composite(scrollComp, SWT.NONE);
+		child = new Composite(scrollComp, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(child);
 		child.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -149,9 +163,24 @@ public class SpecsAlignmentView implements IObserver {
 		startButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// Start Acquiring
-				double passEnergy = Double.valueOf(passEnergyText.getText());
 				double centreEnergy = Double.valueOf(kineticEnergyText.getText());
+				try {
+					if(!isKineticEnergyValid(centreEnergy)) {
+						showEnergyValidationWarning("Cannot proceed with alignment: photon energy is smaller than kinetic energy");
+						return;
+					}
+				} catch (ClassCastException e1) {
+					String msg = "Could not cast photon energy to double";
+					logger.error(msg);
+					showEnergyValidationWarning(msg);
+					return;
+				} catch (DeviceException e1) {
+					String msg = "Could not retrieve photon energy from device";
+					logger.error(msg);
+					showEnergyValidationWarning(msg);
+					return;
+				}
+				double passEnergy = Double.valueOf(passEnergyText.getText());
 				double exposure = Double.valueOf(exposureText.getText());
 				analyser.startAlignment(passEnergy, centreEnergy, exposure);
 			}
@@ -310,5 +339,17 @@ public class SpecsAlignmentView implements IObserver {
 			indicator.setText(label);
 		});
 	}
+
+	private boolean isKineticEnergyValid(double userSpecifiedKineticEnergy) throws DeviceException, ClassCastException {
+		return (double)photonEnergy.getPosition() > userSpecifiedKineticEnergy;
+	}
+
+	private void showEnergyValidationWarning(String msg) {
+		MessageBox validationDialog = new MessageBox(child.getShell(), SWT.ICON_ERROR | SWT.OK);
+		validationDialog.setText("Check photon energy");
+		validationDialog.setMessage(msg);
+		validationDialog.open();
+	}
+
 
 }
