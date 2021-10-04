@@ -19,7 +19,8 @@
 package gda.jython.server.shell;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,26 +30,22 @@ import org.jline.reader.ParsedLine;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class GdaJythonLineTest {
+import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
+
+class GdaJythonLineTest {
 
 	/**
-	 * Helper class for holding expected results
+	 * Helper for holding expected results
 	 */
-	private static class ParseResult {
-		String word, line;
-		int wordCursor, wordIndex, cursor;
-		List<String> words;
-		public ParseResult(String word, String line, int wordCursor, int wordIndex, int cursor, List<String> words) {
-			this.word = word;
-			this.line = line;
-			this.wordCursor = wordCursor;
-			this.wordIndex = wordIndex;
-			this.cursor = cursor;
-			this.words = words;
-		}
-	}
+	private static record ParseResult(
+			String word,
+			String line,
+			int wordCursor,
+			int wordIndex,
+			int cursor,
+			List<String> words) {}
 
-	public static Collection<Object[]> data() {
+	static Collection<Object[]> data() {
 		// Array of {line, cursor, expectedResult}
 		return Arrays.asList(new Object[][] {
 			// ParseResult(word, line, wordCursor, wordIndex, cursor, words)
@@ -69,16 +66,16 @@ public class GdaJythonLineTest {
 
 	@ParameterizedTest(name = "{0}({1})") // line(cursor))
 	@MethodSource("data")
-	public void testLineParsing(String inputLine, int cursor, ParseResult expected) {
-		check(new GdaJythonLine(inputLine, cursor), expected);
+	void testLineParsing(String inputLine, int cursor, ParseResult expected) {
+		check(new GdaJythonLine(inputLine, cursor, SyntaxState.COMPLETE), expected);
 	}
 
 	private void check(ParsedLine line, ParseResult expected) {
-		assertEquals("Word not correct", expected.word, line.word());
-		assertEquals("Line not correct", expected.line, line.line());
-		assertEquals("Word Cursor not correct", expected.wordCursor, line.wordCursor());
-		assertEquals("Word Index not correct", expected.wordIndex, line.wordIndex());
-		assertEquals("Cursor not correct", expected.cursor, line.cursor());
-		assertEquals("Words not correct", expected.words, line.words());
+		assertThat("Word not correct", expected.word, is(line.word()));
+		assertThat("Line not correct", expected.line, is(line.line()));
+		assertThat("Word Cursor not correct", expected.wordCursor, is(line.wordCursor()));
+		assertThat("Word Index not correct", expected.wordIndex, is(line.wordIndex()));
+		assertThat("Cursor not correct", expected.cursor, is(line.cursor()));
+		assertThat("Words not correct", expected.words, is(line.words()));
 	}
 }

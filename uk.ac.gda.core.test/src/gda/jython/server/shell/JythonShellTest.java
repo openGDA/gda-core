@@ -18,6 +18,8 @@
 
 package gda.jython.server.shell;
 
+import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.COMPLETE;
+import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.EXEC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +45,7 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
+import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.Binding;
 import org.jline.reader.EndOfFileException;
@@ -176,6 +179,8 @@ public class JythonShellTest {
 		when(reader.readLine(anyString()))
 				.thenReturn("print 'abcd'")
 				.thenThrow(new EndOfFileException());
+		when(reader.getParsedLine())
+				.thenReturn(new GdaJythonLine("print 'abcd'", 12, COMPLETE));
 		shell.run();
 		shell.close();
 
@@ -187,6 +192,8 @@ public class JythonShellTest {
 		when(reader.readLine(anyString()))
 				.thenReturn("print 'abcd'")
 				.thenThrow(new EndOfFileException());
+		when(reader.getParsedLine())
+				.thenReturn(new GdaJythonLine("print 'abcd'", 12, COMPLETE));
 		doThrow(new IllegalStateException())
 				.when(reader).callWidget(anyString());
 		when(jsf.runsource(eq("print 'abcd'"), any())).thenAnswer(i -> {
@@ -211,6 +218,9 @@ public class JythonShellTest {
 					shell.write("helloWorld\n");
 					throw new EndOfFileException();
 				});
+		when(reader.getParsedLine())
+				.thenReturn(new GdaJythonLine("print 'abcd'", 12, COMPLETE))
+				.thenReturn(new GdaJythonLine("helloWorld\n", 11, COMPLETE));
 		shell.run();
 		shell.close();
 		InOrder output = inOrder(writer);
@@ -234,14 +244,17 @@ public class JythonShellTest {
 	@Test
 	public void testWriteErrorStopsShell() {
 		final AtomicBoolean error = new AtomicBoolean(false); // needs to be final so can't use boolean
+		var command = "print 'helloWorld'";
 		when(reader.readLine(anyString()))
-				.thenReturn("print 'helloWorld'")
+				.thenReturn(command)
 				.thenThrow(new IllegalStateException()); // Shouldn't be called twice
-		when(jsf.runsource(eq("print 'helloWorld'"), any(InputStream.class))).thenAnswer(i -> {
+		when(jsf.runsource(eq(command), any(InputStream.class))).thenAnswer(i -> {
 			error.set(true);
 			shell.write("helloWorld");
 			return false;
 		});
+		when(reader.getParsedLine())
+				.thenReturn(new GdaJythonLine(command, command.length(), COMPLETE));
 		when(writer.checkError()).thenAnswer(i -> error.get());
 
 		shell.run();
@@ -266,8 +279,9 @@ public class JythonShellTest {
 		sdp1.setScannablePositions(new Vector<>(Arrays.asList(1, 2.3)));
 		sdp1.setScannableFormats(new String[][] {{"%.1f"}, {"%.1f"}});
 
+		var command = "scan abc 0 1 1 xyz";
 		when(reader.readLine(anyString()))
-				.thenReturn("scan abc 0 1 1 xyz")
+				.thenReturn(command)
 				.thenThrow(new EndOfFileException());
 		when(jsf.runsource(anyString(), any()))
 				.thenAnswer(i -> {
@@ -275,6 +289,8 @@ public class JythonShellTest {
 					shell.update(jsf, sdp1);
 					return false;
 				});
+		when(reader.getParsedLine())
+				.thenReturn(new GdaJythonLine(command, command.length(), COMPLETE));
 
 		shell.run();
 		shell.close();
@@ -282,6 +298,24 @@ public class JythonShellTest {
 		output.verify(writer).write("abc\txyz\n");
 		output.verify(writer).write("  0\t1.3\n");
 		output.verify(writer).write("  1\t2.3\n");
+	}
+
+	@Test
+	void testMultilineCommand() throws ScriptExecutionException {
+		var command = """
+				def foo(a, b):
+				    return a + b
+				a = foo(1, 2)
+				""";
+		when(reader.readLine(anyString()))
+				.thenReturn(command)
+				.thenThrow(new EndOfFileException());
+		when(reader.getParsedLine())
+				.thenReturn(new GdaJythonLine(command, command.length(), EXEC));
+		shell.run();
+		shell.close();
+
+		verify(jsf).executeCommand(eq(command), any(InputStream.class));
 	}
 
 	/**

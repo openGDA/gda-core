@@ -19,6 +19,7 @@
 
 package gda.jython;
 
+import static gda.jython.server.shell.JythonSyntaxChecker.SyntaxState.INCOMPLETE;
 import static java.lang.Thread.State.TERMINATED;
 import static java.text.MessageFormat.format;
 import static java.util.Objects.requireNonNull;
@@ -97,7 +98,6 @@ import gda.jython.completion.impl.JythonCompleter;
 import gda.jython.logging.PythonException;
 import gda.jython.server.GdaSshServer;
 import gda.jython.server.shell.JythonSyntaxChecker;
-import gda.jython.server.shell.JythonSyntaxChecker.SyntaxState;
 import gda.jython.translator.Translator;
 import gda.messages.InMemoryMessageHandler;
 import gda.messages.MessageHandler;
@@ -253,8 +253,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				interp.initialise(terminalWriter);
 				interp.placeInJythonNamespace(Jython.SERVER_NAME, this);
 				jythonCompleter = new JythonCompleter(this);
-				syntaxChecker = new JythonSyntaxChecker();
-				syntaxChecker.setTranslator(GDAJythonInterpreter.getTranslator()::translate);
+				syntaxChecker = new JythonSyntaxChecker(GDAJythonInterpreter.getTranslator()::translate);
 			} catch (Exception e) {
 				throw new FactoryException("Could not create interpreter", e);
 			}
@@ -451,7 +450,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	public boolean runsource(String command, String jsfIdentifier, InputStream stdin) {
 		RunSourceRunner runner = null;
 		try {
-			if (syntaxChecker.apply(command) == SyntaxState.INCOMPLETE) {
+			if (syntaxChecker.apply(command) == INCOMPLETE) {
 				return true;
 			}
 			ClientDetails client = this.batonManager.getClientInformation(jsfIdentifier);
