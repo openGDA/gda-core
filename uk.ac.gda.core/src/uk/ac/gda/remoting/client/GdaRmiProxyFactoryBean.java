@@ -21,15 +21,18 @@ package uk.ac.gda.remoting.client;
 import java.util.function.Consumer;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.remoting.rmi.RmiClientInterceptor;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
+import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.util.ClassUtils;
 
 import gda.factory.Findable;
 import gda.observable.IObservable;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 /**
  * A Spring {@link FactoryBean} that can be used in place of Spring's standard {@link RmiProxyFactoryBean}. Uses our
@@ -123,6 +126,20 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 
 	private boolean remoteObjectIsFindable() {
 		return ClassUtils.isAssignable(Findable.class, getServiceInterface());
+	}
+
+
+	@Override
+	public Object invoke(MethodInvocation invocation) throws Throwable {
+		ClassLoader loader = GDAClassLoaderService.getClassLoaderService()
+				.getClassLoaderForLibrary(RmiServiceExporter.class);
+		var current = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(loader);
+			return super.invoke(invocation);
+		} finally {
+			Thread.currentThread().setContextClassLoader(current);
+		}
 	}
 
 	@Override
