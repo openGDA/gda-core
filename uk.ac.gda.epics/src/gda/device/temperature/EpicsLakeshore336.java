@@ -147,7 +147,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	@Override
 	public boolean isBusy() throws DeviceException {
 		// If not blocking return not busy
-		if (blocking) {
+		if (!blocking) {
 			return false;
 		}
 		try {
