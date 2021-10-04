@@ -802,6 +802,11 @@ public final class Async {
 			return this;
 		}
 
+		public ListeningFuture<T> onComplete(Runnable task) {
+			Futures.addCallback(future, Callback.either(task), Async.EXECUTOR);
+			return this;
+		}
+
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
 			return future.cancel(mayInterruptIfRunning);
@@ -870,6 +875,17 @@ public final class Async {
 		private Callback(Consumer<? super T> successHandler, Consumer<? super Throwable> failureHandler) {
 			success = successHandler;
 			failure = failureHandler;
+		}
+
+		/**
+		 * Create a callback that is created when a task completes. This will be called whether completion
+		 * is successful or not.
+		 * @param <T> The type that a successful completion of the task would return
+		 * @param task The job to run when the task completes
+		 * @return A Callback to run when a future completes (by either success or error)
+		 */
+		public static <T> Callback<T> either(Runnable task) {
+			return new Callback<>(v -> task.run(), e -> task.run());
 		}
 
 		/**
