@@ -146,6 +146,20 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 	/** Class provider that uses the current mode to determine the class for a bean */
 	private static final BeanClassProvider CLASS_PROVIDER = new BeanClassProvider(DEFAULT_MOTOR_CLASS_PROPERTY_BASE, FALLBACK_MOTOR_CONTROLLERS);
 
+	/**
+	 * Motors need to be configured before they can be used. If a motor is not being
+	 * created in the main namespace (see {@link #nestedBeans}), the configure method is
+	 * not called automatically so use Spring's init-method.
+	 */
+	private static final String INIT_METHOD = "configure";
+
+	/** If true, return the bean definition instead of registering with the bean registry */
+	private boolean nestedBeans;
+
+	public SpringMotorDefinitionParser(boolean nest) {
+		this.nestedBeans = nest;
+	}
+
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		var attrs = BeanAttributes.from(element);
@@ -159,11 +173,20 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 
 		BeanDefinition modeMotor = createController(modeMotorName, attrs, resource);
 		BeanDefinition commonMotor = createScannable(motorName, attrs, resource);
-		commonMotor.getPropertyValues()
-				.add(MOTOR_PROPERTY, new RuntimeBeanReference(modeMotorName));
-		registry.registerBeanDefinition(modeMotorName, modeMotor);
-		registry.registerBeanDefinition(motorName, commonMotor);
-		return null;
+
+
+		if (nestedBeans) {
+			modeMotor.setInitMethodName(INIT_METHOD);
+			commonMotor.setInitMethodName(INIT_METHOD);
+			commonMotor.getPropertyValues().add(MOTOR_PROPERTY, modeMotor);
+			return commonMotor;
+		} else {
+			commonMotor.getPropertyValues()
+					.add(MOTOR_PROPERTY, new RuntimeBeanReference(modeMotorName));
+			registry.registerBeanDefinition(modeMotorName, modeMotor);
+			registry.registerBeanDefinition(motorName, commonMotor);
+			return null;
+		}
 	}
 
 	/** Check the element has specified an ID (and return it) */
