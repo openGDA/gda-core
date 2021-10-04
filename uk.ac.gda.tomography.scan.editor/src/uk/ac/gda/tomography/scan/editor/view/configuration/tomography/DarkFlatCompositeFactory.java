@@ -112,6 +112,7 @@ public class DarkFlatCompositeFactory implements CompositeFactory, Reloadable {
 
 	@Override
 	public void reload() {
+		if (composite.isDisposed()) return;
 		try {
 			bindElements();
 			initialiseElements();

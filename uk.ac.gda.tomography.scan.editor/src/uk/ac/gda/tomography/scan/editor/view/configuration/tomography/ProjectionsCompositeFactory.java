@@ -91,6 +91,7 @@ public class ProjectionsCompositeFactory implements CompositeFactory, Reloadable
 
 	@Override
 	public void reload() {
+		if (composite.isDisposed()) return;
 		try {
 			bindElements();
 			initialiseElements();
@@ -125,6 +126,7 @@ public class ProjectionsCompositeFactory implements CompositeFactory, Reloadable
 	}
 
 	private void initialiseElements() {
+		if (projections.isDisposed()) return;
 		projections.setText(Integer.toString(getScannableTrackDocument().getPoints()));
 	}
 

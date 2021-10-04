@@ -83,6 +83,10 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 
 	@Override
 	public void reload() {
+		if (mainComposite.isDisposed()) {
+			logger.warn("Asked to reload when I am disposed! Ignoring...");
+			return;
+		}
 		try {
 			bindElements();
 			initialiseElements();
