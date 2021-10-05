@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -775,6 +776,8 @@ public class GDAJythonInterpreter {
 
 	private void classLoadedSuccessfully(Class<?> cls) {
 		classLoadLogger.trace(cls.getName());
+		Optional.ofNullable(cls.getAnnotation(Deprecated.class))
+				.ifPresent(d -> logger.warn("Class loaded from Jython: {} is deprecated", cls.getCanonicalName()));
 	}
 
 	/**
