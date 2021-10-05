@@ -19,14 +19,15 @@
 package uk.ac.gda.server.exafs.scan;
 
 import java.io.File;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySequence;
@@ -64,6 +65,7 @@ import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
+import uk.ac.gda.beans.exafs.DetectorConfig;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -395,12 +397,13 @@ public abstract class XasScanBase implements XasScan {
 
 		// get the xml for the specific detector in use e.g. vortex, xspress2 or xspress3
 		// TODO these beans should have their own interface for clarity
-		String detectorConfigurationFilename = determineDetectorFilename();
-		if (detectorConfigurationFilename != null && !detectorConfigurationFilename.isEmpty()) {
+		String configName = determineDetectorFilenames();
+		if (StringUtils.isNotEmpty(configName)) {
+			detectorConfigurationFilename = configName;
 			detectorConfigurationBean = (IDetectorConfigurationParameters) XMLHelpers.getBeanObject(experimentFullPath, detectorConfigurationFilename);
 		}
 
-		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName, detectorConfigurationFilename);
+		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName, configName);
 	}
 
 	private void configurePreparers() throws Exception {
@@ -487,6 +490,7 @@ public abstract class XasScanBase implements XasScan {
 		}
 
 		addMetadata();
+		addDetectorMetadata(detectorBean.getDetectorConfigurations());
 	}
 
 	private void addMetadata() throws Exception {
@@ -495,10 +499,29 @@ public abstract class XasScanBase implements XasScan {
 		metashop.add(sampleFileName, getXMLString(sampleBean));
 		metashop.add(outputFileName, getXMLString(outputBean));
 
-		String detectorFileName = determineDetectorFilename();
-		if (detectorFileName != null && !detectorFileName.isEmpty()) {
+		if (StringUtils.isNotEmpty(detectorConfigurationFilename)) {
 			metashop.add("DetectorConfigurationParameters", getXMLString(experimentFullPath + File.separator
-					+ detectorFileName));
+					+ detectorConfigurationFilename));
+		}
+	}
+
+	/**
+	 * Add Detector configuration XML files content to the metadata.
+	 * These are the configuration files for the detectors to be used in the scan extracted from a DetectorConfig list.
+	 *
+	 * @param detConfigurations list of {@link DetectorConfig} objects
+	 * @throws Exception
+	 */
+	private void addDetectorMetadata(List<DetectorConfig> detConfigurations) throws Exception {
+		if (detConfigurations == null || detConfigurations.isEmpty()) {
+			return;
+		}
+		for(DetectorConfig config : detConfigurations) {
+			if (config.isUseDetectorInScan() && Boolean.TRUE.equals(config.isUseConfigFile()) ) {
+				String filePath = Paths.get(experimentFullPath, config.getConfigFileName()).toString();
+				String entryName = config.getDetectorName()+" configuration";
+				metashop.add(entryName, getXMLString(filePath));
+			}
 		}
 	}
 
@@ -515,16 +538,7 @@ public abstract class XasScanBase implements XasScan {
 				mapping = (URL) fa[i].get(null);
 			}
 		}
-
-		final StringWriter writer = new StringWriter();
-		try {
-			XMLHelpers.writeToXML(mapping, bean, writer);
-		} catch (Exception e) {
-			logger.error("Exception writing bean " + beanOrPath + " to xml", e);
-		} finally {
-			writer.close();
-		}
-		return writer.toString();
+		return XMLHelpers.toXMLString(mapping, bean);
 	}
 
 	private String[] deriveFilenametemplates(String sampleName) {
@@ -560,16 +574,19 @@ public abstract class XasScanBase implements XasScan {
 		return new String[] { nexusFileNameTemplate, asciiFileNameTemplate };
 	}
 
-	private String determineDetectorFilename() {
-		String xmlFileName = "";
+	private String determineDetectorFilenames() {
+		if (!detectorBean.getDetectorConfigurations().isEmpty()) {
+			return "";
+		}
+
 		if (detectorBean.getExperimentType().equalsIgnoreCase("Fluorescence")) {
 			FluorescenceParameters fluorescenceParameters = detectorBean.getFluorescenceParameters();
-			xmlFileName = fluorescenceParameters.getConfigFileName();
+			return fluorescenceParameters.getConfigFileName();
 		} else if (detectorBean.getExperimentType().equals("XES")) {
 			FluorescenceParameters fluorescenceParameters = detectorBean.getXesParameters();
-			xmlFileName = fluorescenceParameters.getConfigFileName();
+			return fluorescenceParameters.getConfigFileName();
 		}
-		return xmlFileName;
+		return "";
 	}
 
 	/** Return visit id from baton holder.
