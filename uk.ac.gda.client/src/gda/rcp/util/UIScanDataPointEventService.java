@@ -53,10 +53,25 @@ public final class UIScanDataPointEventService {
 
 	private static UIScanDataPointEventService staticInstance;
 
-	public static UIScanDataPointEventService getInstance() {
+	public static synchronized  UIScanDataPointEventService getInstance() {
 		if (staticInstance == null)
 			staticInstance = new UIScanDataPointEventService();
 		return staticInstance;
+	}
+
+	/**
+	 * Shutdown the service only if previously initialised.
+	 * This is important as getInstance() should not be called (during bundle shutdown)
+	 * unless the service has been previously initialised as it triggers JSF
+	 * static initialisation registering invalid client details with the BatonManager.
+	 */
+	public static void shutdown() {
+		if (staticInstance != null) {
+			logger.info("Shutting down UIScanDataPointEventService");
+			staticInstance.dispose();
+		} else {
+			logger.debug("UIScanDataPointEventService never initalised for this client");
+		}
 	}
 
 	private List<IScanDataPoint> currentDataPoints;
@@ -158,7 +173,7 @@ public final class UIScanDataPointEventService {
 	/**
 	 * Called to remove listener from server and clear out local listeners.
 	 */
-	public void dispose() {
+	private void dispose() {
 		if (ClientManager.isClient()) {
 			InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(scanDataPointObserver);
 		}

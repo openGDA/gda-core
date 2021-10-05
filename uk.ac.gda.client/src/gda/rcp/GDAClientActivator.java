@@ -84,10 +84,9 @@ public class GDAClientActivator extends AbstractUIPlugin {
 				namedServiceProvider.close();
 				namedServiceProvider = null;
 			}
-			//to fix DAG-1236 i.e. should not call dispose if service not used.
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE)) {
-				UIScanDataPointEventService.getInstance().dispose();
+				UIScanDataPointEventService.shutdown();
 			}
 		} finally{
 			plugin = null;
