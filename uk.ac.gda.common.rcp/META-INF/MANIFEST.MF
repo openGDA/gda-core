@@ -81,5 +81,4 @@ Export-Package: com.swtdesigner,
 Bundle-Activator: uk.ac.gda.common.rcp.CommonRCPActivator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.gda.common.rcp
