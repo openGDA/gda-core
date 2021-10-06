@@ -44,7 +44,6 @@ import gda.device.monitor.IonChamberBeamMonitor;
 import gda.device.scannable.ScannableMotionBase;
 import gda.factory.FactoryException;
 import gda.hrpd.data.EpicsCVscanDataWriter;
-import gda.hrpd.pmac.EpicsCVScanController.CurrentState;
 import gda.hrpd.pmac.SafePosition;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -779,7 +778,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Fault) {
 				String message = controller.getMessage();
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Status=Fault, " + "message=" + message);
-				logger.error("Current State at {}, message = {}", ((CurrentState) arg).toString(), message);
+				logger.error("Current State at {}, message = {}", arg, message);
 				try {
 					InterfaceProvider.getTerminalPrinter().print("try to restart scan...");
 					if (retrycount > 3) {
