@@ -63,7 +63,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	private double yStepSize = DEFAULT_STEP_SIZE;
 
 	// Name of detector to use for ptychography
-	private String detectorName = "XRF/Imaging";
+	private String detectorName;
 
 	/**
 	 * Set to {@code false} to set low resolution when the view is opened or {@code true} to set high resolution
