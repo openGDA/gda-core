@@ -411,7 +411,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				}
 			} else if (data instanceof TerminalInput) {
 				TerminalInput ti = (TerminalInput)data;
-				if (getMyDetails().getIndex() != ti.getIndex() && !ti.getInput().isEmpty()) {
+				ClientDetails details = getMyDetails();
+				if (details != null && details.getIndex() != ti.getIndex() && !ti.getInput().isEmpty()) {
 					for (Terminal terminal : myTerminals) {
 						try {
 							terminal.writeInput((TerminalInput)data);
