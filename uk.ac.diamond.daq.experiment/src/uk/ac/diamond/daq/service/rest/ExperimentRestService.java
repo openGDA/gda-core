@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,12 +40,12 @@ public class ExperimentRestService {
 	@Autowired
 	private ExperimentController experimentController;
 	
-	@RequestMapping(value = "/session/start/{experimentName}", method = RequestMethod.PUT)
+	@PutMapping(value = "/session/start/{experimentName}")
 	public @ResponseBody ExperimentServiceResponse startExperiment(@PathVariable String experimentName) {
 		var  response = new ExperimentServiceResponse.Builder();
-		response.withErrorCode(ExperimentErrorCode.NONE);
 		try {
 			response.withRootNode(getExperimentController().startExperiment(experimentName));
+			response.withErrorCode(ExperimentErrorCode.NONE);
 		} catch (ExperimentNodeExistsException e) {
 			response.withErrorCode(ExperimentErrorCode.EXPERIMENT_EXISTS);
 		} catch (ExperimentControllerException e) {
@@ -52,27 +54,27 @@ public class ExperimentRestService {
 		return response.build();
 	}
 
-	@RequestMapping(value = "/session/name", method = RequestMethod.GET )
+	@GetMapping(value = "/session/name" )
 	public @ResponseBody String getExperimentName() {
 		return getExperimentController().getExperimentName();
 	}
 
-	@RequestMapping(value = "/session/stop", method = RequestMethod.POST)
+	@PostMapping(value = "/session/stop")
 	public @ResponseBody void stopExperiment() throws ExperimentControllerException {
 		getExperimentController().stopExperiment();
 	}
 
-	@RequestMapping(value = "/session/inProgress", method = RequestMethod.GET)
+	@GetMapping(value = "/session/inProgress")
 	public @ResponseBody boolean isExperimentInProgress() {
 		return getExperimentController().isExperimentInProgress();
 	}
 
-	@RequestMapping(value = "/session/prepareAcquisition/{acquisitionName}", method = RequestMethod.PUT)
+	@PutMapping(value = "/session/prepareAcquisition/{acquisitionName}")
 	public @ResponseBody ExperimentServiceResponse prepareAcquisition(@PathVariable String acquisitionName) {
-		var  response = new ExperimentServiceResponse.Builder();
-		response.withErrorCode(ExperimentErrorCode.NONE);
+		var response = new ExperimentServiceResponse.Builder();
 		try {
 			response.withRootNode(getExperimentController().prepareAcquisition(acquisitionName));
+			response.withErrorCode(ExperimentErrorCode.NONE);
 		} catch (ExperimentNodeExistsException e) {
 			response.withErrorCode(ExperimentErrorCode.ACQUISITION_EXISTS);
 		} catch (ExperimentControllerException e) {
@@ -81,12 +83,12 @@ public class ExperimentRestService {
 		return response.build();
 	}
 
-	@RequestMapping(value = "/session/startMultipartAcquisition/{acquisitionName}", method = RequestMethod.PUT)
-	public @ResponseBody ExperimentServiceResponse startMultipartAcquisition(String acquisitionName) {
+	@PutMapping(value = "/session/startMultipartAcquisition/{acquisitionName}")
+	public @ResponseBody ExperimentServiceResponse startMultipartAcquisition(@PathVariable String acquisitionName) {
 		var response = new ExperimentServiceResponse.Builder();
-		response.withErrorCode(ExperimentErrorCode.NONE);
 		try {
 			response.withRootNode(getExperimentController().startMultipartAcquisition(acquisitionName));
+			response.withErrorCode(ExperimentErrorCode.NONE);
 		} catch (ExperimentNodeExistsException e) {
 			response.withErrorCode(ExperimentErrorCode.ACQUISITION_EXISTS);
 		} catch (ExperimentControllerException e) {
@@ -95,12 +97,12 @@ public class ExperimentRestService {
 		return response.build();
 	}
 
-	@RequestMapping(value = "/session/stopMultipartAcquisition", method = RequestMethod.POST)
+	@PostMapping(value = "/session/stopMultipartAcquisition")
 	public @ResponseBody void stopMultipartAcquisition() throws ExperimentControllerException {
 		getExperimentController().stopMultipartAcquisition();
 	}
 
-	@RequestMapping(value = "/sessions", method = RequestMethod.GET)
+	@GetMapping(value = "/sessions")
 	public @ResponseBody ClosedExperimentsResponse closedExperiments() throws GDAHttpException {
 		var response = new ClosedExperimentsResponse.Builder();
 		try {
