@@ -12,7 +12,6 @@
 
 package org.eclipse.scanning.points;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -115,40 +114,67 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public <T extends IScanPointGeneratorModel, R> void setBounds(T model, List<R> regions) {
+	public <T extends IScanPointGeneratorModel> void setBounds(T model, List<IROI> regions) {
 		if (regions == null || regions.isEmpty()) return;
-		IRectangularROI rect = ((IROI) regions.get(0)).getBounds();
-		for (R roi : regions) {
-			rect = rect.bounds((IROI) roi);
+		IRectangularROI rect = regions.get(0).getBounds();
+		for (int i = 1; i < regions.size(); i++) {
+			rect = rect.bounds(regions.get(i));
 		}
 
 		if (model instanceof IBoundingBoxModel) {
-			IBoundingBoxModel bbm = (IBoundingBoxModel) model;
-			if (bbm.getBoundingBox() != null) {
-				IRectangularROI modelsROI = new RectangularROI(bbm.getBoundingBox().getxAxisStart(),
-						bbm.getBoundingBox().getyAxisStart(), bbm.getBoundingBox().getxAxisLength(),
-						bbm.getBoundingBox().getyAxisLength(), 0);
-
-				rect = rect.bounds(modelsROI);
-			}
-			BoundingBox box = new BoundingBox();
-			box.setxAxisStart(rect.getPoint()[0]);
-			box.setyAxisStart(rect.getPoint()[1]);
-			box.setxAxisLength(rect.getLength(0));
-			box.setyAxisLength(rect.getLength(1));
-			bbm.setBoundingBox(box);
+			matchRoiAndBounds((IBoundingBoxModel) model, rect);
 		} else if (model instanceof IBoundingLineModel) {
-			BoundingLine line = new BoundingLine();
-			LinearROI lroi = (LinearROI) regions.get(0);
-			line.setxStart(lroi.getPoint()[0]);
-			line.setyStart(lroi.getPoint()[1]);
-			line.setLength(lroi.getLength());
-			line.setAngle(lroi.getAngle());
-			((IBoundingLineModel) model).setBoundingLine(line);
+			matchRoiAndBounds((IBoundingLineModel) model, (LinearROI) regions.get(0));
 		} else if (model instanceof TwoAxisPointSingleModel) {
 			((TwoAxisPointSingleModel) model).setX(rect.getPointX());
 			((TwoAxisPointSingleModel) model).setY(rect.getPointY());
 		}
+	}
+
+	private void matchRoiAndBounds(IBoundingBoxModel model, IRectangularROI rect) {
+		BoundingBox box = model.getBoundingBox();
+		if (box != null) {
+			RectangularROI modelRoi = new RectangularROI(
+					box.getxAxisStart(), box.getyAxisStart(),
+					box.getxAxisLength(), box.getyAxisLength(),
+					0);
+			if (!rect.equals(modelRoi)) {
+				rect = rect.bounds(modelRoi);
+				overwriteBoundsWithRoi(box, rect);
+			}
+		} else {
+			model.setBoundingBox(overwriteBoundsWithRoi(new BoundingBox(), rect));
+		}
+	}
+
+	private void matchRoiAndBounds(IBoundingLineModel model, LinearROI linRoi) {
+
+		BoundingLine line = model.getBoundingLine();
+		if (line != null) {
+			LinearROI modelsROI = new LinearROI(line.getLength(), line.getAngle());
+			modelsROI.setPoint(line.getxStart(), line.getyStart());
+			if (!linRoi.equals(modelsROI)) {
+				overwriteBoundsWithRoi(line, linRoi);
+			}
+		} else {
+			model.setBoundingLine(overwriteBoundsWithRoi(new BoundingLine(), linRoi));
+		}
+	}
+
+	private BoundingBox overwriteBoundsWithRoi(BoundingBox box, IRectangularROI rect) {
+		box.setxAxisStart(rect.getPoint()[0]);
+		box.setyAxisStart(rect.getPoint()[1]);
+		box.setxAxisLength(rect.getLength(0));
+		box.setyAxisLength(rect.getLength(1));
+		return box;
+	}
+
+	private BoundingLine overwriteBoundsWithRoi(BoundingLine line, LinearROI linRoi) {
+		line.setxStart(linRoi.getPoint()[0]);
+		line.setyStart(linRoi.getPoint()[1]);
+		line.setLength(linRoi.getLength());
+		line.setAngle(linRoi.getAngle());
+		return line;
 	}
 
 	private static void fillStaticGeneratorInfo(
@@ -261,7 +287,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 		cModel.addData(model, regions);
 		cModel.addMutators(mutators);
 		cModel.setDuration(duration);
-		setBounds(model, new ArrayList<>(regions));
+		setBounds(model, regions);
 		return createCompoundGenerator(cModel);
 	}
 }

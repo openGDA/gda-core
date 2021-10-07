@@ -132,6 +132,7 @@ public class BoundingBox  implements Serializable {
 	public void setyAxisLength(double yAxisLength) {
 		this.yAxisLength = yAxisLength;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
