@@ -310,6 +310,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		super.tearDown();
 		Finder.removeAllFactories();
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
+		LocalProperties.clearProperty(PROPERTY_NAME_ENTRY_NAME);
 	}
 
 	@Override
