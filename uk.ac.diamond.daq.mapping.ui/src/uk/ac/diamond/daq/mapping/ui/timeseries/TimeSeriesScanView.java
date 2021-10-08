@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.timeseries;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toCollection;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.net.URI;
@@ -29,10 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
@@ -56,6 +59,7 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.ui.device.MalcolmModelEditor;
@@ -70,8 +74,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.ScannableMotion;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
+import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesBlock;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanConfig;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
@@ -85,6 +93,7 @@ public class TimeSeriesScanView {
 
 	private static final String STATE_KEY_MALCOLM_DEVICE_NAME = "malcolmDeviceName";
 	private static final String STATE_KEY_NUM_STEPS = "numSteps";
+	private static final String STATE_KEY_OUTER_SCANNABLES = "outerScannables";
 
 	private static final Logger logger = LoggerFactory.getLogger(TimeSeriesScanView.class);
 
@@ -103,6 +112,8 @@ public class TimeSeriesScanView {
 	private Spinner numStepsSpinner;
 
 	private CopyScanConfig copyScanConfig = new CopyScanConfig(); // TODO persist using saveState? (should mapping view do same?)
+
+	private OuterScannablesBlock outerScannablesBlock;
 
 	@PostConstruct
 	public void createView(Composite parent, MPart part) {
@@ -135,12 +146,29 @@ public class TimeSeriesScanView {
 		return malcolmDeviceInfos;
 	}
 
+	private void scannablesChanged(@SuppressWarnings("unused") List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
+		viewComposite.layout(true, true);
+	}
+
 	@PersistState
 	public void saveState(MPart part) {
-		if (malcolmModelEditor != null) {
-			part.getPersistedState().put(STATE_KEY_MALCOLM_DEVICE_NAME, getSelectedMalcolmDeviceName());
-			part.getPersistedState().put(STATE_KEY_NUM_STEPS, numStepsSpinner.getText());
+		try {
+			final Map<String, String> state = part.getPersistedState();
+			state.put(STATE_KEY_MALCOLM_DEVICE_NAME, getSelectedMalcolmDeviceName());
+			state.put(STATE_KEY_NUM_STEPS, numStepsSpinner.getText());
+
+			final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
+			final String outerScannablesJson = marshaller.marshal(outerScannablesBlock.getOuterScannables());
+			state.put(STATE_KEY_OUTER_SCANNABLES, outerScannablesJson);
+		} catch (Exception e) {
+			logger.error("Could not save the current state of the Time Series Scan view", e);
 		}
+	}
+
+	@PreDestroy
+	public void dispose() {
+		malcolmModelEditor.dispose();
+		malcolmModelEditor = null;
 	}
 
 	private void createErrorLabel(Composite parent, String errorText) {
@@ -150,15 +178,54 @@ public class TimeSeriesScanView {
 	}
 
 	private void createViewControls(Composite parent, MPart part, final List<DeviceInformation<?>> malcolmDeviceInfos) {
-		final Composite composite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(composite);
+		createMalcolmDeviceAndStepsRow(parent, part, malcolmDeviceInfos);
+
+		// we need a composite to hold the model editor so that we can change it
+		malcolmModelEditorComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(malcolmModelEditorComposite);
+		GridLayoutFactory.fillDefaults().applyTo(malcolmModelEditorComposite);
+
+		createOuterScannablesBlock(parent, part);
+
+		// create the buttons
+		createButtons(parent);
+	}
+
+	private void createOuterScannablesBlock(Composite parent, MPart part) {
+		outerScannablesBlock = new OuterScannablesBlock();
+		outerScannablesBlock.setAvailableScannableNames(Finder.getFindablesOfType(ScannableMotion.class).keySet());
+		outerScannablesBlock.setOuterScannables(loadOuterScannables(part));
+		outerScannablesBlock.setScannablesChangeListener(this::scannablesChanged);
+
+		outerScannablesBlock.createControls(parent);
+	}
+
+	private List<IScanModelWrapper<IScanPointGeneratorModel>> loadOuterScannables(MPart part) {
+		final String outerScannablesJson = part.getPersistedState().get(STATE_KEY_OUTER_SCANNABLES);
+		List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = emptyList();
+		if (outerScannablesJson != null) {
+			final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
+			try {
+				outerScannables = marshaller.unmarshal(outerScannablesJson, null);
+			} catch (Exception e) {
+				logger.error("Could not load previous outer scannables", e);
+			}
+		}
+		return outerScannables;
+	}
+
+	private void createMalcolmDeviceAndStepsRow(Composite parent, MPart part, final List<DeviceInformation<?>> malcolmDeviceInfos) {
+		// The top row has a combo for choosing the malcolm device, and a spinner for the number of steps, each with a label
+		final Composite rowComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(rowComposite);
+		GridLayoutFactory.fillDefaults().numColumns(4).applyTo(rowComposite);
 
 		// create the combo viewer and label for selecting a malcolm device
-		final Label malcolmDeviceLabel = new Label(composite, SWT.NONE);
+		final Label malcolmDeviceLabel = new Label(rowComposite, SWT.NONE);
 		malcolmDeviceLabel.setText("Malcolm device:");
 		GridDataFactory.swtDefaults().applyTo(malcolmDeviceLabel);
 
-		malcolmDevicesComboViewer = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		malcolmDevicesComboViewer = new ComboViewer(rowComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridDataFactory.swtDefaults().applyTo(malcolmDevicesComboViewer.getControl());
 		malcolmDevicesComboViewer.setContentProvider(ArrayContentProvider.getInstance());
 		malcolmDevicesComboViewer.setLabelProvider(new LabelProvider() {
@@ -181,21 +248,14 @@ public class TimeSeriesScanView {
 			malcolmDevicesComboViewer.setSelection(new StructuredSelection(initiallySelectedDeviceInfo)));
 
 		// create the label and spinner to set number of steps (scan points)
-		final Label numStepsLabel = new Label(composite, SWT.NONE);
+		final Label numStepsLabel = new Label(rowComposite, SWT.NONE);
 		numStepsLabel.setText("Number of steps:");
 		GridDataFactory.swtDefaults().applyTo(numStepsLabel);
 
-		numStepsSpinner = new Spinner(composite, SWT.NONE);
+		numStepsSpinner = new Spinner(rowComposite, SWT.NONE);
 		numStepsSpinner.setMinimum(1);
 		GridDataFactory.swtDefaults().indent(20, 0).applyTo(numStepsSpinner);
 		numStepsSpinner.setSelection(Integer.parseInt(part.getPersistedState().getOrDefault(STATE_KEY_NUM_STEPS, "1")));
-
-		// we need a composite to hold the model editor so that we can change it
-		malcolmModelEditorComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(malcolmModelEditorComposite);
-
-		// create the buttons
-		createButtons(parent);
 	}
 
 	private String getSelectedMalcolmDeviceName() {
@@ -254,7 +314,9 @@ public class TimeSeriesScanView {
 
 	private void runValidationJob(boolean initialValidation) {
 		// TOD this method is copied from EditDetectorModelDialog, how can the we refactor to remove the duplication
-		final Job validateJob = Job.create("Validate malcolm model", (ICoreRunnable) monitor -> {
+		final Job validateJob = Job.create("Validate malcolm model", monitor -> {
+			if (malcolmModelEditor == null) return;
+
 			Object result;
 			try {
 				result = validate(malcolmModelEditor.getModel());
@@ -268,13 +330,15 @@ public class TimeSeriesScanView {
 	}
 
 	private void displayValidationResult(Object result, boolean initialValidation) {
+		if (malcolmModelEditor == null) return;
+
 		final IMalcolmModel malcolmModel = malcolmModelEditor.getModel();
 		Display.getDefault().asyncExec(() -> { // note getShell().getDisplay() can throw NPE initially
 			if (result instanceof ValidationException) {
 				MessageDialog.openError(getShell(), "Validation Error",
 						"The given configuration is invalid: " + ((Exception) result).getMessage());
 			} else if (result instanceof Exception) {
-				logger.error("Error getting malcolm device '{}'", malcolmModel.getName(), result);
+				logger.error("Error getting malcolm device '{}', {}", malcolmModel.getName(), result);
 				MessageDialog.openError(getShell(), "Error", "Could not get malcolm device " + malcolmModel.getName());
 			} else if (!initialValidation) {
 				// only show message for ok if button pressed
@@ -299,12 +363,21 @@ public class TimeSeriesScanView {
 		final String malcolmDeviceName = malcolmModel.getName();
 		final ScanRequest scanRequest = new ScanRequest();
 
+		// add the malcolm model to the scan request
 		final Map<String, IDetectorModel> detectors = new HashMap<>();
 		detectors.put(malcolmDeviceName, malcolmModel);
 		scanRequest.setDetectors(detectors);
 
+		// extract the models from the outer scannables
+		final List<IScanPointGeneratorModel> pointsModels = outerScannablesBlock.getOuterScannables().stream()
+			.filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan)
+			.map(IScanModelWrapper<IScanPointGeneratorModel>::getModel)
+			.collect(toCollection(ArrayList::new));
+
 		final int numSteps = numStepsSpinner.getSelection();
-		scanRequest.setCompoundModel(new CompoundModel(new StaticModel(numSteps)));
+		pointsModels.add(new StaticModel(numSteps));
+
+		scanRequest.setCompoundModel(new CompoundModel(pointsModels));
 
 		final ScanBean scanBean = new ScanBean(scanRequest);
 		scanBean.setName(String.format("%s - Time Series", malcolmDeviceName));

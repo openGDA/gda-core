@@ -217,7 +217,6 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		}
 
 		// copy the bindings to prevent concurrent modification exception
-		@SuppressWarnings("unchecked")
 		final List<Binding> bindings = new ArrayList<>(dataBindingContext.getBindings());
 		for (Binding binding : bindings) {
 			dataBindingContext.removeBinding(binding);
