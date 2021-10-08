@@ -143,7 +143,14 @@ public abstract class AbstractNexusDataWriterScanTest {
 		COUNTER_TIMER,
 		GENERIC(NXdetector.NX_DATA),
 		FILE_CREATOR,
-		NEXUS_DETECTOR(NXdetector.NX_DATA, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL);
+		/**
+		 *  Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
+		 */
+		NEXUS_DETECTOR(FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA, FIELD_NAME_EXTERNAL),
+		/**
+		 *  Alternate order to test re-prioritising when set
+		 */
+		MODIFIED_NEXUS_DETECTOR(FIELD_NAME_EXTERNAL, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA);
 
 		private List<String> primaryFieldNames;
 
@@ -326,11 +333,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 			final NXDetectorData data = new NXDetectorData(this);
 
+			/*
+			 * Priorities set to be explictly non-alphabetical, non-order of insertion, with order of insertion being default when priority not set
+			 */
 			final NexusGroupData valueData = new NexusGroupData(Math.random() * Double.MAX_VALUE);
 			data.addData(getName(), FIELD_NAME_VALUE, valueData);
 
 			final NexusGroupData spectrumData = new NexusGroupData(Random.rand(SPECTRUM_SIZE));
 			data.addData(getName(), FIELD_NAME_SPECTRUM, spectrumData);
+			data.setPrioritisedData(getName(), FIELD_NAME_SPECTRUM, NexusExtractor.SDSClassName);
 
 			final NexusGroupData imageData = new NexusGroupData(Random.rand(IMAGE_SIZE));
 			data.addData(getName(), NXdetector.NX_DATA, imageData);
@@ -657,6 +668,24 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	@Test
+	public void concurrentScanNexusDetectorWithPrimaryFieldSet() throws Exception {
+		detector = new DummyNexusDetector() {
+			@Override
+			public Object acquireData() {
+				final NXDetectorData data = (NXDetectorData) super.acquireData();
+				data.setPrioritisedData(getName(), FIELD_NAME_EXTERNAL, NexusExtractor.ExternalSDSLink);
+				return data;
+			}
+
+		};
+		final DummyNexusDetector castDetector = (DummyNexusDetector) detector;
+		castDetector.setScanDimensions(scanDimensions);
+
+		detector.setName("nexusDetector");
+		concurrentScan(detector, DetectorType.MODIFIED_NEXUS_DETECTOR, "NexusDetector");
+	}
+
+	@Test
 	public void concurrentScanNexusDetector() throws Exception {
 		detector = new DummyNexusDetector();
 		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);
@@ -866,6 +895,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 				checkFileCreatorDetector(detectorGroup);
 				break;
 			case NEXUS_DETECTOR:
+			case MODIFIED_NEXUS_DETECTOR:
 				checkNexusDetector(detectorGroup);
 				break;
 			default:

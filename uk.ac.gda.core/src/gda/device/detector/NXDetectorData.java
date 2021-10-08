@@ -442,12 +442,29 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 */
 	@Override
 	public NexusGroupData getData(String detName, String dataName, String className) {
+		final INexusTree dataHolder = getDataHolder(detName, dataName, className);
+		return dataHolder != null ? dataHolder.getData() : null;
+	}
+
+	/**
+	 *
+	 * @param detName
+	 * @param dataName name of the child whose data should have their priority changed.
+	 * @param className class name of the child whose data is to be changed e.g. NexusExtractor.SDSClassName
+	 */
+	@Override
+	public void setPrioritisedData(String detName, String dataName, String className) {
+		final INexusTree dataHolder = getDataHolder(detName, dataName, className);
+		getDetTree(detName).setPrioritised(dataHolder);
+	}
+
+	private INexusTree getDataHolder(String detName, String dataName, String className) {
 		INexusTree detTree = getDetTree(detName);
 
 		for(int i = 0; i < detTree.getNumberOfChildNodes(); i++) {
 			INexusTree dataTree = detTree.getChildNode(i);
 			if(dataTree.getName().equals(dataName) && isRequestedDatasetClass(className, dataTree.getNxClass())) {
-				return dataTree.getData();
+				return dataTree;
 			}
 		}
 

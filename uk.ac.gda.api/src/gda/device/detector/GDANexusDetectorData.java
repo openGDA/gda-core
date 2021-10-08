@@ -41,6 +41,14 @@ public interface GDANexusDetectorData  extends NexusTreeProvider, PlottableDetec
 	 */
 	public NexusGroupData getData(String detName, String dataName, String className);
 
+	/**
+	 *
+	 * @param detName
+	 * @param dataName name of the child whose data should have their priority changed.
+	 * @param className class name of the child whose data is to be changed e.g. NexusExtractor.SDSClassName
+	 */
+	public void setPrioritisedData(String detName, String dataName, String className);
+
 	public String[] getOutputFormat();
 
 	public GDANexusDetectorData mergeIn(GDANexusDetectorData data);
