@@ -33,10 +33,10 @@ import gda.scan.ScanInformation;
 
 public class MbsAnalyserCollectionStrategy implements AsyncNXCollectionStrategy{
 
-	private MbsAnalyser analyser;
+	protected MbsAnalyser analyser;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private Future<Integer> acquisitionTask;
-	private MbsAnalyserCompletedRegion completedRegion;
+	protected MbsAnalyserCompletedRegion completedRegion;
 
 	private static final String CPS_OUTPUT_FORMAT = "%5.5g";
 
