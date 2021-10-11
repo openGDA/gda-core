@@ -536,11 +536,11 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			// Add the data axis
 			NexusGroupData kineticEnergyScale = new NexusGroupData(regionCompleted.getKineticEnergyScale());
 			kineticEnergyScale.isDetectorEntryData = true; // Make true so its copied to NXData
-			data.addElement(regionName, "kinetic_energy", kineticEnergyScale, "eV", false);
+			data.addElement(regionName, "kinetic_energy", kineticEnergyScale, "eV", true);
 
 			NexusGroupData bindingEnergyScale = new NexusGroupData(analyser.toBindingEnergy(regionCompleted.getKineticEnergyScale()));
 			bindingEnergyScale.isDetectorEntryData = true; // Make true so its copied to NXData
-			data.addElement(regionName, "binding_energy", bindingEnergyScale, "eV", false);
+			data.addElement(regionName, "binding_energy", bindingEnergyScale, "eV", true);
 
 			NexusGroupData yScale = new NexusGroupData(regionCompleted.getyAxisScale());
 			yScale.isDetectorEntryData = true; // Make true so its copied to NXData
@@ -555,7 +555,7 @@ public class SpecsPhoibosCollectionStrategy implements AsyncNXCollectionStrategy
 			data.addElement(regionName, "pass_energy", new NexusGroupData(regionCompleted.getPassEnergy()), "eV", false);
 			data.addElement(regionName, "step_energy", new NexusGroupData(regionCompleted.getStepEnergy()), "eV", false);
 			// Save the photon energy and work function used for KE <-> BE conversions.
-			data.addElement(regionName, "photon_energy", new NexusGroupData(analyser.getCurrentPhotonEnergy()), "eV", false);
+			data.addElement(regionName, "photon_energy", new NexusGroupData(analyser.getCurrentPhotonEnergy()), "eV", true);
 			data.addElement(regionName, "work_function", new NexusGroupData(analyser.getWorkFunction()), "eV", false);
 
 			logger.debug("Finished writing to NeXus region: {}", regionName);
