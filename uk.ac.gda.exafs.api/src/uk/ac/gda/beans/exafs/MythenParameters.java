@@ -20,7 +20,9 @@ package uk.ac.gda.beans.exafs;
 
 import java.net.URL;
 
-public class MythenParameters implements IExperimentDetectorParameters {
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+
+public class MythenParameters implements IExperimentDetectorParameters, XMLRichBean {
 	public static final URL mappingURL = MythenParameters.class.getResource("ExafsParameterMapping.xml");
 	public static final URL schemaUrl = MythenParameters.class.getResource("ExafsParameterMapping.xsd");
 
