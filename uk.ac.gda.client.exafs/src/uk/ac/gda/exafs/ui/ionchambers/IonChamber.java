@@ -19,6 +19,8 @@
 package uk.ac.gda.exafs.ui.ionchambers;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -29,6 +31,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -50,6 +53,7 @@ public class IonChamber {
 	private VoltageSupplyComposite voltageSupply;
 	private GasFillComposite gasFilling;
 	private ArrayList<GasFillComposite> gasFillComposites;
+	private List<Button> allRunFillSequenceButtons = new ArrayList<>();
 
 	public IonChamber(Composite parent, IonChambersBean bean) {
 
@@ -75,7 +79,15 @@ public class IonChamber {
 		grpIonChambers.setText("Ion Chambers");
 
 		createEnergyControl( grpIonChambers );
+		createFillAllControl( grpIonChambers );
 		createGuiAllChambers( grpIonChambers );
+
+		// Add the run fill sequence buttons to the list of all buttons
+		allRunFillSequenceButtons.addAll(
+				gasFillComposites.stream()
+				.map(GasFillComposite::getRunFillSequenceButton)
+				.collect(Collectors.toList())
+		);
 
 		scrolledComposite.setContent(grpIonChambers);
 		grpIonChambers.layout();
@@ -113,7 +125,18 @@ public class IonChamber {
 		} );
 
 	}
+	private void createFillAllControl( Composite parent ) {
+		Button fillAllButton = new Button(parent, SWT.PUSH);
+		fillAllButton.setText("Fill all ionchambers");
+		fillAllButton.setToolTipText("Run the fill sequence for each ionchamber, one after another");
+		fillAllButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(event-> runFillAll()));
+		allRunFillSequenceButtons.add(fillAllButton);
+	}
 
+	private void runFillAll() {
+		gasFillComposites.forEach(GasFillComposite::updateParametersFromGui);
+		GasFill.runGasFill(ionChambersBean.getIonChambers(), allRunFillSequenceButtons);
+	}
 	/**
 	 *  Create composite showing settings for all ion chambers
 	 */

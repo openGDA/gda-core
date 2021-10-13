@@ -19,11 +19,17 @@
 package uk.ac.gda.exafs.ui.ionchambers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
@@ -39,14 +45,25 @@ import uk.ac.gda.beans.exafs.IonChamberParameters;
  */
 public class GasFill {
 
-	private final static Logger logger = LoggerFactory.getLogger(GasFill.class);
+	private static final Logger logger = LoggerFactory.getLogger(GasFill.class);
+
+	/**
+	 * Map to convert from ionchamber name to name of the gas injector scannable
+	 */
+	private static final Map<String, String> injectorNameMap;
+	static {
+		injectorNameMap = new HashMap<>();
+		injectorNameMap.put("I0", "ionc1_gas_injector");
+		injectorNameMap.put("It", "ionc2_gas_injector");
+		injectorNameMap.put("Iref", "ionc3_gas_injector");
+	}
 
 	/**
 	 * Run gas fill using specified ion chamber parameters.
 	 *
 	 * @param params {IonChamberParameters} - object specifying ion chamber be used, fill-purge parameters
 	 */
-	static public void runGasFill( IonChamberParameters params) {
+	public static void runGasFill(IonChamberParameters params) {
 		runGasFill(params, null);
 	}
 
@@ -57,31 +74,100 @@ public class GasFill {
 	 * @param params {IonChamberParameters} - object specifying ion chamber be used, fill-purge parameters
 	 * @param gasFillButton {Button} - button in gui used to start fill sequence (so it can be disabled whilst fill takes place)
 	 */
-	static public void runGasFill( IonChamberParameters params, final Button gasFillButton ) {
+	public static void runGasFill(IonChamberParameters params, final Button gasFillButton ) {
+		runGasFill(Arrays.asList(params), Arrays.asList(gasFillButton));
+	}
 
-		// Try to find correct gas injector to use for the ionchamber :
-		String ionc_name = params.getName(); //name of ionchamber; should be either I0, It or Iref
-		String injectorName;
-		if (ionc_name.equalsIgnoreCase("I0")){
-			injectorName = "ionc1_gas_injector";
-		} else if (ionc_name.equalsIgnoreCase("It")){
-			injectorName = "ionc2_gas_injector";
-		} else if (ionc_name.equalsIgnoreCase("Iref")){
-			injectorName = "ionc3_gas_injector";
-		} else {
-			injectorName = null;
+	public static void runGasFill(List<IonChamberParameters> params, final List<Button> gasFillButtons ) {
+		String message = params.stream().map(GasFill::checkInjectorScannable).collect(Collectors.joining("\n")).trim();
+		if (!message.isEmpty()) {
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Could not run gas fill",
+					"Unable to run the gas fill - "+message);
+			return;
 		}
 
-		if ( injectorName == null ) {
-			logger.warn("Ion chamber "+ionc_name+" not recognised - was expecting name to I0, It or Iref");
-			return;
+		//Make make Map from injector scannable to the ionchamber params
+		Map<Scannable, IonChamberParameters> injectorParamMap = new HashMap<>();
+		for(IonChamberParameters p : params) {
+			String injectorName = injectorNameMap.get(p.getName());
+			Scannable gasInjector = Finder.find(injectorName);
+			injectorParamMap.put(gasInjector, p);
+		}
+
+		Job job = new Job("Gas fill sequence progress") {
+
+			// update 'enabled' status of gas fill buttons (from gui thread)
+			private void updateButtonEnabled(final boolean isEnabled) {
+				Display.getDefault().asyncExec(() ->
+					gasFillButtons.forEach(button -> {
+						if (button != null) {
+							button.setEnabled(isEnabled);
+						}
+					})
+				);
+			}
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					updateButtonEnabled(false); // disable so buttons they can't be pressed during fill sequence
+					monitor.beginTask("Filling gas rig ", injectorParamMap.size());
+					// Fill each ion chamber in turn
+					for(var injectorItem : injectorParamMap.entrySet()) {
+						if (monitor.isCanceled()) {
+							break;
+						}
+						monitor.subTask(injectorItem.getValue().getName());
+						List<String> injectorArgs = getInjectorParameters(injectorItem.getValue());
+						injectorItem.getKey().moveTo(injectorArgs);
+						monitor.worked(1);
+					}
+
+				} catch (Exception e1) {
+					logger.error("Exception operating a gas injector from the UI", e1);
+					return Status.CANCEL_STATUS;
+				} finally {
+					updateButtonEnabled(true);
+				}
+				return Status.OK_STATUS;
+			}
+
+			@Override
+			protected void canceling() {
+				try {
+					for(var injector : injectorParamMap.keySet()) {
+						if (injector.isBusy()) {
+							injector.stop();
+						}
+					}
+				} catch (DeviceException e) {
+					logger.error("Exception whilst aborting a gas injector", e);
+				}
+			}
+		};
+
+		job.setUser(true);
+		job.schedule();
+
+	}
+
+	private static String checkInjectorScannable(IonChamberParameters params) {
+		// Try to find correct gas injector to use for the ionchamber :
+		String ionchamberName = params.getName(); //name of ionchamber; should be either I0, It or Iref
+		String injectorName = injectorNameMap.get(ionchamberName);
+		if (injectorName == null) {
+			return String.format("Ion chamber name %s not recognised - was expecting name to be I0, It or Iref", ionchamberName);
 		}
 
 		final Scannable gasInjector = Finder.find(injectorName);
-		if ( gasInjector == null ) {
-			logger.warn("Gas injector for "+ionc_name+" not found - was expecting "+injectorName);
-			return;
+		if (gasInjector == null) {
+			return String.format("Gas injector for %s not found - was expecting to find %s", ionchamberName, injectorName);
 		}
+
+		return "";
+	}
+
+	private static List<String> getInjectorParameters(IonChamberParameters params) {
 
 		// Assemble all the params required for the gas injector scannable
 		String purge_pressure = "25.0";
@@ -113,7 +199,7 @@ public class GasFill {
 		 ( Note that although the GasInjectionScannable classes for b18 and i20 are different, the format of the 'position' are the same
 		   so initiating the fill-purge sequence can be done in the same way. )
 		 */
-		final ArrayList<String> args = new ArrayList<String>();
+		List<String> args = new ArrayList<>();
 		args.add(purge_pressure);
 		args.add(purge_period);
 		args.add(gas_fill1_pressure_mbar);
@@ -123,47 +209,6 @@ public class GasFill {
 		args.add(gas_select_val);
 		args.add(flushString);
 
-		Job job = new Job("Filling gas rig " + ionc_name) {
-
-			// update 'enabled' status of gas fill button (from gui thread)
-			private void updateButtonEnabled(final boolean isEnabled) {
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if ( gasFillButton != null )
-							gasFillButton.setEnabled(isEnabled);
-					}
-				});
-			}
-
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					updateButtonEnabled(false); // disable at start so button can't be pressed during fill sequence
-					gasInjector.moveTo(args); // this actually does the fill, purge sequence
-				} catch (Exception e1) {
-					logger.error("Exception operating a gas injector from the UI", e1);
-					return Status.CANCEL_STATUS;
-				} finally {
-					updateButtonEnabled(true);
-				}
-				return Status.OK_STATUS;
-			}
-
-			@Override
-			protected void canceling() {
-				try {
-					gasInjector.stop();
-					updateButtonEnabled(true);
-				} catch (DeviceException e) {
-					logger.error("Exception whilst aborting a gas injector", e);
-				}
-			}
-
-		};
-
-		job.setUser(true);
-		job.schedule();
-
+		return args;
 	}
 }

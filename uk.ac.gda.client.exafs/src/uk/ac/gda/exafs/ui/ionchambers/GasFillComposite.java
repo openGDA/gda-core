@@ -269,4 +269,8 @@ public class GasFillComposite extends Composite {
 			logger.error("Problem running mucal for absorption calculation ", e);
 		}
 	}
+
+	public Button getRunFillSequenceButton() {
+		return runFillSequenceButton;
+	}
 }
