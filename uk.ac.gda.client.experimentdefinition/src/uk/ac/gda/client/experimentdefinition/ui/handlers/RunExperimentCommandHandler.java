@@ -23,7 +23,11 @@ import java.util.List;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
@@ -41,8 +45,11 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		if (event.getCommand().getId().equals("uk.ac.gda.client.experimentdefinition.RunSeveralMultiExperimentCommand")) {
 
-		if (event.getCommand().getId().equals("uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand")) {
+			queueSeveralMultiScans();
+
+		} else if (event.getCommand().getId().equals("uk.ac.gda.client.experimentdefinition.RunMultiExperimentCommand")) {
 
 			queueMultiScan();
 
@@ -83,6 +90,35 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 			addExperimentToQueue(expt);
 		}
 	}
+
+	protected void queueSeveralMultiScans() throws ExecutionException {
+		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Queue several multi-scans", "Enter number of multi-scans to add", Integer.toString(1), validator);
+		dlg.setBlockOnOpen(true);
+		if (dlg.open() == Window.OK) {
+			int n = Integer.parseInt(dlg.getValue());
+			logger.info("Adding {} repetitions of multi-scan to queue", n);
+			for(int i=0; i<n; i++) {
+				queueMultiScan();
+			}
+		}
+	}
+
+	/**
+	 * Validator to make sure dialog box only accepts integers > 0
+	 */
+	private IInputValidator validator = newText -> {
+		try {
+		    int intValue = Integer.parseInt(newText);
+
+		    // Determine if input is too short or too long
+		    if (intValue < 1) return "Too few repetiions";
+
+		    // Input must be OK
+		    return null;
+		} catch(NumberFormatException nfe) {
+			return "Invalid integer";
+		}
+	};
 
 	private void addExperimentToQueue(final IExperimentObject ob) throws ExecutionException {
 
