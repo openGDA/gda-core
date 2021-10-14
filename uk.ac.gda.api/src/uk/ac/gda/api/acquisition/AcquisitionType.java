@@ -29,7 +29,9 @@ public enum AcquisitionType {
 
 	DIFFRACTION("diffraction"),
 
-	CALIBRATION("calibration");
+	CALIBRATION("calibration"),
+
+	BEAM_SELECTOR("beam selector");
 
 	private final String name;
 

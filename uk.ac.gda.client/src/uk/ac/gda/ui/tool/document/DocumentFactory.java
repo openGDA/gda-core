@@ -118,6 +118,8 @@ public class DocumentFactory {
 				return AcquisitionType.DIFFRACTION;
 			case TOMOGRAPHY:
 				return AcquisitionType.TOMOGRAPHY;
+			case BEAM_SELECTOR:
+				return AcquisitionType.BEAM_SELECTOR;
 			default:
 				return AcquisitionType.GENERIC;
 			}
@@ -129,6 +131,8 @@ public class DocumentFactory {
 				return AcquisitionPropertyType.DIFFRACTION;
 			case TOMOGRAPHY:
 				return AcquisitionPropertyType.TOMOGRAPHY;
+			case BEAM_SELECTOR:
+				return AcquisitionPropertyType.BEAM_SELECTOR;
 			default:
 				return AcquisitionPropertyType.DEFAULT;
 			}

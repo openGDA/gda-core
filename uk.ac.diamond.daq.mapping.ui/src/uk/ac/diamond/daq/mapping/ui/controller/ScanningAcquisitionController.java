@@ -4,6 +4,7 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishE
 import static uk.ac.gda.ui.tool.rest.ClientRestServices.getScanningAcquisitionRestServiceClient;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -279,6 +280,10 @@ public class ScanningAcquisitionController
 		AcquisitionTemplateType templateType = tempHelper.getSelectedAcquisitionTemplateType()
 				.orElseThrow(() -> new AcquisitionControllerException("The actual scanning acquisition has no defined templateType"));
 
+		var instancePosition = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getStartPosition();
+		startPosition.removeIf(doc -> instancePosition.stream().anyMatch(instanceDoc -> doc.getDevice().equals(instanceDoc.getDevice())));
+		startPosition.addAll(instancePosition);
+
 		updateAcquisitionPositions(startPosition,
 				new AcquisitionKeys(acquisitionKeys.getPropertyType(), templateType),
 				AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
@@ -349,7 +354,6 @@ public class ScanningAcquisitionController
 	 * </p>
 	 * @param startPosition the actual beamline positions for the scannable defined in START in {@link ClientSpringProperties#getPositions()}
 	 * @param acquistionType the scanning acquisition acquisition type
-	 * @param templateType the specific template for the acquisition type
 	 * @param mapperAcquisition getter functions for an acquisition properties position list
 	 * @param mapperType getter functions for an acquisition type properties position list
 	 * @param consumer setter functions for the scanning acquisition type position list
@@ -359,11 +363,9 @@ public class ScanningAcquisitionController
 			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
 			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType,
 			Consumer<Set<DevicePositionDocument>> consumer) {
-		Set<DevicePositionDocument> positions  = new HashSet<>();
-		positions.addAll(startPosition);
-		processAcquisitionPositions(positions,
-				acquisitionKey,
-				mapperAcquisition, mapperType);
+
+		Set<DevicePositionDocument> positions = new HashSet<>(startPosition);
+		processAcquisitionPositions(positions, acquisitionKey, mapperAcquisition, mapperType);
 		updatePositionDocument(positions, consumer);
 	}
 
@@ -376,7 +378,7 @@ public class ScanningAcquisitionController
 	 * using {@code acquistionType} and {@code templateType}, retrieves {@link AcquisitionConfigurationProperties} and the specific {@link AcquisitionTemplateConfiguration}
 	 * </li>
 	 * <li>
-	 * from retrieved acquisition properties document, a list of required either start or end positions are extracted using respectively the @code {mapperAcquisition} and @code {mapperAcquisition}.
+	 * from retrieved acquisition properties document, a list of required either start or end positions are extracted using respectively the @code {mapperAcquisition} and @code {mapperType}.
 	 * This will generate a specific acquisition {@code DevicePositionDocument} list
 	 * </li>
 	 * <li>
@@ -394,22 +396,20 @@ public class ScanningAcquisitionController
 			AcquisitionKeys acquisitionKey,
 			Function<AcquisitionConfigurationProperties, List<ScannablePropertiesValue>> mapperAcquisition,
 			Function<AcquisitionTemplateConfiguration, List<ScannablePropertiesValue>> mapperType) {
-		List<ScannablePropertiesValue> acquisitionPosition = new ArrayList<>();
-		Optional.ofNullable(mapperAcquisition).ifPresent(mapper ->
-			clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionKey.getPropertyType())
-				.map(mapper)
-				.ifPresent(acquisitionPosition::addAll));
 
-		List<ScannablePropertiesValue> templatePosition = new ArrayList<>();
-		Optional.ofNullable(mapperType).ifPresent(mapper ->
-			clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquisitionKey)
-				.map(mapper)
-				.ifPresent(templatePosition::addAll));
+		List<ScannablePropertiesValue> positionFromAcquisition = clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionKey.getPropertyType())
+			.map(mapperAcquisition).orElseGet(ArrayList::new);
 
-		// Eventually override the acquisitionType position with the templateType
-		acquisitionPosition.removeAll(templatePosition);
-		acquisitionPosition.addAll(templatePosition);
-		processAcquisitionTemplatePositions(positions, acquisitionPosition);
+		if (mapperType != null) {
+			// TODO refactor so that this is never null
+			List<ScannablePropertiesValue> positionFromType = clientPropertiesHelper.getAcquisitionTemplateConfiguration(acquisitionKey)
+				.map(mapperType).orElse(Collections.emptyList());
+
+			positionFromAcquisition.removeAll(positionFromType);
+			positionFromAcquisition.addAll(positionFromType);
+		}
+
+		processAcquisitionTemplatePositions(positions, positionFromAcquisition);
 	}
 
 	private void processAcquisitionTemplatePositions(Set<DevicePositionDocument> positions, List<ScannablePropertiesValue> spv) {
@@ -479,9 +479,5 @@ public class ScanningAcquisitionController
 			this.acquisitionReader = new AcquisitionReader(this::getAcquisition);
 		}
 		return this.acquisitionReader;
-	}
-
-	private void setAcquisitionKey(AcquisitionKeys acquisitionKey) {
-		this.acquisitionKeys = acquisitionKey;
 	}
 }
