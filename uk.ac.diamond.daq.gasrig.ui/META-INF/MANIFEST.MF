@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gas Rig UI
+Bundle-SymbolicName: uk.ac.diamond.daq.gasrig.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.e4.ui.model.workbench;bundle-version="2.1.700.v20200113-1422"
+Automatic-Module-Name: uk.ac.diamond.daq.gasrig.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: gda.factory,
+ javax.annotation,
+ org.eclipse.jface.layout,
+ org.eclipse.jface.resource,
+ org.eclipse.swt,
+ org.eclipse.swt.graphics,
+ org.eclipse.swt.widgets,
+ uk.ac.diamond.daq.gasrig.api
