@@ -30,48 +30,41 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
+import gda.factory.FactoryException;
 
-/**
- * Dummy version of {@link Keithley2600SeriesAverageMode}.
- */
-public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implements NexusDetector {
+public class DummyKeithley2600SweepMode extends DummyKeithley2600Series implements NexusDetector {
 
-	private static final Logger logger = LoggerFactory.getLogger(DummyKeithley2600AverageMode.class);
+	private static final Logger logger = LoggerFactory.getLogger(DummyKeithley2600SweepMode.class);
 
-	//dummy device settings
-	private int points = 10;
-	private int interval = 1000;
-	private int status = IDLE;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private Future runningAcquisition;
 
+	private double dummyPeriod = 10000;
+	private double[] dummyData = new double[] {-2, 0, 2, -2, 0, 2, -2, 0, 2, -2, 0, 2};
+	private double[] dummyPulses = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	private int status = IDLE;
 
-	public void setInterval(int demand) {
-		logger.debug("{} setting interval time to: {}", getName(), demand);
-		this.interval = demand;
+
+	@Override
+	public void configure() throws FactoryException {
+		if (isConfigured()) {
+			return;
+		}
+		//Eliminate errors related to setting input names on a detector
+		setInputNames(new String[0]);
+		setConfigured(true);
 	}
 
-	public void setPoints(int demand) {
-		logger.debug("{} setting points to: {}", getName(), demand);
-		this.points = demand;
+	@Override
+	public String toFormattedString() {
+		String statusString;
+		if (status == IDLE) {
+			statusString = "IDLE";
+		} else {
+			statusString = "BUSY";
+		}
+		return getName() + " : " + statusString;
 	}
-
-	public int getInterval() {
-		return interval;
-	}
-
-	public int getPoints() {
-		return points;
-	}
-
-	public double getMeanVoltage() {
-		return random.nextDouble();
-	}
-
-	public double getMeanCurrent() {
-		return random.nextDouble();
-	}
-
 
 	@Override
 	public void collectData() throws DeviceException {
@@ -80,24 +73,22 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 		// Simulate data collection
 		runningAcquisition = executorService.submit(() -> {
 			try {
-				//Simulate collection
-				Thread.sleep((long)points * interval);
+				Thread.sleep((long)dummyPeriod);
 			} catch (InterruptedException e) {
 				logger.debug("Thread was interupted", e);
 			}
 		});
+
 	}
 
 	@Override
 	public void setCollectionTime(double time) throws DeviceException {
-		double timeInMilliseconds = time * 1000;
-		int dwellTime = (int) (timeInMilliseconds / getPoints());
-		setInterval(dwellTime);
+		// This detector does not simply sets collection time
 	}
 
 	@Override
 	public double getCollectionTime() throws DeviceException {
-		return interval * points;
+		return dummyPeriod;
 	}
 
 	@Override
@@ -112,13 +103,13 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 
 	@Override
 	public void prepareForCollection() throws DeviceException {
-		// TODO Auto-generated method stub
+		// Do nothing
 
 	}
 
 	@Override
 	public void endCollection() throws DeviceException {
-		// TODO Auto-generated method stub
+		// Do nothing
 
 	}
 
@@ -129,7 +120,7 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 
 	@Override
 	public String getDescription() throws DeviceException {
-		return "Keithley 2600 Series average mode (Dummy)";
+		return "Keithley 2600 Series sweep mode (Dummy)";
 	}
 
 	@Override
@@ -145,16 +136,13 @@ public class DummyKeithley2600AverageMode extends DummyKeithley2600Series implem
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData data = new NXDetectorData(this);
-		double meanVoltage = getMeanVoltage();
-		double meanCurrent = getMeanCurrent();
 
 		if (getSourceMode() == SourceMode.CURRENT) {
-			data.setPlottableValue(getName(),  meanVoltage);
+			data.addData(getName(), "voltages array", new NexusGroupData(dummyData), "V");
 		} else if (getSourceMode() == SourceMode.VOLTAGE) {
-			data.setPlottableValue(getName(),  meanCurrent);
+			data.addData(getName(), "currents array", new NexusGroupData(dummyData), "A");
 		}
-		data.addData(getName(), "mean current", new NexusGroupData(meanCurrent), "A");
-		data.addData(getName(), "mean voltage", new NexusGroupData(meanVoltage), "V");
+		data.addData(getName(), "pulses array", new NexusGroupData(dummyPulses), "Pulses");
 
 		return data;
 	}
