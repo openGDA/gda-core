@@ -210,7 +210,7 @@ public final class JythonInterpreterManager {
 	 * @return Path
 	 * @throws IOException if directory cannot be found
 	 */
-	private static Path getBundleLocation(final String bundleName) throws IOException {
+	public static Path getBundleLocation(final String bundleName) throws IOException {
 		if (Platform.isRunning()) {
 			final Bundle bundle = Platform.getBundle(bundleName);
 			if (bundle != null) {

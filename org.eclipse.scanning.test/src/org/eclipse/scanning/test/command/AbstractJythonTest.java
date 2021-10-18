@@ -11,13 +11,17 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.command;
 
+import static org.eclipse.scanning.jython.JythonInterpreterManager.getBundleLocation;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.Properties;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.example.scannable.MockScannable;
+import org.eclipse.scanning.jython.JythonInterpreterManager;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
@@ -47,21 +51,10 @@ public abstract class AbstractJythonTest extends BrokerTest{
 	}
 
 	static {
-		Properties postProperties = new Properties();
-
-		// The following line fixes a Python import error seemingly arising
-		// from using Jython in an OSGI environment.
-		// See http://bugs.jython.org/issue2355 .
-		postProperties.put("python.import.site", "false");
-
-		PythonInterpreter.initialize(System.getProperties(), postProperties, new String[0]);
+		JythonInterpreterManager.setupSystemState();
+		try {
+			JythonInterpreterManager.addPath(getBundleLocation("org.eclipse.scanning.command") + "/scripts");
 		pi = new PythonInterpreter();
-
-		// FIXME: How to properly specify the path to the Python file?
-		// At the moment we use a hack relying on the fact that the
-		// JUnit working directory is org.eclipse.scanning.test/.
-		pi.exec("import sys");
-		pi.exec("sys.path.append('../org.eclipse.scanning.command/scripts/')");
 		pi.exec("from mapping_scan_commands import *");
 		pi.exec("from mapping_scan_commands import _instantiate");
 		pi.exec("from org.eclipse.scanning.example.detector import MandelbrotModel");
@@ -70,5 +63,8 @@ public abstract class AbstractJythonTest extends BrokerTest{
 		pi.exec("mandelbrot = lambda t: ('mandelbrot',"
 			+	"_instantiate(MandelbrotModel,"
 			+	"{'exposureTime': t, 'name': 'mandelbrot'}))");
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 }
