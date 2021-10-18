@@ -19,7 +19,9 @@
 package uk.ac.gda.client.properties;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static gda.configuration.properties.LocalProperties.GDA_MODE;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -57,8 +59,14 @@ public class ConfigurationPropertiesOverrideTest {
 	public static void beforeClass() {
 		// Setting the "gda.mode" allows ClientSpringProperties to load the second @PropertySource
 		// which otherwise would have been unavailable
-		System.setProperty("gda.mode", "dummy");
+		System.setProperty(GDA_MODE, "dummy");
 		System.setProperty(GDA_CONFIG, "test/resources/configurationPropertiesTest");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty(GDA_MODE);
+		System.clearProperty(GDA_CONFIG);
 	}
 
 	@Test
