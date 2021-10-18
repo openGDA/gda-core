@@ -60,7 +60,7 @@ public class UserAuthentication {
 	public static void setToUseOSAuthentication() {
 		UserAuthentication.authInfoSupplied = true;
 		UserAuthentication.useOSAuthentication = true;
-		UserAuthentication.username = System.getProperty("user.name");
+		UserAuthentication.username = System.getProperty("user.name").split("@", -1)[0];
 		UserAuthentication.password = "";
 	}
 
