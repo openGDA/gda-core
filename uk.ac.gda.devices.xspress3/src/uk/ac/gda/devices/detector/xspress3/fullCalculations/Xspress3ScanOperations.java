@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
@@ -132,6 +134,27 @@ public class Xspress3ScanOperations {
 		controller.setArrayCounter(0);
 		setHDFPVs();
 		controller.doStart();
+	}
+
+	protected double[][] getMcaData(double time) throws DeviceException {
+		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
+		clearAndStart();
+
+		Timer tfg = Finder.find("tfg");
+		tfg.clearFrameSets(); // we only want to collect a frame at a time
+		tfg.countAsync(time); // run tfg for time
+		do {
+			synchronized (this) {
+				try {
+					wait(100);
+				} catch (InterruptedException e) {
+				}
+			}
+		} while (tfg.getStatus() == Timer.ACTIVE);
+
+		controller.doStop();
+
+		return controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
 	}
 
 	private void setHDFPVs() throws DeviceException  {

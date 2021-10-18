@@ -29,14 +29,11 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
-import gda.factory.Finder;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -48,7 +45,6 @@ public class Xspress3DataOperations {
 	private static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum";
 
 	private Xspress3Controller controller;
-	private int firstChannelToRead;
 	private int scanPoint;
 	private String configFileName;
 	private DetectorROI[] rois;
@@ -57,9 +53,8 @@ public class Xspress3DataOperations {
 	private boolean readDataFromFile;
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3DataOperations.class);
 
-	protected Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
+	protected Xspress3DataOperations(Xspress3Controller controller) {
 		this.controller = controller;
-		this.firstChannelToRead = firstChannelToRead;
 		this.readDataFromFile = false;
 	}
 
@@ -303,48 +298,6 @@ public class Xspress3DataOperations {
 		extraNames[numExtraNames - 1] = "FF";
 
 		return extraNames;
-	}
-
-	/**
-	 * @param time in milliseconds
-	 */
-	protected int[][] getMCData(double time) throws DeviceException {
-		getMCAData(time);
-
-		double[][] mcaData = getMCAData(time);
-		return getIntDataFromDoubles(mcaData);
-	}
-
-	protected double[][] getMCAData(double time) throws DeviceException {
-		controller.doErase();
-		controller.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
-		controller.doStart();
-
-		Timer tfg = Finder.find("tfg");
-		tfg.clearFrameSets(); // we only want to collect a frame at a time
-		tfg.countAsync(time); // run tfg for time
-		do {
-			synchronized (this) {
-				try {
-					wait(100);
-				} catch (InterruptedException e) {
-				}
-			}
-		} while (tfg.getStatus() == Timer.ACTIVE);
-
-		controller.doStop();
-
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
-	}
-
-	private int[][] getIntDataFromDoubles(double[][] mcaData) {
-		int[][] mcaIntData = new int[mcaData.length][mcaData[0].length];
-		for (int i = 0; i < mcaData.length; i++) {
-			for (int j = 0; j < mcaData[0].length; j++) {
-				mcaIntData[i][j] = (int) Math.round(mcaData[i][j]);
-			}
-		}
-		return mcaIntData;
 	}
 
 	protected DetectorROI[] getRegionsOfInterest() {
