@@ -69,7 +69,6 @@ import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.DeviceState;
-import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.malcolm.MalcolmDetectorInfo;
 import org.eclipse.scanning.api.malcolm.MalcolmDeviceException;
 import org.eclipse.scanning.api.malcolm.MalcolmTable;
@@ -100,7 +99,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A dummy Malcolm device for use in dummy mode or tests.
  */
-public class DummyMalcolmDevice extends AbstractMalcolmDevice implements IMalcolmDevice {
+public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 	private static interface IDummyMalcolmControlledDevice {
 

@@ -35,7 +35,7 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
+import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXdata;
@@ -156,7 +156,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 		NexusScanInfo nexusScanInfo = new NexusScanInfo();
 		nexusScanInfo.setRank(scanRank);
-		List<NexusObjectProvider<?>> nexusProviders = ((IMultipleNexusDevice) malcolmDevice).getNexusProviders(nexusScanInfo);
+		List<NexusObjectProvider<?>> nexusProviders = ((INexusDevice<?>) malcolmDevice).getNexusProviders(nexusScanInfo);
 
 		checkNexusObjectProviders(nexusProviders, model, scanRank);
 	}

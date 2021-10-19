@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
+import org.eclipse.dawnsci.nexus.INexusDevice;
+import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
@@ -49,8 +50,7 @@ import org.slf4j.LoggerFactory;
  * Base class for Malcolm devices
  *
  */
-public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalcolmModel>
-		implements IMalcolmDevice, IMultipleNexusDevice {
+public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalcolmModel> implements IMalcolmDevice, INexusDevice<NXobject> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMalcolmDevice.class);
 

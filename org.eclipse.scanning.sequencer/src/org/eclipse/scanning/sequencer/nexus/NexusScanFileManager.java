@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -34,7 +35,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
@@ -51,6 +51,7 @@ import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IScanDevice;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
@@ -260,14 +261,12 @@ public class NexusScanFileManager {
 
 	private NexusScanModel createNexusScanModel(ScanModel scanModel) throws ScanningException {
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = extractNexusDevices(scanModel);
-		final Optional<IMultipleNexusDevice> multiNexusDevice = scanModel.getDetectors().stream()
-				.filter(IMultipleNexusDevice.class::isInstance)
-				.map(IMultipleNexusDevice.class::cast).findFirst();
+		final Optional<IMalcolmDevice> malcolmDevice = getMalcolmDevice(scanModel);
 
 		final NexusScanModel nexusScanModel = new NexusScanModel(nexusDevices);
 		nexusScanModel.setEntryName(getEntryName());
 		nexusScanModel.setFilePath(scanModel.getFilePath());
-		nexusScanModel.setMultipleNexusDevice(multiNexusDevice);
+		nexusScanModel.setMultipleNexusDevice(malcolmDevice.map(INexusDevice.class::cast));
 		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().map(this::getAbsoluteFilePath).collect(toSet()));
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
 		nexusScanModel.setDimensionNamesByIndex(scanModel.getPointGenerator().getDimensionNames());
@@ -312,14 +311,22 @@ public class NexusScanFileManager {
 		return scanModel.getScanInformation().getRank();
 	}
 
+	private Optional<IMalcolmDevice> getMalcolmDevice(ScanModel scanModel) {
+		return scanModel.getDetectors().stream()
+				.filter(IMalcolmDevice.class::isInstance)
+				.map(IMalcolmDevice.class::cast)
+				.findFirst();
+	}
+
 	private boolean isMalcolmScan(ScanModel scanModel) {
-		return scanModel.getDetectors().stream().anyMatch(IMultipleNexusDevice.class::isInstance);
+		return getMalcolmDevice(scanModel).isPresent();
 	}
 
 	protected Map<ScanRole, List<INexusDevice<?>>> extractNexusDevices(ScanModel model) {
 		final Function<Collection<?>, List<INexusDevice<?>>> toNexusDevices =
 				devices -> devices.stream()
 				.filter(INexusDevice.class::isInstance)
+				.filter(not(IMalcolmDevice.class::isInstance))
 				.map(INexusDevice.class::cast).collect(toList());
 
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = new EnumMap<>(ScanRole.class);

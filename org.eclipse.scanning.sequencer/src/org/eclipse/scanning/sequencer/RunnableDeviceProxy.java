@@ -20,7 +20,6 @@ package org.eclipse.scanning.sequencer;
 
 import java.util.List;
 
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -52,7 +51,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> implements INexusDevice<NXobject>, IMultipleNexusDevice {
+public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> implements INexusDevice<NXobject> {
 	private static final Logger logger = LoggerFactory.getLogger(RunnableDeviceProxy.class);
 
 	private AbstractRunnableDeviceDelegate delegate;
@@ -98,20 +97,18 @@ public class RunnableDeviceProxy<T> extends AbstractRunnableDevice<T> implements
 		delegate.run(position);
 	}
 
-	// Delegated interface IMultipleNexusDevice methods
-
-	@Override
-	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
-		logger.trace("getNexusProviders({}) on {}", info, getName());
-		return delegate.getNexusProviders(info);
-	}
-
 	// Delegated interface INexusDevice<NXobject> methods
 
 	@Override
 	public NexusObjectProvider<NXobject> getNexusProvider(NexusScanInfo info) throws NexusException {
 		logger.trace("getNexusProvider({}) on {}", info, getName());
 		return delegate.getNexusProvider(info);
+	}
+
+	@Override
+	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		logger.trace("getNexusProviders({}) on {}", info, getName());
+		return delegate.getNexusProviders(info);
 	}
 
 	// Delegated annotated methods
