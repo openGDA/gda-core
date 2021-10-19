@@ -36,6 +36,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.gda.epics.client.mythen</module>
 <module>uk.ac.gda.epics.client.pco</module>
 <module>uk.ac.gda.epics.client.pixium</module>
+<module>uk.ac.diamond.daq.gasrig</module>
+<module>uk.ac.diamond.daq.gasrig.api</module>
+<module>uk.ac.diamond.daq.gasrig.ui</module>
 </modules>
 </project>
 
