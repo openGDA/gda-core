@@ -59,8 +59,6 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 
 	private final Scannable device;
 
-	protected N nexusObject = null; // set by getNexusProvider
-
 	public AbstractNexusDeviceAdapter(final Scannable device) {
 		this.device = device;
 	}
@@ -112,7 +110,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 			return ((INexusDevice<N>) getDevice()).getNexusProvider(info);
 		}
 
-		nexusObject = createNexusObject(info);
+		final N nexusObject = createNexusObject(info);
 		return createNexusProvider(nexusObject, info);
 	}
 
@@ -160,7 +158,10 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 	@Override
 	@ScanEnd
 	public void scanEnd() throws NexusException {
-		nexusObject = null;
+		// do nothing, subclasses may override
+		// (note, keeping this method is useful as subclasses may call super.scanEnd() which will
+		// fail to compile if this method is removed. If that call is removed, it would be very easy to
+		// forget to add it again if necessary
 	}
 
 }

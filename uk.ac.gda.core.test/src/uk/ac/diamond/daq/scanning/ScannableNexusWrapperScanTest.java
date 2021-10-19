@@ -32,6 +32,7 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -39,7 +40,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -171,43 +171,6 @@ import gda.jython.JythonServer;
  */
 public class ScannableNexusWrapperScanTest {
 
-	private static JythonServer jythonServer;
-
-	@BeforeClass
-	public static void setServices() throws Exception {
-		jythonServer = mock(JythonServer.class);
-		connector   = new ScannableDeviceConnectorService();
-		sservice    = new RunnableDeviceServiceImpl(connector); // Not testing OSGi so using hard coded service.
-		gservice    = new PointGeneratorService();
-		fileFactory = new NexusFileFactoryHDF5();
-
-		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
-		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
-		final IEventService eservice  = new EventServiceImpl(activemqConnectorService);
-
-		final Services services = new Services();
-		services.setEventService(eservice);
-		services.setRunnableDeviceService(sservice);
-		services.setGeneratorService(gservice);
-		services.setConnector(connector);
-
-		final INexusDeviceService nexusDeviceService = new NexusDeviceService();
-		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(fileFactory);
-		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
-		serviceHolder.setNexusDeviceService(nexusDeviceService);
-		serviceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
-		serviceHolder.setOperationService(new MockOperationService());
-		serviceHolder.setFilePathService(new MockFilePathService());
-
-		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
-		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
-		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
-
-		final org.eclipse.scanning.points.ServiceHolder pointsServiceHolder = new org.eclipse.scanning.points.ServiceHolder();
-		pointsServiceHolder.setValidatorService(new ValidatorService());
-		pointsServiceHolder.setPointGeneratorService(new PointGeneratorService());
-	}
-
 	private static class SampleAngleScannable extends DummyUnitsScannable<Angle> {
 
 		private static final double ANGLE = Math.toRadians(30);
@@ -296,13 +259,11 @@ public class ScannableNexusWrapperScanTest {
 
 		@Override
 		public String[] getInputNames() {
-			if (inputFieldValues == null) return new String[0];
 			return inputFieldValues.keySet().toArray(new String[inputFieldValues.size()]);
 		}
 
 		@Override
 		public String[] getExtraNames() {
-			if (extraFieldValues == null) return new String[0];
 			return extraFieldValues.keySet().toArray(new String[extraFieldValues.size()]);
 		}
 
@@ -330,13 +291,16 @@ public class ScannableNexusWrapperScanTest {
 
 	}
 
+	private static final String SCANNABLE_NAME_SAPERP = "saperp";
+	private static final String SCANNABLE_NAME_SALONG = "salong";
+
 	public static final String TEST_CONFIG_FILE_PATH =
 			"testfiles/gda/scanning/ScannableNexusWrapperScanTest/testdatawriter.xml";
-	protected static IScannableDeviceService connector;
-	protected static IScanService		     sservice;
-	protected static IPointGeneratorService  gservice;
-	protected static INexusFileFactory       fileFactory;
 
+	protected static IScannableDeviceService scannableDeviceService;
+	protected static IScanService scanService;
+	protected static IPointGeneratorService pointGenService;
+	protected static INexusFileFactory nexusFileFactory;
 
 	protected File output;
 
@@ -344,24 +308,58 @@ public class ScannableNexusWrapperScanTest {
 	private Map<String, ScannableWriter> locationMap;
 	private Set<String> legacyMetadataScannables;
 
+	private static JythonServer jythonServer;
+
+	@BeforeClass
+	public static void setServices() throws Exception {
+		jythonServer = mock(JythonServer.class);
+		scannableDeviceService = new ScannableDeviceConnectorService();
+		scanService = new RunnableDeviceServiceImpl(scannableDeviceService); // Not testing OSGi so using hard coded service.
+		pointGenService = new PointGeneratorService();
+		nexusFileFactory = new NexusFileFactoryHDF5();
+
+		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
+		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
+		final IEventService eservice  = new EventServiceImpl(activemqConnectorService);
+
+		final Services services = new Services();
+		services.setEventService(eservice);
+		services.setRunnableDeviceService(scanService);
+		services.setGeneratorService(pointGenService);
+		services.setConnector(scannableDeviceService);
+
+		final INexusDeviceService nexusDeviceService = new NexusDeviceService();
+		new org.eclipse.dawnsci.nexus.ServiceHolder().setNexusFileFactory(nexusFileFactory);
+		final org.eclipse.scanning.sequencer.ServiceHolder serviceHolder = new org.eclipse.scanning.sequencer.ServiceHolder();
+		serviceHolder.setNexusDeviceService(nexusDeviceService);
+		serviceHolder.setNexusScanFileService(new NexusScanFileServiceImpl());
+		serviceHolder.setOperationService(new MockOperationService());
+		serviceHolder.setFilePathService(new MockFilePathService());
+
+		final org.eclipse.dawnsci.nexus.scan.ServiceHolder scanServiceHolder = new org.eclipse.dawnsci.nexus.scan.ServiceHolder();
+		scanServiceHolder.setNexusDeviceService(nexusDeviceService);
+		scanServiceHolder.setNexusBuilderFactory(new DefaultNexusBuilderFactory());
+
+		final org.eclipse.scanning.points.ServiceHolder pointsServiceHolder = new org.eclipse.scanning.points.ServiceHolder();
+		pointsServiceHolder.setValidatorService(new ValidatorService());
+		pointsServiceHolder.setPointGeneratorService(new PointGeneratorService());
+	}
+
+	@BeforeClass
+	public static void createJythonServer() throws Exception {
+		jythonServer = mock(JythonServer.class);
+	}
+
 	@Before
 	public void before() throws Exception {
 		final MandelbrotModel model = new MandelbrotModel();
 		model.setName("mandelbrot");
-		model.setRealAxisName("salong");
-		model.setImaginaryAxisName("saperp");
+		model.setRealAxisName(SCANNABLE_NAME_SALONG);
+		model.setImaginaryAxisName(SCANNABLE_NAME_SAPERP);
 
-		detector = TestDetectorHelpers
-				.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
-		detector.addRunListener(new IRunListener() {
-
-			@Override
-			public void runPerformed(RunEvent event) throws ScanningException {
-				System.out.println("Ran mandelbrot detector @ " + event.getPosition());
-			}
-
-		});
+		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
+		assertThat(detector, is(notNullValue()));
+		detector.addRunListener(IRunListener.createRunPerformedListener(event -> System.out.println("Ran mandelbrot detector @ " + event.getPosition())));
 
 		readLegacySpringConfig(TEST_CONFIG_FILE_PATH);
 		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(locationMap);
@@ -369,8 +367,8 @@ public class ScannableNexusWrapperScanTest {
 
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(jythonServer);
-		factory.addFindable(new SampleAngleScannable("salong", false));
-		factory.addFindable(new SampleAngleScannable("saperp", true));
+		factory.addFindable(new SampleAngleScannable(SCANNABLE_NAME_SALONG, false));
+		factory.addFindable(new SampleAngleScannable(SCANNABLE_NAME_SAPERP, true));
 		factory.addFindable(new DummyScannable("sax", 5.0));
 		factory.addFindable(new DummyScannable("say", 23.4));
 		factory.addFindable(new DummyScannable("satilt", 127.4));
@@ -390,7 +388,7 @@ public class ScannableNexusWrapperScanTest {
 		final MultiFieldMetadataScannable cryostat = new MultiFieldMetadataScannable("cryostat");
 		cryostat.addInputField("temperature_demand", 20.0);
 		cryostat.addExtraField("cryostat_temperature", 19.9);
-		cryostat.addExtraField("temperatue", 19.9);
+		cryostat.addExtraField("temperature", 19.9);
 		cryostat.addExtraField("shield_temperature", 26.5);
 		cryostat.addExtraField("heater_percent", 64.3);
 		cryostat.addExtraField("heater_setting", 15.3);
@@ -830,10 +828,10 @@ public class ScannableNexusWrapperScanTest {
 			assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
 					is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 
+
 			final String[] valueFieldNames = (String[]) ArrayUtils.addAll(
 					scannable.getInputNames(), scannable.getExtraNames());
-			if (nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER &&
-					valueFieldNames[0].equals(scannable.getName())) {
+			if (nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && scannable.getInputNames().length > 0) {
 				valueFieldNames[0] = NXpositioner.NX_VALUE;
 			}
 
@@ -957,10 +955,9 @@ public class ScannableNexusWrapperScanTest {
 				is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 		assertThat(beam.getNexusBaseClass(), is(NexusBaseClass.NX_BEAM));
 
-		final IDataset extentDataset = beam.getDataset("extent"); // TODO use getExtent when Nexus base classes are next generated
-		assertThat(extentDataset, is(notNullValue()));
-		assertThat(extentDataset.getRank(), is(0));
-		assertThat(extentDataset.getObject(), is(equalTo(3.25)));
+		assertThat(beam.getDataNodeNames(), containsInAnyOrder("name", NXbeam.NX_EXTENT));
+		assertThat(beam.getDataNode("name").getString(), is(equalTo("beam")));
+		assertThat(beam.getExtentScalar(), is(closeTo(3.25, 1e-15)));
 	}
 
 	private Object[] getPositionArray(Scannable legacyScannable) throws DeviceException {
@@ -1042,7 +1039,7 @@ public class ScannableNexusWrapperScanTest {
 			}
 		}
 		compoundModel.addModel(gridModel);
-		final IPointGenerator<CompoundModel> pointGen = gservice.createCompoundGenerator(compoundModel);
+		final IPointGenerator<CompoundModel> pointGen = pointGenService.createCompoundGenerator(compoundModel);
 
 		// Create the model for a scan
 		final ScanModel scanModel = new ScanModel();
@@ -1050,8 +1047,8 @@ public class ScannableNexusWrapperScanTest {
 		scanModel.setScanPathModel(compoundModel);
 		scanModel.setDetector(detector);
 
-		final IScannable<?> attributeScannable = connector.getScannable("attributes");
-		final IScannable<?> beamSizeScannable = connector.getScannable("beam");
+		final IScannable<?> attributeScannable = scannableDeviceService.getScannable("attributes");
+		final IScannable<?> beamSizeScannable = scannableDeviceService.getScannable("beam");
 		scanModel.setMonitorsPerScan(attributeScannable, beamSizeScannable);
 
 		// Create a file to scan into
@@ -1061,7 +1058,7 @@ public class ScannableNexusWrapperScanTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		final IRunnableDevice<ScanModel> scanner = sservice.createScanDevice(scanModel);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(new IRunListener() {

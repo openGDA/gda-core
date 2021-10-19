@@ -284,7 +284,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@AfterClass
 	public static void tearDownProperties() {
-		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT); // TODO move properties to setUpServices/tearDownAfterclass
+		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
 		LocalProperties.clearProperty(PROPERTY_NAME_ENTRY_NAME);
 		LocalProperties.clearProperty(GDA_INSTRUMENT);
 		LocalProperties.clearProperty(GDA_END_STATION_NAME);

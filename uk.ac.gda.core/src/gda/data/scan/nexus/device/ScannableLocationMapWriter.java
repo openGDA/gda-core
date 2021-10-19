@@ -81,16 +81,15 @@ class ScannableLocationMapWriter<N extends NXobject> implements CustomNexusEntry
 		final String scannableName = scannableNexusDevice.getScannable().getName();
 		final String[] paths = scannableWriter.getPaths();
 		final String[] units = scannableWriter.getUnits();
-
-		final String[] outputFieldPaths = scannableNexusDevice.getOutputFieldPaths();
-		if (paths.length > outputFieldPaths.length) {
+		final String[] fieldNames = scannableNexusDevice.getFieldNames();
+		if (paths.length > fieldNames.length) {
 			throw new NexusException(MessageFormat.format("Number of configured paths ({0}) larger than number of fields ({1}) for scannable {2}",
-					paths.length, outputFieldPaths.length, scannableNexusDevice.getName()));
+					paths.length, fieldNames.length, scannableNexusDevice.getName()));
 		}
 
 		for (int fieldIndex = 0; fieldIndex < paths.length; fieldIndex++) {
-			logger.info("Adding link from '{}' to field '{}' of scannable '{}'", paths[fieldIndex], outputFieldPaths[fieldIndex], scannableName);
-			final DataNode dataNode = scannableNexusDevice.getFieldDataNodes(outputFieldPaths[fieldIndex]);
+			logger.info("Adding link from '{}' to field '{}' of scannable '{}'", paths[fieldIndex], fieldNames[fieldIndex], scannableName);
+			final DataNode dataNode = scannableNexusDevice.getFieldDataNode(fieldNames[fieldIndex]);
 			final String fieldUnits = (units != null && units.length > fieldIndex) ? units[fieldIndex] : null;
 			// link to existing data node
 			createField(dataNode, paths[fieldIndex], fieldUnits);

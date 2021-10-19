@@ -11,9 +11,11 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.AbstractScannable;
+import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Scalar;
@@ -36,9 +38,14 @@ import gda.device.scannable.ScannableStatus;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 
 /**
- * Class provides a default implementation which will write any GDA8 scannable to NeXus
+ * An instance of this class wraps a {@link Scannable} and adapts to both {@link IScannable} and {@link INexusDevice}.
+ * This allows a scannable to be used in a new scanning (a.k.a. solstice scanning) scan and write to the nexus file.
+ * The nexus writing delegated to an instanceof {@link ScannableNexusDevice}.
  *
- * @author Matthew Gerring, Matthew Dickie
+ * Note that an instance of this class is used only in new scanning.
+ *
+ * @author Matthew Gerring
+ * @author Matthew Dickie
  */
 public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N>, IMultipleNexusDevice {
 
@@ -105,11 +112,15 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 
 	@Override
 	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
-		return getScannableNexusDevice(true).getNexusProvider(info);
+		throw new UnsupportedOperationException("getNexusProviders() should be called instead of this method");
 	}
 
 	@Override
 	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
+		if (getScannable().getInputNames().length > 1 && info.getScanRole(getName()) == ScanRole.SCANNABLE) {
+			throw new UnsupportedOperationException("New scanning does not support scanning over scannables with multiple input fields");
+		}
+
 		return getScannableNexusDevice(true).getNexusProviders(info);
 	}
 

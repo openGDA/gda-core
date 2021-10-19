@@ -18,20 +18,23 @@
 
 package gda.data.scan.nexus.device;
 
+import static gda.device.Scannable.ATTR_NEXUS_CATEGORY;
+
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -117,11 +120,11 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 	 * it hasn't been added yet. When this has happened, the nexus base classes should be
 	 * regenerated and the constant from this {@link NXpositioner} used instead.
 	 */
-	public static final String FIELD_NAME_VALUE_SET = "value_set";
+	public static final String FIELD_NAME_VALUE_SET = NXpositioner.NX_VALUE + "_set";
 
 	/**
-	 * The {@link DataNode}s for each field keyed by output field path (i.e. the path within
-	 * the nexus node). This map has the same iteration order as the values in {@link #getPositionArray(Object)}.
+	 * The {@link DataNode}s for each field keyed by input/extra name.
+	 * This map has the same iteration order as the values in {@link #getPositionArray(Object)}.
 	 * Each data node corresponds to the field with the corresponding index position in the result of
 	 * concatenating the arrays returned by {@link Scannable#getInputNames()} and {@link Scannable#getExtraNames()}.
 	 * If the scannable role in the scan is {@link NexusRole#PER_POINT}, then each data node will contain
@@ -160,23 +163,25 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 
 	@Override
 	protected void configureNexusWrapper(NexusObjectWrapper<N> nexusWrapper, NexusScanInfo info) throws NexusException {
-
-		final NexusBaseClass category = getNexusCategory();
-		nexusWrapper.setCategory(category);
+		nexusWrapper.setCategory(getNexusCategory());
 
 		// add all input fields as axis fields
-		final int numInputFields = getScannable().getInputNames().length;
-		final String[] axisFieldNames = fieldDataNodes.keySet().stream().limit(numInputFields)
-				.toArray(String[]::new);
+		final String[] inputFields = getScannable().getInputNames();
+		final ScannableNexusDeviceConfiguration config = getScannableNexusDeviceConfiguration().orElseThrow();
+		final String[] fieldOutputPaths = config.getFieldPaths();
+		final String[] axisFieldNames = new String[inputFields.length];
+		for (int fieldIndex = 0; fieldIndex < inputFields.length; fieldIndex++) {
+			axisFieldNames[fieldIndex] = fieldIndex < fieldOutputPaths.length ? fieldOutputPaths[fieldIndex] : inputFields[fieldIndex];
+		}
 		nexusWrapper.addAxisDataFieldNames(axisFieldNames);
 
 		// calculate primary data field name
 		primaryDataFieldIndex = calculatePrimaryDataFieldIndex();
-		super.configureNexusWrapper(nexusWrapper, info);
+		final String primaryDataFieldName = fieldOutputPaths[primaryDataFieldIndex];
+		nexusWrapper.setPrimaryDataFieldName(primaryDataFieldName);
 
-		final boolean hasDemandValue = writeDemandValue && info.getScanRole(getName()) == ScanRole.SCANNABLE;
-		nexusWrapper.setDefaultAxisDataFieldName(hasDemandValue ? FIELD_NAME_VALUE_SET : getPrimaryDataFieldName());
-
+		nexusWrapper.setDefaultAxisDataFieldName(shouldWriteDemandValue(info) ?
+				FIELD_NAME_VALUE_SET : getPrimaryDataFieldName());
 		final String collectionName = getScannableNexusDeviceConfiguration()
 				.map(ScannableNexusDeviceConfiguration::getCollectionName)
 				.orElseGet(() -> hasLocationMapEntry() ? COLLECTION_NAME_SCANNABLES : null);
@@ -244,7 +249,11 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 
 	@Override
 	protected String getPrimaryDataFieldName() {
-		return fieldDataNodes.keySet().stream().skip(primaryDataFieldIndex).findFirst().orElse(null);
+		return getScannableNexusDeviceConfiguration()
+				.map(ScannableNexusDeviceConfiguration::getFieldPaths)
+				.filter(fieldPaths -> primaryDataFieldIndex < fieldPaths.length)
+				.map(fieldPaths -> fieldPaths[primaryDataFieldIndex])
+				.orElse(getScannable().getInputNames()[primaryDataFieldIndex]);
 	}
 
 	private Optional<ScannableNexusDeviceConfiguration> getScannableNexusDeviceConfiguration() {
@@ -263,7 +272,7 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 				return optCategory.get();
 			}
 
-			final Object categoryStr = getDevice().getScanMetadataAttribute(Scannable.ATTR_NEXUS_CATEGORY);
+			final Object categoryStr = getScannable().getScanMetadataAttribute(ATTR_NEXUS_CATEGORY);
 			if (categoryStr instanceof String) {
 				return NexusBaseClass.getBaseClassForName((String) categoryStr);
 			}
@@ -273,17 +282,14 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		}
 	}
 
-	/**
-	 * Returns the output field paths for each field
-	 * @return output field paths
-	 */
-	public String[] getOutputFieldPaths() {
-		// since a LinkedHashMap is used the iteration order of the keyset matches the insertion order
-		return fieldDataNodes.keySet().stream().toArray(String[]::new);
+	public DataNode getFieldDataNode(String outputFieldPath) {
+		return fieldDataNodes.get(outputFieldPath);
 	}
 
-	public DataNode getFieldDataNodes(String outputFieldPath) {
-		return fieldDataNodes.get(outputFieldPath);
+	@Override
+	public NexusObjectProvider<N> getNexusProvider(NexusScanInfo info) throws NexusException {
+		// this class now returns multiple nexus providers for scannables with multiple input fields
+		throw new UnsupportedOperationException("getNexusProviders() should be called instead of this method");
 	}
 
 	@Override
@@ -291,16 +297,168 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		final Scannable scannable = getScannable();
 		if (scannable instanceof IMultipleNexusDevice) {
 			return ((IMultipleNexusDevice)scannable).getNexusProviders(info);
+		} else if (scannable instanceof INexusDevice) {
+			@SuppressWarnings("unchecked")
+			final INexusDevice<N> nexusDevice = (INexusDevice<N>) getScannable();
+			return Arrays.asList(nexusDevice.getNexusProvider(info));
 		}
-		return Collections.<NexusObjectProvider<?>>emptyList();
+
+		// create the DataNodes for the inputNames, extraNames and demand value if applicable
+		createDataNodes(info);
+
+		if (getScannableNexusDeviceConfiguration().isPresent()) {
+			// if there is a configuration, create a single nexus object (see DAQ-3761)
+			final N nexusObject = createConfiguredNexusObject(info);
+			return List.of(createNexusProvider(nexusObject, info));
+		}
+
+		// default behaviour - create an NXpositioner for each field
+		final List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
+		final String[] inputNames = scannable.getInputNames();
+		final ScanRole scanRole = info.getScanRole(getName());
+		for (int i = 0; i < inputNames.length; i++) {
+			final boolean isSingleInputField = i == 0 && inputNames.length == 1;
+			final N positioner = createPositionerForInputName(inputNames[i], i, scanRole, isSingleInputField);
+			nexusProviders.add(createNexusProviderForInputField(inputNames[i], positioner, isSingleInputField));
+		}
+
+		// for scannables with multiple (or zero) input fields, create an NXcollection with links and extra fields
+		// TODO is this the expected behaviour for no-input field scannables.
+		if (scannable.getInputNames().length != 1) { // will also cover no input field case
+			nexusProviders.add(createCollection(info));
+		}
+
+		return nexusProviders;
+	}
+
+	private N createPositionerForInputName(String inputName, int fieldIndex, ScanRole scanRole,
+			boolean isSingleInputField) throws NexusException {
+		// only honour NexusBaseClass (from Scannable.NX_CLASS attribute) for single field, otherwise the collection uses this.
+		// TODO: should still support nexus scan attributes such as NX_CLASS? (DAQ-3776)
+		final NexusBaseClass nexusBaseClass = isSingleInputField ? getNexusBaseClass() : NexusBaseClass.NX_POSITIONER;
+		final String scannableName = getName();
+
+		@SuppressWarnings("unchecked")
+		final N positioner = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+
+		positioner.setField(FIELD_NAME_NAME, isSingleInputField ? scannableName : scannableName + "." + inputName);
+		// Attributes to identify the scannables so that the nexus file can be reverse engineered
+		positioner.setAttribute(null, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName);
+		positioner.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE, scanRole.toString().toLowerCase());
+
+		if (positioner instanceof NXpositioner) {
+			writeLimits((NXpositioner) positioner, fieldIndex);
+		}
+
+		// create the 'value' data node for this input field
+		final String dataNodeName = positioner instanceof NXpositioner ? NXpositioner.NX_VALUE : inputName;
+		final DataNode dataNode = fieldDataNodes.get(inputName);
+		positioner.addDataNode(dataNodeName, dataNode);
+
+		// create the 'value_set' (demand value) data node if applicable (new scanning only)
+		if (isSingleInputField && demandValueDataNode != null) {
+			positioner.addDataNode(FIELD_NAME_VALUE_SET, demandValueDataNode);
+		}
+
+		if (isSingleInputField) {
+			// we don't create an NXcollection for a single field, so add extra fields and attributes here
+			addExtraNameFields(positioner);
+			registerAttributes(positioner);
+		}
+
+		return positioner;
+	}
+
+	private void addExtraNameFields(final NXobject nexusObject) {
+		// extra name fields are added to the only NXpositioner if there is a single input field, otherwise to an NXcollection
+		addFields(getScannable().getExtraNames(), nexusObject);
+	}
+
+	private void addAllFields(final NXobject nexusObject) {
+		addFields(getFieldNames(), nexusObject);
+	}
+
+	private void addFields(String[] fieldNames, NXobject nexusObject) {
+		for (String fieldName : fieldNames) {
+			final DataNode dataNode = fieldDataNodes.get(fieldName);
+			Objects.nonNull(dataNode); // sanity check
+			nexusObject.addDataNode(fieldName, dataNode);
+		}
+	}
+
+	private NexusObjectProvider<N> createNexusProviderForInputField(String inputName,
+			N nexusObject, boolean isSingleField) throws NexusException {
+		final String groupName = isSingleField ? getName() : getName() + "." + inputName;
+		final NexusObjectWrapper<N> nexusWrapper = new NexusObjectWrapper<>(groupName, nexusObject);
+		nexusWrapper.setCategory(getNexusCategory());
+		if (hasLocationMapEntry()) {
+			nexusWrapper.setCollectionName(COLLECTION_NAME_SCANNABLES);
+		}
+
+		if (isSingleField) {
+			// In this single input field case, this is the only nexus object provider, so we need to configure it so that
+			// the NXdata group correctly links to the data nodes for value and target value (if present)
+			nexusWrapper.setPrimaryDataFieldName(NXpositioner.NX_VALUE);
+			nexusWrapper.addAxisDataFieldName(NXpositioner.NX_VALUE);
+			nexusWrapper.setDefaultAxisDataFieldName(demandValueDataNode != null ?
+					FIELD_NAME_VALUE_SET : NXpositioner.NX_VALUE);
+		}
+
+		return nexusWrapper;
+	}
+
+	private NexusObjectProvider<?> createCollection(NexusScanInfo info) throws NexusException {
+		final String scannableName = getName();
+
+		// honour NexusBaseClass for no-input field scannables (DAQ-3776)
+		final NexusBaseClass nexusBaseClass = getScannable().getInputNames().length == 0 ?
+				getNexusBaseClass() : NexusBaseClass.NX_COLLECTION;
+		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCANNABLE_NAME, scannableName);
+		nexusObject.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE, info.getScanRole(scannableName).toString().toLowerCase());
+		nexusObject.setField(FIELD_NAME_NAME, scannableName);
+
+		// add links to input fields and extra fields
+		addAllFields(nexusObject);
+		// add extra name fields and attributes
+		registerAttributes(nexusObject);
+
+		// create and configure the NexusObjectProvider for the collection.
+		final NexusObjectWrapper<?> nexusProvider = new NexusObjectWrapper<>(scannableName, nexusObject);
+		if (hasLocationMapEntry()) {
+			nexusProvider.setCollectionName(COLLECTION_NAME_SCANNABLES);
+		}
+		final NexusBaseClass category = getNexusCategory();
+		nexusProvider.setCategory(category == null ? NexusBaseClass.NX_INSTRUMENT : category); // collection would be added to NXentry not NXinstrument by default
+
+		// as the NXcollection has the same name as the device, this is the NexusObjectProvider that will be used as the default axis
+		final String[] inputNames = getScannable().getInputNames();
+		if (inputNames.length > 0) {
+			nexusProvider.setPrimaryDataFieldName(inputNames[0]);
+			primaryDataFieldIndex = calculatePrimaryDataFieldIndex();
+			final String primaryDataFieldName = getPrimaryDataFieldName();
+			nexusProvider.setPrimaryDataFieldName(primaryDataFieldName);
+			nexusProvider.addAxisDataFieldNames(inputNames);
+			nexusProvider.setDefaultAxisDataFieldName(primaryDataFieldName);
+		}
+		return nexusProvider;
+	}
+
+	@Override
+	protected N createNexusObject(NexusScanInfo info) throws NexusException {
+		throw new UnsupportedOperationException("This method should not be called");
 	}
 
 	private boolean hasLocationMapEntry() {
 		return NexusDataWriter.getLocationmap().containsKey(getName());
 	}
 
-	@Override
-	protected N createNexusObject(NexusScanInfo info) throws NexusException {
+	private boolean shouldWriteDemandValue(NexusScanInfo scanInfo) {
+		final ScanRole scanRole = scanInfo.getScanRole(getName());
+		return scanRole == ScanRole.SCANNABLE && writeDemandValue;
+	}
+
+	private N createConfiguredNexusObject(NexusScanInfo info) throws NexusException {
 		final NexusBaseClass nexusBaseClass = getNexusBaseClass();
 		final String scannableName = getName();
 
@@ -315,14 +473,20 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		// add fields for attributes, e.g. name, description (a.k.a. metadata)
 		registerAttributes(nexusObject);
 
-		if (getScannable() instanceof ScannableMotion && nexusBaseClass == NexusBaseClass.NX_POSITIONER) {
+		if (nexusObject instanceof NXpositioner && getScannable() instanceof ScannableMotion) {
 			writeLimits((NXpositioner) nexusObject);
 		}
 
-		// create the data fields. These are the fields read from the scannables position.
-		createDataFields(info, nexusObject);
+		final String[] fieldOutputPaths = getScannableNexusDeviceConfiguration().get().getFieldPaths();
+		int fieldIndex = 0;
+		for (Map.Entry<String, DataNode> fieldDataNodeEntry : fieldDataNodes.entrySet()) {
+			final String fieldName = fieldDataNodeEntry.getKey();
+			final DataNode dataNode = fieldDataNodeEntry.getValue();
+			final String fieldOutputPath = fieldIndex < fieldOutputPaths.length ? fieldOutputPaths[fieldIndex] : fieldName;
+			NexusUtils.addDataNode(nexusObject, dataNode, fieldOutputPath);
+			fieldIndex++;
+		}
 
-		this.nexusObject = nexusObject;
 		return nexusObject;
 	}
 
@@ -393,6 +557,18 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		}
 	}
 
+	private void writeLimits(NXpositioner positioner, int fieldIndex) {
+		if (!(getScannable() instanceof ScannableMotion)) return;
+		final Double[] lowerLimits = ((ScannableMotion) getScannable()).getLowerGdaLimits();
+		if (lowerLimits != null && lowerLimits.length > fieldIndex) {
+			positioner.setSoft_limit_minScalar(lowerLimits[fieldIndex]);
+		}
+		final Double[] upperLimits = ((ScannableMotion) getScannable()).getUpperGdaLimits();
+		if (upperLimits != null && upperLimits.length > fieldIndex) {
+			positioner.setSoft_limit_maxScalar(upperLimits[fieldIndex]);
+		}
+	}
+
 	/**
 	 * Creates the data fields for the nexus object. These are the {@link DataNode}s - and the
 	 * datasets that they contain - for each of the fields returned by
@@ -402,57 +578,46 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 	 * returned by {@link Scannable#getPosition()} (turned into an array by
 	 * {#getPositionArray()}, otherwise they will be {@link ILazyWriteableDataset}s,
 	 * which will be written into during each call to {@link #setPosition(Object)}.
+	 * Create the DataNodes for the {@link Scannable}.
+	 *
 	 * @param scanInfo
 	 * @param nexusObject
 	 * @throws NexusException
 	 */
-	private void createDataFields(NexusScanInfo scanInfo, final N nexusObject) throws NexusException {
+	private void createDataNodes(NexusScanInfo scanInfo) throws NexusException {
 		final Object[] positionArray = getPositionArray(null);
-		final ScanRole scanRole = scanInfo.getScanRole(getName());
-		final NexusRole nexusRole = scanRole.getNexusRole();
 		final Scannable scannable = getScannable();
 		final String[] fieldNames = Stream.concat(Arrays.stream(scannable.getInputNames()),
 				Arrays.stream(scannable.getExtraNames())).toArray(String[]::new);
 
-		fieldDataNodes = new LinkedHashMap<>(fieldNames.length);
-
-		if (nexusRole == NexusRole.PER_POINT && scanRole == ScanRole.SCANNABLE && writeDemandValue) {
-			// create the demand value dataset (name 'value_set'). Note dataset is not added to the
-			// writeableDatasets map as the order of entries in that map corresponds to elements in
-			// getPositionArray, which does not include the demand value
-			final ILazyWriteableDataset demandValueDataset = createLazyWritableDataset(FIELD_NAME_VALUE_SET,
-					Double.class, 1, new int[] { 1 });
-			demandValueDataNode = NexusNodeFactory.createDataNode();
-			demandValueDataNode.setDataset(demandValueDataset);
-			nexusObject.addDataNode(FIELD_NAME_VALUE_SET, demandValueDataNode);
-			nexusObject.setAttribute(FIELD_NAME_VALUE_SET, ATTR_NAME_LOCAL_NAME,
-					getName() + "." + FIELD_NAME_VALUE_SET);
-		}
-
 		// create the datasets for each field
+		fieldDataNodes = new LinkedHashMap<>(fieldNames.length);
+		final NexusRole nexusRole = scanInfo.getScanRole(getName()).getNexusRole();
 		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
 			if (fieldIndex >= positionArray.length) {
 				logger.warn("Field {} from scannable '{}' ({}) missing from positionArray {}", fieldIndex, getName(), fieldNames[fieldIndex], positionArray);
 			} else {
 				final String unitsStr = getFieldUnits(fieldIndex);
-				final String outputFieldPath = getOutputFieldPath(fieldNames[fieldIndex], fieldIndex);
-				final DataNode dataNode = createDataField(nexusObject, scanInfo, nexusRole, fieldNames[fieldIndex],
-						outputFieldPath, unitsStr, positionArray[fieldIndex]);
-				fieldDataNodes.put(outputFieldPath, dataNode);
+				final DataNode dataNode = createDataField(scanInfo, nexusRole, fieldNames[fieldIndex],
+						unitsStr, positionArray[fieldIndex]);
+				fieldDataNodes.put(fieldNames[fieldIndex], dataNode);
 			}
+		}
+
+		if (shouldWriteDemandValue(scanInfo)) {
+			demandValueDataNode = createDemandValueField();
 		}
 	}
 
-	private DataNode createDataField(final N nexusObject, NexusScanInfo scanInfo, final NexusRole nexusRole,
-			String inputFieldName, String outputFieldPath, String unitsStr, Object value) throws NexusException {
+	private DataNode createDataField(NexusScanInfo scanInfo, final NexusRole nexusRole,
+			String inputFieldName, String unitsStr, Object value) {
 		final DataNode dataNode = NexusNodeFactory.createDataNode();
 		if (nexusRole == NexusRole.PER_SCAN) {
 			// simply set the field to the current value
 			dataNode.setDataset(DatasetFactory.createFromObject(value));
 		} else if (nexusRole == NexusRole.PER_POINT) {
 			// otherwise create a lazy writable dataset of the appropriate type
-			final String outputFieldName = getLastSegment(outputFieldPath);
-			dataNode.setDataset(createLazyWritableDataset(outputFieldName,
+			dataNode.setDataset(createLazyWritableDataset(inputFieldName,
 					value.getClass(), scanInfo.getRank(), scanInfo.createChunk(1)));
 		}
 
@@ -467,24 +632,19 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		}
 
 		// add the data node to the parent group
-		NexusUtils.addDataNode(nexusObject, dataNode, outputFieldPath);
 		return dataNode;
 	}
 
-	private String getOutputFieldPath(String inputFieldName, int fieldIndex) throws NexusException {
-		return getScannableNexusDeviceConfiguration()
-				.map(ScannableNexusDeviceConfiguration::getFieldPaths)
-				.filter(paths -> paths.length > fieldIndex)
-				.map(paths -> paths[fieldIndex])
-				.orElse(getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && inputFieldName.equals(getName()) ?
-						NXpositioner.NX_VALUE : inputFieldName);
-		// if nexus object is NXpositioner and field name is same as scannable name, use 'value' instead,
-		// in order to comply with nexus standard for NXpositioner
-	}
-
-	private String getLastSegment(String path) {
-		final int lastSeparatorIndex = path.lastIndexOf(Node.SEPARATOR);
-		return lastSeparatorIndex == -1 ? path : path.substring(lastSeparatorIndex + 1);
+	private DataNode createDemandValueField() {
+		// create the demand value dataset (name 'value_set'). Note dataset is not added to the
+		// writeableDatasets map as the order of entries in that map corresponds to elements in
+		// getPositionArray, which does not include the demand value
+		final ILazyWriteableDataset demandValueDataset = createLazyWritableDataset(FIELD_NAME_VALUE_SET,
+				Double.class, 1, new int[] { 1 });
+		final DataNode dataNode = NexusNodeFactory.createDataNode();
+		dataNode.setDataset(demandValueDataset);
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + "." + FIELD_NAME_VALUE_SET));
+		return dataNode;
 	}
 
 	private String getFieldUnits(int fieldIndex) {
@@ -580,6 +740,10 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 		}
 	}
 
+	public String[] getFieldNames() {
+		return fieldDataNodes.keySet().toArray(String[]::new);
+	}
+
 	/**
 	 * Write the given {@link SliceND} at the given point.
 	 * @param actualPosition the actual position of the scannable
@@ -633,22 +797,21 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 				scanSlice.getStart(), scanSlice.getStop(), scanSlice.getStep());
 	}
 
-	protected boolean isNexusObjectCreated() {
-		return nexusObject != null;
-	}
-
-	@Override
-	public String toString() {
-		return "ScannableNexusDevice [scannable=" + getName() + "]";
+	public boolean isNexusObjectCreated() {
+		return fieldDataNodes != null;
 	}
 
 	@Override
 	public void scanEnd() throws NexusException {
 		super.scanEnd();
 
-		nexusObject = null;
 		demandValueDataNode = null;
 		fieldDataNodes = null;
+	}
+
+	@Override
+	public String toString() {
+		return "ScannableNexusDevice [scannable=" + getName() + "]";
 	}
 
 }
