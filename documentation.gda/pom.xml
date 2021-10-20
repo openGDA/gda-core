@@ -75,7 +75,6 @@
 											<exclude>co.gphl.*</exclude>
 											<exclude>org.metawidget.*</exclude>
 											<exclude>de.jreality.*</exclude>
-											<exclude>org.edna.ifeffit</exclude>
 										</excludes>
 										<additionalArguments>
 											<additionalArgument>-link https://docs.oracle.com/en/java/javase/11/docs/api</additionalArgument>
