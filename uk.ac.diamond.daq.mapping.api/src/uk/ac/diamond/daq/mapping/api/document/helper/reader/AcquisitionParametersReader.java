@@ -20,9 +20,11 @@ package uk.ac.diamond.daq.mapping.api.document.helper.reader;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
@@ -53,11 +55,12 @@ public class AcquisitionParametersReader extends AcquisitionReaderBase<Acquisiti
 	 * Get the {@code AcquisitionParametersBase.getDetectorDocument()}
 	 * @return the detectorDocument, otherwise {@code null}
 	 */
-	public DetectorDocumentReader getDetector() {
-		return Optional.ofNullable(getData())
-			.map(AcquisitionParametersBase::getDetector)
-			.map(e -> new DetectorDocumentReader(() -> e))
-			.orElseGet(() -> new DetectorDocumentReader(null));
+	public List<DetectorDocumentReader> getDetectors() {
+		if (getData() == null) return Collections.emptyList();
+		return getData().getDetectors().stream()
+			.map(doc -> new DetectorDocumentReader(() -> doc))
+			.collect(Collectors.toList());
+
 	}
 
 	/**

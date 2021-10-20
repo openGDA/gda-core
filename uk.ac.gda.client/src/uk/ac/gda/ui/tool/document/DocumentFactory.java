@@ -18,10 +18,8 @@
 
 package uk.ac.gda.ui.tool.document;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,10 +171,7 @@ public class DocumentFactory {
 				var aed = createNewAcquisitionEngineDocument();
 				acquisition.setAcquisitionEngine(aed);
 			}
-
-			createDetectorDocument()
-				.ifPresent(acquisition.getAcquisitionConfiguration().getAcquisitionParameters()::setDetector);
-
+			acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setDetectors(createDocs());
 			acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument(acquisition));
 		}
 
@@ -193,20 +188,18 @@ public class DocumentFactory {
 			engineBuilder.withType(engineDocument.getType());
 		}
 
-		private Optional<DetectorDocument> createDetectorDocument() throws AcquisitionConfigurationException {
-			Set<String> cameras = Optional.ofNullable(getAcquisitionPropertiesDocument())
-				.map(AcquisitionConfigurationProperties::getCameras)
-				.orElseGet(HashSet::new);
+		private List<DetectorDocument> createDocs() throws AcquisitionConfigurationException {
 
-			String cameraId = cameras.stream().findFirst()
-					.orElse(null);
-			return DocumentFactory.createDetectorDocument(cameraId, clientPropertiesHelper);
+			return getAcquisitionPropertiesDocument().getCameras().stream()
+				.map(cameraId -> DocumentFactory.createDetectorDocument(cameraId, clientPropertiesHelper))
+				.filter(Optional::isPresent).map(Optional::get)
+				.collect(Collectors.toList());
 		}
 
 		private ImageCalibration createNewImageCalibrationDocument(ScanningAcquisition acquisition) {
 			var imageCalibrationBuilder = new ImageCalibration.Builder();
 
-			var detectorDocument = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getDetector();
+			var detectorDocument = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getDetectors().iterator().next();
 
 			var builderDark = new DarkCalibrationDocument.Builder()
 				.withNumberExposures(0)
