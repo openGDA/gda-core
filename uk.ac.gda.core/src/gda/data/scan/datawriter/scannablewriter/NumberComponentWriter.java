@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
-public class NumberComponentWriter extends DefaultComponentWriter {
+public class NumberComponentWriter extends DefaultComponentWriter<Double> {
 
 	/** Logger */
 	private static final Logger logger = LoggerFactory.getLogger(NumberComponentWriter.class);
@@ -48,11 +48,11 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	protected double[] getComponentSlab(final Object pos) {
+	protected Double getComponentSlab(final Object pos) {
 		if (!(pos instanceof Number)) {
 			throw new NotANumberException();
 		}
-		return new double[] { ((Number) pos).doubleValue() };
+		return ((Number) pos).doubleValue();
 	}
 
 	@Override

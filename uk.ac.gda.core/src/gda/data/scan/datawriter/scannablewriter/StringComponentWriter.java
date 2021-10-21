@@ -33,7 +33,7 @@ import org.eclipse.january.dataset.SliceND;
 
 import gda.data.scan.datawriter.SelfCreatingLink;
 
-public class StringComponentWriter extends DefaultComponentWriter {
+public class StringComponentWriter extends DefaultComponentWriter<String> {
 
 	public StringComponentWriter() {
 		// no op
