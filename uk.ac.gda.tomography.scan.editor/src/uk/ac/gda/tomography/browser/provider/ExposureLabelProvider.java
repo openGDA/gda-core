@@ -66,7 +66,9 @@ public class ExposureLabelProvider extends LabelProvider implements ComparableSt
 	private double getDetectorExposure(Object resource) {
 		return Optional.ofNullable(resource)
 				.map(ScanningAcquisitionBrowserBase::getAcquisitionParameters)
-				.map(ScanningParameters::getDetector)
+				.map(ScanningParameters::getDetectors)
+				.filter(detectors -> !detectors.isEmpty())
+				.map(list -> list.iterator().next())
 				.map(DetectorDocument::getExposure)
 				.orElseGet(() -> Double.MIN_VALUE);
 	}
