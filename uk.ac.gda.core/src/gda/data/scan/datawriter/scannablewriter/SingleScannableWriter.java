@@ -19,13 +19,14 @@
 package gda.data.scan.datawriter.scannablewriter;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -48,52 +49,14 @@ public class SingleScannableWriter implements ScannableWriter {
 	private String[] paths;
 	private String[] units;
 	private Set<String> prerequisiteScannableNames = Collections.emptySet();
-	private final Map<String, ComponentWriter> cwriter = new HashMap<String, ComponentWriter>();
+	private final Map<String, ComponentWriter> cwriter = new HashMap<>();
 
-	private final int componentsFor(final Scannable s) {
-		final int i = (s.getInputNames() != null) ? s.getInputNames().length : 0;
-		final int e = (s.getExtraNames() != null) ? s.getExtraNames().length : 0;
-		return i + e;
-	}
+	protected ComponentWriter getComponentWriter(final String componentName, final Object object, @SuppressWarnings("unused") int index) {
 
-	private final String componentNameFor(final Scannable s, final int i) {
-		return ArrayUtils.addAll((s.getInputNames() != null) ? s.getInputNames() : new String[] {},
-				(s.getExtraNames() != null) ? s.getExtraNames() : new String[] {})[i].toString();
-	}
-
-	protected static int indexForComponentName(final Scannable s, final String component) {
-		// FIXME : ArrayUtils.addAll(s.getInputNames(), s.getExtraNames()) should yield same result
-		final String[] all = (String[]) ArrayUtils.addAll((s.getInputNames() != null) ? s.getInputNames()
-				: new String[] {}, (s.getExtraNames() != null) ? s.getExtraNames() : new String[] {});
-
-		if (all != null) {
-			for (int i = 0; i < all.length; i++) {
-				if (component.equals(all[i])) {
-					return i;
-				}
-			}
+		if (!cwriter.containsKey(componentName)) {
+			cwriter.put(componentName, (object instanceof Number) ?  new NumberComponentWriter() : new StringComponentWriter());
 		}
-
-		throw new ArrayIndexOutOfBoundsException();
-	}
-
-	protected ComponentWriter getComponentWriter(@SuppressWarnings("unused") final Scannable s, final String componentName, final Object object) {
-
-		final Map<String, ComponentWriter> cwmap = getCwriter();
-
-		if (cwmap.containsKey(componentName)) {
-			return cwmap.get(componentName);
-		}
-
-		final ComponentWriter cw;
-		if (object instanceof Number) {
-			cw = new NumberComponentWriter();
-		} else {
-			cw = new StringComponentWriter();
-		}
-
-		cwmap.put(componentName, cw);
-		return cw;
+		return cwriter.get(componentName);
 	}
 
 	protected void resetComponentWriters() {
@@ -104,15 +67,17 @@ public class SingleScannableWriter implements ScannableWriter {
 	public Collection<? extends SelfCreatingLink> makeScannable(final NexusFile file, GroupNode group, final Scannable s,
 			final Object position, final int[] dim, final boolean primary) throws NexusException {
 
-		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
+		final List<SelfCreatingLink> sclc = new ArrayList<>();
 		resetComponentWriters();
 
-		for (int i = 0; i < componentsFor(s); i++) {
+		final String[] arrayNames = ((String[]) ArrayUtils.addAll(s.getInputNames(), s.getExtraNames()));
+		final Object[] arrayValues = getArrayObject(position);
+
+		for (int i = 0; i < arrayNames.length; i++) {
 			try {
 				if (getPaths() == null || getPaths().length <= i || getPaths()[i].isEmpty()) {
 					continue;
 				}
-				final String componentName = componentNameFor(s, i);
 
 				final String unit;
 				if (getUnits() != null && getUnits().length > i) {
@@ -123,9 +88,8 @@ public class SingleScannableWriter implements ScannableWriter {
 					unit = null;
 				}
 
-				final Object componentObject = getComponentObject(s, position, i);
-				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
-				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), componentName, componentObject,
+				final ComponentWriter cw = getComponentWriter(arrayNames[i], arrayValues[i], i);
+				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(), arrayNames[i], arrayValues[i],
 						unit, primary);
 				sclc.addAll(compLinks);
 
@@ -141,18 +105,16 @@ public class SingleScannableWriter implements ScannableWriter {
 	public void writeScannable(final NexusFile file, GroupNode group, final Scannable s, final Object position,
 			final int[] start) throws NexusException {
 
-		for (int i = 0; i < componentsFor(s); i++) {
+		final String[] arrayNames = ((String[]) ArrayUtils.addAll(s.getInputNames(), s.getExtraNames()));
+		final Object[] arrayValues = getArrayObject(position);
+
+		for (int i = 0; i < arrayNames.length; i++) {
 			if (getPaths() == null || getPaths().length <= i || getPaths()[i].isEmpty()) {
 				continue;
 			}
-			final Object slab = getComponentObject(s, position, i);
-			getCwriter().get(componentNameFor(s, i)).writeComponent(file, group, start, getPaths()[i], s.getName(),
-					componentNameFor(s, i), slab);
+			getCwriter().get(arrayNames[i]).writeComponent(file, group, start, getPaths()[i], s.getName(),
+					arrayNames[i], arrayValues[i]);
 		}
-	}
-
-	protected Object getComponentObject(@SuppressWarnings("unused") final Scannable s, final Object position, final int i) {
-		return getArrayObject(position)[i];
 	}
 
 	private final Object[] getArrayObject(final Object position) {

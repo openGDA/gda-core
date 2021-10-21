@@ -23,8 +23,6 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 
-import gda.device.Scannable;
-
 public class TransformationWriter extends SingleScannableWriter {
 
 	private String[] dependsOn;
@@ -63,15 +61,14 @@ public class TransformationWriter extends SingleScannableWriter {
 	}
 
 	@Override
-	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
-		final int index = indexForComponentName(s, componentName);
-		if (transformation != null && transformation.length > index) {
-			final TransformationComponentWriter cw = new TransformationComponentWriter(index);
+	protected ComponentWriter getComponentWriter(final String componentName, final Object object, int i) {
+		if (transformation != null && transformation.length > i) {
+			final TransformationComponentWriter cw = new TransformationComponentWriter(i);
 			getCwriter().put(componentName, cw);
 			return cw;
 		}
 
-		return super.getComponentWriter(s, componentName, object);
+		return super.getComponentWriter(componentName, object, i);
 	}
 
 	@Deprecated
