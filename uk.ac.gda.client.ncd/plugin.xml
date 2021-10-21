@@ -193,6 +193,13 @@
             name="Bragg Calibration"
             restorable="true">
       </view>
+      <e4view
+            category="gda.rcp.ncd"
+            class="gda.rcp.ncd.samplerack.views.SampleRackView"
+            id="uk.ac.gda.client.ncd.samplerackview"
+            name="Sample Rack"
+            restorable="true">
+      </e4view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
