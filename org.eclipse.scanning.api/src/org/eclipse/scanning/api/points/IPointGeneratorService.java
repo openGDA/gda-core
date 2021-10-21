@@ -156,5 +156,5 @@ public interface IPointGeneratorService {
 	@Deprecated
 	<T> IPointGenerator<T> createGenerator(String id) throws GeneratorException;
 
-	public <T extends IScanPointGeneratorModel, R> void setBounds(T model, List<R> regions);
+	public <T extends IScanPointGeneratorModel> void setBounds(T model, List<IROI> regions);
 }
