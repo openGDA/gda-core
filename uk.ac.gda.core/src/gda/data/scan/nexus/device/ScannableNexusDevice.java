@@ -659,10 +659,11 @@ public class ScannableNexusDevice<N extends NXobject> extends AbstractNexusDevic
 			final int rank, final int[] chunking) {
 		// create a lazy writable dataset with the given name and same rank as the scan
 		// (here the value is just used to get the dataset type, the scan hasn't started yet)
+		int[] shape = new int[rank];
 		int[] maxShape = new int[rank];
 		Arrays.fill(maxShape, ILazyWriteableDataset.UNLIMITED);
 		final ILazyWriteableDataset lazyWritableDataset = new LazyWriteableDataset(fieldName, clazz,
-				maxShape, null, null, null);
+				shape, maxShape, null, null);
 		lazyWritableDataset.setFillValue(getFillValue(clazz));
 		lazyWritableDataset.setChunking(chunking);
 
