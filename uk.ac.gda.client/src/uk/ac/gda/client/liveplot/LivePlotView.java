@@ -139,7 +139,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 									}
 									part.openFile(data);
 								} catch (Exception e) {
-									logger.error("Error responding to IDE_ACTION");
+									logger.error("Error responding to IDE_ACTION", e);
 								}
 							});
 						}
