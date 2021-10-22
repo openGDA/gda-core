@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -70,7 +71,6 @@ import org.slf4j.LoggerFactory;
 
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
 import gda.plots.ScanTreeItem;
 import gda.plots.SingleScanLine;
 import gda.rcp.GDAClientActivator;
@@ -100,61 +100,53 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	protected LivePlotComposite xyPlot;
 	private FileDialog fileDialog;
 	private IAction actionConnect;
-	private Boolean connected = false;
+	private boolean connected = false;
 	private IPreferenceStore preferenceStore;
 
 	/**
 	 * Folder into which the data for this view is to be stored Use getArchiveFolder as __archiveFolder is not
 	 * initialised until first call to getArchiveFolder
 	 */
-	private String __archiveFolder;
+	private String archiveFolder;
 
 	/**
 	 * IPath to file that holding the memento that lists the different scans saved in the archive Use
 	 * getMementoFileIPath as __mementoFileIPath is not initialised until first call to getArchiveFolder
 	 */
-	private IPath __mementoFileIPath;
+	private IPath mementoFileIPath;
 
 	static {
 		// We need to activate the SciSoftRCP bundle as that sets up the PlotServer
 		AnalysisRCPActivator.getDefault();
-		PlotServerProvider.getPlotServer().addIObserver(new IObserver() {
+		PlotServerProvider.getPlotServer().addIObserver((Object source, Object arg) -> {
 
-			@Override
-			public void update(Object source, Object arg) {
-				if (source instanceof PlotServer) {
-					if (arg instanceof GuiUpdate) {
-						GuiUpdate update = (GuiUpdate) arg;
-						if (update.getGuiName().equals(ID)) {
-							final GuiBean guiData = update.getGuiData();
-							if (guiData.containsKey(GuiParameters.ONEDFILE)) {
-								Object obj = guiData.get(GuiParameters.ONEDFILE);
-								if (obj instanceof OneDDataFilePlotDefinition) {
-									final OneDDataFilePlotDefinition data = (OneDDataFilePlotDefinition) obj;
-									Display.getDefault().asyncExec(new Runnable() {
-										@Override
-										public void run() {
-											try {
-												final IWorkbenchPage page = PlatformUI.getWorkbench()
-														.getActiveWorkbenchWindow().getActivePage();
-												LivePlotView part = (LivePlotView) page.findView(LivePlotView.ID);
-												if (part == null) {
-													part = (LivePlotView) page.showView(LivePlotView.ID);
-												}
-												part.openFile(data);
-											} catch (Exception e) {
-												logger.error("Error responding to IDE_ACTION");
-											}
-										}
-									});
+			if (source instanceof PlotServer && arg instanceof GuiUpdate) {
+				GuiUpdate update = (GuiUpdate) arg;
+				if (update.getGuiName().equals(ID)) {
+					final GuiBean guiData = update.getGuiData();
+					if (guiData.containsKey(GuiParameters.ONEDFILE)) {
+						Object obj = guiData.get(GuiParameters.ONEDFILE);
+						if (obj instanceof OneDDataFilePlotDefinition) {
+							final OneDDataFilePlotDefinition data = (OneDDataFilePlotDefinition) obj;
+							Display.getDefault().asyncExec(() -> {
+
+								try {
+									final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+											.getActivePage();
+									LivePlotView part = (LivePlotView) page.findView(LivePlotView.ID);
+									if (part == null) {
+										part = (LivePlotView) page.showView(LivePlotView.ID);
+									}
+									part.openFile(data);
+								} catch (Exception e) {
+									logger.error("Error responding to IDE_ACTION");
 								}
-							}
+							});
 						}
 					}
 				}
 			}
 		});
-
 	}
 
 	/**
@@ -173,29 +165,27 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	}
 
 	private IPath getArchiveFileIPath() {
-		if (__mementoFileIPath == null) {
+		if (mementoFileIPath == null) {
 			IPath mementoStoreIPath = GDAClientActivator.getDefault().getStateLocation();
-			String Id = getViewSite().getSecondaryId();
-			if (Id == null)
-				Id = getID();
-			__mementoFileIPath = mementoStoreIPath.append(Id);
+			String id = getViewSite().getSecondaryId();
+			if (id == null)
+				id = getID();
+			mementoFileIPath = mementoStoreIPath.append(id);
 		}
-		return __mementoFileIPath;
+		return mementoFileIPath;
 	}
 
 	private String getArchiveFilePath() {
-		IPath mementoFileIPath = getArchiveFileIPath();
-		return mementoFileIPath.toFile().getAbsolutePath();
+		return getArchiveFileIPath().toFile().getAbsolutePath();
 	}
 
 	private String getArchiveFolder() {
-		if (__archiveFolder == null) {
-			String archiveFolder = getArchiveFilePath() + "_livearchive";
+		if (archiveFolder == null) {
+			archiveFolder = getArchiveFilePath() + "_livearchive";
 			File storeFolderFile = new File(archiveFolder);
 			storeFolderFile.mkdirs();
-			this.__archiveFolder = archiveFolder;
 		}
-		return __archiveFolder;
+		return archiveFolder;
 	}
 
 	@Override
@@ -207,79 +197,74 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		xyPlot.showLegend(true);
 		getViewSite().getActionBars().getToolBarManager();
 
-		List<IAction> actions = new Vector<IAction>();
-		{
-			actionConnect = new Action("", IAction.AS_CHECK_BOX) {
-				@Override
-				public void run() {
-					if (isConnected()) {
-						disconnect();
-					} else {
-						connect();
-					}
-				}
-			};
-			actions.add(actionConnect);
-		}
-		{
-			IAction action = new Action("", IAction.AS_CHECK_BOX) {
-				@Override
-				public void run() {
-					setAutoHideLastScan(!getAutoHideLastScan());
-					boolean autoHideLastScan = getAutoHideLastScan();
-					preferenceStore.setValue(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN, autoHideLastScan);
-					this.setChecked(autoHideLastScan);
-				}
-			};
-			action.setChecked(xyPlot.getAutoHideLastScan());
-			action.setToolTipText("Auto hide last scan");
-			action.setImageDescriptor(gda.rcp.GDAClientActivator.getImageDescriptor("icons/chart_curve_single.png"));
-			actions.add(action);
-		}
-		{
-			IAction action = new Action("", IAction.AS_CHECK_BOX) {
-				@Override
-				public void run() {
-					xyPlot.showLegend(!xyPlot.getShowLegend());
-					this.setChecked(xyPlot.getShowLegend());
-				}
-			};
-			action.setChecked(xyPlot.getShowLegend());
-			action.setToolTipText("Show/Hide legend");
-			action.setImageDescriptor(gda.rcp.GDAClientActivator.getImageDescriptor("icons/chart_curve_legend.png"));
-			actions.add(action);
-		}
+		List<IAction> actions = new Vector<>();
 
-		{
-			IAction action = new Action("", IAction.AS_PUSH_BUTTON) {
-				@Override
-				public void run() {
-					try {
-						openFile(null, null, null);
-					} catch (Throwable e) {
-						logger.error("Error opening a file", e);
-					}
+		actionConnect = new Action("", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				if (isConnected()) {
+					disconnect();
+				} else {
+					connect();
 				}
-			};
-			action.setChecked(true);
-			action.setToolTipText("Open File");
-			action.setImageDescriptor(GDAClientActivator.getImageDescriptor("icons/folder_page.png"));
-			actions.add(action);
-		}
+			}
+		};
+		actions.add(actionConnect);
 
-		{
-			IAction action = new Action("", IAction.AS_CHECK_BOX) {
-				@Override
-				public void run() {
-					xyPlot.setLog10(!xyPlot.isLog10());
-					this.setChecked(xyPlot.isLog10());
+		IAction autoHidePreviousScanAction = new Action("", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				setAutoHideLastScan(!getAutoHideLastScan());
+				boolean autoHideLastScan = getAutoHideLastScan();
+				preferenceStore.setValue(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN, autoHideLastScan);
+				this.setChecked(autoHideLastScan);
+			}
+		};
+		autoHidePreviousScanAction.setChecked(xyPlot.getAutoHideLastScan());
+		autoHidePreviousScanAction.setToolTipText("Auto hide last scan");
+		autoHidePreviousScanAction
+				.setImageDescriptor(gda.rcp.GDAClientActivator.getImageDescriptor("icons/chart_curve_single.png"));
+		actions.add(autoHidePreviousScanAction);
+
+		IAction showHideLegendAction = new Action("", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				xyPlot.showLegend(!xyPlot.getShowLegend());
+				this.setChecked(xyPlot.getShowLegend());
+			}
+		};
+		showHideLegendAction.setChecked(xyPlot.getShowLegend());
+		showHideLegendAction.setToolTipText("Show/Hide legend");
+		showHideLegendAction
+				.setImageDescriptor(gda.rcp.GDAClientActivator.getImageDescriptor("icons/chart_curve_legend.png"));
+		actions.add(showHideLegendAction);
+
+		IAction openFileAction = new Action("", IAction.AS_PUSH_BUTTON) {
+			@Override
+			public void run() {
+				try {
+					openFile(null, null, null);
+				} catch (Exception e) {
+					logger.error("Error opening a file", e);
 				}
-			};
-			action.setChecked(xyPlot.isLog10());
-			action.setToolTipText("Log10 YAxis");
-			action.setImageDescriptor(GDAClientActivator.getImageDescriptor("icons/chart_log_10_yaxis.png"));
-			actions.add(action);
-		}
+			}
+		};
+		openFileAction.setChecked(true);
+		openFileAction.setToolTipText("Open File");
+		openFileAction.setImageDescriptor(GDAClientActivator.getImageDescriptor("icons/folder_page.png"));
+		actions.add(openFileAction);
+
+		IAction logyAxisAction = new Action("", IAction.AS_CHECK_BOX) {
+			@Override
+			public void run() {
+				xyPlot.setLog10(!xyPlot.isLog10());
+				this.setChecked(xyPlot.isLog10());
+			}
+		};
+		logyAxisAction.setChecked(xyPlot.isLog10());
+		logyAxisAction.setToolTipText("Log10 YAxis");
+		logyAxisAction.setImageDescriptor(GDAClientActivator.getImageDescriptor("icons/chart_log_10_yaxis.png"));
+		actions.add(logyAxisAction);
 
 		xyPlot.createAndRegisterPlotActions(parent, getViewSite().getActionBars(), getPartName(), actions);
 		xyPlot.createScriptingConnection(getPartName());
@@ -305,11 +290,9 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 	}
 
 	private void openFile(OneDDataFilePlotDefinition data) throws Exception {
-		Vector<String> xyDatasetNames = new Vector<String>();
+		Vector<String> xyDatasetNames = new Vector<>();
 		xyDatasetNames.add(data.getXAxis());
-		for (String y_axis : data.getYAxes()) {
-			xyDatasetNames.add(y_axis);
-		}
+		xyDatasetNames.addAll(Arrays.asList(data.getYAxes()));
 
 		String path = data.getUrl();
 		if (path == null) {
@@ -327,19 +310,19 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 		ld.setContentProvider(new ArrayContentProvider());
 		ld.setLabelProvider(new LabelProvider());
 		ld.setInput(possibleXYDataSetNames);
-		ld.setInitialSelections(new Object[] { possibleXYDataSetNames[0] });
+		ld.setInitialSelections(possibleXYDataSetNames[0]);
 		ld.setTitle("Select the dataset to use as the x axis");
 		ld.open();
 		Object[] xSel = ld.getResult();
 		if (xSel == null)
 			return null;
-		List<String> xyDataSetNames = new Vector<String>();
+		List<String> xyDataSetNames = new Vector<>();
 		xyDataSetNames.add((String) xSel[0]);
 		if (possibleXYDataSetNames.length == 1)
 			return xyDataSetNames;
 		ListSelectionDialog lsd = new ListSelectionDialog(shell, possibleXYDataSetNames, new ArrayContentProvider(),
 				new LabelProvider(), "");
-		lsd.setInitialSelections(new Object[] { possibleXYDataSetNames[1] });
+		lsd.setInitialSelections(possibleXYDataSetNames[1]);
 		lsd.setTitle("Select the datasets to use as the y axes");
 		lsd.open();
 
@@ -409,7 +392,7 @@ public class LivePlotView extends ViewPart implements IScanDataPointObserver {
 				}
 			}
 		} else {
-			logger.warn("Unrecognized file type - " + path);
+			logger.warn("Unrecognized file type - {}", path);
 		}
 	}
 
