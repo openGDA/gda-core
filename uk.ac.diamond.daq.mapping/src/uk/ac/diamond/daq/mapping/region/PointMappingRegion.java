@@ -18,11 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_POSITION;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_POSITION;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -31,41 +31,28 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
-public class PointMappingRegion implements IMappingScanRegionShape {
+public class PointMappingRegion extends DefaultCoordinatePCSRegion implements IMappingScanRegionShape {
 
-	private double xPosition = 0;
-	private double yPosition = 0;
 	private static final String NAME = "Point";
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-	@Override
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.addPropertyChangeListener(listener);
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.removePropertyChangeListener(listener);
+	public PointMappingRegion() {
+		super(Map.of(X_POSITION, 0.0, Y_POSITION, 0.0));
 	}
 
 	public double getxPosition() {
-		return xPosition;
+		return coordinates.get(X_POSITION);
 	}
 
 	public void setxPosition(double newValue) {
-		double oldvalue = this.xPosition;
-		this.xPosition = newValue;
-		this.pcs.firePropertyChange(X_POSITION, oldvalue, newValue);
+		updatePropertyValuesAndFire(Map.of(X_POSITION, newValue));
 	}
 
 	public double getyPosition() {
-		return yPosition;
+		return coordinates.get(Y_POSITION);
 	}
 
 	public void setyPosition(double newValue) {
-		double oldvalue = this.yPosition;
-		this.yPosition = newValue;
-		this.pcs.firePropertyChange(Y_POSITION, oldvalue, newValue);
+		updatePropertyValuesAndFire(Map.of(Y_POSITION, newValue));
 	}
 
 	@Override
@@ -77,15 +64,9 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof PointROI) {
 			PointROI roi = (PointROI) newROI;
-			// First save the old values
-			double oldxPosition = xPosition;
-			double oldYPosition = yPosition;
-			// First update all the values not using the setters to avoid pcs events
-			xPosition = roi.getPoint()[0];
-			yPosition = roi.getPoint()[1];
-			// Fire the events once the update is finished
-			this.pcs.firePropertyChange(X_POSITION, oldxPosition, xPosition);
-			this.pcs.firePropertyChange(Y_POSITION, oldYPosition, yPosition);
+			updatePropertyValuesAndFire(Map.of(
+					X_POSITION, roi.getPoint()[X],
+					Y_POSITION, roi.getPoint()[Y]));
 		} else {
 			throw new IllegalArgumentException("Point mapping region can only update from a PointROI");
 		}
@@ -106,25 +87,20 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 	@Override
 	public IMappingScanRegionShape copy() {
 		final PointMappingRegion copy = new PointMappingRegion();
-		copy.setxPosition(xPosition);
-		copy.setyPosition(yPosition);
+		copy.updatePropertyValuesAndFire(coordinates);
 		return copy;
 	}
 
 	@Override
 	public void centre(double x0, double y0) {
-		setxPosition(x0);
-		setyPosition(y0);
+		updatePropertyValuesAndFire(Map.of(
+				X_POSITION, x0,
+				Y_POSITION, y0));
 	}
 
 	@Override
 	public void updateFromPropertiesMap(Map<String, Object> properties) {
-		if (properties.containsKey(X_POSITION)) {
-			setxPosition((double) properties.get(X_POSITION));
-		}
-		if (properties.containsKey(Y_POSITION)) {
-			setyPosition((double) properties.get(Y_POSITION));
-		}
+		updateAndFireFromPropertiesMap(properties);
 	}
 
 	@Override
@@ -132,9 +108,9 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(xPosition);
+		temp = Double.doubleToLongBits(getxPosition());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(yPosition);
+		temp = Double.doubleToLongBits(getyPosition());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -148,16 +124,16 @@ public class PointMappingRegion implements IMappingScanRegionShape {
 		if (getClass() != obj.getClass())
 			return false;
 		PointMappingRegion other = (PointMappingRegion) obj;
-		if (Double.doubleToLongBits(xPosition) != Double.doubleToLongBits(other.xPosition))
+		if (Double.doubleToLongBits(getxPosition()) != Double.doubleToLongBits(other.getxPosition()))
 			return false;
-		if (Double.doubleToLongBits(yPosition) != Double.doubleToLongBits(other.yPosition)) // NOSONAR for idiomatic consistency
+		if (Double.doubleToLongBits(getyPosition()) != Double.doubleToLongBits(other.getyPosition())) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "PointMappingRegion [xPosition=" + xPosition + ", yPosition=" + yPosition + "]";
+		return "PointMappingRegion [xPosition=" + getxPosition() + ", yPosition=" + getyPosition() + "]";
 	}
 
 }

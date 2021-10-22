@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -73,8 +75,6 @@ import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
 import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
 import uk.ac.diamond.daq.osgi.OsgiService;
 
-
-
 /**
  * Controller to manage shared access to the Scan Region object of the Mapping Experiment bean. This should be used by
  * ALL views that modify the Scan Region and ALL related access to the bean should be via this object which is available
@@ -102,7 +102,9 @@ public class RegionAndPathController extends AbstractMappingController {
 			this.regionBeanPropertyChangeListener = evt -> {
 				updatePlotRegion();
 				mapRegionOntoModel();
-				updatePoints();
+				if (evt.getPropertyName().equals(CALC_POINTS)) {
+					updatePoints();
+				}
 			};
 		}
 
@@ -165,9 +167,10 @@ public class RegionAndPathController extends AbstractMappingController {
 				scanRegionShape.removePropertyChangeListener(regionBeanPropertyChangeListener);
 			}
 
-			// Set the new scan region in the local cache and the mapping bean
+			// Set the new scan region and update the Scan MOdel bounds in the local cache and the mapping bean
 			scanRegionShape = newRegion;
 			logger.debug("Setting mapping bean region to : {}", newRegion);
+			mapRegionOntoModel();
 			getMappingBean().getScanDefinition().getMappingScanRegion().setRegion(scanRegionShape);
 
 			// Update the path control(s) with paths valid for the new region type in each client view

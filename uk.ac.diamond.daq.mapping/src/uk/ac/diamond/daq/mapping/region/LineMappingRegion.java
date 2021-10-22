@@ -18,13 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_START;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_STOP;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_START;
 import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_STOP;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -34,67 +34,48 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion.RegionType;
 import uk.ac.diamond.daq.mapping.api.ILineMappingRegion;
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 
-public class LineMappingRegion implements ILineMappingRegion {
+public class LineMappingRegion extends DefaultCoordinatePCSRegion implements ILineMappingRegion {
 
-	private double xStart = 0;
-	private double yStart = 0;
-	private double xStop = 1;
-	private double yStop = 1;
 	private static final String NAME = "Line";
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-	@Override
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.addPropertyChangeListener(listener);
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.removePropertyChangeListener(listener);
-	}
+    public LineMappingRegion() {
+    	super(Map.of(X_START, 0.0, X_STOP, 1.0, Y_START, 0.0, Y_STOP, 1.0));
+    }
 
 	@Override
 	public double getxStart() {
-		return xStart;
+		return coordinates.get(X_START);
 	}
 
 	public void setxStart(double newValue) {
-		double oldvalue = this.xStart;
-		this.xStart = newValue;
-		this.pcs.firePropertyChange(X_START, oldvalue, newValue);
+		updatePropertyValuesAndFire(Map.of(X_START, newValue));
 	}
 
 	@Override
 	public double getyStart() {
-		return yStart;
+		return coordinates.get(Y_START);
 	}
 
 	public void setyStart(double newValue) {
-		double oldvalue = this.yStart;
-		this.yStart = newValue;
-		this.pcs.firePropertyChange(Y_START, oldvalue, newValue);
+		updatePropertyValuesAndFire(Map.of(Y_START, newValue));
 	}
 
 	@Override
 	public double getxStop() {
-		return xStop;
+		return coordinates.get(X_STOP);
 	}
 
 	public void setxStop(double newValue) {
-		double oldvalue = this.xStop;
-		this.xStop = newValue;
-		this.pcs.firePropertyChange(X_STOP, oldvalue, newValue);
+		updatePropertyValuesAndFire(Map.of(X_STOP, newValue));
 	}
 
 	@Override
 	public double getyStop() {
-		return yStop;
+		return coordinates.get(Y_STOP);
 	}
 
 	public void setyStop(double newValue) {
-		double oldvalue = this.yStop;
-		this.yStop = newValue;
-		this.pcs.firePropertyChange(Y_STOP, oldvalue, newValue);
+		updatePropertyValuesAndFire(Map.of(Y_STOP, newValue));
 	}
 
 	@Override
@@ -106,21 +87,11 @@ public class LineMappingRegion implements ILineMappingRegion {
 	public void updateFromROI(IROI newROI) {
 		if (newROI instanceof LinearROI) {
 			LinearROI roi = (LinearROI) newROI;
-			// First save the old values
-			double oldXStart = xStart;
-			double oldXStop = xStop;
-			double oldYStart = yStart;
-			double oldYStop = yStop;
-			// First update all the values not using the setters to avoid pcs events
-			xStart = roi.getPoint()[0];
-			xStop = roi.getEndPoint()[0];
-			yStart = roi.getPoint()[1];
-			yStop = roi.getEndPoint()[1];
-			// Fire the events once the update is finished
-			this.pcs.firePropertyChange(X_START, oldXStart, xStart);
-			this.pcs.firePropertyChange(X_STOP, oldXStop, xStop);
-			this.pcs.firePropertyChange(Y_START, oldYStart, yStart);
-			this.pcs.firePropertyChange(Y_STOP, oldYStop, yStop);
+			updatePropertyValuesAndFire(Map.of(
+					X_START, roi.getPoint()[X],
+					X_STOP, roi.getEndPoint()[X],
+					Y_START, roi.getPoint()[Y],
+					Y_STOP, roi.getEndPoint()[Y]));
 		} else {
 			throw new IllegalArgumentException("Line mapping region can only update from a LinearROI");
 		}
@@ -142,40 +113,26 @@ public class LineMappingRegion implements ILineMappingRegion {
 	@Override
 	public IMappingScanRegionShape copy() {
 		final LineMappingRegion copy = new LineMappingRegion();
-		copy.setxStart(xStart);
-		copy.setxStop(xStop);
-		copy.setyStart(yStart);
-		copy.setyStop(yStop);
+		copy.updatePropertyValuesAndFire(coordinates);
 		return copy;
 	}
 
 	@Override
 	public void centre(double x0, double y0) {
-		double halfXLength = Math.abs(xStop - xStart) / 2.0;
-		int xSign = xStart < xStop ? 1 : -1;
-		setxStart(x0 - xSign * halfXLength);
-		setxStop(x0 + xSign * halfXLength);
-
-		double halfYLength = Math.abs(yStop - yStart) / 2.0;
-		int ySign = yStart < yStop ? 1 : -1;
-		setyStart(y0 - ySign * halfYLength);
-		setyStop(y0 + ySign * halfYLength);
+		double halfXLength = Math.abs(getxStop() - getxStart()) / 2.0;
+		int xSign = getxStart() < getxStop() ? 1 : -1;
+		double halfYLength = Math.abs(getyStop() - getyStart()) / 2.0;
+		int ySign = getyStart() < getyStop() ? 1 : -1;
+		updatePropertyValuesAndFire(Map.of(
+				X_START, x0 - xSign * halfXLength,
+				X_STOP, x0 + xSign * halfXLength,
+				Y_START, y0 - ySign * halfYLength,
+				Y_STOP, y0 + ySign * halfYLength));
 	}
 
 	@Override
 	public void updateFromPropertiesMap(Map<String, Object> properties) {
-		if (properties.containsKey(X_START)) {
-			setxStart((double) properties.get(X_START));
-		}
-		if (properties.containsKey(X_STOP)) {
-			setxStop((double) properties.get(X_STOP));
-		}
-		if (properties.containsKey(Y_START)) {
-			setyStart((double) properties.get(Y_START));
-		}
-		if (properties.containsKey(Y_STOP)) {
-			setyStop((double) properties.get(Y_STOP));
-		}
+		updateAndFireFromPropertiesMap(properties);
 	}
 
 	@Override
@@ -183,13 +140,13 @@ public class LineMappingRegion implements ILineMappingRegion {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(xStart);
+		temp = Double.doubleToLongBits(getxStart());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(xStop);
+		temp = Double.doubleToLongBits(getxStop());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(yStart);
+		temp = Double.doubleToLongBits(getyStart());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(yStop);
+		temp = Double.doubleToLongBits(getyStop());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -203,20 +160,20 @@ public class LineMappingRegion implements ILineMappingRegion {
 		if (getClass() != obj.getClass())
 			return false;
 		LineMappingRegion other = (LineMappingRegion) obj;
-		if (Double.doubleToLongBits(xStart) != Double.doubleToLongBits(other.xStart))
+		if (Double.doubleToLongBits(getxStart()) != Double.doubleToLongBits(other.getxStart()))
 			return false;
-		if (Double.doubleToLongBits(xStop) != Double.doubleToLongBits(other.xStop))
+		if (Double.doubleToLongBits(getxStop()) != Double.doubleToLongBits(other.getxStop()))
 			return false;
-		if (Double.doubleToLongBits(yStart) != Double.doubleToLongBits(other.yStart))
+		if (Double.doubleToLongBits(getyStart()) != Double.doubleToLongBits(other.getyStart()))
 			return false;
-		if (Double.doubleToLongBits(yStop) != Double.doubleToLongBits(other.yStop)) // NOSONAR for idiomatic consistency
+		if (Double.doubleToLongBits(getyStop()) != Double.doubleToLongBits(other.getyStop())) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "LineMappingRegion [xStart=" + xStart + ", yStart=" + yStart + ", xStop=" + xStop + ", yStop=" + yStop + "]";
+		return "LineMappingRegion [xStart=" + getxStart() + ", yStart=" + getyStart()+ ", xStop=" + getxStop() + ", yStop=" + getyStop() + "]";
 	}
 
 }

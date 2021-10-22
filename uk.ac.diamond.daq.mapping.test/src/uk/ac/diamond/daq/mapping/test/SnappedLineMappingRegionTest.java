@@ -25,16 +25,50 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CONSTANT;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.STOP;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X_STOP;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y_STOP;
+
+import java.beans.PropertyChangeSupport;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
-import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.SnappedLineMappingRegion;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SnappedLineMappingRegionTest {
+
+	@Mock
+	private PropertyChangeSupport pcs;
+
+	private SnappedLineMappingRegion lineMappingRegion;
+
+	private void fullVerify(double xStart, double xStop, double yStart, double yStop, boolean isHoriz) {
+		verify(pcs, times(1)).firePropertyChange(START, 0.0, isHoriz ? xStart : yStart);
+		verify(pcs, times(1)).firePropertyChange(STOP,  1.0, isHoriz ? xStop : yStop);
+		verify(pcs, times(1)).firePropertyChange(CONSTANT, 0.0, isHoriz ? yStart : xStart);
+		verify(pcs, times(1)).firePropertyChange(CALC_POINTS, 0, 1);
+	}
+
+	@Before
+	public void setup() {
+		lineMappingRegion = new SnappedLineMappingRegion();
+		lineMappingRegion.usePCS(pcs);
+	}
 
 	@Test
 	public void testUpdatingFromRoi_SnapHorizontal() {
@@ -44,23 +78,21 @@ public class SnappedLineMappingRegionTest {
 		double yStop = -12.3;
 
 		// Create ROI
-		LinearROI linearROI = new LinearROI(new double[] { xStart, yStart }, new double[] { xStop, yStop });
-
-		// Create Region
-		SnappedLineMappingRegion lineMappingRegion = new SnappedLineMappingRegion();
+		LinearROI linearROI = new LinearROI(new double[]{xStart, yStart}, new double[]{xStop, yStop});
 
 		// Update region using ROI
 		lineMappingRegion.updateFromROI(linearROI);
 
 		// Check values
-		assertEquals("xStart", xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
-		assertEquals("xStop", xStop, lineMappingRegion.getxStop(), xStop * 1e-8);
-		assertEquals("yStart", yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
-		assertEquals("yStop", yStart, lineMappingRegion.getyStop(), yStart * 1e-8); // yStart, as line is snapped to horizontal
+		assertEquals(X_START, xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
+		assertEquals(X_STOP, xStop, lineMappingRegion.getxStop(), xStop * 1e-8);
+		assertEquals(Y_START, yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
+		assertEquals(Y_STOP, yStart, lineMappingRegion.getyStop(), yStart * 1e-8); // yStart, as line is snapped to horizontal
 
 		// Check ROI has been updated
-		assertArrayEquals(new double[] { xStart, yStart }, linearROI.getPoint(), 1e-8);
-		assertArrayEquals(new double[] { xStop, yStart }, linearROI.getEndPoint(), 1e-8);
+		assertArrayEquals(new double[]{xStart, yStart}, linearROI.getPoint(), 1e-8);
+		assertArrayEquals(new double[]{xStop, yStart}, linearROI.getEndPoint(), 1e-8);
+		fullVerify(xStart, xStop, yStart, yStop, true);
 	}
 
 	@Test
@@ -73,21 +105,19 @@ public class SnappedLineMappingRegionTest {
 		// Create ROI
 		LinearROI linearROI = new LinearROI(new double[] { xStart, yStart }, new double[] { xStop, yStop });
 
-		// Create Region
-		SnappedLineMappingRegion lineMappingRegion = new SnappedLineMappingRegion();
-
 		// Update region using ROI
 		lineMappingRegion.updateFromROI(linearROI);
 
 		// Check values
-		assertEquals("xStart", xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
-		assertEquals("xStop", xStart, lineMappingRegion.getxStop(), xStart * 1e-8); // xStart, as line is snapped to vertical
-		assertEquals("yStart", yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
-		assertEquals("yStop", yStop, lineMappingRegion.getyStop(), yStop * 1e-8);
+		assertEquals(X_START, xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
+		assertEquals(X_STOP, xStart, lineMappingRegion.getxStop(), xStart * 1e-8); // xStart, as line is snapped to vertical
+		assertEquals(Y_START, yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
+		assertEquals(Y_STOP, yStop, lineMappingRegion.getyStop(), yStop * 1e-8);
 
 		// Check ROI has been updated
-		assertArrayEquals(new double[] { xStart, yStart }, linearROI.getPoint(), 1e-8);
-		assertArrayEquals(new double[] { xStart, yStop }, linearROI.getEndPoint(), 1e-8);
+		assertArrayEquals(new double[]{xStart, yStart}, linearROI.getPoint(), 1e-8);
+		assertArrayEquals(new double[]{xStart, yStop}, linearROI.getEndPoint(), 1e-8);
+		fullVerify(xStart, xStop, yStart, yStop, false);
 	}
 
 	@Test
@@ -98,23 +128,21 @@ public class SnappedLineMappingRegionTest {
 		double yStop = 11.4;
 
 		// Create ROI
-		LinearROI linearROI = new LinearROI(new double[] { xStart, yStart }, new double[] { xStop, yStop });
-
-		// Create Region
-		SnappedLineMappingRegion lineMappingRegion = new SnappedLineMappingRegion();
+		LinearROI linearROI = new LinearROI(new double[]{xStart, yStart}, new double[]{xStop, yStop});
 
 		// Update region using ROI
 		lineMappingRegion.updateFromROI(linearROI);
 
 		// Check values
-		assertEquals("xStart", xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
-		assertEquals("xStop", xStop, lineMappingRegion.getxStop(), xStop * 1e-8);
-		assertEquals("yStart", yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
-		assertEquals("yStop", yStart, lineMappingRegion.getyStop(), yStart * 1e-8); // yStart, as line is snapped to horizontal
+		assertEquals(X_START, xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
+		assertEquals(X_STOP, xStop, lineMappingRegion.getxStop(), xStop * 1e-8);
+		assertEquals(Y_START, yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
+		assertEquals(Y_STOP, yStart, lineMappingRegion.getyStop(), yStart * 1e-8); // yStart, as line is snapped to horizontal
 
 		// Check ROI has been updated
-		assertArrayEquals(new double[] { xStart, yStart }, linearROI.getPoint(), 1e-8);
-		assertArrayEquals(new double[] { xStop, yStart }, linearROI.getEndPoint(), 1e-8);
+		assertArrayEquals(new double[]{xStart, yStart}, linearROI.getPoint(), 1e-8);
+		assertArrayEquals(new double[]{xStop, yStart}, linearROI.getEndPoint(), 1e-8);
+		fullVerify(xStart, xStop, yStart, yStop, true);
 	}
 
 	@Test
@@ -127,21 +155,19 @@ public class SnappedLineMappingRegionTest {
 		// Create ROI
 		LinearROI linearROI = new LinearROI(new double[] { xStart, yStart }, new double[] { xStop, yStop });
 
-		// Create Region
-		SnappedLineMappingRegion lineMappingRegion = new SnappedLineMappingRegion();
-
 		// Update region using ROI
 		lineMappingRegion.updateFromROI(linearROI);
 
 		// Check values
-		assertEquals("xStart", xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
-		assertEquals("xStop", xStart, lineMappingRegion.getxStop(), xStart * 1e-8); // xStart, as line is snapped to vertical
-		assertEquals("yStart", yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
-		assertEquals("yStop", yStop, lineMappingRegion.getyStop(), yStop * 1e-8);
+		assertEquals(X_START, xStart, lineMappingRegion.getxStart(), xStart * 1e-8);
+		assertEquals(X_STOP, xStart, lineMappingRegion.getxStop(), xStart * 1e-8); // xStart, as line is snapped to vertical
+		assertEquals(Y_START, yStart, lineMappingRegion.getyStart(), yStart * 1e-8);
+		assertEquals(Y_STOP, yStop, lineMappingRegion.getyStop(), yStop * 1e-8);
 
 		// Check ROI has been updated
 		assertArrayEquals(new double[] { xStart, yStart }, linearROI.getPoint(), 1e-8);
 		assertArrayEquals(new double[] { xStart, yStop }, linearROI.getEndPoint(), 1e-8);
+		fullVerify(xStart, xStop, yStart, yStop, false);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -149,40 +175,28 @@ public class SnappedLineMappingRegionTest {
 		// Create ROI
 		RectangularROI rectangularROI = new RectangularROI();
 
-		// Create Region
-		LineMappingRegion lineMappingRegion = new LineMappingRegion();
-
 		// Update region using ROI should throw
 		lineMappingRegion.updateFromROI(rectangularROI);
 	}
 
 	@Test
 	public void testCopy() {
-		final SnappedLineMappingRegion original = new SnappedLineMappingRegion();
 		LinearROI roi = new LinearROI();
-		original.updateFromROI(roi);
+		lineMappingRegion.updateFromROI(roi);
 
-		final IMappingScanRegionShape copy = original.copy();
+		final IMappingScanRegionShape copy = lineMappingRegion.copy();
 
-		assertThat(copy, is(equalTo(original)));
-		assertThat(copy, is(not(sameInstance(original))));
+		assertThat(copy, is(equalTo(lineMappingRegion)));
+		assertThat(copy, is(not(sameInstance(lineMappingRegion))));
 	}
 
 	@Test
 	public void testCentre() {
-
-		LinearROI horizROI = new LinearROI();
-		horizROI.setPoint(new double[] {0.0, 0.0});
-		horizROI.setEndPoint(new double[] {10.0, 1.0}); // the shorter dimension is ignored
-
-		SnappedLineMappingRegion region = new SnappedLineMappingRegion();
-		region.updateFromROI(horizROI);
-
-		region.centre(-5, 12);
-		assertThat(region.getxStart(), is(-10.0));
-		assertThat(region.getxStop(), is(0.0));
-		assertThat(region.getyStart(), is(12.0));
-		assertThat(region.getyStop(), is(12.0));
+		lineMappingRegion.centre(-5, 12);
+		assertThat(lineMappingRegion.getxStart(), is(-5.5));
+		assertThat(lineMappingRegion.getxStop(), is(-4.5));
+		assertThat(lineMappingRegion.getyStart(), is(12.0));
+		assertThat(lineMappingRegion.getyStop(), is(12.0));
+		fullVerify(-5.5, -4.5, 12.0, 12.0, true);
 	}
-
 }
