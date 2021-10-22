@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.devices.mbs;
 
+import java.util.Arrays;
+
 public class MbsAnalyserCompletedRegion {
 
 	private double collectionTime;
@@ -301,5 +303,11 @@ public class MbsAnalyserCompletedRegion {
 
 	public void setPsuMode(String psuMode) {
 		this.psuMode = psuMode;
+	}
+
+	public double getTotalCount() {
+		return Arrays.stream(getImage())
+				.flatMapToDouble(Arrays::stream)
+				.sum();
 	}
 }
