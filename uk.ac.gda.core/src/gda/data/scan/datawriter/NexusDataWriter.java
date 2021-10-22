@@ -1159,7 +1159,6 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 			makeMetadataScannables();
 		} catch (NexusException e) {
-			// FIXME NexusDataWriter should allow exceptions to be thrown
 			logger.error("Error making configured scannables and monitors", e);
 		}
 	}
@@ -1914,26 +1913,27 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	}
 
 	private void makeMetadataScannables(Set<String> metadataScannableNames) throws NexusException {
-		final GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
+		final GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName),
+				false);
 		for (String scannableName : metadataScannableNames) {
 			try {
-				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace()
+						.getFromJythonNamespace(scannableName);
 				if (scannable == null) {
-					// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
-					// metadata to be added without having to create a scannable.
-					final INexusDevice<? extends NXobject> nexusDevice = ServiceHolder.getNexusDeviceService().getNexusDevice(scannableName);
-					if (nexusDevice == null) {
-						logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
-					} else {
+					// see if there is a nexus device registered with the nexus device service with the given name. This
+					// allows custom metadata to be added without having to create a scannable.
+					if (ServiceHolder.getNexusDeviceService().hasNexusDevice(scannableName)) {
+						final INexusDevice<? extends NXobject> nexusDevice = ServiceHolder.getNexusDeviceService()
+								.getNexusDevice(scannableName);
+
 						writeNexusDevice(group, nexusDevice);
+					} else {
+						logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
 					}
 				} else {
 					makeMetadataScannable(group, scannableName, scannable);
 				}
-			} catch (NexusException e) {
-				logger.error("Nexus error while adding '{}' metadata to NeXus file at '{}'.", scannableName, file.getPath(group), e);
-				throw e;
-			} catch (Exception e) {
+			} catch (DeviceException e) {
 				logger.error("Error writing '{}' to NeXus file.", scannableName, e);
 			}
 		}
