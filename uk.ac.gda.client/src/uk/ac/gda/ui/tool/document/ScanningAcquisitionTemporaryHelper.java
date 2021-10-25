@@ -37,6 +37,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.gda.api.acquisition.AcquisitionType;
+import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
@@ -98,6 +99,12 @@ public class ScanningAcquisitionTemporaryHelper {
 		return getScanningAcquisition()
 				.map(ScanningAcquisition::getAcquisitionConfiguration)
 				.map(ScanningConfiguration::getAcquisitionParameters);
+	}
+
+	public Optional<List<ProcessingRequestPair<?>>> getProcessingRequest() {
+		return getScanningAcquisition()
+				.map(ScanningAcquisition::getAcquisitionConfiguration)
+				.map(ScanningConfiguration::getProcessingRequest);
 	}
 
 	public Optional<ScanningConfiguration> getAcquisitionConfiguration() {

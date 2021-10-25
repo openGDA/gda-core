@@ -14,8 +14,7 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  net.bytebuddy.byte-buddy-agent,
  org.objenesis,
  uk.ac.diamond.jython,
- uk.ac.gda.test.helpers;bundle-version="1.0.0",
- uk.ac.diamond.daq.spring.boot;bundle-version="1.1.5"
+ uk.ac.gda.test.helpers;bundle-version="1.0.0"
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui.test
 Import-Package: org.springframework.context.annotation,
  org.springframework.test.annotation;version="4.0.6",

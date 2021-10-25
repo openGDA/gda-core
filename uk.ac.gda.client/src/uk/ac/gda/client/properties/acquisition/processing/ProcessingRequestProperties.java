@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.client.properties.acquisition;
+package uk.ac.gda.client.properties.acquisition.processing;
 
 import java.net.URL;
 import java.util.List;
@@ -34,9 +34,9 @@ public class ProcessingRequestProperties {
 	private List<URL> nexusTemplates;
 
 	/**
-	 * A list of cameras Id available for the frame capture processing request
+	 * A FrameCapture available for the process
 	 */
-	private List<String> frameCapture;
+	private FrameCaptureProperties frameCapture;
 
 	/**
 	 * Returns the nexus templates available for the template prcessing request
@@ -54,11 +54,11 @@ public class ProcessingRequestProperties {
 	 * Returns the cameras Ids available for the frame capture processing request
 	 * @return a list of cameras ids, otherwise null.
 	 */
-	public List<String> getFrameCapture() {
+	public FrameCaptureProperties getFrameCapture() {
 		return frameCapture;
 	}
 
-	public void setFrameCapture(List<String> frameCapture) {
+	public void setFrameCapture(FrameCaptureProperties frameCapture) {
 		this.frameCapture = frameCapture;
 	}
 

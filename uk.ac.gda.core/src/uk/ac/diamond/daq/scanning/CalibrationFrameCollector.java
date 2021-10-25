@@ -27,7 +27,7 @@ import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 
 /**
  * A temporary solution to dark/flat field collection within the Solstice framework.
@@ -64,7 +64,7 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 		// This case, kept separate for sake of clarity, protect from overwriting an already set DetectorDocument.
 		// The typical case for this is when a FrameCaptureRequestHandler is involved in the workflow
 		// (see https://confluence.diamond.ac.uk/display/DIAD/Frame+Capture+Request)
-		if (getDetectorDocument() != null) {
+		if (getFrameRequestDocument() != null) {
 			return;
 		}
 
@@ -83,12 +83,13 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 		// If no detector has been explicitly configured, use the "main scan" detector
 		final IRunnableDevice<? extends IDetectorModel> acquisitionDetector = getSnapshotDetector(mainScanDetector);
 		logger.debug("Setting exposure time on {} to {}", acquisitionDetector.getName(), exposureTime);
-		DetectorDocument detector = new DetectorDocument.Builder()
+
+		var frameRequestDocument = new FrameRequestDocument.Builder()
 				.withExposure(exposureTime)
 				.withName(acquisitionDetector.getName())
 				.withMalcolmDetectorName(getMalcolmDetectorName(acquisitionDetector))
 				.build();
-		setDetectorDocument(detector);
+		setFrameRequestDocument(frameRequestDocument);
 	}
 
 	private String getMalcolmDetectorName(IRunnableDevice<? extends IDetectorModel> det) {

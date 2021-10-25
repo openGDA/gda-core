@@ -5,6 +5,7 @@ import java.util.Set;
 
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
+import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 

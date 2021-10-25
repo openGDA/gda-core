@@ -30,24 +30,18 @@ import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
+import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 
 /**
- * Updates the active {@link ScanningAcquisitionController#getAcquisition()}
- *
- * <p>
- * Listening to {@link CameraControlSpringEvent}s this class updates the detector document contained in the active acquisition
- * </p>
- *
- * @author Maurizio Nagni
+ * Creates a {@link CameraControlSpringEvent} listener which updates the detector documents in the active acquisition
  */
 @Component
 public class ScanningAcquisitionDetectorUpdater {
@@ -56,77 +50,85 @@ public class ScanningAcquisitionDetectorUpdater {
 	private ClientPropertiesHelper clientPropertiesHelper;
 
 	@Autowired
-	private ScanningAcquisitionTemporaryHelper tempHelper;
+	private ScanningAcquisitionTemporaryHelper acquisitionHelper;
 
 	@PostConstruct
 	private void postConstruct() {
-		SpringApplicationContextFacade.addDisposableApplicationListener(this, listenToExposureChange);
+		SpringApplicationContextFacade.addDisposableApplicationListener(this, new DetectorUpdatesListener());
 	}
 
-	// At the moment is not possible to use anonymous lambda expression because it
-	// generates a class cast exception
-	private ApplicationListener<CameraControlSpringEvent> listenToExposureChange = new ApplicationListener<CameraControlSpringEvent>() {
+	private class DetectorUpdatesListener implements ApplicationListener<CameraControlSpringEvent> {
+
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			getClientPropertiesHelper().getAcquisitionConfigurationProperties(getAcquisitionType())
-				.filter(p -> p.getCameras().contains(event.getCameraId()))
-				.ifPresent(p -> updateDetectorDocument(event));
+
+			var cameraId = event.getCameraId();
+			var cameraControl = CameraHelper.getCameraControlByCameraID(event.getCameraId()).orElseThrow();
+			var acquireTime = event.getAcquireTime();
+
+			boolean concernsAcquisition = getAcquisitionPropertiesDocument().getCameras().contains(event.getCameraId());
+			if (concernsAcquisition) {
+				updateAcquireTimeInDetectorDocuments(cameraId, cameraControl, acquireTime, getAcquisitionConfiguration());
+			}
+			getFrameCaptureRequest().ifPresent(request -> updateFrameCaptureRequest(request, cameraControl, acquireTime));
 		}
 
-		private Optional<AcquisitionConfigurationProperties> getAcquisitionPropertiesDocument() {
-			return getClientPropertiesHelper().getAcquisitionConfigurationProperties(getTempHelper().getAcquisitionType());
+		private void updateAcquireTimeInDetectorDocuments(String cameraId, CameraControl cameraControl, double acquireTime, ScanningConfiguration scanningConfiguration) {
+
+			// new document with updated acquire time
+			var detectorDocument = new DetectorDocument.Builder()
+				.withName(cameraControl.getName())
+				.withMalcolmDetectorName(CameraHelper.getCameraConfigurationPropertiesByID(cameraId).orElseThrow().getMalcolmDetectorName())
+				.withExposure(acquireTime)
+				.build();
+
+			// set as acquisition detector...
+			scanningConfiguration.getAcquisitionParameters().setDetector(detectorDocument);
+
+			var imageCalibrationHelper = new ImageCalibrationHelper(() -> scanningConfiguration);
+			// ...and as dark and flat detector
+			imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);
+			imageCalibrationHelper.updateFlatDetectorDocument(detectorDocument);
+
+			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
 		}
 
-		private AcquisitionPropertyType getAcquisitionType() {
-			return getAcquisitionPropertiesDocument()
-					.map(AcquisitionConfigurationProperties::getType)
-					.orElseGet(() -> AcquisitionPropertyType.DEFAULT);
+		private Optional<FrameCaptureRequest> getFrameCaptureRequest() {
+			var processingRequest = acquisitionHelper.getProcessingRequest();
+			if (processingRequest.isEmpty()) return Optional.empty();
+			return processingRequest.get().stream()
+				.filter(FrameCaptureRequest.class::isInstance).map(FrameCaptureRequest.class::cast)
+				.findFirst();
 		}
 
-		private void updateDetectorDocument(CameraControlSpringEvent event) {
-			CameraHelper.getCameraControlByCameraID(event.getCameraId())
-				.ifPresent(cameraControl -> updateDetectorDocument(cameraControl, event.getAcquireTime()));
-		}
+		private void updateFrameCaptureRequest(FrameCaptureRequest request, CameraControl cameraControl, double acquireTime) {
+			request.getValue().stream()
+				// do you have a detector document corresponding to this camera?
+				.filter(document -> cameraControl.getName().equals(document.getDetectorController()))
+				.findFirst().ifPresent(document -> {
+					// if so: remove it...
+					request.getValue().remove(document);
 
-		private void updateDetectorDocument(CameraControl cameraControl, double acquireTime) {
-			String malcolmDetectorName = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(cameraControl.getName())
-					.map(CameraConfigurationProperties::getMalcolmDetectorName)
-					.orElse("NotAvilable");
-
-			boolean isRightCameraControl = getTempHelper().getScanningParameters()
-				.map(ScanningParameters::getDetector)
-				.map(DetectorDocument::getName)
-				.filter(n -> cameraControl.getName().equals(n))
-				.isPresent();
-
-			if (!isRightCameraControl)
-				return;
-
-			getTempHelper().getAcquisitionConfiguration()
-				.ifPresent(c -> {
-					var imageCalibrationHelper = new ImageCalibrationHelper(() -> c);
-					var detectorDocument = new DetectorDocument.Builder()
-						.withName(cameraControl.getName())
+					// ...and replace it with a copy with the updated acquire time
+					var updated = new FrameRequestDocument.Builder()
+						.withMalcolmDetectorName(document.getMalcolmDetectorName())
+						.withDetectorController(document.getDetectorController())
+						.withName(document.getName())
 						.withExposure(acquireTime)
-						.withMalcolmDetectorName(malcolmDetectorName)
 						.build();
+					request.getValue().add(updated);
 
-					getTempHelper().getScanningParameters()
-						.ifPresent(acquisitionParameters -> {
-							acquisitionParameters.setDetector(detectorDocument);
-							imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);
-							imageCalibrationHelper.updateFlatDetectorDocument(detectorDocument);
-							SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
-						});
+					// let interested parties know this has changed
+					SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
 				});
 		}
-	};
 
-	private ScanningAcquisitionTemporaryHelper getTempHelper() {
-		return tempHelper;
+		private AcquisitionConfigurationProperties getAcquisitionPropertiesDocument() {
+			return clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionHelper.getAcquisitionType()).orElseThrow();
+		}
+		private ScanningConfiguration getAcquisitionConfiguration() {
+			return acquisitionHelper.getAcquisitionConfiguration().orElseThrow();
+		}
 	}
 
-	private ClientPropertiesHelper getClientPropertiesHelper() {
-		return clientPropertiesHelper;
-	}
 }
