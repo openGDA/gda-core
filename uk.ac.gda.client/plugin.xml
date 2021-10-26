@@ -137,6 +137,15 @@
             restorable="true">
       </view>
       <view
+            allowMultiple="true"
+            category="uk.ac.gda.client.general.category"
+            class="gda.rcp.views.ScriptChooserView"
+            icon="icons/table_multiple.png"
+            id="gda.rcp.views.scriptchooserview"
+            name="Script Chooser"
+            restorable="true">
+      </view>
+      <view
             allowMultiple="false"
             class="gda.simplescan.SimpleScanView"
             id="uk.ac.gda.client.simplescanview"
@@ -166,7 +175,7 @@
                id="uk.ac.gda.arpes.ui.view.samplemetadata"
                name="Sample and Scan Information"
                restorable="true">
-         </view>
+      </view>
       <e4view
             class="uk.ac.gda.views.status.ServerStatusView"
             icon="icons/application_view_list.png"
