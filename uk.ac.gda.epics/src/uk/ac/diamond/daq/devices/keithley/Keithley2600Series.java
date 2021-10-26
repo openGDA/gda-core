@@ -28,11 +28,9 @@ import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
-import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.MonitorListener;
-import gov.aps.jca.event.PutListener;
 
 /**
  * This class is for controlling a Keithley 2600 Series Sourcemeter.
@@ -83,21 +81,6 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	/** 2 wire or 4 wire measurement see {@link ResistanceMode} */
 	private static final String RESISTANCE_MODE = "ResistanceMode";
 	private static final String RESISTANCE_MODE_RBV = "ResistanceModeRead";
-
-	/** sweep mode */
-	private static final String SW_PULSES = "SwNPulses";
-	private static final String SW_TIME_ON = "SwTmOn";
-	private static final String SW_TIME_OFF = "SwTmOff";
-	private static final String SW_VOLTAGE_START = "SwVStart";
-	private static final String SW_VOLTAGE_STOP = "SwVStop";
-	private static final String SW_CURRENT_START = "SwIStart";
-	private static final String SW_CURRENT_STOP = "SwIStop";
-	private static final String SW_RUN_ERROR = "SwErrRun";
-	private static final String SW_CONF_ERROR = "SwErrConf";
-	private static final String SW_ERROR_MSG = "SwErrStr";
-	private static final String SW_ACQUIRE = "SwAcquire";
-
-	private int sweepStatus = 0;
 
 
 
@@ -381,118 +364,4 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 		}
 	}
 
-	/** sweep mode functionality */
-
-	public void setPulses(int value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_PULSES), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep pulses to: " + value, e);
-		}
-	}
-
-	public void setTimeOn(double value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_TIME_ON), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep time on to: " + value, e);
-		}
-	}
-
-	public void setTimeOff(double value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_TIME_OFF), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep time off to: " + value, e);
-		}
-	}
-
-	public void setSweepVoltageStart(double value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_VOLTAGE_START), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep start voltage to: " + value, e);
-		}
-	}
-
-	public void setSweepVoltageStop(double value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_VOLTAGE_STOP), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep stop voltage to: " + value, e);
-		}
-	}
-
-	public void setSweepCurrentStart(double value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_CURRENT_START), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep start current to: " + value, e);
-		}
-	}
-
-	public void setSweepCurrentStop(double value) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(SW_CURRENT_STOP), value);
-		} catch (Exception e) {
-			throw new DeviceException("Failed to set sweep stop current to: " + value, e);
-		}
-	}
-
-	public boolean hasRunError() throws DeviceException {
-		try {
-			return epicsController.cagetDouble(getChannel(SW_RUN_ERROR)) == 1;
-		} catch (Exception e) {
-			throw new DeviceException("Failed to get sweep mode run error", e);
-		}
-	}
-
-	public boolean hasConfError() throws DeviceException {
-		try {
-			return epicsController.cagetDouble(getChannel(SW_CONF_ERROR)) == 1;
-		} catch (Exception e) {
-			throw new DeviceException("Failed to get sweep mode conf error", e);
-		}
-	}
-
-	public String getSweepErrorMessage() throws DeviceException {
-		try {
-			return epicsController.cagetString(getChannel(SW_ERROR_MSG));
-		} catch (Exception e) {
-			throw new DeviceException("Failed to get sweep mode error message", e);
-		}
-	}
-
-	PutListener sweepComplete = event -> {
-		if (event.getStatus() == CAStatus.NORMAL) {
-			logger.debug("{}: Sweep completed", getName());
-		} else {
-			logger.error("Sweep failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event.getStatus());
-		}
-		sweepStatus = 0;
-	};
-
-	public void acquireSweepMode() throws DeviceException {
-		sweepStatus = 1;
-		try {
-			epicsController.caput(getChannel(SW_ACQUIRE), "Acquire", sweepComplete);
-		} catch (CAException e) {
-			sweepStatus = 0;
-			throw new DeviceException("An error occured while initiating sweep mode", e);
-		} catch (InterruptedException e) {
-			sweepStatus = 0;
-			Thread.currentThread().interrupt();
-			throw new DeviceException("Sweep mode was interrupted.", e);
-		}
-	}
-
-	private int getSweepStatus() {
-		return sweepStatus;
-	}
-
-	public void waitWhileRunningSweep() throws InterruptedException {
-		while(getSweepStatus() == 1) {
-			Thread.sleep(1000);
-		}
-	}
 }
