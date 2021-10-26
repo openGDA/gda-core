@@ -84,4 +84,46 @@ public class ScannablePropertiesValue {
 	public void setDelta(double delta) {
 		this.delta = delta;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(delta);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((labelledPosition == null) ? 0 : labelledPosition.hashCode());
+		temp = Double.doubleToLongBits(position);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((scannableKeys == null) ? 0 : scannableKeys.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScannablePropertiesValue other = (ScannablePropertiesValue) obj;
+		if (Double.doubleToLongBits(delta) != Double.doubleToLongBits(other.delta))
+			return false;
+		if (labelledPosition == null) {
+			if (other.labelledPosition != null)
+				return false;
+		} else if (!labelledPosition.equals(other.labelledPosition))
+			return false;
+		if (Double.doubleToLongBits(position) != Double.doubleToLongBits(other.position))
+			return false;
+		if (scannableKeys == null) {
+			if (other.scannableKeys != null)
+				return false;
+		} else if (!scannableKeys.equals(other.scannableKeys))
+			return false;
+		return true;
+	}
+
+
 }

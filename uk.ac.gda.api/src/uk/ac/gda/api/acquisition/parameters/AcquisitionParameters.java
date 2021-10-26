@@ -18,6 +18,7 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
+import java.util.List;
 import java.util.Set;
 
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
@@ -33,7 +34,7 @@ public interface AcquisitionParameters {
 	 * The detector involved in the acquisition
 	 * @return the detector configuration
 	 */
-	DetectorDocument getDetector();
+	List<DetectorDocument> getDetectors();
 
 	/**
 	 * Defines, per device, the position where the acquisition starts. Note that this position

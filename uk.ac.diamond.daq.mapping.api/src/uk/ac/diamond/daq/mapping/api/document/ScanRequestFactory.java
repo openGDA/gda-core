@@ -277,8 +277,7 @@ public class ScanRequestFactory {
 	}
 
 	private void setDetectorsExposures(IMalcolmModel model) {
-		List<DetectorDocumentReader> detectors = new ArrayList<>();
-		detectors.add(getAcquisitionParameters().getDetector());
+		List<DetectorDocumentReader> detectors = getAcquisitionParameters().getDetectors();
 
 		// Even if looking at the moment support only one detector (K11-1214)
 		model.getDetectorModels().stream()

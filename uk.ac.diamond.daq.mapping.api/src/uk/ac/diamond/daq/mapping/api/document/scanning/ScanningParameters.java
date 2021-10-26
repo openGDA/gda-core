@@ -1,6 +1,8 @@
 package uk.ac.diamond.daq.mapping.api.document.scanning;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
@@ -16,7 +18,7 @@ import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
  */
 public class ScanningParameters implements AcquisitionParametersBase {
 
-	private DetectorDocument detector;
+	private List<DetectorDocument> detectors;
 
 	private ScanpathDocument scanpathDocument;
 
@@ -35,19 +37,25 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	public ScanningParameters(ScanningParameters configuration) {
 		super();
-		this.detector = configuration.getDetector();
+		this.detectors = configuration.getDetectors();
 
 		this.scanpathDocument = configuration.getScanpathDocument();
 		this.position = configuration.getStartPosition();
 	}
 
 	@Override
-	public DetectorDocument getDetector() {
-		return detector;
+	public List<DetectorDocument> getDetectors() {
+		return detectors;
 	}
 
 	public void setDetector(DetectorDocument detector) {
-		this.detector = detector;
+		if (detectors == null) detectors = new ArrayList<>();
+		detectors.stream().filter(doc -> doc.getName().equals(detector.getName())).findFirst().ifPresent(detectors::remove);
+		detectors.add(detector);
+	}
+
+	public void setDetectors(List<DetectorDocument> detectors) {
+		this.detectors = detectors;
 	}
 
 	@Override
@@ -70,7 +78,7 @@ public class ScanningParameters implements AcquisitionParametersBase {
 
 	@Override
 	public String toString() {
-		return "ScanningParameters [detector=" + detector + ", scanpathDocument="
+		return "ScanningParameters [detector=" + detectors + ", scanpathDocument="
 				+ scanpathDocument + ", position=" + position + "]";
 	}
 }
