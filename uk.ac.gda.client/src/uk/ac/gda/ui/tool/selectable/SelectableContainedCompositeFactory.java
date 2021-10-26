@@ -28,10 +28,10 @@ import static uk.ac.gda.ui.tool.WidgetUtilities.getDataObject;
 import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
@@ -160,9 +160,16 @@ public class SelectableContainedCompositeFactory implements CompositeFactory, Lo
 	}
 
 	private void populateContainer() {
-		Optional.ofNullable(radioContainer.getChildren())
-			.filter(ArrayUtils::isNotEmpty)
-			.ifPresent(radios -> selectAndNotify((Button)radios[0], true));
+		if (radioContainer.isDisposed()) return;
+
+		var buttons = Arrays.stream(radioContainer.getChildren())
+							.filter(Button.class::isInstance).map(Button.class::cast)
+							.collect(Collectors.toList());
+
+		// previously selected button, or first option if none selected
+		var activeButton = buttons.stream().filter(Button::getSelection).findFirst().orElse(buttons.get(0));
+
+		selectAndNotify(activeButton, true);
 	}
 
 	private void configurationRadioListener(SelectionEvent event) {

@@ -70,8 +70,9 @@ public class ClientScrollableContainer implements CompositeFactory {
 
 	public void cleanInnerContainer() {
 		// Deletes, if any the existing composites inside the internal scrollable area
-		Arrays.stream(getInnerContainer().getChildren())
-			.forEach(Control::dispose);
+		var inner = getInnerContainer();
+		if (inner.isDisposed()) return;
+		Arrays.stream(inner.getChildren()).forEach(Control::dispose);
 	}
 
 	public void populateInnerContainer(CompositeFactory cf) {
