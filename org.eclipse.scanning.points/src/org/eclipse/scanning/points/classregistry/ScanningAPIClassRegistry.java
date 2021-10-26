@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.persistence.IClassRegistry;
 import org.eclipse.scanning.api.device.models.GenericModel;
+import org.eclipse.scanning.api.device.models.SimpleDetectorModel;
 import org.eclipse.scanning.api.event.scan.AcquireRequest;
 import org.eclipse.scanning.api.event.scan.DeviceRequest;
 import org.eclipse.scanning.api.event.scan.DeviceValueMultiPosition;
@@ -119,6 +120,7 @@ public class ScanningAPIClassRegistry implements IClassRegistry {
 		registerClass(tmp, AxialPointsModel.class);
 		registerClass(tmp, AxialMultiStepModel.class);
 		registerClass(tmp, GenericModel.class);
+		registerClass(tmp, SimpleDetectorModel.class);
 		registerClass(tmp, TwoAxisPtychographyModel.class);
 
 		// scan.ui
