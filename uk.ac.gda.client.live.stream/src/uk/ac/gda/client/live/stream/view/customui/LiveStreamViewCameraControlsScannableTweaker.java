@@ -56,6 +56,7 @@ public class LiveStreamViewCameraControlsScannableTweaker implements LiveStreamV
 
 	@Override
 	public void createUi(Composite composite, CameraControl cameraControl) {
+		// Prepare the EPICS interface
 		if (tweakScannablePV == null) {
 			logger.error("tweakScannable must not be null");
 			return;
@@ -70,13 +71,33 @@ public class LiveStreamViewCameraControlsScannableTweaker implements LiveStreamV
 			return;
 		}
 
+		final EpicsControlPoint positionControlPoint = new EpicsControlPoint();
+		positionControlPoint.setPvNameGetPoint(tweakScannablePV+".RBV");
+		positionControlPoint.setPvNameSetPoint(tweakScannablePV);
+		positionControlPoint.setName(displayName==null ? "" : displayName);
+		try {
+			positionControlPoint.configure();
+		} catch (FactoryException e) {
+			logger.error("Failed to configure positionControlPoint", e);
+		}
+
+		final EpicsControlPoint tweakByControlPoint = new EpicsControlPoint();
+		tweakByControlPoint.setPvName(tweakScannablePV+".TWV");
+		tweakByControlPoint.setName(displayName==null ? "" : displayName);
+		try {
+			tweakByControlPoint.configure();
+		} catch (FactoryException e) {
+			logger.error("Failed to configure tweakByControlPoint", e);
+		}
+
+		// Build up the composite
 		final Composite mainComposite = new Composite(composite, SWT.NONE);
 
 		if (displayName == null) {
-			GridLayoutFactory.fillDefaults().numColumns(3).margins(0, 5).applyTo(mainComposite);
+			GridLayoutFactory.fillDefaults().numColumns(5).spacing(1,1).applyTo(mainComposite);
 			logger.debug("displayName not set");
 		} else {
-			GridLayoutFactory.fillDefaults().numColumns(4).margins(0, 5).applyTo(mainComposite);
+			GridLayoutFactory.fillDefaults().numColumns(6).spacing(1,1).applyTo(mainComposite);
 			final Label tweakDisplayName = new Label(mainComposite, SWT.NONE);
 			GridDataFactory.swtDefaults().applyTo(tweakDisplayName);
 			tweakDisplayName.setText(displayName);
@@ -86,7 +107,7 @@ public class LiveStreamViewCameraControlsScannableTweaker implements LiveStreamV
 		final Button tweakReverse = new Button(mainComposite, SWT.PUSH);
 		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).grab(true, true).applyTo(tweakReverse);
 		tweakReverse.setText("-");
-		tweakReverse.setToolTipText("Tweak Reverse");
+		tweakReverse.setToolTipText("Tweak Reverse ");
 		tweakReverse.addSelectionListener(widgetSelectedAdapter(e -> {
 			logger.debug("Tweak reverse button pushed: {}", tweakScannablePV);
 			try {
@@ -96,17 +117,7 @@ public class LiveStreamViewCameraControlsScannableTweaker implements LiveStreamV
 			}
 		}));
 
-		final EpicsControlPoint tweakControlPoint = new EpicsControlPoint();
-		tweakControlPoint.setPvNameGetPoint(tweakScannablePV);
-		tweakControlPoint.setPvNameSetPoint(tweakScannablePV+".RBV");
-		tweakControlPoint.setName(displayName==null ? "" : displayName);
-		try {
-			tweakControlPoint.configure();
-		} catch (FactoryException e) {
-			logger.error("Failed to configure tweakControlPoint", e);
-		}
-
-		final PositionControlComposite positionReadbackComposite = new PositionControlComposite(mainComposite, SWT.NONE, tweakControlPoint);
+		final PositionControlComposite positionReadbackComposite = new PositionControlComposite(mainComposite, SWT.NONE, positionControlPoint);
 		GridDataFactory.swtDefaults().applyTo(positionReadbackComposite);
 		positionReadbackComposite.setToolTipText("Motor Position");
 
@@ -122,5 +133,9 @@ public class LiveStreamViewCameraControlsScannableTweaker implements LiveStreamV
 				logger.error("Failed to tweak forward", e1);
 			}
 		}));
+
+		final PositionControlComposite tweakByReadbackComposite = new PositionControlComposite(mainComposite, SWT.NONE, tweakByControlPoint);
+		GridDataFactory.swtDefaults().applyTo(tweakByReadbackComposite);
+		tweakByReadbackComposite.setToolTipText("Tweak by value");
 	}
 }
