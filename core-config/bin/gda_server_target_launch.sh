@@ -184,7 +184,7 @@ fi
 # now we must be restarting or starting only
 # Assemble the command string
 
-readonly COMMAND="${GDA_WORKSPACE_PARENT}/server/gda-server -clean -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG -c $BEAMLINE_CONFIG -p $GDA_PROFILES -vmArgs $vm_args"
+readonly COMMAND="${GDA_WORKSPACE_PARENT}/server/gda-server -clean -data $USER_WORKSPACE -configuration $ECLIPSE_RUNTIME_CONFIG -c $BEAMLINE_CONFIG -p $GDA_PROFILES -vmArgs ${GDA_SERVER_VMARGS-} $vm_args"
 
 # and execute it retaining stdin
 echo "Starting the GDA Server at $SERVER_INSTALL_PATH/gda-server"
