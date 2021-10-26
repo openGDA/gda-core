@@ -19,12 +19,14 @@
 package uk.ac.gda.ui.tool.document;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
@@ -42,6 +44,7 @@ import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionTemplate;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.acquisition.ScannableTrackDocumentProperty;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
@@ -118,8 +121,6 @@ public class DocumentFactory {
 				return AcquisitionType.DIFFRACTION;
 			case TOMOGRAPHY:
 				return AcquisitionType.TOMOGRAPHY;
-			case BEAM_SELECTOR:
-				return AcquisitionType.BEAM_SELECTOR;
 			default:
 				return AcquisitionType.GENERIC;
 			}
@@ -131,8 +132,6 @@ public class DocumentFactory {
 				return AcquisitionPropertyType.DIFFRACTION;
 			case TOMOGRAPHY:
 				return AcquisitionPropertyType.TOMOGRAPHY;
-			case BEAM_SELECTOR:
-				return AcquisitionPropertyType.BEAM_SELECTOR;
 			default:
 				return AcquisitionPropertyType.DEFAULT;
 			}
@@ -175,7 +174,7 @@ public class DocumentFactory {
 				var aed = createNewAcquisitionEngineDocument();
 				acquisition.setAcquisitionEngine(aed);
 			}
-			acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setDetectors(createDocs());
+			acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setDetectors(createDetectorDocuments());
 			acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument(acquisition));
 		}
 
@@ -185,14 +184,13 @@ public class DocumentFactory {
 			return engineBuilder.build();
 		}
 
-		private void populateEngineDocumentBuilder(AcquisitionEngineDocument.Builder engineBuilder, AcquisitionConfigurationProperties dp) throws AcquisitionConfigurationException {
-			AcquisitionEngineDocument engineDocument = Optional.ofNullable(dp.getEngine())
-				.orElseThrow(() -> new AcquisitionConfigurationException("No Engine document is configured"));
+		private void populateEngineDocumentBuilder(AcquisitionEngineDocument.Builder engineBuilder, AcquisitionConfigurationProperties dp) {
+			AcquisitionEngineDocument engineDocument = Objects.requireNonNull(dp.getEngine(), "No engine document is configured");
 			engineBuilder.withId(engineDocument.getId());
 			engineBuilder.withType(engineDocument.getType());
 		}
 
-		private List<DetectorDocument> createDocs() throws AcquisitionConfigurationException {
+		private List<DetectorDocument> createDetectorDocuments() throws AcquisitionConfigurationException {
 
 			return getAcquisitionPropertiesDocument().getCameras().stream()
 				.map(cameraId -> DocumentFactory.createDetectorDocument(cameraId, clientPropertiesHelper))
@@ -229,5 +227,68 @@ public class DocumentFactory {
 					.map(AcquisitionConfigurationProperties::getType)
 					.orElseGet(() -> AcquisitionPropertyType.DEFAULT);
 		}
+	}
+
+	public ScanningAcquisition newScanningAcquisition(AcquisitionTemplate template) {
+		var acquisition = new ScanningAcquisition();
+		// Does not set UUID as it will be inserted by the save service
+		acquisition.setType(getType(template.getType()));
+		acquisition.setAcquisitionEngine(template.getEngine());
+
+		var configuration = new ScanningConfiguration();
+		acquisition.setAcquisitionConfiguration(configuration);
+
+		acquisition.setName("Untitled Acquisition");
+		var acquisitionParameters = new ScanningParameters();
+		configuration.setImageCalibration(new ImageCalibration.Builder().build());
+
+		acquisitionParameters.setScanpathDocument(getDefaultScanpathDocument(template));
+
+		var multipleScanBuilder = new MultipleScans.Builder();
+		multipleScanBuilder.withMultipleScansType(MultipleScansType.REPEAT_SCAN);
+		multipleScanBuilder.withNumberRepetitions(1);
+		multipleScanBuilder.withWaitingTime(0);
+		configuration.setMultipleScans(multipleScanBuilder.build());
+		acquisition.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
+
+		try {
+			DetectorDocumentHelper.getHelper(acquisition, clientPropertiesHelper).apply();
+		} catch (AcquisitionConfigurationException e) {
+			// TODO figure out why this would throw
+		}
+		return acquisition;
+	}
+
+	private ScanpathDocument getDefaultScanpathDocument(AcquisitionTemplate template) {
+		List<ScannableTrackDocument> paths = template.getScanAxes().stream()
+			.map(this::defaultScannableTrackDocument)
+			.collect(Collectors.toList());
+
+		if (paths.isEmpty()) {
+			paths = List.of(defaultScannableTrackDocument());
+		}
+
+		AcquisitionTemplateType pathType = getDefaultAcquisitionTemplateType(template);
+
+		return new ScanpathDocument.Builder().withModelDocument(pathType).withScannableTrackDocuments(paths).build();
+	}
+
+	private AcquisitionTemplateType getDefaultAcquisitionTemplateType(AcquisitionTemplate template) {
+		var axes = template.getScanAxes();
+		if (axes.isEmpty()) return AcquisitionTemplateType.STATIC_POINT;
+		if (axes.size() == 1) return AcquisitionTemplateType.ONE_DIMENSION_LINE;
+		return AcquisitionTemplateType.TWO_DIMENSION_POINT;
+	}
+
+	private ScannableTrackDocument defaultScannableTrackDocument() {
+		return new ScannableTrackDocument.Builder().withPoints(1).build();
+	}
+	private ScannableTrackDocument defaultScannableTrackDocument(String axisName) {
+		return new ScannableTrackDocument.Builder()
+				.withScannable(axisName)
+				.withStart(0)
+				.withStop(1)
+				.withStep(5)
+				.build();
 	}
 }

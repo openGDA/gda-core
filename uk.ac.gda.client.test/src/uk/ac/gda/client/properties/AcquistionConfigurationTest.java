@@ -89,7 +89,7 @@ public class AcquistionConfigurationTest {
 
 		acp = cnf.getAcquisitions().get(2);
 		Assert.assertEquals("Beam Selector Scan", acp.getName());
-		Assert.assertEquals(AcquisitionPropertyType.BEAM_SELECTOR, acp.getType());
+		Assert.assertEquals(AcquisitionPropertyType.DIFFRACTION, acp.getType());
 		Assert.assertEquals(2, acp.getCameras().size());
 		Assert.assertTrue(acp.getCameras().contains("PILATUS"));
 		Assert.assertTrue(acp.getCameras().contains("PCO_CAMERA"));

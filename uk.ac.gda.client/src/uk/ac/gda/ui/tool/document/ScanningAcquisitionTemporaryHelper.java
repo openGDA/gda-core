@@ -41,6 +41,7 @@ import uk.ac.gda.api.acquisition.configuration.processing.ProcessingRequestPair;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
+import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
@@ -174,7 +175,7 @@ public class ScanningAcquisitionTemporaryHelper {
 
 	public AcquisitionKeys getAcquisitionKeys() {
 		AcquisitionTemplateType templateType = getSelectedAcquisitionTemplateType().orElseGet(() -> AcquisitionTemplateType.STATIC_POINT);
-		return new AcquisitionKeys(DocumentFactory.getType(getAcquisitionType()), templateType);
+		return new AcquisitionKeys(DocumentFactory.getType(getAcquisitionType()), AcquisitionSubType.STANDARD, templateType);
 	}
 
 	/**
@@ -198,7 +199,7 @@ public class ScanningAcquisitionTemporaryHelper {
 				.map(ScanningParameters::getScanpathDocument)
 				.map(ScanpathDocument::getModelDocument)
 				.orElseGet(() -> AcquisitionTemplateType.STATIC_POINT);
-		return new AcquisitionKeys(DocumentFactory.getType(acquisitionType), templateType);
+		return new AcquisitionKeys(DocumentFactory.getType(acquisitionType), AcquisitionSubType.STANDARD, templateType);
 	}
 	//------- NEW/SAVE/RUN -------
 }

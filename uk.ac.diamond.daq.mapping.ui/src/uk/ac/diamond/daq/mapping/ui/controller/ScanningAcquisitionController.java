@@ -45,6 +45,7 @@ import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.mode.Modes;
 import uk.ac.gda.client.properties.mode.TestMode;
@@ -108,7 +109,7 @@ public class ScanningAcquisitionController
 	private AcquisitionReader acquisitionReader;
 
 	public ScanningAcquisitionController() {
-		this(new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionTemplateType.STATIC_POINT));
+		this(new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT));
 	}
 
 	/**
@@ -285,13 +286,13 @@ public class ScanningAcquisitionController
 		startPosition.addAll(instancePosition);
 
 		updateAcquisitionPositions(startPosition,
-				new AcquisitionKeys(acquisitionKeys.getPropertyType(), templateType),
+				new AcquisitionKeys(acquisitionKeys.getPropertyType(), AcquisitionSubType.STANDARD, templateType),
 				AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 				getAcquisition().getAcquisitionConfiguration().getAcquisitionParameters()::setStartPosition);
 
 		// Guarantee that all the motors return to the start positions.
 		updateAcquisitionPositions(startPosition,
-				new AcquisitionKeys(acquisitionKeys.getPropertyType(), templateType),
+				new AcquisitionKeys(acquisitionKeys.getPropertyType(), AcquisitionSubType.STANDARD, templateType),
 				AcquisitionConfigurationProperties::getEndPosition, null,
 				getAcquisition().getAcquisitionConfiguration()::setEndPosition);
 	}
@@ -318,14 +319,14 @@ public class ScanningAcquisitionController
 		ImageCalibrationReader ic = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
 		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
 			updateAcquisitionPositions(startPosition,
-					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.FLAT),
+					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT),
 					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 					getImageCalibrationHelper()::updateFlatDetectorPositionDocument);
 		}
 
 		if (ic.getDarkCalibration().isAfterAcquisition() || ic.getDarkCalibration().isBeforeAcquisition()) {
 			updateAcquisitionPositions(startPosition,
-					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionTemplateType.DARK),
+					new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.DARK),
 					AcquisitionConfigurationProperties::getStartPosition, AcquisitionTemplateConfiguration::getStartPosition,
 					getImageCalibrationHelper()::updateDarkDetectorPositionDocument);
 		}
