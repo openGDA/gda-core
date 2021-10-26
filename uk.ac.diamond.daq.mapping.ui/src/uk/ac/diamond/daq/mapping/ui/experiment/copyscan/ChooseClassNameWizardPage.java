@@ -86,7 +86,7 @@ class ChooseClassNameWizardPage extends WizardPage {
 		ControlDecorationSupport.create(bindValue, SWT.ON_TOP | SWT.LEFT);
 
 		setControl(mainComposite);
-		setPageComplete(false);
+		setPageComplete(validateClassName(classNameModel.getValue()).isOK());
 	}
 
 	private IStatus validateClassName(Object value) {
@@ -94,7 +94,7 @@ class ChooseClassNameWizardPage extends WizardPage {
 			return handleInvalidClassName();
 		}
 		final String valueString = (String) value;
-		if (valueString.length() == 0) {
+		if (valueString.isBlank()) {
 			// An empty class name is not flagged as an error, but you cannot go to the next page
 			setPageComplete(false);
 			return ValidationStatus.ok();

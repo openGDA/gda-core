@@ -34,7 +34,7 @@ public class CopyScanWizard extends Wizard {
 	private final ChooseClassNameWizardPage chooseNamePage;
 	private final CopyOrSaveScanWizardPage saveClassPage;
 
-	protected static Font DEFAULT_FONT = JFaceResources.getFontRegistry().get("Cantarell");
+	protected static final Font DEFAULT_FONT = JFaceResources.getFontRegistry().get("Cantarell");
 
 	public CopyScanWizard(ScanBean scanBean, CopyScanConfig config) {
 		chooseNamePage = new ChooseClassNameWizardPage(config);
