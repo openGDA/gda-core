@@ -380,10 +380,16 @@ public enum MsgBus {
 		// empty main to enable Eclipse's Export to Runnable JAR for hands-on Jython tests
 	}
 
-	/** @return flag for ActiveMQ response indicating whether server is active */
-	public static boolean isActiveMQ() {
+	/** @return flag for Local ActiveMQ response indicating whether server is active */
+	public static boolean isLocalActiveMQ() {
 		// Calls method that was previously here, leave for legacy scripts
 		return ServiceHolder.getSessionService().defaultConnectionActive();
+	}
+
+	/** @return flag for Central ActiveMQ response indicating whether server is active */
+	public static boolean isCentralActiveMQ() {
+		// Calls method that was previously here, leave for legacy scripts
+		return ServiceHolder.getSessionService().centralConnectionActive();
 	}
 
 }
