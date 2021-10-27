@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -37,6 +38,7 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDeviceDecorator;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.ServiceHolder;
@@ -51,8 +53,10 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractNexusMetadataDevice;
 import org.eclipse.scanning.device.INexusMetadataDevice;
+import org.eclipse.scanning.device.LinkedField;
 import org.eclipse.scanning.device.NexusMetadataAppender;
 import org.eclipse.scanning.device.NexusMetadataDevice;
+import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.Services;
 import org.slf4j.Logger;
@@ -65,7 +69,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 
 /**
- * a utility class to support dynamic metadata creation, remove and display in Jython terminal during runtime by users.
+ * a utility class to support dynamic metadata creation, add, remove and display in Jython terminal during runtime by users.
  *
  * @author Fajin Yuan
  * @since 9.22
@@ -73,10 +77,6 @@ import gda.jython.InterfaceProvider;
 public enum NexusMetadataUtility {
 
 	INSTANCE;
-
-	public enum FieldType {
-		SCALAR, SCANNABLE, PV, LINK; // PV value is required by EPICS support so not used or handle here.
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusMetadataUtility.class);
 	/**
@@ -93,8 +93,8 @@ public enum NexusMetadataUtility {
 	private final Set<String> disabledMetadataDevices = new HashSet<>();
 
 	/**
-	 * add the specified field name and field value to the specified device. If the named device is not existed yet a
-	 * new metadata device will be created.
+	 * add a {@link ScalarField} to the specified metadata device. If the named device is not existed yet a new metadata device
+	 * will be created with nexus type default to {@link NexusConstants#COLLECTION}
 	 *
 	 * @param deviceName
 	 *            - the name of metadata device to add
@@ -104,34 +104,55 @@ public enum NexusMetadataUtility {
 	 *            - the field value to be added to the device
 	 * @param unit
 	 *            - the unit for the field
-	 * @param type
-	 *            - the Field Type to be added
-	 * @param nexusClass
-	 *            - the nexus class of the device - this only required if a new metadata device need to be created!
 	 */
-	public void add(String deviceName, String fieldName, Object fieldValue, String unit, FieldType type,
-			String nexusClass) {
-		if (type != FieldType.SCALAR && !(fieldValue instanceof String)) {
-			throw new IllegalArgumentException("Field value is not a String for Scannable, PV, or Link Path.");
-		}
-
+	public void addScalar(String deviceName, String fieldName, Object fieldValue, String unit) {
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
-				.orElseGet(() -> createNexusMetadataDevice(deviceName, nexusClass));
-		switch (type) {
-		case SCALAR:
-			nxMetadataDevice.addScalarField(fieldName, fieldValue, unit);
-			break;
-		case SCANNABLE:
-			Finder.findOptionalOfType((String) fieldValue, Scannable.class).orElseThrow();
-			nxMetadataDevice.addField(new ScannableField(fieldName, (String) fieldValue, unit));
-			break;
-		case LINK:
-			nxMetadataDevice.addLinkedField(fieldName, (String) fieldValue);
-			break;
-		default:
-			throw new IllegalArgumentException("Requested type '" + type + "' is not supported!");
-		}
+				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
+		nxMetadataDevice.addScalarField(fieldName, fieldValue, unit);
+		userAddedFields.add(new ImmutablePair<>(deviceName, fieldName));
+	}
 
+	/**
+	 * add a {@link ScannableField} to the specified metadata device. If the named device is not existed yet a new metadata device
+	 * will be created with nexus type default to {@link NexusConstants#COLLECTION}
+	 *
+	 * @param deviceName
+	 *            - the name of metadata device to add
+	 * @param scannable
+	 *			  - the scannable object to be added to the device
+	 */
+	public void addScannable(String deviceName, Scannable scannable) {
+		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
+				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
+		final String scannable_name = scannable.getName();
+		final String field_name = scannable_name.startsWith(deviceName)
+				? StringUtils.removeStart(scannable_name, deviceName)
+				: scannable_name;
+		nxMetadataDevice.addField(new ScannableField(field_name, scannable_name));
+		userAddedFields.add(new ImmutablePair<>(deviceName, field_name));
+	}
+
+	/**
+	 * add a {@link LinkedField} to the specified metadata device. If the named device is not existed yet a new metadata device
+	 * will be created with nexus type default to {@link NexusConstants#COLLECTION}
+	 *
+	 * @param deviceName
+	 *            - the name of metadata device to add
+	 * @param fieldName
+	 *            - the field name to be added to the device
+	 * @param fileName
+	 *            - the external file name, if null or empty, the link will be internal
+	 * @param linkPath
+	 *            - the link path value to be added to the device
+	 */
+	public void addLink(String deviceName, String fieldName, String fileName, String linkPath) {
+		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
+				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
+		if (StringUtils.isNotBlank(fileName)) {
+			nxMetadataDevice.addExternalLinkedField(fieldName, fileName, linkPath);
+		} else {
+			nxMetadataDevice.addLinkedField(fieldName, linkPath);
+		}
 		userAddedFields.add(new ImmutablePair<>(deviceName, fieldName));
 	}
 
