@@ -22,6 +22,7 @@ package gda.jython.authenticator;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.Test;
 
 import gda.configuration.properties.LocalProperties;
@@ -31,12 +32,17 @@ import gda.configuration.properties.LocalProperties;
  */
 public class JaasAuthenticatorTest {
 
-	/**
-	 * @throws Exception
-	 */
+	@After
+	public void tearDown() {
+		LocalProperties.clearProperty(Authenticator.AUTHENTICATORCLASS_PROPERTY);
+		LocalProperties.clearProperty(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_REALM);
+		LocalProperties.clearProperty(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_KDC);
+		LocalProperties.clearProperty(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_CONFFILE);
+	}
+
 	@Test
-	public void testAuthenticatorCreation() throws Exception {
-		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, "gda.jython.authenticator.JaasAuthenticator");
+	public void testAuthenticatorCreation() throws ClassNotFoundException {
+		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, JaasAuthenticator.class.getName());
 		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_REALM, "FED.CCLRC.AC.UK");
 		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_KDC, "fed.cclrc.ac.uk");
 		LocalProperties.set(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_CONFFILE, "/path/to/a/file");
@@ -44,13 +50,10 @@ public class JaasAuthenticatorTest {
 		JaasAuthenticator authenticator = (JaasAuthenticator) AuthenticatorProvider.getAuthenticator();
 	}
 
-	/**
-	 * @throws Exception
-	 */
 	@Test
-	public void testIsAuthenticated() throws Exception {
+	public void testIsAuthenticated() throws ClassNotFoundException {
 		// we need to use the test user authenticator
-		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, "gda.jython.authenticator.TestUserAuthenticator");
+		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, TestUserAuthenticator.class.getName());
 		TestUserAuthenticator authenticator = (TestUserAuthenticator) AuthenticatorProvider.getAuthenticator();
 		assertTrue(authenticator.isAuthenticated("test-prefix", "any.password"));
 		assertFalse(authenticator.isAuthenticated("prefix-not-test", "any.password"));

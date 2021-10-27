@@ -28,19 +28,17 @@ public abstract class AuthenticatorProvider {
 
 	/**
 	 * @return Authenticator - type is defined by the java property
-	 * @throws Exception
+	 * @throws ClassNotFoundException
 	 */
-	public static Authenticator getAuthenticator() throws Exception {
-		Authenticator authenticator = null;
-		String authenticatorTypeName = LocalProperties.get(Authenticator.AUTHENTICATORCLASS_PROPERTY,
-				Authenticator.DEFAULT_AUTHENTICATOR);
+	public static Authenticator getAuthenticator() throws ClassNotFoundException {
+		String authenticatorTypeName = LocalProperties.get(Authenticator.AUTHENTICATORCLASS_PROPERTY, Authenticator.DEFAULT_AUTHENTICATOR);
 		try {
-			Class<?> authenticatorType = Class.forName(authenticatorTypeName);
-			authenticator = (Authenticator) authenticatorType.newInstance();
+			@SuppressWarnings("unchecked")
+			Class<? extends Authenticator> authenticatorType = (Class<? extends Authenticator>) Class.forName(authenticatorTypeName);
+			return authenticatorType.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
-			throw new Exception("AuthenticatorProvider cannot instantiate : " + authenticatorTypeName, e);
+			throw new ClassNotFoundException(String.format("Unable to find class %s, will not be able to authenticate", authenticatorTypeName));
 		}
-		return authenticator;
 
 	}
 

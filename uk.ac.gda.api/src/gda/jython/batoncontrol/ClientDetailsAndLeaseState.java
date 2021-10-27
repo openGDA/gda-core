@@ -23,7 +23,7 @@ public class ClientDetailsAndLeaseState extends ClientDetails {
 	private final boolean hasLease;
 
 	public ClientDetailsAndLeaseState(ClientDetails details, boolean hasLease) {
-		super(details, details.hasBaton);
+		super(details, details.hasBaton());
 		this.hasLease = hasLease;
 	}
 

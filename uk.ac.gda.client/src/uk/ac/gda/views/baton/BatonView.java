@@ -202,7 +202,7 @@ public class BatonView extends ViewPart implements IObserver{
 			if (!(element instanceof ClientDetails)) return super.getImage(element);
 			if (columnIndex!=columnType.USER.ordinal()) return null;
 			final ClientDetails detail = (ClientDetails)element;
-			if (detail.isHasBaton()) {
+			if (detail.hasBaton()) {
 				return flagGreen;
 			}
 			return null;
@@ -247,7 +247,7 @@ public class BatonView extends ViewPart implements IObserver{
 					userMessage = "The user '" + detail.getUserID() + "'";
 				}
 				userMessage += " - authorisation level " + detail.getAuthorisationLevel();
-				if (detail.isHasBaton()) {
+				if (detail.hasBaton()) {
 					userMessage +=  " (baton holder)";
 				}
 				return userMessage;

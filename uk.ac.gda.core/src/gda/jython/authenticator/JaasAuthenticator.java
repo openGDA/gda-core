@@ -19,8 +19,6 @@
 
 package gda.jython.authenticator;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.IOException;
 
 import javax.security.auth.callback.Callback;
@@ -31,6 +29,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Provides authentication within the Authenticator interface using JAAS.
  */
@@ -39,8 +39,6 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 	private String username;
 
 	private String password;
-
-	private boolean authenticated = false;
 
 	public static final String GDA_ACCESSCONTROL_JAAS_REALM = "gda.accesscontrol.jaas.realm";
 
@@ -51,15 +49,15 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 	/**
 	 * Constructor. Throws exception if java properties defining the Kerberos authentication are missing.
 	 *
-	 * @throws Exception
+	 * @throws IllegalArgumentException
 	 */
-	public JaasAuthenticator() throws Exception {
+	public JaasAuthenticator() throws IllegalArgumentException {
 		String realm = LocalProperties.get(GDA_ACCESSCONTROL_JAAS_REALM);
 		String kdc = LocalProperties.get(GDA_ACCESSCONTROL_JAAS_KDC);
 		String confFile = LocalProperties.get(GDA_ACCESSCONTROL_JAAS_CONFFILE);
 
 		if (realm == null || kdc == null || confFile == null){
-			throw new Exception("Missing java properties for Jass configuration!");
+			throw new IllegalArgumentException("Missing java properties for Jass configuration!");
 		}
 
 		System.setProperty("java.security.krb5.realm", realm);
@@ -70,7 +68,6 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 	@Override
 	public synchronized boolean isAuthenticated(String username, String password) {
 
-		authenticated = false;
 		this.username = username;
 		this.password = password;
 		try {
@@ -79,12 +76,10 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 			// if this fails, a LoginException will be thrown
 			lc.login();
 
-			authenticated = true;
+			return true;
 		} catch (LoginException e) {
-			authenticated = false;
+			return false;
 		}
-
-		return authenticated;
 	}
 
 	@Override

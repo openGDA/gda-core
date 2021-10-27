@@ -95,7 +95,7 @@ public class LdapAuthenticator implements Authenticator {
 		}
 
 		final List<String> urls = ldap.getUrlsToTry();
-		logger.debug("LDAP URLs: " + urls);
+		logger.debug("LDAP URLs: {}", urls);
 
 		if (urls.isEmpty()) {
 			logger.error("No LDAP servers defined");
@@ -122,7 +122,7 @@ public class LdapAuthenticator implements Authenticator {
 
 		InitialLdapContext ctx = null;
 		try {
-			Hashtable<String, String> env = new Hashtable<String, String>();
+			Hashtable<String, String> env = new Hashtable<>();
 			String principal = "CN=" + fedId + adminName;
 			env.put(Context.INITIAL_CONTEXT_FACTORY, ldapContext);
 			env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -139,6 +139,7 @@ public class LdapAuthenticator implements Authenticator {
 				try {
 					ctx.close();
 				} catch (NamingException e) {
+					// Prevent compiler warning
 				}
 			}
 		}

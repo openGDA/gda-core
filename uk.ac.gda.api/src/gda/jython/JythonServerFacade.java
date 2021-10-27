@@ -678,7 +678,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		final ClientDetails[] others = getOtherClientInformation();
 		ClientDetails batonedUser = null;
 		for (int i = 0; i < others.length; i++) {
-			if (others[i].isHasBaton()) {
+			if (others[i].hasBaton()) {
 				batonedUser = others[i];
 			}
 		}
@@ -802,7 +802,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public Set<String> getAllNamesForObject(Object obj) throws DeviceException {
 		return commandServer.getAllNamesForObject(obj);
 	}
-	
+
 	@Override
 	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz) {
 		return commandServer.getAllNamesForType(clazz);

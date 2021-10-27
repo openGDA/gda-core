@@ -19,6 +19,8 @@
 
 package gda.jython.authoriser;
 
+import gda.configuration.properties.LocalProperties;
+
 /**
  * Interface for classes providing an authorisation service for the GDA
  */
@@ -35,6 +37,19 @@ public interface Authoriser {
 	public static final String DEFAULT_AUTHORISER = "gda.jython.authoriser.FileAuthoriser";
 
 	/**
+	 * The java property which defines the default authorisation level for a user if not explicitly listed.
+	 */
+	public static final String DEFAULT_LEVEL_PROPERTY = "gda.accesscontrol.defaultAuthorisationLevel";
+	public static final int DEFAULT_LEVEL = 1;
+
+	/**
+	 * The java property which defines the default authorisation level for a member of staff if not explicitly listed.
+	 */
+	public static final String DEFAULT_STAFF_LEVEL_PROPERTY = "gda.accesscontrol.defaultStaffAuthorisationLevel";
+	public static final int DEFAULT_STAFF_LEVEL = 3;
+
+
+	/**
 	 * @param username
 	 * @return true if the given username is listed in the system
 	 */
@@ -46,6 +61,13 @@ public interface Authoriser {
 	 */
 	public int getAuthorisationLevel(String username);
 	
+	default int getDefaultPermissions(String username) {
+		if (isLocalStaff(username)) {
+			return LocalProperties.getInt(DEFAULT_STAFF_LEVEL_PROPERTY, DEFAULT_STAFF_LEVEL);
+		}
+		return LocalProperties.getInt(DEFAULT_LEVEL_PROPERTY, DEFAULT_LEVEL);
+	}
+
 	/**
 	 * Returns true if the username is a member of facility staff and should have elevated privileges over users. Any
 	 * accounts used for beamline testing/commissioning should also return true when using this method.

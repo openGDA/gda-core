@@ -68,10 +68,7 @@ public class LdapAuthoriser extends FileAuthoriser {
 			return super.getAuthorisationLevel(username);
 		}
 		// else use defaults
-		if (isLocalStaff(username)) {
-			return LocalProperties.getInt(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, 3);
-		}
-		return LocalProperties.getInt(FileAuthoriser.DEFAULTLEVELPROPERTY, 1);
+		return getDefaultPermissions(username);
 
 	}
 
@@ -103,22 +100,21 @@ public class LdapAuthoriser extends FileAuthoriser {
 	}
 
 	private String extractAttributes(SearchResult sr, String attributeName) {
+		StringBuilder results = new StringBuilder();
 		try {
 			// loop through all parts of the attribute whose name matches attributeName
 			NamingEnumeration<?> parts = sr.getAttributes().get(attributeName).getAll();
-			String results = new String();
 			while (parts.hasMore()) {
 				String part = (String) parts.next();
-				String h1[] = part.split(",");
-				String h2[] = h1[0].split("=");
+				String[] h1 = part.split(",");
+				String[] h2 = h1[0].split("=");
 				part = h2[h2.length - 1];
 
-				results += part + ",";
+				results.append(part).append(",");
 			}
-			return results;
 		} catch (NamingException e) {
 			logger.error("Failed to find attribute {} in ldap for user",  attributeName, e);
 		}
-		return "";
+		return results.toString();
 	}
 }

@@ -77,8 +77,8 @@ public class LdapAuthoriserTest {
 		fileAuthoriser = (FileAuthoriser) AuthoriserProvider.getAuthoriser();
 		fileAuthoriser.addEntry("testUserNotInLdap", 1, false);
 		fileAuthoriser.addEntry("testStaffNotInLdap", 2, true);
-		LocalProperties.set(FileAuthoriser.DEFAULTLEVELPROPERTY, "3");
-		LocalProperties.set(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, "5");
+		LocalProperties.set(Authoriser.DEFAULT_LEVEL_PROPERTY, "3");
+		LocalProperties.set(Authoriser.DEFAULT_STAFF_LEVEL_PROPERTY, "5");
 		LocalProperties.set(LdapAuthoriser.LDAPSTAFF_PROPERTY, STAFF_GROUP);
 
 		// then switch to using ldap

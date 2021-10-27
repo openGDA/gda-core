@@ -18,8 +18,6 @@
 
 package gda.jython.authoriser;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,6 +35,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+
+import gda.configuration.properties.LocalProperties;
 
 public class EditPermissions extends javax.swing.JFrame implements ActionListener {
 
@@ -342,7 +342,7 @@ public class EditPermissions extends javax.swing.JFrame implements ActionListene
 		 * Add an extra row
 		 */
 		public void addRow() {
-			UserEntry newUser = new UserEntry("", LocalProperties.getInt(FileAuthoriser.DEFAULTLEVELPROPERTY, 1), false);
+			UserEntry newUser = new UserEntry("", LocalProperties.getInt(Authoriser.DEFAULT_LEVEL_PROPERTY, Authoriser.DEFAULT_LEVEL), false);
 			data.add(newUser);
 		}
 	}

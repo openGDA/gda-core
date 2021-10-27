@@ -1467,7 +1467,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 					c.getHostname(),
 					c.getVisitID(),
 					c.isHasLease() ? "yes" : "",
-					c.isHasBaton() ? "yes" : ""));
+					c.hasBaton() ? "yes" : ""));
 			}
 		}
 	}

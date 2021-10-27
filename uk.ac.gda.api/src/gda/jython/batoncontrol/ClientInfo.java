@@ -31,16 +31,12 @@ import java.text.MessageFormat;
  */
 public class ClientInfo implements Serializable {
 
-	int index;
-	String userID;
-	String fullName;
-	String hostname;
-	int authorisationLevel;
-	String visitID;
-
-	protected ClientInfo() {
-
-	}
+	private int index;
+	private String userID;
+	private String fullName;
+	private String hostname;
+	private int authorisationLevel;
+	private String visitID;
 
 	protected ClientInfo(int index, String userID, String fullName, String hostname, int authorisationLevel, String visitID) {
 		this.index = index;
@@ -115,4 +111,5 @@ public class ClientInfo implements Serializable {
 	public boolean isAutomatedUser() {
 		return (authorisationLevel == 4);
 	}
+
 }

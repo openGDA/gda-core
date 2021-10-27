@@ -49,7 +49,7 @@ public class FileAuthoriserTest {
 		fileAuthoriser = (FileAuthoriser) AuthoriserProvider.getAuthoriser();
 		fileAuthoriser.addEntry("i02user", 5, false);
 		fileAuthoriser.addEntry("rjw82", 5, true);
-		LocalProperties.set(FileAuthoriser.DEFAULTLEVELPROPERTY, "3");
+		LocalProperties.set(Authoriser.DEFAULT_LEVEL_PROPERTY, "3");
 	}
 
 	/**

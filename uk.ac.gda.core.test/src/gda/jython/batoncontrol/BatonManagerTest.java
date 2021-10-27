@@ -34,6 +34,7 @@ import gda.data.metadata.Metadata;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.authenticator.Authenticator;
+import gda.jython.authenticator.JaasAuthenticator;
 
 /**
  * Tests the BatonManager component used by JythonServer
@@ -47,7 +48,7 @@ public class BatonManagerTest {
 		LocalProperties.set("gda.accesscontrol.firstClientTakesBaton", "true");
 		LocalProperties.set( LocalProperties.GDA_BATON_MANAGEMENT_ENABLED, "true");
 		LocalProperties.set( LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
-		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, "JaasAuthenticator");
+		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, JaasAuthenticator.class.getName());
 		MockJythonServerFacade mockJsf = new MockJythonServerFacade();
 		InterfaceProvider.setJythonServerNotiferForTesting(mockJsf);
 		InterfaceProvider.setBatonStateProviderForTesting(mockJsf);
