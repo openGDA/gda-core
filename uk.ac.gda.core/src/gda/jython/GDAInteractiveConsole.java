@@ -101,7 +101,10 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 			if (arg0.type instanceof PyJavaType) {
 				// in this case the jython code is just way too verbose for users
 				// we cut it down to the jython stack trace and the exception message (and class)
-				InterfaceProvider.getTerminalPrinter().print(arg0.traceback.dumpStack());
+				if (arg0.traceback != null) {
+					// Occasionally exceptions have no traceback - see DAQ-3628
+					InterfaceProvider.getTerminalPrinter().print(arg0.traceback.dumpStack());
+				}
 				PyObject value = arg0.value;
 				Throwable throwable = (Throwable) value.__tojava__(Throwable.class);
 				InterfaceProvider.getTerminalPrinter().print(throwable.getClass().getName()+": "+throwable.getMessage());
