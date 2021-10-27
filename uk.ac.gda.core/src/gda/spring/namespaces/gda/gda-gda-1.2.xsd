@@ -59,6 +59,7 @@
 		<xsd:attribute name="lowerGdaLimits" type="xsd:string" />
 		<xsd:attribute name="speed" type="xsd:string" />
 		<xsd:attribute name="protectionLevel" type="xsd:string" />
+		<xsd:attribute name="tolerances" type="xsd:string" />
 		<xsd:anyAttribute processContents="lax">
 			<xsd:annotation>
 				<xsd:documentation>

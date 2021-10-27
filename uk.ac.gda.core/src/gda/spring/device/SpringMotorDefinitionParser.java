@@ -126,7 +126,8 @@ public class SpringMotorDefinitionParser implements BeanDefinitionParser {
 			"scalingFactor",
 			"upperGdaLimits",
 			"lowerGdaLimits",
-			"protectionLevel");
+			"protectionLevel",
+			"tolerances");
 
 	/** Properties that should be set on both scannable and controller */
 	private static final Collection<String> DUPLICATED_OPTIONS = Set.of("protectionLevel");
