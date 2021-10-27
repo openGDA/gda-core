@@ -59,6 +59,7 @@
 		<xsd:attribute name="lowerGdaLimits" type="xsd:string" />
 		<xsd:attribute name="speed" type="xsd:string" />
 		<xsd:attribute name="protectionLevel" type="xsd:string" />
+		<xsd:attribute name="tolerances" type="xsd:string" />
 		<xsd:anyAttribute processContents="lax">
 			<xsd:annotation>
 				<xsd:documentation>
@@ -72,6 +73,33 @@
 	</xsd:complexType>
 
 	<xsd:element name="motor" type="motorType" />
+
+	<xsd:complexType name="monitorType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Wrapper for the beans required to create a monitor device.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="id" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+					The name for the monitor.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:anyAttribute processContents="lax">
+			<xsd:annotation>
+				<xsd:documentation>
+					The attributes above may be overridden in specific modes by including an attribute with a 'mode-' prefix.
+					eg 'dummy-scalingFactor' will set the scalingFactor for dummy mode only.
+					Any other attributes prefixed with "mode-" will be set as properties on the inner motor implementation
+					specified by the modeClass attribute.
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:anyAttribute>
+	</xsd:complexType>
+
+	<xsd:element name="monitor" type="monitorType" />
 
 	<xsd:complexType name="allBeansType">
 		<xsd:attribute name="type" type="xsd:string" use="required" />
