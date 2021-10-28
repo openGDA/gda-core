@@ -51,7 +51,6 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	private Xspress3Controller controller;
 	private Xspress3ScanOperations scanOperations;
 	private Xspress3DataOperations dataOperations;
-	private int firstChannelToRead = 0;
 	private boolean readDataFromFile = false;
 
 	@Override
@@ -60,7 +59,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 			return;
 		}
 		scanOperations = new Xspress3ScanOperations(controller, getName());
-		dataOperations = new Xspress3DataOperations(controller, firstChannelToRead);
+		dataOperations = new Xspress3DataOperations(controller);
 		setConfigured(true);
 	}
 
@@ -145,12 +144,12 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public int[][] getMCData(double time) throws DeviceException {
-		return dataOperations.getMCData(time);
+		throw new UnsupportedOperationException("Try FluorescenceDetector::getMCAData instead");
 	}
 
 	@Override
 	public double[][] getMCAData(double time) throws DeviceException {
-		return dataOperations.getMCAData(time);
+		return scanOperations.getMcaData(time);
 	}
 
 	@Override

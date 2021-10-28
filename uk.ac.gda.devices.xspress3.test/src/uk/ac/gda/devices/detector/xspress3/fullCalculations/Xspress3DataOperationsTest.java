@@ -41,7 +41,7 @@ public class Xspress3DataOperationsTest {
 		controller.setNumFramesToAcquire(1);
 		controller.setNumberOfChannels(10);
 
-		Xspress3DataOperations dataOps = new Xspress3DataOperations(controller,0);
+		Xspress3DataOperations dataOps = new Xspress3DataOperations(controller);
 		String configFile = TestUtils.getResourceAsFile(this.getClass(), "Xspress3_ParametersCu_K.xml").getPath();
 		dataOps.setConfigFileName(configFile);
 		dataOps.loadConfigurationFromFile();
