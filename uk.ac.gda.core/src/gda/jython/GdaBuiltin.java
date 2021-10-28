@@ -37,18 +37,24 @@ import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.python.core.Py;
+import org.python.core.PyArray;
 import org.python.core.PyBuiltinFunction;
 import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyInstance;
+import org.python.core.PyIterator;
+import org.python.core.PyList;
 import org.python.core.PyObject;
 import org.python.core.PyObjectDerived;
 import org.python.core.PyReflectedFunction;
+import org.python.core.PySequenceList;
 import org.python.core.PySystemState;
 import org.python.core.PyType;
+import org.python.core.PyXRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +168,7 @@ public class GdaBuiltin extends PyBuiltinFunction {
 				throw new UsageException("Unexpected keywords passed to builtin: ",
 						Stream.of(keywords).collect(joining(", ")));
 			}
-			if (pe.match(Py.TypeError)) {
+			if (pe.match(Py.TypeError) && !validArgs(args)) {
 				String arglist = Stream.of(args)
 						.map(GdaBuiltin::describe)
 						.collect(joining(", "));
@@ -172,6 +178,64 @@ public class GdaBuiltin extends PyBuiltinFunction {
 				throw pe;
 			}
 		}
+	}
+
+	/** Check if the supplied arguments are valid for any of the wrapped functions */
+	private boolean validArgs(PyObject[] args) {
+		for (var expected: function.argslist) {
+			var types = expected.args;
+			if (types.length < args.length && expected.isVarArgs) {
+				args = boxVarargs(args, types.length);
+			}
+			if (types.length != args.length) {
+				continue;
+			}
+			var finalArgs = args; // pointless redirect to make variable 'effectively final'
+			var valid = IntStream.range(0, args.length)
+					.allMatch(i -> finalArgs[i].__tojava__(expected.args[i]) != Py.NoConversion);
+			if (valid) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * If there are more arguments than expected, wrap all extra arguments into a single
+	 * array to represent the varargs argument of a Java method. The types of the extra
+	 * arguments are checked later so do not matter at this stage.
+	 * <br>
+	 * This is a modified version of the private function
+	 * {@code ReflectedArgs#ensureBNoxedVarargs}.
+	 *
+	 * @param args All the arguments passed to the function
+	 * @param length The number of arguments expected (including varargs array as 1)
+	 * @return An array of objects matching the number expected - may be the original array
+	 */
+	private PyObject[] boxVarargs(PyObject[] args, int length) {
+		if (args.length == 0) {
+			// if length is > 1, this will still fail later but not our problem
+			return new PyObject[]{new PyList()};
+		}
+		PyObject lastArg = args[args.length - 1];
+		if (args.length == length &&
+				lastArg instanceof PySequenceList ||
+				lastArg instanceof PyArray ||
+				lastArg instanceof PyXRange ||
+				lastArg instanceof PyIterator) {
+			return args; // will be boxed in an array once __tojava__ is called
+		}
+		int positionals = length - 1;
+		if (args.length < positionals) {
+			return args;
+		}
+		var boxedArgs = new PyObject[length];
+		System.arraycopy(args, 0, boxedArgs, 0, positionals);
+		int others = args.length - positionals;
+		var varargs = new PyObject[others];
+		System.arraycopy(args, positionals, varargs, 0, others);
+		boxedArgs[positionals] = new PyList(varargs);
+		return boxedArgs;
 	}
 
 	/**
