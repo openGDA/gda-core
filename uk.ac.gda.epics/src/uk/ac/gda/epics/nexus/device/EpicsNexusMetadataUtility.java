@@ -20,11 +20,12 @@ package uk.ac.gda.epics.nexus.device;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.dawnsci.nexus.NXobject;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.scanning.device.INexusMetadataDevice;
 import org.eclipse.scanning.device.utils.NexusMetadataUtility;
 
 /**
- * a utility class to support dynamic metadata creation from a PV.
+ * a utility class to support dynamic metadata creation and add from a PV.
  *
  * @author Fajin Yuan
  * @since 9.22
@@ -44,12 +45,10 @@ public enum EpicsNexusMetadataUtility {
 	 *            - the name of Processing Variable whose value to be added to the device
 	 * @param unit
 	 *            - the unit for the field
-	 * @param nexusClass
-	 *            - the nexus class of the device - this only required if a new metadata device need to be created!
 	 */
-	public void add(String deviceName, String fieldName, String pvName, String unit, String nexusClass) {
+	public void addPV(String deviceName, String fieldName, String pvName, String unit) {
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = NexusMetadataUtility.INSTANCE.getNexusMetadataDeviceOrAppender(deviceName)
-				.orElseGet(() -> NexusMetadataUtility.INSTANCE.createNexusMetadataDevice(deviceName, nexusClass));
+				.orElseGet(() -> NexusMetadataUtility.INSTANCE.createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
 		nxMetadataDevice.addField(new ProcessingVariableField(fieldName, pvName, unit));
 		NexusMetadataUtility.INSTANCE.getUserAddedFields().add(new ImmutablePair<>(deviceName, fieldName));
 	}
