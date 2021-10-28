@@ -18,6 +18,7 @@
 
 package uk.ac.gda.epics.nexus.device;
 
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -25,8 +26,9 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractMetadataNode;
 
-import gda.epics.CAClient;
+import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
 /**
@@ -34,8 +36,10 @@ import gov.aps.jca.TimeoutException;
  */
 public class ProcessingVariableField extends AbstractMetadataField {
 
+	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String pvName;
 	private boolean blockIfGetFail = false;
+	private Channel ch;
 
 	public ProcessingVariableField() {
 		// no-arg constructor for spring initialization
@@ -68,11 +72,14 @@ public class ProcessingVariableField extends AbstractMetadataField {
 
 	private Object getPvValue(String pvName) throws NexusException {
 		try {
-			return CAClient.get(pvName);
+			if (ch == null) {
+				ch = EPICS_CONTROLLER.createChannel(pvName);
+			}
+			return getValue(ch);
 		} catch (CAException | TimeoutException e) {
 			if (!blockIfGetFail) {
 				//the default behaviour is not blocking if the PV is not reachable.
-				return MessageFormat.format("Could not get data from {0}", pvName);
+				return MessageFormat.format("Could not get data from {0} : {1}", pvName, e.getMessage());
 			}
 			throw new NexusException(MessageFormat.format("{0}: Could not get data from {1}", getName(), pvName), e);
 		} catch (InterruptedException e) {
@@ -90,6 +97,28 @@ public class ProcessingVariableField extends AbstractMetadataField {
 
 	public void setBlockIfGetFail(boolean blockIfGetFail) {
 		this.blockIfGetFail = blockIfGetFail;
+	}
+
+	private Object getValue(Channel channel) throws TimeoutException, CAException, InterruptedException {
+		if (channel.getFieldType().isDOUBLE()) {
+			return EPICS_CONTROLLER.cagetDouble(channel);
+		}
+		if (channel.getFieldType().isFLOAT()) {
+			return EPICS_CONTROLLER.cagetFloat(channel);
+		}
+		if (channel.getFieldType().isINT()) {
+			return EPICS_CONTROLLER.cagetInt(channel);
+		}
+		if (channel.getFieldType().isSHORT()) {
+			return EPICS_CONTROLLER.cagetShort(channel);
+		}
+		if (channel.getFieldType().isBYTE()) {
+			return new String(EPICS_CONTROLLER.cagetByteArray(channel), StandardCharsets.UTF_8);
+		}
+		if (channel.getFieldType().isENUM()) {
+			return EPICS_CONTROLLER.cagetLabel(channel);
+		}
+		return EPICS_CONTROLLER.cagetString(channel);
 	}
 
 }
