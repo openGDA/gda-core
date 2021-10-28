@@ -40,6 +40,7 @@ import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.Reloadable;
@@ -98,7 +99,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 
 	@Override
 	public AcquisitionKeys getAcquisitionKeys() {
-		return new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.STATIC_POINT);
+		return new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT);
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class RadiographyButtonControlledCompositeFactory implements NamedComposi
 
 	private void setAcquisitionTemplateType(AcquisitionTemplateType acquisitionTemplateType) {
 		getDocumentFactory()
-			.buildScanpathBuilder(new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, acquisitionTemplateType))
+			.buildScanpathBuilder(new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, acquisitionTemplateType))
 			.ifPresent(scanpathDocumentHelper::updateScanPathDocument);
 	}
 
