@@ -18,6 +18,11 @@ def set_hdf_input_port(basePvName, arrayPort):
     print "Setting hdf input"
     caput(basePvName, ":HDF5:NDArrayPort", arrayPort)
 
+def set_sca_input_port(basePvName, numChannels, arrayPort):
+    print "Setting SCA input array port"
+    for num in range(1, numChannels+1) :        
+        caput(basePvName, ":C"+str(num)+"_SCAS:NDArrayPort", arrayPort)
+
 def setup_xspress_detector(basePvName):
     """ Set up an xspress3, xspress4 detector to get it ready for doing scans where each point in the scan is
     externally triggered (e.g. by a Tfg) :
@@ -42,15 +47,14 @@ def collect_software_triggered_frame(basePvName, collectionTime) :
     """Collect one frame of software (internal) triggered data on the detector.
     The original trigger mode is restored after the frame has been collected.
     """
-    baseCamPvName = basePvName+":CAM"
     print "Collecting 1 internal triggered frame of data from detector %s"%(basePvName)
-    origTrigger = caget(baseCamPvName+":TriggerMode")
-    caput(baseCamPvName, ":NumImages", 1) # number of framews
-    caput(baseCamPvName, ":ImageMode", 0) # single image mode  
+    origTrigger = caget(basePvName+":TriggerMode")
+    caput(basePvName, ":NumImages", 1) # number of framews
+    caput(basePvName, ":ImageMode", 0) # single image mode  
     set_trigger_mode(basePvName, 0) # internal trigger mode
-    caput(baseCamPvName, ":AcquireTime", collectionTime) # collection time
+    caput(basePvName, ":AcquireTime", collectionTime) # collection time
     print "Starting detector ..."
-    caput(baseCamPvName, ":Acquire", 1) # start the detector
+    caput(basePvName, ":Acquire", 1) # start the detector
 
     #restore the trigger mode
     print "Finished - restoring trigger mode"

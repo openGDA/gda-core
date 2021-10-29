@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
-import java.io.IOException;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -606,7 +605,7 @@ public class DummyXspress3Controller extends FindableConfigurableBase implements
 	}
 
 	@Override
-	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
+	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws DeviceException {
 		logger.debug("Called DummyXspress3Controller.setStoreAttributesUsingExtraDims({})", useExtraDims);
 	}
 

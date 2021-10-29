@@ -67,8 +67,6 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 
 	private boolean iocVersion3 = false;
 
-	private boolean useNewEpicsInterface = false;
-
 	private boolean useErasePv = true;
 
 	@Override
@@ -85,16 +83,15 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			if (!epicsConnectionToHardware) {
 				logger.error("EPICS is not connected to underlying Xspress3 hardware.\\nConnect EPICS to Xspreess3 before doing any more in GDA.");
 			}
-		} catch (IOException e) {
+		} catch (DeviceException | IOException e) {
 			throw new FactoryException("Excpetion trying to connect to Xspress3 EPICS template", e);
 		}
 		setConfigured(true);
 	}
 
-	protected EpicsXspress3ControllerPvProvider getPvProvider() {
+	protected EpicsXspress3ControllerPvProvider getPvProvider() throws DeviceException {
 		if (pvProviderCached == null) {
 			pvProviderCached = createPvProvider(epicsTemplate, numberOfDetectorChannels);
-			pvProviderCached.setUseNewEpicsInterface(useNewEpicsInterface);
 			pvProviderCached.createPVs();
 		}
 		return pvProviderCached;
@@ -132,13 +129,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		try {
 			doErase();
 			EpicsXspress3ControllerPvProvider pvProvider = getPvProvider();
-			if (pvProvider.getUseNewEpicsInterface()) {
-				// call 'Erase/Start' on SCAS time series data for each channel/detector element
-				int numChannels = pvProvider.pvGetMaxNumChannels.get();
-				for(int i=0; i<numChannels; i++) {
-					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Disable);
-				}
-			}
+			pvProvider.startTimeSeries();
 			if (iocVersion3) {
 				pvProvider.pvSquashAuxDim.putWait(UPDATE_RBV.Enabled);
 			}
@@ -194,6 +185,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		try {
 			getPvProvider().pvAcquire.putNoWait(ACQUIRE_STATE.Done);
 			Thread.sleep(100);
+			getPvProvider().stopTimeSeries();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while stopping acquisition", e);
 		} catch (InterruptedException e) {
@@ -643,13 +635,16 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 			// With the EPICs upgrade, it seems that the update arrays does not work as
 			// before and we miss some points. The work around here is to update
 			// SCA5 array individually for each channel
-			for (int i = 0; i < maxNumChannels; i++) {
-				if (pvProvider.getUseNewEpicsInterface()) {
-					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Read);
-				} else {
-					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Enable);
-				}
-			}
+
+			pvProvider.updateTimeSeries();
+
+//			for (int i = 0; i < maxNumChannels; i++) {
+//				if (pvProvider.getUseNewEpicsInterface()) {
+//					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Read);
+//				} else {
+//					pvProvider.pvsSCA5UpdateArrays[i].putWait(UPDATE_CTRL.Enable);
+//				}
+//			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while updating Xspress3 arrays", e);
 		}
@@ -1006,16 +1001,12 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 		this.iocVersion3 = version3;
 	}
 
-	public String getSCAAttrName(int channel, int scaler) throws IOException {
+	public String getSCAAttrName(int channel, int scaler) throws IOException, DeviceException {
 		return getPvProvider().pvsSCAttrName[channel][scaler].get();
 	}
 
-	public boolean getUseNewEpicsInterface() {
-		return useNewEpicsInterface;
-	}
-
 	public void setUseNewEpicsInterface(boolean useNewEpicsInterface) {
-		this.useNewEpicsInterface = useNewEpicsInterface;
+		logger.warn("'useNewEpicsInterface' is no longer needed and should be removed from Spring config for {}", getName());
 	}
 
 	@Override
@@ -1051,8 +1042,12 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	}
 
 	@Override
-	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException {
-		getPvProvider().pvDimAttDatasets.putWait(useExtraDims ? 1 : 0);
+	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws DeviceException {
+		try {
+			getPvProvider().pvDimAttDatasets.putWait(useExtraDims ? 1 : 0);
+		} catch (IOException e) {
+			throw new DeviceException("Error encountered while setting the 'store attributes using exra dimensions' flag", e);
+		}
 	}
 
 	@Override

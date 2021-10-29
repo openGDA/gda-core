@@ -18,15 +18,31 @@
 
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.UPDATE_CTRL;
 import uk.ac.gda.devices.detector.xspress3.XSPRESS3_TRIGGER_MODE;
 
 public class EpicsXspress3ControllerPvProvider {
+
+	private static final Logger logger = LoggerFactory.getLogger(EpicsXspress3ControllerPvProvider.class);
 
 	public static final int NUMBER_ROIS_DEFAULT = 10; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	public static final int MCA_SIZE_DEFAULT = 4096; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
@@ -51,7 +67,8 @@ public class EpicsXspress3ControllerPvProvider {
 	private static final String FRAMES_PER_READ_SUFFIX = ":ArrayRate_RBV";
 	private static final String FRAMES_AVAILABLE_SUFFIX = ":ArrayCounter_RBV";
 	private static final String BUSY_SUFFIX = ":Acquire_RBV";
-	private static final String UPDATEARRAYS_SUFFIX = ":UPDATE";
+	private static final String[] UPDATE_ARRAYS_SUFFIXES = {":UPDATE_ARRAYS", ":UPDATE"};
+
 	// Added a PV to make sure that the arrays have ben updated before to readout, this PV should be used only for step scans because the update of this PV is
 	// only done every
 	// 10 ms (check Adam)
@@ -141,9 +158,50 @@ public class EpicsXspress3ControllerPvProvider {
 	private static final String SCA_ARRAY_TEMPLATE = ":C%d_SCAS:%d:TSArrayValue"; // channel (1-8), scaler index (1-8) this points towards a waveform
 	private static final String SCA_UPDATE_ARRAY_TEMPLATE = ":C%d_SCAS:TSControl"; // channel (1-8),
 	private static final String SCA_ATTR_NAME_TEMPLATE = ":C%d_SCAS:%d:AttrName_RBV"; // channel (1-8),
+	private static final String SCA_UPDATE_TIME_SERIES_TEMPLATE = ":C%d_SCAS:TS:TSAcquire"; // channel (1-8),
 
 	private int numberRois = NUMBER_ROIS_DEFAULT;
 	private int mcaSize = MCA_SIZE_DEFAULT;
+
+
+
+	private TimeSeriesPv timeSeriesControls = null;
+
+	// THis contains the values that can be set on current time series array PV
+	private List<String> timeSeriesControlValues = Collections.emptyList();
+
+	// Possible values the 'time series control' PV names and start/stop values can take
+	// (VERSION_3 is newest IOC version, VERSION_1 the oldest)
+	private enum TimeSeriesPv {
+		VERSION_3(SCA_UPDATE_TIME_SERIES_TEMPLATE, "Acquire", "Done", ""),
+		VERSION_2(SCA_UPDATE_ARRAY_TEMPLATE, "Erase/Start", "Stop", "Read"),
+		VERSION_1(SCA5_UPDATE_ARRAYS_SCAS_TEMPLATE, "", "", "Enable"),
+		NONE("", "", "", ""); // Oldest Xspress4 IOC doesn't have any time series PVs.
+
+		private final String nameTemplate;
+		private final String startValue;
+		private final String stopValue;
+		private final String updateValue;
+
+		private TimeSeriesPv(String nameTemplate, String startValue, String stopValue, String updateValue) {
+			this.nameTemplate = nameTemplate;
+			this.startValue = startValue;
+			this.stopValue = stopValue;
+			this.updateValue = updateValue;
+		}
+		String getNameTemplate() {
+			return nameTemplate;
+		}
+		String getStartValue() {
+			return startValue;
+		}
+		String getStopValue() {
+			return stopValue;
+		}
+		String getUpdateValue() {
+			return updateValue;
+		}
+	}
 
 	protected int numberOfDetectorChannels;
 
@@ -174,7 +232,7 @@ public class EpicsXspress3ControllerPvProvider {
 	public ReadOnlyPV<Integer> pvGetMaxNumChannels;
 	protected PV<UPDATE_RBV>[] pvsChannelEnable;
 	public ReadOnlyPV<Double[]>[] pvsScalerWindow1;
-	protected PV<UPDATE_CTRL>[] pvsSCA5UpdateArrays;
+	private PV<Integer>[] pvsSCA5UpdateArrays;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow2;
 	public ReadOnlyPV<Integer[]>[] pvsTime;
 	public ReadOnlyPV<Integer[]>[] pvsResetTicks;
@@ -234,22 +292,11 @@ public class EpicsXspress3ControllerPvProvider {
 
 	protected PV<String> pvDtcInputArrayPort;
 
-	// New PVs etc for using 'new' Epics interface.
-	private boolean useNewEpicsInterface = false;
-
 	protected ReadOnlyPV<String>[][] pvsSCAttrName;
 
 	// PVs introduced in IOC v 3-0
 	protected PV<UPDATE_RBV>[] pvsChannelEnableIocV3;
 	protected PV<UPDATE_RBV> pvSquashAuxDim;
-
-	public boolean getUseNewEpicsInterface() {
-		return useNewEpicsInterface;
-	}
-
-	public boolean setUseNewEpicsInterface(boolean useNewEpicsInterface) {
-		return this.useNewEpicsInterface = useNewEpicsInterface;
-	}
 
 	/**
 	 * Scaler index to use for different data types (new Xspress3 Epics interface)
@@ -310,8 +357,9 @@ public class EpicsXspress3ControllerPvProvider {
 		this.epicsTemplate = epicsTemplate;
 	}
 
-	public void createPVs() {
+	public void createPVs() throws DeviceException {
 		createControlPVs();
+		createUpdatePV();
 		createFileWritingPVs();
 		createDisplayPVs();
 		createReadoutPVs();
@@ -323,7 +371,6 @@ public class EpicsXspress3ControllerPvProvider {
 		pvErase = LazyPVFactory.newEnumPV(generatePVName(getEraseSuffix()), ERASE_STATE.class);
 		pvReset = LazyPVFactory.newIntegerPV(generatePVName(getResetSuffix()));
 		pvSetArrayCounter = LazyPVFactory.newIntegerPV(generatePVName(getArrayCounterSuffix()));
-		pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(getUpdateArraysSuffix()));
 		pvUpdateArraysAvailableFrame = LazyPVFactory.newIntegerPV(generatePVName(getUpdateArraysFrameNumberSuffix()));
 		pvPointsPerRow = LazyPVFactory.newIntegerPV(generatePVName(getPointsPerRowSuffix()));
 		pvReadyForNextRow = LazyPVFactory.newEnumPV(generatePVName(getReadyForNextRowSuffix()), ReadyForNextRow.class);
@@ -339,6 +386,17 @@ public class EpicsXspress3ControllerPvProvider {
 		pvGetNumFramesAvailableToReadout = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getFramesAvailableSuffix()));
 		pvIsBusy = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(getBusySuffix()));
 		pvIsConnected = LazyPVFactory.newReadOnlyEnumPV(generatePVName(getConnectionStatus()), CONNECTION_STATE.class);
+	}
+
+	protected void createUpdatePV() throws DeviceException {
+		String updatePvName = Arrays.stream(UPDATE_ARRAYS_SUFFIXES)
+			.map(this::generatePVName)
+			.filter(this::pvExists)
+			.findFirst()
+			.orElseThrow(() -> new DeviceException("Could not create PV for updating arrays. PV with suffix matching "+Arrays.toString(UPDATE_ARRAYS_SUFFIXES)+" was not found"));
+
+		logger.info("Using {} for 'update' PV", updatePvName);
+		pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(updatePvName));
 	}
 
 	protected void createFileWritingPVs() {
@@ -426,19 +484,34 @@ public class EpicsXspress3ControllerPvProvider {
 		int numScalers = getScalerIndexLength();
 		pvsSCAttrName = new ReadOnlyPV[numberOfDetectorChannels][numScalers];
 
+		boolean useTSArrayValueNames = hasTSArrayValueNames();
+		boolean makeScalerAttrNames = hasScalerAttrNames();
+		timeSeriesControls = getTimeSeriesPvObject();
+		if (!timeSeriesControls.getNameTemplate().isEmpty()) {
+			timeSeriesControlValues = getTimeSeriesControlValues(generatePVName(timeSeriesControls.getNameTemplate(), 1));
+		}
+		logger.info("Creating Xspress PVs : {} channels,  {} scalers", numberOfDetectorChannels, numScalers);
+		logger.info("Using '{}' PV names for time series control; use 'TSArrayValue' PV names for scaler array data = {}; make AttrName PVs = {}",
+				timeSeriesControls.getNameTemplate(), useTSArrayValueNames, makeScalerAttrNames);
+
 		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
-			if (useNewEpicsInterface) {
+
+			if (useTSArrayValueNames) {
 				pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getScaArrayTemplate(), channel, getScalerIndexWindow1Index()));
 				pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getScaArrayTemplate(), channel, getScalerIndexWindow2Index()));
-				pvsSCA5UpdateArrays[channel-1] = LazyPVFactory.newEnumPV(generatePVName(getScaUpdateArrayTemplate(), channel), UPDATE_CTRL.class);
-				for(int scalerNumber=1; scalerNumber<=numScalers; scalerNumber++) {
-					pvsSCAttrName[channel-1][scalerNumber-1] = LazyPVFactory.newReadOnlyStringPV(generatePVName(getScaAttrNameTemplate(), channel, scalerNumber));
-				}
 			} else {
 				pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getScaWin1ScasTemplate(),channel));
 				pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getScaWin2ScasTemplate(),channel));
-				pvsSCA5UpdateArrays[channel-1] = LazyPVFactory.newEnumPV(generatePVName(getSca5UpdateArraysScasTemplate(),channel),UPDATE_CTRL.class);
 			}
+
+			if (makeScalerAttrNames) {
+				for(int scalerNumber=1; scalerNumber<=numScalers; scalerNumber++) {
+					pvsSCAttrName[channel-1][scalerNumber-1] = LazyPVFactory.newReadOnlyStringPV(generatePVName(getScaAttrNameTemplate(), channel, scalerNumber));
+				}
+			}
+
+			pvsSCA5UpdateArrays[channel - 1] = LazyPVFactory.newIntegerPV(generatePVName(timeSeriesControls.getNameTemplate(), channel));
+
 			pvsScaWin1Low[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(getScaWin1LowBinTemplate(),channel));
 			pvsScaWin1LowRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getScaWin1LowBinRbvTemplate(),channel));
 			pvsScaWin1High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(getScaWin1HighBinTemplate(),channel));
@@ -448,7 +521,7 @@ public class EpicsXspress3ControllerPvProvider {
 			pvsScaWin2High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(getScaWin2HighBinTemplate(),channel));
 			pvsScaWin2HighRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(getScaWin2HighBinRbvTemplate(),channel));
 
-			if (useNewEpicsInterface) {
+			if (useTSArrayValueNames) {
 				pvsTime[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaArrayTemplate(), channel, getScalerIndexTimeIndex())); // time
 				pvsResetTicks[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaArrayTemplate(), channel, getScalerIndexResetTicksIndex())); //reset ticks
 				pvsResetCount[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(getScaArrayTemplate(), channel, getScalerIndexResetCountsIndex())); // reset count
@@ -472,6 +545,101 @@ public class EpicsXspress3ControllerPvProvider {
 			pvsLatestMCA[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getMcaTemplate(),channel));
 			pvsLatestMCASummed[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(getMcaSumTemplate(),channel));
 		}
+	}
+
+
+	public void startTimeSeries() throws IOException {
+		controlTimeSeries(timeSeriesControls.getStartValue());
+	}
+
+	public void stopTimeSeries() throws IOException {
+		controlTimeSeries(timeSeriesControls.getStopValue());
+	}
+
+	public void updateTimeSeries() throws IOException {
+		controlTimeSeries(timeSeriesControls.getUpdateValue());
+	}
+	public TimeSeriesPv getTimeSeriesType() {
+		return timeSeriesControls;
+	}
+
+	private void controlTimeSeries(String value) throws IOException {
+		if (value.isEmpty()) {
+			return;
+		}
+		logger.debug("Trying to set time series array control {} to : {}", generatePVName(timeSeriesControls.getNameTemplate()), value);
+		int ind = timeSeriesControlValues.indexOf(value);
+		if (ind > -1) {
+			for(int i=0; i<numberOfDetectorChannels; i++) {
+				pvsSCA5UpdateArrays[i].putNoWait(ind);
+			}
+		} else {
+			logger.warn("Value {} not valid for {} - expected one of {}", value, generatePVName(timeSeriesControls.getNameTemplate()), timeSeriesControlValues);
+		}
+	}
+
+	public List<String> getTimeSeriesControlValues() {
+		return timeSeriesControlValues;
+	}
+
+	/**
+	 * Return a list of all possible enum values from named PV.
+	 * @param pvName
+	 * @return list of allow values
+	 */
+	private List<String> getTimeSeriesControlValues(String pvName) {
+		if (pvName.isEmpty()) {
+			return Collections.emptyList();
+		}
+		try {
+			EpicsController controller = EpicsController.getInstance();
+			Channel ch = controller.createChannel(pvName);
+			return Arrays.asList(controller.cagetLabels(ch));
+		} catch (CAException | TimeoutException | InterruptedException e) {
+			logger.error("Problem getting Enum values from {}", pvName, e);
+		}
+		return Collections.emptyList();
+	}
+
+	private boolean hasScalerAttrNames() {
+		return pvExists(generatePVName(SCA_ATTR_NAME_TEMPLATE, 1, 1));
+	}
+
+	private boolean hasTSArrayValueNames() {
+		return pvExists(generatePVName(SCA_ARRAY_TEMPLATE, 1, 1));
+	}
+
+	/**
+	 * Look through the various versions of TimeSeriesPv and return object that matches
+	 * the PVs on currently running IOC.
+	 * @return TimeSeriesPv for currently running IOC
+	 */
+	private TimeSeriesPv getTimeSeriesPvObject() {
+		for(var timeSeriesPv : TimeSeriesPv.values()) {
+			String fullName = generatePVName(timeSeriesPv.getNameTemplate(), 1);
+			if (pvExists(fullName)) {
+				return timeSeriesPv;
+			}
+		}
+		return TimeSeriesPv.NONE;
+	}
+
+	/**
+	 * Try to open a channel to the named PV.
+	 * @param pvName
+	 * @return True if PV exists, false otherwise
+	 */
+	private boolean pvExists(String pvName) {
+		try {
+			EpicsChannelManager manager = new EpicsChannelManager();
+			Channel channel = manager.createChannel(pvName, false);
+			manager.creationPhaseCompleted();
+			manager.tryInitialize(100);
+			return channel.getConnectionState() == Channel.CONNECTED;
+		} catch(IllegalStateException | CAException ex) {
+			logger.error("Problem checking if PV {} exists", pvName, ex);
+		}
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -569,10 +737,6 @@ public class EpicsXspress3ControllerPvProvider {
 
 	protected String getBusySuffix() {
 		return BUSY_SUFFIX;
-	}
-
-	protected String getUpdateArraysSuffix() {
-		return UPDATEARRAYS_SUFFIX;
 	}
 
 	protected String getUpdateArraysFrameNumberSuffix() {

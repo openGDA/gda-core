@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-import java.io.IOException;
-
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -295,7 +293,7 @@ public interface Xspress3Controller extends Findable {
 
 	public void setHDFExtraDimensions(int extraDimensions) throws DeviceException;
 
-	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws IOException;
+	public void setStoreAttributesUsingExraDims(boolean useExtraDims) throws DeviceException;
 
 	public void setHDFNDArrayPort(String port) throws DeviceException;
 

@@ -189,11 +189,6 @@ public class EpicsXspress3MiniControllerPvProvider extends EpicsXspress3Controll
 	}
 
 	@Override
-	protected String getUpdateArraysSuffix() {
-		return UPDATEARRAYS_SUFFIX;
-	}
-
-	@Override
 	protected String getRoiLowBinTemplate() {
 		return ROI_LOW_BIN_TEMPLATE;
 	}
