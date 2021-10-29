@@ -99,11 +99,27 @@ public class Keithley2600SeriesSweepMode extends Keithley2600Series implements N
 		}
 	}
 
+	private double getTimeOn() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(SW_TIME_ON));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get sweep time on", e);
+		}
+	}
+
 	public void setTimeOff(double value) throws DeviceException {
 		try {
 			epicsController.caputWait(getChannel(SW_TIME_OFF), value);
 		} catch (Exception e) {
 			throw new DeviceException("Failed to set sweep time off to: " + value, e);
+		}
+	}
+
+	private double getTimeOff() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(SW_TIME_OFF));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get sweep time on", e);
 		}
 	}
 
@@ -115,11 +131,27 @@ public class Keithley2600SeriesSweepMode extends Keithley2600Series implements N
 		}
 	}
 
+	private double getSweepVoltageStart() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(SW_VOLTAGE_START));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get sweep voltage start", e);
+		}
+	}
+
 	public void setSweepVoltageStop(double value) throws DeviceException {
 		try {
 			epicsController.caputWait(getChannel(SW_VOLTAGE_STOP), value);
 		} catch (Exception e) {
 			throw new DeviceException("Failed to set sweep stop voltage to: " + value, e);
+		}
+	}
+
+	private double getSweepVoltageStop() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(SW_VOLTAGE_STOP));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get sweep voltage stop", e);
 		}
 	}
 
@@ -131,11 +163,27 @@ public class Keithley2600SeriesSweepMode extends Keithley2600Series implements N
 		}
 	}
 
+	private double getSweepCurrentStart() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(SW_CURRENT_START));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get sweep current start", e);
+		}
+	}
+
 	public void setSweepCurrentStop(double value) throws DeviceException {
 		try {
 			epicsController.caputWait(getChannel(SW_CURRENT_STOP), value);
 		} catch (Exception e) {
 			throw new DeviceException("Failed to set sweep stop current to: " + value, e);
+		}
+	}
+
+	private double getSweepCurrentStop() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(SW_CURRENT_STOP));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get sweep current stop", e);
 		}
 	}
 
@@ -271,14 +319,32 @@ public class Keithley2600SeriesSweepMode extends Keithley2600Series implements N
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData nexusData = new NXDetectorData(this);
-		int slice = getPulses();
-		if (getSourceMode() == SourceMode.CURRENT) {
-			nexusData.addData(getName(), "voltages array", new NexusGroupData(getData(slice)), "V");
-		} else if (getSourceMode() == SourceMode.VOLTAGE) {
-			nexusData.addData(getName(), "currents array", new NexusGroupData(getData(slice)), "A");
+
+		int pulses = getPulses();
+		int [] pulsesAxis = IntStream.rangeClosed(1, pulses).toArray();
+		nexusData.addData(getName(), "pulses_array", new NexusGroupData(pulsesAxis), "Pulses");
+		nexusData.addData(getName(), "number_of_pulses", new NexusGroupData(pulses));
+
+		nexusData.addData(getName(), "time_on", new NexusGroupData(getTimeOn()), "s");
+		nexusData.addData(getName(), "time_off", new NexusGroupData(getTimeOff()), "s");
+		nexusData.addData(getName(), "resistance_mode", new NexusGroupData(getResistanceMode().toEpics()));
+		nexusData.addData(getName(), "integration_time", new NexusGroupData(getIntegrationTime()), "ms");
+
+		SourceMode sourceMode = getSourceMode();
+		nexusData.addData(getName(), "source_mode", new NexusGroupData(sourceMode.toEpics()));
+
+		if (sourceMode == SourceMode.CURRENT) {
+			nexusData.addData(getName(), "voltages_array", new NexusGroupData(getData(pulses)), "V");
+			nexusData.addData(getName(), "current_start", new NexusGroupData(getSweepCurrentStart()), "A");
+			nexusData.addData(getName(), "current_stop", new NexusGroupData(getSweepCurrentStop()), "A");
+			nexusData.addData(getName(), "current_level_setpoint", new NexusGroupData(getDemandCurrent()), "A");
+		} else if (sourceMode == SourceMode.VOLTAGE) {
+			nexusData.addData(getName(), "currents_array", new NexusGroupData(getData(pulses)), "A");
+			nexusData.addData(getName(), "voltage_start", new NexusGroupData(getSweepVoltageStart()), "V");
+			nexusData.addData(getName(), "voltage_stop", new NexusGroupData(getSweepVoltageStop()), "V");
+			nexusData.addData(getName(), "voltage_level_setpoint", new NexusGroupData(getDemandVoltage()), "V");
 		}
-		int [] pulsesAxis = IntStream.rangeClosed(1, slice).toArray();
-		nexusData.addData(getName(), "pulses array", new NexusGroupData(pulsesAxis), "Pulses");
+
 		return nexusData;
 	}
 
