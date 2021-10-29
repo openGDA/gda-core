@@ -26,6 +26,8 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATIO
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
+import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
@@ -39,9 +41,11 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamond
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -63,7 +67,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXbeam;
@@ -94,6 +101,7 @@ import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 import org.eclipse.scanning.device.BeamNexusDevice;
@@ -108,7 +116,6 @@ import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
-import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -120,9 +127,11 @@ import com.google.common.collect.Streams;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
+import gda.data.scan.nexus.device.BeforeScanSnapshotWriter;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.ScannableMotionUnits;
 import gda.device.detector.DummyDetector;
 import gda.factory.Finder;
 import gda.jython.IBatonStateProvider;
@@ -320,8 +329,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		deviceConfig.setSourceName(SOURCE_DEVICE_NAME);
 		deviceConfig.setUserDeviceName(USER_DEVICE_NAME);
 
-		deviceConfig.setAdditionalDeviceNames(Set.of(SLIT1_DEVICE_NAME,
-				SLIT2_DEVICE_NAME, MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME));
+		deviceConfig.setAdditionalDeviceNames(Set.of(BEFORE_SCAN_COLLECTION_NAME,
+				SLIT1_DEVICE_NAME, SLIT2_DEVICE_NAME, MIRROR1_DEVICE_NAME, MIRROR2_DEVICE_NAME));
 
 		return deviceConfig;
 	}
@@ -342,7 +351,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
-		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
+		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespac
+		ServiceHolder.getNexusDeviceService().register(new BeforeScanSnapshotWriter());
 	}
 
 	@Override
@@ -544,8 +554,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected void checkInstrumentGroupMetadata(final NXinstrument instrument) {
-		assertThat(instrument.getDataNodeNames(), Matchers.containsInAnyOrder(NXinstrument.NX_NAME,
+	protected void checkInstrumentGroupMetadata(final NXinstrument instrument) throws Exception {
+		assertThat(instrument.getDataNodeNames(), containsInAnyOrder(NXinstrument.NX_NAME,
 				NexusScanDataWriter.FIELD_NAME_BEAMLINE, NexusScanDataWriter.FIELD_NAME_END_STATION));
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 		assertThat(instrument.getString(FIELD_NAME_BEAMLINE), is(equalTo(EXPECTED_BEAMLINE_NAME)));
@@ -553,6 +563,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		// group for each device, each common (metadata) device (e.g. NXMonochromator), plus source group scannables:NXcollection (for scannables in the locationMap)
  		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(getExpectedInstrumentGroupNames()));
+ 		checkBeforeScanCollection(instrument.getCollection(BEFORE_SCAN_COLLECTION_NAME));
 	}
 
 	private String[] getExpectedInstrumentGroupNames() {
@@ -567,6 +578,54 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
 
 		return expectedGroupNames.toArray(new String[expectedGroupNames.size()]);
+	}
+
+	private void checkBeforeScanCollection(NXcollection beforeScanCollection) throws Exception {
+		final Set<String> scannableNames = Set.of(getScannableAndMonitorNames());
+
+		final List<String> allScannableNames = Stream.concat(scannableNames.stream(), getExpectedMetadataScannableNames().stream()).collect(toList());
+		assertThat(beforeScanCollection.getGroupNodeNames(), containsInAnyOrder(allScannableNames.toArray()));
+		for (String scannableName : allScannableNames) {
+			final GroupNode scannableGroup = beforeScanCollection.getGroupNode(scannableName);
+			assertThat("no collection found for scannable " + scannableName + " in before scan collection", scannableGroup, is(notNullValue()));
+			assertThat(scannableGroup, is(instanceOf(NXcollection.class)));
+			final NXcollection scannableCollection = (NXcollection) scannableGroup;
+
+			final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+			final String[] allFieldNames = ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
+			assertThat(scannableCollection.getDataNodeNames(), containsInAnyOrder(allFieldNames));
+
+			final Object position = scannable.getPosition();
+			final String expectedUnits = scannable instanceof ScannableMotionUnits ? ((ScannableMotionUnits) scannable).getUserUnits() : null;
+			for (int fieldIndex = 0; fieldIndex < allFieldNames.length; fieldIndex++) {
+				final DataNode dataNode = scannableCollection.getDataNode(allFieldNames[fieldIndex]);
+				assertThat(dataNode, is(notNullValue()));
+				final IDataset dataset = dataNode.getDataset().getSlice();
+				final double fieldPosition = getPositionForFieldIndex(position, fieldIndex);
+				assertThat(dataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+
+				if (!scannableNames.contains(scannableName)) {
+					// note: in fact before scan is written after the first point, as this is where DataWriters create the nexus tree
+					assertThat(dataset.getDouble(), is(closeTo(fieldPosition, 1e-15)));
+				}
+				final Attribute unitsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_UNITS);
+				if (expectedUnits == null) {
+					assertThat(unitsAttr, is(nullValue()));
+				} else {
+					assertThat(unitsAttr, is(notNullValue()));
+					assertThat(unitsAttr.getFirstElement(), is(equalTo(expectedUnits)));
+				}
+			}
+		}
+	}
+
+	private double getPositionForFieldIndex(Object position, int fieldIndex) throws DeviceException {
+		if (!position.getClass().isArray()) {
+			if (fieldIndex != 0) throw new IllegalArgumentException("field index must be 0 for a scalar position, was: " + fieldIndex);
+			return (Double) position;
+		}
+
+		return ((Double[]) position)[fieldIndex];
 	}
 
 	@Override

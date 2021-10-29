@@ -102,7 +102,6 @@ import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -518,26 +517,6 @@ public abstract class AbstractNexusDataWriterScanTest {
 		GDAMetadataProvider.setInstanceForTesting(null);
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		// setup devices
-		this.scannables = new Scannable[scanRank];
-		for (int i = 0; i < scanRank; i++) {
-			final DummyUnitsScannable<Length> dummyScannable = new DummyUnitsScannable<>(
-					SCANNABLE_NAME_PREFIX + i, 0.0, "mm", "mm");
-			dummyScannable.setLowerGdaLimits(SCANNABLE_LOWER_BOUND);
-			dummyScannable.setUpperGdaLimits(SCANNABLE_UPPER_BOUND);
-			dummyScannable.setControllerRecordName(SCANNABLE_PV_NAME_PREFIX + i);
-			this.scannables[i] = dummyScannable;
-		}
-
-		final DummyMonitor dummyMonitor = new DummyMonitor();
-		dummyMonitor.setConstantValue(MONITOR_VALUE);
-		dummyMonitor.setName(MONITOR_NAME);
-		dummyMonitor.configure();
-		this.monitor = dummyMonitor;
-	}
-
 	protected void setUpMetadata() throws Exception {
 		addMetadataEntry(METADATA_KEY_FEDERAL_ID, EXPECTED_USER_ID);
 	}
@@ -557,8 +536,30 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final String testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
 		outputDir = testDir + "/Data/";
 
+		setUpScannablesAndMonitor();
 		setUpMetadata();
 		setupMetadataScannables();
+	}
+
+	private void setUpScannablesAndMonitor() throws Exception {
+		this.scannables = new Scannable[scanRank];
+		for (int i = 0; i < scanRank; i++) {
+			final String name = SCANNABLE_NAME_PREFIX + i;
+			final DummyUnitsScannable<Length> dummyScannable = new DummyUnitsScannable<>(name, 0.0, "mm", "mm");
+			dummyScannable.setLowerGdaLimits(SCANNABLE_LOWER_BOUND);
+			dummyScannable.setUpperGdaLimits(SCANNABLE_UPPER_BOUND);
+			dummyScannable.setControllerRecordName(SCANNABLE_PV_NAME_PREFIX + i);
+			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, dummyScannable);
+			this.scannables[i] = dummyScannable;
+		}
+
+		final DummyMonitor dummyMonitor = new DummyMonitor();
+		dummyMonitor.setConstantValue(MONITOR_VALUE);
+		dummyMonitor.setName(MONITOR_NAME);
+		dummyMonitor.configure();
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(MONITOR_NAME, dummyMonitor);
+
+		this.monitor = dummyMonitor;
 	}
 
 	private void setupMetadataScannables() throws Exception {
@@ -1042,7 +1043,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected abstract void checkDefaultScannablePositioner(NXpositioner positioner, int scanIndex) throws Exception;
 
-	protected abstract void checkInstrumentGroupMetadata(NXinstrument instrument);
+	protected abstract void checkInstrumentGroupMetadata(NXinstrument instrument) throws Exception;
 
 	protected abstract void checkDataGroups(NXentry entry) throws Exception;
 

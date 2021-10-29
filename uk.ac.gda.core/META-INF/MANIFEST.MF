@@ -56,7 +56,8 @@ Require-Bundle: org.aopalliance,
  uk.ac.diamond.daq.experiment.api;bundle-version="1.0.0",
  uk.ac.gda.common.activemq;bundle-version="1.0.0",
  com.google.gson,
- uk.ac.diamond.daq.classloading
+ uk.ac.diamond.daq.classloading,
+ org.apache.commons.lang3;bundle-version="3.1.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api,
  uk.ac.diamond.org.springframework
