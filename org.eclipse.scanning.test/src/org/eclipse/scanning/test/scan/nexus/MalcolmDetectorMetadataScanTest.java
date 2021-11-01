@@ -38,6 +38,7 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
+import org.junit.After;
 import org.junit.Test;
 
 public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
@@ -67,6 +68,12 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 		checkNexusFile(scanner, shape);
+	}
+
+	@After
+	public void removeServices() {
+		var serviceHolder = new ServiceHolder();
+		serviceHolder.setNexusDeviceService(null);
 	}
 
 	@Override
