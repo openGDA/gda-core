@@ -398,6 +398,10 @@ public class NexusDataWriterTest {
 		new File(nexusDataWriter.getCurrentFileName()).delete();
 		new File(testScratchDirectoryName).delete();
 		NexusDataWriter.clearConfiguration();
+		ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setNexusTemplateService(null);
+		serviceHolder.setNexusDeviceService(null);
+		serviceHolder.setNexusFileAppenderService(null);
 	}
 
 	@Test
