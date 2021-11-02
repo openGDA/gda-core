@@ -18,16 +18,37 @@
 
 package gda.scan;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableBase;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Vector;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
-public class ScanBaseTest extends TestCase {
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableBase;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
+public class ScanBaseTest {
+
+	private JythonServerFacade mockJsf;
+
+	@Before
+	public void setup() {
+		mockJsf = Mockito.mock(JythonServerFacade.class);
+		InterfaceProvider.setAuthorisationHolderForTesting(mockJsf);
+	}
+
+	@After
+	public void cleanUp() {
+		InterfaceProvider.setAuthorisationHolderForTesting(null);
+	}
+
+	@Test
 	public void testReorderScannables() {
 
 		// create out-of-order list of Scannables
