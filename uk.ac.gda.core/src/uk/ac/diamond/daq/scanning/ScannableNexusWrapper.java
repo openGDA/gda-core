@@ -30,6 +30,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.IScannableMotor;
+import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
@@ -206,6 +207,13 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		final Scannable scannable = getScannable();
 		if (scannable instanceof ScannableMotionUnits) {
 			return ((ScannableMotionUnits) scannable).getUserUnits();
+		}
+		if (scannable instanceof Monitor) {
+			try {
+				return ((Monitor) scannable).getUnit();
+			} catch (DeviceException e) {
+				logger.error("{}: Could not get units for scannable", scannable.getName(), e);
+			}
 		}
 
 		return null;

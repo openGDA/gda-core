@@ -59,7 +59,6 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -67,7 +66,8 @@ import org.mockito.InOrder;
 
 import com.google.common.collect.Iterables;
 
-import gda.data.scan.nexus.device.ScannableNexusDevice;
+import gda.device.DeviceException;
+import gda.device.Monitor;
 import gda.device.ScannableMotionUnits;
 import gda.device.enumpositioner.DummyEnumPositioner;
 import gda.device.scannable.DummyScannable;
@@ -111,11 +111,22 @@ public class ScannableNexusWrapperTest {
 		assertThat(scannable.getName(), equalTo("newName"));
 	}
 	@Test
-	public void testGetUnit() throws Exception {
+	public void testGetUnit() {
 		assertThat(scannable.getUnit(), is(nullValue()));
 
 		ScannableMotionUnits mockUnitsScannable = mock(ScannableMotionUnits.class);
 		when(mockUnitsScannable.getUserUnits()).thenReturn("mm");
+		IScannable<?> unitsScannable = new ScannableNexusWrapper<>(mockUnitsScannable);
+
+		assertThat(unitsScannable.getUnit(), is(equalTo("mm")));
+	}
+
+	@Test
+	public void testGetUnitMonitor() throws DeviceException {
+		assertThat(scannable.getUnit(), is(nullValue()));
+
+		Monitor mockUnitsScannable = mock(Monitor.class);
+		when(mockUnitsScannable.getUnit()).thenReturn("mm");
 		IScannable<?> unitsScannable = new ScannableNexusWrapper<>(mockUnitsScannable);
 
 		assertThat(unitsScannable.getUnit(), is(equalTo("mm")));
