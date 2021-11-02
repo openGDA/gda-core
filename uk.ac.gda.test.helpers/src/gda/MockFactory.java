@@ -22,6 +22,8 @@ package gda;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
@@ -45,6 +47,11 @@ public class MockFactory {
 		return createMockScannable(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, level, 0.);
 	}
 
+	public static Scannable createMockScannable(String name, String[] inputNames, String[] extraNames, Double[] position) throws DeviceException {
+		final String[] outputFormat = Collections.nCopies(inputNames.length + extraNames.length, "%1.0f").toArray(String[]::new);
+		return createMockScannable(name, inputNames, extraNames, outputFormat, 5, position);
+	}
+
 	public static Scannable createMockScannable(String name, String[] inputNames, String[] extraNames,
 			String[] outputFormat, int level, Object position) throws DeviceException {
 		return createMockScannable(Scannable.class, name, inputNames, extraNames, outputFormat, level, position);
@@ -58,15 +65,13 @@ public class MockFactory {
 
 	public static ScannableMotion createMockScannableMotion(String name, int level) throws DeviceException {
 		// if only one inputname, then set it to the Scannable name
-		return createMockScannableMotion(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, level,
-				0.);
+		return createMockScannableMotion(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, level, 0.0);
 	}
 
 	public static ScannableMotion createMockScannableMotion(String name, String[] inputNames, String[] extraNames,
 			String[] outputFormat, int level, Object position) throws DeviceException {
-		ScannableMotion scn = (ScannableMotion) createMockScannable(ScannableMotion.class, name, inputNames,
+		return (ScannableMotion) createMockScannable(ScannableMotion.class, name, inputNames,
 				extraNames, outputFormat, level, position);
-		return scn;
 	}
 
 	// ScannableMotionUnits
@@ -81,11 +86,26 @@ public class MockFactory {
 				level, 0.);
 	}
 
+	public static ScannableMotionUnits createMockScannableMotionUnits(String name, Object position) throws DeviceException {
+		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, 5, position);
+	}
+
+	public static ScannableMotionUnits createMockScannableMotionUnits(String name, Object position, String units) throws DeviceException {
+		return createMockScannableMotionUnits(name, new String[] { name }, new String[] {}, new String[] { "%1.0f" }, 5, units, position);
+	}
+
 	public static ScannableMotionUnits createMockScannableMotionUnits(String name, String[] inputNames,
 			String[] extraNames, String[] outputFormat, int level, Object position) throws DeviceException {
-		ScannableMotionUnits scn = (ScannableMotionUnits) createMockScannable(ScannableMotionUnits.class, name,
+		return createMockScannableMotionUnits(name, inputNames, extraNames, outputFormat, level, null, position);
+	}
+
+	public static ScannableMotionUnits createMockScannableMotionUnits(String name, String[] inputNames,
+			String[] extraNames, String[] outputFormat, int level, String units, Object position) throws DeviceException {
+		final ScannableMotionUnits scannable = createMockScannable(ScannableMotionUnits.class, name,
 				inputNames, extraNames, outputFormat, level, position);
-		return scn;
+		when(scannable.getUserUnits()).thenReturn(units);
+		when(scannable.getHardwareUnitString()).thenReturn(units);
+		return scannable;
 	}
 
 	// Generic
