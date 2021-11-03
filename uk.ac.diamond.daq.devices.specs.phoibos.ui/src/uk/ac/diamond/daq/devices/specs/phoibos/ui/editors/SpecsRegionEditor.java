@@ -51,6 +51,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.SpecsUiConstants;
 import uk.ac.diamond.daq.devices.specs.phoibos.ui.helpers.SpecsPhoibosRegionEditingWrapper;
+import uk.ac.gda.client.livecontrol.ScannablePositionerControl;
 
 public class SpecsRegionEditor {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsRegionEditor.class);
@@ -124,15 +125,19 @@ public class SpecsRegionEditor {
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(child);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(child);
 
-		Label nameLabel = new Label(child, SWT.NONE);
+		Group regionGroup = new Group(child, SWT.SHADOW_NONE);
+		regionGroup.setLayout(GridLayoutFactory.swtDefaults().numColumns(4).create());
+		regionGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).applyTo(regionGroup);
+
+		Label nameLabel = new Label(regionGroup, SWT.NONE);
 		nameLabel.setText("Region name");
-		nameText = new Text(child, SWT.BORDER);
+		nameText = new Text(regionGroup, SWT.BORDER);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(nameText);
 
-
-		Label acquisitionModeLabel = new Label(child, SWT.NONE);
+		Label acquisitionModeLabel = new Label(regionGroup, SWT.NONE);
 		acquisitionModeLabel.setText("Acquisition mode");
-		acquisitionModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
+		acquisitionModeCombo = new ComboViewer(regionGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
 		// Remove the modes which we don't support yet
 		List<String> acquisitionsModes = new ArrayList<>(analyser.getAcquisitionModes());
 		acquisitionsModes.remove("Fixed Retarding Ratio");
@@ -142,16 +147,16 @@ public class SpecsRegionEditor {
 				.applyTo(acquisitionModeCombo.getControl());
 		disableMouseWheel(acquisitionModeCombo.getCombo());
 
-		Label lensModeLabel = new Label(child, SWT.NONE);
+		Label lensModeLabel = new Label(regionGroup, SWT.NONE);
 		lensModeLabel.setText("Lens mode");
-		lensModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
+		lensModeCombo = new ComboViewer(regionGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
 		lensModeCombo.add(analyser.getLensModes().toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(lensModeCombo.getControl());
 		disableMouseWheel(lensModeCombo.getCombo());
 
-		Label psuModeLabel = new Label(child, SWT.NONE);
+		Label psuModeLabel = new Label(regionGroup, SWT.NONE);
 		psuModeLabel.setText("PSU mode");
-		psuModeCombo = new ComboViewer(child, SWT.DROP_DOWN | SWT.READ_ONLY);
+		psuModeCombo = new ComboViewer(regionGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
 		psuModeCombo.add(analyser.getPsuModes().toArray(new String[] {}));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(psuModeCombo.getControl());
 		disableMouseWheel(psuModeCombo.getCombo());
@@ -206,12 +211,44 @@ public class SpecsRegionEditor {
 
 		energyModeGroup.layout(true);
 
+		Group regionGroup2 = new Group(child, SWT.SHADOW_NONE);
+		regionGroup2.setLayout(GridLayoutFactory.swtDefaults().numColumns(4).create());
+		regionGroup2.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).span(2, 1).applyTo(regionGroup2);
+
+		Label exposureTimeLabel = new Label(regionGroup2, SWT.NONE);
+		exposureTimeLabel.setText("Exposure time (sec)");
+		exposureTimeText = new Text(regionGroup2, SWT.BORDER);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(exposureTimeText);
+
+		Label iterationsLabel = new Label(regionGroup2, SWT.NONE);
+		iterationsLabel.setText("Iterations");
+		iterationsSpinner = new Spinner(regionGroup2, SWT.BORDER);
+		iterationsSpinner.setMinimum(1);
+		iterationsSpinner.setMaximum(1000); // This is arbitrary but not expecting more that 1000 needed.
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(iterationsSpinner);
+		disableMouseWheel(iterationsSpinner);
+
+		Label slicesLabel = new Label(regionGroup2, SWT.NONE);
+		slicesLabel.setText("Slices");
+		slicesSpinner = new Spinner(regionGroup2, SWT.BORDER);
+		slicesSpinner.setMinimum(1);
+		slicesSpinner.setMaximum(1000); // Should be the detector width in Y, for now hard code to 1000.
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(slicesSpinner);
+		disableMouseWheel(slicesSpinner);
+
+		Label estimatedTimeLabel = new Label(regionGroup2, SWT.NONE);
+		estimatedTimeLabel.setText("Estimated time");
+		estimatedTimeText = new Text(regionGroup2, SWT.NONE);
+		estimatedTimeText.setEditable(false);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(estimatedTimeText);
+
 		if (analyser.hasAnyConfigurableScannables()) {
 			Group configurableScannablesGroup = new Group(child, SWT.SHADOW_NONE);
-			configurableScannablesGroup.setLayout(GridLayoutFactory.swtDefaults().numColumns(2).create());
+			configurableScannablesGroup.setLayout(GridLayoutFactory.swtDefaults().numColumns(6).create());
 			configurableScannablesGroup.setText("Configurable Scannables");
 			configurableScannablesGroup.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
-			GridDataFactory.swtDefaults().span(2, 1).grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(configurableScannablesGroup);
+			GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(configurableScannablesGroup);
 
 			if (analyser.hasConfigurablePhotonEnergyScannable()) {
 				createConfigurableScannableEditControls(configurableScannablesGroup, analyser.getConfigurablePhotonEnergyScannableInfo());
@@ -223,33 +260,6 @@ public class SpecsRegionEditor {
 
 			configurableScannablesGroup.layout(true);
 		}
-
-		Label exposureTimeLabel = new Label(child, SWT.NONE);
-		exposureTimeLabel.setText("Exposure time (sec)");
-		exposureTimeText = new Text(child, SWT.BORDER);
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(exposureTimeText);
-
-		Label iterationsLabel = new Label(child, SWT.NONE);
-		iterationsLabel.setText("Iterations");
-		iterationsSpinner = new Spinner(child, SWT.BORDER);
-		iterationsSpinner.setMinimum(1);
-		iterationsSpinner.setMaximum(1000); // This is arbitrary but not expecting more that 1000 needed.
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(iterationsSpinner);
-		disableMouseWheel(iterationsSpinner);
-
-		Label slicesLabel = new Label(child, SWT.NONE);
-		slicesLabel.setText("Slices");
-		slicesSpinner = new Spinner(child, SWT.BORDER);
-		slicesSpinner.setMinimum(1);
-		slicesSpinner.setMaximum(1000); // Should be the detector width in Y, for now hard code to 1000.
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(slicesSpinner);
-		disableMouseWheel(slicesSpinner);
-
-		Label estimatedTimeLabel = new Label(child, SWT.NONE);
-		estimatedTimeLabel.setText("Estimated time");
-		estimatedTimeText = new Text(child, SWT.NONE);
-		estimatedTimeText.setEditable(false);
-		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(estimatedTimeText);
 
 		// Set the child as the scrolled content of the ScrolledComposite
 		scrollComp.setContent(child);
@@ -267,9 +277,21 @@ public class SpecsRegionEditor {
 	}
 
 	private void createConfigurableScannableEditControls(Group group, SpecsPhoibosConfigurableScannableInfo configurableScannableInfo) {
+
 		Button checkbox = new Button(group, SWT.CHECK);
 		checkbox.setText(configurableScannableInfo.getScannableDescription());
+
+		ScannablePositionerControl scannablePositionerControl = new ScannablePositionerControl();
+		scannablePositionerControl.setScannableName(configurableScannableInfo.getScannableName());
+		scannablePositionerControl.setDisplayName("");
+		scannablePositionerControl.setReadOnly(true);
+		scannablePositionerControl.setShowIncrement(false);
+		scannablePositionerControl.setShowStop(false);
+		scannablePositionerControl.setHorizontalLayout(true);
+		scannablePositionerControl.createControl(group);
+
 		Text textBox = new Text(group, SWT.BORDER);
+		textBox.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.FILL).applyTo(textBox);
 
 		scannableValueTextBoxes.put(configurableScannableInfo.getScannableName(), textBox);
