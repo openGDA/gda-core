@@ -73,6 +73,7 @@
 	</xsd:complexType>
 
 	<xsd:element name="motor" type="motorType" />
+	<xsd:element name="imotor" type="motorType" />
 
 	<xsd:complexType name="monitorType">
 		<xsd:annotation>

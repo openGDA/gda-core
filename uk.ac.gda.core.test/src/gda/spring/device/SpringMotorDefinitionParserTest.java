@@ -401,7 +401,7 @@ public class SpringMotorDefinitionParserTest {
 		when(LocalProperties.get(eq("gda.mode"))).thenReturn(mode);
 		when(LocalProperties.get(eq(DEFAULT_DUMMY_MOTOR_PROPERTY))).thenReturn(dummy);
 		when(LocalProperties.get(eq(DEFAULT_LIVE_MOTOR_PROPERTY))).thenReturn(live);
-		parser = new SpringMotorDefinitionParser();
+		parser = new SpringMotorDefinitionParser(false);
 	}
 
 	private MotorMatcher matchesMotor(String name, String motorName) {

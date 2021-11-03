@@ -40,7 +40,8 @@ public class GdaNamespaceHandler extends NamespaceHandlerSupport {
 		registerBeanDefinitionParser("export", remoting::exportBean);
 		registerBeanDefinitionParser("import", remoting::importBean);
 
-		registerBeanDefinitionParser("motor", new SpringMotorDefinitionParser());
+		registerBeanDefinitionParser("motor", new SpringMotorDefinitionParser(false));
+		registerBeanDefinitionParser("imotor", new SpringMotorDefinitionParser(true));
 		registerBeanDefinitionParser("monitor", new SpringMonitorDefinitionParser());
 
 		registerBeanDefinitionParser("allOfType", new BeansOfTypeParser());
