@@ -33,7 +33,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
@@ -73,7 +72,7 @@ import uk.ac.gda.api.scan.IScanObject;
  *
  * @param <N>
  */
-public abstract class AbstractScannableNexusDevice<N extends NXobject> extends AbstractNexusDeviceAdapter<N> implements IMultipleNexusDevice {
+public abstract class AbstractScannableNexusDevice<N extends NXobject> extends AbstractNexusDeviceAdapter<N> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScannableNexusDevice.class);
 

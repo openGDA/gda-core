@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -49,7 +48,7 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
  * @author Matthew Gerring
  * @author Matthew Dickie
  */
-public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N>, IMultipleNexusDevice {
+public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable<Object> implements INexusDevice<N> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableNexusWrapper.class);
 

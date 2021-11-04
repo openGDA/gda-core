@@ -19,12 +19,10 @@
 package gda.data.scan.nexus.device;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
-import org.eclipse.dawnsci.nexus.IMultipleNexusDevice;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NXobject;
@@ -122,12 +120,10 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 	@Override
 	public List<NexusObjectProvider<?>> getNexusProviders(NexusScanInfo info) throws NexusException {
 		final Scannable scannable = getScannable();
-		if (scannable instanceof IMultipleNexusDevice) {
-			return ((IMultipleNexusDevice)scannable).getNexusProviders(info);
-		} else if (scannable instanceof INexusDevice) {
+		if (scannable instanceof INexusDevice) {
 			@SuppressWarnings("unchecked")
 			final INexusDevice<N> nexusDevice = (INexusDevice<N>) getScannable();
-			return Arrays.asList(nexusDevice.getNexusProvider(info));
+			return nexusDevice.getNexusProviders(info);
 		}
 
 		// create the DataNodes for the inputNames, extraNames and demand value if applicable
