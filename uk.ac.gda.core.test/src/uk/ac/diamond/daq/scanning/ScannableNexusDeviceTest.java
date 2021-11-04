@@ -18,13 +18,13 @@
 
 package uk.ac.diamond.daq.scanning;
 
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_UNITS;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_VALUE_SET;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_UNITS;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_VALUE_SET;
 import static org.eclipse.dawnsci.nexus.NexusBaseClass.NX_POSITIONER;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
 import static org.hamcrest.CoreMatchers.is;
@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
@@ -65,7 +66,9 @@ import org.junit.Test;
 import com.google.common.collect.Iterables;
 
 import gda.data.ServiceHolder;
-import gda.data.scan.nexus.device.ScannableNexusDevice;
+import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
+import gda.data.scan.nexus.device.ConfiguredScannableNexusDevice;
+import gda.data.scan.nexus.device.DefaultScannableNexusDevice;
 import gda.data.scan.nexus.device.ScannableNexusDeviceConfiguration;
 import gda.data.scan.nexus.device.ScannableNexusDeviceConfigurationRegistry;
 import gda.device.DeviceException;
@@ -78,7 +81,7 @@ public class ScannableNexusDeviceTest {
 	private static final String SCANNABLE_NAME = "s1";
 	private static final String EXPECTED_UNITS = "nm";
 
-	private ScannableNexusDevice<?> scannableNexusDevice = null;
+	private AbstractScannableNexusDevice<?> scannableNexusDevice = null;
 
 	private Scannable scannable;
 
@@ -92,9 +95,15 @@ public class ScannableNexusDeviceTest {
 		new ServiceHolder().setScannableNexusDeviceConfigurationRegistry(new ScannableNexusDeviceConfigurationRegistry());
 	}
 
-	private ScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
+	private DefaultScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
 		scannable = createScannable(numInputNames, numExtraNames);
-		return new ScannableNexusDevice<>(scannable);
+		return new DefaultScannableNexusDevice<>(scannable, true);
+	}
+
+	private AbstractScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames,
+			ScannableNexusDeviceConfiguration config) throws DeviceException {
+		scannable = createScannable(numInputNames, numExtraNames);
+		return new ConfiguredScannableNexusDevice<>(scannable, config);
 	}
 
 	private ScannableMotionUnits createScannable(int numInputNames, int numExtraNames)
@@ -282,8 +291,6 @@ public class ScannableNexusDeviceTest {
 
 	@Test
 	public void testGetNexusProvider_withConfiguration() throws Exception {
-		scannableNexusDevice = createScannableNexusDevice(3, 2);
-
 		final ScannableNexusDeviceConfiguration config = new ScannableNexusDeviceConfiguration();
 		config.setScannableName(SCANNABLE_NAME);
 		config.setNexusCategory(NexusBaseClass.NX_SAMPLE);
@@ -302,6 +309,8 @@ public class ScannableNexusDeviceTest {
 		config.setUnits(units);
 		config.register();
 
+		scannableNexusDevice = createScannableNexusDevice(3, 2, config);
+
 		final NexusScanInfo scanInfo = new NexusScanInfo(List.of(SCANNABLE_NAME));
 		final List<NexusObjectProvider<?>> nexusObjectProviders = scannableNexusDevice.getNexusProviders(scanInfo);
 		assertThat(nexusObjectProviders.size(), is(1));
@@ -311,11 +320,9 @@ public class ScannableNexusDeviceTest {
 		assertThat(nexusObjectProvider.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
 		assertThat(nexusObjectProvider.getCategory(), is(NexusBaseClass.NX_SAMPLE));
 		assertThat(nexusObjectProvider.getCollectionName(), is(equalTo(COLLECTION_NAME)));
-		final String[] expectedAxisDataFieldNames = Stream.concat(
-				Arrays.stream(outputFieldPaths).limit(scannable.getInputNames().length),
-				Stream.of(FIELD_NAME_VALUE_SET)).toArray(String[]::new);
+		final String[] expectedAxisDataFieldNames = ArrayUtils.subarray(outputFieldPaths, 0, inputNames.length);
 		assertThat(nexusObjectProvider.getAxisDataFieldNames(), contains(expectedAxisDataFieldNames));
-		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(FIELD_NAME_VALUE_SET)));
+		assertThat(nexusObjectProvider.getDefaultAxisDataFieldName(), is(equalTo(outputFieldPaths[0])));
 
 		final NXcollection nexusObject = (NXcollection) nexusObjectProvider.getNexusObject();
 		assertThat(nexusObject, notNullValue());

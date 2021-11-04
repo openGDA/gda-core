@@ -28,6 +28,7 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceAdapterFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -113,9 +114,16 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 
 		@Override
 		public <N extends NXobject> INexusDevice<N> createNexusDevice(Scannable device) throws NexusException {
-			final ScannableNexusDevice<N> nexusDevice = new ScannableNexusDevice<N>(device);
-			nexusDevice.setWriteDemandValue(false);
-			return nexusDevice;
+			final ScannableNexusDeviceConfiguration config = getScannableNexusDeviceConfiguration(device.getName());
+			return config != null ? new ConfiguredScannableNexusDevice<>(device, config) :
+				new DefaultScannableNexusDevice<>(device);
+		}
+
+		private ScannableNexusDeviceConfiguration getScannableNexusDeviceConfiguration(String deviceName) {
+			if (ServiceHolder.getScannableNexusDeviceConfigurationRegistry() != null) {
+				return ServiceHolder.getScannableNexusDeviceConfigurationRegistry().getScannableNexusDeviceConfiguration(deviceName);
+			}
+			return null;
 		}
 
 	}
@@ -151,15 +159,15 @@ public class GDANexusDeviceAdapterFactory implements INexusDeviceAdapterFactory<
 		if (device instanceof INexusDevice<?>) {
 			return (INexusDevice<N>) device;
 		}
+
 		for (INexusDeviceAdapterFactory<? extends Scannable> adapterFactory : adapterFactories) {
 			if (adapterFactory.canAdapt(device)) {
 				return ((INexusDeviceAdapterFactory<Scannable>)adapterFactory).createNexusDevice(device);
 			}
 		}
 
-		final ScannableNexusDevice<N> nexusWrapper = new ScannableNexusDevice<>(device);
-		nexusWrapper.setWriteDemandValue(false);
-		return nexusWrapper;
+		// this line cannot be reached, the configured adapters support all Scannables
+		throw new IllegalArgumentException("Cannot create an INexusDevice for scannable: " + device.getName());
 	}
 
 }
