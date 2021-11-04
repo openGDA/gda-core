@@ -45,6 +45,10 @@ public enum ClientImages {
 	TRIANGLE_DOWN(ClientImagesGroup.GENERAL, "triangle-down-16.png"),
 	TRIANGLE_UP(ClientImagesGroup.GENERAL, "triangle-up-16.png"),
 	EXCLAMATION_RED(ClientImagesGroup.GENERAL, "exclamation-red.png"),
+	LOCK(ClientImagesGroup.GENERAL, "lock.png"),
+	UNLOCK(ClientImagesGroup.GENERAL, "lock-unlock.png"),
+	EXPAND(ClientImagesGroup.GENERAL, "arrow-out.png"),
+	AUTOSCALE(ClientImagesGroup.GENERAL, "AutoScale.png"),
 
 	// --- MAPPING IMAGES ---
 	CENTERED_RECTAGLE(ClientImagesGroup.GENERAL, "centred_rectangle.png"),
