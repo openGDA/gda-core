@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 
 public class NXObjectProvider<T extends NXobject> implements NexusObjectProvider<T> {
@@ -59,6 +60,11 @@ public class NXObjectProvider<T extends NXobject> implements NexusObjectProvider
 
 	@Override
 	public String getCollectionName() {
+		return null;
+	}
+
+	@Override
+	public ScanRole getScanRole() {
 		return null;
 	}
 
