@@ -88,7 +88,7 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 						name),
 					cause);
 		} catch (InterruptedException e) {
-			logger.warn("Interrupted while waiting for point %d %s position computation to complete", point.getCurrentPointNumber(), name, e);
+			logger.warn("Interrupted while waiting for point {} {} position computation to complete", point.getCurrentPointNumber(), name, e);
 			throw e;
 		}
 	}

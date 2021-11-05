@@ -196,9 +196,10 @@ else
     echo_if_not_in_remote_startup -e "${options_text}"
 
     GDA_TARGET_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_server_target_launch.sh)
-    bashlog debug "gda_servers_core" "Calling ${GDA_TARGET_SCRIPT}  ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
+    bashlog debug "gda_servers_core" "Calling 
+    ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS}"
     ${GDA_TARGET_SCRIPT} ${GDA_OPERATION} ${DEBUG} ${GDA_ARGS} >> ${GDA_LOG_FILE}  2>&1
-
+    # Above two line should match, apart from the part from the closing quote at the end of the first line
 fi
 
 # The next section is entered under 3 circumstances:

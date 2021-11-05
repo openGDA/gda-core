@@ -53,7 +53,7 @@ public class PositionControlComposite extends Composite {
 	/**
 	 * Width of {@link #positionText}
 	 */
-	private static final int TEXT_WIDTH = 70;
+	private static final int TEXT_WIDTH = 40;
 
 	/**
 	 * Text box to edit the position
@@ -70,7 +70,7 @@ public class PositionControlComposite extends Composite {
 		super(parent, style);
 		Objects.requireNonNull(positionControlPoint, "Position control point must not be null");
 		this.positionControlPoint = positionControlPoint;
-		GridLayoutFactory.swtDefaults().applyTo(this);
+		GridLayoutFactory.swtDefaults().spacing(1,1).applyTo(this);
 
 		dataBindingContext = new DataBindingContext();
 		positionReadbackBinding = new PositionControlBinding();

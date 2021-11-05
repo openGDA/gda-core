@@ -65,13 +65,17 @@ public class SingleFileProcessingRequest extends AbstractScanHook implements Pro
 		}
 	}
 
+	public String getProcessingFile() {
+		return configurationFilePath;
+	}
+
 	/** Set the (possibly relative) path to the processing configuration file */
 	public void setProcessingFile(String path) {
 		configurationFilePath = path;
 	}
 
 	/** Get the absolute path of the configuration file, taking into account the relative base */
-	private String getPath() {
+	public String getPath() {
 		String base = InterfaceProvider.getPathConstructor().createFromTemplate(relativePathBase);
 		return Paths.get(base).resolve(configurationFilePath).toString();
 	}
