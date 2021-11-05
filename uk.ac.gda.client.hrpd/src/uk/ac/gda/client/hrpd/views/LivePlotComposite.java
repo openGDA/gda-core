@@ -20,7 +20,9 @@ package uk.ac.gda.client.hrpd.views;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -41,8 +43,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
-import org.javatuples.Quartet;
-import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
  * <li>view name is configurable using <code>setPlotName(String)</code> method;</li>
  * <li>X-axis limits are configurable using <code>setxAxisMin(double)</code> (defualt 0.0) and
  * <code>setxAxisMax(double)</code> (default 150.0);</li>
- * <li><b>MUST</b>specify live traces using <code>setLiveDataListeners(List)</code> list of {@link Triplet} of {@link String} trace name,
+ * <li><b>MUST</b>specify live traces using <code>setLiveDataListeners(List)</code> list of {@link EpicsLivePlotViewConfiguration} of {@link String} trace name,
  * {@link EpicsDoubleDataArrayListener} x dataset, and {@link EpicsDoubleDataArrayListener} y dataset;</li>
  * <li><b>MUST</b> specify live plot update control using <code>setDataUpdatedListener(EpicsIntegerDataListener)</code>;</li>
  * <li>Specify <b>OPTIONAL</b> reduced dataset using <code>setFinalDataListener(Triplet)</code> of
@@ -97,10 +97,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private double xAxisMin = 0.000;
 	private double xAxisMax = 150.000;
 
-	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
+	private List<EpicsLivePlotViewConfiguration> liveDataListeners = new ArrayList<>();
 	private EpicsIntegerDataListener dataUpdatedListener;
 
-	private Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener;
+	private List<EpicsDoubleDataArrayListener> finalDataListener;
 	private EpicsEnumDataListener detectorStateListener;
 	private String detectorStateToPlotReducedData;
 	private String detectorStateToRunProgressService;
@@ -235,10 +235,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 				@Override
 				public void run() {
 					plottingSystem.clear();
-					for (Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> item : getLiveDataListeners()) {
-						ILineTrace trace = plottingSystem.createLineTrace(item.getValue0());
+					for (var item : getLiveDataListeners()) {
+						ILineTrace trace = plottingSystem.createLineTrace(item.getTraceName());
 						plottingSystem.addTrace(trace);
-						dataDisplayers.add(Quartet.with(item.getValue0(), item.getValue1(), item.getValue2(), trace));
+						dataDisplayers.put(new EpicsLivePlotViewConfiguration(item.getTraceName(), item.getX(), item.getY()), trace);
 					}
 					try {
 						long scanNumber=new NumTracker("i11").getCurrentFileNumber();
@@ -252,7 +252,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 			});
 		}
 	}
-	private List<Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace>> dataDisplayers = new ArrayList<Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace>>();
+	private Map<EpicsLivePlotViewConfiguration, ILineTrace> dataDisplayers = new HashMap<>();
 	private String datafilename;
 
 	private void updateLivePlot() {
@@ -263,11 +263,11 @@ public class LivePlotComposite extends Composite implements IObserver {
 				public void run() {
 					boolean visible = LivePlotComposite.this.isVisible();
 					if (visible) {
-						for (Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace> listener : dataDisplayers) {
-							String traceName = listener.getValue0();
-							EpicsDoubleDataArrayListener x = listener.getValue1();
-							EpicsDoubleDataArrayListener y = listener.getValue2();
-							ILineTrace trace = listener.getValue3();
+						for (var listener : dataDisplayers.entrySet()) {
+							String traceName = listener.getKey().getTraceName();
+							EpicsDoubleDataArrayListener x = listener.getKey().getX();
+							EpicsDoubleDataArrayListener y = listener.getKey().getY();
+							ILineTrace trace = listener.getValue();
 							if (traceName.equalsIgnoreCase("mac1")) {
 								trace.setData(DatasetFactory.createFromObject(x.getValue()).getSlice(new int[] { getLowDataBound() },
 										new int[] { getHighDataBound() }, null).flatten(),
@@ -295,9 +295,9 @@ public class LivePlotComposite extends Composite implements IObserver {
 					boolean visible = LivePlotComposite.this.isVisible();
 					if (visible) {
 						plottingSystem.clear();
-						Dataset x = DatasetFactory.createFromObject(getFinalDataListener().getValue0().getValue());
-						Dataset y = DatasetFactory.createFromObject(getFinalDataListener().getValue1().getValue());
-						// Dataset error = DatasetFactory.createFromObject(getFinalDataListener().getValue2().getValue());
+						Dataset x = DatasetFactory.createFromObject(getFinalDataListener().get(0).getValue());
+						Dataset y = DatasetFactory.createFromObject(getFinalDataListener().get(1).getValue());
+						// Dataset error = DatasetFactory.createFromObject(getFinalDataListener().get(2).getValue());
 //						y.setError(error);
 						x.setName("tth (deg)");
 						y.setName(datafilename);
@@ -401,12 +401,11 @@ public class LivePlotComposite extends Composite implements IObserver {
 		this.dataFilenameObserverName = dataFilenameObserverName;
 	}
 
-	public List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> getLiveDataListeners() {
+	public List<EpicsLivePlotViewConfiguration> getLiveDataListeners() {
 		return liveDataListeners;
 	}
 
-	public void setLiveDataListeners(
-			List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners) {
+	public void setLiveDataListeners(List<EpicsLivePlotViewConfiguration> liveDataListeners) {
 		this.liveDataListeners = liveDataListeners;
 	}
 
@@ -426,11 +425,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 		this.highDataBound = highDataBound;
 	}
 
-	public void setFinalDataListener(
-			Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener) {
+	public void setFinalDataListener(List<EpicsDoubleDataArrayListener> finalDataListener) {
 		this.finalDataListener = finalDataListener;
 	}
-	public Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> getFinalDataListener() {
+	public List<EpicsDoubleDataArrayListener> getFinalDataListener() {
 		return finalDataListener;
 	}
 

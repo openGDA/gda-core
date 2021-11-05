@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.hrpd.viewfactories;
 
-import gda.device.Scannable;
-import gda.rcp.views.FindableExecutableExtension;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,24 +25,26 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.ExtensionFactory;
-import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Scannable;
+import gda.rcp.views.FindableExecutableExtension;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
 import uk.ac.gda.client.hrpd.views.LivePlotView;
+import uk.ac.gda.client.hrpd.views.EpicsLivePlotViewConfiguration;
 /**
- * a factory for creating a {@link LivePlotView} instance. 
- * 
+ * a factory for creating a {@link LivePlotView} instance.
+ *
  * an instance of this class can be configured in a Spring bean and contribute to {@link org.eclipse.ui.views} extension-point
  * before workbench itself has started (which required for a view component) using eclipse's {@link ExtensionFactory} mechanism.
- * 
- * Its sole purpose is to deliver the actual view after the eclipse workbench has started and hold the Spring configuration 
+ *
+ * Its sole purpose is to deliver the actual view after the eclipse workbench has started and hold the Spring configuration
  * properties for the actual view to be created.
- *  
+ *
  * <p>
  * Example of Spring configuration:
  * <pre>
@@ -106,7 +105,7 @@ import uk.ac.gda.client.hrpd.views.LivePlotView;
 	}
  *</pre>
  *</p>
- * @see LivePlotView 
+ * @see LivePlotView
  */
 public class LivePlotViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(LivePlotViewFactory.class);
@@ -114,10 +113,10 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	private double xAxisMin=0.000;
 	private double xAxisMax=150.000;
 
-	private List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners = new ArrayList<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>>();
+	private List<EpicsLivePlotViewConfiguration> liveDataListeners = new ArrayList<>();
 	private EpicsIntegerDataListener dataUpdatedListener;
 
-	private Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener;
+	private List<EpicsDoubleDataArrayListener> finalDataListener;
 	private EpicsEnumDataListener detectorStateListener;
 	private String detectorStateToPlotReducedData;
 	private String detectorStateToRunProgressService;
@@ -128,12 +127,12 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	private int highDataBound;
 
 	private String name;
-	
+
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
 	private String taskName;
-	private Scannable stopScannable;	
+	private Scannable stopScannable;
 
 	@Override
 	public void setName(String name) {
@@ -167,7 +166,7 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		liveplotview.setMessageListener(getMessageListener());
 		liveplotview.setTaskName(getTaskName());
 		liveplotview.setStopScannable(getStopScannable());
-		
+
 		return liveplotview;
 	}
 
@@ -188,7 +187,7 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 			throw new IllegalArgumentException("trigger for data plotting cannot be null.");
 		}
 	}
-	
+
 	public String getPlotName() {
 		return plotName;
 	}
@@ -213,12 +212,11 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		this.xAxisMax = xAxisMax;
 	}
 
-	public List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> getLiveDataListeners() {
+	public List<EpicsLivePlotViewConfiguration> getLiveDataListeners() {
 		return liveDataListeners;
 	}
 
-	public void setLiveDataListeners(
-			List<Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener>> liveDataListeners) {
+	public void setLiveDataListeners(List<EpicsLivePlotViewConfiguration> liveDataListeners) {
 		this.liveDataListeners = liveDataListeners;
 	}
 
@@ -230,11 +228,11 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		this.dataUpdatedListener = dataUpdatedListener;
 	}
 
-	public Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> getFinalDataListener() {
+	public List<EpicsDoubleDataArrayListener> getFinalDataListener() {
 		return finalDataListener;
 	}
 
-	public void setFinalDataListener(Triplet<EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> finalDataListener) {
+	public void setFinalDataListener(List<EpicsDoubleDataArrayListener> finalDataListener) {
 		this.finalDataListener = finalDataListener;
 	}
 
