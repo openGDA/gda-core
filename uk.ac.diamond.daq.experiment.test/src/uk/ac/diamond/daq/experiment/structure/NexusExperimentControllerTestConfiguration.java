@@ -36,15 +36,7 @@ import org.springframework.context.annotation.FilterType;
 						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
 								value = NodeFileRequesterService.class),
 						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-								value = ExperimentTreeCache.class),
-						// As the class below is annotated with @ComponentScan AND lives in a package
-						// scanned by this configuration, it causes NodeFileRequesterService to be loaded
-						// instead of the mock below. Here is the reason to add it here.
-						@ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-								value = ExperimentStructureJobResponder.class)
-
-
-
+								value = ExperimentTreeCache.class)
 						})
 public class NexusExperimentControllerTestConfiguration {
 
@@ -56,10 +48,5 @@ public class NexusExperimentControllerTestConfiguration {
 	@Bean
 	public ExperimentTreeCache experimentTreeCache() {
 		return Mockito.mock(ExperimentTreeCache.class);
-	}
-
-	@Bean
-	public ExperimentStructureJobResponder experimentStructureJobResponder() {
-		return Mockito.mock(ExperimentStructureJobResponder.class);
 	}
 }
