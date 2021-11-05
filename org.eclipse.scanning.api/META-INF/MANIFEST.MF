@@ -43,4 +43,5 @@ Import-Package: javax.jms;version="1.1.0",
  org.slf4j
 Automatic-Module-Name: org.eclipse.scanning.api
 Require-Bundle: org.eclipse.dawnsci.analysis.dataset,
- uk.ac.gda.common.activemq
+ uk.ac.gda.common.activemq,
+ org.eclipse.dawnsci.nexus;bundle-version="1.1.0"

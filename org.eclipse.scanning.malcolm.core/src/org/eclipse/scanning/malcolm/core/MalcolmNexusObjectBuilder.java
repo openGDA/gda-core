@@ -22,7 +22,6 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_C
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +60,6 @@ import org.slf4j.LoggerFactory;
  */
 class MalcolmNexusObjectBuilder {
 
-	private static final Map<MalcolmDatasetType, NexusBaseClass> NEXUS_CLASS_FOR_DATASET_TYPE;
-
 	private static final String PROPERTY_NAME_UNIQUE_KEYS = "uniqueKeys";
 
 	private static final String FIELD_NAME_IMAGE_KEY = "image_key";
@@ -80,17 +77,6 @@ class MalcolmNexusObjectBuilder {
 	private final Map<String, NexusObjectWrapper<NXobject>> nexusWrappers;
 
 	private Map<String, Double> detectorExposureTimes = null;
-
-	static {
-		NEXUS_CLASS_FOR_DATASET_TYPE = new EnumMap<>(MalcolmDatasetType.class);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.PRIMARY, NexusBaseClass.NX_DETECTOR);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.SECONDARY, NexusBaseClass.NX_POSITIONER);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.MONITOR, NexusBaseClass.NX_MONITOR);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_VALUE, NexusBaseClass.NX_POSITIONER);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_SET, NexusBaseClass.NX_POSITIONER);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_MIN, NexusBaseClass.NX_POSITIONER);
-		NEXUS_CLASS_FOR_DATASET_TYPE.put(MalcolmDatasetType.POSITION_MAX, NexusBaseClass.NX_POSITIONER);
-	}
 
 	MalcolmNexusObjectBuilder(AbstractMalcolmDevice malcolmDevice) {
 		this.malcolmDevice = malcolmDevice;
@@ -198,14 +184,14 @@ class MalcolmNexusObjectBuilder {
 	}
 
 	private NexusObjectWrapper<NXobject> getNexusProvider(String deviceName, MalcolmDatasetType datasetType) {
-		final NexusBaseClass nexusBaseClass = NEXUS_CLASS_FOR_DATASET_TYPE.get(datasetType);
+		if (nexusWrappers.containsKey(deviceName)) {
+			return nexusWrappers.get(deviceName);
+		}
+
+		final NexusBaseClass nexusBaseClass = datasetType.getNexusBaseClass();
 		if (nexusBaseClass == null) {
 			logger.warn("Unknown malcolm dataset type: {}", datasetType);
 			return null;
-		}
-
-		if (nexusWrappers.containsKey(deviceName)) {
-			return nexusWrappers.get(deviceName);
 		}
 
 		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
@@ -217,6 +203,7 @@ class MalcolmNexusObjectBuilder {
 		}
 
 		final NexusObjectWrapper<NXobject> nexusWrapper = new NexusObjectWrapper<>(deviceName, nexusObject);
+		nexusWrapper.setScanRole(datasetType.getScanRole().toNexusScanRole());
 		nexusWrappers.put(deviceName, nexusWrapper);
 
 		return nexusWrapper;

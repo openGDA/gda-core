@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
-import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
@@ -33,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -261,12 +259,10 @@ public class NexusScanFileManager {
 
 	private NexusScanModel createNexusScanModel(ScanModel scanModel) throws ScanningException {
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = extractNexusDevices(scanModel);
-		final Optional<IMalcolmDevice> malcolmDevice = getMalcolmDevice(scanModel);
 
 		final NexusScanModel nexusScanModel = new NexusScanModel(nexusDevices);
 		nexusScanModel.setEntryName(getEntryName());
 		nexusScanModel.setFilePath(scanModel.getFilePath());
-		nexusScanModel.setMultipleNexusDevice(malcolmDevice.map(INexusDevice.class::cast));
 		nexusScanModel.setTemplateFilePaths(scanModel.getTemplateFilePaths().stream().map(this::getAbsoluteFilePath).collect(toSet()));
 		nexusScanModel.setNexusScanInfo(createScanInfo(scanModel));
 		nexusScanModel.setDimensionNamesByIndex(scanModel.getPointGenerator().getDimensionNames());
@@ -323,20 +319,20 @@ public class NexusScanFileManager {
 	}
 
 	protected Map<ScanRole, List<INexusDevice<?>>> extractNexusDevices(ScanModel model) {
-		final Function<Collection<?>, List<INexusDevice<?>>> toNexusDevices =
-				devices -> devices.stream()
-				.filter(INexusDevice.class::isInstance)
-				.filter(not(IMalcolmDevice.class::isInstance))
-				.map(INexusDevice.class::cast).collect(toList());
-
 		final Map<ScanRole, List<INexusDevice<?>>> nexusDevices = new EnumMap<>(ScanRole.class);
-		nexusDevices.put(ScanRole.DETECTOR, toNexusDevices.apply(model.getDetectors()));
-		nexusDevices.put(ScanRole.SCANNABLE, toNexusDevices.apply(model.getScannables()));
-		nexusDevices.put(ScanRole.MONITOR_PER_POINT, toNexusDevices.apply(model.getMonitorsPerPoint()));
-		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, toNexusDevices.apply(model.getMonitorsPerScan()));
-		nexusDevices.put(ScanRole.NONE, toNexusDevices.apply(model.getAdditionalScanObjects()));
+		nexusDevices.put(ScanRole.DETECTOR, extractNexusDevices(model.getDetectors()));
+		nexusDevices.put(ScanRole.SCANNABLE, extractNexusDevices(model.getScannables()));
+		nexusDevices.put(ScanRole.MONITOR_PER_POINT, extractNexusDevices(model.getMonitorsPerPoint()));
+		nexusDevices.put(ScanRole.MONITOR_PER_SCAN, extractNexusDevices(model.getMonitorsPerScan()));
+		nexusDevices.put(ScanRole.NONE, extractNexusDevices(model.getAdditionalScanObjects()));
 
 		return nexusDevices;
+	}
+
+	private List<INexusDevice<?>> extractNexusDevices(Collection<?> devices) {
+		return devices.stream()
+				.filter(INexusDevice.class::isInstance)
+				.map(INexusDevice.class::cast).collect(toList());
 	}
 
 	/**
