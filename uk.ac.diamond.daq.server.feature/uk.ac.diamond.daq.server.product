@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Data Acquisition Server" uid="uk.ac.diamond.daq.server.product" id="uk.ac.diamond.daq.server.product" application="uk.ac.diamond.daq.server.application" version="9.23.0" useFeatures="true" includeLaunchers="true">
+<product name="Data Acquisition Server" uid="uk.ac.diamond.daq.server.product" id="uk.ac.diamond.daq.server.product" application="uk.ac.diamond.daq.server.application" version="9.25.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
