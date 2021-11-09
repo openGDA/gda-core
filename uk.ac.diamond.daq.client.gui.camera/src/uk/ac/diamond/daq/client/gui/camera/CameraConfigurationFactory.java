@@ -97,7 +97,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		Composite menuBar = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
 		createClientGridDataFactory().span(100, 1).applyTo(menuBar);
 		CompositeFactory cf = new StreamControlCompositeFactory(streamController);
-		cf.createComposite(menuBar, SWT.HORIZONTAL);
+		cf.createComposite(menuBar, SWT.NONE);
 
 	    // -- SPLITS VERTIALLY THE CONTAINER --
 		SashForm centralForm = new SashForm(container, SWT.HORIZONTAL);

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,33 +18,19 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import static uk.ac.gda.ui.tool.ClientMessages.CAMERA;
-import static uk.ac.gda.ui.tool.ClientMessages.STAGE_TP;
-import static uk.ac.gda.ui.tool.ClientMessages.START_STREAM;
-import static uk.ac.gda.ui.tool.ClientMessages.STOP_STREAM;
-import static uk.ac.gda.ui.tool.ClientMessages.STREAM;
-import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createCombo;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,157 +39,146 @@ import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.ListeningState;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
+import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
-import uk.ac.gda.client.widgets.SmartCombo;
+import uk.ac.gda.ui.tool.ClientSWTElements;
+import uk.ac.gda.ui.tool.images.ClientImages;
 
-
-/**
- *
- * @author Maurizio Nagni
- */
 public class StreamControlCompositeFactory implements CompositeFactory {
 
-	private Combo cameraCombo;
-	private List<CameraConfigurationProperties> comboItems;
-
-	private SmartCombo<StreamType> streamTypeCombo;
-
-	private Button streamActivationButton;
+	private final Logger logger = LoggerFactory.getLogger(StreamControlCompositeFactory.class);
 
 	private final StreamController streamController;
+	private ComboViewer detector;
+	private ComboViewer streamType;
 
 	public StreamControlCompositeFactory(StreamController streamController) {
-		super();
 		this.streamController = streamController;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(StreamControlCompositeFactory.class);
-
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite container = createClientCompositeWithGridLayout(parent, style, 3);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(container);
+		var composite = new Composite(parent, style);
+		GridLayoutFactory.swtDefaults().numColumns(6).applyTo(composite);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(composite);
 
-		// -- Headers --
-		Label label = createClientLabel(container, SWT.NONE, CAMERA);
-		createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
+		new Label(composite, SWT.NONE).setText("Detector");
+		detector = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		detector.setContentProvider(ArrayContentProvider.getInstance());
+		GridDataFactory.fillDefaults().applyTo(detector.getControl());
 
-		label = createClientLabel(container, SWT.NONE, STREAM);
-		createClientGridDataFactory().indent(5, 2).align(SWT.BEGINNING, SWT.BEGINNING).span(2, 1).applyTo(label);
+		new Label(composite, SWT.NONE).setText("Stream");
+		streamType = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		streamType.setContentProvider(ArrayContentProvider.getInstance());
+		GridDataFactory.fillDefaults().applyTo(streamType.getControl());
 
-		// -- Controls --
-		cameraCombo = createCombo(container, SWT.READ_ONLY, getCameras(),
-				STAGE_TP);
-		createClientGridDataFactory().indent(5, 0).applyTo(cameraCombo);
+		var connect = new Button(composite, SWT.PUSH);
+		connect.setText("Connect");
+		connect.setImage(ClientSWTElements.getImage(ClientImages.START));
+		GridDataFactory.fillDefaults().applyTo(connect);
 
-		streamTypeCombo = new SmartCombo<>(container, style, STAGE_TP, Optional.of(this::changeStreamController));
-		createClientGridDataFactory().indent(5, 0).applyTo(streamTypeCombo);
+		var disconnect = new Button(composite, SWT.PUSH);
+		disconnect.setText("Disconnect");
+		disconnect.setEnabled(false);
+		disconnect.setImage(ClientSWTElements.getImage(ClientImages.STOP));
+		GridDataFactory.fillDefaults().applyTo(disconnect);
 
-		streamActivationButton = createClientButton(container, SWT.NONE, START_STREAM, START_STREAM);
-		createClientGridDataFactory().indent(5, 0).applyTo(streamActivationButton);
-		streamActivationButton.setData(START_STREAM);
-		streamActivationButton.addListener(SWT.Selection, this::changeStreamState);
-		// ---------------------------------
-
-		// initialise composite
-		initialiseComposite(parent);
-
-		// add listeners
-		cameraCombo.addListener(SWT.Selection, this::changeStreamController);
-
-		return container;
-	}
-
-	private List<ImmutablePair<String, StreamType>> streamTypeItems(CameraConfigurationProperties comboItem) {
-		List<ImmutablePair<String, StreamType>> ip = new ArrayList<>();
-		CameraHelper.createICameraConfiguration(comboItem).getCameraConfiguration()
-			.map(CameraConfiguration::cameraStreamTypes)
-			.ifPresent(
-				types -> types.forEach(type -> ip.add(new ImmutablePair<>(type.toString(), type))));
-		return ip;
-	}
-
-	private void initialiseComposite(Composite parent) {
-		// initialises the camera combo
-		cameraCombo.select(0);
-		// initialises the streamType combo
-		streamTypeCombo.populateCombo(streamTypeItems(getSelectedCombo()));
-	}
-
-	private CameraConfigurationProperties getComboByIndex(int index) {
-		return comboItems.get(index);
-	}
-
-	private CameraConfigurationProperties getSelectedCombo() {
-		return getComboByIndex(cameraCombo.getSelectionIndex());
-	}
-
-	private String[] getCameras() {
-		if (comboItems == null) {
-			comboItems = CameraHelper.getAllCameraConfigurationProperties();
+		var cameras = CameraHelper.getAllCameraConfigurationProperties();
+		detector.setInput(CameraHelper.getAllCameraConfigurationProperties());
+		if (!cameras.isEmpty()) {
+			var firstElement = cameras.iterator().next();
+			detector.setSelection(new StructuredSelection(firstElement));
+			updateStreamType(firstElement);
 		}
-		return comboItems.stream()
-				.map(CameraConfigurationProperties::getName)
-				.collect(Collectors.toList())
-				.toArray(new String[0]);
+
+		detector.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				var selected = (CameraConfigurationProperties) element;
+				return selected.getName();
+			}
+		});
+
+		detector.addSelectionChangedListener(selection -> {
+			var selected = (CameraConfigurationProperties) selection.getStructuredSelection().getFirstElement();
+			updateStreamType(selected);
+		});
+
+		streamType.addSelectionChangedListener(selection -> replaceStream());
+
+		connect.addListener(SWT.Selection, selection -> {
+			changeStreamState();
+			connect.setEnabled(false);
+			disconnect.setEnabled(true);
+		});
+
+		disconnect.addListener(SWT.Selection, selection -> {
+			changeStreamState();
+			disconnect.setEnabled(false);
+			connect.setEnabled(true);
+		});
+
+		return composite;
 	}
 
-	private void changeStreamController(Event e) {
-		// Has to publish ChangeActiveCameraEvent when selection change in cameraCombo
+	private void updateStreamType(CameraConfigurationProperties camera) {
+		var configurationOptional = CameraHelper.createICameraConfiguration(camera).getCameraConfiguration();
+		if (configurationOptional.isEmpty()) return;
+		var streams = configurationOptional.get().cameraStreamTypes();
+		streamType.setInput(streams);
+		if (streams.isEmpty()) return;
+		streamType.setSelection(new StructuredSelection(streams.iterator().next()));
+	}
+
+	private void changeStreamState() {
+		try {
+			if (streamController.getState() instanceof ListeningState) {
+				streamController.idle();
+			} else {
+				streamController.listen();
+			}
+		} catch (LiveStreamException e) {
+			Status status = new Status(IStatus.ERROR, "PluginID", "Partial camera configuration");
+			// Display the dialog
+			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Stream Control Error", e.getMessage(),
+					status);
+		}
+	}
+
+	private void replaceStream() {
 		updateStreamController();
 		try {
 			streamController.update();
-		} catch (LiveStreamException ex) {
-			handleException(ex);
-		}
-	}
-
-	private void changeStreamState(Event e) {
-		try {
-			// Is it listening?
-			if (ListeningState.class.isInstance(streamController.getState())) {
-				streamController.idle();
-			} else {
-				// then was idle
-				streamController.listen();
-			}
-		} catch (LiveStreamException ex) {
-			// handleException(ex);
-		}
-		updateStreamActivationButton();
-	}
-
-	private void updateStreamActivationButton() {
-		if (ListeningState.class.isInstance(streamController.getState())) {
-			streamActivationButton.setText(getMessage(STOP_STREAM));
-		} else {
-			streamActivationButton.setText(	getMessage(START_STREAM));
+		} catch (LiveStreamException e) {
+			handleException("Problem replacing stream", e);
 		}
 	}
 
 	private void updateStreamController() {
-		CameraConfigurationProperties selectedItem = getSelectedCombo();
-		// Changes camera
-		if (streamController.getControlData().getCameraConfigurationProperties() != selectedItem) {
-			streamTypeCombo.populateCombo(streamTypeItems(selectedItem));
-		}
-		streamTypeCombo.getSelectedItem().ifPresent(st -> streamController
-				.setControlData(new StreamControlData(selectedItem, st.getValue())));
+		streamController.setControlData(new StreamControlData(getSelectedDetector(), getSelectedStream()));
 	}
 
-	private void handleException(LiveStreamException ex) {
+	private CameraConfigurationProperties getSelectedDetector() {
+		var selection = detector.getStructuredSelection().getFirstElement();
+		return (CameraConfigurationProperties) selection;
+	}
+
+	private void handleException(String message, Exception e) {
 		try {
 			streamController.idle();
-		} catch (LiveStreamException e1) {
-			logger.error("Exception persists", e1);
+		} catch (LiveStreamException persistedException) {
+			logger.error("Error disconnecting stream", persistedException);
 		} finally {
-			Status status = new Status(IStatus.ERROR, "PluginID", "Partial camera configuration");
-			// Display the dialog
-			ErrorDialog.openError(Display.getCurrent().getActiveShell(), "Stream Control Error", ex.getMessage(),
-					status);
+			logger.error(message, e);
+			UIHelper.showError(message, e);
 		}
 	}
+
+	private StreamType getSelectedStream() {
+		var selection = streamType.getStructuredSelection().getFirstElement();
+		return (StreamType) selection;
+	}
+
 }
