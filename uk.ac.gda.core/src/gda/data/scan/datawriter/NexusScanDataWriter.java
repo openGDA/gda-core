@@ -64,7 +64,7 @@ import gda.data.ServiceHolder;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.scan.nexus.device.AbstractDetectorNexusDeviceAdapter;
-import gda.data.scan.nexus.device.ScannableNexusDevice;
+import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.InterfaceProvider;
@@ -413,8 +413,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private INexusDevice<?> createNexusDevice(Scannable device) {
 		final INexusDevice<?> nexusDevice = createNexusDevice(device, true);
-		if (nexusDevice instanceof ScannableNexusDevice<?>) {
-			((ScannableNexusDevice<?>) nexusDevice).setScanObject(getScanObject(device.getName()));
+		if (nexusDevice instanceof AbstractScannableNexusDevice<?>) {
+			((AbstractScannableNexusDevice<?>) nexusDevice).setScanObject(getScanObject(device.getName()));
 		}
 		return nexusDevice;
 	}

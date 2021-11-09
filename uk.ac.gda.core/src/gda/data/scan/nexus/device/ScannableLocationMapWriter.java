@@ -18,7 +18,7 @@
 
 package gda.data.scan.nexus.device;
 
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_UNITS;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_UNITS;
 
 import java.text.MessageFormat;
 
@@ -54,14 +54,14 @@ class ScannableLocationMapWriter<N extends NXobject> implements CustomNexusEntry
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableLocationMapWriter.class);
 
-	private final ScannableNexusDevice<N> scannableNexusDevice;
+	private final AbstractScannableNexusDevice<N> scannableNexusDevice;
 	private final SingleScannableWriter scannableWriter;
 
 	private boolean entryModified = false;
 
 	private NXentry entry = null;
 
-	public ScannableLocationMapWriter(ScannableNexusDevice<N> scannableNexusDevice,
+	public ScannableLocationMapWriter(AbstractScannableNexusDevice<N> scannableNexusDevice,
 			SingleScannableWriter scannableWriter) {
 		this.scannableNexusDevice = scannableNexusDevice;
 		this.scannableWriter = scannableWriter;

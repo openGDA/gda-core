@@ -20,12 +20,12 @@ package gda.data.scan.datawriter;
 
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.ATTR_NAME_UNITS;
-import static gda.data.scan.nexus.device.ScannableNexusDevice.FIELD_NAME_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_FIELD_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_LOCAL_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_UNITS;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_AXES;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_SIGNAL;

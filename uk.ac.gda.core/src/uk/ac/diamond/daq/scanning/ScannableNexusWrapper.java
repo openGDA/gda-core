@@ -25,7 +25,8 @@ import org.eclipse.scanning.api.scan.event.PositionDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.data.scan.nexus.device.ScannableNexusDevice;
+import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
+import gda.data.scan.nexus.device.DefaultScannableNexusDevice;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
@@ -41,7 +42,7 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 /**
  * An instance of this class wraps a {@link Scannable} and adapts to both {@link IScannable} and {@link INexusDevice}.
  * This allows a scannable to be used in a new scanning (a.k.a. solstice scanning) scan and write to the nexus file.
- * The nexus writing delegated to an instanceof {@link ScannableNexusDevice}.
+ * The nexus writing delegated to an instanceof {@link AbstractScannableNexusDevice}.
  *
  * Note that an instance of this class is used only in new scanning.
  *
@@ -62,7 +63,7 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 	/**
 	 * Encapsulates how to creating nexus for this scannable.
 	 */
-	private ScannableNexusDevice<N> scannableNexusDevice;
+	private AbstractScannableNexusDevice<N> scannableNexusDevice;
 
 	private PositionDelegate positionDelegate;
 
@@ -125,9 +126,9 @@ public class ScannableNexusWrapper<N extends NXobject> extends AbstractScannable
 		return getScannableNexusDevice(true).getNexusProviders(info);
 	}
 
-	private ScannableNexusDevice<N> getScannableNexusDevice(boolean create) {
+	private AbstractScannableNexusDevice<N> getScannableNexusDevice(boolean create) {
 		if (scannableNexusDevice == null && create) {
-			scannableNexusDevice = new ScannableNexusDevice<>(getScannable());
+			scannableNexusDevice = new DefaultScannableNexusDevice<>(getScannable(), true);
 		}
 		return scannableNexusDevice;
 	}
