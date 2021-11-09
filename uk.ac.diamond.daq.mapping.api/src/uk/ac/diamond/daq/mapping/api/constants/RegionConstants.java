@@ -33,7 +33,17 @@ public final class RegionConstants {
 	public static final String X_RANGE = "xRange";
 	public static final String Y_RANGE = "yRange";
 
+	public static final int X = 0;
+	public static final int Y = 1;
+
 	public static final String RADIUS = "radius";
+
+	public static final String ORIENTATION = "orientation";
+	public static final String CONSTANT = "constant";
+	public static final String START = "start";
+	public static final String STOP = "stop";
+
+	public static final String CALC_POINTS = "calcPoints";
 
 	private RegionConstants() {
 		// prevent instantiation

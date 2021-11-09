@@ -18,8 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.region;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CONSTANT;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.ORIENTATION;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.START;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.STOP;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.X;
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.Y;
+
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -34,7 +39,7 @@ import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 /**
  * A line region that snaps to horizontal or vertical.
  */
-public class SnappedLineMappingRegion implements ILineMappingRegion {
+public class SnappedLineMappingRegion extends DefaultCoordinatePCSRegion implements ILineMappingRegion {
 	private static final Logger logger = LoggerFactory.getLogger(SnappedLineMappingRegion.class);
 
 	private enum Orientation {
@@ -44,15 +49,25 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 
 	private Orientation orientation = Orientation.HORIZONTAL;
 
-	private double start = 0;
-	private double stop = 1;
-	private double constant = 0;
-
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	public SnappedLineMappingRegion() {
+		super(Map.of(START, 0.0, STOP, 1.0, CONSTANT, 0.0));
+	}
 
 	@Override
 	public String getName() {
 		return "Snapped Line";
+	}
+
+	private double getStart() {
+		return coordinates.get(START);
+	}
+
+	private double getStop() {
+		return coordinates.get(STOP);
+	}
+
+	private double getConstant() {
+		return coordinates.get(CONSTANT);
 	}
 
 	@Override
@@ -82,68 +97,44 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 
 		LinearROI roi = (LinearROI) newROI;
 
-		// First save the old values
+		// First save the old orientation value
 		Orientation oldOrientation = orientation;
-		double oldConstantAxis = constant;
-		double oldStart = start;
-		double oldStop = stop;
-
-		// update the roi, snapping the line to the vertical/horizontal axis only
-		// by setting the shortest axis to have 0 size
-		double xStart = roi.getPoint()[0];
-		double xStop = roi.getEndPoint()[0];
-		double yStart = roi.getPoint()[1];
-		double yStop = roi.getEndPoint()[1];
-
-		if (Math.abs(xStop - xStart) > Math.abs(yStop - yStart)) {
+		if (Math.abs(roi.getEndPoint()[X] - roi.getPoint()[X]) > Math.abs(roi.getEndPoint()[Y] - roi.getPoint()[Y])) {
 			orientation = Orientation.HORIZONTAL;
-			constant = yStart;
-			start = xStart;
-			stop = xStop;
-			roi.setEndPoint(xStop, constant);
+			roi.setEndPoint(roi.getEndPoint()[X], roi.getPoint()[Y]);
+			updatePropertyValuesAndFire(Map.of(
+					START, roi.getPoint()[X],
+					STOP, roi.getEndPoint()[X],
+					CONSTANT, roi.getPoint()[Y]));
 		} else {
 			orientation = Orientation.VERTICAL;
-			constant = xStart;
-			start = yStart;
-			stop = yStop;
-			roi.setEndPoint(constant, yStop);
+			roi.setEndPoint(roi.getPoint()[X], roi.getEndPoint()[Y]);
+			updatePropertyValuesAndFire(Map.of(
+					START, roi.getPoint()[Y],
+					STOP, roi.getEndPoint()[Y],
+					CONSTANT, roi.getPoint()[X]));
 		}
-
-		this.pcs.firePropertyChange("orientation", oldOrientation, orientation);
-		this.pcs.firePropertyChange("constant", oldConstantAxis, constant);
-		this.pcs.firePropertyChange("start", oldStart, start);
-		this.pcs.firePropertyChange("stop", oldStop, stop);
-
-	}
-
-	@Override
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.addPropertyChangeListener(listener);
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		this.pcs.removePropertyChangeListener(listener);
+		firePropertyChange(ORIENTATION, oldOrientation, orientation);
 	}
 
 	@Override
 	public double getxStart() {
-		return orientation == Orientation.HORIZONTAL ? start : constant;
+		return orientation == Orientation.HORIZONTAL ? getStart() : getConstant();
 	}
 
 	@Override
 	public double getyStart() {
-		return orientation == Orientation.HORIZONTAL ? constant : start;
+		return orientation == Orientation.HORIZONTAL ? getConstant() : getStart();
 	}
 
 	@Override
 	public double getxStop() {
-		return orientation == Orientation.HORIZONTAL ? stop : constant;
+		return orientation == Orientation.HORIZONTAL ? getStop() : getConstant();
 	}
 
 	@Override
 	public double getyStop() {
-		return orientation == Orientation.HORIZONTAL ? constant : stop;
+		return orientation == Orientation.HORIZONTAL ? getConstant() : getStop();
 	}
 
 	@Override
@@ -155,18 +146,20 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 
 	@Override
 	public void centre(double x0, double y0) {
-		double halfLength = Math.abs(stop - start) / 2.0;
-		int sign = start < stop ? 1 : -1;
+		double halfLength = Math.abs(getStop() - getStart()) / 2.0;
+		int sign = getStart() < getStop() ? 1 : -1;
 		switch (orientation) {
 		case HORIZONTAL:
-			start = x0 - sign * halfLength;
-			stop = x0 + sign * halfLength;
-			constant = y0;
+			updatePropertyValuesAndFire(Map.of(
+					START, x0 - sign * halfLength,
+					STOP, x0 + sign * halfLength,
+					CONSTANT, y0));
 			break;
 		case VERTICAL:
-			start = y0 - sign * halfLength;
-			stop = y0 + sign * halfLength;
-			constant = x0;
+			updatePropertyValuesAndFire(Map.of(
+					START, y0 - sign * halfLength,
+					STOP, y0 + sign * halfLength,
+					CONSTANT, x0));
 			break;
 		default:
 			throw new IllegalStateException("Unexpected orientation: " + orientation.toString());
@@ -183,12 +176,12 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(constant);
+		temp = Double.doubleToLongBits(getConstant());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((orientation == null) ? 0 : orientation.hashCode());
-		temp = Double.doubleToLongBits(start);
+		temp = Double.doubleToLongBits(getStart());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(stop);
+		temp = Double.doubleToLongBits(getStop());
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -202,20 +195,20 @@ public class SnappedLineMappingRegion implements ILineMappingRegion {
 		if (getClass() != obj.getClass())
 			return false;
 		SnappedLineMappingRegion other = (SnappedLineMappingRegion) obj;
-		if (Double.doubleToLongBits(constant) != Double.doubleToLongBits(other.constant))
+		if (Double.doubleToLongBits(getConstant()) != Double.doubleToLongBits(other.getConstant()))
 			return false;
 		if (orientation != other.orientation)
 			return false;
-		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+		if (Double.doubleToLongBits(getStart()) != Double.doubleToLongBits(other.getStart()))
 			return false;
-		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop)) // NOSONAR for idiomatic consistency
+		if (Double.doubleToLongBits(getStop()) != Double.doubleToLongBits(other.getStop())) // NOSONAR for idiomatic consistency
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "SnappedLineMappingRegion [orientation=" + orientation + ", start=" + start + ", stop=" + stop
-				+ ", constant=" + constant + "]";
+		return "SnappedLineMappingRegion [orientation=" + orientation + ", start=" + getStart() + ", stop=" + getStop()
+				+ ", constant=" + getConstant() + "]";
 	}
 }

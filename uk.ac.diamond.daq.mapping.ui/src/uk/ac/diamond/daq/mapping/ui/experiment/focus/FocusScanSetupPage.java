@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.focus;
 
+import static uk.ac.diamond.daq.mapping.api.constants.RegionConstants.CALC_POINTS;
 import static uk.ac.diamond.daq.mapping.ui.experiment.focus.FocusScanUtils.createNumberAndUnitsLengthComposite;
 
 import java.beans.PropertyChangeListener;
@@ -201,7 +202,12 @@ class FocusScanSetupPage extends WizardPage {
 			focusScanBean.setLineRegion(lineRegion);
 		}
 
-		regionBeanPropertyChangeListener = event -> updateLineRegion();
+		// Only trigger path calculation once region limits has been adjusted
+		regionBeanPropertyChangeListener = event -> {
+			if (event.getPropertyName().equals(CALC_POINTS)) {
+				updateLineRegion();
+			}
+		};
 
 		lineRegion.addPropertyChangeListener(regionBeanPropertyChangeListener);
 
