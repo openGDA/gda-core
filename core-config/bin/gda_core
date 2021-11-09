@@ -36,17 +36,18 @@ Optional Environment variables:
 
 OPTIONS:
 
- -d --debug           Start in debug mode, not waiting for connection [server: port 8000, client: port 8001]
- -v --verbose         Turns on verbose logging even if GDA_DEBUG is not defined.
-    --restart         Stop and restart component (default)
-    --start           Start component
-    --stop            Stop component
-    --mode=           Specify a mode (default to GDA_MODE if set, dummy otherwise)
-    --help            Display this help text and exit.
-    --springprofiles= Specify the Spring Profiles to use to load the server
-                      config as a comma separated list (no spaces)
-    -*                Other options will be passed to the gda_*_core scripts and
-                      then on to the gda server target launch script.
+ -d --debug            Start in debug mode, not waiting for connection [server: port 8000, client: port 8001]
+ -v --verbose          Turns on verbose logging even if GDA_DEBUG is not defined.
+    --restart          Stop and restart component (default)
+    --start            Start component
+    --stop             Stop component
+    --mode=            Specify a mode (default to GDA_MODE if set, dummy otherwise)
+    --help             Display this help text and exit.
+    --springprofiles P Specify the Spring Profiles to use to load the server config as a
+                       comma separated list (no spaces, profile names may not begin with
+                       '-' and may not be 'servers', 'client' or 'logpanel')
+    -*                 Other options will be passed to the gda_*_core scripts and
+                       then on to the gda server target launch script.
 
 SERVER ONLY:
  -b --debug-wait Start the server in debug mode waiting for a connection on port 8000
