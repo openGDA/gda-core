@@ -19,48 +19,31 @@
 package uk.ac.diamond.daq.devices.mbs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.cosylab.epics.caj.CAJChannel;
 
+import gda.device.BaseEpicsDeviceController;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDArray;
-import gda.epics.connection.EpicsController;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 
-public class MbsAnalyserController extends ConfigurableBase implements MonitorListener, IObservable {
-
-	private static final Logger logger = LoggerFactory.getLogger(MbsAnalyserController.class);
+public class MbsAnalyserController extends BaseEpicsDeviceController implements MonitorListener, IObservable {
 
 	private ADBase adBase;
 	private NDArray ndArray;
-	private EpicsController epicsController = EpicsController.getInstance();
-	private String basePvName;
-	private final Map<String, Channel> channels = new HashMap<>();
 
 	private ObservableComponent observableComponent = new ObservableComponent();
-
-	private static final String EPICS_GET_ERROR_MESSAGE_TEMPLATE = "Unable to get %s from EPICS";
-	private static final String EPICS_SET_ERROR_MESSAGE_TEMPLATE = "Unable to set %s to %s via EPICS";
 
 	private static final String ACQUIRE_RBV = "CAM:Acquire_RBV";
 	private static final String ITERATIONS = "CAM:NumScans";
@@ -114,7 +97,7 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 	public MbsAnalyserController(ADBase adBase, NDArray ndArray, String basePvName) {
 		this.adBase = adBase;
 		this.ndArray = ndArray;
-		this.basePvName = basePvName;
+		this.setBasePvName(basePvName);
 	}
 
 	@Override
@@ -122,11 +105,11 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 		if (isConfigured()) {
 			return;
 		}
-		if (basePvName == null) {
+		if (getBasePvName() == null) {
 			logger.error("Configure called with no basePVName. Check spring configuration!");
 			throw new FactoryException("Configure called with no basePVName. Check spring configuration!");
 		}
-		logger.info("Configuring analyser with base PV: {}", basePvName);
+		logger.info("Configuring analyser with base PV: {}", getBasePvName());
 
 		try {
 			initialiseEnumChannel(PASS_ENERGY, passEnergies);
@@ -140,7 +123,7 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 		}
 
 		try {
-			epicsController.setMonitor(getChannel(ACQUIRE_RBV), this);
+			getEpicsController().setMonitor(getChannel(ACQUIRE_RBV), this);
 		}
 		catch (Exception e) {
 			throw new FactoryException("Error setting up EPICS monitors", e);
@@ -792,100 +775,6 @@ public class MbsAnalyserController extends ConfigurableBase implements MonitorLi
 
 	public void disableAutomaticDetectorOff() throws DeviceException {
 		setStringValue(AUTO_DETECTOR_OFF_OVERRIDE, AUTO_DETECTOR_OFF_DISABLE, "DetectorOffOverride");
-	}
-
-	private void initialiseEnumChannel(String channel, List<String> list) throws Exception {
-		String[] positionLabels = null;
-		positionLabels = epicsController.cagetLabels(getChannel(channel));
-		if (positionLabels == null || positionLabels.length == 0) {
-			throw new DeviceException("Error getting labels from enum channel: " + basePvName + channel);
-		}
-		// Clear the list here this allows for rerunning configure
-		list.clear();
-		// Add the positions to the list
-		for (String position : positionLabels) {
-			if (position == null || position.isEmpty()) {
-				logger.warn("Enum channel {} contains empty entries", basePvName + channel);
-			} else {
-				list.add(position);
-			}
-		}
-	}
-
-	private int getIntegerValue(String channelName, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetInt(getChannel(channelName));
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
-		}
-	}
-
-	private void setIntegerValue(String channelName, int value, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(channelName), value);
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
-		}
-	}
-
-	private double getDoubleValue(String channelName, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetDouble(getChannel(channelName));
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
-		}
-	}
-
-	private void setDoubleValue(String channelName, double value, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(channelName), value);
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
-		}
-	}
-
-	private String getStringValue(String channelName, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetString(getChannel(channelName));
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
-		}
-	}
-
-	private void setStringValue(String channelName, String value, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(channelName), value);
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
-		}
-	}
-
-	private double[] getDoubleArray(String channelName, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetDoubleArray(getChannel(channelName));
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
-		}
-	}
-
-	private double[] getDoubleArray(String channelName, int numberOfElements, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetDoubleArray(getChannel(channelName), numberOfElements);
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
-		}
-	}
-
-	private Channel getChannel(String pvSuffix) throws TimeoutException, CAException {
-		String fullPvName = basePvName + pvSuffix;
-		Channel channel = channels.get(fullPvName);
-
-		if (channel == null) {
-			channel = epicsController.createChannel(fullPvName);
-			channels.put(fullPvName, channel);
-		}
-
-		return channel;
 	}
 
 	@Override
