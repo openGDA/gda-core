@@ -18,31 +18,55 @@
 
 package gda.mscan.element;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.apache.commons.math3.util.Pair;
 
 /**
  * Links the revised mscan syntax to a typed representation of the possible scanpath mutator specifiers.
  * @since GDA 9.9
  */
 public enum Mutator implements IMScanElementEnum {
-	ALTERNATING("alte", 0, 0, new boolean[]{}),
-	RANDOM_OFFSET("roff", 2, 1, new boolean[]{true, false}),
-	CONTINUOUS("cont", 0, 0, new boolean[]{});
+	ALTERNATING("alte", asList("snak", "snake", "alternating"), 0, 0, new boolean[]{}),
+	RANDOM_OFFSET("roff", asList("random_offset"), 2, 1, new boolean[]{true, false}),
+	CONTINUOUS("cont", asList("continuous"), 0, 0, new boolean[]{});
 
-	private final String text;
+	private static final Map<String, Mutator> termsMap;
+	private final List<String> terms = new ArrayList<>();
 	private final int maxValueCount;
 	private final int minValueCount;
 	private final boolean[] positiveValuesOnly;
 
-	private Mutator(final String text, final int maxValueCount,
+	private Mutator(final String text, final List<String> aliases, final int maxValueCount,
 			final int minValueCount, final boolean[] positiveValuesOnly) {
-		this.text = text;
+		this.terms.add(text);
+		this.terms.addAll(aliases);
 		this.maxValueCount = maxValueCount;
 		this.minValueCount = minValueCount;
 		this.positiveValuesOnly = positiveValuesOnly;
+	}
+
+	/**
+	 * Initialise the {@link java.util.Map} of text terms (including aliases) to {@link Mutator} instance
+	 */
+	static {
+		termsMap = stream(values())
+				.map(mutator -> mutator.terms().stream()
+						.map(term -> new Pair<String, Mutator>(term, mutator)))
+				.flatMap(Function.identity())
+				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+	}
+
+	public static Map<String, Mutator> termsMap() {
+		return termsMap;
 	}
 
 	/**
@@ -51,7 +75,15 @@ public enum Mutator implements IMScanElementEnum {
 	 * @return		List of default text for the instances
 	 */
 	public static List<String> strValues() {
-		return stream(values()).map(val -> val.text).collect(toList());
+		return stream(values()).map(val -> val.terms.get(0)).collect(toList());
+	}
+
+	public List<String> terms() {
+		return terms;
+	}
+
+	public List<String> aliases() {
+		return terms.subList(1, terms.size() - 1);
 	}
 
 	/**

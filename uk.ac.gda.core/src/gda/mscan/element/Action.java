@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2019 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -30,41 +30,36 @@ import java.util.stream.Collectors;
 import org.apache.commons.math3.util.Pair;
 
 /**
- * Holder for transformations that can be applied to the output data (nexus file) of an mscan which maps the
- * transformation to type of object used to define its parameters
+ * Utility enum for general verbs uised by msacn syntax to link the instances to their aliases
  */
-public enum ScanDataConsumer implements IMScanElementEnum {
-	TEMPLATE("temp", asList("templates"), List.class),
-	PROCESSOR("proc", asList("processors"), Map.class);
+public enum Action implements IMScanElementEnum {
+	RERUN("rrun", asList("rerun"), String.class);
 
-	private static final Map<String, ScanDataConsumer> termsMap;
+	private static final Map<String, Action> termsMap;
 	private final List<String> terms = new ArrayList<>();
 	private final Class<?> paramsType;
 
-	private ScanDataConsumer(final String text, final List<String> aliases, final Class<?> type) {
+	private Action(final String text, final List<String> aliases, final Class<?> type) {
 		this.terms.add(text);
 		this.terms.addAll(aliases);
 		this.paramsType = type;
 		}
 
 	/**
-	 * Initialise the {@link java.util.Map} of text terms (including aliases) to {@link ScanDataConsumer} instance
+	 * Initialise the {@link java.util.Map} of text terms (including aliases) to {@link Action} instance
 	 */
 	static {
 		termsMap = stream(values())
-				.map(consumer -> consumer.terms().stream()
-						.map(term -> new Pair<String, ScanDataConsumer>(term, consumer)))
+				.map(action -> action.terms().stream()
+						.map(term -> new Pair<String, Action>(term, action)))
 				.flatMap(Function.identity())
 				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
 	}
 
-	public static Map<String, ScanDataConsumer> termsMap() {
+	public static Map<String, Action> termsMap() {
 		return termsMap;
 	}
 
-	public String getText() {
-		return terms.get(0);
-	}
 	public List<String> terms() {
 		return terms;
 	}

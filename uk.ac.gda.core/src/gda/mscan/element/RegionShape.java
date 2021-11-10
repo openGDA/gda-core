@@ -18,12 +18,17 @@
 
 package gda.mscan.element;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.Pair;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
@@ -40,32 +45,54 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
  * @since GDA 9.9
  */
 public enum RegionShape implements IMScanDimensionalElementEnum {
-	RECTANGLE("rect", 2, 4, true, RectangularROI.class, Factory::createRectangularROI),
-	CENTRED_RECTANGLE("crec", 2, 4, true, RectangularROI.class, Factory::createCenteredRectangularROI),
-	CIRCLE("circ", 2, 3, true, CircularROI.class, Factory::createCircularROI),
-	POLYGON("poly", 2, 6, false, PolygonalROI.class, Factory::createPolygonalROI),
-	LINE("line", 2, 4, true, LinearROI.class, Factory::createLinearROI),
-	POINT("poin", 2, 2, true, PointROI.class, Factory::createPointROI),
-	AXIAL("axis", 1, 2, true, LinearROI.class, Factory::createLinearROI),
-	STATIC("stat", 0, 0, true, null, Factory::createNullROI);
+	RECTANGLE("rect", asList("rectangle"), 2, 4, true, RectangularROI.class, Factory::createRectangularROI),
+	CENTRED_RECTANGLE("crec", asList("centred_rectangle"), 2, 4, true, RectangularROI.class, Factory::createCenteredRectangularROI),
+	CIRCLE("circ", asList("circle"), 2, 3, true, CircularROI.class, Factory::createCircularROI),
+	POLYGON("poly", asList("polygon"), 2, 6, false, PolygonalROI.class, Factory::createPolygonalROI),
+	LINE("line", asList("helical", "heli", "htom"), 2, 4, true, LinearROI.class, Factory::createLinearROI),
+	POINT("poin", asList("point", "pt"), 2, 2, true, PointROI.class, Factory::createPointROI),
+	AXIAL("axis", asList("rotation", "rota", "rot", "tomography", "tomo"), 1, 2, true, LinearROI.class, Factory::createLinearROI),
+	STATIC("stat", asList(), 0, 0, true, null, Factory::createNullROI);
 
 	private static final String PREFIX = "Invalid Scan clause: ";
 
-	private final String text;
+	private static final Map<String, RegionShape> termsMap;
+	private final List<String> terms = new ArrayList<>();
 	private final int axisCount;
 	private final int valueCount;
 	private final boolean hasFixedValueCount;
 	private final Class<? extends IROI> roiType;
 	private final RoiFactoryFunction factory;
 
-	private RegionShape(final String text, final int axisCount, final int valueCount, final boolean hasFixedValueCount,
+	private RegionShape(final String text, final List<String> aliases, final int axisCount, final int valueCount, final boolean hasFixedValueCount,
 				final Class<? extends IROI> roiType, final RoiFactoryFunction factoryFunction) {
-		this.text = text;
+		this.terms.add(text);
+		this.terms.addAll(aliases);
 		this.axisCount = axisCount;
 		this.valueCount = valueCount;
 		this.hasFixedValueCount = hasFixedValueCount;
 		this.roiType = roiType;
 		this.factory = factoryFunction;
+	}
+
+	/**
+	 * Initialise the {@link java.util.Map} of text terms (including aliases) to {@link RegionShape} instance
+	 */
+	static {
+		termsMap = stream(values())
+				.map(shape -> shape.terms().stream()
+						.map(term -> new Pair<String, RegionShape>(term, shape)))
+				.flatMap(Function.identity())
+				.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+	}
+
+	/**
+	 * Get the map of text terms (including aliases) to instances of RegionShape, initialising it if necessary
+	 *
+	 * @return 		A {@link java.util.Map} of the terms to {@link RegionShape} instance
+	 */
+	public static Map<String, RegionShape> termsMap() {
+		return termsMap;
 	}
 
 	/**
@@ -83,7 +110,7 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 	 * @return		List of default text for the instances
 	 */
 	public static List<String> strValues() {
-		return stream(values()).map(val -> val.text).collect(toList());
+		return stream(values()).map(val -> val.terms.get(0)).collect(toList());
 	}
 
 	/**
@@ -92,6 +119,24 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 	@Override
 	public int getAxisCount() {
 		return axisCount;
+	}
+
+	/**
+	 * Get the full list of text terms that can be used to refer to this instance in mscan commands (default plus aliases)
+	 *
+	 * @return 		A {@link java.util.List} of the terms with the default text term at position 0
+	 */
+	public List<String> terms() {
+		return terms;
+	}
+
+	/**
+	 * Get a list of the aliases that can be used to refer to this instance in mscan commands
+	 *
+	 * @return 		A {@link java.util.List} of the aliases
+	 */
+	public List<String> aliases() {
+		return terms.subList(1, terms.size() - 1);
 	}
 
 	/**
@@ -157,7 +202,7 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 						PREFIX, roiType == null ? "Null" : roiType.getSimpleName(), qualifier, valueCount));
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.name().substring(0,1).concat(this.name().substring(1).toLowerCase());
@@ -300,6 +345,5 @@ public enum RegionShape implements IMScanDimensionalElementEnum {
 			if (unused != null && !unused.isEmpty()) throw new IllegalArgumentException(PREFIX + "Null from Static Region must have no arguments");
 			return null;
 		}
-		
 	}
 }

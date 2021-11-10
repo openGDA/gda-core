@@ -54,6 +54,7 @@ import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
 import gda.jython.JythonServerFacade;
+import gda.mscan.element.Action;
 import gda.mscan.element.IMScanElementEnum;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
@@ -321,7 +322,7 @@ public class MScanSubmitter extends ValidationUtils {
 	 */
 	private ScanClausesResolver validateCommand(final Object[] args) {
 		if (args.length < 1 ||
-				!((args[0] instanceof String && ((String)args[0]).equals(RERUN))
+				!(args[0].equals(Action.RERUN)
 						|| args[0] instanceof Scannable
 						|| args[0].equals(Scanpath.STATIC)
 						|| onlyDetectorsAndParams(args))) {
@@ -390,7 +391,7 @@ public class MScanSubmitter extends ValidationUtils {
 				type = IRunnableDevice.class;
 			}
 
-			else if (i == 0 && obj instanceof String && ((String)obj).equals(RERUN)) {
+			else if (i == 0 && obj instanceof Action && ((Action)obj).equals(Action.RERUN)) {
 				processors.add(new ReRunFromFileElementProcessor((String)params.get(1)));
 				break;
 			}

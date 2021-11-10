@@ -5,9 +5,7 @@ import static org.eclipse.scanning.server.servlet.Services.getRunnableDeviceServ
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.mscan.MScanSubmitter;
+import gda.mscan.element.Action;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
@@ -100,124 +99,26 @@ class MScanServiceCoreHelper {
 
 		}
 
-		if (scanpathMap.containsKey(element)) {
-			return scanpathMap.get(element);
+		if (Scanpath.termsMap().containsKey(element)) {
+			return Scanpath.termsMap().get(element);
 		}
 
-		if (regionshapeMap.containsKey(element)) {
-			return regionshapeMap.get(element);
+		if (RegionShape.termsMap().containsKey(element)) {
+			return RegionShape.termsMap().get(element);
 		}
 
-		if (mutatorMap.containsKey(element)) {
-			return mutatorMap.get(element);
+		if (Mutator.termsMap().containsKey(element)) {
+			return Mutator.termsMap().get(element);
 		}
 
-		if (scanDataConsumerMap.containsKey(element)) {
-			return scanDataConsumerMap.get(element);
+		if (ScanDataConsumer.termsMap().containsKey(element)) {
+			return ScanDataConsumer.termsMap().get(element);
 		}
 
-		if (stringMap.containsKey(element)) {
-			return stringMap.get(element);
+		if (Action.termsMap().containsKey(element)) {
+			return Action.termsMap().get(element);
 		}
 
 		return element;
-	}
-
-	private static Map<String, Scanpath> scanpathMap = new HashMap<>();
-	private static Map<String, RegionShape> regionshapeMap = new HashMap<>();
-	private static Map<String, Mutator> mutatorMap = new HashMap<>();
-	private static Map<String, ScanDataConsumer> scanDataConsumerMap = new HashMap<>();	
-	private static Map<String, String> stringMap = new HashMap<>();
-
-	static {
-		// The mapping below reproduces the one in mscanHandler.py
-
-		// ------------- scanpath ----------------
-		scanpathMap.put("grid", Scanpath.GRID_POINTS);
-
-		scanpathMap.put("rast", Scanpath.GRID_STEP);
-		scanpathMap.put("raster", Scanpath.GRID_STEP);
-
-		scanpathMap.put("spir", Scanpath.SPIRAL);
-		scanpathMap.put("spiral", Scanpath.SPIRAL);
-
-		scanpathMap.put("liss", Scanpath.LISSAJOUS);
-		scanpathMap.put("lissajous", Scanpath.LISSAJOUS);
-
-		scanpathMap.put("step", Scanpath.LINE_STEP);
-		scanpathMap.put("angl", Scanpath.LINE_STEP);
-		scanpathMap.put("angle", Scanpath.LINE_STEP);
-
-		scanpathMap.put("poin", Scanpath.SINGLE_POINT);
-
-		scanpathMap.put("nopt", Scanpath.LINE_POINTS);
-		scanpathMap.put("pts", Scanpath.LINE_POINTS);
-		scanpathMap.put("noofpoints", Scanpath.LINE_POINTS);
-		scanpathMap.put("points", Scanpath.LINE_POINTS);
-		scanpathMap.put("proj", Scanpath.LINE_POINTS);
-		scanpathMap.put("projections", Scanpath.LINE_POINTS);
-
-		scanpathMap.put("axst", Scanpath.AXIS_STEP);
-		scanpathMap.put("axisstep", Scanpath.AXIS_STEP);
-
-		scanpathMap.put("axno", Scanpath.AXIS_POINTS);
-		scanpathMap.put("axispoints", Scanpath.AXIS_POINTS);
-
-		scanpathMap.put("stat", Scanpath.STATIC);
-		scanpathMap.put("static", Scanpath.STATIC);
-		scanpathMap.put("acq", Scanpath.STATIC);
-		scanpathMap.put("acquire", Scanpath.STATIC);
-
-		// ------------- regions ----------------
-		regionshapeMap.put("rect", RegionShape.RECTANGLE);
-		regionshapeMap.put("rectangle", RegionShape.RECTANGLE);
-
-		regionshapeMap.put("crec", RegionShape.CENTRED_RECTANGLE);
-		regionshapeMap.put("centred_rectangle", RegionShape.CENTRED_RECTANGLE);
-
-		regionshapeMap.put("circ", RegionShape.CIRCLE);
-		regionshapeMap.put("circle", RegionShape.CIRCLE);
-
-		regionshapeMap.put("poly", RegionShape.POLYGON);
-		regionshapeMap.put("polygon", RegionShape.POLYGON);
-
-		regionshapeMap.put("line", RegionShape.LINE);
-		regionshapeMap.put("helical", RegionShape.LINE);
-		regionshapeMap.put("heli", RegionShape.LINE);
-		regionshapeMap.put("htom", RegionShape.LINE);
-
-		regionshapeMap.put("poin", RegionShape.POINT);
-		regionshapeMap.put("point", RegionShape.POINT);
-		regionshapeMap.put("pt", RegionShape.POINT);
-
-		regionshapeMap.put("axis", RegionShape.AXIAL);
-		regionshapeMap.put("rotation", RegionShape.AXIAL);
-		regionshapeMap.put("rota", RegionShape.AXIAL);
-		regionshapeMap.put("rot", RegionShape.AXIAL);
-		regionshapeMap.put("tomography", RegionShape.AXIAL);
-		regionshapeMap.put("tomo", RegionShape.AXIAL);
-
-		// ------------- mutators ----------------
-		mutatorMap.put("snak", Mutator.ALTERNATING);
-		mutatorMap.put("snake", Mutator.ALTERNATING);
-		mutatorMap.put("alte", Mutator.ALTERNATING);
-
-		mutatorMap.put("roff", Mutator.RANDOM_OFFSET);
-		mutatorMap.put("random_offset", Mutator.RANDOM_OFFSET);
-
-		mutatorMap.put("cont", Mutator.CONTINUOUS);
-		mutatorMap.put("continuous", Mutator.CONTINUOUS);
-
-
-		// ------------- scanData consumer ----------------
-		scanDataConsumerMap.put("temp", ScanDataConsumer.TEMPLATE);
-		scanDataConsumerMap.put("templates", ScanDataConsumer.TEMPLATE);
-
-		scanDataConsumerMap.put("proc", ScanDataConsumer.PROCESSOR);
-		scanDataConsumerMap.put("processors", ScanDataConsumer.PROCESSOR);
-
-		// ------------- strings ----------------
-		stringMap.put("rrun", "rerun");
-		stringMap.put("rerun", "rerun");
 	}
 }

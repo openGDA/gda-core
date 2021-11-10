@@ -88,6 +88,7 @@ import gda.device.Monitor;
 import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.jython.JythonServerFacade;
+import gda.mscan.element.Action;
 import gda.mscan.element.Mutator;
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
@@ -968,7 +969,7 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void createsCorrectProcessorListForReRunFromFileAndSubmits() throws Exception {
-		Object[] arr = {"rerun", TEST_FILE};
+		Object[] arr = {Action.RERUN, TEST_FILE};
 		doNothing().when(theFacadeInstance).runCommand(anyString());
 		try(final MockedStatic<ScanRequestBuilder> scanBuilder = mockStatic(ScanRequestBuilder.class)) {
 			ScanRequest request = new ScanRequest();
