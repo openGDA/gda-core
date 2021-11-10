@@ -32,6 +32,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.event.ValueAdapter;
 import org.eclipse.richbeans.api.event.ValueEvent;
@@ -44,8 +45,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.part.WorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -68,6 +71,7 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.io.FileUtils;
 
@@ -85,6 +89,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private Map<String,Class> detectorNameToClassMap;
 	private DetectorParameters detectorParameters;
 	private DetectorGroupTemplateConfiguration detectorConfigInformation = null;
+	private boolean updateDetectorFilenameOnSaveAs = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_PARAMS_UPDATE_ON_SAVEAS);
 
 	private String[] getDetectorTypesFromConfig(boolean xesMode) {
 		if (detectorConfigInformation != null && detectorConfigInformation.getDetectorGroupsMap().size() > 0) {
@@ -428,6 +433,18 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			return outputFile.getName();
 	}
 
+	/**
+	 * Update the resource tree to make eclipse aware of any newly created files
+	 */
+	private void refreshResources() {
+		final IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
+		try {
+			dir.refreshLocal(IResource.DEPTH_ONE, null);
+		} catch (CoreException e) {
+			logger.warn("Problem updating resource tree", e);
+		}
+	}
+
 	public void checkConfigFile(String detectorType) throws ClassNotFoundException{
 		final IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
 
@@ -439,15 +456,10 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			String templateFilename = getDetectorTemplateFileName(detectorType);
 			if (!templateFilename.isEmpty()) {
 				String newConfigName = copyConfigFromTemplate(templateFilename, dir.getLocation().toString());
-				// Update gui and resource tree to make eclipse aware of the newly created file
 				if (!StringUtils.isEmpty(newConfigName)) {
 					configFileName.setText(newConfigName);
-					try {
-						dir.refreshLocal(IResource.DEPTH_ONE, null);
-						configFile = dir.getFile(newConfigName);
-					} catch (CoreException e) {
-						logger.warn("Problem updating resource tree", e);
-					}
+					refreshResources();
+					configFile = dir.getFile(newConfigName);
 				}
 			}
 		}
@@ -470,8 +482,40 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			}
 		}
 		configFile = dir.getFile(configFileName.getText());
-		if (configFile.exists())
-			ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
+		if (configFile.exists()) {
+			WorkbenchPart editor =  (WorkbenchPart) ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
+			// Listen to file name change events, so that detector configuration file name can be updated
+			if (updateDetectorFilenameOnSaveAs) {
+				editor.addPartPropertyListener(this::updateDetectorConfigurationFile);
+			}
+		}
 	}
 
+	/**
+	 * Update the 'configuration file' text box when the detector configuration XML file is saved to a new file
+	 * A dialog is shown to the user to confirm whether to update.
+	 *
+	 * @param PropertyChangeEvent from RichBeanMultiPageEditorPart containing old and new filename
+	 */
+	private void updateDetectorConfigurationFile(PropertyChangeEvent event) {
+		if (!event.getProperty().equals(RichBeanMultiPageEditorPart.FILE_NAME_CHANGE_PROPERTY)) {
+			return;
+		}
+		logger.debug("File name change event {} : {} = {}", event, event.getOldValue(), event.getNewValue());
+		String oldName = event.getOldValue().toString();
+		String newName = event.getNewValue().toString();
+		if (oldName.equals(newName)) {
+			return;
+		}
+
+		// The new file has not yet been written when this listener is called. Display
+		// the dialog and update the name in a background thread so that file writing can complete.
+		// Otherwise the configFileName textbox with new filename is shown in red because the file doesn't exist yet.
+		Display.getDefault().asyncExec(() -> {
+			if ( MessageDialog.openQuestion(getShell(), "Update the detector parameters",
+				 "Do you want to change the detector configuration file name for "+detectorType.getValue().toString()+" to "+newName+" ?") ) {
+				configFileName.setText(newName);
+			}
+		});
+	}
 }
