@@ -74,6 +74,8 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 
 	private boolean undoRegistered = false;
 
+	public static final String FILE_NAME_CHANGE_PROPERTY = "FILE_NAME_CHANGE";
+
 	/**
 	 * Creates editor and sets a property that can be used to check
 	 * if the class is a RichBeanEditorPart. Useful for checking subclasses
@@ -500,6 +502,7 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	 */
 	@SuppressWarnings("unused")
 	protected boolean confirmFileNameChange(final File oldName, final File newName)  throws Exception {
+		firePartPropertyChanged(FILE_NAME_CHANGE_PROPERTY, oldName.getName(), newName.getName());
 		return true;
 	}
 
