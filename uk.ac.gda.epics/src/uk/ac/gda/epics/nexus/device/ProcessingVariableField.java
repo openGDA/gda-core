@@ -18,7 +18,6 @@
 
 package uk.ac.gda.epics.nexus.device;
 
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -75,7 +74,7 @@ public class ProcessingVariableField extends AbstractMetadataField {
 			if (ch == null) {
 				ch = EPICS_CONTROLLER.createChannel(pvName);
 			}
-			return getValue(ch);
+			return EPICS_CONTROLLER.getValue(ch);
 		} catch (CAException | TimeoutException e) {
 			if (!blockIfGetFail) {
 				//the default behaviour is not blocking if the PV is not reachable.
@@ -99,26 +98,5 @@ public class ProcessingVariableField extends AbstractMetadataField {
 		this.blockIfGetFail = blockIfGetFail;
 	}
 
-	private Object getValue(Channel channel) throws TimeoutException, CAException, InterruptedException {
-		if (channel.getFieldType().isDOUBLE()) {
-			return EPICS_CONTROLLER.cagetDouble(channel);
-		}
-		if (channel.getFieldType().isFLOAT()) {
-			return EPICS_CONTROLLER.cagetFloat(channel);
-		}
-		if (channel.getFieldType().isINT()) {
-			return EPICS_CONTROLLER.cagetInt(channel);
-		}
-		if (channel.getFieldType().isSHORT()) {
-			return EPICS_CONTROLLER.cagetShort(channel);
-		}
-		if (channel.getFieldType().isBYTE()) {
-			return new String(EPICS_CONTROLLER.cagetByteArray(channel), StandardCharsets.UTF_8);
-		}
-		if (channel.getFieldType().isENUM()) {
-			return EPICS_CONTROLLER.cagetLabel(channel);
-		}
-		return EPICS_CONTROLLER.cagetString(channel);
-	}
 
 }
