@@ -20,7 +20,6 @@ package gda.device.detector;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -470,41 +469,21 @@ public class EpicsProcessVariableCollection extends FindableBase {
 
 	private DataNode createDataNode(String value) {
 		var dataNode = NexusNodeFactory.createDataNode();
-		dataNode.setDataset(getNexusGroupData(value).toDataset());
+		dataNode.setDataset(getChannel(value).map(this::getDataset).orElseGet(()->DatasetFactory.createFromObject(NOT_AVAILABLE)));
 		return dataNode;
 	}
 
-	private NexusGroupData getNexusGroupData(String value) {
-		Optional<Channel> optionChannel = getChannel(value);
-		Optional<NexusGroupData> nexusGroupdData = optionChannel.map(this::getDataset).map(NexusGroupData::new);
-		return nexusGroupdData.orElseGet(() -> new NexusGroupData(NOT_AVAILABLE));
-	}
-
 	private IDataset getDataset(Channel channel) {
-		Object data = NOT_AVAILABLE;
 		try {
-			if (channel.getFieldType().isDOUBLE()) {
-				data = EPICS_CONTROLLER.cagetDouble(channel);
-			} else if (channel.getFieldType().isFLOAT()) {
-				data = EPICS_CONTROLLER.cagetFloat(channel);
-			} else if (channel.getFieldType().isINT()) {
-				data = EPICS_CONTROLLER.cagetInt(channel);
-			} else if (channel.getFieldType().isSHORT()) {
-				data = EPICS_CONTROLLER.cagetShort(channel);
-			} else if (channel.getFieldType().isBYTE()) {
-				data = new String(EPICS_CONTROLLER.cagetByteArray(channel), StandardCharsets.UTF_8);
-			} else if (channel.getFieldType().isENUM()) {
-				data = EPICS_CONTROLLER.cagetLabel(channel);
-			} else {
-				data = EPICS_CONTROLLER.cagetString(channel);
-			}
+			Object data = EPICS_CONTROLLER.getValue(channel);
+			return DatasetFactory.createFromObject(data, 1); //need to set shape to 1 otherwise single number will has shape of 0 which cause ArrayIndexOutOfBound in ArrayDescriptor class.
 		} catch (TimeoutException | CAException e) {
 			logger.error("Failed to get value from {}", channel.getName(), e);
 		} catch (InterruptedException e) {
 			logger.error("Interrupted when getting value from {}", channel.getName(), e);
 			Thread.currentThread().interrupt();
 		}
-		return DatasetFactory.createFromObject(data, 1); //need to set shape to 1 otherwise single number will has shape of 0 which cause ArrayIndexOutOfBound in ArrayDescriptor class.
+		return null;
 	}
 
 	/**

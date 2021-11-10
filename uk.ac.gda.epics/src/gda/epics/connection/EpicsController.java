@@ -701,6 +701,21 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	/**
+	 * return a String value from a byte array of the specified channel. In EPICS a PV of type DBF_CHAR (i.e. byte array) has fixed length of 256 characters.
+	 * The real useful characters always starts from array index 0, and at some index n, after n, the byte array are normally padded with byte code 0 (zero) all
+	 * the way to index 255. All the padded bytes must be removed after convert to String
+	 *
+	 * @param ch
+	 * @return the string converted from the byte array
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
+	 */
+	public String cagetByteArrayAsString(Channel ch) throws TimeoutException, CAException, InterruptedException {
+		return new String(cagetByteArray(ch)).trim();
+	}
+
+	/**
 	 * gets a fixed length byte array from the specified channel.
 	 *
 	 * @param theChannel
@@ -730,6 +745,39 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	public String[] cagetStringArray(Channel ch, int count) throws TimeoutException, CAException, InterruptedException {
 		return ((STRING) getDBR(ch, DBRType.STRING, count)).getStringValue();
+	}
+
+	/**
+	 * returns value from a given {@link Channel} which has single value.
+	 *
+	 * This method is particularly convenient for getting data from PV to create a dataset in GDA.
+	 *
+	 * @param channel
+	 * @return an object represent the value of the given channel
+	 * @throws TimeoutException
+	 * @throws CAException
+	 * @throws InterruptedException
+	 */
+	public Object getValue(Channel channel) throws TimeoutException, CAException, InterruptedException {
+		if (channel.getFieldType().isDOUBLE()) {
+			return cagetDouble(channel);
+		}
+		if (channel.getFieldType().isFLOAT()) {
+			return cagetFloat(channel);
+		}
+		if (channel.getFieldType().isINT()) {
+			return cagetInt(channel);
+		}
+		if (channel.getFieldType().isSHORT()) {
+			return cagetShort(channel);
+		}
+		if (channel.getFieldType().isBYTE()) {
+			return new String(cagetByteArray(channel)).trim();
+		}
+		if (channel.getFieldType().isENUM()) {
+			return cagetLabel(channel);
+		}
+		return cagetString(channel);
 	}
 
 	// ******** wrapper method to handle CA exceptions *******************
