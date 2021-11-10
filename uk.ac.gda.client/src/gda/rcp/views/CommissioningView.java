@@ -46,7 +46,19 @@ import gda.device.Scannable;
 import gda.jython.JythonServerFacade;
 import uk.ac.gda.ui.viewer.MotorPositionViewer;
 
-// Based on uk.ac.gda.beamline.i19.shared.views.CommissioningView commit 1ee5e754467119ffdef03e848d39913c60b4cbc7
+/**
+ * A view containing collapsible sections of either EPICS controls or scripts.
+ *
+ * The script location is defined by the "gda.beamline.scripts.procedure.dir" LocalProperty. If this
+ * is defined, every CommissioningView will contain a Scripts section. If it is not defined, no
+ * CommissioningView will contain a Scripts section.
+ *
+ * Each view requiring one or more EPICS sections will need a CommissioningViewFactory Bean in the
+ * client side spring configuration. See {@link CommissioningViewFactory} for an example.
+ *
+ * This is based on uk.ac.gda.beamline.i19.shared.views.CommissioningView
+ * as of commit 1ee5e754467119ffdef03e848d39913c60b4cbc7
+ */
 
 public class CommissioningView extends ViewPart {
 
@@ -54,6 +66,8 @@ public class CommissioningView extends ViewPart {
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "gda.rcp.views.CommissioningView";
+
+	private static final String PROP_LOCAL_PROCEDURE = "gda.beamline.scripts.procedure.dir";
 	private static final String FORMAT_ELEMENT_KEY = "format";
 
 	private static final int NUM_COLUMNS = 2;
@@ -87,8 +101,10 @@ public class CommissioningView extends ViewPart {
 		layout.minNumColumns = 1;
 		form.getBody().setLayout(layout);
 
-		for (Map<String, Object> section : sections) {
-			createEPICSSections(section);
+		if (sections != null) {
+			for (Map<String, Object> section : sections) {
+				createEPICSSections(section);
+			}
 		}
 
 		createScriptSection();
@@ -112,33 +128,43 @@ public class CommissioningView extends ViewPart {
 	}
 
 	private void createScriptSection() {
-		Composite section = createSection("Scripts", "Shortcuts to commissioning scripts", 1);
-		GridData gd = new GridData();
+		String scriptsFolder = LocalProperties.get(PROP_LOCAL_PROCEDURE);
 
-		String PROP_LOCAL_PROCEDURE = "gda.beamline.scripts.procedure.dir";
-		String s = LocalProperties.get(PROP_LOCAL_PROCEDURE);
+		if (scriptsFolder == null) {
+			if (sections == null) {
+				final String msg = "Set '" + PROP_LOCAL_PROCEDURE + "' to a scripts folder to use";
+				createSection("Scripts", msg, 1);
+			}
+			return;
+		}
 
 		Predicate<String> criteria = name -> (name.endsWith("py") && !name.startsWith("_"));
-		File[] matchingFiles = new File(s).listFiles( (dir, name) -> criteria.test(name) );
+		File[] matchingFiles = new File(scriptsFolder).listFiles( (dir, name) -> criteria.test(name) );
 
 		if (matchingFiles.length > 0) {
+			Composite section = createSection("Scripts", "Shortcuts to commissioning scripts", 1);
+			GridData gd = new GridData();
+
 			Label label = toolkit.createLabel(section,
-				s.substring(s.lastIndexOf("/", s.lastIndexOf("/") - 1) + 1));
-			label.setToolTipText(s);
+				scriptsFolder.substring(scriptsFolder.lastIndexOf("/", scriptsFolder.lastIndexOf("/") - 1) + 1));
+			label.setToolTipText(scriptsFolder);
 			label.setLayoutData(gd);
 
-			for (File f : matchingFiles) {
-				String scriptname = f.toString().substring(s.length() + 1, f.toString().length() - 3);
-				Button runButton = toolkit.createButton(section, scriptname, SWT.PUSH);
+			for (File file : matchingFiles) {
+				var filename = file.getName();
+				// Strip .py suffix and replace underscore with spaces
+				var buttonDescription = filename.substring(0, filename.length() - 3).replaceAll("_", " ");
+
+				Button runButton = toolkit.createButton(section, buttonDescription, SWT.PUSH);
 				runButton.addSelectionListener(new SelectionListener() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
 						widgetDefaultSelected(e);
 					}
-				
+
 					@Override
 					public void widgetDefaultSelected(SelectionEvent e) {
-						JythonServerFacade.getInstance().runScript(f);
+						JythonServerFacade.getInstance().runScript(file);
 					}
 				});
 			}
