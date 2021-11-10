@@ -69,8 +69,13 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 	private int imageSizeX;
 	private int imageSizeY;
 
-	private Color lineColor = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
 	private boolean showCrossOnly;
+	private boolean hideCentreXControl;
+	private boolean hideCentreYControl;
+	private boolean hideToggleControl;
+	private boolean hideSpacingControl;
+
+	private Color lineColor = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
 	private static final int SEMITRANSPARENT = 120;
 	private static final String START_OF_NAME = "lattice";
 
@@ -103,17 +108,26 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 			logger.error("Could not get image size dimensions x and y from camera control", e);
 		}
 
-		toggleControl.createControl(composite);
-		centreXControl.createControl(composite);
-		centreYControl.createControl(composite);
-		centreXScannable.addIObserver(this::updateLattice);
-		centreYScannable.addIObserver(this::updateLattice);
+		// Adding observers so that grid will be synchronised with epics grid
+		centreXScannable.addIObserver(this::updateRegions);
+		centreYScannable.addIObserver(this::updateRegions);
 		toggleScannable.addIObserver(this::toggleGrid);
+		spacingScannable.addIObserver(this::updateRegions);
 
+		if (!hideCentreXControl) {
+			centreXControl.createControl(composite);
+		}
 
-		if (!showCrossOnly) {
+		if (!hideCentreYControl) {
+			centreYControl.createControl(composite);
+		}
+
+		if (!hideToggleControl) {
+			toggleControl.createControl(composite);
+		}
+
+		if (!showCrossOnly && !hideSpacingControl) {
 			spacingControl.createControl(composite);
-			spacingScannable.addIObserver(this::updateLattice);
 		}
 
 		// Get live stream view reference and get plotting system
@@ -137,12 +151,8 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 			toggleState = (String) toggleScannable.getPosition();
 			centreX = (int)((double)centreXScannable.getPosition());
 			centreY = (int)((double)centreYScannable.getPosition());
-			if (!showCrossOnly) {
-				spacing = (int)((double)spacingScannable.getPosition());
-				drawLattice(spacing, centreX, centreY);
-			} else {
-				drawCross(centreX, centreY);
-			}
+			spacing = (int)((double)spacingScannable.getPosition());
+			drawRegions(spacing, centreX, centreY);
 			if (toggleState.equals(TOGGLE_OFF)) {
 				plottingSystem.getRegions().stream()
 					.filter(r -> r.getName().startsWith(START_OF_NAME))
@@ -155,7 +165,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		}
 	}
 
-	private void drawLattice(int spacing, int centreX, int centreY) throws ExecutionException {
+	private void drawRegions(int spacing, int centreX, int centreY) throws ExecutionException {
 		drawCross(centreX, centreY);
 		if (!showCrossOnly) {
 			EpicsCameraViewerGridModel lineCoordinates = new EpicsCameraViewerGridModel(centreX, centreY, spacing,
@@ -233,7 +243,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		}
 	}
 
-	private void updateLattice(Object source, Object arg) {
+	private void updateRegions(Object source, Object arg) {
 		Display.getDefault().asyncExec(() -> {
 			try {
 				if (arg instanceof ScannablePositionChangeEvent) {
@@ -247,7 +257,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 				}
 				if (toggleState.equals(TOGGLE_ON)) {
 					plottingSystem.clearRegions();
-					drawLattice(spacing, centreX, centreY);
+					drawRegions(spacing, centreX, centreY);
 				}
 			} catch (ExecutionException e) {
 				logger.error("It was not possible to create one or more regions", e);
@@ -260,10 +270,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 			if (arg instanceof ScannablePositionChangeEvent) {
 				toggleState = ((ScannablePositionChangeEvent)arg).newPosition.toString();
 				if (toggleState.equals(TOGGLE_ON)) {
-					updateLattice(null, null);
-					plottingSystem.getRegions().stream()
-						.filter(r -> r.getName().startsWith(START_OF_NAME))
-						.forEach(r -> r.setVisible(true));
+					updateRegions(null, null);
 				} else {
 					plottingSystem.getRegions().stream()
 						.filter(r -> r.getName().startsWith(START_OF_NAME))
@@ -296,6 +303,22 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 
 	public void setShowCrossOnly(boolean showCrossOnly) {
 		this.showCrossOnly = showCrossOnly;
+	}
+
+	public void setHideCentreXControl(boolean hideCentreXControl) {
+		this.hideCentreXControl = hideCentreXControl;
+	}
+
+	public void setHideCentreYControl(boolean hideCentreYControl) {
+		this.hideCentreYControl = hideCentreYControl;
+	}
+
+	public void setHideToggleControl(boolean hideToggleControl) {
+		this.hideToggleControl = hideToggleControl;
+	}
+
+	public void setHideSpacingControl(boolean hideSpacingControl) {
+		this.hideSpacingControl = hideSpacingControl;
 	}
 
 }
