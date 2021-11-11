@@ -27,6 +27,7 @@
 				<module>uk.ac.diamond.daq.crystal.feature</module>
 				<module>uk.ac.diamond.daq.dawnsci.analysis.feature</module>
 				<module>uk.ac.diamond.daq.deprecated.feature</module>
+				<module>uk.ac.diamond.daq.dgs.feature</module>
 				<module>uk.ac.diamond.daq.diffraction.server.feature</module>
 				<module>uk.ac.diamond.daq.eclipse.legacy.feature</module>
 				<module>uk.ac.diamond.daq.emf.edit.feature</module>
