@@ -233,7 +233,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 
 	@Override
 	public List<String> getScannableNames() throws ScanningException {
-		final List<String> scannableNames = new ArrayList<>();
+		final Set<String> scannableNames = new HashSet<>();
 
 		// add the names of findable scannables
 		final List<Scannable> scannableRefs = Finder.listFindablesOfType(Scannable.class);
@@ -255,7 +255,7 @@ public class ScannableDeviceConnectorService implements IScannableDeviceService 
 			scannableNames.addAll(scannables.keySet()); // They can be added by spring.
 		}
 
-		return scannableNames;
+		return new ArrayList<>(scannableNames);
 	}
 
 	@Override
