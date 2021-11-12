@@ -64,6 +64,18 @@
             id="org.opengda.detector.electronanalyser.client.ses"
             name="SES">
       </category>
+      <view
+            class="gda.rcp.views.ViewFactory:sequencecreatorfactory"
+            id="org.opengda.detector.electronanalyser.client.sequencecreator"
+            name="Sequence Creator"
+            restorable="true">
+      </view>
+      <view
+            class="gda.rcp.views.ViewFactory:regioncreatorfactory"
+            id="org.opengda.detector.electronanalyser.client.regioncreator"
+            name="Region Creator"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -332,6 +344,38 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.opengda.detector.electronanalyser.client.sequencecreator">
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               icon="icons/new_file.gif"
+               label="New"
+               style="push"
+               tooltip="Create a new sequence file">
+         </command>
+         <command
+               commandId="org.opengda.detector.electronanalyser.client.opensequence"
+               icon="icons/open-task.gif"
+               label="Open"
+               style="push"
+               tooltip="Open a sequence file">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.save"
+               icon="icons/save.gif"
+               id="org.eclipse.ui.file.savesequence"
+               label="Save"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.file.saveAs"
+               icon="icons/saveas.gif"
+               label="SaveAs"
+               style="push"
+               tooltip="Save the sequence in another file">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -363,6 +407,12 @@
             icon="icons/ses.gif"
             id="org.opengda.detector.electronanalyser.client.ses.perspective"
             name="SES Perspective">
+      </perspective>
+      <perspective
+            class="org.opengda.detector.electronanalyser.client.SESCreatorPerspective"
+            icon="icons/ses.gif"
+            id="org.opengda.detector.electronanalyser.client.ses.creator.perspective"
+            name="SES Creator">
       </perspective>
    </extension>
    <extension

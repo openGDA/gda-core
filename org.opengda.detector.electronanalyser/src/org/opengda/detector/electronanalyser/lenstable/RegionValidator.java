@@ -31,6 +31,7 @@ public class RegionValidator extends FindableBase {
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Scannable pgmEnergy;
 	private Scannable dcmEnergy;
+	private boolean offlineValidation;
 
 	/**
 	 * Check if a given region is valid or not for a given element set. The region's excitation energy is used to convert binding energy to kinetic energy
@@ -42,9 +43,14 @@ public class RegionValidator extends FindableBase {
 	 */
 	public boolean isValidRegion(Region region, String elementset) {
 		try {
+			// For running validation from creator perspective just use cached excitation energy
+			final double currentExcitationEnergy;
+			if (offlineValidation) {
+				currentExcitationEnergy = region.getExcitationEnergy();
+				return isValidRegion(region, elementset, currentExcitationEnergy);
+			}
 			// Need to decide if we want to validate against the hard or soft beam energy
 			// Get the current beam energies to avoid caching issues
-			final double currentExcitationEnergy;
 			if (regionDefinitionResourceUtil.isSourceSelectable()) {
 				if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
 					// Hard
@@ -165,4 +171,9 @@ public class RegionValidator extends FindableBase {
 	public void setDcmEnergy(Scannable dcmEnergy) {
 		this.dcmEnergy = dcmEnergy;
 	}
+
+	public void setOfflineValidation(boolean offlineValidation) {
+		this.offlineValidation = offlineValidation;
+	}
+
 }
