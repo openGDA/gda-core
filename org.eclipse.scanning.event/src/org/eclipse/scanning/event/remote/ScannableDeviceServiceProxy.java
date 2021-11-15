@@ -12,7 +12,6 @@
 package org.eclipse.scanning.event.remote;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,11 +69,6 @@ class ScannableDeviceServiceProxy extends AbstractRemoteService implements IScan
 	    String[] names = new String[devices.length];
 	    for (int i = 0; i < devices.length; i++) names[i] = devices[i].getName();
 		return Arrays.asList(names);
-	}
-
-	@Override
-	public Collection<DeviceInformation<?>> getDeviceInformation() throws ScanningException {
-		return Arrays.asList(getDevices());
 	}
 
 	private DeviceInformation<?>[] getDevices() throws ScanningException {

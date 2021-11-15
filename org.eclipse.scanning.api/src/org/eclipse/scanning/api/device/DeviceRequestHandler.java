@@ -129,19 +129,8 @@ public class DeviceRequestHandler implements IRequestHandler<DeviceRequest> {
 			request.addDeviceInformation(info);
 
 		} else {
-			final Collection<String> names = cservice.getScannableNames();
-			for (String name : names) {
-
-				if (name==null) continue;
-				if (request.getDeviceName()!=null && !name.matches(request.getDeviceName())) continue;
-
-				IScannable<?> device = cservice.getScannable(name);
-				if (device==null) throw new EventException("There is no created device called '"+name+"'");
-
-				DeviceInformation<?> info = new DeviceInformation<Object>(name);
-				merge(info, device);
-				request.addDeviceInformation(info);
-			}
+			final Collection<String> scannableNames = cservice.getScannableNames();
+			scannableNames.stream().map(DeviceInformation::new).forEach(request::addDeviceInformation);
 		}
 	}
 

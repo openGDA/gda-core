@@ -12,14 +12,11 @@
 package org.eclipse.scanning.api.device;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.IScannable;
-import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 
@@ -124,32 +121,6 @@ public interface IScannableDeviceService {
 	@Deprecated
 	default Set<String> getRequiredPerScanMonitorNames(String scannableName) {
 		return Collections.emptySet();
-	}
-
-	/**
-	 * Get a list of all the IScannables known to the service as a list of DeviceInformation<?>
-	 * objects. DeviceInformation is JSON serializable and this method is
-	 *
-	 * @return
-	 * @throws ScanningException
-	 * @throws Exception
-	 */
-	default Collection<DeviceInformation<?>> getDeviceInformation() throws ScanningException {
-
-		final Collection<String> names = getScannableNames();
-		final Collection<DeviceInformation<?>> ret = new ArrayList<>(names.size());
-		for (String name : names) {
-			try {
-				final IScannable<?> device = getScannable(name);
-				if (device == null) {
-					throw new ScanningException("There is no created device called '" + name + "'");
-				}
-				ret.add(((AbstractScannable<?>) device).getDeviceInformation());
-			} catch (Exception e) {
-				handleDeviceError(name, e);
-			}
-		}
-		return ret;
 	}
 
 	default void handleDeviceError(String name, Exception e) {

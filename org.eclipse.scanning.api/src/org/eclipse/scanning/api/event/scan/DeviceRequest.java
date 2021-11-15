@@ -34,11 +34,12 @@ import org.eclipse.scanning.api.points.IPosition;
  *
  * <pre>
  * Usage:
- * 1. Set nothing, post returns list of DeviceInformation for all devices.
- * 2. Set the device name, post returns the device with this name.               IRunnableDeviceService.getRunnableDevice()
- * 3. Set name and model, named device is retrieved and configured.
- * 4. Set the device model and the configure boolean, get a new device created.  IRunnableDeviceService.createRunnableDevice()
- * 5. Set the device action and the device name to call specific methods.
+ * 1. Set nothing, post returns list of DeviceInformation for all runnable devices.
+ * 2. Set the device name, post returns the runnable device with this name.               IRunnableDeviceService.getRunnableDevice()
+ * 3. Set name and device type, post returns the device with this name.
+ * 4. Set name and model, named device is retrieved and configured.
+ * 5. Set the device model and the configure boolean, get a new device created.  IRunnableDeviceService.createRunnableDevice()
+ * 6. Set the device action and the device name to call specific methods.
  *
  * </pre>
  *
@@ -60,7 +61,8 @@ public class DeviceRequest extends IdBean {
 	private DeviceType deviceType = DeviceType.RUNNABLE;
 
 	/**
-	 * List of all devices
+	 * List of all devices.
+	 * For type Scannable, it will return only the list of device names.
 	 */
 	private Collection<DeviceInformation<?>> devices;
 
