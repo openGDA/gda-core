@@ -18,24 +18,11 @@
 
 package uk.ac.gda.devices.tenma;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import gda.device.BaseEpicsDeviceController;
 import gda.device.DeviceException;
-import gda.epics.connection.EpicsController;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
 import uk.ac.gda.devices.tenma.api.IPsu722931Controller;
 
-public class Psu722931EpicsController implements IPsu722931Controller {
-
-	private EpicsController epicsController = EpicsController.getInstance();
-	private String basePvName;
-	private final Map<String, Channel> channels = new HashMap<>();
-
-	private static final String EPICS_SET_ERROR_MESSAGE_TEMPLATE = "Unable to set %s to %s via EPICS";
-	private static final String EPICS_GET_ERROR_MESSAGE_TEMPLATE = "Unable to get %s from EPICS";
+public class Psu722931EpicsController extends BaseEpicsDeviceController implements IPsu722931Controller {
 
 	private static final String CURRENT = "SET_CURRENT";
 	private static final String CURRENT_RBV = "CURRENT";
@@ -46,7 +33,7 @@ public class Psu722931EpicsController implements IPsu722931Controller {
 	private static final String OUTPUT_STATUS_RBV = "STATUS_RBV.B6";
 
 	public Psu722931EpicsController(String basePvName) {
-		this.basePvName = basePvName;
+		this.setBasePvName(basePvName);
 	}
 
 	@Override
@@ -82,55 +69,5 @@ public class Psu722931EpicsController implements IPsu722931Controller {
 	@Override
 	public boolean outputIsOn() throws DeviceException {
 		return getIntegerValue(OUTPUT_STATUS_RBV, "output status") == 1;
-	}
-
-	private void setDoubleValue(String channelName, double value, String fieldNameForErrorMessage)
-			throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(channelName), value);
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value),
-					exception);
-		}
-	}
-
-	private double getDoubleValue(String channelName, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetDouble(getChannel(channelName));
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage),
-					exception);
-		}
-	}
-
-	private void setIntegerValue(String channelName, int value, String fieldNameForErrorMessage)
-			throws DeviceException {
-		try {
-			epicsController.caputWait(getChannel(channelName), value);
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value),
-					exception);
-		}
-	}
-
-	private int getIntegerValue(String channelName, String fieldNameForErrorMessage) throws DeviceException {
-		try {
-			return epicsController.cagetInt(getChannel(channelName));
-		} catch (Exception exception) {
-			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage),
-					exception);
-		}
-	}
-
-	private Channel getChannel(String pvSuffix) throws TimeoutException, CAException {
-		String fullPvName = basePvName + pvSuffix;
-		Channel channel = channels.get(fullPvName);
-
-		if (channel == null) {
-			channel = epicsController.createChannel(fullPvName);
-			channels.put(fullPvName, channel);
-		}
-
-		return channel;
 	}
 }
