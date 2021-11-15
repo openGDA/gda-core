@@ -109,7 +109,6 @@ public class NexusScanFileManager {
 			nexusScanModel.setMetadataWriter(scanMetadataWriter);
 			try {
 				nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
-				scanMetadataWriter.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
 			} catch (NexusException e) {
 				throw new ScanningException("Error creating nexus file: " + e.getMessage(), e);
 			}
