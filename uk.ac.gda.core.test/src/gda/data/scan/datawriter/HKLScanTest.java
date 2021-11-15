@@ -52,6 +52,7 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
@@ -409,10 +410,10 @@ public class HKLScanTest {
 			assertThat(dataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 			assertThat(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(fieldName)));
 			assertThat(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME).getFirstElement(),
-					is(equalTo(HKL_SCANNABLE_NAME + "." + fieldName)));
+					is(equalTo(HKL_SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + fieldName)));
 
 			if (isInputField) {
-				final String positionerName = HKL_SCANNABLE_NAME + "." + fieldName;
+				final String positionerName = HKL_SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + fieldName;
 				final NXpositioner positioner = instrument.getPositioner(positionerName);
 				assertThat(positioner, is(notNullValue()));
 				assertThat(positioner.getDataNodeNames(), contains(NXpositioner.NX_NAME, NXpositioner.NX_VALUE));
@@ -425,7 +426,7 @@ public class HKLScanTest {
 		assertThat(entry.getAllData().keySet(), contains(DETECTOR_NAME));
 		final NXdata dataGroup = entry.getData(DETECTOR_NAME);
 		assertThat(dataGroup, is(notNullValue()));
-		final String[] hklLinkedFieldNames = Arrays.stream(INPUT_NAMES).map(fieldName -> HKL_SCANNABLE_NAME + "_" + fieldName).toArray(String[]::new);
+		final String[] hklLinkedFieldNames = Arrays.stream(INPUT_NAMES).map(fieldName -> HKL_SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + fieldName).toArray(String[]::new);
 		String[] expectedDataGroupFieldNames = ArrayUtils.add(hklLinkedFieldNames, NXdetector.NX_DATA);
 		if (hklScan.s1ScannableArgs != null) {
 			expectedDataGroupFieldNames = ArrayUtils.add(expectedDataGroupFieldNames, S1_SCANNABLE_NAME);
@@ -435,7 +436,7 @@ public class HKLScanTest {
 
 		assertSignal(dataGroup, NXdetector.NX_DATA);
 		final String expectedAxisName = hklScan.s1ScannableArgs != null ? S1_SCANNABLE_NAME :
-				HKL_SCANNABLE_NAME + "_" + hklScan.expectedDefaultAxisName;
+				HKL_SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + hklScan.expectedDefaultAxisName;
 		assertAxes(dataGroup, expectedAxisName);
 		for (int i = 0; i < INPUT_NAMES.length; i++) {
 			final String inputFieldName = INPUT_NAMES[i];

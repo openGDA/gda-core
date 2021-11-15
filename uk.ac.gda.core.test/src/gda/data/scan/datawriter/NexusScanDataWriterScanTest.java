@@ -623,7 +623,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(),
 				is(equalTo(scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(scannableName + "." + scannableName)));
+				is(equalTo(scannableName + NexusConstants.FIELD_SEPERATOR + scannableName)));
 		final String expectedTargetPath = "/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" +
 				(scanIndex == 0 ? GROUP_NAME_SCANNABLES + "/" : "" ) + scannableName + "/" + NXpositioner.NX_VALUE;
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
@@ -664,7 +664,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(scannableName + "." + scannableName)));
+				is(equalTo(scannableName + NexusConstants.FIELD_SEPERATOR + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(
 				"/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + GROUP_NAME_SCANNABLES + "/"
 						+ scannableName + "/" + NXpositioner.NX_VALUE)));
@@ -702,7 +702,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(MONITOR_NAME + "." + MONITOR_NAME)));
+				is(equalTo(MONITOR_NAME + NexusConstants.FIELD_SEPERATOR + MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
 				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getDataset().getSlice(),
@@ -729,7 +729,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(scannableName + "." + scannableName)));
+				is(equalTo(scannableName + NexusConstants.FIELD_SEPERATOR + scannableName)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
 				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + GROUP_NAME_SCANNABLES + "/" + scannableName + "/" + NXpositioner.NX_VALUE)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
@@ -817,7 +817,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(data.getAttributeNames(), containsInAnyOrder(expectedAttributeNames.toArray()));
 		assertSignal(data, signalFieldName);
 		assertAxes(data, Stream.concat(Arrays.stream(scannables).map(Scannable::getName),
-				Collections.nCopies(data.getDataNode(signalFieldName).getRank() - scanRank, ".").stream())
+				Collections.nCopies(data.getDataNode(signalFieldName).getRank() - scanRank, NexusConstants.FIELD_SEPERATOR).stream())
 						.toArray(String[]::new));
 
 		// check that each field has the expected indices
@@ -832,7 +832,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private List<String> getExpectedDataGroupNames(String dataDeviceName, List<String> primaryFieldNames) {
 		if (detectorType == DetectorType.NEXUS_DETECTOR || detectorType == DetectorType.MODIFIED_NEXUS_DETECTOR) {
 			return Streams.concat(Stream.of(dataDeviceName),
-					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(Collectors.toList());
+					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + NexusConstants.FIELD_SEPERATOR + name)).collect(Collectors.toList());
 		}
 
 		return List.of(dataDeviceName);
