@@ -316,7 +316,6 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		scanMetadataWriter = new NexusScanMetadataWriter();
 		final NexusScanModel nexusScanModel = createNexusScanModel();
 		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
-		scanMetadataWriter.setNexusObjectProviders(nexusScanFile.getNexusObjectProviders());
 
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 	}
