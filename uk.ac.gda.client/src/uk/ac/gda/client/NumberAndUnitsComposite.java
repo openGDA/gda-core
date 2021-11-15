@@ -67,9 +67,9 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	private final ComboViewer unitsCombo;
 
 	/** Used to format when the absolute number in the current units is <=1e-3 or >=1e3 */
-	private final NumberFormat scientificFormat = new DecimalFormat("0.#####E0");
+	private final NumberFormat scientificFormat = new DecimalFormat("0.###E0");
 	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
-	private final NumberFormat decimalFormat = new DecimalFormat("0.#####");
+	private final NumberFormat decimalFormat = new DecimalFormat("0.###");
 
 	/** Units of the corresponding model value */
 	private final Unit<Q> modelUnit;
