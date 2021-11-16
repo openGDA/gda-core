@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
@@ -38,6 +37,7 @@ import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
 import org.h2.mvstore.WriteBuffer;
 import org.h2.mvstore.type.DataType;
+import org.h2.mvstore.type.ObjectDataType;
 import org.h2.mvstore.type.StringDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,18 +79,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 	 * object tree are Java serializable. (Also, Java serialization, which is how
 	 * MV store (de)serializes objects by default is bad and may be removed in future).
 	 */
-	private final class JsonSerializableDataType implements DataType {
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public int compare(Object a, Object b) {
-			if (a instanceof Comparable && b instanceof Comparable) {
-				return ((Comparable<Object>) a).compareTo(b);
-			}
-
-			// it looks like this is only used to compare for equality, so this is ok
-			return a.equals(b) ? 0 : 1;
-		}
+	private final class JsonSerializableDataType extends ObjectDataType {
 
 		@Override
 		public int getMemory(Object obj) {
@@ -98,7 +87,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 				return eventConnectorService.marshal(obj).getBytes().length + 64;
 			} catch (Exception e) {
 				logger.error("Could not serialize bean: {}", obj);
-				throw new RuntimeException(e);
+				throw new IllegalArgumentException(e);
 			}
 		}
 
@@ -109,14 +98,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 				StringDataType.INSTANCE.write(buff, str);
 			} catch (Exception e) {
 				logger.error("Could not serialize bean: {}", obj);
-				throw new RuntimeException(e);
-			}
-		}
-
-		@Override
-		public void write(WriteBuffer buff, Object[] obj, int len, boolean key) {
-			for (int i = 0; i < len; i++) {
-				write(buff, obj[i]);
+				throw new IllegalArgumentException(e);
 			}
 		}
 
@@ -127,14 +109,7 @@ public class SynchronizedModifiableIdQueue<E extends IdBean> extends AbstractCol
 				return eventConnectorService.unmarshal(str, null);
 			} catch (Exception e) {
 				logger.error("Could not deserialize bean: {}", e);
-				throw new RuntimeException(e);
-			}
-		}
-
-		@Override
-		public void read(ByteBuffer buff, Object[] obj, int len, boolean key) {
-			for (int i = 0; i < len; i++) {
-				obj[i] = read(buff);
+				throw new IllegalArgumentException(e);
 			}
 		}
 
