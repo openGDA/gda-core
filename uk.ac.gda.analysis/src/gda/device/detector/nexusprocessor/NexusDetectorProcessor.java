@@ -21,6 +21,7 @@ package gda.device.detector.nexusprocessor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
@@ -51,7 +52,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	private NexusTreeProviderProcessor processor;
 	private boolean readoutDone;
 	private boolean enableProcessing = true;
-	private String wrapperName = "NexusDetectorWrapper_Unnamed";
+	private String wrapperName;
 	private String[] outputFormatCache;
 	private String[] extraNamesCache;
 
@@ -123,6 +124,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 
 	@Override
 	public void configure() throws FactoryException {
+		Objects.requireNonNull(wrapperName, "Name must be set for NexusDetectorProcessor");
 		detector.configure();
 	}
 
