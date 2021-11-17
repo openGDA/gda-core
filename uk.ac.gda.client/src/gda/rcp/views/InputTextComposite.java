@@ -325,7 +325,7 @@ public class InputTextComposite extends Composite {
 				if (isTextInput()) {
 					positionText.setText(((ScannablePositionChangeEvent)arg).newPosition.toString());
 				} else {
-					positionText.setText(String.format(scannable.getOutputFormat()[0], (Double)((ScannablePositionChangeEvent) arg).newPosition));
+					positionText.setText(String.format(scannable.getOutputFormat()[0], ((ScannablePositionChangeEvent) arg).newPosition));
 				}
 			});
 			} else if (arg.getClass().isArray()) {
