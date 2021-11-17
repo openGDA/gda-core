@@ -552,6 +552,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		}
 		// if its a watch
 		if (parts[0].toLowerCase().compareTo("watch") == 0) {
+			logger.debug("'watch' used in JythonTerminalView, input: {}", inputText);
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + inputText + "\n");
 
@@ -572,6 +573,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 			txtInput.setFocus();
 		}
 		else if ((helpHandler != null) && (parts[0].toLowerCase().compareTo("help") == 0)) {
+			logger.debug("helpHandler used in Jython terminal view, input: {}", inputText);
 			boolean handled = false;
 			StringBuffer buf = new StringBuffer();
 			try {
@@ -592,6 +594,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		}
 		// if its the history command
 		else if (parts[0].toLowerCase().compareTo("history") == 0) {
+			logger.debug("'history' used in Jython terminal view, input: {}", inputText);
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + parts[0] + "\n");
 
@@ -607,6 +610,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		}
 		// repeat old commands
 		else if (parts[0].startsWith("!")) {
+			logger.debug("repeat used in Jython terminal view, input: {}", inputText);
 			String stringToMatch = inputText.substring(1);
 
 			// if stringToMatch is a number, then use that command
@@ -640,7 +644,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		}
 		// record output to a text file
 		else if (parts[0].toLowerCase().compareTo("record") == 0) {
-
+			logger.debug("record used in Jython terminal view, input: {}", inputText);
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + inputText + "\n");
 
