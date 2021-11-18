@@ -205,7 +205,12 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 
 	@Override
 	protected String getPrimaryDataFieldName() {
-		return getScannable().getInputNames()[getPrimaryDataFieldIndex()];
+		final int primaryDataFieldIndex = getPrimaryDataFieldIndex();
+		final String[] inputNames = getScannable().getInputNames();
+		if (primaryDataFieldIndex < inputNames.length) {
+			return inputNames[primaryDataFieldIndex];
+		}
+		return getScannable().getExtraNames()[primaryDataFieldIndex - inputNames.length];
 	}
 
 	protected NexusBaseClass getNexusCategory() throws NexusException {
@@ -261,7 +266,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			throw new NexusException("Error getting NXclass for scannable: " + getName(), e);
 		}
 
-		return NexusBaseClass.NX_POSITIONER;
+		return getScannable().getInputNames().length == 0 ? NexusBaseClass.NX_COLLECTION : NexusBaseClass.NX_POSITIONER;
 	}
 
 	/**

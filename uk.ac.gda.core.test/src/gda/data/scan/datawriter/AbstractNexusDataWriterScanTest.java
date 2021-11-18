@@ -521,6 +521,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final DummyMonitor dummyMonitor = new DummyMonitor();
 		dummyMonitor.setConstantValue(MONITOR_VALUE);
 		dummyMonitor.setName(MONITOR_NAME);
+		dummyMonitor.configure();
 		this.monitor = dummyMonitor;
 	}
 
@@ -766,17 +767,17 @@ public abstract class AbstractNexusDataWriterScanTest {
 			.toArray(String[]::new));
 	}
 
+	protected String[] getScannableNames() {
+		return Arrays.stream(scannables).map(Scannable::getName).toArray(String[]::new);
+	}
+
 	protected String[] getScannableAndMonitorNames() {
 		return Streams.concat(Arrays.stream(scannables), Optional.ofNullable(monitor).stream())
 			.map(Scannable::getName)
 			.toArray(String[]::new);
 	}
 
-	protected String[] getExpectedPositionerNames() {
-		return Streams.concat(Arrays.stream(getScannableAndMonitorNames()),
-				getExpectedMetadataScannableNames().stream())
-				.toArray(String[]::new);
-	}
+	protected abstract String[] getExpectedPositionerNames();
 
 	protected int getNumScannedDevices() { // scannables, per-point monitors and detectors
 		return scanRank + (monitor != null ? 1 : 0) + (detector != null ? 1 : 0);
@@ -827,8 +828,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected void checkScannablesAndMonitors(final NXinstrument instrument) throws Exception {
 		final Map<String, NXpositioner> positioners = instrument.getAllPositioner();
 		final String[] expectedPositionerNames = getExpectedPositionerNames();
-		assertThat(positioners.size(), is(expectedPositionerNames.length));
 		assertThat(positioners.keySet(), containsInAnyOrder(expectedPositionerNames));
+		assertThat(positioners.size(), is(expectedPositionerNames.length));
 
 		checkScannables(positioners);
 		checkMonitor(instrument);
@@ -1011,22 +1012,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(note.getDescriptionScalar(), is(equalTo("This is a note")));
 	}
 
-	private void checkMonitor(NXinstrument instrument) throws Exception {
-		// check the monitor has been written correctly
-		final NXpositioner monitorPos = instrument.getPositioner(MONITOR_NAME);
-		if (monitor == null) {
-			assertThat(monitorPos, is(nullValue()));
-		} else {
-			assertThat(monitorPos, is(notNullValue()));
-			checkMonitorPositioner(monitorPos);
-		}
-	}
+	protected abstract void checkMonitor(NXinstrument instrument) throws Exception;
 
 	protected abstract void checkConfiguredScannablePositioner(String scannableName, NXpositioner positioner) throws Exception;
 
 	protected abstract void checkDefaultScannablePositioner(NXpositioner positioner, int scanIndex) throws Exception;
-
-	protected abstract void checkMonitorPositioner(NXpositioner positioner) throws Exception;
 
 	protected abstract void checkInstrumentGroupMetadata(NXinstrument instrument);
 

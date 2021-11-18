@@ -210,8 +210,8 @@ public class ScannableNexusWrapperScanTest {
 		public DummyStringScannable(String name, String fieldName, String value) {
 			super();
 			setName(name);
-			setInputNames(new String[0]);
-			setExtraNames(new String[] { fieldName });
+			setInputNames(new String[] { fieldName });
+			setExtraNames(new String[0]);
 			this.value = value;
 		}
 
@@ -828,7 +828,6 @@ public class ScannableNexusWrapperScanTest {
 			assertThat(nexusObject.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE),
 					is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 
-
 			final String[] valueFieldNames = (String[]) ArrayUtils.addAll(
 					scannable.getInputNames(), scannable.getExtraNames());
 			if (nexusObject.getNexusBaseClass() == NexusBaseClass.NX_POSITIONER && scannable.getInputNames().length > 0) {
@@ -845,9 +844,7 @@ public class ScannableNexusWrapperScanTest {
 			}
 			assertThat(nexusObject.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
 			assertThat(nexusObject.getNumberOfDataNodes(), is(expectedDataNodeNames.size()));
-
-			final String expectedName = metadataScannableName.equals("sample_name") ? "test sample": metadataScannableName;
-			assertThat(nexusObject.getString(NXpositioner.NX_NAME), is(equalTo(expectedName)));
+			assertThat(nexusObject.getString(NXpositioner.NX_NAME), is(equalTo(metadataScannableName)));
 
 			if (hasLimits(scannable) && nexusObject instanceof NXpositioner) {
 				final NXpositioner positioner = (NXpositioner) nexusObject;

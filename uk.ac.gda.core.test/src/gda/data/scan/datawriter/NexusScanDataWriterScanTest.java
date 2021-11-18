@@ -25,6 +25,7 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
@@ -595,6 +596,13 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
+	protected String[] getExpectedPositionerNames() {
+		return Streams.concat(Arrays.stream(getScannableNames()),
+				getExpectedMetadataScannableNames().stream())
+				.toArray(String[]::new);
+	}
+
+	@Override
 	protected void checkDefaultScannablePositioner(NXpositioner scannablePos, int scanIndex) throws DatasetException {
 		// This is the NXpositioner created by ScannableNexusDevice
 		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE,
@@ -668,24 +676,33 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected void checkMonitorPositioner(NXpositioner monitorPos) throws Exception {
-		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE };
-		assertThat(monitorPos.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+	protected void checkMonitor(NXinstrument instrument) throws Exception {
+		// check the monitor has been written correctly
+		final NXcollection monitorCollection = instrument.getCollection(MONITOR_NAME);
+		if (monitor == null) {
+			assertThat(monitorCollection, is(nullValue()));
+			return;
+		}
 
-		assertThat(monitorPos.getNameScalar(), is(equalTo(MONITOR_NAME)));
+		assertThat(monitorCollection, is(notNullValue()));
 
-		final DataNode monitorValueDataNode = monitorPos.getDataNode(NXpositioner.NX_VALUE);
+		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, MONITOR_NAME };
+		assertThat(monitorCollection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+
+		assertThat(monitorCollection.getString(FIELD_NAME_NAME), is(equalTo(MONITOR_NAME)));
+
+		final DataNode monitorValueDataNode = monitorCollection.getDataNode(MONITOR_NAME);
 		assertThat(monitorValueDataNode, is(notNullValue()));
 
 		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
 				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET };
 		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
-		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(NXpositioner.NX_VALUE)));
+		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(MONITOR_NAME + "." + NXpositioner.NX_VALUE)));
+				is(equalTo(MONITOR_NAME + "." + MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
-				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + NXpositioner.NX_VALUE)));
+				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getDataset().getSlice(),
 				is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MONITOR_VALUE)))); // check values
 	}
@@ -751,8 +768,17 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		return monitor != null ? monitor.getName() : scannables[0].getName();
 	}
 
+	private List<String> getPrimaryFieldNames() {
+		// return the primary fields of the primary device
+		if (isDetectorPrimaryDevice()) return detectorType.getPrimaryFieldNames();
+		if (monitor != null) return List.of(MONITOR_NAME);
+		return List.of(NXpositioner.NX_VALUE);
+	}
+
 	private String getSignalFieldName(String primaryFieldName) {
-		return isDetectorPrimaryDevice() ? primaryFieldName : NXpositioner.NX_VALUE;
+		if (isDetectorPrimaryDevice()) return primaryFieldName;
+		if (monitor != null) return MONITOR_NAME;
+		return NXpositioner.NX_VALUE;
 	}
 
 	private void checkDataGroup(NXentry entry, final NXdata data, final String signalFieldName,
@@ -775,7 +801,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		if (monitor != null && isDetectorPrimaryDevice()) {
 			// monitor value already added as the signal field if monitor is primary device
-			expectedDataNodeLinks.put(MONITOR_NAME, String.format("instrument/%s/%s", MONITOR_NAME, NXpositioner.NX_VALUE));
+			expectedDataNodeLinks.put(MONITOR_NAME, String.format("instrument/%s/%s", MONITOR_NAME, MONITOR_NAME));
 			expectedAttributeNames.add(MONITOR_NAME + "_indices");
 		}
 
@@ -799,11 +825,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		if (isDetectorPrimaryDevice()) {
 			assertIndices(data, MONITOR_NAME, expectedIndices);
 		}
-	}
-
-	private List<String> getPrimaryFieldNames() {
-		// return the primary fields of the primary device
-		return isDetectorPrimaryDevice() ? detectorType.getPrimaryFieldNames() : List.of(NXpositioner.NX_VALUE);
 	}
 
 	private List<String> getExpectedDataGroupNames(String dataDeviceName, List<String> primaryFieldNames) {

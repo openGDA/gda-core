@@ -139,7 +139,6 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		}
 
 		// for scannables with multiple (or zero) input fields, create an NXcollection with links and extra fields
-		// TODO is this the expected behaviour for no-input field scannables.
 		if (scannable.getInputNames().length != 1) { // will also cover no input field case
 			nexusProviders.add(createCollectionProvider(info));
 		}
@@ -279,12 +278,11 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 
 		// as the NXcollection has the same name as the device, this is the NexusObjectProvider that will be used as the default axis
 		final String[] inputNames = getScannable().getInputNames();
-		if (inputNames.length > 0) {
-			final String primaryDataFieldName = getPrimaryDataFieldName();
-			nexusProvider.setPrimaryDataFieldName(primaryDataFieldName);
-			nexusProvider.addAxisDataFieldNames(inputNames);
-			nexusProvider.setDefaultAxisDataFieldName(primaryDataFieldName);
-		}
+		if (inputNames.length == 1) throw new IllegalStateException(); // sanity check, no NXcollection for single input field case
+		final String primaryDataFieldName = getPrimaryDataFieldName();
+		nexusProvider.setPrimaryDataFieldName(primaryDataFieldName);
+		nexusProvider.addAxisDataFieldNames(inputNames.length > 0 ? inputNames : new String[] { getScannable().getExtraNames()[0] });
+		nexusProvider.setDefaultAxisDataFieldName(primaryDataFieldName);
 		return nexusProvider;
 	}
 

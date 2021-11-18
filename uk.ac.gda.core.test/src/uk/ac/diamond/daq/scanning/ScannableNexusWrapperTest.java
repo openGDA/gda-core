@@ -75,8 +75,6 @@ import gda.device.scannable.DummyScannableMotor;
 
 public class ScannableNexusWrapperTest {
 
-	private static final String FIELD_NAME_VALUE_SET = NXpositioner.NX_VALUE + "_set";
-
 	private IScannable<Object> scannable;
 
 	@Before

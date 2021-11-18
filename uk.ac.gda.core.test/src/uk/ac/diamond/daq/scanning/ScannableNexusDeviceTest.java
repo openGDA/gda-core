@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -127,6 +128,17 @@ public class ScannableNexusDeviceTest {
 		return mockScannable;
 	}
 
+	// TODO use JUnit 5 parameterization.
+	@Test
+	public void testGetNexusProviders_noInputSingleExtra() throws Exception {
+		testGetNexusProviders(0, 1);
+	}
+
+	@Test
+	public void testGetNexusProviders_noInputMultiExtra() throws Exception {
+		testGetNexusProviders(0, 3);
+	}
+
 	@Test
 	public void testGetNexusProviders_singleInputNoExtra() throws Exception {
 		testGetNexusProviders(1, 0);
@@ -172,14 +184,16 @@ public class ScannableNexusDeviceTest {
 			checkNXPositioner(positionerProvider, i);
 		}
 
-		// in the case of multiple input fields, an NXcollection is created with links to the input fields and any extra fields
+		// in the case of multiple (or zero) input fields, an NXcollection is created with links to the input fields and any extra fields
 		if (!singleInputField) {
 			checkNXcollection(nexusObjectProviders);
 		}
 	}
 
 	private void checkNXPositioner(final NexusObjectProvider<NXpositioner> positionerProvider, int inputFieldIndex) throws DatasetException {
+		assertThat(inputNames.length, is(greaterThan(0))); // sanity check
 		final boolean singleInputField = inputNames.length == 1;
+
 		final String inputName = inputNames[inputFieldIndex];
 		final String positionerName = SCANNABLE_NAME + (singleInputField ? "" : "." + inputName);
 
@@ -188,8 +202,9 @@ public class ScannableNexusDeviceTest {
 		assertThat(positionerProvider.getNexusBaseClass(), is(NX_POSITIONER));
 		assertThat(positionerProvider.getCategory(), is(nullValue()));
 		assertThat(positionerProvider.getCollectionName(), is(nullValue()));
-
-		if (singleInputField) {
+		if (inputNames.length == 1) {
+			assertThat(positionerProvider.getPrimaryDataFieldName(), is(equalTo(NXpositioner.NX_VALUE)));
+			assertThat(positionerProvider.getAdditionalPrimaryDataFieldNames(), is(empty()));
 			final String[] expectedAxisFieldsNames = new String[] { NXpositioner.NX_VALUE, FIELD_NAME_VALUE_SET };
 			assertThat(positionerProvider.getAxisDataFieldNames(), contains(expectedAxisFieldsNames));
 			assertThat(positionerProvider.getDefaultAxisDataFieldName(),is(equalTo(FIELD_NAME_VALUE_SET)));
@@ -197,6 +212,8 @@ public class ScannableNexusDeviceTest {
 			// in the multi-field case the NXcollection is used to get the DataNodes to add to NXdata groups instead.
 			assertThat(positionerProvider.getAxisDataFieldNames(), is(empty()));
 			assertThat(positionerProvider.getDefaultAxisDataFieldName(), is(nullValue()));
+			assertThat(positionerProvider.getAxisDataFieldNames(), is(empty()));
+			assertThat(positionerProvider.getDefaultAxisDataFieldName(),is(nullValue()));
 		}
 
 		// extra names are only added to the NXpositioner in the case of a single input name, otherwise they are added to the NXcollection
@@ -255,8 +272,17 @@ public class ScannableNexusDeviceTest {
 		assertThat(collectionProvider.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
 		assertThat(collectionProvider.getCategory(), is(NexusBaseClass.NX_INSTRUMENT));
 		assertThat(collectionProvider.getCollectionName(), is(nullValue()));
-		assertThat(collectionProvider.getAxisDataFieldNames(), contains(inputNames));
-		assertThat(collectionProvider.getDefaultAxisDataFieldName(), is(inputNames[0]));
+		if (inputNames.length == 0) {
+			assertThat(collectionProvider.getPrimaryDataFieldName(), is(equalTo(extraNames[0])));
+			assertThat(collectionProvider.getAdditionalPrimaryDataFieldNames(), is(empty()));
+			assertThat(collectionProvider.getAxisDataFieldNames(), contains(extraNames[0]));
+			assertThat(collectionProvider.getDefaultAxisDataFieldName(), is(equalTo(extraNames[0])));
+		} else {
+			assertThat(collectionProvider.getPrimaryDataFieldName(), is(equalTo(inputNames[0])));
+			assertThat(collectionProvider.getAdditionalPrimaryDataFieldNames(), is(empty()));
+			assertThat(collectionProvider.getAxisDataFieldNames(), contains(inputNames));
+			assertThat(collectionProvider.getDefaultAxisDataFieldName(), is(equalTo(inputNames[0])));
+		}
 
 		final String[] expectedDataNodeNames = Stream.of(inputNames, extraNames, new String[] { FIELD_NAME_NAME })
 				.flatMap(Stream::of).toArray(String[]::new);
