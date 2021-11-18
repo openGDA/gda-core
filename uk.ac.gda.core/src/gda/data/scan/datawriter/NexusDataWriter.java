@@ -20,7 +20,7 @@
 package gda.data.scan.datawriter;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.partitioningBy;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -192,7 +191,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	private final ZonedDateTime startTime = ZonedDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-	private Collection<SelfCreatingLink> scannableID;
+	private List<SelfCreatingLink> axesDataNodes;
 
 	private boolean firstData = true;
 
@@ -1147,12 +1146,12 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	 * @throws NexusException
 	 */
 	private void makeScannables() {
-		scannableID = new Vector<>();
-		try {
-			// group the scannables and monitors in the scan by whether they have a ScannableWriter configured
-			final Map<Boolean, List<Scannable>> scannables = thisPoint.getScannables().stream().collect(
-					groupingBy(this::hasConfiguredWriter));
+		// group the scannables and monitors in the scan by whether they have a ScannableWriter configured
+		final Map<Boolean, List<Scannable>> scannables = thisPoint.getScannables().stream()
+				.collect(partitioningBy(this::hasConfiguredWriter));
 
+		axesDataNodes = new ArrayList<>();
+		try {
 			makeConfiguredScannables(scannables.getOrDefault(true, emptyList()));
 			// only use default writing for the scannables that don't have a ScannableWriter configured
 			makeDefaultScannables(scannables.getOrDefault(false, emptyList()));
@@ -1189,7 +1188,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			final Optional<ScannableWriter> optWriter = getWriterForScannable(scannableName);
 			if (!optWriter.isPresent()) throw new NexusException("No writer found for scannable: " + scannableName); // not possible as already checked
 			final ScannableWriter writer = optWriter.get();
-			scannableID.addAll(writer.makeScannable(file, group, scannable, getSDPositionFor(scannableName),
+			axesDataNodes.addAll(writer.makeScannable(file, group, scannable, getSDPositionFor(scannableName),
 					generateDataDim(false, scanDimensions, null), scannableName.equals(firstScannableName)));
 		}
 	}
@@ -1214,8 +1213,8 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 			NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 			final int[] dataDim = generateDataDim(true, scanDimensions, null);
 
-			int inputnameindex = 0;
-			int extranameindex = 0;
+			int inputNameIndex = 0;
+			int extraNameIndex = 0;
 			for (Scannable scannable : scannables) {
 				final String[] inputNames = scannable.getInputNames();
 				final String[] extraNames = scannable.getExtraNames();
@@ -1247,15 +1246,15 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 						// for scannables with multiple input names
 						// this is not solvable given the current data in SDP
 
-						if ((thisPoint.getScanDimensions().length) > inputnameindex) {
-							NexusUtils.writeStringAttribute(file, data, "label", String.format("%d", inputnameindex + 1));
+						if ((thisPoint.getScanDimensions().length) > inputNameIndex) {
+							NexusUtils.writeStringAttribute(file, data, "label", String.format("%d", inputNameIndex + 1));
 							NexusUtils.writeStringAttribute(file, data, "primary", "1");
 						}
 						NexusUtils.writeStringAttribute(file, data, "axis", axislist);
 					}
 
-					scannableID.add(new SelfCreatingLink(data));
-					inputnameindex++;
+					axesDataNodes.add(new SelfCreatingLink(data));
+					inputNameIndex++;
 				}
 
 				for (String element : extraNames) {
@@ -1267,12 +1266,12 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 					// Get a link ID to this data set.
 					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
 
-					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
+					if (thisPoint.getDetectorNames().isEmpty() && extraNameIndex == 0) {
 						NexusUtils.writeStringAttribute(file, data, "signal", "1");
 					}
 
-					scannableID.add(new SelfCreatingLink(data));
-					extranameindex++;
+					axesDataNodes.add(new SelfCreatingLink(data));
+					extraNameIndex++;
 				}
 
 				addDeviceMetadata(scannable.getName(), groupNode);
@@ -1295,7 +1294,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	protected void makeAxesLinks(GroupNode group) {
 		// Make links to all scannables.
-		for (SelfCreatingLink id : scannableID) {
+		for (SelfCreatingLink id : axesDataNodes) {
 			try {
 				id.create(file, group);
 			} catch (NexusException e) {
