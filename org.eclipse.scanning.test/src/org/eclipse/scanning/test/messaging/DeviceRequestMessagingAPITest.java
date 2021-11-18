@@ -148,7 +148,7 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 	public void testGetListOfScannables() throws Exception {
 
 		String sentJson = "{\"@type\":\"DeviceRequest\",\"deviceType\":\"SCANNABLE\"}";
-		String expectedJson = "{\"@type\":\"DeviceRequest\",\"deviceType\":\"SCANNABLE\",\"devices\":[{\"name\":\"drt_mock_scannable\",\"level\":2,\"unit\":\"µm\",\"upper\":1000,\"lower\":-1000,\"activated\":false,\"busy\":false},{\"name\":\"drt_mock_nexus_scannable\",\"level\":3,\"unit\":\"mm\",\"upper\":1000,\"lower\":-1000,\"activated\":false,\"busy\":false}]}";
+		String expectedJson = "{\"@type\":\"DeviceRequest\",\"deviceType\":\"SCANNABLE\",\"devices\":[{\"name\":\"drt_mock_scannable\"},{\"name\":\"drt_mock_nexus_scannable\"}]}";
 
 		String returnedJson = getMessageResponse(sentJson);
 
