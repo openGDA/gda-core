@@ -234,6 +234,10 @@ public class OuterScannablesBlock {
 				updatePoints();
 			});
 		}
+
+		if (scannablesChangedListener != null) {
+			scannablesChangedListener.scannablesChanged(outerScannables);
+		}
 	}
 
 	private void disposeScanPathEditors() {
@@ -257,7 +261,7 @@ public class OuterScannablesBlock {
 	private void deleteScannable(IScanModelWrapper<IScanPointGeneratorModel> scannable) {
 		if (MessageDialog.openQuestion(getShell(), "Confirm deletion", String.format("Do you want to delete %s?", scannable.getName()))) {
 			outerScannables.remove(scannable);
-			scannablesChanged();
+			updateControls();
 		}
 	}
 
@@ -284,15 +288,7 @@ public class OuterScannablesBlock {
 			for (String scannableName : scannablesNamesToAdd) {
 				addScannableInternal(scannableName, false);
 			}
-			scannablesChanged();
-		}
-	}
-
-	private void scannablesChanged() {
-		updateControls();
-
-		if (scannablesChangedListener != null) {
-			scannablesChangedListener.scannablesChanged(new ArrayList<>(getOuterScannables()));
+			updateControls();
 		}
 	}
 

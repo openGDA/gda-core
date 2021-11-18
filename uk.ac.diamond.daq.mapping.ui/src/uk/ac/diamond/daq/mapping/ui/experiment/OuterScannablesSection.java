@@ -96,7 +96,6 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	private void scannablesChanged(List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
 		// update the bean from the UI
 		getMappingBean().getScanDefinition().setOuterScannables(outerScannables);
-		updateMappingView();
 	}
 
 	private void updatePoints() {
@@ -106,7 +105,6 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	@Override
 	public void updateControls() {
 		outerScannablesBlock.updateControls();
-		outerScannablesBlock.setOuterScannables(null);
 		updateMappingView();
 	}
 
