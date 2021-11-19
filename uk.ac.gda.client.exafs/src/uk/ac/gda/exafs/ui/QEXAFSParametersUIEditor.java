@@ -67,7 +67,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		return new ExpressionProvider() {
 			@Override
 			public double getValue(double e) {
-				return Converter.convertEnergyToWaveVector(e, getEdgeValue());
+				return Double.isNaN(e) ? Double.NaN : Converter.convertEnergyToWaveVector(e, getEdgeValue());
 			}
 			@Override
 			public IFieldWidget[] getPrecedents() {
@@ -198,6 +198,8 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 			logger.error("Could not update element list", e);
 		}
 		super.linkUI(isPageChange);
+		// Initialise the element and edge combo boxes
+		updateElement(ELEMENT_EVENT_TYPE.INIT); // Must be after super.linkUI()
 	}
 
 	@Override
