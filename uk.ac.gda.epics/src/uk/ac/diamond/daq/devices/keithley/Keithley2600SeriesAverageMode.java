@@ -172,6 +172,9 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData data = new NXDetectorData(this);
 
+		data.addData(getName(), "resistance_mode", new NexusGroupData(getResistanceMode().toEpics()));
+		data.addData(getName(), "integration_time", new NexusGroupData(getIntegrationTime()), "ms");
+
 		try {
 			meanVoltage = getMeanVoltage();
 			meanCurrent = getMeanCurrent();
@@ -180,10 +183,14 @@ public class Keithley2600SeriesAverageMode extends Keithley2600Series implements
 			throw exception;
 		}
 
-		if (getSourceMode() == SourceMode.CURRENT) {
+		SourceMode sourceMode = getSourceMode();
+		data.addData(getName(), "source_mode", new NexusGroupData(sourceMode.toEpics()));
+		if (sourceMode == SourceMode.CURRENT) {
 			data.setPlottableValue(getName(),  meanVoltage);
-		} else if (getSourceMode() == SourceMode.VOLTAGE) {
+			data.addData(getName(), "current_level_setpoint", new NexusGroupData(getDemandCurrent()), "A");
+		} else if (sourceMode == SourceMode.VOLTAGE) {
 			data.setPlottableValue(getName(),  meanCurrent);
+			data.addData(getName(), "voltage_level_setpoint", new NexusGroupData(getDemandVoltage()), "V");
 		}
 
 		data.addData(getName(), "mean current", new NexusGroupData(meanCurrent), "A");

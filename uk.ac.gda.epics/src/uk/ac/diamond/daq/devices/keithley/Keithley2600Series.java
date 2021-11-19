@@ -82,6 +82,9 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 	private static final String RESISTANCE_MODE = "ResistanceMode";
 	private static final String RESISTANCE_MODE_RBV = "ResistanceModeRead";
 
+	/** integration time */
+	private static final String INTEGRATION_TIME = "AccTimeNplc";
+	private static final String INTEGRATION_TIME_RBV = "AccTimeNplcR";
 
 
 	/** This monitors the status flags for voltage or current limits hit */
@@ -216,6 +219,22 @@ public class Keithley2600Series extends AbstractKeithley2600Series {
 			epicsController.caputWait(getChannel(RESISTANCE_MODE), mode.toEpics());
 		} catch (Exception e) {
 			throw new DeviceException("Failed to set resistance mode to " + mode, e);
+		}
+	}
+
+	public double getIntegrationTime() throws DeviceException {
+		try {
+			return epicsController.cagetDouble(getChannel(INTEGRATION_TIME_RBV));
+		} catch (Exception e) {
+			throw new DeviceException("Failed to get integration time", e);
+		}
+	}
+
+	public void setIntegrationTime(double time) throws DeviceException {
+		try {
+			epicsController.caputWait(getChannel(INTEGRATION_TIME), time);
+		} catch (Exception e) {
+			throw new DeviceException("Failed to set integration time to: " + time, e);
 		}
 	}
 
