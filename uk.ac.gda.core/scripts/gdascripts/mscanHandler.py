@@ -97,117 +97,21 @@ import gda.mscan.element.Scanpath as Scanpath
 import gda.mscan.element.RegionShape as RegionShape
 import gda.mscan.element.Mutator as Mutator
 import gda.mscan.element.ScanDataConsumer as ScanDataConsumer
+import gda.mscan.element.Action as Action
 
 from gda.jython.commands.GeneralCommands import alias
 from gda.mscan import MScanSubmitter
 from org.eclipse.scanning.command.Services import getEventService
 from org.eclipse.scanning.command.Services import getRunnableDeviceService
 
-# Set up lambdas that return the Scanpath Enum instances that link to the
-# Models and assign them to the corresponding names and standard 4 character
+# Function to set up variable that return the instances of the passed in array of
+# Enum types and assign them to the corresponding names and standard 4 character
 # abbreviations so that they can be protected using alias()
-
-grid = Scanpath.GRID_POINTS
-rast = raster = Scanpath.GRID_STEP
-spir = spiral = Scanpath.SPIRAL
-liss = lissajous = Scanpath.LISSAJOUS
-step = angl = angle = Scanpath.LINE_STEP
-nopt = pts = noofpoints = points = proj = projections = Scanpath.LINE_POINTS
-axst = axisstep = Scanpath.AXIS_STEP
-axno = axispoints = Scanpath.AXIS_POINTS
-stat = static = acq = acquire = Scanpath.STATIC
-
-# Register the commands with the Translator
-alias('grid')
-alias('rast')
-alias('raster')
-alias('spir')
-alias('spiral')
-alias('liss')
-alias('lissajous')
-alias('step')
-alias('angl')
-alias('angle')
-alias('nopt')
-alias('pts')
-alias('noofpoints')
-alias('points')
-alias('projections')
-alias('proj')
-alias('axst')
-alias('axisstep')
-alias('axno')
-alias('axispoints')
-alias('stat')
-alias('static')
-alias('acq')
-alias('acquire')
-
-
-# Set up functions that return the RegionShape Enum instances and assign them to
-# the corresponding names and standard 4 character abbreviations so that
-# they can be protected using alias()
-
-rect = rectangle = RegionShape.RECTANGLE
-crec = centred_rectangle = RegionShape.CENTRED_RECTANGLE
-circ = circle = RegionShape.CIRCLE
-poly = polygon = RegionShape.POLYGON
-line = helical = heli = htom = RegionShape.LINE
-poin = point = pt = RegionShape.POINT
-axis = rotation = rota = rot = tomography = tomo = RegionShape.AXIAL
-
-# Register the commands with the Translator
-alias('rect')
-alias('rectangle')
-alias('crec')
-alias('centred_rectangle')
-alias('circ')
-alias('circle')
-alias('poly')
-alias('polygon')
-alias('line')
-alias('helical')
-alias('heli')
-alias('htom')
-alias('poin')
-alias('point')
-alias('pt')
-alias('axis')
-alias('rotation')
-alias('rota')
-alias('rot')
-alias('tomography')
-alias('tomo')
-
-
-# Set up functions that return Mutator Enum instances and assign them to
-# the corresponding names and standard 4 character abbreviations so that
-# they can be protected using alias()
-
-snak = snake = alte = alternating = Mutator.ALTERNATING
-roff = random_offset =  Mutator.RANDOM_OFFSET
-cont = continuous =  Mutator.CONTINUOUS
-
-# Register the commands with the Translator
-alias('snak')
-alias('snake')
-alias('alte')
-alias('alternating')
-alias('roff')
-alias('random_offset')
-alias('cont')
-alias('continuous')
-
-temp = templates = ScanDataConsumer.TEMPLATE
-proc = processors = ScanDataConsumer.PROCESSOR
-
-alias('temp')
-alias('templates')
-alias('proc')
-alias('processors')
-
-rrun = rerun = 'rerun'
-alias('rerun')
+def initialiseGlobalVariablesFor(mscanEnumTypes):
+    for enumType in mscanEnumTypes:
+        for (key, value) in enumType.termsMap().items():
+            globals()[key] = value
+            alias(key)
 
 # The Java entry point for MScan commands, creates the scan builder and
 # submits the command string via the GeneralTranslator.
@@ -217,3 +121,5 @@ def mscan(*args):
 
 # Register the mscan command with the Translator
 alias('mscan')
+
+initialiseGlobalVariablesFor([Scanpath, RegionShape, Mutator, ScanDataConsumer, Action])

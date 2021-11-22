@@ -21,13 +21,17 @@ package gda.mscan.element;
 import static gda.mscan.element.Mutator.ALTERNATING;
 import static gda.mscan.element.Mutator.CONTINUOUS;
 import static gda.mscan.element.Mutator.RANDOM_OFFSET;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.Pair;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractMapModel;
@@ -48,8 +52,6 @@ import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 
-import com.google.common.collect.ImmutableMap;
-
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
 
@@ -62,16 +64,16 @@ import gda.device.ScannableMotionUnits;
  * @since GDA 9.9
  */
 public enum Scanpath implements IMScanDimensionalElementEnum {
-	GRID_POINTS("grid", 2, 2, TwoAxisGridPointsModel.class, Factory::createTwoAxisGridPointsModel),
-	GRID_STEP("rast", 2, 2, TwoAxisGridStepModel.class, Factory::createTwoAxisGridStepModel),
-	SPIRAL("spir", 2, 1, TwoAxisSpiralModel.class, Factory::createTwoAxisSpiralModel),
-	LISSAJOUS("liss", 2, 3, TwoAxisLissajousModel.class, Factory::createTwoAxisLissajousModel),
-	LINE_STEP("step", 2, 1, TwoAxisLineStepModel.class, Factory::createTwoAxisLineStepModel),
-	LINE_POINTS("nopt", 2, 1, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
-	SINGLE_POINT("poin", 2, 2, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
-	AXIS_STEP("axst", 1, 1, AxialStepModel.class, Factory::createAxialStepModel),
-	AXIS_POINTS("axno", 1, 1, AxialPointsModel.class, Factory::createAxialPointsModel),
-	STATIC("stat", 0, 1, StaticModel.class, Factory::createStaticModel);
+	GRID_POINTS("grid", asList(), 2, 2, TwoAxisGridPointsModel.class, Factory::createTwoAxisGridPointsModel),
+	GRID_STEP("rast", asList("raster"), 2, 2, TwoAxisGridStepModel.class, Factory::createTwoAxisGridStepModel),
+	SPIRAL("spir", asList("spiral"), 2, 1, TwoAxisSpiralModel.class, Factory::createTwoAxisSpiralModel),
+	LISSAJOUS("liss", asList("lissajous"), 2, 3, TwoAxisLissajousModel.class, Factory::createTwoAxisLissajousModel),
+	LINE_STEP("step", asList("angl", "angle"), 2, 1, TwoAxisLineStepModel.class, Factory::createTwoAxisLineStepModel),
+	LINE_POINTS("nopt", asList("pts", "noofpoints", "points", "proj", "projections"), 2, 1, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
+	SINGLE_POINT("poin", asList(), 2, 2, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
+	AXIS_STEP("axst", asList("axisstep"), 1, 1, AxialStepModel.class, Factory::createAxialStepModel),
+	AXIS_POINTS("axno", asList("axispoints"), 1, 1, AxialPointsModel.class, Factory::createAxialPointsModel),
+	STATIC("stat", asList("static"), 0, 1, StaticModel.class, Factory::createStaticModel);
 
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
 	private static final String PREFIX = "Invalid Scan clause: ";
@@ -80,28 +82,48 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 											ALTERNATING, AbstractPointsModel::supportsAlternating,
 											CONTINUOUS, AbstractPointsModel::supportsContinuous);
 
-	private final String text;
+	private static final String ALL_POSITIVE_ERROR = " path requires all positive parameters";
+	private static final String ALL_INTEGER_ERROR = " path requires all integer parameters";
+	private static final String ONE_POSITIVE_ERROR = " path requires that parameter %s is positive";
+	private static final String ONE_INTEGER_ERROR = " path requires that parameter %s is an integer";
+	private static final Map<String, Scanpath> termsMap;
+	private final List<String> terms = new ArrayList<>();
 	private final int axisCount;
 	/** The number of parameters required to generate the path **/
 	private final int valueCount;
 	private final Class<? extends AbstractPointsModel> modelType;
 	private final ScanpathModelFactoryFunction factory;
 
-	private static final String ALL_POSITIVE_ERROR = " path requires all positive parameters";
-	private static final String ALL_INTEGER_ERROR = " path requires all integer parameters";
-	private static final String ONE_POSITIVE_ERROR = " path requires that parameter %s is positive";
-	private static final String ONE_INTEGER_ERROR = " path requires that parameter %s is an integer";
-
-	private Scanpath(final String text, final int axisCount, final int valueCount,
+	private Scanpath(final String text, final List<String> aliases, final int axisCount, final int valueCount,
 						final Class<? extends AbstractPointsModel> type,
 						final ScanpathModelFactoryFunction factoryFunction) {
-		this.text = text;
+		this.terms.add(text);
+		this.terms.addAll(aliases);
 		this.axisCount = axisCount;
 		this.valueCount = valueCount;
 		this.modelType = type;
 		this.factory= factoryFunction;
 	}
 
+	/**
+	 * Initialise the {@link java.util.Map} of text terms (including aliases) to {@link Scanpath} instance
+	 */
+	static {
+		termsMap = stream(values())
+			.map(path -> path.terms().stream()
+					.map(term -> new Pair<String, Scanpath>(term, path)))
+			.flatMap(Function.identity())
+			.collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+	}
+
+	/**
+	 * Get the map of text terms (including aliases) to instances of Scanpath
+	 *
+	 * @return 		A {@link java.util.Map} of the terms to {@link Scanpath} instance
+	 */
+	public static Map<String, Scanpath> termsMap() {
+		return termsMap;
+	}
 	/**
 	 * The number of values required to construct the path
 	 *
@@ -126,7 +148,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	 * @return		List of default text for the instances
 	 */
 	public static List<String> strValues() {
-		return stream(values()).map(val -> val.text).collect(toList());
+		return stream(values()).map(val -> val.terms.get(0)).collect(toList());
 	}
 
 	/**
@@ -135,6 +157,24 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	@Override
 	public int getAxisCount() {
 		return axisCount;
+	}
+
+	/**
+	 * Get the full list of text terms that can be used to refer to this instance in mscan commands (default plus aliases)
+	 *
+	 * @return 		A {@link java.util.List} of the terms with the default text term at position 0
+	 */
+	public List<String> terms() {
+		return terms;
+	}
+
+	/**
+	 * Get a list of the aliases that can be used to refer to this instance in mscan commands
+	 *
+	 * @return 		A {@link java.util.List} of the aliases
+	 */
+	public List<String> aliases() {
+		return terms.subList(1, terms.size() - 1);
 	}
 
 	/**
@@ -173,7 +213,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	public IScanPointGeneratorModel createModel(final List<Scannable> scannables, final List<Number> pathParams,
 										final List<Number> bboxParams, final Map<Mutator, List<Number>> mutatorUses) {
 		if (this == STATIC) validateStatic(scannables, pathParams);
-		else validateInputs(ImmutableMap.of(scannables, axisCount,
+		else validateInputs(Map.of(scannables, axisCount,
 										pathParams, axisCount == 1 ? valueCount + 2 : valueCount,
 										bboxParams, BOUNDS_REQUIRED_PARAMS));
 		mutatorUses.keySet().forEach(mutator -> {
@@ -584,30 +624,30 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 			// If it does not, we return "mm"- we don't know the units, but it's consistent with Mapping and the default
 			return "mm";
 		}
-	}
 
-	private static void checkParamInteger(Number param, String className) {
-		if (!(param instanceof Integer)) {
-			throw new IllegalArgumentException(PREFIX + className + ALL_INTEGER_ERROR);
+		private static void checkParamInteger(Number param, String className) {
+			if (!(param instanceof Integer)) {
+				throw new IllegalArgumentException(PREFIX + className + ALL_INTEGER_ERROR);
+			}
 		}
-	}
 
-	private static void checkParamPositive(Number param, String className) {
-		if (param.doubleValue() <= 0) {
-			throw new IllegalArgumentException(PREFIX + className + ALL_POSITIVE_ERROR);
+		private static void checkParamPositive(Number param, String className) {
+			if (param.doubleValue() <= 0) {
+				throw new IllegalArgumentException(PREFIX + className + ALL_POSITIVE_ERROR);
+			}
 		}
-	}
 
-	private static void checkOneParameterPositive(Number param, String className, int paramOrder) {
-		if (param.doubleValue() <= 0) {
-			throw new IllegalArgumentException(PREFIX + className + String.format(ONE_POSITIVE_ERROR, paramOrder));
+		private static void checkOneParameterPositive(Number param, String className, int paramOrder) {
+			if (param.doubleValue() <= 0) {
+				throw new IllegalArgumentException(PREFIX + className + String.format(ONE_POSITIVE_ERROR, paramOrder));
+			}
 		}
-	}
 
-	private static void checkOneParameterPositiveInteger(Number param, String className, int paramOrder) {
-		if (!(param instanceof Integer)) {
-			throw new IllegalArgumentException(PREFIX + className + String.format(ONE_INTEGER_ERROR, paramOrder));
+		private static void checkOneParameterPositiveInteger(Number param, String className, int paramOrder) {
+			if (!(param instanceof Integer)) {
+				throw new IllegalArgumentException(PREFIX + className + String.format(ONE_INTEGER_ERROR, paramOrder));
+			}
+			checkOneParameterPositive(param, className, paramOrder);
 		}
-		checkOneParameterPositive(param, className, paramOrder);
 	}
 }
