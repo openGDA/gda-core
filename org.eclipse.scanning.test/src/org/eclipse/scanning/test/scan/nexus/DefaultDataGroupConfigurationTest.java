@@ -29,6 +29,7 @@ import java.util.Arrays;
 
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.scan.ServiceHolder;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -42,8 +43,8 @@ import org.junit.Test;
 public class DefaultDataGroupConfigurationTest extends NexusTest {
 
 	private static final String IMAGE_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME;
-	private static final String SPECTRUM_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME + "_" + FIELD_NAME_SPECTRUM;
-	private static final String VALUE_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME + "_" + FIELD_NAME_VALUE;
+	private static final String SPECTRUM_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME + NexusConstants.FIELD_SEPERATOR + FIELD_NAME_SPECTRUM;
+	private static final String VALUE_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME + NexusConstants.FIELD_SEPERATOR + FIELD_NAME_VALUE;
 
 	private static final int[] SHAPE = { 5, 2 };
 

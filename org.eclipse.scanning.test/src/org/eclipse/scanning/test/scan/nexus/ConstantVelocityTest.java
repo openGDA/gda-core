@@ -27,7 +27,6 @@ import static org.junit.Assert.assertSame;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
@@ -37,6 +36,7 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
@@ -116,8 +116,7 @@ public class ConstantVelocityTest extends NexusTest {
 		assertDiamondScanGroup(entry, false, false, sizes);
 
 		String detectorName = scanModel.getDetectors().get(0).getName();
-		NXdetector detector = instrument.getDetector(detectorName);
-		DataNode dataNode = detector.getDataNode(NXdetector.NX_DATA);
+		DataNode dataNode = instrument.getDetector(detectorName).getDataNode(NXdetector.NX_DATA);
 		IDataset dataset = dataNode.getDataset().getSlice();
 		int[] shape = dataset.getShape();
 
@@ -125,14 +124,15 @@ public class ConstantVelocityTest extends NexusTest {
 		NXdata nxData = entry.getData(detectorName);
 		assertSignal(nxData, NXdetector.NX_DATA);
 
-		for (int i = 0; i < sizes.length; i++) assertEquals(sizes[i], shape[i]);
+		for (int i = 0; i < sizes.length; i++) {
+			assertEquals(sizes[i], shape[i]);
+		}
 
 		// Make sure none of the numbers are NaNs. The detector
 		// is expected to fill this scan with non-nulls.
         final PositionIterator it = new PositionIterator(shape);
         while(it.hasNext()) {
-		int[] next = it.getPos();
-		assertFalse(Double.isNaN(dataset.getDouble(next)));
+			assertFalse(Double.isNaN(dataset.getDouble(it.getPos())));
         }
 
 		// Check axes
@@ -140,8 +140,7 @@ public class ConstantVelocityTest extends NexusTest {
         final Collection<String> scannableNames = pos.getNames();
 
         // Append _value_demand to each name in list, and append items ".", "." to list
-        String[] expectedAxesNames = Stream.concat(scannableNames.stream().map(x -> x + "_value_set"),
-			Collections.nCopies(3, ".").stream()).toArray(String[]::new);
+        String[] expectedAxesNames = getValueSetFields(scannableNames, Collections.nCopies(3, NexusConstants.DATA_AXESEMPTY)).toArray(String[]::new);
         assertAxes(nxData, expectedAxesNames);
 
         int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
@@ -152,17 +151,17 @@ public class ConstantVelocityTest extends NexusTest {
 		NXpositioner positioner = instrument.getPositioner(scannableName);
 		assertNotNull(positioner);
 
-		dataNode = positioner.getDataNode("value_set");
+		dataNode = positioner.getDataNode(VALUE_SET);
 		dataset = dataNode.getDataset().getSlice();
 		shape = dataset.getShape();
 		assertEquals(1, shape.length);
 		assertEquals(sizes[i], shape[0]);
 
-		String nxDataFieldName = scannableName + "_value_set";
+		String nxDataFieldName = scannableName + VALUE_SET_FIELD;
 		assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 		assertIndices(nxData, nxDataFieldName, i);
 		assertTarget(nxData, nxDataFieldName, rootNode,
-				"/entry/instrument/" + scannableName + "/value_set");
+				"/entry/instrument/" + scannableName + "/" + VALUE_SET);
 
 		// Actual values should be scanD
 			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
@@ -170,7 +169,7 @@ public class ConstantVelocityTest extends NexusTest {
 		shape = dataset.getShape();
 		assertArrayEquals(sizes, shape);
 
-		nxDataFieldName = scannableName + "_" + NXpositioner.NX_VALUE;
+		nxDataFieldName = scannableName + VALUE_FIELD;
 		assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 		assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 		assertTarget(nxData, nxDataFieldName, rootNode,

@@ -31,10 +31,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -184,25 +182,21 @@ public class DarkCurrentTest extends NexusTest {
 			detectorDataFields.put("value", Collections.emptyList());
 		}
 
-		Map<String, String> expectedDataGroupNamesForDevice =
-				detectorDataFields.keySet().stream().collect(Collectors.toMap(Function.identity(),
-						x -> detectorName + (x.equals(NXdetector.NX_DATA) ? "" : "_" + x)));
+		List<String> expectedDataGroupNamesForDevice = suffixNonPrimaryFieldsToDetector(detectorName, detectorDataFields.keySet());
 
 		Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
 		List<String> dataGroupNamesForDevice = nxDataGroups.keySet().stream()
 				.filter(name -> name.startsWith(detectorName)).collect(Collectors.toList());
 		assertEquals(detectorDataFields.size(), dataGroupNamesForDevice.size());
 		assertTrue(dataGroupNamesForDevice.containsAll(
-				expectedDataGroupNamesForDevice.values()));
+				expectedDataGroupNamesForDevice));
 
-		for (String dataFieldName : expectedDataGroupNamesForDevice.keySet()) {
-			String nxDataGroupName = expectedDataGroupNamesForDevice.get(dataFieldName);
-			NXdata nxData = nxDataGroups.get(nxDataGroupName);
+		for (String dataFieldName : expectedDataGroupNamesForDevice) {
+			NXdata nxData = nxDataGroups.get(dataFieldName);
 			assertNotNull(nxData);
 
 			// check the default data field for the NXdata group
-			String sourceFieldName = nxDataGroupName.equals(detectorName) ? NXdetector.NX_DATA :
-				nxDataGroupName.substring(nxDataGroupName.indexOf('_') + 1);
+			String sourceFieldName = getSourceName(dataFieldName, detectorName);
 			assertSignal(nxData, sourceFieldName);
 
 			assertSame(nxData.getDataNode(sourceFieldName),
@@ -210,13 +204,10 @@ public class DarkCurrentTest extends NexusTest {
 			assertTarget(nxData, sourceFieldName, rootNode, "/entry/instrument/" + detectorName
 					+ "/" + sourceFieldName);
 
-			// append _value_demand to each name in list
-			List<String> expectedAxesNames = Stream.concat(
-					scannableNames.stream().map(x -> x + "_value_set"),
-					detectorDataFields.get(sourceFieldName).stream()).collect(Collectors.toList());
-			// add placeholder value "." for each additional dimension
+			// append .value_set to each name in list
+			List<String> expectedAxesNames = getValueSetFields(scannableNames, detectorDataFields.get(sourceFieldName));
 
-			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
+			assertAxes(nxData, expectedAxesNames.toArray(String[]::new));
 			int[] defaultDimensionMappings = IntStream.range(0, scannableNames.size()).toArray();
 
 			// check the value_demand and value fields for each scannable
@@ -227,15 +218,15 @@ public class DarkCurrentTest extends NexusTest {
 				NXpositioner positioner = entry.getInstrument().getPositioner(positionerName);
 
 				// check value_demand data node
-				String demandFieldName = positionerName + "_" + NXpositioner.NX_VALUE + "_set";
+				String demandFieldName = positionerName + VALUE_SET_FIELD;
 				assertSame(nxData.getDataNode(demandFieldName),
-						positioner.getDataNode("value_set"));
+						positioner.getDataNode(VALUE_SET));
 				assertIndices(nxData, demandFieldName, i);
 				assertTarget(nxData, demandFieldName, rootNode, "/entry/instrument/" + positionerName
-						+ "/value_set");
+						+ "/" + VALUE_SET);
 
 				// check value data node
-				String valueFieldName = positionerName + "_" + NXpositioner.NX_VALUE;
+				String valueFieldName = positionerName + VALUE_FIELD;
 				assertSame(nxData.getDataNode(valueFieldName),
 						positioner.getDataNode(NXpositioner.NX_VALUE));
 				assertIndices(nxData, valueFieldName, defaultDimensionMappings);

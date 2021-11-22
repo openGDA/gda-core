@@ -205,7 +205,7 @@ public class PerScanMonitorTest extends NexusTest {
 		assertNotNull(nxData);
 
 		// Check axes
-		final String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
+		final String[] expectedAxesNames = getValueSetFields(scannableNames, List.of()).toArray(String[]::new);
 		assertAxes(nxData, expectedAxesNames);
 
 		final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
@@ -217,17 +217,17 @@ public class PerScanMonitorTest extends NexusTest {
 			NXpositioner positioner = instrument.getPositioner(scannableName);
 			assertNotNull(positioner);
 
-			dataNode = positioner.getDataNode("value_set");
+			dataNode = positioner.getDataNode(VALUE_SET);
 			dataset = dataNode.getDataset().getSlice();
 			shape = dataset.getShape();
 			assertEquals(1, shape.length);
 			assertEquals(sizes[i], shape[0]);
 
-			String nxDataFieldName = scannableName + "_value_set";
+			String nxDataFieldName = scannableName + VALUE_SET_FIELD;
 			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 			assertIndices(nxData, nxDataFieldName, i);
 			assertTarget(nxData, nxDataFieldName, rootNode,
-					"/entry/instrument/" + scannableName + "/value_set");
+					"/entry/instrument/" + scannableName + "/" + VALUE_SET);
 
 			// Actual values should be scanD
 			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
@@ -235,7 +235,7 @@ public class PerScanMonitorTest extends NexusTest {
 			shape = dataset.getShape();
 			assertArrayEquals(sizes, shape);
 
-			nxDataFieldName = scannableName + "_" + NXpositioner.NX_VALUE;
+			nxDataFieldName = scannableName + VALUE_FIELD;
 			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 			assertTarget(nxData, nxDataFieldName, rootNode,
@@ -284,14 +284,14 @@ public class PerScanMonitorTest extends NexusTest {
 
 		if (perScanMonitorName.startsWith("string")) {
 			final String expectedValue = (String) connector.getScannable(perScanMonitorName).getPosition();
-			final DataNode dataNode = positioner.getDataNode("value");
+			final DataNode dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 			assertNotNull(dataNode);
 			assertEquals(expectedValue, dataNode.getString());
 		} else {
 			int num = Integer.parseInt(perScanMonitorName.substring("perScanMonitor".length()));
 			double expectedValue = num * 10.0;
 
-			DataNode dataNode = positioner.getDataNode("value_set"); // TODO should not be here for per scan monitor
+			DataNode dataNode = positioner.getDataNode(VALUE_SET); // TODO should not be here for per scan monitor
 			assertNotNull(dataNode);
 			Dataset dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 			assertEquals(1, dataset.getSize());

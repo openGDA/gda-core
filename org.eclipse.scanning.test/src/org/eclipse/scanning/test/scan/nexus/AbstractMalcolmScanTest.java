@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
-import static java.util.stream.Collectors.toList;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
@@ -32,10 +31,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdata;
@@ -44,6 +41,7 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
@@ -72,6 +70,8 @@ import org.junit.After;
 import org.junit.Before;
 
 public abstract class AbstractMalcolmScanTest extends NexusTest {
+
+	private static final String NAME_DEVICE_NO_VALUE_SET = "stage_y";
 
 	protected String malcolmOutputDir;
 
@@ -158,7 +158,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
 		DummyMalcolmModel model = malcolmDevice.getModel();
 		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
-			List<String> list = ((DummyMalcolmDetectorModel) detectorModel).getDatasets().stream().map(d -> d.getName())
+			List<String> list = ((DummyMalcolmDetectorModel) detectorModel).getDatasets().stream().map(DummyMalcolmDatasetModel::getName)
 				.collect(Collectors.toCollection(ArrayList::new));
 			list.set(0, NXdata.NX_DATA); // the first dataset is the primary one, so the field is called 'data' in the nexus tree
 			primaryDataFieldsPerDetector.put(detectorModel.getName(), list);
@@ -217,20 +217,17 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		assertEquals(detectorModel.getExposureTime(), detector.getCount_timeScalar().doubleValue(), 1e-15);
 
 		final String detectorName = detectorModel.getName();
-		final Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream().collect(Collectors.toMap(
-				Function.identity(),
-				fieldName -> detectorName + (fieldName.equals(NXdetector.NX_DATA) ? "" : "_" + fieldName)));
+		final List<String> expectedDataGroupNames = suffixNonPrimaryFieldsToDetector(detectorName, primaryDataFieldNames);
 
-		assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
+		assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames));
 
 		boolean isFirst = true;
 		for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
 			final String fieldName = datasetModel.getName();
-			final String nxDataGroupName = isFirst ? detectorName : detectorName + "_" + fieldName;
+			final String nxDataGroupName = isFirst ? detectorName : detectorName + NexusConstants.FIELD_SEPERATOR + fieldName;
 			final NXdata nxData = entry.getData(nxDataGroupName);
 
-			final String sourceFieldName = fieldName.equals(detectorName) ? NXdetector.NX_DATA :
-				fieldName.substring(fieldName.indexOf('_') + 1);
+			final String sourceFieldName = getSourceName(fieldName, detectorName);
 
 			assertSignal(nxData, sourceFieldName);
 			// check the nxData's signal field is a link to the appropriate source data node of the detector
@@ -263,22 +260,25 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 			// Check axes
 			final IPosition pos = scanModel.getPointGenerator().iterator().next();
-			final List<String> axisNames = pos.getNames();
+			final List<String> axisNames = new ArrayList<>(pos.getNames());
+			// Must preserve order for NexusAssert
+			final int index = axisNames.indexOf(NAME_DEVICE_NO_VALUE_SET);
 
-			// Append _value_set to each name in list, then add detector axes fields to result
+			// Append .value_set to each name in list, then add detector axes fields to result
 			// stage_y doesn't have _value_set as to mimic the real i18 malcolm device
 			// malcolm doesn't know this value (as instead it has three jacks j1,j2,j3 for the y position)
 			int additionalRank = datasetModel.getRank(); // i.e. rank per position, e.g. 2 for images
-			final List<String> expectedAxesNames = Stream.concat(
-					axisNames.stream().map(axisName -> axisName +
-							(!axisName.equals("stage_y") ? "_value_set" : "")),
-					Collections.nCopies(additionalRank, ".").stream()).collect(toList());
+			final List<String> expectedAxesNames = new ArrayList<>(getValueSetFields(axisNames, Collections.nCopies(additionalRank, NexusConstants.DATA_AXESEMPTY)));
+			if (index > -1) {
+				expectedAxesNames.remove(index);
+				expectedAxesNames.add(index, NAME_DEVICE_NO_VALUE_SET);
+			}
 			if (sizes.length == 0) {
 				// prepend "." for scans of rank 0. A scan with a single StaticModel of size 1
 				// produces datasets of rank 1 and shape { 1 } due to a limitation of area detector
-				expectedAxesNames.add(0, ".");
+				expectedAxesNames.add(0, NexusConstants.DATA_AXESEMPTY);
 			}
-			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
+			assertAxes(nxData, expectedAxesNames.toArray(String[]::new));
 
 			int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 			for (int axisIndex = 0; axisIndex < axisNames.size(); axisIndex++) {
@@ -296,13 +296,13 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	private void checkPositioner(final NXpositioner positioner, DummyMalcolmModel dummyMalcolmModel,
 			final NXdata nxData, int[] defaultDimensionMappings, int axisIndex, String axisName, int[] sizes)
 			throws DatasetException {
-		DataNode dataNode = positioner.getDataNode("value_set");
+		DataNode dataNode = positioner.getDataNode(VALUE_SET);
 		IDataset dataset = dataNode.getDataset().getSlice();
 		int[] shape = dataset.getShape();
 		assertEquals(1, shape.length);
 		assertEquals(sizes[axisIndex], shape[0]);
 
-		String nxDataFieldName = axisName + (!axisName.equals("stage_y") ? "_value_set" : "");
+		String nxDataFieldName = axisName + (!axisName.equals(NAME_DEVICE_NO_VALUE_SET) ? VALUE_SET_FIELD : "");
 		assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
 		assertIndices(nxData, nxDataFieldName, axisIndex);
 		// The value of the target attribute seems to come from the external file
@@ -318,7 +318,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			shape = dataset.getShape();
 			assertArrayEquals(sizes, shape);
 
-			nxDataFieldName = axisName + "_" + NXpositioner.NX_VALUE;
+			nxDataFieldName = axisName + VALUE_FIELD;
 //						assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 			assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
 			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
@@ -333,7 +333,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
 		gridModel.setxAxisName("stage_x");
 		gridModel.setxAxisPoints(size[size.length-1]);
-		gridModel.setyAxisName("stage_y");
+		gridModel.setyAxisName(NAME_DEVICE_NO_VALUE_SET);
 		gridModel.setyAxisPoints(size[size.length-2]);
 		gridModel.setBoundingBox(new BoundingBox(0,0,3,3));
 		gridModel.setAlternating(snake);
