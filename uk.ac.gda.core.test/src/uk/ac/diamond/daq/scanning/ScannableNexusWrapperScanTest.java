@@ -56,6 +56,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -143,6 +144,7 @@ import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
+import gda.device.ControllerRecord;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -369,19 +371,19 @@ public class ScannableNexusWrapperScanTest {
 		factory.addFindable(jythonServer);
 		factory.addFindable(new SampleAngleScannable(SCANNABLE_NAME_SALONG, false));
 		factory.addFindable(new SampleAngleScannable(SCANNABLE_NAME_SAPERP, true));
-		factory.addFindable(new DummyScannable("sax", 5.0));
-		factory.addFindable(new DummyScannable("say", 23.4));
+		factory.addFindable(new DummyScannable("sax", 5.0, "BL00P-MO-SAMPLE-01:SAX"));
+		factory.addFindable(new DummyScannable("say", 23.4, "BL00P-MO-SAMPLE-01:SAY"));
 		factory.addFindable(new DummyScannable("satilt", 127.4));
 		factory.addFindable(new DummyScannable("saazimuth", 24.32));
 		factory.addFindable(new DummyScannable("s6_xsize", 2.92));
 		factory.addFindable(new DummyScannable("s2_ysize", 8.34));
 		factory.addFindable(new DummyScannable("s2_xsize", 1.66));
-		factory.addFindable(new DummyScannable("exit_slit", 0.0683));
+		factory.addFindable(new DummyScannable("exit_slit", 0.0683, "BL00P-MO-SLIT-01:EXIT"));
 		factory.addFindable(new DummyEnergyScananble("pgm_cff", 123.45));
 		factory.addFindable(new DummyScannable("energy", 9.357e8));
 		factory.addFindable(new DummyScannable("pgm_linedensity", 28));
-		factory.addFindable(new DummyScannable("ring_current", 15.2));
-		factory.addFindable(new DummyScannable("ring_energy", 47.53));
+		factory.addFindable(new DummyScannable("ring_current", 15.2, "SR-DI-DCCT-01:SIGNAL"));
+		factory.addFindable(new DummyScannable("ring_energy", 47.53, "CS-CS-MSTAT-01:BEAMENERGY"));
 		factory.addFindable(new DummyScannable("lc_pressure", 73.012));
 		factory.addFindable(new DummyStringScannable("sample_name", "name", "test sample"));
 
@@ -839,19 +841,23 @@ public class ScannableNexusWrapperScanTest {
 			expectedDataNodeNames.removeAll(Arrays.asList(Scannable.ATTR_NX_CLASS, Scannable.ATTR_NEXUS_CATEGORY));
 			expectedDataNodeNames.addAll(Arrays.asList(NXpositioner.NX_NAME));
 			expectedDataNodeNames.addAll(Arrays.asList(valueFieldNames));
-			if (hasLimits(scannable)) {
-				expectedDataNodeNames.addAll(Arrays.asList(NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX));
-			}
+			if (hasLimits(scannable)) expectedDataNodeNames.addAll(Arrays.asList(NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX));
+			final Optional<String> expectedPvName = Optional.of(scannable).filter(ControllerRecord.class::isInstance)
+					.map(ControllerRecord.class::cast).map(ControllerRecord::getControllerRecordName);
+			expectedPvName.ifPresent(pvName -> expectedDataNodeNames.add(NXpositioner.NX_CONTROLLER_RECORD));
 			assertThat(nexusObject.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames.toArray()));
 			assertThat(nexusObject.getNumberOfDataNodes(), is(expectedDataNodeNames.size()));
 			assertThat(nexusObject.getString(NXpositioner.NX_NAME), is(equalTo(metadataScannableName)));
 
-			if (hasLimits(scannable) && nexusObject instanceof NXpositioner) {
+			if (nexusObject instanceof NXpositioner) {
 				final NXpositioner positioner = (NXpositioner) nexusObject;
-				assertThat(positioner.getSoft_limit_minScalar(),
-						is(equalTo(((ScannableMotion) scannable).getLowerGdaLimits()[0])));
-				assertThat(positioner.getSoft_limit_maxScalar(),
-						is(equalTo(((ScannableMotion) scannable).getUpperGdaLimits()[0])));
+				if (hasLimits(scannable)) {
+					assertThat(positioner.getSoft_limit_minScalar(), is(equalTo(((ScannableMotion) scannable).getLowerGdaLimits()[0])));
+					assertThat(positioner.getSoft_limit_maxScalar(), is(equalTo(((ScannableMotion) scannable).getUpperGdaLimits()[0])));
+				}
+				if (expectedPvName.isPresent()) {
+					assertThat(positioner.getController_recordScalar(), is(equalTo(expectedPvName.get())));
+				}
 			}
 
 			final Object[] positionArray = getPositionArray(scannable);

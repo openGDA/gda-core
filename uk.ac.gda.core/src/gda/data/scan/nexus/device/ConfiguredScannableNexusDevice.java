@@ -99,8 +99,10 @@ public class ConfiguredScannableNexusDevice<N extends NXobject> extends Abstract
 		// add fields for attributes, e.g. name, description (a.k.a. metadata)
 		registerAttributes(nexusObject);
 
-		if (nexusObject instanceof NXpositioner && getScannable() instanceof ScannableMotion) {
-			writeLimits((NXpositioner) nexusObject);
+		if (nexusObject instanceof NXpositioner) {
+			final NXpositioner nxPositioner = (NXpositioner) nexusObject;
+			writeLimits(nxPositioner);
+			writeControllerRecordName(nxPositioner);
 		}
 
 		final String[] fieldOutputPaths = config.getFieldPaths();

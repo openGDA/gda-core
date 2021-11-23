@@ -165,4 +165,9 @@ public class DummyScannableMotor extends DummyScannable implements IScannableMot
 		throw new UnsupportedOperationException("Unimplemented");
 	}
 
+	@Override
+	public String getControllerRecordName() {
+		return null;
+	}
+
 }

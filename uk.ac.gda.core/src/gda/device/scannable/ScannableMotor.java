@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.IScannableMotor;
 import gda.device.Motor;
@@ -679,5 +680,10 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IScannab
 	@Override
 	public double getUserOffset() throws DeviceException {
 		return motor.getUserOffset();
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return motor instanceof ControllerRecord ? ((ControllerRecord) motor).getControllerRecordName() : null;
 	}
 }

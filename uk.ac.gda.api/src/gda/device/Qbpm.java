@@ -18,8 +18,6 @@
 
 package gda.device;
 
-import gda.device.DeviceException;
-
 /**
  * Qbpm interface
  */

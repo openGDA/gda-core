@@ -486,6 +486,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double EXPECTED_SOURCE_CURRENT = 25.5;
 
 	protected static final double MONITOR_VALUE = 2.5;
+	protected static final String SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-STAGE-01:S";
+	protected static final String META_SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-META-01:S";
 
 	private String outputDir;
 
@@ -525,6 +527,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 					SCANNABLE_NAME_PREFIX + i, 0.0, "mm", "mm");
 			dummyScannable.setLowerGdaLimits(SCANNABLE_LOWER_BOUND);
 			dummyScannable.setUpperGdaLimits(SCANNABLE_UPPER_BOUND);
+			dummyScannable.setControllerRecordName(SCANNABLE_PV_NAME_PREFIX + i);
 			this.scannables[i] = dummyScannable;
 		}
 
@@ -570,7 +573,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final Map<String, ScannableWriter> locationMap = new HashMap<>();
 		for (int i = 0; i < METADATA_SCANNABLE_NAMES.length; i++) {
 			final String name = METADATA_SCANNABLE_NAMES[i];
-			createScannable(name, i);
+			createScannable(name, i, META_SCANNABLE_PV_NAME_PREFIX + i);
 
 			final List<String> prerequisites = dependencies.get(i).stream().map(j -> METADATA_SCANNABLE_NAMES[j]).collect(toList());
 			if (i == 0) prerequisites.add(scannables[0].getName());
@@ -598,10 +601,17 @@ public abstract class AbstractNexusDataWriterScanTest {
 		createExpectedMetadataScannableNames();
 	}
 
-	protected void createScannable(final String name, double value) throws DeviceException {
+	protected DummyScannable createScannable(final String name, double value) throws DeviceException {
 		final DummyScannable scannable = new DummyScannable(name);
 		scannable.moveTo(value);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, scannable);
+		return scannable;
+	}
+
+	protected DummyScannable createScannable(final String name, double value, String pvName) throws DeviceException {
+		final DummyScannable scannable = createScannable(name, value);
+		scannable.setControllerRecordName(pvName);
+		return scannable;
 	}
 
 	private void createExpectedMetadataScannableNames() {

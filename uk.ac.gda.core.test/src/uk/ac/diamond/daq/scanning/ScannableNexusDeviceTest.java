@@ -75,12 +75,14 @@ import gda.data.scan.nexus.device.ScannableNexusDeviceConfigurationRegistry;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
+import gda.device.scannable.ScannableMotor;
 
 public class ScannableNexusDeviceTest {
 
 	private static final String COLLECTION_NAME = "before_scan";
 	private static final String SCANNABLE_NAME = "s1";
 	private static final String EXPECTED_UNITS = "nm";
+	private static final String PV_NAME = "BL00P-MO-STAGE-01:S1";
 
 	private AbstractScannableNexusDevice<?> scannableNexusDevice = null;
 
@@ -109,8 +111,9 @@ public class ScannableNexusDeviceTest {
 
 	private ScannableMotionUnits createScannable(int numInputNames, int numExtraNames)
 			throws DeviceException {
-		final ScannableMotionUnits mockScannable = mock(ScannableMotionUnits.class);
+		final ScannableMotor mockScannable = mock(ScannableMotor.class);
 		when(mockScannable.getName()).thenReturn(SCANNABLE_NAME);
+		when(mockScannable.getControllerRecordName()).thenReturn(PV_NAME);
 
 		inputNames = IntStream.rangeClosed(1, numInputNames).mapToObj(i -> "input" + i).toArray(String[]::new);
 		when(mockScannable.getInputNames()).thenReturn(inputNames);
@@ -216,24 +219,25 @@ public class ScannableNexusDeviceTest {
 			assertThat(positionerProvider.getDefaultAxisDataFieldName(),is(nullValue()));
 		}
 
-		// extra names are only added to the NXpositioner in the case of a single input name, otherwise they are added to the NXcollection
-		final Set<String> expectedDataNodeNameSet = new HashSet<>(List.of(NXpositioner.NX_VALUE,
-				NXpositioner.NX_NAME, NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX));
-		if (singleInputField) {
-			expectedDataNodeNameSet.addAll(Arrays.asList(extraNames));
-			expectedDataNodeNameSet.add(FIELD_NAME_VALUE_SET);
-		}
-		final String[] expectedDataNodeNames = expectedDataNodeNameSet.toArray(String[]::new);
-
 		final NXpositioner positioner = positionerProvider.getNexusObject();
 		assertThat(positioner, notNullValue());
 		assertThat(positioner.getNexusBaseClass(), is(NX_POSITIONER));
 		assertThat(positioner.getGroupNodeNames(), is(empty()));
 
-		assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
+		assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS,
+				ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
 		assertThat(positioner.getAttrString(null, ATTR_NAME_GDA_SCANNABLE_NAME), is(equalTo(SCANNABLE_NAME)));
 		assertThat(positioner.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.SCANNABLE.toString().toLowerCase())));
 
+		// extra names are only added to the NXpositioner in the case of a single input name, otherwise they are added to the NXcollection
+		final Set<String> expectedDataNodeNameSet = new HashSet<>(List.of(NXpositioner.NX_VALUE, NXpositioner.NX_NAME,
+				NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_CONTROLLER_RECORD));
+		if (singleInputField) {
+			expectedDataNodeNameSet.addAll(Arrays.asList(extraNames));
+			expectedDataNodeNameSet.add(FIELD_NAME_VALUE_SET);
+		}
+
+		final String[] expectedDataNodeNames = expectedDataNodeNameSet.toArray(String[]::new);
 		assertThat(positioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 		assertThat(positioner.getNameScalar(), is(equalTo(SCANNABLE_NAME + (singleInputField ? "" : "." + inputName))));
 		final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
@@ -262,6 +266,7 @@ public class ScannableNexusDeviceTest {
 
 		assertThat(positioner.getSoft_limit_minScalar().doubleValue(), is(closeTo(lowerLimits[inputFieldIndex], 1e-15)));
 		assertThat(positioner.getSoft_limit_maxScalar().doubleValue(), is(closeTo(upperLimits[inputFieldIndex], 1e-15)));
+		assertThat(positioner.getController_recordScalar(), is(equalTo(PV_NAME)));
 	}
 
 	private void checkNXcollection(final List<NexusObjectProvider<?>> nexusObjectProviders) {

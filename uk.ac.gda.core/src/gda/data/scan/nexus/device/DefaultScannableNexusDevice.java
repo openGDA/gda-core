@@ -181,7 +181,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		final NexusBaseClass nexusBaseClass = isSingleInputField ? getNexusBaseClass() : NexusBaseClass.NX_POSITIONER;
 		final String scannableName = getName();
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("unchecked") // the default nexus class of NXpositioner can be overridden
 		final N positioner = (N) NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 
 		positioner.setField(FIELD_NAME_NAME, isSingleInputField ? scannableName : scannableName + "." + inputName);
@@ -190,7 +190,9 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		positioner.setAttribute(null, ATTR_NAME_GDA_SCAN_ROLE, scanRole.toString().toLowerCase());
 
 		if (positioner instanceof NXpositioner) {
-			writeLimits((NXpositioner) positioner, fieldIndex);
+			final NXpositioner nxPositioner = (NXpositioner) positioner;
+			writeLimits(nxPositioner, fieldIndex);
+			writeControllerRecordName(nxPositioner);
 		}
 
 		// create the 'value' data node for this input field
