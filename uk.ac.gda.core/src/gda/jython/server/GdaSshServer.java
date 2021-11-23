@@ -23,8 +23,9 @@ import static gda.jython.server.auth.Authenticator.State.ACCEPT;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
-import org.apache.sshd.common.FactoryManager;
+import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
@@ -62,12 +63,13 @@ public class GdaSshServer {
 		server = SshServer.setUpDefaultServer();
 		logger.info("Running SSH server on port {}", port);
 		server.setPort(port);
-		server.getProperties().put(FactoryManager.IDLE_TIMEOUT, 0); // 0 -> no timeout
+		CoreModuleProperties.IDLE_TIMEOUT.set(server, Duration.ZERO);
 		// Input is being read by Jline. Server read process timing out causes it to read null
 		// and close the connection.
-		server.getProperties().put(FactoryManager.NIO2_READ_TIMEOUT, 0); // 0 -> no timeout
+		CoreModuleProperties.NIO2_READ_TIMEOUT.set(server, Duration.ZERO);
 		server.setShellFactory(SshShellCommand::new);
 		server.setCommandFactory(SshExecCommand::new);
+		server.setKeyboardInteractiveAuthenticator(null);
 		server.setPublickeyAuthenticator(getAuth());
 		server.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(
 				Paths.get(LocalProperties.getVarDir(), ".gda.server.key")

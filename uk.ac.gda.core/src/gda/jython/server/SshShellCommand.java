@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.Signal;
+import org.apache.sshd.server.channel.ChannelSession;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Attributes.ControlChar;
 import org.jline.terminal.Attributes.InputFlag;
@@ -48,15 +49,21 @@ import gda.jython.server.shell.JythonShell;
 public class SshShellCommand extends GdaCommand {
 	private static final Logger logger = LoggerFactory.getLogger(SshShellCommand.class);
 
+	@SuppressWarnings("unused")
+	public SshShellCommand(ChannelSession session) {
+		// required by ShellFactory interface. Not sure why the session is passed in here
+		// as well as in the run/destroy methods
+	}
+
 	/**
 	 * Run the Jython shell - blocks while shell is running
 	 * @param env client environment
 	 * @return exit code - 0 on success, 1 on error
 	 */
 	@Override
-	protected int run(Environment env) {
+	protected int run(ChannelSession session, Environment env) {
 		try {
-			logger.info("Creating Jython shell for {}", getClientAddress());
+			logger.info("Creating Jython shell for {}", getClientAddress(session.getServerSession()));
 			Terminal term = getTerminal(env);
 			try (JythonShell shell = new JythonShell(term, env.getEnv())) {
 				shell.run();
@@ -182,7 +189,7 @@ public class SshShellCommand extends GdaCommand {
 			}
 		}
 		terminal.setAttributes(attr);
-		env.addSignalListener(signals -> {
+		env.addSignalListener((channel, signals) -> {
 			terminal.setSize(new Size(Integer.parseInt(env.getEnv().get("COLUMNS")),
 					Integer.parseInt(env.getEnv().get("LINES"))));
 			terminal.raise(Terminal.Signal.WINCH);

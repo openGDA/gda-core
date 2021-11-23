@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.sshd.server.Environment;
+import org.apache.sshd.server.channel.ChannelSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,8 @@ public class SshExecCommand extends GdaCommand {
 	private final String command;
 
 	/** Create SshExecCommand to run a given command */
-	public SshExecCommand(String command) {
+	public SshExecCommand(@SuppressWarnings("unused") ChannelSession session, String command) {
+		// session included to match CommandFactory interface
 		this.command = command;
 	}
 
@@ -53,8 +55,8 @@ public class SshExecCommand extends GdaCommand {
 	 * @return exit code - 0 on success, 1 on error
 	 */
 	@Override
-	protected int run(Environment env) throws IOException {
-		logger.debug("Exec command '{}' from {}", command, getClientAddress());
+	protected int run(ChannelSession session, Environment env) throws IOException {
+		logger.debug("Exec command '{}' from {}", command, getClientAddress(session.getServerSession()));
 		JythonServerFacade jsf = JythonServerFacade.getInstance();
 		try (StdOut out = new StdOut(jsf)) {
 			boolean incomplete = jsf.runsource(command, getStdin());

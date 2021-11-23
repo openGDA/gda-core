@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
-import org.apache.sshd.server.SessionAware;
+import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
@@ -41,16 +41,13 @@ import uk.ac.diamond.daq.concurrent.Async;
  * Base class for handling incoming SSH connections. Holds IO streams and the client session
  * as well as handling closing the connection.
  */
-public abstract class GdaCommand implements Command, SessionAware {
+public abstract class GdaCommand implements Command {
 	private static final Logger logger = LoggerFactory.getLogger(GdaCommand.class);
 
 	/** Exit code for successful completion */
 	protected static final int EXIT_SUCCESS = 0;
 	/** Exit code for completion with error */
 	protected static final int EXIT_ERROR = 1;
-
-	/** Session information from the SSH connection */
-	private ServerSession session;
 
 	/** Callback to close connection */
 	private ExitCallback exitCallback;
@@ -94,17 +91,8 @@ public abstract class GdaCommand implements Command, SessionAware {
 		return stderr;
 	}
 
-	@Override
-	public void setSession(ServerSession serverSession) {
-		session = serverSession;
-	}
-
-	public ServerSession getSession() {
-		return session;
-	}
-
 	/** Get the client address in the form user@host */
-	protected String getClientAddress() {
+	protected String getClientAddress(ServerSession session) {
 		String user = session.getUsername();
 		String address = resolveHost(session.getClientAddress());
 		return user + "@" + address;
@@ -116,7 +104,7 @@ public abstract class GdaCommand implements Command, SessionAware {
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void destroy(ChannelSession session) throws Exception {
 		exit(EXIT_ERROR); // If this hasn't been successfully closed already it must be an unexpected error somewhere
 	}
 
@@ -161,11 +149,11 @@ public abstract class GdaCommand implements Command, SessionAware {
 
 	/** Start command running in a background thread - called by SSH server */
 	@Override
-	public void start(Environment env) {
-		Async.submit(() -> run(env), getClass().getSimpleName())
+	public void start(ChannelSession channel, Environment env) {
+		Async.submit(() -> run(channel, env), getClass().getSimpleName())
 				.onSuccess(this::exit)
 				.onFailure(this::exit);
 	}
 
-	protected abstract int run(Environment env) throws IOException;
+	protected abstract int run(ChannelSession channel, Environment env) throws IOException;
 }
