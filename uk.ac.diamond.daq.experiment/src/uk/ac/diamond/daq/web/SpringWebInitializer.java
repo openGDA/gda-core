@@ -30,7 +30,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.component.LifeCycle.Listener;
-import org.eclipse.jetty.util.log.Slf4jLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,16 +77,13 @@ public class SpringWebInitializer {
 
 	@PostConstruct
 	private void postConstruct() throws Exception {
-		final Slf4jLog log = new Slf4jLog("Starting RestService...");
-
 		Server server = createServer(port);
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		context.getServletContext().setExtendedListenerTypes(true);
-		context.setLogger(log);
 		server.setHandler(context);
 
-		context.addLifeCycleListener(new Listener() {
+		context.addEventListener(new Listener() {
 
 			@Override
 			public void lifeCycleStopping(LifeCycle event) {
