@@ -26,6 +26,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.MotorException;
 import gda.device.MotorProperties.MotorEvent;
 import gda.device.MotorProperties.MotorProperty;
@@ -66,7 +67,7 @@ import gov.aps.jca.event.PutListener;
  * EpicsMotor implements GDA Motor interface and provide mapping from GDA interface to EPICS motor record. Note only
  * selected PVs or channels are instantiated in this class as required by the GDA motor interface.
  */
-public class EpicsMotor extends MotorBase implements InitializationListener, IObserver {
+public class EpicsMotor extends MotorBase implements InitializationListener, IObserver, ControllerRecord {
 
 	/** Possible actions to take when a motor does not reach its target during a move */
 	public enum MissedTargetLevel {
@@ -1546,5 +1547,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	private static boolean hasTrueBitAtPosition(int binaryValue, short bitLocation) {
 		int maskedOffBit = binaryValue & maskOfBitAt(bitLocation);
 		return maskedOffBit > 0;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getPvName();
 	}
 }

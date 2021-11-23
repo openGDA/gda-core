@@ -24,6 +24,7 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.epics.connection.EpicsChannelManager;
@@ -58,7 +59,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * This will not monitor changes to limits, alarms or status.
  */
 @ServiceInterface(Monitor.class)
-public class EpicsMonitor extends MonitorBase implements InitializationListener {
+public class EpicsMonitor extends MonitorBase implements InitializationListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMonitor.class);
 
@@ -676,5 +677,10 @@ public class EpicsMonitor extends MonitorBase implements InitializationListener 
 	 */
 	public void setPoll(boolean poll) {
 		this.poll = poll;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getPvName();
 	}
 }
