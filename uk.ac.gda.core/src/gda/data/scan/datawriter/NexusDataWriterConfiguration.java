@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class NexusDataWriterConfiguration extends FindableBase {
 	}
 
 	private void initializeEmptyConfiguration() {
-		metadataScannables = new HashSet<>();
+		metadataScannables = new LinkedHashSet<>();
 		locationMap = new HashMap<>();
 		metadataScannablesPerDetectorMap = new HashMap<>();
 		nexusTemplateFiles = new ArrayList<>();
