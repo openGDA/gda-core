@@ -27,6 +27,10 @@ import gda.configuration.properties.LocalProperties;
  */
 public class IonChamberParameters  implements Serializable{
 
+	public static final String I_0 = "I0";
+	public static final String I_T = "It";
+	public static final String I_REF = "Iref";
+
 	private String  name;
 	private String  deviceName= LocalProperties.get("gda.exafs.ionchambersName","counterTimer01");
 	private Integer channel=1;

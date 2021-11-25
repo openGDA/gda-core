@@ -18,10 +18,15 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import static uk.ac.gda.beans.exafs.IonChamberParameters.I_0;
+import static uk.ac.gda.beans.exafs.IonChamberParameters.I_REF;
+import static uk.ac.gda.beans.exafs.IonChamberParameters.I_T;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
@@ -61,6 +66,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.CurrentAmplifier;
 import gda.exafs.mucal.PressureBean;
 import gda.exafs.mucal.PressureCalculation;
+import gda.util.GasType;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -95,14 +101,10 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	private Link refreshLink;
 	private SelectionAdapter refreshListener;
 	private BooleanWrapper changeSensitivity;
-	private String flushString = "False";
 	private VerticalListEditor provider;
 	private Button fillGasButton;
 	private DetectorParameters detParams;
-	private IonChamberParameters ionParams;
 	private boolean useGasProperties = true;
-	private Label gainLabel;
-	private Label offsetLabel;
 
 	public IonChamberComposite(Composite parent, int style, final VerticalListEditor provider,
  final DetectorParameters abean, IBeanController control) {
@@ -259,7 +261,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 		new Label(gainProperties, SWT.NONE);
 
-		gainLabel = new Label(gainProperties, SWT.NONE);
+		Label gainLabel = new Label(gainProperties, SWT.NONE);
 		gainLabel.setText("Sensitivity");
 		gainLabel
 				.setToolTipText("The gain setting on the amplifier.\n(This cannot be linked to get the gain as the Stanford Amplifier does not have a get for the gain, only a set.)");
@@ -282,7 +284,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		});
 
 		if (!LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("I18")) {
-			offsetLabel = new Label(gainProperties, SWT.NONE);
+			Label offsetLabel = new Label(gainProperties, SWT.NONE);
 			offsetLabel.setText("Offset");
 			offsetLabel
 					.setToolTipText("The offset setting on the amplifier.\n(This cannot be linked to get the offset as the Stanford Amplifier does not have an offset for the gain, only a set.)");
@@ -415,60 +417,30 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		return -1;
 	}
 
-	void calculateDefaultGasType(double workingE) {
-		// i) I0: If working energy < 7 keV default to use N2 fill gas
-		// ii) I0: If 7 <= Working energy <26 keV default to use Ar
-		// iii) I0: If working energy >=26keV default to use Kr
-		// iv) It/Iref: If working energy < 16keV use Ar
-		// v) It/Iref: if working energy >= 16keV use Kr
+	public void calculateDefaultGasType(double workingE) throws Exception {
+		// Get the Gas type for the photon energy :
+		List<IonChamberParameters> chambers = detParams.getIonChambers();
+		GasType gasForI0 = GasType.getI0GasType(workingE);
+		GasType gasForItIref = GasType.getItIrefGasType(workingE);
+		logger.info("Working energy : {} eV. Gas for I0 = {}, Gas for It,Iref = {}", workingE, gasForI0.getName(), gasForItIref.getName());
 
-		int N = 1;
-		int Ar = 2;
-		int Kr = 3;
+		// Find the I0 parameters and set the gas type :
+		chambers.stream()
+			.filter(c -> c.getName().equals(I_0))
+			.forEach(c -> c.setGasType(gasForI0.getName()));
 
-		String chamber = ionParams.getName();
-		List<IonChamberParameters> chambers = null;
+		// Find the It/Iref parameters and set the gas type :
+		chambers.stream()
+			.filter(c -> c.getName().matches(I_T+"|"+I_REF))
+			.forEach(c -> c.setGasType(gasForItIref.getName()));
 
-		if (detParams.getExperimentType().toString().equals("Transmission")) {
-			chambers = detParams.getTransmissionParameters().getIonChamberParameters();
-		} else if (detParams.getExperimentType().toString().equals("Fluorescence")) {
-			chambers = detParams.getFluorescenceParameters().getIonChamberParameters();
-		} else if (detParams.getExperimentType().toString().equals("XES")) {
-			chambers = detParams.getXesParameters().getIonChamberParameters();
-		} else {
-			return;
-		}
-
-		if (workingE < 7000) {
-			chambers.get(0).setGasType("N");
-		} else if (workingE >= 7000 && workingE < 26000) {
-			chambers.get(0).setGasType("Ar");
-		} else if (workingE >= 26000) {
-			chambers.get(0).setGasType("Kr");
-		}
-		if (workingE < 16000) {
-			chambers.get(1).setGasType("Ar");
-			chambers.get(2).setGasType("Ar");
-		} else if (workingE >= 16000) {
-			chambers.get(1).setGasType("Kr");
-			chambers.get(2).setGasType("Kr");
-		}
-
-		if (chamber.equals("I0") || chamber.equals("I1")) {
+		// Update the combo box selection in the GUI
+		String currentIonchamberName = getCurrentlySelectedParameters().getName();
+		if (currentIonchamberName.equals(I_0) || currentIonchamberName.equals("I1")) {
 			this.percentAbsorption.setValue(15);
-			if (workingE < 7000) {
-				gasType.select(N);
-			} else if (workingE >= 7000 && workingE < 26000) {
-				gasType.select(Ar);
-			} else if (workingE >= 26000) {
-				gasType.select(Kr);
-			}
-		} else if (chamber.equals("It") || chamber.equals("Iref")) {
-			if (workingE < 16000) {
-				gasType.select(Ar);
-			} else if (workingE >= 16000) {
-				gasType.select(Kr);
-			}
+			gasType.select(gasForI0.getIndex());
+		} else if (currentIonchamberName.equals(I_T) || currentIonchamberName.equals(I_REF)) {
+			gasType.select(gasForItIref.getIndex());
 		}
 	}
 
@@ -497,23 +469,22 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 			final double pressureVal = ans.getPressure();
 
-			String experimentType = detParams.getExperimentType();
-
-			int index = provider.getSelectedIndex();
-
-			List<IonChamberParameters> ionParamsList = null;
+			IonChamberParameters ionchamberParams = null;
 			try {
-				ionParamsList = detParams.getIonChambers();
+				ionchamberParams = getCurrentlySelectedParameters();
 			} catch (Exception e) {
 				logger.warn("Problem getting ion chamber parameters for pressure calculation", e);
+				MessageDialog.openWarning(getShell(), "Problem getting ion chamber parameters", e.getMessage());
+				return;
 			}
 
-			if (ionParamsList != null) {
-				ionParams = ionParamsList.get(index);
+			if (ionchamberParams == null) {
+				logger.warn("Could not get currently selected ion chamber parameters to update during pressure calculation");
+				return;
 			}
 
-			boolean originalAutoFillGas = ionParams.getAutoFillGas();
-			boolean originalFlush = ionParams.getFlush();
+			boolean originalAutoFillGas = ionchamberParams.getAutoFillGas();
+			boolean originalFlush = ionchamberParams.getFlush();
 
 			getDisplay().asyncExec(() -> {
 				if (pressureVal > totalPressure.getNumericValue() || pressureVal < 0.003) {
@@ -545,6 +516,12 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		}catch(Exception e) {
 			logger.warn("Problem running pressure calculation", e);
 		}
+	}
+
+	private IonChamberParameters getCurrentlySelectedParameters() throws Exception {
+		List<IonChamberParameters> ionParamsList = detParams.getIonChambers();
+		int index = provider.getSelectedIndex();
+		return ionParamsList.get(index);
 	}
 
 	public ScaleBox getGas_fill1_period_box() {

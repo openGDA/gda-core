@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
 import org.eclipse.richbeans.api.event.ValueAdapter;
@@ -31,8 +32,7 @@ import org.eclipse.richbeans.widgets.selector.BeanSelectionListener;
 import org.eclipse.richbeans.widgets.selector.VerticalListEditor;
 import org.eclipse.richbeans.widgets.wrappers.BooleanWrapper;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -113,20 +113,23 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 		}
 
 		if (!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.HIDE_DEFAULT_GAS_MIXTURES_BUTTON)) {
-			this.selectDefaultsListener = new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					double workingEnergy = 0;
-					if (provider.getExperimentType().toString().equals("Transmission")) {
-						workingEnergy = provider.getTransmissionParameters().getWorkingEnergy();
-					} else if (provider.getExperimentType().toString().equals("Fluorescence")) {
-						workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
-					}
+			selectDefaultsBtn.addSelectionListener(SelectionListener.widgetDefaultSelectedAdapter(e -> updateGasDefaults()));
+		}
+	}
 
-					ionChamberComposite.calculateDefaultGasType(workingEnergy);
-				}
-			};
-			selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
+	private void updateGasDefaults() {
+		double workingEnergy = 0;
+		if (provider.getExperimentType().equals(DetectorParameters.TRANSMISSION_TYPE)) {
+			workingEnergy = provider.getTransmissionParameters().getWorkingEnergy();
+		} else if (provider.getExperimentType().equals(DetectorParameters.FLUORESCENCE_TYPE)) {
+			workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
+		}
+
+		try {
+			ionChamberComposite.calculateDefaultGasType(workingEnergy);
+		} catch (Exception e1) {
+			logger.error("Problem calculating default gase type", e1);
+			MessageDialog.openWarning(getShell(), "Problem setting default gas types", e1.getMessage());
 		}
 	}
 
