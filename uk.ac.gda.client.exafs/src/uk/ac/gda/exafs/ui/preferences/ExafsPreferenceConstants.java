@@ -187,4 +187,8 @@ public class ExafsPreferenceConstants {
 	 * (default is 'Scan')
 	 */
 	public static final String SELECTED_SCAN_TAB = "exafs.editor.selected.scan.tab";
+
+
+	/** When true, show the 'get energy from scan' button in the Ion chambers pressure calculation/fill view */
+	public static final String IONCHAMBERS_SHOW_ENERGY_FROM_SCAN_BUTTON = "exafs.ionchambersview.show.energy.from.scan.button";
 }
