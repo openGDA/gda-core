@@ -34,12 +34,9 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_FILE_
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENERATOR;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.FILE_EXTENSION_H5;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -118,7 +115,6 @@ public abstract class AbstractMalcolmDeviceTest {
 
 	@Mock
 	protected IMalcolmEventListener malcolmEventListener;
-	protected BeanCollectingAnswer<MalcolmEvent> malcolmBeanCaptor;
 
 	protected int id = 0;
 
@@ -134,9 +130,6 @@ public abstract class AbstractMalcolmDeviceTest {
 
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
 		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection, scanService);
-
-		malcolmBeanCaptor = BeanCollectingAnswer.forClass(MalcolmEvent.class, MalcolmEvent::copy);
-		doAnswer(malcolmBeanCaptor).when(malcolmEventListener).eventPerformed(any(MalcolmEvent.class));
 	}
 
 	@After
@@ -200,16 +193,15 @@ public abstract class AbstractMalcolmDeviceTest {
 
 		// verify that the malcolm device subscribed to connection state changes
 		ArgumentCaptor<IMalcolmConnectionStateListener> connectionStateListenerCaptor = ArgumentCaptor.forClass(IMalcolmConnectionStateListener.class);
-		verify(malcolmConnection, timeout(250)) // add timeout as call made in different thread
+		verify(malcolmConnection, timeout(1000)) // add timeout as call made in different thread
 				.subscribeToConnectionStateChange(eq(malcolmDevice), connectionStateListenerCaptor.capture());
 		connectionChangeListener = connectionStateListenerCaptor.getValue();
 		assertThat(connectionChangeListener, is(notNullValue()));
 
 		assertThat(malcolmDevice.isAlive(), is(true));
-		verify(malcolmConnection, timeout(250)).send(malcolmDevice, expectedGetDeviceStateMessage2);
-		verify(malcolmEventListener, timeout(250)).eventPerformed(any(MalcolmEvent.class)); // argument checked using custom captor below
-		final MalcolmEvent event = malcolmBeanCaptor.getValue();
-		assertThat(event, is(equalTo(createExpectedMalcolmEvent(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
+		verify(malcolmConnection, timeout(1000)).send(malcolmDevice, expectedGetDeviceStateMessage2);
+		verify(malcolmEventListener, timeout(1000)).eventPerformed(
+				createExpectedMalcolmEvent(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()));
 		verifyNoMoreInteractions(malcolmEventListener);
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
