@@ -18,16 +18,73 @@
 
 package uk.ac.diamond.daq.gasrig;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import uk.ac.diamond.daq.gasrig.api.IGasRig;
+import uk.ac.diamond.daq.gasrig.api.models.GasRigModel;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IGasRig.class)
 public class GasRig extends FindableConfigurableBase implements IGasRig {
 
-	private IGasRigController controller;
+	protected final Logger logger = LoggerFactory.getLogger(GasRig.class);
 
-	public GasRig(IGasRigController controller) {
+	private IGasRigController controller;
+	private List<Gas> nonCabinetGases;
+	private List<Cabinet> cabinets;
+
+	private GasRigModelMapper modelMapper = new GasRigModelMapper();
+
+	public GasRig(IGasRigController controller, List<Gas> nonCabinetGases, List<Cabinet> cabinets) {
 		this.controller = controller;
+		this.nonCabinetGases = nonCabinetGases;
+		this.cabinets = cabinets;
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		if (isConfigured() ) {
+			return;
+		}
+
+		try {
+			for (Gas gas : getAllGases()) {
+				updateGasName(gas);
+			}
+		} catch (DeviceException exception) {
+			throw new FactoryException("An error occured while configuring gas names", exception);
+		}
+		setConfigured(true);
+	}
+
+	private List<Gas> getAllGases() {
+		var cabinetGases = cabinets.stream().flatMap(cabinet -> cabinet.getGases().stream());
+		return Stream.concat(nonCabinetGases.stream(), cabinetGases).collect(Collectors.toList());
+	}
+
+	private void updateGasName(Gas gas) throws DeviceException {
+		gas.setName(controller.getGasName(gas.getId()));
+		logger.info("Gas {} is {}", gas.getId(), gas.getName());
+	}
+
+	public List<Gas> getNonCabinetGases() {
+		return nonCabinetGases;
+	}
+
+	public List<Cabinet> getCabinets() {
+		return cabinets;
+	}
+
+	@Override
+	public GasRigModel getGasRigInfo() {
+		return modelMapper.getGasRigModel(this);
 	}
 }

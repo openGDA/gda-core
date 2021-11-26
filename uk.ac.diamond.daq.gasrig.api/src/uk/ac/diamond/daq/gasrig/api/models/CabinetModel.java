@@ -16,10 +16,26 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.gasrig;
+package uk.ac.diamond.daq.gasrig.api.models;
 
-import gda.device.DeviceException;
+import java.io.Serializable;
+import java.util.List;
 
-public interface IGasRigController {
-	public String getGasName(int gasId) throws DeviceException;
+public class CabinetModel implements Serializable {
+
+	private String name;
+	private List<GasModel> gases;
+
+	public CabinetModel(String name, List<GasModel> gases) {
+		this.name = name;
+		this.gases = gases;
+	}
+
+	public List<GasModel> getGases() {
+		return gases;
+	}
+
+	public String getName() {
+		return name;
+	}
 }

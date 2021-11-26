@@ -19,7 +19,8 @@
 package uk.ac.diamond.daq.gasrig.api;
 
 import gda.factory.Findable;
+import uk.ac.diamond.daq.gasrig.api.models.GasRigModel;
 
 public interface IGasRig extends Findable {
-
+	public GasRigModel getGasRigInfo();
 }

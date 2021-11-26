@@ -18,8 +18,29 @@
 
 package uk.ac.diamond.daq.gasrig;
 
-import gda.device.DeviceException;
+public class Gas {
 
-public interface IGasRigController {
-	public String getGasName(int gasId) throws DeviceException;
+	private int id;
+	private String name = "Unset";
+
+	public Gas(int id) {
+		this.id = id;
+	}
+
+	public Gas(int id, String name) {
+		this(id);
+		setName(name);
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }

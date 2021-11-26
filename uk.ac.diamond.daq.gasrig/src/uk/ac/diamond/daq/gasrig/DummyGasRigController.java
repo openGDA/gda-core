@@ -18,6 +18,35 @@
 
 package uk.ac.diamond.daq.gasrig;
 
-public class DummyGasRigController implements IGasRigController {
+import java.util.List;
 
+import gda.device.DeviceException;
+
+/**
+ * This class serves to simulate the responses from EPICS, and also logs the PVs which
+ * will be used in the live environment for debugging purposes, as there is no gas rig simulator.
+ *
+ * It extends {@link BaseGasRigController} so that it can make use of the methods which construct
+ * the live PVs
+ *
+ * @author Tom Richardson (too27251)
+ */
+public class DummyGasRigController extends BaseGasRigController implements IGasRigController {
+
+	private List<Gas> gases;
+
+	public DummyGasRigController(String basePvName, List<Gas> gases) {
+		super(basePvName);
+		this.gases = gases;
+	}
+
+	@Override
+	public String getGasName(int gasId) throws DeviceException {
+		String gasNamePv = constructGasNamePV(gasId);
+		logger.info("Gas name requested for gas {}. Live PV would be {}", gasId, gasNamePv);
+
+		return (gases.stream().filter(g -> g.getId() == gasId).findFirst()
+				.orElseThrow(() -> new DeviceException("No gas found for id " + gasId)))
+				.getName();
+	}
 }

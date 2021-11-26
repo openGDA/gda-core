@@ -20,6 +20,14 @@ package uk.ac.diamond.daq.gasrig;
 
 import gda.device.DeviceException;
 
-public interface IGasRigController {
-	public String getGasName(int gasId) throws DeviceException;
+public class GasRigController extends BaseGasRigController implements IGasRigController {
+
+	public GasRigController(String basePvName) {
+		super(basePvName);
+	}
+
+	@Override
+	public String getGasName(int gasId) throws DeviceException {
+		return getStringValue(constructGasNamePV(gasId), "gas name");
+	}
 }

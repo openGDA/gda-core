@@ -18,8 +18,23 @@
 
 package uk.ac.diamond.daq.gasrig;
 
-import gda.device.DeviceException;
+import java.util.List;
 
-public interface IGasRigController {
-	public String getGasName(int gasId) throws DeviceException;
+public class Cabinet {
+
+	private String name;
+	private List<Gas> gases;
+
+	public Cabinet(String name, List<Gas> gases) {
+		this.name = name;
+		this.gases = gases;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public List<Gas> getGases() {
+		return gases;
+	}
 }

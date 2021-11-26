@@ -7,5 +7,8 @@ Automatic-Module-Name: uk.ac.diamond.daq.gasrig
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: uk.ac.diamond.daq.gasrig
 Import-Package: gda.factory,
+ org.slf4j;version="1.7.25",
  uk.ac.diamond.daq.gasrig.api,
+ uk.ac.diamond.daq.gasrig.api.models,
  uk.ac.gda.api.remoting
+Require-Bundle: uk.ac.gda.epics;bundle-version="1.0.0"

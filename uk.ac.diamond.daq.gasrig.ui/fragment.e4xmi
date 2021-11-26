@@ -2,7 +2,7 @@
 <fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_mjMZIC0BEeyGEofC_e_wlw">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_FtIFkC0CEeyGEofC_e_wlw" featurename="snippets" parentElementId="org.eclipse.e4.legacy.ide.application">
     <elements xsi:type="advanced:Perspective" xmi:id="_L5ycIC0CEeyGEofC_e_wlw" elementId="uk.ac.diamond.daq.gasrig.ui.perspective.gasrig" label="Gas Rig">
-      <children xsi:type="basic:Part" xmi:id="_D0EMkC__EeyGEofC_e_wlw" elementId="uk.ac.diamond.daq.gasrig.ui.part.massflows" contributionURI="bundleclass://uk.ac.diamond.daq.gasrig.ui/uk.ac.diamond.daq.gasrig.ui.GasRigMassComingSoonView" label="Mass Flows"/>
+      <children xsi:type="basic:Part" xmi:id="_D0EMkC__EeyGEofC_e_wlw" elementId="uk.ac.diamond.daq.gasrig.ui.part.gasrigcontrols" contributionURI="bundleclass://uk.ac.diamond.daq.gasrig.ui/uk.ac.diamond.daq.gasrig.ui.GasRigControls" label="Mass Flows"/>
     </elements>
   </fragments>
 </fragment:ModelFragments>

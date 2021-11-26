@@ -12,5 +12,7 @@ Import-Package: gda.factory,
  org.eclipse.jface.resource,
  org.eclipse.swt,
  org.eclipse.swt.graphics,
+ org.eclipse.swt.layout,
  org.eclipse.swt.widgets,
- uk.ac.diamond.daq.gasrig.api
+ uk.ac.diamond.daq.gasrig.api,
+ uk.ac.diamond.daq.gasrig.api.models
