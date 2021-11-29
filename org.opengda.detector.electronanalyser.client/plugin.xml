@@ -122,6 +122,10 @@
             id="org.opengda.detector.electronanalyser.client.commandToClipboard"
             name="Command to clipboard">
       </command>
+      <command
+            id="org.opengda.detector.electronanalyser.client.newsequence2"
+            name="new2">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -214,7 +218,7 @@
                visible="true">
          </separator>
          <command
-               commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               commandId="org.opengda.detector.electronanalyser.client.newsequence2"
                icon="icons/new_file.gif"
                label="New"
                style="push"
@@ -348,7 +352,7 @@
             allPopups="false"
             locationURI="toolbar:org.opengda.detector.electronanalyser.client.sequencecreator">
          <command
-               commandId="org.opengda.detector.electronanalyser.client.newsequence"
+               commandId="org.opengda.detector.electronanalyser.client.newsequence2"
                icon="icons/new_file.gif"
                label="New"
                style="push"
@@ -398,6 +402,10 @@
       <handler
             class="org.opengda.detector.electronanalyser.client.actions.CommandToClipboardAction"
             commandId="org.opengda.detector.electronanalyser.client.commandToClipboard">
+      </handler>
+      <handler
+            class="org.opengda.detector.electronanalyser.client.actions.NewSequenceFileHandler"
+            commandId="org.opengda.detector.electronanalyser.client.newsequence2">
       </handler>
    </extension>
    <extension

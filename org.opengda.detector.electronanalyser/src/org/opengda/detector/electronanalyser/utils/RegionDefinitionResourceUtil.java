@@ -30,6 +30,7 @@ public class RegionDefinitionResourceUtil {
 	private double xRaySourceEnergyLimit = 2100.0;
 	private boolean sourceSelectable;
 	private String fileName;
+	private String tgtDataRootPath;
 
 	public String getFileName() {
 		if (fileName == null) {
@@ -41,7 +42,7 @@ public class RegionDefinitionResourceUtil {
 	private String createExampleSequenceFileIfRequired() {
 
 		// Find the target location for the example .seq file
-		final String tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.ses.electronanalyser.seq.dir");
+		tgtDataRootPath = InterfaceProvider.getPathConstructor().createFromProperty("gda.ses.electronanalyser.seq.dir");
 		final String exampleFileName = LocalProperties.get("gda.ses.electronanalyser.seq.filename");
 		final String combinedFileName = tgtDataRootPath + File.separator + exampleFileName;
 		final File targetFile = new File(tgtDataRootPath, exampleFileName);
@@ -234,5 +235,9 @@ public class RegionDefinitionResourceUtil {
 
 	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
 		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
+	}
+
+	public String getTgtDataRootPath() {
+		return tgtDataRootPath;
 	}
 }

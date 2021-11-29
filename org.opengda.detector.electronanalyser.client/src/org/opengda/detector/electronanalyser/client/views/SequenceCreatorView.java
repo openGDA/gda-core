@@ -24,9 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
@@ -77,6 +74,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
@@ -88,7 +86,6 @@ import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
@@ -882,18 +879,17 @@ public class SequenceCreatorView extends ViewPart implements ISelectionProvider,
 		} catch (Exception e1) {
 			logger.warn("Cannot find the resouce from sequence file.");
 		}
-		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
-		saveAsDialog.open();
-		IPath path = saveAsDialog.getResult();
-		if (path != null) {
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			if (file != null && resourceToSave != null) {
-				String newFilename = file.getLocation().toOSString();
-				regionDefinitionResourceUtil.saveAs(resourceToSave, newFilename);
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-				refreshTable(newFilename, false);
-			}
+		FileDialog fileDialog = new FileDialog(getSite().getShell(), SWT.SAVE);
+		String filterPath = getRegionDefinitionResourceUtil().getTgtDataRootPath();
+		fileDialog.setFilterPath(filterPath);
+		fileDialog.setOverwrite(true);
+		fileDialog.setFilterExtensions(new String[] {"*.seq"});
+		String fileName = fileDialog.open();
+		if (fileName != null && resourceToSave != null) {
+			regionDefinitionResourceUtil.saveAs(resourceToSave, fileName);
+			isDirty = false;
+			firePropertyChange(PROP_DIRTY);
+			refreshTable(fileName, false);
 		}
 		if (!isAllRegionsValid()) {
 			logger.warn("File {} contains invalid active region {}.", regionDefinitionResourceUtil.getFileName(), invalidRegionName);

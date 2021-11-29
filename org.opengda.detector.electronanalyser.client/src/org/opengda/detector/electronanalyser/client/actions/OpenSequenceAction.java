@@ -35,6 +35,10 @@ public class OpenSequenceAction extends AbstractHandler implements IHandler {
 
 			FileDialog fileDialog = new FileDialog(
 					HandlerUtil.getActiveShell(event));
+			String filterPath = regionDefView.getRegionDefinitionResourceUtil().getTgtDataRootPath();
+			fileDialog.setFilterPath(filterPath);
+			fileDialog.setOverwrite(true);
+			fileDialog.setFilterExtensions(new String[] {"*.seq"});
 			String fileName = fileDialog.open();
 			if (fileName != null) {
 				regionDefView.refreshTable(fileName, false);

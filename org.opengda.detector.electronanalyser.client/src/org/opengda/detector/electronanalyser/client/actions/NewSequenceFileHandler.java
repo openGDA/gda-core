@@ -7,6 +7,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
@@ -25,13 +26,19 @@ public class NewSequenceFileHandler extends AbstractHandler implements IHandler 
 		if (activePart instanceof IRegionDefinitionView) {
 			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
 			Shell shell = HandlerUtil.getActiveShell(event);
-			FileDialog fileDialog = new FileDialog(shell);
+			FileDialog fileDialog = new FileDialog(shell, SWT.SAVE);
+			String filterPath = regionDefView.getRegionDefinitionResourceUtil().getTgtDataRootPath();
+			fileDialog.setFilterPath(filterPath);
+			fileDialog.setOverwrite(true);
+			fileDialog.setFilterExtensions(new String[] {"*.seq"});
 			String fileName = fileDialog.open();
-			File file = null;
+			File file;
 			if (fileName != null) {
 				file = new File(fileName);
+			} else {
+				return null;
 			}
-			if (file != null && !file.exists()) {
+			if (!file.exists()) {
 				regionDefView.refreshTable(fileName, true);
 			} else {
 				MessageDialog msgd = new MessageDialog(shell,
