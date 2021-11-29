@@ -14,7 +14,6 @@ package org.eclipse.scanning.test.messaging;
 import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_REQUEST_TOPIC;
 import static org.eclipse.scanning.api.event.EventConstants.POSITIONER_RESPONSE_TOPIC;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +22,6 @@ import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IRequester;
 import org.eclipse.scanning.api.event.scan.PositionerRequest;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
@@ -60,7 +58,7 @@ public class PositionerRequestMessagingAPITest extends BrokerTest {
 		connect();
 	}
 
-	protected void setupScannableDeviceService() throws IOException, ScanningException {
+	protected void setupScannableDeviceService() {
 
 		registerScannableDevice(new MockScannable("drt_mock_scannable", 10d, 2, "µm"));
 
@@ -72,7 +70,7 @@ public class PositionerRequestMessagingAPITest extends BrokerTest {
 		registerScannableDevice(x);
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void registerScannableDevice(IScannable device) {
 		ServiceTestHelper.getScannableDeviceService().register(device);
 	}
@@ -104,8 +102,8 @@ public class PositionerRequestMessagingAPITest extends BrokerTest {
 	@Test
 	public void testPositioner() throws Exception {
 
-		String sentJson = "{\"@type\":\"PositionerRequest\",\"positionType\":\"SET\",\"position\": {\"values\":{\"drt_mock_scannable\":290.0},\"indices\":{\"T\":0},\"stepIndex\": -1, \"dimensionNames\":[[\"drt_mock_scannable\"]]},\"uniqueId\":\"c8f12aee-d56a-49f6-bc03-9c7de9415674\"}";
-		String expectedJson = "{\"@type\":\"PositionerRequest\",\"positionType\":\"SET\",\"position\": {\"values\":{\"drt_mock_scannable\":290.0},\"indices\":{},\"stepIndex\": -1, \"dimensionNames\":[[\"drt_mock_scannable\"]]},\"uniqueId\":\"c8f12aee-d56a-49f6-bc03-9c7de9415674\"}";
+		String sentJson = "{\"@type\":\"PositionerRequest\",\"requestType\":\"SET\",\"position\": {\"values\":{\"drt_mock_scannable\":290.0},\"indices\":{\"T\":0},\"stepIndex\": -1, \"dimensionNames\":[[\"drt_mock_scannable\"]]},\"uniqueId\":\"c8f12aee-d56a-49f6-bc03-9c7de9415674\"}";
+		String expectedJson = "{\"@type\":\"PositionerRequest\",\"requestType\":\"SET\",\"position\": {\"values\":{\"drt_mock_scannable\":290.0},\"indices\":{},\"stepIndex\": -1, \"dimensionNames\":[[\"drt_mock_scannable\"]]},\"uniqueId\":\"c8f12aee-d56a-49f6-bc03-9c7de9415674\"}";
 
 		String returnedJson = getMessageResponse(sentJson);
 

@@ -54,7 +54,7 @@ class PositionerProxy extends AbstractRemoteService implements IPositioner {
 	@Override
 	public void init()  throws EventException {
 		requester = eservice.createRequestor(uri, EventConstants.POSITIONER_REQUEST_TOPIC, EventConstants.POSITIONER_RESPONSE_TOPIC);
-		long timeout = Long.getLong("org.eclipse.scanning.event.remote.positionerTimeout", 100);
+		long timeout = Long.getLong("org.eclipse.scanning.event.remote.positionerTimeout", 30000);
 	    logger.debug("Setting timeout {} {}" , timeout , " ms");
 		requester.setTimeout(timeout, TimeUnit.MILLISECONDS); // Useful for debugging testing
 		request   = new PositionerRequest();
@@ -74,7 +74,7 @@ class PositionerProxy extends AbstractRemoteService implements IPositioner {
 
 	@Override
 	public boolean setPosition(IPosition position) throws ScanningException, InterruptedException {
-		request.setPositionType(PositionRequestType.SET);
+		request.setRequestType(PositionRequestType.SET);
 		request.setPosition(position);
 		try {
 			request = requester.post(request);
@@ -86,7 +86,7 @@ class PositionerProxy extends AbstractRemoteService implements IPositioner {
 
 	@Override
 	public IPosition getPosition() throws ScanningException {
-		request.setPositionType(PositionRequestType.GET);
+		request.setRequestType(PositionRequestType.GET);
 		request.setPosition(null);
 		try {
 			request = requester.post(request);
@@ -121,7 +121,7 @@ class PositionerProxy extends AbstractRemoteService implements IPositioner {
 
 	@Override
 	public void abort() {
-		request.setPositionType(PositionRequestType.ABORT);
+		request.setRequestType(PositionRequestType.ABORT);
 		try {
 			request = requester.post(request);
 		} catch (EventException | InterruptedException e) {
@@ -131,7 +131,7 @@ class PositionerProxy extends AbstractRemoteService implements IPositioner {
 
 	@Override
 	public void close() {
-		request.setPositionType(PositionRequestType.CLOSE);
+		request.setRequestType(PositionRequestType.CLOSE);
 		try {
 			request = requester.post(request);
 		} catch (EventException | InterruptedException e) {

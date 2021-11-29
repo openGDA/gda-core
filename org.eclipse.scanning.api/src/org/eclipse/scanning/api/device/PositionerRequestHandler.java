@@ -15,31 +15,35 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
-import org.eclipse.scanning.api.event.scan.PositionRequestType;
 import org.eclipse.scanning.api.event.scan.PositionerRequest;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class PositionerRequestHandler implements IRequestHandler<PositionerRequest>{
+public class PositionerRequestHandler implements IRequestHandler<PositionerRequest> {
 
-	private static Map<String, Reference<IPositioner>> positioners;
+	private static final Map<String, Reference<IPositioner>> positioners = new HashMap<>();
+	private static final Logger logger = LoggerFactory.getLogger(PositionerRequestHandler.class);
 
-	private IRunnableDeviceService        dservice;
-	private PositionerRequest             bean;
-	private IPublisher<PositionerRequest> publisher;
+	public static final String CANNOT_READ_POSITION = "Error reading position";
+	public static final String CANNOT_SET_POSITION = "Error setting position";
+	public static final String CANNOT_CREATE_POSITIONER = "Error creating positioner";
+	public static final String POSITION_NOT_REACHED = "Position not reached";
 
-	public PositionerRequestHandler(IRunnableDeviceService        dservice,
-			                  PositionerRequest             bean,
-			                  IPublisher<PositionerRequest> statusNotifier) {
+	private final IRunnableDeviceService runnableDeviceService;
+	private final PositionerRequest bean;
+	private final IPublisher<PositionerRequest> publisher;
 
-		this.dservice    = dservice;
-		this.bean        = bean;
-		this.publisher   = statusNotifier;
-		if (positioners==null) positioners = new HashMap<>();
+	public PositionerRequestHandler(IRunnableDeviceService runnableDeviceService, PositionerRequest bean, IPublisher<PositionerRequest> statusNotifier) {
+		this.runnableDeviceService = runnableDeviceService;
+		this.bean = bean;
+		this.publisher = statusNotifier;
 	}
 
 	@Override
@@ -54,24 +58,36 @@ public class PositionerRequestHandler implements IRequestHandler<PositionerReque
 
 	@Override
 	public PositionerRequest process(PositionerRequest request) throws EventException {
+
+		IPositioner positioner;
+
 		try {
-			IPositioner positioner = getPositioner(request);
-			if (request.getPositionType()==PositionRequestType.SET && request.getPosition()!=null) {
-				boolean ok = positioner.setPosition(request.getPosition());
-				if (!ok) throw new EventException("Internal Error: setPosition() did not return ok!");
-
-			} else if (request.getPositionType()==PositionRequestType.ABORT) {
-				positioner.abort();
-			} else if (request.getPositionType()==PositionRequestType.CLOSE) {
-				positioner.close();
-			}
-			// Return the current position.
-			request.setPosition(positioner.getPosition());
+			positioner = getPositioner(request);
+		} catch (ScanningException e) {
+			logger.error("Failed to create positioner for request {}", request);
+			request.setErrorMessage(CANNOT_CREATE_POSITIONER + ": " + e.getMessage());
 			return request;
-
-		} catch (ScanningException | InterruptedException ne) {
-			throw new EventException("Cannot connect to positioner!", ne);
 		}
+
+		switch (request.getRequestType()) {
+		case ABORT:
+			positioner.abort();
+			break;
+		case CLOSE:
+			positioner.close();
+			break;
+		case GET:
+			getPosition(positioner, request);
+			break;
+		case SET:
+			setPosition(positioner, request);
+			break;
+		default:
+			request.setErrorMessage("Unsupported request type: " + request.getRequestType().toString());
+			break;
+		}
+
+		return request;
 	}
 
 	private IPositioner getPositioner(PositionerRequest request) throws ScanningException {
@@ -80,9 +96,31 @@ public class PositionerRequestHandler implements IRequestHandler<PositionerReque
 			return positioners.get(id).get();
 		}
 
-		IPositioner positioner = dservice.createPositioner("positioner " + id);
-		positioners.put(request.getUniqueId(), new SoftReference<IPositioner>(positioner));
+		IPositioner positioner = runnableDeviceService.createPositioner("positioner " + id);
+		positioners.put(request.getUniqueId(), new SoftReference<>(positioner));
 		return positioner;
+	}
+
+	private void getPosition(IPositioner positioner, PositionerRequest request) {
+		try {
+			request.setPosition(positioner.getPosition());
+		} catch (ScanningException e) {
+			request.setErrorMessage(CANNOT_READ_POSITION + ": " + e.getMessage());
+		}
+	}
+
+	private void setPosition(IPositioner positioner, PositionerRequest request) {
+		try {
+			var position = Objects.requireNonNull(request.getPosition(), "Unspecified position");
+			var completed = positioner.setPosition(position);
+			if (!completed) request.setErrorMessage(POSITION_NOT_REACHED);
+		} catch (InterruptedException interrupted) {
+			request.setErrorMessage(CANNOT_SET_POSITION + ": " + interrupted.getMessage());
+			Thread.currentThread().interrupt();
+
+		} catch (Exception e) {
+			request.setErrorMessage(CANNOT_SET_POSITION + ": " + e.getMessage());
+		}
 	}
 
 }
