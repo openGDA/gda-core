@@ -19,6 +19,7 @@
 package gda.rcp;
 
 import static gda.configuration.properties.LocalProperties.GDA_CHECK_USER_VISIT_VALID;
+import static java.util.Arrays.stream;
 
 import java.io.File;
 import java.net.URL;
@@ -33,6 +34,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -83,7 +85,7 @@ public class Application implements IApplication {
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
 			logger.info("Starting GDA client...");
-
+			customiseEnvironment();
 
 			Finder.addFactory(new RmiProxyFactory());
 			// Start watchdog checking whether the server can be reached.
@@ -516,6 +518,18 @@ public class Application implements IApplication {
 			path = InterfaceProvider.getPathConstructor().createFromTemplate(template);
 		}
 		return path;
+	}
+
+	/**
+	 * Application wide monitoring or special logging modifications
+	 */
+	private void customiseEnvironment() {
+		var swtDisposeLogger = LoggerFactory.getLogger("GDAClientSWTDispose");
+		Resource.setNonDisposeHandler(error -> {
+			var trimmedTrace = stream(error.getStackTrace()).limit(10).toArray(StackTraceElement[]::new);
+			error.setStackTrace(trimmedTrace);
+			swtDisposeLogger.warn("SWT resource not disposed properly - trimmed creation stack:", error);
+		});
 	}
 
 	/**
