@@ -19,10 +19,14 @@
 
 package gda.data.metadata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Simple metadata entry that holds a string value.
  */
 public class StoredMetadataEntry extends MetadataEntry {
+	private static final Logger logger = LoggerFactory.getLogger(StoredMetadataEntry.class);
 
 	protected String value;
 
@@ -60,6 +64,7 @@ public class StoredMetadataEntry extends MetadataEntry {
 	 */
 	@Override
 	public void setValue(String value) {
+		logger.trace("Updating '{}' ('{}' -> '{}')", getName(), this.value, value);
 		this.value = value;
 		notifyIObservers(this, value);
 	}
