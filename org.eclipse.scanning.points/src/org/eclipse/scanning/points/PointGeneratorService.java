@@ -239,7 +239,7 @@ public class PointGeneratorService implements IPointGeneratorService {
 	}
 
 	@Override
-	public List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> sregions) throws GeneratorException {
+	public List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> sregions) {
 		if (sregions == null || sregions.isEmpty())
 			return Collections.emptyList();
 

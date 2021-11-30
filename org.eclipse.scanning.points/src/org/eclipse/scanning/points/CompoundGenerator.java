@@ -15,18 +15,26 @@ import static org.eclipse.scanning.points.ROIGenerator.EMPTY_PY_ARRAY;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.jython.JythonObjectFactory;
@@ -106,7 +114,7 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 
 		final PPointGenerator[] pyGenerators = initGenerators();
 	    final PyObject[] mutators = getMutators(model.getMutators());
-	    final PyObject[] excluders = getExcluders(model.getRegions());
+	    final PyObject[] excluders = getExcluders(getNonRedundantRegions(model));
 	    final double duration = model.getDuration();
 	    final boolean continuous = model.isContinuous();
 	    return compoundGeneratorFactory.createObject(pyGenerators, excluders, mutators, duration, continuous);
@@ -123,6 +131,38 @@ public class CompoundGenerator extends AbstractMultiGenerator<CompoundModel> {
 			return mutators.stream().map(IMutator::getMutatorAsJythonObject).toArray(PyObject[]::new);
 		}
 		return EMPTY_PY_ARRAY;
+	}
+
+	/*
+	 * When a grid model is bounded by a single scan region, its information is already present in the BoundingBox, but floating point errors
+	 * (from Jython being passed Start + Length and End seperately) can cause truncation of a row or column. We remove the surplus region here,
+	 * to allow it to still be in the ScanRequest (the mapping perspective expects it to be there).
+	 * Logic moved from CompoundModelValidator as it doesn't invalidate the model, but we want to pass the reduced list to the PPointGenerator
+	 */
+	private Set<ScanRegion> getNonRedundantRegions(CompoundModel model) {
+		final Set<ScanRegion> allRegions = new HashSet<>(model.getRegions());
+		final List<AbstractTwoAxisGridModel> gridModels = model.getModels().stream()
+				.filter(AbstractTwoAxisGridModel.class::isInstance).map(AbstractTwoAxisGridModel.class::cast)
+				.collect(Collectors.toList());
+		for (AbstractTwoAxisGridModel gridModel : gridModels) {
+			List<IROI> modelRois = service.findRegions(gridModel, model.getRegions());
+			if (modelRois.size() == 1 && modelRois.get(0) instanceof IRectangularROI
+					&& ((IRectangularROI) modelRois.get(0)).getAngle() == 0) {
+				removeRegion(allRegions, gridModel);
+			}
+		}
+		return allRegions;
+	}
+
+	private void removeRegion(Set<ScanRegion> allRegions, IMapPathModel model) {
+		Optional<ScanRegion> modelRegion = allRegions.stream()
+				.filter(region -> isInAxesOfModel(region, model)).findFirst();
+		if (modelRegion.isPresent())
+			allRegions.remove(modelRegion.get());
+	}
+
+	private boolean isInAxesOfModel(ScanRegion region, IMapPathModel model) {
+		return CollectionUtils.isEqualCollection(region.getScannables(), model.getScannableNames());
 	}
 
 	/**
