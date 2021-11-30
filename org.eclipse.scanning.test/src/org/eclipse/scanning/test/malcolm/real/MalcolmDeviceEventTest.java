@@ -18,8 +18,8 @@
 
 package org.eclipse.scanning.test.malcolm.real;
 
+import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
@@ -35,10 +35,8 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Flaky new-scanning test")
 public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 
 	@Override
@@ -49,12 +47,12 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 
 	private MalcolmMessage createStateChangeMessage(DeviceState newState) {
 		final MalcolmMessage message = new MalcolmMessage();
-		message.setEndpoint("state");
+		message.setEndpoint(ATTRIBUTE_NAME_STATE);
 		message.setMessage("State changed to " + newState);
 		message.setType(Type.UPDATE);
 
 		final ChoiceAttribute stateAttribute = new ChoiceAttribute();
-		stateAttribute.setName("state");
+		stateAttribute.setName(ATTRIBUTE_NAME_STATE);
 		stateAttribute.setValue(newState.toString());
 		message.setValue(stateAttribute);
 		return message;
@@ -65,7 +63,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		message.setMessage("Start of point " + stepNum);
 		message.setType(Type.UPDATE);
 
-		NumberAttribute pointAttribute = new NumberAttribute();
+		final NumberAttribute pointAttribute = new NumberAttribute();
 		pointAttribute.setName("value");
 		pointAttribute.setValue(stepNum);
 		message.setValue(pointAttribute);
@@ -84,9 +82,8 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		stateChangeListener.eventPerformed(message);
 
 		// Assert
-		verify(malcolmEventListener, times(2)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(
-				createExpectedMalcolmEvent(newState, oldState, "State changed to " + newState))));
+		verify(malcolmEventListener).eventPerformed(
+				createExpectedMalcolmEvent(newState, oldState, "State changed to " + newState));
 
 		// Now call again. This time, previousState should be CONFIGURING
 		// Arrange
@@ -98,9 +95,8 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		stateChangeListener.eventPerformed(message);
 
 		// Assert
-		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(
-				createExpectedMalcolmEvent(newState, oldState, "State changed to " + newState))));
+		verify(malcolmEventListener).eventPerformed(
+				createExpectedMalcolmEvent(newState, oldState, "State changed to " + newState));
 	}
 
 	@Test
@@ -114,9 +110,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		scanEventListener.eventPerformed(createScanEventMessage(stepNum));
 
 		// Assert: check that the listener received the correct message
-		verify(malcolmEventListener, times(2)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEvent(stepNum))));
-
+		verify(malcolmEventListener).eventPerformed(createExpectedMalcolmEvent(stepNum));
 		verifyNoMoreInteractions(malcolmEventListener);
 
 		// Act again: send another message to the malcolm device. This should not cause a position event
@@ -131,8 +125,6 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		scanEventListener.eventPerformed(createScanEventMessage(stepNum));
 		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
 		verifyNoMoreInteractions(malcolmEventListener);
-		// Note: no assertions are made of the published ScanBean as MalcolmDevice shouldn't be updating and
-		// publishing this bean in the first place, and this code will be removed (TODO remove this comment when done)
 	}
 
 	@Test
@@ -146,12 +138,11 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Assert
 		assertThat(malcolmDevice.isAlive(), is(false));
 		// verify that a state change event is received, from ARMED to OFFLINE
-		verify(malcolmEventListener, timeout(1000).times(2)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEvent(
-				DeviceState.OFFLINE, DeviceState.READY, "disconnected from " + malcolmDevice.getName()))));
+		verify(malcolmEventListener, timeout(1000)).eventPerformed(
+				createExpectedMalcolmEvent(DeviceState.OFFLINE, DeviceState.READY, "disconnected from " + malcolmDevice.getName()));
 
 		// Arrange
-		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, "state");
+		final MalcolmMessage expectedGetDeviceStateMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_STATE);
 		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(
 				createExpectedMalcolmStateReply(DeviceState.READY));
 
@@ -162,9 +153,8 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 		// Assert
 		verify(malcolmConnection, timeout(1000)) // wait with timeout as invocation happens in a another thread
 				.send(malcolmDevice, expectedGetDeviceStateMessage);
-		verify(malcolmEventListener, times(3)).eventPerformed(any(MalcolmEvent.class));
-		assertThat(malcolmBeanCaptor.getValue(), is(equalTo(createExpectedMalcolmEvent(
-				DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()))));
+		verify(malcolmEventListener, timeout(1000).times(2)).eventPerformed(
+				createExpectedMalcolmEvent(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()));
 	}
 
 }

@@ -18,9 +18,9 @@
 
 package org.eclipse.scanning.test.malcolm.real;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
@@ -38,28 +38,27 @@ import org.mockito.stubbing.Answer;
  * copying the argument, but this was not possible as it would require using internal
  * package of the mockito plug-in jar.</p>
  *
- * @param <T>
+ * @param <T> the type of the argument
  */
 public class BeanCollectingAnswer<T> implements Answer<Void> {
 
 	private final Class<T> argClass;
 
-	private final Function<T, T> copyFunction;
+	private final UnaryOperator<T> copyFunction;
 
-	private List<T> arguments = new LinkedList<>();
+	private List<T> arguments = new ArrayList<>();
 
-	public static <T> BeanCollectingAnswer<T> forClass(
-			Class<T> argClass, Function<T, T> copyFunction) {
+	public static <T> BeanCollectingAnswer<T> forClass(Class<T> argClass, UnaryOperator<T> copyFunction) {
 		return new BeanCollectingAnswer<>(argClass, copyFunction);
 	}
 
-	private BeanCollectingAnswer(Class<T> argClass, Function<T, T> copyFunction) {
+	private BeanCollectingAnswer(Class<T> argClass, UnaryOperator<T> copyFunction) {
 		this.argClass = argClass;
 		this.copyFunction = copyFunction;
 	}
 
 	@Override
-	public Void answer(InvocationOnMock invocation) throws Throwable {
+	public synchronized Void answer(InvocationOnMock invocation) throws Throwable {
 		final Object[] args = invocation.getArguments();
 		if (args.length == 0) {
 			throw new AssertionError("The method was called with no arguments");
@@ -73,6 +72,7 @@ public class BeanCollectingAnswer<T> implements Answer<Void> {
 		if (!argClass.isInstance(argument)) {
 			throw new ClassCastException("The argument is not of the expected type " + argClass.getName() + ": " + argument);
 		}
+
 		final T copy = copyFunction.apply(argument);
 		arguments.add(copy);
 		return null;
@@ -81,28 +81,30 @@ public class BeanCollectingAnswer<T> implements Answer<Void> {
 	/**
 	 * Returns the collected value of the argument, and clears this object for next use.
 	 * Use this method if the method was called exactly once since the previous use.
-	 * @return
+	 * @return the value that the method was called with.
 	 * @throws AssertionError if this method
 	 */
-	public T getValue() throws AssertionError {
-		if (arguments.isEmpty()) {
+	public synchronized T getValue() throws AssertionError {
+		final List<T> values = getAllValues();
+
+		if (values.isEmpty()) {
 			throw new AssertionError("The method was not invoked");
 		}
-		if (arguments.size() > 1) {
+		if (values.size() > 1) {
 			throw new AssertionError("The method was invoked more than once");
 		}
 
-		return getAllValues().get(0);
+		return values.get(0);
 	}
 
 	/**
 	 * Returns all collected values and clears for next use. Use this method if the method was
 	 * called multiple times since the previous use.
-	 * @return
+	 * @return all values this answer was invoked with since previous use
 	 */
-	public List<T> getAllValues() {
+	public synchronized List<T> getAllValues() {
 		final List<T> arguments = this.arguments;
-		this.arguments = new LinkedList<>();
+		this.arguments = new ArrayList<>();
 		return arguments;
 	}
 

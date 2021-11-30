@@ -563,9 +563,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	@Test
 	public void testGetAvailableAxes() throws Exception {
 		// Arrange: set up mocks
-		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		String[] axesNames = new String[] { "stage_x", "stage_y" };
-		StringArrayAttribute availableAxes = new StringArrayAttribute(axesNames);
+		final MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		final String[] axesNames = new String[] { "stage_x", "stage_y" };
+		final StringArrayAttribute availableAxes = new StringArrayAttribute(axesNames);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
 				.thenReturn(createExpectedMalcolmOkReply(availableAxes));
 
@@ -576,9 +576,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	@Test
 	public void testGetDatasets() throws Exception {
 		// Arrange: set up mocks
-		MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_DATASETS);
-		MalcolmTable datasetsTable = new MalcolmTable(); // TODO complete table?
-		TableAttribute datasetsAttr = new TableAttribute();
+		final MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_DATASETS);
+		final MalcolmTable datasetsTable = new MalcolmTable(); // TODO complete table
+		final TableAttribute datasetsAttr = new TableAttribute();
 		datasetsAttr.setValue(datasetsTable);
 		datasetsAttr.setName(MalcolmConstants.ATTRIBUTE_NAME_DATASETS);
 		when(malcolmConnection.send(malcolmDevice, expectedMessage))
@@ -611,20 +611,20 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		configureMocksForConfigure(new ScanModel(), false);
 		malcolmDevice.configure(model);
 
-		DeviceInformation<IMalcolmModel> deviceInfo = new DeviceInformation<>("malcolm");
-		deviceInfo.setActivated(false);
-		deviceInfo.setAlive(true);
-		deviceInfo.setAvailableAxes(asList("x", "y"));
-		deviceInfo.setBusy(false);
-		deviceInfo.setDescription("Mock malcolm device");
-		deviceInfo.setDeviceRole(DeviceRole.MALCOLM);
-		deviceInfo.setHealth("fault");
-		deviceInfo.setIcon("icon.png");
-		deviceInfo.setLabel("Mock Malcolm");
-		deviceInfo.setLevel(2);
-		deviceInfo.setModel(model);
-		deviceInfo.setState(DeviceState.ABORTED);
-		((AbstractRunnableDevice<IMalcolmModel>) malcolmDevice).setDeviceInformation(deviceInfo);
+		final DeviceInformation<IMalcolmModel> deviceInfo1 = new DeviceInformation<>("malcolm");
+		deviceInfo1.setActivated(false);
+		deviceInfo1.setAlive(true);
+		deviceInfo1.setAvailableAxes(asList("x", "y"));
+		deviceInfo1.setBusy(false);
+		deviceInfo1.setDescription("Mock malcolm device");
+		deviceInfo1.setDeviceRole(DeviceRole.MALCOLM);
+		deviceInfo1.setHealth("fault");
+		deviceInfo1.setIcon("icon.png");
+		deviceInfo1.setLabel("Mock Malcolm");
+		deviceInfo1.setLevel(2);
+		deviceInfo1.setModel(model);
+		deviceInfo1.setState(DeviceState.ABORTED);
+		((AbstractRunnableDevice<IMalcolmModel>) malcolmDevice).setDeviceInformation(deviceInfo1);
 
 		// Arrange: set up mocks
 		initializeMalcolmDevice();
@@ -654,21 +654,22 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(expectedGetConfigureReply);
 
 		// Act
-		deviceInfo = ((AbstractRunnableDevice<IMalcolmModel>) malcolmDevice).getDeviceInformation();
+		final DeviceInformation<IMalcolmModel> deviceInfo2 =
+				((AbstractRunnableDevice<IMalcolmModel>) malcolmDevice).getDeviceInformation();
 
 		// Assert
-		assertThat(deviceInfo, is(notNullValue()));
-		assertThat(deviceInfo.getAvailableAxes(), is(equalTo(asList("stage_x", "stage_y"))));
-		assertThat(deviceInfo.getDescription(), is(equalTo("Mock malcolm device")));
-		assertThat(deviceInfo.getDeviceRole(), is(DeviceRole.MALCOLM));
-		assertThat(deviceInfo.getHealth(), is(equalTo("ok")));
-		assertThat(deviceInfo.getIcon(), is(equalTo("icon.png")));
-		assertThat(deviceInfo.getLabel(), is(equalTo("Mock Malcolm")));
-		assertThat(deviceInfo.getLevel(), is(1));
-		assertThat(deviceInfo.getModel(), is(equalTo(model)));
-		assertThat(deviceInfo.getName(), is(equalTo("malcolm")));
-		assertThat(deviceInfo.getState(), is(DeviceState.READY));
-		assertThat(deviceInfo.getMalcolmDetectorInfos(), is(equalTo(getExpectedMalcolmDetectorInfos())));
+		assertThat(deviceInfo2, is(notNullValue()));
+		assertThat(deviceInfo2.getAvailableAxes(), is(equalTo(asList("stage_x", "stage_y"))));
+		assertThat(deviceInfo2.getDescription(), is(equalTo("Mock malcolm device")));
+		assertThat(deviceInfo2.getDeviceRole(), is(DeviceRole.MALCOLM));
+		assertThat(deviceInfo2.getHealth(), is(equalTo("ok")));
+		assertThat(deviceInfo2.getIcon(), is(equalTo("icon.png")));
+		assertThat(deviceInfo2.getLabel(), is(equalTo("Mock Malcolm")));
+		assertThat(deviceInfo2.getLevel(), is(1));
+		assertThat(deviceInfo2.getModel(), is(equalTo(model)));
+		assertThat(deviceInfo2.getName(), is(equalTo("malcolm")));
+		assertThat(deviceInfo2.getState(), is(DeviceState.READY));
+		assertThat(deviceInfo2.getMalcolmDetectorInfos(), is(equalTo(getExpectedMalcolmDetectorInfos())));
 	}
 
 }
