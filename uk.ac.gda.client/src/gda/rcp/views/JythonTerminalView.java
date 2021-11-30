@@ -161,6 +161,8 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 
 	private Future<?> displayUpdate;
 
+	private Font font;
+
 	/***/
 	public JythonTerminalView() {
 		try {
@@ -191,7 +193,7 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 	@Override
 	public void createPartControl(final Composite parent) {
 
-		final Font font = new Font(parent.getDisplay(), "DejaVu Sans Mono", 10, SWT.NORMAL);
+		font = new Font(parent.getDisplay(), "DejaVu Sans Mono", 10, SWT.NORMAL);
 		final int tabSize = 4;
 
 		{
@@ -937,6 +939,9 @@ public class JythonTerminalView extends ViewPart implements IScanDataPointObserv
 		if (!ClientManager.isTestingMode()) {
 			jsf.deleteOutputTerminal(this);
 			jsf.deleteIScanDataPointObserver(this);
+		}
+		if (font != null) {
+			font.dispose();
 		}
 
 		super.dispose();
