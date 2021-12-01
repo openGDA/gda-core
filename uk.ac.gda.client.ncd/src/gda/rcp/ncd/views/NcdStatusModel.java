@@ -24,12 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.msgbus.MsgBus;
@@ -98,11 +96,8 @@ public class NcdStatusModel implements IObserver {
 	private NcdMsgFactory waxsMaskMsg = new NcdMsgFactory("WAXS", NcdMetaType.MASK);
 
 	public NcdStatusModel() {
-		Findable thickness = Finder.find(THICKNESS_METADATA);
-		if (thickness instanceof Scannable) {
-			setThicknessScannable(((Scannable) thickness));
-		} else {
-		}
+		Finder.findOptionalOfType(THICKNESS_METADATA, Scannable.class)
+				.ifPresent(this::setThicknessScannable);
 		meta = GDAMetadataProvider.getInstance();
 		if (meta != null) {
 			meta.addIObserver(this);
@@ -203,12 +198,9 @@ public class NcdStatusModel implements IObserver {
 				sampleThickness = (double)e.newPosition;
 				MsgBus.publish(new StatusUpdated());
 			}
-		} else if (source instanceof IMetadataEntry){
-			IMetadataEntry me = (IMetadataEntry)source;
-			if (me.getName().equals(BACKGROUND_METADATA)) {
-				sampleBackground = String.valueOf(arg);
-				MsgBus.publish(new StatusUpdated());
-			}
+		} else if (source instanceof Metadata) {
+			// This will cause a refresh for all entries that are updated - see DAQ-3862
+			MsgBus.publish(new StatusUpdated());
 		}
 	}
 }
