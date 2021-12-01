@@ -19,10 +19,53 @@
 package gda.data.scan.datawriter.scannablewriter;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 
+import gda.data.scan.datawriter.NexusDataWriter;
+import gda.data.scan.datawriter.NexusDataWriterConfiguration;
+
+/**
+ * An instance of this class that when part of the location map for a scannable,
+ * will add attributes required by the {@link NXtransformations} nexus class.
+ * In order to use this class, declare an instance of this class as the value for the
+ * entry for your scannable in the location map in the.
+ * Each attribute can take an array of values (or a 2d array for offset and vector),
+ * one for each component (i.e. input or extra name) of the scannable.
+ * In most cases only one value will be required (or a 1d array
+ * {@link NexusDataWriterConfiguration#setLocationMap(java.util.Map)}
+ * or {@link NexusDataWriter#setLocationmap(java.util.Map)}.
+ * The path(s) attribute define a data node within an {@link NXtransformations} group,
+ * e.g.
+ * <pre>{@code
+ * <entry key="theta">
+ *     <bean class="gda.data.scan.datawriter.scannablewriter.TransformationWriter">
+ *         <property name="paths"
+ *                 value="instrument:NXinstrument/transformations:NXtransformations/theta" />
+ *         <property name="depends_on" value="entry1/instrument/transformations/gamma" />
+ *         <property name="transformation" value="rotation" />
+ *         <property name="units" value="deg" />
+ *         <property name="vector">
+ *             <list>
+ *                 <value>0</value>
+ *                 <value>1</value>
+ *                 <value>0</value>
+ *             </list>
+ *         </property>
+ *         <property name="offset">
+ *             <list>
+ *                 <value>2.5</value>
+ *                 <value>0.0</value>
+ *                 <value>-7.5</value>
+ *             </list>
+ *         </property>
+ *         <property name="offset_units" value="mm"/>
+ *     </bean>
+ * </entry>}
+ *</pre>
+ */
 public class TransformationWriter extends SingleScannableWriter {
 
 	private String[] dependsOn;
@@ -77,7 +120,7 @@ public class TransformationWriter extends SingleScannableWriter {
 	}
 
 	@Deprecated
-	public void setDepends_on(final String[] dependsOn) {
+	public void setDepends_on(final String... dependsOn) {
 		setDependsOn(dependsOn);
 	}
 
@@ -85,7 +128,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return dependsOn;
 	}
 
-	public void setDependsOn(final String[] dependsOn) {
+	public void setDependsOn(final String... dependsOn) {
 		this.dependsOn = dependsOn;
 	}
 
@@ -93,7 +136,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return vector;
 	}
 
-	public void setVector(final Double[][] vector) {
+	public void setVector(final Double[]... vector) {
 		this.vector = vector;
 	}
 
@@ -101,7 +144,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return transformation;
 	}
 
-	public void setTransformation(final String[] transformation) {
+	public void setTransformation(final String... transformation) {
 		this.transformation = transformation;
 	}
 
@@ -109,7 +152,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return offset;
 	}
 
-	public void setOffset(final Double[][] offset) {
+	public void setOffset(final Double[]... offset) {
 		this.offset = offset;
 	}
 
@@ -119,7 +162,7 @@ public class TransformationWriter extends SingleScannableWriter {
 	}
 
 	@Deprecated
-	public void setOffset_units(final String[] offsetUnits) {
+	public void setOffset_units(final String... offsetUnits) {
 		setOffsetUnits(offsetUnits);
 	}
 
@@ -127,7 +170,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return offsetUnits;
 	}
 
-	public void setOffsetUnits(final String[] offsetUnits) {
+	public void setOffsetUnits(final String... offsetUnits) {
 		this.offsetUnits = offsetUnits;
 	}
 }

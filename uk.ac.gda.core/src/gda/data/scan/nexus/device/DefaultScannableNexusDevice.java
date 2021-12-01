@@ -315,7 +315,7 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 				logger.warn("NexusDataWriter location map entry for device {} is not fully supported: {}", getName(), writer.getClass());
 			}
 
-			return new ScannableLocationMapWriter<N>(this, (SingleScannableWriter) writer);
+			return ScannableLocationMapWriter.createScannableLocationMapWriter(this, writer);
 		} else {
 			logger.warn("Cannot use NexusDataWriter location map to write device {}. "
 					+ "Writer is not an instanceof of {}", getName(), SingleScannableWriter.class);

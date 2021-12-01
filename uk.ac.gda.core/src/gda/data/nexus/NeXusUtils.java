@@ -46,7 +46,7 @@ public class NeXusUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(NeXusUtils.class);
 
-	private final static String DEFAULT_NUMBER_VALUE = "-1.0";
+	private static final String DEFAULT_NUMBER_VALUE = "-1.0";
 
 	/**
 	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel

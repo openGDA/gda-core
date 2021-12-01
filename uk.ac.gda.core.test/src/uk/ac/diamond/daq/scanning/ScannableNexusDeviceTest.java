@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -53,20 +54,27 @@ import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.nexus.NXcollection;
+import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
+import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.DatasetFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
 
 import gda.data.ServiceHolder;
+import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
+import gda.data.scan.datawriter.scannablewriter.TransformationWriter;
 import gda.data.scan.nexus.device.AbstractScannableNexusDevice;
 import gda.data.scan.nexus.device.ConfiguredScannableNexusDevice;
 import gda.data.scan.nexus.device.DefaultScannableNexusDevice;
@@ -98,6 +106,11 @@ public class ScannableNexusDeviceTest {
 		new ServiceHolder().setScannableNexusDeviceConfigurationRegistry(new ScannableNexusDeviceConfigurationRegistry());
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		new ServiceHolder().setNexusWriterConfiguration(null);
+	}
+
 	private DefaultScannableNexusDevice<?> createScannableNexusDevice(int numInputNames, int numExtraNames) throws DeviceException {
 		scannable = createScannable(numInputNames, numExtraNames);
 		return new DefaultScannableNexusDevice<>(scannable, true);
@@ -109,8 +122,7 @@ public class ScannableNexusDeviceTest {
 		return new ConfiguredScannableNexusDevice<>(scannable, config);
 	}
 
-	private ScannableMotionUnits createScannable(int numInputNames, int numExtraNames)
-			throws DeviceException {
+	private ScannableMotionUnits createScannable(int numInputNames, int numExtraNames) throws DeviceException {
 		final ScannableMotor mockScannable = mock(ScannableMotor.class);
 		when(mockScannable.getName()).thenReturn(SCANNABLE_NAME);
 		when(mockScannable.getControllerRecordName()).thenReturn(PV_NAME);
@@ -387,6 +399,105 @@ public class ScannableNexusDeviceTest {
 			final Attribute unitsAttr = valueDataNode.getAttribute(ATTR_NAME_UNITS);
 			assertThat(unitsAttr, is(notNullValue()));
 			assertThat(unitsAttr.getFirstElement(), is(equalTo(expectedUnits)));
+		}
+	}
+
+	@Test
+	public void testCustomNexusModification() throws Exception {
+		final DefaultScannableNexusDevice<?> nexusDevice = createScannableNexusDevice(2, 2);
+		nexusDevice.getNexusProviders(new NexusScanInfo(List.of(SCANNABLE_NAME)));
+
+		final String[] paths = new String[] {
+				"instrument:NXinstrument/foo:NXcollection/field1",
+				"instrument:NXinstrument/bar:NXpositioner/value",
+				"instrument:NXinstrument/foo:NXcollection/extra:NXcollection/extra",
+				"user:NXuser/name"
+		};
+
+		final SingleScannableWriter writer = new SingleScannableWriter();
+		writer.setPaths(paths);
+		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(Map.of(SCANNABLE_NAME, writer));
+
+		final NXentry entry = NexusNodeFactory.createNXentry();
+		entry.setInstrument(NexusNodeFactory.createNXinstrument());
+
+		nexusDevice.getCustomNexusModification().modifyEntry(entry);
+
+		final String[] fieldNames = nexusDevice.getFieldNames();
+		for (int i = 0; i < fieldNames.length; i++) {
+			final DataNode dataNode = NexusUtils.getDataNode(entry, paths[i]);
+			assertThat(dataNode, is(notNullValue()));
+			assertThat(dataNode, is(sameInstance(nexusDevice.getFieldDataNode(fieldNames[i]))));
+		}
+	}
+
+	@Test
+	public void testCustomNexusModification_transformationWriter() throws Exception {
+		final DefaultScannableNexusDevice<?> nexusDevice = createScannableNexusDevice(3, 0);
+		nexusDevice.getNexusProviders(new NexusScanInfo(List.of("theta")));
+
+		final String[] paths = {
+				"instrument:NXinstrument/transformations:NXtransformations/delta",
+				"instrument:NXinstrument/transformations:NXtransformations/gamma",
+				"instrument:NXinstrument/transformations:NXtransformations/phi"
+		};
+		final String[] dependsOn = { "gamma", "phi", "." };
+		final String[] transformationTypes = { "rotation", "rotation", "translation" };
+		final String[] units = new String[] { "deg", "rad", "mm" };
+		final TransformationWriter writer = new TransformationWriter();
+		final Double[][] vector = {
+				{ 0.0, 0.642, 0.766 },
+				{ -0.5, 0.0, -0.8 },
+				{ 0.75, -0.62, 0.0 }
+		};
+		final Double[][] offset = {
+				{ 10.53, 72.2, 0.0 },
+				{ 0.17, 0.0, -0.42 },
+				{ 12.32, 155.25, -2.18 }
+		};
+
+		writer.setPaths(paths);
+		writer.setDependsOn(dependsOn);
+		writer.setTransformation(transformationTypes);
+		writer.setUnits(units);
+		writer.setOffset(offset);
+		writer.setOffsetUnits(units);
+		writer.setVector(vector);
+		ServiceHolder.getNexusDataWriterConfiguration().setLocationMap(Map.of(SCANNABLE_NAME, writer));
+
+		final NXentry entry = NexusNodeFactory.createNXentry();
+		entry.setInstrument(NexusNodeFactory.createNXinstrument());
+
+		nexusDevice.getCustomNexusModification().modifyEntry(entry);
+
+		for (int i = 0; i < paths.length; i++) {
+			final DataNode dataNode = NexusUtils.getDataNode(entry, paths[i]);
+			assertThat(dataNode, is(notNullValue()));
+			assertThat(dataNode, is(sameInstance(nexusDevice.getFieldDataNode(nexusDevice.getFieldNames()[i]))));
+
+			assertThat(dataNode.getAttributeNames(), containsInAnyOrder(
+					ATTR_NAME_LOCAL_NAME, ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_UNITS,
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_DEPENDS_ON,
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET, NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET_UNITS,
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_TRANSFORMATION_TYPE,
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_VECTOR));
+
+			assertThat(dataNode.getAttribute(ATTR_NAME_UNITS).getFirstElement(), is(equalTo(units[i])));
+			assertThat(dataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_DEPENDS_ON).getFirstElement(),
+					is(equalTo(dependsOn[i])));
+			assertThat(dataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_TRANSFORMATION_TYPE).getFirstElement(),
+					is(equalTo(transformationTypes[i])));
+
+			final Attribute vectorAttr = dataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_VECTOR);
+			assertThat(vectorAttr, is(notNullValue()));
+			assertThat(vectorAttr.getValue(), is(equalTo(DatasetFactory.createFromObject(vector[i]))));
+
+			final Attribute offsetAttr = dataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET);
+			assertThat(offsetAttr, is(notNullValue()));
+			assertThat(offsetAttr.getValue(), is(equalTo(DatasetFactory.createFromObject(offset[i]))));
+
+			assertThat(dataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET_UNITS).getFirstElement(),
+					is(equalTo(units[i])));
 		}
 	}
 

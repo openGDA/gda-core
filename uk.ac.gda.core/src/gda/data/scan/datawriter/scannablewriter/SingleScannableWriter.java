@@ -144,7 +144,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		return paths;
 	}
 
-	public final void setPaths(final String[] paths) {
+	public final void setPaths(final String... paths) {
 		this.paths = paths;
 	}
 
@@ -152,7 +152,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		return units;
 	}
 
-	public final void setUnits(final String[] units) {
+	public final void setUnits(final String... units) {
 		this.units = units;
 	}
 

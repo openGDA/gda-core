@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -83,71 +82,14 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.data.scan.nexus.device.GDANexusDeviceAdapterFactory;
 import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
-import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.ScannableMotionUnitsBase;
+import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.scan.ConcurrentScan;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 import uk.ac.diamond.daq.scanning.ScannableNexusWrapperScanTest;
 
 public class MultiFieldScannableNexusScanTest {
-
-	private static class MultiFieldUnitsScannable<Q extends Quantity<Q>> extends ScannableMotionUnitsBase {
-
-		private Double[] inputPosition;
-		private Double[] extraPosition;
-
-		public MultiFieldUnitsScannable(String name) throws DeviceException {
-			setName(name);
-			setInputNames(new String[] { name });
-			setExtraNames(new String[0]);
-			inputPosition = new Double[] { 0.0 };
-			extraPosition = new Double[0];
-			setConfigured(true);
-		}
-
-		@Override
-		public void setInputNames(String[] inputNames) {
-			super.setInputNames(inputNames);
-			inputPosition = new Double[inputNames.length];
-			Arrays.fill(inputPosition, 0.0);
-		}
-
-		@Override
-		public void setExtraNames(String[] extraNames) {
-			super.setExtraNames(extraNames);
-			extraPosition = new Double[extraNames.length];
-			Arrays.fill(extraPosition, 0.0);
-		}
-
-		@Override
-		public Object rawGetPosition() throws DeviceException {
-			return Stream.of(inputPosition, extraPosition).flatMap(Stream::of).toArray(Double[]::new);
-		}
-
-		@Override
-		public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-			final Double[] externalPositionArr = PositionConvertorFunctions.toDoubleArray(externalPosition);
-			if (externalPositionArr.length != getInputNames().length) {
-				throw new IllegalArgumentException("Position array must have size " + getInputNames().length + ", was " + externalPositionArr.length);
-			}
-
-			inputPosition = externalPositionArr; // note: we don't bother to do any conversion between hardware and user units
-		}
-
-		@Override
-		public Object getPosition() throws DeviceException {
-			return rawGetPosition();
-		}
-
-		@Override
-		public boolean isBusy() throws DeviceException {
-			return false;
-		}
-
-	}
 
 	private static final String SCANNABLE_NAME = "scan1";
 	private static final String DETECTOR_NAME = "det";
@@ -237,7 +179,7 @@ public class MultiFieldScannableNexusScanTest {
 	}
 
 	private Scannable createScannable(int numInputNames, int numExtraNames) throws Exception {
-		MultiFieldUnitsScannable<Length> scannable = new MultiFieldUnitsScannable<>(SCANNABLE_NAME);
+		final DummyMultiFieldUnitsScannable<Length> scannable = new DummyMultiFieldUnitsScannable<>(SCANNABLE_NAME);
 		scannable.setHardwareUnitString(EXPECTED_UNITS);
 		scannable.setUserUnits(EXPECTED_UNITS);
 

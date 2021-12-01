@@ -228,14 +228,55 @@
 				<entry key="sapolar">
 					<bean
 						class="gda.data.scan.datawriter.scannablewriter.TransformationWriter">
-						<property name="paths"
-							value="instrument:NXinstrument/manipulator:NXgoniometer/sapolar" />
-						<property name="units" value="deg" />
-						<property name="offset" value="0" />
-						<property name="offset_units" value="deg" />
-						<property name="transformation" value="rotation" />
-						<property name="vector"><list><list><value>0</value><value>1</value><value>0</value></list></list></property>
-						<property name="depends_on" value="/entry1/instrument/manipulator/sax" />
+						<property name="paths">
+							<list>
+								<value>instrument:NXinstrument/manipulator:NXgoniometer/alpha</value>
+								<value>instrument:NXinstrument/manipulator:NXgoniometer/delta</value>
+								<value>instrument:NXinstrument/manipulator:NXgoniometer/omicron</value>
+							</list>
+						</property>
+						<property name="units">
+							<list>
+								<value>deg</value>
+								<value>deg</value>
+								<value>rad</value>
+							</list>
+						</property>
+						<property name="offset">
+							<list>
+								<list><value>10.53</value><value>72.2</value><value>0.0</value></list>
+								<list><value>0.17</value><value>0.0</value><value>-0.42</value></list>
+								<list><value>12.32</value><value>155.25</value><value>-2.18</value></list>
+							</list>
+						</property>
+						<property name="offset_units">
+							<list>
+								<value>deg</value>
+								<value>deg</value>
+								<value>rad</value>
+							</list>
+						</property>
+						<property name="transformation">
+							<list>
+								<value>rotation</value>
+								<value>rotation</value>
+								<value>translation</value>
+							</list>
+						</property>
+						<property name="vector">
+							<list>
+								<list><value>0.0</value><value>0.642</value><value>0.766</value></list>
+								<list><value>-0.5</value><value>0.0</value><value>-0.8</value></list>
+								<list><value>0.75</value><value>-0.62</value><value>0.0</value></list>
+							</list>
+						</property>
+						<property name="depends_on">
+							<list>
+								<value>delta</value>
+								<value>omicron</value>
+								<value>.</value>
+							</list>
+						</property>
 						<property name="prerequisiteScannableNames">
 							<list>
 								<!-- <value>cff</value> -->
@@ -285,7 +326,7 @@
 <!-- 				<value>saz</value> -->
 <!-- 				<value>say</value> --> <!-- brought in as prerequisite by salong/saperp -->
 <!-- 				<value>sax</value> --> <!-- brought in as prerequisite by salong/saperp -->
-<!-- 				<value>sapolar</value> --> <!-- TransformationWriter not supported -->
+ 				<value>sapolar</value>
  				<value>satilt</value>
  				<value>saazimuth</value>
  				<value>exit_slit</value>
