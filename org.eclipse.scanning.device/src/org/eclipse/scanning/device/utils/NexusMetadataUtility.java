@@ -48,7 +48,6 @@ import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusEntryBuilder;
 import org.eclipse.dawnsci.nexus.device.INexusDeviceService;
 import org.eclipse.dawnsci.nexus.device.SimpleNexusDevice;
 import org.eclipse.january.DatasetException;
-import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractNexusMetadataDevice;
@@ -367,18 +366,22 @@ public enum NexusMetadataUtility {
 
 	private void prettyPrint(Map<String, DataNode> dataNode, int depth, boolean showValue) {
 		final String indent = new String(new char[depth]).replace('\0', '\t');
-		dataNode.entrySet().stream().map(
-				entry -> new ImmutablePair<>(entry.getKey(), nameValueString(indent, entry.getKey(), entry.getValue())))
-				.forEach(pair -> InterfaceProvider.getTerminalPrinter()
-						.print(showValue ? pair.getRight() : indent + pair.getLeft()));
+		if (!showValue) {
+			dataNode.entrySet().stream()
+					.forEach(entry -> InterfaceProvider.getTerminalPrinter().print(indent + entry.getKey()));
+		} else {
+			dataNode.entrySet().stream().forEach(entry -> InterfaceProvider.getTerminalPrinter()
+					.print(nameValueString(indent, entry.getKey(), entry.getValue())));
+		}
 	}
 
 	private String nameValueString(final String indent, final String name, final DataNode value) {
 		final var message = new StringJoiner(" : ", indent, "").add(name);
-		if (value.getDataset().getRank() > 0) {
-			message.add(Arrays.toString((double[]) DatasetUtils.createJavaArray((Dataset) value.getDataset())));
-		} else {
-			try {
+		try {
+			if (value.getDataset().getRank() > 0) {
+				// fix I10-583 to support scannable that returns mixed data type elements in array
+				message.add(DatasetUtils.sliceAndConvertLazyDataset(value.getDataset()).toString(true));
+			} else {
 				var string = value.getDataset().getSlice().getString();
 				if (value.getAttributeNames().contains(AbstractMetadataField.ATTRIBUTE_NAME_UNITS)) {
 					string = new StringJoiner(" ").add(string)
@@ -386,12 +389,13 @@ public enum NexusMetadataUtility {
 							.toString();
 				}
 				message.add(string);
-			} catch (DatasetException e) {
-				logger.warn("Field '{}' : getSlice() from dataset of the DataNode throws DatasetException.", name, e);
-				// metadata collection should not make data collection to fail thus just return a description of the
-				// problem encountered.
-				message.add("getSlice() from dataset of the DataNode throws DatasetException.");
 			}
+		} catch (DatasetException e) {
+			String message2 = e.getMessage();
+			logger.warn("Field '{}' : {}", name, message2, e);
+			// metadata collection should not make data collection to fail thus just return a description of the
+			// problem encountered.
+			message.add(message2);
 		}
 		return message.toString();
 	}
