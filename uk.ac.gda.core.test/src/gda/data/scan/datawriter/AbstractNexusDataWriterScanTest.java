@@ -22,6 +22,8 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.ARRAY_ATTR_VALUE;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.COLLECTION_NAME;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DETECTOR_NUMBER;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DIAMETER;
+import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.DIAMETER_UNITS;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
@@ -283,6 +285,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		public static final String NOTE_TEXT = "This is a note";
 		public static final long DETECTOR_NUMBER = 1L;
 		public static final String SERIAL_NUMBER = "ABC12345XYZ";
+		public static final String GAIN_SETTING = "auto";
 		public static final double DIAMETER = 52.2;
 		public static final String DIAMETER_UNITS = "mm";
 
@@ -351,16 +354,23 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 			final INexusTree detTree = data.getDetTree(getName());
 
-			// add some metadata dataset (i.e. per-scan or non point-dependent)
+			// add some metadata datasets (i.e. per-scan or non point-dependent)
 			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_DETECTOR_NUMBER, NexusExtractor.SDSClassName, detTree,
 					new NexusGroupData(DETECTOR_NUMBER)));
 			detTree.addChildNode(new NexusTreeNode(NXdetector.NX_SERIAL_NUMBER, NexusExtractor.SDSClassName, detTree,
 					new NexusGroupData(SERIAL_NUMBER)));
+
 			final INexusTree diameterNode = new NexusTreeNode(NXdetector.NX_DIAMETER, NexusExtractor.SDSClassName, detTree,
 					new NexusGroupData(DIAMETER));
 			diameterNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_UNITS, NexusExtractor.AttrClassName, diameterNode,
 					new NexusGroupData(DIAMETER_UNITS)));
 			detTree.addChildNode(diameterNode);
+
+			final NexusTreeNode gainSettingNode = new NexusTreeNode(NXdetector.NX_GAIN_SETTING, NexusExtractor.SDSClassName, detTree,
+					new NexusGroupData(GAIN_SETTING));
+			gainSettingNode.addChildNode(new NexusTreeNode(ATTRIBUTE_NAME_UNITS, NexusExtractor.AttrClassName, gainSettingNode,
+					new NexusGroupData((String) null))); // to check that a null attribute value isn't written
+			detTree.addChildNode(gainSettingNode);
 
 			// add some attributes
 			detTree.addChildNode(new NexusTreeNode(STRING_ATTR_NAME, NexusExtractor.AttrClassName, detTree,
@@ -982,7 +992,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(detGroup.getDataNodeNames(), containsInAnyOrder(NXdetector.NX_DATA, // primary fields, written at each point
 				FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, FIELD_NAME_EXTERNAL,
 				NXdetector.NX_LOCAL_NAME, // added for all detectors
-				NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER));
+				NXdetector.NX_DETECTOR_NUMBER, NXdetector.NX_DIAMETER, NXdetector.NX_SERIAL_NUMBER, NXdetector.NX_GAIN_SETTING));
 
 		assertThat(detGroup.getLocal_nameScalar(), is(equalTo(detector.getName())));
 		checkDatasetWritten(detGroup.getDataNode(FIELD_NAME_VALUE).getDataset(), EMPTY_SHAPE);
@@ -993,6 +1003,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		assertThat(detGroup.getDetector_numberScalar(), is(DETECTOR_NUMBER));
 		assertThat(detGroup.getSerial_numberScalar(), is(equalTo(SERIAL_NUMBER)));
+		assertThat(detGroup.getDiameterScalar(), is(equalTo(DIAMETER)));
+		assertThat(detGroup.getAttrString(NXdetector.NX_DIAMETER, ATTRIBUTE_NAME_UNITS), is(DIAMETER_UNITS));
+		assertThat(detGroup.getGain_settingScalar(), is(equalTo(DummyNexusDetector.GAIN_SETTING)));
+		assertThat(detGroup.getDataNode(NXdetector.NX_GAIN_SETTING).getAttributeNames(), is(empty()));
 
 		assertThat(detGroup.getAttributeNames(), containsInAnyOrder(NexusConstants.NXCLASS,
 				STRING_ATTR_NAME, INT_ATTR_NAME, FLOAT_ATTR_NAME, ARRAY_ATTR_NAME));

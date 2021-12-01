@@ -231,16 +231,13 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	}
 
 	private void addAttribute(Node parentNode, INexusTree attributeTreeNode) throws NexusException {
-		final Attribute attribute = createAttribute(attributeTreeNode);
-		parentNode.addAttribute(attribute);
-	}
-
-	private Attribute createAttribute(INexusTree attrNode) throws NexusException {
-		final NexusGroupData data = attrNode.getData();
-
 		// note: no special handling for 'axis' or 'label'
+		final NexusGroupData data = attributeTreeNode.getData();
 		final Object value = getAttrValue(data);
-		return TreeFactory.createAttribute(attrNode.getName(), value);
+		if (value != null && !(value instanceof String && ((String) value).isBlank())) {
+			final Attribute attribute = TreeFactory.createAttribute(attributeTreeNode.getName(), value);
+			parentNode.addAttribute(attribute);
+		}
 	}
 
 	private Object getAttrValue(NexusGroupData data) throws NexusException {
