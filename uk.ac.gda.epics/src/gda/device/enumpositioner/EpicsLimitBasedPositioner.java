@@ -27,15 +27,17 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsController;
+import gda.epics.util.PVNameUtil;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
 
 /**
  * Pneumatic control that checks limit switches to determine current position
  */
-public class EpicsLimitBasedPositioner extends EnumPositionerBase {
+public class EpicsLimitBasedPositioner extends EnumPositionerBase implements ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsLimitBasedPositioner.class);
 
@@ -213,5 +215,14 @@ public class EpicsLimitBasedPositioner extends EnumPositionerBase {
 
 	public String getUnknownValue() {
 		return unknownValue;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		// assume that the common prefix of the pv names is the base pv name
+		final List<String> pvNames = new ArrayList<>(getLimitPvs());
+		pvNames.add(getControlChannelPv());
+		return PVNameUtil.getBasePvName(pvNames.toArray(String[]::new));
+
 	}
 }

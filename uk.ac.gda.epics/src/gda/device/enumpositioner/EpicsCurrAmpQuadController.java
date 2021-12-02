@@ -21,6 +21,7 @@ package gda.device.enumpositioner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.device.Monitor;
@@ -29,6 +30,7 @@ import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
+import gda.epics.util.PVNameUtil;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -43,7 +45,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * EpicsCurrAmpQuadController Class
  */
-public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Monitor, InitializationListener {
+public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Monitor, InitializationListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpQuadController.class);
 	 // following fields allow PV name to be set individually e.g. I10
@@ -605,5 +607,11 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	public void setRangeRbvPv(String rangeRBVPV) {
 		rangeRbvPv = rangeRBVPV;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return PVNameUtil.getBasePvName(getCurrent1Pv(), getCurrent2Pv(), getCurrent3Pv(), getCurrent4Pv());
+
 	}
 }

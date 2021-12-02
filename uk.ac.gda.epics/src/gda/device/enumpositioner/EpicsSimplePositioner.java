@@ -27,6 +27,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -56,7 +57,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * In this case, the object needs to be configured with a map of {@code <user-facing name>} to {@code <Epics name>}
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsSimplePositioner extends EnumPositionerBase implements ConnectionListener, MonitorListener {
+public class EpicsSimplePositioner extends EnumPositionerBase implements ConnectionListener, MonitorListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimplePositioner.class);
 
@@ -128,16 +129,21 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		return pvName;
 	}
 
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getPvName();
+	}
+
 	@Override
 	public String checkPositionValid(Object position) {
 		if (!values.containsKey(position.toString())){
 			return position.toString() + "not in list of acceptable values";
 		}
 		return null;
-	}
-
-	public void setPvName(String pvName) {
-		this.pvName = pvName;
 	}
 
 	/**

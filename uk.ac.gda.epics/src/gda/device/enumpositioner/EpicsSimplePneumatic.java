@@ -23,6 +23,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -47,7 +48,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * This class maps onto the EPICS PneumaticCallback template.
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsSimplePneumatic extends EnumPositionerBase implements InitializationListener {
+public class EpicsSimplePneumatic extends EnumPositionerBase implements InitializationListener, ControllerRecord {
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimplePneumatic.class);
 
 	private EpicsController controller;
@@ -273,6 +274,12 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements Initiali
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getPvName();
+	}
+
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;

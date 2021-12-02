@@ -21,12 +21,14 @@ package gda.device.monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.scannable.ScannableBase;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
+import gda.epics.util.PVNameUtil;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -40,7 +42,7 @@ import gov.aps.jca.event.MonitorListener;
 /**
  * EpicsBpmController Class
  */
-public class EpicsBpmController extends ScannableBase implements Monitor, InitializationListener {
+public class EpicsBpmController extends ScannableBase implements Monitor, InitializationListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBpmController.class);
 
@@ -377,6 +379,13 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	public void setYposPvName(String yposPvName) {
 		this.yposPvName = yposPvName;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		// if the base pv name is specified, use that; otherwise return the common prefix of the other pvs
+		final String basePvName = PVNameUtil.getBasePvName(getIntensityPvName(), getXposPvName(), getYposPvName());
+		return basePvName != null ? basePvName : getPvName();
 	}
 
 	////////////////////////////////////////////////////////////////////////////

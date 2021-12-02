@@ -23,6 +23,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.device.scannable.ScannablePositionChangeEvent;
@@ -41,7 +42,7 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-public class EpicsAirBearingControl extends EnumPositionerBase implements InitializationListener {
+public class EpicsAirBearingControl extends EnumPositionerBase implements InitializationListener, ControllerRecord {
 
 	private static final Logger logger=LoggerFactory.getLogger(EpicsAirBearingControl.class);
 	private String setPV;
@@ -226,5 +227,10 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements Initia
 
 	public String getCurrentPosition(){
 		return currentPosition;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return readPV;
 	}
 }

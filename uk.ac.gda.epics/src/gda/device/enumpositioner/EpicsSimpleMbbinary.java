@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -47,7 +48,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * This class maps to EPICS SimpleMbbinary template.
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsSimpleMbbinary extends EnumPositionerBase implements InitializationListener {
+public class EpicsSimpleMbbinary extends EnumPositionerBase implements InitializationListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleMbbinary.class);
 
@@ -86,6 +87,15 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements Initializ
 	 */
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
+	}
+
+	public String getRecordName() {
+		return recordName;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getRecordName();
 	}
 
 	@Override

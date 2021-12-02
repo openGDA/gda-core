@@ -23,6 +23,7 @@ import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -43,7 +44,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * Driver class for Epics Positioners
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorListener, ConnectionListener {
+public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorListener, ConnectionListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsEnumPositioner.class);
 
@@ -283,5 +284,10 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 
 	public void setPvBase(String pvBase) {
 		this.pvBase = pvBase;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getPvBase();
 	}
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.device.Monitor;
@@ -34,13 +35,14 @@ import gda.device.enumpositioner.EnumPositionerBase;
 import gda.device.enumpositioner.EpicsCurrAmpQuadController;
 import gda.device.monitor.EpicsBpmController;
 import gda.epics.connection.InitializationListener;
+import gda.epics.util.PVNameUtil;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 /**
  * EpicsQbpm Class
  */
-public class EpicsQbpm extends EnumPositionerBase implements Monitor, InitializationListener, Qbpm {
+public class EpicsQbpm extends EnumPositionerBase implements Monitor, InitializationListener, Qbpm, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsQbpm.class);
 
@@ -276,5 +278,11 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 		this.bpmController = bpmController;
 	}
 
+	@Override
+	public String getControllerRecordName() {
+		// assume that the common prefix of the pv names is the base pv name
+		return PVNameUtil.getBasePvName(
+				currAmpController.getControllerRecordName(), bpmController.getControllerRecordName());
+	}
 
 }

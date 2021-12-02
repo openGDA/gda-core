@@ -25,6 +25,7 @@ import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EditableEnumPositioner;
 import gda.device.EnumPositioner;
@@ -50,7 +51,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * EpicsValve should be used if the device uses the proper Epics Valve/Shutter template
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner {
+public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnumPositioner, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleBinary.class);
 
@@ -76,6 +77,15 @@ public class EpicsSimpleBinary extends EnumPositionerBase implements EditableEnu
 
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
+	}
+
+	public String getPvName() {
+		return pvName;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getPvName();
 	}
 
 	private void checkConfigured() throws DeviceException {

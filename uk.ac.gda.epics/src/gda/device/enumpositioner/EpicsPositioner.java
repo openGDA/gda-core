@@ -24,6 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -50,7 +51,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * @see <a href="http://serv0002.cs.diamond.ac.uk/cgi-bin/wiki.cgi/positioner">positioner module documentation</a>
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsPositioner extends EnumPositionerBase implements InitializationListener {
+public class EpicsPositioner extends EnumPositionerBase implements InitializationListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPositioner.class);
 
@@ -132,6 +133,15 @@ public class EpicsPositioner extends EnumPositionerBase implements Initializatio
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
 		setRecordNamesUsingBasePv(recordName);
+	}
+
+	public String getRecordName() {
+		return this.recordName;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getRecordName();
 	}
 
 	@Override

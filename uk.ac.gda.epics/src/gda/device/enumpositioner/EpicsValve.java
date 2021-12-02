@@ -25,6 +25,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -47,7 +48,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * The stop method in this class does nothing as the valves operate too fast for such a method to be meaningful.
  */
 @ServiceInterface(EnumPositioner.class)
-public class EpicsValve extends EnumPositionerBase implements MonitorListener {
+public class EpicsValve extends EnumPositionerBase implements MonitorListener, ControllerRecord {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsValve.class);
 
@@ -213,6 +214,11 @@ public class EpicsValve extends EnumPositionerBase implements MonitorListener {
 	 */
 	public void setEpicsRecordName(String recordName) {
 		this.templateName = recordName;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return getEpicsRecordName();
 	}
 
 	@Override
