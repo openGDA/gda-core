@@ -406,7 +406,9 @@ public class NXDetectorData implements GDANexusDetectorData {
 	 */
 	public void addElement(String detName, String name, NexusGroupData axisSDS, String units, boolean isPointDependent) {
 		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, axisSDS);
-		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		if (units != null) {
+			axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
+		}
 		axis.setIsPointDependent(isPointDependent);
 		getDetTree(detName).addChildNode(axis);
 	}
