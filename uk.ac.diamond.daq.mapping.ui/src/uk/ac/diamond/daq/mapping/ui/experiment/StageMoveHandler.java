@@ -24,7 +24,10 @@ import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_MOVE_STAGES;
 import static uk.ac.gda.ui.tool.ClientMessages.CANNOT_MOVE_STAGES_SCAN_RUNNING_OR_PENDING;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,7 +45,14 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.ScanRole;
+import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.IEventService;
+import org.eclipse.scanning.api.points.MapPosition;
+import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.event.IPositioner;
+import org.eclipse.scanning.api.scan.event.IPositionerService;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.scanning.event.util.SubmissionQueueUtils;
 import org.eclipse.swt.widgets.Display;
@@ -51,6 +61,7 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
@@ -71,6 +82,8 @@ public class StageMoveHandler implements EventHandler {
 
 	private IStageScanConfiguration stageConfiguration;
 	private ILoaderService loaderService;
+	private IEventService eventService;
+	private IPositioner positioner;
 
 	@Override
 	public void handleEvent(Event event) {
@@ -96,14 +109,8 @@ public class StageMoveHandler implements EventHandler {
 
 	private void moveTo(final double xLocation, final double yLocation, final Double associatedLocation) {
 
-		String fastName = stageConfiguration.getPlotXAxisName();
-		String slowName = stageConfiguration.getPlotYAxisName();
-		String associatedName = stageConfiguration.getAssociatedAxis();
-
-		String moveSummary = "Please confirm the following move:\n"
-				+ fastName + " to " + xLocation + "\n"
-				+ slowName + " to " + yLocation
-				+ (associatedLocation == null ? "" : "\n" + associatedName + " to " + associatedLocation);
+		Map<String, Object> position = getPositionMap(xLocation, yLocation, associatedLocation);
+		String moveSummary = summarise(position);
 
 		// request confirmation to move
 		boolean userConfirmedMove = confirmMove("Go here?", moveSummary);
@@ -111,18 +118,34 @@ public class StageMoveHandler implements EventHandler {
 
 		// Do the move
 		try {
-			Scannable fastAxis = Finder.find(fastName);
-			fastAxis.asynchronousMoveTo(xLocation);
-			Scannable slowAxis = Finder.find(slowName);
-			slowAxis.asynchronousMoveTo(yLocation);
-			if (associatedLocation != null) {
-				Scannable thirdAxis = Finder.find(associatedName);
-				thirdAxis.asynchronousMoveTo(associatedLocation);
-			}
-		} catch (DeviceException e) {
-			logger.error("Error encountered while moving stage", e);
+			getPositioner().setPosition(new MapPosition(position));
+		} catch (ScanningException e) {
+			logger.error("Could not perform stage move", e);
+		} catch (InterruptedException interrupted) {
+			logger.error("Stage move interrupted!", interrupted);
+			Thread.currentThread().interrupt();
 		}
+	}
 
+	private String summarise(Map<String, Object> position) {
+		var summary = new StringBuilder("Please confirm the following move:\n");
+		for (var entry : position.entrySet()) {
+			summary.append(entry.getKey())
+				.append(" to ")
+				.append(entry.getValue().toString())
+				.append("\n");
+		}
+		return summary.toString();
+	}
+
+	private Map<String, Object> getPositionMap(double xLocation, double yLocation, Double associatedLocation) {
+		Map<String, Object> position = new HashMap<>();
+		position.put(stageConfiguration.getPlotXAxisName(), xLocation);
+		position.put(stageConfiguration.getPlotYAxisName(), yLocation);
+		if (associatedLocation != null) {
+			position.put(stageConfiguration.getAssociatedAxis(), associatedLocation);
+		}
+		return position;
 	}
 
 	private boolean confirmMove(String title, String message) {
@@ -231,6 +254,26 @@ public class StageMoveHandler implements EventHandler {
 
 	public void setLoaderService(ILoaderService loaderService) {
 		this.loaderService = loaderService;
+	}
+
+	public void setEventService(IEventService eventService) {
+		this.eventService = eventService;
+	}
+
+	private IPositionerService getPositionerService() throws ScanningException {
+		try {
+			var remoteUri = new URI(LocalProperties.getActiveMQBrokerURI());
+			return eventService.createRemoteService(remoteUri, IRunnableDeviceService.class);
+		} catch (EventException | URISyntaxException e) {
+			throw new ScanningException("Could not create remote positioner service", e);
+		}
+	}
+
+	private IPositioner getPositioner() throws ScanningException {
+		if (positioner == null) {
+			positioner = getPositionerService().createPositioner(StageMoveHandler.class.getSimpleName());
+		}
+		return positioner;
 	}
 
 }
