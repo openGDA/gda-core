@@ -54,6 +54,7 @@ import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -390,6 +391,15 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			return (Object[]) position;
 		} catch (DeviceException | NullPointerException e) {
 			throw new NexusException("Could not get position of device: " + getName(), e);
+		}
+	}
+
+	protected void writeControllerRecordName(final NXpositioner positioner) {
+		if (getScannable() instanceof ControllerRecord) { // controller record name is PV name for EPICS
+			final String recordName = ((ControllerRecord) getScannable()).getControllerRecordName();
+			if (recordName != null) {
+				positioner.setController_recordScalar(recordName);
+			}
 		}
 	}
 

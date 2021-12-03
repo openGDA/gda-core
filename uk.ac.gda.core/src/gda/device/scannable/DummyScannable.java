@@ -18,6 +18,7 @@
 
 package gda.device.scannable;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
 import uk.ac.gda.api.remoting.ServiceInterface;
@@ -26,10 +27,11 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * Dummy object extending ScannableMotion which represents a single number.
  */
 @ServiceInterface(ScannableMotion.class)
-public class DummyScannable extends ScannableMotionBase {
+public class DummyScannable extends ScannableMotionBase implements ControllerRecord {
 
 	protected double currentPosition = 0;
 	protected double increment = 0.0;
+	private String controllerRecordName = null; // i.e. pvName, for testing nexus writing
 
 	public DummyScannable() {
 		this.setInputNames(new String[]{""});
@@ -56,8 +58,22 @@ public class DummyScannable extends ScannableMotionBase {
 		this.currentPosition = d;
 	}
 
+	public DummyScannable(String name, double d, String pvName) {
+		this(name, d);
+		this.controllerRecordName = pvName;
+	}
+
 	public void setIncrement(final Double increment) {
 		this.increment = increment;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return controllerRecordName;
+	}
+
+	public void setControllerRecordName(String controllerRecordName) {
+		this.controllerRecordName = controllerRecordName;
 	}
 
 	@Override

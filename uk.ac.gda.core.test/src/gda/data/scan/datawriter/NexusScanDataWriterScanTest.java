@@ -606,7 +606,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	protected void checkDefaultScannablePositioner(NXpositioner scannablePos, int scanIndex) throws DatasetException {
 		// This is the NXpositioner created by ScannableNexusDevice
 		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE,
-				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN };
+				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_CONTROLLER_RECORD };
 		assertThat(scannablePos.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 
 		final String scannableName = scannables[scanIndex].getName();
@@ -636,15 +636,17 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		// check upper/lower bounds
 		assertThat(scannablePos.getSoft_limit_minScalar(), is(equalTo(SCANNABLE_LOWER_BOUND)));
 		assertThat(scannablePos.getSoft_limit_maxScalar(), is(equalTo(SCANNABLE_UPPER_BOUND)));
+		assertThat(scannablePos.getController_recordScalar(), is(equalTo(SCANNABLE_PV_NAME_PREFIX + scanIndex)));
 	}
 
 	protected void checkDefaultMetadataScannablePositioner(NXpositioner positioner, int index) throws DatasetException {
 		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, NXpositioner.NX_VALUE,
-				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN };
+				NXpositioner.NX_SOFT_LIMIT_MAX, NXpositioner.NX_SOFT_LIMIT_MIN, NXpositioner.NX_CONTROLLER_RECORD };
 		assertThat(positioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 
 		final String scannableName = METADATA_SCANNABLE_NAMES[index];
 		assertThat(positioner.getNameScalar(), is(equalTo(scannableName)));
+		assertThat(positioner.getController_recordScalar(), is(equalTo(META_SCANNABLE_PV_NAME_PREFIX + index)));
 
 		final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 		checkMetadataScannableValueDataNode(index, scannableName, valueDataNode);

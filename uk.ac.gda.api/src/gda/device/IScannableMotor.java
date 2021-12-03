@@ -22,7 +22,7 @@ package gda.device;
 /**
  *
  */
-public interface IScannableMotor extends ScannableMotionUnits {
+public interface IScannableMotor extends ScannableMotionUnits, ControllerRecord {
 
 	/**
 	 * Couples (at present) ScannableMotor.rawAsynchronousMoveTo and RotationViewer.moveMotor

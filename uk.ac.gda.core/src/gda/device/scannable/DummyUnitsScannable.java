@@ -24,6 +24,7 @@ import java.util.Arrays;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
+import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.util.QuantityFactory;
@@ -33,9 +34,11 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * A dummy scannable for testing / simulations which uses units.
  */
 @ServiceInterface(ScannableMotionUnits.class)
-public class DummyUnitsScannable<Q extends Quantity<Q>> extends ScannableMotionUnitsBase {
+public class DummyUnitsScannable<Q extends Quantity<Q>> extends ScannableMotionUnitsBase implements ControllerRecord {
 
 	private double currentPosition = 0;
+
+	private String controllerRecordName = null;
 
 	public DummyUnitsScannable() {
 		// noargs constructor for use in Spring
@@ -109,4 +112,18 @@ public class DummyUnitsScannable<Q extends Quantity<Q>> extends ScannableMotionU
 	public void setCurrentPosition(double currentPosition) {
 		this.currentPosition = currentPosition;
 	}
+
+	@Override
+	public String getControllerRecordName() {
+		return controllerRecordName;
+	}
+
+	/**
+	 * Sets the controller record (pvName). For testing purposes
+	 * @param controllerRecord
+	 */
+	public void setControllerRecordName(String controllerRecord) {
+		this.controllerRecordName = controllerRecord;
+	}
+
 }
