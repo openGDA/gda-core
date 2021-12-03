@@ -110,12 +110,12 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 		createTableColumns(table);
 
 		appendMandatoryContexts();
+		updateControlsFromAcquisition();
 		return table;
 	}
 
-	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void reload() {
+	private void updateControlsFromAcquisition() {
 		table.removeAll();
 
 		List<ProcessingRequestPair<?>> processes = getScanningAcquisition()
@@ -135,6 +135,12 @@ public class ProcessingRequestComposite implements CompositeFactory, Reloadable 
 				.findFirst().orElseThrow();
 			createRow().configureRow(new ProcessingRequestContext(contextKey, process.getValue()));
 		}
+	}
+
+	@Override
+	public void reload() {
+		if (table.isDisposed()) return;
+		updateControlsFromAcquisition();
 	}
 
 	private void appendMandatoryContexts() {

@@ -21,7 +21,6 @@ package uk.ac.gda.api.acquisition.resource.event;
 import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
-import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 
 /**
  * This event is published when a {@link AcquisitionConfigurationResource} is loaded.
@@ -34,11 +33,6 @@ public class AcquisitionConfigurationResourceLoadEvent extends AcquisitionConfig
 	 *
 	 */
 	private static final long serialVersionUID = -454684975840133320L;
-
-	public AcquisitionConfigurationResourceLoadEvent(Object source, UUID uuid,
-			AcquisitionConfigurationResourceType type) {
-		super(source, uuid, type);
-	}
 
 	public AcquisitionConfigurationResourceLoadEvent(Object source, UUID uuid) {
 		super(source, uuid);

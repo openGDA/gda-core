@@ -51,6 +51,7 @@ public enum ClientImages {
 	LINE(ClientImagesGroup.GENERAL, "line.png"),
 	POINT(ClientImagesGroup.GENERAL, "point.png"),
 	BEAM_SELECTOR(ClientImagesGroup.GENERAL, "arrow-switch.png"),
+	MAP_REDRAW(ClientImagesGroup.GENERAL, "map--pencil.png"),
 
 	CAMERA(ClientImagesGroup.GENERAL, "camera-16.png"),
 
