@@ -21,18 +21,13 @@ package org.eclipse.scanning.points.validation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.api.roi.IRectangularROI;
 import org.eclipse.scanning.api.ModelValidationException;
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IMutator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.points.ServiceHolder;
@@ -59,28 +54,10 @@ class CompoundModelValidator extends AbstractMultiModelValidator<CompoundModel> 
 				}
 				axes.add(axis);
 			}
-			try {
-				List<IROI> modelRois = pointGeneratorService.findRegions(model,  compoundModel.getRegions());
-				pointGeneratorService.setBounds(model, modelRois);
-				// Remove redundant bounding box that can potentially trim rows/columns due to floating point errors
-				if (model instanceof AbstractTwoAxisGridModel && modelRois.size() == 1 && modelRois.get(0) instanceof IRectangularROI
-						&& ((IRectangularROI) modelRois.get(0)).getAngle() == 0) {
-					removeRegion(compoundModel, (AbstractTwoAxisGridModel) model);
-				}
-			} catch (GeneratorException e) {
-				throw new ModelValidationException(e);
-			}
+			List<IROI> modelRois = pointGeneratorService.findRegions(model, compoundModel.getRegions());
+			pointGeneratorService.setBounds(model, modelRois);
 			ServiceHolder.getValidatorService().validate(model);
 		}
-	}
-
-	private void removeRegion(CompoundModel compoundModel, IMapPathModel model) {
-		Optional<ScanRegion> modelRegion = compoundModel.getRegions().stream().filter(region -> isInAxesOfModel(region, model)).findFirst();
-		if (modelRegion.isPresent()) compoundModel.getRegions().remove(modelRegion.get());
-	}
-
-	private boolean isInAxesOfModel(ScanRegion region, IMapPathModel model) {
-		return CollectionUtils.isEqualCollection(region.getScannables(), model.getScannableNames());
 	}
 
 	private void validateRegions(CompoundModel compoundModel) {

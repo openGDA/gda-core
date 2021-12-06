@@ -130,13 +130,12 @@ public interface IPointGeneratorService {
 	IPointGenerator<CompoundModel> createCompoundGenerator(CompoundModel cmodel) throws GeneratorException;
 
 	/**
-	 *
+	 * Finds any ScanRegions limiting points in the axes of a model, then extracts all of their IROIs as a List
 	 * @param cmodel
 	 * @param models
 	 * @return regions, never <code>null</code>
-	 * @throws GeneratorException
 	 */
-	List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> regions) throws GeneratorException;
+	List<IROI> findRegions(IScanPointGeneratorModel model, Collection<ScanRegion> regions);
 
 	/**
 	 * Each IPointGenerator must have a unique id which is used to refer to it in the user interface.
