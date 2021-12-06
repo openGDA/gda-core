@@ -19,13 +19,14 @@
 package uk.ac.gda.beans.exafs.i18;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.ScannableConfiguration;
 
 public class I18SampleParameters implements ISampleParameters {
 
@@ -33,27 +34,8 @@ public class I18SampleParameters implements ISampleParameters {
 	public static final URL schemaURL = I18SampleParameters.class.getResource("I18SampleParametersMapping.xsd");
 
 	private String name = "";
-	private SampleStageParameters sampleStageParameters;
-	private List<AttenuatorParameters> attenuators = new ArrayList<>();
 	private String description = "";
-	private double vfmx;
-	private boolean vfmxActive;
-
-	public void setSampleStageParameters(SampleStageParameters sampleStageParameters) {
-		this.sampleStageParameters = sampleStageParameters;
-	}
-
-	public SampleStageParameters getSampleStageParameters() {
-		return sampleStageParameters;
-	}
-
-	public List<AttenuatorParameters> getAttenuators() {
-		return attenuators;
-	}
-
-	public void addAttenuator(AttenuatorParameters bean) {
-		if (!attenuators.contains(bean)) attenuators.add(bean);
-	}
+	private List<ScannableConfiguration> scannableConfigurations = new LinkedList<>();
 
 	public String getDescription() {
 		return description;
@@ -77,43 +59,37 @@ public class I18SampleParameters implements ISampleParameters {
 		this.name = name;
 	}
 
-	public double getVfmx() {
-		return vfmx;
+	public List<ScannableConfiguration> getScannableConfigurations() {
+		return scannableConfigurations;
 	}
 
-	public void setVfmx(double vfmx) {
-		this.vfmx = vfmx;
+	/**
+	 * For individual scannable configurations in XML.
+	 * If a configuration for the same scannable already exists,
+	 * it is replaced by the new one.
+	 */
+	public void addScannableConfiguration(ScannableConfiguration configuration) {
+		scannableConfigurations.stream()
+			.filter(scannable -> scannable.getScannableName().equals(configuration.getScannableName()))
+			.findFirst().ifPresentOrElse(old -> old.setPosition(configuration.getPosition()),
+					() -> scannableConfigurations.add(configuration));
 	}
 
-	public boolean isVfmxActive() {
-		return vfmxActive;
+	/**
+	 * For updating from UI
+	 */
+	public void setScannableConfigurations(List<ScannableConfiguration> configuration) {
+		scannableConfigurations = configuration;
 	}
 
-	public void setVfmxActive(boolean vfmxActive) {
-		this.vfmxActive = vfmxActive;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((attenuators == null) ? 0 : attenuators.hashCode());
+		final var prime = 31;
+		var result = 1;
+		result = prime * result + ((scannableConfigurations == null) ? 0 : scannableConfigurations.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((sampleStageParameters == null) ? 0 : sampleStageParameters.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(vfmx);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + (vfmxActive ? 1231 : 1237);
 		return result;
 	}
 
@@ -126,10 +102,10 @@ public class I18SampleParameters implements ISampleParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		I18SampleParameters other = (I18SampleParameters) obj;
-		if (attenuators == null) {
-			if (other.attenuators != null)
+		if (scannableConfigurations == null) {
+			if (other.scannableConfigurations != null)
 				return false;
-		} else if (!attenuators.equals(other.attenuators))
+		} else if (!scannableConfigurations.equals(other.scannableConfigurations))
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -141,14 +117,16 @@ public class I18SampleParameters implements ISampleParameters {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (sampleStageParameters == null) {
-			if (other.sampleStageParameters != null)
-				return false;
-		} else if (!sampleStageParameters.equals(other.sampleStageParameters))
-			return false;
-		if (Double.doubleToLongBits(vfmx) != Double.doubleToLongBits(other.vfmx))
-			return false;
-		return vfmxActive == other.vfmxActive;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return BeanUtils.describe(this).toString();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
 	}
 
 }

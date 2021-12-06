@@ -5,39 +5,14 @@
 			<xsd:sequence>
 				<xsd:element name="name" type="xsd:string" maxOccurs="1" minOccurs="1"/> 
 				<xsd:element name="description" type="xsd:string" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="SampleStage" maxOccurs="1" minOccurs="1"> 
-					<xsd:complexType>
-						<xsd:sequence>
-							<xsd:element name="x" type="xsd:double" maxOccurs="1"
-								minOccurs="1" />
-							<xsd:element name="y" type="xsd:double" maxOccurs="1"
-								minOccurs="1" />
-							<xsd:element name="z" type="xsd:double" maxOccurs="1"
-								minOccurs="1" />
-							<xsd:element name="xName" type="xsd:string" maxOccurs="1"
-								minOccurs="1" />
-							<xsd:element name="yName" type="xsd:string" maxOccurs="1"
-								minOccurs="1" />
-							<xsd:element name="zName" type="xsd:string" maxOccurs="1"
-								minOccurs="1" />
+				<xsd:element name="scannableConfiguration" maxOccurs="unbounded" minOccurs="0">
+ 				 	<xsd:complexType>
+ 				 		<xsd:sequence>
+							<xsd:element name="scannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
+							<xsd:element name="position" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 						</xsd:sequence>
-					</xsd:complexType>
-				</xsd:element>
-				<xsd:element name="attenuator" maxOccurs="unbounded"
-					minOccurs="0">
-					<xsd:complexType>
-						<xsd:sequence>
-							<xsd:element name="name" type="xsd:string" maxOccurs="1"
-								minOccurs="1" />
-							<xsd:element name="position" type="xsd:string"
-								maxOccurs="unbounded" minOccurs="1" />
-							<xsd:element name="selectedPosition" type="xsd:string"
-								maxOccurs="1" minOccurs="1" />
-						</xsd:sequence>
-					</xsd:complexType>
-				</xsd:element>
-				<xsd:element name="vfmx" type="xsd:double" maxOccurs="1" minOccurs="0" />
-				<xsd:element name="vfmxActive" type="xsd:boolean" maxOccurs="1" minOccurs="0" />
+ 				 	</xsd:complexType>
+ 				 </xsd:element>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

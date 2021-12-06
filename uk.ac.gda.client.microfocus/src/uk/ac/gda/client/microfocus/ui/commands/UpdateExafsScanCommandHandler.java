@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.exafs.scan.ScanObject;
+import uk.ac.gda.beans.exafs.ScannableConfiguration;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
@@ -84,7 +85,6 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 						for (IExperimentObject exptScan : scanList) {
 							ScanObject scan = (ScanObject) exptScan;
 							I18SampleParameters sampleParameters = (I18SampleParameters) scan.getSampleParameters();
-							var sampleStageParameters = sampleParameters.getSampleStageParameters();
 							var tokens = new StringTokenizer(xyz, ",");
 							var stageCoordinates = new double[tokens.countTokens()];
 							var tokenCount = 0;
@@ -92,9 +92,9 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 								stageCoordinates[tokenCount] = Double.valueOf(tokens.nextToken());
 								tokenCount++;
 							}
-							sampleStageParameters.setX(stageCoordinates[0]);
-							sampleStageParameters.setY(stageCoordinates[1]);
-							sampleStageParameters.setZ(stageCoordinates[2]);
+							sampleParameters.addScannableConfiguration(new ScannableConfiguration("t1x", String.valueOf(stageCoordinates[0])));
+							sampleParameters.addScannableConfiguration(new ScannableConfiguration("t1y", String.valueOf(stageCoordinates[1])));
+							sampleParameters.addScannableConfiguration(new ScannableConfiguration("t1z", String.valueOf(stageCoordinates[2])));
 
 							String newSampleFileName = scan.getSampleFileName().substring(0,
 									scan.getSampleFileName().indexOf(".xml"))
