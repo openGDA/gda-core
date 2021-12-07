@@ -360,6 +360,11 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		createSlitDevices();
 		createMirrorDevices();
+
+		// Test for DAQ-3883: check that nexus writing still works if there is a non-Scannable in the
+		// jython namespace with the same name as an INexusDevice
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(MONOCHROMATOR_DEVICE_NAME, "foo");
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(SLIT1_DEVICE_NAME, "bar");
 	}
 
 	private void createBeamDevice() throws DeviceException {
