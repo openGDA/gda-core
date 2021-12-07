@@ -37,6 +37,7 @@ import java.lang.reflect.WildcardType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -161,14 +162,22 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	@Override
 	public PyObject __call__(PyObject[] args, String[] keywords) {
 		logger.debug("Calling {}.{} with {} args", source.getCanonicalName(), getName(), args.length);
+		// Make an effort to box arguments correctly to work around bug in Jython (#100)
+		// This wraps arguments to vararg methods if required
+		var boxedArgs = validArgs(args);
 		try {
-			return function.__call__((PyObject)null, args, keywords);
+			var result = function.__call__((PyObject)null, boxedArgs.orElse(args), keywords);
+			if (boxedArgs.isEmpty()) {
+				logger.warn("{}.{} ran successfully although args appeared to be invalid - this is a bug in GdaBuiltin",
+						source.getCanonicalName(), getName());
+			}
+			return result;
 		} catch (PyException pe) {
 			if (keywords.length > 0) {
 				throw new UsageException("Unexpected keywords passed to builtin: ",
 						Stream.of(keywords).collect(joining(", ")));
 			}
-			if (pe.match(Py.TypeError) && !validArgs(args)) {
+			if (pe.match(Py.TypeError) && boxedArgs.isEmpty()) {
 				String arglist = Stream.of(args)
 						.map(GdaBuiltin::describe)
 						.collect(joining(", "));
@@ -181,7 +190,7 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	}
 
 	/** Check if the supplied arguments are valid for any of the wrapped functions */
-	private boolean validArgs(PyObject[] args) {
+	private Optional<PyObject[]> validArgs(PyObject[] args) {
 		for (var expected: function.argslist) {
 			var types = expected.args;
 			if (types.length < args.length && expected.isVarArgs) {
@@ -194,10 +203,10 @@ public class GdaBuiltin extends PyBuiltinFunction {
 			var valid = IntStream.range(0, args.length)
 					.allMatch(i -> finalArgs[i].__tojava__(expected.args[i]) != Py.NoConversion);
 			if (valid) {
-				return true;
+				return Optional.of(args);
 			}
 		}
-		return false;
+		return Optional.empty();
 	}
 
 	/**
@@ -207,6 +216,10 @@ public class GdaBuiltin extends PyBuiltinFunction {
 	 * <br>
 	 * This is a modified version of the private function
 	 * {@code ReflectedArgs#ensureBNoxedVarargs}.
+	 * <br>
+	 * There is still some ambiguity if the type of the varargs is itself an iterable
+	 * and the final arg passed is a list. For now, this assumes that the final arg is
+	 * the wrapped vararg and returns it as reveived.
 	 *
 	 * @param args All the arguments passed to the function
 	 * @param length The number of arguments expected (including varargs array as 1)
