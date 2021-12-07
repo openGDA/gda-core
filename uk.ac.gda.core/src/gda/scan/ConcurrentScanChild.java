@@ -405,10 +405,9 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				try {
 					Vector<Detector> detectors = point.getDetectors();
 
+					readoutTasks = new ArrayList<>(detectors.size());
 					// if there are detectors then readout in parallel threads
 					if (detectors.size() != 0) {
-
-						readoutTasks = new ArrayList<>(detectors.size());
 
 						// Start readout tasks
 						for (Detector detector : point.getDetectors()) {
@@ -451,8 +450,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				} catch (Exception e) {
 					// could be the normal result of cancelling this task
 					// (detector.readout() unfortunately doesn't distinguish InteruptedException from DeviceException
-					logger.info("'" + representThrowable(e)
-							+ "' --- while reading out detectors. *Canceling any remaining readout tasks.*");
+					logger.info("'{}' --- while reading out detectors. *Canceling any remaining readout tasks.*", representThrowable(e));
 					for (Future<Object> task : readoutTasks) {
 						task.cancel(true);
 					}
