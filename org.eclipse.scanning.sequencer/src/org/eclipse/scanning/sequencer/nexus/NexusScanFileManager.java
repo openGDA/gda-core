@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.sequencer.nexus;
 
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -131,7 +131,7 @@ public class NexusScanFileManager {
 		if (!newPerScanMonitorNames.isEmpty()) {
 			final Set<String> allScannableNames = new HashSet<>(scannableDeviceService.getScannableNames());
 			final Map<Boolean, List<String>> newPerScanMonitorNamesByIsScannable = newPerScanMonitorNames.stream()
-					.collect(groupingBy(allScannableNames::contains));
+					.collect(partitioningBy(allScannableNames::contains));
 
 			// add new per scan monitors to the scan model's list of per scan monitors
 			if (newPerScanMonitorNamesByIsScannable.get(true) != null) {
