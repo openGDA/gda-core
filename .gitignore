@@ -1,5 +1,5 @@
 .polyglot.build.properties
 target/
-.polyglot..META-INF_MANIFEST.MF
+.polyglot.META-INF_MANIFEST.MF
 .polyglot.feature.xml
 .META-INF_MANIFEST.MF
