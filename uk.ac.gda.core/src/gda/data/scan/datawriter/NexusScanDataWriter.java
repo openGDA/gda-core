@@ -452,7 +452,14 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private INexusDevice<?> createScannableNexusDevice(String scannableName) {
-		final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		final Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		Scannable scannable = null;
+		if (jythonObject instanceof Scannable) {
+			scannable = (Scannable) jythonObject;
+		} else {
+			// If the object is not a jython scannable, there still might be an INexusDevice with that name, so log and continue
+			logger.warn("The object named ''{}'' in the jython namespace is not a Scannable.", scannableName);
+		}
 		if (scannable == null) {
 			// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
 			// metadata to be added without having to create a scannable.
