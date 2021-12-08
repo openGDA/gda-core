@@ -37,6 +37,14 @@ def _appendStringToSRSFileHeader(self, s):
 		h='\n'
 	ROOT_NAMESPACE_DICT['SRSWriteAtFileCreation'] = h + s
 
+def _displayProcessingDetectorWrapper(logger, panel_name, panel_name_rcp, renderer, dataset):
+	if panel_name:
+		logger.debug("Plotter.plotImage({}, ...)", panel_name)
+		Plotter.plotImage(panel_name, renderer.renderShapesOntoDataset(dataset))
+	if panel_name_rcp:
+		logger.debug("SDAPlotter.imagePlot({}, ...)", panel_name_rcp)
+		SDAPlotter.imagePlot(panel_name_rcp, renderer.renderShapesOntoDataset(dataset))
+
 
 class FileRegistrar(object):
 
@@ -87,12 +95,8 @@ class ProcessingDetectorWrapperPositionCallable(Callable):
 		for processor in self.processors:
 			processorResults += list(processor.getPosition(self.datasetProvider.getDataset()))
 		# 3. display image
-		if self.panel_name:
-			self.logger.debug("Plotter.plotImage({}, ...renderShapesOntoDataset...)", self.panel_name)
-			Plotter.plotImage(self.panel_name, self.renderer.renderShapesOntoDataset(self.datasetProvider.getDataset()))
-		if self.panel_name_rcp:
-			self.logger.debug("SDAPlotter.plotImage({}, ...)", self.panel_name_rcp)
-			SDAPlotter.imagePlot(self.panel_name_rcp, self.renderer.renderShapesOntoDataset(self.datasetProvider.getDataset()))
+		_displayProcessingDetectorWrapper(self.logger,
+			self.panel_name, self.panel_name_rcp, self.renderer, self.datasetProvider.getDataset())
 
 		metricsResults = [time.time()-self.time_created] if self.return_performance_metrics else []
 		return position + metricsResults + processorResults
@@ -371,19 +375,12 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 			print "Could not display ROI on ", self.getName(), " as: ", `e`
 
 	def display(self, retryUntilTimeout = True):
-		self.logger.debug("display({})",retryUntilTimeout)
+		self.logger.debug("display({})", retryUntilTimeout)
 		if self.panel_name == None and self.panel_name_rcp == None:
 			raise Exception("No panel_name or panel_name_rcp set in %s. " +
 				"Set this or set %s.display_image=False" % (self.name, self.name))
-		if self.panel_name:
-			self.logger.debug("Plotter.plotImage({}, ...)", self.panel_name)
-			Plotter.plotImage(self.panel_name, self.renderer.
-				renderShapesOntoDataset(self.getDataset(retryUntilTimeout)))
-		if self.panel_name_rcp:
-			self.logger.debug("SDAPlotter.imagePlot({}, ...)", self.panel_name_rcp)
-			SDAPlotter.imagePlot(self.panel_name_rcp, self.renderer.
-				renderShapesOntoDataset(self.getDataset(retryUntilTimeout)))
-
+		_displayProcessingDetectorWrapper(self.logger,
+			self.panel_name, self.panel_name_rcp, self.renderer, self.getDataset(retryUntilTimeout))
 
 class HardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorWrapper, HardwareTriggerableDetector):
 
