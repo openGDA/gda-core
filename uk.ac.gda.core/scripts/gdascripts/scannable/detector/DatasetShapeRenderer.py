@@ -1,20 +1,21 @@
 from org.eclipse.january.dataset import DatasetFactory, Maths, Dataset
+
 class DatasetShapeRenderer(object):
-	
+
 	def __init__(self):
 		self.shapesToPaint = {}
 
-	def addShape(self, detectorDataProcessor, shapeid, shape):	
+	def addShape(self, detectorDataProcessor, shapeid, shape):
 		if not self.shapesToPaint.has_key(detectorDataProcessor):
 			self.shapesToPaint[detectorDataProcessor] = {shapeid:shape}
 		else:
 			self.shapesToPaint[detectorDataProcessor][shapeid] = shape
-			
+
 	def removeShape(self, detectorDataProcessor, shapeid):
 		del self.shapesToPaint[detectorDataProcessor][shapeid]
 		if len(self.shapesToPaint[detectorDataProcessor]) == 0:
 			del self.shapesToPaint[detectorDataProcessor]
-		
+
 	def renderShapes(self, targetDataset):
 		# Make a blank data set
 		# beware bizarre Jython bug where it cannot call correct method with only a shape argument
@@ -23,7 +24,7 @@ class DatasetShapeRenderer(object):
 			for shape in shapeDict.values():
 				image = shape.paint(image)
 		return image
-	
+
 	def renderShapesOntoDataset(self, targetDataset):
 		if self.shapesToPaint == {}:
 			return targetDataset.clone()
@@ -42,7 +43,7 @@ class ShapePainter(object):
 
 class LinePainter(ShapePainter):
 	"""Only paints horizontal or vertical lines!"""
-	
+
 	def __init__(self, y1, x1, y2, x2):
 		assert x1 == x2 or y1 == y2 # vertical or horizontal
 		if y1 > y2:
@@ -52,12 +53,12 @@ class LinePainter(ShapePainter):
 		if x1 > x2:
 			y1orig, x1orig = y1, x1
 			y1, x1 = y2, x2
-			y2, x2 = y1orig, x1orig	
+			y2, x2 = y1orig, x1orig
 		self.x1 = x1
 		self.y1 = y1
 		self.x2 = x2
 		self.y2 = y2
-				
+
 	def paint(self, dataset):
 		rows, cols = dataset.getShape()
 #		print "line painting:", self.y1, self.x1, self.y2, self.x2
@@ -72,8 +73,13 @@ class LinePainter(ShapePainter):
 	def __repr__(self):
 		return "LinePainter(%d, %d, %d, %d)" % (self.y1, self.x1, self.y2, self.x2)
 
+
 class RectPainter(ShapePainter):
 	def __init__(self, y1, x1, y2, x2):
+		self.y1 = y1
+		self.x1 = x1
+		self.y2 = y2
+		self.x2 = x2
 		self.lines = [
 				LinePainter(y1, x1, y2, x1),
 				LinePainter(y2, x1, y2, x2),
@@ -86,4 +92,4 @@ class RectPainter(ShapePainter):
 		return dataset
 
 	def __repr__(self):
-		return "RectPainter(%r)" % (self.lines)
+		return "RectPainter(%d, %d, %d, %d)" % (self.y1, self.x1, self.y2, self.x2)
