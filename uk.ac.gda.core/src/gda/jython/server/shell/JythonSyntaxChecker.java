@@ -57,6 +57,9 @@ public class JythonSyntaxChecker implements Function<String, SyntaxState> {
 	@Override
 	public SyntaxState apply(String source) {
 		logger.trace("Checking {}", source);
+		if (source.endsWith("\\")) {
+			return INCOMPLETE;
+		}
 		PyObject code;
 		var multiline = source.contains("\n");
 		if (multiline) {
