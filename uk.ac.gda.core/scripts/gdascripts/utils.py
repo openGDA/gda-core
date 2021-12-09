@@ -127,7 +127,7 @@ def _convert_to_java(fn, inter):
 	except Exception:
 		return Py.NoConversion
 
-def functional(fn, inst=None):
+def functional(fn):
 	"""Decorate a function to allow it to be used in java where a functional interface is required"""
 	return type(fn.__name__, (object,), {'__call__': fn.__call__,
 			'__tojava__': _convert_to_java,
