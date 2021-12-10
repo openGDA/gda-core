@@ -108,10 +108,6 @@ public class RegionAndPathController extends AbstractMappingController {
 			};
 		}
 
-		private void mapRegionOntoModel() {
-			RegionAndPathMapper.mapRegionOntoModel(scanRegionShape, scanPathModel);
-		}
-
 		/**
 		 * Handler for controls that return objects implementing {@link ISelection} e.g. combo box
 		 */
@@ -269,6 +265,13 @@ public class RegionAndPathController extends AbstractMappingController {
 		if (statusMessageConsumer.isPresent()) {
 			statusMessageConsumers.add(statusMessageConsumer.get());
 		}
+	}
+
+	/**
+	 * Synchronizes the bounds of the scanpath to those of the current region. needs to be called when either one changes
+	 */
+	private void mapRegionOntoModel() {
+		RegionAndPathMapper.mapRegionOntoModel(scanRegionShape, scanPathModel);
 	}
 
 	/**
@@ -577,8 +580,9 @@ public class RegionAndPathController extends AbstractMappingController {
 
 		// Set the new scan path. If non-null, add the property change listener
 		scanPathModel = newPath;
-		getScanRegionFromBean().setScanPath(newPath);
+		getScanRegionFromBean().setScanPath(scanPathModel);
 		if (scanPathModel != null) {
+			mapRegionOntoModel();
 			scanPathModel.addPropertyChangeListener(pathBeanPropertyChangeListener);
 		}
 
