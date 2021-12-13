@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.slf4j.Logger;
@@ -52,6 +53,16 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 	 * If this is not configured, the snapshot will be taken using the first detector in the "main" scan.
 	 */
 	private Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors;
+
+	/**
+	 * By default (when {@link #useDetectorTable} {@code = false}) the exposure in the document
+	 * is treated as the scan point generator duration i.e. as the 'exposure' of the {@link MalcolmDevice}.
+	 * <p>
+	 * When {@link #useDetectorTable} {@code = true}, the exposure in the document will be set
+	 * as the exposure of the inner detector model in the Malcolm scan, and the MalcolmDevice will
+	 * get an 'exposure' of 0 i.e. Malcolm calculates the duration.
+	 */
+	private boolean useDetectorTable = false;
 
 
 	@Override
@@ -92,6 +103,21 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 		setFrameRequestDocument(frameRequestDocument);
 	}
 
+	@Override
+	protected IDetectorModel configureDetectorModel(IRunnableDevice<? extends IDetectorModel> detector) {
+		if (detector instanceof MalcolmDevice && useDetectorTable) {
+			var model = (IMalcolmModel) detector.getModel();
+			var innerDetector = model.getDetectorModels().stream()
+								.filter(det -> det.getName().equals(malcolmDetectorNames.get(detector.getName())))
+								.findFirst().orElseThrow();
+			innerDetector.setExposureTime(getFrameRequestDocument().getExposure());
+			model.setExposureTime(0.0);
+			return model;
+		} else {
+			return super.configureDetectorModel(detector);
+		}
+	}
+
 	private String getMalcolmDetectorName(IRunnableDevice<? extends IDetectorModel> det) {
 		return det instanceof MalcolmDevice ? malcolmDetectorNames.get(det.getName()) : null;
 	}
@@ -110,5 +136,9 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 
 	public void setSnapshotDetectors(Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors) {
 		this.snapshotDetectors = snapshotDetectors;
+	}
+
+	public void setUseDetectorTable(boolean useDetectorTable) {
+		this.useDetectorTable = useDetectorTable;
 	}
 }
