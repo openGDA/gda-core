@@ -249,7 +249,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 		if (installMonitor) {
 			try {
 				// Print some information
-				logger.info(JCAUtils.timeStamp() + " Search successful for: " + ch.getName());
+				logger.info("{} Search successful for: {}, ", JCAUtils.timeStamp(), ch.getName());
 				// ch.printInfo();
 				// Add a monitor listener on every successful connection
 				// The following is commented out to solve scan pyException
@@ -262,19 +262,19 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 				}
 
 			} catch (Exception ex) {
-				logger.error("Add Monitor failed for Channel: " + ch.getName() + " : " + ex);
+				logger.error("Add Monitor failed for Channel: {}", ch.getName(), ex);
 				return;
 			}
 		}
 
 		// print connection state
-		logger.info(JCAUtils.timeStamp() + " ");
+		logger.info("{} ", JCAUtils.timeStamp());
 		if (ch.getConnectionState() == Channel.CONNECTED) {
-			logger.info(ch.getName() + " is connected");
+			logger.info("{} is connected", ch.getName());
 		} else if (ch.getConnectionState() == Channel.DISCONNECTED) {
-			logger.info(ch.getName() + " is disconnected");
+			logger.info("{} is disconnected", ch.getName());
 		} else if (ch.getConnectionState() == Channel.CLOSED) {
-			logger.info(ch.getName() + " is closed");
+			logger.info("{} is closed", ch.getName());
 		}
 	}
 
