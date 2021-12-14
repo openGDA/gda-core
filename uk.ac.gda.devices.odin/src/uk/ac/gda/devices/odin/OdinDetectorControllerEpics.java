@@ -53,7 +53,7 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private String fileWriterDataType;
 
 	private PV<String> dataDirectory;
-	private PV<String> filename;
+	private PV<String> fileName;
 	private PV<Integer> odinFramesToCapture;
 	private PV<Integer> startDataWriter;
 	private PV<String> acquiring;
@@ -63,6 +63,8 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private PV<Integer> timeoutDataWriter;
 	private PV<Integer> timeoutDataWriterPeriod;
 	private PV<String> odDataType;
+	private ReadOnlyPV<String> odFpFileName;
+	private ReadOnlyPV<String> odAcquisitionId;
 	private ReadOnlyPV<Integer> odinFramesCaptured;
 	private ReadOnlyPV<String> fp1ErrorState;
 	private ReadOnlyPV<String> fp2ErrorState;
@@ -107,8 +109,10 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			// DATA WRITING PVs
 			dataDirectory = new PVWithSeparateReadback<>(LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FilePath"),
 					LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FilePath_RBV"));
-			filename = new PVWithSeparateReadback<>(LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FileName"),
+			fileName = new PVWithSeparateReadback<>(LazyPVFactory.newStringFromWaveformPV(basePv + "OD:FileName"),
 					LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FileName_RBV"));
+			odFpFileName = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:FP:FileName_RBV");
+			odAcquisitionId = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD:AcquisitionID_RBV");
 			odinFramesToCapture = new PVWithSeparateReadback<>(LazyPVFactory.newIntegerPV(basePv + "OD:NumCapture"),
 					LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCapture_RBV"));
 			startDataWriter = new PVWithSeparateReadback<>(LazyPVFactory.newEnumPV(basePv + "OD:Capture", Integer.class),
@@ -137,10 +141,15 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		logger.debug("Setting output to {} and {}", directory, filePrefix);
 		try {
 			dataDirectory.putWait(directory);
-			filename.putWait(filePrefix);
+			fileName.putWait(filePrefix);
+			odFpFileName.waitForValue(filePrefix::equals, ODIN_TIMEOUT);
+			odAcquisitionId.waitForValue(filePrefix::equals, ODIN_TIMEOUT);
 			latestFilename = Paths.get(directory, filePrefix + fileSuffix).toString();
-		} catch (IOException e) {
+		} catch (IOException | IllegalStateException | TimeoutException e) {
 			throw new DeviceException("Could not set data directory or file name", e);
+		} catch (InterruptedException e) {
+			logger.error("Interrupted waiting for filename PVs");
+			Thread.currentThread().interrupt();
 		}
 	}
 
