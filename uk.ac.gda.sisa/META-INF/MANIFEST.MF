@@ -23,7 +23,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: gda.device.detector.areadetector.v17,
  javax.annotation;version="1.2.0",
  javax.inject;version="1.0.0",
- org.apache.log4j;version="1.2.17",
  org.eclipse.dawnsci.analysis.api.roi,
  org.eclipse.dawnsci.analysis.dataset.roi,
  org.eclipse.dawnsci.plotting.api,
