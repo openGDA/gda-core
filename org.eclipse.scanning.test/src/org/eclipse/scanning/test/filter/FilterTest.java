@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.filter.Filter;
@@ -153,11 +152,10 @@ public class FilterTest {
 		IFilter<String> dfilter = new Filter();
 		dfilter.setName("duplicates");
 
-		List<String> as = Arrays.stream(new String[1000]).map(nothing->"a").collect(Collectors.toList());
-		assertEquals(1000, as.size());
+		int copies = 250;
+		List<String> as = Collections.nCopies(copies, "a");
 		dfilter.setIncludes(as);
-		List<String> bs = Arrays.stream(new String[1000]).map(nothing->"b").collect(Collectors.toList());
-		assertEquals(1000, bs.size());
+		List<String> bs = Collections.nCopies(copies, "b");
 		dfilter.setExcludes(bs);
 		fservice.register(dfilter);
 
@@ -167,7 +165,7 @@ public class FilterTest {
 		assertEquals(as, fservice.filter("duplicates", items));
 
 		items = new ArrayList<>();
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < copies; i++) {
 		    items.add(as.get(i));
 		    items.add(bs.get(i));
 		}
