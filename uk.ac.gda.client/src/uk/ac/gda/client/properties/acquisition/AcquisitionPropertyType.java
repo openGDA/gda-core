@@ -28,10 +28,6 @@ public enum AcquisitionPropertyType {
 	 */
 	TOMOGRAPHY,
 	/**
-	 * Identifies an acquisition associated with a double detector
-	 */
-	BEAM_SELECTOR,
-	/**
 	 * Identifies an acquisition related to a calibration
 	 */
 	CALIBRATION,

@@ -36,6 +36,7 @@ import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.spring.ClientSpringContext;
@@ -62,15 +63,15 @@ public class ScanningAcquisitionControllerTest {
 	}
 
 	@Test(expected = AcquisitionConfigurationException.class)
-	public void testControllerWithoutConfigurationProeprties() throws AcquisitionControllerException {
-		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionTemplateType.STATIC_POINT);
+	public void testControllerWithoutConfigurationProperties() throws AcquisitionControllerException {
+		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT);
 		var controller = context.getAcquisitionController().orElseThrow();
 		controller.newScanningAcquisition(acquisitionKeys);
 	}
 
 	@Test
 	public void testControllerWithConfigurationProperties() throws AcquisitionControllerException {
-		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionTemplateType.TWO_DIMENSION_POINT);
+		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.TWO_DIMENSION_POINT);
 		var controller = context.getAcquisitionController().orElseThrow();
 		controller.newScanningAcquisition(acquisitionKeys);
 		Assert.assertEquals(acquisitionKeys, helper.getAcquisitionKeys(controller.getAcquisition()));

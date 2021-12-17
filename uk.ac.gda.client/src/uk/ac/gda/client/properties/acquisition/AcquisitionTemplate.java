@@ -19,28 +19,79 @@
 package uk.ac.gda.client.properties.acquisition;
 
 import java.util.List;
+import java.util.Set;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
+import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
+import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 
 public class AcquisitionTemplate {
 
-	private AcquisitionTemplateType template;
+	private AcquisitionPropertyType type;
+	private AcquisitionSubType subType;
 
-	private List<ScannableTrackDocumentProperty> tracks;
+	private AcquisitionEngineDocument engine;
+	private Set<String> detectors;
 
-	public AcquisitionTemplateType getTemplate() {
-		return template;
+	private Set<String> scanAxes;
+
+	private ProcessingRequestProperties processingProperties;
+
+	private List<ScannablePropertiesValue> startPosition;
+	private List<ScannablePropertiesValue> endPosition;
+
+	public AcquisitionPropertyType getType() {
+		return type;
+	}
+	public void setType(AcquisitionPropertyType type) {
+		this.type = type;
+	}
+	public AcquisitionSubType getSubType() {
+		return subType;
+	}
+	public void setSubType(AcquisitionSubType subType) {
+		this.subType = subType;
+	}
+	public AcquisitionEngineDocument getEngine() {
+		return engine;
+	}
+	public void setEngine(AcquisitionEngineDocument engine) {
+		this.engine = engine;
+	}
+	public Set<String> getDetectors() {
+		return detectors;
+	}
+	public void setDetectors(Set<String> detectors) {
+		this.detectors = detectors;
+	}
+	public Set<String> getScanAxes() {
+		return scanAxes;
+	}
+	public void setScanAxes(Set<String> scanAxes) {
+		this.scanAxes = scanAxes;
+	}
+	public ProcessingRequestProperties getProcessingProperties() {
+		return processingProperties;
+	}
+	public void setProcessingProperties(ProcessingRequestProperties processingProperties) {
+		this.processingProperties = processingProperties;
+	}
+	public List<ScannablePropertiesValue> getStartPosition() {
+		return startPosition;
+	}
+	public void setStartPosition(List<ScannablePropertiesValue> startPosition) {
+		this.startPosition = startPosition;
+	}
+	public List<ScannablePropertiesValue> getEndPosition() {
+		return endPosition;
+	}
+	public void setEndPosition(List<ScannablePropertiesValue> endPosition) {
+		this.endPosition = endPosition;
 	}
 
-	public void setTemplate(AcquisitionTemplateType template) {
-		this.template = template;
+	@Override
+	public String toString() {
+		return "Acquisition template for " + type.toString() + ":" + subType.toString();
 	}
 
-	public List<ScannableTrackDocumentProperty> getTracks() {
-		return tracks;
-	}
-
-	public void setTracks(List<ScannableTrackDocumentProperty> tracks) {
-		this.tracks = tracks;
-	}
 }

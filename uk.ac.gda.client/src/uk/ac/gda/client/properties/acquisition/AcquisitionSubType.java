@@ -16,29 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.api.acquisition;
+package uk.ac.gda.client.properties.acquisition;
 
-public enum AcquisitionType {
+public enum AcquisitionSubType {
 
-	/**
-	 * Generic acquisition - no special treatment required
-	 */
-	GENERIC("generic"),
+	STANDARD,
 
-	TOMOGRAPHY("tomography"),
+	RADIOGRAPHY,
 
-	DIFFRACTION("diffraction"),
-
-	CALIBRATION("calibration");
-
-	private final String name;
-
-	private AcquisitionType(String name) {
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
-	}
+	BEAM_SELECTOR;
 
 }

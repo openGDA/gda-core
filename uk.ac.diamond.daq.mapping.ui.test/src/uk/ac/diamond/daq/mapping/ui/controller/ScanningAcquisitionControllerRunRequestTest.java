@@ -60,6 +60,7 @@ import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
@@ -166,7 +167,7 @@ public class ScanningAcquisitionControllerRunRequestTest {
 		ResponseEntity<RunAcquisitionResponse> mockResponseEntity = new ResponseEntity<>(mockResponse, HttpStatus.OK);
 
 
-		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionTemplateType.ONE_DIMENSION_LINE);
+		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, AcquisitionTemplateType.ONE_DIMENSION_LINE);
 		var controller = context.getAcquisitionController().orElseThrow();
 		controller.newScanningAcquisition(acquisitionKeys);
 

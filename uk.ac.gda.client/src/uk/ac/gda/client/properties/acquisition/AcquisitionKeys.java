@@ -21,46 +21,31 @@ package uk.ac.gda.client.properties.acquisition;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 
 /**
- * Identify a specific acquisition configuration.
- *
- * <p>
- * This class contains the informations required to correctly display an acquisition configuration on the GUI:
- * <ul>
- * <li>
- * {@link #getPropertyType()} which is associated with a perspective
- * </li>
- * <li>
- * {@link #getTemplateType()} which defines the configuration gui specific layout
- * </li>
- * </ul>
- * </p>
- *
- * @author Maurizio Nagni
+ * Identifies a type of acquisition
  */
 public class AcquisitionKeys {
 
-	private AcquisitionPropertyType propertyType;
+	private final AcquisitionPropertyType propertyType;
+	private final AcquisitionSubType subType;
+
 	private AcquisitionTemplateType templateType;
 
-	public AcquisitionKeys() {
-	}
-
-	public AcquisitionKeys(AcquisitionPropertyType propertyType, AcquisitionTemplateType templateType) {
+	public AcquisitionKeys(AcquisitionPropertyType propertyType, AcquisitionSubType subType, AcquisitionTemplateType templateType) {
 		this.propertyType = propertyType;
+		this.subType = subType;
 		this.templateType = templateType;
 	}
 
 	public AcquisitionPropertyType getPropertyType() {
 		return propertyType;
 	}
-	public void setPropertyType(AcquisitionPropertyType propertyType) {
-		this.propertyType = propertyType;
+
+	public AcquisitionSubType getSubType() {
+		return subType;
 	}
+
 	public AcquisitionTemplateType getTemplateType() {
 		return templateType;
-	}
-	public void setTemplateType(AcquisitionTemplateType templateType) {
-		this.templateType = templateType;
 	}
 
 	@Override
@@ -68,6 +53,7 @@ public class AcquisitionKeys {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((propertyType == null) ? 0 : propertyType.hashCode());
+		result = prime * result + ((subType == null) ? 0 : subType.hashCode());
 		result = prime * result + ((templateType == null) ? 0 : templateType.hashCode());
 		return result;
 	}
@@ -83,6 +69,8 @@ public class AcquisitionKeys {
 		AcquisitionKeys other = (AcquisitionKeys) obj;
 		if (propertyType != other.propertyType)
 			return false;
+		if (subType != other.subType)
+			return false;
 		if (templateType != other.templateType)
 			return false;
 		return true;
@@ -90,6 +78,7 @@ public class AcquisitionKeys {
 
 	@Override
 	public String toString() {
-		return "AcquisitionKeys [propertyType=" + propertyType + ", templateType=" + templateType + "]";
+		return "AcquisitionKeys [propertyType=" + propertyType + ", subType=" + subType + ", templateType="
+				+ templateType + "]";
 	}
 }

@@ -50,6 +50,7 @@ public enum ClientImages {
 	CENTERED_RECTAGLE(ClientImagesGroup.GENERAL, "centred_rectangle.png"),
 	LINE(ClientImagesGroup.GENERAL, "line.png"),
 	POINT(ClientImagesGroup.GENERAL, "point.png"),
+	BEAM_SELECTOR(ClientImagesGroup.GENERAL, "arrow-switch.png"),
 
 	CAMERA(ClientImagesGroup.GENERAL, "camera-16.png"),
 
