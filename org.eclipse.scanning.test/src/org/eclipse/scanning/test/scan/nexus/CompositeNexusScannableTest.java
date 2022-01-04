@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -231,7 +232,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		// Assert: check the nexus file
 		assertThat(entry.getGroupNodeNames(), containsInAnyOrder(
 				"instrument", "sample", GROUP_NAME_DIAMOND_SCAN,
-				detector.getName(), detector.getName() + "_spectrum", detector.getName() + "_value"));
+				detector.getName(), detector.getName() + NexusConstants.FIELD_SEPERATOR + "spectrum", detector.getName() + VALUE_FIELD));
 		NXinstrument instrument = entry.getInstrument();
 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(
 				detector.getName(), "xNex", "yNex", "primary_slit"));
@@ -308,7 +309,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		final NXentry entry = root.getEntry();
 		assertThat(entry.getGroupNodeNames(), containsInAnyOrder( // NXinstrument, NXdata groups, etc
 				"instrument", "sample", "composite", GROUP_NAME_DIAMOND_SCAN,
-				detector.getName(), detector.getName() + "_spectrum", detector.getName() + "_value"));
+				detector.getName(), detector.getName() + NexusConstants.FIELD_SEPERATOR + "spectrum", detector.getName() + VALUE_FIELD));
 		final NXinstrument instrument = entry.getInstrument();
 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(detector.getName(), "xNex", "yNex"));
 
