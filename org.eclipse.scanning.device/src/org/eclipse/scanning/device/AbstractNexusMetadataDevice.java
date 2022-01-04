@@ -89,6 +89,16 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 	}
 
 	@Override
+	public void setScalarField(String fieldName, Object fieldValue) {
+		metadataNode.setChildNode(new ScalarField(fieldName, fieldValue));
+	}
+
+	@Override
+	public void setScalarField(String fieldName, Object fieldValue, String units) {
+		metadataNode.setChildNode(new ScalarField(fieldName, fieldValue, units));
+	}
+
+	@Override
 	public void addLinkedField(String fieldName, String linkPath) {
 		metadataNode.addChildNode(new LinkedField(fieldName, linkPath));
 	}
@@ -129,8 +139,8 @@ public abstract class AbstractNexusMetadataDevice<N extends NXobject> implements
 		metadataNode.removeChildNode(nodeName);
 	}
 
-	public boolean hasChildNode() {
-		return metadataNode.hasChildNode();
+	public boolean hasChildNodes() {
+		return metadataNode.hasChildNodes();
 	}
 
 	@Override

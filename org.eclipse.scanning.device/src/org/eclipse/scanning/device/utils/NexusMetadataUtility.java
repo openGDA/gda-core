@@ -107,7 +107,7 @@ public enum NexusMetadataUtility {
 	public void addScalar(String deviceName, String fieldName, Object fieldValue, String unit) {
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
 				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
-		nxMetadataDevice.addScalarField(fieldName, fieldValue, unit);
+		nxMetadataDevice.setScalarField(fieldName, fieldValue, unit);
 		userAddedFields.add(new ImmutablePair<>(deviceName, fieldName));
 	}
 
@@ -181,7 +181,7 @@ public enum NexusMetadataUtility {
 	private void removeEmptyDevice(String deviceName, final INexusMetadataDevice<NXobject> nxMetadataDevice) {
 		if (userAddedNexusMetadataDevices.containsKey(deviceName)
 				&& nxMetadataDevice instanceof AbstractNexusMetadataDevice
-				&& !((AbstractNexusMetadataDevice<NXobject>) nxMetadataDevice).hasChildNode()) {
+				&& !((AbstractNexusMetadataDevice<NXobject>) nxMetadataDevice).hasChildNodes()) {
 			// only allow user added metadata group to be removed
 			Services.getCommonBeamlineDevicesConfiguration().removeAdditionalDeviceName(deviceName);
 			ServiceHolder.getNexusDeviceService().unregister(nxMetadataDevice);

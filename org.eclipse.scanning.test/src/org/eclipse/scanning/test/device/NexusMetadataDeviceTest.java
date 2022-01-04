@@ -31,10 +31,12 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmirror;
+import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableField;
+import org.junit.Test;
 
 public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXmirror> {
 
@@ -81,6 +83,69 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 		assertThat(mirror.getM_valueScalar(), is(closeTo(EXPECTED_M_VALUE, 1e-15)));
 		assertThat(mirror.getLayer_thicknessScalar(), is(closeTo(EXPECTED_LAYER_THICKNESS, 1e-15)));
 		assertThat(mirror.getAttrString(NXmirror.NX_LAYER_THICKNESS, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_ATTR_VAL_MILLIMETERS)));
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testDuplicateFields() {
+		// check that an exception is thrown if the list of fields has duplicate names
+		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
+		nexusDevice.setNexusClass("NXmirror");
+
+		final List<MetadataNode> childNodes = new ArrayList<>();
+		childNodes.add(new ScalarField(NXmirror.NX_TYPE, EXPECTED_TYPE));
+		childNodes.add(new ScalarField(NXmirror.NX_DESCRIPTION, EXPECTED_DESCRIPTION));
+		childNodes.add(new ScalarField(NXmirror.NX_INTERIOR_ATMOSPHERE, EXPECTED_INTERIOR_ATMOSPHERE));
+		childNodes.add(new ScalarField(NXmirror.NX_M_VALUE, EXPECTED_M_VALUE));
+		childNodes.add(new ScalarField(NXmirror.NX_DESCRIPTION, "new description"));
+		childNodes.add(new ScalarField(NXmirror.NX_LAYER_THICKNESS, EXPECTED_LAYER_THICKNESS, UNITS_ATTR_VAL_MILLIMETERS));
+		childNodes.add(new ScannableField(NXmirror.NX_INCIDENT_ANGLE, INCIDENT_ANGLE_SCANNABLE_NAME, UNITS_ATTR_VAL_DEGREES));
+		nexusDevice.setChildNodes(childNodes);
+	}
+
+	@Test
+	public void testOverwriteField() throws Exception {
+		// check that an exception is thrown if the list of fields has duplicate names
+		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
+		nexusDevice.setNexusClass("NXmirror");
+
+		final List<MetadataNode> childNodes = new ArrayList<>();
+		childNodes.add(new ScalarField(NXmirror.NX_TYPE, EXPECTED_TYPE));
+		childNodes.add(new ScalarField(NXmirror.NX_DESCRIPTION, EXPECTED_DESCRIPTION));
+		childNodes.add(new ScalarField(NXmirror.NX_INTERIOR_ATMOSPHERE, EXPECTED_INTERIOR_ATMOSPHERE));
+		childNodes.add(new ScalarField(NXmirror.NX_M_VALUE, EXPECTED_M_VALUE));
+		childNodes.add(new ScalarField(NXmirror.NX_LAYER_THICKNESS, EXPECTED_LAYER_THICKNESS, UNITS_ATTR_VAL_MILLIMETERS));
+		childNodes.add(new ScannableField(NXmirror.NX_INCIDENT_ANGLE, INCIDENT_ANGLE_SCANNABLE_NAME, UNITS_ATTR_VAL_DEGREES));
+		nexusDevice.setChildNodes(childNodes);
+
+		final String newDescription = "new description";
+		final String newType = "multi";
+		final String newInteriorAtmosphere = "vacuum";
+		final double newSubstrateThickness = 52.15;
+		final String newSubstrateMaterial = "zinc";
+		nexusDevice.setScalarField(NXmirror.NX_TYPE, newType);
+		nexusDevice.setScalarField(NXmirror.NX_DESCRIPTION, newDescription);
+		nexusDevice.setScalarField(NXmirror.NX_INTERIOR_ATMOSPHERE, newInteriorAtmosphere);
+		nexusDevice.addScalarField(NXmirror.NX_SUBSTRATE_THICKNESS, newSubstrateThickness, UNITS_ATTR_VAL_MILLIMETERS);
+		nexusDevice.addScalarField(NXmirror.NX_SUBSTRATE_MATERIAL, newSubstrateMaterial);
+		nexusDevice.removeNode(NXmirror.NX_LAYER_THICKNESS);
+		nexusDevice.removeNode(NXmirror.NX_M_VALUE);
+
+		final NexusObjectProvider<NXmirror> nexusProvider = nexusDevice.getNexusProvider(null);
+		assertThat(nexusProvider, is(notNullValue()));
+		checkNexusProvider(nexusProvider);
+
+		final NXmirror mirror = nexusProvider.getNexusObject();
+		assertThat(mirror, is(notNullValue()));
+		assertThat(mirror.getDataNodeNames(), containsInAnyOrder(NXmirror.NX_TYPE, NXmirror.NX_DESCRIPTION,
+				NXmirror.NX_INTERIOR_ATMOSPHERE, NXmirror.NX_INCIDENT_ANGLE,
+				NXmirror.NX_SUBSTRATE_THICKNESS, NXmirror.NX_SUBSTRATE_MATERIAL));
+		assertThat(mirror.getTypeScalar(), is(equalTo(newType)));
+		assertThat(mirror.getDescriptionScalar(), is(equalTo(newDescription)));
+		assertThat(mirror.getInterior_atmosphereScalar(), is(equalTo(newInteriorAtmosphere)));
+		assertThat(mirror.getIncident_angleScalar(), is(equalTo(getScannableValue(INCIDENT_ANGLE_SCANNABLE_NAME))));
+		assertThat(mirror.getAttrString(NXmirror.NX_INCIDENT_ANGLE, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_ATTR_VAL_DEGREES)));
+		assertThat(mirror.getSubstrate_thicknessScalar(), is(closeTo(newSubstrateThickness, 1e-15)));
+		assertThat(mirror.getSubstrate_materialScalar(), is(equalTo(newSubstrateMaterial)));
 	}
 
 }

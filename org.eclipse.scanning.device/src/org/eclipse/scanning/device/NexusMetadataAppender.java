@@ -87,6 +87,16 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 		metadataNode.addChildNodes(customNodes);
 	}
 
+	@Override
+	public void setScalarField(String fieldName, Object fieldValue) {
+		metadataNode.setChildNode(new ScalarField(fieldName, fieldValue));
+	}
+
+	@Override
+	public void setScalarField(String fieldName, Object fieldValue, String units) {
+		metadataNode.setChildNode(new ScalarField(fieldName, fieldValue, units));
+	}
+
 	/**
 	 * Removes the node (field or child group node) with the given name.
 	 * @param nodeName name of node to remove

@@ -43,6 +43,7 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	/**
 	 * Adds the given {@link MetadataField} to this device.
 	 * @param field
+	 * @throws IllegalArgumentException if a child node node already exists with the same name
 	 */
 	public void addField(MetadataField field);
 
@@ -63,6 +64,15 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	public void addScalarField(String fieldName, Object fieldValue);
 
 	/**
+	 * Sets the scalar field with the given name to the given value, overwriting the
+	 * current scalar field if it already exists.
+	 *
+	 * @param fieldName field name
+	 * @param fieldValue value
+	 */
+	public void setScalarField(String fieldName, Object fieldValue);
+
+	/**
 	 * Creates and adds a {@link ScalarField} to this device with the given name,
 	 * value and units.
 	 * @param fieldName field name
@@ -70,6 +80,16 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param units units
 	 */
 	public void addScalarField(String fieldName, Object fieldValue, String units);
+
+	/**
+	 * Sets the scalar field with the given name to the given value, overwriting the
+	 * current scalar field if it already exists.
+	 *
+	 * @param fieldName field name
+	 * @param fieldValue value
+	 * @param units units
+	 */
+	public void setScalarField(String fieldName, Object fieldValue, String units);
 
 	/**
 	 * Creates and adds a {@link ScalarField} to this device, which will set the default value

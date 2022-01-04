@@ -26,20 +26,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.scanning.api.INameable;
 
+/**
+ * An instance of this class creates a nexus object (some sub-interface of {@link NXobject}),
+ * with {@link DataNode}s and child {@link GroupNode}s configured according to the child
+ * {@link MetadataNode}s that this object is configured with.
+ *
+ * @param <N> type of nexus object produces by this node
+ */
 public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode implements MetadataNode {
 
+	/**
+	 * The type of nexus object to create for this node.
+	 */
 	private NexusBaseClass nexusBaseClass;
 
 	/**
-	 * A map of the nodes within this device (those without an explicit setter), keyed by name.
+	 * A map of the nodes within this group keyed by name.
 	 */
-	private Map<String, MetadataNode> nodes = new HashMap<>();
+	private Map<String, MetadataNode> childNodes = new HashMap<>();
 
 	public GroupMetadataNode() {
 		// no-arg constructor for spring initialization
@@ -66,20 +78,74 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 		nexusBaseClass = NexusBaseClass.getBaseClassForName(nxClass);
 	}
 
+	/**
+	 * Adds the given {@link MetadataNode} to this object.
+	 * @param childNode
+	 */
 	public void addChildNode(MetadataNode childNode) {
-		if (nodes.containsKey(childNode.getName()) && !nodes.get(childNode.getName()).isDefaultValue()) {
+		if (childNodes.containsKey(childNode.getName()) && !childNodes.get(childNode.getName()).isDefaultValue()) {
 			// only a default value can be overwritten
 			throw new IllegalArgumentException(MessageFormat.format("The group ''{0}'' already contains a child group with the name ''{1}''.", getName(), childNode.getName()));
 		}
-		nodes.put(childNode.getName(), childNode);
+		setChildNode(childNode);
 	}
 
-	public void addChildNodes(List<MetadataNode> customNodes) {
-		customNodes.stream().forEach(this::addChildNode);
+	/**
+	 * Adds all the given {@link MetadataNode} to this object.
+	 * @param childNodes
+	 */
+	public void addChildNodes(List<MetadataNode> childNodes) {
+		childNodes.stream().forEach(this::addChildNode);
 	}
 
-	public void setChildNodes(List<MetadataNode> customNodes) {
-		this.nodes = customNodes.stream().collect(toMap(INameable::getName, Function.identity()));
+	/**
+	 * Sets the child {@link MetadataNode}s of this object to those given. Any existing
+	 * child nodes are removed.
+	 * @param childNodes nodes to add
+	 */
+	public void setChildNodes(List<MetadataNode> childNodes) {
+		this.childNodes = childNodes.stream().collect(toMap(INameable::getName, Function.identity()));
+	}
+
+	/**
+	 * Adds given {@link MetadataNode} to this object, overwriting any existing node with the same name.
+	 * @param childNode child node to add
+	 */
+	public void setChildNode(MetadataNode childNode) {
+		childNodes.put(childNode.getName(), childNode);
+	}
+
+	/**
+	 * Returns the child {@link MetadataNode} with the given name.
+	 * @param nodeName name of child node
+	 * @return child node with given name
+	 */
+	public MetadataNode getChildNode(String nodeName) {
+		return childNodes.get(nodeName);
+	}
+
+	/**
+	 * Removes the child {@link MetadataNode} with the given name
+	 * @param nodeName
+	 */
+	public void removeChildNode(String nodeName) {
+		childNodes.remove(nodeName);
+	}
+
+	/**
+	 * Removes all child nodes.
+	 */
+	public void clearChildNodes() {
+		childNodes.clear();
+	}
+
+	/**
+	 * Returns whether this object has any child {@link MetadataNode}s.
+	 *
+	 * @return <code>true</code>if this object has child nodes, <code>false</code> otherwise
+	 */
+	public boolean hasChildNodes() {
+		return !childNodes.isEmpty();
 	}
 
 	@Override
@@ -104,25 +170,9 @@ public class GroupMetadataNode<N extends NXobject> extends AbstractMetadataNode 
 	 * @throws NexusException
 	 */
 	public void appendNodes(N nexusObject) throws NexusException {
-		for (MetadataNode node : nodes.values()) {
+		for (MetadataNode node : childNodes.values()) {
 			nexusObject.addNode(node.getName(), node.createNode());
 		}
-	}
-
-	public MetadataNode getChildNode(String nodeName) {
-		return nodes.get(nodeName);
-	}
-
-	public void removeChildNode(String nodeName) {
-		nodes.remove(nodeName);
-	}
-
-	public void clearChildNodes() {
-		nodes.clear();
-	}
-
-	public boolean hasChildNode() {
-		return !nodes.isEmpty();
 	}
 
 }
