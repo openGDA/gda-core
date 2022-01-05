@@ -20,38 +20,27 @@
 package gda.jython.batoncontrol;
 
 /**
- * Public information about clients shared by this package 
+ * Public information about clients shared by this package
  */
 public class ClientDetails extends ClientInfo {
-	boolean hasBaton;
+
+	private boolean hasBaton;
 
 	public ClientDetails(int index, String userID, String fullName, String hostname, int authorisationLevel, boolean hasBaton, String visitID) {
-		this.index = index;
-		this.userID = userID;
-		this.fullName = fullName;
-		this.hostname = hostname;
-		this.authorisationLevel = authorisationLevel;
+		super(index, userID, fullName, hostname, authorisationLevel, visitID);
 		this.hasBaton = hasBaton;
-		this.visitID = visitID;
 	}
 
 	public ClientDetails(ClientInfo other, boolean hasBaton) {
-		this.index = other.index;
-		this.userID = other.userID;
-		this.fullName = other.fullName;
-		this.hostname = other.hostname;
-		this.authorisationLevel = other.authorisationLevel;
-		this.hasBaton = hasBaton;
-		this.visitID = other.visitID;
-		
+		this(other.getIndex(), other.getUserID(), other.getFullName(), other.getHostname(), other.getAuthorisationLevel(), hasBaton, other.getVisitID());
 	}
 
 	@Override
 	public String toString() {
 		return super.toString() + " baton:" + hasBaton;
 	}
-	
-	public boolean isHasBaton() {
+
+	public boolean hasBaton() {
 		return hasBaton;
 	}
 

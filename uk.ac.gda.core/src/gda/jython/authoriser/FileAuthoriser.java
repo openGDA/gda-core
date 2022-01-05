@@ -39,42 +39,11 @@ public class FileAuthoriser implements Authoriser {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileAuthoriser.class);
 
-	/**
-	 * The java property which defines the default authorisation level for a user if not explicitly listed.
-	 */
-	public static final String DEFAULTLEVELPROPERTY = "gda.accesscontrol.defaultAuthorisationLevel";
-
-	/**
-	 * The java property which defines the default authorisation level for a member of staff if not explicitly listed.
-	 */
-	public static final String DEFAULTSTAFFLEVELPROPERTY = "gda.accesscontrol.defaultStaffAuthorisationLevel";
-
 	private static final String GDA_USER_PERMISSIONS_DIR = "gda.user.permissions.dir";
 
 	private static final String AUTHORISATIONLEVELS = "user_permissions";
 
 	private static final String BEAMLINESTAFF = "beamlinestaff";
-
-	/**
-	 * Program to print out what's in a password file
-	 *
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		FileAuthoriser lister = new FileAuthoriser();
-		UserEntry[] entries = lister.getEntries();
-
-		for (UserEntry entry : entries) {
-			System.out.println("User: " + entry.getUserName() + " level: " + entry.getAuthorisationLevel());
-		}
-	}
-
-	/**
-	 * Constructor
-	 */
-	public FileAuthoriser() {
-	}
 
 	/**
 	 * @return Vector of strings of the entries in this file
@@ -88,10 +57,10 @@ public class FileAuthoriser implements Authoriser {
 			Iterator i = configFile.getKeys();
 			while (i.hasNext()) {
 				String username = (String) i.next();
-				if (!username.equals("")) {
+				if (!username.isBlank()) {
 					int level = configFile.getInt(username);
-					entries = (UserEntry[]) ArrayUtils.add(entries, new UserEntry(username, level,
-							isLocalStaff(username)));
+					entries = (UserEntry[]) ArrayUtils.add(entries,
+							new UserEntry(username, level, isLocalStaff(username)));
 				}
 			}
 
@@ -99,7 +68,7 @@ public class FileAuthoriser implements Authoriser {
 
 		} catch (Exception e) {
 			logger.error("Exception while trying to read file of list of user authorisation levels", e);
-			return null;
+			return new UserEntry[0];
 		}
 
 	}
@@ -146,16 +115,13 @@ public class FileAuthoriser implements Authoriser {
 			logger.error("Exception while trying to delete an entry from file", e);
 		}
 	}
+
 	@Override
 	public int getAuthorisationLevel(String username) {
 		try {
 			return openConfigFile().getInt(username);
 		} catch (Exception e) {
-			if (isLocalStaff(username))
-			{
-				return LocalProperties.getInt(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, 2);
-			}
-			return LocalProperties.getInt(FileAuthoriser.DEFAULTLEVELPROPERTY, 1);
+			return getDefaultPermissions(username);
 		}
 	}
 

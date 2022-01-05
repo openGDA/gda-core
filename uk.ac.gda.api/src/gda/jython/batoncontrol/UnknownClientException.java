@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2017 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,17 +18,12 @@
 
 package gda.jython.batoncontrol;
 
-public class ClientDetailsAndLeaseState extends ClientDetails {
+public class UnknownClientException extends RuntimeException {
 
-	private final boolean hasLease;
+	private static final String ERROR_SERVER_UNKNOWN_CLIENT = "Client %s unrecognised by server, has client outlived its server? Try restarting the client";
 
-	public ClientDetailsAndLeaseState(ClientDetails details, boolean hasLease) {
-		super(details, details.hasBaton());
-		this.hasLease = hasLease;
-	}
-
-	public boolean isHasLease() {
-		return hasLease;
+	public UnknownClientException(String clientId) {
+		super(String.format(ERROR_SERVER_UNKNOWN_CLIENT, clientId));
 	}
 
 }

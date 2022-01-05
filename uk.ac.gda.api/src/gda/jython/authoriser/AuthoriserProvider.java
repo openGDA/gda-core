@@ -32,16 +32,14 @@ public abstract class AuthoriserProvider {
 	 * @throws ClassNotFoundException
 	 */
 	public static Authoriser getAuthoriser() throws ClassNotFoundException {
-		Authoriser authoriser = null;
-		String authoriserTypeName = LocalProperties.get(Authoriser.AUTHORISERCLASS_PROPERTY,
-				Authoriser.DEFAULT_AUTHORISER);
+		String authoriserTypeName = LocalProperties.get(Authoriser.AUTHORISERCLASS_PROPERTY, Authoriser.DEFAULT_AUTHORISER);
 		try {
-			Class<?> authoriserType = Class.forName(authoriserTypeName);
-			authoriser = (Authoriser) authoriserType.newInstance();
+			@SuppressWarnings("unchecked")
+			Class<? extends Authoriser> authoriserType = (Class<? extends Authoriser>) Class.forName(authoriserTypeName);
+			return authoriserType.getConstructor().newInstance();
 		} catch (Exception e) {
-			throw new ClassNotFoundException("Cannot authorise as class not found: " + authoriserTypeName);
+			throw new ClassNotFoundException(String.format("Unable to find class %s, will not be able to authorise", authoriserTypeName));
 		}
-		return authoriser;
 
 	}
 

@@ -24,10 +24,12 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +56,9 @@ public class BatonManager implements IBatonManager {
 	private static final Logger logger = LoggerFactory.getLogger(BatonManager.class);
 
 	private static final long LEASE_TIMEOUT = 60000; // 1 minute in milliseconds
+	private static final String METADATA_USERNAME = "userid";
+	private static final String METADATA_FEDID = "federalid";
+	private static final String METADATA_VISIT = "visit";
 
 	private AtomicInteger facadeIndex = new AtomicInteger();
 
@@ -102,7 +107,8 @@ public class BatonManager implements IBatonManager {
 			return 0;
 		}
 
-		int authLevel = getClientInfo(uniqueID).getAuthorisationLevel();
+		ClientInfo info = getClientInfo(uniqueID);
+		int authLevel = info.getAuthorisationLevel();
 
 		// always skip if its a server
 		if (authLevel == Integer.MAX_VALUE) {
@@ -130,15 +136,16 @@ public class BatonManager implements IBatonManager {
 		if (!useRBAC) {
 			return 0;
 		}
-		String uniqueID = idFromIndex(index);
-		return getClientInfo(uniqueID).getAuthorisationLevel();
+		// Only called immediately after construction of facade, so should not be an issue for DAQ-3783/I04-541
+		// And we have no access to client name here (as expressed as unique JSF ident) for user friendly error
+		return getClientInfo(index).getAuthorisationLevel();
 	}
 
 	@Override
 	public void addFacade(String uniqueID, ClientDetails info) {
 
 		// must have a meaningful identifier
-		if (uniqueID != null && uniqueID != "") {
+		if (!StringUtils.isBlank(uniqueID)) {
 
 			facadeNames.put(uniqueID, info.copy());
 
@@ -168,11 +175,11 @@ public class BatonManager implements IBatonManager {
 		ClientInfo info = getClientInfo(uniqueFacadeName);
 
 		//only change if information is supplied
-		if (username != null && !username.equals("")){
+		if (!StringUtils.isBlank(username)){
 			info.setUserID(username);
 			info.setAuthorisationLevel(accessLevel);
 		}
-		if (visitID != null && !visitID.equals("")){
+		if (!StringUtils.isBlank(visitID)){
 			info.setVisitID(visitID);
 		}
 
@@ -201,7 +208,7 @@ public class BatonManager implements IBatonManager {
 
 	@Override
 	public boolean amIBatonHolder(String myJSFIdentifier) {
-		return useBaton ? amIBatonHolder(myJSFIdentifier, true) : true;
+		return !useBaton || amIBatonHolder(myJSFIdentifier, true);
 	}
 
 	@Override
@@ -232,13 +239,15 @@ public class BatonManager implements IBatonManager {
 			return true;
 		if (myJSFIdentifier.isEmpty() || theirJSFIdentifier.isEmpty())
 			return false;
-		if (getClientInfo(theirJSFIdentifier) == null)
-			return false;
 
-		String myFedID = getClientInfo(myJSFIdentifier).getUserID();
-		String theirFedID = getClientInfo(theirJSFIdentifier).getUserID();
-		String myVisitID = getClientInfo(myJSFIdentifier).getVisitID();
-		String theirVisitID = getClientInfo(theirJSFIdentifier).getVisitID();
+
+		ClientInfo myInfo = getClientInfo(myJSFIdentifier);
+		ClientInfo theirInfo = getClientInfo(theirJSFIdentifier);
+
+		String myFedID = myInfo.getUserID();
+		String theirFedID = theirInfo.getUserID();
+		String myVisitID = myInfo.getVisitID();
+		String theirVisitID = theirInfo.getVisitID();
 
 		if (myFedID == null && theirFedID == null)
 			return true;
@@ -260,7 +269,12 @@ public class BatonManager implements IBatonManager {
 	 * Returns static information and does not say if this client holds the baton.
 	 */
 	private ClientInfo getClientInfo(String myJSFIdentifier) {
-		return facadeNames.get(myJSFIdentifier);
+		if (facadeNames.containsKey(myJSFIdentifier)) return facadeNames.get(myJSFIdentifier);
+		throw new UnknownClientException(myJSFIdentifier);
+	}
+
+	private ClientInfo getClientInfo(int index) {
+		return facadeNames.values().stream().filter(x -> x.getIndex() == index).findAny().orElseGet(() -> null);
 	}
 
 	@Override
@@ -284,7 +298,7 @@ public class BatonManager implements IBatonManager {
 		}
 
 		// if no baton holder
-		if (this.batonHolder.equals("") && isJSFRegistered(uniqueIdentifier)) {
+		if (this.batonHolder.isBlank() && isJSFRegistered(uniqueIdentifier)) {
 			changeBatonHolder(uniqueIdentifier);
 			return true;
 		}
@@ -321,7 +335,7 @@ public class BatonManager implements IBatonManager {
 	private void changeBatonHolder(String uniqueIdentifier) {
 		this.batonHolder = uniqueIdentifier;
 
-		if (!uniqueIdentifier.equals("")) {
+		if (!uniqueIdentifier.isBlank()) {
 			changeUserIDDefinedMetadata(uniqueIdentifier);
 		}
 		notifyServerOfBatonChange();
@@ -334,24 +348,26 @@ public class BatonManager implements IBatonManager {
 			logger.trace("changeUserIDDefinedMetadata({}) called with metadata={}", uniqueIdentifier, metadata);
 			if (metadata != null) {
 
-				String currentUser = getClientInfo(uniqueIdentifier).getUserID();
-				String visitID = getClientInfo(uniqueIdentifier).getVisitID();
+				ClientInfo currentInfo = getClientInfo(uniqueIdentifier);
+
+				String currentUser = currentInfo.getUserID();
+				String visitID = currentInfo.getVisitID();
 
 				// first change the metadata values for current user
-				if (metadataContainsKey(metadata,"userid")){
-					metadata.setMetadataValue("userid", currentUser);
+				if (metadataContainsKey(metadata, METADATA_USERNAME)){
+					metadata.setMetadataValue(METADATA_USERNAME, currentUser);
 				} else {
 					StoredMetadataEntry userid = new StoredMetadataEntry();
-					userid.setName("userid");
+					userid.setName(METADATA_USERNAME);
 					userid.setValue(currentUser);
 					userid.setDefEntryName("");
 					metadata.addMetadataEntry(userid);
 				}
-				if (metadataContainsKey(metadata,"federalid")){
-					metadata.setMetadataValue("federalid", currentUser);
+				if (metadataContainsKey(metadata,METADATA_FEDID)){
+					metadata.setMetadataValue(METADATA_FEDID, currentUser);
 				} else {
 					StoredMetadataEntry federalid = new StoredMetadataEntry();
-					federalid.setName("federalid");
+					federalid.setName(METADATA_FEDID);
 					federalid.setValue(currentUser);
 					federalid.setDefEntryName("");
 					metadata.addMetadataEntry(federalid);
@@ -360,11 +376,11 @@ public class BatonManager implements IBatonManager {
 				if (isDisableControlOverVisitMetadataEntry()) {
 					logger.info("Ignoring client request to change visit to: '{}'", visitID);
 				} else {
-					if (metadataContainsKey(metadata, "visit")) {
-						metadata.setMetadataValue("visit", visitID);
+					if (metadataContainsKey(metadata, METADATA_VISIT)) {
+						metadata.setMetadataValue(METADATA_VISIT, visitID);
 					} else {
 						StoredMetadataEntry visitid = new StoredMetadataEntry();
-						visitid.setName("visit");
+						visitid.setName(METADATA_VISIT);
 						visitid.setValue(visitID);
 						visitid.setDefEntryName("");
 						metadata.addMetadataEntry(visitid);
@@ -403,7 +419,7 @@ public class BatonManager implements IBatonManager {
 	@Override
 	public boolean isJSFRegistered(String myJSFIdentifier) {
 		for (String uniqueID : facadeNames.keySet()) {
-			if (myJSFIdentifier.equals(uniqueID) && !myJSFIdentifier.equals("")) {
+			if (myJSFIdentifier.equals(uniqueID) && !myJSFIdentifier.isBlank()) {
 				renewLease(myJSFIdentifier);
 				return true;
 			}
@@ -413,7 +429,7 @@ public class BatonManager implements IBatonManager {
 
 	@Override
 	public boolean isBatonHeld() {
-		return !this.batonHolder.equals("");
+		return !this.batonHolder.isBlank();
 	}
 
 	private boolean amIBatonHolder(String myJSFIdentifier, boolean refresh) {
@@ -428,13 +444,7 @@ public class BatonManager implements IBatonManager {
 
 	private String idFromIndex(int index) {
 		// loop through facades and find matching index
-		for (String uniqueID : facadeNames.keySet()) {
-			ClientInfo details = getClientInfo(uniqueID);
-			if (details.getIndex() == index) {
-				return uniqueID;
-			}
-		}
-		return null;
+		return facadeNames.entrySet().stream().filter(x -> x.getValue().getIndex() == index).map(Entry::getKey).findAny().orElseGet(() -> null);
 	}
 
 	private void notifyServerOfBatonChange() {
@@ -452,7 +462,7 @@ public class BatonManager implements IBatonManager {
 
 	private synchronized void renewLease(String myJSFIdentifier) {
 		// update the start time of this lease, but only for clients
-		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).getUserID().equals("")) {
+		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).getUserID().isBlank()) {
 			leaseHolders.put(myJSFIdentifier, new GregorianCalendar().getTimeInMillis());
 		}
 		logger.trace("Lease renewed by: {}", myJSFIdentifier);
@@ -550,4 +560,5 @@ public class BatonManager implements IBatonManager {
 		}
 		return clients;
 	}
+
 }

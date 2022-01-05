@@ -49,6 +49,7 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.BatonLeaseRenewRequest;
 import gda.jython.batoncontrol.ClientDetails;
+import gda.jython.batoncontrol.UnknownClientException;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.ICommandThreadInfo;
@@ -148,13 +149,15 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	protected JythonServerFacade(Jython commandServer, String username, String fullName) throws InstantiationException {
 		try {
-			// because this is a call to the Finder, this facade cannot be called during the instantiation phase. It can
-			// be called during the configure phase.
-			name = UUID.randomUUID().toString();
-			this.commandServer = commandServer;
-
 			InetAddress hostAddress = java.net.InetAddress.getLocalHost();
 			String localHost = hostAddress.getHostName();
+
+			// because this is a call to the Finder, this facade cannot be called during the instantiation phase. It can
+			// be called during the configure phase.
+			// JSF identifier constructed from host name, to allow user friendly error message when ClientInfo unavailable
+			// Username can change during lifetime of facade, but identifier cannot, rather avoid confusion.
+			name = String.format("%s-%s", localHost, UUID.randomUUID());
+			this.commandServer = commandServer;
 
 			// check that we found something
 			if (commandServer == null) {
@@ -231,7 +234,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	public static void disconnect() {
 		if (theInstance != null) {
-			theInstance.commandServer.removeFacade(theInstance.name);
+			try {
+				theInstance.commandServer.removeFacade(theInstance.name);
+			} catch (UnknownClientException e) {
+				logger.debug("Client {} was unknown to server at time of shut down", theInstance.name, e);
+			}
 			theInstance = null;
 		}
 	}
@@ -410,16 +417,20 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 					}
 				}
 			} else if (data instanceof TerminalInput) {
-				TerminalInput ti = (TerminalInput)data;
-				ClientDetails details = getMyDetails();
-				if (details != null && details.getIndex() != ti.getIndex() && !ti.getInput().isEmpty()) {
-					for (Terminal terminal : myTerminals) {
-						try {
-							terminal.writeInput((TerminalInput)data);
-						} catch (Exception e) {
-							logger.error("Failed to write '{}' to terminal {}", data, terminal, e);
+				TerminalInput ti = (TerminalInput) data;
+				try {
+					ClientDetails details = getMyDetails();
+					if (details.getIndex() != ti.getIndex() && !ti.getInput().isEmpty()) {
+						for (Terminal terminal : myTerminals) {
+							try {
+								terminal.writeInput((TerminalInput) data);
+							} catch (Exception e) {
+								logger.error("Failed to write '{}' to terminal {}", data, terminal, e);
+							}
 						}
 					}
+				} catch (UnknownClientException uce) {
+					logger.error("Failed to write '{}' to any terminals of this client, client is unknown to the server", data, uce);
 				}
 			}
 
@@ -581,30 +592,55 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	public void addAliasedCommand(String commandName) {
-		commandServer.addAliasedCommand(commandName, name);
+		try {
+			commandServer.addAliasedCommand(commandName, name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+		}
 	}
 
 	public void addAliasedVarargCommand(String commandName) {
-		commandServer.addAliasedVarargCommand(commandName, name);
+		try {
+			commandServer.addAliasedVarargCommand(commandName, name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+		}
 	}
 
 	public void removeAliasedCommand(String commandName) {
-		commandServer.removeAlias(commandName, name);
+		try {
+			commandServer.removeAlias(commandName, name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+		}
 	}
 
 	@Override
 	public boolean requestBaton() {
-		return commandServer.requestBaton(name);
+		try {
+			return commandServer.requestBaton(name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+			return false;
+		}
 	}
 
 	@Override
 	public void returnBaton() {
-		commandServer.returnBaton(name);
+		try {
+			commandServer.returnBaton(name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+		}
 	}
 
 	@Override
 	public void assignBaton(int receiverIndex, int currentBatonHolderIndex) {
-		commandServer.assignBaton(name, receiverIndex, currentBatonHolderIndex);
+		try {
+			commandServer.assignBaton(name, receiverIndex, currentBatonHolderIndex);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+		}
 	}
 
 	/**
@@ -644,6 +680,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			commandServer.switchUser(name, originalUsername, "");
 		} catch (DeviceException e) {
 			logger.error("Exception while trying to revert to original user", e);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
 		}
 	}
 
@@ -659,26 +697,32 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			commandServer.switchUser(name, "", visitID);
 		} catch (DeviceException e) {
 			logger.error("Exception while trying to revert to original user", e);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
 		}
 	}
 
 	@Override
 	public ClientDetails[] getOtherClientInformation() {
-		return commandServer.getOtherClientInformation(name);
+		try {
+			return commandServer.getOtherClientInformation(name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+			return new ClientDetails[] {};
+		}
 	}
 
 	@Override
 	public ClientDetails getBatonHolder() {
 
 		if (amIBatonHolder()) {
-			ClientDetails myDetails = getMyDetails();
-			return myDetails;
+			return getMyDetails();
 		}
 
 		final ClientDetails[] others = getOtherClientInformation();
 		ClientDetails batonedUser = null;
 		for (int i = 0; i < others.length; i++) {
-			if (others[i].isHasBaton()) {
+			if (others[i].hasBaton()) {
 				batonedUser = others[i];
 			}
 		}
@@ -687,7 +731,12 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public boolean amIBatonHolder() {
-		return commandServer.amIBatonHolder(name);
+		try {
+			return commandServer.amIBatonHolder(name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+			return false;
+		}
 	}
 
 	@Override
@@ -697,12 +746,21 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void sendMessage(String message) {
-		commandServer.sendMessage(name, message);
+		try {
+			commandServer.sendMessage(name, message);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+		}
 	}
 
 	@Override
 	public List<UserMessage> getMessageHistory() {
-		return commandServer.getMessageHistory(name);
+		try {
+			return commandServer.getMessageHistory(name);
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+			return List.of();
+		}
 	}
 
 	@Override
@@ -770,17 +828,23 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public ClientDetails getMyDetails() {
-		ClientDetails myDetails = commandServer.getClientInformation(name);
-		if (runningAsAlternateUser) {
-			myDetails.setUserID(this.alternateUsername);
-			try {
-				myDetails.setAuthorisationLevel(
-						AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername));
-			} catch (ClassNotFoundException e) {
-				myDetails.setAuthorisationLevel(0);
+		ClientDetails myDetails;
+		try {
+			myDetails = commandServer.getClientInformation(name);
+			if (runningAsAlternateUser) {
+				myDetails.setUserID(this.alternateUsername);
+				try {
+					myDetails.setAuthorisationLevel(
+							AuthoriserProvider.getAuthoriser().getAuthorisationLevel(alternateUsername));
+				} catch (ClassNotFoundException e) {
+					myDetails.setAuthorisationLevel(0);
+				}
 			}
+			return myDetails;
+		} catch (UnknownClientException e) {
+			logUnknownClient(e);
+			return null;
 		}
-		return myDetails;
 	}
 
 	@Override
@@ -802,7 +866,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	public Set<String> getAllNamesForObject(Object obj) throws DeviceException {
 		return commandServer.getAllNamesForObject(obj);
 	}
-	
+
 	@Override
 	public <F extends Findable> Set<String> getAllNamesForType(Class<F> clazz) {
 		return commandServer.getAllNamesForType(clazz);
@@ -885,6 +949,10 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public AutoCompletion getCompletionsFor(String line, int posn) {
 		return commandServer.getCompletionsFor(line, posn);
+	}
+
+	private void logUnknownClient(UnknownClientException e) {
+		logger.info("This client {}, logged in as {} is unknown to the server, try restarting it?", this.name, getCurrentFullName(), e);
 	}
 
 }
