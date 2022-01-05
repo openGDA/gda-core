@@ -18,7 +18,6 @@
 package gda.data.scan.datawriter.scannablewriter;
 
 import java.lang.reflect.Array;
-import java.nio.charset.Charset;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -33,12 +32,10 @@ import org.eclipse.january.dataset.SliceND;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DefaultComponentWriter implements ComponentWriter {
+public abstract class DefaultComponentWriter<T> implements ComponentWriter {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultComponentWriter.class);
 
-	protected static final Charset UTF8 = Charset.forName("UTF-8");
-
-	public DefaultComponentWriter() {
+	protected DefaultComponentWriter() {
 		// no op
 	}
 
@@ -71,7 +68,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 		return dim;
 	}
 
-	protected abstract Object getComponentSlab(final Object pos);
+	protected abstract T getComponentSlab(final Object pos);
 
 	protected int[] slabSizeForWriting(final int[] dim, @SuppressWarnings("unused") final int length) {
 		// default: ignore length
@@ -103,7 +100,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 		String aPath = file.getPath(group) + path;
 		DataNode data = file.getData(aPath);
 		ILazyWriteableDataset lazy = data.getWriteableDataset();
-		final Object slab = getComponentSlab(pos);
+		final T slab = getComponentSlab(pos);
 		final int slablength = (slab.getClass().isArray()) ? Array.getLength(slab) : 0;
 		int[] sstart = putslabdimfordim(start);
 		int[] sshape = slabSizeForWriting(start, slablength);

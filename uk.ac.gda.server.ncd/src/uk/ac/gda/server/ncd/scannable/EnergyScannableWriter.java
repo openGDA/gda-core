@@ -56,10 +56,8 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		private String uncertaintiesPath = "";
 
 		@Override
-		protected double[] getComponentSlab(final Object pos) {
-			final double[] posArr = super.getComponentSlab(pos);
-			posArr[0] *= uncertaintyFraction;
-			return posArr;
+		protected Double getComponentSlab(final Object pos) {
+			return super.getComponentSlab(pos) * uncertaintyFraction;
 		}
 
 		@Override
