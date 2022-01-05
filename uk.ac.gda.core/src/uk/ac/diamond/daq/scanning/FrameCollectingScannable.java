@@ -52,7 +52,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 
 /**
@@ -60,7 +59,7 @@ import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
  * map, perform an {@link AcquireRequest} (i.e. capture a single frame), then restore the beamline to its previous configuration.<br>
  * The snapshot is then linked to from the overall NeXus file under /entry/instrument/ as an NXdetector.
  *
- * The detector parameters for the frame collection are specified via a {@link DetectorDocument} which must be set in advance.
+ * The detector parameters for the frame collection are specified via a {@link FrameRequestDocument} which must be set in advance.
  */
 public class FrameCollectingScannable extends AbstractScannable<Object> implements INexusDevice<NXdetector>, Configurable {
 
@@ -168,8 +167,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		var request = new AcquireRequest();
 		request.setDetectorName(getFrameRequestDocument().getName());
 
-		var model = getDetector(getFrameRequestDocument().getName()).getModel();
-		model.setExposureTime(getFrameRequestDocument().getExposure());
+		var model = configureDetectorModel(getDetector(getFrameRequestDocument().getName()));
 
 		request.setDetectorModel(model);
 
@@ -186,6 +184,12 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 			logger.error("Request not processed successfully: {}", request.getMessage());
 			return null;
 		}
+	}
+
+	protected IDetectorModel configureDetectorModel(IRunnableDevice<? extends IDetectorModel> device) {
+		var model = device.getModel();
+		model.setExposureTime(getFrameRequestDocument().getExposure());
+		return model;
 	}
 
 	private String generateNodePath() {
