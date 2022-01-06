@@ -161,7 +161,6 @@ public final class GeneralCommands {
 			availableInterfaces.remove("RobotListener");
 			availableInterfaces.remove("Observer");
 			availableInterfaces.remove("Metadata");
-			availableInterfaces.remove("IPlotManager");
 			availableInterfaces.remove("PlotServerDevice");
 			availableInterfaces.remove("IFileRegistrar");
 			availableInterfaces.remove("IDataWriterExtender");
