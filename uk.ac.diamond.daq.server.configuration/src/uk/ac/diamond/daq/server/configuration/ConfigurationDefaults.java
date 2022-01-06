@@ -268,14 +268,10 @@ public enum ConfigurationDefaults {
 	}
 	
 	private static final String manageMTMigration(final String relativeConfig) {
-		String[] options = {"gda-mt.git", "i06-config", "i06-1-config", "i10-config"};
+		String[] options = {"i06-config", "i06-1-config", "i10-config"};
 		for (String match : options) {
 			if (relativeConfig.contains(match)) {
-				if (!match.startsWith("gda-mt")) {
-					return match.replaceFirst("(-\\d+)?-config", "-shared");
-				} else {
-					return "mt-config";
-				}
+				return match.replaceFirst("(-\\d+)?-config", "-shared");
 			}
 		}
 		return "nogroup";
