@@ -19,6 +19,7 @@
 package org.eclipse.scanning.test.scan.nexus;
 
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
+import static org.eclipse.scanning.device.Transformation.TransformationType.TRANSLATION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -28,6 +29,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXinstrument;
+import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.appender.SimpleNexusMetadataAppender;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -42,10 +45,11 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.device.DetectorTransformationsAppender;
 import org.eclipse.scanning.device.NexusMetadataAppender;
-import org.eclipse.scanning.device.TransformationsAppender;
-import org.eclipse.scanning.device.TransformationsAppender.Transformation;
-import org.eclipse.scanning.device.TransformationsAppender.TransformationType;
+import org.eclipse.scanning.device.PositionerTransformationsAppender;
+import org.eclipse.scanning.device.Transformation;
+import org.eclipse.scanning.device.Transformation.TransformationType;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
@@ -79,7 +83,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 		scanner.run(null);
 
 		// Check we reached ready (it will normally throw an exception on error)
-		checkNexusFile(scanner, shape, metadata); // Step model is +1 on the size
+		checkNexusFileWithMetadata(scanner, shape, metadata); // Step model is +1 on the size
 	}
 
 	@Test
@@ -97,13 +101,13 @@ public class DetectorMetadataScanTest extends NexusTest {
 		scanner.run(null);
 
 		// Check we reached ready (it will normally throw an exception on error)
-		checkNexusFile(scanner, shape, metadata); // Step model is +1 on the size
+		checkNexusFileWithMetadata(scanner, shape, metadata); // Step model is +1 on the size
 	}
 
 	@Test
-	public void testScanWithTransformationsAppender() throws Exception {
-		final TransformationsAppender<NXdetector> appender = new TransformationsAppender<>();
-		appender.setName(detector.getName());
+	public void testScanWithTransformationsAppenders() throws Exception {
+		final DetectorTransformationsAppender detectorAppender = new DetectorTransformationsAppender();
+		detectorAppender.setName(detector.getName());
 
 		final List<Transformation> transformations = new ArrayList<>();
 		transformations.add(new Transformation("theta", TransformationType.ROTATION, "gamma",
@@ -112,16 +116,28 @@ public class DetectorMetadataScanTest extends NexusTest {
 				1.0, new double[] { -0.5, 0.0, 0.67 }, new double[] { 0.17, 0.0, -0.42 }, "deg"));
 		transformations.add(new Transformation("psi", TransformationType.TRANSLATION, ".",
 				1.0, new double[] { 1.23, 5.32, 17.38 }, new double[] { 12.32, 6.33, -2.18 }, "mm"));
-		appender.setTransformations(transformations);
+		detectorAppender.setTransformations(transformations);
+		ServiceHolder.getNexusDeviceService().register(detectorAppender);
 
-		ServiceHolder.getNexusDeviceService().register(appender);
+		final PositionerTransformationsAppender xPosAppender = new PositionerTransformationsAppender();
+		xPosAppender.setName(X_AXIS_NAME);
+		xPosAppender.setTransformation(new Transformation(X_AXIS_NAME, TRANSLATION,
+				"yPos", 0.0, new double[] { 0.67, 0, -0.33 }, new double[] { 1.23, -4.56, 7.89 }, "mm"));
+		ServiceHolder.getNexusDeviceService().register(xPosAppender);
+
+		final PositionerTransformationsAppender yPosAppender = new PositionerTransformationsAppender();
+		yPosAppender.setName(Y_AXIS_NAME);
+		yPosAppender.setTransformation(new Transformation(Y_AXIS_NAME, TRANSLATION,
+				".", 0.0, new double[] { 0.33, 0, -0.66 }, new double[] { -9.87, 6.54, -3.21 }, "mm"));
+		ServiceHolder.getNexusDeviceService().register(yPosAppender);
 
 		final int[] shape = { 8, 5 };
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
 
-		checkNexusFile(scanner, shape, transformations);
+		checkNexusFileWithTransformations(scanner, shape, transformations,
+				yPosAppender.getTransformations().get(0), xPosAppender.getTransformations().get(0));
 	}
 
 	private Map<String, Object> createExpectedMetadata() {
@@ -133,7 +149,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 		return metadata;
 	}
 
-	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] shape, Map<String, Object> metadata) throws Exception {
+	private void checkNexusFileWithMetadata(IRunnableDevice<ScanModel> scanner, int[] shape, Map<String, Object> metadata) throws Exception {
 		super.checkNexusFile(scanner, false, shape);
 
 		// check that the metadata has been added to the mandlebrot NXdetector object for the instrument
@@ -150,19 +166,22 @@ public class DetectorMetadataScanTest extends NexusTest {
 		}
 	}
 
-	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] shape, List<Transformation> transformationList) throws Exception {
+	private void checkNexusFileWithTransformations(IRunnableDevice<ScanModel> scanner, int[] shape,
+			List<Transformation> detectorTransformations, Transformation... positionerTransformations) throws Exception {
 		super.checkNexusFile(scanner, false, shape);
 
 		final NXinstrument instrument = getNexusRoot(scanner).getEntry().getInstrument();
 		final NXdetector detectorGroup = instrument.getDetector(detector.getName());
 		assertThat(detectorGroup, is(notNullValue()));
 
+		// check that the NXdetector group has been appended with an NXtransformation group
+		// with the expected
 		final NXtransformations transformations = (NXtransformations) detectorGroup.getGroupNode("transformations");
 		assertThat(transformations, is(notNullValue()));
 
 		assertThat(transformations.getDataNodeNames(), containsInAnyOrder(
-				transformationList.stream().map(Transformation::getAxisName).toArray()));
-		for (Transformation transformation : transformationList) {
+				detectorTransformations.stream().map(Transformation::getAxisName).toArray()));
+		for (Transformation transformation : detectorTransformations) {
 			final String axisName = transformation.getAxisName();
 			final DataNode axisDataNode = transformations.getDataNode(axisName);
 			assertThat(axisDataNode, is(notNullValue()));
@@ -178,7 +197,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 			assertThat(transformations.getAxisnameAttributeDepends_on(axisName),
 					is(equalTo(transformation.getDependsOn())));
 			assertThat(axisDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_VECTOR).getValue(),
-					is(equalTo(DatasetFactory.createFromObject(transformation.getVector()))));
+					is(equalTo(DatasetFactory.createFromObject(getExpectedVector(transformation.getVector())))));
 			assertThat(transformations.getAxisnameAttributeTransformation_type(axisName),
 					is(equalTo(transformation.getType().toString())));
 			assertThat(axisDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET).getValue(),
@@ -186,6 +205,36 @@ public class DetectorMetadataScanTest extends NexusTest {
 			assertThat(transformations.getAxisnameAttributeOffset_units(axisName),
 					is(equalTo(transformation.getOffsetUnits())));
 		}
+
+		for (Transformation transformation : positionerTransformations) {
+			final NXpositioner positioner = instrument.getPositioner(transformation.getAxisName());
+			assertThat(positioner, is(notNullValue()));
+
+			final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
+			assertThat(valueDataNode, is(notNullValue()));
+
+			assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder("target", "units",
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_DEPENDS_ON, NXtransformations.NX_AXISNAME_ATTRIBUTE_VECTOR,
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_TRANSFORMATION_TYPE, NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET,
+					NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET_UNITS));
+
+			assertThat(valueDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_DEPENDS_ON).getFirstElement(),
+					is(equalTo(transformation.getDependsOn())));
+			assertThat(valueDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_VECTOR).getValue(),
+					is(equalTo(DatasetFactory.createFromObject(getExpectedVector(transformation.getVector())))));
+			assertThat(valueDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_TRANSFORMATION_TYPE).getFirstElement(),
+					is(equalTo(transformation.getType().toString())));
+			assertThat(valueDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET).getValue(),
+					is(equalTo(DatasetFactory.createFromObject(transformation.getOffset()))));
+			assertThat(valueDataNode.getAttribute(NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET_UNITS).getFirstElement(),
+					is(equalTo(transformation.getOffsetUnits())));
+		}
+	}
+
+	private double[] getExpectedVector(double[] vector) {
+		// by default the vector is normalized, i.e. so that sqrt(x^2 + y^2 + z^2) = 1
+		final double normalizationFactor = Math.sqrt(Arrays.stream(vector).map(x -> x * x).sum());
+		return Arrays.stream(vector).map(x -> x / normalizationFactor).toArray();
 	}
 
 }
