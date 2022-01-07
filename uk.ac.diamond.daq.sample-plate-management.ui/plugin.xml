@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+
+   <extension
+         id="uk.ac.diamond.sample-plate-management.ui.fragment"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi"
+            apply="always">
+      </fragment>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.diamond.daq.sample.plate.management.ui.LiveStreamViewForPlate"
+            id="uk.ac.diamond.daq.sample.plate.management.ui.LiveStreamViewForPlate"
+            name="Live Stream"
+            restorable="true">
+      </view>
+      <view
+            class="uk.ac.diamond.daq.sample.plate.management.ui.PlateManagementView"
+            id="uk.ac.diamond.daq.sample.plate.management.ui.PlateManagementView"
+            name="Plate Management"
+            restorable="true">
+      </view>
+      <view
+            class="org.eclipse.dawnsci.plotting.api.VanillaPlottingSystemView"
+            id="uk.ac.diamond.daq.sample-plate-management.ui.plate"
+            name="Plate"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.dawnsci.plotting.api.plottingViewer">
+      <plottingViewer
+            class="org.dawnsci.plotting.system.LightWeightPlotViewer"
+            id="uk.ac.diamond.daq.sample-plate-management.ui.plottingViewer1">
+      </plottingViewer>
+   </extension>
+
+</plugin>

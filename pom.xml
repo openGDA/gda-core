@@ -30,6 +30,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 <module>uk.ac.diamond.daq.devices.mbs</module>
 <module>uk.ac.diamond.daq.devices.mbs.api</module>
 <module>uk.ac.diamond.daq.pes.api</module>
+<module>uk.ac.diamond.daq.sample-plate-management.ui</module>
 <module>uk.ac.gda.arpes</module>
 <module>uk.ac.gda.arpes.server</module>
 <module>uk.ac.gda.arpes.server.test</module>
