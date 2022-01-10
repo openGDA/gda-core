@@ -159,6 +159,12 @@ public class ExafsPreferenceConstants {
 	/** Width of scaler/ROI window to use when doing 'set window from line' in fluorescence detector view */
 	public static final String DETECTOR_WINDOW_HALFWIDTH = "exafs.editor.detectorWindow.halfWidth";
 
+	/**
+	 * Set to true to allow detector parameters to be updated with latest filename when the detector
+	 * configuration XML file is saved to a new file.
+	 */
+	public static final String DETECTOR_PARAMS_UPDATE_ON_SAVEAS = "exafs.editor.detectorParams.update.on.saveAs";
+
 	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
 
 	/**
