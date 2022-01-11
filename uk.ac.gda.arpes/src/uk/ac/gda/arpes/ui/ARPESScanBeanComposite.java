@@ -622,6 +622,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		if ("acquisitionMode".equals(e.getFieldName())) {
 			cacheEnergyValues();
+			updateNumberOfSteps();
 		}
 
 		if ("lensMode".equals(e.getFieldName())) {
