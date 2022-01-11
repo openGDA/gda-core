@@ -977,4 +977,9 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	public void setSingleImageMode() throws Exception {
 		getAdBase().setImageMode(0);
 	}
+
+	@Override
+	public int getMaximumNumberOfSteps() {
+		return Integer.MAX_VALUE;
+	}
 }

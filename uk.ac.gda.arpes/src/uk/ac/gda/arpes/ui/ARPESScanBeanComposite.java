@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final double maxKE;
 	private final int fixedModeEnergyChannels;
 	private final int sweptModeEnergyChannels;
+	private final int maxNumberOfSteps;
 
 	// GUI Items
 	private final Label lblpsuMode;
@@ -100,6 +102,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final NumberBox endEnergy;
 	private final Label lblStepEnergy;
 	private final NumberBox stepEnergy;
+	private final Label lblNumberOfSteps;
+	private final Text numberOfSteps;
 	private final Label lblTimePerStep;
 	private final NumberBox timePerStep;
 	private final Label lblIterations;
@@ -150,6 +154,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		fixedModeEnergyChannels = analyser.getFixedModeEnergyChannels();
 		// Get the number of energy channels in swept mode
 		sweptModeEnergyChannels = analyser.getSweptModeEnergyChannels();
+		// Get the maximum number of steps allowed in a step scan
+		maxNumberOfSteps = analyser.getMaximumNumberOfSteps();
 
 		setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
@@ -325,8 +331,19 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setUnit("meV");
 		stepEnergy.setDecimalPlaces(5);
 		stepEnergy.setMaximum(10000);
+		stepEnergy.setToolTipText("this is tool tip text");
+		stepEnergy.setTooltipOveride("this is overriden tooltip text");
+		stepEnergy.setFieldName("stepEnergy");
 
-
+		// Number of steps
+		lblNumberOfSteps = new Label(this, SWT.NONE);
+		lblNumberOfSteps.setLayoutData(labelLayoutData());
+		lblNumberOfSteps.setText("Number of Steps");
+		numberOfSteps = new Text(this, SWT.BORDER);
+		numberOfSteps.setLayoutData(controlGridData());
+		numberOfSteps.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+		numberOfSteps.setEditable(false);
 
 		// Energy width
 		lblEnergyWidth = new Label(this, SWT.NONE);
@@ -362,8 +379,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		lblDeflectorX.setText("Deflector X");
 		deflectorX = new ScaleBox(this, SWT.NONE);
 		deflectorX.setLayoutData(controlGridData());
-		energyWidth.setDecimalPlaces(3);
-		energyWidth.setFieldName("deflectorX");
+		deflectorX.setDecimalPlaces(3);
+		deflectorX.setFieldName("deflectorX");
 
 		if (!(analyser instanceof IDeflector)) {
 			deflectorX.setEnabled(false);
@@ -623,6 +640,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			// If you change startEnergy must be in swept or dither therefore calculate centre and width
 			centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
 			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+			updateNumberOfSteps();
 		}
 
 		if ("centreEnergy".equals(e.getFieldName())) {
@@ -635,6 +653,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			// If you change stopEnergy must be in swept or dither therefore calculate centre and width
 			centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
 			energyWidth.setValue(getValue(endEnergy) - getValue(startEnergy));
+			updateNumberOfSteps();
+		}
+
+		if ("stepEnergy".equals(e.getFieldName())) {
+			updateNumberOfSteps();
 		}
 
 		updateEnergyLimits();
@@ -642,6 +665,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		if ("acquisitionMode".equals(e.getFieldName())) {
 			restoreCachedEnergyValues();
+			updateNumberOfSteps();
 		}
 
 		updateEstimatedTime();
@@ -785,6 +809,33 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		}
 	}
 
+	private void updateNumberOfSteps() {
+
+		if (getSelectedAcquisitionMode() == AcquisitionMode.SWEPT) {
+
+			int numberofSteps = calculateNumberOfSteps();
+			numberOfSteps.setText(String.valueOf(numberofSteps));
+
+			if (numberofSteps > maxNumberOfSteps) {
+				numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+				numberOfSteps.setToolTipText(String.format("Number of steps is too high. Max is %d. Please change step size, start energy, or end energy", maxNumberOfSteps));
+			} else {
+				numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+				numberOfSteps.setToolTipText("");
+			}
+		} else {
+			numberOfSteps.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+			numberOfSteps.setText("N/A");
+			numberOfSteps.setToolTipText("");
+		}
+	}
+
+	private int calculateNumberOfSteps() {
+		var width = getValue(endEnergy) - getValue(startEnergy);
+		var step = getValue(stepEnergy) / 1000;
+		return (int)Math.abs(Math.ceil(width / step));
+	}
+
 	@Override
 	public String getValueListenerName() {
 		return null;
@@ -794,9 +845,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		// Centre energy is not saved in the XML so need to be calculated from start and stop
 		centreEnergy.setValue((getValue(startEnergy) + getValue(endEnergy)) / 2.0);
 
+		lastSelectedAcquisitionMode = getSelectedAcquisitionMode();
 		updateAcquisitionMode();
 		updateEnergyLimits();
 		updateEstimatedTime();
+		updateNumberOfSteps();
 	}
 
 	public static void setDropTarget(final Composite parent, final Shell shell, final RichBeanEditorPart editor) {

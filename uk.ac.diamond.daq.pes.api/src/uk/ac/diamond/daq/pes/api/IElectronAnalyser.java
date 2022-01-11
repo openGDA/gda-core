@@ -352,4 +352,12 @@ public interface IElectronAnalyser extends Device {
 	 */
 	@Deprecated(since="9.20")
 	double getExcitationEnergy() throws Exception;
+
+	/**
+	 * Returns the maximum number of steps the analyser can perform in a swept scan.
+	 * Suggest returning Integer.MAX_VALUE if your analyser doesn't have a limit.
+	 *
+	 * @return The maximum number of steps
+	 */
+	int getMaximumNumberOfSteps();
 }

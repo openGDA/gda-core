@@ -55,6 +55,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private DetectorConfiguration ditherModeConfiguration;
 	private PlotServerROISelectionProvider cpsRoiProvider;
 	private RectangularROI cpsRoi;
+	private int maximumNumberOfSteps = Integer.MAX_VALUE;
 
 	private double energyStepPerPixel = 0.000855;
 
@@ -743,6 +744,15 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	public void disableAutomaticDetectorOff() throws DeviceException {
 		controller.disableAutomaticDetectorOff();
+	}
+
+	@Override
+	public int getMaximumNumberOfSteps() {
+		return maximumNumberOfSteps;
+	}
+
+	public void setMaximumNumberOfSteps(int maximumNumberOfSteps) {
+		this.maximumNumberOfSteps = maximumNumberOfSteps;
 	}
 
 }
