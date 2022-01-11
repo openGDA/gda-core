@@ -155,5 +155,5 @@ public interface IMbsAnalyser extends IDitherScanningElectronAnalyserWithDeflect
 	 */
 	public void setSpinOffset(double spinOffset) throws DeviceException;
 
-	public double[][] get2DImageArray() throws DeviceException;
+	public int[][] get2DIntegerImageArray() throws DeviceException;
 }

@@ -576,9 +576,9 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 		return adBase.waitWhileStatusBusy();
 	}
 
-	public double[] getImageData(int numberOfElements) throws DeviceException {
+	public int[] getIntegerImageData(int numberOfElements) throws DeviceException {
 		try {
-			return ndArray.getDoubleArrayData(numberOfElements);
+			return ndArray.getIntArrayData(numberOfElements);
 		} catch (Exception exception) {
 			throw new DeviceException("Error while  getting image data", exception);
 		}

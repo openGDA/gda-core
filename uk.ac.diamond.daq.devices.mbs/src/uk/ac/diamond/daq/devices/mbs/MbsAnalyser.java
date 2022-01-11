@@ -386,12 +386,12 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	}
 
 	@Override
-	public double[][] get2DImageArray() throws DeviceException {
+	public int[][] get2DIntegerImageArray() throws DeviceException {
 		int imageHeight = controller.getImageDataHeight();
 		int imageWidth = controller.getImageDataWidth();
-		double[] imageData = controller.getImageData(imageHeight * imageWidth);
+		int[] imageData = controller.getIntegerImageData(imageHeight * imageWidth);
 
-		double[][] reshapedImageData = new double[imageHeight][imageWidth];
+		int[][] reshapedImageData = new int[imageHeight][imageWidth];
 
 		for (int i = 0; i < imageHeight; i++) {
 			System.arraycopy(imageData, (i * imageWidth), reshapedImageData[i], 0, imageWidth);
@@ -421,7 +421,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		completedRegion.setNumberOfDitherSteps(getNumberOfDitherSteps());
 		completedRegion.setSpinOffset(getSpinOffset());
 		completedRegion.setStepSize(getEnergyStep());
-		completedRegion.setImage(get2DImageArray());
+		completedRegion.setImage(get2DIntegerImageArray());
 		completedRegion.setRegionStartX(getRegionStartX());
 		completedRegion.setRegionStartY(getRegionStartY());
 		completedRegion.setRegionSizeX(getRegionSizeX());
@@ -445,7 +445,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 		return completedRegion;
 	}
 
-	private double calculateCps(double[][] data, double acquireTime) {
+	private double calculateCps(int[][] data, double acquireTime) {
 		Dataset dataSet = DatasetFactory.createFromObject(data);
 
 		if (cpsRoi != null && roiIsWithinDatasetBounds(cpsRoi, dataSet)) {

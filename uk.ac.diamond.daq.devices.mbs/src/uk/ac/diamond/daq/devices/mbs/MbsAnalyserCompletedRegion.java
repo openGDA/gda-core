@@ -40,7 +40,7 @@ public class MbsAnalyserCompletedRegion {
 	private int numberOfDitherSteps;
 	private double spinOffset;
 	private double  stepSize;
-	private double[][] image;
+	private int[][] image;
 	private int regionStartX;
 	private int regionStartY;
 	private int regionSizeX;
@@ -189,11 +189,11 @@ public class MbsAnalyserCompletedRegion {
 		this.stepSize = stepSize;
 	}
 
-	public double[][] getImage() {
+	public int[][] getImage() {
 		return image;
 	}
 
-	public void setImage(double[][] image) {
+	public void setImage(int[][] image) {
 		this.image = image;
 	}
 
@@ -307,7 +307,7 @@ public class MbsAnalyserCompletedRegion {
 
 	public double getTotalCount() {
 		return Arrays.stream(getImage())
-				.flatMapToDouble(Arrays::stream)
+				.flatMapToInt(Arrays::stream)
 				.sum();
 	}
 }
