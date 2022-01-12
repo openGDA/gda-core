@@ -84,6 +84,7 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	private static final String IMAGE_ARRAY_SIZE_RBV = "ARR:ArrayData.NORD";
 	private static final String PSU_MODE_RBV = "CAM:PsuMode_RBV";
 	private static final String AUTO_DETECTOR_OFF_OVERRIDE = "CAM:DetectorOffOverride";
+	private static final String ABORT_AFTER_CURRENT_ITERATION = "CAM:AbortAfterScan";
 
 	private static final String FIXED_MODE_NAME = "Fixed";
 	private static final String AUTO_DETECTOR_OFF_ENABLE = "Auto";
@@ -775,6 +776,10 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 
 	public void disableAutomaticDetectorOff() throws DeviceException {
 		setStringValue(AUTO_DETECTOR_OFF_OVERRIDE, AUTO_DETECTOR_OFF_DISABLE, "DetectorOffOverride");
+	}
+
+	public void stopAfterCurrentIteration() throws DeviceException {
+		setIntegerValue(ABORT_AFTER_CURRENT_ITERATION, 1, "abort after current iteration");
 	}
 
 	@Override

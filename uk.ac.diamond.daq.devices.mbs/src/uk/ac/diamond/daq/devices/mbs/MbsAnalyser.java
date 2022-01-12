@@ -33,6 +33,7 @@ import gda.device.detector.NXDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
 import gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.devices.mbs.api.IMbsAnalyser;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
@@ -588,7 +589,8 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	@Override
 	public void stopAfterCurrentIteration() throws Exception {
-		logger.warn("Stop after current iteration is not currently implemented.");
+		controller.stopAfterCurrentIteration();
+		InterfaceProvider.getTerminalPrinter().print("Analyser will stop after the current iteration.");
 	}
 
 	@Override
