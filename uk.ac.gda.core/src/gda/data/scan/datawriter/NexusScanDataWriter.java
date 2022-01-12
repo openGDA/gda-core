@@ -146,7 +146,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private NexusScanFile nexusScanFile = null;
 
-	private final Map<String, IWritableNexusDevice<? extends NXobject>> nexusDevices = new HashMap<>();
+	private final Map<String, IWritableNexusDevice<? extends NXobject>> writableNexusDevices = new HashMap<>();
 
 	private int currentPointNumber = -1;
 
@@ -440,14 +440,16 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 			}
 		}
 
-		if (writeable && !(nexusDevice instanceof IWritableNexusDevice<?>)) {
-			// per-point nexus devices must implement IWritebleNexusDevice
-			// TODO: might it be useful to let a device implement INexusDevice but not IWritableNexusDevice? If so, it
-			// would have be responsible for writing its dataset at the appropriate point in the scan, e.g. in acquireData
-			throw new IllegalArgumentException("device must be an IWritableNexusDevice: " + deviceName);
+		if (writeable) {
+			if (!(nexusDevice instanceof IWritableNexusDevice<?>)) {
+				// per-point nexus devices must implement IWritebleNexusDevice
+				// TODO: might it be useful to let a device implement INexusDevice but not IWritableNexusDevice? If so, it
+				// would have be responsible for writing its dataset at the appropriate point in the scan, e.g. in acquireData
+				throw new IllegalArgumentException("device must be an IWritableNexusDevice: " + deviceName);
+			}
+			writableNexusDevices.put(scannable.getName(), (IWritableNexusDevice<?>) nexusDevice);
 		}
 
-		nexusDevices.put(scannable.getName(), (IWritableNexusDevice<?>) nexusDevice);
 		return nexusDevice;
 	}
 
@@ -599,11 +601,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private void writeScannablePosition(String scannableName, Object position, SliceND scanSlice) throws Exception {
 		logger.debug("Writing scannable {} for point {}", scannableName, currentPointNumber);
 
-		if (!nexusDevices.containsKey(scannableName)) {
+		if (!writableNexusDevices.containsKey(scannableName)) {
 			throw new NexusException("No writer found for scannable " + scannableName);
 		}
 
-		nexusDevices.get(scannableName).writePosition(position, scanSlice);
+		writableNexusDevices.get(scannableName).writePosition(position, scanSlice);
 	}
 
 	private void writeDetectors(IScanDataPoint point, final SliceND scanSlice) throws Exception {
@@ -620,7 +622,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private void writeDetector(IScanDataPoint point, String detectorName, final SliceND scanSlice)
 			throws NexusException {
 		final Object detectorData = getDetectorData(detectorName, point);
-		final IWritableNexusDevice<?> detNexusDevice = nexusDevices.get(detectorName);
+		final IWritableNexusDevice<?> detNexusDevice = writableNexusDevices.get(detectorName);
 		if (detNexusDevice == null)
 			throw new IllegalArgumentException("No nexus device for detector: " + detectorName);
 		detNexusDevice.writePosition(detectorData, scanSlice);
@@ -636,7 +638,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		try {
 			// call scanEnd on all the devices
 			Exception exception = null;
-			for (IWritableNexusDevice<?> nexusDevice : nexusDevices.values()) {
+			for (IWritableNexusDevice<?> nexusDevice : writableNexusDevices.values()) {
 				try {
 					nexusDevice.scanEnd();
 				} catch (Exception e) {
