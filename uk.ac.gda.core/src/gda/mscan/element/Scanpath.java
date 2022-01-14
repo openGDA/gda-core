@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractMapModel;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -64,16 +65,17 @@ import gda.device.ScannableMotionUnits;
  * @since GDA 9.9
  */
 public enum Scanpath implements IMScanDimensionalElementEnum {
-	GRID_POINTS("grid", asList(), 2, 2, TwoAxisGridPointsModel.class, Factory::createTwoAxisGridPointsModel),
-	GRID_STEP("rast", asList("raster"), 2, 2, TwoAxisGridStepModel.class, Factory::createTwoAxisGridStepModel),
-	SPIRAL("spir", asList("spiral"), 2, 1, TwoAxisSpiralModel.class, Factory::createTwoAxisSpiralModel),
-	LISSAJOUS("liss", asList("lissajous"), 2, 3, TwoAxisLissajousModel.class, Factory::createTwoAxisLissajousModel),
-	LINE_STEP("step", asList("angl", "angle"), 2, 1, TwoAxisLineStepModel.class, Factory::createTwoAxisLineStepModel),
-	LINE_POINTS("nopt", asList("pts", "noofpoints", "points", "proj", "projections"), 2, 1, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
-	SINGLE_POINT("poin", asList(), 2, 2, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
-	AXIS_STEP("axst", asList("axisstep"), 1, 1, AxialStepModel.class, Factory::createAxialStepModel),
-	AXIS_POINTS("axno", asList("axispoints"), 1, 1, AxialPointsModel.class, Factory::createAxialPointsModel),
-	STATIC("stat", asList("static"), 0, 1, StaticModel.class, Factory::createStaticModel);
+	GRID_POINTS("grid", asList(), 2, 2, true, TwoAxisGridPointsModel.class, Factory::createTwoAxisGridPointsModel),
+	GRID_STEP("rast", asList("raster"), 2, 2, true, TwoAxisGridStepModel.class, Factory::createTwoAxisGridStepModel),
+	SPIRAL("spir", asList("spiral"), 2, 1, true, TwoAxisSpiralModel.class, Factory::createTwoAxisSpiralModel),
+	LISSAJOUS("liss", asList("lissajous"), 2, 3, true, TwoAxisLissajousModel.class, Factory::createTwoAxisLissajousModel),
+	LINE_STEP("step", asList("angl", "angle"), 2, 1, true, TwoAxisLineStepModel.class, Factory::createTwoAxisLineStepModel),
+	LINE_POINTS("nopt", asList("pts", "noofpoints", "points", "proj", "projections"), 2, 1, true, TwoAxisLinePointsModel.class, Factory::createTwoAxisLinePointsModel),
+	SINGLE_POINT("poin", asList(), 2, 2, true, TwoAxisPointSingleModel.class, Factory::createSinglePointModel),
+	AXIS_STEP("axst", asList("axisstep"), 1, 1, true, AxialStepModel.class, Factory::createAxialStepModel),
+	AXIS_POINTS("axno", asList("axispoints"), 1, 1, true, AxialPointsModel.class, Factory::createAxialPointsModel),
+	AXIS_ARRAY("axar", asList("arr", "array", "axisarray"), 1, 2, false, AxialArrayModel.class, Factory::createAxialArrayModel),
+	STATIC("stat", asList("static"), 0, 1, true, StaticModel.class, Factory::createStaticModel);
 
 	private static final int BOUNDS_REQUIRED_PARAMS = 4;
 	private static final String PREFIX = "Invalid Scan clause: ";
@@ -91,16 +93,18 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	private final int axisCount;
 	/** The number of parameters required to generate the path **/
 	private final int valueCount;
+	private final boolean hasFixedValueCount;
 	private final Class<? extends AbstractPointsModel> modelType;
 	private final ScanpathModelFactoryFunction factory;
 
-	private Scanpath(final String text, final List<String> aliases, final int axisCount, final int valueCount,
+	private Scanpath(final String text, final List<String> aliases, final int axisCount, final int valueCount,  final boolean hasFixedValueCount,
 						final Class<? extends AbstractPointsModel> type,
 						final ScanpathModelFactoryFunction factoryFunction) {
 		this.terms.add(text);
 		this.terms.addAll(aliases);
 		this.axisCount = axisCount;
 		this.valueCount = valueCount;
+		this.hasFixedValueCount = hasFixedValueCount;
 		this.modelType = type;
 		this.factory= factoryFunction;
 	}
@@ -131,6 +135,10 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	 */
 	public int valueCount() {
 		return valueCount;
+	}
+
+	public boolean hasFixedValueCount() {
+		return hasFixedValueCount;
 	}
 
 	/**
@@ -212,10 +220,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	 */
 	public IScanPointGeneratorModel createModel(final List<Scannable> scannables, final List<Number> pathParams,
 										final List<Number> bboxParams, final Map<Mutator, List<Number>> mutatorUses) {
-		if (this == STATIC) validateStatic(scannables, pathParams);
-		else validateInputs(Map.of(scannables, axisCount,
-										pathParams, axisCount == 1 ? valueCount + 2 : valueCount,
-										bboxParams, BOUNDS_REQUIRED_PARAMS));
+		validateInputs(scannables, pathParams, bboxParams);
 		mutatorUses.keySet().forEach(mutator -> {
 			if (!supports(mutator)) {
 				throw new IllegalArgumentException(String.format(
@@ -228,7 +233,24 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 
 	/**
 	 * Check that the correct number of all required parameters has been supplied for the required Scanpath
-	 * covering Scannables, path parameters and bounding box parameters.
+	 * covering Scannables, path parameters and bounding box parameters using the appropriate sub-method.
+	 *
+	 * @param scannables		The scannables involved in the scan
+	 * @param pathParams		The point coordinates associated with the path
+	 * @param bboxParams		The bounding box coordinates associated with the path
+	 */
+	private void validateInputs(final List<Scannable> scannables, final List<Number> pathParams,
+			final List<Number> bboxParams) {
+		if (this == STATIC) validateStatic(scannables, pathParams);
+		else if(this == AXIS_ARRAY) validateAxisArray(scannables, pathParams);
+		else validateInputs(Map.of(scannables, axisCount,
+										pathParams, axisCount == 1 ? valueCount + 2 : valueCount,
+										bboxParams, BOUNDS_REQUIRED_PARAMS));
+	}
+
+	/**
+	 * Check that the correct number of all required parameters has been supplied for the required Scanpath
+	 * for non-special case paths.
 	 *
 	 * @param inputs			An {@link Map} of lists to their expected sizes
 	 * @param pathName			The name of the required path for Exception message purposes
@@ -245,6 +267,15 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		});
 	}
 
+	/**
+	 * Check that no Scannables are associated with the path and that no more than one optional param (no of exposures)
+	 * was supplied
+	 *
+	 * @param empty				Should be empty list of Scannables
+	 * @param optionalArg		Other supplied params (max 1)
+	 * 	 *
+	 * @throws					IllegalArgument exception if requirements exceeded.
+	 */
 	private void validateStatic(List<Scannable> empty, List<Number> optionalArg) {
 		if (!empty.isEmpty()) throw new IllegalArgumentException(String.format(
 				"%s%s requires 0 scannables to be specified",
@@ -252,6 +283,25 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		if (optionalArg.size() > 1) throw new IllegalArgumentException(String.format(
 				"%s%s requires exactly 0 or 1 arguments to be specified",
 				PREFIX, modelType.getSimpleName()));
+	}
+
+	/**
+	 * Check that the correct number of Scannable and position values have been specified
+	 *
+	 * @param scannables		The specified Scannables
+	 * @param params			The specified positions
+	 *
+	 * @throws					IllegalArgument exception if requirements exceeded.
+	 */
+	private void validateAxisArray(List<Scannable> scannables, List<Number> params) {
+		if (scannables.size() != axisCount) throw new IllegalArgumentException(String.format(
+				"%sAxial Array requires %s scannable to be specified",
+				PREFIX, axisCount));
+		if (params.size() < valueCount) {
+			throw new IllegalArgumentException(String.format(
+				"%sAxial Array requires at least %s numeric value to be specified",
+					PREFIX, valueCount));
+		}
 	}
 
 	@Override
@@ -482,6 +532,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param notUsedMap		An empty {@link Map} not used for this path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
+		@SuppressWarnings("unused")
 		private static IScanPointGeneratorModel createSinglePointModel (final List<Scannable> scannables,
 																final List<Number> scanParameters,
 																final List<Number> notUsed,
@@ -503,6 +554,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
+		@SuppressWarnings("unused")
 		private static IScanPointGeneratorModel createAxialStepModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> notUsed,
@@ -536,6 +588,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
 		 * @return					An {@link IScanPathModel} of the requested path and features
 		 */
+		@SuppressWarnings("unused")
 		private static IScanPointGeneratorModel createAxialPointsModel (final List<Scannable> scannables,
 														   final List<Number> scanParameters,
 														   final List<Number> notUsed,
@@ -552,6 +605,34 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 			return model;
 		}
 
+		/**
+		 * Creates a {@link AxialArrayModel} with the specified positions using the supplied params.
+		 *
+		 * @param scannables		The {@link Scannable} that relates to the axis of the step path as a {@link List}
+		 * 							of 1
+		 * @param scanParameters	The parameters that defines the positions as a {@link List}.
+		 * @param notUsed			Not used by {@link AxialArrayModel}s
+		 * @param mutatorUses		A {@link Map} of mutators to their parameters to be applied to the path
+		 * @return					An {@link IScanPathModel} of the requested path and features
+		 */
+		@SuppressWarnings("unused")
+		private static IScanPointGeneratorModel createAxialArrayModel (final List<Scannable> scannables,
+				   final List<Number> scanParameters,
+				   final List<Number> notUsed,
+				   final Map<Mutator, List<Number>> mutatorUses) {
+			if (scanParameters.size() < AXIS_ARRAY.valueCount) {
+				throw new IllegalArgumentException(PREFIX + "Array model must specify at least" + AXIS_ARRAY.valueCount + "positions");
+			}
+
+			AxialArrayModel model = new AxialArrayModel(scannables.get(0).getName(),
+				scanParameters.stream().mapToDouble(Number::doubleValue).toArray());
+			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
+			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
+			model.setUnits(List.of(getUnit(scannables.get(0))));
+			return model;
+		}
+
+		@SuppressWarnings("unused")
 		private static IScanPointGeneratorModel createStaticModel(final List<Scannable> dimensionless,
 				   final List<Number> scanParameters,
 				   final List<Number> notUsed,

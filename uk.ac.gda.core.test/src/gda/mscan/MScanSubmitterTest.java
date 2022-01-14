@@ -57,6 +57,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -163,9 +164,11 @@ public class MScanSubmitterTest {
 	private TwoAxisLineStepModel liStep;
 	private AxialPointsModel axPoints;
 	private AxialStepModel axStep;
+	private AxialArrayModel axArray;
 
 	private double rectangleX2;
 	private double rectangleY2;
+	private double positions[] = {2.1, 3.0, 2.0, 2.4};
 
 	private static final String TEST_FILE = "testfiles/gda/mscan/processor/fake.nxs";
 	private static final String DETECTOR_NAME = "Detector";
@@ -214,6 +217,8 @@ public class MScanSubmitterTest {
 			axPoints.setContinuous(false);
 			axStep = new AxialStepModel(scannable.getName(), 2, 3, 0.2);
 			axStep.setContinuous(false);
+			axArray = new AxialArrayModel(scannable.getName(), positions);
+			axArray.setContinuous(false);
 			liPoints = new TwoAxisLinePointsModel();
 			liPoints.setPoints(20);
 			liStep = new TwoAxisLineStepModel();
@@ -815,6 +820,96 @@ public class MScanSubmitterTest {
 		verify(submitter).blockingSubmit(beanCaptor.capture());
 		ScanBean bean = beanCaptor.getValue();
 		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(getCompoundModel(axStep, line))));
+		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForAxialArrayScanWithShorthandSyntaxAndSubmits() throws Exception {
+		Object[] arr = {scannable, RegionShape.AXIAL, Scanpath.AXIS_ARRAY, positions[0], positions[1], positions[2], positions[3],
+				detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(positions[2]),
+											new NumberElementProcessor(positions[1]),
+											new ScanpathElementProcessor(Scanpath.AXIS_ARRAY),
+											new NumberElementProcessor(positions[0]),
+											new NumberElementProcessor(positions[1]),
+											new NumberElementProcessor(positions[2]),
+											new NumberElementProcessor(positions[3])),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(10));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.AXIAL));
+		assertThat(processors.get(2), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(positions[2]));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(positions[1]));
+		assertThat(processors.get(4), instanceOf(ScanpathElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(Scanpath.AXIS_ARRAY));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(positions[0]));
+		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(positions[1]));
+		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(positions[2]));
+		assertThat(processors.get(8), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(positions[3]));
+		assertThat(processors.get(9), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(9).getElement(), is(detectorRunnableDevice));
+		verify(eventSubscriber).addListener(any(IScanListener.class));
+		verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(getCompoundModel(axArray, line))));
+		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
+	}
+
+	@Test
+	public void createsCorrectProcessorListForAxialArrayScanWithFullSyntaxAndSubmits() throws Exception {
+		Object[] arr = {scannable, RegionShape.AXIAL, positions[2], positions[1], Scanpath.AXIS_ARRAY, positions[0], positions[1], positions[2], positions[3],
+				detectorRunnableDevice};
+		when(resolver.resolveScanClauses()).thenReturn(
+				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
+											new RegionShapeElementProcessor(RegionShape.AXIAL),
+											new NumberElementProcessor(positions[2]),
+											new NumberElementProcessor(positions[1]),
+											new ScanpathElementProcessor(Scanpath.AXIS_ARRAY),
+											new NumberElementProcessor(positions[0]),
+											new NumberElementProcessor(positions[1]),
+											new NumberElementProcessor(positions[2]),
+											new NumberElementProcessor(positions[3])),
+							  Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
+		builder.buildAndSubmitBlockingScanRequest(arr);
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(10));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.AXIAL));
+		assertThat(processors.get(2), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(2).getElement(), is(positions[2]));
+		assertThat(processors.get(3), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(3).getElement(), is(positions[1]));
+		assertThat(processors.get(4), instanceOf(ScanpathElementProcessor.class));
+		assertThat(processors.get(4).getElement(), is(Scanpath.AXIS_ARRAY));
+		assertThat(processors.get(5), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(5).getElement(), is(positions[0]));
+		assertThat(processors.get(6), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(6).getElement(), is(positions[1]));
+		assertThat(processors.get(7), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(7).getElement(), is(positions[2]));
+		assertThat(processors.get(8), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(8).getElement(), is(positions[3]));
+		assertThat(processors.get(9), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(9).getElement(), is(detectorRunnableDevice));
+		verify(eventSubscriber).addListener(any(IScanListener.class));
+		verify(submitter).blockingSubmit(beanCaptor.capture());
+		ScanBean bean = beanCaptor.getValue();
+		assertThat(bean.getScanRequest().getCompoundModel(), is(equalTo(getCompoundModel(axArray, line))));
 		assertThat(bean.getScanRequest().getDetectors().values(), contains(detectorRunnableDevice.getModel()));
 	}
 

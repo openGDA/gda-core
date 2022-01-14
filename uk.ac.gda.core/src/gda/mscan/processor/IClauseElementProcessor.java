@@ -76,6 +76,15 @@ public interface IClauseElementProcessor {
 		return false;
 	}
 
+	/*
+	 * Default implementation to indicate whether the processor is associated with an Array Path
+	 */
+
+	public default boolean isArrayScanpath() {
+		return false;
+	}
+
+
 	public default boolean isValidFirstElement() {
 		return hasScannable() || isStatic();
 	}

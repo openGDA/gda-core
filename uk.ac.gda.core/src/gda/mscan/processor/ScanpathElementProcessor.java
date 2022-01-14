@@ -61,6 +61,11 @@ public class ScanpathElementProcessor extends ElementProcessorBase<Scanpath> {
 		return enclosed == Scanpath.STATIC;
 	}
 
+	@Override
+	public boolean isArrayScanpath() {
+		return enclosed == Scanpath.AXIS_ARRAY;
+	}
+
 	/**
 	 * Retrieve the name of the enclosed {@link Scanpath}
 	 *
