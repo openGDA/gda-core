@@ -14,6 +14,10 @@ package org.eclipse.scanning.test.command;
 import org.junit.Ignore;
 import org.junit.Test;
 
+// TODO Remove this test along with the rest of the original mscan based code
+
+@Ignore("DAQ-2832 These tests all relate to the original mscan implementation which is end of life and will be removed soon and also really rely on pi.exec "
+		+ "completing the command within a timeout (which cannot be guaranteed) for scan requests functionality which is tested elsewhere")
 public class ScanRequestTest extends AbstractScanCommandsTest {
 
 	public ScanRequestTest() {
