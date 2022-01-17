@@ -214,7 +214,7 @@ public class ScannablePositionerControl extends LiveControlBase {
 		int layoutStyle = horizontalLayout ? SWT.HORIZONTAL : SWT.NONE;
 
 		if (readOnly) {
-			layoutStyle = SWT.READ_ONLY;
+			layoutStyle = SWT.READ_ONLY | layoutStyle;
 		}
 
 		if (scannable instanceof EnumPositioner) {
