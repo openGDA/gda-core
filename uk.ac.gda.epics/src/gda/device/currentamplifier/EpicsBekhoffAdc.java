@@ -400,10 +400,10 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 			logger.trace("Adding metadata for file writter");
 			// Only add the data if it makes sense for this femto
 			if (amplifier.isSupportsCoupling()) {
-				data.addElement(getName(), "coupling", new NexusGroupData(amplifier.getCouplingMode()), null, false);
+				data.addElement(getName(), "coupling", new NexusGroupData(amplifier.getCouplingMode()), "", false);
 			}
 			if (amplifier.hasMultipleModes()) {
-				data.addElement(getName(), "mode", new NexusGroupData(amplifier.getMode()), null, false);
+				data.addElement(getName(), "mode", new NexusGroupData(amplifier.getMode()), "", false);
 			}
 			data.addElement(getName(), "count_time", new NexusGroupData(getCollectionTime()), "sec", false);
 			firstReadoutInScan = false; // Reset the flag don't need to add this again
