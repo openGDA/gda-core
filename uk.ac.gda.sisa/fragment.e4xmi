@@ -12,7 +12,10 @@
             <children xsi:type="basic:Part" xmi:id="_byyWUNuAEei3sM5JV-xBeg" elementId="uk.ac.gda.sisa.ImageStatsDisplayPart" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.ImageStatsDisplayPart" label="Image Stats"/>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_v1UjAFHPEeubjPPJT6oMfw" elementId="uk.ac.gda.sisa.partstack.19">
-            <children xsi:type="basic:Part" xmi:id="_xiP-4FHPEeubjPPJT6oMfw" elementId="uk.ac.gda.sisa.LineProfilePlot" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.LineProfilePart" label="Line Profile"/>
+            <children xsi:type="basic:Part" xmi:id="_xiP-4FHPEeubjPPJT6oMfw" elementId="uk.ac.gda.sisa.LineProfilePlot" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.LineProfilePart" label="Line Profile">
+              <properties key="stream_id" value="analyser_stream"/>
+              <properties key="stream_type" value="MJPEG"/>
+            </children>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_ipBRYMIxEeilXPx1svshRw" elementId="uk.ac.gda.sisa.partstack.2">
             <children xsi:type="basic:Part" xmi:id="_CwEwwNhUEeiufdkEvopL2Q" elementId="uk.ac.gda.sisa.AnalyserControlsPart" contributionURI="bundleclass://uk.ac.gda.sisa/uk.ac.gda.sisa.ui.AnalyserControlPart" label="Controls"/>
