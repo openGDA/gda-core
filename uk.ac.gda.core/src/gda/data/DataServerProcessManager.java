@@ -18,16 +18,18 @@
 
 package gda.data;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,10 +108,9 @@ public class DataServerProcessManager extends FindableConfigurableBase implement
 		String tstamp = ZonedDateTime.now(ZoneId.systemDefault())
 				.format(DateTimeFormatter.ofPattern("uuuuMMdd-HHmmss"));
 		var logFilePath = Paths.get(LocalProperties.get(LocalProperties.GDA_LOGS_DIR), "gda-dataserver-" + tstamp + "-" + port + ".txt");
-		List<String> loggingArgs = customLoggingConfig == null ? Collections.emptyList() : List.of("-vmargs", "-Dlogback.configurationFile=" + customLoggingConfig);
-		var args = List.of(executable, "-port", Integer.toString(port));
-		args.addAll(loggingArgs);
-		ProcessBuilder processBuilder = new ProcessBuilder(args);
+		Stream<String> loggingArgs = customLoggingConfig == null ? Stream.empty() : Stream.of("-vmargs", "-Dlogback.configurationFile=" + customLoggingConfig);
+		var appArgs = Stream.of(executable, "-port", Integer.toString(port));
+		ProcessBuilder processBuilder = new ProcessBuilder(concat(appArgs, loggingArgs).collect(toList()));
 		Process process = processBuilder.redirectErrorStream(true).redirectOutput(logFilePath.toFile()).start();
 		return process.toHandle();
 	}
