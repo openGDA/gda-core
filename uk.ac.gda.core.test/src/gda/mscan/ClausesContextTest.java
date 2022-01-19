@@ -1143,6 +1143,16 @@ public class ClausesContextTest {
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 
+	@Test
+	public void perScanMonitorsCanBeSuccessfullySet() throws Exception {
+		clausesContext.addScanDataConsumer(ScanDataConsumer.PER_SCAN_MONITOR, "fil fal fol");
+		assertThat(clausesContext.getPerScanMonitors().size(), is(3));
+		assertThat(clausesContext.getPerScanMonitors().contains("fil"), is(true));
+		assertThat(clausesContext.getPerScanMonitors().contains("fal"), is(true));
+		assertThat(clausesContext.getPerScanMonitors().contains("fol"), is(true));
+		assertThat(clausesContext.isClauseProcessed(), is(true));
+	}
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void processorsCanBeSuccessfullySet() throws Exception {
@@ -1204,6 +1214,14 @@ public class ClausesContextTest {
 		expectMessageContents("Processors have already been set");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil fol");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "two::fal");
+	}
+
+	@Test
+	public void processorConsumerIsRejectedIfContextNotAcceptingPerScanMonitors() throws Exception {
+		thrown.expect(IllegalStateException.class);
+		expectMessageContents("Per Scan Monitors have already been set");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.PER_SCAN_MONITOR, "fil");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.PER_SCAN_MONITOR, "fal");
 	}
 
 	@Test

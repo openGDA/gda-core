@@ -24,6 +24,7 @@ import static java.util.Arrays.stream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,8 @@ import org.apache.commons.math3.util.Pair;
  */
 public enum ScanDataConsumer implements IMScanElementEnum {
 	TEMPLATE("temp", asList("templates"), List.class),
-	PROCESSOR("proc", asList("processors"), Map.class);
+	PROCESSOR("proc", asList("processors"), Map.class),
+	PER_SCAN_MONITOR("psms", asList("perscanmonitors", "psm"), Set.class);
 
 	private static final Map<String, ScanDataConsumer> termsMap;
 	private final List<String> terms = new ArrayList<>();
