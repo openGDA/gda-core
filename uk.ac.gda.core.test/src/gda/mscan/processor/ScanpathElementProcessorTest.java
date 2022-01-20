@@ -72,4 +72,10 @@ public class ScanpathElementProcessorTest {
 	public void getSource() throws Exception {
 		assertThat(processor.getElement(), is(path));
 	}
+
+	@Test
+	public void AxisArrayIsIndicatedAsArrayType() {
+		processor = new ScanpathElementProcessor(Scanpath.AXIS_ARRAY);
+		assertThat(processor.isArrayScanpath(), is(true));
+	}
 }

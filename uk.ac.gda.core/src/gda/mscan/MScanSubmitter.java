@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -153,18 +154,18 @@ public class MScanSubmitter extends ValidationUtils {
 		throwIf(args == null, "The scan request array is null");
 		LOGGER.info("MScan command received {}", Arrays.toString(args));
 
-		final ScanClausesResolver resolver = validateCommand(args);
+		final ScanClausesResolver resolver = standardiseAndValidateCommand(args);
 		// First check for run from Nexus option
 		IClauseElementProcessor initialProc = withNullProcessorCheck(processors.get(0));
 		if (initialProc instanceof ReRunFromFileElementProcessor) {
 			initialProc.process(null, processors, 0);
 			try{
 				final String filepath = initialProc.getElementValue();
-				printToJython(ImmutableMap.of("Loading scan from ", Paths.get(filepath).getFileName()));
+				printToJython(Map.of("Loading scan from ", Paths.get(filepath).getFileName()));
 				final Optional<ScanRequest> scanRequest = ScanRequestBuilder.buildFromNexusFile(filepath);
 				submitFromFile(scanRequest.orElseThrow(), block);
 			} catch(Exception e) {
-				printToJython(ImmutableMap.of("Exception: ", e.getMessage()));
+				printToJython(Map.of("Exception: ", e.getMessage()));
 			}
 			return;
 		}
@@ -235,7 +236,7 @@ public class MScanSubmitter extends ValidationUtils {
 	 * @throws Exception	Any Exception arising from the submission operation
 	 */
 	private void submitFromFile(final ScanRequest scanRequest, final boolean block) throws Exception {
-		printToJython(ImmutableMap.of("Successful, ", EMPTYSTRING, "submitting scan", EMPTYSTRING));
+		printToJython(Map.of("Successful, ", EMPTYSTRING, "submitting scan", EMPTYSTRING));
 		submit(scanRequest, block);
 	}
 
@@ -261,7 +262,7 @@ public class MScanSubmitter extends ValidationUtils {
 				public void scanEventPerformed(ScanEvent evt) {
 					String message = evt.getBean().getMessage();
 					if (message != null) {
-						printToJython(ImmutableMap.of(EMPTYSTRING, message));
+						printToJython(Map.of(EMPTYSTRING, message));
 					}
 				}
 
@@ -269,7 +270,7 @@ public class MScanSubmitter extends ValidationUtils {
 				public void scanStateChanged(ScanEvent evt) {
 					ScanBean bean = evt.getBean();
 					if ((bean.getStatus().equals(Status.PREPARING) || bean.getStatus().equals(Status.COMPLETE)) && bean.getFilePath() != null) {
-						printToJython(ImmutableMap.of("Output file: ", bean.getFilePath()));
+						printToJython(Map.of("Output file: ", bean.getFilePath()));
 					} else if (bean.getStatus().equals(Status.FAILED)) {
 						facade.print(bean.getMessage());
 					}
@@ -298,7 +299,7 @@ public class MScanSubmitter extends ValidationUtils {
 	 *
 	 * @param textToParams	Map of Text strings and Variables to be printed
 	 */
-	private void printToJython(final ImmutableMap<String, Object> textToParams) {
+	private void printToJython(final Map<String, Object> textToParams) {
 		facade.runCommand("print \"\"\"" +
 				textToParams.entrySet().stream()
 					.map(e -> e.getKey() + e.getValue())
@@ -307,8 +308,9 @@ public class MScanSubmitter extends ValidationUtils {
 	}
 
 	/**
-	 * Checks that the MScan command has parameters and that the first one is valid- either a Scannable or
-	 * the Static {@link RegionShape}. Providing this is the case, the validity of the type of each arg is
+	 * After adjusting the command to be compliant with the grammar expressed in {@linkClausesContext}.
+	 * checks that the MScan command has valid arguments and that the first one is valid either a Scannable
+	 * or the Static {@link RegionShape}. Providing this is the case, the validity of the type of each arg is
 	 * checked by confirming that there is a corresponding {@link IClauseElementProcessBuilder} in the
 	 * {@link processorBuilders} static map. Assuming this is the case for all args, corresponding processors
 	 * are added to the {@link processors} list.
@@ -320,7 +322,7 @@ public class MScanSubmitter extends ValidationUtils {
 	 * @throws	IllegalArgumentException if there is no processor type that matches the current arg in the command or if
 	 * 			the {@code args} array is empty.
 	 */
-	private ScanClausesResolver validateCommand(final Object[] args) {
+	private ScanClausesResolver standardiseAndValidateCommand(final Object[] args) {
 		if (args.length < 1 ||
 				!(args[0].equals(Action.RERUN)
 						|| args[0] instanceof Scannable
@@ -330,21 +332,80 @@ public class MScanSubmitter extends ValidationUtils {
 			"You must specify at least one argument in your mscan command and your first argument must be a Scannable, the Static Scanpath, a Detector or the 'rerun' keyword");
 		}
 
-		// Adjust for point scan syntax which doesn't require both region and scanpath. This loop must run
-		// first as it potentially popoulates the list to be used in subsequent checks.
+		List<Object> params = standardiseSyntax(args);
+
+		// Iterate over the standardised command args looking for Scannable and Scannable groups. Can't just use the returned class
+		// as many classes implement Scannable
+		Class<?>[] hierarchy = {Detector.class, Monitor.class, ScannableGroup.class, Scannable.class};
+		for (int i = 0; i < params.size() ; i++) {
+			Object obj = params.get(i);
+			Class<?> type = obj.getClass();
+			if (obj instanceof Scannable) {
+				for (Class<?> cl : hierarchy) {
+					if (cl.isAssignableFrom(obj.getClass())) {
+						type = cl;
+						break;
+					}
+				}
+			} else if (obj instanceof IRunnableDevice<?>) {
+				type = IRunnableDevice.class;
+			} else if (i == 0 && obj instanceof Action && ((Action)obj).equals(Action.RERUN)) {
+				processors.add(new ReRunFromFileElementProcessor((String)params.get(1)));
+				break;
+			}
+			// Check the processorBuilders map can construct a processor for the required type and if so
+			// make it and add it to the collection of processors that correspond to the command.
+			if (!processorBuilders.containsKey(type)) {
+				throw new IllegalArgumentException(String.format(
+						"Your command contains an invalid argument at position %d", i));
+			}
+			processors.add(processorBuilders.get(type).apply(params.get(i)));
+		}
+		return resolverFactory.getResolver(processors);
+	}
+
+	/**
+	 * Adjust for any optimised syntax forms to return a modified list of arguments which is compliant with the
+	 * grammar expressed in {@link ClausesContext}. The allows the list of arguments used from now on to be
+	 * processed in a standard way for all commands.
+	 *
+	 * @param args		The unmodified array of arguments corresponding to the typed command
+	 * @return			The corresponding {@link List} of arguments using standardised grammar
+	 */
+	private List<Object> standardiseSyntax(final Object[] args) {
+		// Adjust for point scan syntax which doesn't require both region and scanpath or array syntax which doesn't
+		// require the bounds of the region to be specified. This loop must run first as it potentially populates the
+		// list to be used in subsequent checks.
 		List<Object> params = new ArrayList<>();
 		// Prepend with Static region if only detectors provided
 		if (onlyDetectorsAndParams(args)) params.add(0, Scanpath.STATIC);
 
 		for (int i = 0; i < args.length; i++) {
 			params.addAll(resolveNumericTuples(args[i]));
-			if (args[i].equals(RegionShape.POINT) && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
-				params.add(args[i + 1]);
-				params.add(args[i + 2]);
-				params.add(Scanpath.SINGLE_POINT);
-				if ((args.length >= i + 6) && (args[i + 3].equals(RegionShape.POINT))) {
-					i += 3;
+			if (args[i].equals(RegionShape.POINT)) {
+				// The standard form for a point scan (handled by the else) is "mscan s1 s2 pt s1val s2val ...", however pedants may
+				// choose to type the full version of "mscan s1 s2 pt s1val s2val pt s1val s2val ...". Because Scanpath.SINGLE_POINT
+				// is (intentionally to reduce confusion) not aliased, both the "pt"s in this will yield RegionShape.POINT, so the
+				// second must be replaced with the Scanpath version. In the shorter syntax case,  the the Scanpath.SINGLE_POINT must
+				//  be added to the output list with copies of both the numeric values.
+				if (args.length > i + 3 && args[i + 3].equals(RegionShape.POINT)) {
+					args[i + 3]  = Scanpath.SINGLE_POINT;
+				} else if (args.length >= i + 2 && args[i + 1] instanceof Number && args[i + 2] instanceof Number) {
+					params.add(args[i + 1]);
+					params.add(args[i + 2]);
+					params.add(Scanpath.SINGLE_POINT);
 				}
+			} else if (args[i].equals(RegionShape.AXIAL) && args[i + 1].equals(Scanpath.AXIS_ARRAY)
+					&& args[i + 2] instanceof Number) {
+				int nIndex = i + 2;
+				Double min = Double.MAX_VALUE;
+				Double max = Double.MIN_VALUE;
+				while (nIndex < args.length && args[nIndex] instanceof Number) {
+					min = Math.min(min, ((Number)args[nIndex]).doubleValue());
+					max = Math.max(max, ((Number)args[nIndex++]).doubleValue());
+				}
+				params.add(min);
+				params.add(max);
 			}
 		}
 
@@ -371,39 +432,7 @@ public class MScanSubmitter extends ValidationUtils {
 				currentShape = Optional.empty();
 			}
 		}
-
-		// Iterate over the command args looking for Scannable and Scannable groups. Can't just use the returned class
-		// as many classes implement Scannable
-		Class<?>[] hierarchy = {Detector.class, Monitor.class, ScannableGroup.class, Scannable.class};
-		for (int i = 0; i < params.size() ; i++) {
-			Object obj = params.get(i);
-			Class<?> type = obj.getClass();
-
-			if (obj instanceof Scannable) {
-				for (Class<?> cl : hierarchy) {
-					if (cl.isAssignableFrom(obj.getClass())) {
-						type = cl;
-						break;
-					}
-				}
-			}
-			else if (obj instanceof IRunnableDevice<?>) {
-				type = IRunnableDevice.class;
-			}
-
-			else if (i == 0 && obj instanceof Action && ((Action)obj).equals(Action.RERUN)) {
-				processors.add(new ReRunFromFileElementProcessor((String)params.get(1)));
-				break;
-			}
-			// Check the processorBuilders map can construct a processor for the required type and if so
-			// make it and add it to the collection of processors that correspond to the command.
-			if (!processorBuilders.containsKey(type)) {
-				throw new IllegalArgumentException(String.format(
-						"Your command contains an invalid argument at position %d", i));
-			}
-			processors.add(processorBuilders.get(type).apply(params.get(i)));
-		}
-		return resolverFactory.getResolver(processors);
+		return params;
 	}
 
 	private boolean onlyDetectorsAndParams(Object[] args) {

@@ -19,6 +19,7 @@
 package gda.mscan.element;
 
 
+import static gda.mscan.element.Scanpath.AXIS_ARRAY;
 import static gda.mscan.element.Scanpath.AXIS_POINTS;
 import static gda.mscan.element.Scanpath.AXIS_STEP;
 import static gda.mscan.element.Scanpath.GRID_POINTS;
@@ -45,6 +46,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -111,6 +114,7 @@ public class ScanpathTest {
 		correctLengthPathData.put(SINGLE_POINT, new Double[] {6.0, 6.0});
 		correctLengthPathData.put(AXIS_STEP, new Double[] {5.0});
 		correctLengthPathData.put(AXIS_POINTS, new Double[] {5.0});
+		correctLengthPathData.put(AXIS_ARRAY, new Double[] {5.0, 6.0});
 		correctLengthPathData.put(STATIC, new Double[] {1.0});
 	}
 
@@ -139,6 +143,7 @@ public class ScanpathTest {
 		assertThat(SINGLE_POINT.valueCount(), is(2));
 		assertThat(AXIS_POINTS.valueCount(), is(1));
 		assertThat(AXIS_STEP.valueCount(), is(1));
+		assertThat(AXIS_ARRAY.valueCount(), is(2));
 		assertThat(STATIC.valueCount(), is(1));
 	}
 
@@ -152,7 +157,19 @@ public class ScanpathTest {
 		assertTrue(LINE_STEP.modelType().equals(TwoAxisLineStepModel.class));
 		assertTrue(SINGLE_POINT.modelType().equals(TwoAxisPointSingleModel.class));
 		assertTrue(AXIS_POINTS.modelType().equals(AxialPointsModel.class));
+		assertTrue(AXIS_ARRAY.modelType().equals(AxialArrayModel.class));
 		assertTrue(AXIS_STEP.modelType().equals(AxialStepModel.class));
+	}
+
+	@Test
+	public void checkOnlyAxialArrayHasUnboundedParams() throws Exception {
+		for (Scanpath path : Scanpath.values()) {
+			if (path != AXIS_ARRAY) {
+				assert(path.hasFixedValueCount());
+			} else {
+				assertFalse(path.hasFixedValueCount());
+			}
+		}
 	}
 
 	@Test
@@ -165,6 +182,7 @@ public class ScanpathTest {
 		assertTrue(LINE_STEP.supports(Mutator.CONTINUOUS));
 		assertFalse(SINGLE_POINT.supports(Mutator.CONTINUOUS));
 		assertTrue(AXIS_POINTS.supports(Mutator.CONTINUOUS));
+		assertTrue(AXIS_ARRAY.supports(Mutator.CONTINUOUS));
 		assertTrue(AXIS_STEP.supports(Mutator.CONTINUOUS));
 	}
 
@@ -179,6 +197,7 @@ public class ScanpathTest {
 		assertFalse(SINGLE_POINT.supports(Mutator.ALTERNATING));
 		assertTrue(AXIS_POINTS.supports(Mutator.ALTERNATING));
 		assertTrue(AXIS_STEP.supports(Mutator.ALTERNATING));
+		assertTrue(AXIS_ARRAY.supports(Mutator.ALTERNATING));
 	}
 
 	@Test
@@ -192,6 +211,7 @@ public class ScanpathTest {
 		assertFalse(SINGLE_POINT.supports(Mutator.RANDOM_OFFSET));
 		assertFalse(AXIS_POINTS.supports(Mutator.RANDOM_OFFSET));
 		assertFalse(AXIS_STEP.supports(Mutator.RANDOM_OFFSET));
+		assertFalse(AXIS_ARRAY.supports(Mutator.RANDOM_OFFSET));
 	}
 
 	@Test
@@ -209,7 +229,7 @@ public class ScanpathTest {
 	}
 
 	@Test
-	public void createModelRejectsTooManyPathParamsForAllInstances() throws Exception {
+	public void createModelRejectsTooManyPathParamsForAllInstancesExceptAxisArray() throws Exception {
 		Map<Scanpath, Double[]> tooMany = new EnumMap<>(Scanpath.class);
 		tooMany.put(GRID_POINTS, new Double[] {3.0, 3.0, 3.0});
 		tooMany.put(GRID_STEP, new Double[] {4.0, 4.0, 4.0});
@@ -222,7 +242,7 @@ public class ScanpathTest {
 		tooMany.put(AXIS_STEP, new Double[] {3.0, 3.0});
 		tooMany.put(STATIC, new Double[] {1.0, 1.0});
 
-		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany, blankArray);
+		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooMany, blankArray, AXIS_ARRAY);
 	}
 
 	@Test
@@ -237,26 +257,30 @@ public class ScanpathTest {
 		tooFew.put(SINGLE_POINT, new Double[] {6.0});
 		tooFew.put(AXIS_POINTS, blankArray);
 		tooFew.put(AXIS_STEP, blankArray);
+		tooFew.put(AXIS_ARRAY, blankArray);
 		tooFew.put(STATIC, blankArray);
 
-		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooFew, blankArray);
+		assertCreatingAllInstancesFailsIfWrongNoOfParams(tooFew, blankArray, STATIC);
 	}
 
 	@Test
-	public void createModelRejectsTooManyBoundingParamsForAllInstances() throws Exception {
+	public void createModelRejectsTooManyBoundingParamsForAllInstancesExceptAxialArray() throws Exception {
 		Double[] bboxData = new Double[] {1.0, 2.0, 3.0, 4.0, 5.0};  // Too many path params for rectangle/line (4)
-		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, bboxData);
+		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, bboxData, AXIS_ARRAY);
 	}
 
 	@Test
 	public void createModelRejectsTooFewBoundingParamsForAllInstances() throws Exception {
-		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, blankArray);
+		assertCreatingAllInstancesFailsIfWrongNoOfParams(correctLengthPathData, blankArray, AXIS_ARRAY);
 	}
 
 	private void assertCreatingAllInstancesFailsIfWrongNoOfParams(Map<Scanpath, Double[]> pathParams,
-															Double[] bboxParams) throws Exception {
-		for (Scanpath path: Scanpath.values()) {
-			List<Scannable> scannableList = path.equals(AXIS_STEP) || path.equals(AXIS_POINTS) ? axialScannables : scannables;
+															Double[] bboxParams, Scanpath... excluded) throws Exception {
+		Scanpath[] values = ArrayUtils.removeElements(Scanpath.values(), excluded);
+
+		for (Scanpath path: values) {
+
+			List<Scannable> scannableList = path.equals(AXIS_STEP) || path.equals(AXIS_POINTS) || path.equals(AXIS_ARRAY) ? axialScannables : scannables;
 
 			try {
 				path.createModel(scannableList, Arrays.asList(pathParams.get(path)), Arrays.asList(bboxParams), mutators);
@@ -599,5 +623,31 @@ public class ScanpathTest {
 		assertThat(eModel.getScannableNames(), contains("name1", "name2"));
 		assertThat(eModel.getX(), is(5.1));
 		assertThat(eModel.getY(), is(6.2));
+	}
+
+	@Test
+	public void createModelCreatesCorrectModelForAxialArray() throws Exception {
+		pathParams = Arrays.asList(0.5, 1,  0.7,  -0.135);
+		mutators.put(Mutator.CONTINUOUS, Arrays.asList(blankArray));
+		IScanPathModel model = AXIS_ARRAY.createModel(axialScannables, pathParams, Arrays.asList(blankArray), mutators);
+		assertThat(model, is(instanceOf(AxialArrayModel.class)));
+		AxialArrayModel sModel = (AxialArrayModel)model;
+		assertThat(sModel.getScannableNames(), contains("name1"));
+		assertThat(sModel.getPositions()[0], is(0.5));
+		assertThat(sModel.getPositions()[1], is(1.0));
+		assertThat(sModel.getPositions()[2], is(0.7));
+		assertThat(sModel.getPositions()[3], is(-0.135));
+		assertThat(sModel.isContinuous(), is(true));
+		assertThat(sModel.isAlternating(), is(false));
+		assertThat(sModel.getUnits(), is(equalTo(List.of("Deg"))));
+	}
+
+	@Test
+	public void createModelRejectsRandomOffsetMutatorForAxialArray() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+AxialArrayModel.class.getSimpleName());
+		pathParams = Arrays.asList(5.0, 6.0, 7.0);
+		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
+		AXIS_ARRAY.createModel(axialScannables, pathParams, Arrays.asList(blankArray), mutators);
 	}
 }

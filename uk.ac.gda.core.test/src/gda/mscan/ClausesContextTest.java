@@ -471,13 +471,25 @@ public class ClausesContextTest {
 	}
 
 	@Test
-	public void getModelPathParamsReturnsCompositeListForAxialScans() throws Exception {
+	public void getModelPathParamsReturnsCompositeListForAxialScansExceptArray() throws Exception {
 		prepareForScanpathTest(clausesContext, Extent.AXIAL);
 		clausesContext.setScanpath(Scanpath.AXIS_POINTS);
 		clausesContext.addParam(20);
 		clausesContext.validateAndAdjustPathClause();
 		assertThat(clausesContext.getPathParams(), contains(20));
+		assertThat(clausesContext.getModelPathParams().size(), is(3));
 		assertThat(clausesContext.getModelPathParams(), contains(1,3,20));
+	}
+
+	@Test
+	public void getModelPathParamsReturnsSuppliedListForAxialArray() throws Exception {
+		prepareForScanpathTest(clausesContext, Extent.AXIAL);
+		clausesContext.setScanpath(Scanpath.AXIS_ARRAY);
+		clausesContext.addParam(20);
+		clausesContext.addParam(21);
+		clausesContext.validateAndAdjustPathClause();
+		assertThat(clausesContext.getModelPathParams().size(), is(2));
+		assertThat(clausesContext.getModelPathParams(), contains(20, 21));
 	}
 
 	@Test
@@ -571,6 +583,31 @@ public class ClausesContextTest {
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getPathParams().size(), is(0));
 		unvalidatedClauseContext.getScanpath();
+	}
+	@Test
+	public void unboundedScanpathParamsListCannotBeOverfilled() throws Exception {
+		prepareForNumericParamTest(unvalidatedClauseContext, RegionShape.AXIAL);
+		unvalidatedClauseContext.addParam(0);
+		unvalidatedClauseContext.addParam(3);
+		unvalidatedClauseContext.setScanpath(Scanpath.AXIS_ARRAY);
+		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(2));
+		assertThat(unvalidatedClauseContext.addParam(0), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(3), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(4), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(6), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(7), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(4), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(6), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.addParam(7), is(true));
+		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
+		assertThat(unvalidatedClauseContext.getPathParams().size(), is(8));
 	}
 
 	@Test
@@ -1238,7 +1275,7 @@ public class ClausesContextTest {
 	}
 
 	private void prepareForNumericParamTest(final ClausesContext context, RegionShape regionShape) {
-		prepareForRegionShapeTest(context, false);
+		prepareForRegionShapeTest(context, regionShape.getAxisCount() == 1);
 		context.setRegionShape(regionShape);
 	}
 

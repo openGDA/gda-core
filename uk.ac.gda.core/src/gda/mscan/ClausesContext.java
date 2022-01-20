@@ -27,6 +27,7 @@ import static gda.mscan.element.RegionShape.POLYGON;
 import static gda.mscan.element.RegionShape.RECTANGLE;
 import static gda.mscan.element.ScanDataConsumer.PROCESSOR;
 import static gda.mscan.element.ScanDataConsumer.TEMPLATE;
+import static gda.mscan.element.Scanpath.AXIS_ARRAY;
 import static gda.mscan.element.Scanpath.AXIS_POINTS;
 import static gda.mscan.element.Scanpath.AXIS_STEP;
 import static gda.mscan.element.Scanpath.GRID_POINTS;
@@ -63,6 +64,7 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.scan.ProcessingRequest;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
@@ -70,8 +72,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 import gda.device.Detector;
 import gda.device.Monitor;
@@ -93,31 +93,32 @@ import gda.mscan.processor.IClauseElementProcessor;
  */
 public class ClausesContext extends ValidationUtils {
 
-	// The grammar of allowed next types used to validate the scanpath clause keyed on the type of the current element
-	private static final ImmutableMap<Class<?>, List<Class<?>>> grammar = ImmutableMap.<Class<?>, List<Class<?>>>builder()
-			.put(Object.class,		Arrays.asList(Scannable.class, Scanpath.class)) // Valid first elements
-			.put(Scannable.class,	Arrays.asList(Scannable.class, RegionShape.class, Number.class))
-			.put(RegionShape.class,	Arrays.asList(Number.class))
-			.put(Scanpath.class,	Arrays.asList(Number.class))
-			.put(Number.class,		Arrays.asList(Number.class, Scanpath.class, Mutator.class))
-			.put(Mutator.class,		Arrays.asList(Number.class, Mutator.class))
-			.build();
+	// The grammar of allowed next types used to validate the scanpath clause keyed on the type of the current element.
+	// Other classes should ensure that syntax optimisations are corrected in making the list of {@link IClauseElementProcessor}s
+	// to be iteratively invoked that must comply with it.
 
-	private static final ImmutableMap<RegionShape, List<Scanpath>> VALID_COMBINATIONS =
-			new ImmutableMap.Builder<RegionShape, List<Scanpath>>()
-			.put(RECTANGLE,         Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
-			.put(CENTRED_RECTANGLE, Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
-			.put(CIRCLE,            Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
-			.put(POLYGON,           Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS))
-			.put(LINE,              Arrays.asList(LINE_POINTS, LINE_STEP))
-			.put(AXIAL,             Arrays.asList(AXIS_POINTS, AXIS_STEP))
-			.put(POINT,             Arrays.asList(SINGLE_POINT))
-			.put(RegionShape.STATIC,Arrays.asList(Scanpath.STATIC)).build();
+	private static final Map<Class<?>, List<Class<?>>> GRAMMAR = Map.of(
+			Object.class,		Arrays.asList(Scannable.class, Scanpath.class), // Valid first elements
+			Scannable.class,	Arrays.asList(Scannable.class, RegionShape.class, Number.class),
+			RegionShape.class,	Arrays.asList(Number.class),
+			Scanpath.class,	    Arrays.asList(Number.class),
+			Number.class,		Arrays.asList(Number.class, Scanpath.class, Mutator.class),
+			Mutator.class,		Arrays.asList(Number.class, Mutator.class));
+
+	private static final Map<RegionShape, List<Scanpath>> VALID_COMBINATIONS = Map.of(
+			RECTANGLE,         Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS),
+			CENTRED_RECTANGLE, Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS),
+			CIRCLE,            Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS),
+			POLYGON,           Arrays.asList(GRID_POINTS, GRID_STEP ,SPIRAL, LISSAJOUS),
+			LINE,              Arrays.asList(LINE_POINTS, LINE_STEP),
+			AXIAL,             Arrays.asList(AXIS_POINTS, AXIS_STEP, AXIS_ARRAY),
+			POINT,             Arrays.asList(SINGLE_POINT),
+			RegionShape.STATIC,Arrays.asList(Scanpath.STATIC));
 
 	// Mapping of ScanDataConsumer Handlers
-	private ImmutableMap<ScanDataConsumer, Consumer<String>> CONSUMER_HANDLERS = ImmutableMap.of(
-														TEMPLATE, this::setTemplates,
-														PROCESSOR, this::setProcessorDefinitions);
+	private Map<ScanDataConsumer, Consumer<String>> consumerHandlers = Map.of(
+			TEMPLATE,   this::setTemplates,
+			PROCESSOR,  this::setProcessorDefinitions);
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClausesContext.class);
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
@@ -460,10 +461,10 @@ public class ClausesContext extends ValidationUtils {
 	public void addScanDataConsumer(final ScanDataConsumer consumer, final String tokenString) {
 		nullCheck(consumer, "ScanDataConsumer");
 		nullCheck(tokenString, "String of Consumer tokens");
-		if (!CONSUMER_HANDLERS.containsKey(consumer)) {
+		if (!consumerHandlers.containsKey(consumer)) {
 			throw new IllegalArgumentException("Unknown Scan Consumer");
 		}
-		CONSUMER_HANDLERS.get(consumer).accept(tokenString);
+		consumerHandlers.get(consumer).accept(tokenString);
 		clauseProcessed = true;
 	}
 
@@ -512,7 +513,6 @@ public class ClausesContext extends ValidationUtils {
 	 *
 	 * @param pairOrFilename	An array of either the processor App name and config file path, or just the path
 	 */
-	@SuppressWarnings("unchecked")
 	private void fillMap(String[] pairOrFilename) {
 		throwIf(pairOrFilename.length < 1 || pairOrFilename.length > 2,
 				"Incorrect processor specification - config filename may not contain :: character sequence");
@@ -540,7 +540,8 @@ public class ClausesContext extends ValidationUtils {
 	/**
 	 * Indicates whether the currently pointed to parameter list contains the required valueCount
 	 * of parameters for {@link RegionShape} or {@link Scanpath}, or more (more should not be possible).
-	 * N.B.parameter lists for unbounded {@link RegionShape}s e.g. polygons can never be full.
+	 * N.B.parameter lists for unbounded {@link RegionShape}s or {@link Scanpath}s e.g. polygons and
+	 * arrays can never be full.
 	 *
 	 * @return true if the currently reference param list has the required count of params or more
 	 */
@@ -548,7 +549,8 @@ public class ClausesContext extends ValidationUtils {
 		if (paramsToFill == null) {
 			return false;
 		}
-		boolean isBounded = (paramsToFill == shapeParams) ? regionShape.get().hasFixedValueCount() : true;
+		boolean isBounded = (paramsToFill != shapeParams) || regionShape.get().hasFixedValueCount();
+		isBounded = (paramsToFill == pathParams) ? scanpath.get().hasFixedValueCount() : isBounded;
 		return (isBounded && paramsToFill.size() >= requiredParamCount);
 	}
 
@@ -610,7 +612,8 @@ public class ClausesContext extends ValidationUtils {
 	/**
 	 * For single axis scans (e.g. those based on {@link AxialStepModel}), the start and stop values are required
 	 * as well as the step size when creating the {@link IScanPathModel}. If validated, these are in the
-	 * shapeParams, so these must be added in to the returned list.
+	 * shapeParams, so these must be added in to the returned list. This is not the case for {@link AxialArrayModel},
+	 * which does not have start and stop values, so this uses the normal handling.
 	 *
 	 * @return	An unmodifiable list  of the path params required to create {@link IScanPathModel} that
 	 * 			 corresponds to the previously set {@link Scanpath}
@@ -619,7 +622,7 @@ public class ClausesContext extends ValidationUtils {
 	public List<Number> getModelPathParams() {
 		throwIfPathClauseNotValidated();
 		List<Number> output;
-		if (regionShape.get().getAxisCount() == 1) {
+		if (regionShape.get().getAxisCount() == 1 && scanpath.get() != AXIS_ARRAY) {
 			output = new ArrayList<>(shapeParams);
 			output.addAll(pathParams);
 		} else {
@@ -702,8 +705,8 @@ public class ClausesContext extends ValidationUtils {
 	/**
 	 * @return   A Map of the allowed sequence of element types based on the previous one
 	 */
-	public ImmutableMap<Class<?>, List<Class<?>>> grammar() {
-		return grammar;
+	public Map<Class<?>, List<Class<?>>> grammar() {
+		return GRAMMAR;
 	}
 
 	// parsing status flags
