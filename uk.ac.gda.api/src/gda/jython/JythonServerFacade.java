@@ -952,7 +952,8 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	}
 
 	private void logUnknownClient(UnknownClientException e) {
-		logger.info("This client {}, logged in as {} is unknown to the server, try restarting it?", this.name, getCurrentFullName(), e);
+		logger.info("This client {}, logged in as {} is unknown to the server, try restarting it?", this.name, getCurrentFullName());
+		logger.debug("Client unknown to server exception:", e);
 	}
 
 }
