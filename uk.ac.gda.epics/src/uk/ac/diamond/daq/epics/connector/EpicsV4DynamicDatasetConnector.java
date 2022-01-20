@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DataEvent;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataListener;
@@ -35,6 +36,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.IDatasetChangeChecker;
 import org.eclipse.january.dataset.IDatasetConnector;
 import org.eclipse.january.dataset.ILazyDataset;
+import org.eclipse.january.dataset.RGBByteDataset;
 import org.eclipse.january.dataset.RGBDataset;
 import org.epics.pvaClient.PvaClient;
 import org.epics.pvaClient.PvaClientChannel;
@@ -295,7 +297,8 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 		Object data = extractArray(imageDataArray);
 
 		if (colourMode != 0) {
-			dataset = DatasetFactory.createFromObject(RGBDataset.class, data, getDataShape());
+			Class<? extends Dataset> clazz = data instanceof byte[] ? RGBByteDataset.class : RGBDataset.class;
+			dataset = DatasetFactory.createFromObject(clazz, data, getDataShape());
 		} else {
 			dataset = DatasetFactory.createFromObject(data, getDataShape());
 		}
