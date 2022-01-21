@@ -20,8 +20,7 @@ See &lt;http://www.opengda.org/&gt;
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dosgi.framework.extensions=org.eclipse.fx.osgi
--Drebel.log=true
+      <vmArgs>-Drebel.log=true
 -Dgda.mode=dummy
 -Dgda.config=${project_loc:example-config}
 -Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
