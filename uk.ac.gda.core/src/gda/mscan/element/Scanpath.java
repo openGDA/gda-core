@@ -21,6 +21,7 @@ package gda.mscan.element;
 import static gda.mscan.element.Mutator.ALTERNATING;
 import static gda.mscan.element.Mutator.CONTINUOUS;
 import static gda.mscan.element.Mutator.RANDOM_OFFSET;
+import static gda.mscan.element.Mutator.VERTICAL;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -36,6 +37,7 @@ import org.eclipse.scanning.api.points.models.AbstractBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.AbstractMapModel;
 import org.eclipse.scanning.api.points.models.AbstractPointsModel;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel.Orientation;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -82,7 +84,8 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 	private static final Map<Mutator, Function<Class<? extends AbstractPointsModel>, Boolean>> SUPPORT_LOOKUP =
 							Map.of(RANDOM_OFFSET, AbstractPointsModel::supportsRandomOffset,
 											ALTERNATING, AbstractPointsModel::supportsAlternating,
-											CONTINUOUS, AbstractPointsModel::supportsContinuous);
+											CONTINUOUS, AbstractPointsModel::supportsContinuous,
+											VERTICAL, AbstractPointsModel::supportsVertical);
 
 	private static final String ALL_POSITIVE_ERROR = " path requires all positive parameters";
 	private static final String ALL_INTEGER_ERROR = " path requires all integer parameters";
@@ -391,6 +394,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 			model.setyAxisPoints(scanParameters.get(Y_AXIS_INDEX).intValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
+			model.setOrientation(mutatorUses.containsKey(VERTICAL) ? Orientation.VERTICAL : Orientation.HORIZONTAL);
 			return model;
 		}
 
@@ -419,6 +423,7 @@ public enum Scanpath implements IMScanDimensionalElementEnum {
 			model.setyAxisStep(scanParameters.get(Y_AXIS_INDEX).doubleValue());
 			model.setAlternating(mutatorUses.containsKey(ALTERNATING));
 			model.setContinuous(mutatorUses.containsKey(CONTINUOUS));
+			model.setOrientation(mutatorUses.containsKey(VERTICAL) ? Orientation.VERTICAL : Orientation.HORIZONTAL);
 			return model;
 		}
 

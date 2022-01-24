@@ -37,7 +37,8 @@ import org.apache.commons.math3.util.Pair;
 public enum Mutator implements IMScanElementEnum {
 	ALTERNATING("alte", asList("snak", "snake", "alternating"), 0, 0, new boolean[]{}),
 	RANDOM_OFFSET("roff", asList("random_offset"), 2, 1, new boolean[]{true, false}),
-	CONTINUOUS("cont", asList("continuous"), 0, 0, new boolean[]{});
+	CONTINUOUS("cont", asList("continuous"), 0, 0, new boolean[]{}),
+	VERTICAL("vert", asList("vertical"), 0, 0, new boolean[]{});
 
 	private static final Map<String, Mutator> termsMap;
 	private final List<String> terms = new ArrayList<>();

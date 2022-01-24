@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel.Orientation;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -377,6 +378,7 @@ public class ScanpathTest {
 		assertThat(gModel.getxAxisPoints(), is(5));
 		assertThat(gModel.getyAxisPoints(), is(6));
 		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(gModel.getOrientation(), is(Orientation.HORIZONTAL));
 		assertThat(gModel.isAlternating(), is(false));
 		assertThat(gModel.isContinuous(), is(false));
 	}
@@ -401,6 +403,28 @@ public class ScanpathTest {
 		assertThat(gModel.getSeed(), is(2));
 		assertThat(gModel.isAlternating(), is(false));
 		assertThat(gModel.isContinuous(), is(true));
+		assertThat(gModel.getOrientation(), is(Orientation.HORIZONTAL));
+	}
+
+	@Test
+	public void createModelCreatesCorrectModelForGridWithVerticalMutator() throws Exception {
+		pathParams = Arrays.asList(5, 6);
+		mutators.put(Mutator.VERTICAL, Arrays.asList(blankArray));
+		mutators.put(Mutator.ALTERNATING, Arrays.asList(blankArray));
+		IScanPathModel model = GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisGridPointsModel.class)));
+		TwoAxisGridPointsModel gModel = (TwoAxisGridPointsModel)model;
+		assertThat(gModel.getScannableNames(), contains("name1", "name2"));
+		assertThat(gModel.getBoundingBox().getxAxisStart(), is(1.0));
+		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(gModel.getBoundingBox().getxAxisLength(), is(3.0));
+		assertThat(gModel.getBoundingBox().getyAxisLength(), is(4.0));
+		assertThat(gModel.getxAxisPoints(), is(5));
+		assertThat(gModel.getyAxisPoints(), is(6));
+		assertThat(gModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(gModel.getOrientation(), is(Orientation.VERTICAL));
+		assertThat(gModel.isAlternating(), is(true));
+		assertThat(gModel.isContinuous(), is(false));
 	}
 
 	@Test
@@ -530,6 +554,27 @@ public class ScanpathTest {
 		assertThat(rModel.getBoundingBox().getyAxisStart(), is(2.0));
 		assertThat(rModel.isAlternating(), is(true));
 		assertThat(rModel.isContinuous(), is(false));
+		assertThat(rModel.getOrientation(), is(Orientation.HORIZONTAL));
+	}
+
+	@Test
+	public void createModelCreatesCorrectModelForRasterWithVerticalMutator() throws Exception {
+		pathParams = Arrays.asList(0.5, 6.5);
+		mutators.put(Mutator.VERTICAL, Arrays.asList(blankArray));
+		IScanPathModel model = GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		assertThat(model, is(instanceOf(TwoAxisGridStepModel.class)));
+		TwoAxisGridStepModel rModel = (TwoAxisGridStepModel)model;
+		assertThat(rModel.getScannableNames(), contains("name1", "name2"));
+		assertThat(rModel.getBoundingBox().getxAxisStart(), is(1.0));
+		assertThat(rModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(rModel.getBoundingBox().getxAxisLength(), is(3.0));
+		assertThat(rModel.getBoundingBox().getyAxisLength(), is(4.0));
+		assertThat(rModel.getxAxisStep(), is(0.5));
+		assertThat(rModel.getyAxisStep(), is(6.5));
+		assertThat(rModel.getBoundingBox().getyAxisStart(), is(2.0));
+		assertThat(rModel.isAlternating(), is(false));
+		assertThat(rModel.isContinuous(), is(false));
+		assertThat(rModel.getOrientation(), is(Orientation.VERTICAL));
 	}
 
 	@Test
