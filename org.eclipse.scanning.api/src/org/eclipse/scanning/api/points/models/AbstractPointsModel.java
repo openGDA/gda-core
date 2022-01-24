@@ -127,6 +127,9 @@ public abstract class AbstractPointsModel extends AbstractNameable implements IS
 	public static boolean supportsRandomOffset(Class<? extends IScanPointGeneratorModel> model) {
 		return (model.equals(TwoAxisGridPointsModel.class));
 	}
+	public static boolean supportsVertical(Class<? extends IScanPointGeneratorModel> model) {
+		return (model.equals(TwoAxisGridPointsModel.class) || model.equals(TwoAxisGridPointsRandomOffsetModel.class) || model.equals(TwoAxisGridStepModel.class));
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
