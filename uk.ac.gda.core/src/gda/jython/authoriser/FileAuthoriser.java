@@ -134,7 +134,6 @@ public class FileAuthoriser implements Authoriser {
 		}
 	}
 
-	@Override
 	public boolean hasAuthorisationLevel(String username) {
 		try {
 			return openConfigFile().getInt(username) != -1;
