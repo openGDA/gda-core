@@ -78,6 +78,7 @@ import gda.jython.authoriser.AuthoriserProvider;
 import gda.jython.batoncontrol.BatonManager;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.batoncontrol.ClientDetailsAndLeaseState;
+import gda.jython.batoncontrol.UnknownClientException;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.CommandThreadEventType;
 import gda.jython.commandinfo.CommandThreadInfo;
@@ -346,6 +347,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			runner.start();
 			clearThreads();
 			notifyRefreshCommandThreads();
+		} catch (UnknownClientException uce) {
+			logger.info("Unable to run command {}: {}", command, uce.getMessage());
+			logger.debug("Client unknown to server exception:", uce);
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
 		}
@@ -370,6 +374,10 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			clearThreads();
 			notifyRefreshCommandThreads();
 			return new CommandThreadEvent(CommandThreadEventType.SUBMITTED, runner.getThreadInfo());
+		} catch (UnknownClientException uce) {
+			logger.info("Unable to run command {}: {}", command, uce.getMessage());
+			logger.debug("Client unknown to server exception:", uce);
+			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
 		} catch (Exception ex) {
 			logger.info("Command Terminated", ex);
 			return new CommandThreadEvent(CommandThreadEventType.SUBMIT_ERROR, null);
@@ -391,6 +399,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			runner.start();
 			runner.join();
 			return runner.result;
+		} catch (UnknownClientException uce) {
+			logger.error("evaluateCommand failed for {}: {}", command, uce.getMessage());
+			logger.debug("Client unknown to server exception:", uce);
 		} catch (Exception ex) {
 			logger.error("evaluateCommand failed for {}", command, ex);
 		}
@@ -419,6 +430,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			runner.join();
 			this.notifyTerminateCommandThread(info);
 			return runner.requiresMoreInput();
+		} catch (UnknownClientException uce) {
+			logger.info("Unable to run command {}: {}", command, uce.getMessage());
+			logger.debug("Client unknown to server exception:", uce);
 		} catch (Exception ex) {
 			logger.info("Command terminated.", ex);
 		}
