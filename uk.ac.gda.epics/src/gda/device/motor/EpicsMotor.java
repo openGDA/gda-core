@@ -20,8 +20,11 @@ package gda.device.motor;
 
 import static java.lang.Math.abs;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,6 +160,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	protected Channel spmg = null; // motor template mode (Go or Stop)
 
+	protected Channel prec; // precision
+
 	/**
 	 * monitor EPICS motor position
 	 */
@@ -287,9 +292,16 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 */
 	private String unitStringOverride = null;
 
-	public EpicsMotor() {
-		controller = EpicsController.getInstance();
-		channelManager = new EpicsChannelManager(this);
+	/**
+	 * Constructor that takes an instance of {@link EpicsController} and a factory for a {@link EpicsChannelManager} to use.
+	 * Used for testing.
+	 *
+	 * @param controller The {@link EpicsController} to use.
+	 * @param channelManagerFactory A factory to create a {@link EpicsChannelManager}.
+	 */
+	public EpicsMotor(EpicsController controller, Function<InitializationListener, EpicsChannelManager> channelManagerFactory) {
+		this.controller = controller;
+		this.channelManager = channelManagerFactory.apply(this);
 		positionMonitor = this::rbvMonitorChanged;
 		statusMonitor = this::dmovMonitorChanged;
 		putCallbackListener = this::putCompleted;
@@ -302,6 +314,10 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		lvioMonitor = this::lvioMonitorChanged;
 		mstaMonitorListener = this::mstaMonitorChanged;
 		setUseListener = this::setUseMonitorChanged;
+	}
+
+	public EpicsMotor() {
+		this(EpicsController.getInstance(), EpicsChannelManager::new);
 	}
 
 	/**
@@ -408,6 +424,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			msta = channelManager.createChannel(pvName + ".MSTA", mstaMonitorListener, false);
 			spmg = channelManager.createChannel(pvName + ".SPMG", false);
 			setPv = channelManager.createChannel(pvName + ".SET", setUseListener, false);
+
+			prec = channelManager.createChannel(pvName + ".PREC", false);
 
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
@@ -519,7 +537,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			retryDeadband = controller.cagetDouble(rdbd);
 			return retryDeadband;
 		} catch (Exception ex) {
-			throw new MotorException(getStatus(), "failed to get speed", ex);
+			throw new MotorException(getStatus(), "failed to get retry deadband", ex);
 		}
 	}
 
@@ -551,7 +569,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		try {
 			return controller.cagetDouble(offset);
 		} catch (Exception ex) {
-			throw new MotorException(getStatus(), "failed to get speed", ex);
+			throw new MotorException(getStatus(), "failed to get user offset", ex);
 		}
 
 	}
@@ -562,6 +580,15 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to set user offset", ex);
 		}
+	}
+
+	private int getPrecision() throws MotorException {
+		try {
+			return controller.cagetInt(prec);
+		} catch (Exception ex) {
+			throw new MotorException(getStatus(), "failed to get precision", ex);
+		}
+
 	}
 
 	@Override
@@ -1415,19 +1442,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 					}
 				}
 				if (missedTargetAction != MissedTargetLevel.IGNORE) {
-					double deadband = getRetryDeadband();
-					double current = getPosition();
-					if (deadband > 0 && !Double.isNaN(deadband)) {
-						if (abs(targetPosition - current) > deadband) {
-							logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer", getName(),
-									targetPosition, currentPosition, retryDeadband);
-							if (missedTargetAction == MissedTargetLevel.FAULT) {
-								newStatus = MotorStatus.FAULT;
-							}
-						}
-					} else {
-						logger.warn("{} motor's retry deadband is {}. Motor may miss its target.", getName(), retryDeadband);
-					}
+					newStatus = checkTarget(newStatus);
 				}
 				logger.trace("{} - At end of move: target={}, position={}, deadband={}", getName(), targetPosition, currentPosition, retryDeadband);
 			}
@@ -1442,6 +1457,35 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		} catch (Exception ex) {
 			logger.error("Error in putCompleted for {}", getName(), ex);
 		}
+	}
+
+	/**
+	 * Check that we have got to within the motor deadband of the target position at the end of a move.
+	 *
+	 * Will round any difference between the target and actual by the motor precision before comparing to the deadband,
+	 *
+	 * @param status The current motor status.
+	 * @return The new motor status
+	 * @throws MotorException thrown if there is an error in getting any motor values.
+	 */
+	MotorStatus checkTarget(MotorStatus status) throws MotorException {
+		double deadband = getRetryDeadband();
+		double current = getPosition();
+		int precision = getPrecision();
+		if (deadband > 0 && !Double.isNaN(deadband)) {
+			BigDecimal error = BigDecimal.valueOf(abs(targetPosition - current));
+			error = error.setScale(precision, RoundingMode.DOWN);
+			if (error.doubleValue() > deadband) {
+				logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer", getName(),
+						targetPosition, currentPosition, retryDeadband);
+				if (missedTargetAction == MissedTargetLevel.FAULT) {
+					return MotorStatus.FAULT;
+				}
+			}
+		} else {
+			logger.warn("{} motor's retry deadband is {}. Motor may miss its target.", getName(), retryDeadband);
+		}
+		return status;
 	}
 
 	/**
