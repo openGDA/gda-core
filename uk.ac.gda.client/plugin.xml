@@ -137,9 +137,8 @@
             restorable="true">
       </view>
       <view
-            allowMultiple="true"
             category="uk.ac.gda.client.general.category"
-            class="gda.rcp.views.ScriptChooserView"
+            class="gda.rcp.views.CommissioningView"
             icon="icons/table_multiple.png"
             id="gda.rcp.views.scriptchooserview"
             name="Script Chooser"
