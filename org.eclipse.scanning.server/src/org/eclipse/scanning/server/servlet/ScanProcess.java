@@ -178,13 +178,13 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		// some initial tasks to possibly tweak and validate the scan bean and request
 		final ScanModel scanModel = prepareScan();
 		try {
+			createAnnotationManager(scanModel).invoke(PrepareScan.class, scanModel);
+
 			// Move to a position if they set one
 			setPosition(bean.getScanRequest().getStartPosition(), "start");
 
 			// Run a script, if any has been requested
 			runScript(bean.getScanRequest().getBeforeScript(), scanModel, false);
-
-			createAnnotationManager(scanModel).invoke(PrepareScan.class, scanModel);
 
 			// Run the actual scan. If this process is blocking, also runs after script and moves to end position, if set
 			runScan(scanModel);
@@ -204,6 +204,8 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private AnnotationManager createAnnotationManager(ScanModel scanModel) {
 		AnnotationManager manager = new AnnotationManager(Activator.createResolver());
+		Collection<Object> globalParticipants = Services.getScanService().getScanParticipants();
+		manager.addDevices(globalParticipants);
 		manager.addDevices(scanModel.getScannables());
 		manager.addDevices(scanModel.getMonitorsPerPoint());
 		manager.addDevices(scanModel.getMonitorsPerScan());
