@@ -28,7 +28,6 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.january.dataset.BooleanDataset;
 import org.eclipse.january.dataset.ByteDataset;
-import org.eclipse.january.dataset.DTypeUtils;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
@@ -103,16 +102,6 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * @param dimensions
-	 * @param dtype dataset type specified for output
-	 * @param data
-	 * @param chunkDimensions
-	 */
-	NexusGroupData(int[] dimensions, int dtype, Serializable data, int[] chunkDimensions) {
-		this(dimensions, DTypeUtils.getInterface(dtype), data, chunkDimensions);
-	}
-
-	/**
-	 * @param dimensions
 	 * @param clazz
 	 * @param data
 	 * @param chunkDimensions
@@ -126,42 +115,21 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * @param dimensions
-	 * @param dtype dataset type specified for output
-	 * @param data
+	 * @param eClass element class
 	 */
-	NexusGroupData(int[] dimensions, int dtype, Serializable data) {
-		this(dimensions, dtype, data, calcChunksFromType(dimensions, DTypeUtils.getInterface(dtype)));
-	}
-
-	/**
-	 * @param dimensions
-	 * @param clazz
-	 */
-	NexusGroupData(int[] dimensions, Class<?> clazz) {
-		this(dimensions, InterfaceUtils.getInterfaceFromClass(1, clazz), null, null);
+	NexusGroupData(int[] dimensions, Class<?> eClass) {
+		this(dimensions, InterfaceUtils.getInterfaceFromClass(1, eClass), null, null);
 	}
 
 	/**
 	 * @param data
 	 */
 	public NexusGroupData(IDataset data) {
-		this(data.getShape(), DatasetUtils.convertToDataset(data).getBuffer());
-	}
-
-	/**
-	 * @param dimensions
-	 * @param data
-	 */
-	NexusGroupData(int[] dimensions, Serializable data) {
-		this.dimensions = dimensions;
-		this.data = data;
-		if (data.getClass().isArray()) {
-			clazz = InterfaceUtils.getInterface(data);
-		} else {
-			clazz = null;
-			throw new IllegalArgumentException("Serializable must be an array");
-		}
-		this.chunkDimensions = calcChunksFromType(dimensions, clazz);
+		Dataset ds = DatasetUtils.convertToDataset(data);
+		dimensions = ds.getShapeRef();
+		this.data = ds.getBuffer();
+		clazz = ds.getClass();
+		chunkDimensions = calcChunksFromInterface(dimensions, clazz);
 	}
 
 	/**
@@ -314,7 +282,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, int... i) {
-		this(dims, Dataset.INT32, i);
+		this(dims, IntegerDataset.class, i, null);
 	}
 
 	public NexusGroupData(int[][] i) {
@@ -861,7 +829,7 @@ public class NexusGroupData implements Serializable {
 		return true;
 	}
 
-	private static int[] calcChunksFromType(int[] dims, Class<? extends Dataset> clazz) {
+	private static int[] calcChunksFromInterface(int[] dims, Class<? extends Dataset> clazz) {
 		try {
 			int size = InterfaceUtils.getItemBytes(1, clazz);
 			return NexusUtils.estimateChunking(dims, size, null, NexusUtils.ChunkingStrategy.SKEW_LAST);
