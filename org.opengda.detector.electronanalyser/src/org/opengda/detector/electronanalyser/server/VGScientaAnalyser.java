@@ -1131,4 +1131,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	public void setSingleImageMode() throws Exception {
 		getAdBase().setImageMode(0);
 	}
+
+	@Override
+	public int getMaximumNumberOfSteps() {
+		return Integer.MAX_VALUE;
+	}
 }
