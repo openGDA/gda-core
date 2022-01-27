@@ -20,5 +20,5 @@ class UkAcGdaCoreTestSuite(unittest.TestSuite):
 
 if __name__ == '__main__':
 	print sys.path
-	testhelpers.gda_test_harness.GdaTestRunner(suite(), "(script tests)", "TEST-scripts.all_tests.xml")
+	testhelpers.gda_test_harness.GdaTestRunner(suite(), "(script tests)", "TEST-uk.ac.gda.core-scripts.all_tests.xml")
 

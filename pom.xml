@@ -43,6 +43,7 @@
 		<module>uk.ac.diamond.daq.experiment.scans</module>
 		<module>uk.ac.diamond.daq.experiment.ui</module>
 		<module>uk.ac.diamond.daq.jython.api</module>
+		<module>uk.ac.diamond.daq.jyunit.test</module>
 		<module>uk.ac.diamond.daq.logback.fragment</module>
 		<module>uk.ac.diamond.daq.mapping</module>
 		<module>uk.ac.diamond.daq.mapping.api</module>
