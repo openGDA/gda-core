@@ -77,7 +77,7 @@ public class NormalisingRegionProcessor extends DataSetProcessorBase {
 		// TODO probably avoid calling process twice
 		GDANexusDetectorData nxsData = roiStats.process(detectorName, dataName, dataset);
 		// signal sum
-		String signalPrefix = roiStats.getRoiList().get(signalRoiIndex).getNamePrefix();
+		String signalPrefix = roiStats.getRoiList().get(signalRoiIndex).getName();
 		double sum = getDoubleValueFromNxsData(nxsData, signalPrefix + ".total");
 
 		// signal area
@@ -85,7 +85,7 @@ public class NormalisingRegionProcessor extends DataSetProcessorBase {
 
 		// mean background, background area
 		var rois = backgroundRoiIndices.stream().map(i -> roiStats.getRoiList().get(i)).collect(Collectors.toList());
-		double backgroundSum = rois.stream().map(RegionOfInterest::getNamePrefix)
+		double backgroundSum = rois.stream().map(RegionOfInterest::getName)
 				.mapToDouble(rs -> getDoubleValueFromNxsData(nxsData, rs + ".total")).sum();
 
 		int backgroundArea = rois.stream().mapToInt(RegionOfInterest::getArea).sum();
