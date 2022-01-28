@@ -52,11 +52,11 @@ public class RegionOfInterest {
 		height = slice[0].getStop() - slice[0].getStart();
 
 		Set<RoiMetadata> data = new LinkedHashSet<>();
-		data.add(new RoiMetadata(namePrefix + "_X", "%.0f", x.doubleValue()));
-		data.add(new RoiMetadata(namePrefix + "_Y", "%.0f", y.doubleValue()));
-		data.add(new RoiMetadata(namePrefix + "_Width", "%.0f", width.doubleValue()));
-		data.add(new RoiMetadata(namePrefix + "_Height", "%.0f", height.doubleValue()));
-		data.add(new RoiMetadata(namePrefix + "_Angle", "%f", roi.getAngleDegrees()));
+		data.add(new RoiMetadata(namePrefix + ".X", "%.0f", x.doubleValue()));
+		data.add(new RoiMetadata(namePrefix + ".Y", "%.0f", y.doubleValue()));
+		data.add(new RoiMetadata(namePrefix + ".Width", "%.0f", width.doubleValue()));
+		data.add(new RoiMetadata(namePrefix + ".Height", "%.0f", height.doubleValue()));
+		data.add(new RoiMetadata(namePrefix + ".Angle", "%f", roi.getAngleDegrees()));
 		return data;
 	}
 

@@ -137,7 +137,7 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 		extraNames.clear();
 		for (RegionOfInterest roi : roiList) {
 			roi.getRoiMetadata().stream().map(RoiMetadata::getName).forEach(extraNames::add);
-			statsProcessor.getExtraNames().stream().map(name -> roi.getNamePrefix() + "_" + name).forEach(extraNames::add);
+			statsProcessor.getExtraNames().stream().map(name -> roi.getNamePrefix() + "." + name).forEach(extraNames::add);
 		}
 	}
 
