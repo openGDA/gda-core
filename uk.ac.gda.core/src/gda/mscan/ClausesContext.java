@@ -25,6 +25,7 @@ import static gda.mscan.element.RegionShape.LINE;
 import static gda.mscan.element.RegionShape.POINT;
 import static gda.mscan.element.RegionShape.POLYGON;
 import static gda.mscan.element.RegionShape.RECTANGLE;
+import static gda.mscan.element.ScanDataConsumer.PER_SCAN_MONITOR;
 import static gda.mscan.element.ScanDataConsumer.PROCESSOR;
 import static gda.mscan.element.ScanDataConsumer.TEMPLATE;
 import static gda.mscan.element.Scanpath.AXIS_ARRAY;
@@ -117,8 +118,9 @@ public class ClausesContext extends ValidationUtils {
 
 	// Mapping of ScanDataConsumer Handlers
 	private Map<ScanDataConsumer, Consumer<String>> consumerHandlers = Map.of(
-			TEMPLATE,   this::setTemplates,
-			PROCESSOR,  this::setProcessorDefinitions);
+			TEMPLATE,         this::setTemplates,
+			PROCESSOR,        this::setProcessorDefinitions,
+			PER_SCAN_MONITOR, this::setPerScanMonitors);
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClausesContext.class);
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
@@ -132,8 +134,8 @@ public class ClausesContext extends ValidationUtils {
 	private final List<Number> shapeParams = new ArrayList<>();
 	private final Map<String, IDetectorModel> detectorMap = new HashMap<>();
 	private final List<String> monitorsPerPoint = new ArrayList<>();
-	private final List<String> monitorsPerScan = new ArrayList<>();
 	private Set<String> templates = new HashSet<>();
+	private Set<String> perScanMonitors = new HashSet<>();
 	private Map<String, Collection<Object>> processingDefinitions = new HashMap<>();
 	private ProcessingRequest processingRequest = new ProcessingRequest();
 	private String activeProcessorKey = "";
@@ -158,6 +160,7 @@ public class ClausesContext extends ValidationUtils {
 	private boolean scanPathSeen = false;
 	private boolean detectorClauseSeen = false;
 	private boolean acceptingTemplates = true;
+	private boolean acceptingPerScanMonitors = true;
 	private boolean acceptingProcessors = true;
 	private boolean isStatic = false;
 
@@ -484,6 +487,22 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
+	 * Sets the supplied {@link String} of monitor names to be the active one for the scan and prevents any
+	 * further changes to this being made. The scanning infrastructure will check that the named monitors
+	 * are actually available.
+	 *
+	 * @param monitorNames		A space separated {@link String} containing the names of the required monitors
+	 */
+	private void setPerScanMonitors(String monitorNames) {
+		if (!acceptingPerScanMonitors) {
+			throw new IllegalStateException("Per Scan Monitors have already been set for this mscan");
+		}
+		perScanMonitors= Stream.of(monitorNames.split(" "))
+				.collect(Collectors.toSet());
+		acceptingPerScanMonitors = false;
+	}
+
+	/**
 	 * Sets the supplied {@link String} of processor app name and config file paths to used by the active
 	 * {@link ProcessorDefinition} for the scan and prevents any further changes to this being made. The
 	 * config file paths must be the full path to the required files.
@@ -721,6 +740,10 @@ public class ClausesContext extends ValidationUtils {
 
 	public Set<String> getTemplates() {
 		return templates;
+	}
+
+	public Set<String> getPerScanMonitors() {
+		return perScanMonitors;
 	}
 
 	public ProcessingRequest getProcessorRequest() {

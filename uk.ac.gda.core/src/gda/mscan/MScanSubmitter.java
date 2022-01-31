@@ -222,6 +222,7 @@ public class MScanSubmitter extends ValidationUtils {
 		scanRequest.setDetectors(context.getDetectorMap());
 		scanRequest.setMonitorNamesPerPoint(context.getMonitorsPerPoint());
 		scanRequest.setTemplateFilePaths(context.getTemplates());
+		scanRequest.setMonitorNamesPerScan(context.getPerScanMonitors());
 		scanRequest.setProcessingRequest(context.getProcessorRequest());
 
 		submit(scanRequest, block);
