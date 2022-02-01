@@ -42,6 +42,8 @@ public class HumidityServer {
 
 	private HumiditySocketExecutor executor;
 
+	private Thread runner;
+
 	/**
 	 * @param args
 	 */
@@ -68,24 +70,22 @@ public class HumidityServer {
 		this.port = port;
 
 		// Start the thread dealing with remote commands.
-		new Thread(this::runServer, "HumidityServer").start();
+		runner = new Thread(this::runServer, getClass().getName());
+		runner.start();
 	}
 
 	private void runServer() {
-		ServerSocket serverSocket = null;
-		BufferedReader reader = null;
-		try {
-			String command;
-			serverSocket = new ServerSocket(port);
+		try (ServerSocket serverSocket = new ServerSocket(port)){
 
 			while (true) {
-				try {
-					socket = serverSocket.accept();
-					executor.setSocket(socket);
-					reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				socket = serverSocket.accept();
+				executor.setSocket(socket);
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+
 
 					while (!socket.isClosed() && socket.isConnected()) {
+						String command;
 						if ((command = reader.readLine()) != null) {
 							executor.execute(command, writer);
 						} else
@@ -100,22 +100,8 @@ public class HumidityServer {
 		} catch (NumberFormatException e) {
 			logger.debug(e.getStackTrace().toString());
 		} catch (IOException ex) {
-			logger.error("Fatal error in SocketServer, failed to bind socket on port " + port);
-		} finally {
-			if (serverSocket != null) {
-				try {
-					serverSocket.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
+			logger.error("Fatal error in SocketServer, failed to bind socket on port {}", port);
 		}
 	}
+
 }
