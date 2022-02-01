@@ -121,13 +121,11 @@ public class ScanRequestFactory {
 		var acquisitionTemplate = AcquisitionTemplateFactory
 				.buildModelDocument(getScanpathDocument().getData());
 
-		// Coumponded models, like grids, cannot use MultiGenerators (like the InterpolatedCompondModel below)
-		var acquisitionTemplateType = getScanpathDocument().getModelDocument();
-		if (AcquisitionTemplateType.TWO_DIMENSION_GRID.equals(acquisitionTemplateType)) {
-			return createCompoundModel(acquisitionTemplate);
+		if (getFlatCalibration().getNumberExposures() + getDarkCalibration().getNumberExposures() > 0) {
+			return createInterpolatedCompoundModel(acquisitionTemplate);
 		}
 
-		return createInterpolatedCompoundModel(acquisitionTemplate);
+		return createCompoundModel(acquisitionTemplate);
 	}
 
 	private CompoundModel createCompoundModel(AcquisitionTemplate modelDocument) {
