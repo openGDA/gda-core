@@ -38,6 +38,11 @@ public final class PathInfo implements Serializable {
 	private static final String POINT_COUNT_FORMAT = "%,d";
 	private static final String DOUBLE_FORMAT = "%.4g";
 
+	/**
+	 * The source of the path, i.e. the mapping view.
+	 */
+	private final String sourceId;
+
 	/*
 	 * Number of 2D points in the scan
 	 */
@@ -74,6 +79,7 @@ public final class PathInfo implements Serializable {
 	private final double[] yCoordinates;
 
 	public PathInfo(
+			final String sourceId,
 			final int innerPointCount,
 			final int totalPointCount,
 			final double smallestXStep,
@@ -81,7 +87,7 @@ public final class PathInfo implements Serializable {
 			final double smallestAbsStep,
 			final double[] xCoordinates,
 			final double[] yCoordinates) {
-		super();
+		this.sourceId = sourceId;
 		this.innerPointCount = innerPointCount;
 		this.totalPointCount = totalPointCount;
 		this.smallestXStep = smallestXStep;
@@ -89,6 +95,10 @@ public final class PathInfo implements Serializable {
 		this.smallestAbsStep = smallestAbsStep;
 		this.xCoordinates = xCoordinates;
 		this.yCoordinates = yCoordinates;
+	}
+
+	public String getSourceId() {
+		return sourceId;
 	}
 
 	public int getInnerPointCount() {
@@ -153,6 +163,7 @@ public final class PathInfo implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + sourceId.hashCode();
 		result = prime * result + innerPointCount;
 		long temp;
 		temp = Double.doubleToLongBits(smallestAbsStep);
@@ -176,6 +187,8 @@ public final class PathInfo implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		PathInfo other = (PathInfo) obj;
+		if (!sourceId.equals(other.sourceId))
+			return false;
 		if (innerPointCount != other.innerPointCount)
 			return false;
 		if (Double.doubleToLongBits(smallestAbsStep) != Double.doubleToLongBits(other.smallestAbsStep))
@@ -212,6 +225,7 @@ public final class PathInfo implements Serializable {
 
 	@JsonPOJOBuilder
 	public static final class Builder {
+		private String sourceId;
 		private int innerPointCount;
 		private int totalPointCount;
 		private double smallestXStep;
@@ -220,68 +234,74 @@ public final class PathInfo implements Serializable {
 		private double[] xCoordinates;
 		private double[] yCoordinates;
 
-	    public Builder withInnerPointCount(int innerPointCount) {
-	        this.innerPointCount = innerPointCount;
-	        return this;
-	    }
+		public Builder withSourceId(String sourceId) {
+			this.sourceId = sourceId;
+			return this;
+		}
 
-	    public Builder withTotalPointCount(int totalPointCount) {
-	        this.totalPointCount = totalPointCount;
-	        return this;
-	    }
+		public Builder withInnerPointCount(int innerPointCount) {
+			this.innerPointCount = innerPointCount;
+			return this;
+		}
 
-	    public Builder withSmallestXStep(double smallestXStep) {
-	        this.smallestXStep = smallestXStep;
-	        return this;
-	    }
+		public Builder withTotalPointCount(int totalPointCount) {
+			this.totalPointCount = totalPointCount;
+			return this;
+		}
 
-	    public Builder withSmallestYStep(double smallestYStep) {
-	        this.smallestYStep = smallestYStep;
-	        return this;
-	    }
+		public Builder withSmallestXStep(double smallestXStep) {
+			this.smallestXStep = smallestXStep;
+			return this;
+		}
 
-	    public Builder withSmallestAbsStep(double smallestAbsStep) {
-	        this.smallestAbsStep = smallestAbsStep;
-	        return this;
-	    }
+		public Builder withSmallestYStep(double smallestYStep) {
+			this.smallestYStep = smallestYStep;
+			return this;
+		}
 
-	    @JsonProperty("xCoordinates")
-	    public Builder withXCoordinates(double[] xCoordinates) {
-	    	this.xCoordinates = xCoordinates;
-	    	return this;
-	    }
+		public Builder withSmallestAbsStep(double smallestAbsStep) {
+			this.smallestAbsStep = smallestAbsStep;
+			return this;
+		}
 
-	    @JsonProperty("yCoordinates")
-	    public Builder withYCoordinates(double[] yCoordinates) {
-	    	this.yCoordinates = yCoordinates;
-	    	return this;
-	    }
+		@JsonProperty("xCoordinates")
+		public Builder withXCoordinates(double[] xCoordinates) {
+			this.xCoordinates = xCoordinates;
+			return this;
+		}
 
-	    public Builder withxCoordinateList(Collection<Double> xCoordinates) {
-	    	this.xCoordinates = asArray(xCoordinates);
-	    	return this;
-	    }
+		@JsonProperty("yCoordinates")
+		public Builder withYCoordinates(double[] yCoordinates) {
+			this.yCoordinates = yCoordinates;
+			return this;
+		}
 
-	    public Builder withyCoordinateList(Collection<Double> yCoordinates) {
-	    	this.yCoordinates = asArray(yCoordinates);
-	    	return this;
-	    }
+		public Builder withxCoordinateList(Collection<Double> xCoordinates) {
+			this.xCoordinates = asArray(xCoordinates);
+			return this;
+		}
 
-	    private double[] asArray(Collection<Double> coordinates) {
-	    	return coordinates.stream()
-	    			.mapToDouble(Double::doubleValue)
-	    			.toArray();
-	    }
+		public Builder withyCoordinateList(Collection<Double> yCoordinates) {
+			this.yCoordinates = asArray(yCoordinates);
+			return this;
+		}
 
-	    public PathInfo build() {
-	    	return new PathInfo(
-	    			innerPointCount,
-	    			totalPointCount,
-	    			smallestXStep,
-	    			smallestYStep,
-	    			smallestAbsStep,
-	    			Objects.requireNonNullElse(xCoordinates, new double[] {}),
-	    			Objects.requireNonNullElse(yCoordinates, new double[] {}));
-	    }
+		private double[] asArray(Collection<Double> coordinates) {
+			return coordinates.stream()
+					.mapToDouble(Double::doubleValue)
+					.toArray();
+		}
+
+		public PathInfo build() {
+			return new PathInfo(
+					sourceId,
+					innerPointCount,
+					totalPointCount,
+					smallestXStep,
+					smallestYStep,
+					smallestAbsStep,
+					Objects.requireNonNullElse(xCoordinates, new double[] {}),
+					Objects.requireNonNullElse(yCoordinates, new double[] {}));
+		}
 	}
 }

@@ -539,6 +539,7 @@ public class RegionAndPathController extends AbstractMappingController {
 		pathCalculationJob.cancel();
 		if (scanPathModel != null && scanRegionShape != null) {
 			pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+					.withSourceId(MappingExperimentView.ID)
 					.withScanPathModel(scanPathModel)
 					.withScanRegion(scanRegionShape.toROI())
 					.withOuterScannables(getOuterScannables())
@@ -689,7 +690,7 @@ public class RegionAndPathController extends AbstractMappingController {
 					return;
 				}
 				Optional<PathInfo> pathInfo = Optional.ofNullable((PathInfo)event.getProperty(E4_CONTEXT_DATA));
-				if (pathInfo.isPresent()) {
+				if (pathInfo.isPresent() && MappingExperimentView.ID.equals(pathInfo.get().getSourceId())) {
 					plotter.plotPath(pathInfo.get());
 				} else {
 					logger.error("Could not plot path - no Path Info data present in UI Event");

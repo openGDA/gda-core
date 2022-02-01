@@ -289,7 +289,9 @@ public class MappingExperimentView implements IAdaptable {
 	@Inject
 	@Optional
 	private void updateUiWithPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
-		statusPanel.setPathInfo(pathInfo);
+		if (ID.equals(pathInfo.getSourceId())) {
+			statusPanel.setPathInfo(pathInfo);
+		}
 	}
 
 	@Inject

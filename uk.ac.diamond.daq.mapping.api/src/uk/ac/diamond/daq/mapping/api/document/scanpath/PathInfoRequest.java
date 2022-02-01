@@ -36,6 +36,11 @@ public class PathInfoRequest {
 	private static final int DEFAULT_MAX_POINTS = 100000;
 
 	/**
+	 * The id of the source for this request, e.g. the mapping view
+	 */
+	private final String sourceId;
+
+	/**
 	 * The model the path of the scan points
 	 */
 	private final IScanPointGeneratorModel scanPathModel;
@@ -58,15 +63,21 @@ public class PathInfoRequest {
 	private final int maxPoints;
 
 	public PathInfoRequest(
+			String sourceId,
 			IScanPointGeneratorModel scanPathModel,
 			IROI scanRegion,
 			List<IScanPointGeneratorModel> outerScannables,
 			int maxPoints) {
 		super();
+		this.sourceId = sourceId;
 		this.scanPathModel = scanPathModel;
 		this.scanRegion = scanRegion;
 		this.outerScannables = outerScannables;
 		this.maxPoints = maxPoints;
+	}
+
+	public String getSourceId() {
+		return sourceId;
 	}
 
 	public IScanPointGeneratorModel getScanPathModel() {
@@ -89,6 +100,7 @@ public class PathInfoRequest {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((sourceId == null) ? 0 : sourceId.hashCode());
 		result = prime * result + (maxPoints ^ (maxPoints >>> 32));
 		result = prime * result + ((outerScannables == null) ? 0 : outerScannables.hashCode());
 		result = prime * result + ((scanPathModel == null) ? 0 : scanPathModel.hashCode());
@@ -105,7 +117,12 @@ public class PathInfoRequest {
 		if (getClass() != obj.getClass())
 			return false;
 		PathInfoRequest other = (PathInfoRequest) obj;
-		if (maxPoints != other.maxPoints)
+		if (sourceId == null) {
+			if (other.sourceId != null)
+				return false;
+		} else if (!sourceId.equals(other.sourceId)) {
+			return false;
+		} if (maxPoints != other.maxPoints)
 			return false;
 		if (outerScannables == null) {
 			if (other.outerScannables != null)
@@ -137,38 +154,45 @@ public class PathInfoRequest {
 
 	@JsonPOJOBuilder
 	public static final class Builder {
+		private String sourceId;
 		private IScanPointGeneratorModel scanPathModel;
 		private IROI scanRegion;
 		private List<IScanPointGeneratorModel> outerScannables;
 		private Integer maxPoints;
 
-	    public Builder withScanPathModel(IScanPointGeneratorModel scanPathModel) {
-	    	this.scanPathModel = scanPathModel;
-	    	return this;
-	    }
+		public Builder withSourceId(String sourceId) {
+			this.sourceId = sourceId;
+			return this;
+		}
 
-	    public Builder withScanRegion(IROI scanRegion) {
-	    	this.scanRegion = scanRegion;
-	    	return this;
-	    }
+		public Builder withScanPathModel(IScanPointGeneratorModel scanPathModel) {
+			this.scanPathModel = scanPathModel;
+			return this;
+		}
 
-	    public Builder withOuterScannables(
-	    		List<IScanPointGeneratorModel> outerScannables) {
-	    	this.outerScannables = outerScannables;
-	    	return this;
-	    }
+		public Builder withScanRegion(IROI scanRegion) {
+			this.scanRegion = scanRegion;
+			return this;
+		}
 
-	    public Builder withMaxPoints(int maxPoints) {
-	    	this.maxPoints = maxPoints;
-	    	return this;
-	    }
+		public Builder withOuterScannables(
+				List<IScanPointGeneratorModel> outerScannables) {
+			this.outerScannables = outerScannables;
+			return this;
+		}
 
-	    public PathInfoRequest build() {
-	    	return new PathInfoRequest(
-	    			Objects.requireNonNull(scanPathModel),
-	    			Objects.requireNonNull(scanRegion),
-	    			Objects.requireNonNullElse(outerScannables, Collections.emptyList()),
-	    			Objects.requireNonNullElse(maxPoints, DEFAULT_MAX_POINTS));
-	    }
+		public Builder withMaxPoints(int maxPoints) {
+			this.maxPoints = maxPoints;
+			return this;
+		}
+
+		public PathInfoRequest build() {
+			return new PathInfoRequest(
+					Objects.requireNonNull(sourceId),
+					Objects.requireNonNull(scanPathModel),
+					Objects.requireNonNull(scanRegion),
+					Objects.requireNonNullElse(outerScannables, Collections.emptyList()),
+					Objects.requireNonNullElse(maxPoints, DEFAULT_MAX_POINTS));
+		}
 	}
 }

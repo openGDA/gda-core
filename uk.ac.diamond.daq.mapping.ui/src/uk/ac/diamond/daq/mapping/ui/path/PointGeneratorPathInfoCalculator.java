@@ -116,6 +116,7 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 			int totalPoints = outerAxisMultiplier * pointCount;
 
 			return PathInfo.builder()
+					.withSourceId(request.getSourceId())
 					.withInnerPointCount(pointCount)
 					.withTotalPointCount(totalPoints)
 					.withSmallestXStep(smallestXStep)

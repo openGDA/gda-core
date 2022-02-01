@@ -534,6 +534,7 @@ class FocusScanSetupPage extends WizardPage {
 		pathCalculationJob.cancel();
 		// Ensure the job is using the latest model and ROI
 		pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+				.withSourceId(FocusScanSetupPage.class.getName())
 				.withScanPathModel(linePathModel)
 				.withScanRegion(focusScanBean.getLineRegion().toROI())
 				.build());
