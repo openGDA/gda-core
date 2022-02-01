@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.measure.Quantity;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.MappingRegionUnits;
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
 /**
@@ -50,6 +50,9 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 
 	@Inject
 	private IStageScanConfiguration mappingStageInfo;
+
+	private String xAxisName;
+	private String yAxisName;
 
 	@Inject
 	private IEventService eventService;
@@ -72,17 +75,34 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	protected final DataBinder binder = new DataBinder();
 
 	/**
+	 * Set the names of the x axis and y axis to display. If this method is not called, the axis names
+	 * in the {@link MappingStageInfo} are used. Call this method if axes names to display are other
+	 * that those in the mapping stage info.
+	 *
+	 * @param xAxisName
+	 * @param yAxisName
+	 */
+	public void setAxisNames(String xAxisName, String yAxisName) {
+		this.xAxisName = xAxisName;
+		this.yAxisName = yAxisName;
+	}
+
+	/**
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "x axis"
 	 */
 	protected String getXAxisName() {
-		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotXAxisName() : "x axis";
+		if (xAxisName != null) return xAxisName;
+		if (mappingStageInfo != null) return mappingStageInfo.getPlotXAxisName();
+		return "x axis";
 	}
 
 	/**
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "y axis"
 	 */
 	protected String getYAxisName() {
-		return Objects.nonNull(mappingStageInfo) ? mappingStageInfo.getPlotYAxisName() : "y axis";
+		if (yAxisName != null) return yAxisName;
+		if (mappingStageInfo != null) return mappingStageInfo.getPlotYAxisName();
+		return "y axis";
 	}
 
 	protected IScannableDeviceService getScannableDeviceService() throws EventException {
