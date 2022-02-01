@@ -18,6 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import static java.util.Collections.unmodifiableSet;
+
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.points.models.IBoundsToFit;
@@ -37,7 +42,24 @@ import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
  */
 public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<IScanPathModel> {
 
+	/**
+	 * An option for which controls can be created. Subclasses can
+	 * Note: this pattern emulates extensible enums.
+	 */
+	public interface PathOption { }
+
+	/**
+	 * Common options that this class can add controls for.
+	 */
+	public enum CommonOption implements PathOption {
+		ALTERNATING, CONTINUOUS, BOUNDING_FIT_CAPABLE
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPathEditor.class);
+
+	private static final Set<PathOption> ALL_COMMON_OPTIONS = unmodifiableSet(EnumSet.allOf(CommonOption.class));
+
+	private Set<PathOption> optionsToDisplay = ALL_COMMON_OPTIONS;
 	private Button continuous;
 	private Label continuousLabel;
 	private Binding continuousBinding;
@@ -50,9 +72,20 @@ public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<I
 	 * @param parent composite to draw the controls on
 	 */
 	protected void makeCommonOptionsControls(Composite parent) {
-		makeAlternatingControl(parent);
-		makeContinuousControl(parent);
-		if (isBoundingFitCapable()) makeBoundsFitControl(parent);
+		if (shouldDisplayOption(CommonOption.ALTERNATING)) {
+			makeAlternatingControl(parent);
+		}
+		if (shouldDisplayOption(CommonOption.CONTINUOUS)) {
+			makeContinuousControl(parent);
+		}
+		if (shouldDisplayOption(CommonOption.BOUNDING_FIT_CAPABLE)) {
+			makeBoundsFitControl(parent);
+		}
+	}
+
+	protected boolean shouldDisplayOption(PathOption option) {
+		return optionsToDisplay.contains(option) &&
+			(option != CommonOption.BOUNDING_FIT_CAPABLE || isBoundingFitCapable());
 	}
 
 	/**
@@ -93,6 +126,14 @@ public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<I
 			return ((IBoundsToFit) getModel()).isBoundsToFit();
 		}
 		return false;
+	}
+
+	public Set<PathOption> getOptionsToDisplay() {
+		return optionsToDisplay;
+	}
+
+	public void setOptionsToDisplay(Set<PathOption> optionsToDisplay) {
+		this.optionsToDisplay = optionsToDisplay;
 	}
 
 	/**

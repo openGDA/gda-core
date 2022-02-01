@@ -186,7 +186,7 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 		});
 	}
 
-	void setRegionUnits(Map<String, String> mappingRegionUnits) {
+	public void setRegionUnits(Map<String, String> mappingRegionUnits) {
 		this.regionUnits = mappingRegionUnits;
 	}
 }

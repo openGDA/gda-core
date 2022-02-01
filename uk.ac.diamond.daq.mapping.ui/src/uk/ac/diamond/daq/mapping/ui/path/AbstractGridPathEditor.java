@@ -18,6 +18,8 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import java.util.Set;
+
 import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
@@ -30,11 +32,21 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.google.common.collect.Sets;
+
 /**
  * Abstract superclass for grid-like paths (subclasses of {@link AbstractTwoAxisGridModel}),
  *
  */
 public class AbstractGridPathEditor extends AbstractPathEditor {
+
+	public enum GridPathOption implements PathOption {
+		ORIENTATION
+	}
+
+	protected AbstractGridPathEditor() {
+		setOptionsToDisplay(Sets.union(getOptionsToDisplay(), Set.of(GridPathOption.ORIENTATION)));
+	}
 
 	/**
 	 * Creates controls for options common to grid paths:<ul>
@@ -42,12 +54,13 @@ public class AbstractGridPathEditor extends AbstractPathEditor {
 	 * <li>continuous - whether to scan the innermost axis continuously (for malcolm scans only);</li>
 	 * <li>orientation - whether to treat the 2nd axis as the fast axis</li>
 	 *
-	 * @param parent composite to draw the controls on
+	 * @param parent to draw the controls on
 	 */
-
 	protected void makeCommonGridOptionsControls(Composite parent) {
 		makeCommonOptionsControls(parent);
-		makeOrientationControl(parent);
+		if (shouldDisplayOption(GridPathOption.ORIENTATION)) {
+			makeOrientationControl(parent);
+		}
 	}
 
 	/**
