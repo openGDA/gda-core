@@ -146,7 +146,7 @@ public class NumberEditorControl extends Composite {
 		layout = new StackLayout();
 		this.setLayout(layout);
 		setupControls();
-		if (targetObject != null & propertyName != null) {
+		if (targetObject != null && propertyName != null) {
 			setModel(targetObject, propertyName);
 		}
 		if (this.useSpinner) {
@@ -306,7 +306,7 @@ public class NumberEditorControl extends Composite {
 			this.targetObject = null;
 			this.propertyName = null;
 		}
-		if (targetObject != null & propertyName != null) {
+		if (targetObject != null && propertyName != null) {
 			this.targetObject = targetObject;
 			this.propertyName = propertyName;
 			controlModel = createModel();
@@ -339,7 +339,7 @@ public class NumberEditorControl extends Composite {
 		controlModel.setMinValue(minValue);
 		controlModel.setMaxValue(maxValue);
 	}
-	
+
 	public Number getMaxValue(){
 		return controlModel.getMaxValue();
 	}
@@ -347,7 +347,7 @@ public class NumberEditorControl extends Composite {
 	public Number getMinValue(){
 		return controlModel.getMinValue();
 	}
-	
+
 	public void setDigits(int value) throws NumberFormatException {
 		if (!controlModel.getBindingPropertyType().equals(double.class)) {
 			throw new NumberFormatException("Invalid data type set to digits");
@@ -918,7 +918,7 @@ public class NumberEditorControl extends Composite {
 			inFocus = new Listener() {
 				@Override
 				public void handleEvent(Event event) {
-					if (lostFocus & event.widget != editorText & event.widget != editorCancelButton & event.widget != editorAcceptButton & !cancelOrCommit) {
+					if (lostFocus && event.widget != editorText && event.widget != editorCancelButton && event.widget != editorAcceptButton && !cancelOrCommit) {
 						NumberEditorText.this.updateChangesAndDispose(commitOnOutOfFocus);
 					}
 				}
@@ -967,12 +967,12 @@ public class NumberEditorControl extends Composite {
 							}
 							// TODO Max and min are int, review
 							if (controlModel.getBindingPropertyType().equals(double.class)) {
-								if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() & ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue()) {
+								if (((Number) value).doubleValue() >= controlModel.getMinValue().doubleValue() && ((Number) value).doubleValue() <= controlModel.getMaxValue().doubleValue()) {
 									return ValidationStatus.ok();
 								}
 								return ValidationStatus.error("Out of range");
 							} else if (controlModel.getBindingPropertyType().equals(int.class)) {
-								if (((Number) value).intValue() >= controlModel.getMinValue().intValue() & ((Number) value).intValue() <= controlModel.getMaxValue().intValue()) {
+								if (((Number) value).intValue() >= controlModel.getMinValue().intValue() && ((Number) value).intValue() <= controlModel.getMaxValue().intValue()) {
 									return ValidationStatus.ok();
 								}
 								return ValidationStatus.error("Out of range");
