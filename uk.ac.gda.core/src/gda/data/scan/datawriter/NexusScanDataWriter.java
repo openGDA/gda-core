@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
@@ -360,8 +362,13 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanInfo.setRank(firstPoint.getScanDimensions().length);
 		nexusScanInfo.setShape(firstPoint.getScanDimensions());
 		nexusScanInfo.setScanCommand(firstPoint.getCommand());
+		nexusScanInfo.setScanFieldNames(getScanFieldNames());
 
 		return nexusScanInfo;
+	}
+
+	private List<String> getScanFieldNames() {
+		return Stream.of(firstPoint.getPositionHeader(), firstPoint.getDetectorHeader()).flatMap(Collection::stream).collect(toList());
 	}
 
 	private List<Set<String>> getDimensionNamesByIndex() {

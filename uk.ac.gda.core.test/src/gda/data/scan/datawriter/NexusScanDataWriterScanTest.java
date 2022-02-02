@@ -33,6 +33,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DURATION;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_END_TIME;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_FIELDS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_SHAPE;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_START_TIME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMOND_SCAN;
@@ -568,8 +569,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertDiamondScanGroup(entry, false, false, scanDimensions);
 
 		final Set<String> expectedLinkedFieldNames = Set.of(
-				FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_SHAPE,
-				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION);
+				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION,
+				FIELD_NAME_SCAN_SHAPE, FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_FIELDS);
 
 		final Set<String> otherDataNodeNames = Set.of(NXentry.NX_PROGRAM_NAME);
 		final Set<String> allDataNodeNames = Streams.concat(
@@ -583,6 +584,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_SHAPE), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
+		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames()))));
 
 		// TODO: what further metadata should be added to the nexus file (DAQ-3151)
 		// (fields below are added by NexusDataWriter get metadata into nexus file but not yet NexusScanDataWriter)
@@ -628,6 +630,25 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
 
 		return expectedGroupNames.toArray(new String[expectedGroupNames.size()]);
+	}
+
+	protected List<String> getExpectedScanFieldNames() {
+		final List<String> scanFields = new ArrayList<>();
+		for (Scannable scannable : scannables) {
+			scanFields.addAll(Arrays.asList(scannable.getInputNames()));
+			scanFields.addAll(Arrays.asList(scannable.getExtraNames()));
+		}
+		if (monitor != null) {
+			scanFields.add(monitor.getName());
+		}
+		if (detector != null) {
+			if (ArrayUtils.isNotEmpty(detector.getExtraNames())) {
+				scanFields.addAll(Arrays.asList(detector.getExtraNames()));
+			} else {
+				scanFields.add(detector.getName());
+			}
+		}
+		return scanFields;
 	}
 
 	private void checkBeforeScanCollection(NXcollection beforeScanCollection) throws Exception {
