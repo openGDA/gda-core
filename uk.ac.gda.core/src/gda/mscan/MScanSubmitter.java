@@ -225,7 +225,7 @@ public class MScanSubmitter extends ValidationUtils {
 		scanRequest.setMonitorNamesPerScan(context.getPerScanMonitors());
 		scanRequest.setProcessingRequest(context.getProcessorRequest());
 
-		submit(scanRequest, block);
+		submit(scanRequest, block, null);
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class MScanSubmitter extends ValidationUtils {
 	 */
 	private void submitFromFile(final ScanRequest scanRequest, final boolean block) throws Exception {
 		printToJython(Map.of("Successful, ", EMPTYSTRING, "submitting scan", EMPTYSTRING));
-		submit(scanRequest, block);
+		submit(scanRequest, block, null);
 	}
 
 	/**
@@ -248,11 +248,15 @@ public class MScanSubmitter extends ValidationUtils {
 	 * @param block			Whether the request should be submitted in blocking or non-blocking mode
 	 * @throws Exception	Any Exception arising from the submission operation
 	 */
-	private void submit(final ScanRequest scanRequest, final boolean block) throws Exception {
+	public void submit(final ScanRequest scanRequest, final boolean block, final String name) throws Exception {
 		// validate the scan bean properly here or you get a nullpointer exception
 		final ScanBean bean = new ScanBean(scanRequest);
 		eventService.getEventConnectorService().marshal(bean);
 		final URI uri = new URI(LocalProperties.getActiveMQBrokerURI());
+
+		if (name != null && !name.isBlank()) {
+			bean.setName(name);
+		}
 
 		try (final ISubmitter<ScanBean> submitter = eventService.createSubmitter(uri, EventConstants.SUBMISSION_QUEUE);
 				final ISubscriber<IScanListener> subscriber = eventService.createSubscriber(uri, EventConstants.STATUS_TOPIC);
