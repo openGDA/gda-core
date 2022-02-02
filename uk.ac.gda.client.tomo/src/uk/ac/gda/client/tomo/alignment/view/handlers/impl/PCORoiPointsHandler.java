@@ -62,7 +62,7 @@ public class PCORoiPointsHandler implements IRoiHandler {
 				x1 = 0;
 				x2 = 4008;
 			} else {
-				while (x2 < 4008 & (x2 + 1) % 4 != 0) {
+				while (x2 < 4008 && (x2 + 1) % 4 != 0) {
 					x2 = x2 + 1;
 				}
 				int n = (x2 + 1) / 4;
@@ -85,7 +85,7 @@ public class PCORoiPointsHandler implements IRoiHandler {
 				// 4008 should be camerahandler.getFullImagewidth()
 				x2 = 4008 - (4 * n);
 			} else {
-				while (x2 < 4008 & (x2 + 1) % 4 != 0) {
+				while (x2 < 4008 && (x2 + 1) % 4 != 0) {
 					x2 = x2 + 1;
 				}
 				int n = (x2 + 1) / 4;
@@ -98,10 +98,10 @@ public class PCORoiPointsHandler implements IRoiHandler {
 		return new PointList(new int[] { x1, y1, x2, y2 });
 
 	}
-	
+
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
