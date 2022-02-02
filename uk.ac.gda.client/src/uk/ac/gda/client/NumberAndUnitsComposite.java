@@ -40,6 +40,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.units.NonSIext;
 import tec.units.indriya.quantity.Quantities;
 
@@ -65,17 +66,21 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	private final Text text;
 	/** The combo box to select the units */
 	private final ComboViewer unitsCombo;
-
-	/** Used to format when the absolute number in the current units is <=1e-3 or >=1e3 */
-	private final NumberFormat scientificFormat = new DecimalFormat("0.###E0");
+	/** Display 3 decimal places by default */
+	private static final String DEFAULT_DECIMAL_FORMAT = "0.###";
 	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
-	private final NumberFormat decimalFormat = new DecimalFormat("0.###");
+	private static final String PROPERTY_DECIMAL_FORMAT = "gda.client.decimalFormat";
 
 	/** Units of the corresponding model value */
 	private final Unit<Q> modelUnit;
-
 	/** Cache the current units to allow the text to be updated when the units are changed */
 	private volatile Unit<Q> currentUnit;
+
+	private NumberFormat decimalFormat;
+
+	private NumberFormat scientificFormat;
+
+	private double valueInCurrentUnits;
 
 	/**
 	 * Constructor for the case where only one unit is permitted
@@ -143,6 +148,11 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 			}
 		});
 		unitsCombo.getCombo().addListener(SWT.MouseWheel, evt -> evt.doit = false);
+
+		String format = getDecimalFormat();
+		decimalFormat = new DecimalFormat(format);
+		scientificFormat = new DecimalFormat(format + "E0");
+
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -153,26 +163,12 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	}
 
 	/**
-	 * Get the current value in the text box without doing any units conversion
-	 *
-	 * @return current value in the text box as a double
-	 */
-	private double getTextAsDouble() {
-		try {
-			return Double.parseDouble(text.getText());
-		} catch (NumberFormatException e) {
-			// Expected when building the GUI
-			return 0.0;
-		}
-	}
-
-	/**
 	 * Get the currently-displayed value in the form of a Quantity object
 	 *
 	 * @return Current value as a quantity
 	 */
 	public Quantity<Q> getValueAsQuantity() {
-		return Quantities.getQuantity(getTextAsDouble(), currentUnit);
+		return Quantities.getQuantity(valueInCurrentUnits, currentUnit);
 	}
 
 	/**
@@ -185,6 +181,14 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	public double getValue() {
 		return ((Quantity) getValueAsQuantity()).to(modelUnit).getValue().doubleValue();
 	}
+	/**
+	 * Gets the value set in local properties in decimal format
+	 * If it is not set, the default decimal format is used instead
+	 * @return the number of decimal places to display in the mapping GUI
+	 */
+	public String getDecimalFormat() {
+		return LocalProperties.get(PROPERTY_DECIMAL_FORMAT, DEFAULT_DECIMAL_FORMAT);
+	}
 
 	/**
 	 * Sets the value shown by this UI element. This is called by the data binding to update the UI with changes in the
@@ -194,8 +198,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	 *            The value to set in model units
 	 */
 	public void setValue(double value) {
-		// Value in current units
-		final double valueInCurrentUnits = Quantities.getQuantity(value, modelUnit).to(currentUnit).getValue().doubleValue();
+		valueInCurrentUnits = Quantities.getQuantity(value, modelUnit).to(currentUnit).getValue().doubleValue();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001
@@ -213,7 +216,9 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 
 	@Override
 	public String toString() {
-		return "NumberAndUnitsComposite [text=" + text + ", modelUnit=" + modelUnit + ", currentUnit=" + currentUnit
-				+ "]";
+		return "NumberAndUnitsComposite [text=" + text + ", unitsCombo=" + unitsCombo + ", modelUnit=" + modelUnit
+				+ ", currentUnit=" + currentUnit + ", decimalFormat=" + decimalFormat + ", scientificFormat="
+				+ scientificFormat + ", valueInCurrentUnits=" + valueInCurrentUnits + "]";
 	}
+
 }
