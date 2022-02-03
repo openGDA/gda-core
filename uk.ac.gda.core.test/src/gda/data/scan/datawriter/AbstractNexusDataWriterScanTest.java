@@ -458,6 +458,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String ATTRIBUTE_NAME_LOCAL_NAME = "local_name";
 	protected static final String ATTRIBUTE_NAME_TARGET = "target";
 	protected static final String ATTRIBUTE_NAME_UNITS = "units";
+	protected static final String ATTRIBUTE_NAME_DECIMALS = "decimals";
 
 	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
@@ -549,6 +550,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 			dummyScannable.setLowerGdaLimits(SCANNABLE_LOWER_BOUND);
 			dummyScannable.setUpperGdaLimits(SCANNABLE_UPPER_BOUND);
 			dummyScannable.setControllerRecordName(SCANNABLE_PV_NAME_PREFIX + i);
+			dummyScannable.setOutputFormat(new String[] { "%5." + (i + 1) + (i % 2 == 0 ? "G" : "E") });
 			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, dummyScannable);
 			this.scannables[i] = dummyScannable;
 		}
@@ -574,7 +576,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final Map<String, ScannableWriter> locationMap = new HashMap<>();
 		for (int i = 0; i < METADATA_SCANNABLE_NAMES.length; i++) {
 			final String name = METADATA_SCANNABLE_NAMES[i];
-			createScannable(name, i, META_SCANNABLE_PV_NAME_PREFIX + i);
+			final String outputFormat = i % 2 == 0? "%5.3f" : "%3.5g";
+			createScannable(name, i, META_SCANNABLE_PV_NAME_PREFIX + i, outputFormat);
 
 			final List<String> prerequisites = dependencies.get(i).stream().map(j -> METADATA_SCANNABLE_NAMES[j]).collect(toList());
 			if (i == 0) prerequisites.add(scannables[0].getName());
@@ -609,9 +612,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return scannable;
 	}
 
-	protected DummyScannable createScannable(final String name, double value, String pvName) throws DeviceException {
+	protected DummyScannable createScannable(final String name, double value, String pvName, String outputFormat) throws DeviceException {
 		final DummyScannable scannable = createScannable(name, value);
 		scannable.setControllerRecordName(pvName);
+		scannable.setOutputFormat(new String[] { outputFormat });
 		return scannable;
 	}
 
@@ -630,9 +634,9 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private ScannableWriter createScannableWriter(String scannableName, List<String> prerequisiteNames) {
 		final SingleScannableWriter writer = new SingleScannableWriter();
-		writer.setPaths(new String[] { String.format(
-				"instrument:NXinstrument/%s:NXpositioner/%s", scannableName, scannableName ) });
-		writer.setUnits(new String[] { "mm" });
+		writer.setPaths(String.format(
+				"instrument:NXinstrument/%s:NXpositioner/%s", scannableName, scannableName ));
+		writer.setUnits("mm");
 		writer.setPrerequisiteScannableNames(prerequisiteNames);
 		return writer;
 	}

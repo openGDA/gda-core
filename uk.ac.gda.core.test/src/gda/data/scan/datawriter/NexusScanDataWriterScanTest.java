@@ -26,6 +26,7 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATIO
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
 import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.PROPERTY_VALUE_WRITE_DECIMALS;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -307,6 +308,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
 		LocalProperties.set(GDA_INSTRUMENT, EXPECTED_BEAMLINE_NAME);
 		LocalProperties.set(GDA_END_STATION_NAME, EXPECTED_END_STATION_NAME);
+		LocalProperties.set(PROPERTY_VALUE_WRITE_DECIMALS, Boolean.TRUE.toString());
 	}
 
 	@AfterClass
@@ -315,6 +317,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.clearProperty(PROPERTY_NAME_ENTRY_NAME);
 		LocalProperties.clearProperty(GDA_INSTRUMENT);
 		LocalProperties.clearProperty(GDA_END_STATION_NAME);
+		LocalProperties.clearProperty(PROPERTY_VALUE_WRITE_DECIMALS);
 	}
 
 	@BeforeClass
@@ -750,19 +753,17 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		// check attributes
 		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_GDA_FIELD_NAME,
-				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET };
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
-				is(equalTo("mm")));
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(),
-				is(equalTo(scannableName)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + NexusConstants.FIELD_SEPERATOR + scannableName)));
 		final String expectedTargetPath = "/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" +
 				(scanIndex == 0 ? GROUP_NAME_SCANNABLES + "/" : "" ) + scannableName + "/" + NXpositioner.NX_VALUE;
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
-				is(equalTo(expectedTargetPath)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(expectedTargetPath)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(scanIndex % 3 + 1));
 
 		// check dataset
 		assertThat(scannableValueDataNode.getDataset().getSlice(),
@@ -795,19 +796,16 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannableValueDataNode, is(notNullValue()));
 
 		final String[] expectedAttributeNames = new String[] { ATTRIBUTE_NAME_LOCAL_NAME,
-				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS };
+				ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_GDA_FIELD_NAME, ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(scannableValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
 				is(equalTo(scannableName + NexusConstants.FIELD_SEPERATOR + scannableName)));
 		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(), is(equalTo(
-				"/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + GROUP_NAME_SCANNABLES + "/"
-						+ scannableName + "/" + NXpositioner.NX_VALUE)));
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(),
-				is(equalTo(scannableName)));
-		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(),
-				is(equalTo("mm")));
-
+				"/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + GROUP_NAME_SCANNABLES + "/" + scannableName + "/" + NXpositioner.NX_VALUE)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(scannableName)));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
+		assertThat(scannableValueDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(1));
 		assertThat(scannableValueDataNode.getDataset().getSlice(),
 				is(equalTo(DatasetFactory.createFromObject(getExpectedScannableDataset(0))))); // check values
 	}
@@ -832,7 +830,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(monitorValueDataNode, is(notNullValue()));
 
 		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
-				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET };
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(MONITOR_NAME)));
@@ -840,8 +838,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 				is(equalTo(MONITOR_NAME + NexusConstants.FIELD_SEPERATOR + MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
 				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + MONITOR_NAME)));
-		assertThat(monitorValueDataNode.getDataset().getSlice(),
-				is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MONITOR_VALUE)))); // check values
+		assertThat(monitorValueDataNode.getDataset().getSlice(), is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MONITOR_VALUE)))); // check values
+		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(5));
 	}
 
 	@Override
@@ -858,7 +856,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(valueDataNode, is(notNullValue()));
 
 		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
-				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_UNITS };
+				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET,
+				ATTRIBUTE_NAME_UNITS, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 		assertThat(valueDataNode.getNumberOfAttributes(), is(expectedAttributeNames.length));
 
@@ -868,6 +867,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
 				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + GROUP_NAME_SCANNABLES + "/" + scannableName + "/" + NXpositioner.NX_VALUE)));
 		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_UNITS).getFirstElement(), is(equalTo("mm")));
+		final int expectedDecimals = index % 2 == 0 ? 3 : 5;
+		assertThat(valueDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(expectedDecimals));
 
 		assertThat(valueDataNode.getDataset().getShape(), is(equalTo(EMPTY_SHAPE)));
 		assertThat(valueDataNode.getDataset().getSlice().getDouble(), is(equalTo((double) index)));

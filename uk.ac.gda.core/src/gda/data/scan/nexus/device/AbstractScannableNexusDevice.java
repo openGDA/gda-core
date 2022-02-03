@@ -28,9 +28,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -55,6 +58,7 @@ import org.eclipse.scanning.api.scan.rank.IScanSlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.ControllerRecord;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -79,6 +83,14 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	private static final Logger logger = LoggerFactory.getLogger(AbstractScannableNexusDevice.class);
 
 	/**
+	 * A boolean property that, if set to {@code true} causes an {@link Attribute} named {@code decimals} to be added
+	 * to {@link DataNode}s for scannables, where the value of the attribute is the number of decimal places
+	 * (i.e. precision) specified in the output format for that field, as determined by
+	 * {@link Scannable#getOutputFormat()}. E.g. for the format string {@code "%5.3f"} the value will be {@code 3}.
+	 */
+	public static final String PROPERTY_VALUE_WRITE_DECIMALS = "gda.nexus.scannable.writeDecimals";
+
+	/**
 	 * The name of the 'scannables' collection. This collection contains all wrapped GDA8
 	 * scannables. The reason for this is that unless otherwise specified the nexus object
 	 * created for all scannables is an {@link NXpositioner}, even for metadata scannables,
@@ -101,6 +113,8 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	public static final String ATTR_NAME_GDA_SCAN_ROLE = "gda_scan_role";
 
 	public static final String ATTR_NAME_GDA_FIELD_NAME = "gda_field_name";
+
+	public static final String ATTR_NAME_DECIMALS = "decimals";
 
 	/**
 	 * The attribute name 'units'.
@@ -290,6 +304,9 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		final Scannable scannable = getScannable();
 		final String[] fieldNames = Stream.concat(Arrays.stream(scannable.getInputNames()),
 				Arrays.stream(scannable.getExtraNames())).toArray(String[]::new);
+		final boolean writeDecimals = LocalProperties.check(PROPERTY_VALUE_WRITE_DECIMALS, false);
+		final int[] numDecimals =  writeDecimals ?
+				Arrays.stream(scannable.getOutputFormat()).mapToInt(this::getNumDecimals).toArray() : null;
 
 		// create the datasets for each field
 		fieldDataNodes = new LinkedHashMap<>(fieldNames.length);
@@ -300,14 +317,49 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 			} else {
 				final String unitsStr = getFieldUnits(fieldIndex);
 				final DataNode dataNode = createDataField(scanInfo, nexusRole, fieldNames[fieldIndex],
-						unitsStr, positionArray[fieldIndex]);
+						(numDecimals == null) ? -1 : numDecimals[fieldIndex], unitsStr, positionArray[fieldIndex]);
 				fieldDataNodes.put(fieldNames[fieldIndex], dataNode);
 			}
 		}
 	}
 
+    // copied from java.util.Formatter
+    private static final Pattern FORMAT_PATTERN = Pattern.compile(
+    		"%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
+    private static final String FLOAT_CONVERSIONS = "fgeFGE"; // conversion characters for floating-point values for java.util.Formatter
+
+	private int getNumDecimals(String outputFormat) {
+		// the output format is a format string for the String.format() method, e.g. "%5.3g", where the
+		// (optional) first digit is the number of digits required before the decimal point in the output string,
+		// the second digit is the number of digits after. The final letter will be either e, f, or g
+		// for floating point numbers - the only type we are concerned with
+		final Matcher matcher = FORMAT_PATTERN.matcher(outputFormat);
+
+		if (matcher.find(0)) {
+			final char conversion = outputFormat.charAt(matcher.start(6));
+			if (FLOAT_CONVERSIONS.indexOf(conversion) == -1) {
+				return -1; // not a float
+			}
+			final int precisionStart = matcher.start(4); // group 4 is the precision group (\\.\\d+)?
+			if (precisionStart >= 0) {
+				// parse the precision as an int (start + 1 to skip the leading '.')
+				final int precisionEnd = matcher.end(4);
+				final int precision = Integer.parseInt(outputFormat, precisionStart + 1, precisionEnd, 10);
+				if (precision > 0) {
+					return precision;
+				} else {
+					logger.warn("Invalid precision in output format ''{}'' for scannable ''{}''", outputFormat, getScannable().getName());
+				}
+			}
+		} else {
+			logger.warn("Invalid output format ''{}'' for scannable ''{}''", outputFormat, getScannable().getName());
+		}
+
+		return -1;
+	}
+
 	private DataNode createDataField(NexusScanInfo scanInfo, final NexusRole nexusRole,
-			String inputFieldName, String unitsStr, Object value) {
+			String inputFieldName, int numDecimals, String unitsStr, Object value) {
 		final DataNode dataNode = NexusNodeFactory.createDataNode();
 		if (nexusRole == NexusRole.PER_SCAN) {
 			// simply set the field to the current value
@@ -326,6 +378,10 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		// set units attribute
 		if (unitsStr != null) {
 			dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_UNITS, unitsStr));
+		}
+		// set 'decimals' attribute if required
+		if (numDecimals != -1) {
+			dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_DECIMALS, numDecimals));
 		}
 
 		// add the data node to the parent group
