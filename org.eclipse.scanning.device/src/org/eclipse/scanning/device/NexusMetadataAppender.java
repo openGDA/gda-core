@@ -77,8 +77,18 @@ public class NexusMetadataAppender<N extends NXobject> extends NexusObjectAppend
 	}
 
 	@Override
+	public void setLinkedField(String fieldName, String linkPath) {
+		metadataNode.setChildNode(new LinkedField(fieldName, linkPath));
+	}
+
+	@Override
 	public void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath) {
 		metadataNode.addChildNode(new LinkedField(fieldName, externalFilePath, linkPath));
+	}
+
+	@Override
+	public void setExternalLinkedField(String fieldName, String externalFilePath, String linkPath) {
+		metadataNode.setChildNode(new LinkedField(fieldName, externalFilePath, linkPath));
 	}
 
 	@Override

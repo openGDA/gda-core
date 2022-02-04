@@ -108,6 +108,14 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	public void addLinkedField(String fieldName, String linkPath);
 
 	/**
+	 * Creates and adds, if not already exists, or overwriting, if already exists, a {@link LinkedField} to this device,
+	 * This will add a link with the given name to the {@link DataNode} with the path within the nexus file.
+	 * @param fieldName field name
+	 * @param linkPath path to link to within entry
+	 */
+	public void setLinkedField(String fieldName, String linkPath);
+
+	/**
 	 * Creates and adds a {@link LinkedField} to this device, which will add a link with the
 	 * given name to the dataset at the given path within the external nexus or hdf5 file at the given file path.
 	 * @param fieldName field name
@@ -115,6 +123,15 @@ public interface INexusMetadataDevice<N extends NXobject> extends INexusDevice<N
 	 * @param linkPath path to link to within external nexus file
 	 */
 	public void addExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
+
+	/**
+	 * Creates and adds, if not already exists, or overwriting, if already exists, a {@link LinkedField} to this device.
+	 * This will add a link with the given name to the {@link DataNode} at the given path within the external nexus or hdf5 file at the given file path.
+	 * @param fieldName field name
+	 * @param externalFilePath path to external nexus file to link to
+	 * @param linkPath path to link to within external nexus file
+	 */
+	public void setExternalLinkedField(String fieldName, String externalFilePath, String linkPath);
 
 	/**
 	 * Adds all given {@link MetadataNode}s to this device. This method is named so that it to make

@@ -148,9 +148,9 @@ public enum NexusMetadataUtility {
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
 				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
 		if (StringUtils.isNotBlank(fileName)) {
-			nxMetadataDevice.addExternalLinkedField(fieldName, fileName, linkPath);
+			nxMetadataDevice.setExternalLinkedField(fieldName, fileName, linkPath);
 		} else {
-			nxMetadataDevice.addLinkedField(fieldName, linkPath);
+			nxMetadataDevice.setLinkedField(fieldName, linkPath);
 		}
 		userAddedFields.add(new ImmutablePair<>(deviceName, fieldName));
 	}
