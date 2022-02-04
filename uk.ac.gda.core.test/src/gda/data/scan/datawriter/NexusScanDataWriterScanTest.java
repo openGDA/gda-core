@@ -31,6 +31,7 @@ import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_CO
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_CURRENT_SCRIPT_NAME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DURATION;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_END_TIME;
@@ -142,6 +143,7 @@ import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.factory.Finder;
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
+import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
@@ -293,6 +295,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final double MIRROR2_PITCH = 3.5;
 	private static final double MIRROR2_YAW = 13.9;
 
+	private static final String EXPECTED_SCRIPT_NAME = "currentScript.py";
+
 	@Parameters(name="scanRank = {0}")
 	public static Object[] data() {
 		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
@@ -372,8 +376,10 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
-		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespac
+		setupCommonBeamlineDevices(); // must be done after super.setUpTest() to use jython namespace
 		ServiceHolder.getNexusDeviceService().register(new BeforeScanSnapshotWriter());
+
+		((MockJythonServerFacade) InterfaceProvider.getScriptController()).setScriptName(EXPECTED_SCRIPT_NAME);
 	}
 
 	@Override
@@ -573,7 +579,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 		final Set<String> expectedLinkedFieldNames = Set.of(
 				FIELD_NAME_SCAN_START_TIME, FIELD_NAME_SCAN_END_TIME, FIELD_NAME_SCAN_DURATION,
-				FIELD_NAME_SCAN_SHAPE, FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_FIELDS);
+				FIELD_NAME_SCAN_SHAPE, FIELD_NAME_SCAN_COMMAND, FIELD_NAME_SCAN_FIELDS, FIELD_NAME_CURRENT_SCRIPT_NAME);
 
 		final Set<String> otherDataNodeNames = Set.of(NXentry.NX_PROGRAM_NAME);
 		final Set<String> allDataNodeNames = Streams.concat(
@@ -588,6 +594,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_COMMAND).getString(), is(equalTo(getExpectedScanCommand())));
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_SHAPE), is(equalTo(DatasetFactory.createFromObject(scanDimensions))));
 		assertThat(entry.getDataset(FIELD_NAME_SCAN_FIELDS), is(equalTo(DatasetFactory.createFromObject(getExpectedScanFieldNames()))));
+		assertThat(entry.getDataset(FIELD_NAME_CURRENT_SCRIPT_NAME).getString(), is(equalTo(EXPECTED_SCRIPT_NAME)));
 
 		// TODO: what further metadata should be added to the nexus file (DAQ-3151)
 		// (fields below are added by NexusDataWriter get metadata into nexus file but not yet NexusScanDataWriter)
