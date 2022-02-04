@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -502,6 +503,15 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	@Override
 	public JythonStatus getScanStatus() {
 		return commandServer.getScanStatus(name);
+	}
+
+	public JythonServerStatus getServerStatus() {
+		return commandServer.getJythonServerStatus();
+	}
+
+	@Override
+	public Optional<String> getScriptName() {
+		return getServerStatus().getScriptName();
 	}
 
 	@Override

@@ -39,9 +39,9 @@ public class JythonServerStatusHolder {
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	// These three fields determine the script status
-	private boolean runningScript;
 	private int numCommandsRunningSynchronously;
 	private boolean paused;
+	private String scriptName;
 
 	// This field determines the scan status
 	private JythonStatus lastScanStatus = JythonStatus.IDLE;
@@ -64,8 +64,10 @@ public class JythonServerStatusHolder {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public boolean tryAcquireScriptLock() {
-
+	public boolean tryAcquireScriptLock(String name) {
+		if (name == null) {
+			throw new NullPointerException("Script name cannot be null");
+		}
 		boolean allowed = false;
 
 		JythonServerStatus event = null;
@@ -75,15 +77,15 @@ public class JythonServerStatusHolder {
 
 			final JythonStatus statusBefore = getScriptStatus();
 
-			if (!runningScript) {
-				runningScript = true;
+			if (scriptName == null) {
+				scriptName = name;
 				allowed = true;
 			}
 
 			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
-				event = new JythonServerStatus(statusAfter, lastScanStatus);
+				event = new JythonServerStatus(statusAfter, lastScanStatus, scriptName);
 			}
 		}
 
@@ -107,8 +109,8 @@ public class JythonServerStatusHolder {
 
 			final JythonStatus statusBefore = getScriptStatus();
 
-			if (runningScript) {
-				runningScript = false;
+			if (scriptName != null) {
+				scriptName = null;
 				if (paused) {
 					logger.warn("Script ended while paused");
 					paused = false;
@@ -118,7 +120,7 @@ public class JythonServerStatusHolder {
 			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
-				event = new JythonServerStatus(statusAfter, lastScanStatus);
+				event = new JythonServerStatus(statusAfter, lastScanStatus, scriptName);
 			}
 		}
 
@@ -145,7 +147,7 @@ public class JythonServerStatusHolder {
 			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
-				event = new JythonServerStatus(statusAfter, lastScanStatus);
+				event = new JythonServerStatus(statusAfter, lastScanStatus, scriptName);
 			}
 		}
 
@@ -172,7 +174,7 @@ public class JythonServerStatusHolder {
 			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
-				event = new JythonServerStatus(statusAfter, lastScanStatus);
+				event = new JythonServerStatus(statusAfter, lastScanStatus, scriptName);
 			}
 		}
 
@@ -205,7 +207,7 @@ public class JythonServerStatusHolder {
 			final JythonStatus statusAfter = getScriptStatus();
 
 			if (statusBefore != statusAfter) {
-				event = new JythonServerStatus(statusAfter, lastScanStatus);
+				event = new JythonServerStatus(statusAfter, lastScanStatus, scriptName);
 			}
 		}
 
@@ -227,7 +229,7 @@ public class JythonServerStatusHolder {
 				return JythonStatus.PAUSED;
 			}
 
-			else if (runningScript || (numCommandsRunningSynchronously > 0)) {
+			else if ((scriptName != null) || (numCommandsRunningSynchronously > 0)) {
 				return JythonStatus.RUNNING;
 			}
 
@@ -251,7 +253,7 @@ public class JythonServerStatusHolder {
 		try {
 			if (newStatus != lastScanStatus) {
 				lastScanStatus = newStatus;
-				event = new JythonServerStatus(getScriptStatus(), lastScanStatus);
+				event = new JythonServerStatus(getScriptStatus(), lastScanStatus, scriptName);
 			}
 		}
 
@@ -272,4 +274,12 @@ public class JythonServerStatusHolder {
 		jythonServerStatusObservers.notifyIObservers(null, newStatus);
 	}
 
+	public JythonServerStatus getServerStatus() {
+		lock.readLock().lock();
+		try {
+			return new JythonServerStatus(lastScanStatus, getScriptStatus(), scriptName);
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
 }

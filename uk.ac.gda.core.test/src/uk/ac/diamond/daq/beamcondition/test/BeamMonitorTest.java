@@ -321,7 +321,7 @@ public class BeamMonitorTest {
 
 	@Test
 	public void testScanNotPausedIfOnlyScriptIsRunning() throws Exception {
-		when(jythonServerStatus.getJythonServerStatus()).thenReturn(new JythonServerStatus(RUNNING, IDLE));
+		when(jythonServerStatus.getJythonServerStatus()).thenReturn(new JythonServerStatus(RUNNING, IDLE, "script_name"));
 		when(condition1.beamOn()).thenReturn(false);
 		monitor.on();
 
@@ -332,7 +332,7 @@ public class BeamMonitorTest {
 
 	@Test
 	public void testScriptIsNotPausedIfScanIsRunning() throws Exception {
-		when(jythonServerStatus.getJythonServerStatus()).thenReturn(new JythonServerStatus(RUNNING, IDLE));
+		when(jythonServerStatus.getJythonServerStatus()).thenReturn(new JythonServerStatus(RUNNING, IDLE, "script_name"));
 		when(condition1.beamOn()).thenReturn(false);
 		monitor.on();
 

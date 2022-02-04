@@ -577,7 +577,7 @@ public final class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			InterfaceProvider.getScanDataPointProvider().addScanEventObserver(serverObserver);
 			updateBatonStatus(batonStatus);
 			JythonServerFacade jsf = JythonServerFacade.getInstance();
-			JythonServerStatus jythonServerStatus = new JythonServerStatus(jsf.getScriptStatus(), jsf.getScanStatus());
+			JythonServerStatus jythonServerStatus = jsf.getServerStatus();
 			updateScanStatus(scanStatus, jythonServerStatus);
 			updateScriptStatus(scriptStatus, jythonServerStatus);
 		} catch (Exception ne) {

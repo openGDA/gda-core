@@ -107,7 +107,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 			}
 		};
 
-		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(JythonStatus.PAUSED, JythonStatus.IDLE));
+		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(JythonStatus.PAUSED, JythonStatus.IDLE, "script_name"));
 
 		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != 0)
 			throw new Exception("There are points in the service and there should be none.");
@@ -128,7 +128,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 					+ UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() + " and line index is "
 					+ lineIndex);
 
-		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(JythonStatus.IDLE, JythonStatus.IDLE)); // Stop does not reset, test this
+		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(JythonStatus.IDLE, JythonStatus.IDLE, null)); // Stop does not reset, test this
 
 		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != (lineIndex - 1))
 			throw new Exception("Current points are size "

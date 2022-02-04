@@ -251,6 +251,9 @@ public interface Jython extends Findable, IObservable {
 	 */
 	public JythonStatus getScriptStatus(String JSFIdentifier);
 
+	/** Get the state of running scripts/scans */
+	public JythonServerStatus getJythonServerStatus();
+
 	/**
 	 * Returns information about each active command thread
 	 *

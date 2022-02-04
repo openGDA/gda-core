@@ -32,6 +32,8 @@ import org.junit.Test;
 
 public class JythonServerStatusHolderTest {
 
+	private static final String SCRIPT_NAME = "test_script";
+
 	static class JythonServerStatusEventCollector implements IJythonServerStatusObserver {
 
 		private final List<JythonServerStatus> events = new ArrayList<>();
@@ -66,16 +68,16 @@ public class JythonServerStatusHolderTest {
 
 	@Test
 	public void testOneEventWhenScriptIsExecuted() {
-		assertTrue(holder.tryAcquireScriptLock());
+		assertTrue(holder.tryAcquireScriptLock(SCRIPT_NAME));
 		assertEquals(1, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, IDLE), collector.events.get(0));
+		assertEquals(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME), collector.events.get(0));
 	}
 
 	@Test
 	public void testTwoEventsWhenScriptIsExecutedAndFinishes() {
-		assertTrue(holder.tryAcquireScriptLock());
+		assertTrue(holder.tryAcquireScriptLock(SCRIPT_NAME));
 		assertEquals(1, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, IDLE), collector.events.get(0));
+		assertEquals(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME), collector.events.get(0));
 		holder.releaseScriptLock();
 		assertEquals(2, collector.events.size());
 		assertEquals(new JythonServerStatus(IDLE, IDLE), collector.events.get(1));
@@ -83,28 +85,28 @@ public class JythonServerStatusHolderTest {
 
 	@Test
 	public void testTwoEventsWhenScriptIsExecutedAndThenScanStarts() {
-		assertTrue(holder.tryAcquireScriptLock());
+		assertTrue(holder.tryAcquireScriptLock(SCRIPT_NAME));
 		assertEquals(1, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, IDLE), collector.events.get(0));
+		assertEquals(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME), collector.events.get(0));
 		holder.updateScanStatus(RUNNING);
 		assertEquals(2, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, RUNNING), collector.events.get(1));
+		assertEquals(new JythonServerStatus(RUNNING, RUNNING, SCRIPT_NAME), collector.events.get(1));
 	}
 
 	@Test
 	public void testOneEventWhenScriptIsExecutedAndThenSynchronousCommandRuns() {
-		assertTrue(holder.tryAcquireScriptLock());
+		assertTrue(holder.tryAcquireScriptLock(SCRIPT_NAME));
 		assertEquals(1, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, IDLE), collector.events.get(0));
+		assertEquals(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME), collector.events.get(0));
 		holder.startRunningCommandSynchronously();
 		assertEquals(1, collector.events.size());
 	}
 
 	@Test
 	public void testTwoEventsWhenScriptIsExecutedAndThenSynchronousCommandRunsAndThenBothFinish() {
-		assertTrue(holder.tryAcquireScriptLock());
+		assertTrue(holder.tryAcquireScriptLock(SCRIPT_NAME));
 		assertEquals(1, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, IDLE), collector.events.get(0));
+		assertEquals(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME), collector.events.get(0));
 		holder.startRunningCommandSynchronously();
 		assertEquals(1, collector.events.size());
 		holder.releaseScriptLock();
@@ -115,10 +117,10 @@ public class JythonServerStatusHolderTest {
 
 	@Test
 	public void testCannotStartTwoConcurrentScripts() {
-		assertTrue(holder.tryAcquireScriptLock());
-		assertFalse(holder.tryAcquireScriptLock());
+		assertTrue(holder.tryAcquireScriptLock(SCRIPT_NAME));
+		assertFalse(holder.tryAcquireScriptLock(SCRIPT_NAME));
 		assertEquals(1, collector.events.size());
-		assertEquals(new JythonServerStatus(RUNNING, IDLE), collector.events.get(0));
+		assertEquals(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME), collector.events.get(0));
 	}
 
 	@Test

@@ -359,7 +359,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	public CommandThreadEvent runScript(String command, String scriptName, String jsfIdentifier) {
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
-		if (!statusHolder.tryAcquireScriptLock()) {
+		if (!statusHolder.tryAcquireScriptLock(scriptName)) {
 			return new CommandThreadEvent(CommandThreadEventType.BUSY, null);
 		}
 		boolean started = false;
@@ -1451,7 +1451,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 
 	@Override
 	public JythonServerStatus getJythonServerStatus() {
-		return new JythonServerStatus(statusHolder.getScriptStatus(), getScanStatus(null));
+		return statusHolder.getServerStatus();
 	}
 
 	public void showUsers() {

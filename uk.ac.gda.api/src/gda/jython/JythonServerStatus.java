@@ -20,6 +20,8 @@
 package gda.jython;
 
 import java.io.Serializable;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Class which holds a snapshot of the state of the server. Used by classes to inform each other of the server state
@@ -37,16 +39,20 @@ public class JythonServerStatus implements Serializable {
 	 */
 	public final JythonStatus scanStatus;
 
+	/** Name of the currently running script - null if no script is running */
+	public final String scriptName;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param scriptStatus
-	 * @param scanStatus
-	 */
 	public JythonServerStatus(JythonStatus scriptStatus, JythonStatus scanStatus) {
+		this(scriptStatus, scanStatus, null);
+	}
+
+	public JythonServerStatus(JythonStatus scriptStatus, JythonStatus scanStatus, String scriptName) {
+		if (scriptStatus == JythonStatus.IDLE && scriptName != null) {
+			throw new IllegalArgumentException("Script name must be null if no script is running");
+		}
 		this.scriptStatus = scriptStatus;
 		this.scanStatus = scanStatus;
+		this.scriptName = scriptName;
 	}
 
 	public boolean isScriptOrScanPaused(){
@@ -57,12 +63,17 @@ public class JythonServerStatus implements Serializable {
 		return scriptStatus==JythonStatus.IDLE  && scanStatus==JythonStatus.IDLE;
 	}
 
+	public Optional<String> getScriptName() {
+		return Optional.ofNullable(scriptName);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + scanStatus.ordinal();
 		result = prime * result + scriptStatus.ordinal();
+		result = prime * result + scriptName.hashCode();
 		return result;
 	}
 
@@ -79,7 +90,7 @@ public class JythonServerStatus implements Serializable {
 			return false;
 		if (scriptStatus != other.scriptStatus)
 			return false;
-		return true;
+		return Objects.equals(scriptName, other.scriptName);
 	}
 
 	@Override
