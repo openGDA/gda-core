@@ -229,7 +229,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 		plotDataSets.clear();
 		plotDataSets.add(dataset);
 
-		plottingSystem.reset();
+		plottingSystem.clear();
 		plottingSystem.getSelectedYAxis().setTitle("Counts (a.u.)");
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 
