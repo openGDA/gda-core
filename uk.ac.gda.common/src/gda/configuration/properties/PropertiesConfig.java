@@ -125,6 +125,16 @@ public interface PropertiesConfig {
 	public void setString(String value, String name);
 
 	/**
+	 * Assign a string property value to a specified key string.
+	 *
+	 * @param value
+	 *            the string value to assign to the specified key
+	 * @param name
+	 *            the key specified to assign to the value
+	 */
+	public void setBoolean(boolean value, String name);
+
+	/**
 	 * Remove a property from the configuration
 	 * @param key
 	 */

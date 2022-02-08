@@ -272,6 +272,12 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		config.setProperty(name, value);
 	}
 
+
+	@Override
+	public void setBoolean(boolean value, String name) {
+		config.setProperty(name, value);
+	}
+
 	@Override
 	public void clearProperty(String key) {
 		config.clearProperty(key);

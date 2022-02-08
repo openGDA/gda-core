@@ -654,6 +654,17 @@ public final class LocalProperties {
 	}
 
 	/**
+	 * Assign a string property value to a specified key string.
+	 *
+	 * @param propertyName
+	 *            the key specified to assign to the value
+	 * @param value
+	 *            the string value to assign to the specified key
+	 */
+	public static void set(String propertyName, boolean value) {
+		propConfig.setBoolean(value, propertyName);
+	}
+	/**
 	 * Determines whether GDA is using the dummy mode configuration.
 	 *
 	 * @return true if GDA is using the dummy mode configuration; false otherwise. False is default to make dummy mode the exception.
