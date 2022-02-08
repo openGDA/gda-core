@@ -51,12 +51,6 @@ public interface Authoriser {
 
 	/**
 	 * @param username
-	 * @return true if the given username is listed in the system
-	 */
-	public boolean hasAuthorisationLevel(String username);
-	
-	/**
-	 * @param username
 	 * @return the authorisation level for the given username for this GDA installation
 	 */
 	public int getAuthorisationLevel(String username);
