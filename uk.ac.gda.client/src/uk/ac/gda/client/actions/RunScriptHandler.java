@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.actions;
 
+import static gda.jython.commandinfo.CommandThreadEventType.BUSY;
+
 import java.io.File;
 
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.client.UIHelper;
 
 public class RunScriptHandler extends ScriptHandler {
 
@@ -34,6 +37,10 @@ public class RunScriptHandler extends ScriptHandler {
 	@Override
 	void run(File script) {
 		logger.info("Running script '{}' from UI", script);
-		COMMAND_RUNNER.runScript(script);
+		var status = COMMAND_RUNNER.runScript(script);
+		if (status.getEventType() == BUSY) {
+			UIHelper.showError("Could not start script",
+					"Could not run script as there is another script running");
+		}
 	}
 }
