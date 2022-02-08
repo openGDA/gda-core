@@ -196,4 +196,9 @@ public class LiveStreamPlottable implements LiveStreamMapObject {
 		return cachedDataset;
 	}
 
+	@Override
+	public void setTransparency(int transparency) {
+		// not implemented yet
+	}
+
 }
