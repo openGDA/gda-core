@@ -88,8 +88,13 @@ public class LdapAuthoriserTest {
 	}
 
 	@AfterClass
-	public static void closeMock() {
+	public static void tearDown() {
 		ldapMixinMock.close();
+		LocalProperties.clearProperty(Authoriser.DEFAULT_LEVEL_PROPERTY);
+		LocalProperties.clearProperty(Authoriser.DEFAULT_STAFF_LEVEL_PROPERTY);
+		LocalProperties.clearProperty(LdapAuthoriser.LDAPSTAFF_PROPERTY);
+		LocalProperties.clearProperty(Authoriser.AUTHORISERCLASS_PROPERTY);
+		System.clearProperty(LocalProperties.GDA_CONFIG);
 	}
 
 	private static NamingEnumeration<SearchResult> mockResultsForGroup(String group) throws NamingException {

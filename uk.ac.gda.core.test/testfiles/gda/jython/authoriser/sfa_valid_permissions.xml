@@ -1,0 +1,23 @@
+<permissions>
+	<!-- staff and level specified -->
+	<user fedid="staff-level3" staff="true" level="3" />
+	<user fedid="not-staff-level2" staff="false" level="2" />
+
+	<!-- just level -->
+	<user fedid="level2" level="2" />
+	
+	<!-- just level -->
+	<user fedid="staff" staff="true" />
+	<user fedid="not-staff" staff="false" />
+	
+	<!-- Unexpected properties -->
+	
+	<user fedid="non-empty"> <!-- non-empty element -->
+		<ignored/>
+	</user>
+	<user level="4" staff="true" /> <!-- No fedid -->
+	<user fedid="extra-fields" foo="bar" />
+	<user fedid="invalid-level" level="three" />
+	<user fedid="invalid-staff" staff="not-boolean" />
+	<ignored foo="bar" /> <!-- Not user -->
+</permissions>
