@@ -21,10 +21,12 @@ package gda.device.detector.nexusprocessor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
+import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +64,6 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 	private String hdfDataEntry;
 	private String hdfFilePath;
 	private SwmrFileReader swmrReader;
-	private int detectorHeight;
-	private int detectorWidth;
 	private int[] detectorDatasetShape;
 	private int numberScanPoints;
 	private boolean useUidDataset;
@@ -78,13 +78,7 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 
 	@Override
 	protected Dataset extractDataset(GDANexusDetectorData nexusTreeProvider) throws Exception {
-		// First point
-		if (hdfFilePath == null) {
-			NexusGroupData dataFileGroup = nexusTreeProvider.getData(getDetName(), "data", NexusExtractor.ExternalSDSLink);
-			setDatafileParameters(dataFileGroup);
-			openFile();
-		}
-
+		ensureFileOpen(nexusTreeProvider);
 		NexusGroupData frameData = nexusTreeProvider.getData(getDetName(), FRAME_NO_DATASET_NAME, NexusExtractor.SDSClassName);
 		if (frameData == null) {
 			throw new IllegalArgumentException("No frame data found for detName: " + getDetName());
@@ -93,20 +87,41 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		return readDatasetFromFile(frameNo);
 	}
 
+	private synchronized void ensureFileOpen(GDANexusDetectorData nexusTreeProvider) throws URISyntaxException, ScanFileHolderException, NexusException {
+		if (hdfFilePath == null) {
+			// First point
+			NexusGroupData dataFileGroup = nexusTreeProvider.getData(getDetName(), "data", NexusExtractor.ExternalSDSLink);
+			setDatafileParameters(dataFileGroup);
+			openFile();
+		}
+	}
+
 	private void openFile() throws ScanFileHolderException {
 		swmrReader = new SwmrFileReader();
 		swmrReader.openFile(hdfFilePath);
 		swmrReader.addDatasetToRead(getDetName(), hdfDataEntry);
 		if (useUidDataset) {
-			swmrReader.addDatasetToRead(getDetName() + "uid", "uid");
+			swmrReader.addDatasetToRead(getDetName() + uidName, uidName);
 		}
 	}
 
-	private void setDatafileParameters(NexusGroupData dataFileGroup) throws URISyntaxException {
+	private void setDatafileParameters(NexusGroupData dataFileGroup) throws URISyntaxException, NexusException {
 		String hdfUri = dataFileGroup.toDataset().getString();
 		URI myUri = new URI(hdfUri);
 		hdfFilePath = Paths.get(myUri.getPath()).toString();
-		hdfDataEntry = myUri.getFragment();
+		hdfDataEntry = "/" + myUri.getFragment();
+		// Read the frame size from the file using the NexusFile interface (as is lightweight)
+		try (var dFile = ServiceHolder.getNexusFileFactory().newNexusFile(hdfFilePath, true)) {
+			dFile.openToRead();
+			var dShape = dFile.getData(hdfDataEntry).getDataset().getShape();
+			// Assume 3d shape
+			if (dShape.length != 3) {
+				throw new NexusException("Detector data shape is not 3d");
+			}
+			detectorDatasetShape = new int[] {1, dShape[1], dShape[2]};
+			logger.debug("Set detector data read shape to: {}", Arrays.toString(detectorDatasetShape));
+		}
+
 	}
 
 	/**
@@ -201,22 +216,32 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 		closeFile();
 	}
 
+	/** @deprecated detector height and width now read from file */
+	@Deprecated(forRemoval = true, since = "GDA 9.28")
 	public int getDetectorHeight() {
-		return detectorHeight;
+		logger.warn("This method is deprecated and will be removed in GDA 9.30");
+		return detectorDatasetShape[1];
 	}
 
+	/** @deprecated detector height and width now read from file */
+	@SuppressWarnings("unused")
+	@Deprecated(forRemoval = true, since = "GDA 9.28")
 	public void setDetectorHeight(int detectorHeight) {
-		this.detectorHeight = detectorHeight;
-		detectorDatasetShape = new int[] {1, this.detectorHeight, this.detectorWidth};
+		logger.warn("This method is deprecated and will be removed in GDA 9.30");
 	}
 
+	/** @deprecated detector height and width now read from file */
+	@Deprecated(forRemoval = true, since = "GDA 9.28")
 	public int getDetectorWidth() {
-		return detectorWidth;
+		logger.warn("This method is deprecated and will be removed in GDA 9.30");
+		return detectorDatasetShape[2];
 	}
 
+	/** @deprecated detector height and width now read from file */
+	@SuppressWarnings("unused")
+	@Deprecated(forRemoval = true, since = "GDA 9.28")
 	public void setDetectorWidth(int detectorWidth) {
-		this.detectorWidth = detectorWidth;
-		detectorDatasetShape = new int[] {1, this.detectorHeight, this.detectorWidth};
+		logger.warn("This method is deprecated and will be removed in GDA 9.30");
 	}
 
 	public boolean isUseUidDataset() {
@@ -225,6 +250,14 @@ public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcess
 
 	public void setUseUidDataset(boolean useUidDataset) {
 		this.useUidDataset = useUidDataset;
+	}
+
+	public String getUidName() {
+		return uidName;
+	}
+
+	public void setUidName(String uidName) {
+		this.uidName = uidName;
 	}
 
 }
