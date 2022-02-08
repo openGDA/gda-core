@@ -24,6 +24,7 @@ import static si.uom.NonSI.DEGREE_ANGLE;
 import static si.uom.NonSI.ELECTRON_VOLT;
 import static tec.units.indriya.AbstractUnit.ONE;
 import static tec.units.indriya.unit.MetricPrefix.GIGA;
+import static tec.units.indriya.unit.MetricPrefix.HECTO;
 import static tec.units.indriya.unit.MetricPrefix.KILO;
 import static tec.units.indriya.unit.MetricPrefix.MICRO;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
@@ -33,6 +34,7 @@ import static tec.units.indriya.unit.Units.CUBIC_METRE;
 import static tec.units.indriya.unit.Units.KILOGRAM;
 import static tec.units.indriya.unit.Units.LITRE;
 import static tec.units.indriya.unit.Units.METRE;
+import static tec.units.indriya.unit.Units.PASCAL;
 import static tec.units.indriya.unit.Units.RADIAN;
 import static tec.units.indriya.unit.Units.SECOND;
 
@@ -123,6 +125,9 @@ public final class NonSIext {
 	public static final String CUBIC_METRE_UNICODE_STRING = "\u33a5"; // single Unicode character
 	public static final String CUBIC_METRE_STRING = "m\u00b3"; // m followed by superscript 3
 
+	public static final String PRESSURE_BAR_STRING = "bar";
+	public static final String PRESSURE_MILLI_BAR_STRING = "mbar";
+
 	/** An alternative unit name for one over ANGSTROM (alternative name <code>Per_Angstrom</code>). */
 	public static final Unit<WaveVector> PER_ANGSTROM = ANGSTROM.inverse().asType(WaveVector.class);
 
@@ -196,6 +201,9 @@ public final class NonSIext {
 		unitFormat.alias(MICRO(LITRE), MICROLITRE_U_STRING);
 		unitFormat.alias(MICRO(LITRE), MICROLITRE_MU_STRING);
 		unitFormat.alias(CUBIC_METRE, CUBIC_METRE_STRING);
+
+		unitFormat.alias(HECTO(KILO(PASCAL)), PRESSURE_BAR_STRING);
+		unitFormat.alias(HECTO(PASCAL), PRESSURE_MILLI_BAR_STRING);
 	}
 
 	/**
@@ -221,6 +229,8 @@ public final class NonSIext {
 			.put(KILOCOUNTS, KILOCOUNTS_STRING)
 			.put(MICRO(LITRE), MICROLITRE_STRING)
 			.put(CUBIC_METRE, CUBIC_METRE_STRING)
+			.put(HECTO(KILO(PASCAL)), PRESSURE_BAR_STRING)
+			.put(HECTO(PASCAL), PRESSURE_MILLI_BAR_STRING)
 			.put(ONE, "")
 			.build();
 

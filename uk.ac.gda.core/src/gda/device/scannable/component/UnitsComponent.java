@@ -62,6 +62,8 @@ import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_LOWERCASE_STRI
 import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_STRING;
 import static gda.jscience.physics.units.NonSIext.MILLI_RADIAN_ANGLE_LOWERCASE_STRING;
 import static gda.jscience.physics.units.NonSIext.MILLI_RADIAN_ANGLE_STRING;
+import static gda.jscience.physics.units.NonSIext.PRESSURE_BAR_STRING;
+import static gda.jscience.physics.units.NonSIext.PRESSURE_MILLI_BAR_STRING;
 import static si.uom.NonSI.ELECTRON_VOLT;
 import static tec.units.indriya.AbstractUnit.ONE;
 import static tec.units.indriya.unit.MetricPrefix.KILO;
@@ -385,6 +387,8 @@ public class UnitsComponent<Q extends Quantity<Q>> implements PositionConvertor 
 			unitList.add(MILLI(PASCAL).toString());
 			unitList.add(KILO(PASCAL).toString());
 			unitList.add(MEGA(PASCAL).toString());
+			unitList.add(PRESSURE_BAR_STRING);
+			unitList.add(PRESSURE_MILLI_BAR_STRING);
 		}
 
 		else {

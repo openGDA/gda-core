@@ -76,7 +76,7 @@ public class UnitsComponentTest {
 	private static final List<String> DURATION_UNITS = Arrays.asList("s", "ms");
 	private static final List<String> VOLUME_UNITS = Arrays.asList("L", "l", "m\u00b3", "\u00b5L", "uL", "\u03bcL", "\u33a5");
 	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/ml");
-	private static final List<String> PRESSURE_UNITS = Arrays.asList("Pa", "mPa", "kPa", "MPa");
+	private static final List<String> PRESSURE_UNITS = Arrays.asList("Pa", "mPa", "kPa", "MPa", "bar", "mbar");
 
 	@BeforeClass
 	public static void setUpClass() {
