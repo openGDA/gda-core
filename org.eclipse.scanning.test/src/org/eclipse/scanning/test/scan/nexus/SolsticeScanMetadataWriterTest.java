@@ -29,6 +29,7 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_UNIQU
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_UNIQUE_KEYS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_SUPPRESS_GLOBAL_UNIQUE_KEYS;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.PROPERTY_NAME_UNIQUE_KEYS_PATH;
+import static org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter.SCALAR_SHAPE;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter.SINGLE_SHAPE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -66,6 +67,7 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.AbstractNexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.CustomNexusEntryModification;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.eclipse.dawnsci.nexus.scan.NexusScanMetadataWriter;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.FloatDataset;
@@ -221,8 +223,6 @@ public class SolsticeScanMetadataWriterTest {
 
 	private static final String MALCOLM_UNIQUE_KEYS_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
-	private static final int[] EMPTY_SHAPE = new int[0];
-
 	private static final int[] SCAN_SHAPE = new int[] { 8, 5 };
 
 	private static final String SCAN_COMMAND = "mscan(grid(axes=('xNex', 'yNex'), start=(0, 0), stop=(8, 5), count=(1, 1), snake=True)";
@@ -366,7 +366,7 @@ public class SolsticeScanMetadataWriterTest {
 
 		assertThat(estimatedTimeDataset.getElementClass(), is(equalTo(Long.class)));
 		assertThat(estimatedTimeDataset.getRank(), is(0));
-		assertThat(estimatedTimeDataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+		assertThat(estimatedTimeDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(estimatedTimeDataset.getLong(), is(numPoints * 100l));
 		assertUnitsSet(estimatedTimeDataNode);
 
@@ -445,7 +445,7 @@ public class SolsticeScanMetadataWriterTest {
 		if (perPoint) {
 			assertThat(startTimeStampsDataset.getRank(), is(scanRank));
 		} else {
-			assertThat(startTimeStampsDataset.getShape(), is(either(equalTo(SINGLE_SHAPE)).or(equalTo(EMPTY_SHAPE))));
+			assertThat(startTimeStampsDataset.getShape(), is(either(equalTo(SINGLE_SHAPE)).or(equalTo(SCALAR_SHAPE))));
 		}
 	}
 
@@ -533,7 +533,7 @@ public class SolsticeScanMetadataWriterTest {
 		// assert that the estimated time has been written
 		assertThat(estimatedTimeDataset.getElementClass(), is(equalTo(Long.class)));
 		assertThat(estimatedTimeDataset.getRank(), is(0));
-		assertThat(estimatedTimeDataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+		assertThat(estimatedTimeDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		final long estimatedTime = estimatedTimeDataset.getLong();
 		assertThat(estimatedTime, is(equalTo(numPoints * 100l)));
 		assertUnitsSet(estimatedTimeDataNode);
@@ -583,30 +583,30 @@ public class SolsticeScanMetadataWriterTest {
 		// check data written to scan finished dataset
 		final IDataset writtenToScanFinishedData = scanFinishedSaver.getLastWrittenData();
 		assertThat(writtenToScanFinishedData, is(notNullValue()));
-		assertThat(writtenToScanFinishedData.getRank(), is(0));
-		assertThat(writtenToScanFinishedData.getShape(), is(equalTo(EMPTY_SHAPE)));
+		assertThat(writtenToScanFinishedData.getRank(), is(1));
+		assertThat(writtenToScanFinishedData.getShape(), is(equalTo(NexusScanMetadataWriter.SINGLE_SHAPE)));
 		assertThat(writtenToScanFinishedData, is(instanceOf(IntegerDataset.class)));
-		assertThat(writtenToScanFinishedData.getInt(), is(1));
+		assertThat(writtenToScanFinishedData.getInt(0), is(1));
 
 		// check data written to actual time dataset
 		final IDataset writtenToActualTimeDataset = actualTimeSaver.getLastWrittenData();
 		assertThat(writtenToActualTimeDataset, is(notNullValue()));
 		assertThat(writtenToActualTimeDataset.getRank(), is(0));
-		assertThat(writtenToActualTimeDataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+		assertThat(writtenToActualTimeDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(writtenToActualTimeDataset, is(instanceOf(LongDataset.class)));
 
 		// check data written to dead time dataset
 		final IDataset writtenToDeadTimeDataset = deadTimeSaver.getLastWrittenData();
 		assertThat(writtenToDeadTimeDataset, is(notNullValue()));
 		assertThat(writtenToDeadTimeDataset.getRank(), is(0));
-		assertThat(writtenToDeadTimeDataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+		assertThat(writtenToDeadTimeDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(writtenToDeadTimeDataset, is(instanceOf(LongDataset.class)));
 
 		// check data written to dead time percent dataset
 		final IDataset writtenToDeadTimePercentDataset = deadTimePercentSaver.getLastWrittenData();
 		assertThat(writtenToDeadTimePercentDataset, is(notNullValue()));
 		assertThat(writtenToDeadTimePercentDataset.getRank(), is(0));
-		assertThat(writtenToDeadTimePercentDataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+		assertThat(writtenToDeadTimePercentDataset.getShape(), is(equalTo(SCALAR_SHAPE)));
 		assertThat(writtenToDeadTimePercentDataset, is(instanceOf(FloatDataset.class)));
 
 		// check data written to unique keys dataset

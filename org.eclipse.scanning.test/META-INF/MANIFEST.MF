@@ -50,7 +50,7 @@ Require-Bundle:
  org.eclipse.scanning.command,
  org.eclipse.dawnsci.analysis.api,
  org.apache.activemq.activemq-osgi,
- org.eclipse.dawnsci.analysis.dataset,
+ org.eclipse.dawnsci.analysis.dataset;bundle-version="1.1.1",
  org.eclipse.dawnsci.remotedataset.server,
  org.eclipse.dawnsci.remotedataset.client,
  org.eclipse.dawnsci.remotedataset.core,
