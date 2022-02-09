@@ -19,9 +19,8 @@ function gda_core_help {
 	cat 1>&2 <<EOF
 Usage: $(basename "$0") [-v|--verbose] [OPTION]... COMPONENT
 
-Start the specified GDA component, where COMPONENT can be
+Start the specified GDA component, where COMPONENT can be ONE of
     logpanel|servers|client
-    logserver|nameserver|eventserver|objectserver
 
 Required Environment variables:
     GDA_WORKSPACE_PARENT     The root directory of the deployment, parent of
@@ -97,8 +96,13 @@ for word in "$@"; do
     elif [[ "${word}" == --mode=* ]]; then
         export GDA_MODE=${word:7}
     fi
-    if [[ "${word}" != -* ]]; then
-        export GDA_COMPONENT=${word}
+    if [[ "${word}" != -* ]]; then		#if word does not start with a '-' check for a GDA Component name
+        lowercase_word="${word,,}"
+        case "${lowercase_word}" in logpanel|servers|client)
+            export GDA_COMPONENT=${lowercase_word}
+            GDA_COMPONENT_CATEGORY=${GDA_COMPONENT}
+            ;;
+        esac
     fi
     if [[ "${word}" == "--stop" || "${word}" == "--start" || "${word}" == "--restart" ]]; then
         export GDA_OPERATION=${word:2}
@@ -115,17 +119,8 @@ if [[ -z "${GDA_OPERATION-}" ]]; then
 	export GDA_OPERATION=restart
 fi
 
-if [[ -n "${GDA_COMPONENT-}" ]]; then
-    GDA_COMPONENT="${GDA_COMPONENT,,}"
-    case "${GDA_COMPONENT}" in
-        logserver|nameserver|eventserver|objectserver) GDA_COMPONENT_CATEGORY=servers ;;
-        logpanel|servers|client) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
-        *) bashlog error "gda_core" "${GDA_COMPONENT} not recognised. Valid task names are logpanel, servers, client, logserver, nameserver, eventserver, objectserver"
-        gda_core_help
-        exit 2;;
-    esac
-else
-    bashlog error "gda_core" "GDA component is required"
+if [[ -z "${GDA_COMPONENT-}" ]]; then
+    bashlog error "gda_core" "GDA component is required. Valid names are logpanel, client, servers"
     gda_core_help
     exit 1
 fi

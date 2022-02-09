@@ -31,7 +31,7 @@ while [[ "$#" != 0 ]]; do
                 GDA_ARGS+="--springprofiles ${1} "
                 shift
             else
-                echo -e "${options_text}""\n\e[31mERROR: Incorrect Spring profile specification\e[0m"
+                echo -e "${options_text}""\n\e[31mERROR: Incorrect Spring profile specification - profiles may not be called logpanel, client or servers\e[0m"
                 exit $FAILED
             fi
             ;;
