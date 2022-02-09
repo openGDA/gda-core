@@ -53,13 +53,12 @@ public abstract class ElementProcessorBase<T> extends ValidationUtils implements
 	protected List<Class<?>> lookupSuccessorsForPrevious(final ClausesContext context) {
 		Class<?> previous = context.getPreviousType();
 		if (previous == null) {
-			throw new IllegalStateException(String.format(
-					"Error: the ClauseContext Object contains a null previousType, this should not be possible"));
+			throw new IllegalStateException("Error: the ClauseContext Object contains a null previousType, this should not be possible");
 		}
 		List<Class<?>> successors = context.grammar().get(previous);
 		if (successors == null) {
 			throw new IllegalArgumentException(String.format(
-					"Invalid MScan command - The clause grammar does not feature the type %d", previous));
+					"Invalid MScan command - The clause grammar does not feature the type %s", previous));
 		}
 		return successors;
 	}
