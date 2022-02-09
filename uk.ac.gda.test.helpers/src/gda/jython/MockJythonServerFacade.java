@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -70,7 +71,10 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	private ClientDetails[] others = new ClientDetails[] { new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3,
 			false, "0-0") };
 	private ClientDetails myDetails;
-	{
+	private String scriptName;
+
+	public MockJythonServerFacade() {
+
 		// mock UserAuthentication.getUsername();
 		// mock LibGdaCommon.getFullNameOfUser(username);
 		final String username = "mockusername";
@@ -184,6 +188,15 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	@Override
 	public JythonStatus getScriptStatus() {
 		return scanStatus;
+	}
+
+	public void setScriptName(String scriptName) {
+		this.scriptName = scriptName;
+	}
+
+	@Override
+	public Optional<String> getScriptName() {
+		return Optional.ofNullable(scriptName);
 	}
 
 	@Override
@@ -317,7 +330,7 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	public boolean switchUser(String username, String password) {
 		return false;
 	}
-	
+
 	@Override
 	public Set<String> getAllNamesForObject(Object obj) throws DeviceException {
 		return hashTable.entrySet().stream().filter(entry -> entry.getValue() == obj).map(Entry::getKey).collect(Collectors.toSet());
