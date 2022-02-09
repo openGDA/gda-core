@@ -26,9 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 
 import org.dawnsci.processing.ui.model.AbstractOperationSetupWizardPage;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.io.ILoaderService;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
@@ -44,7 +42,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.window.Window;
 import org.eclipse.richbeans.api.generator.IGuiGeneratorService;
 import org.eclipse.richbeans.widgets.file.FileSelectionDialog;
@@ -61,9 +58,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
 
 /**
@@ -91,15 +90,23 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private IPlottingSystem<Composite> plottingSystem;
 
-	private static String lastFilePath = null;
+	private String lastFilePath = null;
 
 	private final IEclipseContext context;
-
-	private Job update;
 
 	private Composite detectorComposite;
 
 	private StackLayout detectorAreaStackLayout;
+
+	private Button defaultFileButton;
+	private Text existingFileText;
+	private Composite detectorControl;
+
+	/**
+	 * The name of the beamline property with the path of a nexus file that contains
+	 * a default frame.
+	 */
+	private static final String PROPERTY_DEFAULT_FRAME = "gda.default.detector.snapshot";
 
 	protected AcquireDataWizardPage(IEclipseContext context) {
 		super(AcquireDataWizardPage.class.getName());
@@ -113,40 +120,100 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
 
-		final SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
+		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
-		final Composite detectorAndButtonsComposite = new Composite(sashForm, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(detectorAndButtonsComposite);
+		final Composite mainComposite = new Composite(sashForm, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
 
-		final Control detectorConfigComposite = createDetectorControl(detectorAndButtonsComposite);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(detectorConfigComposite);
-
-		final Control buttonRow = createButtonRow(detectorAndButtonsComposite);
-		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(buttonRow);
+		createDefaultFileControls(mainComposite);
+		createLoadFileControls(mainComposite);
+		createAcquireControls(mainComposite);
 
 		createDataPlotControl(sashForm);
 
-		sashForm.setWeights(new int[] { 2, 3 });
+		sashForm.setWeights(2, 3);
 		setControl(sashForm);
 		setPageComplete(false);
 	}
 
-	private Control createButtonRow(Composite parent) {
-		final Composite rowComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(rowComposite);
+	private void createDefaultFileControls(Composite parent){
+		defaultFileButton = new Button(parent, SWT.RADIO);
+		defaultFileButton.setText("Load default frame:");
+		GridDataFactory.fillDefaults().applyTo(defaultFileButton);
 
-		final Button acquireButton = new Button(rowComposite, SWT.PUSH);
+		Composite composite = createComposite(parent, 1);
+
+		String defaultFilePath = getDefaultFilePath();
+
+		Text defaultFileText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+		defaultFileText.setEnabled(false);
+		GridDataFactory.fillDefaults().hint(550,0).applyTo(defaultFileText);
+
+		if(defaultFilePath==null) {
+			defaultFileButton.setEnabled(false);
+		} else {
+			defaultFileText.setText(defaultFilePath);
+			defaultFileButton.addSelectionListener(widgetSelectedAdapter(e -> {
+				if (defaultFileButton.getSelection()) {
+					loadDataFromFile(defaultFilePath);
+				}
+			}));
+
+		}
+	}
+
+	private void createLoadFileControls(Composite parent) {
+		Button loadFileButton = new Button(parent, SWT.RADIO);
+		loadFileButton.setText("Load existing frame:");
+		GridDataFactory.fillDefaults().applyTo(loadFileButton);
+
+		Composite composite = createComposite(parent, 2);
+
+		existingFileText = new Text(composite, SWT.BORDER | SWT.SINGLE);
+		existingFileText.setEnabled(false);
+		GridDataFactory.fillDefaults().indent(5, 0).grab(true, false).applyTo(existingFileText);
+
+		Button browseButton = new Button(composite, SWT.PUSH);
+		browseButton.setText("Browse...");
+		browseButton.setEnabled(false);
+		GridDataFactory.swtDefaults().applyTo(browseButton);
+		browseButton.addSelectionListener(widgetSelectedAdapter(e -> loadDataFromFile()));
+		loadFileButton.addSelectionListener(widgetSelectedAdapter(e -> browseButton.setEnabled(loadFileButton.getSelection())));
+	}
+
+	private void createAcquireControls(Composite parent) {
+		Button acquireFrameButton = new Button(parent, SWT.RADIO);
+		acquireFrameButton.setText("Acquire new frame:");
+		acquireFrameButton.setSelection(true);
+		GridDataFactory.fillDefaults().applyTo(acquireFrameButton);
+
+		createComposite(parent, 2);
+
+		createDetectorControl(parent);
+
+		Composite buttonComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(buttonComposite);
+		GridDataFactory.fillDefaults().indent(20, 0).applyTo(buttonComposite);
+
+		Button acquireButton = new Button(buttonComposite, SWT.PUSH);
 		acquireButton.setText("Acquire");
-		setButtonLayoutData(acquireButton);
+		acquireButton.setEnabled(true);
 		acquireButton.addSelectionListener(widgetSelectedAdapter(e -> acquireData()));
 
-		final Button loadFromFileButton = new Button(rowComposite, SWT.PUSH);
-		loadFromFileButton.setText("Load from file...");
-		setButtonLayoutData(loadFromFileButton);
-		loadFromFileButton.addSelectionListener(widgetSelectedAdapter(e -> loadDataFromFile()));
-
-		return rowComposite;
+		acquireFrameButton.addSelectionListener(widgetSelectedAdapter(e -> {
+			var selection = acquireFrameButton.getSelection();
+			acquireButton.setEnabled(selection);
+			for (var child : detectorControl.getChildren()) {
+				child.setEnabled(selection);
+				if (selection) {
+					child.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+				} else {
+					child.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
+				}
+			}
+		}));
 	}
+
 
 	private void acquireData() {
 		setPageComplete(false);
@@ -184,13 +251,13 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		if (lastFilePath != null) {
 			dialog.setPath(lastFilePath);
 		}
-
 		dialog.create();
 		if (dialog.open() != Window.OK) {
 			return;
 		}
 
 		lastFilePath = dialog.getPath();
+		existingFileText.setText(lastFilePath);
 		loadDataFromFile(lastFilePath);
 	}
 
@@ -198,42 +265,30 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		final String datasetPath = ScanningUiUtils.getDatasetPath(detectorDataGroupName);
 
 		try {
-			getWizard().getContainer().run(true, true, new IRunnableWithProgress() {
+			// the file may not be visible yet as it is on lustre
+			final File file = new File(filePath);
+			int count = 0;
+			while (!file.exists() && count < 10) {
+				Thread.sleep(200);
+				count++;
+			}
+			if (!file.exists()) {
+				throw new FileNotFoundException("The file " + filePath + " could not be found.");
+			}
 
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					try {
-						// the file may not be visible yet as it is on lustre
-						// TODO: it may be better to use the remote dataset service. If so, Jacob
-						// would need add to the remote dataset service the ability to read the
-						// axes, which is already implemented in the loader service
-						final File file = new File(filePath);
-						int count = 0;
-						while (!file.exists() && count < 10) {
-							Thread.sleep(200);
-							count++;
-						}
-						if (!file.exists()) {
-							throw new FileNotFoundException("The file " + filePath + " could not be found.");
-						}
-
-						final ILoaderService loaderService = context.get(ILoaderService.class);
-						final IDataset dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(monitor)).squeeze();
-						update(dataset);
-						final Display display = getShell().getDisplay();
-						// in the UI thread, execute setPageComplete to be called in 100ms
-						// this is required as wizard page resets buttons when this runnable is finished
-						display.asyncExec(() -> display.timerExec(100, () -> setPageComplete(true)));
-					} catch (Exception e) {
-						throw new InvocationTargetException(e);
-					}
-				}
-			});
-		} catch (InvocationTargetException | InterruptedException e) {
+			final ILoaderService loaderService = context.get(ILoaderService.class);
+			final IDataset dataset = loaderService.getDataset(filePath, datasetPath, new ProgressMonitorWrapper(null)).squeeze();
+			update(dataset);
+			final Display display = getShell().getDisplay();
+			// in the UI thread, execute setPageComplete to be called in 100ms
+			// this is required as wizard page resets buttons when this runnable is finished
+			display.asyncExec(() -> display.timerExec(100, () -> setPageComplete(true)));
+		} catch (Exception e) {
 			final String errorMessage = MessageFormat.format("Could not load data for detector {0} from file {1}.",
 					acquireDetectorModel.getName(), filePath);
 			handleException(errorMessage, e);
 		}
+
 	}
 
 	private void handleException(String errorMessage, Throwable e) {
@@ -257,33 +312,23 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 		final SliceFromSeriesMetadata m = new SliceFromSeriesMetadata(source,s);
 		dataset.setMetadata(m);
 
-		if (update == null) {
-			update = new Job("calculate...") {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					Display.getDefault().syncExec(() -> {
-						try {
-							MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
-						} catch (Exception e) {
-							logger.warn("Could not plot data", e);
-						}
-					});
-					return org.eclipse.core.runtime.Status.OK_STATUS;
-				}
-			};
+		try {
+			MetadataPlotUtils.plotDataWithMetadata(dataset, plottingSystem);
+		} catch (Exception e) {
+			logger.warn("Could not plot data", e);
 		}
 
-		update.cancel();
-		update.schedule();
 		od = new OperationData(dataset);
 	}
 
 	private Control createDetectorControl(Composite parent) {
-		detectorComposite = new Composite(parent, SWT.NONE);
+		Composite composite = createComposite(parent, 2);
+
+		detectorComposite = new Composite(composite, SWT.NONE);
 		detectorAreaStackLayout = new StackLayout();
 		detectorComposite.setLayout(detectorAreaStackLayout);
 
-		// The detector model may not have been set yet, so just create a placeholder
+		//The detector model may not have been set yet, so just create a placeholder
 		final Label detectorPlaceholder = new Label(detectorComposite, SWT.NONE);
 		detectorPlaceholder.setText("No detector selected");
 		detectorAreaStackLayout.topControl = detectorPlaceholder;
@@ -333,9 +378,21 @@ class AcquireDataWizardPage extends AbstractOperationSetupWizardPage {
 
 	private void createDetectorUIControls(IDetectorModel detectorModel) {
 		final IGuiGeneratorService guiGenerator = context.get(IGuiGeneratorService.class);
-		final Control detectorControl = guiGenerator.generateGui(detectorModel, detectorComposite);
+		detectorControl = guiGenerator.generateGui(detectorModel, detectorComposite);
 		detectorAreaStackLayout.topControl = detectorControl;
 		detectorComposite.layout();
+	}
+
+	private Composite createComposite(Composite parent, int numColumns) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(numColumns).applyTo(composite);
+		GridDataFactory.fillDefaults().indent(20, 0).applyTo(composite);
+		return composite;
+
+	}
+
+	private String getDefaultFilePath() {
+		return LocalProperties.get(PROPERTY_DEFAULT_FRAME);
 	}
 
 }
