@@ -41,9 +41,11 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.scanning.device.CommonBeamlineDevicesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -52,14 +54,43 @@ import gda.jython.InterfaceProvider;
 
 public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 
+	private static final Logger logger = LoggerFactory.getLogger(BeforeScanSnapshotWriter.class);
 	public static final String BEFORE_SCAN_COLLECTION_NAME = "before_scan";
 	public static final String ATTR_NAME_UNITS = "units";
 
 	private String name = BEFORE_SCAN_COLLECTION_NAME;
 
-	private static final Logger logger = LoggerFactory.getLogger(BeforeScanSnapshotWriter.class);
+	private String collectionName = null;
 
 	private Set<String> additionalScannableNames = null;
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Sets the name of this nexus device. This is the name that should be used to add the device to a scan,
+	 * for example via {@link NexusDataWriter#setMetadatascannables(Set)} or
+	 * {@link CommonBeamlineDevicesConfiguration#setAdditionalDeviceNames(Set)}
+	 *
+	 * @param name name of this device
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getCollectionName() {
+		return collectionName != null ? collectionName : getName();
+	}
+
+	/**
+	 * Set the name to use for the created {@link NXcollection} within its parent group.
+	 * @param collectionName
+	 */
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
 
 	public Set<String> getAdditionalScannableNames() {
 		return additionalScannableNames == null ? Collections.emptySet() : additionalScannableNames;
@@ -67,15 +98,6 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 
 	public void setAdditionalScannableNames(Set<String> additionalScannableNames) {
 		this.additionalScannableNames = additionalScannableNames;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
@@ -88,7 +110,7 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 		}
 
 		final NexusObjectWrapper<NXcollection> nexusObjectWrapper =
-				new NexusObjectWrapper<>(BEFORE_SCAN_COLLECTION_NAME, beforeScanCollection);
+				new NexusObjectWrapper<>(getCollectionName(), beforeScanCollection);
 		nexusObjectWrapper.setCategory(NexusBaseClass.NX_INSTRUMENT);
 		return nexusObjectWrapper;
 	}
@@ -136,7 +158,9 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 		final Optional<Scannable> optScannable = Finder.findOptionalOfType(scannableName, Scannable.class)
 				.or(() -> getScannableFromJythonNamespace(scannableName));
 		if (!optScannable.isPresent()) {
-			logger.error("Could not find scannable with name: {}", scannableName);
+			// log a warning if we can't find the scannable. Note that this will happen for scannables
+			// that aren't
+			logger.warn("Could not find scannable with name: {}", scannableName);
 		}
 
 		return optScannable.orElse(null);
