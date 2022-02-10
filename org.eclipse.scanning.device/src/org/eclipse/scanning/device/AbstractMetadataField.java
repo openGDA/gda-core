@@ -25,12 +25,18 @@ import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractMetadataField extends AbstractMetadataNode implements MetadataField {
+
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMetadataField.class);
 
 	public static final String ATTRIBUTE_NAME_UNITS = "units";
 
 	private String units = null;
+
+	private boolean failOnError = true;
 
 	protected AbstractMetadataField() {
 		// no-arg constructor for spring initialization
@@ -50,11 +56,20 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 		this.units = units;
 	}
 
-	protected DataNode createDataNode(final Object value) {
+	public boolean isFailOnError() {
+		return failOnError;
+	}
+
+	public void setFailOnError(boolean failOnError) {
+		this.failOnError = failOnError;
+	}
+
+	protected final DataNode createDataNode(final Object value) {
 		final DataNode dataNode = NexusNodeFactory.createDataNode();
 		final Dataset dataset = DatasetFactory.createFromObject(value);
 		dataset.setName(getName());
 		dataNode.setDataset(dataset);
+
 		return dataNode;
 	}
 
@@ -74,6 +89,28 @@ public abstract class AbstractMetadataField extends AbstractMetadataNode impleme
 		}
 	}
 
-	protected abstract DataNode createDataNode() throws NexusException;
+	protected final DataNode createDataNode() throws NexusException {
+		try {
+			final Object fieldValue = getFieldValue();
+			return createDataNode(fieldValue);
+		} catch (NexusException e) {
+			return handleError(e);
+		}
+	}
+
+	private DataNode handleError(NexusException e) throws NexusException {
+		// propagate the exception if failOnError is true, or the thread has been interrupted (the exception is a wrapped InterruptedException in this case)
+		if (isFailOnError() || Thread.interrupted()) {
+			throw e;
+		} else {
+			logger.error("Could not write field {}", getName(), e);
+
+			final DataNode dataNode = NexusNodeFactory.createDataNode();
+			dataNode.setString(e.getMessage());
+			return dataNode;
+		}
+	}
+
+	protected abstract Object getFieldValue() throws NexusException;
 
 }

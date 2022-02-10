@@ -78,12 +78,6 @@ public class SpringExpressionField extends AbstractMetadataField {
 		return expression;
 	}
 
-	@Override
-	protected DataNode createDataNode() throws NexusException {
-		final Object value = getExpressionValue();
-		return createDataNode(value);
-	}
-
 	private Object getExpressionValue() {
 		final ExpressionParser parser = new SpelExpressionParser();
 		final var context = new StandardEvaluationContext();
@@ -94,5 +88,10 @@ public class SpringExpressionField extends AbstractMetadataField {
 			logger.error("Evaluation of expression {} failed.", getExpression(), e);
 			return e.getMessage();
 		}
+	}
+
+	@Override
+	protected Object getFieldValue() throws NexusException {
+		return getExpressionValue();
 	}
 }

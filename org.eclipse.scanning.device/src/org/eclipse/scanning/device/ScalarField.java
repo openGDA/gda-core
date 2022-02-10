@@ -18,7 +18,7 @@
 
 package org.eclipse.scanning.device;
 
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.nexus.NexusException;
 
 /**
  * A field written to the nexus file as a scalar value.
@@ -70,9 +70,8 @@ public class ScalarField extends AbstractMetadataField {
 	}
 
 	@Override
-	protected DataNode createDataNode() {
-		final Object value = getValue();
-		return createDataNode(value);
+	protected Object getFieldValue() throws NexusException {
+		return getValue();
 	}
 
 }

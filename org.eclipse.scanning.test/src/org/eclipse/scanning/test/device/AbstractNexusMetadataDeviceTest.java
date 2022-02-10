@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.junit.Before;
@@ -76,6 +77,15 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 		when(mockScannable.getName()).thenReturn(name);
 		when(mockScannable.getPosition()).thenReturn(position);
 		when(mockScannable.getUnit()).thenReturn(units);
+		scannableDeviceService.register(mockScannable);
+		return mockScannable;
+	}
+
+	protected <T> IScannable<T> createThrowingScannable(String name) throws Exception {
+		@SuppressWarnings("unchecked")
+		final IScannable<T> mockScannable = mock(IScannable.class);
+		when(mockScannable.getName()).thenReturn(name);
+		when(mockScannable.getPosition()).thenThrow(ScanningException.class);
 		scannableDeviceService.register(mockScannable);
 		return mockScannable;
 	}

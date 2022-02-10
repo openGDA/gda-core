@@ -42,6 +42,12 @@ public class ScannableField extends AbstractMetadataField {
 		setScannableName(scannableName);
 	}
 
+	public ScannableField(String fieldName, String scannableName, boolean failOnError) {
+		super(fieldName);
+		setScannableName(scannableName);
+		setFailOnError(failOnError);
+	}
+
 	public ScannableField(String fieldName, String scannableName, String units) {
 		super(fieldName);
 		setScannableName(scannableName);
@@ -68,12 +74,6 @@ public class ScannableField extends AbstractMetadataField {
 		return units;
 	}
 
-	@Override
-	protected DataNode createDataNode() throws NexusException {
-		final Object value = getScannableValue();
-		return createDataNode(value);
-	}
-
 	private IScannable<?> getScannable() throws NexusException {
 		try {
 			return Services.getScannableDeviceService().getScannable(getScannableName());
@@ -88,6 +88,11 @@ public class ScannableField extends AbstractMetadataField {
 		} catch (ScanningException e) {
 			throw new NexusException("Could not get position for scannable with name: " + scannableName);
 		}
+	}
+
+	@Override
+	protected Object getFieldValue() throws NexusException {
+		return getScannableValue();
 	}
 
 }

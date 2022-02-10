@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +34,9 @@ import java.util.List;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXmirror;
+import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.scanning.device.MetadataNode;
 import org.eclipse.scanning.device.NexusMetadataDevice;
@@ -71,13 +74,21 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	private static final Double[] SUBSTRATE_POSITION =
 		{ EXPECTED_SUBSTRATE_DENSITY, EXPECTED_SUBSTRATE_THICKNESS, EXPECTED_SUBSTRATE_ROUGHNESS };
 
+	private static final String SLIT_X_GAP_SCANNABLE_NAME = "slit_xgap";
+	private static final String SLIT_Y_GAP_SCANNABLE_NAME = "slit_ygap";
+	private static final String EXPECTED_SLIT_DEPENDS_ON = "phi";
+	private static final String EXPECTED_SLIT_X_GAP_ERROR_MESSAGE = "Could not get position for scannable with name: slit_xgap";
+
 	@Override
 	protected void setupTestFixtures() throws Exception {
 		createMockScannable(INCIDENT_ANGLE_SCANNABLE_NAME, 3.45); // an IScannable, so doesn't need to be findable
+		createThrowingScannable(SLIT_X_GAP_SCANNABLE_NAME);
+		createMockScannable(SLIT_Y_GAP_SCANNABLE_NAME, 6.15, "mm");
 
 		final Factory factory = TestHelpers.createTestFactory();
 		factory.addFindable(createMockBendAngleScannable()); // gda.device.Scananbles, so add to finder
 		factory.addFindable(createSubstrateScannable());
+
 		Finder.addFactory(factory);
 	}
 
@@ -148,7 +159,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	public void testDuplicateFields() {
 		// check that an exception is thrown if the list of fields has duplicate names
 		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
-		nexusDevice.setNexusClass("NXmirror");
+		nexusDevice.setNexusClass(NexusBaseClass.NX_MIRROR.toString());
 
 		final List<MetadataNode> childNodes = new ArrayList<>();
 		childNodes.add(new ScalarField(NXmirror.NX_TYPE, EXPECTED_TYPE));
@@ -165,7 +176,7 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 	public void testOverwriteField() throws Exception {
 		// check that an exception is thrown if the list of fields has duplicate names
 		final NexusMetadataDevice<NXmirror> nexusDevice = new NexusMetadataDevice<>();
-		nexusDevice.setNexusClass("NXmirror");
+		nexusDevice.setNexusClass(NexusBaseClass.NX_MIRROR.toString());
 
 		final List<MetadataNode> childNodes = new ArrayList<>();
 		childNodes.add(new ScalarField(NXmirror.NX_TYPE, EXPECTED_TYPE));
@@ -205,6 +216,44 @@ public class NexusMetadataDeviceTest extends AbstractNexusMetadataDeviceTest<NXm
 		assertThat(mirror.getAttrString(NXmirror.NX_INCIDENT_ANGLE, ATTRIBUTE_NAME_UNITS), is(equalTo(UNITS_ATTR_VAL_DEGREES)));
 		assertThat(mirror.getSubstrate_thicknessScalar(), is(closeTo(newSubstrateThickness, 1e-15)));
 		assertThat(mirror.getSubstrate_materialScalar(), is(equalTo(newSubstrateMaterial)));
+	}
+
+	@Test
+	public void testCannotGetScannablePosition_failOnError() {
+		final NexusMetadataDevice<NXslit> nexusDevice = new NexusMetadataDevice<>();
+		nexusDevice.setNexusClass(NexusBaseClass.NX_SLIT.toString());
+
+		final List<MetadataNode> childNodes = new ArrayList<>();
+		childNodes.add(new ScannableField(NXslit.NX_X_GAP, SLIT_X_GAP_SCANNABLE_NAME, true));
+		childNodes.add(new ScannableField(NXslit.NX_Y_GAP, SLIT_Y_GAP_SCANNABLE_NAME, true));
+		childNodes.add(new ScalarField(NXslit.NX_DEPENDS_ON, EXPECTED_SLIT_DEPENDS_ON));
+		nexusDevice.setChildNodes(childNodes);
+
+		final NexusException e = assertThrows(NexusException.class, () -> nexusDevice.getNexusProvider(null));
+		assertThat(e.getMessage(), is(equalTo(EXPECTED_SLIT_X_GAP_ERROR_MESSAGE)));
+	}
+
+	@Test
+	public void testCannotGetScannablePosition_continueOnError() throws Exception {
+		final NexusMetadataDevice<NXslit> nexusDevice = new NexusMetadataDevice<>();
+		nexusDevice.setNexusClass(NexusBaseClass.NX_SLIT.toString());
+
+		final List<MetadataNode> childNodes = new ArrayList<>();
+		childNodes.add(new ScannableField(NXslit.NX_X_GAP, SLIT_X_GAP_SCANNABLE_NAME, false));
+		childNodes.add(new ScannableField(NXslit.NX_Y_GAP, SLIT_Y_GAP_SCANNABLE_NAME, false));
+		childNodes.add(new ScalarField(NXslit.NX_DEPENDS_ON, EXPECTED_SLIT_DEPENDS_ON));
+		nexusDevice.setChildNodes(childNodes);
+
+		final NexusObjectProvider<NXslit> nexusProvider = nexusDevice.getNexusProvider(null);
+		assertThat(nexusProvider, is(notNullValue()));
+		assertThat(nexusProvider.getName(), is(equalTo(nexusDevice.getName())));
+
+		final NXslit slit = nexusProvider.getNexusObject();
+		assertThat(slit, is(notNullValue()));
+		assertThat(slit.getDataNodeNames(), containsInAnyOrder(NXslit.NX_X_GAP, NXslit.NX_Y_GAP, NXslit.NX_DEPENDS_ON));
+		assertThat(slit.getX_gap().getSlice().getString(), is(equalTo(EXPECTED_SLIT_X_GAP_ERROR_MESSAGE)));
+		assertThat(slit.getY_gapScalar(), is(equalTo(getScannableValue(SLIT_Y_GAP_SCANNABLE_NAME))));
+		assertThat(slit.getDepends_onScalar(), is(equalTo(EXPECTED_SLIT_DEPENDS_ON)));
 	}
 
 }

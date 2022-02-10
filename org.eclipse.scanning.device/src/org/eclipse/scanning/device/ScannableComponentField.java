@@ -112,12 +112,6 @@ public class ScannableComponentField extends AbstractMetadataField {
 		}
 	}
 
-	@Override
-	protected DataNode createDataNode() throws NexusException {
-		final Object value = getComponentValue();
-		return createDataNode(value);
-	}
-
 	private Object getComponentValue() throws NexusException {
 		final Scannable scannable = getScannable();
 		final int componentIndexToUse = getComponentIndexToUse(scannable);
@@ -180,6 +174,11 @@ public class ScannableComponentField extends AbstractMetadataField {
 			return (Scannable) scannableObj;
 		}
 		throw new NexusException("Cannot find scannable with name: " + scannableName);
+	}
+
+	@Override
+	protected Object getFieldValue() throws NexusException {
+		return getComponentValue();
 	}
 
 }
