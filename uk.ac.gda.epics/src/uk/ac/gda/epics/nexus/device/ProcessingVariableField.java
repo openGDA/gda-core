@@ -20,7 +20,6 @@ package uk.ac.gda.epics.nexus.device;
 
 import java.text.MessageFormat;
 
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.scanning.device.AbstractMetadataField;
 import org.eclipse.scanning.device.AbstractMetadataNode;
@@ -37,21 +36,21 @@ public class ProcessingVariableField extends AbstractMetadataField {
 
 	private static final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String pvName;
-	private boolean blockIfGetFail = false;
 	private Channel ch;
 
 	public ProcessingVariableField() {
 		// no-arg constructor for spring initialization
+		setFailOnError(false);
 	}
 
 	public ProcessingVariableField(String fieldName, String pvName) {
 		super(fieldName);
+		setFailOnError(false);
 		setPvName(pvName);
 	}
 
 	public ProcessingVariableField(String fieldName, String pvName, String units) {
-		super(fieldName);
-		setPvName(pvName);
+		this(fieldName, pvName);
 		setUnits(units);
 	}
 
@@ -63,12 +62,6 @@ public class ProcessingVariableField extends AbstractMetadataField {
 		this.pvName = scannableName;
 	}
 
-	@Override
-	protected DataNode createDataNode() throws NexusException {
-		final Object value = getPvValue(pvName);
-		return createDataNode(value);
-	}
-
 	private Object getPvValue(String pvName) throws NexusException {
 		try {
 			if (ch == null) {
@@ -76,27 +69,16 @@ public class ProcessingVariableField extends AbstractMetadataField {
 			}
 			return EPICS_CONTROLLER.getValue(ch);
 		} catch (CAException | TimeoutException e) {
-			if (!blockIfGetFail) {
-				//the default behaviour is not blocking if the PV is not reachable.
-				return MessageFormat.format("Could not get data from {0} : {1}", pvName, e.getMessage());
-			}
 			throw new NexusException(MessageFormat.format("{0}: Could not get data from {1}", getName(), pvName), e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			if (!blockIfGetFail) {
-				return MessageFormat.format("Interrupted when getting data from {0}", pvName);
-			}
 			throw new NexusException(MessageFormat.format("{0}: Interrupted when getting data from {1}", getName(), pvName), e);
 		}
 	}
 
-	public boolean isBlockIfGetFail() {
-		return blockIfGetFail;
+	@Override
+	protected Object getFieldValue() throws NexusException {
+		return getPvValue(getName());
 	}
-
-	public void setBlockIfGetFail(boolean blockIfGetFail) {
-		this.blockIfGetFail = blockIfGetFail;
-	}
-
 
 }
