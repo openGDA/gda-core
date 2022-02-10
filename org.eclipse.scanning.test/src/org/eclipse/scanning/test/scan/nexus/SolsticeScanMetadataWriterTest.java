@@ -507,6 +507,9 @@ public class SolsticeScanMetadataWriterTest {
 		final DataNode stopTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_END_TIME);
 		final ILazyWriteableDataset stopTimeDataset = (ILazyWriteableDataset) stopTimeNode.getDataset();
 		stopTimeDataset.setSaver(new MockLazySaver());
+		final DataNode pointEndTimeNode = solsticeScanCollection.getDataNode(FIELD_NAME_POINT_END_TIME);
+		final ILazyWriteableDataset pointEndTimeDataset = (ILazyWriteableDataset) pointEndTimeNode.getDataset();
+		pointEndTimeDataset.setSaver(new MockLazySaver());
 
 		// assert scan shape set correctly
 		final DataNode scanShapeDataNode = solsticeScanCollection.getDataNode(FIELD_NAME_SCAN_SHAPE);
@@ -559,7 +562,7 @@ public class SolsticeScanMetadataWriterTest {
 		// test calling setPosition
 		// arrange
 		final double[] pos = new double[] { 172.5, 56.3 };
-		final int[] indices = new int[] { 8, 3 };
+		final int[] indices = new int[] { 5, 2 };
 		final int stepIndex = 23;
 		final MapPosition position = new MapPosition();
 		position.setStepIndex(stepIndex);
