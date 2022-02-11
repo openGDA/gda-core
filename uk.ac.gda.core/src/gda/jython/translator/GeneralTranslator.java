@@ -429,39 +429,6 @@ public class GeneralTranslator extends TranslatorBase {
 	}
 
 	@Override
-	public String getHelpMessage() {
-		String helpString = "";
-
-		helpString += "Available console commands in addition to Jython syntax:\\n";
-		helpString += "* help\\t-\\tprints this message\\n";
-		helpString += "* pos pseudoDevice\t-\tgets the current position of the object\\n";
-		helpString += "* pos pseudoDevice new_position\t-\tmoves the object to the new position\\n";
-		helpString += "* inc pseudoDevice increment\t-\tincremental move by the given amount\\n";
-		helpString += "* upos pseudoDevice new_position\t-\tpos command without print out during the move\\n";
-		helpString += "* uinc pseudoDevice increment\t-\tinc command without print out during the move\\n";
-		helpString += "* list\t-\tlist all the interfaces of existing objects\\n";
-		helpString += "* list interfaceName\t-\tlists all the objects of the given type (interface).  E.g. OE, Detector\\n";
-		helpString += "* list_defaults\t-\tlists all objects which would be used in a scan by default\\n";
-		helpString += "* add_default pseudoDevice\t-\tadd an object to the defaults list\\n";
-		helpString += "* remove_default pseudoDevice\t-\tremove an object from the defaults list\\n";
-		helpString += "* scan pseudoDevice start stop step [pseudoDevice2] [start] [[stop] step]\t-\tautomated movement of a group of pseudoDevices in concurrent steps, with data collected after each step\\n";
-		helpString += "* testscan pseudoDevice start stop step [pseudoDevice2] [start] [[stop] step]\t-\tas scan, except does not move anything and justs validates the parameters.\\n";
-		helpString += "* cscan pseudoDevice [centroid] width step [pseudoDevice2] [centroid] [width]\t-\tas scan, except uses different inputs\\n";
-		helpString += "* pscan pseudoDevice start step no_points [pseudoDevice2] start [step]\t-\tas scan, except uses different inputs\\n";
-		helpString += "* gscan pseudoDevice start stop step [pseudoDevice2] [start] [stop] [step]\t-\tgrid scan in which each dimension is moved separately.  Data is collected after each step.\\n";
-		helpString += "* tscan countertimer, numberOfPoints, pauseTime, collectTime\t-\tTime scan in which the positions of a list of pseudoDevices are collected at regular intervals. If no numberOfPoints supplied then the scan will not stop until halted.\\n";
-		helpString += "* timescan numberOfPoints, pauseTime, [collectTime]\t-\tTime scan in which the positions of a list of pseudoDevices are collected at regular intervals.\\n";
-		helpString += "* pause\t-\tduring a script, checks to see if the pause/resume button has been pressed\\n";
-		helpString += "* watch pseudoDevice\t-\tadds the scannable to the watch sub-panel in the terminal panel.\\n";
-		helpString += "* level pseudoDevice [value]\t-\tif value is declared then sets move order (level) of the scannable, else returns the current level.\\n";
-		helpString += "* alias functionName\t-\twhere functionName is a function in the global namespace.  This dynamically adds a function to the extended syntax.\\n";
-		helpString += "* run scriptName\t-\truns the named script.\\n";
-		helpString += "* record [on|off] \t-\tstarts/stops recording all terminal output to a file placed in the scripts directory\\n";
-
-		return helpString;
-	}
-
-	@Override
 	public void addAliasedCommand(String commandName) {
 		aliases.add(commandName);
 		logger.debug("Added alias command: {}", commandName);

@@ -162,22 +162,4 @@ public class MMTranslator extends GeneralTranslator {
 		thisGroup = super.translateGroup(thisGroup);
 		return prefix + thisGroup;
 	}
-
-	@Override
-	public String getHelpMessage() {
-		String helpString = super.getHelpMessage();
-
-		helpString += "reflfile filename\\t-\\tsets the file in which reflections are stored.  This msut be set before using the lattice or refl commands\\n";
-		helpString += "lattice [ h k l a b g ]\\t-\\tif values are given then sets the lattice matrix to use, else returns the current matrix\\n";
-		helpString += "reflist\\t-\\t lists the reflections stored in the file set by the latticefile command\\n";
-		helpString += "refladd [ vector ]\\t-\\tadds the current position of the diffractometer as the current [or supplied] reciprocal-space vector to the file of reflections\\n";
-		helpString += "reflset index_1 index_2\\t-\\tsets the diffractometer to use the two reflections to in the file of reflections\\n";
-		helpString += "mode euler [ value ]\\t-\\tReturns or sets to Eulerian diffractometer mode\\n";
-		helpString += "mode e2k [ value ]\\t-\\tReturns or sets to Eulerian to Kappa conversion mode\\n";
-		helpString += "mode sp [ plane ]\\t-\\tReturns or sets the scattering plane (h or v)\\n";
-		helpString += "sector [ value ]\\t-\\tif value is defined then sets the sector the diffractometer is working in, else returns the current sector\\n";
-		helpString += "aziref [ value ]\\t-\\tif value is defined then sets the azimuthal reference, else returns the current one being used\\n";
-		helpString += "cut [ ttheta thate chi phi psi ]\\t-\\tif values are supplied then sets the cut off values for the axes, else returns the current cut off values\\n";
-		return helpString;
-	}
 }

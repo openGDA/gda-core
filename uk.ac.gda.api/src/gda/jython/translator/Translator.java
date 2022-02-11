@@ -41,13 +41,6 @@ public interface Translator extends AliasedCommandProvider {
 	public String translate(String original_command);
 
 	/**
-	 * Returns a string describing the commands the class responds to.
-	 * 
-	 * @return String
-	 */
-	public String getHelpMessage();
-
-	/**
 	 * Adds a new aliased command.
 	 * 
 	 * @param commandName
