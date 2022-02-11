@@ -30,14 +30,19 @@ import gda.device.BaseEpicsDeviceController;
  */
 public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 
-	private String basePvName;
-	private static final String GAS_NAME = "%sMFC-%02d:GAS:STR:RD";
+	private static final String MFC = "MFC-%02d:";
+	private static final String GAS_NAME = MFC + "GAS:STR:RD";
+	private static final String MAX_MASS_FLOW = MFC + "SETPOINT:WR.HOPR";
 
 	protected BaseGasRigController(String basePvName) {
-		this.basePvName = basePvName;
+		setBasePvName(basePvName);
 	}
 
-	protected String constructGasNamePV(int gasId) {
-		return String.format(GAS_NAME, basePvName, gasId);
+	protected String constructGasNamePvSuffix(int gasId) {
+		return String.format(GAS_NAME, gasId);
+	}
+
+	protected String constructMaximumMassFlowPvSuffix(int gasId) {
+		return String.format(MAX_MASS_FLOW, gasId);
 	}
 }

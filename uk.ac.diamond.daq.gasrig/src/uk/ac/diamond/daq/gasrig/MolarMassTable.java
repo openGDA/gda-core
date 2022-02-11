@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2021 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,20 +16,29 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.gasrig.api;
+package uk.ac.diamond.daq.gasrig;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
-import gda.factory.Findable;
+import uk.ac.diamond.daq.gasrig.api.GasRigException;
 
-public interface IGasRig extends Findable {
+public class MolarMassTable {
 
-	public List<? extends IGas> getNonCabinetGases();
+	Map<String, Double> molarMasses;
 
-	public List<? extends ICabinet> getCabinets();
+	public MolarMassTable(Map<String, Double> molarMasses) {
+		this.molarMasses = Collections.unmodifiableMap(molarMasses);
+	}
 
-	public IGasMix getGasMix(int lineNumber) throws GasRigException;
+	public double getMolarMass(String symbol) throws GasRigException {
 
-	public Map<Integer, ? extends IGasMix> getGasMixes();
+		Double molarMass = molarMasses.get(symbol);
+
+		if (molarMass != null) {
+			return molarMass;
+		}
+
+		throw new GasRigException("No molar mass has been specified for " + symbol);
+	}
 }

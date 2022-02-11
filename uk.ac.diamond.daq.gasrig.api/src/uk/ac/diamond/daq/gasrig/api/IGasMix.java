@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2021 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,26 +16,27 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.gasrig.api.models;
+package uk.ac.diamond.daq.gasrig.api;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class GasRigModel implements Serializable {
+public interface IGasMix {
 
-	private List<GasModel> nonCabinetGases;
-	private List<CabinetModel> cabinets;
+	IGasFlow getGasFlowByGasId(int id) throws GasRigException;
 
-	public GasRigModel(List<GasModel> nonCabinetGases, List<CabinetModel> cabinets) {
-		this.nonCabinetGases = nonCabinetGases;
-		this.cabinets = cabinets;
-	}
+	List<? extends IGasFlow> getAllGasFlows();
 
-	public List<GasModel> getNonCabinetGases() {
-		return nonCabinetGases;
-	}
+	double getTotalPressure();
 
-	public List<CabinetModel> getCabinets() {
-		return cabinets;
-	}
+	double getTotalMassFlow();
+
+	double getLowestNormalisedFlowRate();
+
+	void setTotalWeightedFlowLimit(double maximumTotalWeightedFlow);
+
+	double getTotalWeightedFlowLimit();
+
+	double getMaximumTotalWeightedFlow();
+
+	double getLowestWeightedFlow();
 }

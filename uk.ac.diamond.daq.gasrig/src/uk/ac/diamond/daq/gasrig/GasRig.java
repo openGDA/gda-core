@@ -18,7 +18,9 @@
 
 package uk.ac.diamond.daq.gasrig;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
+import uk.ac.diamond.daq.gasrig.api.GasRigException;
 import uk.ac.diamond.daq.gasrig.api.IGasRig;
-import uk.ac.diamond.daq.gasrig.api.models.GasRigModel;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IGasRig.class)
@@ -40,13 +42,20 @@ public class GasRig extends FindableConfigurableBase implements IGasRig {
 	private IGasRigController controller;
 	private List<Gas> nonCabinetGases;
 	private List<Cabinet> cabinets;
+	private int numberOfLines;
+	private Map<Integer, GasMix> gasMixes;
+	private MolarMassTable molarMasses;
 
-	private GasRigModelMapper modelMapper = new GasRigModelMapper();
-
-	public GasRig(IGasRigController controller, List<Gas> nonCabinetGases, List<Cabinet> cabinets) {
+	public GasRig(IGasRigController controller, List<Gas> nonCabinetGases, List<Cabinet> cabinets, MolarMassTable molarMasses, int numberOfLines) {
 		this.controller = controller;
 		this.nonCabinetGases = nonCabinetGases;
 		this.cabinets = cabinets;
+		this.molarMasses = molarMasses;
+		this.numberOfLines = numberOfLines;
+		gasMixes = new HashMap<>();
+		for (int i = 1; i < numberOfLines + 1; i++) {
+			gasMixes.put(i, new GasMix(getAllGases()));
+		}
 	}
 
 	@Override
@@ -57,10 +66,10 @@ public class GasRig extends FindableConfigurableBase implements IGasRig {
 
 		try {
 			for (Gas gas : getAllGases()) {
-				updateGasName(gas);
+				configureGas(gas);
 			}
-		} catch (DeviceException exception) {
-			throw new FactoryException("An error occured while configuring gas names", exception);
+		} catch (DeviceException | GasRigException exception) {
+			throw new FactoryException("An error occured while configuring gases.", exception);
 		}
 		setConfigured(true);
 	}
@@ -70,21 +79,34 @@ public class GasRig extends FindableConfigurableBase implements IGasRig {
 		return Stream.concat(nonCabinetGases.stream(), cabinetGases).collect(Collectors.toList());
 	}
 
-	private void updateGasName(Gas gas) throws DeviceException {
+	private void configureGas(Gas gas) throws DeviceException, GasRigException {
 		gas.setName(controller.getGasName(gas.getId()));
-		logger.info("Gas {} is {}", gas.getId(), gas.getName());
+		gas.setMaximumMassFlow(controller.getMaximumMassFlow(gas.getId()));
+		gas.setMolarMass(molarMasses.getMolarMass(gas.getName()));
+		logger.info("Gas {} is {}. Molar mass: {}. Maximum mass flow: {}.", gas.getId(), gas.getName(), gas.getMolarMass(), gas.getMaximumMassFlow());
 	}
 
+	@Override
 	public List<Gas> getNonCabinetGases() {
 		return nonCabinetGases;
 	}
 
+	@Override
 	public List<Cabinet> getCabinets() {
 		return cabinets;
 	}
 
 	@Override
-	public GasRigModel getGasRigInfo() {
-		return modelMapper.getGasRigModel(this);
+	public GasMix getGasMix(int lineNumber) throws GasRigException {
+		if (lineNumber < 1 || lineNumber > numberOfLines) {
+			throw new GasRigException("Invalid line number specified. Please specify a line number in the range 1-" + numberOfLines);
+		}
+
+		return gasMixes.get(lineNumber);
+	}
+
+	@Override
+	public Map<Integer, GasMix> getGasMixes() {
+		return gasMixes;
 	}
 }

@@ -16,20 +16,36 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.gasrig.api;
+package uk.ac.diamond.daq.gasrig.ui.viewmodels;
 
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
-import gda.factory.Findable;
+import uk.ac.diamond.daq.gasrig.api.ICabinet;
 
-public interface IGasRig extends Findable {
+/**
+ * Provides information about an {@link ICabinet} and constructs and contains
+ * a set of {@link GasViewModel}s
+ */
+public class CabinetViewModel {
 
-	public List<? extends IGas> getNonCabinetGases();
+	private String name;
+	private List<GasViewModel> gases;
 
-	public List<? extends ICabinet> getCabinets();
+	public CabinetViewModel(ICabinet cabinet) {
 
-	public IGasMix getGasMix(int lineNumber) throws GasRigException;
+		this.name = cabinet.getName();
 
-	public Map<Integer, ? extends IGasMix> getGasMixes();
+		this.gases = cabinet.getGases().stream()
+				.map(GasViewModel::new)
+				.collect(Collectors.toList());
+	}
+
+	public List<GasViewModel> getGases() {
+		return gases;
+	}
+
+	public String getName() {
+		return name;
+	}
 }

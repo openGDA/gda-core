@@ -16,26 +16,33 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.gasrig.api.models;
+package uk.ac.diamond.daq.gasrig;
 
-import java.io.Serializable;
-import java.util.List;
+public class DummyGas {
 
-public class CabinetModel implements Serializable {
-
+	private int id;
 	private String name;
-	private List<GasModel> gases;
+	private double maximumMassFlow;
 
-	public CabinetModel(String name, List<GasModel> gases) {
+	public DummyGas(int id, String name, double maximumMassFlow) {
+		this.id = id;
 		this.name = name;
-		this.gases = gases;
+		this.maximumMassFlow = maximumMassFlow;
 	}
 
-	public List<GasModel> getGases() {
-		return gases;
+	public int getId() {
+		return id;
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public double getMaximumMassFlow() {
+		return this.maximumMassFlow;
 	}
 }
