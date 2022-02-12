@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -66,8 +67,13 @@ public class ColumnDataFile extends AbstractColumnFile {
 	 * @param filenameIsFull
 	 */
 	public void setFilename(String filename, boolean filenameIsFull) {
-		setFilename(filename);
-		setDirectory(filenameIsFull ? "/" : getDefaultLookup());
+		if (filenameIsFull) {
+			var filepath = Paths.get(filename);
+			setFilename(filepath.getFileName().toString());
+			setDirectory(filepath.getParent().toString());
+		} else {
+			setFilename(filename);
+		}
 	}
 
 	private void readTheFile() throws IOException {

@@ -112,4 +112,22 @@ public class ColumnDataFileTest {
 		cdf.setFilename(new File(TEST_FILE_DIRECTORY, MISSING).getAbsolutePath(), true);
 		cdf.configure();
 	}
+
+	@Test
+	public void multipleFiles() throws Exception {
+		var dir1 = Paths.get("testfiles/gda/function/data1").toAbsolutePath().toString();
+		var dir2 = Paths.get("testfiles/gda/function/data2").toAbsolutePath().toString();
+		LocalProperties.set(LOOKUP_TABLE_DIRECTORY_PROPERTY, String.format("%s,%s", dir1, dir2));
+		try {
+			var cdf1 = new ColumnDataFile();
+			cdf1.setFilename("table_a.lookup");
+			cdf1.configure();
+
+			var cdf2 = new ColumnDataFile();
+			cdf2.setFilename("table_b.lookup");
+			cdf2.configure();
+		} finally {
+			LocalProperties.clearProperty(LOOKUP_TABLE_DIRECTORY_PROPERTY);
+		}
+	}
 }

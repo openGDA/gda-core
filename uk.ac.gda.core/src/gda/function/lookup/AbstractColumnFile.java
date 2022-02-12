@@ -21,11 +21,14 @@ package gda.function.lookup;
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import gda.configuration.properties.LocalProperties;
@@ -36,13 +39,14 @@ import gda.observable.ObservableComponent;
 
 public abstract class AbstractColumnFile extends FindableConfigurableBase implements IObservable {
 
+	/** The value of this property can be set multiple times to search in multiple directories */
 	public static final String LOOKUP_TABLE_DIRECTORY_PROPERTY = "gda.function.columnDataFile.lookupDir";
 
 	protected static final String COMMENT_MARK = "#";
 	protected static final String COLUMN_DELIMETER = "[, \t]+";
 
-	private String directory = getDefaultLookup();
-	private String filename;
+	private Path directory;
+	private Path filename;
 
 	private ObservableComponent observableComponent = new ObservableComponent();
 
@@ -78,35 +82,60 @@ public abstract class AbstractColumnFile extends FindableConfigurableBase implem
 	}
 
 	public String getFilename() {
-		return filename;
+		return filename.toString();
 	}
 
 	public void setFilename(String filename) {
 		requireNonNull(filename, "Filename must not be null");
-		this.filename = filename;
+		this.filename = Paths.get(filename);
 	}
 
 	public String getDirectory() {
-		return directory;
+		return directory.toString();
 	}
 
 	public void setDirectory(String directory) {
 		requireNonNull(directory, "Directory must not be null");
-		this.directory = directory;
+		this.directory = Paths.get(directory);
 	}
 
-	public String getPath() {
+	public String getPath() throws FileNotFoundException {
 		if (filename == null) {
 			throw new IllegalStateException("Filename has not been set");
 		}
-		return new File(directory, filename).getAbsolutePath();
+		if (directory == null) {
+			// Use defaults from property
+			directory = findDirectory();
+
+		}
+		return directory.resolve(filename).toAbsolutePath().toString();
 	}
 
-	protected String getDefaultLookup() {
-		String gdaConfig = LocalProperties.get(GDA_CONFIG);
-		String lookupTableFolder = LocalProperties.get(LOOKUP_TABLE_DIRECTORY_PROPERTY,
-				gdaConfig + File.separator + "lookupTables");
-		return new File(lookupTableFolder).getAbsolutePath();
+	/**
+	 * Read {@link #LOOKUP_TABLE_DIRECTORY_PROPERTY} if set to obtain
+	 * array of directories, fallback to location derived from gda.config
+	 */
+	private Stream<Path> getDefaultLookupDirs() {
+		if (LocalProperties.contains(LOOKUP_TABLE_DIRECTORY_PROPERTY)) {
+			var locations = LocalProperties.getStringArray(LOOKUP_TABLE_DIRECTORY_PROPERTY);
+			return Arrays.stream(locations).map(Paths::get).map(Path::toAbsolutePath);
+		} else {
+			return Stream.of(Paths.get(LocalProperties.get(GDA_CONFIG), "lookupTables"));
+		}
+	}
+
+	/**
+	 * Search in directories provided by {@link #LOOKUP_TABLE_DIRECTORY_PROPERTY} to find
+	 * directory containing the specified filename
+	 */
+	private Path findDirectory() throws FileNotFoundException {
+		return getDefaultLookupDirs()
+				.filter(dir -> Files.exists(dir.resolve(filename)))
+				.map(Path::toAbsolutePath)
+				.findFirst()
+				.orElseThrow(() -> new FileNotFoundException(
+						String.format("Could not find filename \"%s\" in locations: %s", filename, getDefaultLookupDirs().collect(toList()))
+						));
 	}
 
 	/**
