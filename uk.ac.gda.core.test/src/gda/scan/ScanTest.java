@@ -39,7 +39,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import gda.util.ObjectServer;
+import gda.spring.context.SpringContext;
 import gda.util.TestUtils;
 import gda.util.findableHashtable.FindableHashtable;
 import gda.util.findableHashtable.Hashtable;
@@ -86,7 +86,7 @@ public class ScanTest {
 		System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, TestUtils.getResourceAsFile(ScanTest.class, "scanTest.properties").getAbsolutePath());
 
 		configureLogging();
-		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(ScanTest.class, "scanTest_server.xml").getAbsolutePath());
+		SpringContext.registerFactory(TestUtils.getResourceAsFile(ScanTest.class, "scanTest_server.xml").getAbsolutePath());
 
 		hashtable = (Hashtable) Finder.find("GDAHashtable");
 

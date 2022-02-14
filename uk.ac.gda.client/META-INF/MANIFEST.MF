@@ -175,5 +175,6 @@ Import-Package: com.google.gson.annotations;version="2.2.4",
  org.springframework.http.converter.json;version="4.0.6.RELEASE",
  org.springframework.stereotype;version="4.0.6.RELEASE",
  org.springframework.util;version="3.0.4",
- org.springframework.web.client;version="4.0.6.RELEASE"
+ org.springframework.web.client;version="4.0.6.RELEASE",
+ uk.ac.gda.common.activemq
 Automatic-Module-Name: uk.ac.gda.client

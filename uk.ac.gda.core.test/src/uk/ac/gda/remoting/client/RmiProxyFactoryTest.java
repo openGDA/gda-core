@@ -97,6 +97,8 @@ public class RmiProxyFactoryTest {
 		// Create a registry
 		registry = LocateRegistry.createRegistry(portForTesting);
 		// Set the property this is used by the RmiAutomatedExporter
+
+		System.setProperty("GDA/gda.activemq.broker.status.uri", "http://localhost:8161");
 		LocalProperties.set(RMI_PORT_PROPERTY, Integer.toString(portForTesting));
 		LocalProperties.set(GDA_SERVER_HOST, "localhost");
 		// Ensure no previous tests have left factories attached to the Finder
@@ -109,6 +111,7 @@ public class RmiProxyFactoryTest {
 		LocalProperties.unsetActiveMQBrokerURI();
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_SERVER_HOST);
+		System.clearProperty("GDA/gda.activemq.broker.status.uri");
 
 		// Close the RMI registry
 		UnicastRemoteObject.unexportObject(registry, true);

@@ -19,7 +19,6 @@
 
 package gda.jython;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toSet;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
@@ -42,7 +41,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -63,9 +61,6 @@ import org.python.core.imp;
 import org.python.util.InteractiveConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
-import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
@@ -184,20 +179,14 @@ public class GDAJythonInterpreter {
 	}
 
 	/**
-	 * @return string - the full path of the beamline's initialisation script.
-	 */
-	public String getGdaStationScript() {
-		return jythonScriptPaths != null ? jythonScriptPaths.getStartupScript() : "";
-	}
-
-	/**
 	 * Configures this interpreter.
+	 * @throws Exception
 	 */
-	public void configure() {
+	public void configure(Writer stdout) throws Exception {
+		logger.info("Adding GDA package locations to Jython path...");
+
 		// Obtain script projects from extension point
 		GDAJythonScriptApi jythonScriptApiManager = new GDAJythonScriptApi();
-
-		logger.info("adding GDA package locations to Jython path...");
 
 		// Create a new Jython 'sys' instance to be used by the Py infrastructure based on the settings
 		// supplied to PySystemState.initialize in the initializer block above.
@@ -303,6 +292,7 @@ public class GDAJythonInterpreter {
 		// Get instance of interactive console
 		interactiveConsole = new GDAInteractiveConsole(mod.__dict__, pss);
 
+		initialise(stdout);
 		logger.info("Jython configured");
 	}
 
@@ -398,7 +388,7 @@ public class GDAJythonInterpreter {
 	 * Set up the Jython interpreter and run Jython scripts to connect to the ObjectServer. This must be run once by the
 	 * calling program after the interpreter instance has been created.
 	 */
-	protected void initialise(JythonServer jythonServer) throws Exception {
+	private void initialise(Writer stdout) throws Exception {
 		if (!initialized) {
 
 			try {
@@ -408,13 +398,11 @@ public class GDAJythonInterpreter {
 				translator = (Translator) translatorClass.newInstance();
 
 				// set the console output
-				final Writer terminalWriter = jythonServer.getTerminalWriter();
-				interactiveConsole.setOut(terminalWriter);
-				interactiveConsole.setErr(terminalWriter);
+				interactiveConsole.setOut(stdout);
+				interactiveConsole.setErr(stdout);
 
 				// give Jython the reference to this wrapper object
 				interactiveConsole.set("GDAJythonInterpreter", this);
-				interactiveConsole.set(Jython.SERVER_NAME, jythonServer);
 
 				// standard imports
 				logger.info("performing standard Jython interpreter imports...");
@@ -519,7 +507,6 @@ public class GDAJythonInterpreter {
 
 				initialiseLoggingRedirection();
 				populateNamespace();
-				runStationStartupScript();
 
 			} catch (Exception ex) {
 				logger.error("GDAJythonInterpreter: error while initialising", ex);
@@ -567,30 +554,6 @@ public class GDAJythonInterpreter {
 		nameToScannable.forEach(this::placeInJythonNamespace);
 
 		logger.info("Finished populating Jython namespace, added {} Scannables", nameToScannable.size());
-	}
-
-	/**
-	 * Runs the station startup script, {@code localStation.py}.
-	 */
-	private void runStationStartupScript() {
-		// import the station startup script
-		// run this last as it may use variables set up above
-		String gdaStationScript = getGdaStationScript();
-		if (StringUtils.hasText(gdaStationScript)) {
-			logger.info("Running startupScript: {}", gdaStationScript);
-			final Stopwatch localStationStopwatch = Stopwatch.createStarted();
-			try {
-				Path localStation = Paths.get(gdaStationScript);
-				final String lines = Files.readAllLines(localStation).stream().collect(Collectors.joining("\n"));
-				this.runscript(lines);
-				logger.info("Completed startupScript. Took {} seconds", localStationStopwatch.elapsed(SECONDS));
-			} catch (Exception e) {
-				logger.error("Error running startupScript. Failed after {} seconds",
-						localStationStopwatch.elapsed(SECONDS), e);
-			}
-		} else {
-			logger.info("No startupScript defined");
-		}
 	}
 
 	/**

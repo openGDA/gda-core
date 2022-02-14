@@ -40,7 +40,7 @@ import gda.data.metadata.icat.IcatProvider;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.util.ObjectServer;
+import gda.spring.context.SpringContext;
 import gda.util.TestUtils;
 import uk.ac.gda.api.io.HostId;
 
@@ -64,7 +64,7 @@ public class PathConstructorTest {
 
 		Finder.removeAllFactories();
 		GDAMetadataProvider.setInstanceForTesting(null);
-		ObjectServer.createLocalImpl(TestUtils.getResourceAsFile(PathConstructorTest.class, "metadata_test_beans.xml").getAbsolutePath());
+		SpringContext.registerFactory(TestUtils.getResourceAsFile(PathConstructorTest.class, "metadata_test_beans.xml").getAbsolutePath());
 		metadata = (Metadata) Finder.find("GDAMetadata");
 
 		Date date = new Date();

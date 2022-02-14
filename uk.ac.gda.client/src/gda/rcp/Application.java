@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.factory.FactoryException;
@@ -53,7 +54,7 @@ import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
 import gda.rcp.util.UIScanDataPointEventService;
-import gda.util.SpringObjectServer;
+import gda.spring.context.SpringContext;
 import gda.util.logging.LogbackUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.remoting.client.RmiProxyFactory;
@@ -525,6 +526,9 @@ public class Application implements IApplication {
 	 */
 	private void customiseEnvironment() {
 		var swtDisposeLogger = LoggerFactory.getLogger("GDAClientSWTDispose");
+		if (!ServiceHolder.getSessionService().defaultConnectionActive()) {
+			throw new IllegalStateException("ActiveMQ is not available - will not be able to connect to server");
+		}
 		Resource.setNonDisposeHandler(error -> {
 			var trimmedTrace = stream(error.getStackTrace()).limit(10).toArray(StackTraceElement[]::new);
 			error.setStackTrace(trimmedTrace);
@@ -558,8 +562,7 @@ public class Application implements IApplication {
 		if (!started) {
 			String gda_gui_beans = LocalProperties.get(LocalProperties.GDA_GUI_BEANS_XML, LocalProperties.get(LocalProperties.GDA_GUI_XML));
 			if (gda_gui_beans != null) {
-				SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans));
-				s.configure();
+				SpringContext.registerFactory(gda_gui_beans);
 			}
 			started = true;
 		}
