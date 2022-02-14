@@ -272,6 +272,11 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 	}
 
 	@Override
+	public void pcArmNoWait() throws Exception {
+		pcArm();
+	}
+
+	@Override
 	public void waitUntilNotArmed(int timeout) throws Exception {
 		// do nothing
 	}

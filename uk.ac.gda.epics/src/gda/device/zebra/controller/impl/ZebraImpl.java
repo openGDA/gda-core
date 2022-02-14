@@ -372,6 +372,11 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 	}
 
 	@Override
+	public void pcArmNoWait() throws Exception {
+		pvFactory.getPVInteger(PCArm).putNoWait(1);
+	}
+
+	@Override
 	public void waitUntilNotArmed(int timeout) throws Exception {
 		try {
 			pvFactory.getPVInteger(PCArmOut).waitForValue(x -> (x == 0), timeout);
