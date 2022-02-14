@@ -395,7 +395,7 @@ public class GDAJythonInterpreter {
 				// TODO Maybe the translator should be configured via Spring not property? This would remove this code.
 				final String translatorClassName = LocalProperties.get("gda.jython.translator.class", "GeneralTranslator");
 				final Class<?> translatorClass = Class.forName("gda.jython.translator." + translatorClassName);
-				translator = (Translator) translatorClass.newInstance();
+				translator = (Translator) translatorClass.getConstructor().newInstance();
 
 				// set the console output
 				interactiveConsole.setOut(stdout);
