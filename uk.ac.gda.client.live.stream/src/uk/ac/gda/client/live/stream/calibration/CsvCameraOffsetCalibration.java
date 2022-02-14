@@ -107,7 +107,6 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
     	df.setMaximumFractionDigits(340);
 
         calibration = getCalibration();
-
     }
 
     /**
@@ -120,65 +119,46 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
      */
 
     private CalibratedAxesProvider getCalibration() {
-
         try {
             if (csvFile.createNewFile()) {
                 setFilePermissions();
                 calibration = getDefaultCalibration();
             } else {
-                FileReader fileReader = new FileReader(csvFile);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);
-                List < CSVRecord > records = CSVParser.parse(bufferedReader, csvFormat).getRecords();
-                if (records.isEmpty()) {
-                    calibration = getDefaultCalibration();
-                } else {
-                    CSVRecord lastRecord = records.get(records.size() - 1);
-                    boolean allHeadersSet = Stream.of(headers).allMatch(lastRecord::isSet);
-                    if (allHeadersSet) {
-                        calibration = getCSVCalibration(lastRecord);
+            	try(BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile))){
+                    List < CSVRecord > records = CSVParser.parse(bufferedReader, csvFormat).getRecords();
+                    if (records.isEmpty()) {
+                        calibration = getDefaultCalibration();
                     } else {
-                        logger.error("Incorrect headers.");
+                        CSVRecord lastRecord = records.get(records.size() - 1);
+                        boolean allHeadersSet = Stream.of(headers).allMatch(lastRecord::isSet);
+                        if (allHeadersSet) {
+                            calibration = getCSVCalibration(lastRecord);
+                        } else {
+                            logger.error("Incorrect headers.");
+                        }
                     }
                 }
             }
-
         } catch (IOException e) {
             logger.error("Error reading CSV file", e);
-
         }
         return calibration;
-
     }
 
     private CalibratedAxesProvider getDefaultCalibration() {
-
-        xOffset = xOffsetDefault;
-        yOffset = yOffsetDefault;
-        xPixelScaling = xPixelScalingDefault;
-        yPixelScaling = yPixelScalingDefault;
-
-        updateCSVFile("Default", xOffset, yOffset, xPixelScaling, yPixelScaling, true);
-
-        calibration = createCalibratedAxesProvider(xOffset, yOffset, xPixelScaling, yPixelScaling);
-
-        return calibration;
+    	// Adding headers and default values to CSV file
+        updateCSVFile("Default", xOffsetDefault, yOffsetDefault, xPixelScalingDefault, yPixelScalingDefault, true);
+        return createCalibratedAxesProvider(xOffsetDefault, yOffsetDefault, xPixelScalingDefault, yPixelScalingDefault);
     }
 
     private CalibratedAxesProvider getCSVCalibration(CSVRecord lastRecord) {
-
-        xOffset = Double.parseDouble(lastRecord.get(X_OFFSET_HEADING));
-        yOffset = Double.parseDouble(lastRecord.get(Y_OFFSET_HEADING));
-        xPixelScaling = Double.parseDouble(lastRecord.get(X_PIXEL_SCALING_HEADING));
-        yPixelScaling = Double.parseDouble(lastRecord.get(Y_PIXEL_SCALING_HEADING));
-
-        calibration = createCalibratedAxesProvider(xOffset, yOffset, xPixelScaling, yPixelScaling);
-
-        return calibration;
-
+        return createCalibratedAxesProvider(Double.parseDouble(lastRecord.get(X_OFFSET_HEADING)),
+        		Double.parseDouble(lastRecord.get(Y_OFFSET_HEADING)),
+        		Double.parseDouble(lastRecord.get(X_PIXEL_SCALING_HEADING)),
+        		Double.parseDouble(lastRecord.get(Y_PIXEL_SCALING_HEADING)));
     }
 
     private void updateCSVFile(String calibrationName, double xOffset, double yOffset, double xPixelScaling, double yPixelScaling, boolean addHeaders) {
-
     	String calibrationParameters = String.join(",",calibrationName, df.format(xOffset), df.format(yOffset), df.format(xPixelScaling), df.format(yPixelScaling));
 
         try (FileWriter fileWriter = new FileWriter(csvFile, true); BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
@@ -186,7 +166,6 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
         		bufferedWriter.write(String.join(",", headers));
                 bufferedWriter.write("\n");
         	}
-
             bufferedWriter.write(calibrationParameters);
             bufferedWriter.write("\n");
 
@@ -194,7 +173,6 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
             logger.error("Error writing CSV file", e);
         }
     }
-
 
     /**
      * New CalibrationAxesProvider object is created from values updated from the supplied values.
@@ -207,7 +185,6 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
      * @param yPixelScaling number of pixels per scannable unit in y axis
      */
     public void updateCalibrator(String calibrationName, double xOffset, double yOffset, double xPixelScaling, double yPixelScaling) {
-
         final CalibratedAxesProvider newCalibrator = createCalibratedAxesProvider(xOffset, yOffset, xPixelScaling, yPixelScaling);
         calibration.disconnect();
         newCalibrator.connect();
@@ -215,11 +192,16 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
             newCalibrator.resizeStream(dataShape);
         }
         calibration = newCalibrator;
-        updateCSVFile(calibrationName, xOffset, yOffset, xPixelScaling, yPixelScaling, false);
 
+        updateCSVFile(calibrationName, xOffset, yOffset, xPixelScaling, yPixelScaling, false);
     }
 
     private CalibratedAxesProvider createCalibratedAxesProvider(double xOffset, double yOffset, double xPixelScaling, double yPixelScaling) {
+    	this.xOffset = xOffset;
+    	this.yOffset = yOffset;
+    	this.xPixelScaling = xPixelScaling;
+    	this.yPixelScaling = yPixelScaling;
+
     	return new CameraOffsetCalibration(xAxis, xPixelScaling, xOffset, yAxis, yPixelScaling, yOffset);
     }
 
@@ -227,7 +209,6 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
     	csvFile.setReadable(true, false);
     	csvFile.setWritable(true, false);
     }
-
 
     public double getxOffset() {
         return xOffset;
@@ -244,7 +225,6 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
     public double getyPixelScaling() {
         return yPixelScaling;
     }
-
 
     @Override
     public void connect() {
@@ -270,6 +250,5 @@ public class CsvCameraOffsetCalibration implements CalibratedAxesProvider {
     public void resizeStream(int[] newShape) {
         dataShape = newShape;
         calibration.resizeStream(newShape);
-
     }
 }
