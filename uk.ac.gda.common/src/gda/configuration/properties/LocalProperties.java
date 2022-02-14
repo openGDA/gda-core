@@ -896,6 +896,8 @@ public final class LocalProperties {
 				"this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
 		obsoletePropertyToReason.put("gda.epics.interface.xml",
 				"this property is associated with use of an EPICS interface file, due to be deprecated in GDA 9.11");
+		obsoletePropertyToReason.put("gda.jython.GDAJythonInterpreter.useWriters",
+				"This option was related to unicode in Jython output and was removed in 8.38");
 		// Corba DAQ-1322
 		obsoletePropertyToReason.put("gda.eventreceiver.purge", "Corba related removed in GDA 9.11 - see DAQ-1322");
 		obsoletePropertyToReason.put("gda.ORBClass", "Corba related removed in GDA 9.11 - see DAQ-1322");
