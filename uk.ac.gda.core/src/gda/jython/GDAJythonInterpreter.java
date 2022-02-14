@@ -304,8 +304,6 @@ public class GDAJythonInterpreter {
 				interactiveConsole.runsource("from java.lang import InterruptedException");
 
 				// gda imports
-				interactiveConsole.runsource("from gda.scan import *");
-				interactiveConsole.runsource("from gda.device import *");
 				interactiveConsole.runsource("from gda.jython import JythonServer");
 				interactiveConsole.runsource("from gda.jython import ScriptBase");
 				interactiveConsole.runsource("from gda.device.monitor import BeamMonitor");
