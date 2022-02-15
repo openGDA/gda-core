@@ -6,6 +6,9 @@ import uk.ac.diamond.daq.server.configuration.commands.ServerCommand;
 
 public interface IGDAConfigurationService {
 
+	/** This property should be set by DS components that implement this interface */
+	String CONFIGURATION_LAYOUT_PROPERTY = "configuration.layout";
+
 	void loadConfiguration();
 
 	String getMode();

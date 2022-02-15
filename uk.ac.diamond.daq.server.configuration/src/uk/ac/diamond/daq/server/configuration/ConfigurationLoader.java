@@ -1,11 +1,15 @@
 package uk.ac.diamond.daq.server.configuration;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.AT_LEAST_ONE;
+import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.CONFIGURATION_LAYOUT_PROPERTY;
+
 import java.util.Collection;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.ComponentServiceObjects;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Component to selectively load the correct configuration service implementation based on the config layout associated
@@ -14,12 +18,15 @@ import org.osgi.service.component.ComponentContext;
  * @author fri44821
  *
  */
+@Component(name = "ConfigurationLoader", enabled = true)
 public class ConfigurationLoader {
-	private static final String CONFIG_LAYOUT_LDAP = "(&(objectClass=*.IGDAConfigurationService)(configuration.layout=%s))";
 	
 	private static ConfigurationLoader instance;
 	
-	private IGDAConfigurationService configurationService;
+	private IGDAConfigurationService service;
+	
+	@Reference(cardinality = AT_LEAST_ONE, service = IGDAConfigurationService.class)
+	private Collection<ComponentServiceObjects<IGDAConfigurationService>> configurationServices;
 	
 	/**
 	 * Allows non-components to retrieve this component.
@@ -36,39 +43,33 @@ public class ConfigurationLoader {
 	 *  
 	 * @param context	The reference to this component's execution context
 	 */
+	@Activate
 	protected void activate(final ComponentContext context) {
 		System.out.println("Starting Configuration Loader Component");
 		instance = this;
-		wireConfigurationService(context.getBundleContext());
+		// Acceptable to set to null here as is documented on getConfigurationService
+		service = configurationServices.stream()
+				.filter(this::desiredService)
+				.findFirst()
+				.map(ComponentServiceObjects::getService)
+				.orElse(null);
+	}
+	
+	private boolean desiredService(ComponentServiceObjects<IGDAConfigurationService> service) {
+		var layout = service.getServiceReference().getProperty(CONFIGURATION_LAYOUT_PROPERTY);
+		return (layout != null && layout.equals(ConfigurationDefaults.LAYOUT.toString()));
 	}
 
 
 	/**
 	 * Retrieve the loaded configuration service. It is up to the caller to check whether this is null or not before acting.
 	 * 
-	 * @return	Null or the loaded service reference.
+	 * @return	Null or the loaded service instance
 	 */
 	public IGDAConfigurationService getConfigurationService() {
-		return configurationService;
+		return service;
 	}
+
 	
-	/**
-	 * Retrieve the service that matches the required layout via its ServiceReference. The first ServiceReference with a
-	 * configuration.layout property that matches the filter value is used (there should only ever be 1 matching object)
-	 *    
-	 * @param context			The current Bundle's context
-	 */
-	private void wireConfigurationService(final BundleContext context) {
-		try {
-			final Collection<ServiceReference<IGDAConfigurationService>> refs = 
-					context.getServiceReferences(IGDAConfigurationService.class, String.format(CONFIG_LAYOUT_LDAP, ConfigurationDefaults.LAYOUT));
-			if (!refs.isEmpty() && refs.size() == 1) {
-				configurationService = context.getService(refs.iterator().next());
-			}
-		} catch (InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }
 

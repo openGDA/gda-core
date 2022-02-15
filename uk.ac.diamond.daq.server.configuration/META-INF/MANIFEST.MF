@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.api
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/services/*.xml, OSGI-INF/*.xml
+Service-Component: OSGI-INF/*.xml
 Export-Package: uk.ac.diamond.daq.server.configuration,
  uk.ac.diamond.daq.server.configuration.commands,
  uk.ac.diamond.daq.server.configuration.properties

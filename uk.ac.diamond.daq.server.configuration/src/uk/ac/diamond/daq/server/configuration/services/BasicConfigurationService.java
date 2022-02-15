@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 
 import uk.ac.diamond.daq.server.configuration.ConfigurationDefaults;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectFactoryCommand;
 import uk.ac.diamond.daq.server.configuration.commands.ServerCommand;
 
-
+@Component(name = "BasicConfigurationService", immediate = true, property = "configuration.layout=STANDARD")
 public class BasicConfigurationService implements IGDAConfigurationService {
 	private final List<ServerCommand> objectServerCommands = new ArrayList<>();
 	private String instanceConfigRoot;
@@ -57,6 +59,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 		return instanceConfigRoot;
 	}
 
+	@Activate
 	protected void activate(final ComponentContext context) {
 		System.out.println("Starting Basic Configuration Service");
 	}
