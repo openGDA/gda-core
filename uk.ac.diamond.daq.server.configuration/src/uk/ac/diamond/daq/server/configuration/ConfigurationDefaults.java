@@ -134,6 +134,8 @@ public enum ConfigurationDefaults {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationDefaults.class);
 
+	private static boolean initialised = false;
+
 	private final String value;
 
 	private ConfigurationDefaults(final String value) {
@@ -150,24 +152,27 @@ public enum ConfigurationDefaults {
 	 * scripts or explicitly from the command line. If not, this method will set them based on the default values above. Also force loading
 	 * of Local Properties so that they are available to subsequent code including the buildXXCommand methods below.
 	 */
-	static {
-		final String[] basicArgs = concat(standardBasicArgs(), OBJECT_SERVER_VM_ARGS, String.class);
-		final String[] optionalArgs = concat(OPTIONAL_VM_ARGS, "-Djava.awt.headless=true");
-		final String[] vmArgs =  concat(basicArgs, optionalArgs, String.class);
-		final Properties properties = System.getProperties();
-		for (String arg : vmArgs) {
-			String[] bits = arg.split("=");
-			// if the sys prop has not already been set from the command line, use the one generated from defaults
-			if (bits[0].startsWith("-D") && StringUtils.isBlank(properties.getProperty(bits[0].substring(2)))) {
-				System.setProperty(bits[0].substring(2), bits[1]);
+	public static synchronized void initialise() {
+		if (!initialised) {
+			final String[] basicArgs = concat(standardBasicArgs(), OBJECT_SERVER_VM_ARGS, String.class);
+			final String[] optionalArgs = concat(OPTIONAL_VM_ARGS, "-Djava.awt.headless=true");
+			final String[] vmArgs =  concat(basicArgs, optionalArgs, String.class);
+			final Properties properties = System.getProperties();
+			for (String arg : vmArgs) {
+				String[] bits = arg.split("=");
+				// if the sys prop has not already been set from the command line, use the one generated from defaults
+				if (bits[0].startsWith("-D") && StringUtils.isBlank(properties.getProperty(bits[0].substring(2)))) {
+					System.setProperty(bits[0].substring(2), bits[1]);
+				}
 			}
+			if (StringUtils.isBlank(properties.getProperty(LocalProperties.GDA_BEAMLINE_NAME))) {
+				System.setProperty(LocalProperties.GDA_BEAMLINE_NAME, APP_BEAMLINE.value);
+			}
+			LocalProperties.load();
+			logger.info("LocalProperties loaded");
+			LoggingUtils.setLogDirectory();
+			initialised  = true;
 		}
-		if (StringUtils.isBlank(properties.getProperty(LocalProperties.GDA_BEAMLINE_NAME))) {
-			System.setProperty(LocalProperties.GDA_BEAMLINE_NAME, APP_BEAMLINE.value);
-		}
-		LocalProperties.load();
-		logger.info("LocalProperties loaded");
-		LoggingUtils.setLogDirectory();
 	}
 
 	// utility methods to handle the defaulting of value that might be set by environment variables/system properties

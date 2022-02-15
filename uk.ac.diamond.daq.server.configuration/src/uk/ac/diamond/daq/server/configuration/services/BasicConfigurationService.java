@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.osgi.service.component.ComponentContext;
 
+import uk.ac.diamond.daq.server.configuration.ConfigurationDefaults;
 import uk.ac.diamond.daq.server.configuration.IGDAConfigurationService;
 import uk.ac.diamond.daq.server.configuration.commands.ObjectFactoryCommand;
 import uk.ac.diamond.daq.server.configuration.commands.ServerCommand;
@@ -17,6 +18,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 
 	@Override
 	public void loadConfiguration() {
+		ConfigurationDefaults.initialise();
 		final String[] profiles = getProfiles();
 		final String[] springPathsStrings = APP_SPRING_XML_FILE_PATHS.toString().split(",");
 

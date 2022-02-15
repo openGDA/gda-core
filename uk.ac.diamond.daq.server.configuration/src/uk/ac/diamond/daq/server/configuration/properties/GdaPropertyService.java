@@ -27,6 +27,7 @@ public class GdaPropertyService implements PropertyService {
 
 	@Activate
 	public void activate() throws ConfigurationException {
+		ConfigurationDefaults.initialise();
 		final String rootPropertyFile = ConfigurationDefaults.APP_PROPERTIES_FILE.toString();
 		// Note logging is not setup here so will go to stdout
 		logger.info("Loading properties from: {}", rootPropertyFile);
