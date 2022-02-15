@@ -66,31 +66,22 @@ public class LiveStreamViewCameraControlsOffsetCalibrate implements LiveStreamVi
         calibrateButton.setToolTipText("Set camera offset calibration");
         calibrateButton.addSelectionListener(widgetSelectedAdapter(e-> openDialog()));
 
-
         dialog = new EditCameraOffsetCalibrationDialog(Display.getCurrent().getActiveShell(),
         		calibration.getxOffset(), calibration.getyOffset(),
-        		calibration.getyPixelScaling(), calibration.getyPixelScaling());
-
+        		calibration.getxPixelScaling(), calibration.getyPixelScaling());
     }
-
 
     private void openDialog() {
         dialog.create();
         if (dialog.open() == Window.OK) {
-        	updateCalibration();
+            String timeStamp = new SimpleDateFormat("dd.MM.yyyy.HH.mm.ss").format(new Date());
+            double xOffset = Double.parseDouble(dialog.getxOffset());
+            double yOffset = Double.parseDouble(dialog.getyOffset());
+            double xPixelScaling = Double.parseDouble(dialog.getxPixelScaling());
+            double yPixelScaling = Double.parseDouble(dialog.getyPixelScaling());
+
+            calibration.updateCalibrator(timeStamp, xOffset, yOffset, xPixelScaling, yPixelScaling);
         }
-    }
-
-    private void updateCalibration() {
-
-        String timeStamp = new SimpleDateFormat("dd.MM.yyyy.HH.mm.ss").format(new Date());
-        double xOffset = Double.parseDouble(dialog.getxOffset());
-        double yOffset = Double.parseDouble(dialog.getyOffset());
-        double xPixelScaling = Double.parseDouble(dialog.getxPixelScaling());
-        double yPixelScaling = Double.parseDouble(dialog.getyPixelScaling());
-
-        calibration.updateCalibrator(timeStamp, xOffset, yOffset, xPixelScaling, yPixelScaling);
-
     }
 
     public void setCsvCameraOffsetCalibration(CsvCameraOffsetCalibration csvCalibration) {
