@@ -35,8 +35,9 @@ public enum ScriptProjectType {
 	/**
 	 * Scripts provided with GDA EPICS plugins. Not user editable. Treated as CORE
 	 * Use CORE rather than plugin specific values
+	 * @deprecated this value will be removed in GDA 9.26
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true, since = "Aug 2011")
 	EPICS,
 
 	/** Scripts that should not be shown in the PyDev Project Explorer, such as gdaserver.py
