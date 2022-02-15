@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistenceService;
 import org.eclipse.dawnsci.analysis.api.persistence.IPersistentFile;
 import org.eclipse.dawnsci.plotting.api.PlottingEventConstants;
-import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.widgets.Display;
@@ -46,6 +45,7 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.live.stream.LiveStreamException;
 import uk.ac.gda.client.live.stream.view.LiveStreamView;
 
@@ -56,6 +56,11 @@ import uk.ac.gda.client.live.stream.view.LiveStreamView;
 public class CreateMapHandler extends AbstractHandler {
 
 	private static final String PROPERTY_NAME_PATH = "path";
+
+	/**
+	 * The name of the beamline property with the subdirectory folder to save snapshots
+	 */
+	private static final String PROPERTY_SNAPSHOTS_DATA_DIR = "gda.livestream.snapshots.datadir";
 
 	private final Logger logger = LoggerFactory.getLogger(CreateMapHandler.class);
 
@@ -79,9 +84,9 @@ public class CreateMapHandler extends AbstractHandler {
 			final IPersistenceService persistenceService = PlatformUI.getWorkbench().getService(IPersistenceService.class);
 
 			// create a persistent file and add the data and axis.
-			final IPersistentFile persistentFile = persistenceService.createPersistentFile(filePath);
-			persistentFile.setData(snapshot.getDataset(), new IDataset[] {snapshot.getyAxis(), snapshot.getxAxis()}); // handles null for axes
-            persistentFile.close();
+			try(final IPersistentFile persistentFile = persistenceService.createPersistentFile(filePath)){
+				persistentFile.setData(snapshot.getDataset(),snapshot.getyAxis(), snapshot.getxAxis()); // handles null for axes
+			}
 			// send an event to update the Mapped Data view
 			updateMappedDataView(filePath);
 		} catch (Exception e) {
@@ -120,9 +125,11 @@ public class CreateMapHandler extends AbstractHandler {
 
 	private String getFilePath() throws Exception {
 		final IFilePathService filePathService = PlatformUI.getWorkbench().getService(IFilePathService.class);
-		final String processedFilesDir = filePathService.getProcessingDir();
+		String processedFilesDir = filePathService.getProcessingDir();
+		String snapshotsDir = LocalProperties.get(PROPERTY_SNAPSHOTS_DATA_DIR, "");
 
-		return filePathService.getNextPath(processedFilesDir, "snapshot");
+		return filePathService.getNextPath(processedFilesDir + snapshotsDir, "snapshot");
+
 	}
 
 }
