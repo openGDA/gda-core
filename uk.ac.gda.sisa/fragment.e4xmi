@@ -101,5 +101,15 @@
         </children>
       </children>
     </elements>
+    <elements xsi:type="advanced:Perspective" xmi:id="_4yX_8IqDEeypIvTv87x39w" elementId="uk.ac.gda.sisa.perspective.leed" label="LEED">
+      <children xsi:type="basic:PartSashContainer" xmi:id="_fOhCkIswEeyCCO4vn-s22g" elementId="uk.ac.gda.sisa.partsashcontainer.15" horizontal="true">
+        <children xsi:type="basic:PartStack" xmi:id="_04pMsIswEeyCCO4vn-s22g" elementId="uk.ac.gda.sisa.partstack.20">
+          <children xsi:type="basic:Part" xmi:id="__lvfQIqFEeypIvTv87x39w" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_9#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-9"/>
+        </children>
+        <children xsi:type="basic:PartStack" xmi:id="_19f78IswEeyCCO4vn-s22g" elementId="uk.ac.gda.sisa.partstack.21">
+          <children xsi:type="basic:Part" xmi:id="_-y_zsIqFEeypIvTv87x39w" elementId="uk.ac.gda.client.live.stream.view.LiveStreamView:es2_8#MJPEG" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="ES2-8"/>
+        </children>
+      </children>
+    </elements>
   </fragments>
 </fragment:ModelFragments>
