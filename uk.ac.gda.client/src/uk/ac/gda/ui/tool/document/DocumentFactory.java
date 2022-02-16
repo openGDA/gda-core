@@ -62,7 +62,6 @@ public class DocumentFactory {
 
 	public ScanningAcquisition newScanningAcquisition(AcquisitionKeys acquisitionKeys) throws AcquisitionConfigurationException {
 		var newAcquisition = new ScanningAcquisition();
-		// Does not set UUID as it will be inserted by the save service
 		newAcquisition.setType(getType(acquisitionKeys.getPropertyType()));
 		var configuration = new ScanningConfiguration();
 		newAcquisition.setAcquisitionConfiguration(configuration);
@@ -231,7 +230,6 @@ public class DocumentFactory {
 
 	public ScanningAcquisition newScanningAcquisition(AcquisitionTemplate template) {
 		var acquisition = new ScanningAcquisition();
-		// Does not set UUID as it will be inserted by the save service
 		acquisition.setType(getType(template.getType()));
 		acquisition.setAcquisitionEngine(template.getEngine());
 
@@ -260,8 +258,8 @@ public class DocumentFactory {
 	}
 
 	private ScanpathDocument getDefaultScanpathDocument(AcquisitionTemplate template) {
-		List<ScannableTrackDocument> paths = template.getScanAxes().stream()
-			.map(this::defaultScannableTrackDocument)
+		List<ScannableTrackDocument> paths = template.getScanAxes().entrySet().stream()
+			.map(entry -> defaultScannableTrackDocument(entry.getKey(), entry.getValue()))
 			.collect(Collectors.toList());
 
 		if (paths.isEmpty()) {
@@ -283,9 +281,10 @@ public class DocumentFactory {
 	private ScannableTrackDocument defaultScannableTrackDocument() {
 		return new ScannableTrackDocument.Builder().withPoints(1).build();
 	}
-	private ScannableTrackDocument defaultScannableTrackDocument(String axisName) {
+	private ScannableTrackDocument defaultScannableTrackDocument(String axis, String scannable) {
 		return new ScannableTrackDocument.Builder()
-				.withScannable(axisName)
+				.withAxis(axis)
+				.withScannable(scannable)
 				.withStart(0)
 				.withStop(1)
 				.withStep(5)

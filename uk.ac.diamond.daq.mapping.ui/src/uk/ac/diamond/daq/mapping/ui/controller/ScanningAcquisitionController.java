@@ -39,7 +39,6 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
@@ -155,12 +154,7 @@ public class ScanningAcquisitionController
 	@Override
 	public void loadAcquisitionConfiguration(ScanningAcquisition acquisition) throws AcquisitionControllerException {
 		var acquisitionKeysToload = tempHelper.getAcquisitionKeys(acquisition);
-		if (!getAcquisitionKeys().getPropertyType().equals(acquisitionKeysToload.getPropertyType())) {
-			var reason = String.format("Cannot load a %s file into a %s configuration view", acquisitionKeysToload, getAcquisitionKeys());
-			UIHelper.showWarning("Cannot load", reason);
-		} else {
-			updateAcquisitionConfiguration(acquisition, acquisitionKeysToload);
-		}
+		updateAcquisitionConfiguration(acquisition, acquisitionKeysToload);
 	}
 
 	private void loadAcquisitionConfiguration(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException {

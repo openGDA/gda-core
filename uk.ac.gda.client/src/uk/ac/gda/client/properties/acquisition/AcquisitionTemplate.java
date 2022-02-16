@@ -19,6 +19,7 @@
 package uk.ac.gda.client.properties.acquisition;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
@@ -33,7 +34,12 @@ public class AcquisitionTemplate {
 	private AcquisitionEngineDocument engine;
 	private Set<String> detectors;
 
-	private Set<String> scanAxes;
+	/**
+	 * Axis name to scannable name e.g.
+	 *  "x" -> "stage_x"
+	 *  "y" -> "stage_y"
+	 */
+	private Map<String, String> scannablePerAxis;
 
 	private ProcessingRequestProperties processingProperties;
 
@@ -64,11 +70,11 @@ public class AcquisitionTemplate {
 	public void setDetectors(Set<String> detectors) {
 		this.detectors = detectors;
 	}
-	public Set<String> getScanAxes() {
-		return scanAxes;
+	public Map<String, String> getScanAxes() {
+		return scannablePerAxis;
 	}
-	public void setScanAxes(Set<String> scanAxes) {
-		this.scanAxes = scanAxes;
+	public void setScanAxes(Map<String, String> scanAxes) {
+		this.scannablePerAxis = scanAxes;
 	}
 	public ProcessingRequestProperties getProcessingProperties() {
 		return processingProperties;
