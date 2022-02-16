@@ -462,29 +462,25 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private INexusDevice<?> createScannableNexusDevice(String scannableName) {
 		final Object jythonObject = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-		Scannable scannable = null;
 		if (jythonObject instanceof Scannable) {
-			scannable = (Scannable) jythonObject;
-		} else {
+			return createNexusDevice((Scannable) jythonObject, false);
+		} else if (jythonObject != null) {
 			// If the object is not a jython scannable, there still might be an INexusDevice with that name, so log and continue
-			logger.warn("The object named ''{}'' in the jython namespace is not a Scannable.", scannableName);
+			logger.debug("The object named ''{}'' in the jython namespace is not a Scannable.", scannableName);
 		}
-		if (scannable == null) {
-			// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
-			// metadata to be added without having to create a scannable.
-			INexusDevice<? extends NXobject> nexusDevice = null;
+
+		// see if there is a nexus device registered with the nexus device service with the given name. This allows custom
+		// metadata to be added without having to create a scannable.
+		if (ServiceHolder.getNexusDeviceService().hasNexusDevice(scannableName)) {
 			try {
-				nexusDevice = ServiceHolder.getNexusDeviceService().getNexusDevice(scannableName);
+				return ServiceHolder.getNexusDeviceService().getNexusDevice(scannableName);
 			} catch (NexusException e) {
 				logger.error("An error occurred getting a nexus device with the name '{}'. It will not be written.", scannableName, e);
 			}
-			if (nexusDevice == null) {
-				logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
-			}
-			return nexusDevice;
+		} else {
+			logger.error("No such scannable or nexus device '{}'. It will not be written", scannableName);
 		}
-
-		return createNexusDevice(scannable, false);
+		return null;
 	}
 
 	private List<INexusDevice<?>> getPerScanMonitors() {
