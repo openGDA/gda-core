@@ -36,6 +36,7 @@ import org.eclipse.scanning.api.AbstractScannable;
 import org.eclipse.scanning.api.annotation.scan.PrepareScan;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -45,11 +46,12 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
+import org.eclipse.scanning.malcolm.core.MalcolmDevice;
+import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.ServiceHolder;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
@@ -66,9 +68,6 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	private static final Logger logger = LoggerFactory.getLogger(FrameCollectingScannable.class);
 
 	private static final String UNSUPPORTED_OPERATION_MESSAGE = "This isn't really a scannable";
-
-	private FrameRequestDocument frameRequestDocument;
-
 
 	/** Path of NeXus file */
 	private String frameFilePath;
@@ -92,9 +91,34 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	/** Stores the initial beamline configuration so it can be restored after taking the snapshot */
 	private Map<String, Object> previousConfiguration;
 
-	private IRequester<AcquireRequest> acquireRequester;
+	/**
+	 * By default (when {@link #useDetectorTable} {@code = false}) the exposure in the document
+	 * is treated as the scan point generator duration i.e. as the 'exposure' of the {@link MalcolmDevice}.
+	 * <p>
+	 * When {@link #useDetectorTable} {@code = true}, the exposure in the document will be set
+	 * as the exposure of the inner detector model in the Malcolm scan, and the MalcolmDevice will
+	 * get an 'exposure' of 0 i.e. Malcolm calculates the duration.
+	 */
+	private boolean useDetectorTable = false;
+
+	/**
+	 * Maps the name of the Malcolm detector used for the snapshot to the key (under /entry/instrument/) under which
+	 * Malcolm will write the snapshot.
+	 */
+	private Map<String, String> malcolmDetectorNames;
 
 	private boolean configured;
+
+	/**
+	 * Requests the acquisition
+	 */
+	private IRequester<AcquireRequest> acquireRequester;
+
+	/**
+	 * Describes the acquisition; must be set before the scan.
+	 */
+	private FrameRequestDocument frameRequestDocument;
+
 
 
 	public FrameCollectingScannable() {
@@ -123,7 +147,8 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	 * The given scan model contains the configuration so far of the main scan,
 	 * and may prove useful in configuring this collection.
 	 */
-	void configureCollection(@SuppressWarnings("unused")final ScanModel scanModel) {
+	@SuppressWarnings("unused")
+	void configureCollection(final ScanModel scanModel) throws ScanningException {
 		// base implementation does nothing
 	}
 
@@ -135,10 +160,6 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	 */
 	public void setFrameRequestDocument(FrameRequestDocument frameRequestDocument) {
 		this.frameRequestDocument = frameRequestDocument;
-	}
-
-	protected FrameRequestDocument getFrameRequestDocument() {
-		return this.frameRequestDocument;
 	}
 
 	private void configureBeamline() throws ScanningException {
@@ -153,6 +174,10 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		}
 	}
 
+	private Object getScannablePosition(String scannableName) throws ScanningException {
+		return ScannableDeviceConnectorService.getInstance().getScannable(scannableName).getPosition();
+	}
+
 	private void move(Map.Entry<String, Object> scannableInstruction) throws ScanningException {
 		ScannableDeviceConnectorService.getInstance()
 			.getScannable(scannableInstruction.getKey())
@@ -160,14 +185,14 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 	}
 
 	private String collectFrame() throws EventException, ScanningException {
-		if (getFrameRequestDocument() == null) {
-			throw new ScanningException("Detector document not set!");
+		if (frameRequestDocument == null) {
+			throw new ScanningException("Frame request document not set!");
 		}
 
 		var request = new AcquireRequest();
-		request.setDetectorName(getFrameRequestDocument().getName());
+		request.setDetectorName(frameRequestDocument.getName());
 
-		var model = configureDetectorModel(getDetector(getFrameRequestDocument().getName()));
+		var model = configureDetectorModel(getDetector(frameRequestDocument.getName()));
 
 		request.setDetectorModel(model);
 
@@ -186,24 +211,24 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		}
 	}
 
-	protected IDetectorModel configureDetectorModel(IRunnableDevice<? extends IDetectorModel> device) {
-		var model = device.getModel();
-		model.setExposureTime(getFrameRequestDocument().getExposure());
-		return model;
-	}
-
-	private String generateNodePath() {
-		final String detectorName;
-		if (getFrameRequestDocument().getMalcolmDetectorName() != null) {
-			detectorName = getFrameRequestDocument().getMalcolmDetectorName();
-		} else {
-			detectorName = getFrameRequestDocument().getName();
-		}
-		return "/entry/instrument/" + detectorName + "/data";
-	}
-
 	private IRunnableDevice<? extends IDetectorModel> getDetector(String detectorName) throws ScanningException {
 		return ServiceHolder.getRunnableDeviceService().getRunnableDevice(detectorName);
+	}
+
+	private IDetectorModel configureDetectorModel(IRunnableDevice<? extends IDetectorModel> detector) {
+		if (detector instanceof MalcolmDevice && useDetectorTable) {
+			var model = (IMalcolmModel) detector.getModel();
+			var innerDetector = model.getDetectorModels().stream()
+								.filter(det -> det.getName().equals(malcolmDetectorNames.get(detector.getName())))
+								.findFirst().orElseThrow();
+			innerDetector.setExposureTime(frameRequestDocument.getExposure());
+			model.setExposureTime(0.0);
+			return model;
+		} else {
+			var model = detector.getModel();
+			model.setExposureTime(frameRequestDocument.getExposure());
+			return model;
+		}
 	}
 
 	private IRequester<AcquireRequest> getRequester() throws EventException {
@@ -220,14 +245,20 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		return acquireRequester;
 	}
 
+	private String generateNodePath() {
+		final String detectorName;
+		if (frameRequestDocument.getMalcolmDetectorName() != null) {
+			detectorName = frameRequestDocument.getMalcolmDetectorName();
+		} else {
+			detectorName = frameRequestDocument.getName();
+		}
+		return "/entry/instrument/" + detectorName + "/data";
+	}
+
 	private void restoreBeamline() throws ScanningException {
 		for (Map.Entry<String, Object> position : previousConfiguration.entrySet()) {
 			move(position);
 		}
-	}
-
-	private Object getScannablePosition(String scannableName) throws ScanningException {
-		return ScannableDeviceConnectorService.getInstance().getScannable(scannableName).getPosition();
 	}
 
 	@Override
@@ -262,6 +293,18 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		this.nexusFieldName = nexusFieldName;
 	}
 
+	protected String getMalcolmDetectorName(IRunnableDevice<? extends IDetectorModel> detector) {
+		return detector instanceof MalcolmDevice ? malcolmDetectorNames.get(detector.getName()) : null;
+	}
+
+	public void setMalcolmDetectorNames(Map<String, String> malcolmDetectorNames) {
+		this.malcolmDetectorNames = malcolmDetectorNames;
+	}
+
+	public void setUseDetectorTable(boolean useDetectorTable) {
+		this.useDetectorTable = useDetectorTable;
+	}
+
 	@Override
 	public void configure() throws FactoryException {
 		if (configured) {
@@ -275,6 +318,7 @@ public class FrameCollectingScannable extends AbstractScannable<Object> implemen
 		}
 		configured = true;
 	}
+
 
 	@Override
 	public void reconfigure() throws FactoryException {
