@@ -42,6 +42,7 @@ import gda.device.Scannable;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraState;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
+import uk.ac.gda.client.livecontrol.LiveControl;
 import uk.ac.gda.client.widgets.LiveStreamExposureTimeComposite;
 
 /**
@@ -56,7 +57,7 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	protected CameraControl cameraControl;
 	protected Composite mainComposite;
-
+	protected LiveControl cameraGainControl;
 
 	/**
 	 * Extensions to allow extra controls to be added to the basic set.<br>
@@ -75,6 +76,8 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 	private boolean changeExposureWhileCameraAcquiring = false;
 
 	private boolean includeExposureTimeControl = true;
+
+	private boolean includeCameraGain = false;
 
 	public LiveStreamViewCameraControls(CameraControl cameraControl) {
 		Objects.requireNonNull(cameraControl, "Camera control must not be null");
@@ -112,6 +115,10 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 			resetButton.setText("Reset camera");
 			resetButton.setToolTipText("Reconnect to camera");
 			resetButton.addSelectionListener(widgetSelectedAdapter(this::resetCamera));
+		}
+
+		if (includeCameraGain) {
+			cameraGainControl.createControl(mainComposite);
 		}
 
 		// Extensions
@@ -171,6 +178,14 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	public void setIncludeExposureTimeControl(boolean includeExposureTimeControl) {
 		this.includeExposureTimeControl = includeExposureTimeControl;
+	}
+
+	public void setCameraGainControl(LiveControl cameraGainControl) {
+		this.cameraGainControl = cameraGainControl;
+	}
+
+	public void setIncludeCameraGain(boolean includeCameraGain) {
+		this.includeCameraGain = includeCameraGain;
 	}
 
 }
