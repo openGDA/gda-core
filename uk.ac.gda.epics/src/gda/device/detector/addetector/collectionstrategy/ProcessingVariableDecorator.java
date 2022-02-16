@@ -90,6 +90,7 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	private double pvValueSaved=1.0;
 
 	private ApplicationContext applicationContext;
+	private double waitTimeInSeconds = 0.0;
 
 	@Override
 	protected void rawPrepareForCollection(double collectionTime, int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
@@ -162,6 +163,7 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	public void setPvValue(double value) throws CAException, InterruptedException {
 		print(String.format("set %s to %f", getPvName(), value));
 		EPICS_CONTROLLER.caput(getChannel(getPvName()).orElseThrow(), value);
+		Thread.sleep((long)(getWaitTimeInSeconds()*1000));
 	}
 
 	/**
@@ -228,5 +230,13 @@ public class ProcessingVariableDecorator extends AbstractADCollectionStrategyDec
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
+	}
+
+	public double getWaitTimeInSeconds() {
+		return waitTimeInSeconds;
+	}
+
+	public void setWaitTimeInSeconds(double waitTimeInSeconds) {
+		this.waitTimeInSeconds = waitTimeInSeconds;
 	}
 }
