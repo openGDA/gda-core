@@ -40,8 +40,10 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel;
 import org.eclipse.scanning.api.points.models.InterpolatedMultiScanModel.ImageType;
+import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 
 import gda.mscan.element.Mutator;
@@ -75,9 +77,7 @@ public class ScanRequestFactory {
 
 	private final AcquisitionReader acquisitionReader;
 
-	public ScanRequestFactory(
-			AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) {
-		super();
+	public ScanRequestFactory(AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) {
 		this.acquisitionReader = new AcquisitionReader(() -> acquisition);
 	}
 
@@ -170,15 +170,16 @@ public class ScanRequestFactory {
 		// -- Model Definition
 		// Flat Before Acquisition
 		if (getFlatCalibration().isBeforeAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
-					posBeforeMainScan, getFlatCalibration().getNumberExposures()));
+			var preScanFlats = getCalibrationModel(trackDocument.getScannable(),
+					posBeforeMainScan, getFlatCalibration().getNumberExposures());
+			multiScanModel.addModel(preScanFlats);
 			addPosition(flatPos, interpolationPositions::add);
 			imageTypes.add(ImageType.FLAT);
 		}
 		// Dark Before Acquisition
 		if (getDarkCalibration().isBeforeAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
-					posBeforeMainScan, getDarkCalibration().getNumberExposures()));
+			var preScanDarks = getCalibrationModel(trackDocument.getScannable(), posBeforeMainScan, getDarkCalibration().getNumberExposures());
+			multiScanModel.addModel(preScanDarks);
 			addPosition(darkPos, interpolationPositions::add);
 			imageTypes.add(ImageType.DARK);
 		}
@@ -190,16 +191,16 @@ public class ScanRequestFactory {
 
 		// Flat After Acquisition
 		if (getFlatCalibration().isAfterAcquisition() && getFlatCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
-					posAfterMainScan, getFlatCalibration().getNumberExposures()));
+			var postScanFlats = getCalibrationModel(trackDocument.getScannable(), posAfterMainScan, getFlatCalibration().getNumberExposures());
+			multiScanModel.addModel(postScanFlats);
 			addPosition(flatPos, interpolationPositions::add);
 			imageTypes.add(ImageType.FLAT);
 		}
 
 		// Dark After Acquisition
 		if (getDarkCalibration().isAfterAcquisition() && getDarkCalibration().getNumberExposures() > 0) {
-			multiScanModel.addModel(new AxialPointsModel(trackDocument.getScannable(),
-					posAfterMainScan, getDarkCalibration().getNumberExposures()));
+			var posScanDarks = getCalibrationModel(trackDocument.getScannable(), posAfterMainScan, getDarkCalibration().getNumberExposures());
+			multiScanModel.addModel(posScanDarks);
 			addPosition(darkPos, interpolationPositions::add);
 			imageTypes.add(ImageType.DARK);
 		}
@@ -209,6 +210,13 @@ public class ScanRequestFactory {
 		multiScanModel.setInterpolatedPositions(interpolationPositions);
 		multiScanModel.setImageTypes(imageTypes);
 		return new CompoundModel(multiScanModel);
+	}
+
+	private IScanPointGeneratorModel getCalibrationModel(String scannable, double position, int points) {
+		if (scannable == null) {
+			return new StaticModel(points);
+		}
+		return new AxialPointsModel(scannable, position, points);
 	}
 
 	private void addPosition(IPosition startPos, Consumer<IPosition> consumer) {
