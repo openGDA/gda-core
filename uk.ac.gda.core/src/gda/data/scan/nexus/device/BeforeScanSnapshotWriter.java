@@ -52,6 +52,37 @@ import gda.device.ScannableMotionUnits;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 
+/**
+ * A Spring bean which enables NexusScanDataWriter to write a before_scan
+ * NXcollection to a scan Nexus file. This has the same format as the
+ * before_scan node written by NexusDataWriter.
+ * <br><br>
+ * The device name defaults to "before_scan" as does the colectionName, which
+ * matches NexusDataWriter, but both can both be changed if required.
+ * <br><br>
+ * All scannables, per point monitors, and per scan monitors in a scan are
+ * included by default, so all metadata scannables will be included by default.
+ * If scannables not included in a scan needs to be included in the before_scan
+ * collection, then these can be configured in an additionalScannableNames Set
+ * property.
+ * <br><br>
+ * Example bean definition:
+ * <pre>
+ * {@code
+<bean class="gda.data.scan.nexus.device.BeforeScanSnapshotWriter" init-method="register" />
+ * }
+ * </pre>
+ * This Nexus Device will also need to be added to the {@link CommonBeamlineDevicesConfiguration} bean:
+ * <pre>
+ * {@code
+<property name="additionalDeviceNames">
+	<set>
+		<value>before_scan</value>
+	</set>
+</property>
+ * }
+ * </pre>
+ */
 public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeforeScanSnapshotWriter.class);
