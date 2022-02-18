@@ -27,15 +27,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
+import gda.data.ServiceHolder;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
@@ -58,6 +62,18 @@ import gda.device.scannable.ScannableMotor;
 import gda.device.scannable.ScannableUtils;
 
 public class MultiScanTest {
+
+	@Before
+	public void setUp() {
+		NexusDataWriter.clearConfiguration();
+		final ServiceHolder serviceHolder = new ServiceHolder();
+		serviceHolder.setNexusDeviceService(new NexusDeviceService());
+	}
+
+	@After
+	public void cleanup() {
+		LocalProperties.clearProperty(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
+	}
 
 	@Test
 	public void simplestScan() throws Exception {
@@ -96,11 +112,6 @@ public class MultiScanTest {
 		final ConstantVelocityScanLine cvls = new ConstantVelocityScanLine(new Object[]{scannableMotor, 0, 10, 1, htd, .1});
 		final MultiScan ms = new MultiScan(Arrays.asList(new ScanBase[]{scan1, cvls}));
 		ms.runScan();
-	}
-
-	@After
-	public void cleanup() {
-		LocalProperties.clearProperty(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
 	}
 
 	//-----------------------------------------------------------------------------------------------
