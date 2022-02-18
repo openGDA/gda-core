@@ -23,7 +23,6 @@ import static uk.ac.diamond.daq.server.configuration.IGDAConfigurationService.CO
 
 import java.util.Collection;
 
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -58,11 +57,9 @@ public class ConfigurationLoader {
 	/**
 	 * Activate method dynamically selects and wires the required configuration service based on the beamline's config layout.
 	 * This method is called automatically by the OSGI framework once all dependencies of this class have been loaded.
-	 *
-	 * @param context	The reference to this component's execution context
 	 */
 	@Activate
-	protected void activate(final ComponentContext context) {
+	protected void activate() {
 		System.out.println("Starting Configuration Loader Component");
 		instance = this;
 		// Acceptable to set to null here as is documented on getConfigurationService

@@ -25,7 +25,6 @@ import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_S
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
@@ -81,7 +80,7 @@ public class BasicConfigurationService implements IGDAConfigurationService {
 	}
 
 	@Activate
-	protected void activate(final ComponentContext context) {
+	protected void activate() {
 		System.out.println("Starting Basic Configuration Service");
 	}
 }
