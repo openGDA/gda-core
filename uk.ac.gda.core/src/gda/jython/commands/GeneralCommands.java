@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.scanning.device.utils.NexusMetadataUtility;
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.core.PyStringMap;
@@ -318,6 +319,7 @@ public final class GeneralCommands {
 	 */
 	@GdaJythonBuiltin(docstring="Reset the Jython environment")
 	public static void reset_namespace() {
+		NexusMetadataUtility.INSTANCE.clear(); //required to remove user added metadata devices and fields
 		logger.info("Resetting Jython namespace");
 		Finder.findSingleton(JythonServer.class).restart();
 		reconfigureScriptControllers();
