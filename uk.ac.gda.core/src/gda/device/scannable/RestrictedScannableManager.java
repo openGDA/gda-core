@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.concurrent.Async.ListeningFuture;
 
@@ -52,6 +53,11 @@ public class RestrictedScannableManager {
 			return () -> {
 				if (scannable.isBusy()) {
 					throw new DeviceException("Scannable could not be parked while busy");
+				}
+				if (!scannable.isAt(parkPosition)) {
+					InterfaceProvider.getTerminalPrinter().print(
+							"Moving " + scannable.getName()
+							+ " to park position (" + parkPosition + ") to allow other devices to move");
 				}
 				scannable.moveTo(parkPosition);
 				return scannable.isAt(parkPosition);
