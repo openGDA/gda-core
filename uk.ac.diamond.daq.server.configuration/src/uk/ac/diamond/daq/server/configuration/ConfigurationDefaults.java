@@ -53,7 +53,7 @@ public enum ConfigurationDefaults {
 	// Default values with their corresponding override that are use to assemble later values
 	BEAMLINE("example"),
 	APP_BEAMLINE(getHierarchicalValueWithDefault(BEAMLINE)),
-	
+
 	BEAMLINE_CONFIG("/beamlineLayouts.cfg"),
 	LAYOUT_DETAILS(loadLayoutLookup()),
 	LAYOUT(LAYOUT_DETAILS.value.split(",")[1].toUpperCase()),
@@ -204,7 +204,7 @@ public enum ConfigurationDefaults {
 	 * Joins path fragments where one is a single token string and the other is a comma separated list of tokens to e.g. make
 	 * "dummy" and "main,cameraserver" into "main/dummy,cameraserver/dummy". Uses a BiFunction lambda to achieve this allowing
 	 * the token order and exact method of joining to be specified by the caller.
-	 * 
+	 *
 	 * @param token			A String containing an element that should be the same for all results in the result list
 	 * @param casesList		A String containing a comma separated list of elements that should differ in each result in the result list
 	 * @param builder		A function that takes two strings combines them in a caller specific way
@@ -231,7 +231,7 @@ public enum ConfigurationDefaults {
 			for (int i = 0; i < applicationArgs.length; i += 2) {
 				if (applicationArgs[i].equals(key) &&  applicationArgs.length > i + 1) {
 					return applicationArgs[i + 1];
-				}			
+				}
 			}
 		}
 		return defaultInstanceValue.value;
@@ -240,7 +240,7 @@ public enum ConfigurationDefaults {
 	/**
 	 * Allows an external configuration directory location to be set independent of the workspace and the
 	 * application root path (parent of workspace if running in Eclipse, <install_dir>/dls_root otherwise)
-	 * 
+	 *
 	 * @param defaultValue	The default config path to be used if the configuration override arg is not set
 	 * @return				The specified override or the supplied default value.
 	 */
@@ -271,7 +271,7 @@ public enum ConfigurationDefaults {
 	private static final String combine(final String first, final String second){
 		return new StringBuilder(first).append(File.separator).append(second).toString();
 	}
-	
+
 	private static final String manageMTMigration(final String relativeConfig) {
 		String[] options = {"i06-config", "i06-1-config", "i10-config"};
 		for (String match : options) {
@@ -304,7 +304,7 @@ public enum ConfigurationDefaults {
 
 	/**
 	 * Load the configuration layout properties from the default beamline cfg file (beamlineLayouts.cfg) or from another file
-	 * with the path declared by the BEAMLINE_CONFIG property. 
+	 * with the path declared by the BEAMLINE_CONFIG property.
 	 *
 	 * @return
 	 * either: the comma separated pair of the config relative path and layout scheme if set in beamlineLayouts.cfg or other file
@@ -333,17 +333,17 @@ public enum ConfigurationDefaults {
 			throw new IllegalArgumentException(String.format("Unable to look up %s from %s", APP_BEAMLINE.value , configLocation), e);
 		}
 	}
-	
+
 	private static String defaultLoadLayout(Properties layoutLookup) {
 		try {
 			layoutLookup.load(ConfigurationDefaults.class.getResourceAsStream(BEAMLINE_CONFIG.value));
-			String layoutDetails = layoutLookup.getProperty(APP_BEAMLINE.value) == null 
-					? String.format("gda-diamond.git/configurations/%s-config,standard", APP_BEAMLINE.value) 
+			String layoutDetails = layoutLookup.getProperty(APP_BEAMLINE.value) == null
+					? String.format("gda-diamond.git/configurations/%s-config,standard", APP_BEAMLINE.value)
 					: layoutLookup.getProperty(APP_BEAMLINE.value);
 			return String.format(layoutDetails.contains(",") ? layoutDetails : layoutDetails.concat(",standard"));
 		} catch (IOException e) {
 			throw new IllegalArgumentException(String.format("Unable to look up %s from %s", APP_BEAMLINE.value , BEAMLINE_CONFIG.value), e);
-		}		
+		}
 	}
 
 	/**

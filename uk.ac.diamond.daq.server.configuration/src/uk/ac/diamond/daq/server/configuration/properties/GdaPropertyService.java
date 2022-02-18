@@ -15,7 +15,7 @@ import uk.ac.diamond.daq.services.PropertyService;
  * A service implementation to provide access to GDA properties. If a service
  * needs access to properties, depending on this service is the preferred way to
  * access them.
- * 
+ *
  * @since 9.6
  * @author James Mudd
  */

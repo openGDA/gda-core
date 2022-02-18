@@ -1,6 +1,9 @@
 package uk.ac.diamond.daq.server.configuration.services;
 
-import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.*;
+import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_MODE;
+import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_PROFILES;
+import static uk.ac.diamond.daq.server.configuration.ConfigurationDefaults.APP_SPRING_XML_FILE_PATHS;
+
 import java.util.ArrayList;
 import java.util.List;
 
