@@ -57,6 +57,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdat
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
  * <p>
@@ -73,6 +74,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
  *
  * @author James Mudd
  */
+@ServiceInterface(ISpecsPhoibosAnalyser.class)
 public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implements ISpecsPhoibosAnalyser {
 
 	/**
