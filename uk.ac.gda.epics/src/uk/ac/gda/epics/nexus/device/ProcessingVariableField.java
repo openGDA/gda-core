@@ -58,8 +58,8 @@ public class ProcessingVariableField extends AbstractMetadataField {
 		return pvName;
 	}
 
-	public void setPvName(String scannableName) {
-		this.pvName = scannableName;
+	public void setPvName(String pvName) {
+		this.pvName = pvName;
 	}
 
 	private Object getPvValue(String pvName) throws NexusException {
@@ -69,16 +69,16 @@ public class ProcessingVariableField extends AbstractMetadataField {
 			}
 			return EPICS_CONTROLLER.getValue(ch);
 		} catch (CAException | TimeoutException e) {
-			throw new NexusException(MessageFormat.format("{0}: Could not get data from {1}", getName(), pvName), e);
+			throw new NexusException(MessageFormat.format("{0}: Could not get data from {1} due to {2}", getName(), pvName, e.getMessage()), e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new NexusException(MessageFormat.format("{0}: Interrupted when getting data from {1}", getName(), pvName), e);
+			throw new NexusException(MessageFormat.format("{0}: Interrupted when getting data from {1} due to {2}", getName(), pvName, e.getMessage()), e);
 		}
 	}
 
 	@Override
 	protected Object getFieldValue() throws NexusException {
-		return getPvValue(getName());
+		return getPvValue(getPvName());
 	}
 
 }
