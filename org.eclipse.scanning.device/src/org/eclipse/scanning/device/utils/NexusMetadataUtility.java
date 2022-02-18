@@ -121,6 +121,13 @@ public enum NexusMetadataUtility {
 	 *			  - the scannable object to be added to the device
 	 */
 	public void addScannable(String deviceName, Scannable scannable) {
+		if (deviceName.equals(scannable.getName())) {
+			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as the name of given scannable {1} ", deviceName, scannable.getName()));
+		}
+		Set<String> allScannableNames = InterfaceProvider.getJythonNamespace().getAllNamesForType(Scannable.class);
+		if (allScannableNames.contains(deviceName)) {
+			throw new IllegalArgumentException(MessageFormat.format("Name of metadata device {0} cannot be same as name of another scannable in GDA", deviceName));
+		}
 		final INexusMetadataDevice<NXobject> nxMetadataDevice = getNexusMetadataDeviceOrAppender(deviceName)
 				.orElseGet(() -> createNexusMetadataDevice(deviceName, NexusConstants.COLLECTION));
 		final String scannable_name = scannable.getName();
