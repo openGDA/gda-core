@@ -12,6 +12,8 @@
 package org.eclipse.scanning.api.event.core;
 
 import org.eclipse.scanning.api.event.EventException;
+import org.eclipse.scanning.api.event.status.Status;
+import org.eclipse.scanning.api.scan.ScanningException;
 
 /**
  * A submitter is a queue connection which may receive a submission on to the queue.
@@ -41,8 +43,9 @@ public interface ISubmitter<T> extends IURIConnection {
 	 * @throws EventException
 	 * @throws InterruptedException
 	 * @throws IllegalStateException if this.getStatusTopicName() returns null.
+	 * @throws ScanningException if the scan finishes with {@link Status#FAILED}.
 	 */
-	void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException;
+	void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException, ScanningException;
 
 	/**
 	 * The status topic, if any, that after submission, the job queue will publish events from.

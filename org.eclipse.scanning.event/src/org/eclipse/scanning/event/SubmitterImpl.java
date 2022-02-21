@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -32,7 +33,9 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.scan.IScanListener;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +148,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 	}
 
 	@Override
-	public void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException {
+	public void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException, ScanningException {
 		logger.trace("blockingSubmit(...)"); // Call to submit details the bean so no need to duplicate here
 
 		String topic = getStatusTopicName();
@@ -160,14 +163,17 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 		ISubscriber<IScanListener> subscriber = eventService.createSubscriber(getUri(), topic);
 		final String UID = bean.getUniqueId();
 		final CountDownLatch latch = new CountDownLatch(1);
+		final AtomicReference<Status> finalStatus = new AtomicReference<>();
 
 		subscriber.addListener(new IScanListener() {
 
 			@Override
 			public void scanStateChanged(ScanEvent evt) {
 				ScanBean scanBean = evt.getBean();
+				Status status = scanBean.getStatus();
 				if (scanBean.getUniqueId().equals(UID)
-						&& scanBean.getStatus().isFinal()) {
+						&& status.isFinal()) {
+					finalStatus.set(status);
 					latch.countDown();
 				}
 			}
@@ -186,6 +192,9 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 		logger.trace("blockingSubmit({}) subscriber latch released. {}", bean, subscriber);
 		subscriber.disconnect();
 		logger.trace("blockingSubmit({}) subscriber disconnected.   {}", bean, subscriber);
+		if (finalStatus.getPlain().equals(Status.FAILED)) {
+			throw new ScanningException("Blocking scan finished with failed status");
+		}
 	}
 
 	@Override
