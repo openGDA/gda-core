@@ -20,7 +20,7 @@ package uk.ac.gda.epics.adviewer.composites;
 
 import org.dawnsci.plotting.services.util.SWTImageUtils;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -171,7 +171,7 @@ class SWTImageDataConverter {
 			return null;
 		}
 		if( idataset == null){
-			idataset = SWTImageUtils.createRGBDataset(imageData).createGreyDataset(Dataset.FLOAT32);
+			idataset = SWTImageUtils.createRGBByteDataset(imageData).createGreyDataset(FloatDataset.class);
 		}
 		return idataset;
 
