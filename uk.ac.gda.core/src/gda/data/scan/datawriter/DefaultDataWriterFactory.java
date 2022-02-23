@@ -19,8 +19,9 @@
 
 package gda.data.scan.datawriter;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import gda.factory.Finder;
 public class DefaultDataWriterFactory extends FindableConfigurableBase implements DataWriterFactory {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDataWriterFactory.class);
 
-	private Map<String, IDataWriterExtender> dataWriterExtenders = new LinkedHashMap<String, IDataWriterExtender>();
+	private List<IDataWriterExtender> dataWriterExtenders = new ArrayList<>();
 
 	@Override
 	public DataWriter createDataWriter() throws FactoryException {
@@ -66,7 +67,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 			throw new FactoryException("Unable to create data handler of type " + StringUtils.quote(dataHandlerClassName) + " (for data format " + StringUtils.quote(dataFormat) + ")", e);
 		}
 
-		for (IDataWriterExtender dwe : dataWriterExtenders.values()) {
+		for (IDataWriterExtender dwe : dataWriterExtenders) {
 			if (dwe != null) {
 				dw.addDataWriterExtender(dwe);
 			}
@@ -92,8 +93,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 */
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
 		if (dataWriterExtender != null) {
-			this.dataWriterExtenders.put(dataWriterExtender.getClass().toString() + dataWriterExtender.hashCode(),
-					dataWriterExtender);
+			this.dataWriterExtenders.add(dataWriterExtender);
 		}
 	}
 
@@ -103,25 +103,23 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 * @param dataWriterExtender
 	 */
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
-		dataWriterExtenders.entrySet().removeIf(entry -> entry.getValue() == dataWriterExtender);
+		dataWriterExtenders.removeIf(entry -> entry == dataWriterExtender);
 	}
 
 	/**
 	 * Add extender to be attached to newly created DataWriters
 	 *
 	 * @param dataWriterExtenderName
+	 * @deprecated use {@link DefaultDataWriterFactory#addDataWriterExtender(IDataWriterExtender)}
 	 */
+	@Deprecated(forRemoval = true, since = "GDA 9.25")
 	public void addDataWriterExtender(String dataWriterExtenderName) {
-
-		if (!isConfigured()) {
-			// might not exist then, put a placeholder
-			this.dataWriterExtenders.put(dataWriterExtenderName, null);
-		} else {
-			IDataWriterExtender dataWriterExtender = findByName(dataWriterExtenderName);
-			if (dataWriterExtender != null) {
-				this.dataWriterExtenders.put(dataWriterExtenderName, dataWriterExtender);
-			}
+		logger.warn("addDataWriterExtender(String) is deprecated and will be removed in GDA 9.27");
+		IDataWriterExtender dataWriterExtender = findByName(dataWriterExtenderName);
+		if (dataWriterExtender != null) {
+			this.dataWriterExtenders.add(dataWriterExtender);
 		}
+
 	}
 
 
@@ -131,30 +129,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 * @return list of DataWriterExtenders
 	 */
 	public Collection<IDataWriterExtender> getDataWriterExtenders() {
-		return dataWriterExtenders.values();
-	}
-
-	/**
-	 * Allow to retrieve the complete list of DataWriterExtenders configured
-	 *
-	 * @return list of DataWriterExtenders
-	 */
-	public Collection<String> getDataWriterExtenderNames() {
-		return dataWriterExtenders.keySet();
-	}
-
-	@Override
-	public void configure() throws FactoryException {
-		if (isConfigured()) {
-			return;
-		}
-		for (String dweName : dataWriterExtenders.keySet()) {
-			if (dataWriterExtenders.get(dweName) == null) {
-
-				dataWriterExtenders.put(dweName, findByName(dweName));
-			}
-		}
-		setConfigured(true);
+		return dataWriterExtenders;
 	}
 
 	private IDataWriterExtender findByName(String dweName) {
