@@ -62,31 +62,23 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 
 		// create a data handler object
 		try {
-			dw = (DataWriter) dataHandlerClass.newInstance();
+			dw = (DataWriter) dataHandlerClass.getConstructor().newInstance();
 		} catch (Exception e) {
 			throw new FactoryException("Unable to create data handler of type " + StringUtils.quote(dataHandlerClassName) + " (for data format " + StringUtils.quote(dataFormat) + ")", e);
 		}
 
-		for (IDataWriterExtender dwe : dataWriterExtenders) {
-			if (dwe != null) {
-				dw.addDataWriterExtender(dwe);
-			}
-		}
+		dataWriterExtenders.forEach(dw::addDataWriterExtender);
+
 		return dw;
 	}
 
-	/**
-	 * This method added in to make the system work with Spring properly
-	 * @param dataWriterExtenders
-	 */
+
 	public void setDataWriterExtenders(Collection<IDataWriterExtender> dataWriterExtenders) {
 		this.dataWriterExtenders.clear();
-		for(IDataWriterExtender extender: dataWriterExtenders) {
-			addDataWriterExtender(extender);
-		}
+		dataWriterExtenders.forEach(this::addDataWriterExtender);
 	}
 
-	/**GDA_DATA_SCAN_DATAWRITER_DATAFORMAT
+	/**
 	 * Add extender to be attached to newly created DataWriters
 	 *
 	 * @param dataWriterExtender
@@ -110,7 +102,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 * Add extender to be attached to newly created DataWriters
 	 *
 	 * @param dataWriterExtenderName
-	 * @deprecated use {@link DefaultDataWriterFactory#addDataWriterExtender(IDataWriterExtender)}
+	 * @deprecated use {@link #addDataWriterExtender(IDataWriterExtender)}
 	 */
 	@Deprecated(forRemoval = true, since = "GDA 9.25")
 	public void addDataWriterExtender(String dataWriterExtenderName) {
@@ -132,6 +124,10 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 		return dataWriterExtenders;
 	}
 
+	/**
+	 * @deprecated can be deleted once {@link #addDataWriterExtender(String)} is removed
+	 */
+	@Deprecated
 	private IDataWriterExtender findByName(String dweName) {
 		Object tmp = Finder.find(dweName);
 		if (tmp instanceof IDataWriterExtender) {
@@ -145,7 +141,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 	 *
 	 * @throws Exception
 	 */
-	static public DataWriter createDataWriterFromFactory() throws Exception {
+	public static DataWriter createDataWriterFromFactory() throws Exception {
 
 		Map<String, DataWriterFactory> factoryMap = Finder.getFindablesOfType(DataWriterFactory.class);
 
@@ -156,7 +152,7 @@ public class DefaultDataWriterFactory extends FindableConfigurableBase implement
 
 		String factoryName = factoryMap.keySet().iterator().next();
 		if (factoryMap.size() > 1) {
-			logger.warn("more than one DataWriterFactory found, choosing " + factoryName);
+			logger.warn("more than one DataWriterFactory found, choosing {}", factoryName);
 		}
 		return factoryMap.get(factoryName).createDataWriter();
 	}
