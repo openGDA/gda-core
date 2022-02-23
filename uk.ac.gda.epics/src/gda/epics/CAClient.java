@@ -1323,6 +1323,25 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	}
 
 	/**
+	 * Sets the values to the corresponding PVs in EPICS server, and wait for return or timeout.
+	 * @param values
+	 * @throws CAException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 */
+	public void caputWait(byte[] values) throws CAException, InterruptedException, TimeoutException {
+		if (pvName != null) {
+			// single channel waveform input
+			controller.caputWait(theChannel, values);
+		} else if (pvNames != null) {
+			for (int i = 0; i < chs.length; i++)
+				controller.caputWait(chs[i], values[i]);
+		} else {
+			logger.info("This client does not have any PV strings as destinations.");
+		}
+	}
+
+	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
 	 *
 	 * @param values
