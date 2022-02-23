@@ -15,8 +15,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
@@ -36,51 +36,42 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 
 /**
  * Test that the datasets in the nexus file produced by the scan have the expected shape
  * for various types of scans.
- * TODO this could be more easily parameterized with JUnit 5 when we can use it, see DAQ-1478.
- * In particular the snake parameter is only required by grid scans, and {@link #testShapeStatic()}
- * doesn't use the nest count either
  */
-@RunWith(value=Parameterized.class)
 public class ScanShapeTest {
 
 	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@BeforeClass
-	public static void beforeClass() {
+	@BeforeAll
+	static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setValidatorService(new ValidatorService());
 		serviceHolder.setPointGeneratorService(pointGeneratorService);
 	}
 
-	@Parameters(name="nestCount= {0}, snake= {1}")
-	public static Collection<Object[]> data() {
-		return Arrays.asList(new Object[][] {
-			{ 0, false },
-			{ 0, true },
-			{ 1, false },
-			{ 1, true },
-			{ 2, false },
-			{ 2, true },
-			{ 3, false },
-			{ 3, true },
-			{ 6, false },
-			{ 6, true }
-		});
+
+	static Stream<Arguments> bothParams() {
+		return nestParams().flatMap(nestParam -> snakeParams().map(snakeParam -> Arguments.of(nestParam, snakeParam)));
 	}
 
-	private int nestCount;
+	/** number of outer dimensions */
+	static Stream<Integer> nestParams() {
+		return Stream.of(0, 1, 2, 3, 6);
+	}
 
-	private boolean snake;
+	/** only relevant for grid scans */
+	static Stream<Boolean> snakeParams() {
+		return Stream.of(false, true);
+	}
 
 	private int circularSize = 48;
 	private int polygonSize = 32;
@@ -93,13 +84,9 @@ public class ScanShapeTest {
 		return size;
 	}
 
-	public ScanShapeTest(int nestCount, boolean snake) {
-		this.nestCount = nestCount; // the number of outer dimensions
-		this.snake = snake; // only relevent for grid scans
-	}
-
-	@Test
-	public void testShapeGrid() throws Exception {
+	@ParameterizedTest(name = "nestCount: {0}, snake: {1}")
+	@MethodSource("bothParams")
+	void testShapeGrid(int nestCount, boolean snake) throws Exception {
 		ScanRequest req = createGridScanRequest(nestCount, snake);
 
 		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
@@ -114,8 +101,9 @@ public class ScanShapeTest {
 		assertEquals(25, shape[shape.length - 1]);
 	}
 
-	@Test
-	public void testShapeGridCircularRegion() throws Exception {
+	@ParameterizedTest(name = "nestCount: {0}, snake: {1}")
+	@MethodSource("bothParams")
+	void testShapeGridCircularRegion(int nestCount, boolean snake) throws Exception {
 		ScanRequest req = createGridWithCircleRegionScanRequest(nestCount, snake);
 
 		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
@@ -128,8 +116,9 @@ public class ScanShapeTest {
 		assertEquals(circularSize, shape[shape.length - 1]);
 	}
 
-	@Test
-	public void testShapeGridPolygonRegion() throws Exception {
+	@ParameterizedTest(name = "nestCount: {0}, snake: {1}")
+	@MethodSource("bothParams")
+	void testShapeGridPolygonRegion(int nestCount, boolean snake) throws Exception {
 		ScanRequest req = createGridWithPolygonRegionScanRequest(nestCount, snake);
 
 		ScanInformation scanInfo = new ScanInformation(pointGeneratorService, req);
@@ -142,8 +131,9 @@ public class ScanShapeTest {
 		assertEquals(polygonSize, shape[shape.length - 1]);
 	}
 
-	@Test
-	public void testShapeSpiral() throws Exception {
+	@ParameterizedTest(name = "nestCount: {0}")
+	@MethodSource("nestParams")
+	void testShapeSpiral(int nestCount) throws Exception {
 		BoundingBox box = new BoundingBox();
 		box.setxAxisStart(0);
 		box.setyAxisStart(0);
@@ -174,8 +164,9 @@ public class ScanShapeTest {
 		assertEquals(15, shape[shape.length - 1]);
 	}
 
-	@Test
-	public void testShapeLine() throws Exception {
+	@ParameterizedTest(name = "nestCount: {0}")
+	@MethodSource("nestParams")
+	void testShapeLine(int nestCount) throws Exception {
 		LinearROI roi = new LinearROI(new double[] { 0, 0 }, new double [] { 3, 3 });
 		ScanRegion region = new ScanRegion(roi, "x", "y");
 		// TODO: we need to give the region to the point generator somehow, but the
@@ -208,8 +199,7 @@ public class ScanShapeTest {
 	}
 
 	@Test
-	public void testShapeStatic() throws Exception {
-		// Note this test shouldn't be repeated
+	void testShapeStatic() throws Exception {
 		StaticModel staticModel = new StaticModel();
 		CompoundModel compoundModel = new CompoundModel(staticModel);
 
