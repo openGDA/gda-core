@@ -30,8 +30,7 @@ import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.DatasetUtils;
-import org.eclipse.january.dataset.RGBDataset;
+import org.eclipse.january.dataset.RGBByteDataset;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -132,10 +131,13 @@ public class ImageCutdownTest {
 			final PNGLoader expected = new PNGLoader(String.format(expectedImageLoc, i));
 			final PNGLoader actual = new PNGLoader(String.format(testImageLoc, i));
 			for (String key : expected.loadFile().getDatasetShapes().keySet()) {
-				RGBDataset actualDS = DatasetUtils.cast(RGBDataset.class, actual.loadFile().getDataset(key)) ;
+				Dataset actualDS = actual.loadFile().getDataset(key);
 				Dataset expectedDS = expected.loadFile().getDataset(key);
-				if (!(expectedDS instanceof RGBDataset)) assertPaletteConsistentWithRGB(expectedDS, actualDS);
-				else assertEquals(expectedDS, actualDS);
+				if (actualDS instanceof RGBByteDataset && !(expectedDS instanceof RGBByteDataset)) {
+					assertPaletteConsistentWithRGB(expectedDS, (RGBByteDataset) actualDS);
+				} else {
+					assertEquals(expectedDS, actualDS);
+				}
 			}
 			assertTrue(testImage.delete());
 		}
@@ -146,7 +148,7 @@ public class ImageCutdownTest {
 	 * instead of RGB values. To prove these are the same as what we cut off, we check that each palette image
 	 * maps to the same RGB value in the cutdown image.
 	 */
-	private void assertPaletteConsistentWithRGB(Dataset dSExpected, RGBDataset dSActual) {
+	private void assertPaletteConsistentWithRGB(Dataset dSExpected, RGBByteDataset dSActual) {
 		final Map<Integer, Integer> paletteToColourHash = new HashMap<>();
 		int[] shape = dSExpected.getShape();
 		for (int i = 0; i < shape[0]; i++) {
@@ -159,8 +161,7 @@ public class ImageCutdownTest {
 
 	}
 
-	private Integer hashColour(RGBDataset dataset, int i, int j) {
-		return (dataset.getRed(i, j) * 255 + dataset.getGreen(i, j)) * 255 + dataset.getBlue(i, j);
+	private Integer hashColour(RGBByteDataset dataset, int i, int j) {
+		return (Byte.toUnsignedInt(dataset.getRed(i, j)) * 255 + Byte.toUnsignedInt(dataset.getGreen(i, j))) * 255 + Byte.toUnsignedInt(dataset.getBlue(i, j));
 	}
-
 }
