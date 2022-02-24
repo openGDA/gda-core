@@ -18,42 +18,48 @@
 
 package uk.ac.gda.exafs.ui.ionchambers;
 
+import static uk.ac.gda.beans.exafs.IonChamberParameters.I_0;
+import static uk.ac.gda.beans.exafs.IonChamberParameters.I_REF;
+import static uk.ac.gda.beans.exafs.IonChamberParameters.I_T;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import gda.util.GasType;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.beans.exafs.IonChambersBean;
+import uk.ac.gda.exafs.ExafsActivator;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
+import uk.ac.gda.exafs.util.WorkingEnergyHelper;
+import uk.ac.gda.exafs.util.WorkingEnergyParams;
 
 /**
  * SWTBot test: uk.ac.gda.exafs.ui.IonChamberUITest
  */
 public class IonChamber {
+	private static final Logger logger = LoggerFactory.getLogger(IonChamber.class);
 
-	private Combo ionChamberListCombo;
-	private String[] defaultIonChambers = {"I0", "It", "Iref"};
-	IonChambersBean ionChambersBean;
-	private AmplifierComposite amplifier;
-	private VoltageSupplyComposite voltageSupply;
-	private GasFillComposite gasFilling;
-	private ArrayList<GasFillComposite> gasFillComposites;
+	private String[] defaultIonChambers = {I_0, I_T, I_REF};
+	private IonChambersBean ionChambersBean;
+	private List<GasFillComposite> gasFillComposites = Collections.emptyList();
 	private List<Button> allRunFillSequenceButtons = new ArrayList<>();
+	private boolean showGetEnergyButton = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.IONCHAMBERS_SHOW_ENERGY_FROM_SCAN_BUTTON);
 
 	public IonChamber(Composite parent, IonChambersBean bean) {
 
@@ -65,22 +71,27 @@ public class IonChamber {
 		ionChambersBean = bean;
 
 		// Create default ionchambers if not present in template
-		if ( bean.getIonChambers().size() == 0 ) {
-			for(int i = 0; i< defaultIonChambers.length; i++ ) {
+		if(bean.getIonChambers().isEmpty()) {
+			for(var defaultParam : defaultIonChambers) {
 				IonChamberParameters ionChamber = new IonChamberParameters();
-				ionChamber.setName(defaultIonChambers[i]);
+				ionChamber.setName(defaultParam);
 				ionChambersBean.addIonChamber( ionChamber );
 			}
 		}
 
-		final Group grpIonChambers = new Group(scrolledComposite, SWT.NONE);
+		final Group mainGroup = new Group(scrolledComposite, SWT.NONE);
 
-		grpIonChambers.setLayout( new GridLayout(1, false) );
-		grpIonChambers.setText("Ion Chambers");
+		mainGroup.setLayout( new GridLayout(1, false) );
+		mainGroup.setText("Ion Chambers");
 
-		createEnergyControl( grpIonChambers );
-		createFillAllControl( grpIonChambers );
-		createGuiAllChambers( grpIonChambers );
+		createEnergyControl(mainGroup);
+
+		final Composite gasfillComp = new Composite(mainGroup, SWT.NONE);
+		gasfillComp.setLayout( new GridLayout(2, false) );
+		createFillAllControl(gasfillComp);
+		createSetDefaultsControl(gasfillComp);
+
+		createGuiAllChambers(mainGroup);
 
 		// Add the run fill sequence buttons to the list of all buttons
 		allRunFillSequenceButtons.addAll(
@@ -89,10 +100,9 @@ public class IonChamber {
 				.collect(Collectors.toList())
 		);
 
-		scrolledComposite.setContent(grpIonChambers);
-		grpIonChambers.layout();
-		scrolledComposite.setMinSize(grpIonChambers.computeSize(200, SWT.DEFAULT));
-
+		scrolledComposite.setContent(mainGroup);
+		mainGroup.layout();
+		scrolledComposite.setMinSize(mainGroup.computeSize(200, SWT.DEFAULT));
 	}
 
 	/**
@@ -100,31 +110,42 @@ public class IonChamber {
 	 */
 	private void createEnergyControl( Composite parent ) {
 		Composite compositeEnergy = new Composite(parent, SWT.NONE);
-		compositeEnergy.setLayout(new GridLayout(2, false));
+		compositeEnergy.setLayout(new GridLayout(3, false));
 		compositeEnergy.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		( (GridData) compositeEnergy.getLayoutData() ).widthHint=200; // set size, so that textbox is not too wide
 
 		final Text energyTextbox = addLabelAndTextBox( compositeEnergy, "Energy (eV)" );
 		setTextboxFromDouble( energyTextbox, ionChambersBean.getEnergy() );
+		( (GridData) energyTextbox.getLayoutData() ).widthHint=80;
+
+		if (showGetEnergyButton) {
+			Button energyFromScanButton = new Button(compositeEnergy, SWT.PUSH);
+			energyFromScanButton.setText("Get energy from scan");
+			energyFromScanButton.setToolTipText("Get energy from currently open scan parameters");
+
+			energyFromScanButton.addSelectionListener(
+					SelectionListener.widgetSelectedAdapter(event -> updateWithEnergyFromScan(energyTextbox)));
+		}
 
 		// When photon energy is changed, set new 'working energy' for each ion chamber and recalculate the pressures
-		energyTextbox.addModifyListener( new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				Double energy = getDoubleFromTextbox(energyTextbox);
-				if ( energy != null ) {
-					ionChambersBean.setEnergy(energy);
-					for( IonChamberParameters params : ionChambersBean.getIonChambers() )
-						params.setWorkingEnergy(energy);
-
-				}
-				for( GasFillComposite gasFillComp : gasFillComposites ) {
-					gasFillComp.updatePressure();
-				}
+		energyTextbox.addModifyListener(e -> {
+			Double energy = getDoubleFromTextbox(energyTextbox);
+			if (energy != null) {
+				ionChambersBean.setEnergy(energy);
+				ionChambersBean.getIonChambers().forEach(p -> p.setWorkingEnergy(energy));
+				gasFillComposites.forEach(GasFillComposite::updatePressure);
 			}
 		} );
-
 	}
+
+	private void updateWithEnergyFromScan(Text energyTextBox) {
+		try {
+			WorkingEnergyParams p = WorkingEnergyHelper.createFromScanParameters();
+			setTextboxFromDouble(energyTextBox, p.getValue());
+		} catch (Exception e) {
+			logger.error("Problem getting energy from scan", e);
+		}
+	}
+
 	private void createFillAllControl( Composite parent ) {
 		Button fillAllButton = new Button(parent, SWT.PUSH);
 		fillAllButton.setText("Fill all ionchambers");
@@ -137,6 +158,45 @@ public class IonChamber {
 		gasFillComposites.forEach(GasFillComposite::updateParametersFromGui);
 		GasFill.runGasFill(ionChambersBean.getIonChambers(), allRunFillSequenceButtons);
 	}
+
+	private void createSetDefaultsControl(Composite parent) {
+		Button defaultMixturesButton = new Button(parent, SWT.PUSH);
+		defaultMixturesButton.setText("Set default gas mixtures");
+		defaultMixturesButton.setToolTipText("Set ion chamber gas fill types to default values for the current energy");
+		defaultMixturesButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			setDefaultGasMixtures();
+			updateGuiFromParameters();
+		}));
+	}
+
+	private void setDefaultGasMixtures() {
+		double workingEnergy = ionChambersBean.getEnergy();
+		GasType gasForI0 = GasType.getI0GasType(workingEnergy);
+		GasType gasForItIref = GasType.getItIrefGasType(workingEnergy);
+		logger.debug("Setting default gas mixture for {} eV. I0 = {}, It/Iref = {}", workingEnergy, gasForI0.getName(), gasForItIref.getName());
+		List<IonChamberParameters> params = ionChambersBean.getIonChambers();
+
+		// Find the IonChamberParameters for I0 and set the I0 gas type
+		params.stream()
+			.filter(c -> c.getName().equals(I_0))
+			.forEach(c -> c.setGasType(gasForI0.getName()));
+
+		// Find the IonChamberParameters for It and Iref and set the It, Iref gas type
+		params.stream()
+			.filter(c -> c.getName().matches(I_T+"|"+I_REF))
+			.forEach(c -> c.setGasType(gasForItIref.getName()));
+	}
+
+	/**
+	 *  Update gas fill composites to show the latest parameters
+	 */
+	private void updateGuiFromParameters() {
+		for(int i=0; i<ionChambersBean.getIonChambers().size(); i++) {
+			IonChamberParameters params = ionChambersBean.getIonChambers().get(i);
+			gasFillComposites.get(i).setGuiFromParameters(params);
+		}
+	}
+
 	/**
 	 *  Create composite showing settings for all ion chambers
 	 */
@@ -144,7 +204,7 @@ public class IonChamber {
 
 		boolean showAmpVoltageControls = false;
 
-		gasFillComposites = new ArrayList<GasFillComposite>();
+		gasFillComposites = new ArrayList<>();
 
 		for( IonChamberParameters param :  ionChambersBean.getIonChambers() ) {
 
@@ -169,72 +229,6 @@ public class IonChamber {
 			gas.setGuiFromParameters(param);
 			gasFillComposites.add( gas );
 		}
-	}
-
-	/**
-	 * Create composite showing settings for single ion chamber;
-	 * ion chamber to be shown is chosen using combo box
-	 */
-	private void createGuiChamberSelection( Composite parent ) {
-
-		Composite composite_1 = new Composite(parent, SWT.NONE);
-		composite_1.setLayout(new GridLayout(2, false));
-		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
-		createIonchamberSelectionCombo( composite_1 );
-
-		new Label(composite_1, SWT.NONE); // empty space for 2nd column
-
-		amplifier = new AmplifierComposite(composite_1, SWT.NONE);
-		amplifier.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-
-		voltageSupply = new VoltageSupplyComposite(composite_1, SWT.NONE);
-		voltageSupply.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
-
-		gasFilling = new GasFillComposite(composite_1, SWT.NONE );
-		gasFilling.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-
-		updateGuiForSelectedIonchamber();
-	}
-
-	/**
-	 *  Update gui to show parameters for ion chamber currently selected in combo box
-	 */
-	private void updateGuiForSelectedIonchamber() {
-		int index = ionChamberListCombo.getSelectionIndex();
-
-		IonChamberParameters param = ionChambersBean.getIonChambers().get( index );
-		amplifier.setGuiFromParameters( param );
-		gasFilling.setGuiFromParameters( param );
-	}
-
-	/**
-	 * Create combo box that can be used to select which ion chamber to show parameters for
-	*/
-	private void createIonchamberSelectionCombo( Composite parent ) {
-		// Combo box with ion chamber names
-		ionChamberListCombo = new Combo( parent, SWT.NONE);
-		for( IonChamberParameters param :  ionChambersBean.getIonChambers() ) {
-			ionChamberListCombo.add( param.getName() );
-		}
-
-		// Listener to update gui elements when different ion chamber is selected
-		ionChamberListCombo.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateGuiForSelectedIonchamber();
-			}
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-		ionChamberListCombo.select(0);
-
-		GridData gd_list = new GridData(SWT.LEFT, SWT.TOP, false, true, 1, 1);
-		gd_list.widthHint = 90;
-		ionChamberListCombo.setLayoutData(gd_list);
-
 	}
 
 	/**
