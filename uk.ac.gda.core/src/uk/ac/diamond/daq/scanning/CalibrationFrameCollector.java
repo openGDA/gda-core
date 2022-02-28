@@ -22,9 +22,8 @@ import java.util.Map;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
-import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +39,6 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 	private static final Logger logger = LoggerFactory.getLogger(CalibrationFrameCollector.class);
 
 	/**
-	 * Maps the name of the Malcolm detector used for the snapshot to the key (under /entry/instrument/) under which
-	 * Malcolm will write the snapshot.
-	 */
-	private Map<String, String> malcolmDetectorNames;
-
-	/**
 	 * Mapping of (the name of) the first detector in the "main" scan to the model of the detector to be used for the
 	 * snapshot.<br>
 	 * This is principally intended for Malcolm scans, for example to allow us to use a Malcolm device for dark field
@@ -54,33 +47,16 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 	 */
 	private Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors;
 
-	/**
-	 * By default (when {@link #useDetectorTable} {@code = false}) the exposure in the document
-	 * is treated as the scan point generator duration i.e. as the 'exposure' of the {@link MalcolmDevice}.
-	 * <p>
-	 * When {@link #useDetectorTable} {@code = true}, the exposure in the document will be set
-	 * as the exposure of the inner detector model in the Malcolm scan, and the MalcolmDevice will
-	 * get an 'exposure' of 0 i.e. Malcolm calculates the duration.
-	 */
-	private boolean useDetectorTable = false;
-
 
 	@Override
-	void configureCollection(ScanModel model) {
+	void configureCollection(ScanModel model) throws ScanningException {
 		// If no detector is set for the "main" scan, we can't do anything here
 		if (model.getDetectors().isEmpty()) {
-			return;
-		}
-
-		// This case, kept separate for sake of clarity, protect from overwriting an already set DetectorDocument.
-		// The typical case for this is when a FrameCaptureRequestHandler is involved in the workflow
-		// (see https://confluence.diamond.ac.uk/display/DIAD/Frame+Capture+Request)
-		if (getFrameRequestDocument() != null) {
-			return;
+			throw new ScanningException("No detector selected for scan - cannot collect calibration frame");
 		}
 
 		// At this point in the scan, the detector models directly in the ScanModel are not up-to-date, especially as
-		// regards their exposure time. However, the the models in the ScanRequest are correct, so copy the exposure
+		// regards their exposure time. However, the models in the ScanRequest are correct, so copy the exposure
 		// time from there.
 		final IRunnableDevice<? extends IDetectorModel> mainScanDetector = model.getDetectors().get(0);
 		final String mainScanDetectorName = mainScanDetector.getName();
@@ -103,25 +79,6 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 		setFrameRequestDocument(frameRequestDocument);
 	}
 
-	@Override
-	protected IDetectorModel configureDetectorModel(IRunnableDevice<? extends IDetectorModel> detector) {
-		if (detector instanceof MalcolmDevice && useDetectorTable) {
-			var model = (IMalcolmModel) detector.getModel();
-			var innerDetector = model.getDetectorModels().stream()
-								.filter(det -> det.getName().equals(malcolmDetectorNames.get(detector.getName())))
-								.findFirst().orElseThrow();
-			innerDetector.setExposureTime(getFrameRequestDocument().getExposure());
-			model.setExposureTime(0.0);
-			return model;
-		} else {
-			return super.configureDetectorModel(detector);
-		}
-	}
-
-	private String getMalcolmDetectorName(IRunnableDevice<? extends IDetectorModel> det) {
-		return det instanceof MalcolmDevice ? malcolmDetectorNames.get(det.getName()) : null;
-	}
-
 	private IRunnableDevice<? extends IDetectorModel> getSnapshotDetector(IRunnableDevice<? extends IDetectorModel> mainScanDetector) {
 		final String mainDetectorName = mainScanDetector.getName();
 		if (snapshotDetectors == null || !snapshotDetectors.containsKey(mainDetectorName)) {
@@ -130,15 +87,7 @@ public class CalibrationFrameCollector extends FrameCollectingScannable {
 		return snapshotDetectors.get(mainDetectorName);
 	}
 
-	public void setMalcolmDetectorNames(Map<String, String> malcolmDetectorNames) {
-		this.malcolmDetectorNames = malcolmDetectorNames;
-	}
-
 	public void setSnapshotDetectors(Map<String, IRunnableDevice<? extends IDetectorModel>> snapshotDetectors) {
 		this.snapshotDetectors = snapshotDetectors;
-	}
-
-	public void setUseDetectorTable(boolean useDetectorTable) {
-		this.useDetectorTable = useDetectorTable;
 	}
 }
