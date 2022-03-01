@@ -20,23 +20,20 @@ package uk.ac.gda.exafs.ui.ionchambers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +44,7 @@ import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 public class GasFillComposite extends Composite {
-	private final static Logger logger = LoggerFactory.getLogger(GasFillComposite.class);
+	private static final Logger logger = LoggerFactory.getLogger(GasFillComposite.class);
 
 	private Text energyTextbox;
 	private Text absorptionTextbox;
@@ -65,6 +62,10 @@ public class GasFillComposite extends Composite {
 	private IonChamberParameters currentParameters;
 	private boolean settingGuiFromParameters;
 
+	private double minPressure = 30e-3;
+	private double maxPressure = 400e-3;
+	private String pressureRangeTooltip = "Pressure in not within acceptable range ("+minPressure+" ... "+maxPressure+" bar)";
+
 
 	public GasFillComposite(Composite parent, int style ) {
 		super(parent, style);
@@ -79,10 +80,10 @@ public class GasFillComposite extends Composite {
 		// --- Energy, gas type, absorption setting ---
 		Composite energyGasTypeComposite = new Composite(grpGasFilling, SWT.NONE);
 		energyGasTypeComposite.setLayout(new GridLayout(2, false));
-		energyGasTypeComposite.setLayoutData( new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1) );
+		energyGasTypeComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
 		// Create map between gas type and description
-		gasTypeMap = new LinkedHashMap<String, String>();
+		gasTypeMap = new LinkedHashMap<>();
 		gasTypeMap.put("He","He" );
 		gasTypeMap.put("N", "He + N\u2082");
 		gasTypeMap.put("Ar", "He + Ar");
@@ -94,9 +95,7 @@ public class GasFillComposite extends Composite {
 		gasTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 
 		// Setup gas selection combo box - each entry uses gas description
-		for( Entry<String,String> val : gasTypeMap.entrySet() ) {
-			gasTypeCombo.add( val.getValue() );
-		}
+		gasTypeMap.values().forEach(gasTypeCombo::add);
 
 		absorptionTextbox = IonChamber.addLabelAndTextBox(energyGasTypeComposite, "Absorption (%)" );
 
@@ -127,8 +126,8 @@ public class GasFillComposite extends Composite {
 		layoutData.minimumWidth = expandableComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 
 		Composite compositeAdvanced = new Composite(expandableComp, SWT.NONE);
-		compositeAdvanced.setLayout( new GridLayout(2, false) );
-		compositeAdvanced.setLayoutData( new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1) );
+		compositeAdvanced.setLayout(new GridLayout(2, false));
+		compositeAdvanced.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1));
 
 		totalPressureTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Total Pressure (bar)");
  		ionChamberLengthTextbox = IonChamber.addLabelAndTextBox(compositeAdvanced, "Chamber length (cm)");
@@ -138,14 +137,12 @@ public class GasFillComposite extends Composite {
 		expandableComp.setSize(compositeAdvanced.computeSize(SWT.DEFAULT,  SWT.DEFAULT));
 		expandableComp.setClient(compositeAdvanced);
 
-		expandableComp.addExpansionListener(new ExpansionAdapter() {
-			@Override
-			public void expansionStateChanged(ExpansionEvent e) {
-				GridUtils.layoutFull(getParent());
-				// also layout ionchamber view, to avoid having unnecessary gaps between groups of ionchamber widgets
-				GridUtils.layoutFull(getParent().getParent());
-			}
-		});
+		expandableComp.addExpansionListener(IExpansionListener.expansionStateChangedAdapter(e -> {
+			GridUtils.layoutFull(getParent());
+			// also layout ionchamber view, to avoid having unnecessary gaps between groups of ionchamber widgets
+			GridUtils.layoutFull(getParent().getParent());
+		}));
+
 		expandableComp.setExpanded(false);
 
 		addListeners();
@@ -155,21 +152,21 @@ public class GasFillComposite extends Composite {
 		currentParameters = param;
 		settingGuiFromParameters = true; // set to true when updating gui to avoid listener triggered events from trying to update params from gui at same time.
 
-		IonChamber.setTextboxFromDouble( totalPressureTextbox, param.getTotalPressure() );
-		IonChamber.setTextboxFromDouble( ionChamberLengthTextbox, param.getIonChamberLength() );
-		IonChamber.setTextboxFromDouble( fill1PeriodTextbox, param.getGas_fill1_period_box() );
-		IonChamber.setTextboxFromDouble( fill2PeriodTextbox, param.getGas_fill2_period_box() );
-		IonChamber.setTextboxFromDouble( absorptionTextbox, param.getPercentAbsorption() );
-		IonChamber.setTextboxFromDouble( energyTextbox, param.getWorkingEnergy());
+		IonChamber.setTextboxFromDouble(totalPressureTextbox, param.getTotalPressure());
+		IonChamber.setTextboxFromDouble(ionChamberLengthTextbox, param.getIonChamberLength());
+		IonChamber.setTextboxFromDouble(fill1PeriodTextbox, param.getGas_fill1_period_box());
+		IonChamber.setTextboxFromDouble(fill2PeriodTextbox, param.getGas_fill2_period_box());
+		IonChamber.setTextboxFromDouble(absorptionTextbox, param.getPercentAbsorption());
+		IonChamber.setTextboxFromDouble(energyTextbox, param.getWorkingEnergy());
 
-		flushBeforeFillCheckbox.setSelection( param.getFlush() );
+		flushBeforeFillCheckbox.setSelection(param.getFlush());
 
 		// set gas type combo box index for current gas type
-		String gasDesc = gasTypeMap.get( param.getGasType() ); //Get combo description from gas type (Ar, Kr, He, N)
-		int index = gasTypeCombo.indexOf( gasDesc );
-		if ( index > -1 )
-			gasTypeCombo.select( index );
-
+		String gasDesc = gasTypeMap.get(param.getGasType()); //Get combo description from gas type (Ar, Kr, He, N)
+		int index = gasTypeCombo.indexOf(gasDesc);
+		if (index > -1) {
+			gasTypeCombo.select(index);
+		}
 		updatePressure();
 
 		settingGuiFromParameters = false;
@@ -179,20 +176,20 @@ public class GasFillComposite extends Composite {
 		if ( currentParameters == null )
 			return;
 
-		currentParameters.setTotalPressure( IonChamber.getDoubleFromTextbox(totalPressureTextbox) );
-		currentParameters.setIonChamberLength( IonChamber.getDoubleFromTextbox(ionChamberLengthTextbox) );
-		currentParameters.setGas_fill1_period_box( IonChamber.getDoubleFromTextbox(fill1PeriodTextbox) );
-		currentParameters.setGas_fill2_period_box( IonChamber.getDoubleFromTextbox(fill2PeriodTextbox) );
-		currentParameters.setPercentAbsorption( IonChamber.getDoubleFromTextbox(absorptionTextbox) );
+		currentParameters.setTotalPressure(IonChamber.getDoubleFromTextbox(totalPressureTextbox));
+		currentParameters.setIonChamberLength(IonChamber.getDoubleFromTextbox(ionChamberLengthTextbox));
+		currentParameters.setGas_fill1_period_box(IonChamber.getDoubleFromTextbox(fill1PeriodTextbox));
+		currentParameters.setGas_fill2_period_box(IonChamber.getDoubleFromTextbox(fill2PeriodTextbox));
+		currentParameters.setPercentAbsorption(IonChamber.getDoubleFromTextbox(absorptionTextbox));
 
 		// Loop over gasType map and look for gas type matching description currently in combo box
-		String gasTypeDescription = gasTypeCombo.getText();
-		for( Entry<String,String> entry: gasTypeMap.entrySet() ) {
-			if ( entry.getValue().equals( gasTypeDescription ) ) {
-				currentParameters.setGasType( entry.getKey() );
-			}
-		}
-		currentParameters.setFlush( flushBeforeFillCheckbox.getSelection() );
+		final String gasTypeDescription = gasTypeCombo.getText();
+		gasTypeMap.entrySet()
+			.stream()
+			.filter(entry -> entry.getValue().equals(gasTypeDescription) )
+			.forEach(entry -> currentParameters.setGasType(entry.getKey()) );
+
+		currentParameters.setFlush(flushBeforeFillCheckbox.getSelection());
 
 		updatePressure();
 
@@ -200,53 +197,48 @@ public class GasFillComposite extends Composite {
 
 	private void addListeners() {
 
-		ModifyListener updateParameterListener = new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				if ( !settingGuiFromParameters ) {
-					updateParametersFromGui();
-				}
+		ModifyListener updateParameterListener = e ->  {
+			if ( !settingGuiFromParameters ) {
+				updateParametersFromGui();
 			}
 		};
 
 		totalPressureTextbox.addModifyListener(updateParameterListener);
-		ionChamberLengthTextbox.addModifyListener( updateParameterListener );
-		fill1PeriodTextbox.addModifyListener( updateParameterListener );
-		fill2PeriodTextbox.addModifyListener( updateParameterListener );
-		absorptionTextbox.addModifyListener( updateParameterListener );
-		gasTypeCombo.addModifyListener( updateParameterListener );
+		ionChamberLengthTextbox.addModifyListener(updateParameterListener);
+		fill1PeriodTextbox.addModifyListener(updateParameterListener);
+		fill2PeriodTextbox.addModifyListener(updateParameterListener);
+		absorptionTextbox.addModifyListener(updateParameterListener);
+		gasTypeCombo.addModifyListener(updateParameterListener);
 
 		// Listener to update flush before fill property
-		flushBeforeFillCheckbox.addSelectionListener( new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				currentParameters.setFlush( flushBeforeFillCheckbox.getSelection() );
-			}
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		} );
+		flushBeforeFillCheckbox.addSelectionListener(SelectionListener.widgetSelectedAdapter(e ->
+			currentParameters.setFlush(flushBeforeFillCheckbox.getSelection()) ));
 
 		// Listener to run gas fill sequence
-		runFillSequenceButton.addSelectionListener( new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateParametersFromGui();
-				GasFill.runGasFill( currentParameters, runFillSequenceButton);
-			}
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		} );
+		runFillSequenceButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			updateParametersFromGui();
+			GasFill.runGasFill( currentParameters, runFillSequenceButton);
+		}));
 
 	}
 
+
+	private boolean pressureInRange(double pressure) {
+		return pressure >= minPressure && pressure <= maxPressure;
+	}
 	/**
 	 * Calculate fill pressure for current set of IonChamberParameters and update gui.
 	 */
 	public void updatePressure() {
 		calculatePressure();
-		pressureValueLabel.setText( String.format("%.5g bar", currentParameters.getPressure()) );
+		double gasPressure = Math.max(currentParameters.getPressure(), 0);
+		boolean pressureInRange = pressureInRange(gasPressure);
+		int intColour = pressureInRange ? SWT.COLOR_BLACK : SWT.COLOR_RED;
+		String toolTip = pressureInRange ? "" : pressureRangeTooltip;
+
+		pressureValueLabel.setToolTipText(toolTip);
+		pressureValueLabel.setForeground(Display.getDefault().getSystemColor(intColour));
+		pressureValueLabel.setText( String.format("%.5g bar", gasPressure) );
 	}
 
 	/**
@@ -258,9 +250,9 @@ public class GasFillComposite extends Composite {
 			pressureCalcResults = PressureCalculation.getPressure(currentParameters);
 			double pressure = pressureCalcResults.getPressure();
 			currentParameters.setPressure( pressure );
-			if (pressureCalcResults.getErrorMessage()!=null) {
+			if (pressureCalcResults.getErrorMessage() != null) {
 				String toolTip = "";
-				if (pressureCalcResults.getErrorTooltip()!=null) {
+				if (pressureCalcResults.getErrorTooltip() != null) {
 					toolTip = pressureCalcResults.getErrorTooltip();
 				}
 				logger.warn("Warning from gas fill calculation : {}\n{}", pressureCalcResults.getErrorMessage(), toolTip);
