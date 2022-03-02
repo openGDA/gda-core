@@ -66,6 +66,17 @@
                tooltip="Take a snapshot of the live image">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.live.stream.view.snapshotview">
+         <command
+               commandId="uk.ac.gda.client.live.stream.savesnapshotcommand"
+               icon="icons/save.png"
+               label="SaveSnapshot"
+               style="push"
+               tooltip="Save snapshot and record time on file name">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -86,6 +97,12 @@
       		description="Create Live Map"
       		id="uk.ac.gda.client.live.stream.createlivemapcommand"
       		name="Create Live Map">
+      </command>
+      <command
+            defaultHandler="uk.ac.gda.client.live.stream.handlers.SaveSnapshotHandler"
+            description="Save snapshot"
+            id="uk.ac.gda.client.live.stream.savesnapshotcommand"
+            name="Save snapshot">
       </command>
    </extension>
 </plugin>
