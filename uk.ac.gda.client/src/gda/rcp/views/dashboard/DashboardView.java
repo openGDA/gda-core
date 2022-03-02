@@ -62,6 +62,11 @@ import uk.ac.gda.ui.modifiers.DoubleClickModifier;
 
 public final class DashboardView extends ViewPart {
 
+	// Persistence keys
+	private static final String SCANNABLE_OBJECT = "scannableObject";
+	private static final String TOOLTIP_KEY = "tooltip";
+	private static final String NAME_KEY = "name";
+
 	private class TableLabelProvider extends ColumnLabelProvider {
 		private int column;
 
@@ -306,9 +311,9 @@ public final class DashboardView extends ViewPart {
 				"uk.ac.gda.client.dashboard.objects");
 
 		for (IConfigurationElement e : config) {
-			final String name = e.getAttribute("name");
+			final String name = e.getAttribute(NAME_KEY);
 			final ScannableObject ob = new ScannableObject(name, new JythonSnapshotProvider());
-			ob.setToolTip(e.getAttribute("tooltip"));
+			ob.setToolTip(e.getAttribute(TOOLTIP_KEY));
 
 			data.add(ob);
 		}
@@ -332,12 +337,13 @@ public final class DashboardView extends ViewPart {
 		try {
 			if (memento != null) {
 				this.data = new ArrayList<ScannableObject>();
-				for (String name : memento.getAttributeKeys()) {
+				for (var obj : memento.getChildren(SCANNABLE_OBJECT)) {
+					var name = obj.getString(NAME_KEY);
 					ScannableObject so = new ScannableObject(name, new JythonSnapshotProvider());
-					String toolTip = memento.getString(name);
-					if (!"".equals(toolTip)) {
+					String toolTip = obj.getString(TOOLTIP_KEY);
+					if (!(toolTip == null || toolTip.isBlank())) {
 						// avoid empty string pop-up when mouse-hovering over dashboard
-						so.setToolTip(memento.getString(name));
+						so.setToolTip(obj.getString(TOOLTIP_KEY));
 					}
 					this.data.add(so);
 				}
@@ -418,10 +424,9 @@ public final class DashboardView extends ViewPart {
 	@Override
 	public void saveState(IMemento memento) {
 		for (ScannableObject so : data) {
-			String toolTip = so.getToolTip();
-			// putString(name, value) must have non-null value to store
-			if (toolTip == null) toolTip = "";
-			memento.putString(so.getName(), toolTip);
+			var item = memento.createChild(SCANNABLE_OBJECT);
+			item.putString(NAME_KEY, so.getName());
+			item.putString(TOOLTIP_KEY, so.getToolTip());
 		}
 	}
 
