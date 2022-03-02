@@ -67,6 +67,7 @@ import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
+import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.IDeflector;
 import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyser;
@@ -83,6 +84,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	// Information from the analyser to make the GUI responsive
 	private final IElectronAnalyser analyser;
 	private final AnalyserEnergyRangeConfiguration energyRange;
+	private  AnalyserDeflectorRangeConfiguration deflectorRangeConfig = null;
 	private final double energyStepPerPixel;
 	private final double maxKE;
 	private final int fixedModeEnergyChannels;
@@ -144,6 +146,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		// Get the energy range from the analyser this will now be local don't need to keep making calls over RMI
 		energyRange = analyser.getEnergyRange();
+		// Get deflector range if present
+		if (analyser instanceof IDeflector) {
+			deflectorRangeConfig = ((IDeflector)analyser).getDeflectorRangeConfiguration();
+		}
 		// Find all the lens modes
 		lensModes = energyRange.getAllLensModes().toArray(new String[0]);
 		// Get the energy step per pixel
@@ -331,8 +337,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setUnit("meV");
 		stepEnergy.setDecimalPlaces(5);
 		stepEnergy.setMaximum(10000);
-		stepEnergy.setToolTipText("this is tool tip text");
-		stepEnergy.setTooltipOveride("this is overriden tooltip text");
 		stepEnergy.setFieldName("stepEnergy");
 
 		// Number of steps
@@ -410,6 +414,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		lastSelectedAcquisitionMode = getSelectedAcquisitionMode();
 		cacheEnergyValues();
+		updateDeflectorLimits();
 	}
 
 	private GridData controlGridData() {
@@ -468,6 +473,23 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		}
 	}
 
+	private void updateDeflectorLimits() {
+		if (deflectorRangeConfig == null) return;
+
+		var deflectorRange = deflectorRangeConfig.getDeflectorRangeForLensMode(getSelectedLensMode());
+
+		if (deflectorRange.hasDeflectorEnabled()) {
+			deflectorX.setEnabled(true);
+			deflectorX.setToolTipText("");
+			deflectorX.setMinimum(deflectorRange.getDeflectorXMinimum());
+			deflectorX.setMaximum(deflectorRange.getDeflectorXMaximum());
+		} else {
+			deflectorX.setValue(0);
+			deflectorX.setEnabled(false);
+			deflectorX.setToolTipText("Deflector is not available in this lens mode.");
+		}
+	}
+
 	private double determineMinimumStepEnergy(int passEnergy) {
 		return energyStepPerPixel * passEnergy;
 	}
@@ -497,6 +519,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	private AcquisitionMode getSelectedAcquisitionMode() {
 		return (AcquisitionMode)acquisitionMode.getValue();
+	}
+
+	private String getSelectedLensMode() {
+		return lensMode.getValue().toString();
 	}
 
 	// This calculates the acquisition time excluding dead time (i.e. shortest possible)
@@ -627,6 +653,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		if ("lensMode".equals(e.getFieldName())) {
 			// Changed lens mode so different pass energies might be available
 			updatePassEnergy();
+			updateDeflectorLimits();
 		}
 
 		if ("passEnergy".equals(e.getFieldName()) && !isSweptMode()) { // Fixed or dither mode

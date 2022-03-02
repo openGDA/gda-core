@@ -18,8 +18,10 @@
 
 package uk.ac.diamond.daq.devices.mbs;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.Dataset;
@@ -36,6 +38,7 @@ import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import uk.ac.diamond.daq.devices.mbs.api.IMbsAnalyser;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
+import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
 import uk.ac.diamond.daq.pes.api.IDitherScanningElectronAnalyserWithDeflector;
@@ -50,6 +53,7 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	private MbsAnalyserController controller;
 	private MbsAnalyserCollectionStrategy mbsCollectionStrategy;
 	private AnalyserEnergyRangeConfiguration energyRange;
+	private AnalyserDeflectorRangeConfiguration deflectorRangeConfiguration;
 	private DetectorConfiguration fixedModeConfiguration;
 	private DetectorConfiguration sweptModeConfiguration;
 	private DetectorConfiguration ditherModeConfiguration;
@@ -73,8 +77,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 		try {
 			validateRegions();
+			validateEnergyRanges();
+			validateDeflectorRanges();
 		} catch (DeviceException exception) {
-			throw new FactoryException("Unable to validate region configuration", exception);
+			throw new FactoryException("Unable to validate analyser configuration", exception);
 		}
 
 		try {
@@ -140,6 +146,44 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			fixedModeConfiguration.setSizeY(sensorSizeY);
 			fixedModeConfiguration.setSlices(sensorSizeY);
 			logger.warn("Fixed mode region size changed to {} x {}, starting at 1, 1. Slices {}", sensorSizeX, sensorSizeY, sensorSizeY);
+		}
+	}
+
+	private void validateEnergyRanges() throws FactoryException {
+		if (energyRange == null) return;
+
+		var lensModesFromEpics = new HashSet<>(controller.getLensModes());
+		var passEnergiesFromEpics = controller.getPassEnergies().stream()
+				.map(lensMode -> parsePassEnergyValue(lensMode))
+				.collect(Collectors.toSet());
+
+		var lensModesFromRangeConfig = energyRange.getAllLensModes();
+		var passEnergiesFromRangeConfig = new HashSet<>(energyRange.getAllPassEnergies());
+
+		boolean lensModesMatch = lensModesFromEpics.equals(lensModesFromRangeConfig);
+		boolean passEnergiesMatch = passEnergiesFromEpics.equals(passEnergiesFromRangeConfig);
+
+		if (!lensModesMatch || !passEnergiesMatch) {
+			String error;
+			if (!lensModesMatch && !passEnergiesMatch) {
+				error = "Lens modes and pass energies";
+			} else if (!lensModesMatch) {
+				error = "Lens modes";
+			} else {
+				error = "Pass energies";
+			}
+
+			throw new FactoryException(error + " in GDA energy range configuration do not match those reported by EPICS. Analyser is misconfigured. Please contact GDA support");
+		}
+	}
+
+	private void validateDeflectorRanges() throws FactoryException {
+		if (deflectorRangeConfiguration == null) return;
+
+		var lensModesFromEpics = new HashSet<>(controller.getLensModes());
+
+		if (!lensModesFromEpics.equals(deflectorRangeConfiguration.getAllLensModes())) {
+			throw new FactoryException("Lens modes in GDA deflector range configuration do not match those reported by EPICS. Analyser is misconfigured. Please contact GDA support");
 		}
 	}
 
@@ -521,6 +565,19 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 
 	public void setEnergyRange(AnalyserEnergyRangeConfiguration energyRange) {
 		this.energyRange = energyRange;
+	}
+
+	public void setDeflectorRangeConfiguration(AnalyserDeflectorRangeConfiguration deflectorRangeConfiguration) {
+		this.deflectorRangeConfiguration = deflectorRangeConfiguration;
+	}
+
+	@Override
+	public AnalyserDeflectorRangeConfiguration getDeflectorRangeConfiguration() {
+		if (deflectorRangeConfiguration == null) {
+			logger.error("No deflector range configured");
+		}
+
+		return deflectorRangeConfiguration;
 	}
 
 	@Override
