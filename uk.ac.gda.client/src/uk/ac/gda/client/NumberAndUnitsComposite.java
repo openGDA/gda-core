@@ -66,6 +66,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	private final Text text;
 	/** The combo box to select the units */
 	private final ComboViewer unitsCombo;
+
 	/** Display 3 decimal places by default */
 	private static final String DEFAULT_DECIMAL_FORMAT = "0.###";
 	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
@@ -77,10 +78,10 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	private volatile Unit<Q> currentUnit;
 
 	private NumberFormat decimalFormat;
-
 	private NumberFormat scientificFormat;
 
 	private double valueInCurrentUnits;
+	private boolean displayingFormattedData;
 
 	/**
 	 * Constructor for the case where only one unit is permitted
@@ -133,6 +134,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(text);
 		// When the text is changed fire the event for the data binding.
 		text.addModifyListener(e -> notifyListeners(SWT.Modify, null));
+		text.addModifyListener(e -> cacheValue());
 		// TODO Might want to add validation to stop people typing letters in but need to be very careful WRT data
 		// binding.
 		unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
@@ -152,7 +154,6 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		String format = getDecimalFormat();
 		decimalFormat = new DecimalFormat(format);
 		scientificFormat = new DecimalFormat(format + "E0");
-
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -160,6 +161,15 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		final Quantity<? extends Quantity<?>> currentValue = getValueAsQuantity(); // in "old" units
 		currentUnit = (Unit<Q>) ((StructuredSelection) event.getSelection()).getFirstElement();
 		setValue(((Quantity) currentValue).to(modelUnit).getValue().doubleValue());
+	}
+
+	/**
+	 * Cache the not formatted currently-displayed value
+	 */
+	private void cacheValue() {
+		if (!displayingFormattedData) {
+			valueInCurrentUnits = Double.parseDouble(text.getText());
+		}
 	}
 
 	/**
@@ -181,14 +191,6 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	public double getValue() {
 		return ((Quantity) getValueAsQuantity()).to(modelUnit).getValue().doubleValue();
 	}
-	/**
-	 * Gets the value set in local properties in decimal format
-	 * If it is not set, the default decimal format is used instead
-	 * @return the number of decimal places to display in the mapping GUI
-	 */
-	public String getDecimalFormat() {
-		return LocalProperties.get(PROPERTY_DECIMAL_FORMAT, DEFAULT_DECIMAL_FORMAT);
-	}
 
 	/**
 	 * Sets the value shown by this UI element. This is called by the data binding to update the UI with changes in the
@@ -201,6 +203,8 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		valueInCurrentUnits = Quantities.getQuantity(value, modelUnit).to(currentUnit).getValue().doubleValue();
 		final double absValueInCurrentUnits = Math.abs(valueInCurrentUnits);
 
+		displayingFormattedData = true;
+
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001
 		// Check for != 0.0 so 0 is displayed as 0 not 0E0
 		if (absValueInCurrentUnits != 0.0 && (absValueInCurrentUnits <= 1e-3 || absValueInCurrentUnits >= 1e3)) {
@@ -208,6 +212,17 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		} else {
 			text.setText(decimalFormat.format(valueInCurrentUnits));
 		}
+
+		displayingFormattedData = false;
+	}
+
+	/**
+	 * Gets the value set in local properties in decimal format
+	 * If it is not set, the default decimal format is used instead
+	 * @return the number of decimal places to display in the mapping GUI
+	 */
+	public String getDecimalFormat() {
+		return LocalProperties.get(PROPERTY_DECIMAL_FORMAT, DEFAULT_DECIMAL_FORMAT);
 	}
 
 	public ComboViewer getUnitsCombo() {
@@ -218,7 +233,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	public String toString() {
 		return "NumberAndUnitsComposite [text=" + text + ", unitsCombo=" + unitsCombo + ", modelUnit=" + modelUnit
 				+ ", currentUnit=" + currentUnit + ", decimalFormat=" + decimalFormat + ", scientificFormat="
-				+ scientificFormat + ", valueInCurrentUnits=" + valueInCurrentUnits + "]";
+				+ scientificFormat + ", valueInCurrentUnits=" + valueInCurrentUnits + ", displayingFormattedData="
+				+ displayingFormattedData + "]";
 	}
-
 }
