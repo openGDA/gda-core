@@ -19,14 +19,26 @@ import java.util.Map;
 
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Simple class to hold information about a scan path
- * The information is held in image coordinates not axis coordinates.
- * Therefore the datasets produces by getX and getY may be
- * directly plotted.
+ * Simple class to hold information about a scan path The information is held in image coordinates not axis coordinates.
+ * Therefore the datasets produces by getX and getY may be directly plotted.
+ *
+ * @deprecated for removal in 9.28 Use instead:
+ *             {@link uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo} Only use as part of defunct Scanning
+ *             Perspective, useful parts of code extracted to mapping packages and improved upon
  */
+@Deprecated(since="9.26", forRemoval=true)
 class PathInfo {
+
+	private static final Logger logger = LoggerFactory.getLogger(PathInfo.class);
+
+	public PathInfo() {
+		logger.warn("Deprecated class {}, part of the Defunct Scanning Perspective instantiated!"
+				+ " Class intended for deletion in GDA9.28, use the Mapping equivalent instead.", getClass().getName());
+	}
 
 	// TODO Encapsulate these fields properly...
 	protected int    pointCount      = 0;

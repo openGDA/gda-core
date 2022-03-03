@@ -33,8 +33,19 @@ import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.device.ui.Activator;
 import org.eclipse.scanning.device.ui.ServiceHolder;
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated for removal in 9.28 Use instead:
+ *             {@link uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob} Only use as part of defunct Scanning
+ *             Perspective, useful parts of code extracted to mapping packages and improved upon
+ */
+@Deprecated(since="9.26", forRemoval=true)
 class PathInfoCalculatorJob extends Job {
+
+	private static final Logger logger = LoggerFactory.getLogger(PathInfoCalculatorJob.class);
+
 
 	static final int MAX_POINTS_IN_ROI = 100000; // 100,000
 
@@ -52,6 +63,8 @@ class PathInfoCalculatorJob extends Job {
 
 	public PathInfoCalculatorJob(final PlottingController controller) {
 		super("Calculating scan path");
+		logger.warn("Deprecated class {}, part of the Defunct Scanning Perspective instantiated!"
+				+ " Class intended for deletion in GDA9.28, use the Mapping equivalent instead.", getClass().getName());
 		this.controller = controller;
 		setSystem(true);
 		setUser(false);
