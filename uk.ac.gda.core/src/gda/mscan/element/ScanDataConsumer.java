@@ -37,7 +37,8 @@ import org.apache.commons.math3.util.Pair;
 public enum ScanDataConsumer implements IMScanElementEnum {
 	TEMPLATE("temp", asList("templates"), List.class),
 	PROCESSOR("proc", asList("processors"), Map.class),
-	PER_SCAN_MONITOR("psms", asList("perscanmonitors", "psm"), Set.class);
+	PER_SCAN_MONITOR("psms", asList("perscanmonitors", "psm"), Set.class),
+	SAMPLE("samp", asList("sample"), Map.class);
 
 	private static final Map<String, ScanDataConsumer> termsMap;
 	private final List<String> terms = new ArrayList<>();

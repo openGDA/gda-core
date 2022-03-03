@@ -27,6 +27,7 @@ import static gda.mscan.element.RegionShape.POLYGON;
 import static gda.mscan.element.RegionShape.RECTANGLE;
 import static gda.mscan.element.ScanDataConsumer.PER_SCAN_MONITOR;
 import static gda.mscan.element.ScanDataConsumer.PROCESSOR;
+import static gda.mscan.element.ScanDataConsumer.SAMPLE;
 import static gda.mscan.element.ScanDataConsumer.TEMPLATE;
 import static gda.mscan.element.Scanpath.AXIS_ARRAY;
 import static gda.mscan.element.Scanpath.AXIS_POINTS;
@@ -70,6 +71,8 @@ import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +123,8 @@ public class ClausesContext extends ValidationUtils {
 	private Map<ScanDataConsumer, Consumer<String>> consumerHandlers = Map.of(
 			TEMPLATE,         this::setTemplates,
 			PROCESSOR,        this::setProcessorDefinitions,
-			PER_SCAN_MONITOR, this::setPerScanMonitors);
+			PER_SCAN_MONITOR, this::setPerScanMonitors,
+			SAMPLE,           this::setSampleMetadata);
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClausesContext.class);
 	private static final int REQUIRED_SCANNABLES_FOR_AREA = 2;
@@ -139,6 +143,7 @@ public class ClausesContext extends ValidationUtils {
 	private Map<String, Collection<Object>> processingDefinitions = new HashMap<>();
 	private ProcessingRequest processingRequest = new ProcessingRequest();
 	private String activeProcessorKey = "";
+	private ScanMetadata sampleMetadata = null;
 	private final Map<Mutator, List<Number>> mutatorUses = new EnumMap<>(Mutator.class);
 
 	private List<Number> paramsToFill;  // Re-pointable reference used to select whether RegionShape or Scanpath
@@ -162,6 +167,7 @@ public class ClausesContext extends ValidationUtils {
 	private boolean acceptingTemplates = true;
 	private boolean acceptingPerScanMonitors = true;
 	private boolean acceptingProcessors = true;
+	private boolean acceptingSampleMetadata = true;
 	private boolean isStatic = false;
 
 
@@ -524,6 +530,25 @@ public class ClausesContext extends ValidationUtils {
 	}
 
 	/**
+	 * Sets the supplied {@link String} of sample metadata key names and values for the scan and prevents any
+	 * further changes to this being made.
+	 *
+	 * @param metadataDefs	A pipe separated {@link String} containing pairs of metadata key names and values
+	 * 						in the form "keyname1::value1|keyname2::value2"
+	 */
+	private void setSampleMetadata(String metadataDefs) {
+		if (!acceptingSampleMetadata) {
+			throw new IllegalStateException("Sample metadata has already been set for this mscan");
+		}
+		sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
+		Stream.of(metadataDefs.split("\\|"))
+			.map(x -> x.split("::"))
+			.forEach(this::fillMetadata);
+
+		acceptingSampleMetadata = false;
+	}
+
+	/**
 	 * Fills in the {{@link #processingDefinitions} map grouping entries that have the same processor App name key
 	 * into a {@link List}s. If pathOrFilename contains two elements, the first is the app name key and the second a
 	 * config filename. These will be added to the {@link #processingDefinitions} creating a new entry keyed by the
@@ -546,6 +571,17 @@ public class ClausesContext extends ValidationUtils {
 			processingDefinitions.put(pairOrFilename[0], l);
 			activeProcessorKey = pairOrFilename[0];
 		}
+	}
+
+	/**
+	 * Fills in the Sample Metedata field map.
+	 *
+	 * @param pairs	An array of key value pairs
+	 */
+	private void fillMetadata(String[] pair) {
+		throwIf(pair.length != 2,
+				"Incorrect sample metadata specification - metadata must specifify key value pairs");
+		sampleMetadata.addField(pair[0], pair[1]);
 	}
 
 	// Utility methods relating to parameter management
@@ -748,6 +784,10 @@ public class ClausesContext extends ValidationUtils {
 
 	public ProcessingRequest getProcessorRequest() {
 		return processingRequest;
+	}
+
+	public ScanMetadata getSampleMetadata() {
+		return sampleMetadata;
 	}
 
 	public boolean isScanPathSeen() {

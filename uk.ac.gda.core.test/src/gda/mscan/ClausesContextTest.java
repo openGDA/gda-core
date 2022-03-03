@@ -48,6 +48,7 @@ import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -1153,7 +1154,6 @@ public class ClausesContextTest {
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void processorsCanBeSuccessfullySet() throws Exception {
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil fol two::fal");
@@ -1166,7 +1166,17 @@ public class ClausesContextTest {
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 
-	@SuppressWarnings("unchecked")
+	@Test
+	public void sampleMetadataCanBeSuccessfullySet() throws Exception {
+		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "one::fil fol|two::fal");
+		assertNotNull(clausesContext.getSampleMetadata());
+		assertThat(clausesContext.getSampleMetadata().getType(), is(MetadataType.SAMPLE));
+		assertThat(clausesContext.getSampleMetadata().getFields().size(), is(2));
+		assertThat(clausesContext.getSampleMetadata().getFields().get("one"), is("fil fol"));
+		assertThat(clausesContext.getSampleMetadata().getFields().get("two"), is("fal"));
+		assertThat(clausesContext.isClauseProcessed(), is(true));
+	}
+
 	@Test
 	public void templateSettingDoesNotBlockProcessorSetting() throws Exception {
 		clausesContext.addScanDataConsumer(ScanDataConsumer.TEMPLATE, "fil fal fol");
@@ -1183,7 +1193,6 @@ public class ClausesContextTest {
 		assertThat(clausesContext.isClauseProcessed(), is(true));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void processorSettingDoesNotBlockTemplateSetting() throws Exception {
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil two::fal");
@@ -1225,6 +1234,14 @@ public class ClausesContextTest {
 	}
 
 	@Test
+	public void sampleMetadataConsumerIsRejectedIfContextNotAcceptingSampleMetadata() throws Exception {
+		thrown.expect(IllegalStateException.class);
+		expectMessageContents("Sample metadata has already been set");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "one::fil");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "two::fal");
+	}
+
+	@Test
 	public void processorConsumerIsRejectedIfNoSpaceBetweenDeclarations() throws Exception {
 		thrown.expect(IllegalArgumentException.class);
 		expectMessageContents("Incorrect processor specification");
@@ -1250,6 +1267,27 @@ public class ClausesContextTest {
 		thrown.expect(IllegalArgumentException.class);
 		expectMessageContents("No processor app specified");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "");
+	}
+
+	@Test
+	public void sampleMetadataConsumerIsRejectedIfNoPipeBetweenDeclarations() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+		expectMessageContents("Incorrect sample metadata specification");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "one::fil fel two::fal");
+	}
+
+	@Test
+	public void sampleMetadataConsumerIsRejectedIfNoSeparatorSequenceInDeclaration() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+		expectMessageContents("Incorrect sample metadata specification");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "onefil fel|two::fal");
+	}
+
+	@Test
+	public void sampleMetadataConsumerIsRejectedIfEmptyConfigStringIsSupplied() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+		expectMessageContents("Incorrect sample metadata specification");
+		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "");
 	}
 
 	private void prepareForMutatorTest(final ClausesContext context) {

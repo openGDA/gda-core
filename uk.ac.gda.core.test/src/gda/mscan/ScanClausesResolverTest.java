@@ -19,10 +19,10 @@
 package gda.mscan;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +92,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 	@Test
 	public void scanDataConsumersBeforeScanDefsIsRejected() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(containsString("cannot use templates or processors"));
+		exception.expectMessage(containsString("cannot use templates, processors or sample metadata"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				templateScanDataConsumerProc,
@@ -104,7 +104,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 	@Test
 	public void scanDataConsumersBeforeDetectorsIsRejected() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(containsString("cannot use templates or processors"));
+		exception.expectMessage(containsString("cannot use templates, processors or sample metadata"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc,

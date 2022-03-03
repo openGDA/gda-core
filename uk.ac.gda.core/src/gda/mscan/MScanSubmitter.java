@@ -224,6 +224,9 @@ public class MScanSubmitter extends ValidationUtils {
 		scanRequest.setTemplateFilePaths(context.getTemplates());
 		scanRequest.setMonitorNamesPerScan(context.getPerScanMonitors());
 		scanRequest.setProcessingRequest(context.getProcessorRequest());
+		if (context.getSampleMetadata() != null) {
+			scanRequest.addScanMetadata(context.getSampleMetadata());
+		}
 
 		submit(scanRequest, block, null);
 	}
