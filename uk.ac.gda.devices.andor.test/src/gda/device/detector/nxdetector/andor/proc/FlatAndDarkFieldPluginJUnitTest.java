@@ -20,20 +20,23 @@ package gda.device.detector.nxdetector.andor.proc;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.NDProcess;
-import gda.device.detector.nxdetector.andor.proc.FlatAndDarkFieldPlugin.ScanType;
 
 import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+
+import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDProcess;
+import gda.device.detector.nxdetector.andor.proc.FlatAndDarkFieldPlugin.ScanType;
 
 public class FlatAndDarkFieldPluginJUnitTest {
 
@@ -42,6 +45,9 @@ public class FlatAndDarkFieldPluginJUnitTest {
 	private static final int DISABLED = 0;
 	private static final int ENABLED = 1;
 
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
 	@Mock
 	NDProcess ndProcess;
 	@Mock
@@ -49,8 +55,6 @@ public class FlatAndDarkFieldPluginJUnitTest {
 
 	@Before
 	public void setUp() {
-		MockitoAnnotations.initMocks(this);
-
 		this.order = Mockito.inOrder(ndProcess,pluginBase);
 		// create FlatAndDarkFieldPlugin to be tested
 		flatAndDarkFieldPluginToTest = new FlatAndDarkFieldPlugin(ndProcess);
