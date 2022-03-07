@@ -25,13 +25,14 @@ public class CrystalParameters {
 	// Parameters, v1&2, eds M. Levinstein, S. Rumyantsev and M. Shur, World Scientific, London, 1996, 1999)
 
 	public enum CrystalMaterial {
-		SILICON(Si_a), GERMANIUM(Ge_a);
+		SILICON(Si_a, "Si"), GERMANIUM(Ge_a, "Ge");
 
 		private final double a;
-
+		private final String displayString;
 		// the lattice parameters in Angstroms
-		CrystalMaterial(double a) {
+		CrystalMaterial(double a, String displayString) {
 			this.a = a;
+			this.displayString = displayString;
 		}
 
 		/**
@@ -39,6 +40,10 @@ public class CrystalParameters {
 		 */
 		public double getA() {
 			return a;
+		}
+
+		public String getDisplayString() {
+			return displayString;
 		}
 	}
 

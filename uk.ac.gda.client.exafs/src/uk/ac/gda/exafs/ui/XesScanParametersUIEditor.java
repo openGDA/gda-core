@@ -137,22 +137,6 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		return beanComposite.getMonoEnergy();
 	}
 
-	public FieldComposite getAdditionalCrystal0() {
-		return beanComposite.getAdditionalCrystal0();
-	}
-
-	public FieldComposite getAdditionalCrystal1() {
-		return beanComposite.getAdditionalCrystal1();
-	}
-
-	public FieldComposite getAdditionalCrystal2() {
-		return beanComposite.getAdditionalCrystal2();
-	}
-
-	public FieldComposite getAdditionalCrystal3() {
-		return beanComposite.getAdditionalCrystal3();
-	}
-
 	public RadioWrapper getLoopChoice() {
 		return beanComposite.getLoopChoice();
 	}
