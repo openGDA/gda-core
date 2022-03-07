@@ -30,10 +30,12 @@ import static org.mockito.Mockito.when;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
@@ -60,6 +62,7 @@ public class ADDetectorTest {
 	@Mock protected NDStats ndStats;
 	@Mock protected NDPluginBase ndArrayBase;
 	@Mock protected NDPluginBase ndStatsBase;
+	@Rule public MockitoRule rule = MockitoJUnit.rule();
 
 	protected static String[] STATS_NAMES = new String[] { "min", "max", "total", "net", "mean", "sigma" };
 	protected static String[] STATS_FORMATS = new String[] { "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g" };
@@ -81,7 +84,6 @@ public class ADDetectorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
 		setUpNoConfigure();
 		adDet().configure();
 		configureScanInformationHolder();

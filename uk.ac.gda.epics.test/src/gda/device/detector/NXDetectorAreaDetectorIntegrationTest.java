@@ -36,10 +36,12 @@ import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
@@ -68,6 +70,10 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	private NXPlugin statsPlugin;
 	@Mock
 	private NXPlugin centroidPlugin;
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
 	private ADBasicStats adBasicStats;
 
 	private NXDetector adDet;
@@ -90,7 +96,6 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
 		adBasicStats = new ADBasicStats(ndStats);
 		when(ndStats.getPluginBase()).thenReturn(ndStatsBase);
 		List<NXPluginBase> additionalPlugins = new ArrayList<NXPluginBase>();
