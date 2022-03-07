@@ -18,6 +18,7 @@
 
 package uk.ac.gda.ui.tool.browser;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,9 +43,12 @@ import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResourceType;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
+import uk.ac.gda.client.exception.GDAClientRestException;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
 import uk.ac.gda.ui.tool.ClientMessagesUtility;
 import uk.ac.gda.ui.tool.controller.AcquisitionController;
+import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 
 /**
  * Base implementation of {@link Browser} for {@link ScanningAcquisition}s, with the following features:
@@ -54,6 +58,8 @@ import uk.ac.gda.ui.tool.controller.AcquisitionController;
  * </ul>
  */
 public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcquisition> {
+
+	private ConfigurationsRestServiceClient configurationService;
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionBrowserBase.class);
 	private final AcquisitionController<ScanningAcquisition> controller;
@@ -143,7 +149,7 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 
 	private void setAcquisitionConfigurationResource(AcquisitionConfigurationResource<ScanningAcquisition> resource) {
 		try {
-			controller.loadAcquisitionConfiguration(resource.getResource());
+			loadFromFile(resource.getLocation());
 			setSelected(resource);
 		} catch (AcquisitionControllerException e) {
 			logger.error("Cannot parse acquisition configuration at {}", resource);
@@ -158,7 +164,24 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 	}
 
 	private void load() throws AcquisitionControllerException {
-		controller.loadAcquisitionConfiguration(getSelected().getResource());
+		loadFromFile(getSelected().getLocation());
+	}
+
+	private void loadFromFile(URL url) throws AcquisitionControllerException {
+		try {
+			var acquisition = (ScanningAcquisition) getConfigurationService().getDocument(url);
+			controller.loadAcquisitionConfiguration(acquisition);
+		} catch (GDAClientRestException e) {
+			throw new AcquisitionControllerException("Error loading acquisition from file '" + url + "'", e);
+		}
+
+	}
+
+	private ConfigurationsRestServiceClient getConfigurationService() {
+		if (configurationService == null) {
+			configurationService = SpringApplicationContextFacade.getBean(ConfigurationsRestServiceClient.class);
+		}
+		return configurationService;
 	}
 
 	private void delete() throws AcquisitionControllerException {
