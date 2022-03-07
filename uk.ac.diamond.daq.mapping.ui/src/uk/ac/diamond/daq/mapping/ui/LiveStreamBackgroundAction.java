@@ -95,7 +95,7 @@ public class LiveStreamBackgroundAction {
 			// mapping transformation.
 			// This is called just once
 			if (bms == null) {
-				Optional.ofNullable(helper.getAssociatedCameraConfiguration())
+				helper.getDefaultStreamSourceConfiguration()
 						.map(CameraConfiguration::getName)
 						.map(CameraHelper::getICameraConfigurationByConfigurationName)
 						.ifPresent(cc -> bms = new BeamMappingSupport(cc, getMap()));

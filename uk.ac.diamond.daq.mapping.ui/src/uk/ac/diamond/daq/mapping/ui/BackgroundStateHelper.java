@@ -20,27 +20,21 @@ package uk.ac.diamond.daq.mapping.ui;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.dawnsci.mapping.ui.api.IMapFileController;
 import org.dawnsci.mapping.ui.datamodel.LiveStreamMapObject;
-import org.eclipse.january.dataset.IDynamicShape;
-import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.scanning.api.ui.IStageScanConfiguration;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
-import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.CameraStreamsManager;
-import uk.ac.diamond.daq.client.gui.camera.calibration.MappedCameraAxesProvider;
 import uk.ac.diamond.daq.mapping.ui.services.MappingRemoteServices;
 import uk.ac.gda.client.live.stream.LiveStreamException;
-import uk.ac.gda.client.live.stream.calibration.CalibratedAxesProvider;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;
 import uk.ac.gda.client.live.stream.view.StreamType;
-import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
-import uk.ac.gda.client.properties.camera.CameraToBeamMap;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 
 /**
@@ -49,6 +43,9 @@ import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
  * @author Maurizio Nagni
  */
 public class BackgroundStateHelper {
+
+	private static final Logger logger = LoggerFactory.getLogger(BackgroundStateHelper.class);
+
 	private Optional<LiveStreamMapObject> liveStreamMap = Optional.empty();
 
 	/**
@@ -81,56 +78,50 @@ public class BackgroundStateHelper {
 	 */
 	private void initialiseStream() {
 		liveStreamMap = getDefaultStreamSource();
-		liveStreamMap.ifPresent(ls -> getMappingRemoteServices().getIMapFileController().addLiveStream(ls));
-		if (!liveStreamMap.isPresent()) {
-						MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-								"Missing Camera Configuration",
-								"No default Camera Configuration is set,\n"
-										+ "Please add the name of a valid CameraConfiguration bean\n"
-										+ "to the mapping_stage_info bean in your mapping.xml file");
+		if (liveStreamMap.isPresent()) {
+			getMappingRemoteServices().getIMapFileController().addLiveStream(liveStreamMap.get());
+		} else {
+			MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					"Missing Camera Configuration",
+					"No default Camera Configuration is defined.\n"
+					+ "Please add the name of a valid CameraConfiguration bean\n"
+					+ "to the MappingStageInfo configuration");
 		}
 	}
 
 	/**
-	 * Obtains the packaged stream source identified as the default for the beamline
-	 *
-	 * @return A mappable version of the default stream source, {@code null} otherwise.
+	 * Obtains the mappable stream source identified as the default for the beamline
 	 */
 	private Optional<LiveStreamMapObject> getDefaultStreamSource() {
-		return Optional.ofNullable(getAssociatedCameraConfiguration())
-				.map(this::getLiveStreamObject)
-				.orElse(Optional.empty());
+		return getDefaultStreamSourceConfiguration().map(this::getLiveStreamObject).orElse(Optional.empty());
 	}
 
-	public CameraConfiguration getAssociatedCameraConfiguration() {
-		return (CameraConfiguration) Optional
-				.ofNullable(getClientRemoteServices().getIStageScanConfiguration())
-				.map(IStageScanConfiguration::getDefaultStreamSourceConfig).map(Finder::find).orElse(null);
+	public Optional<CameraConfiguration> getDefaultStreamSourceConfiguration() {
+		return Optional.ofNullable(getClientRemoteServices().getIStageScanConfiguration())
+				.map(IStageScanConfiguration::getDefaultStreamSourceConfig).map(Finder::find);
 	}
 
 	private Optional<LiveStreamMapObject> getLiveStreamObject(CameraConfiguration cameraConfig) {
-		final StreamType streamType = cameraConfig.getArrayPv() != null ? StreamType.EPICS_ARRAY : StreamType.MJPEG;
+		final StreamType streamType = getStreamType(cameraConfig);
 		CameraStreamsManager manager = getBean(CameraStreamsManager.class);
-		if (cameraConfig.getCalibratedAxesProvider() == null) {
-			IDynamicShape dataset = manager.getDynamicShape(cameraConfig, streamType);
-			cameraConfig.setCalibratedAxesProvider(getCalibratedAxedProvier(dataset::getDataset, cameraConfig));
-		} else {
-			try {
-				manager.getStreamConnection(cameraConfig, streamType).connect();
-			} catch (LiveStreamException e) {}
+		try {
+			manager.getStreamConnection(cameraConfig, streamType).connect();
+		} catch (LiveStreamException e) {
+			logger.error("Error retrieving live stream", e);
 		}
 		return Optional.ofNullable(manager.getLiveStreamPlottable(cameraConfig, streamType));
 	}
 
-	private CalibratedAxesProvider getCalibratedAxedProvier(Supplier<ILazyDataset> dataset, CameraConfiguration cameraConfig) {
-		Optional<CameraConfigurationProperties> cameraProperties = CameraHelper.getCameraConfigurationPropertiesByConfigurationName(cameraConfig.getName());
-		Optional<Supplier<CameraToBeamMap>> cameraToBeamMapSupplier = cameraProperties
-				.map(CameraConfigurationProperties::getCameraToBeamMap)
-				.map(c -> () -> c);
-
-		return cameraToBeamMapSupplier
-				.map(c -> new MappedCameraAxesProvider(dataset, c))
-				.orElseGet(() -> new MappedCameraAxesProvider(dataset));
+	private StreamType getStreamType(CameraConfiguration cameraConfig) {
+		// assume the preference is PVA array, then Epics Array, then MJPEG
+		if (cameraConfig.getPvAccessPv() != null) {
+			return StreamType.EPICS_PVA;
+		} else if (cameraConfig.getArrayPv() != null) {
+			return StreamType.EPICS_ARRAY;
+		} else if (cameraConfig.getUrl() != null) {
+			return StreamType.MJPEG;
+		}
+		throw new IllegalStateException(String.format("No stream defined in %s '%s'", cameraConfig.getClass().getName(), cameraConfig.getName()));
 	}
 
 	private MappingRemoteServices getMappingRemoteServices() {
