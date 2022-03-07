@@ -196,7 +196,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 
 	}
 
-	private void logStatusOnError() {
+	protected void logStatusOnError() {
 		try {
 			logger.error("doneMoving: {}, inPosition: {}, status: {}", controller.cagetDouble(doneMovingChnl), controller.cagetDouble(inPositionChnl),
 					controller.cagetEnum(statusChnl));
@@ -289,5 +289,17 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements MonitorLi
 	@Override
 	public String getControllerRecordName() {
 		return getPvBase();
+	}
+
+	protected EpicsController getController() {
+		return controller;
+	}
+
+	protected Channel getDoneMovingChnl() {
+		return doneMovingChnl;
+	}
+
+	protected Channel getStatusChnl() {
+		return statusChnl;
 	}
 }
