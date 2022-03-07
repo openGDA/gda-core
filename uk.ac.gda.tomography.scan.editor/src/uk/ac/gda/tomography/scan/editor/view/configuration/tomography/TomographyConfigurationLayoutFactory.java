@@ -235,6 +235,12 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		var projections = new ProjectionsCompositeFactory();
 		composites.add(projections);
 		projections.createComposite(parent, textStyle);
+
+		//----- Reference for other configuration components
+		var exposure = new ExposureCompositeFactory();
+		composites.add(exposure);
+		exposure.createComposite(parent, textStyle);
+
 		//----- Reference for other configuration components
 		var darkFlat = new DarkFlatCompositeFactory();
 		composites.add(darkFlat);
