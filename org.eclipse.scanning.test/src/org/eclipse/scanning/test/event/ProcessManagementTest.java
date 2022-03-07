@@ -32,13 +32,15 @@ import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(value = Parameterized.class)
 public class ProcessManagementTest extends AbstractJobQueueTest {
@@ -47,6 +49,9 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 	public static Object[] data() {
 		return new Object[] { true, false };
 	}
+
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	private WaitingAnswer<Void> waitingAnswer;
 
@@ -67,7 +72,6 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this); // requried as this test runs with Parameterized instead of MockitoJUnitRunner
 		super.setUp();
 
 		bean = createAndSubmitBeans("test").get(0);

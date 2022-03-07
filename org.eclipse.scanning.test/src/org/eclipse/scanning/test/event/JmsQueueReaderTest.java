@@ -24,7 +24,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +44,11 @@ import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @Ignore("Flaky new-scanning test")
 public class JmsQueueReaderTest extends BrokerTest {
@@ -55,13 +57,14 @@ public class JmsQueueReaderTest extends BrokerTest {
 	private ISubmitter<StatusBean> submitter;
 	private JmsQueueReader<StatusBean> jmsQueueReader;
 
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
 	@Mock
 	private IJobQueue<StatusBean> mockJobQueue;
 
 	@Before
 	public void setUp() throws Exception {
-		initMocks(this);
-
 		ServiceTestHelper.setupServices();
 		eventService = ServiceTestHelper.getEventService();
 		submitter = eventService.createSubmitter(uri, ScanningTestUtils.SUBMISSION_QUEUE_WITH_ID);
