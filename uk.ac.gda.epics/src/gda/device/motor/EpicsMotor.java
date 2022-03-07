@@ -161,7 +161,7 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	protected Channel spmg = null; // motor template mode (Go or Stop)
 
-	protected Channel prec; // precision
+	protected Channel prec = null; // precision
 
 	/**
 	 * monitor EPICS motor position
@@ -1472,11 +1472,18 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	MotorStatus checkTarget(MotorStatus status) throws MotorException {
 		double deadband = getRetryDeadband();
 		double current = getPosition();
-		int precision = getPrecision();
+		boolean outsideDeadband = false;
 		if (deadband > 0 && !Double.isNaN(deadband)) {
-			BigDecimal error = BigDecimal.valueOf(abs(targetPosition - current));
-			error = error.setScale(precision, RoundingMode.DOWN);
-			if (error.doubleValue() > deadband) {
+			if (prec != null) {
+				int precision = getPrecision();
+				BigDecimal error = BigDecimal.valueOf(abs(targetPosition - current));
+				error = error.setScale(precision, RoundingMode.DOWN);
+				outsideDeadband = (error.doubleValue() > deadband);
+			} else {
+				logger.debug("Precision PV not defined, falling back to old deadband behaviour");
+				outsideDeadband = (abs(targetPosition - current) > deadband);
+			}
+			if (outsideDeadband) {
 				logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer", getName(),
 						targetPosition, currentPosition, retryDeadband);
 				if (missedTargetAction == MissedTargetLevel.FAULT) {
