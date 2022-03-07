@@ -23,14 +23,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
  * Tests {@link ObservableComponent}.
@@ -85,25 +85,18 @@ public class ObservableComponentTest {
 		}
 	}
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Test
 	public void testAddingNullObserverThrows() {
 		ObservableComponent oc = new ObservableComponent();
-
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Can't add a null observer");
-		oc.addIObserver(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> oc.addIObserver(null));
+		assertEquals("Can't add a null observer", e.getMessage());
 	}
 
 	@Test
 	public void testRemovingNullObserverThrows() {
 		ObservableComponent oc = new ObservableComponent();
-
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Can't delete a null observer");
-		oc.deleteIObserver(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> oc.deleteIObserver(null));
+		assertEquals("Can't delete a null observer", e.getMessage());
 	}
 
 	@Test
