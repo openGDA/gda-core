@@ -18,118 +18,272 @@
 
 package uk.ac.diamond.daq.client.gui.camera.liveview;
 
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.gda.ui.tool.ClientSWTElements.getImage;
+import static uk.ac.gda.ui.tool.ClientVerifyListener.verifyOnlyDoubleText;
 
+import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.dawnsci.plotting.histogram.ImageHistogramProvider;
 import org.dawnsci.plotting.histogram.ui.HistogramViewer;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
-import org.eclipse.dawnsci.plotting.api.trace.IPaletteTrace;
+import org.eclipse.dawnsci.plotting.api.trace.IPaletteListener;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.dawnsci.plotting.api.trace.ITraceListener;
+import org.eclipse.dawnsci.plotting.api.trace.PaletteEvent;
+import org.eclipse.dawnsci.plotting.api.trace.TraceEvent;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 
-import gda.rcp.views.CompositeFactory;
-import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.live.stream.event.PlottingSystemUpdateEvent;
-import uk.ac.gda.client.live.stream.view.LivePlottingComposite;
-import uk.ac.gda.ui.tool.ClientMessages;
-import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
+import uk.ac.gda.ui.tool.images.ClientImages;
 
-/**
- * Listens to {@link PlottingSystemUpdateEvent}s
- *
- * @author Mattew Webber
- * @author Maurizio Nagni
- */
-public class HistogramComposite implements CompositeFactory {
-
-	private HistogramViewer histogram;
+public class HistogramComposite  {
 
 	private static final Logger logger = LoggerFactory.getLogger(HistogramComposite.class);
 
-	private IPlottingSystem<Composite> plottingSystem;
-	private Composite histogramArea;
-	private Composite container;
+	private final IPlottingSystem<Composite> plot;
+	private final GridDataFactory stretch = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
+	private final DecimalFormat numeric = new DecimalFormat("#.##");
 
-	public HistogramComposite(IPlottingSystem<Composite> plottingSystem) {
-		this.plottingSystem = plottingSystem;
+	private Text regionMin;
+	private Text regionMax;
+
+	private Button autoRehistogram;
+
+	private HistogramViewer histogram;
+
+	public HistogramComposite(IPlottingSystem<Composite> plot) {
+		this.plot = plot;
 	}
 
-	@Override
-	public Composite createComposite(Composite parent, int style) {
-		SpringApplicationContextProxy.addDisposableApplicationListener(this, plottingSystemUpdateListener);
+	public void createComposite(Composite parent) {
 
-		container = createClientCompositeWithGridLayout(parent, SWT.None, 8);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(container);
+		var composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().applyTo(composite);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
 
-		histogramArea = createClientCompositeWithGridLayout(container, SWT.None, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).span(8, 1).grab(true, true).applyTo(histogramArea);
-
-		Label label = createClientLabel(container, SWT.LEFT, ClientMessages.MAX);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.NOT_AVAILABLE);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.MIN);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.NOT_AVAILABLE);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.MEAN);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.NOT_AVAILABLE);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.STD_DEV);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		label = createClientLabel(container, SWT.LEFT, ClientMessages.NOT_AVAILABLE);
-		createClientGridDataFactory().align(SWT.BEGINNING, SWT.BEGINNING).grab(true, false).applyTo(label);
-
-		return container;
+		createHistogramControls(composite);
+		createHistogramViewer(composite);
+		createAxisControls(composite);
 	}
 
-	ApplicationListener<PlottingSystemUpdateEvent> plottingSystemUpdateListener = new ApplicationListener<PlottingSystemUpdateEvent>() {
+	/**
+	 * Creates min/max text boxes,
+	 * and rehistogram buttons (one-off and automatic)
+	 */
+	private void createHistogramControls(Composite parent) {
+		var regionGroup = new Group(parent, SWT.NONE);
+
+		GridLayoutFactory.swtDefaults().numColumns(5).applyTo(regionGroup);
+		stretch.applyTo(regionGroup);
+
+		regionGroup.setText("Histogram range");
+
+		regionMin = new Text(regionGroup, SWT.BORDER);
+		stretch.applyTo(regionMin);
+
+		regionMin.addVerifyListener(verifyOnlyDoubleText);
+		regionMin.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				getImageTrace().ifPresent(trace -> {
+					double min = Double.parseDouble(regionMin.getText());
+					trace.getImageServiceBean().setMin(min);
+				});
+			}
+		});
+		regionMin.addTraverseListener(e -> {
+			if (e.detail == SWT.TRAVERSE_RETURN) {
+				regionMax.setFocus();
+			}
+		});
+
+		new Label(regionGroup, SWT.NONE).setText(":");
+
+		regionMax = new Text(regionGroup, SWT.BORDER);
+		stretch.applyTo(regionMax);
+
+		regionMax.addVerifyListener(verifyOnlyDoubleText);
+		regionMax.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				getImageTrace().ifPresent(trace -> {
+					double max = Double.parseDouble(regionMax.getText());
+					trace.getImageServiceBean().setMax(max);
+				});
+			}
+		});
+		regionMax.addTraverseListener(e -> {
+			if (e.detail == SWT.TRAVERSE_RETURN) {
+				regionMin.setFocus();
+			}
+		});
+
+		var rehistogram = new Button(regionGroup, SWT.PUSH);
+		rehistogram.setToolTipText("Rehistogram");
+		rehistogram.setImage(getImage(ClientImages.EXPAND));
+		GridDataFactory.swtDefaults().applyTo(rehistogram);
+
+		rehistogram.addSelectionListener(widgetSelectedAdapter(selection -> getImageTrace().ifPresent(IImageTrace::rehistogram)));
+
+		autoRehistogram = new Button(regionGroup, SWT.TOGGLE);
+		autoRehistogram.setText("Auto rehistogram");
+		autoRehistogram.setToolTipText("Automatic histogram range");
+
+		// we just disable/enable other widgets here:
+		// auto rehistogramming logic in HistogramUpdater
+		autoRehistogram.addSelectionListener(widgetSelectedAdapter(event -> {
+			var selected = autoRehistogram.getSelection();
+			regionMin.setEnabled(!selected);
+			regionMax.setEnabled(!selected);
+			rehistogram.setEnabled(!selected);
+			var image = selected ? ClientImages.UNLOCK : ClientImages.LOCK;
+			autoRehistogram.setImage(getImage(image));
+		}));
+
+		autoRehistogram.setSelection(true);
+		autoRehistogram.notifyListeners(SWT.Selection, new Event());
+
+		GridDataFactory.swtDefaults().applyTo(autoRehistogram);
+	}
+
+	private Optional<IImageTrace> getImageTrace() {
+		Collection<ITrace> traces = plot.getTraces(IImageTrace.class);
+		if (traces.isEmpty()) return Optional.empty();
+		return Optional.of((IImageTrace) traces.iterator().next());
+	}
+
+	private void createHistogramViewer(Composite parent) {
+		try {
+			// create histogram only: we take care of the remaining controls
+			histogram = new HistogramViewer(parent, null, null, null, true);
+		} catch (Exception e) {
+			var errorMessage = "Failed to create histogram viewer";
+			logger.error(errorMessage, e);
+			new Label(parent, SWT.NONE).setText(errorMessage);
+		}
+
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(histogram.getComposite());
+		histogram.setContentProvider(new ImageHistogramProvider());
+		histogram.getHistogramPlot().setShowLegend(false);
+
+		var histogramUpdater = new HistogramUpdater();
+		plot.addTraceListener(histogramUpdater);
+		parent.addDisposeListener(dispose -> plot.removeTraceListener(histogramUpdater));
+	}
+
+	/**
+	 * Creates buttons to toggle between log/linear y axis,
+	 * and a button to auto scale axes
+	 */
+	private void createAxisControls(Composite parent) {
+		var group = new Group(parent, SWT.NONE);
+
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(group);
+		stretch.applyTo(group);
+
+		new Label(group, SWT.NONE).setText("Y axis");
+
+		var logarithmic = new Button(group, SWT.RADIO);
+		logarithmic.setText("Logarithmic");
+
+		var linear = new Button(group, SWT.RADIO);
+		linear.setText("Linear");
+
+		var autoScale = new Button(group, SWT.PUSH);
+		autoScale.setImage(getImage(ClientImages.AUTOSCALE));
+		autoScale.setToolTipText("Autoscale axes");
+		autoScale.addSelectionListener(widgetSelectedAdapter(selection -> autoScaleAxes()));
+
+		IAxis x = histogram.getHistogramPlot().getSelectedXAxis();
+		IAxis y = histogram.getHistogramPlot().getSelectedYAxis();
+		x.setTitle("");
+		y.setTitle("");
+
+		// we do not want negative quadrants
+		x.setMaximumRange(0, 65536);
+		y.setMaximumRange(0, Double.MAX_VALUE);
+
+		if (y.isLog10()) {
+			logarithmic.setSelection(true);
+		} else {
+			linear.setSelection(true);
+		}
+
+		logarithmic.addSelectionListener(widgetSelectedAdapter(selection -> y.setLog10(true)));
+		linear.addSelectionListener(widgetSelectedAdapter(selection -> y.setLog10(false)));
+	}
+
+	/**
+	 * Autoscale ensuring positive axes
+	 */
+	private void autoScaleAxes() {
+		histogram.getHistogramPlot().autoscaleAxes();
+		IAxis x = histogram.getHistogramPlot().getSelectedXAxis();
+		IAxis y = histogram.getHistogramPlot().getSelectedYAxis();
+
+		x.setRange(x.getLower() < 0 ? 0 : x.getLower(), x.getUpper());
+		y.setRange(y.getLower() < 0 ? 0 : y.getLower(), y.getUpper());
+
+		histogram.refresh();
+	}
+
+
+	private class HistogramUpdater extends ITraceListener.Stub {
+
+		private boolean configured = false;
+
 		@Override
-		public void onApplicationEvent(PlottingSystemUpdateEvent event) {
-			if (!event.haveSameParent(histogramArea)) {
-				return;
-			}
-			if (LivePlottingComposite.class.isAssignableFrom(event.getSource().getClass())) {
-				refreshData();
-			}
+		protected void update(TraceEvent evt) {
+			getImageTrace().ifPresent(trace -> {
+				trace.addPaletteListener(new IPaletteListener.Stub() {
+
+					@Override
+					public void minChanged(PaletteEvent event) {
+						setMin(event.getTrace().getMin().doubleValue());
+					}
+
+					@Override
+					public void maxChanged(PaletteEvent event) {
+						setMax(event.getTrace().getMax().doubleValue());
+					}
+				});
+
+				if (autoRehistogram.getSelection()) {
+					trace.rehistogram();
+				}
+
+				histogram.setInput(trace);
+				histogram.refresh();
+
+				if (!configured) { // force an auto scale once
+					autoScaleAxes();
+					configured = true;
+				}
+			});
 		}
 
-		private void refreshData() {
-			try {
-				if (histogram == null) {
-					histogram = new HistogramViewer(histogramArea);
-					histogram.setContentProvider(new ImageHistogramProvider());
-				}
-				Collection<ITrace> traces = plottingSystem.getTraces(IPaletteTrace.class);
-				if (!traces.isEmpty()) {
-					IImageTrace trace = (IImageTrace) traces.iterator().next();
-					trace.getImageServiceBean().setMax(260.0);
-					histogram.setInput(trace);
-				}
-				createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(histogram.getComposite());
-				container.layout(true, true);
-				histogram.refresh();
-			} catch (Exception e) {
-				UIHelper.showError("Cannot create CameraConfiguration", e, logger);
-			}
+		private void setMin(double min) {
+			regionMin.setText(numeric.format(min));
 		}
-	};
+
+		private void setMax(double max) {
+			regionMax.setText(numeric.format(max));
+		}
+	}
 }

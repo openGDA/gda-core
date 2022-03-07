@@ -27,8 +27,6 @@ import java.util.UUID;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import gda.rcp.views.TabCompositeFactory;
@@ -58,16 +56,12 @@ import uk.ac.gda.ui.tool.ClientMessagesUtility;
  */
 public class CameraConfigurationFactory implements CompositeFactory {
 
-	private static final Logger logger = LoggerFactory.getLogger(CameraConfigurationFactory.class);
-
 	protected CameraImageComposite cameraImageComposite;
 
 	// The overall container for this components
 	private Composite container;
 
-	private Composite menuBar;
 	private Composite viewStream;
-	private Composite viewStats;
 	private Composite viewHisto;
 	private Composite tabsContainer;
 
@@ -90,12 +84,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 			return null;
 		}
 
-		try {
-			createTabFactory().createComposite(tabsContainer, SWT.NONE);
-		} catch (GDAClientException e1) {
-			UIHelper.showError("Cannot create CameraConfiguration", e1);
-			return null;
-		}
+		createTabFactory().createComposite(tabsContainer, SWT.NONE);
 		return container;
 	}
 
@@ -105,10 +94,10 @@ public class CameraConfigurationFactory implements CompositeFactory {
 	    container.setData(CompositeFactory.COMPOSITE_ROOT, uuid);
 
 	    // -- TOP MENU --
-		menuBar = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
+		Composite menuBar = createClientCompositeWithGridLayout(container, SWT.NONE, 1);
 		createClientGridDataFactory().span(100, 1).applyTo(menuBar);
 		CompositeFactory cf = new StreamControlCompositeFactory(streamController);
-		cf.createComposite(menuBar, SWT.HORIZONTAL);
+		cf.createComposite(menuBar, SWT.NONE);
 
 	    // -- SPLITS VERTIALLY THE CONTAINER --
 		SashForm centralForm = new SashForm(container, SWT.HORIZONTAL);
@@ -121,7 +110,7 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		viewStream = createClientCompositeWithGridLayout(leftColumn, style, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(1, 85).applyTo(viewStream);
 
-		viewStats = createClientGroup(leftColumn, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
+		Composite viewStats = createClientGroup(leftColumn, SWT.NONE, 1, ClientMessages.EMPTY_MESSAGE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).span(1, 15).applyTo(viewStats);
 
 	    // -- DEFINES THE RIGHT COLUMN --
@@ -144,16 +133,16 @@ public class CameraConfigurationFactory implements CompositeFactory {
 		verticalForm.setWeights(new int[]{7, 2});
 	}
 
-	private void createCameraImageComposite(Composite panel) throws Exception {
+	private void createCameraImageComposite(Composite panel) throws GDAClientException {
 		cameraImageComposite = new CameraImageComposite(panel, SWT.NONE);
 	}
 
-	private void createHistogramComposite(Composite parent) throws Exception {
-		new HistogramComposite(cameraImageComposite.getPlottingSystem()).createComposite(parent, SWT.NONE);
+	private void createHistogramComposite(Composite parent) {
+		new HistogramComposite(cameraImageComposite.getPlottingSystem()).createComposite(parent);
 
 	}
 
-	private CompositeFactory createTabFactory() throws GDAClientException {
+	private CompositeFactory createTabFactory() {
 		TabFolderBuilder builder = new TabFolderBuilder();
 		builder.addTab(createSettingsCompositeFactory());
 		builder.addTab(createPositioningCompositeFactory());
