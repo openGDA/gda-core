@@ -21,14 +21,22 @@ package gda.observable;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.util.List;
 
 import org.junit.Test;
 
@@ -37,25 +45,23 @@ import org.junit.Test;
  */
 public class ObservableComponentTest {
 
+	private final ObservableComponent oc = new ObservableComponent();
+
 	/**
 	 * Test notifyIObservers swallows and does not cause any exceptions
 	 */
 	@Test
 	public void testSwallowedExceptionLoggingDoesNotCauseException() {
-		ObservableComponent oc = new ObservableComponent();
-		oc.addIObserver(new IObserver() {
-			@Override
-			public void update(Object source, Object arg) {
-				throw new RuntimeException("should be swallowed");
-			}
-		});
+		var observer = mock(IObserver.class);
+		doThrow(RuntimeException.class).when(observer).update(any(), any());
+		oc.addIObserver(observer);
 
 		// notifyIObservers previously caused a NullPointerException
 		// when it logged an exception and theObserved was null by
 		// calling toString on theObserved
 		oc.notifyIObservers(null, "\"theObserved is null\"");
 
-		oc.notifyIObservers(new Integer(1), "theObserved is not null");
+		oc.notifyIObservers(1, "theObserved is not null");
 	}
 
 	/**
@@ -66,48 +72,50 @@ public class ObservableComponentTest {
 	@Test
 	public void testAllObserversGetUpdateIfAnObserverDeletesItself() {
 
-		TestObserver[] observers = new TestObserver[] {
-			new TestObserver("1"),
-			new DeleteSelfObserver("2"),
-			new TestObserver("3"),
-			new TestObserver("4")
-		};
+		var ob1 = mock(IObserver.class);
 
-		ObservableComponent oc = new ObservableComponent();
-		for (IObserver observer : observers) {
-			oc.addIObserver(observer);
-		}
+		var ob2 = mock(IObserver.class);
+		doAnswer(inv -> {
+			inv.<IObservable> getArgument(0).deleteIObserver(ob2);
+			return null;
+		}).when(ob2).update(eq(oc), any());
+
+		var ob3 = mock(IObserver.class);
+
+		var ob4 = mock(IObserver.class);
+
+		var observers = List.of(ob1, ob2, ob3, ob4);
+
+		observers.forEach(oc::addIObserver);
+
+		assertThat(oc.getNumberOfObservers(), is(4));
 
 		oc.notifyIObservers(oc, "test");
 
-		for (TestObserver observer : observers) {
-			assertTrue("Observer '" + observer.getName() + "' didn't receive an update", observer.receivedUpdate());
-		}
+		assertThat(oc.getNumberOfObservers(), is(3));
+
+		observers.forEach(ob -> verify(ob, times(1).description("Observer didn't receive an update")).update(oc, "test"));
 	}
 
 	@Test
 	public void testAddingNullObserverThrows() {
-		ObservableComponent oc = new ObservableComponent();
 		var e = assertThrows(IllegalArgumentException.class, () -> oc.addIObserver(null));
 		assertEquals("Can't add a null observer", e.getMessage());
 	}
 
 	@Test
 	public void testRemovingNullObserverThrows() {
-		ObservableComponent oc = new ObservableComponent();
 		var e = assertThrows(IllegalArgumentException.class, () -> oc.deleteIObserver(null));
 		assertEquals("Can't delete a null observer", e.getMessage());
 	}
 
 	@Test
 	public void testIsBeingObserved() {
-		ObservableComponent oc = new ObservableComponent();
-
 		// New shouldn't have any observers
 		assertFalse(oc.isBeingObserved());
 
 		// Add an observer
-		oc.addIObserver(new TestObserver("test observer"));
+		oc.addIObserver(mock(IObserver.class));
 
 		// Should now be being observed
 		assertTrue(oc.isBeingObserved());
@@ -121,8 +129,6 @@ public class ObservableComponentTest {
 
 	@Test
 	public void testNumberOfObservers() {
-		ObservableComponent oc = new ObservableComponent();
-
 		// Initially no observers
 		assertThat(oc.getNumberOfObservers(), is(equalTo(0)));
 
@@ -135,8 +141,6 @@ public class ObservableComponentTest {
 
 	@Test
 	public void testGettingObservers() {
-		ObservableComponent oc = new ObservableComponent();
-
 		// Initially no observers
 		assertThat(oc.getObservers(), is(empty()));
 
@@ -150,57 +154,8 @@ public class ObservableComponentTest {
 
 	@Test(expected=UnsupportedOperationException.class)
 	public void testGettingObserversReturnsUnmodifiableView() {
-		ObservableComponent oc = new ObservableComponent();
-
 		// Try to add an observer should throw
 		oc.getObservers().add(mock(IObserver.class));
-	}
-
-	/**
-	 * Implementation of {@link IObserver} for testing, which has an ID and a
-	 * flag for indicating whether an update was received.
-	 */
-	static class TestObserver implements IObserver {
-
-		protected String name;
-
-		protected boolean receivedUpdate;
-
-		public TestObserver(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public void update(Object theObserved, Object changeCode) {
-			System.out.println("[" + name + "] received update: " + changeCode);
-			receivedUpdate = true;
-		}
-
-		public boolean receivedUpdate() {
-			return receivedUpdate;
-		}
-	}
-
-	/**
-	 * An {@link IObserver} that deletes itself from the observable's observers
-	 * when it receives an update.
-	 */
-	static class DeleteSelfObserver extends TestObserver {
-
-		public DeleteSelfObserver(String name) {
-			super(name);
-		}
-
-		@Override
-		public void update(Object theObserved, Object changeCode) {
-			super.update(theObserved, changeCode);
-			System.out.println("[" + name + "] deleting self...");
-			((IObservable) theObserved).deleteIObserver(this);
-		}
 	}
 
 }
