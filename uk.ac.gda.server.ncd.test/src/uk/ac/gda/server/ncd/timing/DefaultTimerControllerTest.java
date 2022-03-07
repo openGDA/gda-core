@@ -28,9 +28,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.device.DeviceException;
 import gda.observable.IObserver;
@@ -77,11 +79,12 @@ public class DefaultTimerControllerTest {
 
 	@Mock
 	private HardwareTimer hardwareTimer;
+	
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Before
 	public void setUp () {
-		MockitoAnnotations.initMocks(this);
-		
 		when(hardwareTimer.getMinimumDelay()).thenReturn(minimumDelay);
 
 		defaultTimerController = new DefaultTimerController(hardwareTimer, exposure, numberOfFrames, delay, delayTime);

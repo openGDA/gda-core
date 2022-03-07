@@ -14,7 +14,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -30,6 +31,9 @@ public class WorkflowItemBaseTest {
 	private Scannable y;
 
 	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
+	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
 	private static final double X_POS = 2.3;
@@ -39,7 +43,6 @@ public class WorkflowItemBaseTest {
 
 	@Before
 	public void init() {
-		MockitoAnnotations.initMocks(this);
 		when(y.getName()).thenReturn(Y_NAME);
 	}
 

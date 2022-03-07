@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.stage.event.StageGroupEvent;
@@ -22,6 +24,9 @@ public class DefaultMultipleStagePositioningServiceTest {
 	private static final String NO_STAGE_GROUP = "NoStageGroup";
 	private static final String STAGE_GROUP_A_NAME = "StageGroupA";
 	private static final String STAGE_GROUP_B_NAME = "StageGroupB";
+	
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock
 	private StageGroupService stageGroupService;
@@ -41,8 +46,6 @@ public class DefaultMultipleStagePositioningServiceTest {
 	
 	@Before
 	public void setup () {
-		MockitoAnnotations.initMocks(this);
-
 		stageGroups = new ArrayList<>();
 		stageGroups.add(stageGroupA);
 		stageGroups.add(stageGroupB);

@@ -12,7 +12,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.device.Scannable;
 import uk.ac.diamond.daq.beamline.configuration.LookupTableBasedItem;
@@ -39,12 +40,13 @@ public class LookupTableBasedItemTest {
 	private Map<String, Scannable> scannables;
 
 	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
+	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setup () throws Exception {
-		MockitoAnnotations.initMocks(this);
-
 		scannables = new HashMap<>();
 		scannables.put(X_NAME, x);
 		scannables.put(Y_NAME, y);

@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import uk.ac.diamond.daq.stage.event.StageGroupEvent;
 import uk.ac.diamond.daq.stage.impl.DefaultStageGroupService;
@@ -23,6 +25,9 @@ public class DefaultStageGroupServiceTest {
 	private static final String STAGE_GROUP_B_NAME = "StageGroupB";
 
 	private List<StageGroup> stageGroups;
+	
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock
 	private StageGroup stageGroupA;
@@ -37,8 +42,6 @@ public class DefaultStageGroupServiceTest {
 	
 	@Before
 	public void setup () {
-		MockitoAnnotations.initMocks(this);
-
 		stageGroups = new ArrayList<>();
 		stageGroups.add(stageGroupA);
 		stageGroups.add(stageGroupB);

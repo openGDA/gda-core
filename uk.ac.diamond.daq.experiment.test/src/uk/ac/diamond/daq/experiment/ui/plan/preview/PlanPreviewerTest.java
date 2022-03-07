@@ -25,12 +25,13 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.factory.Factory;
 import gda.factory.Finder;
@@ -62,16 +63,14 @@ public class PlanPreviewerTest {
 	@Mock
 	private PlotController plotController;
 
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
+
 	private static ExperimentService experimentService;
 
 	// for trigger tests
 	private ArgumentCaptor<Object> xCoordinates = ArgumentCaptor.forClass(Object.class);
 	private ArgumentCaptor<Object> yCoordinates = ArgumentCaptor.forClass(Object.class);
-
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @BeforeClass
     public static void prepareFinder() {

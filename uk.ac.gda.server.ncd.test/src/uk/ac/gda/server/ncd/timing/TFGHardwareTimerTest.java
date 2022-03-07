@@ -30,10 +30,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import gda.device.timer.Etfg;
 import uk.ac.gda.server.ncd.timing.data.TFGCoreConfiguration;
@@ -64,11 +66,12 @@ public class TFGHardwareTimerTest {
 	private Etfg tfg;
 
 	private TFGHardwareTimer tfgHardwareTimer;
+	
+	@Rule
+	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Before
 	public void setup () {
-		MockitoAnnotations.initMocks(this);
-		
 		TFGCoreConfiguration tfgCoreConfiguration = new TFGCoreConfiguration();
 		tfgCoreConfiguration.setThresholds(thresholds);
 		tfgCoreConfiguration.setDebounce(debounce);
