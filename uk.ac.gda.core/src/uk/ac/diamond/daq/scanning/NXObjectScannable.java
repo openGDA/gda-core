@@ -30,6 +30,7 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated(since = "gda-9.23", forRemoval = true)
 public class NXObjectScannable<T extends NXobject> extends AbstractNameable implements IScannable<Object>, INexusDevice<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(NXObjectScannable.class);
@@ -37,6 +38,7 @@ public class NXObjectScannable<T extends NXobject> extends AbstractNameable impl
 	private NXObjectProvider<T> provider;
 
 	public NXObjectScannable(String scannableName, String objectName, T objectNode) {
+		logger.warn("NXObjectScannable will be removed in the GDA 9.26 release, switch to using SimpleNexusDevice instead");
 		setName(scannableName);
 		provider = new NXObjectProvider<>(objectName, objectNode);
 		logger.trace("NXObjectScannable({}, {}, {}), provider={}", scannableName, objectName, objectNode, provider);

@@ -27,6 +27,8 @@ import org.eclipse.scanning.api.AbstractNameable;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.ScanningException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Where NXSampleSCannable is currently used, NXObjectScannable may now be used, since the generic form
@@ -41,12 +43,15 @@ import org.eclipse.scanning.api.scan.ScanningException;
  *   xpdfNxSample = NXObjectScannable("xpdfNxSample","sample",self.sample.getNexus())
  *
  */
-@Deprecated
+@Deprecated(since = "gda-9.23", forRemoval = true)
 public class NXSampleScannable extends AbstractNameable implements IScannable<Object>, INexusDevice<NXsample> {
 
-	private NXObjectProvider<NXsample> provider;
+	private static final Logger logger = LoggerFactory.getLogger(NXSampleScannable.class);
+
+			private NXObjectProvider<NXsample> provider;
 
 	public NXSampleScannable(String scannableName, String sampleName, NXsample sampleNode) {
+		logger.warn("NXSampleScannable will be removed in the GDA 9.26 release, switch to using SimpleNexusDevice instead");
 		setName(scannableName);
 		provider = new NXObjectProvider<>(sampleName, sampleNode);
 	}
