@@ -151,6 +151,7 @@ public class StatusQueueView extends EventConnectionView {
 	private ISubscriber<IBeanListener<AdministratorMessage>> adminTopicSubscriber;
 	private IJobQueue<StatusBean> jobQueueProxy;
 
+	// Actions on a specific item (StatusBean) in the queue
 	private Action openResultsAction;
 	private Action rerunAction;
 	private Action editAction;
@@ -162,6 +163,8 @@ public class StatusQueueView extends EventConnectionView {
 	private Action stopAction;
 	private Action openAction;
 	private Action detailsAction;
+
+	// Actions on the whole queue
 	private Action clearQueueAction;
 	private Action suspendQueueAction;
 
@@ -214,10 +217,10 @@ public class StatusQueueView extends EventConnectionView {
 
 		selectionProvider = new DelegatingSelectionProvider(viewer);
 		getViewSite().setSelectionProvider(selectionProvider);
-		viewer.addSelectionChangedListener(event -> updateActions());
+		viewer.addSelectionChangedListener(event -> updateStatusBeanActions());
 	}
 
-	private void updateActions() {
+	private void updateStatusBeanActions() {
 		final List<StatusBean> selection = getSelection();
 		final List<String> selectedUniqueIds = selection.stream().map(StatusBean::getUniqueId).collect(toList());
 		final List<StatusBean> selectedInSubmittedList = submittedList.stream()
@@ -249,13 +252,15 @@ public class StatusQueueView extends EventConnectionView {
 		openActionUpdate(selection);
 		detailsActionUpdate(selectedInSubmittedList, selectedInRunList);
 
-		suspendQueueAction.setChecked(jobQueueProxy.isPaused());
-
 		// Some sanity checks
 		warnIfListContainsStatus("null status found in selection:       ", selection, null);
 		warnIfListContainsStatus("RUNNING status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.RUNNING);
 		warnIfListContainsStatus("SUBMITTED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 		warnIfListContainsStatus("DEFERRED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.DEFERRED);
+	}
+
+	private void updateQueueStatusActions(QueueStatus status) {
+		suspendQueueAction.setChecked(status == QueueStatus.PAUSED);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
@@ -369,8 +374,8 @@ public class StatusQueueView extends EventConnectionView {
 				}
 				viewer.refresh();
 				warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "refresh complete");
-				updateActions();
-				warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "updateActions complete");
+				updateStatusBeanActions();
+				warnIfDelayed(jobStartTime, "mergeBean() asyncExec()", "updateStatusBeanActions complete");
 			});
 	}
 
@@ -401,7 +406,6 @@ public class StatusQueueView extends EventConnectionView {
 
 		suspendQueueAction = suspendQueueActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, suspendQueueAction);
-		jobQueueProxy.addQueueStatusListener(status -> suspendQueueAction.setChecked(status == QueueStatus.PAUSED));
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
@@ -527,6 +531,8 @@ public class StatusQueueView extends EventConnectionView {
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor(isChecked ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
 		action.setChecked(isChecked);
+
+		jobQueueProxy.addQueueStatusListener(this::updateQueueStatusActions);
 		return action;
 	}
 
@@ -1022,7 +1028,7 @@ public class StatusQueueView extends EventConnectionView {
 
 	public void refresh() {
 		reconnect();
-		updateActions();
+		updateStatusBeanActions();
 	}
 
 	private Action configureActionCreate() {
@@ -1305,15 +1311,22 @@ public class StatusQueueView extends EventConnectionView {
 				}
 				updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
 
-				getSite().getShell().getDisplay().syncExec(() -> {
-						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "start");
-						viewer.setInput(statusQueue);
-						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "setInput complete");
-						viewer.refresh();
-						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "refresh complete");
-						updateActions();
-						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "updateActions complete");
-					});
+				getDisplay().syncExec(() -> {
+					warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "start");
+					viewer.setInput(statusQueue);
+					warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "setInput complete");
+					viewer.refresh();
+					warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "refresh complete");
+					updateStatusBeanActions();
+					warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "updateStatusBeanActions complete");
+				});
+
+				// update actions that require the queue status
+				Job.create("Getting queue status", mon -> {
+					// get the status first in a non-UI thread as it can take time, potentially causing the UI to freeze
+					final QueueStatus queueStatus = jobQueueProxy.getQueueStatus();
+					getDisplay().asyncExec(() -> updateQueueStatusActions(queueStatus)); // update actions in UI thread
+				}).schedule();
 
 				// Given that these lists could be large, only summarise the count of beans with each status in each list.
 				logger.info("updateQueue Job run({}) completed, submittedList beans {}, runningList beans {}", monitor,
@@ -1343,6 +1356,10 @@ public class StatusQueueView extends EventConnectionView {
 			monitor.worked(1);
 			warnIfDelayed(jobStartTime, "updateQueue Job progress", subTask);
 		}
+	}
+
+	private Display getDisplay() {
+		return getSite().getShell().getDisplay();
 	}
 
 	/**
