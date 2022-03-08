@@ -21,6 +21,7 @@ package org.eclipse.scanning.test.event;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import org.eclipse.dawnsci.json.MarshallerService;
 import org.eclipse.scanning.api.event.EventException;
@@ -36,9 +37,7 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
@@ -46,9 +45,6 @@ public class EventServiceTest extends BrokerTest {
 
 	private IEventService eventService;
 	private static final String QUEUE_NAME = "org.eclipse.scanning.test.event.queue".concat(ScanningTestUtils.JVM_UNIQUE_ID);
-
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setUp() {
@@ -66,10 +62,11 @@ public class EventServiceTest extends BrokerTest {
 
 	@Test
 	public void testTwoQueuesWithSameQueueName() throws EventException {
-		exception.expect(EventException.class);
-		exception.expectMessage("A job queue for the queue name '" + QUEUE_NAME + "' has already been created!");
 		createTestJobQueue(); // create the first one
-		createTestJobQueue(); // attempting to create a second job queue with the same queue name should throw
+		var e = assertThrows(EventException.class, () -> createTestJobQueue()); // attempting to create a second job
+																				// queue with the same queue name should
+																				// throw
+		assertThat(e.getMessage(), is("A job queue for the queue name '" + QUEUE_NAME + "' has already been created!"));
 	}
 
 	@Test
@@ -79,9 +76,8 @@ public class EventServiceTest extends BrokerTest {
 		assertThat(retrievedJobQueue, is(equalTo(originalJobQueue)));
 	}
 
-	@Test
+	@Test(expected = EventException.class)
 	public void getJobQueueThrowsIfNoJobQueueFound() throws EventException {
-		exception.expect(EventException.class);
 		eventService.getJobQueue(QUEUE_NAME);
 	}
 
@@ -99,13 +95,14 @@ public class EventServiceTest extends BrokerTest {
 		eventService.disposeJobQueue();
 
 		// This should throw since job queue has been unregistered
-		exception.expect(EventException.class);
-		exception.expectMessage("No job queue exists for queue '" + QUEUE_NAME + "'");
-		eventService.getJobQueue(QUEUE_NAME);
+		var e = assertThrows("No job queue exists for queue '" + QUEUE_NAME + "'", EventException.class,
+				() -> eventService.getJobQueue(QUEUE_NAME));
+		assertThat(e.getMessage(), is("No job queue exists for queue '" + QUEUE_NAME + "'"));
 	}
 
 	private IJobQueue<ScanBean> createTestJobQueue() throws EventException {
 		return eventService.createJobQueue(uri, QUEUE_NAME, "dont care");
+
 	}
 
 }
