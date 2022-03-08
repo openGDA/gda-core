@@ -6,7 +6,7 @@ Example spring file to configure the various scanning services
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd" >
+	http://www.springframework.org/schema/beans/spring-beans.xsd" >
 
     <!-- Data Server -->
     <bean id="dataServer" class="org.eclipse.dawnsci.remotedataset.server.DataServer" init-method="start">
