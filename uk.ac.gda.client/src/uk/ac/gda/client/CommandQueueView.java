@@ -18,17 +18,18 @@
 
 package uk.ac.gda.client;
 
-import gda.commandqueue.Processor;
-import gda.commandqueue.Queue;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+
+import gda.commandqueue.Processor;
+import gda.commandqueue.Queue;
+import gda.rcp.GDAClientActivator;
 
 public class CommandQueueView extends ViewPart {
 
@@ -39,6 +40,7 @@ public class CommandQueueView extends ViewPart {
 	private Queue queue;
 	private CommandProcessorComposite commandProcessorComposite;
 	private CommandQueueComposite commandQueueComposite;
+	private Image viewIcon;
 
 	public void setProcessor(Processor processor) {
 		this.processor = processor;
@@ -74,8 +76,8 @@ public class CommandQueueView extends ViewPart {
 		formData.right = new FormAttachment(100);
 		formData.bottom = new FormAttachment(100);
 		commandQueueComposite.setLayoutData(formData);
-
-		setTitleImage(GDAClientActivator.getImageDescriptor("icons/table_multiple.png").createImage());
+		viewIcon = GDAClientActivator.getImageDescriptor("icons/table_multiple.png").createImage();
+		setTitleImage(viewIcon);
 		setPartName("Command Queue");
 	}
 
@@ -88,6 +90,9 @@ public class CommandQueueView extends ViewPart {
 
 	@Override
 	public void dispose() {
+		if (viewIcon != null) {
+			viewIcon.dispose();
+		}
 		super.dispose();
 	}
 
