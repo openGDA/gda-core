@@ -179,6 +179,13 @@ class Parameters:
 			return None
 
 
+	def getValueOrDefault(self, attr_name, default):
+		if( self.parameters.has_key(attr_name)) :
+			return self.parameters[attr_name]
+		else:
+			return default
+
+
 	def reload(self, parameters_file_path=None):
 		if parameters_file_path == None:
 			self.parametersFilePath = LocalProperties.get(BEAMLINE_PARAMETERS_FILE_PROPERTY)
