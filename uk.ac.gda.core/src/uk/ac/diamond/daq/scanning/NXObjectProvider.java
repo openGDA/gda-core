@@ -27,13 +27,19 @@ import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@Deprecated(since = "gda-9.23", forRemoval = true)
 public class NXObjectProvider<T extends NXobject> implements NexusObjectProvider<T> {
+
+	private static final Logger logger = LoggerFactory.getLogger(NXObjectProvider.class);
 
 	private String name;
 	private T sampleNode;
 
 	public NXObjectProvider(String name, T sampleNode) {
+		logger.warn("NXObjectScannable will be removed in the GDA 9.26 release, switch to using NexusObjectProvider instead");
 		this.name = name;
 		this.sampleNode = sampleNode;
 	}
