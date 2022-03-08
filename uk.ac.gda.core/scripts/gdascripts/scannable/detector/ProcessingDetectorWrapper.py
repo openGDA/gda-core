@@ -1,4 +1,6 @@
 from uk.ac.diamond.scisoft.analysis import SDAPlotter
+from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
+from org.eclipse.dawnsci.analysis.dataset.roi import RectangularROI, RectangularROIList
 from org.eclipse.january.dataset import DatasetFactory
 from org.slf4j import LoggerFactory
 from gda.device import DetectorSnapper, DeviceException
@@ -39,11 +41,49 @@ def _appendStringToSRSFileHeader(self, s):
 
 def _displayProcessingDetectorWrapper(logger, panel_name, panel_name_rcp, renderer, dataset):
 	if panel_name:
-		logger.debug("Plotter.plotImage({}, ...)", panel_name)
+		logger.debug("Plotter.plotImage({}, ...renderShapesOntoDataset...)", panel_name)
 		Plotter.plotImage(panel_name, renderer.renderShapesOntoDataset(dataset))
 	if panel_name_rcp:
-		logger.debug("SDAPlotter.imagePlot({}, ...)", panel_name_rcp)
-		SDAPlotter.imagePlot(panel_name_rcp, renderer.renderShapesOntoDataset(dataset))
+		try:
+			gui_bean = SDAPlotter.getGuiBean(panel_name_rcp)
+			logger.debug("Client gui_bean for {} is {}", panel_name_rcp, gui_bean)
+			if (gui_bean):
+				rois={}
+				for shape_key, shape_value in renderer.shapesToPaint.iteritems():
+					roi = shape_value.get('roi')
+					if (roi):
+						rois[shape_key.name]=roi
+				logger.debug(" rois={}", rois)
+
+				roilist = gui_bean.get(GuiParameters.ROIDATALIST)
+				logger.debug("{} has get(GuiParameters.ROIDATALIST)={}", panel_name_rcp, roilist)
+				if (roilist == None):
+					logger.info("{} had no rois", panel_name_rcp)
+				else:
+					logger.warn("{} has rois already", panel_name_rcp)
+
+				roilist = RectangularROIList();
+				for name, shape in rois.iteritems():
+					roi = RectangularROI([shape.x1, shape.y1],[shape.x2, shape.y2])
+					roi.name=name
+					roilist.add(roi);
+
+				logger.info("{} NEW roilist={}", panel_name_rcp, roilist)
+				# Replace the roi list on the bean with new list. This appears to merge ROIs when pushed to the client, so
+				# it will update existing beans or create news ones, if missing, but desn't appear to remove excess regions.
+				gui_bean[GuiParameters.ROIDATALIST] = roilist
+		except:
+			logger.error("Error applying ROIs to {}", panel_name_rcp, exc_info=True)
+			gui_bean=None
+		if (gui_bean):
+			logger.debug("SDAPlotter.imagePlot({}, ...)", panel_name_rcp)
+			# Update the client with the gui bean with the updated roi list
+			SDAPlotter.setGuiBean(panel_name_rcp, gui_bean)
+			SDAPlotter.imagePlot(panel_name_rcp, dataset)
+		else:
+			logger.warn("Fall back to rendering ROIs onto dataset values", panel_name_rcp)
+			logger.debug("SDAPlotter.imagePlot({}, ...renderShapesOntoDataset...)", panel_name_rcp)
+			SDAPlotter.imagePlot(panel_name_rcp, renderer.renderShapesOntoDataset(dataset))
 
 
 class FileRegistrar(object):
@@ -381,6 +421,7 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 				"Set this or set %s.display_image=False" % (self.name, self.name))
 		_displayProcessingDetectorWrapper(self.logger,
 			self.panel_name, self.panel_name_rcp, self.renderer, self.getDataset(retryUntilTimeout))
+
 
 class HardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorWrapper, HardwareTriggerableDetector):
 
