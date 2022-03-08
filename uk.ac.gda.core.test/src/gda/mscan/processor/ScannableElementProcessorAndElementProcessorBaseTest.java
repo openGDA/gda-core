@@ -20,6 +20,7 @@ package gda.mscan.processor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,9 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -59,9 +58,6 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 	@Mock
 	private ClausesContext context;
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -81,9 +77,8 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 
 	@Test
 	public void specStyleScansAreRejected() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("SPEC style scans not yet supported.");
-		processor.process(context, inValidClause, 0);
+		var e = assertThrows(IllegalArgumentException.class, () -> processor.process(context, inValidClause, 0));
+		assertThat(e.getMessage(), is("SPEC style scans not yet supported."));
 	}
 
 	@Test

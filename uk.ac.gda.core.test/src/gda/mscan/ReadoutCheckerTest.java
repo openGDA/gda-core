@@ -20,14 +20,13 @@ package gda.mscan;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -52,9 +51,6 @@ public class ReadoutCheckerTest extends ResolutionTestsBase {
 			false, false, false, false,false, false, false, false, false};
 
 	private static IClauseElementProcessor[] it = ArrayUtils.addAll(pathsStem, s1Proc, s1Proc);
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() {
@@ -244,8 +240,7 @@ public class ReadoutCheckerTest extends ResolutionTestsBase {
 	@Test
 	public void paramTest() throws Exception {
 		if (expectedException != null) {
-			thrown.expect(expectedException);
-			test();
+			assertThrows(expectedException, this::test);
 		} else {
 			assertThat(test(), is(true));
 		}

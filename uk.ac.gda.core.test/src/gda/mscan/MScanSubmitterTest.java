@@ -21,10 +21,12 @@ package gda.mscan;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -72,9 +74,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.ScanRequestBuilder;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -150,8 +150,6 @@ public class MScanSubmitterTest {
 	private ArgumentCaptor<List<IClauseElementProcessor>> captor;
 	@Captor
 	private ArgumentCaptor<ScanBean> beanCaptor;
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
 
 	private RectangularROI rectangle;
 	private CircularROI circle;
@@ -241,28 +239,25 @@ public class MScanSubmitterTest {
 
 	@Test
 	public void scanArrayCannotBeNull() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The scan request array is null");
-		builder.buildAndSubmitBlockingScanRequest(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(null));
+		assertThat(e.getMessage(), containsString("The scan request array is null"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
 
 	@Test
 	public void scanArrayCannotBeEmpty() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("You must specify at least one argument in your mscan command"));
-		builder.buildAndSubmitBlockingScanRequest(new Object[0]);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(new Object[0]));
+		assertThat(e.getMessage(), startsWith("You must specify at least one argument in your mscan command"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
 
 	@Test
 	public void scanArrayMustStartWithAScannable() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("You must specify at least one argument in your mscan command"));
 		Object[] arr = {1};
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), startsWith("You must specify at least one argument in your mscan command"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -271,9 +266,8 @@ public class MScanSubmitterTest {
 	public void rejectsEmptyResponseFromClauseResolver() throws Exception {
 		Object[] arr = {scannable};
 		when(resolver.resolveScanClauses()).thenReturn(Arrays.asList());
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("clause resolution returned an empty or invalid list of processors by clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("clause resolution returned an empty or invalid list of processors by clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -284,9 +278,8 @@ public class MScanSubmitterTest {
 		List<List<IClauseElementProcessor>> ret = new ArrayList<>();
 		ret.add(null);
 		when(resolver.resolveScanClauses()).thenReturn(ret);
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("clause resolution returned an empty or invalid list of processors by clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("clause resolution returned an empty or invalid list of processors by clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -295,9 +288,8 @@ public class MScanSubmitterTest {
 	public void rejectsResponseWithEmptyClauseFromClauseResolver() throws Exception {
 		Object[] arr = {scannable};
 		when(resolver.resolveScanClauses()).thenReturn(Arrays.asList(Arrays.asList()));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("clause resolution returned an empty or invalid processor list for a clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("clause resolution returned an empty or invalid processor list for a clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -308,9 +300,8 @@ public class MScanSubmitterTest {
 		List<IClauseElementProcessor> ret = new ArrayList<>();
 		ret.add(null);
 		when(resolver.resolveScanClauses()).thenReturn(Arrays.asList(ret));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("clause resolution returned an empty or invalid processor list for a clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("clause resolution returned an empty or invalid processor list for a clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -320,213 +311,161 @@ public class MScanSubmitterTest {
 		Object[] arr = {detector};
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableDetectorElementProcessor(detector))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("No scan path defined - SPEC style scans not yet supported"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
 
 	@Test
 	public void firstElementCannotCurrentlyBeAMonitor() throws Exception {
-		Object[] arr = {monitor};
+		Object[] arr = { monitor };
 		when(resolver.resolveScanClauses()).thenReturn(
 				Arrays.asList(Arrays.asList(new ScannableMonitorElementProcessor(monitor))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("No scan path defined - SPEC style scans not yet supported"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
 
 	@Test
 	public void canMakeScannableProcessors() throws Exception {
-		Object[] arr = {scannable};
-		when(resolver.resolveScanClauses()).thenReturn(
-				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(1));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			throw e;
-		}
+		Object[] arr = { scannable };
+		when(resolver.resolveScanClauses())
+				.thenReturn(Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable))));
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("No scan path defined - SPEC style scans not yet supported"));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(1));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
 	}
 
 	@Test
 	public void canMakeScannableGroupProcessors() throws Exception {
-		Object[] arr = {scannableGrp};
-		when(resolver.resolveScanClauses()).thenReturn(
-				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannableGrp))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(1));
-			assertThat(processors.get(0), instanceOf(ScannableGroupElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannableGrp));
-			throw e;
-		}
+		Object[] arr = { scannableGrp };
+		when(resolver.resolveScanClauses())
+				.thenReturn(Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannableGrp))));
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("No scan path defined - SPEC style scans not yet supported"));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(1));
+		assertThat(processors.get(0), instanceOf(ScannableGroupElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannableGrp));
 	}
 
 	@Test
 	public void canMakeRunnableDeviceProcessors() throws Exception {
-		Object[] arr = {scannable, detectorRunnableDevice};
-		when(resolver.resolveScanClauses()).thenReturn(
-				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable)),
+		Object[] arr = { scannable, detectorRunnableDevice };
+		when(resolver.resolveScanClauses())
+				.thenReturn(Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable)),
 						Arrays.asList(new IRunnableDeviceDetectorElementProcessor(detectorRunnableDevice))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("No scan path defined - SPEC style scans not yet supported");
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(1), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(detectorRunnableDevice));
-			throw e;
-		}
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("No scan path defined - SPEC style scans not yet supported"));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(1), instanceOf(IRunnableDeviceDetectorElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(detectorRunnableDevice));
 	}
 
 
 	@Test
 	public void canMakeScanpathProcessors() throws Exception {
-		Object[] arr = {scannable, Scanpath.GRID_POINTS};
+		Object[] arr = { scannable, Scanpath.GRID_POINTS };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(ScanpathElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(Scanpath.GRID_POINTS));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScanpathElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(Scanpath.GRID_POINTS));
 	}
 
 	@Test
 	public void canMakeRoiProcessors() throws Exception {
-		Object[] arr = {scannable, RegionShape.CIRCLE};
+		Object[] arr = { scannable, RegionShape.CIRCLE };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(RegionShape.CIRCLE));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(RegionShapeElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(RegionShape.CIRCLE));
 	}
 
 	@Test
 	public void canMakeMutatorProcessors() throws Exception {
-		Object[] arr = {scannable, Mutator.ALTERNATING};
+		Object[] arr = { scannable, Mutator.ALTERNATING };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(MutatorElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(Mutator.ALTERNATING));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(MutatorElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(Mutator.ALTERNATING));
 	}
 
 	@Test
 	public void canMakeNumericProcessorsFromInteger() throws Exception {
-		Object[] arr = {scannable, 1};
+		Object[] arr = { scannable, 1 };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(NumberElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(1));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(1));
 	}
 
 	@Test
 	public void canMakeNumericProcessorsFromDouble() throws Exception {
-		Object[] arr = {scannable, (double)1.75};
+		Object[] arr = { scannable, (double) 1.75 };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(NumberElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(1.75));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(NumberElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(1.75));
 	}
 
 	@Test
 	public void canMakeScanDataConsumerProcessors() throws Exception {
-		Object[] arr = {scannable, ScanDataConsumer.TEMPLATE};
+		Object[] arr = { scannable, ScanDataConsumer.TEMPLATE };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(ScanDataConsumerElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is(ScanDataConsumer.TEMPLATE));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(ScanDataConsumerElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is(ScanDataConsumer.TEMPLATE));
+
 	}
 
 	@Test
 	public void canMakeTokenStringProcessors() throws Exception {
-		Object[] arr = {scannable, "1 2 3 4"};
+		Object[] arr = { scannable, "1 2 3 4" };
 		when(resolver.resolveScanClauses()).thenThrow(new IllegalArgumentException());
-		exception.expect(IllegalArgumentException.class);
-		try {
-			builder.buildAndSubmitBlockingScanRequest(arr);
-		} catch (Exception e) {
-			List<IClauseElementProcessor> processors = captor.getValue();
-			assertThat(processors.size(), is(2));
-			assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
-			assertThat(processors.get(0).getElement(), is(scannable));
-			assertThat(processors.get(1), instanceOf(TokenStringElementProcessor.class));
-			assertThat(processors.get(1).getElement(), is("1 2 3 4"));
-			throw e;
-		}
+		assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		List<IClauseElementProcessor> processors = captor.getValue();
+		assertThat(processors.size(), is(2));
+		assertThat(processors.get(0), instanceOf(ScannableElementProcessor.class));
+		assertThat(processors.get(0).getElement(), is(scannable));
+		assertThat(processors.get(1), instanceOf(TokenStringElementProcessor.class));
+		assertThat(processors.get(1).getElement(), is("1 2 3 4"));
 	}
 
 	@Test
 	public void rejectsTypeWithNoMappedProcessor() throws Exception {
-		Object[] arr = {scannable, new ScanningException()};
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Your command contains an invalid argument at position 1");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		Object[] arr = { scannable, new ScanningException() };
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), is("Your command contains an invalid argument at position 1"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1094,9 +1033,8 @@ public class MScanSubmitterTest {
 
 		Object[] arr = {scannable, anotherScannable,
 				t3, Scanpath.LINE_POINTS, t4, detectorRunnableDevice};
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Only numeric parameters can be enclosed in brackets");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("Only numeric parameters can be enclosed in brackets"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1118,9 +1056,8 @@ public class MScanSubmitterTest {
 											new NumberElementProcessor(grid.getyAxisPoints())),
 							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 											new NumberElementProcessor(EXPOSURE))));
-		exception.expect(ScanningException.class);
-		exception.expectMessage(startsWith("Could not get detector"));
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(ScanningException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), startsWith("Could not get detector"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1142,9 +1079,8 @@ public class MScanSubmitterTest {
 							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 											new NumberElementProcessor(EXPOSURE),
 											new NumberElementProcessor(1.7))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("too many elements in Detector clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("too many elements in Detector clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1165,9 +1101,8 @@ public class MScanSubmitterTest {
 											new NumberElementProcessor(grid.getyAxisPoints())),
 							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 									  new ScanpathElementProcessor(Scanpath.GRID_POINTS))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("2nd element of unexpected type in Detector clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("2nd element of unexpected type in Detector clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1188,9 +1123,8 @@ public class MScanSubmitterTest {
 											new NumberElementProcessor(grid.getyAxisPoints())),
 							  Arrays.asList(new ScannableMonitorElementProcessor(monitor),
 											new NumberElementProcessor(EXPOSURE))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("too many elements in Monitor clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("too many elements in Monitor clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1213,9 +1147,8 @@ public class MScanSubmitterTest {
 							  Arrays.asList(new ScannableDetectorElementProcessor(detector),
 											new NumberElementProcessor(EXPOSURE)),
 							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.TEMPLATE))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Incorrect number of parameters for ScanDataConsumer, must be 1");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("Incorrect number of parameters for ScanDataConsumer, must be 1"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1240,9 +1173,8 @@ public class MScanSubmitterTest {
 							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.TEMPLATE),
 								  			new TokenStringElementProcessor("tempa"),
 								  			new TokenStringElementProcessor("tempb"))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Incorrect number of parameters for ScanDataConsumer, must be 1");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("Incorrect number of parameters for ScanDataConsumer, must be 1"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1266,9 +1198,8 @@ public class MScanSubmitterTest {
 											new NumberElementProcessor(EXPOSURE)),
 							  Arrays.asList(new ScanDataConsumerElementProcessor(ScanDataConsumer.PROCESSOR),
 									  		new ScanpathElementProcessor(Scanpath.GRID_POINTS))));
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("2nd element of unexpected type in Scan Consumer clause");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(IllegalArgumentException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("2nd element of unexpected type in Scan Consumer clause"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1377,9 +1308,8 @@ public class MScanSubmitterTest {
 				Arrays.asList(Arrays.asList(new ScannableElementProcessor(scannable),
 						new ScanpathElementProcessor(Scanpath.STATIC),
 						new NumberElementProcessor(3))));
-		exception.expect(UnsupportedOperationException.class);
-		exception.expectMessage("Out of sequence call");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(UnsupportedOperationException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("Out of sequence call"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}
@@ -1392,9 +1322,8 @@ public class MScanSubmitterTest {
 				Arrays.asList(Arrays.asList(new ScanpathElementProcessor(Scanpath.STATIC),
 						new NumberElementProcessor(3),
 						new ScannableElementProcessor(scannable))));
-		exception.expect(UnsupportedOperationException.class);
-		exception.expectMessage("Out of sequence call");
-		builder.buildAndSubmitBlockingScanRequest(arr);
+		var e = assertThrows(UnsupportedOperationException.class, () -> builder.buildAndSubmitBlockingScanRequest(arr));
+		assertThat(e.getMessage(), containsString("Out of sequence call"));
 		verify(eventSubscriber, never()).addListener(any(IScanListener.class));
 		verify(submitter, never()).blockingSubmit(any(ScanBean.class));
 	}

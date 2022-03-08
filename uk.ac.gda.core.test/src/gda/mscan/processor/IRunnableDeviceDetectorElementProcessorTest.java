@@ -18,6 +18,9 @@
 
 package gda.mscan.processor;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,9 +31,7 @@ import java.util.Arrays;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -52,10 +53,6 @@ public class IRunnableDeviceDetectorElementProcessorTest {
 	@Mock
 	private ClausesContext context;
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
-
 	@Before
 	public void setUp() throws Exception {
 		processor = new IRunnableDeviceDetectorElementProcessor(device);
@@ -66,16 +63,16 @@ public class IRunnableDeviceDetectorElementProcessorTest {
 	@Test
 	public void contextWithoutScanPathIsRejected() throws Exception {
 		when(context.isScanPathSeen()).thenReturn(false);
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("No scan path defined");
-		processor.process(context, new ArrayList<IClauseElementProcessor>(), 0);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> processor.process(context, new ArrayList<>(), 0));
+		assertThat(e.getMessage(), containsString("No scan path defined"));
 	}
 
 	@Test
 	public void tooManyClauseProcessorsAreRejected() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("too many elements");
-		processor.process(context, Arrays.asList(processor, processor, processor), 0);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> processor.process(context, Arrays.asList(processor, processor, processor), 0));
+		assertThat(e.getMessage(), containsString("too many elements"));
 	}
 
 	@Test
@@ -96,8 +93,8 @@ public class IRunnableDeviceDetectorElementProcessorTest {
 
 	@Test
 	public void nonNumericDetectorParamProcessorsAreRejected() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("2nd element of unexpected type");
-		processor.process(context, Arrays.asList(processor, numproc), 0);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> processor.process(context, Arrays.asList(processor, numproc), 0));
+		assertThat(e.getMessage(), containsString("2nd element of unexpected type"));
 	}
 }

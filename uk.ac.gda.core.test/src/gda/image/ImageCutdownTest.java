@@ -18,7 +18,10 @@
 
 package gda.image;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -31,9 +34,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.RGBByteDataset;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import gda.util.TestUtils;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -45,9 +46,6 @@ public class ImageCutdownTest {
 	private static final String IMAGE_NAME = "test_image";
 	private static final String FULL_IMAGE = IMAGE_DIR + IMAGE_NAME + ".";
 
-	@Rule
-	public ExpectedException expectExcept = ExpectedException.none();
-
 	@Test
 	public void typeReturnsExpectedValues() {
 		String[] validFileExtensions = new String[] {".png", ".jpg", ".jpeg", ".tif", ".tiff"};
@@ -58,25 +56,21 @@ public class ImageCutdownTest {
 
 	@Test
 	public void cutdownRejectsInvalidFileTypes() {
-		try {
-			new ImageCutdown("this/doesnt/have/a/valid/image.extension", null);
-		} catch (IllegalArgumentException e) {
-			if (e.getMessage().equals("Cutdown supports png, jpg & tiff. Incorrect file type provided: extension")) return;
-			fail("expected exception did not occur, and ImageCutdown tried to load the invalid file");
-		}
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> new ImageCutdown("this/doesnt/have/a/valid/image.extension", null));
+		assertThat("expected exception did not occur, and ImageCutdown tried to load the invalid file", e.getMessage(),
+				is("Cutdown supports png, jpg & tiff. Incorrect file type provided: extension"));
 	}
 
 	@Test
 	public void cutdownRejectsInvalidCoords() throws ScanFileHolderException {
-		expectExcept.expect(IllegalArgumentException.class);
-
 		List<int[][]> coordList = new ArrayList<>();
 		coordList.add(new int[][] {{2, 3}, {4, 5}});
 		coordList.add(new int[][] {{3, 4, 5}, {1, 2}}); //wrong
 		coordList.add(new int[][] {{1, 2}, {3, 4}});
 
 		ImageCutdown imageCutdown = new ImageCutdown("irrelevant.png", null);
-		imageCutdown.cutdown(coordList, null);
+		assertThrows(IllegalArgumentException.class, () -> imageCutdown.cutdown(coordList, null));
 	}
 
 	@Test

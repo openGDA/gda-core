@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.beamline.configuration.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -10,7 +12,6 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -41,9 +42,6 @@ public class LookupTableBasedItemTest {
 
 	@Rule
 	public MockitoRule rule = MockitoJUnit.rule();
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setup () throws Exception {
@@ -107,10 +105,8 @@ public class LookupTableBasedItemTest {
 	public void propertyNotFound() throws Exception {
 		String propertyName = "Alice";
 		WorkflowItem item = new LookupTableBasedItem(propertyName, scannables, motorPositionLookupService);
-
-		exception.expect(WorkflowException.class);
-		exception.expectMessage("Property '" + propertyName + "' not found");
-		item.start(getProperties(0));
+		var e = assertThrows(WorkflowException.class, () -> item.start(getProperties(0)));
+		assertEquals("Property '" + propertyName + "' not found", e.getMessage());
 	}
 
 	private Properties getProperties(double value) {

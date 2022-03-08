@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -22,9 +23,7 @@ import java.util.Properties;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
 
@@ -46,9 +45,6 @@ public class ScriptBasedItemTest {
 
 	private static PythonInterpreter python;
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void simpleFunction() throws Exception {
 		createScript(SQUARED_FUNCTION);
@@ -65,11 +61,9 @@ public class ScriptBasedItemTest {
 	@Test
 	public void invalidFunctionNameThrows() throws Exception {
 		createScript(SQUARED_FUNCTION);
-
-		exception.expect(NullPointerException.class);
-		exception.expectMessage("Could not find function 'covfefe'");
-
-		new ScriptBasedItem(new File(FILENAME), singletonMap(createMockScannable(), "covfefe"), INPUT_PROPERTY).start(getProperties(1.0));
+		var e = assertThrows(NullPointerException.class, () -> new ScriptBasedItem(new File(FILENAME),
+				singletonMap(createMockScannable(), "covfefe"), INPUT_PROPERTY).start(getProperties(1.0)));
+		assertThat(e.getMessage(), is("Could not find function 'covfefe'"));
 	}
 
 	@Test
@@ -170,17 +164,16 @@ public class ScriptBasedItemTest {
 		 **/
 		createScript("	pass");
 
-		exception.expect(NullPointerException.class);
-		exception.expectMessage(FUNCTION_RETURNED_NULL);
-
-		new ScriptBasedItem(new File(FILENAME), singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).start(getProperties(5.0));
+		var e = assertThrows(NullPointerException.class, () -> new ScriptBasedItem(new File(FILENAME),
+				singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).start(getProperties(5.0)));
+		assertThat(e.getMessage(), is(FUNCTION_RETURNED_NULL));
 	}
 
 	@Test
 	public void fileNotFound() throws Exception {
-		exception.expect(WorkflowException.class);
-		exception.expectMessage("Error reading script");
-		new ScriptBasedItem(new File("covfefe.py"), singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).start(getProperties(5.0));
+		var e = assertThrows(WorkflowException.class, () -> new ScriptBasedItem(new File("covfefe.py"),
+				singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).start(getProperties(5.0)));
+		assertThat(e.getMessage(), is("Error reading script"));
 	}
 
 	@Test
@@ -193,11 +186,10 @@ public class ScriptBasedItemTest {
 					  + "invalid syntax";
 		createScript(script);
 
-		exception.expect(WorkflowException.class);
-		exception.expectMessage("Error interpreting script");
 
-		new ScriptBasedItem(new File(FILENAME), singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY)
-			.getPositions(getProperties(0));
+		var e = assertThrows(WorkflowException.class, () -> new ScriptBasedItem(new File(FILENAME),
+				singletonMap(createMockScannable(), FUNCTION), INPUT_PROPERTY).getPositions(getProperties(0)));
+		assertThat(e.getMessage(), is("Error interpreting script"));
 	}
 
 	private void createScript(String functionBody) throws Exception {

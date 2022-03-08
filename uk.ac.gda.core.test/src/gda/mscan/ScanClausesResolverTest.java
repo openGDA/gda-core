@@ -23,14 +23,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
@@ -53,9 +52,6 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 	private IClauseElementProcessor processingScanDataConsumerProc;
 	private IClauseElementProcessor tokenStringProc;
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
 	@Before
 	public void setup() {
 		num2Proc = mockNumberProc(2);
@@ -72,62 +68,55 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 
 	@Test
 	public void nonScannableFirstElementIsRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("First term must be a scannable"));
 		scan = Arrays.asList(num1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), startsWith("First term must be a scannable"));
 	}
 
 	@Test
 	public void detectorsBeforeScanDefsIsRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("Your mScan command contains an invalid sequence"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				d1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), startsWith("Your mScan command contains an invalid sequence"));
 	}
 
 	@Test
 	public void scanDataConsumersBeforeScanDefsIsRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(containsString("cannot use templates, processors or sample metadata"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				templateScanDataConsumerProc,
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				d1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), containsString("cannot use templates, processors or sample metadata"));
 	}
 
 	@Test
 	public void scanDataConsumersBeforeDetectorsIsRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(containsString("cannot use templates, processors or sample metadata"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				templateScanDataConsumerProc,
 				d1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), containsString("cannot use templates, processors or sample metadata"));
 	}
 
 	@Test
 	public void monitorsBeforeScanDefsIsRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("Your mScan command contains an invalid sequence"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				m1Proc,
 				s1Proc, num1Proc, num1Proc, num1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), startsWith("Your mScan command contains an invalid sequence"));
 	}
 
 	@Test
 	public void scannableReadoutsBeforeScanDefsWithSpecStyleIsRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(containsString("can't contain more than two Scannables"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc,
@@ -135,13 +124,12 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 				m1Proc,
 				d2Proc, num1Proc,
 				s1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), containsString("can't contain more than two Scannables"));
 	}
 
 	@Test
 	public void scannableReadoutsBeforeScanDefsWithMappingStyleIszRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("Your mScan command contains an invalid sequence"));
 		scan = Arrays.asList(
 				s1Proc, num1Proc, num1Proc, num1Proc,
 				s1Proc,
@@ -149,16 +137,16 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 				m1Proc,
 				d2Proc, num1Proc,
 				s1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), startsWith("Your mScan command contains an invalid sequence"));
 	}
 
 	@Test
 	public void invalidLengthMScanClausesAtEndOfCommandAreRejected() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(startsWith("The scan command is incorrect - final scan path definition is invalid"));
 		scan = Arrays.asList(
 				s1Proc, s2Proc, rectProc, num1Proc, num1Proc);
-		resolve(scan);
+		var e = assertThrows(IllegalArgumentException.class, () -> resolve(scan));
+		assertThat(e.getMessage(), startsWith("The scan command is incorrect - final scan path definition is invalid"));
 	}
 
 	@Test

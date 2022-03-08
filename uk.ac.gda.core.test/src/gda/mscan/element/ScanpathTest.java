@@ -33,9 +33,11 @@ import static gda.mscan.element.Scanpath.STATIC;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -62,9 +64,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -84,9 +84,6 @@ public class ScanpathTest {
 	private final String ALL_INTEGER_ERROR = " path requires all integer parameters";
 	private final String ONE_POSITIVE_ERROR = " path requires that parameter %s is positive";
 	private final String ONE_INTEGER_ERROR = " path requires that parameter %s is an integer";
-
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
 
 	private List<Scannable> scannables;
 	private List<Scannable> axialScannables;
@@ -294,74 +291,74 @@ public class ScanpathTest {
 
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForGrid() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisGridPointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5, 6);
-		GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisGridPointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForGrid() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisGridPointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(0, 6);
-		GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisGridPointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForTwoDEqualSpacing() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisLinePointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5);
-		LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisLinePointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForTwoDEqualSpacing() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisLinePointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(0);
-		LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisLinePointsModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForOneDEqualSpacing() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("AxialPointsModel" + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, -5);
-		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString("AxialPointsModel" + String.format(ONE_POSITIVE_ERROR, 2)));
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForOneDEqualSpacing() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("AxialPointsModel" + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 0);
-		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString("AxialPointsModel" + String.format(ONE_POSITIVE_ERROR, 2)));
 	}
 
 	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForGrid() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisGridPointsModel.class.getSimpleName() + ALL_INTEGER_ERROR);
 		pathParams = Arrays.asList(5, 6.2);
-		GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> GRID_POINTS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisGridPointsModel.class.getSimpleName() + ALL_INTEGER_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForTwoDEqualSpacing() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisLinePointsModel.class.getSimpleName() + ALL_INTEGER_ERROR);
 		pathParams = Arrays.asList(6.2);
-		LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> LINE_POINTS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisLinePointsModel.class.getSimpleName() + ALL_INTEGER_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsNonIntegerNoOfPointsForOneDEqualSpacing() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("AxialPointsModel" + String.format(ONE_INTEGER_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 6.2);
-		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString("AxialPointsModel" + String.format(ONE_INTEGER_ERROR, 2)));
 	}
 
 	@Test
@@ -457,84 +454,84 @@ public class ScanpathTest {
 
 	@Test
 	public void createModelRejectsNegativeNoOfPointsForRaster() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisGridStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5.2, 6.1);
-		GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisGridStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsZeroNoOfPointsForRaster() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisGridStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
-		pathParams = Arrays.asList(-5.2,0);
-		GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		pathParams = Arrays.asList(-5.2, 0);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString((TwoAxisGridStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR)));
 	}
 
 	@Test
 	public void createModelRejectsNegativeStepValueForTwoDStep() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisLineStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(-5.2);
-		LINE_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> LINE_STEP.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisLineStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsZeroStepValueForTwoDStep() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(TwoAxisLineStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR);
 		pathParams = Arrays.asList(0);
-		LINE_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> LINE_STEP.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(TwoAxisLineStepModel.class.getSimpleName() + ALL_POSITIVE_ERROR));
 	}
 
 	@Test
 	public void createModelRejectsNegativePointsValueForOneDPoints() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(AxialPointsModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, -5);
-		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(AxialPointsModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2)));
 	}
 
 	@Test
 	public void createModelRejectsZeroPointsValueForOneDPoints() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(AxialPointsModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 0);
-		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(AxialPointsModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2)));
 	}
 
 
 	@Test
 	public void createModelRejectsNegativeStepValueForOneDStep() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, -5.2);
-		AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2)));
 	}
 
 	@Test
 	public void createModelRejectsZeroStepValueForOneDStep() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2));
 		pathParams = Arrays.asList(2, 3, 0);
-		AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_STEP.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(AxialStepModel.class.getSimpleName() + String.format(ONE_POSITIVE_ERROR, 2)));
 	}
 
 	@Test
 	public void createModelRejectsNonIntStepValueForOneDStep() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(AxialPointsModel.class.getSimpleName() + String.format(ONE_INTEGER_ERROR, 2));
 		pathParams = Arrays.asList(-2, 2, 5.4);
-		AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_POINTS.createModel(axialScannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(AxialPointsModel.class.getSimpleName() + String.format(ONE_INTEGER_ERROR, 2)));
 	}
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForRaster() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisGridStepModel.class.getSimpleName());
 		pathParams = Arrays.asList(-5.2, 6.1);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
-		GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> GRID_STEP.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisGridStepModel.class.getSimpleName()));
 	}
 
 	@Test
@@ -625,11 +622,12 @@ public class ScanpathTest {
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForSpiral() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisSpiralModel.class.getSimpleName());
 		pathParams = Arrays.asList(5.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
-		SPIRAL.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> SPIRAL.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(
+				String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset") + TwoAxisSpiralModel.class.getSimpleName()));
 	}
 
 	@Test
@@ -652,11 +650,12 @@ public class ScanpathTest {
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForLissajous() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+TwoAxisLissajousModel.class.getSimpleName());
 		pathParams = Arrays.asList(5.0, 6.0, 7.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
-		LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> LISSAJOUS.createModel(scannables, pathParams, bboxParams, mutators));
+		assertThat(e.getMessage(), containsString(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")
+				+ TwoAxisLissajousModel.class.getSimpleName()));
 	}
 
 	@Test
@@ -689,10 +688,11 @@ public class ScanpathTest {
 
 	@Test
 	public void createModelRejectsRandomOffsetMutatorForAxialArray() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset")+AxialArrayModel.class.getSimpleName());
 		pathParams = Arrays.asList(5.0, 6.0, 7.0);
 		mutators.put(Mutator.RANDOM_OFFSET, Arrays.asList(20, 2));
-		AXIS_ARRAY.createModel(axialScannables, pathParams, Arrays.asList(blankArray), mutators);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> AXIS_ARRAY.createModel(axialScannables, pathParams, Arrays.asList(blankArray), mutators));
+		assertThat(e.getMessage(),
+				containsString(String.format(MUTATOR_NOT_SUPPORTED_BY, "random offset") + AxialArrayModel.class.getSimpleName()));
 	}
 }

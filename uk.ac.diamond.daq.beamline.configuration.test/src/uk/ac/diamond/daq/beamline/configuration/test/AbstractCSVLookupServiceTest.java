@@ -4,6 +4,7 @@ import static java.util.Collections.singleton;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,9 +18,7 @@ import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import uk.ac.diamond.daq.beamline.configuration.AbstractCSVLookupService;
 import uk.ac.diamond.daq.beamline.configuration.api.WorkflowException;
@@ -62,9 +61,6 @@ public class AbstractCSVLookupServiceTest {
 	private static final String VALUE_ONE_COLUMN = "value 1";
 	private static final String VALUE_TWO_COLUMN = "value 2";
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@BeforeClass
 	public static void createSetupData () throws IOException {
 		File csvFile = new File(CSV_FILE);
@@ -106,31 +102,24 @@ public class AbstractCSVLookupServiceTest {
 	@Test
 	public void invalidLookupColumn() throws Exception {
 		String rubbishColumn = "hi";
-		expectWorkflowException("No column '" + rubbishColumn + "' found in file '" + CSV_FILE + "'");
-
-		new DummyService(new File(CSV_FILE), rubbishColumn)
-			.getScannablePositions(1, singleton(VALUE_ONE_COLUMN));
+		var e = assertThrows(WorkflowException.class, () -> new DummyService(new File(CSV_FILE), rubbishColumn)
+				.getScannablePositions(1, singleton(VALUE_ONE_COLUMN)));
+		assertThat(e.getMessage(), is("No column '" + rubbishColumn + "' found in file '" + CSV_FILE + "'"));
 	}
 
 	@Test
 	public void columnNotFound() throws Exception {
 		String rubbishColumn = "hi";
-		expectWorkflowException("No column '" + rubbishColumn + "' found in file '" + CSV_FILE + "'");
-		new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
-			.getScannablePositions(1, singleton(rubbishColumn));
+		var e = assertThrows(WorkflowException.class, () -> new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
+				.getScannablePositions(1, singleton(rubbishColumn)));
+		assertThat(e.getMessage(), is("No column '" + rubbishColumn + "' found in file '" + CSV_FILE + "'"));
 	}
 
 	@Test
 	public void noRowMatched() throws Exception {
 		String argument = "5";
-		expectWorkflowException("No rows matched for value " + argument);
-
-		new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
-			.getScannablePositions(argument, singleton(VALUE_ONE_COLUMN));
-	}
-
-	private void expectWorkflowException(String message) {
-		exception.expect(WorkflowException.class);
-		exception.expectMessage(message);
+		var e = assertThrows(WorkflowException.class, () -> new DummyService(new File(CSV_FILE), LOOKUP_COLUMN)
+				.getScannablePositions(argument, singleton(VALUE_ONE_COLUMN)));
+		assertThat(e.getMessage(), is("No rows matched for value " + argument));
 	}
 }

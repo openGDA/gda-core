@@ -30,7 +30,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -47,16 +49,11 @@ import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class RegionShapeTest {
 
 	private static Map<RegionShape, List<Number>> correctLengthRegionShapeData = new EnumMap<>(RegionShape.class);
-
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
 
 	@BeforeClass
 	public static void setupClass() {
@@ -144,23 +141,23 @@ public class RegionShapeTest {
 
 	@Test
 	public void createPolygonRoiRejectsOddNumbersOfParameters() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("PolygonalROI requires an even number of params");
-		POLYGON.createIROI(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)) ;
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> POLYGON.createIROI(Arrays.asList(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)));
+		assertThat(e.getMessage(), containsString("PolygonalROI requires an even number of params"));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfZeroWidthForRectangle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Rectangle sides must have non-zero length");
-		RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 1.0, 4.0));
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 1.0, 4.0)));
+		assertThat(e.getMessage(), containsString("Rectangle sides must have non-zero length"));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfZeroHeightForRectangle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Rectangle sides must have non-zero length");
-		RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 3.0, 2.0));
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 3.0, 2.0)));
+		assertThat(e.getMessage(), containsString("Rectangle sides must have non-zero length"));
 	}
 
 	@Test
@@ -191,30 +188,30 @@ public class RegionShapeTest {
 
 	@Test
 	public void createRoiRejectsSidesOfZeroWidthForCentredRectangle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 0, 4.0));
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 0, 4.0)));
+		assertThat(e.getMessage(), containsString("Centred Rectangle must have positive width/height dimensions"));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfZeroHeightForCentredRectangle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, 0));
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, 0)));
+		assertThat(e.getMessage(), containsString("Centred Rectangle must have positive width/height dimensions"));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfNegativeWidthForCentredRectangle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, -20, 4.0));
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, -20, 4.0)));
+		assertThat(e.getMessage(), containsString("Centred Rectangle must have positive width/height dimensions"));
 	}
 
 	@Test
 	public void createRoiRejectsSidesOfNegativeHeightForCentredRectangle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Centred Rectangle must have positive width/height dimensions");
-		CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, -10));
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> CENTRED_RECTANGLE.createIROI(Arrays.asList(1.0, 2.0, 2.0, -10)));
+		assertThat(e.getMessage(), containsString("Centred Rectangle must have positive width/height dimensions"));
 	}
 
 	@Test
@@ -231,15 +228,14 @@ public class RegionShapeTest {
 
 	@Test
 	public void createRoiRejectsRadiusOfZeroForCircle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Circle must have a positive radius");
-		CIRCLE.createIROI(Arrays.asList(1.0, 2.0, 0));
+		var e = assertThrows(IllegalArgumentException.class, () -> CIRCLE.createIROI(Arrays.asList(1.0, 2.0, 0)));
+		assertThat(e.getMessage(), containsString("Circle must have a positive radius"));
 	}
+
 	@Test
 	public void createRoiRejectsSidesOfNegativeWidthForCircle() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Circle must have a positive radius");
-		CIRCLE.createIROI(Arrays.asList(1.0, 2.0, -6));
+		var e = assertThrows(IllegalArgumentException.class, () -> CIRCLE.createIROI(Arrays.asList(1.0, 2.0, -6)));
+		assertThat(e.getMessage(), containsString("Circle must have a positive radius"));
 	}
 
 	@Test
@@ -267,16 +263,14 @@ public class RegionShapeTest {
 
 	@Test
 	public void createRoiRejectsZeroLengthForLine() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("LinearROI must have non-zero length");
-		LINE.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0));
+		var e = assertThrows(IllegalArgumentException.class, () -> LINE.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0)));
+		assertThat(e.getMessage(), containsString("LinearROI must have non-zero length"));
 	}
 
 	@Test
 	public void createRoiRejectsZeroLengthForAxial() throws Exception {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("LinearROI must have non-zero length");
-		AXIAL.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0));
+		var e = assertThrows(IllegalArgumentException.class, () -> AXIAL.createIROI(Arrays.asList(1.0, 1.0, 1.0, 1.0)));
+		assertThat(e.getMessage(), containsString("LinearROI must have non-zero length"));
 	}
 
 	@Test

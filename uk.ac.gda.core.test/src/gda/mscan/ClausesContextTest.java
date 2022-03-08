@@ -22,10 +22,12 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -50,9 +52,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -102,9 +102,6 @@ public class ClausesContextTest {
 	@Mock
 	private IROI roi;
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	private ClausesContext clausesContext;
 	private ClausesContext unvalidatedClauseContext;    // For test cases where we want to use the getters before
 	                                                   // completing the whole context to confirm metadata was set
@@ -127,30 +124,30 @@ public class ClausesContextTest {
 
 	@Test
 	public void scannableToAddMustNotBeNull() {
-		expectIllegalArgumentWithMessageContents("The supplied Scannable was null");
-		clausesContext.addScannable(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.addScannable(null));
+		expectMessageContents(e, "The supplied Scannable was null");
 	}
 
 	@Test
 	public void cannotAddDetectorsToScanPathClause() {
-		expectUnsupportedOperationWithMessageContents("DummyDetector", "cannot be present");
-		clausesContext.addScannable(detector);
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.addScannable(detector));
+		expectMessageContents(e, "DummyDetector", "cannot be present");
 	}
 
 	@Test
 	public void cannotAddMonitorsToScanpathClause() {
-		expectUnsupportedOperationWithMessageContents("DummyMonitor", "cannot be present");
-		clausesContext.addScannable(monitor);
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.addScannable(monitor));
+		expectMessageContents(e, "DummyMonitor", "cannot be present");
 	}
 
 	@Test
 	public void cannotAddMoreThanMaximumScannablesPerClause() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Too many scannables in scan clause");
 		unvalidatedClauseContext.addScannable(scannable);
 		assertThat(unvalidatedClauseContext.getScannables().size(), is(1));
 		unvalidatedClauseContext.addScannable(scannable);
 		assertThat(unvalidatedClauseContext.getScannables().size(), is(2));
-		unvalidatedClauseContext.addScannable(scannable);
+		var e = assertThrows(UnsupportedOperationException.class, () -> unvalidatedClauseContext.addScannable(scannable));
+		expectMessageContents(e, "Too many scannables in scan clause");
 	}
 
 	@Test
@@ -169,31 +166,32 @@ public class ClausesContextTest {
 
 	@Test
 	public void regionShapeToSetMustNotBeNull() {
-		expectIllegalArgumentWithMessageContents("The supplied RegionShape was null");
 		prepareForRegionShapeTest(clausesContext, false);
-		clausesContext.setRegionShape(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.setRegionShape(null));
+		expectMessageContents(e, "The supplied RegionShape was null");
 	}
 
 	@Test
 	public void regionShaperegionShapeCannotBeSetIfNoScannables() {
-		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
-		clausesContext.setRegionShape(RegionShape.RECTANGLE);
+		var e = assertThrows(UnsupportedOperationException.class,
+				() -> clausesContext.setRegionShape(RegionShape.RECTANGLE));
+		expectMessageContents(e, "requires 2 scannables");
 	}
 
 	@Test
 	public void regionShapeCannotBeSetTwiceBecauseRegionShapeParamsWillHaveBeenInitialised() {
-		expectIllegalStateWithMessageContents("RegionShape must be the specified before any parameters");
 		prepareForRegionShapeTest(clausesContext, false);
 		clausesContext.setRegionShape(RegionShape.RECTANGLE);
-		clausesContext.setRegionShape(RegionShape.CIRCLE);
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.setRegionShape(RegionShape.CIRCLE));
+		expectMessageContents(e, "RegionShape must be the specified before any parameters");
 	}
 
 	@Test
 	public void regionShapeCannotBeSetIfScanpathAlreadyHasBeen() {
-		expectUnsupportedOperationWithMessageContents("RegionShape must be set before Scanpath");
 		prepareForRegionShapeTest(clausesContext, false);
-		clausesContext.setScanpath(Scanpath.GRID_POINTS);
-		clausesContext.setRegionShape(RegionShape.CIRCLE);
+		// TODO test name probably needs changing
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.setScanpath(Scanpath.GRID_POINTS));
+		expectMessageContents(e, "RegionShape must be set before Scanpath");
 	}
 
 	@Test
@@ -214,38 +212,40 @@ public class ClausesContextTest {
 
 	@Test
 	public void scanpathToSetMustNotBeNull() {
-		expectIllegalArgumentWithMessageContents("The supplied Scanpath was null");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setScanpath(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.setScanpath(null));
+		expectMessageContents(e, "The supplied Scanpath was null");
 	}
 
 	@Test
 	public void scanpathCannotBeSetIfNoScannables() {
-		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
-		clausesContext.setScanpath(Scanpath.GRID_POINTS);
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.setScanpath(Scanpath.GRID_POINTS));
+		expectMessageContents(e, "requires 2 scannables");
 	}
 
 	@Test
 	public void twoAxisScanpathCannotBeSetIfOnlyOneScannable() {
-		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
 		clausesContext.addScannable(scannable);
-		clausesContext.setScanpath(Scanpath.GRID_POINTS);
+		var e = assertThrows(UnsupportedOperationException.class,
+				() -> clausesContext.setScanpath(Scanpath.GRID_POINTS));
+		expectMessageContents(e, "requires 2 scannables");
 	}
 
 	@Test
 	public void oneAxisScanpathCannotBeSetIfTwoScannables() {
-		expectUnsupportedOperationWithMessageContents("requires 1 scannables");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
-		clausesContext.setScanpath(Scanpath.AXIS_POINTS);
+		var e = assertThrows(UnsupportedOperationException.class,
+				() -> clausesContext.setScanpath(Scanpath.AXIS_POINTS));
+		expectMessageContents(e, "requires 1 scannables");
 	}
 
 	@Test
 	public void scanpathCannotBeSetTwice() {
-		expectUnsupportedOperationWithMessageContents("Scanpath already set");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.setScanpath(Scanpath.GRID_POINTS);
-		clausesContext.setScanpath(Scanpath.GRID_STEP);
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.setScanpath(Scanpath.GRID_STEP));
+		expectMessageContents(e, "Scanpath already set");
 	}
 
 	@Test
@@ -266,8 +266,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void mutatorToAddMustNotBeNull() {
-		expectIllegalArgumentWithMessageContents("The supplied Mutator was null");
-		clausesContext.addMutator(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.addMutator(null));
+		expectMessageContents(e, "The supplied Mutator was null");
 	}
 
 	@Test
@@ -312,10 +312,10 @@ public class ClausesContextTest {
 
 	@Test
 	public void addMutatorRejectsParametersForAlternatingMutator() throws Exception {
-		expectIllegalStateWithMessageContents("Too many parameters");
 		prepareForMutatorTest(clausesContext);
 		clausesContext.addMutator(Mutator.ALTERNATING);
-		clausesContext.addParam(2);
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.addParam(2));
+		expectMessageContents(e, "Too many parameters");
 	}
 
 	@Test
@@ -347,28 +347,28 @@ public class ClausesContextTest {
 
 	@Test
 	public void addMutatorRejectsTooManyParametersForRandomOffsetGridMutator() throws Exception {
-		expectIllegalStateWithMessageContents("Too many parameters");
 		prepareForMutatorTest(unvalidatedClauseContext);
 		unvalidatedClauseContext.addMutator(Mutator.RANDOM_OFFSET);
 		unvalidatedClauseContext.addParam(20);
 		unvalidatedClauseContext.addParam(2);
-		unvalidatedClauseContext.addParam(2);
+		var e = assertThrows(IllegalStateException.class, () -> unvalidatedClauseContext.addParam(2));
+		expectMessageContents(e, "Too many parameters");
 	}
 
 	@Test
 	public void addMutatorRejectsNegativeValuesOfPercentageOffsetForRandomOffsetGridMutator() throws Exception {
-		expectIllegalArgumentWithMessageContents("must be positive");
 		prepareForMutatorTest(unvalidatedClauseContext);
 		unvalidatedClauseContext.addMutator(Mutator.RANDOM_OFFSET);
-		unvalidatedClauseContext.addParam(-20);
+		var e = assertThrows(IllegalArgumentException.class, () -> unvalidatedClauseContext.addParam(-20));
+		expectMessageContents(e, "must be positive");
 	}
 
 	@Test
 	public void addMutatorRejectsTooFewParametersForRandomOffsetGridMutator() throws Exception {
-		expectUnsupportedOperationWithMessageContents("Too few parameters");
 		prepareForMutatorTest(clausesContext);
 		clausesContext.addMutator(Mutator.RANDOM_OFFSET);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(UnsupportedOperationException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "Too few parameters");
 	}
 
 	@Test
@@ -417,9 +417,9 @@ public class ClausesContextTest {
 	}
 
 	private void checkMutatorIsNotSupported(Mutator mutator, Scanpath path, Number... params) throws Exception {
-		expectUnsupportedOperationWithMessageContents(mutator + " is not supported");
 		prepareForMutatorTest(clausesContext, path, params);
-		clausesContext.addMutator(mutator);
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.addMutator(mutator));
+		expectMessageContents(e, mutator + " is not supported");
 	}
 
 	private void checkMutatorIsSupported(Mutator mutator, Scanpath scanpath, Number... params) {
@@ -439,14 +439,14 @@ public class ClausesContextTest {
 	@Test
 	public void paramToAddMustNotBeNull() {
 		prepareForNumericParamTest(clausesContext, RegionShape.CENTRED_RECTANGLE);
-		expectIllegalArgumentWithMessageContents("The supplied Number was null");
-		clausesContext.addParam(null);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.addParam(null));
+		expectMessageContents(e, "The supplied Number was null");
 	}
 
 	@Test
 	public void cannotAddParamsIfNoScannables() throws Exception {
-		expectIllegalStateWithMessageContents("at least 1 scannable");
-		clausesContext.addParam(2);
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.addParam(2));
+		expectMessageContents(e, "at least 1 scannable");
 	}
 
 	@Test
@@ -526,10 +526,10 @@ public class ClausesContextTest {
 
 	@Test
 	public void cannotSetScanpathOnceDefaultedBecauseItsParamsWillHaveStartedToFill() throws Exception {
-		expectIllegalStateWithMessageContents("specified before its parameters");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
 		assertThat(clausesContext.addParam(2), is(true));
-		clausesContext.setScanpath(Scanpath.SPIRAL);
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.setScanpath(Scanpath.SPIRAL));
+		expectMessageContents(e, "specified before its parameters");
 	}
 
 	@Test
@@ -613,99 +613,92 @@ public class ClausesContextTest {
 
 	@Test
 	public void paramsForScanpathWithDefaultedScanpathCannotBeFilledBeyondTheBound() throws Exception {
-		expectIllegalStateWithMessageContents("has already been supplied");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
 		assertThat(clausesContext.addParam(0), is(true));
 		assertThat(clausesContext.paramsFull(), is(false));
 		assertThat(clausesContext.addParam(3), is(true));
 		assertThat(clausesContext.paramsFull(), is(true));
-		clausesContext.addParam(7);
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.addParam(7));
+		expectMessageContents(e, "has already been supplied");
 	}
 	@Test
 	public void paramsForScanpathWithSetScanpathCannotBeFilledBeyondTheBound() throws Exception {
-		expectIllegalStateWithMessageContents("has already been supplied");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.setScanpath(Scanpath.SPIRAL);
 		assertThat(clausesContext.addParam(3), is(true));
 		assertThat(clausesContext.paramsFull(), is(true));
-		clausesContext.addParam(7);
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.addParam(7));
+		expectMessageContents(e, "has already been supplied");
 	}
 
 	@Test
 	public void contextValuesCannotBeUsedIfNotValidated() throws Exception {
-		expectUnsupportedOperationWithMessageContents("must be validated");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(1);
-		clausesContext.getScannables();
+		var e = assertThrows(UnsupportedOperationException.class, clausesContext::getScannables);
+		expectMessageContents(e, "must be validated");
 	}
 
 	// Post completion validation tests
 
 	@Test
 	public void validateRejectsContextsWithoutScannables() throws Exception {
-		expectIllegalStateWithMessageContents("required number of Scannables");
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "required number of Scannables");
 	}
 
 	@Test
 	public void validateRejectsContextsWithoutBothRegionShapeAndScanpath() throws Exception {
-		expectIllegalStateWithMessageContents("both RegionShape and Scanpath");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "both RegionShape and Scanpath");
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathFor2DShape() throws Exception {
-		expectIllegalStateWithMessageContents("cannot be combined with");
+	public void contextsWithIncompatibleRegionShapeAndScanpathFor2DShapeAreRejected() throws Exception {
 		prepareForScanpathTest(clausesContext, Extent.AREA);
-		clausesContext.setScanpath(Scanpath.LINE_POINTS);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.setScanpath(Scanpath.LINE_POINTS));
+		expectMessageContents(e, "cannot be combined with");
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathFor1AxisPath() throws Exception {
-		expectUnsupportedOperationWithMessageContents("requires 2 scannables");
+	public void contextsWithIncompatibleRegionShapeAndScanpathFor1AxisPathAreRejected() throws Exception {
 		prepareForScanpathTest(clausesContext, Extent.AXIAL);
-		clausesContext.setScanpath(Scanpath.GRID_POINTS);
-		clausesContext.addParam(2);
-		clausesContext.addParam(2);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(UnsupportedOperationException.class, () -> clausesContext.setScanpath(Scanpath.GRID_POINTS));
+		expectMessageContents(e, "requires 2 scannables");
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathForLine() throws Exception {
-		expectIllegalStateWithMessageContents("cannot be combined with");
+	public void contextsWithIncompatibleRegionShapeAndScanpathForLineAreRejected() throws Exception {
 		prepareForNumericParamTest(clausesContext, RegionShape.LINE);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
 		clausesContext.addParam(5);
 		clausesContext.addParam(6);
-		clausesContext.setScanpath(Scanpath.GRID_POINTS);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.setScanpath(Scanpath.GRID_POINTS));
+		expectMessageContents(e, "cannot be combined with");
 	}
 
 	@Test
-	public void validateRejectsContextsWithIncompatibleRegionShapeAndScanpathForPoint() throws Exception {
-		expectIllegalStateWithMessageContents("cannot be combined with");
+	public void contextsWithIncompatibleRegionShapeAndScanpathForPointAreRejected() throws Exception {
 		prepareForNumericParamTest(clausesContext, RegionShape.POINT);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
-		clausesContext.setScanpath(Scanpath.LINE_POINTS);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, () -> clausesContext.setScanpath(Scanpath.LINE_POINTS));
+		expectMessageContents(e, "cannot be combined with");
 	}
 
 	@Test
 	public void validateRejectsContextsWithTooFewScanpathParams() throws Exception {
-		expectIllegalStateWithMessageContents("correct no of params");
 		prepareForScanpathTest(clausesContext, Extent.AREA);
 		clausesContext.addParam(3);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "correct no of params");
 	}
 
 	@Test
 	public void validateRejectsContextsWithTooFewScanpathParamsForUnboundedRegionShape() throws Exception {
-		expectIllegalStateWithMessageContents("correct no of params");
 		prepareForNumericParamTest(clausesContext, RegionShape.POLYGON);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
@@ -715,24 +708,24 @@ public class ClausesContextTest {
 		clausesContext.addParam(8);
 		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(3);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "correct no of params");
 	}
 
 	@Test
 	public void validateRejectsContextsWithTooFewScanpathParamsForLineRegionShape() throws Exception {
-		expectIllegalStateWithMessageContents("correct no of params");
 		prepareForNumericParamTest(clausesContext, RegionShape.LINE);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
 		clausesContext.addParam(5);
 		clausesContext.addParam(6);
 		clausesContext.setScanpath(Scanpath.LINE_STEP);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "correct no of params");
 	}
 
 	@Test
 	public void validateRejectsOddNumberOfParamsForPolygonalRegionShape() throws Exception {
-		expectIllegalStateWithMessageContents("even number of params");
 		prepareForNumericParamTest(clausesContext, RegionShape.POLYGON);
 		clausesContext.addParam(3);
 		clausesContext.addParam(4);
@@ -744,7 +737,8 @@ public class ClausesContextTest {
 		clausesContext.setScanpath(Scanpath.GRID_POINTS);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
-		clausesContext.validateAndAdjustPathClause();
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "even number of params");
 	}
 
 	@Test
@@ -831,7 +825,6 @@ public class ClausesContextTest {
 
 	@Test
 	public void defaultingOfScanpathCannotBeDetectedWithUnboundedRegionShape() {
-		expectIllegalStateWithMessageContents("both RegionShape and Scanpath");
 		prepareForNumericParamTest(clausesContext, RegionShape.POLYGON);
 		clausesContext.addParam(3);
 		clausesContext.addParam(3);
@@ -844,37 +837,35 @@ public class ClausesContextTest {
 		// and now lets attempt to default the Scanpath by not specifying it
 		clausesContext.addParam(3);
 		clausesContext.addParam(2);
-		assertThat(clausesContext.validateAndAdjustPathClause(), is(true));
+		var e = assertThrows(IllegalStateException.class, clausesContext::validateAndAdjustPathClause);
+		expectMessageContents(e, "both RegionShape and Scanpath");
 	}
 
 	@Test
 	public void addDetectorByNameRejectsScannableDetectorsWithoutACorrespondingRunnableDevice() throws Exception {
-		thrown.expect(ScanningException.class);
-		expectMessageContents("Could not get detector for name");
 		when(runnableDeviceService.getRunnableDevice(anyString())).thenReturn(null);
-		clausesContext.addDetector("missing", 0.1);
+		var e = assertThrows(ScanningException.class, () -> clausesContext.addDetector("missing", 0.1));
+		expectMessageContents(e, "Could not get detector for name");
 	}
 
 	@Test
 	public void addDetectorByNameRejectsNullName() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("The supplied detector name String was null");
-		clausesContext.addDetector((String)null, 0.1);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.addDetector((String) null, 0.1));
+		expectMessageContents(e, "The supplied detector name String was null");
 	}
 
 	@Test
 	public void addDetectorRejectsRunnableDeviceWiithNoModel() throws Exception {
-		thrown.expect(ScanningException.class);
-		expectMessageContents("Could not get model for detector");
 		when(runnableDevice.getModel()).thenReturn(null);
-		clausesContext.addDetector(runnableDevice, 0.1);
+		var e = assertThrows(ScanningException.class, () -> clausesContext.addDetector(runnableDevice, 0.1));
+		expectMessageContents(e, "Could not get model for detector");
 	}
 
 	@Test
 	public void addDetectorRejectsNullRunnableDevice() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("The supplied IRunnableDevice was null");
-		clausesContext.addDetector((IRunnableDevice<IDetectorModel>)null, 0.1);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addDetector((IRunnableDevice<IDetectorModel>) null, 0.1));
+		expectMessageContents(e, "The supplied IRunnableDevice was null");
 	}
 
 	@Test
@@ -915,9 +906,8 @@ public class ClausesContextTest {
 
 	@Test
 	public void addMonitorByNameRejectsNullName() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("The supplied monitor name String was null");
-		clausesContext.addMonitor((String)null, false);
+		var e = assertThrows(IllegalArgumentException.class, () -> clausesContext.addMonitor((String) null, false));
+		expectMessageContents(e, "The supplied monitor name String was null");
 	}
 
 	@Test
@@ -938,52 +928,49 @@ public class ClausesContextTest {
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsNullScanModel() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("The supplied CompoundModel was null");
-		clausesContext.addPathDefinitionToCompoundModel(null);
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(null));
+		expectMessageContents(e, "The supplied CompoundModel was null");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsUnpopulatedContext() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("scan must have the required number of Scannables");
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "scan must have the required number of Scannables");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsContextWithoutRegionShape() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("scan must have both RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "scan must have both RegionShape and Scanpath");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsContextWithoutScanpath() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("scan must have both RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "scan must have both RegionShape and Scanpath");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForRegionShape() throws Exception {
-		thrown.expect(UnsupportedOperationException.class);
-		expectMessageContents("not enough parameters for the RegionShape");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
-		clausesContext.setScanpath(Scanpath.SPIRAL);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(UnsupportedOperationException.class,
+				() -> clausesContext.setScanpath(Scanpath.SPIRAL));
+		expectMessageContents(e, "not enough parameters for the RegionShape");
 	}
 
 	@Test
-	public void addPathDefinitionToCompoundModelRejectsTooManyParamsForRegionShape() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Scanpath must be specified before its parameters");
+	public void syntaxDefaultingPreventsEntryOfTooManyParamsForRegionShape() throws Exception {
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
@@ -991,14 +978,13 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setScanpath(Scanpath.SPIRAL);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.setScanpath(Scanpath.SPIRAL));
+		expectMessageContents(e, "Scanpath must be specified before its parameters");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForScanpath() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("correct no of params for RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
@@ -1006,15 +992,15 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.setScanpath(Scanpath.SPIRAL);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "correct no of params for RegionShape and Scanpath");
 	}
 
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForScanpathForRegionShapeWithNoFixedValueCount()
 			throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("correct no of params for RegionShape and Scanpath");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.POLYGON);
@@ -1025,14 +1011,14 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
 		clausesContext.setScanpath(Scanpath.SPIRAL);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "correct no of params for RegionShape and Scanpath");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsOddNoOfParamsForScanpathForRegionShapeWithNoFixedValueCount()
 			throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Polygon requires an even number of param");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.POLYGON);
@@ -1045,13 +1031,13 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(1);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "Polygon requires an even number of param");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsTooManyParamsForScanpath() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("params for the Spiral has already been supplied");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
@@ -1060,27 +1046,25 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.setScanpath(Scanpath.SPIRAL);
 		clausesContext.addParam(1);
-		clausesContext.addParam(1);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addParam(1));
+		expectMessageContents(e, "params for the Spiral has already been supplied");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsPointWithNonMatchingScanpath() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Point cannot be combined with Spiral");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.POINT);
 		clausesContext.addParam(1);
 		clausesContext.addParam(1);
-		clausesContext.setScanpath(Scanpath.SPIRAL);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.setScanpath(Scanpath.SPIRAL));
+		expectMessageContents(e, "Point cannot be combined with Spiral");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsPointWithNonMatchingShapeAndPathParams() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("RegionShape and Scanpath parameters must match");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.POINT);
@@ -1089,13 +1073,13 @@ public class ClausesContextTest {
 		clausesContext.setScanpath(Scanpath.SINGLE_POINT);
 		clausesContext.addParam(1);
 		clausesContext.addParam(2);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "RegionShape and Scanpath parameters must match");
 	}
 
 	@Test
 	public void addPathDefinitionToCompoundModelRejectsTooFewParamsForMutator() throws Exception {
-		thrown.expect(UnsupportedOperationException.class);
-		expectMessageContents("Too few parameters supplied for");
 		clausesContext.addScannable(scannable);
 		clausesContext.addScannable(scannable);
 		clausesContext.setRegionShape(RegionShape.CIRCLE);
@@ -1106,7 +1090,9 @@ public class ClausesContextTest {
 		clausesContext.addParam(1);
 		clausesContext.addParam(2);
 		clausesContext.addMutator(Mutator.RANDOM_OFFSET);
-		clausesContext.addPathDefinitionToCompoundModel(scanModel);
+		var e = assertThrows(UnsupportedOperationException.class,
+				() -> clausesContext.addPathDefinitionToCompoundModel(scanModel));
+		expectMessageContents(e, "Too few parameters supplied for");
 	}
 
 	@Test
@@ -1211,83 +1197,83 @@ public class ClausesContextTest {
 
 	@Test
 	public void templateConsumerIsRejectedIfContextNotAcceptingTemplates() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Templates have already been set");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.TEMPLATE, "fil");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.TEMPLATE, "fal");
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.TEMPLATE, "fal"));
+		expectMessageContents(e, "Templates have already been set");
 	}
 
 	@Test
 	public void processorConsumerIsRejectedIfContextNotAcceptingProcessors() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Processors have already been set");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil fol");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "two::fal");
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "two::fal"));
+		expectMessageContents(e, "Processors have already been set");
 	}
 
 	@Test
 	public void processorConsumerIsRejectedIfContextNotAcceptingPerScanMonitors() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Per Scan Monitors have already been set");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.PER_SCAN_MONITOR, "fil");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.PER_SCAN_MONITOR, "fal");
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.PER_SCAN_MONITOR, "fal"));
+		expectMessageContents(e, "Per Scan Monitors have already been set");
 	}
 
 	@Test
 	public void sampleMetadataConsumerIsRejectedIfContextNotAcceptingSampleMetadata() throws Exception {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents("Sample metadata has already been set");
 		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "one::fil");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "two::fal");
+		var e = assertThrows(IllegalStateException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "two::fal"));
+		expectMessageContents(e, "Sample metadata has already been set");
 	}
 
 	@Test
 	public void processorConsumerIsRejectedIfNoSpaceBetweenDeclarations() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("Incorrect processor specification");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil::fol fel two::fal");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil::fol fel two::fal"));
+		expectMessageContents(e, "Incorrect processor specification");
 	}
 
 	@Test
 	public void processorConsumerIsRejectedIfNoSeparatorSequenceInDeclaration() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("No processor app specified");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "onefil fel two::fal");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "onefil fel two::fal"));
+		expectMessageContents(e, "No processor app specified");
 	}
 
 	@Test
 	public void processorConsumerIsRejectedIfAppNameIsRepeated() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("App names may not be repeated");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil one::fel two::fal");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "one::fil one::fel two::fal"));
+		expectMessageContents(e, "App names may not be repeated");
 	}
 
 	@Test
 	public void processorConsumerIsRejectedIfEmptyConfigStringIsSupplied() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("No processor app specified");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, "");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.PROCESSOR, ""));
+		expectMessageContents(e, "No processor app specified");
 	}
 
 	@Test
 	public void sampleMetadataConsumerIsRejectedIfNoPipeBetweenDeclarations() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("Incorrect sample metadata specification");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "one::fil fel two::fal");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "one::fil fel two::fal"));
+		expectMessageContents(e, "Incorrect sample metadata specification");
 	}
 
 	@Test
 	public void sampleMetadataConsumerIsRejectedIfNoSeparatorSequenceInDeclaration() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("Incorrect sample metadata specification");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "onefil fel|two::fal");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "onefil fel|two::fal"));
+		expectMessageContents(e, "Incorrect sample metadata specification");
 	}
 
 	@Test
 	public void sampleMetadataConsumerIsRejectedIfEmptyConfigStringIsSupplied() throws Exception {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents("Incorrect sample metadata specification");
-		clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, "");
+		var e = assertThrows(IllegalArgumentException.class,
+				() -> clausesContext.addScanDataConsumer(ScanDataConsumer.SAMPLE, ""));
+		expectMessageContents(e, "Incorrect sample metadata specification");
 	}
 
 	private void prepareForMutatorTest(final ClausesContext context) {
@@ -1335,23 +1321,9 @@ public class ClausesContextTest {
 		context.setRegionShape(regionShape);
 	}
 
-	private void expectUnsupportedOperationWithMessageContents(final String... substrings) {
-		thrown.expect(UnsupportedOperationException.class);
-		expectMessageContents(substrings);
-	}
-	private void expectIllegalStateWithMessageContents(final String... substrings) {
-		thrown.expect(IllegalStateException.class);
-		expectMessageContents(substrings);
-	}
-
-	private void expectIllegalArgumentWithMessageContents(final String... substrings) {
-		thrown.expect(IllegalArgumentException.class);
-		expectMessageContents(substrings);
-	}
-
-	private void expectMessageContents(final String... substrings) {
-		for (String substring : substrings) {
-			thrown.expectMessage(substring);
+	private void expectMessageContents(Exception e, String... substrings) {
+		for (var substr : substrings) {
+			assertThat(e.getMessage(), containsString(substr));
 		}
 	}
 }

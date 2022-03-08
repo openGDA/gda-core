@@ -1,5 +1,8 @@
 package uk.ac.diamond.daq.experiment.scans.mapping;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -25,9 +28,7 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -45,9 +46,6 @@ public class QueuePreventingScanSubmitterTest {
 	private ISubmitter<StatusBean> submitter;
 	@Mock
 	private IJobQueue<ScanBean> consumer;
-
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
 
 	@Before
 	public void setUp() throws EventException {
@@ -76,10 +74,10 @@ public class QueuePreventingScanSubmitterTest {
 	public void submittingScanToNonEmptyQueueThrows() throws Exception {
 		submissionQueue.add(getTestScanBean());
 		ScanBean scanBean = getTestScanBean();
-		exception.expect(ScanningException.class);
-		exception.expectMessage("Could not submit request for '" + scanBean.getName() + "' because another scan is ongoing");
 
-		scanSubmitter.submitScan(scanBean);
+		var e = assertThrows(ScanningException.class, () -> scanSubmitter.submitScan(scanBean));
+		assertThat(e.getMessage(),
+				is("Could not submit request for '" + scanBean.getName() + "' because another scan is ongoing"));
 	}
 
 	@Test
