@@ -1101,7 +1101,7 @@ public class StatusQueueView extends EventConnectionView {
 				Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(4).collect(Collectors.toList()));
 		}
 		if (queueJob != null) {
-			logger.debug(    "updateQueue()                   queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
+			logger.debug("updateQueue()                   queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
 			if (queueJob.getState() != Job.RUNNING) {
 				queueJob.schedule(100);
 				logger.debug("updateQueue() schedule() called queueJob.state={} (0:None, 1:Sleeping, 2:Waiting,4:Running), thread={}, name={} {}", queueJob.getState(), queueJob.getThread(), queueJob.getName(), queueJob);
@@ -1111,75 +1111,8 @@ public class StatusQueueView extends EventConnectionView {
 			}
 			return;
 		}
-		queueJob = new Job("Connect and read queue") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					logger.debug("updateQueue Job run({})", monitor);
 
-					final Instant jobStartTime = Instant.now();
-					monitor.beginTask("Connect to command server", 10);
-					updateProgress(jobStartTime, monitor, "Queue connection set");
-
-					runList = jobQueueProxy.getRunningAndCompleted(idProperties.getProperty("maxQueueSize"));
-					updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
-
-					submittedList = jobQueueProxy.getSubmissionQueue();
-					updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
-
-					// We leave the list in reverse order so we can insert entries at the start by adding to the end
-					final Map<String,StatusBean> ret = new LinkedHashMap<>();
-					for (StatusBean bean : runList) {
-						ret.put(bean.getUniqueId(), bean);
-					}
-					updateProgress(jobStartTime, monitor, "Run/running jobs added to view list");
-
-					for (StatusBean bean : submittedList) {
-						if (bean.getStatus().isPaused()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.DEFERRED);
-						if (bean.getStatus().isRequest()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
-						ret.put(bean.getUniqueId(), bean);
-					}
-					updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
-
-					getSite().getShell().getDisplay().syncExec(() -> {
-							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "start");
-							viewer.setInput(ret);
-							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "setInput complete");
-							viewer.refresh();
-							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "refresh complete");
-							updateActions();
-							warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "updateActions complete");
-						});
-					// Given that these lists could be large, only summarise the count of beans with each status in each list.
-					logger.info("updateQueue Job run({}) completed, submittedList beans {}, runningList beans {}", monitor,
-							submittedList.stream().collect(Collectors.groupingBy(StatusBean::getStatus, Collectors.counting())),
-								  runList.stream().collect(Collectors.groupingBy(StatusBean::getStatus, Collectors.counting())));
-					monitor.done();
-
-					return Status.OK_STATUS;
-
-				} catch (final Exception e) {
-					monitor.done();
-					logger.error("Updating changed bean from topic", e);
-					getSite().getShell().getDisplay().syncExec(() ->
-							ErrorDialog.openError(getViewSite().getShell(), "Cannot connect to queue", "The server is unavailable at "+getUriString()+".\n\nPlease contact your support representative.",
-									new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()))
-						);
-					return Status.CANCEL_STATUS;
-				} finally {
-					if (queueJobAgain) {
-						queueJobAgain = false;
-						schedule(100);
-					}
-				}
-			}
-
-			private void updateProgress(Instant jobStartTime, IProgressMonitor monitor, String subTask) {
-				monitor.subTask(subTask);
-				monitor.worked(1);
-				warnIfDelayed(jobStartTime, "updateQueue Job progress", subTask);
-			}
-		};
+		queueJob = new UpdateQueueJob("Connect and read queue");
 		queueJob.setPriority(Job.SHORT);
 		queueJob.setUser(true);
 		queueJob.schedule();
@@ -1331,6 +1264,84 @@ public class StatusQueueView extends EventConnectionView {
 		Instant timeNow = Instant.now();
 		if (Duration.between(jobStartTime, timeNow).toMillis() > 100) {
 			logger.warn("{} took {}ms to {}", beforeInterval, Duration.between(jobStartTime, timeNow).toMillis(), afterInterval);
+		}
+	}
+
+	/**
+	 * A {@link Job} to fetch the queue from the server and update the viewer in the UI.
+	 */
+	private final class UpdateQueueJob extends Job {
+
+		private UpdateQueueJob(String name) {
+			super(name);
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				logger.debug("updateQueue Job run({})", monitor);
+
+				final Instant jobStartTime = Instant.now();
+				monitor.beginTask("Connect to command server", 10);
+				updateProgress(jobStartTime, monitor, "Queue connection set");
+
+				runList = jobQueueProxy.getRunningAndCompleted(idProperties.getProperty("maxQueueSize"));
+				updateProgress(jobStartTime, monitor, "List of running and completed jobs retrieved");
+
+				submittedList = jobQueueProxy.getSubmissionQueue();
+				updateProgress(jobStartTime, monitor, "List of submitted jobs retrieved");
+
+				// We leave the list in reverse order so we can insert entries at the start by adding to the end
+				final Map<String,StatusBean> statusQueue = new LinkedHashMap<>();
+				for (StatusBean bean : runList) {
+					statusQueue.put(bean.getUniqueId(), bean);
+				}
+				updateProgress(jobStartTime, monitor, "Run/running jobs added to view list");
+
+				for (StatusBean bean : submittedList) {
+					if (bean.getStatus().isPaused()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.DEFERRED);
+					if (bean.getStatus().isRequest()) bean.setStatus(org.eclipse.scanning.api.event.status.Status.SUBMITTED);
+					statusQueue.put(bean.getUniqueId(), bean);
+				}
+				updateProgress(jobStartTime, monitor, "Submitted jobs added to view list");
+
+				getSite().getShell().getDisplay().syncExec(() -> {
+						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "start");
+						viewer.setInput(statusQueue);
+						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "setInput complete");
+						viewer.refresh();
+						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "refresh complete");
+						updateActions();
+						warnIfDelayed(jobStartTime, "updateQueue Job run() syncExec()", "updateActions complete");
+					});
+
+				// Given that these lists could be large, only summarise the count of beans with each status in each list.
+				logger.info("updateQueue Job run({}) completed, submittedList beans {}, runningList beans {}", monitor,
+						submittedList.stream().collect(Collectors.groupingBy(StatusBean::getStatus, Collectors.counting())),
+							  runList.stream().collect(Collectors.groupingBy(StatusBean::getStatus, Collectors.counting())));
+				monitor.done();
+
+				return Status.OK_STATUS;
+			} catch (final Exception e) {
+				monitor.done();
+				logger.error("Updating changed bean from topic", e);
+				getSite().getShell().getDisplay().syncExec(() ->
+						ErrorDialog.openError(getViewSite().getShell(), "Cannot connect to queue", "The server is unavailable at "+getUriString()+".\n\nPlease contact your support representative.",
+								new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()))
+					);
+				return Status.CANCEL_STATUS;
+			} finally {
+				if (queueJobAgain) {
+					queueJobAgain = false;
+					schedule(100);
+				}
+			}
+		}
+
+		private void updateProgress(Instant jobStartTime, IProgressMonitor monitor, String subTask) {
+			monitor.subTask(subTask);
+			monitor.worked(1);
+			warnIfDelayed(jobStartTime, "updateQueue Job progress", subTask);
 		}
 	}
 
