@@ -106,7 +106,7 @@ public class ScanClausesResolver {
 			} else if (thisProcessor.hasScanDataConsumer()) {
 				if (!afterScanPaths()) {
 					throw new IllegalArgumentException(
-							"Invalid MScan : scans with no detectors or monitors cannot use templates or processors");
+							"Invalid MScan : scans with no detectors or monitors cannot use templates, processors or sample metadata");
 				}
 				current = startNewClause(clauses, joiner);
 			}
