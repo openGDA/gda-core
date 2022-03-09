@@ -32,12 +32,19 @@ import org.slf4j.LoggerFactory;
  * Anything entered by the user (command line or script) should be passed through the translate method. If the syntax is
  * recognised, it is converted into 'real' jython so it may be passed to a Jython interpreter. Anything unrecognised, or
  * if an error occurs, then the string is returned untouched.
+ * @deprecated This translator has issues which are too problematic to resolve, use {@link TokenStreamTranslator} instead.
+ * This class will be deleted in GDA 9.28
  */
+@Deprecated(forRemoval = true, since = "GDA 9.26")
 public class GeneralTranslator extends TranslatorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(GeneralTranslator.class);
 
 	static private final String symbols = "-+*/%><=,[]()";
+
+	public GeneralTranslator() {
+		logger.warn("GeneralTranslator is deprecated and will be removed in GDA 9.28");
+	}
 
 	/**
 	 * Translates a command identified by the translate() method. This ignores any spaces at start or end of line - it
