@@ -1,5 +1,4 @@
-from org.eclipse.january.dataset import DatasetFactory, Maths, Dataset
-
+from org.eclipse.january.dataset import DatasetFactory, Maths
 class DatasetShapeRenderer(object):
 
 	def __init__(self):
@@ -18,8 +17,7 @@ class DatasetShapeRenderer(object):
 
 	def renderShapes(self, targetDataset):
 		# Make a blank data set
-		# beware bizarre Jython bug where it cannot call correct method with only a shape argument
-		image = DatasetFactory.zeros(targetDataset.getShape(), Dataset.FLOAT64) 
+		image = DatasetFactory.zeros(targetDataset.getShape()) 
 		for shapeDict in self.shapesToPaint.values():
 			for shape in shapeDict.values():
 				image = shape.paint(image)
