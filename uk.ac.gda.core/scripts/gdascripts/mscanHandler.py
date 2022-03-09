@@ -137,7 +137,7 @@ def initialise_global_variables_for(mscanEnumTypes):
 def mscan(*args):
     """
     The Java entry point for MScan commands, creates the scan builder and
-    submits the command string via the GeneralTranslator.
+    submits the command string via the Translator.
     """
     builder = MScanSubmitter(getEventService(), getRunnableDeviceService())
     builder.buildAndSubmitBlockingScanRequest(args)
