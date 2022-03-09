@@ -363,12 +363,17 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		nexusScanInfo.setShape(firstPoint.getScanDimensions());
 		nexusScanInfo.setScanCommand(firstPoint.getCommand());
 		nexusScanInfo.setScanFieldNames(getScanFieldNames());
+		nexusScanInfo.setCurrentScriptName(getCurrentScriptName());
 
 		return nexusScanInfo;
 	}
 
 	private List<String> getScanFieldNames() {
 		return Stream.of(firstPoint.getPositionHeader(), firstPoint.getDetectorHeader()).flatMap(Collection::stream).collect(toList());
+	}
+
+	private String getCurrentScriptName() {
+		return InterfaceProvider.getScriptController().getScriptName().orElse(null);
 	}
 
 	private List<Set<String>> getDimensionNamesByIndex() {

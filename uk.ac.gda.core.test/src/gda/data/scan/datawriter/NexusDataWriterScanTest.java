@@ -106,6 +106,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
+
 		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "true");
 	}
 

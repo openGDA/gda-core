@@ -132,6 +132,7 @@ import gda.device.monitor.DummyMonitor;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyUnitsScannable;
 import gda.device.scannable.ScannableBase;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.IScanDataPoint;
@@ -516,6 +517,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	@AfterClass
 	public static void tearDownServices() {
 		GDAMetadataProvider.setInstanceForTesting(null);
+		Finder.removeAllFactories();
 	}
 
 	protected void setUpMetadata() throws Exception {
