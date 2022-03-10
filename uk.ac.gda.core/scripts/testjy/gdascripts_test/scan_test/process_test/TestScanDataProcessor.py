@@ -36,7 +36,7 @@ def createMockConcurrentScanForRealNexusFile():
 	a = MockScannable('base_x', ['base_x'], [])
 	b = MockScannable('bsdiode', ['bsdiode'], [])
 
-	mock = Mock(ConcurrentScan)
+	mock = Mock()
 	mock.getScanPlotSettings.return_value = Mock()
 	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['bsdiode']
 	mock.getScanPlotSettings.return_value.getXAxisName.return_value = 'base_x'
