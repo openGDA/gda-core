@@ -66,7 +66,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.rcp.Application;
+import gda.rcp.GDAClientApplication;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
@@ -224,7 +224,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 			} else {
 
 				IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
-				IPath location = new Path(Application.getXmlPath());
+				IPath location = new Path(GDAClientApplication.getXmlPath());
 				desc.setLocation(location);
 				// note: do not add ExperimentProjectNature to the description here as
 				// it expects to be added after project is created and opened.

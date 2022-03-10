@@ -67,9 +67,9 @@ import uk.ac.gda.ui.dialog.VisitIDDialog;
  * This class controls all aspects of the application's execution. We are very similar to an IDEApplication, so some of
  * this code comes from there.
  */
-public class Application implements IApplication {
+public class GDAClientApplication implements IApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+	private static final Logger logger = LoggerFactory.getLogger(GDAClientApplication.class);
 
 	private static final String PROP_EXIT_CODE = "eclipse.exitcode";
 
