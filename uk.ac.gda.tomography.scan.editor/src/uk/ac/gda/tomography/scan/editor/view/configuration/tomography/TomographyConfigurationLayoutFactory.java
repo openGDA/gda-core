@@ -23,8 +23,6 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDispo
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.ANGULAR_STEP;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE;
-import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.CUSTOM_END_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientMessages.FINAL_ANGLE;
@@ -56,7 +54,6 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
-import static uk.ac.gda.ui.tool.GUIComponents.checkComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.doubleContent;
 import static uk.ac.gda.ui.tool.GUIComponents.doublePositiveContent;
 import static uk.ac.gda.ui.tool.GUIComponents.integerPositiveContent;
@@ -291,8 +288,8 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 		this.startAngleText = doubleContent(mainCompositeContent, labelStyle, textStyle,
 				START, START_ANGLE_TOOLTIP);
-		this.currentAngleButton = checkComponent(mainCompositeContent,
-				CURRENT_ANGLE, CURRENT_ANGLE_TOOLTIP);
+		this.currentAngleButton = new Button(mainCompositeContent, SWT.PUSH);
+		currentAngleButton.setText("Get current angle");
 	}
 
 	private void endAngleContent(Composite parent, int labelStyle, int textStyle) {
