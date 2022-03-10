@@ -70,6 +70,7 @@ import gda.jython.commands.GeneralCommands;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.logging.JythonLogHandler;
 import gda.jython.logging.PythonException;
+import gda.jython.translator.NoopTranslator;
 import gda.jython.translator.Translator;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.gda.common.util.EclipseUtils;
@@ -101,7 +102,7 @@ public class GDAJythonInterpreter {
 	private boolean initialized = false;
 
 	// the translator object used to convert GDA syntax into 'true' jython
-	private static Translator translator = null;
+	private static Translator translator = new NoopTranslator();
 
 	// folders where beamline and user scripts are held
 	private final ScriptPaths jythonScriptPaths;
@@ -176,13 +177,7 @@ public class GDAJythonInterpreter {
 
 	public GDAJythonInterpreter(final ScriptPaths scriptPaths) {
 		jythonScriptPaths = scriptPaths;
-	}
 
-	/**
-	 * Configures this interpreter.
-	 * @throws Exception
-	 */
-	public void configure(Writer stdout) throws Exception {
 		logger.info("Adding GDA package locations to Jython path...");
 
 		// Obtain script projects from extension point
@@ -292,7 +287,6 @@ public class GDAJythonInterpreter {
 		// Get instance of interactive console
 		interactiveConsole = new GDAInteractiveConsole(mod.__dict__, pss);
 
-		initialise(stdout);
 		logger.info("Jython configured");
 	}
 
@@ -385,12 +379,10 @@ public class GDAJythonInterpreter {
 	}
 
 	/**
-	 * Set up the Jython interpreter and run Jython scripts to connect to the ObjectServer. This must be run once by the
-	 * calling program after the interpreter instance has been created.
+	 * Configure the Jython interpreter, import standard modules, alias commands and inject objects into the namespace.
 	 */
-	private void initialise(Writer stdout) throws Exception {
+	void initialise(Writer stdout) throws Exception {
 		if (!initialized) {
-
 			try {
 				// TODO Maybe the translator should be configured via Spring not property? This would remove this code.
 				final String translatorClassName = LocalProperties.get("gda.jython.translator.class", "TokenStreamTranslator");
