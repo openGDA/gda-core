@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GDA Server Services
+Bundle-SymbolicName: uk.ac.diamond.daq.server.services
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: uk.ac.diamond.daq.server.services
+Bundle-RequiredExecutionEnvironment: JavaSE-11
