@@ -19,7 +19,9 @@
 
 package gda.jython;
 
+import static java.nio.file.Files.isDirectory;
 import static java.util.Collections.newSetFromMap;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.FrameworkUtil;
 import org.python.core.ContextManager;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -55,6 +59,8 @@ import org.python.core.imp;
 import org.python.util.InteractiveConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
@@ -168,6 +174,7 @@ public class GDAJythonInterpreter {
 		} else {
 			BUNDLES_ROOT = sysProps.getProperty("osgi.syspath");
 		}
+		iterateInstalledBundles();
 	}
 
 	public GDAJythonInterpreter(final ScriptPaths scriptPaths) {
@@ -284,6 +291,35 @@ public class GDAJythonInterpreter {
 		interactiveConsole = new GDAInteractiveConsole(mod.__dict__, pss);
 
 		logger.info("Jython configured");
+	}
+
+
+	/**
+	 * Get bundles from the framework and add to PySystemState (jars or directories). This allows for: auto-completion
+	 * of Java imports, wildcard Java imports, and Java package imports to enable e.g.
+	 * {@code import gda.device.motor as motors}
+	 */
+	private static void iterateInstalledBundles() {
+		final Stopwatch timer = Stopwatch.createStarted();
+		Arrays.stream(FrameworkUtil.getBundle(GDAJythonInterpreter.class).getBundleContext().getBundles())
+				.map(FileLocator::getBundleFileLocation)
+				.flatMap(Optional::stream)
+				.map(File::toPath)
+				.forEach(file -> {
+					if (isDirectory(file)) {
+						if (ECLIPSE_LAUNCH) {
+							// getBundleFile gives root directory of bundle
+							// for IDE launch, assume class files are under bin/
+							file = file.resolve("bin");
+						}
+						PySystemState.add_classdir(file.toAbsolutePath().toString());
+					} else {
+						// CachedJarsPackageManager::addJarToPackages will check if file exists
+						PySystemState.packageManager.addJar(file.toAbsolutePath().toString(), false);
+					}
+				});
+		timer.stop();
+		logger.info("Adding bundles to Jython state took {} seconds", timer.elapsed(SECONDS));
 	}
 
 	/**
