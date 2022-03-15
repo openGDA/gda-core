@@ -53,6 +53,10 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 	private NDOverlaySimple ndOverlay;
 	private NDProcess ndProcess;
 	private boolean iocHasOverlayCentrePvs;
+
+	/**
+	 * TODO rename: this flag toggles the setting of several monitors, not just for acquire time.
+	 */
 	private boolean useAcquireTimeMonitor;
 
 	public EpicsCameraControl(ADBase adBase, NDROI ndRoi) {
@@ -294,16 +298,20 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		try {
 			final EpicsController epicsController = EpicsController.getInstance();
 			ADBaseImpl adbaseImpl = (ADBaseImpl) adBase;
+			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.Acquire), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.StatusMessage_RBV), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.AcquireTime), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinX), this::onMonitorChanged);
 			epicsController.setMonitor(epicsController.createChannel(adbaseImpl.getBasePVName()+ADBase.BinY), this::onMonitorChanged);
+		} catch (InterruptedException e) {
+			logger.error("Interrupted while setting up EPICS controller monitors", e);
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
-			logger.warn("Problem setting up AcquireTime Monitor", ADBase.AcquireTime, e);
+			logger.error("Problem setting up EPICS controller monitors", e);
 		}
 	}
 
-	private void onMonitorChanged(MonitorEvent event) {
+	private void onMonitorChanged(@SuppressWarnings("unused") MonitorEvent event) {
 		try {
 			notifyObservers();
 		} catch (DeviceException e) {
@@ -363,7 +371,7 @@ public class EpicsCameraControl extends FindableConfigurableBase implements Came
 		ndProcess.setResetFilter(1);
 	}
 
-	private void throwExceptionIfNoProcessingConfigured() throws Exception {
+	private void throwExceptionIfNoProcessingConfigured() throws DeviceException {
 		if (ndProcess == null) {
 			throw new DeviceException("Processing not configured for EpicsCameraControl");
 		}
