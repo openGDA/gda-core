@@ -18,29 +18,60 @@
 
 package uk.ac.diamond.daq.gasrig;
 
-public class Gas {
+import java.io.Serializable;
+
+import uk.ac.diamond.daq.gasrig.api.IGas;
+
+/**
+ * Provides information about a gas in the cabinet.
+ */
+public class Gas implements Serializable, IGas {
 
 	private int id;
 	private String name = "Unset";
+	private String massFlowScannableName;
+	private double molarMass;
+	private double maximumMassFlow;
 
-	public Gas(int id) {
+	public Gas(int id, String massFlowScannableName) {
 		this.id = id;
+		this.massFlowScannableName = massFlowScannableName;
 	}
 
-	public Gas(int id, String name) {
-		this(id);
-		setName(name);
-	}
-
+	@Override
 	public int getId() {
 		return id;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	protected void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public String getMassFlowScannableName() {
+		return massFlowScannableName;
+	}
+
+	@Override
+	public double getMolarMass() {
+		return molarMass;
+	}
+
+	protected void setMolarMass(double molarMass) {
+		this.molarMass = molarMass;
+	}
+
+	@Override
+	public double getMaximumMassFlow() {
+		return maximumMassFlow;
+	}
+
+	protected void setMaximumMassFlow(double maximumMassFlow) {
+		this.maximumMassFlow = maximumMassFlow;
 	}
 }

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2021 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,17 +19,11 @@
 package uk.ac.diamond.daq.gasrig.api;
 
 import java.util.List;
-import java.util.Map;
 
-import gda.factory.Findable;
+public interface ICabinet {
 
-public interface IGasRig extends Findable {
+	String getName();
 
-	public List<? extends IGas> getNonCabinetGases();
+	List<? extends IGas> getGases();
 
-	public List<? extends ICabinet> getCabinets();
-
-	public IGasMix getGasMix(int lineNumber) throws GasRigException;
-
-	public Map<Integer, ? extends IGasMix> getGasMixes();
 }

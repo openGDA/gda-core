@@ -28,6 +28,11 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public String getGasName(int gasId) throws DeviceException {
-		return getStringValue(constructGasNamePV(gasId), "gas name");
+		return getStringValue(constructGasNamePvSuffix(gasId), "gas name");
+	}
+
+	@Override
+	public double getMaximumMassFlow(int gasId) throws DeviceException {
+		return getDoubleValue(constructMaximumMassFlowPvSuffix(gasId), "maximum mass flow");
 	}
 }

@@ -16,18 +16,27 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.gasrig.api.models;
+package uk.ac.diamond.daq.gasrig.ui.viewmodels;
 
-import java.io.Serializable;
+import uk.ac.diamond.daq.gasrig.api.IGas;
 
-public class GasModel implements Serializable {
+/**
+ * A viewmodel providing information about an {@link IGas}.
+ */
+public class GasViewModel {
 
 	private int id;
 	private String name;
+	private String massFlowScannableName;
+	private double molarMass;
+	private double maxMassFlow;
 
-	public GasModel(int id, String name) {
-		this.id = id;
-		this.name = name;
+	public GasViewModel(IGas gas) {
+		this.id = gas.getId();
+		this.name = gas.getName();
+		this.massFlowScannableName = gas.getMassFlowScannableName();
+		this.molarMass = gas.getMolarMass();
+		this.maxMassFlow = gas.getMaximumMassFlow();
 	}
 
 	public int getId() {
@@ -36,5 +45,17 @@ public class GasModel implements Serializable {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getMassFlowScannableName() {
+		return massFlowScannableName;
+	}
+
+	public double getMolarMass() {
+		return molarMass;
+	}
+
+	public double getMaxMassFlow() {
+		return maxMassFlow;
 	}
 }

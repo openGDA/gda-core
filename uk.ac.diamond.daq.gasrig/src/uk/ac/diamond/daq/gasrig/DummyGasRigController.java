@@ -26,27 +26,42 @@ import gda.device.DeviceException;
  * This class serves to simulate the responses from EPICS, and also logs the PVs which
  * will be used in the live environment for debugging purposes, as there is no gas rig simulator.
  *
- * It extends {@link BaseGasRigController} so that it can make use of the methods which construct
- * the live PVs
+ * It extends {@link BaseGasRigController} so that it can make use of the same methods which construct
+ * the live PVs and log them, to ensure that they are correct.
  *
  * @author Tom Richardson (too27251)
  */
 public class DummyGasRigController extends BaseGasRigController implements IGasRigController {
 
-	private List<Gas> gases;
+	private List<DummyGas> gases;
 
-	public DummyGasRigController(String basePvName, List<Gas> gases) {
+	public DummyGasRigController(String basePvName, List<DummyGas> gases) {
 		super(basePvName);
 		this.gases = gases;
 	}
 
 	@Override
 	public String getGasName(int gasId) throws DeviceException {
-		String gasNamePv = constructGasNamePV(gasId);
-		logger.info("Gas name requested for gas {}. Live PV would be {}", gasId, gasNamePv);
+		String gasNamePvSuffix = constructGasNamePvSuffix(gasId);
+		String fullGasNamePv = getBasePvName() + gasNamePvSuffix;
+		logger.info("Gas name requested for gas {}. Live PV would be {}", gasId, fullGasNamePv);
 
-		return (gases.stream().filter(g -> g.getId() == gasId).findFirst()
-				.orElseThrow(() -> new DeviceException("No gas found for id " + gasId)))
-				.getName();
+		return getGas(gasId).getName();
+	}
+
+	@Override
+	public double getMaximumMassFlow(int gasId) throws DeviceException {
+		String maximumMassFlowPvSuffix = constructMaximumMassFlowPvSuffix(gasId);
+		String fullMassFlowPv = getBasePvName() + maximumMassFlowPvSuffix;
+		logger.info("Maximum mass flow name requested for gas {}. Live PV would be {}", gasId, fullMassFlowPv);
+
+		return getGas(gasId).getMaximumMassFlow();
+	}
+
+	private DummyGas getGas(int gasId) throws DeviceException {
+		return gases.stream()
+				.filter(g -> g.getId() == gasId)
+				.findFirst()
+				.orElseThrow(() -> new DeviceException("No gas found for id " + gasId));
 	}
 }

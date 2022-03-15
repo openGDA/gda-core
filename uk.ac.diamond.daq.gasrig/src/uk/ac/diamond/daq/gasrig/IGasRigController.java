@@ -21,5 +21,9 @@ package uk.ac.diamond.daq.gasrig;
 import gda.device.DeviceException;
 
 public interface IGasRigController {
+
 	public String getGasName(int gasId) throws DeviceException;
+
+	public double getMaximumMassFlow(int gasId) throws DeviceException;
+
 }

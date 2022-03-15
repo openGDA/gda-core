@@ -18,9 +18,15 @@
 
 package uk.ac.diamond.daq.gasrig;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Cabinet {
+import uk.ac.diamond.daq.gasrig.api.ICabinet;
+
+/**
+ * Represents a cabinet in the gas rig containing {@link Gas}es
+ */
+public class Cabinet implements Serializable, ICabinet {
 
 	private String name;
 	private List<Gas> gases;
@@ -30,10 +36,12 @@ public class Cabinet {
 		this.gases = gases;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public List<Gas> getGases() {
 		return gases;
 	}

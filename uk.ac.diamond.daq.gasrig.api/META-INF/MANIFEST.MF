@@ -5,6 +5,5 @@ Bundle-SymbolicName: uk.ac.diamond.daq.gasrig.api
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: uk.ac.diamond.daq.gasrig.api
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Export-Package: uk.ac.diamond.daq.gasrig.api,
- uk.ac.diamond.daq.gasrig.api.models
+Export-Package: uk.ac.diamond.daq.gasrig.api
 Require-Bundle: uk.ac.gda.core
