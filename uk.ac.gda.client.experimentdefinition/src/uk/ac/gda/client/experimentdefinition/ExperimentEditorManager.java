@@ -252,23 +252,13 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	/**
 	 * Returns the path to the location of the XML project, e.g. As used for the storage location of the EXAFS project.
 	 * The intention is this project is stored outside the workspace to allow the workspace to be deleted without losing
-	 * the user created XML files. The path can be set via the gda.rcp.xmlproject property, or it will be created in the
+	 * the user created XML files. The path will be created in the
 	 * users visit.
 	 *
 	 * @return the path to the xmlproject
 	 */
 	private String getXmlPath() {
-		String path = null;
-		try {
-			path = InterfaceProvider.getPathConstructor().createFromProperty("gda.rcp.xmlproject");
-		} catch (Exception ne) {
-			path = null;
-		}
-
-		if (path == null) {
-			path = InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml") + File.separator;
-		}
-		return path;
+		return InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml") + File.separator;
 	}
 
 	@Override
