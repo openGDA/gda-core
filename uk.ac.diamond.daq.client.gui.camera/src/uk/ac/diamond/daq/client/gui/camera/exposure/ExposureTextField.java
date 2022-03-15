@@ -28,7 +28,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -36,13 +35,11 @@ import org.springframework.context.ApplicationListener;
 import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
+import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.api.camera.CameraState;
-import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientVerifyListener;
 import uk.ac.gda.ui.tool.WidgetUtilities;
-import uk.ac.gda.ui.tool.rest.CameraControlClient;
 
 /**
  * A text field to edit a camera exposure.
@@ -50,8 +47,6 @@ import uk.ac.gda.ui.tool.rest.CameraControlClient;
  * <p>
  * The field is listening at {@link CameraControlSpringEvent} published by the control associated with the camera
  * </p>
- *
- * @author Maurizio Nagni
  */
 public class ExposureTextField {
 
@@ -89,33 +84,28 @@ public class ExposureTextField {
 
 		// Set the acquire time when user pushes return
 		WidgetUtilities.addWidgetDisposableListener(exposureText, SWT.DefaultSelection,
-				event -> setAcquireTime(event.widget));
+				event -> setAcquireTime());
 
 		// Set the acquire time when exposureText loses focus
-		WidgetUtilities.addControlDisposableFocusListener(exposureText, event -> setAcquireTime(event.widget),
-				event -> {
-				});
+		WidgetUtilities.addControlDisposableFocusListener(exposureText, event -> setAcquireTime(),
+				event -> {/* do nothing */});
 	}
 
-	private void setAcquireTime(Widget widget) {
-		cameraConfigurationSupplier.get()
-			.getCameraControlClient().ifPresent(c -> {
-				String text = Text.class.cast(widget).getText();
-				if (!text.isEmpty())
-					setAcquireTime(c, Double.parseDouble(text));
-			});
-	}
-
-	private void setAcquireTime(CameraControlClient cc, double exposure) {
-		try {
-			cc.setAcquireTime(exposure);
-			if (CameraState.ACQUIRING.equals(cc.getAcquireState())) {
-				cc.stopAcquiring();
-				cc.startAcquiring();
-			}
-		} catch (NumberFormatException | GDAClientRestException e) {
-			UIHelper.showError("Cannot update acquisition time", e, logger);
-		}
+	private void setAcquireTime() {
+		var exposure = Double.parseDouble(exposureText.getText());
+		Async.execute(() ->
+			cameraConfigurationSupplier.get().getCameraControl().ifPresent(control -> {
+				try {
+					control.setAcquireTime(exposure);
+					if (control.getAcquireState().equals(CameraState.ACQUIRING)) {
+						control.stopAcquiring();
+						control.startAcquiring();
+					}
+				} catch (DeviceException e) {
+					logger.error("Error writing exposure", e);
+				}
+			})
+		);
 	}
 
 	/**
@@ -131,10 +121,9 @@ public class ExposureTextField {
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			Display.getDefault().asyncExec(() -> {
-				if (cameraConfigurationSupplier.get().getCameraConfigurationProperties().getId().equals(event.getCameraId()))
-					updateModelToGUI(event);
-			});
+			if (cameraConfigurationSupplier.get().getCameraConfigurationProperties().getId().equals(event.getCameraId())) {
+				Display.getDefault().asyncExec(() -> updateModelToGUI(event));
+			}
 		}
 
 		private void updateModelToGUI(CameraControlSpringEvent e) {
