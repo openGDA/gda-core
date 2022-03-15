@@ -102,9 +102,8 @@ public class ExposureDurationComposite implements CompositeFactory {
 	public Composite createComposite(Composite parent, int style) {
 		container = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().applyTo(container);
-
-		createElements(container, style);
 		iCameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
+		createElements(container, style);
 		iCameraConfiguration.getCameraControlClient()
 			.ifPresent(this::initialiseElements);
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);

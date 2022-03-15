@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
+import gda.device.DeviceException;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.gda.api.camera.CameraState;
@@ -60,7 +61,7 @@ public class ExposureTextField {
 
 	private final Text exposureText;
 
-	private final Supplier<ICameraConfiguration> iCameraConfigurationSupplier;
+	private final Supplier<ICameraConfiguration> cameraConfigurationSupplier;
 
 
 	/**
@@ -71,24 +72,33 @@ public class ExposureTextField {
 	 */
 	public ExposureTextField(Composite parent, int style, Supplier<ICameraConfiguration> cameraControlSupplier) {
 		exposureText = createClientText(parent, style, EMPTY_MESSAGE, ClientVerifyListener.verifyOnlyDoubleText);
-		this.iCameraConfigurationSupplier = cameraControlSupplier;
+		this.cameraConfigurationSupplier = cameraControlSupplier;
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		bindElements();
 	}
 
 	private void bindElements() {
-		// Sets the acquire time when user pushes return
+		// Initialise widget to current exposure
+		cameraConfigurationSupplier.get().getCameraControl().ifPresent(control -> {
+			try {
+				updateGUI(control.getAcquireTime());
+			} catch (DeviceException e) {
+				logger.error("Could not read exposure time from {}", control.getName(), e);
+			}
+		});
+
+		// Set the acquire time when user pushes return
 		WidgetUtilities.addWidgetDisposableListener(exposureText, SWT.DefaultSelection,
 				event -> setAcquireTime(event.widget));
 
-		// Set the acquire time when exposureText looses focus
+		// Set the acquire time when exposureText loses focus
 		WidgetUtilities.addControlDisposableFocusListener(exposureText, event -> setAcquireTime(event.widget),
 				event -> {
 				});
 	}
 
 	private void setAcquireTime(Widget widget) {
-		iCameraConfigurationSupplier.get()
+		cameraConfigurationSupplier.get()
 			.getCameraControlClient().ifPresent(c -> {
 				String text = Text.class.cast(widget).getText();
 				if (!text.isEmpty())
@@ -122,7 +132,7 @@ public class ExposureTextField {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 			Display.getDefault().asyncExec(() -> {
-				if (iCameraConfigurationSupplier.get().getCameraConfigurationProperties().getId().equals(event.getCameraId()))
+				if (cameraConfigurationSupplier.get().getCameraConfigurationProperties().getId().equals(event.getCameraId()))
 					updateModelToGUI(event);
 			});
 		}
@@ -131,12 +141,13 @@ public class ExposureTextField {
 			updateGUI(e.getAcquireTime());
 		}
 
-		private void updateGUI(double exposure) {
-			if (exposureText.isDisposed() || exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
-				return;
-			}
-			exposureText.setText(decimalFormat.format(exposure));
-			exposureText.getParent().layout(true, true);
-		}
 	};
+
+	private void updateGUI(double exposure) {
+		if (exposureText.isDisposed() || exposureText.isFocusControl() && Double.parseDouble(exposureText.getText()) != exposure) {
+			return;
+		}
+		exposureText.setText(decimalFormat.format(exposure));
+		exposureText.getParent().layout(true, true);
+	}
 }
