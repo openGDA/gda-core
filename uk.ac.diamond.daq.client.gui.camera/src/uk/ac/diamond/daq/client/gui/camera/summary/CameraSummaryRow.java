@@ -26,20 +26,16 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.client.gui.camera.exposure.ExposureTextField;
 import uk.ac.diamond.daq.client.gui.camera.monitor.widget.CameraMonitorButton;
-import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 
 /**
@@ -54,7 +50,6 @@ import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
  * @see CameraMonitorButton
  */
 class CameraSummaryRow {
-	private static final Logger logger = LoggerFactory.getLogger(CameraSummaryRow.class);
 
 	private final TableItem tableItem;
 
@@ -88,18 +83,14 @@ class CameraSummaryRow {
 		editor.setEditor(exposureText, tableItem, 1);
 
 		editor = new TableEditor(table);
-		try {
-			Composite container = createClientCompositeWithGridLayout(table, SWT.NONE, 10);
-			createClientGridDataFactory().grab(true, true).applyTo(container);
-			createClientEmptyCell(container, 5, 1);
-			Button monitor = new CameraMonitorButton(container, iCameraConfiguration).getButton();
-			createClientGridDataFactory().align(SWT.END, SWT.BOTTOM).grab(true, true).span(5, 1).applyTo(monitor);
+		Composite container = createClientCompositeWithGridLayout(table, SWT.NONE, 10);
+		createClientGridDataFactory().grab(true, true).applyTo(container);
+		createClientEmptyCell(container, 5, 1);
+		var monitor = new CameraMonitorButton(iCameraConfiguration).draw(container);
+		createClientGridDataFactory().align(SWT.END, SWT.BOTTOM).grab(true, true).span(5, 1).applyTo(monitor);
 
-			editor.grabHorizontal = true;
-			editor.setEditor(container, tableItem, 2);
+		editor.grabHorizontal = true;
+		editor.setEditor(container, tableItem, 2);
 
-		} catch (GDAClientException e) {
-			logger.error("Cannot create column", e);
-		}
 	}
 }

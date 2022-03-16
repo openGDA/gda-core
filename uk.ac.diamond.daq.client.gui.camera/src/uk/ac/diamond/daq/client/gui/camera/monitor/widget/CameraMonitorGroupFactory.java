@@ -25,13 +25,10 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
-import uk.ac.gda.client.exception.GDAClientException;
 import uk.ac.gda.ui.tool.ClientMessages;
 
 /**
@@ -42,8 +39,6 @@ import uk.ac.gda.ui.tool.ClientMessages;
 public class CameraMonitorGroupFactory implements CompositeFactory {
 
 	private Composite container;
-
-	private static final Logger logger = LoggerFactory.getLogger(CameraMonitorGroupFactory.class);
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
@@ -62,10 +57,6 @@ public class CameraMonitorGroupFactory implements CompositeFactory {
 	}
 
 	private void createButton(ICameraConfiguration cameraConfiguration) {
-		try {
-			new CameraMonitorButton(container, cameraConfiguration);
-		} catch (GDAClientException e) {
-			logger.error(e.getMessage());
-		}
+		new CameraMonitorButton(cameraConfiguration).draw(container);
 	}
 }
