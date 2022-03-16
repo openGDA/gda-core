@@ -44,7 +44,6 @@ import uk.ac.diamond.daq.client.gui.camera.event.CameraEventUtils;
 import uk.ac.diamond.daq.client.gui.camera.event.ChangeActiveCameraEvent;
 import uk.ac.diamond.daq.client.gui.camera.liveview.StreamControlData;
 import uk.ac.diamond.daq.client.gui.camera.liveview.state.StreamController;
-import uk.ac.diamond.daq.client.gui.camera.monitor.CameraAvailabilityMonitor;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.api.camera.CameraControllerEvent;
 import uk.ac.gda.api.camera.CameraState;
@@ -313,10 +312,6 @@ public final class CameraHelper {
 			.forEach(cc -> cc.ifPresent(CameraEventUtils::addIObserverToCameraControl));
 	}
 
-	private static void monitorCameraAvailability() {
-		new CameraAvailabilityMonitor();
-	}
-
 	private static void removeObserverCameraProperties() {
 		getAllCameraConfigurationProperties().stream()
 			.map(CameraHelper::createICameraConfiguration)
@@ -464,10 +459,7 @@ public final class CameraHelper {
 	 */
 	private static final void loadAllProperties() {
 		removeObserverCameraProperties();
-
 		observeCameraProperties();
-
-		monitorCameraAvailability();
 	}
 
 	private static  List<CameraConfigurationProperties> getCameraProperies() {
