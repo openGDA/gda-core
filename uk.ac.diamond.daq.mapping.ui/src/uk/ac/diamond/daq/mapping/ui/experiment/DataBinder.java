@@ -23,13 +23,12 @@ import java.util.Objects;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Spinner;
@@ -55,7 +54,7 @@ public class DataBinder {
 	/**
 	 * Validates that value > 0
 	 */
-	public static final IValidator GREATER_THAN_ZERO = value -> ((double) value > 0.0) ? ValidationStatus.ok() : ValidationStatus.error("Value must be greater than zero!");
+	public static final IValidator<Double> GREATER_THAN_ZERO = value -> value > 0.0 ? ValidationStatus.ok() : ValidationStatus.error("Value must be greater than zero!");
 	private static final NumberUnitsWidgetProperty<?> nuwProperty = new NumberUnitsWidgetProperty<>();
 
 	/**
@@ -63,10 +62,11 @@ public class DataBinder {
 	 * @param widget the source widget
 	 * @return an observable value observing this value property on the given widget - null if widget is not yet supported
 	 */
-	public IObservableValue getObservableValue(Widget widget) {
-		if (widget instanceof Text) return WidgetProperties.text(SWT.Modify).observe(widget);
+	@SuppressWarnings("unchecked")
+	public <T> IObservableValue<T> getObservableValue(Widget widget) {
+		if (widget instanceof Text) return (IObservableValue<T>) WidgetProperties.text(SWT.Modify).observe(widget);
 		if (widget instanceof NumberAndUnitsComposite) return nuwProperty.observe(widget);
-		if (widget instanceof Spinner || widget instanceof Button) return WidgetProperties.selection().observe(widget);
+		if (widget instanceof Spinner || widget instanceof Button) return (IObservableValue<T>) WidgetProperties.widgetSelection().observe(widget);
 		return null;
 	}
 
@@ -76,8 +76,9 @@ public class DataBinder {
 	 * @param field e.g. "xStart"
 	 * @return an observable value observing this value property on the given property source
 	 */
-	public IObservableValue getObservableValue(String field, Object bean) {
-		return BeanProperties.value(field).observe(bean);
+	@SuppressWarnings("unchecked")
+	public <T> IObservableValue<T> getObservableValue(String field, Object bean) {
+		return (IObservableValue<T>) BeanProperties.value(field).observe(bean);
 	}
 
 	/**
@@ -92,16 +93,6 @@ public class DataBinder {
 	}
 
 	/**
-	 * Bind an IViewerObservableValue to a IObservableValue
-	 * @param value the 'widget' containing the value
-	 * @param model the model element to bind to
-	 * @return created binding
-	 */
-	public Binding bind(IViewerObservableValue value, IObservableValue<String> model) {
-		return dbc.bindValue(value, model);
-	}
-
-	/**
 	 * Bind a widget and bean's property using validation and add widget decoration
 	 * @param widget the source widget
 	 * @param modelProperty the property name
@@ -109,21 +100,15 @@ public class DataBinder {
 	 * @param validator can be null if no validation required
 	 * @return created binding
 	 */
-	public Binding bind(Widget widget, String modelProperty, Object bean, IValidator validator) {
-		IObservableValue target = getObservableValue(widget);
-		IObservableValue model  = getObservableValue(modelProperty, bean);
-		Binding binding;
+	public <T, M> Binding bind(Widget widget, String modelProperty, Object bean, IValidator<M> validator) {
+		final IObservableValue<T> target = getObservableValue(widget);
+		final IObservableValue<M> model  = getObservableValue(modelProperty, bean);
 
 		if (Objects.nonNull(validator)) {
-			UpdateValueStrategy strategy = new UpdateValueStrategy();
-			strategy.setBeforeSetValidator(validator);
-			binding = dbc.bindValue(target, model, strategy, new UpdateValueStrategy());
-			ControlDecorationSupport.create(binding, SWT.LEFT);
-		} else {
-			binding = dbc.bindValue(target, model);
+			return bind(target, model, validator);
 		}
 
-		return binding;
+		return dbc.bindValue(target, model);
 	}
 
 	/**
@@ -132,7 +117,7 @@ public class DataBinder {
 	 * @param modelObservableValue model value
 	 * @return created binding
 	 */
-	public Binding bind(IObservableValue targetObservableValue, IObservableValue modelObservableValue) {
+	public <T, M> Binding bind(IObservableValue<T> targetObservableValue, IObservableValue<M> modelObservableValue) {
 		return dbc.bindValue(targetObservableValue, modelObservableValue);
 	}
 
@@ -143,10 +128,10 @@ public class DataBinder {
 	 * @param validator validator to use
 	 * @return created binding
 	 */
-	public Binding bind(IObservableValue target, IObservableValue model, IValidator validator) {
-		UpdateValueStrategy strategy = new UpdateValueStrategy();
+	public <T, M> Binding bind(IObservableValue<T> target, IObservableValue<M> model, IValidator<M> validator) {
+		final UpdateValueStrategy<T, M> strategy = new UpdateValueStrategy<>();
 		strategy.setBeforeSetValidator(validator);
-		Binding binding = dbc.bindValue(target, model, strategy, new UpdateValueStrategy());
+		final Binding binding = dbc.bindValue(target, model, strategy, new UpdateValueStrategy<M, T>());
 		ControlDecorationSupport.create(binding, SWT.LEFT);
 		return binding;
 	}
