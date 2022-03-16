@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.region;
 
 import java.util.Map;
-import java.util.Objects;
 
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
@@ -58,14 +57,14 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 	 */
 	protected double getLowerLimit(String scannableName) {
 		try {
-			final Object minimum = Objects.requireNonNull(getScannableDeviceService().getScannable(scannableName).getMinimum());
-			if (minimum instanceof Number) {
+			final Object minimum = getScannableDeviceService().getScannable(scannableName).getMinimum();
+			if (minimum == null) {
+				logger.warn("Lower limit not configured for scannable {}", scannableName);
+			} else if (minimum instanceof Number) {
 				return ((Number) minimum).doubleValue();
 			}
 		} catch (EventException | ScanningException e) {
 			logger.error("Could not read lower limit for scannable {}", scannableName, e);
-		} catch (NullPointerException npe) {
-			logger.warn("Lower limit not configured for scannable {}", scannableName, npe);
 		}
 		return -Double.MAX_VALUE;
 	}
@@ -76,14 +75,14 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 	 */
 	protected double getUpperLimit(String scannableName) {
 		try {
-			final Object maximum = Objects.requireNonNull(getScannableDeviceService().getScannable(scannableName).getMaximum());
-			if (maximum instanceof Number) {
+			final Object maximum = getScannableDeviceService().getScannable(scannableName).getMaximum();
+			if (maximum == null) {
+				logger.warn("Upper limit not configured for scannable {}", scannableName);
+			} else if (maximum instanceof Number) {
 				return ((Number) maximum).doubleValue();
 			}
 		} catch (EventException | ScanningException e) {
 			logger.error("Could not read upper limit for scannable {}", scannableName, e);
-		} catch (NullPointerException npe) {
-			logger.warn("Upper limit not configured for scannable {}", scannableName, npe);
 		}
 		return Double.MAX_VALUE;
 	}
