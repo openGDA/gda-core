@@ -70,18 +70,17 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 		return composite;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void bind(String scannableName,
 					  NumberAndUnitsComposite<Length> firstWidget,
 					  String firstProperty,
 					  NumberAndUnitsComposite<Length> secondWidget,
 					  String secondProperty) {
 
-		IObservableValue<Double> targetStart = binder.getObservableValue(firstWidget);
-		IObservableValue<Double> targetStop  = binder.getObservableValue(secondWidget);
+		final IObservableValue<Double> targetStart = binder.getObservableValue(firstWidget);
+		final IObservableValue<Double> targetStop  = binder.getObservableValue(secondWidget);
 
-		IObservableValue<Double> modelStart  = binder.getObservableValue(firstProperty, getModel());
-		IObservableValue<Double> modelStop	 = binder.getObservableValue(secondProperty, getModel());
+		final IObservableValue<Double> modelStart  = binder.getObservableValue(firstProperty, getModel());
+		final IObservableValue<Double> modelStop	 = binder.getObservableValue(secondProperty, getModel());
 
 		// Binding
 
@@ -90,13 +89,13 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 
 		// Validation decorators
 
-		MultiValidator lengthValidator = new MultiValidator() {
+		final MultiValidator lengthValidator = new MultiValidator() {
 			@Override
 			protected IStatus validate() {
-				double start = targetStart.getValue();
-				double stop = targetStop.getValue();
-				if (Math.abs(start-stop) > 0.0) return ValidationStatus.ok();
-				return ValidationStatus.error("Length must be greater than zero!");
+				final double start = targetStart.getValue();
+				final double stop = targetStop.getValue();
+				return (Math.abs(start-stop) > 0.0) ?
+						ValidationStatus.ok() : ValidationStatus.error("Length must be greater than zero!");
 			}
 		};
 

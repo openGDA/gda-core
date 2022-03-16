@@ -96,17 +96,16 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 	protected MultiValidator createLimitsValidator(String scannableName, Widget widget) {
 
 		return new MultiValidator() {
+			final IObservableValue<Double> observable = binder.getObservableValue(widget);
 
-			IObservableValue observable = binder.getObservableValue(widget);
-
-			double lowerLimit = getLowerLimit(scannableName);
-			double upperLimit = getUpperLimit(scannableName);
+			final double lowerLimit = getLowerLimit(scannableName);
+			final double upperLimit = getUpperLimit(scannableName);
 
 			@Override
 			protected IStatus validate() {
-				double start = (double) observable.getValue();
-				if (start < lowerLimit || start > upperLimit) return getLimitsError(lowerLimit, upperLimit);
-				return ValidationStatus.ok();
+				final double start = observable.getValue();
+				return (start < lowerLimit || start > upperLimit) ?
+						getLimitsError(lowerLimit, upperLimit) : ValidationStatus.ok();
 			}
 		};
 	}
@@ -119,19 +118,18 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 	 */
 	protected MultiValidator createLimitsValidator(String scannableName, Widget centre, Widget radius) {
 		return new MultiValidator() {
+			final double lowerLimit = getLowerLimit(scannableName);
+			final double upperLimit = getUpperLimit(scannableName);
 
-			double lowerLimit = getLowerLimit(scannableName);
-			double upperLimit = getUpperLimit(scannableName);
-
-			IObservableValue centreObservable = binder.getObservableValue(centre);
-			IObservableValue radiusObservable  = binder.getObservableValue(radius);
+			final IObservableValue<Double> centreObservable = binder.getObservableValue(centre);
+			final IObservableValue<Double> radiusObservable  = binder.getObservableValue(radius);
 
 			@Override
 			protected IStatus validate() {
-				double c = (double) centreObservable.getValue();
-				double r = (double) radiusObservable.getValue();
-				if (c-r < lowerLimit || c+r > upperLimit) return getLimitsError(lowerLimit, upperLimit);
-				return ValidationStatus.ok();
+				final double c = centreObservable.getValue();
+				final double r = radiusObservable.getValue();
+				return (c-r < lowerLimit || c+r > upperLimit) ?
+						getLimitsError(lowerLimit, upperLimit) : ValidationStatus.ok();
 			}
 
 		};
@@ -145,12 +143,11 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 
 	protected MultiValidator createGreaterThanZeroValidator(Widget widget) {
 		return new MultiValidator() {
-
-			IObservableValue observable = binder.getObservableValue(widget);
+			final IObservableValue<Double> observable = binder.getObservableValue(widget);
 
 			@Override
 			protected IStatus validate() {
-				double range = (double) observable.getValue();
+				double range = observable.getValue();
 				return range > 0 ? ValidationStatus.ok() :
 					ValidationStatus.error("Range must be greater than zero!");
 			}

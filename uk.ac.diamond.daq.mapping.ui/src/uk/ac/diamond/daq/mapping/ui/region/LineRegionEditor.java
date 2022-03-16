@@ -65,7 +65,6 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		return composite;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void validateAndBind(NumberAndUnitsComposite<Length> xStart,
 								 NumberAndUnitsComposite<Length> yStart,
 								 NumberAndUnitsComposite<Length> xStop,
@@ -86,19 +85,19 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		bindUnitsCombo(yStart, Y_START);
 		bindUnitsCombo(yStop, Y_STOP);
 
-		IObservableValue<Double> targetXStart = binder.getObservableValue(xStart);
-		IObservableValue<Double> targetXStop  = binder.getObservableValue(xStop);
-		IObservableValue<Double> targetYStart = binder.getObservableValue(yStart);
-		IObservableValue<Double> targetYStop  = binder.getObservableValue(yStop);
+		final IObservableValue<Double> targetXStart = binder.getObservableValue(xStart);
+		final IObservableValue<Double> targetXStop  = binder.getObservableValue(xStop);
+		final IObservableValue<Double> targetYStart = binder.getObservableValue(yStart);
+		final IObservableValue<Double> targetYStop  = binder.getObservableValue(yStop);
 
-		MultiValidator lengthValidator = new MultiValidator() {
+		final MultiValidator lengthValidator = new MultiValidator() {
 
 			@Override
 			protected IStatus validate() {
-				double deltaX = Math.abs(targetXStart.getValue() - targetXStop.getValue());
-				double deltaY = Math.abs(targetYStart.getValue() - targetYStop.getValue());
-				if (deltaX > 0 || deltaY > 0) return ValidationStatus.ok();
-				return ValidationStatus.error(VALIDATION_ERROR_MESSAGE);
+				final double deltaX = Math.abs(targetXStart.getValue() - targetXStop.getValue());
+				final double deltaY = Math.abs(targetYStart.getValue() - targetYStop.getValue());
+				return (deltaX > 0 || deltaY > 0) ?
+						ValidationStatus.ok() : ValidationStatus.error(VALIDATION_ERROR_MESSAGE);
 			}
 		};
 

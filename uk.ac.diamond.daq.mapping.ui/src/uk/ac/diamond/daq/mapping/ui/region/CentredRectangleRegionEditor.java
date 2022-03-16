@@ -70,7 +70,6 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 		return composite;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void createValidatedBindings(String scannableName,
 										 NumberAndUnitsComposite<Length> centreWidget,
 										 String centreProperty,
@@ -82,21 +81,20 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 
 		ControlDecorationSupport.create(createGreaterThanZeroValidator(rangeWidget), SWT.LEFT);
 
-		MultiValidator limitsValidator = new MultiValidator() {
+		final MultiValidator limitsValidator = new MultiValidator() {
+			final double lowerLimit = getLowerLimit(scannableName);
+			final double upperLimit = getUpperLimit(scannableName);
 
-			double lowerLimit = getLowerLimit(scannableName);
-			double upperLimit = getUpperLimit(scannableName);
-
-			IObservableValue<Double> centreValue = binder.getObservableValue(centreWidget);
-			IObservableValue<Double> rangeValue  = binder.getObservableValue(rangeWidget);
+			final IObservableValue<Double> centreValue = binder.getObservableValue(centreWidget);
+			final IObservableValue<Double> rangeValue  = binder.getObservableValue(rangeWidget);
 
 			@Override
 			protected IStatus validate() {
-				double centre = centreValue.getValue();
-				double range  = rangeValue.getValue();
+				final double centre = centreValue.getValue();
+				final double range  = rangeValue.getValue();
 
-				if (centre - range/2 < lowerLimit || centre + range/2 > upperLimit) return getLimitsError(lowerLimit, upperLimit);
-				return ValidationStatus.ok();
+				return (centre - range/2 < lowerLimit || centre + range/2 > upperLimit) ?
+						getLimitsError(lowerLimit, upperLimit) : ValidationStatus.ok();
 			}
 		};
 		ControlDecorationSupport.create(limitsValidator, SWT.LEFT);
