@@ -59,10 +59,10 @@ public final class RegionEditorProvider {
 	/**
 	 * This generates an editor for editing the supplied region
 	 *
-	 * @param mappingScanRegion
-	 *            The region to edit
-	 * @param bundleContext
-	 * 			  The IEclipseContext used in ContextInjectionFactory::make
+	 * @param mappingScanRegion the region to edit
+	 * @param regionUnits a map specifying the initial units to display for each axis, updated when the user selects new units for an axis. This is used
+	 * 		for display purposes only, the actual units come from the scannable with the given axis name. May be <code>null</code> or empty.
+	 * @param bundleContext the IEclipseContext used in ContextInjectionFactory::make
 	 * @return An editor for editing the requested region
 	 */
 	public static AbstractRegionEditor createRegionEditor(IMappingScanRegionShape mappingScanRegion, Map<String, String> regionUnits, IEclipseContext bundleContext) {

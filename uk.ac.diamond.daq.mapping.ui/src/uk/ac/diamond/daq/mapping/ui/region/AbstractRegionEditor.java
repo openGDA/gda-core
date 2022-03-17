@@ -168,20 +168,29 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 	protected void bindUnitsCombo(NumberAndUnitsComposite<Length> widget, String comboName) {
 		final ComboViewer unitsCombo = widget.getUnitsCombo();
 
-		// If units have been changed from the default, select the appropriate units in the combo box
-		if (regionUnits != null && regionUnits.containsKey(comboName)) {
-			final Unit<Length> unit = QuantityFactory.createUnitFromString(regionUnits.get(comboName));
-			final ISelection selection = new StructuredSelection(unit);
-			unitsCombo.setSelection(selection);
-		}
+		if (regionUnits != null) {
+			// If units have been changed from the default, select the appropriate units in the combo box
+			if (regionUnits.containsKey(comboName)) {
+				final Unit<Length> unit = QuantityFactory.createUnitFromString(regionUnits.get(comboName));
+				final ISelection selection = new StructuredSelection(unit);
+				unitsCombo.setSelection(selection);
+			}
 
-		// Add a listener for future changes
-		unitsCombo.addSelectionChangedListener(event -> {
-			final String newUnit = ((StructuredSelection) unitsCombo.getSelection()).getFirstElement().toString();
-			regionUnits.put(comboName, newUnit);
-		});
+			// Add a listener for future changes
+			unitsCombo.addSelectionChangedListener(event -> {
+				final String newUnit = ((StructuredSelection) unitsCombo.getSelection()).getFirstElement().toString();
+				regionUnits.put(comboName, newUnit);
+			});
+		}
 	}
 
+	/**
+	 * Sets a map specifying the units to display for each axis. When the user selects new units for a particular axis
+	 * this map will be updated. Note, this is for display purposes only, the actual units come from the scannable with
+	 * the given axis name. May be <code>null</code> or empty.
+	 *
+	 * @param mappingRegionUnits
+	 */
 	public void setRegionUnits(Map<String, String> mappingRegionUnits) {
 		this.regionUnits = mappingRegionUnits;
 	}
