@@ -83,7 +83,7 @@ public abstract class AbstractModelEditor<T> implements IModelEditor<T> {
 	private Composite makeComposite(Composite parentComposite) {
 		composite = new Composite(parentComposite, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(composite);
-		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 5).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(2).spacing(10, 5).applyTo(composite);
 		return composite;
 	}
 
