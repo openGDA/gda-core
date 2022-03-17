@@ -594,7 +594,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	public void triggerRegionUpdate(final SelectObservableValue<IMappingScanRegionShape> observableValue) {
 		checkInitialised();
 		getRegionSelectorListener().handleValueChange(
-				new ValueChangeEvent<IMappingScanRegionShape>(observableValue, null));
+				new ValueChangeEvent<>(observableValue, null));
 	}
 
 	public Map<String, String> getMappingRegionUnits() {
