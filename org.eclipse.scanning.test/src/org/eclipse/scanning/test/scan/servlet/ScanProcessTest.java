@@ -31,7 +31,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -357,7 +357,7 @@ public class ScanProcessTest {
 		// Assert
 		verify(mocks.get(IPositioner.class)).abort();
 		verify(mocks.get(IScriptService.class), never()).execute(any(ScriptRequest.class)); // no scripts run (before or after)
-		verifyZeroInteractions(mocks.get(IScanDevice.class)); // scan not run
+		verifyNoInteractions(mocks.get(IScanDevice.class)); // scan not run
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 		assertThat(scanBean.getStatus(), is(Status.TERMINATED));
 	}
@@ -388,7 +388,7 @@ public class ScanProcessTest {
 		waitingAnswer.resume(); // resume the answer to allow scriptService.execute and then scanProcess.execute to finish
 		task.awaitCompletion();
 
-		verifyZeroInteractions(mocks.get(IScanDevice.class)); // scan not run
+		verifyNoInteractions(mocks.get(IScanDevice.class)); // scan not run
 		verify(mockScriptService, never()).execute(scanRequest.getAfterScript()); // after script not called
 		verify(mocks.get(IPositioner.class), never()).setPosition(scanRequest.getEndPosition()); // end position not moved to
 		assertThat(scanBean.getStatus(), is(Status.TERMINATED));

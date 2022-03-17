@@ -21,8 +21,8 @@ package org.eclipse.scanning.test.event;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -77,7 +77,7 @@ public class QueueControlTest extends AbstractJobQueueTest {
 				inOrder.verify(runner).createProcess(beans.get(i), statusTopicPublisher);
 				inOrder.verify(processes.get(i)).start();
 			} else {
-				verifyZeroInteractions(processes.get(i));
+				verifyNoInteractions(processes.get(i));
 			}
 		}
 	}

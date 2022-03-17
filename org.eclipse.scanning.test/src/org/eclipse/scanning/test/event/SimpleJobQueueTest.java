@@ -33,8 +33,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -151,7 +151,7 @@ public class SimpleJobQueueTest extends AbstractJobQueueTest {
 		// and that there was no attempt to create or run a process for it
 		verify(statusTopicPublisher, timeout(1000)).broadcast(statusBean);
 		assertThat(statusBean.getStatus(), is(Status.TERMINATED));
-		verifyZeroInteractions(runner, process);
+		verifyNoInteractions(runner, process);
 
 		// check that the bean is in the set of running and completed jobs
 		assertThat(jobQueue.getRunningAndCompleted(), contains(statusBean));

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.ILevel;
 import org.eclipse.scanning.api.INameable;
-import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.LevelRole;
 import org.eclipse.scanning.api.scan.PositionEvent;
@@ -221,7 +220,7 @@ public class LevelRunnerTest {
 		runner.setDevices(asList(level5a, level5b));
 		runner.removePositionListener(listener);
 		runner.run(position);
-		verifyZeroInteractions(listener);
+		verifyNoInteractions(listener);
 	}
 
 	@Test(expected = ScanningException.class)

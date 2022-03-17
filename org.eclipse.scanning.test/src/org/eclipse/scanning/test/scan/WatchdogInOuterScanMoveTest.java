@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -179,7 +179,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		assertEquals(DeviceState.RUNNING, scanner.getDeviceState());
 		assertEquals(0, scanPositionListener.getNumPositionsPerformed());
 		assertEquals(null, scanPositionListener.getLastPositionPerformed());
-		verifyZeroInteractions(malcolmEventListener);
+		verifyNoInteractions(malcolmEventListener);
 
 		// allow the scan to resume and wait for outer scannable move to 2nd position
 		outerScannable.resume();
