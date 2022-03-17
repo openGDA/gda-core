@@ -113,7 +113,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Make a custom section for handling the mapping region
 		regionAndPathComposite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(regionAndPathComposite);
-		GridLayoutFactory.fillDefaults().numColumns(2).spacing(0, 0).applyTo(regionAndPathComposite);
+		GridLayoutFactory.swtDefaults().numColumns(2).spacing(10, 5).applyTo(regionAndPathComposite);
 
 		// Prepare a grid data factory for controls which will need to grab space horizontally
 		final GridDataFactory horizontalGrabGridData = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
@@ -121,7 +121,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Make the region selection
 		final Composite regionComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
 		horizontalGrabGridData.span(1, 1).applyTo(regionComboComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(regionComboComposite);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(regionComboComposite);
 		final Label regionLabel = new Label(regionComboComposite, SWT.NONE);
 		regionLabel.setText("Region shape:");
 		regionSelector = new ComboViewer(regionComboComposite);
@@ -140,7 +140,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		// Make the path selection
 		final Composite pathComboComposite = new Composite(regionAndPathComposite, SWT.NONE);
 		horizontalGrabGridData.applyTo(pathComboComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(pathComboComposite);
+		GridLayoutFactory.fillDefaults().numColumns(3).applyTo(pathComboComposite);
 		final Label pathLabel = new Label(pathComboComposite, SWT.NONE);
 		pathLabel.setText("Scan path:");
 		pathSelector = new ComboViewer(pathComboComposite);
