@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.io.Serializable;
 import java.util.Dictionary;
@@ -63,7 +63,7 @@ public class OsgiServiceBeanHandlerTest {
 	@Test
 	public void testBeanWithoutAnnotationDoesntAlterContext() throws Exception {
 		osgiServiceBeanHandler.processBean("test", new NoOsgiServiceInterface());
-		verifyZeroInteractions(mockContext);
+		verifyNoInteractions(mockContext);
 	}
 
 	@Test

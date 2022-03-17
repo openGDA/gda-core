@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -105,7 +105,7 @@ public class ScriptBasedItemTest {
 		} catch (WorkflowException expected) {
 			assertThat(expected.getMessage(), containsString(ERROR_IN_SCRIPT_MESSAGE));
 			// we do not move the scannable
-			verifyZeroInteractions(scannable);
+			verifyNoInteractions(scannable);
 		}
 	}
 
@@ -149,7 +149,7 @@ public class ScriptBasedItemTest {
 			new ScriptBasedItem(new File(FILENAME), functionsMap, INPUT_PROPERTY).start(getProperties(0));
 			fail("Should have thrown exception!");
 		} catch (WorkflowException e) {
-			verifyZeroInteractions(x, y);
+			verifyNoInteractions(x, y);
 		}
 	}
 

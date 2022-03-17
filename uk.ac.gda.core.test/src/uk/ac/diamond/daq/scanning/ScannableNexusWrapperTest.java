@@ -37,7 +37,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -243,7 +243,7 @@ public class ScannableNexusWrapperTest {
 		// Assert
 		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 		((IPositionListenable) scannable).removePositionListener(posListener);
-		verifyZeroInteractions(posListener);
+		verifyNoInteractions(posListener);
 	}
 
 	@Test
@@ -263,7 +263,7 @@ public class ScannableNexusWrapperTest {
 		// Assert
 		assertThat(scannable.getPosition(), is(equalTo(3.7)));
 		((IPositionListenable) scannable).removePositionListener(posListener);
-		verifyZeroInteractions(posListener);
+		verifyNoInteractions(posListener);
 	}
 
 	@Test(expected=UnsupportedOperationException.class)

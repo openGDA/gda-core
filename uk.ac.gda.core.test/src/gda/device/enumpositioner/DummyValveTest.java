@@ -26,7 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.Arrays;
 
@@ -99,7 +99,7 @@ public class DummyValveTest {
 	@Test
 	public void testMoveFromOpenToOpenDoesNothing() throws Exception {
 		valve.moveTo(OPEN);
-		verifyZeroInteractions(observer);
+		verifyNoInteractions(observer);
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class DummyValveTest {
 	public void testMoveFromClosedToClosedDoesNothing() throws Exception {
 		valve.setPosition("Closed");
 		valve.moveTo(CLOSE);
-		verifyZeroInteractions(observer);
+		verifyNoInteractions(observer);
 	}
 
 	@Test

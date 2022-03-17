@@ -20,17 +20,18 @@ package gda.device.detector;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 public class DummyHardwareTriggerableAreaDetectorTest {
 
 	private DummyHardwareTriggerableAreaDetector det;
@@ -62,7 +63,7 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 		assertEquals("det/image2.img",  det.readout());
 		det.atScanLineEnd();
 
-		verifyZeroInteractions(triggerProvider);
+		verifyNoInteractions(triggerProvider);
 	}
 
 	@Test

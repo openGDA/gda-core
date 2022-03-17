@@ -34,8 +34,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Delayed;
@@ -149,10 +149,10 @@ public class BeamMonitorTest {
 		assertTrue(monitor.beamOn());
 		monitor.on();
 		future.call();
-		verifyZeroInteractions(jythonServerStatus);
-		verifyZeroInteractions(printer);
-		verifyZeroInteractions(scanController);
-		verifyZeroInteractions(scriptController);
+		verifyNoInteractions(jythonServerStatus);
+		verifyNoInteractions(printer);
+		verifyNoInteractions(scanController);
+		verifyNoInteractions(scriptController);
 	}
 
 	@Test
@@ -164,10 +164,10 @@ public class BeamMonitorTest {
 		monitor.off();
 
 		future.call();
-		verifyZeroInteractions(jythonServerStatus);
-		verifyZeroInteractions(printer);
-		verifyZeroInteractions(scanController);
-		verifyZeroInteractions(scriptController);
+		verifyNoInteractions(jythonServerStatus);
+		verifyNoInteractions(printer);
+		verifyNoInteractions(scanController);
+		verifyNoInteractions(scriptController);
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class BeamMonitorTest {
 
 		future.call();
 
-		verifyZeroInteractions(printer);
+		verifyNoInteractions(printer);
 		verify(scanController, never()).pauseCurrentScan();
 		verify(scriptController, never()).pauseCurrentScript();
 	}
@@ -230,7 +230,7 @@ public class BeamMonitorTest {
 
 		verify(scanController).resumeCurrentScan();
 		verify(printer).print("Beam back - resuming");
-		verifyZeroInteractions(scriptController);
+		verifyNoInteractions(scriptController);
 	}
 
 	@Test
@@ -242,7 +242,7 @@ public class BeamMonitorTest {
 		future.call();
 
 		verify(scanController).pauseCurrentScan();
-		verifyZeroInteractions(scriptController);
+		verifyNoInteractions(scriptController);
 		verify(printer).print("Beam lost - pausing scan");
 	}
 
@@ -254,8 +254,8 @@ public class BeamMonitorTest {
 
 		future.call();
 
-		verifyZeroInteractions(scanController);
-		verifyZeroInteractions(scriptController);
+		verifyNoInteractions(scanController);
+		verifyNoInteractions(scriptController);
 	}
 
 	/**
@@ -327,7 +327,7 @@ public class BeamMonitorTest {
 
 		future.call();
 
-		verifyZeroInteractions(scanController);
+		verifyNoInteractions(scanController);
 	}
 
 	@Test
@@ -338,7 +338,7 @@ public class BeamMonitorTest {
 
 		future.call();
 
-		verifyZeroInteractions(scanController);
+		verifyNoInteractions(scanController);
 	}
 
 	@Test
@@ -359,7 +359,7 @@ public class BeamMonitorTest {
 		when(condition1.beamOn()).thenReturn(false);
 		when(condition2.beamOn()).thenReturn(false);
 		monitor.clearChecks();
-		verifyZeroInteractions(condition1, condition2);
+		verifyNoInteractions(condition1, condition2);
 		assertTrue("Beam should be on if monitor has no conditions", monitor.beamOn());
 	}
 

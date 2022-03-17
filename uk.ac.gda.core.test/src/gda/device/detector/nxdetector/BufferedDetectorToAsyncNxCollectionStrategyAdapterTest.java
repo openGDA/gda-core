@@ -7,7 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -197,7 +197,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	@Test
 	public void prepareForLineShouldDoNothing() throws Exception {
 		adapter.prepareForLine();
-		verifyZeroInteractions(bufferedDetector);
+		verifyNoInteractions(bufferedDetector);
 	}
 
 	@Test
@@ -209,7 +209,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	@Test
 	public void completeLineShouldDoNothing() throws Exception {
 		adapter.completeLine();
-		verifyZeroInteractions(bufferedDetector);
+		verifyNoInteractions(bufferedDetector);
 	}
 
 	@Test
