@@ -39,6 +39,7 @@ import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.SymbolicNode;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
@@ -385,21 +386,24 @@ public class EpicsProcessVariableCollection extends FindableBase {
 
 	private INexusTree translate(String groupName, GroupNode node) {
 		INexusTree tnode = new NexusTreeNode(groupName, NexusExtractor.NXCollectionClassName, null);
-		for (Entry<String, GroupNode> group : node.getGroupNodeMap().entrySet()) {
-			tnode.addChildNode(translate(group.getKey(), group.getValue()));
-		}
-		for (Entry<String, DataNode> data : node.getDataNodeMap().entrySet()) {
-			try {
-				if (data.getValue().isDataNode()) {
+		Map<String, GroupNode> groupNodeMap = node.getGroupNodeMap();
+		if (groupNodeMap.isEmpty()) {
+			for (Entry<String, DataNode> data : node.getDataNodeMap().entrySet()) {
+				try {
 					tnode.addChildNode(new NexusTreeNode(data.getKey(), NexusExtractor.SDSClassName, null,
 							NexusGroupData.createFromDataset(data.getValue().getDataset().getSlice(null, null, null))));
+				} catch (DatasetException e) {
+					logger.error("Cannot getSlice from dataset for {}", data.getKey(), e);
 				}
-				if (data.getValue().isSymbolicNode()) {
-					tnode.addChildNode(new NexusTreeNode(data.getKey(), NexusExtractor.ExternalSDSLink, null,
-							NexusGroupData.createFromDataset(data.getValue().getDataset().getSlice(null, null, null))));
-				}
-			} catch (Exception e) {
-				logger.error("Cannot getSlice from dataset for {}", data.getKey(), e);
+			}
+			for (String name : node.getSymbolicNodeNames()) {
+				SymbolicNode symbolicNode = node.getSymbolicNode(name);
+				tnode.addChildNode(new NexusTreeNode(name, NexusExtractor.ExternalSDSLink, null,
+								new NexusGroupData("nxfile://"+symbolicNode.getSourceURI().getPath()+symbolicNode.getPath().replaceFirst("/entry", "#entry"))));
+			}
+		} else {
+			for (Entry<String, GroupNode> group : groupNodeMap.entrySet()) {
+				tnode.addChildNode(translate(group.getKey(), group.getValue()));
 			}
 		}
 		return tnode;
@@ -425,7 +429,7 @@ public class EpicsProcessVariableCollection extends FindableBase {
 		Node node;
 		if (pair.getLeft() == InputType.LINK) {
 			try {
-				node = NexusNodeFactory.createSymbolicNode(new URI("nxfile://"+expectedFullFileName), pair.getRight());
+				node = NexusNodeFactory.createSymbolicNode(new URI(expectedFullFileName), pair.getRight());
 				logger.debug("External entry path = {}, source URI = {}", ((SymbolicNode)node).getPath(), ((SymbolicNode)node).getSourceURI());
 			} catch (URISyntaxException e) {
 				logger.error("URI {} is not valid.", expectedFullFileName, e);
