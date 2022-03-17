@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -286,7 +286,7 @@ public class EpicsXmapControllerTest {
 
 		final ArgumentCaptor<double[][]> roisCaptor = ArgumentCaptor.forClass(double[][].class);
 		verify(subDetector0).setROIs(roisCaptor.capture());
-		verifyZeroInteractions(subDetector1);
+		verifyNoInteractions(subDetector1);
 
 		verifyRoisSet(ELEMENT0_ROIS, roisCaptor.getValue());
 		verify(edxdController).activateROI();

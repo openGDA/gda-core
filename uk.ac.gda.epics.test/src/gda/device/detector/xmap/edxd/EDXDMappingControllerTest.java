@@ -27,8 +27,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -130,13 +130,13 @@ public class EDXDMappingControllerTest {
 	@Test
 	public void testActivateROI() throws Exception {
 		controller.activateROI();
-		verifyZeroInteractions(xmapDevice);
+		verifyNoInteractions(xmapDevice);
 	}
 
 	@Test
 	public void testDeactivateROI() throws Exception {
 		controller.deactivateROI();
-		verifyZeroInteractions(xmapDevice);
+		verifyNoInteractions(xmapDevice);
 	}
 
 	@Test
@@ -155,7 +155,7 @@ public class EDXDMappingControllerTest {
 	public void testStopXmapNull() throws Exception {
 		controller.setXmap(null);
 		controller.stop();
-		verifyZeroInteractions(xmapDevice);
+		verifyNoInteractions(xmapDevice);
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class EDXDMappingControllerTest {
 	@Test
 	public void testSetResumeTrue() throws Exception {
 		controller.setResume(true);
-		verifyZeroInteractions(xmapDevice);
+		verifyNoInteractions(xmapDevice);
 	}
 
 	@Test
@@ -209,7 +209,7 @@ public class EDXDMappingControllerTest {
 		final double acquisitionTime = 0.03;
 		controller.setAquisitionTimeOn(false);
 		controller.setAquisitionTime(acquisitionTime);
-		verifyZeroInteractions(xmapDevice);
+		verifyNoInteractions(xmapDevice);
 	}
 
 	@Test

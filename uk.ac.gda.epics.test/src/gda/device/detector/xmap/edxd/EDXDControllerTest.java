@@ -33,7 +33,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -88,8 +88,8 @@ public class EDXDControllerTest {
 
 	@Test
 	public void testUnconfigured() {
-		verifyZeroInteractions(xmapDevice);
-		verifyZeroInteractions(statusChannel);
+		verifyNoInteractions(xmapDevice);
+		verifyNoInteractions(statusChannel);
 		assertNull(controller.getSubDetector(0));
 	}
 
