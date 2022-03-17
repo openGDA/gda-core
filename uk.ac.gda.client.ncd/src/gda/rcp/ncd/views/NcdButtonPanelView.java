@@ -18,7 +18,9 @@
 
 package gda.rcp.ncd.views;
 
-import java.util.List;
+import static org.eclipse.swt.SWT.CENTER;
+import static org.eclipse.swt.SWT.FILL;
+import static org.eclipse.swt.SWT.NONE;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -48,13 +50,12 @@ import org.slf4j.LoggerFactory;
 
 import gda.data.metadata.GDAMetadataProvider;
 import gda.device.DeviceException;
-import gda.device.EnumPositioner;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 import gda.rcp.ncd.Activator;
 import gda.rcp.ncd.NcdController;
-import gda.rcp.ncd.widgets.ShutterGroup;
+import gda.rcp.ncd.widgets.ShutterControls;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.client.UIHelper;
 
@@ -68,7 +69,6 @@ public class NcdButtonPanelView extends ViewPart {
 	private final int historyLength = 6;
 	private String titleString;
 	protected Text thicknessPositionLabel;
-	private Button startButton;
 	protected Button retainMetadata;
 	private String[] titleList;
 
@@ -167,18 +167,28 @@ public class NcdButtonPanelView extends ViewPart {
 	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite parent) {
-		GridLayout gl_parent = new GridLayout(3, false);
+		GridLayout gl_parent = new GridLayout(2, false);
 		gl_parent.verticalSpacing = 12;
 		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 2);
 		parent.setLayoutData(gridData);
 		parent.setLayout(gl_parent);
 
-		{
-			startButton = new Button(parent, SWT.NONE);
-			startButton.setText("Start");
-			startButton.setToolTipText("Run a data acquisition using the configured frameset");
-			startButton.addSelectionListener(startListener);
-		}
+		var buttonComposite = new Composite(parent, NONE);
+		buttonComposite.setLayout(new GridLayout(1, false));
+		buttonComposite.setLayoutData(new GridData(CENTER, CENTER, false, false));
+
+		Button startButton = new Button(buttonComposite, SWT.NONE);
+		startButton.setLayoutData(new GridData(FILL, FILL, true, true));
+		startButton.setText("Start");
+		startButton.setToolTipText("Run a data acquisition using the configured frameset");
+		startButton.addSelectionListener(startListener);
+
+		Button stopButton = new Button(buttonComposite, SWT.NONE);
+		stopButton.setLayoutData(new GridData(FILL, FILL, true, true));
+		stopButton.setText("Stop");
+		stopButton.setToolTipText("Stop detectors");
+		stopButton.addSelectionListener(stopListener);
+
 		{
 			Composite metadata = new Composite(parent, SWT.NONE);
 			metadata.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1,3));
@@ -252,20 +262,8 @@ public class NcdButtonPanelView extends ViewPart {
 			}
 		}
 
-		Composite shutterComp = new Composite(parent, SWT.NONE);
-		shutterComp.setLayout(new GridLayout(1, false));
-		shutterComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1,2));
-		List<EnumPositioner> shutters = Finder.listFindablesOfType(EnumPositioner.class);
-		for (EnumPositioner shutter : shutters) {
-			new ShutterGroup(shutterComp, SWT.NONE, shutter);
-		}
-
-		{
-			Button stopButton = new Button(parent, SWT.NONE);
-			stopButton.setText("Stop");
-			stopButton.setToolTipText("Stop detectors");
-			stopButton.addSelectionListener(stopListener);
-		}
+		var shutterControls = new ShutterControls(parent, NONE);
+		shutterControls.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2,2));
 
 		titleString = GDAMetadataProvider.getInstance(true).getMetadataValue("title");
 		titleEntry.setText(titleString);

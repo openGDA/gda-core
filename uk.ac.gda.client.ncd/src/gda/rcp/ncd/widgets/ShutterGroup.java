@@ -18,17 +18,20 @@
 
 package gda.rcp.ncd.widgets;
 
-import java.util.HashMap;
+import static org.eclipse.swt.SWT.CENTER;
+import static org.eclipse.swt.SWT.FILL;
+
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -43,21 +46,20 @@ import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.observable.IObserver;
 import gda.rcp.ncd.Activator;
+import uk.ac.diamond.daq.concurrent.Async;
 
-public class ShutterGroup implements IObserver, Runnable {
+public class ShutterGroup implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ShutterGroup.class);
 
-	private static final Map<String, String> status2action = new HashMap<String, String>() {
-		{
-			put("Open", "Close");
-			put("Closed", "Open");
-			put("Close", "Open"); // this one is for testing with the demented dummy
-			put("Fault", "Reset");
-			put("Opening", "Wait");
-			put("Closing", "Wait");
-		}
-	};
+	private static final Map<String, String> status2action = Map.of(
+			"Open", "Close",
+			"Closed", "Open",
+			"Close", "Open", // this one is for testing with the demented dummy
+			"Fault", "Reset",
+			"Opening", "Wait",
+			"Closing", "Wait"
+	);
 
 	private final EnumPositioner shutter;
 	private final Button button;
@@ -72,23 +74,23 @@ public class ShutterGroup implements IObserver, Runnable {
 
 		group = new Group(parent, style);
 		group.setText(shutter.getName());
+		group.setLayoutData(new GridData(FILL, FILL, true, false));
 
 		this.shutter = shutter;
 
-		RowLayout layout = new RowLayout(SWT.HORIZONTAL);
-		layout.center = true;
+		var layout = new GridLayout(2, false);
 		group.setLayout(layout);
 		group.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
 		label = new Label(group, SWT.NONE);
 		label.setText("  Fault  ");
-		label.setSize(100, 20);
+		label.setLayoutData(new GridData(FILL, CENTER, true, true));
 
 		button = new Button(group, SWT.NONE);
+		button.setLayoutData(new GridData(FILL, FILL, false, true));
 		button.setText("  Wait  ");
 		button.setToolTipText(String.format("Operate %s", shutter.getName()));
-		button.addSelectionListener(new SelectionListener() {
-
+		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// do what is says on the tin
@@ -98,10 +100,7 @@ public class ShutterGroup implements IObserver, Runnable {
 					return;
 				}
 
-				Runnable runnable = new Runnable() {
-
-					@Override
-					public void run() {
+				Async.execute(() -> {
 						try {
 							shutter.asynchronousMoveTo(action);
 						} catch (DeviceException de) {
@@ -112,77 +111,49 @@ public class ShutterGroup implements IObserver, Runnable {
 							Display.getDefault().asyncExec(() -> ErrorDialog.openError(Display.getCurrent().getActiveShell(), "DeviceException", "Error Operating "
 											+ shutter.getName(), status));
 						}
-					}
-				};
-				new Thread(runnable).start();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
+					}, "%s %s button selected", shutter.getName(), action);
 			}
 		});
 
 		red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 		green = Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
-		defaultColor = label.getBackground();
+		defaultColor = SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT);
 		shutter.addIObserver(this);
 		update(null, null);
-		group.addDisposeListener(e -> group.dispose());
+		group.addDisposeListener(e -> shutter.deleteIObserver(this));
 	}
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// TODO I agree it is not too good requesting more information in the update
-					// we should improve the changeCode
-					final String status = shutter.getPosition().toString();
-					final String nextaction = status2action.get(status);
-
-					Display dis = Display.getDefault();
-					dis.asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							if ("Close".equals(status)) {
-								label.setText("Closed");
-								group.setBackground(red);
-							} else if ("FAULT".equals(status)) {
-								label.setText("FAULT");
-								group.setBackground(red);
-							} else {
-								//label.setBackground(green);
-								label.setText(status);
-								group.setBackground(defaultColor);
-							}
-
-							if (nextaction != null) {
-								button.setText(nextaction);
-							} else {
-								// something fishy
-								button.setText("Reset");
-							}
-						}
-					});
-				} catch (DeviceException e) {
-					logger.warn("could not get status for " + shutter.getName() + ": ", e);
-				}
-			}
-		}).start();
-	}
-
-	@Override
-	public void run() {
-		while (!Thread.currentThread().isInterrupted()) {
-			// update every so long, in case an EPICS update is lost
+		Async.execute(() -> {
 			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted while waiting for shutter update", e);
-				Thread.currentThread().interrupt();
-				break;
+				// TODO I agree it is not too good requesting more information in the update
+				// we should improve the changeCode
+				final String status = shutter.getPosition().toString();
+				final String nextaction = status2action.get(status);
+
+				Display dis = Display.getDefault();
+				dis.asyncExec(() -> {
+					if ("Close".equals(status)) {
+						label.setText("Closed");
+						group.setBackground(red);
+					} else if ("FAULT".equals(status)) {
+						label.setText("FAULT");
+						group.setBackground(red);
+					} else {
+						label.setText(status);
+						group.setBackground(defaultColor);
+					}
+
+					if (nextaction != null) {
+						button.setText(nextaction);
+					} else {
+						// something fishy
+						button.setText("Reset");
+					}
+				});
+			} catch (DeviceException e) {
+				logger.warn("could not get status for {}", shutter.getName(), e);
 			}
-			update(null, null);
-		}
+		});
 	}
 }

@@ -18,6 +18,9 @@
 
 package gda.rcp.ncd.views;
 
+import static org.eclipse.swt.SWT.FILL;
+import static org.eclipse.swt.SWT.NONE;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.scanning.api.ui.auto.IModelViewer;
 import org.eclipse.scanning.device.ui.model.InterfaceService;
@@ -38,11 +41,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.swtdesigner.SWTResourceManager;
 
-import gda.device.EnumPositioner;
-import gda.factory.Finder;
 import gda.rcp.ncd.widgets.NcdMetaGroup;
 import gda.rcp.ncd.widgets.NcdScanControlComposite;
-import gda.rcp.ncd.widgets.ShutterGroup;
+import gda.rcp.ncd.widgets.ShutterControls;
 import uk.ac.diamond.daq.msgbus.MsgBus;
 import uk.ac.diamond.daq.scm.api.events.NcdMetaType;
 import uk.ac.diamond.daq.scm.api.events.NcdMsg;
@@ -343,7 +344,7 @@ public class NcdStatus extends ViewPart {
 
 		Composite calibrationDetail = new Composite(parent, SWT.NONE);
 		calibrationDetail.setLayout(new GridLayout(2, true));
-		calibrationDetail.setLayoutData(gdf.grab(true, true).span(3,1).create());
+		calibrationDetail.setLayoutData(gdf.grab(true, false).span(4,1).create());
 
 		Composite saxsCal = new NcdMetaGroup(calibrationDetail, NcdDetectorSystem.SAXS_DETECTOR);
 		saxsCal.setLayoutData(gdf.grab(true, false).align(SWT.FILL, SWT.FILL).span(1,1).create());
@@ -351,14 +352,8 @@ public class NcdStatus extends ViewPart {
 		Composite waxsCal = new NcdMetaGroup(calibrationDetail, NcdDetectorSystem.WAXS_DETECTOR);
 		waxsCal.setLayoutData(gdf.create());
 
-		Composite shutters = new Composite(parent, SWT.NONE);
-		shutters.setLayout(new GridLayout());
-		shutters.setLayoutData(gdf.grab(false, false).create());
-		for (EnumPositioner posn : Finder.listFindablesOfType(EnumPositioner.class)) {
-			if (posn.getName() != null && posn.getName().contains("shutter")) {
-				new ShutterGroup(shutters, SWT.NONE, posn);
-			}
-		}
+		var shutters = new ShutterControls(parent, NONE);
+		shutters.setLayoutData(gdf.span(4, 1).align(FILL, FILL).grab(true, true).create());
 
 		Composite controls = new NcdScanControlComposite(parent, SWT.NONE);
 		controls.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
