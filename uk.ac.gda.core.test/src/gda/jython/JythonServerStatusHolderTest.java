@@ -20,6 +20,8 @@ package gda.jython;
 
 import static gda.jython.JythonStatus.IDLE;
 import static gda.jython.JythonStatus.RUNNING;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -142,4 +144,13 @@ public class JythonServerStatusHolderTest {
 		assertEquals(new JythonServerStatus(IDLE, IDLE), collector.events.get(1));
 	}
 
+	@Test
+	public void testScriptNameIsReturnedInStatus() {
+		holder.tryAcquireScriptLock(SCRIPT_NAME);
+		try {
+			assertThat(holder.getServerStatus(), is(new JythonServerStatus(RUNNING, IDLE, SCRIPT_NAME)));
+		} finally {
+			holder.releaseScriptLock();
+		}
+	}
 }

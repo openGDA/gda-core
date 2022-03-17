@@ -133,8 +133,10 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		text = new Text(this, SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(text);
 		// When the text is changed fire the event for the data binding.
-		text.addModifyListener(e -> notifyListeners(SWT.Modify, null));
-		text.addModifyListener(e -> cacheValue());
+		text.addModifyListener(e -> {
+			cacheValue();
+			notifyListeners(SWT.Modify, null);
+		});
 		// TODO Might want to add validation to stop people typing letters in but need to be very careful WRT data
 		// binding.
 		unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);

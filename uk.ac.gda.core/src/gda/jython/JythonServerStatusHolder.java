@@ -277,7 +277,7 @@ public class JythonServerStatusHolder {
 	public JythonServerStatus getServerStatus() {
 		lock.readLock().lock();
 		try {
-			return new JythonServerStatus(lastScanStatus, getScriptStatus(), scriptName);
+			return new JythonServerStatus(getScriptStatus(), lastScanStatus, scriptName);
 		} finally {
 			lock.readLock().unlock();
 		}
