@@ -11,4 +11,6 @@
       name="documentation.gda"/>
   <requirement
       name="gda-documentation.plain.project"/>
+  <requirement
+      name="uk.ac.diamond.daq.jyunit.test"/>
 </targlets:ComponentExtension>

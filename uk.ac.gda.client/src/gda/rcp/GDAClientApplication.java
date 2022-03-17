@@ -67,9 +67,9 @@ import uk.ac.gda.ui.dialog.VisitIDDialog;
  * This class controls all aspects of the application's execution. We are very similar to an IDEApplication, so some of
  * this code comes from there.
  */
-public class Application implements IApplication {
+public class GDAClientApplication implements IApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+	private static final Logger logger = LoggerFactory.getLogger(GDAClientApplication.class);
 
 	private static final String PROP_EXIT_CODE = "eclipse.exitcode";
 
@@ -534,28 +534,6 @@ public class Application implements IApplication {
 			error.setStackTrace(trimmedTrace);
 			swtDisposeLogger.warn("SWT resource not disposed properly - trimmed creation stack:", error);
 		});
-	}
-
-	/**
-	 * Returns the path to the location of the XML project, e.g. As used for the storage location of the EXAFS project.
-	 * The intention is this project is stored outside the workspace to allow the workspace to be deleted without losing
-	 * the user created XML files. The path can be set via the gda.rcp.xmlproject property, or it will be created in the
-	 * users visit.
-	 *
-	 * @return the path to the xmlproject
-	 */
-	public static String getXmlPath() {
-		String path = null;
-		try {
-			path = InterfaceProvider.getPathConstructor().createFromProperty("gda.rcp.xmlproject");
-		} catch (Exception ne) {
-			path = null;
-		}
-
-		if (path == null) {
-			path = InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml") + File.separator;
-		}
-		return path;
 	}
 
 	private static void createObjectFactory() throws FactoryException {

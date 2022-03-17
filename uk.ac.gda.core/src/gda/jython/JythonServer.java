@@ -248,7 +248,7 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			}
 			try {
 				interp = new GDAJythonInterpreter(jythonScriptPaths);
-				interp.configure(terminalWriter);
+				interp.initialise(terminalWriter);
 				interp.placeInJythonNamespace(Jython.SERVER_NAME, this);
 				jythonCompleter = new JythonCompleter(this);
 				syntaxChecker = new JythonSyntaxChecker();

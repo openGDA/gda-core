@@ -4,7 +4,7 @@ import traceback
 import unittest
 import testhelpers.xmlrunner
 
-def GdaTestRunner(testsuite, desc='', xmlfile=None, report_dir='test-reports/'):
+def GdaTestRunner(testsuite, desc='', xmlfile=None, report_dir='target/surefire-reports/'):
     """Run the given test case or test suite. Uses either XMLTestRunner or TextTestRunner
         testsuite = test suite to run
         desc = description of test suite (used in report)
@@ -14,7 +14,7 @@ def GdaTestRunner(testsuite, desc='', xmlfile=None, report_dir='test-reports/'):
 
     if xmlfile:
         if not os.path.exists(report_dir):
-            os.mkdir(report_dir)
+            os.makedirs(report_dir)
         stream = open(os.path.join(report_dir,xmlfile), "w")
         stream.write('<?xml version="1.0" encoding="utf-8"?>\n')
         testrunner = testhelpers.xmlrunner.XMLTestRunner(stream)

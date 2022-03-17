@@ -66,7 +66,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.rcp.Application;
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
@@ -224,7 +224,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 			} else {
 
 				IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
-				IPath location = new Path(Application.getXmlPath());
+				IPath location = new Path(getXmlPath());
 				desc.setLocation(location);
 				// note: do not add ExperimentProjectNature to the description here as
 				// it expects to be added after project is created and opened.
@@ -247,6 +247,18 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		}
 
 		return project;
+	}
+
+	/**
+	 * Returns the path to the location of the XML project, e.g. As used for the storage location of the EXAFS project.
+	 * The intention is this project is stored outside the workspace to allow the workspace to be deleted without losing
+	 * the user created XML files. The path will be created in the
+	 * users visit.
+	 *
+	 * @return the path to the xmlproject
+	 */
+	private String getXmlPath() {
+		return InterfaceProvider.getPathConstructor().getClientVisitSubdirectory("xml") + File.separator;
 	}
 
 	@Override

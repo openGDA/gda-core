@@ -195,6 +195,7 @@ class CompleterTest(unittest.TestCase):
         options = self.completer.complete('case')
         self.assertListEqual(options, [])
 
+    @unittest.skip("Module import is broken due to using Java 11 with Jython 2.7.1")
     def test_java_package(self):
         global gda
         import gda

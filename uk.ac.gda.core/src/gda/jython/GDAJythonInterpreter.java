@@ -19,7 +19,6 @@
 
 package gda.jython;
 
-import static java.util.stream.Collectors.toSet;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
@@ -28,25 +27,16 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.python.core.ContextManager;
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -70,6 +60,7 @@ import gda.jython.commands.GeneralCommands;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.logging.JythonLogHandler;
 import gda.jython.logging.PythonException;
+import gda.jython.translator.NoopTranslator;
 import gda.jython.translator.Translator;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.gda.common.util.EclipseUtils;
@@ -101,7 +92,7 @@ public class GDAJythonInterpreter {
 	private boolean initialized = false;
 
 	// the translator object used to convert GDA syntax into 'true' jython
-	private static Translator translator = null;
+	private static Translator translator = new NoopTranslator();
 
 	// folders where beamline and user scripts are held
 	private final ScriptPaths jythonScriptPaths;
@@ -167,22 +158,14 @@ public class GDAJythonInterpreter {
 		// told about the bundle locations.
 		if (ECLIPSE_LAUNCH) {
 			BUNDLES_ROOT = LocalProperties.get(LocalProperties.GDA_GIT_LOC);
-			iterateWorkspace();
 		} else {
 			BUNDLES_ROOT = sysProps.getProperty("osgi.syspath");
-			iteratePluginsDirectory(BUNDLES_ROOT);
 		}
 	}
 
 	public GDAJythonInterpreter(final ScriptPaths scriptPaths) {
 		jythonScriptPaths = scriptPaths;
-	}
 
-	/**
-	 * Configures this interpreter.
-	 * @throws Exception
-	 */
-	public void configure(Writer stdout) throws Exception {
 		logger.info("Adding GDA package locations to Jython path...");
 
 		// Obtain script projects from extension point
@@ -292,105 +275,14 @@ public class GDAJythonInterpreter {
 		// Get instance of interactive console
 		interactiveConsole = new GDAInteractiveConsole(mod.__dict__, pss);
 
-		initialise(stdout);
 		logger.info("Jython configured");
 	}
 
 	/**
-	 * Retrieve the set of server plugin directories when running from the eclipse workspace and register
-	 * them with Jython as sources for full package import.
-	 *
+	 * Configure the Jython interpreter, import standard modules, alias commands and inject objects into the namespace.
 	 */
-	private static void iterateWorkspace() {
-		logger.info("Retrieving eclipse workspace server plugin paths for Jython");
-
-		final Set<String> appBundleNames = Arrays.stream(FrameworkUtil.getBundle(GDAJythonInterpreter.class).getBundleContext().getBundles())
-				.map(Bundle::getSymbolicName).collect(toSet());
-		final String unwanted = "^.*?(.feature|.releng|.test|.site|.git).*$";
-		final File workspaceGit = new File(System.getProperties().getProperty("gda.install.git.loc"));
-
-		final File[]repoDirectories = workspaceGit.listFiles(f -> f.isDirectory() && f.getName().endsWith(".git"));
-		for (File repoDir : repoDirectories) {
-			// cope with 'group' repos that have their plugins in a 'plugins' sub directory
-			final Path pluginsDir = Paths.get(repoDir.getAbsolutePath(), "plugins");
-			if (Files.isDirectory(pluginsDir)) {
-				repoDir = pluginsDir.toFile();
-			}
-			// filter 'non-bundle' and test directories
-			final File[]pluginDirectories = repoDir.listFiles(f -> f.isDirectory() && f.getName().contains(".") && !f.getName().matches(unwanted));
-			// Store only the paths for directories corresponding to server plugins from the workspace that are present in the running app
-			Arrays.stream(pluginDirectories).filter(dir -> appBundleNames.contains(dir.getName()))
-                                            .map(dir-> Paths.get(dir.getAbsolutePath(), "bin"))
-                                            .forEach(classesPath -> PySystemState.add_classdir(classesPath.toString()));
-		}
-	}
-
-	/**
-	 * Retrieve the set of plugin directories when running from the exported product and
-	 * register them with Jython as sources for full package import filtering out TP plugins.
-	 * If parsing the artifacts.xml file fails an error is logged but execution will proceed
-	 * without further restricting the plugins that will allow import *.
-	 *
-	 * @param osgiSysPath	The path to the plugins directory in the exported product
-	 */
-	private static void iteratePluginsDirectory(final String osgiSysPath) {
-		logger.info("Retrieving server product plugin paths for Jython");
-
-		// Read in the target platform plugin names so that they can be skipped
-		final Set<String> unwanted = new HashSet<>();
-		try (Stream<String> stream = Files.lines(Paths.get(osgiSysPath, "..", "configuration", "target_platform_artifacts.xml"))) {
-			stream.forEach(line -> {
-				if (line.contains(" classifier='osgi.bundle'")) {
-					unwanted.add(getTPArtifactAttributeValue(line, "id") + "_" + getTPArtifactAttributeValue(line, "version"));
-					}
-				});
-		} catch (IOException | UncheckedIOException e) {
-			logger.debug("Unable to successfully read target platform artifacts file, import * will not be fully restricted", e);
-		}
-		// Initialise the Jython registry skipping target platform bundles.
-		// The 'from xx import *' syntax will be supported for the remaining bundles
-		for(File file : new File(osgiSysPath).listFiles()) {
-			String name = file .getName();
-			if (name.endsWith(".jar")) {
-				name = name.substring(0, name.indexOf(".jar"));
-			}
-			if (!unwanted.contains(name)) {
-				if (file.isDirectory()) {
-					PySystemState.add_classdir(file.getAbsolutePath());
-				} else {
-					PySystemState.packageManager.addJar(file.getAbsolutePath(), false);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Extract the value of an attribute from one of the artifact tags read in from the target platform
-	 * artifact.xml file.
-	 *
-	 * @param artifactTag		The artifact tag string
-	 * @param attributeName		The name of the attribute whose value it to be retrieved
-	 * @return					The value requested if found successfully
-	 * @throws					UncheckedIOException if the attribute name or its terminating quote cannot be found
-	 */
-	private static String getTPArtifactAttributeValue(final String artifactTag, final String attributeName) throws UncheckedIOException {
-		final String match = " " + attributeName + "='";
-		final int matchLength = match.length();
-		final int from = artifactTag.indexOf(match) + matchLength;	// indexOf will return -1 if not found in which case from will be < matchLength
-		final int to = artifactTag.indexOf("'", from);
-		if (from < matchLength || to == -1) {
-			throw new UncheckedIOException(new IOException("Cannot read " + attributeName + " in artifact tag of target_platform_artifacts.xml file"));
-		}
-		return artifactTag.substring(from, to);
-	}
-
-	/**
-	 * Set up the Jython interpreter and run Jython scripts to connect to the ObjectServer. This must be run once by the
-	 * calling program after the interpreter instance has been created.
-	 */
-	private void initialise(Writer stdout) throws Exception {
+	void initialise(Writer stdout) throws Exception {
 		if (!initialized) {
-
 			try {
 				// TODO Maybe the translator should be configured via Spring not property? This would remove this code.
 				final String translatorClassName = LocalProperties.get("gda.jython.translator.class", "TokenStreamTranslator");

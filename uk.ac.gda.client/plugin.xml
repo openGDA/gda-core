@@ -10,7 +10,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="gda.rcp.Application">
+               class="gda.rcp.GDAClientApplication">
          </run>
       </application>
    </extension>
