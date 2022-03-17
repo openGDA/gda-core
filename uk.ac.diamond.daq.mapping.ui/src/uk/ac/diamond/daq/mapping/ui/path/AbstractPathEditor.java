@@ -51,13 +51,13 @@ public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<I
 	/**
 	 * Common options that this class can add controls for.
 	 */
-	public enum CommonOption implements PathOption {
+	public enum CommonPathOption implements PathOption {
 		ALTERNATING, CONTINUOUS, BOUNDING_FIT_CAPABLE
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPathEditor.class);
 
-	private static final Set<PathOption> ALL_COMMON_OPTIONS = unmodifiableSet(EnumSet.allOf(CommonOption.class));
+	private static final Set<PathOption> ALL_COMMON_OPTIONS = unmodifiableSet(EnumSet.allOf(CommonPathOption.class));
 
 	private Set<PathOption> optionsToDisplay = ALL_COMMON_OPTIONS;
 	private Button continuous;
@@ -72,20 +72,20 @@ public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<I
 	 * @param parent composite to draw the controls on
 	 */
 	protected void makeCommonOptionsControls(Composite parent) {
-		if (shouldDisplayOption(CommonOption.ALTERNATING)) {
+		if (shouldDisplayOption(CommonPathOption.ALTERNATING)) {
 			makeAlternatingControl(parent);
 		}
-		if (shouldDisplayOption(CommonOption.CONTINUOUS)) {
+		if (shouldDisplayOption(CommonPathOption.CONTINUOUS)) {
 			makeContinuousControl(parent);
 		}
-		if (shouldDisplayOption(CommonOption.BOUNDING_FIT_CAPABLE)) {
+		if (shouldDisplayOption(CommonPathOption.BOUNDING_FIT_CAPABLE)) {
 			makeBoundsFitControl(parent);
 		}
 	}
 
 	protected boolean shouldDisplayOption(PathOption option) {
 		return optionsToDisplay.contains(option) &&
-			(option != CommonOption.BOUNDING_FIT_CAPABLE || isBoundingFitCapable());
+			(option != CommonPathOption.BOUNDING_FIT_CAPABLE || isBoundingFitCapable());
 	}
 
 	/**
