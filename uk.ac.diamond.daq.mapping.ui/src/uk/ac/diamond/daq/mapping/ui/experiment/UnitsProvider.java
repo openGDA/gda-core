@@ -34,6 +34,10 @@ import java.util.Set;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Energy;
+import javax.measure.quantity.Length;
 
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
@@ -41,8 +45,6 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
 
 import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.mapping.api.MappingRegionUnits;
@@ -60,10 +62,10 @@ public class UnitsProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(UnitsProvider.class);
 
-	private static final Set<Unit<? extends Quantity<?>>> DIMENSIONLESS_OR_UNKNOWN_UNITS = ImmutableSet.of(ONE);
-	private static final Set<Unit<? extends Quantity<?>>> LENGTH_UNITS = ImmutableSet.of(MILLI(METRE), MICRO(METRE), NANO(METRE));
-	private static final Set<Unit<? extends Quantity<?>>> ANGLE_UNITS = ImmutableSet.of(MILLI(DEGREE_ANGLE), DEGREE_ANGLE);
-	private static final Set<Unit<? extends Quantity<?>>> ENERGY_UNITS = ImmutableSet.of(ELECTRON_VOLT, KILO(ELECTRON_VOLT));
+	private static final Set<Unit<Dimensionless>> DIMENSIONLESS_OR_UNKNOWN_UNITS = Set.of(ONE);
+	private static final Set<Unit<Length>> LENGTH_UNITS = Set.of(MILLI(METRE), MICRO(METRE), NANO(METRE));
+	private static final Set<Unit<Angle>> ANGLE_UNITS = Set.of(MILLI(DEGREE_ANGLE), DEGREE_ANGLE);
+	private static final Set<Unit<Energy>> ENERGY_UNITS = Set.of(ELECTRON_VOLT, KILO(ELECTRON_VOLT));
 
 	private static final String DEFAULT_LENGTH_UNITS_STRING = "mm";
 
@@ -73,15 +75,16 @@ public class UnitsProvider {
 	/**
 	 * Returns the base {@link Unit} of the scannable with the given name
 	 */
-	public Unit<? extends Quantity<?>> getScannableUnit(String scannableName) {
+	public <Q extends Quantity<Q>> Unit<Q> getScannableUnit(String scannableName) {
 		return QuantityFactory.createUnitFromString(getScannableUnitString(scannableName));
 	}
 
 	/**
 	 * Returns 'sensible' (subjective) alternative units for the scannable with the given name
 	 */
-	public Set<Unit<? extends Quantity<?>>> getCompatibleUnits(String scannableName) {
-		final Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
+	public <Q extends Quantity<Q>> Set<Unit<Q>> getCompatibleUnits(String scannableName) {
+		@SuppressWarnings("unchecked")
+		final Unit<Q> scannableUnit = (Unit<Q>) getScannableUnit(scannableName);
 		return getCompatibleUnits(scannableUnit);
 	}
 
@@ -92,18 +95,23 @@ public class UnitsProvider {
 	 *            the unit for which we want to find compatible units
 	 * @return set of compatible units
 	 */
-	public static Set<Unit<? extends Quantity<?>>> getCompatibleUnits(Unit<? extends Quantity<?>> scannableUnit) {
-		if (ONE.equals(scannableUnit)) return DIMENSIONLESS_OR_UNKNOWN_UNITS;
-		if (scannableUnit.isCompatible(METRE)) {
-			return LENGTH_UNITS;
+	@SuppressWarnings("unchecked")
+	public static <Q extends Quantity<Q>> Set<Unit<Q>> getCompatibleUnits(Unit<Q> scannableUnit) {
+		// We cannot use Set<Unit<Q>> as, e.g. Set<Unit<Length>> cannot be assigned to it (TODO: is there a better way of doing this)
+		Set<?> result;
+		if (ONE.equals(scannableUnit)) {
+			result = DIMENSIONLESS_OR_UNKNOWN_UNITS;
+		} else if (scannableUnit.isCompatible(METRE)) {
+			result = LENGTH_UNITS;
 		} else if (scannableUnit.isCompatible(RADIAN)) {
-			return ANGLE_UNITS;
+			result = ANGLE_UNITS;
 		} else if (scannableUnit.isCompatible(JOULE)) {
-			return ENERGY_UNITS;
+			result = ENERGY_UNITS;
+		} else {
+			logger.warn("Unsupported dimension {}. Returning standard length units", scannableUnit.getDimension());
+			result = LENGTH_UNITS;
 		}
-
-		logger.warn("Unsupported dimension {}. Returning standard length units", scannableUnit.getDimension());
-		return LENGTH_UNITS;
+		return (Set<Unit<Q>>) result;
 	}
 
 	/**
@@ -115,10 +123,10 @@ public class UnitsProvider {
 	 * <li>{@link MappingRegionUnits} configured as an OSGi service
 	 * </ul>
 	 */
-	public Unit<? extends Quantity<?>> getInitialUnit(String scannableName, String propertyName) {
-		Unit<? extends Quantity<?>> scannableUnit = getScannableUnit(scannableName);
+	public <Q extends Quantity<Q>> Unit<Q> getInitialUnit(String scannableName, String propertyName) {
+		final Unit<Q> scannableUnit = getScannableUnit(scannableName);
 		if (scannableUnit.isCompatible(METRE)) {
-			String initialUnitString = getLengthUnitsService().getUnits(propertyName, getScannableUnitString(scannableName));
+			final String initialUnitString = getLengthUnitsService().getUnits(propertyName, getScannableUnitString(scannableName));
 			return QuantityFactory.createUnitFromString(initialUnitString);
 		}
 		return scannableUnit;
