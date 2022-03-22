@@ -602,7 +602,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	}
 
 	/**
-	 * Create the job in the Eclipse infrastructure to calculate the points for the cvurrent region shape and scan path
+	 * Create the job in the Eclipse infrastructure to calculate the points for the current region shape and scan path
 	 *
 	 * @return	A reference to the created {@link Job}
 	 */

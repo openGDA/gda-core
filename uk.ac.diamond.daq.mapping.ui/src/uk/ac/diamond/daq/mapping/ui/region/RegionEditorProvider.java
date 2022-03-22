@@ -31,6 +31,7 @@ import uk.ac.diamond.daq.mapping.region.LineMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PointMappingRegion;
 import uk.ac.diamond.daq.mapping.region.PolygonMappingRegion;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
+import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
 
 /**
  * Class managing the custom editors for different region types.
@@ -65,11 +66,11 @@ public final class RegionEditorProvider {
 	 * @param bundleContext the IEclipseContext used in ContextInjectionFactory::make
 	 * @return An editor for editing the requested region
 	 */
-	public static AbstractRegionEditor createRegionEditor(IMappingScanRegionShape mappingScanRegion, Map<String, String> regionUnits, IEclipseContext bundleContext) {
+	public static AbstractRegionPathModelEditor<IMappingScanRegionShape> createRegionEditor(IMappingScanRegionShape mappingScanRegion, Map<String, String> regionUnits, IEclipseContext bundleContext) {
 		Class<? extends AbstractRegionEditor> editorClass = regionToEditor.get(mappingScanRegion.getClass());
-		AbstractRegionEditor editor = ContextInjectionFactory.make(editorClass, bundleContext);
+		AbstractRegionPathModelEditor<IMappingScanRegionShape> editor = ContextInjectionFactory.make(editorClass, bundleContext);
 		editor.setModel(mappingScanRegion);
-		editor.setRegionUnits(regionUnits);
+		editor.setAxisUnits(regionUnits);
 		return editor;
 	}
 

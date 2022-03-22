@@ -30,6 +30,7 @@ import static tec.units.indriya.unit.Units.METRE;
 import static tec.units.indriya.unit.Units.RADIAN;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.measure.Quantity;
@@ -39,6 +40,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.scanning.api.IScannable;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -71,6 +73,15 @@ public class UnitsProvider {
 
 	private IScannableDeviceService scannableService;
 	private MappingRegionUnits lengthUnitsService;
+	private Map<String, String> defaultUnits;
+
+	public UnitsProvider() {
+		this(null);
+	}
+
+	public UnitsProvider(Map<String, String> defaultUnits) {
+		this.defaultUnits = defaultUnits != null ? defaultUnits : Collections.emptyMap();
+	}
 
 	/**
 	 * Returns the base {@link Unit} of the scannable with the given name
@@ -145,10 +156,10 @@ public class UnitsProvider {
 			logger.warn("Scannable service is has not been set); using defaults!");
 			return DEFAULT_LENGTH_UNITS_STRING;
 		}
-		IScannable<?> scannable;
 		try {
-			scannable = scannableService.getScannable(scannableName);
-			return scannable.getUnit();
+			final IScannable<?> scannable = scannableService.getScannable(scannableName);
+			final String unitStr = scannable.getUnit();
+			return StringUtils.isNotEmpty(unitStr) ? unitStr : defaultUnits.getOrDefault(scannableName, "");
 		} catch (ScanningException e) {
 			logger.error("Could not retrieve scannable with name '{}'. Returning default length units", scannableName, e);
 			return DEFAULT_LENGTH_UNITS_STRING;

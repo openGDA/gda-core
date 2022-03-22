@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.measure.Quantity;
@@ -63,6 +64,7 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 */
 	private UnitsProvider units;
 
+	private boolean unitsEditable;
 
 	/**
 	 * Apply to a control to make it fill horizontal space
@@ -73,6 +75,8 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 * For common binding calls
 	 */
 	protected final DataBinder binder = new DataBinder();
+
+	protected Map<String, String> axisUnits;
 
 	/**
 	 * Set the names of the x axis and y axis to display. If this method is not called, the axis names
@@ -135,14 +139,17 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 * @return a {@link NumberAndUnitsComposite} initialised for the scannable
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected <Q extends Quantity<Q>> NumberAndUnitsComposite<Q> createNumberAndUnitsComposite(Composite parent, String axisName, String modelPropertyName) {
-		return new NumberAndUnitsComposite(parent, SWT.NONE, getUnitsProvider().getScannableUnit(axisName),
-				getUnitsProvider().getCompatibleUnits(axisName), getUnitsProvider().getInitialUnit(axisName, modelPropertyName));
+	protected <Q extends Quantity<Q>> NumberAndUnitsComposite<Q> createNumberAndUnitsComposite(Composite parent,
+			String axisName, String modelPropertyName) {
+		return new NumberAndUnitsComposite(parent, unitsEditable ? SWT.NONE : SWT.READ_ONLY,
+				getUnitsProvider().getScannableUnit(axisName),
+				getUnitsProvider().getCompatibleUnits(axisName),
+				getUnitsProvider().getInitialUnit(axisName, modelPropertyName));
 	}
 
 	private UnitsProvider getUnitsProvider() {
 		if (units == null) {
-			units = new UnitsProvider();
+			units = new UnitsProvider(axisUnits);
 			try {
 				units.setScannableService(getScannableDeviceService());
 			} catch (EventException e) {
@@ -151,4 +158,20 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 		}
 		return units;
 	}
+
+	public void setUnitsEditable(boolean unitsEditable) {
+		this.unitsEditable = unitsEditable;
+	}
+
+	/**
+	 * Sets a map specifying the units to display for each axis. When the user selects new units for a particular axis
+	 * this map will be updated. Note, this is for display purposes only, the actual units come from the scannable with
+	 * the given axis name. May be <code>null</code> or empty.
+	 *
+	 * @param axisUnits
+	 */
+	public void setAxisUnits(Map<String, String> axisUnits) {
+		this.axisUnits = axisUnits;
+	}
+
 }

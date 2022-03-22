@@ -20,7 +20,9 @@ package uk.ac.gda.client;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.measure.Quantity;
@@ -38,6 +40,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import gda.configuration.properties.LocalProperties;
@@ -52,25 +55,39 @@ import tec.units.indriya.quantity.Quantities;
  * Generic parameter Q is the type of quantity this composite can be used to edit e.g. {@link Energy}, {@link Length},
  * {@link Time}
  * <p>
- * The composite contains a text box with the numeric value (displayed in scientific format if appropriate) and a
- * drop-down box to choose units:<br>
+ * If the style READ_ONLY is not specified, the composite contains a text box with the numeric value
+ * (displayed in scientific format if appropriate) and a drop-down box to choose units:<br>
  * <img src="NumberAndUnitsComposite-microns.png"><br>
  * It automatically converts the numeric value when the units are changed:<br>
  * <img src="NumberAndUnitsComposite-nanometres.png"><br>
+ * If the style READ_ONLY is specified, then a read-only label will be created to display the units instead of a drop-down box.
+ *
+ * <dl>
+ * <dt><b>Styles:</b></dt>
+ * <dd>READ_ONLY, NO_BACKGROUND, NO_FOCUS, NO_MERGE_PAINTS, NO_REDRAW_RESIZE, NO_RADIO_GROUP, EMBEDDED, DOUBLE_BUFFERED</dd>
+ * <dt><b>Events:</b></dt>
+ * <dd>(none)</dd>
+ * </dl>
+ *
  *
  * @author James Mudd
  * @author Anthony Hull
  */
 public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
-	/** The text field showing the numeric value */
-	private final Text text;
-	/** The combo box to select the units */
-	private final ComboViewer unitsCombo;
+
+	public interface UnitSelectionChangedListener<Q extends Quantity<Q>> {
+		public void unitSelectionChanged(Unit<Q> newUnit);
+	}
 
 	/** Display 3 decimal places by default */
 	private static final String DEFAULT_DECIMAL_FORMAT = "0.###";
 	/** Used to format when the absolute number in the current units is 1e-3< number <1e3 */
 	private static final String PROPERTY_DECIMAL_FORMAT = "gda.client.decimalFormat";
+
+	/** The text field showing the numeric value */
+	private final Text numberText;
+	/** The combo box to select the units */
+	private ComboViewer unitsComboViewer;
 
 	/** Units of the corresponding model value */
 	private final Unit<Q> modelUnit;
@@ -82,6 +99,8 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 
 	private double valueInCurrentUnits;
 	private boolean displayingFormattedData;
+
+	private final List<UnitSelectionChangedListener<Q>> unitSelectionChangeListeners = new ArrayList<>(1);
 
 	/**
 	 * Constructor for the case where only one unit is permitted
@@ -104,7 +123,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	}
 
 	/**
-	 * Constructor
+	 * General constructor to create a new {@link NumberAndUnitsComposite}.
 	 *
 	 * @param parent
 	 *            parent composite
@@ -130,32 +149,48 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		GridDataFactory.fillDefaults().applyTo(this);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this);
 
-		text = new Text(this, SWT.BORDER);
+		numberText = createNumberControl();
+
+		// TODO Might want to add validation to stop people typing letters in but need to be very careful WRT data binding.
+		createUnitsControl(validUnits, initialUnit);
+
+		String format = getDecimalFormat();
+		decimalFormat = new DecimalFormat(format);
+		scientificFormat = new DecimalFormat(format + "E0");
+	}
+
+	private Text createNumberControl() {
+		final Text text = new Text(this, SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(text);
 		// When the text is changed fire the event for the data binding.
 		text.addModifyListener(e -> {
 			cacheValue();
 			notifyListeners(SWT.Modify, null);
 		});
-		// TODO Might want to add validation to stop people typing letters in but need to be very careful WRT data
-		// binding.
-		unitsCombo = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
-		unitsCombo.setContentProvider(ArrayContentProvider.getInstance());
-		unitsCombo.setInput(validUnits);
-		unitsCombo.setSelection(new StructuredSelection(initialUnit));
-		unitsCombo.addSelectionChangedListener(this::handleUnitChange);
-		unitsCombo.setLabelProvider(new LabelProvider() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public String getText(Object element) {
-				return NonSIext.getUnitString((Unit<? extends Quantity<?>>) element);
-			}
-		});
-		unitsCombo.getCombo().addListener(SWT.MouseWheel, evt -> evt.doit = false);
 
-		String format = getDecimalFormat();
-		decimalFormat = new DecimalFormat(format);
-		scientificFormat = new DecimalFormat(format + "E0");
+		return text;
+	}
+
+	private void createUnitsControl(Set<Unit<Q>> validUnits, Unit<Q> initialUnit) {
+		if ((getStyle() & SWT.READ_ONLY) != 0) {
+			final Label label = new Label(this, SWT.NONE);
+			label.setText(getLabel(initialUnit));
+		} else {
+			unitsComboViewer = new ComboViewer(this, SWT.NONE | SWT.READ_ONLY);
+			unitsComboViewer.setContentProvider(ArrayContentProvider.getInstance());
+			unitsComboViewer.setInput(validUnits);
+			unitsComboViewer.setSelection(new StructuredSelection(initialUnit));
+			unitsComboViewer.addSelectionChangedListener(this::handleUnitChange);
+			unitsComboViewer.setLabelProvider(LabelProvider.createTextProvider(this::getLabel));
+			unitsComboViewer.getCombo().addListener(SWT.MouseWheel, evt -> evt.doit = false);
+		}
+	}
+
+	private String getLabel(Object element) {
+		if (element instanceof Unit<?>) {
+			return NonSIext.getUnitString((Unit<?>) element);
+		}
+		throw new IllegalArgumentException("Unexpected element type: " + element.getClass());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -163,6 +198,8 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		final Quantity<? extends Quantity<?>> currentValue = getValueAsQuantity(); // in "old" units
 		currentUnit = (Unit<Q>) ((StructuredSelection) event.getSelection()).getFirstElement();
 		setValue(((Quantity) currentValue).to(modelUnit).getValue().doubleValue());
+
+		unitSelectionChangeListeners.forEach(listener -> listener.unitSelectionChanged(currentUnit));
 	}
 
 	/**
@@ -170,7 +207,7 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 	 */
 	private void cacheValue() {
 		if (!displayingFormattedData) {
-			valueInCurrentUnits = Double.parseDouble(text.getText());
+			valueInCurrentUnits = Double.parseDouble(numberText.getText());
 		}
 	}
 
@@ -210,12 +247,26 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		// Check if the absolute the value is not exactly zero and larger than 1000 or smaller than 0.001
 		// Check for != 0.0 so 0 is displayed as 0 not 0E0
 		if (absValueInCurrentUnits != 0.0 && (absValueInCurrentUnits <= 1e-3 || absValueInCurrentUnits >= 1e3)) {
-			text.setText(scientificFormat.format(valueInCurrentUnits));
+			numberText.setText(scientificFormat.format(valueInCurrentUnits));
 		} else {
-			text.setText(decimalFormat.format(valueInCurrentUnits));
+			numberText.setText(decimalFormat.format(valueInCurrentUnits));
 		}
 
 		displayingFormattedData = false;
+	}
+
+	public void setUnit(Unit<Q> unit) {
+		if (unitsComboViewer != null) {
+			unitsComboViewer.setSelection(new StructuredSelection(unit));
+		}
+	}
+
+	public Unit<Q> getUnit() {
+		return currentUnit;
+	}
+
+	public void addUnitSelectionChangedListener(UnitSelectionChangedListener<Q> listener) {
+		unitSelectionChangeListeners.add(listener);
 	}
 
 	/**
@@ -227,13 +278,9 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 		return LocalProperties.get(PROPERTY_DECIMAL_FORMAT, DEFAULT_DECIMAL_FORMAT);
 	}
 
-	public ComboViewer getUnitsCombo() {
-		return unitsCombo;
-	}
-
 	@Override
 	public String toString() {
-		return "NumberAndUnitsComposite [text=" + text + ", unitsCombo=" + unitsCombo + ", modelUnit=" + modelUnit
+		return "NumberAndUnitsComposite [text=" + numberText + ", unitsComboViewer=" + unitsComboViewer + ", modelUnit=" + modelUnit
 				+ ", currentUnit=" + currentUnit + ", decimalFormat=" + decimalFormat + ", scientificFormat="
 				+ scientificFormat + ", valueInCurrentUnits=" + valueInCurrentUnits + ", displayingFormattedData="
 				+ displayingFormattedData + "]";

@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.region;
 
-import java.util.Map;
-
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
@@ -27,9 +25,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.widgets.Widget;
@@ -48,8 +43,6 @@ import uk.ac.gda.client.NumberAndUnitsComposite;
 public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor<IMappingScanRegionShape> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionEditor.class);
-
-	private Map<String, String> regionUnits;
 
 	/**
 	 * @param scannableName
@@ -166,32 +159,15 @@ public abstract class AbstractRegionEditor extends AbstractRegionPathModelEditor
 	 *            the name of the widget (used as key to the units map)
 	 */
 	protected void bindUnitsCombo(NumberAndUnitsComposite<Length> widget, String comboName) {
-		final ComboViewer unitsCombo = widget.getUnitsCombo();
-
-		if (regionUnits != null) {
-			// If units have been changed from the default, select the appropriate units in the combo box
-			if (regionUnits.containsKey(comboName)) {
-				final Unit<Length> unit = QuantityFactory.createUnitFromString(regionUnits.get(comboName));
-				final ISelection selection = new StructuredSelection(unit);
-				unitsCombo.setSelection(selection);
+		if (axisUnits != null) {
+			// select the appropriate units if they have been changed from the default
+			if (axisUnits.containsKey(comboName)) {
+				final Unit<Length> unit = QuantityFactory.createUnitFromString(axisUnits.get(comboName));
+				widget.setUnit(unit);
 			}
 
 			// Add a listener for future changes
-			unitsCombo.addSelectionChangedListener(event -> {
-				final String newUnit = ((StructuredSelection) unitsCombo.getSelection()).getFirstElement().toString();
-				regionUnits.put(comboName, newUnit);
-			});
+			widget.addUnitSelectionChangedListener(newUnit -> axisUnits.put(comboName, widget.getUnit().toString()));
 		}
-	}
-
-	/**
-	 * Sets a map specifying the units to display for each axis. When the user selects new units for a particular axis
-	 * this map will be updated. Note, this is for display purposes only, the actual units come from the scannable with
-	 * the given axis name. May be <code>null</code> or empty.
-	 *
-	 * @param mappingRegionUnits
-	 */
-	public void setRegionUnits(Map<String, String> mappingRegionUnits) {
-		this.regionUnits = mappingRegionUnits;
 	}
 }
