@@ -27,7 +27,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.scanning.api.device.AbstractRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -130,15 +129,15 @@ public class MandelbrotExampleTest extends NexusTest {
 
 		NXdata nXdata = nxDataGroups.get(nxDataGroups.keySet().iterator().next());
 		//3d spiral, outer should be 0, inner should both be 1
-		Attribute att = nXdata.getAttribute("neXusScannable1" + VALUE_SET_FIELD + NexusConstants.DATA_INDICES_SUFFIX);
+		Attribute att = nXdata.getAttribute("neXusScannable1_value_set_indices");
 		String e = att.getFirstElement();
 		assertEquals(0, Integer.parseInt(e));
 
-		att = nXdata.getAttribute("xNex" + VALUE_SET_FIELD + NexusConstants.DATA_INDICES_SUFFIX);
+		att = nXdata.getAttribute("xNex" + "_value_set_indices");
 		e = att.getFirstElement();
 		assertEquals(1, Integer.parseInt(e));
 
-		att = nXdata.getAttribute("yNex" + VALUE_SET_FIELD + NexusConstants.DATA_INDICES_SUFFIX);
+		att = nXdata.getAttribute("yNex" + "_value_set_indices");
 		e = att.getFirstElement();
 		assertEquals(1, Integer.parseInt(e));
 	}
@@ -148,7 +147,7 @@ public class MandelbrotExampleTest extends NexusTest {
 		detector.getModel().setSaveImage(false);
 		try {
 
-			IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, 8 ,5); // Outer scan of another scannable, for instance temp.
+			IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, new int[]{8,5}); // Outer scan of another scannable, for instance temp.
 			assertScanNotFinished(getNexusRoot(scanner).getEntry());
 			scanner.run(null);
 

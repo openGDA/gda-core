@@ -49,7 +49,6 @@ import org.eclipse.dawnsci.nexus.NXslit;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
-import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.validation.NexusValidationServiceImpl;
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IWritableDetector;
@@ -356,7 +355,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		final NXentry entry = getNexusRoot(scanner).getEntry();
 		final String detName = detector.getName();
 		assertThat(entry.getGroupNodeNames(), containsInAnyOrder("instrument", "sample",
-				detName, detName + NexusConstants.FIELD_SEPERATOR + "spectrum", detName + VALUE_FIELD, GROUP_NAME_DIAMOND_SCAN,
+				detName, detName + "_spectrum", detName + "_value", GROUP_NAME_DIAMOND_SCAN,
 				EXPECTED_USER_GROUP_NAME));
 		checkSampleGroup(entry);
 		checkUsers(entry);
