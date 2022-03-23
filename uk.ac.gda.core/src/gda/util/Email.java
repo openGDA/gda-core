@@ -133,7 +133,10 @@ public class Email {
 		if (from == null) {
 			String beamlineName = "GDA " + LocalProperties.get("gda.beamline.name", "??");
 			String user = System.getenv("USER");
-			String host = System.getenv("HOST");
+			String host = LocalProperties.get("gda.util.email.defaultdomain");
+			if (host == null) {
+				throw new IllegalStateException("Default email domain not set");
+			}
 			from = formatFrom(beamlineName, user + "@" + host);
 		}
 		if (to.size() + cc.size() + bcc.size() == 0) {
