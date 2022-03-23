@@ -89,7 +89,6 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
-import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
@@ -664,7 +663,7 @@ public class ScannableNexusWrapperScanTest {
 
 		// Check axes
 		final List<String> expectedAxesNames = Stream.concat(
-				scannableNames.stream().map(x -> x + NexusConstants.FIELD_SEPERATOR + FIELD_NAME_VALUE_SET),
+				scannableNames.stream().map(x -> x + "_" + FIELD_NAME_VALUE_SET),
 				Arrays.asList("real", "imaginary").stream()).collect(Collectors.toList());
 		assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
@@ -720,7 +719,7 @@ public class ScannableNexusWrapperScanTest {
 			assertThat(shape.length, is(1));
 			assertThat(shape[0], is(sizes[scannableIndex]));
 
-			String nxDataFieldName = scannableName + NexusConstants.FIELD_SEPERATOR + FIELD_NAME_VALUE_SET;
+			String nxDataFieldName = scannableName + "_" + FIELD_NAME_VALUE_SET;
 			assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 			assertIndices(nxData, nxDataFieldName, scannableIndex);
 			assertTarget(nxData, nxDataFieldName, rootNode,
@@ -751,7 +750,7 @@ public class ScannableNexusWrapperScanTest {
 
 				assertThat(dataNode.getAttribute(ATTR_NAME_LOCAL_NAME), is(notNullValue()));
 				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_LOCAL_NAME),
-						is(equalTo(scannableName + NexusConstants.FIELD_SEPERATOR + inputFieldNames.get(fieldIndex))));
+						is(equalTo(scannableName + "." + inputFieldNames.get(fieldIndex))));
 				assertThat(dataNode.getAttribute(ATTR_NAME_GDA_FIELD_NAME), is(notNullValue()));
 				assertThat(valueFieldName, positioner.getAttrString(valueFieldName, ATTR_NAME_GDA_FIELD_NAME),
 						is(equalTo(inputFieldNames.get(fieldIndex))));
@@ -764,7 +763,7 @@ public class ScannableNexusWrapperScanTest {
 				if (fieldIndex == 0) {
 					// currently only the first field of a Scannable is linked to from an NXdata group,
 					// this is probably incorrect, see JIRA DAQ-311
-					nxDataFieldName = scannableName + NexusConstants.FIELD_SEPERATOR + valueFieldName;
+					nxDataFieldName = scannableName + "_" + valueFieldName;
 					assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 					assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 					assertTarget(nxData, nxDataFieldName, rootNode,
