@@ -40,7 +40,6 @@ import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
-import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -122,12 +121,12 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	public static final String ATTR_NAME_UNITS = "units";
 
 	/**
-	 * The field name 'value.set', used for the requested value of a scannable,
+	 * The field name 'value_set', used for the requested value of a scannable,
 	 * e.g. a motor. Note that this should be a constant in {@link NXpositioner}, but
 	 * it hasn't been added yet. When this has happened, the nexus base classes should be
 	 * regenerated and the constant from this {@link NXpositioner} used instead.
 	 */
-	public static final String FIELD_NAME_VALUE_SET = NXpositioner.NX_VALUE + NexusConstants.DATA_AXESSET_SUFFIX;
+	public static final String FIELD_NAME_VALUE_SET = NXpositioner.NX_VALUE + "_set";
 
 	/**
 	 * The {@link DataNode}s for each field keyed by input/extra name.
@@ -371,7 +370,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		}
 
 		// set 'local_name' attribute to the scannable + input field name
-		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + NexusConstants.FIELD_SEPERATOR + inputFieldName));
+		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
 		// set field name attribute so we can recreate the scannable position from the nexus file (is this needed if its the same as above)?
 		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_GDA_FIELD_NAME, inputFieldName));
 

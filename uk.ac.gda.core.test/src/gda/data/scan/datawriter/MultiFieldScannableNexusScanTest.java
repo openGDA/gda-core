@@ -62,7 +62,6 @@ import org.eclipse.dawnsci.nexus.NXentry;
 import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
@@ -244,7 +243,7 @@ public class MultiFieldScannableNexusScanTest {
 
 		final String[] deviceNames = new String[] { SCANNABLE_NAME, DETECTOR_NAME }; // SCANNABLE_NAME is NXpositioner in single field case, NXcollection in multi field case
 		final String[] expectedGroupNodeNames = inputNames.length == 1 ? deviceNames :
-				Stream.concat(Arrays.stream(deviceNames), Arrays.stream(scannable.getInputNames()).map(name -> SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + name)).toArray(String[]::new);
+				Stream.concat(Arrays.stream(deviceNames), Arrays.stream(scannable.getInputNames()).map(name -> SCANNABLE_NAME + "." + name)).toArray(String[]::new);
 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(expectedGroupNodeNames));
 
 		final NXdetector detector = instrument.getDetector(DETECTOR_NAME);
@@ -269,7 +268,7 @@ public class MultiFieldScannableNexusScanTest {
 	private void checkPositioner(final NXinstrument instrument, int inputFieldIndex) throws DatasetException {
 		final boolean singleInputField = inputNames.length == 1;
 		final String inputName = inputNames[inputFieldIndex];
-		final String positionerName = singleInputField ? SCANNABLE_NAME : SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + inputName;
+		final String positionerName = singleInputField ? SCANNABLE_NAME : SCANNABLE_NAME + "." + inputName;
 		final NXpositioner positioner = instrument.getPositioner(positionerName);
 		assertThat(positioner, is(notNullValue()));
 		assertThat(positioner.getAttributeNames(), containsInAnyOrder(NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
@@ -281,14 +280,14 @@ public class MultiFieldScannableNexusScanTest {
 				Stream.of(standardFieldNames, extraNames).flatMap(Stream::of).toArray(String[]::new) :
 				standardFieldNames;
 		assertThat(positioner.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
-		assertThat(positioner.getNameScalar(), is(equalTo(SCANNABLE_NAME + (singleInputField ? "" : NexusConstants.FIELD_SEPERATOR + inputName))));
+		assertThat(positioner.getNameScalar(), is(equalTo(SCANNABLE_NAME + (singleInputField ? "" : "." + inputName))));
 
 		final DataNode valueDataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 		assertThat(valueDataNode, is(notNullValue()));
 		assertThat(valueDataNode.getDataset(), is(notNullValue()));
 		assertThat(valueDataNode.getAttributeNames(), containsInAnyOrder(ATTR_NAME_LOCAL_NAME, ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_UNITS, ATTR_NAME_TARGET));
 		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTR_NAME_GDA_FIELD_NAME), is(equalTo(inputName)));
-		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTR_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + inputName)));
+		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTR_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + inputName)));
 		assertThat(positioner.getAttrString(NXpositioner.NX_VALUE, ATTR_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 
 		if (singleInputField) {
@@ -297,7 +296,7 @@ public class MultiFieldScannableNexusScanTest {
 				assertThat(extraFieldDataNode, notNullValue());
 				assertThat(extraFieldDataNode.getDataset(), is(notNullValue()));
 				assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTR_NAME_LOCAL_NAME, ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_UNITS));
-				assertThat(positioner.getAttrString(extraName, ATTR_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + extraName)));
+				assertThat(positioner.getAttrString(extraName, ATTR_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + extraName)));
 				assertThat(positioner.getAttrString(extraName, ATTR_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
 				assertThat(positioner.getAttrString(extraName, ATTR_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 			}
@@ -331,7 +330,7 @@ public class MultiFieldScannableNexusScanTest {
 			final DataNode inputFieldDataNode = collection.getDataNode(inputName);
 			assertThat(inputFieldDataNode, is(notNullValue()));
 			assertThat(inputFieldDataNode, is(sameInstance(
-					instrument.getPositioner(SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + inputName).getDataNode(NXpositioner.NX_VALUE))));
+					instrument.getPositioner(SCANNABLE_NAME + "." + inputName).getDataNode(NXpositioner.NX_VALUE))));
 		}
 
 		for (int i= 0; i < extraNames.length; i++) {
@@ -340,7 +339,7 @@ public class MultiFieldScannableNexusScanTest {
 			assertThat(extraFieldDataNode, is(notNullValue()));
 			assertThat(extraFieldDataNode.getAttributeNames(), containsInAnyOrder(ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_LOCAL_NAME, ATTR_NAME_UNITS));
 			assertThat(collection.getAttrString(extraName, ATTR_NAME_GDA_FIELD_NAME), is(equalTo(extraName)));
-			assertThat(collection.getAttrString(extraName, ATTR_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + extraName)));
+			assertThat(collection.getAttrString(extraName, ATTR_NAME_LOCAL_NAME), is(equalTo(SCANNABLE_NAME + "." + extraName)));
 			assertThat(collection.getAttrString(extraName, ATTR_NAME_UNITS), is(equalTo(EXPECTED_UNITS)));
 		}
 	}
@@ -355,7 +354,7 @@ public class MultiFieldScannableNexusScanTest {
 
 		final boolean singleInputField = inputNames.length == 1;
 		final String[] inputFieldDataNodeNames = singleInputField ? new String[] { SCANNABLE_NAME } :
-				Arrays.stream(inputNames).map(inputName -> SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + inputName).toArray(String[]::new);
+				Arrays.stream(inputNames).map(inputName -> SCANNABLE_NAME + "_" + inputName).toArray(String[]::new);
 		final String[] expectedDataNodeNames = ArrayUtils.add(inputFieldDataNodeNames, NXdetector.NX_DATA);
 		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 
@@ -376,7 +375,7 @@ public class MultiFieldScannableNexusScanTest {
 			final String axisDataNodeName = inputFieldDataNodeNames[i];
 			final DataNode inputNameDataNode = dataGroup.getDataNode(inputFieldDataNodeNames[i]);
 			assertThat(inputNameDataNode, is(notNullValue()));
-			final String positionerName = singleInputField ? SCANNABLE_NAME : SCANNABLE_NAME + NexusConstants.FIELD_SEPERATOR + inputNames[i];
+			final String positionerName = singleInputField ? SCANNABLE_NAME : SCANNABLE_NAME + "." + inputNames[i];
 			assertThat(inputNameDataNode, is(sameInstance(entry.getInstrument().getPositioner(positionerName).getDataNode(NXpositioner.NX_VALUE))));
 			assertIndices(dataGroup, axisDataNodeName, 0);
 		}
