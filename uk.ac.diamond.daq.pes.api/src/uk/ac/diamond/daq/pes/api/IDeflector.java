@@ -36,4 +36,11 @@ public interface IDeflector {
 	 * @throws DeviceException If there is a problem with communication
 	 */
 	public void setDeflectorX(double deflectorX) throws DeviceException;
+
+	/**
+	 * Gets the deflector range configuration object for the analyser
+	 *
+	 * @return The deflector range configuration
+	 */
+	public AnalyserDeflectorRangeConfiguration getDeflectorRangeConfiguration();
 }
