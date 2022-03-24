@@ -70,7 +70,10 @@ public class GDAJythonScriptService implements IScriptService {
 
 		// run the script - blocks
 		logger.info("Running script file {}", scriptFile);
-		commandRunner.evaluateCommand("run '" + scriptFileStr + "'");
+		// Originally this was commandRunner.runScript, but that didn't block so it was switched to
+		// commandRunner.evaluateCommand but that didn't interrupt the script when stop was called
+		// so it was switched to commandRunner.runsource which blocks, does get interrupted on stop
+		commandRunner.runsource("run '" + scriptFileStr + "'");
 	}
 
 	@Override
