@@ -18,6 +18,7 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentry
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
+import static org.eclipse.scanning.example.scannable.MockNeXusScannable.FIELD_NAME_SET_VALUE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusFileFactory;
@@ -41,7 +43,6 @@ import org.eclipse.dawnsci.nexus.NXinstrument;
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXroot;
-import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.scanning.api.IScannable;
@@ -107,14 +108,13 @@ public class MonitorTest extends NexusTest {
 
 	@Test
 	public void testMixture() throws Exception {
-
-	    // NOTE That they must be MockNeXusScannables which we test.
+		// NOTE That they must be MockNeXusScannables which we test.
 		List<String> perPoint = Arrays.asList("monitor0", "monitor3");
 		List<String> perScan = Arrays.asList("z", "monitor1");
 
 		IRunnableDevice<ScanModel> scanner = runScan(perPoint, perScan, 5);
 
-        assertPerPointMonitors(scanner, perPoint, 5);
+		assertPerPointMonitors(scanner, perPoint, 5);
 		assertPerScanMonitors(scanner, perScan);
 	}
 
@@ -149,7 +149,7 @@ public class MonitorTest extends NexusTest {
 			scanner = runScan(null, monitors, shape);
 		}
 		// Check we reached ready (it will normally throw an exception on error)
-        checkNexusFile(scanner, monitors, testedRole, shape); // Step model is +1 on the size
+		checkNexusFile(scanner, monitors, testedRole, shape); // Step model is +1 on the size
 	}
 
 	private IRunnableDevice<ScanModel>runScan(List<String> monitorsPerPoint, List<String> monitorsPerScan, int... shape) throws Exception {
@@ -161,9 +161,9 @@ public class MonitorTest extends NexusTest {
 		return scanner;
 	}
 
-	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, List<String> monitorNames, MonitorScanRole role, int... sizes) throws Exception {
-
-		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>)scanner).getModel();
+	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, List<String> monitorNames, MonitorScanRole role,
+			int... sizes) throws Exception {
+		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
 		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
 		final NXroot rootNode = getNexusRoot(scanner);
 		final NXentry entry = rootNode.getEntry();
@@ -185,9 +185,8 @@ public class MonitorTest extends NexusTest {
 		assertSignal(nxData, NXdetector.NX_DATA);
 		assertSame(dataNode, nxData.getDataNode(NXdetector.NX_DATA));
 
-		for (int i = 0; i < sizes.length; i++) {
+		for (int i = 0; i < sizes.length; i++)
 			assertEquals(sizes[i], shape[i]);
-		}
 
 		// Make sure none of the numbers are NaNs. The detector
 		// is expected to fill this scan with non-nulls.
@@ -202,7 +201,9 @@ public class MonitorTest extends NexusTest {
 
 		// Append _value_demand to each name in scannable names list, and appends
 		// the item "." 3 times to the resulting list
-		String[] expectedAxesNames = getValueSetFields(pos.getNames(), Collections.nCopies(3, NexusConstants.DATA_AXESEMPTY)).toArray(String[]::new);
+		String[] expectedAxesNames = Stream
+				.concat(pos.getNames().stream().map(x -> x + "_value_set"), Collections.nCopies(3, ".").stream())
+				.toArray(String[]::new);
 		assertAxes(nxData, expectedAxesNames);
 
 		if (role == MonitorScanRole.PER_POINT) {
@@ -232,19 +233,19 @@ public class MonitorTest extends NexusTest {
 			// This test uses NXpositioner for all scannables and monitors
 			final NXpositioner positioner = instrument.getPositioner(deviceName);
 			assertNotNull(positioner);
-			String nxDataFieldName;
 
-			DataNode dataNode = positioner.getDataNode(VALUE_SET);
+			DataNode dataNode = positioner.getDataNode(FIELD_NAME_SET_VALUE);
 			IDataset dataset = dataNode.getDataset().getSlice();
 			int[] shape = dataset.getShape();
 			assertEquals(1, shape.length);
+			String nxDataFieldName;
 			if (i < scannableNames.size()) {
 				// in practise monitors wouldn't have the 'demand' field
 				assertEquals(sizes[i], shape[0]);
-				nxDataFieldName = deviceName + VALUE_SET_FIELD;
+				nxDataFieldName = deviceName + "_" + FIELD_NAME_SET_VALUE;
 				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 				assertIndices(nxData, nxDataFieldName, i);
-				assertTarget(nxData, nxDataFieldName, rootNode, "/entry/instrument/" + deviceName + "/" + VALUE_SET);
+				assertTarget(nxData, nxDataFieldName, rootNode, "/entry/instrument/" + deviceName + "/value_set");
 			}
 
 			// Actual values should be scanD
@@ -253,7 +254,7 @@ public class MonitorTest extends NexusTest {
 			shape = dataset.getShape();
 			assertArrayEquals("The value of monitor, '" + deviceName + "' is incorrect", sizes, shape);
 
-			nxDataFieldName = deviceName + VALUE_FIELD;
+			nxDataFieldName = deviceName + "_" + NXpositioner.NX_VALUE;
 			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
 			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 			assertTarget(nxData, nxDataFieldName, rootNode,
@@ -322,8 +323,8 @@ public class MonitorTest extends NexusTest {
 	}
 
 	private List<IScannable<?>> createMonitors(List<String> monitorNames) throws ScanningException {
-		if (monitorNames == null) return List.of();
-		final List<IScannable<?>> ret = new ArrayList<>(monitorNames.size());
+		if (monitorNames == null) return null;
+		final List<IScannable<?>> ret = new ArrayList<IScannable<?>>(monitorNames.size());
 		for (String name : monitorNames) ret.add(connector.getScannable(name));
 		return ret;
 	}
