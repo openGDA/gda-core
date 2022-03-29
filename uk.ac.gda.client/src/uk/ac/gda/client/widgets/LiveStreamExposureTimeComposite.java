@@ -136,15 +136,15 @@ public class LiveStreamExposureTimeComposite extends Composite {
 
 		private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
-	    @SuppressWarnings("unused")
+		@SuppressWarnings("unused")
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
-	        changeSupport.addPropertyChangeListener(listener);
-	    }
+			changeSupport.addPropertyChangeListener(listener);
+		}
 
-	    @SuppressWarnings("unused")
+		@SuppressWarnings("unused")
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
-	        changeSupport.removePropertyChangeListener(listener);
-	    }
+			changeSupport.removePropertyChangeListener(listener);
+		}
 
 		public double getAcquireTime() {
 			try {
