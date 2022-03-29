@@ -18,11 +18,9 @@
 
 package uk.ac.gda.client.live.stream.view.customui;
 
-import java.awt.geom.Line2D;
-
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.GridROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.XAxisBoxROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.YAxisBoxROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -69,14 +67,13 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 	private int imageSizeX;
 	private int imageSizeY;
 
-	private boolean showCrossOnly;
+	private boolean plainCross;
 	private boolean hideCentreXControl;
 	private boolean hideCentreYControl;
 	private boolean hideToggleControl;
 	private boolean hideSpacingControl;
 
 	private Color lineColor = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-	private static final int SEMITRANSPARENT = 120;
 	private static final String START_OF_NAME = "lattice";
 
 	private int spacing;
@@ -126,7 +123,7 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 			toggleControl.createControl(composite);
 		}
 
-		if (!showCrossOnly && !hideSpacingControl) {
+		if (!plainCross && !hideSpacingControl) {
 			spacingControl.createControl(composite);
 		}
 
@@ -166,11 +163,10 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 	}
 
 	private void drawRegions(int spacing, int centreX, int centreY) throws ExecutionException {
-		drawCross(centreX, centreY);
-		if (!showCrossOnly) {
-			EpicsCameraViewerGridModel lineCoordinates = new EpicsCameraViewerGridModel(centreX, centreY, spacing,
-					imageSizeX, imageSizeY);
-			drawGrid(lineCoordinates);
+		if(plainCross) {
+			drawCross(centreX, centreY);
+		} else {
+			drawGrid(spacing, centreX, centreY);
 		}
 	}
 
@@ -213,34 +209,20 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		plottingSystem.addRegion(yRegion);
 	}
 
-	/**
-	 * Draws a grid around around the cross<p>
-	 *
-	 * This method is using LINE type regions together with LinearROI</br>
-	 * Since we want to be able to set alpha so that we can improve </br>
-	 * contrast between the cross and the grid part of the lattice
-	 *
-	 * @param lineCoordinates
-	 * @throws ExecutionException
-	 */
-	private void drawGrid(EpicsCameraViewerGridModel lineCoordinates) throws ExecutionException {
-		lineCoordinates.calculateGridLines();
-		int regionCount = 0;
-		for (Line2D.Double lineDescription : lineCoordinates.getGridLines()) {
-			LinearROI line =  new LinearROI(lineCoordinates.getLineStart(lineDescription), lineCoordinates.getLineEnd(lineDescription)) ;
-			IRegion region;
-			try {
-				region = plottingSystem.createRegion("latticeGridLine"+regionCount, RegionType.LINE);
-			} catch (Exception e) {
-				throw new ExecutionException("Exception on creating region", e);
-			}
-			region.setRegionColor(lineColor);
-			region.setMobile(false);
-			region.setAlpha(SEMITRANSPARENT);
-			plottingSystem.addRegion(region);
-			region.setROI(line);
-			regionCount++;
+	private void drawGrid(int spacing, int centreX, int centreY) throws ExecutionException {
+
+		IRegion gridRegion;
+		try {
+			gridRegion = plottingSystem.createRegion("latticeDawnGrid", RegionType.CENTERED_GRID);
+		} catch (Exception e) {
+			throw new ExecutionException("Exception on creating region", e);
 		}
+		gridRegion.setRegionColor(Display.getCurrent().getSystemColor(SWT.COLOR_TRANSPARENT));
+		gridRegion.setAlpha(0);
+		GridROI gridroi = new GridROI(0, 0, imageSizeX*2, imageSizeY*2, 0, spacing, spacing, true, false);
+		gridroi.setMidPoint(new double[] {centreX, centreY});
+		gridRegion.setROI(gridroi);
+		plottingSystem.addRegion(gridRegion);
 	}
 
 	private void updateRegions(Object source, Object arg) {
@@ -301,8 +283,8 @@ public class EpicsCameraViewerGridControls implements LiveStreamViewCameraContro
 		this.toggleScannable = toggleScannable;
 	}
 
-	public void setShowCrossOnly(boolean showCrossOnly) {
-		this.showCrossOnly = showCrossOnly;
+	public void setPlainCross(boolean plainCross) {
+		this.plainCross = plainCross;
 	}
 
 	public void setHideCentreXControl(boolean hideCentreXControl) {
