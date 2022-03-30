@@ -247,22 +247,16 @@ public class HistogramComposite  {
 	private class HistogramUpdater extends ITraceListener.Stub {
 
 		private boolean configured = false;
+		private final IPaletteListener paletteListener;
+
+		public HistogramUpdater() {
+			paletteListener = new SimplePaletteListener();
+		}
 
 		@Override
 		protected void update(TraceEvent evt) {
 			getImageTrace().ifPresent(trace -> {
-				trace.addPaletteListener(new IPaletteListener.Stub() {
-
-					@Override
-					public void minChanged(PaletteEvent event) {
-						setMin(event.getTrace().getMin().doubleValue());
-					}
-
-					@Override
-					public void maxChanged(PaletteEvent event) {
-						setMax(event.getTrace().getMax().doubleValue());
-					}
-				});
+				trace.addPaletteListener(paletteListener);
 
 				if (autoRehistogram.getSelection()) {
 					trace.rehistogram();
@@ -278,12 +272,26 @@ public class HistogramComposite  {
 			});
 		}
 
-		private void setMin(double min) {
-			regionMin.setText(numeric.format(min));
+		private class SimplePaletteListener extends IPaletteListener.Stub {
+
+			@Override
+			public void minChanged(PaletteEvent event) {
+				setMin(event.getTrace().getMin().doubleValue());
+			}
+
+			@Override
+			public void maxChanged(PaletteEvent event) {
+				setMax(event.getTrace().getMax().doubleValue());
+			}
+
+			private void setMin(double min) {
+				regionMin.setText(numeric.format(min));
+			}
+
+			private void setMax(double max) {
+				regionMax.setText(numeric.format(max));
+			}
 		}
 
-		private void setMax(double max) {
-			regionMax.setText(numeric.format(max));
-		}
 	}
 }
