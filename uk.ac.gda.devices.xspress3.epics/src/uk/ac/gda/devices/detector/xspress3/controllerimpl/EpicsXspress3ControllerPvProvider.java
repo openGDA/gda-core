@@ -396,7 +396,7 @@ public class EpicsXspress3ControllerPvProvider {
 			.orElseThrow(() -> new DeviceException("Could not create PV for updating arrays. PV with suffix matching "+Arrays.toString(UPDATE_ARRAYS_SUFFIXES)+" was not found"));
 
 		logger.info("Using {} for 'update' PV", updatePvName);
-		pvUpdate = LazyPVFactory.newIntegerPV(generatePVName(updatePvName));
+		pvUpdate = LazyPVFactory.newIntegerPV(updatePvName);
 	}
 
 	protected void createFileWritingPVs() {
