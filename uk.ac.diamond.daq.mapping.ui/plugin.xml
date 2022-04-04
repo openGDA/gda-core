@@ -9,6 +9,12 @@
             id="uk.ac.diamond.daq.mapping.ui.experiment.MappingPerspective"
             name="Mapping">
       </perspective>
+      <perspective
+            class="uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanPerspective"
+            icon="icons/tomography.png"
+            name="Tensor Tomography"
+            id="uk.ac.diamond.daq.mapping.ui.tomo.tensorTomoPerspective">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -24,6 +30,13 @@
             icon="icons/camera.png"
             id="uk.ac.diamond.daq.mapping.ui.timeseries.timeSeriesScanView"
             name="Time Series Scan"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="uk.ac.diamond.daq.mapping.ui.tomo.TensorTomoScanSetupView"
+            icon="icons/tomography.png"
+            id="uk.ac.diamond.daq.mapping.ui.tomo.tensorTomoScanSetupView"
+            name="Tensor Tomography Scan Setup"
             restorable="true">
       </e4view>
    </extension>
