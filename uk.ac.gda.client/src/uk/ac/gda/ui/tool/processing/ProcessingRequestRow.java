@@ -189,13 +189,17 @@ class ProcessingRequestRow {
 		controls.add(columnTwoContainer);
 
 		setSelectItem(new ToolItem(toolBar, SWT.PUSH));
-		getSelectItem().setImage(ClientSWTElements.getImage(ClientImages.SELECT_DOCUMENT));
+		var icon = ClientSWTElements.getImage(ClientImages.SELECT_DOCUMENT);
+		getSelectItem().setImage(icon);
 		getSelectItem().setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.SELECT_PROCESSING_FILE_TP));
 		getSelectItem().addSelectionListener(widgetSelectedAdapter(this::selectProcessingDocument));
+		getSelectItem().addDisposeListener(dispose -> icon.dispose());
 
 		var deleteItem = new ToolItem (toolBar, SWT.PUSH);
-		deleteItem.setImage(ClientSWTElements.getImage(ClientImages.DELETE));
+		var deleteIcon = ClientSWTElements.getImage(ClientImages.DELETE);
+		deleteItem.setImage(deleteIcon);
 		deleteItem.setToolTipText(ClientMessagesUtility.getMessage(ClientMessages.REMOVE_SELECTION_TP));
+		deleteItem.addDisposeListener(dispose -> deleteIcon.dispose());
 		addDeleteListener(deleteItem);
 	}
 
