@@ -172,6 +172,7 @@ public class TensorTomoScanSetupView {
 	private ClassToInstanceMap<AbstractTomoViewSection> createSections(Composite parent) {
 		// TODO use reflection from list of classes?
 		final List<AbstractTomoViewSection> sectionsList = List.of(
+				new DetectorSection(this),
 				new MapRegionAndPathSection(this),
 				new TomoRegionAndPathSection(this),
 				new AcquistionTimeSection(this),
