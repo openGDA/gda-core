@@ -27,6 +27,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 
@@ -54,6 +55,10 @@ abstract class AbstractTomoViewSection {
 
 	protected <S> S getService(Class<S> serviceClass) {
 		return getEclipseContext().get(serviceClass);
+	}
+
+	protected Shell getShell() {
+		return tomoView.getShell();
 	}
 
 	protected void createSeparator(Composite parent) {

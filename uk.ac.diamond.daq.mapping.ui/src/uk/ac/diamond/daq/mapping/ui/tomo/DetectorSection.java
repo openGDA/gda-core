@@ -26,24 +26,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
+import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 public class DetectorSection extends AbstractTomoViewSection {
 
@@ -71,7 +78,7 @@ public class DetectorSection extends AbstractTomoViewSection {
 		// TODO merge with acquisition time section
 		createSeparator(parent);
 
-		final Composite composite = createComposite(parent, 2, true);
+		final Composite composite = createComposite(parent, 3, true);
 		final Label label = new Label(composite, SWT.NONE);
 		label.setText("Malcolm Device:");
 
@@ -80,6 +87,11 @@ public class DetectorSection extends AbstractTomoViewSection {
 		malcolmDeviceCombo.setContentProvider(ArrayContentProvider.getInstance());
 		malcolmDeviceCombo.setLabelProvider(LabelProvider.createTextProvider(
 				element -> ((DeviceInformation<?>) element).getLabel()));
+
+		final Button configButton = new Button(composite, SWT.PUSH);
+		configButton.setImage(Activator.getImage("icons/camera.png"));
+		GridDataFactory.swtDefaults().applyTo(configButton);
+		configButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> configureMalcolmDevice()));
 
 		populateDetectorCombo(malcolmDeviceCombo);
 	}
@@ -98,9 +110,21 @@ public class DetectorSection extends AbstractTomoViewSection {
 		}
 	}
 
+	private void configureMalcolmDevice() {
+		final DeviceInformation<IMalcolmModel> malcolmInfo = getSelectedMalcolmDeviceInfo();
+		final IMalcolmModel malcolmModel = malcolmInfo.getModel();
+
+		final Dialog editModelDialog = new EditDetectorModelDialog(getShell(),
+				runnableDeviceService, malcolmModel, malcolmInfo.getLabel());
+		editModelDialog.create();
+		if (editModelDialog.open() == Window.OK) {
+			dataBindingContext.updateTargets();
+		}
+	}
+
 	@Override
 	public void configureScanBean(ScanBean scanBean) {
-		final DeviceInformation<IDetectorModel> malcolmDeviceInfo = getSelectedMalcolmDeviceInfo();
+		final DeviceInformation<IMalcolmModel> malcolmDeviceInfo = getSelectedMalcolmDeviceInfo();
 		final Map<String, IDetectorModel> detectorMap = new HashMap<>();
 		if (malcolmDeviceInfo != null) {
 			detectorMap.put(malcolmDeviceInfo.getName(), malcolmDeviceInfo.getModel());
@@ -109,8 +133,8 @@ public class DetectorSection extends AbstractTomoViewSection {
 	}
 
 	@SuppressWarnings("unchecked")
-	private DeviceInformation<IDetectorModel> getSelectedMalcolmDeviceInfo() {
-		return (DeviceInformation<IDetectorModel>) malcolmDeviceCombo.getStructuredSelection().getFirstElement();
+	private DeviceInformation<IMalcolmModel> getSelectedMalcolmDeviceInfo() {
+		return (DeviceInformation<IMalcolmModel>) malcolmDeviceCombo.getStructuredSelection().getFirstElement();
 	}
 
 }
