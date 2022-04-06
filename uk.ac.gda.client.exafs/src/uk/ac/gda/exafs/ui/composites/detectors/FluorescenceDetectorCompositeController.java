@@ -413,7 +413,7 @@ public class FluorescenceDetectorCompositeController implements ValueListener, B
 	 */
 	private void plotDataAndUpdateCounts() {
 
-		if (theData != null) {
+		if (theData != null && theData.length > 0) {
 			int element = getCurrentlySelectedElementNumber();
 
 			double[] elementData = (element < theData.length) ? theData[element] : new double[] {/* empty */};
