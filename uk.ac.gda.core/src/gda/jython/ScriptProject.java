@@ -37,9 +37,6 @@ public class ScriptProject {
 		this.path = resolvePath(path);
 		this.name = name;
 		this.type = type;
-		if (type == ScriptProjectType.EPICS) {
-			logger.warn("Script project {} ({}) is of deprecated type EPICS, this will be removed in GDA 9.26", this.name, this.path);
-		}
 	}
 
 	public void setPath(String path) {
@@ -60,9 +57,6 @@ public class ScriptProject {
 
 	public void setType (ScriptProjectType type) {
 		this.type = type;
-		if (type == ScriptProjectType.EPICS) {
-			logger.warn("Script project {} ({}) is of deprecated type EPICS, this will be removed in GDA 9.26", this.name, this.path);
-		}
 	}
 
 	public ScriptProjectType type() {
