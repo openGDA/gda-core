@@ -18,8 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
-import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
 
@@ -30,9 +29,9 @@ public class TensorTomoScanBean {
 	private String angle1ScannableName = "angle1";
 	private String angle2ScannableName = "angle2";
 	private IMappingScanRegionShape gridRegionModel; // TODO should be RectangularMappingRegion but that's not API
-	private TwoAxisGridPointsModel gridPathModel;
+	private AbstractTwoAxisGridModel gridPathModel;
 	private IMappingScanRegionShape angleRegionModel; // TODO should be RectangularMappingRegion but that's not API
-	private TwoAxisGridStepModel anglePathModel;
+	private AbstractTwoAxisGridModel anglePathModel;
 	private double exposureTime = 0.1;
 	private String malcolmDeviceName;
 
@@ -44,11 +43,11 @@ public class TensorTomoScanBean {
 		this.gridRegionModel = gridRegionModel;
 	}
 
-	public TwoAxisGridPointsModel getGridPathModel() {
+	public AbstractTwoAxisGridModel getGridPathModel() {
 		return gridPathModel;
 	}
 
-	public void setGridPathModel(TwoAxisGridPointsModel gridPathModel) {
+	public void setGridPathModel(AbstractTwoAxisGridModel gridPathModel) {
 		this.gridPathModel = gridPathModel;
 	}
 
@@ -76,11 +75,11 @@ public class TensorTomoScanBean {
 		this.angleRegionModel = angleRegionModel;
 	}
 
-	public TwoAxisGridStepModel getAnglePathModel() {
+	public AbstractTwoAxisGridModel getAnglePathModel() {
 		return anglePathModel;
 	}
 
-	public void setAnglePathModel(TwoAxisGridStepModel anglePathModel) {
+	public void setAnglePathModel(AbstractTwoAxisGridModel anglePathModel) {
 		this.anglePathModel = anglePathModel;
 	}
 

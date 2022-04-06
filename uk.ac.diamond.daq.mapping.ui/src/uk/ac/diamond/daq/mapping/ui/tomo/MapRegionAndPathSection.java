@@ -22,6 +22,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Set;
 
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
@@ -36,22 +37,24 @@ import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor.PathOption;
 
 class MapRegionAndPathSection extends AbstractRegionAndPathSection {
 
+	private static final String UNITS_MILLIMETRES = "mm";
+
 	protected MapRegionAndPathSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView, RegionAndPathType.MAP);
+		super(tomoView);
 	}
 
 	@Override
-	protected RegionAndPathConfig createRegionAndPathConfig(RegionAndPathType type) {
+	protected RegionAndPathConfig createRegionAndPathConfig() {
 		final TensorTomoScanBean tomoBean = getTomoBean();
 		final MappingStageInfo mappingStageInfo = getService(MappingStageInfo.class);
 
 		final RegionAndPathConfig config = new RegionAndPathConfig();
-		config.type = type;
+		config.type = RegionAndPathType.TOMO;
 		config.axis1Name = mappingStageInfo.getPlotXAxisName();
 		config.axis2Name = mappingStageInfo.getPlotYAxisName();
 		config.regionModel = tomoBean.getGridRegionModel();
 		config.pathModel = tomoBean.getGridPathModel();
-		config.units = "mm";
+		config.units = UNITS_MILLIMETRES;
 		return config;
 	}
 
@@ -80,7 +83,12 @@ class MapRegionAndPathSection extends AbstractRegionAndPathSection {
 	}
 
 	@Override
-	protected Set<PathOption> getPathOptions(final RegionAndPathConfig config) {
+	protected void updateBeanWithGridPath(AbstractTwoAxisGridModel pathModel) {
+		getTomoBean().setGridPathModel(pathModel);
+	}
+
+	@Override
+	protected Set<PathOption> getPathOptions() {
 		return Set.of(CommonPathOption.ALTERNATING);
 	}
 
