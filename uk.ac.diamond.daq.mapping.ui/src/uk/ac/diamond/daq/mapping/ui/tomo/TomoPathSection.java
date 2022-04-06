@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
@@ -103,8 +102,9 @@ class TomoPathSection extends AbstractTomoViewSection {
 	}
 
 	@Override
-	public void configureScanBean(ScanBean scanBean) {
-		// nothing to do
+	protected void updateControls() {
+		createScanPathEditors();
+		tomoView.relayout();
 	}
 
 }

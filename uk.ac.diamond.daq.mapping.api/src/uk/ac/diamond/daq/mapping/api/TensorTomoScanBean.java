@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.api;
 
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
@@ -32,7 +33,8 @@ public class TensorTomoScanBean {
 	private IScanModelWrapper<IScanPointGeneratorModel> angle1Model;
 	private IScanModelWrapper<IScanPointGeneratorModel> angle2Model;
 	private String malcolmDeviceName;
-	private double exposureTime = 0.1;
+	private IMalcolmModel malcolmModel;
+	private String sampleName;
 
 	public IMappingScanRegionShape getGridRegionModel() {
 		return gridRegionModel;
@@ -74,12 +76,20 @@ public class TensorTomoScanBean {
 		this.malcolmDeviceName = malcolmDeviceName;
 	}
 
-	public double getExposureTime() {
-		return exposureTime;
+	public String getSampleName() {
+		return sampleName;
 	}
 
-	public void setExposureTime(double exposureTime) {
-		this.exposureTime = exposureTime;
+	public void setSampleName(String sampleName) {
+		this.sampleName = sampleName;
+	}
+
+	public IMalcolmModel getMalcolmModel() {
+		return malcolmModel;
+	}
+
+	public void setMalcolmModel(IMalcolmModel malcolmModel) {
+		this.malcolmModel = malcolmModel;
 	}
 
 }

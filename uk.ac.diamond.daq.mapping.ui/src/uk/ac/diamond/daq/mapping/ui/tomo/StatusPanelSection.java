@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -71,17 +70,12 @@ class StatusPanelSection extends AbstractTomoViewSection {
 
 		final int numberOfPoints = pathInfo.getTotalPointCount();
 		final String numPointsString = String.format("Number of points: %,d", numberOfPoints);
-		final double totalTime = getTomoBean().getExposureTime() * numberOfPoints;
+		final double totalTime = getTomoBean().getMalcolmModel().getExposureTime() * numberOfPoints;
 		final String scanTimeString = String.format("Estimated scan time: %02.0f:%02.0f:%02.0f",
 				Math.floor(totalTime / 3600.0),
 				Math.floor((totalTime % 3600.0) / 60.0),
 				totalTime % 60.0);
 		statusLabel.setText(numPointsString + "\n" + scanTimeString);
-	}
-
-	@Override
-	public void configureScanBean(ScanBean scanBean) {
-		// nothing to do
 	}
 
 	public void setPathInfo(PathInfo pathInfo) {

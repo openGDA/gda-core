@@ -24,7 +24,9 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper.mapReg
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -35,6 +37,7 @@ import javax.inject.Inject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.services.events.IEventBroker;
@@ -45,6 +48,7 @@ import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -52,6 +56,8 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.models.ScanMetadata;
+import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -176,10 +182,9 @@ public class TensorTomoScanSetupView {
 	private ClassToInstanceMap<AbstractTomoViewSection> createSections(){
 		// TODO use reflection from list of classes?
 		final List<AbstractTomoViewSection> sectionsList = List.of(
-				new DetectorSection(this),
+				new MalcolmDeviceSection(this),
 				new MapRegionAndPathSection(this),
 				new TomoPathSection(this),
-				new AcquistionTimeSection(this),
 				new SampleNameSection(this),
 				new StatusPanelSection(this),
 				new SubmitScanSection(this)
@@ -279,28 +284,7 @@ public class TensorTomoScanSetupView {
 
 	protected void submitScan() {
 		try {
-			// TODO use a converter class, similar to ScanRequestConverter?
-			final ScanRequest scanRequest = new ScanRequest();
-			final CompoundModel compoundModel = new CompoundModel(
-					tomoBean.getAngle1Model().getModel(),
-					tomoBean.getAngle2Model().getModel(),
-					tomoBean.getGridPathModel());
-			// TODO set units (get from scannable) (see ScanRequestConverter)?
-			compoundModel.setRegions(List.of(new ScanRegion(tomoBean.getGridRegionModel().toROI())));
-			scanRequest.setCompoundModel(compoundModel);
-
-			// TODO add per-point and per-scan monitors (from mapping bean)?
-			// TODO add configured processing (from mapping bean)?
-			// TODO add template files (from mapping bean)?
-
-			final ScanBean scanBean = new ScanBean();
-			scanBean.setScanRequest(scanRequest);
-			scanBean.setBeamline(System.getProperty("BEAMLINE"));
-
-			for (AbstractTomoViewSection section : sections.values()) {
-				section.configureScanBean(scanBean);
-			}
-
+			final ScanBean scanBean = createScanBean();
 			submitter.submitScan(scanBean);
 		} catch (Exception e) {
 			logger.error("Scan submission failed", e);
@@ -308,6 +292,49 @@ public class TensorTomoScanSetupView {
 					"Error Submitting Scan",
 					"The scan could not be submitted. See the error log for details");
 		}
+	}
+
+	protected ScanBean createScanBean() {
+		// TODO use a converter class, similar to ScanRequestConverter?
+		final ScanRequest scanRequest = new ScanRequest();
+		final CompoundModel compoundModel = new CompoundModel(
+				tomoBean.getAngle1Model().getModel(),
+				tomoBean.getAngle2Model().getModel(),
+				tomoBean.getGridPathModel());
+		// TODO set units (get from scannable) (see ScanRequestConverter)?
+		compoundModel.setRegions(List.of(new ScanRegion(tomoBean.getGridRegionModel().toROI())));
+		scanRequest.setCompoundModel(compoundModel);
+
+		// configure detectors
+		final String malcolmDeviceName = tomoBean.getMalcolmDeviceName();
+		final IMalcolmModel malcolmModel = tomoBean.getMalcolmModel();
+		if (malcolmDeviceName != null && malcolmModel != null) {
+			scanRequest.setDetectors(Map.of(malcolmDeviceName, malcolmModel));
+		}
+
+		// add sample name
+		final ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
+		sampleMetadata.addField(NXsample.NX_NAME, tomoBean.getSampleName());
+		scanRequest.setScanMetadata(Arrays.asList(sampleMetadata));
+
+		// TODO add per-point and per-scan monitors (from mapping bean)?
+		// TODO add configured processing (from mapping bean)?
+		// TODO add template files (from mapping bean)?
+
+		final ScanBean scanBean = new ScanBean();
+		scanBean.setScanRequest(scanRequest);
+		scanBean.setBeamline(System.getProperty("BEAMLINE"));
+		return scanBean;
+	}
+
+	private void addTomoBeanListeners() {
+		tomoBean.getGridRegionModel().addPropertyChangeListener(mapRegionBeanPropertyChangeListener);
+		tomoBean.getGridPathModel().addPropertyChangeListener(pathBeanPropertyChangeListener);
+	}
+
+	private void removeTomoBeanListeners() {
+		tomoBean.getGridRegionModel().removePropertyChangeListener(mapRegionBeanPropertyChangeListener);
+		tomoBean.getGridPathModel().removePropertyChangeListener(pathBeanPropertyChangeListener);
 	}
 
 	public Shell getShell() {
@@ -328,16 +355,6 @@ public class TensorTomoScanSetupView {
 		removeTomoBeanListeners();
 	}
 
-	private void addTomoBeanListeners() {
-		tomoBean.getGridRegionModel().addPropertyChangeListener(mapRegionBeanPropertyChangeListener);
-		tomoBean.getGridPathModel().addPropertyChangeListener(pathBeanPropertyChangeListener);
-	}
-
-	private void removeTomoBeanListeners() {
-		tomoBean.getGridRegionModel().removePropertyChangeListener(mapRegionBeanPropertyChangeListener);
-		tomoBean.getGridPathModel().removePropertyChangeListener(pathBeanPropertyChangeListener);
-	}
-
 	@SuppressWarnings("unchecked")
 	public <T extends AbstractTomoViewSection> T getSection(Class<T> sectionClass) {
 		return (T) sections.get(sectionClass);
@@ -349,6 +366,22 @@ public class TensorTomoScanSetupView {
 
 	public TensorTomoScanBean getTomoBean() {
 		return tomoBean;
+	}
+
+	public void setTomoBean(TensorTomoScanBean tomoBean) {
+		removeTomoBeanListeners();
+
+		this.tomoBean = tomoBean;
+		addTomoBeanListeners();
+	}
+
+	public void refreshView() {
+		for (AbstractTomoViewSection section : sections.values()) {
+			section.updateControls();
+		}
+
+		updatePlotRegion();
+		updatePoints();
 	}
 
 }

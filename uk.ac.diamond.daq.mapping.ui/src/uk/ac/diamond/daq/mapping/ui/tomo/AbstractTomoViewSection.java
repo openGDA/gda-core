@@ -23,7 +23,6 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -42,8 +41,6 @@ abstract class AbstractTomoViewSection {
 	}
 
 	public abstract void createControls(Composite parent);
-
-	public abstract void configureScanBean(ScanBean scanBean);
 
 	protected TensorTomoScanBean getTomoBean() {
 		return tomoView.getTomoBean();
@@ -80,6 +77,13 @@ abstract class AbstractTomoViewSection {
 
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(composite);
 		return composite;
+	}
+
+	/**
+	 * Update the controls to match the tomo bean.
+	 */
+	protected void updateControls() {
+		// Default implementation does nothing. Subclasses may override
 	}
 
 }

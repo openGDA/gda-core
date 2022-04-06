@@ -20,11 +20,11 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
@@ -214,8 +214,14 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 	}
 
 	@Override
-	public void configureScanBean(ScanBean scanBean) {
-		// nothing to do - creating the CompoundModel is done by the view
+	protected void updateControls() {
+		createRegionEditor();
+		createPathEditor();
+
+		final GridPathType newGridPathType = GridPathType.forModelClass(getTomoBean().getGridPathModel().getClass());
+		Arrays.stream(GridPathType.values())
+			.forEach(type -> gridPathTypeRadioButtons.get(type).setSelection(type == newGridPathType));
+		tomoView.relayout();
 	}
 
 }

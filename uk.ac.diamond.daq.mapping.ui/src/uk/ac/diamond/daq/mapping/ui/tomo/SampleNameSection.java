@@ -18,12 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
-import java.util.Arrays;
-
+import org.eclipse.core.databinding.Binding;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.scanning.api.event.scan.ScanBean;
-import org.eclipse.scanning.api.scan.models.ScanMetadata;
-import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -31,9 +30,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class SampleNameSection extends AbstractTomoViewSection {
 
-	private static final String DEFAULT_SAMPLE_NAME = "Unnamed sample";
-
 	private Text sampleNameText;
+	private Binding sampleNameBinding;
 
 	protected SampleNameSection(TensorTomoScanSetupView tomoView) {
 		super(tomoView);
@@ -50,20 +48,19 @@ public class SampleNameSection extends AbstractTomoViewSection {
 
 		sampleNameText = new Text(composite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sampleNameText);
+		bindSampleName();
+	}
+
+	private void bindSampleName() {
+		if (sampleNameBinding != null) sampleNameBinding.dispose();
+		final IObservableValue<String> sampleNameTextValue = WidgetProperties.text(SWT.Modify).observe(sampleNameText);
+		final IObservableValue<String> sampleNameModelValue = PojoProperties.value("sampleName", String.class).observe(getTomoBean());
+		sampleNameBinding = dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
 	}
 
 	@Override
-	public void configureScanBean(ScanBean scanBean) {
-		final String sampleName = getSampleName();
-
-		final ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
-		sampleMetadata.addField("name", sampleName);
-		scanBean.getScanRequest().setScanMetadata(Arrays.asList(sampleMetadata));
-	}
-
-	private String getSampleName() {
-		final String sampleName = sampleNameText.getText().trim();
-		return sampleName.isEmpty() ? DEFAULT_SAMPLE_NAME : sampleName;
+	protected void updateControls() {
+		bindSampleName();
 	}
 
 }
