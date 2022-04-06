@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.experimentdefinition.ui.handlers;
 
-import gda.commandqueue.Command;
-import gda.commandqueue.CommandProvider;
-import gda.configuration.properties.LocalProperties;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,6 +26,9 @@ import java.io.PrintWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.commandqueue.Command;
+import gda.commandqueue.CommandProvider;
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 
 public class ExperimentCommandProvider implements CommandProvider {
@@ -44,7 +43,7 @@ public class ExperimentCommandProvider implements CommandProvider {
 
 		try {
 			File varDir = new File(LocalProperties.getVarDir());
-			tempFile = File.createTempFile(ob.getRunName() + "_", ".py", varDir);
+			tempFile = File.createTempFile(getTempFilePrefix(ob.getRunName()), ".py", varDir);
 
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(tempFile)));
 			out.print(ob.getCommandString());
@@ -56,6 +55,16 @@ public class ExperimentCommandProvider implements CommandProvider {
 					e);
 		}
 		this.ob = ob;
+	}
+
+	private String getTempFilePrefix(String scanName) {
+		/*
+		 * Hack:
+		 * java.io.File.createTempFile requires the prefix to be at least 3 characters long.
+		 * To allow for single character scan names (e.g. for element symbols)
+		 * we stick two underscores to be on the safe side.
+		 */
+		return scanName + "__";
 	}
 
 	@Override
