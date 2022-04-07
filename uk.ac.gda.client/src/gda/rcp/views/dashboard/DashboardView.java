@@ -303,9 +303,9 @@ public final class DashboardView extends ViewPart {
 	/**
 	 * Called to get the default list of things to monitor.
 	 */
-	protected List<ScannableObject> getDefaultServerObjects() throws Exception {
+	protected List<ScannableObject> getDefaultServerObjects() {
 
-		final List<ScannableObject> data = new ArrayList<ScannableObject>();
+		final List<ScannableObject> objects = new ArrayList<>();
 
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.gda.client.dashboard.objects");
@@ -315,19 +315,19 @@ public final class DashboardView extends ViewPart {
 			final ScannableObject ob = new ScannableObject(name, new JythonSnapshotProvider());
 			ob.setToolTip(e.getAttribute(TOOLTIP_KEY));
 
-			data.add(ob);
+			objects.add(ob);
 		}
 
 		var dashboardScannables = Finder.findOptionalSingleton(DashboardScannables.class);
 		if (dashboardScannables.isPresent()) {
 			List<String> scannableNames = dashboardScannables.get().getDashboardScannableNames();
 			scannableNames.stream()
-						  .forEach(item -> data.add(new ScannableObject(item, new JythonSnapshotProvider())));
+						  .forEach(item -> objects.add(new ScannableObject(item, new JythonSnapshotProvider())));
 		} else {
 			logger.info("No dashboard scannables were defined via Spring xml");
 		}
 
-		return data;
+		return objects;
 	}
 
 	@Override
