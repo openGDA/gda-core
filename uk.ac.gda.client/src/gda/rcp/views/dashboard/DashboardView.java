@@ -318,9 +318,9 @@ public final class DashboardView extends ViewPart {
 			data.add(ob);
 		}
 
-		DashboardScannables dashboardScannables = Finder.find("dashboard_motors");
-		if (dashboardScannables != null) {
-			List<String> scannableNames = dashboardScannables.getDashboardScannableNames();
+		var dashboardScannables = Finder.findOptionalSingleton(DashboardScannables.class);
+		if (dashboardScannables.isPresent()) {
+			List<String> scannableNames = dashboardScannables.get().getDashboardScannableNames();
 			scannableNames.stream()
 						  .forEach(item -> data.add(new ScannableObject(item, new JythonSnapshotProvider())));
 		} else {
