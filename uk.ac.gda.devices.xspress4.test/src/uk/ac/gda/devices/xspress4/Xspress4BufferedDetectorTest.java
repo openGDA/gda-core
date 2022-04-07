@@ -130,7 +130,7 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 
 		bufDetector.setUseSwmrFileReading(true);
 		bufDetector.setWriteHDF5Files(true);
-		xsp3controller.setSimulationFileName(hdfFile);
+		xsp4Controller.setSimulationFileName(hdfFile);
 		xsp4Controller.setTotalNumFramesAvailable(numFrames);
 
 		xspressParams = getParameters(XspressParameters.READOUT_MODE_SCALERS_AND_MCA, ResGrades.NONE, 1, 101);
@@ -143,7 +143,7 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 		writer.setNumScalers(xsp4Controller.getNumScalers());
 		writer.setDefaultNames();
 		writer.setTimePerFrame(timeForScan/numFrames);
-		writer.setFileName(xsp3controller.getFullFileName());
+		writer.setFileName(xsp4Controller.getHdfFullFileName());
 		writer.writeData();
 //		writer.writeHdfFile();
 		while(writer.getCurrentFrameNumber() < 5) {
@@ -169,7 +169,7 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 
 		bufDetector.setUseSwmrFileReading(false);
 		bufDetector.setWriteHDF5Files(false);
-		xsp3controller.setSimulationFileName(hdfFile);
+		xsp4Controller.setSimulationFileName(hdfFile);
 		xsp4Controller.setTotalNumFramesAvailable(numFrames);
 
 		xspressParams = getParameters(XspressParameters.READOUT_MODE_SCALERS_AND_MCA, ResGrades.NONE, 1, 101);
@@ -198,7 +198,7 @@ public class Xspress4BufferedDetectorTest extends TestBase {
 		bufDetector.setUseNexusTreeWriter(true);
 		bufDetector.setMaximumReadFrames(1000);
 		bufDetector.setDetectorNexusFilename(hdfFile);
-		xsp3controller.setSimulationFileName(hdfFile);
+		xsp4Controller.setSimulationFileName(hdfFile);
 		xsp4Controller.setTotalNumFramesAvailable(numFrames);
 
 		xspressParams = getParameters(XspressParameters.READOUT_MODE_SCALERS_AND_MCA, ResGrades.NONE, 1, 101);

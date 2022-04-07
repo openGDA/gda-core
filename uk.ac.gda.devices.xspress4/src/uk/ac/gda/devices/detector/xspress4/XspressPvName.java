@@ -46,6 +46,7 @@ public enum XspressPvName {
 	ACQUIRE_TIME_TEMPLATE(":AcquireTime"),
 	ACQUIRE(":Acquire"),
 	NUM_IMAGES(":NumImages"),
+	NUM_IMAGES_RBV(":NumImages_RBV"),
 	TRIGGER_MODE_TEMPLATE(":TriggerMode"),
 	ARRAY_COUNTER(":ArrayCounter"),
 	ARRAY_COUNTER_RBV(":ArrayCounter_RBV"),
@@ -57,12 +58,51 @@ public enum XspressPvName {
 	SCA_TEMPLATE(":C%d_SCA%d:Value_RBV"),
 	RES_GRADE_TEMPLATE(":C%d_SCA%d_RESGRADES"),
 	ARRAY_DATA_TEMPLATE(":ARR%d:ArrayData"),
-	DTC_FACTORS(":DTC_FACTORS"),
+	DTC_FACTOR_TEMPLATE(":C%d_DTC_FACTOR"),
+
+	// Low and high window limits for scaler5 and scaler6
+	// (bin range for in-window counts)
+	SCA5_WINDOW_LOW(":C%d_SCA5_LLM"),
+	SCA5_WINDOW_HIGH(":C%d_SCA5_HLM"),
+	SCA6_WINDOW_LOW(":C%d_SCA6_LLM"),
+	SCA6_WINDOW_HIGH(":C%d_SCA6_HLM"),
 
 	// Time series array PVs
 	SCA_TIMESERIES_TEMPLATE(":C%d_SCAS:%d:TSArrayValue"),
 	SCA_TIMESERIES_ACQUIRE_TEMPLATE(":C%d_SCAS:TS:TSAcquire"),
-	SCA_TIMESERIES_CURRENTPOINT_TEMPLATE(":C%d_SCAS:TS:TSCurrentPoint");
+	SCA_TIMESERIES_CURRENTPOINT_TEMPLATE(":C%d_SCAS:TS:TSCurrentPoint"),
+
+	// Detector connection state PVs
+	DETECTOR_STATE(":DetectorState_RBV"),
+	CONNECT(":CONNECT"),
+	DISCONNECT(":DISCONNECT"),
+	DET_CONNECTED(":CONNECTED"),
+
+	// Hdf file writing PVs
+	NUM_CAPTURE(":NumCapture"),
+	NUM_CAPTURE_RBV(":NumCapture_RBV"),
+	NUM_CAPTURED_RBV(":NumCaptured_RBV"),
+	CAPTURE_CONTOL(":Capture"),
+	CAPTURE_RBV(":Capture_RBV"),
+	HDF_FILEPATH(":FilePath"),
+	HDF_FILEPATH_RBV(":FilePath_RBV"),
+	HDF_FILENAME(":FileName"),
+	HDF_FULL_FILENAME_RBV(":FullFileName_RBV"),
+
+	// Odin specific PVs
+	TRIGGER_DETECTOR (":TRIGGER"),
+
+	//Odin Metawriter PVs (for writing scalar data to Hdf file)
+	// In the Odin plugin with :META prefix
+	META_FLUSH_RATE(":FlushRate"),
+	META_FLUSH_RATE_RBV(":FlushRate_RBV"),
+	META_FILENAME(":FileName"),
+	META_OUTPUT_FILE(":OutputFile_RBV"), // full path to output file
+	META_FRAMES_WRITTEN_RBV(":FramesWritten_RBV"),
+	META_STOP(":Stop"),
+	META_CONNECTED_RBV(":ProcessConnected_RBV"),
+	META_ACQUISITION_ACTIVE_RBV(":AcquisitionActive_RBV"),
+	META_WRITING_RBV(":Writing_RBV");
 
 	private String pvName;
 
@@ -74,3 +114,4 @@ public enum XspressPvName {
 		return pvName;
 	}
 }
+

@@ -17,27 +17,24 @@
  */
 
 package uk.ac.gda.devices.detector.xspress4;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ACQUIRE_TIME_TEMPLATE;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ARRAY_COUNTER;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ARRAY_COUNTER_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ARRAY_DATA_TEMPLATE;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_ENERGY_KEV;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_FACTORS;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_FACTOR_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.RES_GRADE_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ROI_RES_GRADE_BIN;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_ARRAY_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TIMESERIES_ACQUIRE_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TIMESERIES_CURRENTPOINT_TEMPLATE;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TIMESERIES_TEMPLATE;
-import static uk.ac.gda.devices.detector.xspress4.XspressPvName.TRIGGER_MODE_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.TRIGGER_DETECTOR;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.UPDATE_ARRAYS_TEMPLATE;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -49,12 +46,18 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FindableBase;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.ACQUIRE_STATE;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public class EpicsXspress4Controller extends FindableBase implements Xspress4Controller, InitializingBean {
 
-	private static Logger logger = LoggerFactory.getLogger(EpicsXspress4Controller.class);
+	private static final Logger logger = LoggerFactory.getLogger(EpicsXspress4Controller.class);
 
 	private String pvBase = "";
+	private String hdfWriterPrefix = ":HDF5";
+	private String metaWriterPrefix = ":OD:META";
+	private String mainControlPrefix = ""; // set to ":CAM" for Odin based detector
+
 	private int numElements = 64;
 	private int numMcaChannels = 4096;
 	private int numScalers = 8;
@@ -63,9 +66,6 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	// Standard scalers for each detector element, separate PV for each scaler type
 	private ReadOnlyPV<Double>[][] pvForScalerValue = null; // [detectorElement][scalerNumber].scalerNumber=0...7
-
-	// Standard scalers for each detector element, provided as an array
-	private ReadOnlyPV<Double[]>[] pvForScalerArray = null; // [detectorElement]scalerNumber=0...7
 
 	// Resolution grade values for each detector element (array of 16 in-window counts, one value for each resolution grade)
 	private ReadOnlyPV<Double[]>[][] pvForResGradeArray = null; // [detector element][window number]
@@ -76,20 +76,9 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	// PV to cause all array data PVs above to be updated (e.g. caput “1” to this)
 	private PV<Integer> pvUpdateArrays = null;
 
-	// PV to set the exposure time (used for Software triggered collection)
-	private PV<Double> pvAcquireTime = null;
-
-	private PV<Integer> pvTriggerMode = null;
-
-	private PV<Integer> pvArrayCounter = null;
-
-	private ReadOnlyPV<Integer> pvArrayCounterRbv = null;
-
-	private ReadOnlyPV<Double[]> pvDtcFactors = null;
+	private ReadOnlyPV<Double>[] pvDtcFactor = null;
 
 	private PV<Integer> pvRoiResGradeBin = null;
-
-	private PV<Double> pvDtcEnergyKev = null;
 
 	// Time series value for detector element, scaler .
 	private ReadOnlyPV<Double[]>[][] pvScalerTimeSeries = null; // [detectorElement][scalerNumber].scalerNumber=0...7
@@ -98,8 +87,20 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	private ReadOnlyPV<Integer>[] pvScalerTimeSeriesCurrentPoint = null; // [detectorElement]
 
+	/** Hdf file writing PVs  */
+	private HdfFilePvProvider fileWritingPvs;
+
+	/** PV to send a software trigger to the detector (Xspress4Odin) */
+	private PV<Integer> pvSofwareTrigger = null;
+
+	/** PVs to control the Metawriter (Xspress4Odin only) */
+	private OdinPvProvider odinPvs;
+
+	/** 'Camera control' PVs - start, stop, the detector, setup the scaler windows, connect, disconnect */
+	private XspressCamControl cameraControlPvs;
+
+
 	private double caClientTimeoutSecs = 10.0; // Timeout for CACLient put operations (seconds)
-	private long pollIntervalMillis = 50;
 
 	/**
 	 * Update the PV name map using new values passed in.
@@ -121,43 +122,93 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		pvForScalerValue = new ReadOnlyPV[numElements][numScalers];
-		pvForScalerArray = new ReadOnlyPV[numElements];
 		pvForResGradeArray = new ReadOnlyPV[numElements][2];
 		pvForMcaArray = new ReadOnlyPV[numElements];
 
 		for (int element = 0; element < numElements; element++) {
-
-			String pvnameScalerArray = pvBase + String.format(getPvName(SCA_ARRAY_TEMPLATE), element + 1);
-			pvForScalerArray[element] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameScalerArray);
-
-			String pvnameResGrade = pvBase + String.format(getPvName(RES_GRADE_TEMPLATE), element + 1, 5);
-			pvForResGradeArray[element][0] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameResGrade);
-
-			pvnameResGrade = pvBase + String.format(getPvName(RES_GRADE_TEMPLATE), element + 1, 6);
+			String pvnameResGrade = String.format(getPvName(RES_GRADE_TEMPLATE), element + 1, 6);
 			pvForResGradeArray[element][1] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameResGrade);
 
-			String pvnameArrayData = pvBase + String.format(getPvName(ARRAY_DATA_TEMPLATE), element + 1);
+			String pvnameArrayData = String.format(getPvName(ARRAY_DATA_TEMPLATE), element + 1);
 			pvForMcaArray[element] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameArrayData);
 
 			for (int sca = 0; sca < numScalers; sca++) {
-				String pvnameScaler = pvBase + String.format(getPvName(SCA_TEMPLATE), element + 1, sca);
+				String pvnameScaler = String.format(getPvName(SCA_TEMPLATE), element + 1, sca);
 				pvForScalerValue[element][sca] = LazyPVFactory.newReadOnlyDoublePV(pvnameScaler);
 			}
 		}
 
-		pvTriggerMode = LazyPVFactory.newIntegerPV(pvBase + getPvName(TRIGGER_MODE_TEMPLATE));
-		pvAcquireTime = LazyPVFactory.newDoublePV(pvBase + getPvName(ACQUIRE_TIME_TEMPLATE));
-		pvUpdateArrays = LazyPVFactory.newIntegerPV(pvBase + getPvName(UPDATE_ARRAYS_TEMPLATE));
-		pvArrayCounter = LazyPVFactory.newIntegerPV(pvBase + getPvName(ARRAY_COUNTER));
-		pvArrayCounterRbv = LazyPVFactory.newReadOnlyIntegerPV(pvBase + getPvName(ARRAY_COUNTER_RBV));
-		pvDtcFactors = LazyPVFactory.newReadOnlyDoubleArrayPV(pvBase + getPvName(DTC_FACTORS));
-		pvRoiResGradeBin = LazyPVFactory.newIntegerPV(pvBase + getPvName(ROI_RES_GRADE_BIN));
-		pvDtcEnergyKev = LazyPVFactory.newDoublePV(pvBase + getPvName(DTC_ENERGY_KEV));
+		pvUpdateArrays = LazyPVFactory.newIntegerPV(getPvName(UPDATE_ARRAYS_TEMPLATE));
+		pvRoiResGradeBin = LazyPVFactory.newIntegerPV(getPvName(ROI_RES_GRADE_BIN));
 
+		createOdinPvs();
+		createCameraControlPvs();
+		createDtcFactorPvs();
 		createTimeSeriesPVs();
+		createFileWritingPvs();
 	}
 
+	/**
+	 * HDF file writing PVs
+	 */
+	private void createFileWritingPvs() {
+		logger.info("Creating Hdf file file writing PVs");
+		fileWritingPvs = new HdfFilePvProvider();
+		fileWritingPvs.setPrefix(pvBase + hdfWriterPrefix);
+		fileWritingPvs.setPvNameMap(pvNameMap);
+		fileWritingPvs.createPvs();
+		fileWritingPvs.checkPvsExist();
+	}
 
+	private void createOdinPvs() {
+		if (!XspressPvProviderBase.pvExists(getPvName(TRIGGER_DETECTOR))) {
+			return;
+		}
+		logger.info("Creating Odin specific PVs");
+		odinPvs = new OdinPvProvider();
+		odinPvs.setPrefix(pvBase + metaWriterPrefix);
+		odinPvs.setPvNameMap(pvNameMap);
+		odinPvs.createPvs();
+		odinPvs.checkPvsExist();
+	}
+
+	private void createCameraControlPvs() {
+		logger.info("Creating PVs for controlling camera and setting scaler window ranges");
+		cameraControlPvs = new XspressCamControl();
+		cameraControlPvs.setPvNameMap(pvNameMap);
+		cameraControlPvs.setPrefix(pvBase + mainControlPrefix);
+		cameraControlPvs.setNumChannels(numElements);
+		cameraControlPvs.createPvs();
+		cameraControlPvs.checkPvsExist();
+	}
+
+	public boolean isConnected() throws DeviceException {
+		return getValue(cameraControlPvs.pvIsConnected);
+	}
+
+	public void connect() throws DeviceException {
+		putValue(cameraControlPvs.pvConnect, 1);
+	}
+
+	public void disonnect() throws DeviceException {
+		putValue(cameraControlPvs.pvDisconnect, 1);
+	}
+
+	/**
+	 * Create PVs for reading DTC (deadtime correction factor) values
+	 */
+	private void createDtcFactorPvs() {
+		String dtcFactorTemplate = getPvName(DTC_FACTOR_TEMPLATE);
+		logger.debug("Using DTC factors from {} values", dtcFactorTemplate);
+		pvDtcFactor = new ReadOnlyPV[numElements];
+		for(int i=0; i<numElements;i++) {
+			pvDtcFactor[i] = LazyPVFactory.newReadOnlyDoublePV(String.format(dtcFactorTemplate, i+1));
+		}
+	}
+
+	/**
+	 * Create PVs for reading scalers from time series arrays
+	 */
 	private void createTimeSeriesPVs() {
 		pvScalerTimeSeries = new ReadOnlyPV[numElements][numScalers];
 		pvScalerTimeSeriesAcquire = new PV[numElements];
@@ -177,13 +228,12 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	/**
-	 * Get name of PV from the name map.
+	 * Generate full name of a 'main detector control' PV from the name map.
 	 * @param pv
-	 * @return
+	 * @return pvBase + mainControlPrefix + pvName
 	 */
 	private String getPvName(XspressPvName pv) {
-		return pvNameMap.computeIfAbsent(pv, XspressPvName::pvName);
-
+		return pvBase + mainControlPrefix + pvNameMap.getOrDefault(pv, pv.pvName());
 	}
 
 	public double getCaClientTimeout() {
@@ -254,7 +304,11 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public double[] getScalerArray(int element) throws DeviceException {
-		return getArray(pvForScalerArray[element]);
+		double[] vals = new double[numScalers];
+		for(int i=0; i<numScalers; i++) {
+			vals[i] = getScalerValue(element, i);
+		}
+		return vals;
 	}
 
 	@Override
@@ -340,12 +394,12 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public void setTriggerMode(int triggerMode) throws DeviceException {
-		putValue(pvTriggerMode, triggerMode);
+		putValue(cameraControlPvs.pvTriggerMode, triggerMode);
 	}
 
 	@Override
 	public int getTriggerMode() throws DeviceException {
-		return getValue(pvTriggerMode);
+		return getValue(cameraControlPvs.pvTriggerMode);
 	}
 
 	@Override
@@ -366,31 +420,36 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 	@Override
 	public void setDeadtimeCorrectionEnergy(double energyKev) throws DeviceException {
-		putValue(pvDtcEnergyKev, energyKev);
+		putValue(cameraControlPvs.pvDtcEnergyKev, energyKev);
 	}
 
 	@Override
 	public double getDeadtimeCorrectionEnergy() throws DeviceException {
-		return getValue(pvDtcEnergyKev);
+		return getValue(cameraControlPvs.pvDtcEnergyKev);
 	}
 
 	@Override
 	public void resetFramesReadOut() throws DeviceException {
-		putValue(pvArrayCounter, 0);
+		putValue(cameraControlPvs.pvArrayCounter, 0);
 	}
 
 	@Override
 	public int getTotalFramesAvailable() throws DeviceException {
-		return getValue(pvArrayCounterRbv);
+		return getValue(cameraControlPvs.pvArrayCounterRbv);
 	}
+
 	@Override
 	public void setAcquireTime(double time) throws DeviceException {
-		putValue(pvAcquireTime, time);
+		putValue(cameraControlPvs.pvAcquireTime, time);
 	}
 
 	@Override
 	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
-		 return getArray(pvDtcFactors);
+		double[] vals = new double[numElements];
+		for(int i=0; i<numElements; i++) {
+			vals[i] = getValue(pvDtcFactor[i]);
+		}
+		return vals;
 	}
 
 	public String getBasePv() {
@@ -422,19 +481,22 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	}
 
 	/**
-	 * Wait for the value returned by a PV to change. This function blocks until PV value != startValue,
-	 * timeout is reached or an exception is thrown.
+	 * Wrap {@link ReadOnlyPV#waitForValue(Predicate, double), which rethrows exceptions as DeviceException
 	 * @param pv
-	 * @param startValue
+	 * @param predicate
 	 * @param timeoutSecs
 	 * @throws InterruptedException
 	 * @throws DeviceException
 	 */
-	private <T> void waitForValueToChange(ReadOnlyPV<T> pv, T startValue, double timeoutSecs) throws  InterruptedException, DeviceException {
-		long endTime = (long) timeoutSecs*1000 + System.currentTimeMillis();
-		while( System.currentTimeMillis() < endTime && getValue(pv) == startValue) {
-			Thread.sleep(pollIntervalMillis);
+	private <T> void waitForValue(ReadOnlyPV<T> pv, Predicate<T> predicate, double timeoutSecs) throws DeviceException {
+		try {
+			pv.waitForValue(predicate, timeoutSecs);
+		} catch(Exception e) {
+			throw new DeviceException(e);
 		}
+	}
+	private <T> void waitForValue(ReadOnlyPV<T> pv, Predicate<T> predicate) throws DeviceException {
+		waitForValue(pv, predicate, caClientTimeoutSecs);
 	}
 
 	/**
@@ -445,13 +507,9 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	 * @throws InterruptedException
 	 * @throws DeviceException
 	 */
-	private <T> void waitForValueToChange(ReadOnlyPV<T> pv, T startValue) throws  InterruptedException, DeviceException {
-		waitForValueToChange(pv, startValue, caClientTimeoutSecs);
-	}
-
 	@Override
 	public void waitForCounterToIncrement(int initialNumFrames, long timeoutMillis) throws DeviceException, InterruptedException {
-		waitForValueToChange(pvArrayCounterRbv, initialNumFrames);
+		waitForValue(cameraControlPvs.pvArrayCounterRbv, v -> v != initialNumFrames);
 	}
 
 	@Override
@@ -463,5 +521,152 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 	public void setNumMcaChannels(int numMcaChannels) {
 		this.numMcaChannels = numMcaChannels;
 	}
+
+	@Override
+	public void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException {
+		List< PV<Integer> > lowWindowPv = windowNumber == 0 ? cameraControlPvs.pvScaler5LowLimit : cameraControlPvs.pvScaler6LowLimit;
+		List< PV<Integer> > highWindowPv = windowNumber == 0 ? cameraControlPvs.pvScaler5HighLimit : cameraControlPvs.pvScaler6HighLimit;
+
+		logger.info("Setting scaler window limits for window {}, channel {} to : low = {}, high = {}", windowNumber, channel, lowLimit, highLimit);
+		putValue(lowWindowPv.get(channel), 0);
+		putValue(highWindowPv.get(channel), highLimit);
+		putValue(lowWindowPv.get(channel), lowLimit);
+	}
+
+	@Override
+	public XSPRESS3_EPICS_STATUS getDetectorState() throws DeviceException {
+		return getValue(cameraControlPvs.pvGetState);
+	}
+
+	@Override
+	public void sendSoftwareTrigger() throws DeviceException {
+		putValueNoWait(pvSofwareTrigger, 1);
+	}
+
+	@Override
+	public void startAcquire() throws DeviceException {
+		putValueNoWait(cameraControlPvs.pvAcquire, ACQUIRE_STATE.Acquire);
+	}
+
+	@Override
+	public void stopAcquire() throws DeviceException {
+		putValueNoWait(cameraControlPvs.pvAcquire, ACQUIRE_STATE.Done);
+	}
+
+	public void startHdfWriting() throws DeviceException {
+		// filepath and name have already been set
+		int numFrames = getNumImagesRbv();
+		logger.debug("Starting hdf writer : {} frames", numFrames);
+		setHdfNumFrames(numFrames);
+		startHdfWriter();
+		logger.debug("Waiting for hdf writer to start");
+		waitForValue(fileWritingPvs.pvHdfCapturingRbv, Boolean.TRUE::equals);
+	}
+
+	/**
+	 * Wait for Hdf file image capture capture to start/stop
+	 *
+	 * @param state : true == wait for start, false = wait for stop.
+	 * @throws DeviceException
+	 */
+	@Override
+	public void waitForCaptureState(boolean state) throws DeviceException {
+		 waitForValue(fileWritingPvs.pvHdfCapturingRbv, Boolean.valueOf(state)::equals);
+
+	}
+	@Override
+	public void setNumImages(int numImages) throws DeviceException {
+		putValue(cameraControlPvs.pvNumImages, numImages);
+	}
+
+	public int getNumImages() throws DeviceException {
+		return getValue(cameraControlPvs.pvNumImages);
+	}
+
+	public int getNumImagesRbv() throws DeviceException {
+		return getValue(cameraControlPvs.pvNumImagesRbv);
+	}
+
+	@Override
+	public void startHdfWriter() throws DeviceException {
+		putValueNoWait(fileWritingPvs.pvHdfCapturedControl, 1);
+	}
+
+	@Override
+	public void stopHdfWriter() throws DeviceException {
+		putValueNoWait(fileWritingPvs.pvHdfCapturedControl, 0);
+	}
+
+	@Override
+	public void setHdfFilePath(String path) throws DeviceException {
+		putValueNoWait(fileWritingPvs.pvHdfFilePath, path);
+	}
+
+	@Override
+	public String getHdfFilePath() throws DeviceException {
+		return getValue(fileWritingPvs.pvHdfFilePathRbv);
+	}
+
+
+	@Override
+	public void setHdfFileName(String name) throws DeviceException {
+		putValue(fileWritingPvs.pvHdfFileName, name);
+	}
+
+	@Override
+	public String getHdfFullFileName() throws DeviceException {
+		return getValue(fileWritingPvs.pvHdfFullFileNameRbv);
+	}
+
+	@Override
+	public void setHdfNumFrames(int numFrames) throws DeviceException {
+		putValue(fileWritingPvs.pvHdfNumCapture, numFrames);
+	}
+
+	@Override
+	public int getHdfNumFramesRbv() throws DeviceException {
+		return getValue(fileWritingPvs.pvHdfNumCaptureRbv);
+	}
+
+	@Override
+	public int getHdfNumCapturedFrames() throws DeviceException {
+		return getValue(fileWritingPvs.pvHdfNumCapturedRbv);
+	}
+
+	public String setMetaFileName() throws DeviceException {
+		return getValue(odinPvs.pvMetaFileName);
+	}
+
+	public String getMetaOutputFileName() throws DeviceException {
+		return getValue(odinPvs.pvMetaOutputFileRbv);
+	}
+
+	public void stopMetaWriter() throws DeviceException {
+		putValue(odinPvs.pvMetaStop, 1);
+		logger.debug("Waiting for Meta writer to stop");
+		waitForValue(odinPvs.pvMetaIsActiveRbv, Boolean.FALSE::equals, caClientTimeoutSecs);
+	}
+
+	public void setHdfWriterPrefix(String hdfWriterPrefix) {
+		this.hdfWriterPrefix = hdfWriterPrefix;
+	}
+	public String getHdfWriterPrefix() {
+		return hdfWriterPrefix;
+	}
+
+	public void setMainControlPrefix(String mainControlPrefix) {
+		this.mainControlPrefix = mainControlPrefix;
+	}
+	public String getMainControlPrefix() {
+		return mainControlPrefix;
+	}
+
+	public void setMetaWriterPrefix(String metaWriterPrefix) {
+		this.metaWriterPrefix = metaWriterPrefix;
+	}
+	public String getMetaWriterPrefix() {
+		return metaWriterPrefix;
+	}
+
 }
 

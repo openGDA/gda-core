@@ -20,7 +20,9 @@ package uk.ac.gda.devices.detector.xspress4;
 
 import java.io.IOException;
 
+import gda.device.Device;
 import gda.device.DeviceException;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public interface Xspress4Controller {
 
@@ -183,4 +185,47 @@ public interface Xspress4Controller {
 	void stopTimeSeries() throws DeviceException;
 
 	int getTimeSeriesNumPoints() throws DeviceException;
+
+	XSPRESS3_EPICS_STATUS getDetectorState() throws DeviceException;
+
+	void stopAcquire() throws DeviceException;
+
+	void startAcquire() throws DeviceException;
+
+	void setNumImages(int numImages) throws DeviceException;
+
+	void sendSoftwareTrigger() throws DeviceException;
+
+	void startHdfWriter() throws DeviceException;
+
+	void stopHdfWriter() throws DeviceException;
+
+	void setHdfFilePath(String path) throws DeviceException;
+
+	String getHdfFilePath() throws DeviceException;
+
+	void setHdfFileName(String name) throws DeviceException;
+
+	/** Set the number of frames to capture in Hdf writer */
+	void setHdfNumFrames(int numFrames) throws DeviceException;
+
+	/** @return Readback value of number of frames to capture in Hdf writer */
+	int getHdfNumFramesRbv() throws DeviceException;
+
+	/** @return Total number of captured frames in Hdf writer */
+	public int getHdfNumCapturedFrames() throws DeviceException;
+
+	/**
+	 * Wait for Hdf file image capture capture to start/stop
+	 *
+	 * @param state : true == wait for start, false = wait for stop.
+	 * @throws DeviceException
+	 */
+	void waitForCaptureState(boolean state) throws DeviceException;
+
+	String getHdfFullFileName() throws DeviceException;
+
+	void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException;
+
+
 }
