@@ -348,7 +348,7 @@ public enum Finder {
 	 * This method removes the need for singletons to have a specific name.
 	 * @param singletonClass the singleton type
 	 * @return the singleton
-	 * @throws IllegalArgumentException if multiple/no instances of specified type found
+	 * @throws IllegalArgumentException if multiple instances of specified type found
 	 */
 	public static <T extends Findable> Optional<T> findOptionalSingleton(Class<T> singletonClass) {
 		final Map<String, T> instances = getFindablesOfType(singletonClass);
@@ -365,7 +365,7 @@ public enum Finder {
 	 * This method removes the need for singletons to have a specific name.
 	 * @param singletonClass the singleton type
 	 * @return the singleton
-	 * @throws IllegalArgumentException if multiple/no instances of specified type found
+	 * @throws IllegalArgumentException if multiple instances of specified type found
 	 */
 	public static <T extends Findable> Optional<T> findOptionalLocalSingleton(Class<T> singletonClass) {
 		final Map<String, T> instances = getLocalFindablesOfType(singletonClass);
