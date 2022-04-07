@@ -21,7 +21,9 @@ package gda.device.syringepump;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import uk.ac.gda.api.remoting.ServiceInterface;
 
+@ServiceInterface(Syringe.class)
 public class SyringePump extends DeviceBase implements Syringe {
 
 	private SyringePumpController controller;
