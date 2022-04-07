@@ -17,12 +17,31 @@
  */
 
 package uk.ac.gda.devices.detector.xspress4;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ACQUIRE_TIME_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ARRAY_COUNTER;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ARRAY_COUNTER_RBV;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ARRAY_DATA_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_ENERGY_KEV;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_FACTORS;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.RES_GRADE_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.ROI_RES_GRADE_BIN;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_ARRAY_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TIMESERIES_ACQUIRE_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TIMESERIES_CURRENTPOINT_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA_TIMESERIES_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.TRIGGER_MODE_TEMPLATE;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.UPDATE_ARRAYS_TEMPLATE;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
@@ -32,65 +51,72 @@ import gda.epics.ReadOnlyPV;
 import gda.factory.FindableBase;
 
 public class EpicsXspress4Controller extends FindableBase implements Xspress4Controller, InitializingBean {
+
+	private static Logger logger = LoggerFactory.getLogger(EpicsXspress4Controller.class);
+
 	private String pvBase = "";
 	private int numElements = 64;
 	private int numMcaChannels = 4096;
 	private int numScalers = 8;
 
+	private Map<XspressPvName, String> pvNameMap = new EnumMap<>(XspressPvName.class);
+
 	// Standard scalers for each detector element, separate PV for each scaler type
-	private static final String SCA_TEMPLATE = ":C%d_SCA%d:Value_RBV"; // detectorElement, sca number
 	private ReadOnlyPV<Double>[][] pvForScalerValue = null; // [detectorElement][scalerNumber].scalerNumber=0...7
 
 	// Standard scalers for each detector element, provided as an array
-	private static final String SCA_ARRAY_TEMPLATE = ":C%d_SCAS"; // detectorElement
 	private ReadOnlyPV<Double[]>[] pvForScalerArray = null; // [detectorElement]scalerNumber=0...7
 
 	// Resolution grade values for each detector element (array of 16 in-window counts, one value for each resolution grade)
-	private static final String RES_GRADE_TEMPLATE = ":C%d_SCA%d_RESGRADES"; // detectorElement, SCA{5,6}
 	private ReadOnlyPV<Double[]>[][] pvForResGradeArray = null; // [detector element][window number]
 
 	// Array of MCA for each detector element (summed over all res grades)
-	private static final String ARRAY_DATA_TEMPLATE = ":ARR%d:ArrayData"; //detectorElement
 	private ReadOnlyPV<Double[]>[] pvForMcaArray; // [detectorElement]
 
 	// PV to cause all array data PVs above to be updated (e.g. caput “1” to this)
-	private static final String UPDATE_ARRAYS_TEMPLATE = ":UPDATE_ARRAYS";
 	private PV<Integer> pvUpdateArrays = null;
 
 	// PV to set the exposure time (used for Software triggered collection)
-	private static final String ACQUIRE_TIME_TEMPLATE = ":AcquireTime";
 	private PV<Double> pvAcquireTime = null;
 
-	private static final String TRIGGER_MODE_TEMPLATE = ":TriggerMode";
 	private PV<Integer> pvTriggerMode = null;
 
-	private static final String ARRAY_COUNTER = ":ArrayCounter";
 	private PV<Integer> pvArrayCounter = null;
 
-	private static final String ARRAY_COUNTER_RBV = ":ArrayCounter_RBV";
 	private ReadOnlyPV<Integer> pvArrayCounterRbv = null;
 
-	private static final String DTC_FACTORS = ":DTC_FACTORS";
 	private ReadOnlyPV<Double[]> pvDtcFactors = null;
 
-	private static final String ROI_RES_GRADE_BIN = ":ROI:BinY";
 	private PV<Integer> pvRoiResGradeBin = null;
 
-	private static final String DTC_ENERGY_KEV = ":DTC_ENERGY";
 	private PV<Double> pvDtcEnergyKev = null;
 
 	// Time series value for detector element, scaler .
-	private static final String SCA_TIMESERIES_TEMPLATE = ":C%d_SCAS:%d:TSArrayValue"; // detectorElement, sca number
 	private ReadOnlyPV<Double[]>[][] pvScalerTimeSeries = null; // [detectorElement][scalerNumber].scalerNumber=0...7
 
-	private static final String SCA_TIMESERIES_ACQUIRE_TEMPLATE = ":C%d_SCAS:TS:TSAcquire"; // detectorElement
 	private PV<Integer>[] pvScalerTimeSeriesAcquire = null; // [detectorElement]
 
-	private static final String SCA_TIMESERIES_CURRENTPOINT_TEMPLATE = ":C%d_SCAS:TS:TSCurrentPoint"; // detectorElement
 	private ReadOnlyPV<Integer>[] pvScalerTimeSeriesCurrentPoint = null; // [detectorElement]
 
 	private double caClientTimeoutSecs = 10.0; // Timeout for CACLient put operations (seconds)
 	private long pollIntervalMillis = 50;
+
+	/**
+	 * Update the PV name map using new values passed in.
+	 *
+	 * @param nameMap key = logical name (i.e. matching a value in {@link XspressPvName}), value = PV name/pattern
+	 */
+	public void updatePvNameMap(Map<String, String> nameMap) {
+		for(var ent : nameMap.entrySet()) {
+			try {
+				XspressPvName pvName = XspressPvName.valueOf(ent.getKey());
+				 logger.info("Updating PV for {} : old value = {}, new value = {}", ent.getKey(), pvNameMap.get(pvName), ent.getValue());
+				pvNameMap.put(pvName, ent.getValue());
+			} catch(IllegalArgumentException e) {
+				 logger.info("No PV for {} was found", ent.getKey());
+			}
+		}
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -101,35 +127,36 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 
 		for (int element = 0; element < numElements; element++) {
 
-			String pvnameScalerArray = pvBase + String.format(SCA_ARRAY_TEMPLATE, element + 1);
+			String pvnameScalerArray = pvBase + String.format(getPvName(SCA_ARRAY_TEMPLATE), element + 1);
 			pvForScalerArray[element] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameScalerArray);
 
-			String pvnameResGrade = pvBase + String.format(RES_GRADE_TEMPLATE, element + 1, 5);
+			String pvnameResGrade = pvBase + String.format(getPvName(RES_GRADE_TEMPLATE), element + 1, 5);
 			pvForResGradeArray[element][0] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameResGrade);
 
-			pvnameResGrade = pvBase + String.format(RES_GRADE_TEMPLATE, element + 1, 6);
+			pvnameResGrade = pvBase + String.format(getPvName(RES_GRADE_TEMPLATE), element + 1, 6);
 			pvForResGradeArray[element][1] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameResGrade);
 
-			String pvnameArrayData = pvBase + String.format(ARRAY_DATA_TEMPLATE, element + 1);
+			String pvnameArrayData = pvBase + String.format(getPvName(ARRAY_DATA_TEMPLATE), element + 1);
 			pvForMcaArray[element] = LazyPVFactory.newReadOnlyDoubleArrayPV(pvnameArrayData);
 
 			for (int sca = 0; sca < numScalers; sca++) {
-				String pvnameScaler = pvBase + String.format(SCA_TEMPLATE, element + 1, sca);
+				String pvnameScaler = pvBase + String.format(getPvName(SCA_TEMPLATE), element + 1, sca);
 				pvForScalerValue[element][sca] = LazyPVFactory.newReadOnlyDoublePV(pvnameScaler);
 			}
 		}
 
-		pvTriggerMode = LazyPVFactory.newIntegerPV(pvBase + TRIGGER_MODE_TEMPLATE);
-		pvAcquireTime = LazyPVFactory.newDoublePV(pvBase + ACQUIRE_TIME_TEMPLATE);
-		pvUpdateArrays = LazyPVFactory.newIntegerPV(pvBase + UPDATE_ARRAYS_TEMPLATE);
-		pvArrayCounter = LazyPVFactory.newIntegerPV(pvBase + ARRAY_COUNTER);
-		pvArrayCounterRbv = LazyPVFactory.newReadOnlyIntegerPV(pvBase + ARRAY_COUNTER_RBV);
-		pvDtcFactors = LazyPVFactory.newReadOnlyDoubleArrayPV(pvBase + DTC_FACTORS);
-		pvRoiResGradeBin = LazyPVFactory.newIntegerPV(pvBase + ROI_RES_GRADE_BIN);
-		pvDtcEnergyKev = LazyPVFactory.newDoublePV(pvBase + DTC_ENERGY_KEV);
+		pvTriggerMode = LazyPVFactory.newIntegerPV(pvBase + getPvName(TRIGGER_MODE_TEMPLATE));
+		pvAcquireTime = LazyPVFactory.newDoublePV(pvBase + getPvName(ACQUIRE_TIME_TEMPLATE));
+		pvUpdateArrays = LazyPVFactory.newIntegerPV(pvBase + getPvName(UPDATE_ARRAYS_TEMPLATE));
+		pvArrayCounter = LazyPVFactory.newIntegerPV(pvBase + getPvName(ARRAY_COUNTER));
+		pvArrayCounterRbv = LazyPVFactory.newReadOnlyIntegerPV(pvBase + getPvName(ARRAY_COUNTER_RBV));
+		pvDtcFactors = LazyPVFactory.newReadOnlyDoubleArrayPV(pvBase + getPvName(DTC_FACTORS));
+		pvRoiResGradeBin = LazyPVFactory.newIntegerPV(pvBase + getPvName(ROI_RES_GRADE_BIN));
+		pvDtcEnergyKev = LazyPVFactory.newDoublePV(pvBase + getPvName(DTC_ENERGY_KEV));
 
 		createTimeSeriesPVs();
 	}
+
 
 	private void createTimeSeriesPVs() {
 		pvScalerTimeSeries = new ReadOnlyPV[numElements][numScalers];
@@ -138,15 +165,25 @@ public class EpicsXspress4Controller extends FindableBase implements Xspress4Con
 		for (int element = 0; element < numElements; element++) {
 			for (int sca = 0; sca < numScalers; sca++) {
 				// scaler numbering for time series arrays starts at 1 not zero!
-				String pvTimeSeriesName = pvBase + String.format(SCA_TIMESERIES_TEMPLATE, element + 1, sca + 1);
+				String pvTimeSeriesName = pvBase + String.format(getPvName(SCA_TIMESERIES_TEMPLATE), element + 1, sca + 1);
 				pvScalerTimeSeries[element][sca] = LazyPVFactory.newDoubleArrayPV(pvTimeSeriesName);
 			}
-			String pvTimeSeriesAcquireName = pvBase + String.format(SCA_TIMESERIES_ACQUIRE_TEMPLATE, element + 1);
+			String pvTimeSeriesAcquireName = pvBase + String.format(getPvName(SCA_TIMESERIES_ACQUIRE_TEMPLATE), element + 1);
 			pvScalerTimeSeriesAcquire[element] = LazyPVFactory.newIntegerPV(pvTimeSeriesAcquireName);
 
-			String pvTimeSeriesCurrentPointName = pvBase + String.format(SCA_TIMESERIES_CURRENTPOINT_TEMPLATE, element + 1);
+			String pvTimeSeriesCurrentPointName = pvBase + String.format(getPvName(SCA_TIMESERIES_CURRENTPOINT_TEMPLATE), element + 1);
 			pvScalerTimeSeriesCurrentPoint[element] = LazyPVFactory.newIntegerPV(pvTimeSeriesCurrentPointName);
 		}
+	}
+
+	/**
+	 * Get name of PV from the name map.
+	 * @param pv
+	 * @return
+	 */
+	private String getPvName(XspressPvName pv) {
+		return pvNameMap.computeIfAbsent(pv, XspressPvName::pvName);
+
 	}
 
 	public double getCaClientTimeout() {
