@@ -30,6 +30,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
@@ -71,12 +72,14 @@ public abstract class AbstractPositionerComposite extends Composite {
 	private String scannableOutputFormat;
 	private String displayName; // Allow a different prettier name be used if required
 
-	private String reasonForDisallowingMove = "";
+	protected String reasonForDisallowingMove = "";
 
 	// Update job
 	private Job updateReadbackJob;
 
 	protected boolean unitDisplayOutsideTextBox = false;
+
+	private Image createImage;
 
 	/**
 	 * @param parent the parent composite on which to draw this one
@@ -117,10 +120,25 @@ public abstract class AbstractPositionerComposite extends Composite {
 		stopButton.setText("Stop");
 		final ImageDescriptor stopImage = GDAClientActivator.getImageDescriptor("icons/stop.png");
 		Objects.requireNonNull(stopImage, "Missing image for stop button");
-		stopButton.setImage(stopImage.createImage());
+		createImage = stopImage.createImage();
+		stopButton.setImage(createImage);
+		stopButton.addDisposeListener(e ->	Async.execute(this::disposeImage));
 
 		// At this time the control is built but no scannable is set so disable it.
 		disable();
+	}
+
+	@Override
+	public void dispose() {
+		disposeImage();
+		super.dispose();
+	}
+
+	private void disposeImage() {
+		if (createImage != null) {
+			createImage.dispose();
+			createImage = null;
+		}
 	}
 
 	private void stopScannable() {
@@ -167,6 +185,16 @@ public abstract class AbstractPositionerComposite extends Composite {
 		Objects.requireNonNull(reason);
 		this.reasonForDisallowingMove = reason;
 	}
+	
+	protected boolean checkBatonHeld() {
+		final boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
+		if (!batonHeld) {
+			final MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
+					"You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
+			dialog.open();
+		}
+		return batonHeld;
+	}
 
 	/**
 	 * Moves the scannable to a new position.<br>
@@ -176,12 +204,10 @@ public abstract class AbstractPositionerComposite extends Composite {
 	 *            The demanded position
 	 */
 	protected void move(Object position) {
-		final boolean batonHeld = JythonServerFacade.getInstance().amIBatonHolder();
-		if (!batonHeld) {
-			final MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
-					"You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
-			dialog.open();
-		} else if (moveAllowed(position)) {
+		if (!checkBatonHeld()) {
+			return;
+		}
+		if (moveAllowed(position)) {
 			try {
 				if (!getScannable().isBusy()) {
 					runMoveInThread(position);
@@ -285,6 +311,7 @@ public abstract class AbstractPositionerComposite extends Composite {
 					try {
 						Thread.sleep(100); // Pause to stop loop running to fast. ~ 10 Hz
 					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
 						logger.error("Thread interrupted during update job for {}", getScannable().getName(), e);
 						return Status.CANCEL_STATUS; // Thread interrupted so cancel update job
 					}
