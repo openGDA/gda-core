@@ -233,6 +233,10 @@ public class OuterScannablesBlock {
 				scanPathEditor.revalidate();
 				updatePoints();
 			});
+
+			// revalidate model and recalculate scan path when selecting a xanes edge
+			scanPathEditor.revalidate();
+			updatePoints();
 		}
 
 		if (scannablesChangedListener != null) {
