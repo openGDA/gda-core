@@ -30,14 +30,19 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.gasrig.api.GasRigException;
 import uk.ac.diamond.daq.gasrig.api.IGasRig;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IGasRig.class)
-public class GasRig extends FindableConfigurableBase implements IGasRig {
+public class GasRig extends FindableConfigurableBase implements IGasRig, IObservable, IObserver {
 
 	protected final Logger logger = LoggerFactory.getLogger(GasRig.class);
+
+	private ObservableComponent observableComponent = new ObservableComponent();
 
 	private IGasRigController controller;
 	private List<Gas> nonCabinetGases;
@@ -71,6 +76,8 @@ public class GasRig extends FindableConfigurableBase implements IGasRig {
 		} catch (DeviceException | GasRigException exception) {
 			throw new FactoryException("An error occured while configuring gases.", exception);
 		}
+
+		controller.addIObserver(this);
 		setConfigured(true);
 	}
 
@@ -108,5 +115,30 @@ public class GasRig extends FindableConfigurableBase implements IGasRig {
 	@Override
 	public Map<Integer, GasMix> getGasMixes() {
 		return gasMixes;
+	}
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		observableComponent.addIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		observableComponent.deleteIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		observableComponent.notifyIObservers(this, arg);
+	}
+
+	@Override
+	public void runDummySequence() {
+		controller.runDummySequence();
 	}
 }

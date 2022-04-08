@@ -19,11 +19,14 @@
 package uk.ac.diamond.daq.gasrig;
 
 import gda.device.DeviceException;
+import gda.observable.IObservable;
 
-public interface IGasRigController {
+public interface IGasRigController extends IObservable {
 
 	public String getGasName(int gasId) throws DeviceException;
 
 	public double getMaximumMassFlow(int gasId) throws DeviceException;
+
+	public void runDummySequence();
 
 }

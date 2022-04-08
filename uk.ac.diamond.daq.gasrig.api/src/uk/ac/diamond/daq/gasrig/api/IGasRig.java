@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 import gda.factory.Findable;
+import gda.observable.IObservable;
 
-public interface IGasRig extends Findable {
+public interface IGasRig extends Findable, IObservable {
 
 	public List<? extends IGas> getNonCabinetGases();
 
@@ -32,4 +33,6 @@ public interface IGasRig extends Findable {
 	public IGasMix getGasMix(int lineNumber) throws GasRigException;
 
 	public Map<Integer, ? extends IGasMix> getGasMixes();
+
+	public void runDummySequence();
 }

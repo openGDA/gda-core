@@ -21,6 +21,10 @@ package uk.ac.diamond.daq.gasrig;
 import java.util.List;
 
 import gda.device.DeviceException;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import uk.ac.diamond.daq.gasrig.api.GasRigSequenceUpdate;
 
 /**
  * This class serves to simulate the responses from EPICS, and also logs the PVs which
@@ -31,7 +35,9 @@ import gda.device.DeviceException;
  *
  * @author Tom Richardson (too27251)
  */
-public class DummyGasRigController extends BaseGasRigController implements IGasRigController {
+public class DummyGasRigController extends BaseGasRigController implements IGasRigController, IObservable {
+
+	private ObservableComponent observableComponent = new ObservableComponent();
 
 	private List<DummyGas> gases;
 
@@ -63,5 +69,37 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 				.filter(g -> g.getId() == gasId)
 				.findFirst()
 				.orElseThrow(() -> new DeviceException("No gas found for id " + gasId));
+	}
+
+	@Override
+	public void addIObserver(IObserver observer) {
+		observableComponent.addIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		observableComponent.deleteIObserver(observer);
+	}
+
+	@Override
+	public void deleteIObservers() {
+		observableComponent.deleteIObservers();
+	}
+
+	@Override
+	public void runDummySequence() {
+
+		for (int i = 0; i < 101; i += 10) {
+			logger.info("Dummy sequence progress: " + i);
+			observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Dummy", "Running", i));
+			try {
+				Thread.sleep((500));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
+			}
+		}
+
+		observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Dunmmy", "Finished", 100));
 	}
 }

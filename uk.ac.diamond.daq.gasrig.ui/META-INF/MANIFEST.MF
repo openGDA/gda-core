@@ -9,6 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: com.swtdesigner,
  gda.device,
  gda.factory,
+ gda.observable,
  javax.annotation,
  org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,

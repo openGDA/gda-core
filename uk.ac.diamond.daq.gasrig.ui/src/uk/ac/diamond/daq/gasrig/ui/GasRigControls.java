@@ -34,6 +34,7 @@ import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Spinner;
@@ -45,7 +46,9 @@ import org.slf4j.LoggerFactory;
 import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Finder;
+import gda.observable.IObserver;
 import uk.ac.diamond.daq.gasrig.api.GasRigException;
+import uk.ac.diamond.daq.gasrig.api.GasRigSequenceUpdate;
 import uk.ac.diamond.daq.gasrig.api.IGasRig;
 import uk.ac.diamond.daq.gasrig.ui.viewmodels.CabinetViewModel;
 import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasFlowViewModel;
@@ -54,7 +57,7 @@ import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasRigViewModel;
 import uk.ac.diamond.daq.gasrig.ui.viewmodels.GasViewModel;
 import uk.ac.gda.client.livecontrol.ScannablePositionerControl;
 
-public class GasRigControls {
+public class GasRigControls implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(GasRigControls.class);
 
@@ -74,16 +77,23 @@ public class GasRigControls {
 	private int numberOfGasListColumns;
 	private int numberOfGasMixes;
 
-	Composite mainComposite;
-	Composite gasList;
+	private Composite mainComposite;
+	private Composite gasList;
+
+	private Text sequenceName;
+	private Text sequenceStatus;
+	private Text sequenceProgress;
+
 
 	private DataBindingContext bindingContext = new DataBindingContext();
 
 	@PostConstruct
 	public void postConstruct(Composite parent) {
 
+		IGasRig gasRig;
+
 		try {
-			IGasRig gasRig = Finder.findOptionalSingleton(IGasRig.class).orElseThrow(() -> new GasRigException("No gas rig found in configuration"));
+			gasRig = Finder.findOptionalSingleton(IGasRig.class).orElseThrow(() -> new GasRigException("No gas rig found in configuration"));
 			gasRigViewModel = new GasRigViewModel(gasRig);
 		} catch (GasRigException exception) {
 			showError(exception.getMessage());
@@ -108,6 +118,8 @@ public class GasRigControls {
 		addGasesToGasList();
 		addTotalRowToGasList();
 		addDebugSection();
+
+		gasRig.addIObserver(this);
 	}
 
 
@@ -218,6 +230,32 @@ public class GasRigControls {
 			addLabel(debugPanel, "Maximum Total Weighted Flow", span(1), false);
 			addOneWayBoundDecimalTextBox(debugPanel, GasMixViewModel.class, gasMix, GasMixViewModel.MAXIMUM_TOTAL_WEIGHTED_FLOW, TWO_DECIMAL_PLACES, spanAndHint(1, 75), false, MAXIMUM_TOTAL_WEIGHTED_FLOW_TOOLTIP);
 		}
+
+		addLabel(debugPanel, "Sequence Monitoring", span(2), true);
+
+		addLabel(debugPanel, "Current/Last Sequence", span(1), false);
+		sequenceName = addUneditableUnboundTextBox(debugPanel, span(1), "");
+
+		addLabel(debugPanel, "Sequence Status", span(1), false);
+		sequenceStatus = addUneditableUnboundTextBox(debugPanel, span(1), "");
+
+		addLabel(debugPanel, "Sequence Progress", span(1), false);
+		sequenceProgress = addUneditableUnboundTextBox(debugPanel, span(1), "");
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		logger.info("Received update" + arg);
+
+		if (arg instanceof GasRigSequenceUpdate) {
+			var sequenceUpdate = (GasRigSequenceUpdate)arg;
+
+			Display.getDefault().asyncExec(() -> {
+				sequenceName.setText(sequenceUpdate.getName());
+				sequenceStatus.setText(sequenceUpdate.getStatus());
+				sequenceProgress.setText(String.valueOf(sequenceUpdate.getPercentComplete()));
+			});
+		}
 	}
 
 	private Label addLabel(Composite parent, String labelText, GridDataFactory layout, boolean bold, int fontSize) {
@@ -270,13 +308,15 @@ public class GasRigControls {
 		label.setFont(fontDescriptor.createFont(label.getDisplay()));
 	}
 
-	private void addUneditableUnboundTextBox(Composite parent, GridDataFactory layout, String text) {
+	private Text addUneditableUnboundTextBox(Composite parent, GridDataFactory layout, String text) {
 		Text textBox = new Text(parent, SWT.BORDER);
 
 		layout.applyTo(textBox);
 
 		textBox.setEditable(false);
 		textBox.setText(text);
+
+		return textBox;
 	}
 
 	private <T> Text addOneWayBoundDecimalTextBox(Composite parent, Class<T> modelClass, T model, String propertyname, String decimalFormatString, GridDataFactory layout, boolean bold) {

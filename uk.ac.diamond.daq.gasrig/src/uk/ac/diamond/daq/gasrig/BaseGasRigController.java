@@ -34,6 +34,15 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 	private static final String GAS_NAME = MFC + "GAS:STR:RD";
 	private static final String MAX_MASS_FLOW = MFC + "SETPOINT:WR.HOPR";
 
+	private static final String SEQUENCE = "PLC-01:SEQ%d:";
+	private static final String SEQUENCE_CONTROL = SEQUENCE + "CON";
+	private static final String SEQUENCE_STATUS = SEQUENCE + "STA";
+	private static final String SEQUENCE_PROGRESS = SEQUENCE + "PROGRESS";
+
+	protected static final String SEQUENCE_START = "Start";
+	protected static final int DUMMY_SEQUENCE_NUMBER = 20;
+
+
 	protected BaseGasRigController(String basePvName) {
 		setBasePvName(basePvName);
 	}
@@ -44,5 +53,17 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 
 	protected String constructMaximumMassFlowPvSuffix(int gasId) {
 		return String.format(MAX_MASS_FLOW, gasId);
+	}
+
+	protected String constructSequenceControlPvSuffix(int sequenceNumber) {
+		return String.format(SEQUENCE_CONTROL, sequenceNumber);
+	}
+
+	protected String constructSequenceStatusPvSuffix(int sequenceNumber) {
+		return String.format(SEQUENCE_STATUS, sequenceNumber);
+	}
+
+	protected String constructSequenceProgressPvSuffix(int sequenceNumber) {
+		return String.format(SEQUENCE_PROGRESS, sequenceNumber);
 	}
 }
