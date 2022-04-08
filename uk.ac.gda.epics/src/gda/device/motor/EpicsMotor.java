@@ -248,6 +248,8 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 
 	private volatile double retryDeadband;
 
+	private int precision;
+
 	private boolean callbackWait = false;
 
 	private boolean DMOVRefreshEnabled = true;
@@ -583,13 +585,13 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 		}
 	}
 
-	private int getPrecision() throws MotorException {
+	public int getPrecision() throws MotorException {
 		try {
-			return controller.cagetInt(prec);
+			precision = controller.cagetInt(prec);
+			return precision;
 		} catch (Exception ex) {
 			throw new MotorException(getStatus(), "failed to get precision", ex);
 		}
-
 	}
 
 	@Override
@@ -1066,6 +1068,11 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 			logger.debug("{} retry Deadband is set to {}", getName(), retryDeadband);
 		}
 		try {
+			precision = getPrecision();
+		} catch (MotorException e) {
+			logger.error("Can not get precision value from EPICS {}", prec.getName());
+		}
+		try {
 			moveEventQueue.addMoveCompleteEvent(EpicsMotor.this, MotorStatus.READY, STATUSCHANGE_REASON.INITIALISE);
 		} catch (Exception ex) {
 			logger.error("{} - Could not add move complete event to queue", getName(), ex);
@@ -1467,21 +1474,17 @@ public class EpicsMotor extends MotorBase implements InitializationListener, IOb
 	 *
 	 * @param status The current motor status.
 	 * @return The new motor status
-	 * @throws MotorException thrown if there is an error in getting any motor values.
 	 */
-	MotorStatus checkTarget(MotorStatus status) throws MotorException {
-		double deadband = getRetryDeadband();
-		double current = getPosition();
+	MotorStatus checkTarget(MotorStatus status) {
 		boolean outsideDeadband = false;
-		if (deadband > 0 && !Double.isNaN(deadband)) {
+		if (retryDeadband > 0 && !Double.isNaN(retryDeadband)) {
 			if (prec != null) {
-				int precision = getPrecision();
-				BigDecimal error = BigDecimal.valueOf(abs(targetPosition - current));
+				BigDecimal error = BigDecimal.valueOf(abs(targetPosition - currentPosition));
 				error = error.setScale(precision, RoundingMode.DOWN);
-				outsideDeadband = (error.doubleValue() > deadband);
+				outsideDeadband = (error.doubleValue() > retryDeadband);
 			} else {
 				logger.debug("Precision PV not defined, falling back to old deadband behaviour");
-				outsideDeadband = (abs(targetPosition - current) > deadband);
+				outsideDeadband = (abs(targetPosition - currentPosition) > retryDeadband);
 			}
 			if (outsideDeadband) {
 				logger.error("{} : target requested is missed (target: {}, actual: {}, deadband: {}). Report to Controls Engineer", getName(),

@@ -85,6 +85,7 @@ public class EpicsMotorTest {
 	public void testGivenDeadbandofNanWhenCheckDeadbandCalledThenStatusUnchanged() throws TimeoutException, CAException, InterruptedException, MotorException {
 		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(Double.NaN);
+		refreshMotorStatesFromMocks();
 		MotorStatus status = motor.checkTarget(MotorStatus.BUSY);
 		assertEquals(MotorStatus.BUSY, status);
 	}
@@ -95,6 +96,7 @@ public class EpicsMotorTest {
 		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(2.0);
+		refreshMotorStatesFromMocks();
 		motor.moveTo(0.0);
 
 		assertEquals(MotorStatus.FAULT, motor.checkTarget(MotorStatus.BUSY));
@@ -106,6 +108,7 @@ public class EpicsMotorTest {
 		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(1.0009);
+		refreshMotorStatesFromMocks();
 		motor.moveTo(0.0);
 
 		assertEquals(MotorStatus.BUSY, motor.checkTarget(MotorStatus.BUSY));
@@ -117,6 +120,7 @@ public class EpicsMotorTest {
 		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(1.0011);
+		refreshMotorStatesFromMocks();
 		motor.moveTo(0.0);
 
 		assertEquals(MotorStatus.FAULT, motor.checkTarget(MotorStatus.BUSY));
@@ -128,8 +132,15 @@ public class EpicsMotorTest {
 		motor.setMissedTargetLevel(MissedTargetLevel.FAULT);
 		when(mockController.cagetDouble(eq(mockDeadbandChannel))).thenReturn(1.0);
 		when(mockController.cagetDouble(eq(mockReadbackChannel))).thenReturn(1.001);
+		refreshMotorStatesFromMocks();
 		motor.moveTo(0.0);
 
 		assertEquals(MotorStatus.FAULT, motor.checkTarget(MotorStatus.BUSY));
+	}
+
+	private void refreshMotorStatesFromMocks() throws MotorException {
+		motor.getRetryDeadband();
+		motor.getPosition();
+		motor.getPrecision();
 	}
 }
