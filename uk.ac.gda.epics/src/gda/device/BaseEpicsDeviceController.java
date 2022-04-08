@@ -30,6 +30,8 @@ import gda.factory.ConfigurableBase;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.event.MonitorListener;
 
 public class BaseEpicsDeviceController extends ConfigurableBase {
 
@@ -173,6 +175,25 @@ public class BaseEpicsDeviceController extends ConfigurableBase {
 			throw new DeviceException(String.format(EPICS_GET_INTERRUPTED_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
 		} catch (Exception exception) {
 			throw new DeviceException(String.format(EPICS_GET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage), exception);
+		}
+	}
+
+	protected gov.aps.jca.Monitor setMonitor(String channelName, MonitorListener listener) throws DeviceException {
+		try {
+			return epicsController.setMonitor(getChannel(channelName), listener);
+		} catch (InterruptedException exception) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Interrupted while setting a monitor on " + channelName);
+		} catch (TimeoutException | CAException exception) {
+			throw new DeviceException ("An error occured while setting a monitor on " + channelName, exception);
+		}
+	}
+
+	protected gov.aps.jca.Monitor setMonitor(String channelName, DBRType type, int mask, MonitorListener listener) throws DeviceException {
+		try {
+			return epicsController.setMonitor(getChannel(channelName), type, mask, listener);
+		} catch (TimeoutException | CAException exception) {
+			throw new DeviceException ("An error occured while setting a monitor on " + channelName, exception);
 		}
 	}
 }
