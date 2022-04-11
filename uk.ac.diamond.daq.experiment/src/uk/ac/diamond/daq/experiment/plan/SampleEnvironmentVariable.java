@@ -36,6 +36,8 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 	private double tolerance;
 	
 	
+	private ScheduledExecutorService executorService;
+	
 	public SampleEnvironmentVariable(Scannable scannable) {
 		this(scannable, DEFAULT_TOLERANCE);
 	}
@@ -62,7 +64,7 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 			logger.info("No listeners registered to this SEV. Disabling.");
 			return;
 		}
-		final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(runnable -> {
+		executorService = Executors.newSingleThreadScheduledExecutor(runnable -> {
 			Thread thread = new Thread(runnable);
 			thread.setName("Sample Environment Variable");
 			thread.setDaemon(true);
@@ -97,6 +99,11 @@ public class SampleEnvironmentVariable extends FindableBase implements ISampleEn
 	private void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		if (enabled) begin();
+		else {
+			if (executorService != null) {
+				executorService.shutdown();
+			}
+		}
 	}
 	
 	@Override
