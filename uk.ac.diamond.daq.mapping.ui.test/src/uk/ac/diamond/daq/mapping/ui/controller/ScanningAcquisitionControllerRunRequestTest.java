@@ -19,7 +19,6 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
-import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -32,22 +31,13 @@ import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.scan.ScanningException;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.enumpositioner.EpicsPositioner;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
@@ -61,12 +51,6 @@ import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
-import uk.ac.gda.test.helpers.ClassLoaderInitializer;
-import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
-import uk.ac.gda.ui.tool.rest.ScanningAcquisitionRestServiceClient;
-import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
-import uk.ac.gda.ui.tool.spring.ClientSpringContext;
-import uk.ac.gda.ui.tool.spring.FinderService;
 
 /**
  * Tests how the {@link Acquisition} published by the {@link ScanningAcquisitionController}
@@ -76,43 +60,11 @@ import uk.ac.gda.ui.tool.spring.FinderService;
  *
  * @author Maurizio Nagni
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ScanningAcquisitionControllerConfiguration.class }, initializers = {ClassLoaderInitializer.class})
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class ScanningAcquisitionControllerRunRequestTest {
-
-	private static final String BASE_X = "base_x";
-	private static final String EH_SHUTTER = "eh_shutter";
-
-	@Autowired
-	private ScanningAcquisitionRestServiceClient scanningAcquisitionServer;
-
-	@Autowired
-	private FinderService finderService;
-
-	@Autowired
-	private ClientRemoteServices clientRemoteService;
-
-	@Autowired
-	private ClientSpringContext context;
-
-	@Autowired
-	private ExperimentControllerServiceClient experimentClient;
+public class ScanningAcquisitionControllerRunRequestTest extends ScanningAcquisitionControllerIntegrationTest {
 
 	@BeforeClass
 	public static void beforeClass() {
 		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTest");
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		System.clearProperty(GDA_CONFIG);
-        System.clearProperty(GDA_PROPERTIES_FILE);
-	}
-
-	@Before
-	public void before() {
-		LocalProperties.reloadAllProperties();
 	}
 
 	private DevicePositionDocument createBaseXGTS() {
@@ -166,9 +118,11 @@ public class ScanningAcquisitionControllerRunRequestTest {
 				.build();
 		ResponseEntity<RunAcquisitionResponse> mockResponseEntity = new ResponseEntity<>(mockResponse, HttpStatus.OK);
 
-
 		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, AcquisitionTemplateType.ONE_DIMENSION_LINE);
 		var controller = context.getAcquisitionController().orElseThrow();
+
+		injectAcquisitionManager(controller, acquisitionKeys);
+
 		controller.newScanningAcquisition(acquisitionKeys);
 
 		doReturn(mockResponseEntity).when(scanningAcquisitionServer).run(controller.getAcquisition());

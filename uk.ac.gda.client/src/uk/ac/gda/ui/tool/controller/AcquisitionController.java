@@ -48,6 +48,12 @@ public interface AcquisitionController<T extends Acquisition<? extends Acquisiti
 	T getAcquisition();
 
 	/**
+	 * Initialise the controller for the acquisition type characterised by the given {@code acquisitionKeys}.
+	 * Loads the corresponding in-memory acquisition, if it exists, or creates a new one.
+	 */
+	void initialise(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException;
+
+	/**
 	 * Creates a new acquisition document then available through {@link #getAcquisition()}
 	 *
 	 * <p>

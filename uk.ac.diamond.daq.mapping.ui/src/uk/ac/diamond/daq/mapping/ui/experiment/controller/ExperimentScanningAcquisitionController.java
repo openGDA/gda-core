@@ -87,6 +87,11 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 	}
 
 	@Override
+	public void initialise(AcquisitionKeys keys) throws AcquisitionControllerException {
+		getAcquisitionController().initialise(keys);
+	}
+
+	@Override
 	public AcquisitionConfigurationResource<ScanningAcquisition> createAcquisitionConfigurationResource(UUID uuid)
 			throws AcquisitionControllerException {
 		return getAcquisitionController().createAcquisitionConfigurationResource(uuid);
@@ -107,7 +112,7 @@ public class ExperimentScanningAcquisitionController implements AcquisitionContr
 		return getAcquisitionController().getAcquisitionKeys();
 	}
 
-	private AcquisitionController<ScanningAcquisition> getAcquisitionController() {
+	public AcquisitionController<ScanningAcquisition> getAcquisitionController() {
 		return acquisitionController;
 	}
 }

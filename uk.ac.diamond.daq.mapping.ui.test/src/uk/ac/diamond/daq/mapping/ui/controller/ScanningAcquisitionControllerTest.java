@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2020 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,62 +18,47 @@
 
 package uk.ac.diamond.daq.mapping.ui.controller;
 
-import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
-import uk.ac.gda.client.exception.AcquisitionConfigurationException;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.client.properties.acquisition.AcquisitionSubType;
-import uk.ac.gda.test.helpers.ClassLoaderInitializer;
-import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
-import uk.ac.gda.ui.tool.spring.ClientSpringContext;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { ScanningAcquisitionControllerConfiguration.class }, initializers = {ClassLoaderInitializer.class})
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class ScanningAcquisitionControllerTest {
 
-	@Autowired
-	private ClientSpringContext context;
+	@Test
+	public void newScanningAcquisitionCallsNewInAcquisitionManager() throws AcquisitionControllerException {
+		ScanningAcquisitionController controller = new ScanningAcquisitionController();
 
-	@Autowired
-	private ScanningAcquisitionTemporaryHelper helper;
+		var keys = mock(AcquisitionKeys.class);
+		var acquisition = mock(ScanningAcquisition.class);
+		AcquisitionManager acquisitionManager = mock(AcquisitionManager.class);
+		when(acquisitionManager.newAcquisition(keys)).thenReturn(acquisition);
 
-	@BeforeClass
-	public static void beforeClass() {
-		System.setProperty(GDA_CONFIG, "test/resources/scanningAcquisitionControllerTest");
-	}
+		controller.setAcquisitionManager(acquisitionManager);
+		controller.newScanningAcquisition(keys);
 
-	@AfterClass
-	public static void afterClass() {
-		System.clearProperty(GDA_CONFIG);
-	}
-
-	@Test(expected = AcquisitionConfigurationException.class)
-	public void testControllerWithoutConfigurationProperties() throws AcquisitionControllerException {
-		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DEFAULT, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT);
-		var controller = context.getAcquisitionController().orElseThrow();
-		controller.newScanningAcquisition(acquisitionKeys);
+		verify(acquisitionManager).newAcquisition(keys);
 	}
 
 	@Test
-	public void testControllerWithConfigurationProperties() throws AcquisitionControllerException {
-		var acquisitionKeys = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.TWO_DIMENSION_POINT);
-		var controller = context.getAcquisitionController().orElseThrow();
-		controller.newScanningAcquisition(acquisitionKeys);
-		Assert.assertEquals(acquisitionKeys, helper.getAcquisitionKeys(controller.getAcquisition()));
+	public void initialiseCallsGetInAcquisitionManager() throws AcquisitionControllerException {
+		ScanningAcquisitionController controller = new ScanningAcquisitionController();
+
+		var keys = mock(AcquisitionKeys.class);
+		AcquisitionManager acquisitionManager = mock(AcquisitionManager.class);
+		when(acquisitionManager.getAcquisition(keys)).thenReturn(mock(ScanningAcquisition.class));
+
+		controller.setAcquisitionManager(acquisitionManager);
+		controller.initialise(keys);
+
+		verify(acquisitionManager).getAcquisition(keys);
+
 	}
+
 }
