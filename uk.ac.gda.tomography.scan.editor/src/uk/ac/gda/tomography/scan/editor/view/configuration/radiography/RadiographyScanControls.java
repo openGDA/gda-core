@@ -42,7 +42,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.DarkFlatCompositeFactory;
-import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.ExposureCompositeFactory;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.ProjectionsCompositeFactory;
 import uk.ac.gda.ui.tool.GUIComponents;
 import uk.ac.gda.ui.tool.Reloadable;
@@ -51,9 +50,9 @@ import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 /**
  * @author Maurizio Nagni
  */
-public class RadiographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
+public class RadiographyScanControls implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(RadiographyConfigurationLayoutFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(RadiographyScanControls.class);
 
 	/** Scan prefix **/
 	private Text name;
@@ -113,12 +112,6 @@ public class RadiographyConfigurationLayoutFactory implements CompositeFactory, 
 		var projections = new ProjectionsCompositeFactory();
 		composites.add(projections);
 		projections.createComposite(parent, textStyle);
-
-		//----- Reference for other configuration components
-		var exposure = new ExposureCompositeFactory();
-		composites.add(exposure);
-		exposure.createComposite(parent, textStyle);
-
 		//----- Reference for other configuration components
 		var darkFlat = new DarkFlatCompositeFactory();
 		composites.add(darkFlat);

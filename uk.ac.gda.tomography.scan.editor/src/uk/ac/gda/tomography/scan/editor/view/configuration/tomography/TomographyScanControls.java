@@ -18,11 +18,12 @@
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
 
-import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDisposableApplicationListener;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.ANGULAR_STEP;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
+import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE;
+import static uk.ac.gda.ui.tool.ClientMessages.CURRENT_ANGLE_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.CUSTOM_END_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientMessages.FINAL_ANGLE;
@@ -54,6 +55,7 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
+import static uk.ac.gda.ui.tool.GUIComponents.checkComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.doubleContent;
 import static uk.ac.gda.ui.tool.GUIComponents.doublePositiveContent;
 import static uk.ac.gda.ui.tool.GUIComponents.integerPositiveContent;
@@ -70,18 +72,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -122,9 +129,9 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  *
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
+public class TomographyScanControls implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationLayoutFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomographyScanControls.class);
 
 	/** Scan prefix **/
 	private Text name;
@@ -133,16 +140,17 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private Button flyScanType;
 	private Button stepScanType;
 
+	/** The Start Composite elements **/
 	private Text startAngleText;
-	private Text customAngleText;
-
-	private Label endAngleLabel;
-	private Label angularStepLabel;
-
-	private Button halfRotationRangeButton;
-	private Button fullRotationRangeButton;
-	private Button customRotationRangeButton;
 	private Button currentAngleButton;
+
+	/** The End Composite elements **/
+	private Button halfRotationRangeType;
+	private Button fullRotationRangeType;
+	private Button customRotationRangeType;
+	private Text customAngle;
+	private Label finalAngle;
+	private Label angularStep;
 
 	/** The MultipleScans Composite elements **/
 	private Text numberRepetitions;
@@ -161,10 +169,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 	private List<Reloadable> composites = new ArrayList<>();
 
-	private static final double HALF_ROTATION_RANGE = 180.0;
-	private static final double FULL_ROTATION_RANGE = 360.0;
-
-	public TomographyConfigurationLayoutFactory() {
+	public TomographyScanControls() {
 		try {
 			this.dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
 			this.configurationHelper = new MultipleScansHelper(this::getScanningConfiguration);
@@ -232,12 +237,6 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		var projections = new ProjectionsCompositeFactory();
 		composites.add(projections);
 		projections.createComposite(parent, textStyle);
-
-		//----- Reference for other configuration components
-		var exposure = new ExposureCompositeFactory();
-		composites.add(exposure);
-		exposure.createComposite(parent, textStyle);
-
 		//----- Reference for other configuration components
 		var darkFlat = new DarkFlatCompositeFactory();
 		composites.add(darkFlat);
@@ -276,9 +275,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		startAngleContent(leftCompositeContent, labelStyle, textStyle);
 		endAngleContent(leftCompositeContent, labelStyle, textStyle);
 
-		this.endAngleLabel = labelledLabelContent(rightCompositeContent, labelStyle,
+		this.finalAngle = labelledLabelContent(rightCompositeContent, labelStyle,
 				FINAL_ANGLE, EMPTY_MESSAGE);
-		this.angularStepLabel = labelledLabelContent(rightCompositeContent, labelStyle,
+		this.angularStep = labelledLabelContent(rightCompositeContent, labelStyle,
 				ANGULAR_STEP, EMPTY_MESSAGE);
 	}
 
@@ -294,8 +293,8 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 
 		this.startAngleText = doubleContent(mainCompositeContent, labelStyle, textStyle,
 				START, START_ANGLE_TOOLTIP);
-		this.currentAngleButton = new Button(mainCompositeContent, SWT.PUSH);
-		currentAngleButton.setText("Get current angle");
+		this.currentAngleButton = checkComponent(mainCompositeContent,
+				CURRENT_ANGLE, CURRENT_ANGLE_TOOLTIP);
 	}
 
 	private void endAngleContent(Composite parent, int labelStyle, int textStyle) {
@@ -303,13 +302,13 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		createClientGridDataFactory().grab(true, true).applyTo(mainCompositeContent);
 
 		labelComponent(mainCompositeContent, labelStyle, RANGE);
-		this.halfRotationRangeButton = radioComponent(mainCompositeContent,
+		this.halfRotationRangeType = radioComponent(mainCompositeContent,
 				STRAIGHT_ANGLE, STRAIGHT_ANGLE_TOOLTIP);
-		this.fullRotationRangeButton = radioComponent(mainCompositeContent,
+		this.fullRotationRangeType = radioComponent(mainCompositeContent,
 				FULL_ANGLE, FULL_ANGLE_TOOLTIP);
-		this.customRotationRangeButton = radioComponent(mainCompositeContent,
+		this.customRotationRangeType = radioComponent(mainCompositeContent,
 				EMPTY_MESSAGE, CUSTOM_END_TOOLTIP);
-		this.customAngleText = doubleContent(mainCompositeContent, labelStyle, textStyle,
+		this.customAngle = doubleContent(mainCompositeContent, labelStyle, textStyle,
 				EMPTY_MESSAGE, CUSTOM_END_TOOLTIP);
 	}
 
@@ -355,39 +354,26 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		processingRequest.createComposite(group, labelStyle);
 	}
 
-	private void updateStart() {
-		var currentRange = getRange();
-		customAngleText.setText(Double.toString(currentRange));
-		var updatedStart = parseAngle(startAngleText.getText());
-		dataHelper.updateStartAngle(updatedStart);
-		updateStop(updatedStart + currentRange);
+	private void startAngleTextListener(ModifyEvent event) {
+		if (!event.getSource().equals(startAngleText))
+			return;
+		updateStartStop();
 	}
 
-	private void updateRange() {
-		var currentStart = getScannableTrackDocument().getStart();
-		var updatedRange = parseAngle(customAngleText.getText());
-		updateStop(currentStart + updatedRange);
+	private void customAngleTextListener(ModifyEvent event) {
+		if (!event.getSource().equals(customAngle) || !customRotationRangeType.getSelection())
+			return;
+		updateStartStop();
 	}
 
-	private void updateStop(double stop) {
-		dataHelper.updateStopAngle(stop);
-		endAngleLabel.setText(Double.toString(stop));
-		endAngleLabel.getParent().layout(true,  true);
+	private void updateStartStop() {
+		double startAngle = parseAngle(startAngleText.getText());
+		dataHelper.updateStartAngle(startAngle);
+		double stopAngle = parseAngle(customAngle.getText());
+		dataHelper.updateStopAngle(startAngle + stopAngle);
+		finalAngle.setText(Double.toString(startAngle + stopAngle));
+		finalAngle.getParent().layout(true,  true);
 		updateAngularStep();
-	}
-
-	private void updateAngularStep() {
-		double angularStep = getAngularStep();
-		dataHelper.updateStep(angularStep);
-		angularStepLabel.setText(Double.toString(angularStep));
-	}
-
-	private double getRange() {
-		return getScannableTrackDocument().getStop() - getScannableTrackDocument().getStart();
-	}
-
-	private double getAngularStep() {
-		return Math.abs(getRange() / getScannableTrackDocument().getPoints());
 	}
 
 	private double parseAngle(String angle) {
@@ -397,6 +383,39 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		return 0.0;
 	}
 
+	private SelectionListener predefinedAngleListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent event) {
+			if (!(event.getSource() instanceof Button))
+				return;
+			if (!((Button) event.getSource()).getSelection())
+				return;
+			if (event.getSource().equals(currentAngleButton)) {
+				updateCurrentAngularPosition();
+			} else if (event.getSource().equals(fullRotationRangeType)) {
+				customAngle.setText(Double.toString(360.0));
+			} else if (event.getSource().equals(halfRotationRangeType)) {
+				customAngle.setText(Double.toString(180.0));
+			} else if (event.getSource().equals(customRotationRangeType)) {
+				customAngle.setEnabled(true);
+			}
+			updateStartStop();
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent event) {
+			// do nothing
+		}
+
+		private void updateCurrentAngularPosition() {
+			double currentMotorPostion = getStageController().getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
+			startAngleText.setText(Double.toString(currentMotorPostion));
+		}
+
+		private StageController getStageController() {
+			return getBean(StageController.class);
+		}
+	};
 
 	private SelectionListener scanTypeListener = new SelectionListener() {
 		@Override
@@ -467,31 +486,16 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		stepScanType.addSelectionListener(scanTypeListener);
 
 		// Range fields
-		startAngleText.addModifyListener(e-> updateStart());
-		customAngleText.addModifyListener(e-> updateRange());
-
-		halfRotationRangeButton.addSelectionListener(widgetSelectedAdapter(this::rangeTypeListener));
-		fullRotationRangeButton.addSelectionListener(widgetSelectedAdapter(this::rangeTypeListener));
-		customRotationRangeButton.addSelectionListener(widgetSelectedAdapter(this::rangeTypeListener));
-
-		currentAngleButton.addSelectionListener(widgetSelectedAdapter(e-> updateCurrentAngularPosition()));
+		startAngleText.addModifyListener(this::startAngleTextListener);
+		customAngle.addModifyListener(this::customAngleTextListener);
+		customAngle.addFocusListener(FocusListener.focusLostAdapter(c -> updateAngularStep()));
+		currentAngleButton.addSelectionListener(predefinedAngleListener);
+		endGroupsListeners();
 
 		numberRepetitions.addModifyListener(this::numberRepetitionsListener);
 		waitingTime.addModifyListener(this::waitingTimeListener);
 		switchbackMultipleScansType.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::switchbackScanTypeListener));
 		repeateMultipleScansType.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::repeateMultipleScansType));
-	}
-
-	private void rangeTypeListener(SelectionEvent event) {
-		if (event.getSource().equals(halfRotationRangeButton)) {
-			customAngleText.setText(Double.toString(HALF_ROTATION_RANGE));
-			customAngleText.setEnabled(false);
-		} else if(event.getSource().equals(fullRotationRangeButton)) {
-			customAngleText.setText(Double.toString(FULL_ROTATION_RANGE));
-			customAngleText.setEnabled(false);
-		} else if(event.getSource().equals(customRotationRangeButton)) {
-			customAngleText.setEnabled(true);
-		}
 	}
 
 	private void bindElements() {
@@ -530,7 +534,9 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 			.map(ScanningAcquisition::getName)
 			.ifPresent(name::setText);
 		initializeScanType();
-		initializeAngles();
+		initializeStartAngle();
+		initializeEndAngle();
+		updateStartStop();
 		updateMultipleScan(getAcquisitionConfiguration());
 		processingRequest.reload();
 	}
@@ -541,42 +547,35 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 		addContinuous();
 	}
 
-	private void initializeAngles() {
+	private void initializeStartAngle() {
 		currentAngleButton.setSelection(false);
 		startAngleText.setText(Double.toString(getScannableTrackDocument().getStart()));
-		setRangeTypeSelection();
 	}
 
-	private void setRangeTypeSelection() {
-		var range = getRange();
-		if (range == HALF_ROTATION_RANGE) {
-			halfRotationRangeButton.setSelection(true);
-			customRotationRangeButton.setSelection(false);
-			customAngleText.setEnabled(false);
-		} else if(range == FULL_ROTATION_RANGE) {
-			fullRotationRangeButton.setSelection(true);
-			customRotationRangeButton.setSelection(false);
-			customAngleText.setEnabled(false);
-		} else {
-			customRotationRangeButton.setSelection(true);
-			halfRotationRangeButton.setSelection(false);
-			fullRotationRangeButton.setSelection(false);
-			customAngleText.setEnabled(true);
+	private void initializeEndAngle() {
+		halfRotationRangeType.setSelection(false);
+		fullRotationRangeType.setSelection(false);
+		customAngle.setEnabled(false);
+		customRotationRangeType.setSelection(false);
+		customAngle.setText("");
+
+		var customAngleString = "";
+		if (getScannableTrackDocument().getStop() == 180.0) {
+			halfRotationRangeType.setSelection(true);
+			customAngleString = "180.0";
+		} else if (getScannableTrackDocument().getStop() == 360.0) {
+			fullRotationRangeType.setSelection(true);
+			customAngleString = "360.0";
+		} else if (!Double.isNaN(getScannableTrackDocument().getStop())) {
+			customRotationRangeType.setSelection(true);
+			var event = new Event();
+			event.widget = customRotationRangeType;
+			customAngleString = Double.toString(getScannableTrackDocument().getStop());
+			Arrays.stream(customRotationRangeType.getListeners(SWT.SELECTED))
+				.forEach(l -> l.handleEvent(event));
+			customAngle.setEnabled(true);
 		}
-	}
-
-	private void updateCurrentAngularPosition() {
-		double currentMotorPosition = getBean(StageController.class).getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
-		startAngleText.setText(Double.toString(currentMotorPosition));
-	}
-
-	private class UpdateListener implements ApplicationListener<ScanningAcquisitionChangeEvent> {
-		@Override
-		public void onApplicationEvent(ScanningAcquisitionChangeEvent event) {
-			if ((event.getSource() instanceof ProjectionsCompositeFactory)) {
-				updateAngularStep();
-			}
-		}
+		customAngle.setText(customAngleString);
 	}
 
 	private void updateMultipleScan(ScanningConfiguration configuration) {
@@ -592,6 +591,52 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 				.ifPresent(b -> b.setSelection(false));
 		numberRepetitions.setText(Integer.toString(configuration.getMultipleScans().getNumberRepetitions()));
 		waitingTime.setText(Integer.toString(configuration.getMultipleScans().getWaitingTime()));
+	}
+
+	private void endGroupsListeners() {
+		halfRotationRangeType.addSelectionListener(predefinedAngleListener);
+		fullRotationRangeType.addSelectionListener(predefinedAngleListener);
+		customRotationRangeType.addSelectionListener(predefinedAngleListener);
+		SelectionListener activateGroupListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button source = Button.class.cast(e.getSource());
+				customAngle.setText(Double.toString(getScannableTrackDocument().getStop()));
+				if (!source.getSelection())
+					return;
+				double tempCustomAngle = getScannableTrackDocument().length() - getScannableTrackDocument().getStart();
+				if (source.equals(halfRotationRangeType)) {
+					tempCustomAngle = 180.0;
+					customAngle.setEnabled(false);
+				} else if (source.equals(fullRotationRangeType)) {
+					tempCustomAngle = 360.0;
+					customAngle.setEnabled(false);
+				}
+				customAngle.setText(Double.toString(tempCustomAngle));
+			}
+		};
+		halfRotationRangeType.addSelectionListener(activateGroupListener);
+		fullRotationRangeType.addSelectionListener(activateGroupListener);
+		customRotationRangeType.addSelectionListener(activateGroupListener);
+	}
+
+	private void updateAngularStep() {
+		double newAngularStep = calculateAngularStep();
+		dataHelper.updateStep(newAngularStep);
+		Optional.ofNullable(angularStep)
+			.filter(Predicate.not(Widget::isDisposed))
+			.ifPresent(w -> w.setText(Double.toString(newAngularStep)));
+	}
+
+
+	private double totalAngle() {
+		double start = getScannableTrackDocument().getStart();
+		double end = getScannableTrackDocument().getStop();
+		return end - start;
+	}
+
+	private double calculateAngularStep() {
+		return totalAngle() / getScannableTrackDocument().getPoints();
 	}
 
 	private Optional<ScanningParameters> getAcquisitionParameters() {
@@ -641,6 +686,15 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 				.map(AcquisitionConfigurationProperties::getProcessingRequest)
 				.map(ProcessingRequestProperties::getNexusTemplates)
 				.orElseThrow(() -> new AcquisitionConfigurationException("There are no properties associated with the acqual acquisition"));
+	}
+
+	private class UpdateListener implements ApplicationListener<ScanningAcquisitionChangeEvent> {
+		@Override
+		public void onApplicationEvent(ScanningAcquisitionChangeEvent event) {
+			if ((event.getSource() instanceof ProjectionsCompositeFactory)) {
+				updateAngularStep();
+			}
+		}
 	}
 
 	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
