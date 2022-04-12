@@ -173,7 +173,7 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 	@Override
 	public boolean isEnabled() {
 		try {
-			return controller.cagetInt(enable) != ENABLED_VALUE;
+			return controller.cagetInt(enable) == ENABLED_VALUE;
 		} catch (TimeoutException | CAException | InterruptedException e) {
 			logger.error("{} - Could not get enabled status from EpicsSyringePumpController", getName(), e);
 			return false;
