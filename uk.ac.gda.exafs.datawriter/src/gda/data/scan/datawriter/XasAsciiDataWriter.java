@@ -104,28 +104,30 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 			file.write("#\n");
 
-			// always make sure the header is the same number of lines, no matter what the parameters are
 			if (sampleName == null || sampleName.isEmpty())
 				file.write("# Sample name:\n");
 			else
 				file.write("# Sample name: " + sampleName + "\n");
 
-			if (descriptions == null || descriptions.isEmpty())
-				file.write("# Sample description:\n");
-			else {
+			StringBuilder description = new StringBuilder();
+			if (descriptions == null || !descriptions.isEmpty()) {
+				description.append("# Sample description: ");
+			} else {
 				for (int i = 0; i < descriptions.size(); i++) {
-					String startMsg = "# ";
-					if (i == 0)
-						startMsg += "Sample description: ";
-					else
-						startMsg += "Additional comments: ";
-					file.write(startMsg + descriptions.get(i) + "\n");
+					if (i == 0) {
+						description.append("# Sample description: ");
+					} else {
+						description.append("# Additional comments: ");
+					}
+					String desc = descriptions.get(i).replace("\n", "\n# ");
+					description.append(desc + "\n");
 				}
 			}
+			file.write(description.toString());
 
 			file.flush();
 		} catch (Exception e) {
-			logger.error("Exception while writing out header of ascii file: " + fileUrl);
+			logger.error("Exception while writing out header of ascii file: {}", fileUrl, e);
 		}
 	}
 
