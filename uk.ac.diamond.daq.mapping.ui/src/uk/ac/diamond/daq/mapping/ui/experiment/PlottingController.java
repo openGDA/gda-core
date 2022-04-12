@@ -144,8 +144,8 @@ public class PlottingController {
 		IRegion plotRegion = mapPlottingSystem.getRegion(MAPPING_REGION_NAME);
 
 		// Keep the visibility and fill settings
-		boolean plotRegionVisible = plotRegion != null ? plotRegion.isVisible() : true;
-		boolean plotRegionFilled = plotRegion != null ? plotRegion.isFill() : true;
+		boolean plotRegionVisible = plotRegion == null || plotRegion.isVisible();
+		boolean plotRegionFilled = plotRegion == null || plotRegion.isFill();
 
 		// Clean up the current plot
 		mapPlottingSystem.removeRegion(plotRegion);
