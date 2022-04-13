@@ -18,11 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -84,6 +86,16 @@ abstract class AbstractTomoViewSection {
 	 */
 	protected void updateControls() {
 		// Default implementation does nothing. Subclasses may override
+	}
+
+	protected void disposeOldBindings() {
+		for (Binding binding : dataBindingContext.getBindings()) {
+			binding.dispose();
+		}
+	}
+
+	protected String getVisitConfigDir() {
+		return getService(IFilePathService.class).getVisitConfigDir();
 	}
 
 }

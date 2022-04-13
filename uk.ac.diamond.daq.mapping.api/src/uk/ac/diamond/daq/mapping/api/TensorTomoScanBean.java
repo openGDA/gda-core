@@ -35,6 +35,7 @@ public class TensorTomoScanBean {
 	private String malcolmDeviceName;
 	private IMalcolmModel malcolmModel;
 	private String sampleName;
+	private String backgroundFilePath;
 
 	public IMappingScanRegionShape getGridRegionModel() {
 		return gridRegionModel;
@@ -90,6 +91,14 @@ public class TensorTomoScanBean {
 
 	public void setMalcolmModel(IMalcolmModel malcolmModel) {
 		this.malcolmModel = malcolmModel;
+	}
+
+	public String getBackgroundFilePath() {
+		return backgroundFilePath;
+	}
+
+	public void setBackgroundFilePath(String backgroundFilePath) {
+		this.backgroundFilePath = backgroundFilePath;
 	}
 
 }

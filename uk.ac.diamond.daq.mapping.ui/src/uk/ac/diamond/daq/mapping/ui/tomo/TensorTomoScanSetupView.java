@@ -185,7 +185,7 @@ public class TensorTomoScanSetupView {
 				new MalcolmDeviceSection(this),
 				new MapRegionAndPathSection(this),
 				new TomoPathSection(this),
-				new SampleNameSection(this),
+				new ScanMetadataSection(this),
 				new StatusPanelSection(this),
 				new SubmitScanSection(this)
 		);
@@ -315,6 +315,8 @@ public class TensorTomoScanSetupView {
 		// add sample name
 		final ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
 		sampleMetadata.addField(NXsample.NX_NAME, tomoBean.getSampleName());
+		// TODO - where should the background file be written to in the nexus file? Existing NcdStatus doesn't seem to do anything with it.
+		sampleMetadata.addField("backgroundFile", tomoBean.getBackgroundFilePath());
 		scanRequest.setScanMetadata(Arrays.asList(sampleMetadata));
 
 		// TODO add per-point and per-scan monitors (from mapping bean)?

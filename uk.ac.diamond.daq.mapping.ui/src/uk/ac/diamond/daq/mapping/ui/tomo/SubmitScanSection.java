@@ -31,7 +31,6 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -159,10 +158,6 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 
 	private void submitScan() {
 		tomoView.submitScan();
-	}
-
-	private String getVisitConfigDir() {
-		return getService(IFilePathService.class).getVisitConfigDir();
 	}
 
 }
