@@ -369,10 +369,14 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 		}
 	}
 
-	@Override
-	public NexusTreeProvider readout() throws DeviceException {
-		logger.trace("readout called");
-
+	/**
+	 * Calculate the current given the gain
+	 *
+	 * @param gain
+	 * @return
+	 * @throws DeviceException
+	 */
+	private double calculateCurrent(double gain) throws DeviceException {
 		// Get the data from EPICS
 		final double voltage;
 		if (!isIntegrated()) {
@@ -382,9 +386,16 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 			// I21 EPICS driver give integrated value
 			voltage = getIntegralVoltage();
 		}
-		final double gain = Double.parseDouble(amplifier.getGain());
 		// Divide by the gain to change from V back to amps (Gain is in V/A)
-		final double current = voltage / gain;
+		return voltage / gain;
+	}
+
+	@Override
+	public NexusTreeProvider readout() throws DeviceException {
+		logger.trace("readout called");
+
+		final double gain = Double.parseDouble(amplifier.getGain());
+		final double current = calculateCurrent(gain);
 
 		// Build the NXDetectorData pass in this to setup input/extra names and output format
 		NXDetectorData data = new NXDetectorData(this);
@@ -410,6 +421,14 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 		}
 
 		return data;
+	}
+
+	@Override
+	public Object getPosition() throws DeviceException {
+
+		final double gain = Double.parseDouble(amplifier.getGain());
+		return calculateCurrent(gain);
+
 	}
 
 	/**
