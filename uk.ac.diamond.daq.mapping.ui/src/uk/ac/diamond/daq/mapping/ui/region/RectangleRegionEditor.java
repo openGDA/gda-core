@@ -43,24 +43,24 @@ public class RectangleRegionEditor extends AbstractRegionEditor {
 
 		Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
-		final NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsComposite(composite, getXAxisName(), X_START);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Start");
+		final NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
-		final NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsComposite(composite, getXAxisName(), X_STOP);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Stop");
+		final NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
-		final NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsComposite(composite, getYAxisName(), Y_START);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Start");
+		final NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
-		final NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsComposite(composite, getYAxisName(), Y_STOP);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Stop");
+		final NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
-		bind(getXAxisName(), xStart, X_START, xStop, X_STOP);
-		bind(getYAxisName(), yStart, Y_START, yStop, Y_STOP);
+		bind(getXAxisScannableName(), xStart, X_START, xStop, X_STOP);
+		bind(getYAxisScannableName(), yStart, Y_START, yStop, Y_STOP);
 
 		bindUnitsCombo(xStart, X_START);
 		bindUnitsCombo(xStop, X_STOP);

@@ -31,7 +31,7 @@ public class GridPointsPathEditor extends AbstractGridPathEditor {
 
 		final var composite = super.createEditorPart(parent);
 
-		(new Label(composite, SWT.NONE)).setText(getXAxisName() + " Points");
+		(new Label(composite, SWT.NONE)).setText(getXAxisLabel() + " Points");
 		var fastPoints = new Spinner(composite, SWT.BORDER);
 		fastPoints.addListener(SWT.MouseWheel, this::disableEvent);
 		fastPoints.setMinimum(1);
@@ -39,7 +39,7 @@ public class GridPointsPathEditor extends AbstractGridPathEditor {
 		grabHorizontalSpace.applyTo(fastPoints);
 		binder.bind(fastPoints, "xAxisPoints", getModel());
 
-		(new Label(composite, SWT.NONE)).setText(getYAxisName() + " Points");
+		(new Label(composite, SWT.NONE)).setText(getYAxisLabel() + " Points");
 		var slowPoints = new Spinner(composite, SWT.BORDER);
 		slowPoints.addListener(SWT.MouseWheel, this::disableEvent);
 		slowPoints.setMinimum(1);

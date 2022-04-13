@@ -37,14 +37,14 @@ public class GridStepPathEditor extends AbstractGridPathEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Step");
-		final NumberAndUnitsComposite<Length> xStep = createNumberAndUnitsComposite(composite, getXAxisName(), X_AXIS_STEP);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Step");
+		final NumberAndUnitsComposite<Length> xStep = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_AXIS_STEP);
 		grabHorizontalSpace.applyTo(xStep);
 
 		binder.bind(xStep, X_AXIS_STEP, getModel(), GREATER_THAN_ZERO);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Step");
-		final NumberAndUnitsComposite<Length> yStep = createNumberAndUnitsComposite(composite, getYAxisName(), Y_AXIS_STEP);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Step");
+		final NumberAndUnitsComposite<Length> yStep = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_AXIS_STEP);
 		grabHorizontalSpace.applyTo(yStep);
 
 		binder.bind(yStep, Y_AXIS_STEP, getModel(), GREATER_THAN_ZERO);

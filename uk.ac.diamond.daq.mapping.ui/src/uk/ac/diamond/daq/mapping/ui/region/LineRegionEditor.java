@@ -45,20 +45,20 @@ public class LineRegionEditor extends AbstractRegionEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Start");
-		final NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsComposite(composite, getXAxisName(), X_START);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Start");
+		final NumberAndUnitsComposite<Length> xStart = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_START);
 		grabHorizontalSpace.applyTo(xStart);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Start");
-		final NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsComposite(composite, getYAxisName(), Y_START);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Start");
+		final NumberAndUnitsComposite<Length> yStart = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_START);
 		grabHorizontalSpace.applyTo(yStart);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Stop");
-		final NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsComposite(composite, getXAxisName(), X_STOP);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Stop");
+		final NumberAndUnitsComposite<Length> xStop = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_STOP);
 		grabHorizontalSpace.applyTo(xStop);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Stop");
-		final NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsComposite(composite, getYAxisName(), Y_STOP);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Stop");
+		final NumberAndUnitsComposite<Length> yStop = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_STOP);
 		grabHorizontalSpace.applyTo(yStop);
 
 		validateAndBind(xStart, yStart, xStop, yStop);
@@ -75,10 +75,10 @@ public class LineRegionEditor extends AbstractRegionEditor {
 		binder.bind(xStop,  X_STOP,  getModel());
 		binder.bind(yStop,  Y_STOP,  getModel());
 
-		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xStart), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xStop), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStart), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yStop), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getXAxisScannableName(), xStart), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getXAxisScannableName(), xStop), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getYAxisScannableName(), yStart), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getYAxisScannableName(), yStop), SWT.LEFT);
 
 		bindUnitsCombo(xStart, X_START);
 		bindUnitsCombo(xStop, X_STOP);

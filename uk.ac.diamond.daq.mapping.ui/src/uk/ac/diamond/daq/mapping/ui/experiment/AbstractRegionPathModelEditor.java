@@ -49,11 +49,17 @@ import uk.ac.gda.client.NumberAndUnitsComposite;
 public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEditor<T> {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionPathModelEditor.class);
 
+	private static final String DEFAULT_X_AXIS_SCANNABLE_NAME = "stage_x";
+	private static final String DEFAULT_Y_AXIS_SCANNABLE_NAME = "stage_y";
+
 	@Inject
 	private IStageScanConfiguration mappingStageInfo;
 
-	private String xAxisName;
-	private String yAxisName;
+	private String xAxisScannableName = null;
+	private String xAxisLabel = null;
+
+	private String yAxisScannableName = null;
+	private String yAxisLabel = null;
 
 	@Inject
 	private IEventService eventService;
@@ -79,34 +85,59 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	protected Map<String, String> axisUnits;
 
 	/**
-	 * Set the names of the x axis and y axis to display. If this method is not called, the axis names
-	 * in the {@link MappingStageInfo} are used. Call this method if axes names to display are other
-	 * that those in the mapping stage info.
+	 * Set the names of the scannables to use for the x and y axes. If this method is not called, the
+	 * scannable names for the mapping axes in the {@link MappingStageInfo} are used.
 	 *
-	 * @param xAxisName
-	 * @param yAxisName
+	 * @param xAxisScannableName the scannable name to use for the x axis
+	 * @param yAxisScannableName the scannable name to use for the y axis
 	 */
-	public void setAxisNames(String xAxisName, String yAxisName) {
-		this.xAxisName = xAxisName;
-		this.yAxisName = yAxisName;
+	public void setAxisScannableNames(String xAxisScannableName, String yAxisScannableName) {
+		this.xAxisScannableName = xAxisScannableName;
+		this.yAxisScannableName = yAxisScannableName;
+	}
+
+	public void setAxisLabels(String xAxisLabel, String yAxisLabel) {
+		this.xAxisLabel = xAxisLabel;
+		this.yAxisLabel = yAxisLabel;
 	}
 
 	/**
-	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "x axis"
+	 * Returns the scannable name for the x-axis
+	 *
+	 * @return scannable name
 	 */
-	protected String getXAxisName() {
-		if (xAxisName != null) return xAxisName;
+	protected String getXAxisScannableName() {
+		if (xAxisScannableName != null) return xAxisScannableName;
 		if (mappingStageInfo != null) return mappingStageInfo.getPlotXAxisName();
-		return "x axis";
+		return DEFAULT_X_AXIS_SCANNABLE_NAME;
 	}
 
 	/**
+	 *
 	 * @return scannable name if IStageScanConfiguration is configured, otherwise the literal "y axis"
 	 */
-	protected String getYAxisName() {
-		if (yAxisName != null) return yAxisName;
+	protected String getYAxisScannableName() {
+		if (yAxisScannableName != null) return yAxisScannableName;
 		if (mappingStageInfo != null) return mappingStageInfo.getPlotYAxisName();
-		return "y axis";
+		return DEFAULT_Y_AXIS_SCANNABLE_NAME;
+	}
+
+	/**
+	 * Returns the label to use for the x axis. If this property has been not been set explicitly,
+	 * the return value of {@link #getScannableDeviceService()} is used.
+	 * @return x axis label
+	 */
+	protected String getXAxisLabel() {
+		return xAxisLabel != null ? xAxisLabel : getXAxisScannableName();
+	}
+
+	/**
+	 * Returns the label to use for the y axis. If this property has been not been set explicitly,
+	 * the return value of {@link #getScannableDeviceService()} is used.
+	 * @return y axis label
+	 */
+	protected String getYAxisLabel() {
+		return yAxisLabel != null ? yAxisLabel : getYAxisScannableName();
 	}
 
 	protected IScannableDeviceService getScannableDeviceService() throws EventException {

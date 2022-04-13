@@ -70,6 +70,9 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 
 	private static final String UNITS_MILLIMETRES = "mm";
 
+	private static final String X_AXIS_LABEL = "X";
+	private static final String Y_AXIS_LABEL = "Y";
+
 	private final Map<GridPathType, AbstractTwoAxisGridModel> pathModels;
 
 	private Composite regionEditorComposite;
@@ -184,7 +187,8 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 
 		pathEditor = (AbstractGridPathEditor) PathEditorProvider.createPathComposite(
 				getTomoBean().getGridPathModel(), getEclipseContext());
-		pathEditor.setAxisNames(mappingStageInfo.getPlotXAxisName(), mappingStageInfo.getPlotYAxisName());
+		pathEditor.setAxisScannableNames(mappingStageInfo.getPlotXAxisName(), mappingStageInfo.getPlotYAxisName());
+		pathEditor.setAxisLabels(X_AXIS_LABEL, Y_AXIS_LABEL);
 		pathEditor.setOptionsToDisplay(Set.of(CommonPathOption.ALTERNATING));
 		pathEditor.createEditorPart(pathEditorComposite);
 	}
@@ -208,7 +212,8 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 				yAxisName, UNITS_MILLIMETRES);
 		regionEditor = (RectangleRegionEditor) RegionEditorProvider.createRegionEditor(
 				getTomoBean().getGridRegionModel(), regionUnits, getEclipseContext());
-		regionEditor.setAxisNames(xAxisName, yAxisName);
+		regionEditor.setAxisScannableNames(xAxisName, yAxisName);
+		regionEditor.setAxisLabels(X_AXIS_LABEL, Y_AXIS_LABEL);
 		regionEditor.setUnitsEditable(false);
 		regionEditor.createEditorPart(regionEditorComposite);
 	}

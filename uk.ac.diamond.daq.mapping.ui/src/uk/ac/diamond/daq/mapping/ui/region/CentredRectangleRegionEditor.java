@@ -43,24 +43,24 @@ public class CentredRectangleRegionEditor extends AbstractRegionEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Centre");
-		final NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Centre");
+		final NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Range");
-		final NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsComposite(composite, getXAxisName(), X_RANGE);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Range");
+		final NumberAndUnitsComposite<Length> xRange = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_RANGE);
 		grabHorizontalSpace.applyTo(xRange);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Centre");
-		final NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
+		new Label(composite, SWT.NONE).setText(getYAxisScannableName() + " Centre");
+		final NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Range");
-		final NumberAndUnitsComposite<Length> yRange = createNumberAndUnitsComposite(composite, getYAxisName(), Y_RANGE);
+		new Label(composite, SWT.NONE).setText(getYAxisScannableName() + " Range");
+		final NumberAndUnitsComposite<Length> yRange = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_RANGE);
 		grabHorizontalSpace.applyTo(yRange);
 
-		createValidatedBindings(getXAxisName(), xCentre, X_CENTRE, xRange, X_RANGE);
-		createValidatedBindings(getYAxisName(), yCentre, Y_CENTRE, yRange, Y_RANGE);
+		createValidatedBindings(getXAxisScannableName(), xCentre, X_CENTRE, xRange, X_RANGE);
+		createValidatedBindings(getYAxisScannableName(), yCentre, Y_CENTRE, yRange, Y_RANGE);
 
 		bindUnitsCombo(xCentre, X_CENTRE);
 		bindUnitsCombo(xRange, X_RANGE);

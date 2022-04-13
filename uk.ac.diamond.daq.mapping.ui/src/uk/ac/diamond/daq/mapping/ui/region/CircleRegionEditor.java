@@ -38,16 +38,16 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 
 		final Composite composite = super.createEditorPart(parent);
 
-		new Label(composite, SWT.NONE).setText(getXAxisName() + " Centre");
-		final NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsComposite(composite, getXAxisName(), X_CENTRE);
+		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Centre");
+		final NumberAndUnitsComposite<Length> xCentre = createNumberAndUnitsComposite(composite, getXAxisScannableName(), X_CENTRE);
 		grabHorizontalSpace.applyTo(xCentre);
 
-		new Label(composite, SWT.NONE).setText(getYAxisName() + " Centre");
-		final NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsComposite(composite, getYAxisName(), Y_CENTRE);
+		new Label(composite, SWT.NONE).setText(getYAxisLabel() + " Centre");
+		final NumberAndUnitsComposite<Length> yCentre = createNumberAndUnitsComposite(composite, getYAxisScannableName(), Y_CENTRE);
 		grabHorizontalSpace.applyTo(yCentre);
 
 		new Label(composite, SWT.NONE).setText("Radius");
-		final NumberAndUnitsComposite<Length> radius = createNumberAndUnitsComposite(composite, getXAxisName(), RADIUS);
+		final NumberAndUnitsComposite<Length> radius = createNumberAndUnitsComposite(composite, getXAxisScannableName(), RADIUS);
 		grabHorizontalSpace.applyTo(radius);
 
 		binder.bind(xCentre, X_CENTRE, getModel());
@@ -55,8 +55,8 @@ public class CircleRegionEditor extends AbstractRegionEditor {
 		binder.bind(radius, RADIUS, getModel());
 
 		ControlDecorationSupport.create(createGreaterThanZeroValidator(radius), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getXAxisName(), xCentre, radius), SWT.LEFT);
-		ControlDecorationSupport.create(createLimitsValidator(getYAxisName(), yCentre, radius), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getXAxisScannableName(), xCentre, radius), SWT.LEFT);
+		ControlDecorationSupport.create(createLimitsValidator(getYAxisScannableName(), yCentre, radius), SWT.LEFT);
 
 		bindUnitsCombo(xCentre, X_CENTRE);
 		bindUnitsCombo(yCentre, Y_CENTRE);
