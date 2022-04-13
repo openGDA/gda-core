@@ -154,6 +154,15 @@ public class NexusDataWriterConfiguration extends FindableBase {
 		return metadata;
 	}
 
+	/**
+	 * 	 * Allow arbitrary metadata to be added to nexus data files.
+	 * <p>
+	 * To add an entry (eg sample_background) to each file as a note in the "sample" group,
+	 * set the entries as {'sample_background': 'sample:NXsample/sample_background'}
+	 *
+	 * @param metadata should be a map of metadata names to nexus paths (relative to the top level
+	 * /entry1/ node.
+	 */
 	public void setMetadata(Map<String, String> metadata) {
 		requireNonNull(metadata);
 		this.metadata = metadata;
