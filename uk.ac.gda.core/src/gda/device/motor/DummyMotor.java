@@ -538,6 +538,7 @@ public class DummyMotor extends MotorBase {
 						wait(incrementalSleepTime);
 						logger.trace("DummyMotor {} incremental wait over", getName());
 					} catch (InterruptedException ex) {
+						Thread.currentThread().interrupt();
 						logger.error("DummyMotor {} InterruptedException in incremental wait", getName());
 					}
 
@@ -756,5 +757,63 @@ public class DummyMotor extends MotorBase {
 	public void setUpperHardLimit(double upperHardLimit) {
 		this.upperHardLimit = upperHardLimit;
 	}
+
+	// adding position tweak support to simulate EPICS tweak functions.
+	private double tweakSize = 1.0;
+	/**
+	 * tweak motor position forward by one increment
+	 * @throws MotorException
+	 */
+	public void tweakForward() throws MotorException {
+		if (motorMoving) {
+			targetPosition += tweakSize;
+			if (targetPosition > maxPosition) {
+				numberOfIncrements += (int)((maxPosition-targetPosition+tweakSize)/positionIncrement);
+				targetPosition = maxPosition;
+				throw new MotorException(MotorStatus.UPPER_LIMIT, getName() + ": tweak forward exceeds motor's maximum position " + maxPosition);
+			} else {
+				numberOfIncrements += (int)(tweakSize/positionIncrement);
+			}
+		} else {
+			moveBy(tweakSize);
+		}
+	}
+
+	/**
+	 * tweak motor position backward by one increment
+	 * @throws MotorException
+	 */
+	public void tweakReverse() throws MotorException {
+		if (motorMoving) {
+			targetPosition -= tweakSize;
+			if (targetPosition < minPosition) {
+				numberOfIncrements -= (int)((minPosition-targetPosition-tweakSize)/positionIncrement);
+				targetPosition = minPosition;
+				throw new MotorException(MotorStatus.LOWER_LIMIT, getName() + ": tweak forward exceeds motor's mimimum position " + minPosition);
+			} else {
+				numberOfIncrements -= (int) (tweakSize / positionIncrement);
+			}
+		} else {
+			moveBy(-tweakSize);
+		}
+	}
+
+	/**
+	 * return the increment of tweak
+	 * @return increment
+	 */
+	public double getTweakSize() {
+		return tweakSize;
+	}
+
+	/**
+	 * set the increment for the tweak
+	 * @param tweakSize
+	 */
+	public void setTweakSize(double tweakSize) {
+		this.tweakSize = tweakSize;
+	}
+
+
 
 }

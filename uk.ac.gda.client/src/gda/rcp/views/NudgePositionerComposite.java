@@ -23,6 +23,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.FontDescriptor;
@@ -43,6 +44,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.IScannableMotor;
+import gda.device.ITweakableScannableMotor;
+import gda.device.MotorException;
+import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import uk.ac.gda.client.UIHelper;
@@ -167,6 +171,7 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		decrementButton.setText("-");
 		buttonDataFactory.applyTo(decrementButton);
 		decrementButton.addSelectionListener(widgetSelectedAdapter(e -> moveBy(-incrementValue)));
+		decrementButton.addSelectionListener(widgetSelectedAdapter(e -> scheduleUpdateReadbackJob()));
 
 		// Increment text box
 		incrementText = new Text(nudgeAmountComposite, SWT.BORDER);
@@ -178,6 +183,7 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 		incrementButton.setText("+");
 		buttonDataFactory.applyTo(incrementButton);
 		incrementButton.addSelectionListener(widgetSelectedAdapter(e-> moveBy(incrementValue)));
+		incrementButton.addSelectionListener(widgetSelectedAdapter(e-> scheduleUpdateReadbackJob()));
 	}
 
 	/**
@@ -205,8 +211,51 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 			logger.error("{} : {}", message, reason);
 			UIHelper.showError(message, reason);
 		} else {
-			move(currentPosition + amountToMove);
+			if (getScannable() instanceof ITweakableScannableMotor) {
+				tweak(amountToMove);
+			} else {
+				move(currentPosition + amountToMove);
+			}
 		}
+	}
+
+	private void tweak(double amountToMove) {
+		if (!checkBatonHeld()) return;
+		if (moveAllowed(currentPosition + amountToMove)) {
+			if (amountToMove > 0) {
+				try {
+					((ITweakableScannableMotor) getScannable()).forward();
+				} catch (MotorException e) {
+					logger.error("Error while trying tweak forward", e);
+				}
+			} else if (amountToMove < 0) {
+				try {
+					((ITweakableScannableMotor) getScannable()).reverse();
+				} catch (MotorException e) {
+					logger.error("Error while trying tweak reverse", e);
+				}
+			}
+		} else {
+			logger.error("Cannot tweak {} by {} as the requested position is outside limits.", getScannable().getName(), amountToMove);
+
+			String message = "Move disallowed";
+			if (!reasonForDisallowingMove.isEmpty()) {
+				message += ":\n" + reasonForDisallowingMove;
+			}
+			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error moving device", message);
+			setReasonForDisallowingMove("");
+		}
+	}
+
+	@Override
+	public void setScannable(Scannable scannable) {
+		Objects.requireNonNull(scannable);
+		if (scannable instanceof ITweakableScannableMotor) {
+			//pull motor's tweak step in control system.
+			double increment = ((ITweakableScannableMotor)scannable).getIncrement();
+			setIncrement(increment);
+		}
+		super.setScannable(scannable);
 	}
 
 	@Override
@@ -269,14 +318,19 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 				}
 			}
 			// Update the controls enabled/disabled
-			decrementButton.setEnabled(!moving);
-			incrementButton.setEnabled(!moving);
+			if (getScannable() instanceof ITweakableScannableMotor) {
+				decrementButton.setEnabled(true);
+				incrementButton.setEnabled(true);
+			} else {
+				decrementButton.setEnabled(!moving);
+				incrementButton.setEnabled(!moving);
+			}
 			positionText.setEditable(!moving && !readOnlyPosition);
 		});
 	}
 
 	/**
-	 * Change the increment programmatically from a view
+	 * Change the increment programmatically or from Spring bean definition
 	 *
 	 * @param increment
 	 *            The new increment value
@@ -284,13 +338,27 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	public void setIncrement(double increment) {
 		this.incrementValue = increment;
 		this.incrementText.setText(String.valueOf(increment));
+		if (getScannable() instanceof ITweakableScannableMotor) {
+			// set increment value to the underlying motor
+			((ITweakableScannableMotor)getScannable()).setIncrement(increment);
+		}
 	}
 
+	/**
+	 * Change the increment from a view's text box
+	 *
+	 * @param incrementText
+	 *            The new increment value
+	 */
 	protected void setIncrement(String incrementText) {
 		if (incrementText.isEmpty()) {
 			return;
 		}
 		incrementValue = Double.parseDouble(incrementText);
+		if (getScannable() instanceof ITweakableScannableMotor) {
+			// set increment value to the underlying motor
+			((ITweakableScannableMotor)getScannable()).setIncrement(incrementValue);
+		}
 	}
 
 	public void setFixedIncrementInput() {
