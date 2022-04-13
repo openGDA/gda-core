@@ -1,6 +1,8 @@
 from gda.device.scannable import ScannableBase, ScannableMotionBase
 import time
 import java.lang.Exception  # @UnresolvedImport
+from java.lang import String
+from java.util import IllegalFormatException
 from gdascripts.metadata.metadata_commands import meta_add, meta_rm #, setTitle, getTitle, meta_ll, meta_ls
 from gda.factory import Finder
 from org.slf4j import LoggerFactory
@@ -137,6 +139,11 @@ class MetadataCollector(ScannableBase):
         self.rootNamespaceDict[KEY] = ''
 
     def _createNamePositionPairs(self, scn):
+        """
+        Note that the Java String#format is used as there are
+        differences in behaviour between Python and Java and
+        we want to be consistent with ScanDataPoint formatting
+        """
         pairs = []
         names = tuple(scn.inputNames) + tuple(scn.extraNames)
         formats = scn.outputFormat
@@ -166,8 +173,8 @@ class MetadataCollector(ScannableBase):
 
         if len(names) == 1:
             try:
-                pairs.append((scn.name, formats[0] % pos_tuple[0]))
-            except TypeError:
+                pairs.append((scn.name, String.format(formats[0], pos_tuple[0])))
+            except IllegalFormatException:
                 pairs.append((scn.name, str(pos_tuple[0])))
         else:
             for fieldname, fmt, value in zip(names, formats, pos_tuple):
@@ -176,8 +183,8 @@ class MetadataCollector(ScannableBase):
                 else:
                     key = fieldname
                 try:
-                    pairs.append((key, fmt % value))
-                except:
+                    pairs.append((key, String.format(fmt, value)))
+                except IllegalFormatException:
                     pairs.append((key, str(value)))
 
         if self.verbose:
