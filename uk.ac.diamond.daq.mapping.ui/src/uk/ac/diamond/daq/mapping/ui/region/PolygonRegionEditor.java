@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.ui.region;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -31,7 +32,7 @@ import org.eclipse.core.databinding.validation.MultiValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -102,8 +103,8 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		table.setLinesVisible(true);
 
 		// TableViewer input
-		IListProperty listProperty = Properties.selfList(MutablePoint.class);
-		IObservableList input = listProperty.observe(((PolygonMappingRegion) getModel()).getPoints());
+		IListProperty<List<MutablePoint>, MutablePoint> listProperty = Properties.selfList(MutablePoint.class);
+		IObservableList<MutablePoint> input = listProperty.observe(((PolygonMappingRegion) getModel()).getPoints());
 		polygonTableViewer.setInput(input);
 	}
 
@@ -129,15 +130,15 @@ public class PolygonRegionEditor extends AbstractRegionEditor {
 		}
 
 		private void createValidation() {
-			String scannableName = axis==Axis.X ? getXAxisName() :  getYAxisName();
+			String scannableName = axis == Axis.X ? getXAxisName() : getYAxisName();
 			double lowerLimit = getLowerLimit(scannableName);
 			double upperLimit = getUpperLimit(scannableName);
 
-			IObservableValue observableText = WidgetProperties.text(SWT.Modify).observe(cellEditor.getControl());
+			IObservableValue<String> observableText = WidgetProperties.text(SWT.Modify).observe(cellEditor.getControl());
 			MultiValidator validator = new MultiValidator() {
 				@Override
 				protected IStatus validate() {
-					double position = Double.parseDouble((String) observableText.getValue());
+					double position = Double.parseDouble(observableText.getValue());
 					if (position < lowerLimit || position > upperLimit) return getLimitsError(lowerLimit, upperLimit);
 					return ValidationStatus.ok();
 				}
