@@ -83,12 +83,6 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 			throw new FactoryException("Unable to validate analyser configuration", exception);
 		}
 
-		try {
-			energyStepPerPixel = controller.getEnergyStepPerPixel();
-		} catch (DeviceException exception) {
-			logger.warn("Unable to update energy step per pixel from EPICS. Using default value of {}", energyStepPerPixel);
-		}
-
 		super.configure();
 	}
 
@@ -583,6 +577,10 @@ public class MbsAnalyser extends NXDetector implements IMbsAnalyser {
 	@Override
 	public double getEnergyStepPerPixel() {
 		return energyStepPerPixel;
+	}
+
+	public void setEnergyStepPerPixel(double energyStepPerPixel) {
+		this.energyStepPerPixel = energyStepPerPixel;
 	}
 
 	@Override

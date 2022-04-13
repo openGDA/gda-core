@@ -72,7 +72,6 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 	private static final String SPIN_OFFSET_RBV = "CAM:SpinOffs_RBV";
 	private static final String STEP_SIZE = "CAM:StepSize";
 	private static final String STEP_SIZE_RBV = "CAM:StepSize_RBV";
-	private static final String ESCALE_MULT_RBV = "CAM:EScaleMult_RBV";
 	private static final String IMAGE_DATA_WIDTH = "ARR:ArraySize0_RBV";
 	private static final String IMAGE_DATA_HEIGHT = "ARR:ArraySize1_RBV";
 	private static final String ENERGY_SCALE_RBV = "CAM:EScale_RBV";
@@ -691,10 +690,6 @@ public class MbsAnalyserController extends BaseEpicsDeviceController implements 
 		} catch (Exception e) {
 			throw new DeviceException("Error while setting internal trigger mode");
 		}
-	}
-
-	public double getEnergyStepPerPixel() throws DeviceException {
-		return getDoubleValue(ESCALE_MULT_RBV, "EScale Mult RBV");
 	}
 
 	public double[] getEnergyAxis() throws DeviceException {
