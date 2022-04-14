@@ -393,7 +393,14 @@ public class EpicsBekhoffAdc extends DetectorBase implements NexusDetector {
 
 		// Add the data to be written to the file, write the current with the detector name, convention and allows processing to work
 		data.addData(getName(), getName(), new NexusGroupData(current), "A");
-		data.addData(getName(), "gain", new NexusGroupData(gain), amplifier.getGainUnit());
+		if (amplifier instanceof EpicsFemtoAmplifier) {
+			data.addData(getName(), "gain", new NexusGroupData(gain), amplifier.getGainUnit());
+		}
+		if (amplifier instanceof EpicsStanfordAmplifer) {
+			EpicsStanfordAmplifer amp = (EpicsStanfordAmplifer)amplifier;
+			double epicsgain = Double.parseDouble(amp.getGainFromEpics());
+			data.addData(getName(), "gain", new NexusGroupData(epicsgain), amplifier.getGainUnit());
+		}
 
 		// If its the first point add the metadata
 		if (firstReadoutInScan) {

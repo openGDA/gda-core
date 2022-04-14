@@ -220,7 +220,8 @@ public class EpicsStanfordAmplifer extends CurrentAmplifierBase implements Ampli
 		return String.valueOf(gainStringToGainMap.get(gainString));
 
 	}
-	private String getGainFromEpics() throws DeviceException {
+
+	public String getGainFromEpics() throws DeviceException {
 		try {
 			return gainPositions.get(epicsController.cagetEnum(getChannel(SENS_PV, false)));
 		} catch (TimeoutException | CAException e) {
