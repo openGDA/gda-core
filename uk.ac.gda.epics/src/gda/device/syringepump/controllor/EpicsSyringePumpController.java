@@ -42,7 +42,8 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 	private static final int ENABLED_VALUE = 0;
 
 	private static final String STATUS = "STATUS";
-	private static final int IDLE_VALUE = 0;
+	private static final int INFUSING_VALUE = 1;
+	private static final int WITHDRAWING_VALUE = 2;
 
 	private static final String INFUSE = "IRUN";
 	private static final String WITHDRAW = "WRUN";
@@ -164,7 +165,8 @@ public class EpicsSyringePumpController extends DeviceBase implements SyringePum
 	@Override
 	public boolean isBusy() throws DeviceException {
 		try {
-			return controller.cagetInt(status) != IDLE_VALUE;
+			var statusValue = controller.cagetInt(status);
+			return statusValue == INFUSING_VALUE || statusValue == WITHDRAWING_VALUE;
 		} catch (TimeoutException | CAException | InterruptedException e) {
 			throw new DeviceException(getName() + " Could not get status from EpicsSyringePumpController", e);
 		}
