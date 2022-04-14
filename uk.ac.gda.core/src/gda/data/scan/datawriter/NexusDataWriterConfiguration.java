@@ -32,16 +32,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.factory.FindableBase;
 import uk.ac.diamond.daq.osgi.OsgiService;
+import uk.ac.gda.core.GDACoreActivator;
 
 /**
  * An instance of this class holds some configuration about how to write nexus files for all scans
  * on this beamline, e.g. metadata scannables to be added to each scan, the location map to use, etc.
+ * <p>
+ * The preferred approach is to define this as a bean in Spring. If the deprecated static methods
+ * are used in {@link NexusDataWriter}, an instance of this class is implicitly created via the ServiceHolder.
+ * <p>
+ * <b>WARN: Invoking the static NDW methods with Spring is not compatible with defining a bean for this type in Spring</b>
  */
-@OsgiService(NexusDataWriterConfiguration.class)
 public class NexusDataWriterConfiguration extends FindableBase {
+
+	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriterConfiguration.class);
 
 	// note, we can't use Collections.emptySet, etc as some client code may expect these collections to be mutable
 	private Set<String> metadataScannables;
@@ -56,8 +67,47 @@ public class NexusDataWriterConfiguration extends FindableBase {
 
 	private Map<String, String> metadata;
 
+	private ServiceRegistration<NexusDataWriterConfiguration> service;
+
 	public NexusDataWriterConfiguration() {
+		verifySingletonServiceStatus();
 		initializeEmptyConfiguration();
+	}
+
+	/**
+	 * This is currently required to ensure that only one instance of {@link NexusDataWriterConfiguration}
+	 * is created. Due to the fact that currently an instance of {@link NexusDataWriterConfiguration} may be indirectly
+	 * created via static methods on {@link NexusDataWriter} which can be called very early by Spring.
+	 * <p>
+	 * Once these methods have been deleted (), this check can be removed and the registering with OSGi can
+	 * switch back to using the {@link OsgiService} annotation. See <a href="https://jira.diamond.ac.uk/browse/DAQ-4044">DAQ-4044</a>.
+	 *
+	 * @deprecated this method should be deleted once NDW static methods
+	 */
+	@Deprecated(forRemoval = true)
+	private void verifySingletonServiceStatus() {
+		synchronized (NexusDataWriterConfiguration.class) {
+			if (GDACoreActivator.getService(this.getClass()).isPresent()) {
+				logger.error("NDW static methods may not be used if a bean of {} is defined in Spring",
+						getClass().getSimpleName());
+				throw new IllegalStateException(String.format(
+						"Instance of %s already created and registered as service", getClass().getSimpleName()));
+			}
+			service = GDACoreActivator.registerService(NexusDataWriterConfiguration.class, this);
+		}
+	}
+
+	/**
+	 * If this was successfully registered with OSGi then unregister.
+	 * @deprecated this method should be deleted once NDW static methods
+	 * are removed
+	 */
+	@Deprecated(forRemoval = true)
+	public void unregisterFromOsgi() {
+		if (service == null) {
+			return;
+		}
+		service.unregister();
 	}
 
 	private void initializeEmptyConfiguration() {

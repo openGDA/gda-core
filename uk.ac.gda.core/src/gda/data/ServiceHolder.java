@@ -127,6 +127,10 @@ public class ServiceHolder {
 	public void setNexusWriterConfiguration(NexusDataWriterConfiguration nexusDataWriterConfiguration) {
 		// Note: this method is not typically called by OSGi as this bean is declared in spring which is loaded after OSGi wiring
 		// it should be set by unit tests that require it
+		if (nexusDataWriterConfiguration == null && ServiceHolder.nexusDataWriterConfiguration != null) {
+			// TODO delete this when deprecated NDW methods are removed
+			ServiceHolder.nexusDataWriterConfiguration.unregisterFromOsgi();
+		}
 		ServiceHolder.nexusDataWriterConfiguration = nexusDataWriterConfiguration;
 	}
 

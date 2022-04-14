@@ -2,10 +2,12 @@ package uk.ac.gda.core;
 
 import static java.util.Optional.ofNullable;
 
+import java.util.Hashtable;
 import java.util.Optional;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 public class GDACoreActivator implements BundleActivator {
 
@@ -48,5 +50,18 @@ public class GDACoreActivator implements BundleActivator {
 				.map(context::getServiceReference)
 				.map(context::getService);
 	}
+
+	/**
+	 * Register service with OSGi if possible
+	 *
+	 * @return service registration object or null if not running in OSGi/Platform
+	 */
+	public static <T> ServiceRegistration<T> registerService(Class<T> clazz, T instance) {
+		if (context != null) {
+			return context.registerService(clazz, instance, new Hashtable<>());
+		}
+		return null;
+	}
+
 
 }
