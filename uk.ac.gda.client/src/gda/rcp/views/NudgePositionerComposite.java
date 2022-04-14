@@ -251,9 +251,14 @@ public class NudgePositionerComposite extends AbstractPositionerComposite {
 	public void setScannable(Scannable scannable) {
 		Objects.requireNonNull(scannable);
 		if (scannable instanceof ITweakableScannableMotor) {
-			//pull motor's tweak step in control system.
-			double increment = ((ITweakableScannableMotor)scannable).getIncrement();
-			setIncrement(increment);
+			if (incrementValue != DEFAULT_INCREMENT) {
+				// live control bean configures the increment, set it to motor
+				((ITweakableScannableMotor) scannable).setIncrement(incrementValue);
+			} else {
+				// use motor's tweak step in control system.
+				double increment = ((ITweakableScannableMotor) scannable).getIncrement();
+				setIncrement(increment);
+			}
 		}
 		super.setScannable(scannable);
 	}
