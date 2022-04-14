@@ -37,13 +37,16 @@ import javax.inject.Inject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.di.UISynchronize;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -92,6 +95,8 @@ public class TensorTomoScanSetupView {
 
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.tomo.tensorTomoScanSetupView";
 
+	private static final String STATE_KEY_TOMO_BEAN_JSON = TensorTomoScanBean.class.getSimpleName() + ".json";
+
 	private static final Logger logger = LoggerFactory.getLogger(TensorTomoScanSetupView.class);
 
 	@Inject
@@ -110,7 +115,6 @@ public class TensorTomoScanSetupView {
 	@Inject
 	private IEventBroker eventBroker;
 
-	@Inject @Optional
 	private TensorTomoScanBean tomoBean;
 
 	@Inject
@@ -153,8 +157,10 @@ public class TensorTomoScanSetupView {
 	}
 
 	@PostConstruct
-	public void createView(Composite parent) {
-		initializeTomoBean(); // ensure the tomo bean is fully initialized
+	public void createView(Composite parent, MPart part) {
+		tomoBean = loadTomoBean(part);
+		if (!checkTomoBean()) return;
+
 		addTomoBeanListeners();
 
 		mainComposite = new Composite(parent, SWT.NONE);
@@ -163,16 +169,23 @@ public class TensorTomoScanSetupView {
 		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
-		// check that the bean has been defined
-		if (!checkTomoBean()) {
-			return;
-		}
-
 		sections = createSections();
 		viewCreated = true;
 
 		updatePlotRegion();
 		updatePoints();
+	}
+
+	@PersistState
+	public void saveState(MPart part) {
+		final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
+		try {
+			logger.trace("Saving the current state of the Tensor Tomography Scan Setup View");
+			final String json = marshaller.marshal(getTomoBean());
+			part.getPersistedState().put(STATE_KEY_TOMO_BEAN_JSON, json);
+		} catch (Exception e) {
+			logger.error("Could not save the current state of the Tensor Tomography Scan Setup View", e);
+		}
 	}
 
 	public boolean isViewCreated() {
@@ -206,10 +219,10 @@ public class TensorTomoScanSetupView {
 			Objects.requireNonNull(tomoBean.getAngle1Model().getName(), "angle 1 name not set");
 			Objects.requireNonNull(tomoBean.getAngle2Model(), "angle 2 model not set");
 			Objects.requireNonNull(tomoBean.getAngle2Model().getName(), "angle 2 name not set");
-			// TODO any other checks are required here?
+
+			initializeTomoBean();
 		} catch (Exception e) {
-			uiSync.asyncExec(() -> MessageDialog.openError(getShell(), "Error",
-					e.getMessage()));
+			MessageDialog.openError(getShell(), "Error", e.getMessage());
 			return false;
 		}
 
@@ -217,6 +230,7 @@ public class TensorTomoScanSetupView {
 	}
 
 	private void initializeTomoBean() {
+		if (tomoBean == null) return;
 		if (tomoBean.getGridRegionModel() == null) tomoBean.setGridRegionModel(new RectangularMappingRegion());
 		if (tomoBean.getGridPathModel() == null) tomoBean.setGridPathModel(new TwoAxisGridPointsModel());
 
@@ -230,6 +244,23 @@ public class TensorTomoScanSetupView {
 		if (angle1.getModel() == null) angle1.setModel(new AxialStepModel(angle1.getName(), 0.0, 180.0, 10.0)); // TODO check defaults
 		final IScanModelWrapper<IScanPointGeneratorModel> angle2 = tomoBean.getAngle2Model();
 		if (angle2.getModel() == null) angle2.setModel(new AxialStepModel(angle2.getName(), 0.0, 90.0, 10.0));
+	}
+
+	private TensorTomoScanBean loadTomoBean(MPart part) {
+		 // load the previous tomo bean if possible
+		final String json = part.getPersistedState().get(STATE_KEY_TOMO_BEAN_JSON);
+		if (json != null) {
+			// no previous bean, get the spring declared one from the eclipse context
+			logger.trace("Restoring the previous state of the Tensor Tomo Scan Setup View");
+			final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
+			try {
+				return marshaller.unmarshal(json, TensorTomoScanBean.class);
+			} catch (Exception e) {
+				logger.error("Failed to restore the state of the Tensor Temo Scan Setup View");
+			}
+		}
+
+		return eclipseContext.get(TensorTomoScanBean.class);
 	}
 
 	private void mapRegionBeanPropertyChange(PropertyChangeEvent event) {
