@@ -522,28 +522,29 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action suspendQueueActionCreate() {
-		final boolean isChecked = jobQueueProxy.isPaused();
-		final Action action = new Action(isChecked ? UNSUSPEND_QUEUE : SUSPEND_QUEUE, IAction.AS_CHECK_BOX) {
+		final boolean queueSuspended = jobQueueProxy.isPaused();
+		final Action action = new Action(queueSuspended ? UNSUSPEND_QUEUE : SUSPEND_QUEUE, IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				suspendQueueActionRun(this);
 			}
 		};
-		action.setImageDescriptor(Activator.getImageDescriptor(isChecked ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
-		action.setChecked(isChecked);
+		action.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
+		action.setChecked(queueSuspended);
+		suspendQueueViewUpdate(queueSuspended);
 
 		jobQueueProxy.addQueueStatusListener(this::updateQueueStatusActions);
 		return action;
 	}
 
 	private void suspendQueueActionRun(IAction suspendQueue) {
-
 		// The button can get out of sync if two clients are used.
 		final boolean queueSuspended = jobQueueProxy.isPaused();
+		suspendQueue.setChecked(!queueSuspended); // We are toggling it.
+		suspendQueue.setText(queueSuspended ? SUSPEND_QUEUE : UNSUSPEND_QUEUE);
+		suspendQueue.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? SUSPEND_QUEUE_ICON : UNSUSPEND_QUEUE_ICON));
+
 		try {
-			suspendQueue.setChecked(!queueSuspended); // We are toggling it.
-			suspendQueue.setText(queueSuspended ? SUSPEND_QUEUE : UNSUSPEND_QUEUE);
-			suspendQueue.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? SUSPEND_QUEUE_ICON : UNSUSPEND_QUEUE_ICON));
 			if (queueSuspended) {
 				jobQueueProxy.resume();
 			} else {
@@ -554,8 +555,26 @@ public class StatusQueueView extends EventConnectionView {
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		suspendQueue.setChecked(jobQueueProxy.isPaused());
+		var newState = !queueSuspended;
+		suspendQueueViewUpdate(newState);
 	}
+
+	private void suspendQueueViewUpdate(boolean suspended) {
+		String name;
+		Color colour;
+
+		if(suspended) {
+			name = "Queue - suspended";
+			colour = getDisplay().getSystemColor(SWT.COLOR_GRAY);
+		} else {
+			name = "Queue";
+			colour = getDisplay().getSystemColor(SWT.COLOR_BLACK);
+		}
+
+		setPartName(name);
+		viewer.getControl().setForeground(colour);
+	}
+
 
 	private void pauseActionUpdate(boolean activeScanSelected, boolean activeScanPaused) {
 		pauseAction.setEnabled(activeScanSelected);
@@ -1162,8 +1181,12 @@ public class StatusQueueView extends EventConnectionView {
 
 			@Override
 			public Color getForeground(Object element) {
-				boolean isFinal = ((StatusBean) element).getStatus().isFinal();
-				return getSite().getShell().getDisplay().getSystemColor(isFinal ? SWT.COLOR_BLUE : SWT.COLOR_BLACK);
+				if (jobQueueProxy.isPaused()) {
+					return getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_GRAY);
+				} else {
+					boolean isFinal = ((StatusBean) element).getStatus().isFinal();
+					return getSite().getShell().getDisplay().getSystemColor(isFinal ? SWT.COLOR_BLUE : SWT.COLOR_BLACK);
+				}
 			}
 		});
 
