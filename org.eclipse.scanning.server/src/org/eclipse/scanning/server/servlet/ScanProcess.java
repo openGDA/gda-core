@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -81,6 +82,26 @@ import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
 public class ScanProcess implements IBeanProcess<ScanBean> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanProcess.class);
+
+	/**
+	 * We determine the last segment of a path to be a file
+	 * (as opposed to a directory) when it matches this pattern.
+	 * <p>
+	 * Pattern explanation, in two parts:
+	 * <ol>
+	 * <li><pre>"[A-Za-z0-9\\._-]+"</pre>
+	 * The name (before the extension) consists of one
+	 * or more alphanumeric characters, periods,
+	 * underscores, and/or hyphens</li>
+	 *
+	 * <li><pre>"\\.[A-Za-z0-9_-]+"</pre>
+	 * The extension consists of a final period and one
+	 * or more alphanumeric characters, underscores,
+	 * and/or hyphens</li>
+	 * </ol>
+	 */
+	private static final Pattern FILENAME_SPECIFICATION = Pattern.compile("[A-Za-z0-9\\._-]+\\.[A-Za-z0-9_-]+");
+
 	private final ScanBean bean;
 	private final IPublisher<ScanBean> publisher;
 
@@ -411,7 +432,7 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 		final ScanRequest req = bean.getScanRequest();
 		final String filePath = req.getFilePath();
 
-		if (filePath != null && isFileSpecification(filePath)) {
+		if (filePath != null && isFile(filePath)) {
 			// File path is a complete file name: just set this in the bean
 			bean.setFilePath(filePath);
 		} else {
@@ -421,17 +442,15 @@ public class ScanProcess implements IBeanProcess<ScanBean> {
 	}
 
 	/**
-	 * A file path ending in {@code "<a>.<b>"} is regarded as denoting an output file (rather than a directory)
+	 * Tests whether given {@code path} denotes a file (as opposed to a directory)
 	 *
 	 * @param path
 	 *            the file path to test
 	 * @return {@code true} if path denotes a file, {@code false} otherwise
 	 */
-	private static boolean isFileSpecification(String path) {
-		final String filenameCharacters = "A-Za-z0-9_-";
-		final String filenameRegex = String.format("[%s]*\\.[%s]*", filenameCharacters, filenameCharacters);
+	private static boolean isFile(String path) {
 		final String lastElement = Paths.get(path).getFileName().toString();
-		return lastElement.matches(filenameRegex);
+		return FILENAME_SPECIFICATION.matcher(lastElement).matches();
 	}
 
 	private static String getNexusFilePath(String filePath) throws EventException {
