@@ -318,7 +318,7 @@ public final class DashboardView extends ViewPart {
 			objects.add(ob);
 		}
 
-		var dashboardScannables = Finder.findOptionalSingleton(DashboardScannables.class);
+		var dashboardScannables = Finder.findOptionalLocalSingleton(DashboardScannables.class);
 		if (dashboardScannables.isPresent()) {
 			List<String> scannableNames = dashboardScannables.get().getDashboardScannableNames();
 			scannableNames.stream()
