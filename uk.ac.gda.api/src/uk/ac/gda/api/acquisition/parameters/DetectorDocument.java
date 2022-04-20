@@ -29,13 +29,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = DetectorDocument.Builder.class)
 public class DetectorDocument {
 	/**
-	 * The detector identifier. The value may be:
-	 * <ul>
-	 * <li><code>a detector bean ID</code>, see , i.e. elements 1 an 2 in the tree</li>
-	 * <li><code>malcom device EPICS id</code>, i.e. element 0 in the tree</li>
-	 * </ul>
+	 * The detector identifier
 	 */
-	private final String name;
+	private final String id;
 
 	/**
 	 * The detector exposure time.
@@ -59,20 +55,20 @@ public class DetectorDocument {
 
 
 	private DetectorDocument(String name, double exposure, String malcolmDetectorName) {
-		this.name = name;
+		this.id = name;
 		this.exposure = exposure;
 		this.malcolmDetectorName= malcolmDetectorName;
 	}
 
 	public DetectorDocument(DetectorDocument detectorDocument) {
 		super();
-		this.name = detectorDocument.getName();
+		this.id = detectorDocument.getId();
 		this.exposure = detectorDocument.getExposure();
 		this.malcolmDetectorName = detectorDocument.getMalcolmDetectorName();
 	}
 
-	public String getName() {
-		return name;
+	public String getId() {
+		return id;
 	}
 
 	public double getExposure() {
@@ -85,12 +81,12 @@ public class DetectorDocument {
 
 	@JsonPOJOBuilder
 	public static class Builder {
-		private String name;
+		private String id;
 		private double exposure;
 		private String malcolmDetectorName;
 
-	    public Builder withName(String name) {
-	        this.name = name;
+	    public Builder withId(String id) {
+	        this.id = id;
 	        return this;
 	    }
 
@@ -105,7 +101,7 @@ public class DetectorDocument {
 	    }
 
 	    public DetectorDocument build() {
-	        return new DetectorDocument(name, exposure, malcolmDetectorName);
+	        return new DetectorDocument(id, exposure, malcolmDetectorName);
 	    }
 	}
 }

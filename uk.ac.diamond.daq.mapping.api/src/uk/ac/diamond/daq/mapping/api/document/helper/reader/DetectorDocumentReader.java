@@ -49,9 +49,9 @@ public class DetectorDocumentReader extends AcquisitionReaderBase<DetectorDocume
 	 *
 	 * @return the existing value, otherwise {@code null}
 	 */
-	public String getName() {
+	public String getId() {
 		return Optional.ofNullable(getData())
-			.map(DetectorDocument::getName)
+			.map(DetectorDocument::getId)
 			.orElseGet(() -> null);
 	}
 
