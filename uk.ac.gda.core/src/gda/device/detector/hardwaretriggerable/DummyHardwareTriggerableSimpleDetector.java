@@ -147,7 +147,7 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 			try {
 				Thread.sleep((long) (deltaT * 1000));
 			} catch (InterruptedException e) {
-				terminal.print(name + " interupted while collecting single point");
+				getTerminal().print(name + " interupted while collecting single point");
 			} finally {
 				lastCollectedXValue += deltaT;
 				lastCollectedValue = calcNewCount(lastCollectedXValue);
@@ -189,7 +189,7 @@ public class DummyHardwareTriggerableSimpleDetector extends DummyHardwareTrigger
 	void simulatedTriggerRecieved() throws DeviceException {
 		lastCollectedXValue += getCollectionTime();
 		lastCollectedValue = calcNewCount(lastCollectedXValue);
-		terminal.print(getName() + " received trigger @ " + lastCollectedXValue + "s --> " + lastCollectedValue);
+		getTerminal().print(getName() + " received trigger @ " + lastCollectedXValue + "s --> " + lastCollectedValue);
 		readDataBuffer.add(lastCollectedValue);
 	}
 

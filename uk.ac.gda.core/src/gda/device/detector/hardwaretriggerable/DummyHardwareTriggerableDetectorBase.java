@@ -32,7 +32,6 @@ import uk.ac.diamond.daq.concurrent.Async;
 
 public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTriggerableDetectorBase {
 	private static final Logger logger = LoggerFactory.getLogger(DummyHardwareTriggerableDetectorBase.class);
-	final ITerminalPrinter terminal = InterfaceProvider.getTerminalPrinter();
 
 	public boolean simulate = false;
 
@@ -45,12 +44,12 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 	public void collectData() throws DeviceException {
 		if (simulate) {
 			status = Detector.BUSY;
-			terminal.print(MessageFormat.format("{0}.arm() collecting {1} hardware triggered images ...\n", getName(),
+			getTerminal().print(MessageFormat.format("{0}.arm() collecting {1} hardware triggered images ...\n", getName(),
 					getNumberImagesToCollect()));
 			simulatedCollectionComplete = new CountDownLatch(getNumberImagesToCollect());
 			Async.execute(new MakeIdleWhenSimulatedCollectionComplete(getName()));
 		} else {
-			terminal.print(MessageFormat.format(
+			getTerminal().print(MessageFormat.format(
 					"{0}.arm() called while configured to collect {1} hardware triggered images over {2}s ...\n",
 					getName(), getHardwareTriggerProvider().getNumberTriggers(), getHardwareTriggerProvider()
 							.getTotalTime()));
@@ -78,9 +77,9 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 			try {
 				simulatedCollectionComplete.await();
 			} catch (InterruptedException e) {
-				terminal.print(name + " interrupted with " + simulatedCollectionComplete.getCount() +" triggers remaining\n");
+				getTerminal().print(name + " interrupted with " + simulatedCollectionComplete.getCount() +" triggers remaining\n");
 			} finally {
-				terminal.print(name + " hardware triggered collection complete\n");
+				getTerminal().print(name + " hardware triggered collection complete\n");
 				status = Detector.IDLE;
 			}
 		}
@@ -105,6 +104,10 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 
 	public void setIntegrating(boolean b) {
 		integrating = b;
+	}
+
+	protected ITerminalPrinter getTerminal() {
+		return InterfaceProvider.getTerminalPrinter();
 	}
 
 }
