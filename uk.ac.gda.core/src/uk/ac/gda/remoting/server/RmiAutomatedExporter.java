@@ -230,7 +230,8 @@ public class RmiAutomatedExporter implements RmiRemoteObjectProvider {
 				throw new IllegalArgumentException("clazz must extend Findable but was: " + clazz);
 			}
 		} catch (ClassNotFoundException e) {
-			logger.warn("'{}' could not be loaded by the server", clazz, e);
+			// E.g. client requesting a class not present in the server
+			logger.debug("'{}' could not be loaded by the server", clazz);
 			return emptySet();
 		}
 	}
