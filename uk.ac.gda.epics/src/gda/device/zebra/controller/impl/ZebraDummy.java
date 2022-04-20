@@ -79,7 +79,6 @@ public class ZebraDummy extends FindableBase implements Zebra, InitializingBean 
 	//----------------------------------------------------------------------------------------------------
 
 	private void initialise() {
-		setName("ZebraDummy");
 		pcPulseDelay = 0;
 		pcPulseWidth = 0;
 		pcPulseStep = 0;
