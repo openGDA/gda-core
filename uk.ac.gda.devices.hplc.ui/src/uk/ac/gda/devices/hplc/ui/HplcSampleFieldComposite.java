@@ -158,7 +158,7 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				return getList().indexOf(element) + 1;
 			}
 			@Override
-			public void setNewValue(HplcBean element, String value) {
+			public void setNewValue(HplcBean element, Integer value) {
 			}
 		});
 		columns.put("Sample Name",new Column<HplcBean, String>(100, tableViewer, rbeditor, TEXT) {
@@ -177,12 +177,8 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				return element.getTimePerFrame();
 			}
 			@Override
-			public void setNewValue(HplcBean element, String value) {
-				try {
-					double time = Double.valueOf(value);
-					element.setTimePerFrame(time);
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(HplcBean element, Double value) {
+				element.setTimePerFrame(value);
 			}
 		});
 		columns.get("Time per\n  Frame").setOutputFormat("%5.3f s");
@@ -192,13 +188,9 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				return element.getTotalDuration();
 			}
 			@Override
-			public void setNewValue(HplcBean element, String value) {
-				try {
-					double time = Double.valueOf(value);
-					element.setTotalDuration(time);
-					updateTotals();
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(HplcBean element, Double value) {
+				element.setTotalDuration(value);
+				updateTotals();
 			}
 		});
 		columns.get("Total\nDuration").setOutputFormat("%.1f min");
@@ -208,13 +200,9 @@ public class HplcSampleFieldComposite extends FieldComposite {
 				return element.getDelay();
 			}
 			@Override
-			public void setNewValue(HplcBean element, String value) {
-				try {
-					double time = Double.valueOf(value);
-					element.setDelay(time);
-					updateTotals();
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(HplcBean element, Double value) {
+				element.setDelay(value);
+				updateTotals();
 			}
 		});
 		columns.get("Delay").setOutputFormat("%.1f s");

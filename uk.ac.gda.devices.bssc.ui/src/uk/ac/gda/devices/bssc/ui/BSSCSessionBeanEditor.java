@@ -190,13 +190,13 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 
 				try {
 					TitrationBean tibi1 = new TitrationBean();
-					initialiseTitrationBean(tibi1, "Sample A1", "low", (short) 1, 'A', (short) 3, 10, 560, 0.5, 120, (float) 22.0);
+					initialiseTitrationBean(tibi1, "Sample A1", "low", (short) 1, 'A', (short) 3, 10, 560, 0.5, 120, 22.0);
 					TitrationBean tibi2 = new TitrationBean();
-					initialiseTitrationBean(tibi2, "Sample B1", "medium", (short) 1, 'B', (short) 3, 30, 78, 0.5, 120, (float) 22.0);
+					initialiseTitrationBean(tibi2, "Sample B1", "medium", (short) 1, 'B', (short) 3, 30, 78, 0.5, 120, 22.0);
 					TitrationBean tibi3 = new TitrationBean();
-					initialiseTitrationBean(tibi3, "Sample C1", "medium", (short) 1, 'C', (short) 3, 300, 340, 2.0, 30, (float) 22.0);
+					initialiseTitrationBean(tibi3, "Sample C1", "medium", (short) 1, 'C', (short) 3, 300, 340, 2.0, 30, 22.0);
 					TitrationBean tibi4 = new TitrationBean();
-					initialiseTitrationBean(tibi4, "Sample C2", "medium", (short) 1, 'C', (short) 3, 150, 340, 2.0, 30, (float) 22.0);
+					initialiseTitrationBean(tibi4, "Sample C2", "medium", (short) 1, 'C', (short) 3, 150, 340, 2.0, 30, 22.0);
 					measurements.add(tibi1);
 					measurements.add(tibi2);
 					measurements.add(tibi3);
@@ -227,7 +227,7 @@ public final class BSSCSessionBeanEditor extends RichBeanMultiPageEditorPart {
 	}
 
 	private void initialiseTitrationBean(TitrationBean titrationBean, String name, String viscosity, short col, char row, short plate, double concentration,
-			double molecularWeight, double timePerFrame, int noOfFrames, float exposureTemp) throws Exception {
+			double molecularWeight, double timePerFrame, int noOfFrames, double exposureTemp) throws Exception {
 		LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 		titrationBean.setSampleName(name);
 		titrationBean.setViscosity(viscosity);

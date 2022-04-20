@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.bssc.ui;
 
+import static java.lang.Boolean.TRUE;
+import static uk.ac.gda.devices.bssc.beans.BSSCSessionBean.BSSC_PLATES;
 import static uk.ac.gda.devices.hatsaxs.SampleListStats.getRuntimeString;
 import static uk.ac.gda.devices.hatsaxs.ui.Column.ColumnType.*;
 
@@ -230,9 +232,8 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			}
 
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				boolean isBuffer = Boolean.valueOf(value);
-				element.setBuffer(isBuffer);
+			public void setNewValue(TitrationBean element, Boolean value) {
+				element.setBuffer(value);
 			}
 
 		});
@@ -246,10 +247,9 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				element.setBuffers(value);
 			}
 			@Override
-			protected String getStringValue(Object element) {
-				String value = getRealValue((TitrationBean)element);
-				boolean buf = ((TitrationBean)element).isBuffer();
-				return buf ? "--" : value;
+			protected String getStringValue(TitrationBean element) {
+				boolean buf = element.isBuffer();
+				return buf ? "--" : element.getBuffers();
 			}
 		});
 //		columns.putAll(getLocationColumns("Buffer\n", new ColumnHelper<TitrationBean, LocationBean>() {
@@ -275,13 +275,8 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return element.getRecouperateLocation() != null;
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				boolean rec = Boolean.valueOf(value);
-				if (rec) {
-					element.setRecouperateLocation(new LocationBean(BSSCSessionBean.BSSC_PLATES));
-				} else {
-					element.setRecouperateLocation(null);
-				}
+			public void setNewValue(TitrationBean element, Boolean value) {
+				element.setRecouperateLocation(TRUE.equals(value) ? new LocationBean(BSSC_PLATES) : null);
 			}
 		});
 		Map<String, Column<TitrationBean,?>> recoup = getLocationColumns("Recoup\n", new ColumnHelper<TitrationBean, LocationBean>() {
@@ -302,13 +297,9 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return element.getTimePerFrame();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				try {
-					double time = Double.valueOf(value);
-					element.setTimePerFrame(time);
-					updateTotals();
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(TitrationBean element, Double value) {
+				element.setTimePerFrame(value);
+				updateTotals();
 			}
 		});
 		columns.get("Time per\nFrame").setOutputFormat("%5.3f s");
@@ -318,27 +309,19 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return element.getFrames();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				try {
-					Integer frames = Integer.valueOf(value);
-					element.setFrames(frames);
-					updateTotals();
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(TitrationBean element, Integer value) {
+				element.setFrames(value);
+				updateTotals();
 			}
 		});
-		columns.put("Exposure\nTemperature", new Column<TitrationBean, Float>(40, tableViewer, rbeditor, DOUBLE) {
+		columns.put("Exposure\nTemperature", new Column<TitrationBean, Double>(40, tableViewer, rbeditor, DOUBLE) {
 			@Override
-			public Float getRealValue(TitrationBean element) {
+			public Double getRealValue(TitrationBean element) {
 				return element.getExposureTemperature();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				try {
-					Float temp = Float.valueOf(value);
-					element.setExposureTemperature(temp);
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(TitrationBean element, Double value) {
+				element.setExposureTemperature(value);
 			}
 		});
 		columns.get("Exposure\nTemperature").setOutputFormat("%4.1f \u00B0C");
@@ -349,11 +332,8 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return element.getSampleVolume();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				try {
-					element.setSampleVolume(Double.valueOf(value));
-				} catch (NumberFormatException nfe) {
-				}
+			public void setNewValue(TitrationBean element, Double value) {
+				element.setSampleVolume(value);
 			}
 		});
 		columns.put("Mode", new Column<TitrationBean, String>(40, tableViewer, rbeditor, TitrationBean.MODES.keySet().toArray(new String[]{})) {
@@ -402,8 +382,8 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return element.getMove();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
-				element.setMove(Boolean.valueOf(value));
+			public void setNewValue(TitrationBean element, Boolean value) {
+				element.setMove(value);
 			}
 		});
 		if (isStaff) {
@@ -665,9 +645,8 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				loc.setPlate(value);
 			}
 			@Override
-			protected String getStringValue(Object element) {
-				String value = getRealValue((TitrationBean)element);
-				return value;
+			protected String getStringValue(TitrationBean element) {
+				return getRealValue(element);
 			}
 			@Override
 			protected Color getColour(TitrationBean tb) {
@@ -694,19 +673,17 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return loc.getRow();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
+			public void setNewValue(TitrationBean element, Character value) {
 				LocationBean loc = helper.getValue(element);
 				if (loc == null) {
 					loc = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 					helper.setValue(element, loc);
 				}
-				if (value.length() == 1) {
-					loc.setRow(value.charAt(0));
-				}
+				loc.setRow(value);
 			}
 			@Override
-			protected String getStringValue(Object element) {
-				Character row = getRealValue((TitrationBean)element);
+			protected String getStringValue(TitrationBean bean) {
+				Character row = getRealValue(bean);
 				return row == null ? "--" : String.valueOf(row);
 			}
 			@Override
@@ -718,7 +695,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return helper.toolTip(tb);
 			}
 		});
-		columns.put(prefix + "Column", new Column<TitrationBean, Integer>(40,tableViewer, rbeditor, CHOICE) {
+		var column = new Column<TitrationBean, Integer>(40,tableViewer, rbeditor, CHOICE) {
 			@Override
 			public Integer getRealValue(TitrationBean element) {
 				LocationBean loc = helper.getValue(element);
@@ -731,18 +708,18 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				return (int) loc.getColumn();
 			}
 			@Override
-			public void setNewValue(TitrationBean element, String value) {
+			public void setNewValue(TitrationBean element, Integer value) {
 				LocationBean loc = helper.getValue(element);
 				if (loc == null) {
 					loc = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 					helper.setValue(element,loc);
 				}
-				short col = Short.valueOf(value);
+				short col = value.shortValue();
 				loc.setColumn(col);
 			}
 			@Override
-			protected String getStringValue(Object element) {
-				Integer plate = getRealValue((TitrationBean)element);
+			protected String getStringValue(TitrationBean bean) {
+				Integer plate = getRealValue(bean);
 				return plate == null ? "--" : String.valueOf(plate);
 			}
 			@Override
@@ -753,7 +730,9 @@ public class MeasurementsFieldComposite extends FieldComposite {
 			protected String getToolTip(TitrationBean tb) {
 				return helper.toolTip(tb);
 			}
-		});
+		};
+		column.setAdapter(v -> v instanceof Integer ? (Integer)v : Integer.parseInt(v.toString()));
+		columns.put(prefix + "Column", column);
 		return columns;
 	}
 
@@ -775,10 +754,7 @@ public class MeasurementsFieldComposite extends FieldComposite {
 				matches++;
 			}
 		}
-		if (matches < 2) {
-			return false;
-		}
-		return true;
+		return matches >= 2;
 	}
 
 	private void updateTotals() {

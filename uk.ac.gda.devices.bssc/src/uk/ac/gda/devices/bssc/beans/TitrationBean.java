@@ -78,7 +78,7 @@ public class TitrationBean implements XMLRichBean {
 	double concentration = 1;
 	double timePerFrame = 1;
 	int frames = 1;
-	float exposureTemperature = 22;
+	double exposureTemperature = 22;
 	double molecularWeight;
 	String visit = "";
 	String username = "";
@@ -182,10 +182,10 @@ public class TitrationBean implements XMLRichBean {
 	public void setFrames(int frames) {
 		this.frames = frames;
 	}
-	public float getExposureTemperature() {
+	public double getExposureTemperature() {
 		return exposureTemperature;
 	}
-	public void setExposureTemperature(float exposureTemperature) {
+	public void setExposureTemperature(double exposureTemperature) {
 		this.exposureTemperature = exposureTemperature;
 	}
 	public double getMolecularWeight() {

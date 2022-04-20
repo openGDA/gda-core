@@ -21,6 +21,7 @@ package uk.ac.gda.devices.hatsaxs.ui;
 import static uk.ac.gda.devices.hatsaxs.ui.HatsaxsMenu.UPDATE_METHOD;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -40,14 +41,18 @@ import org.eclipse.richbeans.api.event.ValueEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public abstract class Column<T,V> {
-	public static enum ColumnType{
+public abstract class Column<T, V> {
+	public enum ColumnType {
 		DOUBLE {
 			@Override
 			public <E> CellEditor getCellEditor(Composite parent, @SuppressWarnings("unchecked") E... options) {
@@ -207,6 +212,8 @@ public abstract class Column<T,V> {
 	private CellLabelProvider labelProvider;
 	private String outputFormat = "%s";
 	private boolean fixed;
+	@SuppressWarnings("unchecked")
+	private Function<Object, V> adapter = v -> (V)v;
 
 	public void setOutputFormat(String outputFormat) {
 		this.outputFormat = outputFormat;
@@ -225,9 +232,10 @@ public abstract class Column<T,V> {
 		this.cellEditor = editor;
 		this.fixed = fixed;
 		setLabelProvider(new ColumnLabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				return getStringValue(element);
+				return getStringValue((T)element);
 			}
 			@SuppressWarnings("unchecked")
 			@Override
@@ -260,7 +268,7 @@ public abstract class Column<T,V> {
 			@Override
 			protected void setValue(Object element, Object value) {
 				try {
-					setNewValue((T)element, String.valueOf(value));
+					setNewValue((T) element, adapter.apply(value));
 					super.setValue(element, value);
 				} catch (IllegalArgumentException iae) {
 					MessageDialog.openError(PlatformUI.getWorkbench().getDisplay().getActiveShell(), "Invalid value", String.format("Value %s is not valid", String.valueOf(value)));
@@ -268,19 +276,18 @@ public abstract class Column<T,V> {
 			}
 		});
 	}
-	@SuppressWarnings("unchecked")
-	protected String getStringValue(Object element) {
+
+	protected String getStringValue(T element) {
 		try {
-			return String.format(outputFormat, getRealValue((T)element));
+			return String.format(outputFormat, getRealValue(element));
 		} catch (Exception e) {
-			return String.format(outputFormat, String.valueOf(getRealValue((T)element)));
+			return String.format(outputFormat, String.valueOf(getRealValue(element)));
 		}
 	}
 	public abstract V getRealValue(T element);
-	public abstract void setNewValue(T element, String value);
-	public void setNewValue(T element, Object value) {
-		setNewValue(element, value.toString());
-	}
+
+	public abstract void setNewValue(T element, V value);
+
 	public int getWidth() {
 		return this.width;
 	}
@@ -328,5 +335,8 @@ public abstract class Column<T,V> {
 		tableColumn.setData(UPDATE_METHOD, getUpdateMethod());
 		columnViewer.setLabelProvider(labelProvider);
 		columnViewer.setEditingSupport(support);
+	}
+	public void setAdapter(Function<Object, V> adapter) {
+		this.adapter = adapter;
 	}
 }

@@ -136,7 +136,7 @@ public class ImportSpreadsheetHandler implements IHandler {
 					tibi.setMolecularWeight(row.getCell(MOLECULAR_WEIGHT_COL_NO).getNumericCellValue());
 					tibi.setTimePerFrame(row.getCell(TIME_PER_FRAME_COL_NO).getNumericCellValue());
 					tibi.setFrames((int) row.getCell(FRAMES_COL_NO).getNumericCellValue()); 
-					tibi.setExposureTemperature((float) row.getCell(EXPOSURE_TEMP_COL_NO).getNumericCellValue());
+					tibi.setExposureTemperature(row.getCell(EXPOSURE_TEMP_COL_NO).getNumericCellValue());
 					tibi.setBuffer(row.getCell(BUFFER_COL).getBooleanCellValue());
 					tibi.setBuffers(row.getCell(BUFFERS_COL, Row.CREATE_NULL_AS_BLANK).getStringCellValue());
 					tibi.setKey(row.getCell(KEY_COL).getStringCellValue());

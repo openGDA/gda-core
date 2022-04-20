@@ -37,7 +37,7 @@
 				<xsd:element name="recouperateLocation" type="LocationBean" minOccurs="0"/>
 				<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
 				<xsd:element name="frames" type="xsd:int" minOccurs="1"/>
-				<xsd:element name="exposureTemperature" type="xsd:float" />
+				<xsd:element name="exposureTemperature" type="xsd:double" />
 				<xsd:element name="mode" type="xsd:string" minOccurs="1"/>
 				<xsd:element name="move" type="xsd:boolean" minOccurs="0"/>
 				<xsd:element name="sampleVolume" type="xsd:double" minOccurs="0"/>
