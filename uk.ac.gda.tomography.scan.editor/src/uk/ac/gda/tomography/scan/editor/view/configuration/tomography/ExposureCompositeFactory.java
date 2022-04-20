@@ -125,7 +125,7 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 	private void updateDetectorDocument() {
 		var oldDetectorDocument = getDetectorDocument();
 		var detectorDocument = new DetectorDocument.Builder()
-				.withName(oldDetectorDocument.getName())
+				.withId(oldDetectorDocument.getId())
 				.withMalcolmDetectorName(oldDetectorDocument.getMalcolmDetectorName())
 				.withExposure(Double.parseDouble(exposureText.getText()))
 				.build();
@@ -148,7 +148,7 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 	}
 
 	private double getCameraExposure(){
-		var cameraControlClient = CameraHelper.getCameraConfigurationPropertiesByCameraControlName(getDetectorDocument().getName())
+		var cameraControlClient = CameraHelper.getCameraConfigurationPropertiesByID(getDetectorDocument().getId())
 				.map(CameraHelper::createICameraConfiguration)
 				.map(ICameraConfiguration::getCameraControlClient)
 				.map(Optional::get);
