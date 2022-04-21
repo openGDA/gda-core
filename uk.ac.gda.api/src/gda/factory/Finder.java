@@ -35,8 +35,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -421,15 +423,15 @@ public enum Finder {
 		final String modulePath = moduleFile.getAbsolutePath();
 		logger.info("Writing '{}' Jython module: {}", moduleName, modulePath);
 
-		final List<Findable> findables = listAllObjects();
-		findables.sort((f, o) -> f.getName().compareToIgnoreCase(o.getName())); // alphabetically ordered
+		// TreeMap to order findables by BeanID
+		Map<String, Findable> findables = new TreeMap<>(getFindablesOfType(Findable.class));
 
 		// Valid python identifiers can't start with a number and can only include alphanumeric characters (and _)
-		Predicate<String> identifier = Pattern.compile("^(?:\\b[_a-zA-Z]|\\B\\$)[_$a-zA-Z0-9]*+$").asPredicate();
-		final Map<String, Class<?>> beanTypes = findables.stream()
-				.filter(bean -> identifier.test(bean.getName()))
-				.collect(toMap(Findable::getName, // key
-						Object::getClass, // value
+		Predicate<String> validIdentifier = Pattern.compile("^(?:\\b[_a-zA-Z]|\\B\\$)[_$a-zA-Z0-9]*+$").asPredicate();
+		final Map<String, Class<?>> beanTypes = findables.entrySet().stream()
+				.filter(e -> validIdentifier.test(e.getKey()))
+				.collect(toMap(Entry::getKey, // key
+						e -> e.getValue().getClass(), // value
 						(a, b) -> a, // merge function
 						LinkedHashMap::new)); // insertion ordered (so alphabetical)
 
