@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import gda.factory.FindableConfigurableBase;
 import gda.jython.ICommandRunner;
 import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import gda.jython.commands.GeneralCommands;
 
 /**
@@ -44,7 +45,7 @@ public class CommandRunnerRunnable extends FindableConfigurableBase implements R
 	@Override
 	public void configure() {
 		if (initialSetup != null) {
-			InterfaceProvider.getCommandRunner().evaluateCommand(initialSetup);
+			JythonServerFacade.getInstance().exec(initialSetup);
 			GeneralCommands.add_reset_hook(() -> setConfigured(false));
 		}
 		setConfigured(true);
