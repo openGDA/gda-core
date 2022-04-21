@@ -18,10 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import uk.ac.diamond.daq.mapping.ui.ISectionView;
+import uk.ac.diamond.daq.mapping.ui.IViewSection;
+
 /**
- * Extends {@link IMappingSection} for sections that can be shown or hidden dynamically
+ * Extends {@link IViewSection} for sections that can be shown or hidden dynamically
  */
-public interface HideableMappingSection extends IMappingSection {
+public interface HideableViewSection<B, V extends ISectionView<B>> extends IViewSection<B, V> {
 
 	/**
 	 * Whether the controls in this section are currently visible

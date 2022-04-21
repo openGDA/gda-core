@@ -84,7 +84,7 @@ public class PolarisationSubmitScanSection extends SubmitScanToScriptSection {
 		}
 
 		final IScriptService scriptService = getService(IScriptService.class);
-		final ScanRequest scanRequest = getScanRequest(getMappingBean());
+		final ScanRequest scanRequest = getScanRequest(getBean());
 
 		try {
 			// Serialise ScanRequest to JSON and put in the Jython namespace.

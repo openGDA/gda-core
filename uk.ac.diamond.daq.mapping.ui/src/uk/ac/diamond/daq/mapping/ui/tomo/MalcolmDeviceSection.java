@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +42,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.device.ui.device.EditDetectorModelDialog;
 import org.eclipse.swt.SWT;
@@ -54,14 +52,13 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
 public class MalcolmDeviceSection extends AbstractTomoViewSection {
 
 	private static final Logger logger = LoggerFactory.getLogger(MalcolmDeviceSection.class);
 
-	private final IRunnableDeviceService runnableDeviceService;
+	private IRunnableDeviceService runnableDeviceService;
 
 	private ComboViewer malcolmDeviceCombo;
 
@@ -69,22 +66,16 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 
 	private Binding exposureTimeBinding;
 
-	protected MalcolmDeviceSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView);
+	@Override
+	public void initialize(TensorTomoScanSetupView view) {
+		super.initialize(view);
 
-		final IEventService eventService = getService(IEventService.class);
-		try {
-			final URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			runnableDeviceService = eventService.createRemoteService(jmsURI, IRunnableDeviceService.class);
-		} catch (Exception e) {
-			logger.error("Could not create DetectorSection", e);
-			throw new RuntimeException("Could not create DetectorSection", e);
-		}
+		runnableDeviceService = getRemoteService(IRunnableDeviceService.class);
 	}
 
 	@Override
 	public void createControls(Composite parent) {
-		createSeparator(parent);
+		super.createControls(parent);
 
 		final Composite composite = createComposite(parent, 2, true);
 
@@ -129,8 +120,8 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 	}
 
 	private void setSelectedMalcolmDevice() {
-		final String malcolmDeviceName = getTomoBean().getMalcolmDeviceName();
-		final IMalcolmModel malcolmModel = getTomoBean().getMalcolmModel();
+		final String malcolmDeviceName = getBean().getMalcolmDeviceName();
+		final IMalcolmModel malcolmModel = getBean().getMalcolmModel();
 
 		@SuppressWarnings("unchecked")
 		final List<DeviceInformation<?>> malcolmDeviceInfos = (List<DeviceInformation<?>>) malcolmDeviceCombo.getInput();
@@ -155,7 +146,7 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 		exposureTimeText.setToolTipText("Set the exposure time for the detector");
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(exposureTimeText);
 
-		exposureTimeText.addModifyListener(event -> tomoView.updateStatusLabel());
+		exposureTimeText.addModifyListener(event -> getView().updateStatusLabel());
 	}
 
 	private void bindExposureTimeTextToMalcolmModel() {
@@ -163,8 +154,8 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 		if (exposureTimeBinding != null) exposureTimeBinding.dispose();
 
 		final IObservableValue<String> exposureTextValue = WidgetProperties.text(SWT.Modify).observe(exposureTimeText);
-		final IObservableValue<Double> exposureTimeValue = PojoProperties.value("exposureTime", Double.class).observe(getTomoBean().getMalcolmModel());
-		exposureTimeBinding = dataBindingContext.bindValue(exposureTextValue, exposureTimeValue);
+		final IObservableValue<Double> exposureTimeValue = PojoProperties.value("exposureTime", Double.class).observe(getBean().getMalcolmModel());
+		exposureTimeBinding = getDataBindingContext().bindValue(exposureTextValue, exposureTimeValue);
 	}
 
 	private void configureMalcolmDevice() {
@@ -175,14 +166,14 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 				runnableDeviceService, malcolmModel, malcolmInfo.getLabel());
 		editModelDialog.create();
 		if (editModelDialog.open() == Window.OK) {
-			dataBindingContext.updateTargets();
+			getDataBindingContext().updateTargets();
 		}
 	}
 
 	private void malcolmDeviceSelected(SelectionChangedEvent event) {
 		final DeviceInformation<IMalcolmModel> malcolmInfo = getSelectedMalcolmDevice(event.getStructuredSelection());
-		getTomoBean().setMalcolmDeviceName(malcolmInfo.getName());
-		getTomoBean().setMalcolmModel(malcolmInfo.getModel());
+		getBean().setMalcolmDeviceName(malcolmInfo.getName());
+		getBean().setMalcolmModel(malcolmInfo.getModel());
 		bindExposureTimeTextToMalcolmModel();
 	}
 
@@ -192,7 +183,7 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		setSelectedMalcolmDevice();
 	}
 

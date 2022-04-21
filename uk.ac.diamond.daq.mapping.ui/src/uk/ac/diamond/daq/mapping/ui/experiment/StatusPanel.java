@@ -21,7 +21,6 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
@@ -46,10 +45,8 @@ public class StatusPanel extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		final Composite sectionComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
-		GridLayoutFactory.fillDefaults().applyTo(sectionComposite);
 
+		final Composite sectionComposite = createComposite(parent, 1, true);
 		statusLabel = new Label(sectionComposite, SWT.NONE);
 		statusLabel.setText(" \n "); // to make sure height is allocated correctly
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(statusLabel);

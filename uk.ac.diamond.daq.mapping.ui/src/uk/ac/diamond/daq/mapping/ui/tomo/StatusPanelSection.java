@@ -35,13 +35,9 @@ class StatusPanelSection extends AbstractTomoViewSection {
 	private String statusMessage = null;
 	private PathInfo pathInfo = null;
 
-	protected StatusPanelSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView);
-	}
-
 	@Override
 	public void createControls(Composite parent) {
-		createSeparator(parent);
+		super.createSeparator(parent);
 
 		final Composite composite = createComposite(parent, 1, true);
 		statusLabel = new Label(composite, SWT.NONE);
@@ -51,11 +47,13 @@ class StatusPanelSection extends AbstractTomoViewSection {
 		asyncExec(this::updateStatusLabel);
 	}
 
+	@Override
 	public void setStatusMessage(String statusMessage) {
 		this.statusMessage = statusMessage;
 		asyncExec(this::updateStatusLabel);
 	}
 
+	@Override
 	protected void updateStatusLabel() {
 		if (statusLabel.isDisposed()) {
 			logger.warn("Attempt to update Status label when disposed");
@@ -70,7 +68,7 @@ class StatusPanelSection extends AbstractTomoViewSection {
 
 		final int numberOfPoints = pathInfo.getTotalPointCount();
 		final String numPointsString = String.format("Number of points: %,d", numberOfPoints);
-		final double totalTime = getTomoBean().getMalcolmModel().getExposureTime() * numberOfPoints;
+		final double totalTime = getBean().getMalcolmModel().getExposureTime() * numberOfPoints;
 		final String scanTimeString = String.format("Estimated scan time: %02.0f:%02.0f:%02.0f",
 				Math.floor(totalTime / 3600.0),
 				Math.floor((totalTime % 3600.0) / 60.0),

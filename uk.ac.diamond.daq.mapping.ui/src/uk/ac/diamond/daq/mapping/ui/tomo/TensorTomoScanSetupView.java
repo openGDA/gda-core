@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
-import static java.util.stream.Collectors.toMap;
 import static uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView.PATH_CALCULATION_TOPIC;
 import static uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper.mapRegionOntoModel;
 
@@ -28,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -47,7 +45,6 @@ import org.eclipse.e4.ui.di.PersistState;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
-import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -64,12 +61,8 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ClassToInstanceMap;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
@@ -80,6 +73,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfoRequest;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.region.RectangularMappingRegion;
+import uk.ac.diamond.daq.mapping.ui.AbstractSectionView;
 import uk.ac.diamond.daq.mapping.ui.experiment.PathInfoCalculatorJob;
 import uk.ac.diamond.daq.mapping.ui.experiment.PlottingController;
 import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
@@ -91,7 +85,7 @@ import uk.ac.diamond.daq.mapping.ui.path.PointGeneratorPathInfoCalculator;
  * The purpose of this view is to present simplified and more specific UI for setting
  * up this kind of scan.
  */
-public class TensorTomoScanSetupView {
+public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanBean> {
 
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.tomo.tensorTomoScanSetupView";
 
@@ -121,8 +115,6 @@ public class TensorTomoScanSetupView {
 	private IScanBeanSubmitter submitter;
 
 	private Composite mainComposite;
-
-	private ClassToInstanceMap<AbstractTomoViewSection> sections;
 
 	private final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
 	private final PathInfoCalculatorJob pathInfoCalculationJob;
@@ -156,6 +148,7 @@ public class TensorTomoScanSetupView {
 		});
 	}
 
+	@Override
 	@PostConstruct
 	public void createView(Composite parent, MPart part) {
 		tomoBean = loadTomoBean(part);
@@ -169,19 +162,20 @@ public class TensorTomoScanSetupView {
 		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
-		sections = createSections();
+		createSections();
 		viewCreated = true;
 
 		updatePlotRegion();
 		updatePoints();
 	}
 
+	@Override
 	@PersistState
 	public void saveState(MPart part) {
 		final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
 		try {
 			logger.trace("Saving the current state of the Tensor Tomography Scan Setup View");
-			final String json = marshaller.marshal(getTomoBean());
+			final String json = marshaller.marshal(getBean());
 			part.getPersistedState().put(STATE_KEY_TOMO_BEAN_JSON, json);
 		} catch (Exception e) {
 			logger.error("Could not save the current state of the Tensor Tomography Scan Setup View", e);
@@ -192,23 +186,17 @@ public class TensorTomoScanSetupView {
 		return viewCreated;
 	}
 
-	private ClassToInstanceMap<AbstractTomoViewSection> createSections(){
-		// TODO use reflection from list of classes?
+	private void createSections() {
 		final List<AbstractTomoViewSection> sectionsList = List.of(
-				new MalcolmDeviceSection(this),
-				new MapRegionAndPathSection(this),
-				new TomoPathSection(this),
-				new ScanMetadataSection(this),
-				new StatusPanelSection(this),
-				new SubmitScanSection(this)
+				new MalcolmDeviceSection(),
+				new MapRegionAndPathSection(),
+				new TomoPathSection(),
+				new ScanMetadataSection(),
+				new StatusPanelSection(),
+				new SubmitScanSection()
 		);
 
-		for (AbstractTomoViewSection section : sectionsList) {
-			section.createControls(mainComposite);
-		}
-
-		return ImmutableClassToInstanceMap.copyOf(sectionsList.stream().collect(
-				toMap(AbstractTomoViewSection::getClass, Function.identity())));
+		createSections(mainComposite, sectionsList, null);
 	}
 
 	private boolean checkTomoBean() {
@@ -298,17 +286,21 @@ public class TensorTomoScanSetupView {
 	@Optional
 	private void setPathInfo(@UIEventTopic(PATH_CALCULATION_TOPIC) PathInfo pathInfo) {
 		if (ID.equals(pathInfo.getSourceId())) {
-			getSection(StatusPanelSection.class).setPathInfo(pathInfo);
-			uiSync.asyncExec(() -> plotter.plotPath(pathInfo));
+			final StatusPanelSection statusPanel = getSection(StatusPanelSection.class);
+			if (statusPanel != null) {
+				statusPanel.setPathInfo(pathInfo);
+				uiSync.asyncExec(() -> plotter.plotPath(pathInfo));
+			}
 		}
 	}
 
-	protected void updateStatusLabel() {
-		if (!isViewCreated()) return;
+	@Override
+	public void updateStatusLabel() {
 		getSection(StatusPanelSection.class).updateStatusLabel();
 	}
 
-	protected void setStatusMessage(String statusMessage) {
+	@Override
+	public void setStatusMessage(String statusMessage) {
 		if (!isViewCreated()) return;
 		getSection(StatusPanelSection.class).setStatusMessage(statusMessage);
 	}
@@ -370,10 +362,7 @@ public class TensorTomoScanSetupView {
 		tomoBean.getGridPathModel().removePropertyChangeListener(pathBeanPropertyChangeListener);
 	}
 
-	public Shell getShell() {
-		return (Shell) eclipseContext.get(IServiceConstants.ACTIVE_SHELL);
-	}
-
+	@Override
 	public void relayout() {
 		mainComposite.layout(true, true);
 	}
@@ -383,25 +372,18 @@ public class TensorTomoScanSetupView {
 //		mapRegionAndPathComposite.setFocus(); // TODO what to set as default focus control?
 	}
 
+	@Override
 	@PreDestroy
 	public void dispose() {
 		removeTomoBeanListeners();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends AbstractTomoViewSection> T getSection(Class<T> sectionClass) {
-		return (T) sections.get(sectionClass);
-	}
-
-	public IEclipseContext getEclipseContext() {
-		return eclipseContext;
-	}
-
-	public TensorTomoScanBean getTomoBean() {
+	@Override
+	public TensorTomoScanBean getBean() {
 		return tomoBean;
 	}
 
-	public void setTomoBean(TensorTomoScanBean tomoBean) {
+	public void setBean(TensorTomoScanBean tomoBean) {
 		removeTomoBeanListeners();
 
 		this.tomoBean = tomoBean;
@@ -409,10 +391,7 @@ public class TensorTomoScanSetupView {
 	}
 
 	public void refreshView() {
-		for (AbstractTomoViewSection section : sections.values()) {
-			section.updateControls();
-		}
-
+		updateControls();
 		updatePlotRegion();
 		updatePoints();
 	}

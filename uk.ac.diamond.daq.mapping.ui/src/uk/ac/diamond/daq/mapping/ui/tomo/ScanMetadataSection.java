@@ -37,13 +37,9 @@ public class ScanMetadataSection extends AbstractTomoViewSection {
 
 	private Text backgroundFilePathText;
 
-	protected ScanMetadataSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView);
-	}
-
 	@Override
 	public void createControls(Composite parent) {
-		createSeparator(parent);
+		super.createControls(parent);
 
 		final Composite composite = createComposite(parent, 2, true);
 		createSampleNameControls(composite);
@@ -91,19 +87,19 @@ public class ScanMetadataSection extends AbstractTomoViewSection {
 	}
 
 	private void bindTextControls() {
-		disposeOldBindings();
+		removeOldBindings();
 
 		final IObservableValue<String> sampleNameTextValue = WidgetProperties.text(SWT.Modify).observe(sampleNameText);
-		final IObservableValue<String> sampleNameModelValue = PojoProperties.value("sampleName", String.class).observe(getTomoBean());
-		dataBindingContext.bindValue(sampleNameTextValue, sampleNameModelValue);
+		final IObservableValue<String> sampleNameModelValue = PojoProperties.value("sampleName", String.class).observe(getBean());
+		getDataBindingContext().bindValue(sampleNameTextValue, sampleNameModelValue);
 
 		final IObservableValue<String> backgroundFilePathTextValue = WidgetProperties.text(SWT.Modify).observe(backgroundFilePathText);
-		final IObservableValue<String> backgroundFilePathModelValue = PojoProperties.value("backgroundFilePath", String.class).observe(getTomoBean());
-		dataBindingContext.bindValue(backgroundFilePathTextValue, backgroundFilePathModelValue);
+		final IObservableValue<String> backgroundFilePathModelValue = PojoProperties.value("backgroundFilePath", String.class).observe(getBean());
+		getDataBindingContext().bindValue(backgroundFilePathTextValue, backgroundFilePathModelValue);
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		bindTextControls();
 	}
 

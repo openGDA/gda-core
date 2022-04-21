@@ -18,84 +18,11 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
-import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.e4.ui.di.UISynchronize;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.scanning.api.scan.IFilePathService;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
+import uk.ac.diamond.daq.mapping.ui.AbstractViewSection;
 
-// TOO somehow link with AbstractMappingSection?
-abstract class AbstractTomoViewSection {
+abstract class AbstractTomoViewSection extends AbstractViewSection<TensorTomoScanBean, TensorTomoScanSetupView> {
 
-	protected final TensorTomoScanSetupView tomoView;
-	protected final DataBindingContext dataBindingContext = new DataBindingContext();
-
-	protected AbstractTomoViewSection(TensorTomoScanSetupView tomoView) {
-		this.tomoView = tomoView;
-	}
-
-	public abstract void createControls(Composite parent);
-
-	protected TensorTomoScanBean getTomoBean() {
-		return tomoView.getTomoBean();
-	}
-
-	protected IEclipseContext getEclipseContext() {
-		return tomoView.getEclipseContext();
-	}
-
-	protected <S> S getService(Class<S> serviceClass) {
-		return getEclipseContext().get(serviceClass);
-	}
-
-	protected Shell getShell() {
-		return tomoView.getShell();
-	}
-
-	protected void createSeparator(Composite parent) {
-		final Label separator = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(separator);
-	}
-
-	protected void asyncExec(Runnable runnable) {
-		getService(UISynchronize.class).asyncExec(runnable);
-	}
-
-	protected Composite createComposite(Composite parent, int numColumns, boolean margins) {
-		final Composite composite = new Composite(parent, SWT.NONE);
-		if (margins) {
-			GridLayoutFactory.swtDefaults().numColumns(numColumns).applyTo(composite);
-		} else {
-			GridLayoutFactory.fillDefaults().numColumns(numColumns).applyTo(composite);
-		}
-
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(composite);
-		return composite;
-	}
-
-	/**
-	 * Update the controls to match the tomo bean.
-	 */
-	protected void updateControls() {
-		// Default implementation does nothing. Subclasses may override
-	}
-
-	protected void disposeOldBindings() {
-		for (Binding binding : dataBindingContext.getBindings()) {
-			binding.dispose();
-		}
-	}
-
-	protected String getVisitConfigDir() {
-		return getService(IFilePathService.class).getVisitConfigDir();
-	}
+	// this class implements no methods, but is useful for binding the type variables, avoiding having to do this for each subclass
 
 }

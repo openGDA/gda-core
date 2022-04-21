@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -49,14 +48,11 @@ public class SubmitScanSelector extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		mainComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(mainComposite);
-		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
+		mainComposite = createComposite(parent, 1, false);
 
 		// Stack of the available submit sections
 		optionsComposite = new Composite(mainComposite, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(optionsComposite);
-		GridLayoutFactory.fillDefaults().applyTo(optionsComposite);
 		optionsStack = new StackLayout();
 		optionsComposite.setLayout(optionsStack);
 
@@ -66,7 +62,7 @@ public class SubmitScanSelector extends AbstractMappingSection {
 			final String sectionName = section.getClass().getSimpleName();
 			logger.debug("Creating mapping section {}", sectionName);
 			try {
-				section.initialize(getMappingView());
+				section.initialize(getView());
 				section.createControls(optionsComposite);
 				sectionsComposites.add(section.getComposite());
 			} catch (Exception e) {

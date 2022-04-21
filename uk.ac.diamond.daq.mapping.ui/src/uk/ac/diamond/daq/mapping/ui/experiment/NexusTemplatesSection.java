@@ -29,7 +29,6 @@ import java.util.List;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -74,9 +73,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 		super.createControls(parent);
 
 		// create the composite
-		final Composite templatesComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(templatesComposite);
-		GridLayoutFactory.swtDefaults().applyTo(templatesComposite);
+		final Composite templatesComposite = createComposite(parent, 1, true, true);
 
 		// create the title & Add button
 		createTitleRow(templatesComposite);
@@ -89,9 +86,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 	 * Title and button to add a template file
 	 */
 	private void createTitleRow(Composite parent) {
-		final Composite titleRowComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(titleRowComposite);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(titleRowComposite);
+		final Composite titleRowComposite = createComposite(parent, 2, false);
 
 		final Label titleLabel = new Label(titleRowComposite, SWT.NONE);
 		titleLabel.setText("Template files");
@@ -108,9 +103,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 	 * Table of files that are defined, with a check box to indicate whether each one is active.
 	 */
 	private void createFileTable(Composite parent) {
-		fileTableComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(fileTableComposite);
-		GridLayoutFactory.fillDefaults().applyTo(fileTableComposite);
+		fileTableComposite = createComposite(parent, 1, false, true);
 
 		fileTableViewer = new TableViewer(fileTableComposite, SWT.MULTI | SWT.FULL_SELECTION | SWT.BORDER);
 		final Table fileTable = fileTableViewer.getTable();
@@ -171,10 +164,10 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 						}
 					}
 					if (!filesToRemove.isEmpty()) {
-						getMappingBean().getTemplateFiles().removeAll(filesToRemove);
+						getBean().getTemplateFiles().removeAll(filesToRemove);
 					}
 
-					getMappingView().updateControls();
+					getView().updateControls();
 				}
 			}
 		});
@@ -183,14 +176,14 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 		fileTableViewer.getTable().setMenu(menu);
 
 		// Initialise from mapping bean
-		final List<TemplateFileWrapper> files = getMappingBean().getTemplateFiles();
+		final List<TemplateFileWrapper> files = getBean().getTemplateFiles();
 		fileTableViewer.setInput(files.toArray());
 		setTableSize();
 	}
 
 	@Override
 	public void updateControls() {
-		List<TemplateFileWrapper> templateFiles = getMappingBean().getTemplateFiles();
+		List<TemplateFileWrapper> templateFiles = getBean().getTemplateFiles();
 		if (templateFiles == null) {
 			templateFiles = Collections.emptyList();
 		}
@@ -200,7 +193,7 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 
 		setTableSize();
 		fileTableComposite.getParent().layout(true, true);
-		relayoutMappingView();
+		relayoutView();
 	}
 
 	/**
@@ -221,12 +214,12 @@ public class NexusTemplatesSection extends AbstractMappingSection {
 		initialPath = Paths.get(result).getParent().toString();
 
 		// Add file if it does not already exist
-		if (getMappingBean().getTemplateFiles().stream().anyMatch(f -> f.getFilePath().equals(result))) {
+		if (getBean().getTemplateFiles().stream().anyMatch(f -> f.getFilePath().equals(result))) {
 			return;
 		}
-		getMappingBean().addTemplateFile(new TemplateFileWrapper(result, true));
-		getMappingView().updateControls();
-		getMappingView().showControl(fileTableComposite.getParent());
+		getBean().addTemplateFile(new TemplateFileWrapper(result, true));
+		getView().updateControls();
+		getView().showControl(fileTableComposite.getParent());
 	}
 
 	/**

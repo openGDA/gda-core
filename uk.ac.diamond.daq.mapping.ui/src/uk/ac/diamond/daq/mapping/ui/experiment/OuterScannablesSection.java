@@ -62,12 +62,12 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	}
 
 	private List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
-		return getMappingBean().getScanDefinition().getOuterScannables();
+		return getBean().getScanDefinition().getOuterScannables();
 	}
 
 	private Set<String> calculateAvailableScannableNames() {
-		final List<String> permittedOuterScananbleNames = getMappingBean().getScanDefinition().getPermittedOuterScannables();
-		if (permittedOuterScananbleNames.isEmpty()) {
+		final List<String> permittedOuterScannableNames = getBean().getScanDefinition().getPermittedOuterScannables();
+		if (permittedOuterScannableNames.isEmpty()) {
 			try { // if permitted outer scannables is not set, add all Findables
 				return Finder.getFindablesOfType(ScannableMotion.class).keySet();
 			} catch (Exception e) {
@@ -76,7 +76,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 			}
 		} else {
 			// Ensure that the default scannable(s) are in the list, even if not explicitly set as "permitted"
-			return concat(permittedOuterScananbleNames.stream(), getMappingBean().getScanDefinition().getDefaultOuterScannables().stream())
+			return concat(permittedOuterScannableNames.stream(), getBean().getScanDefinition().getDefaultOuterScannables().stream())
 					.collect(toSet());
 		}
 	}
@@ -95,7 +95,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 
 	private void scannablesChanged(List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
 		// update the bean from the UI
-		getMappingBean().getScanDefinition().setOuterScannables(outerScannables);
+		getBean().getScanDefinition().setOuterScannables(outerScannables);
 		updateMappingView();
 	}
 
@@ -110,7 +110,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 	}
 
 	protected void updateMappingView() {
-		relayoutMappingView();
+		relayoutView();
 		updateStatusLabel();
 	}
 

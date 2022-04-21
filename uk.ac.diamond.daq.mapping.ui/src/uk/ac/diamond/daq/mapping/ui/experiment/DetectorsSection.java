@@ -57,6 +57,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.device.IRunnableDevice;
+import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.DeviceRole;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
@@ -106,12 +107,18 @@ public class DetectorsSection extends AbstractMappingSection {
 	private Composite sectionComposite; // parent composite for all controls in the section
 	private Composite detectorsComposite;
 
+	private IRunnableDeviceService runnableDeviceService;
+
+	@Override
+	public void initialize(MappingExperimentView view) {
+		super.initialize(view);
+		runnableDeviceService = getRemoteService(IRunnableDeviceService.class);
+	}
+
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		sectionComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(sectionComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
+		sectionComposite = createComposite(parent, 2, true);
 		final Label detectorsLabel = new Label(sectionComposite, SWT.NONE);
 		detectorsLabel.setText("Detectors");
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(detectorsLabel);
@@ -127,7 +134,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			// this will only be null if loadState() has not been called, i.e. on a workspace reset
 			// in this case show all available detectors
 			updateDetectorParameters(); // update the detectors in the bean based on the available malcolm devices
-			visibleDetectors = getMappingBean().getDetectorParameters().stream()
+			visibleDetectors = getBean().getDetectorParameters().stream()
 					.map(DetectorModelWrapper.class::cast)
 					.filter(DetectorModelWrapper::isShownByDefault)
 					.filter(this::isValidMappingDetector)
@@ -158,19 +165,19 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private void chooseDetectors() {
 		final ChooseDevicesDialog<IDetectorModel> dialog = new ChooseDevicesDialog<>(getShell(),
-				getMappingBean().getDetectorParameters(), visibleDetectors);
+				getBean().getDetectorParameters(), visibleDetectors);
 		dialog.setTitle("Choose from available detectors");
 
 		if (dialog.open() == Window.OK) {
 			visibleDetectors = dialog.getSelectedDevices();
 
 			// set any detectors not in the new selection to not be included in the scan
-			getMappingBean().getDetectorParameters().stream().
+			getBean().getDetectorParameters().stream().
 				filter(w -> !visibleDetectors.contains(w)).
 				forEach(w -> w.setIncludeInScan(false));
 
 			createDetectorControls(visibleDetectors);
-			relayoutMappingView();
+			relayoutView();
 		}
 	}
 
@@ -178,7 +185,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		removeOldBindings(); // remove any old bindings
 
 		if (detectorsComposite != null) detectorsComposite.dispose();
-		dataBindingContext = new DataBindingContext();
+		final DataBindingContext dataBindingContext = getDataBindingContext();
 		detectorSelectionCheckboxes = new HashMap<>();
 
 		detectorsComposite = new Composite(sectionComposite, SWT.NONE);
@@ -221,7 +228,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private void editDetectorParameters(final IScanModelWrapper<IDetectorModel> detectorParameters) {
 		try {
-			if (detectorParameters.getModel() instanceof IMalcolmModel && getRunnableDeviceService().getRunnableDevice(
+			if (detectorParameters.getModel() instanceof IMalcolmModel && runnableDeviceService.getRunnableDevice(
 					detectorParameters.getModel().getName()).getDeviceState() == DeviceState.OFFLINE) {
 				MessageDialog.openError(getShell(), "Malcolm Device " + detectorParameters.getModel().getName(),
 						"Cannot edit malcolm device " + detectorParameters.getModel().getName() + " as it is offline.");
@@ -231,11 +238,11 @@ public class DetectorsSection extends AbstractMappingSection {
 			logger.error("Cannot get malcolm device", e);
 		}
 
-		final Dialog editModelDialog = new EditDetectorModelDialog(getShell(), getRunnableDeviceService(),
+		final Dialog editModelDialog = new EditDetectorModelDialog(getShell(), runnableDeviceService,
 				detectorParameters.getModel(), detectorParameters.getName());
 		editModelDialog.create();
 		if (editModelDialog.open() == Window.OK) {
-			dataBindingContext.updateTargets();
+			getDataBindingContext().updateTargets();
 		}
 	}
 
@@ -259,7 +266,7 @@ public class DetectorsSection extends AbstractMappingSection {
 					if (selected) cb.setSelection(false);
 				});
 
-			dataBindingContext.updateModels();
+			getDataBindingContext().updateModels();
 
 			// update the mapping stage info
 			if (selected) {
@@ -277,7 +284,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	 * Update the mapping view when the detector selection has changed
 	 */
 	private void updateMappingView() {
-		getMappingView().detectorSelectionChanged(visibleDetectors.stream()
+		getView().detectorSelectionChanged(visibleDetectors.stream()
 													.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 													.collect(Collectors.toList()));
 	}
@@ -341,7 +348,7 @@ public class DetectorsSection extends AbstractMappingSection {
 				}
 
 				// Region and path composites need updating to reflect this change.
-				getMappingView().redrawRegionAndPathComposites();
+				getView().redrawRegionAndPathComposites();
 			}
 		} catch (ScanningException e) {
 			logger.error("Could not get axes of malcolm device: {}", deviceName, e);
@@ -349,7 +356,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	}
 
 	private IMalcolmDevice getMalcolmDevice(final String malcolmDeviceName) throws ScanningException {
-		final IRunnableDevice<?> runnableDevice = getRunnableDeviceService().getRunnableDevice(malcolmDeviceName);
+		final IRunnableDevice<?> runnableDevice = runnableDeviceService.getRunnableDevice(malcolmDeviceName);
 		if (!(runnableDevice instanceof IMalcolmDevice)) {
 			throw new ScanningException("Device " + malcolmDeviceName + " is not a malcolm device");
 		}
@@ -385,7 +392,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// create a name-keyed map from the existing detector parameters in the bean, filtering out those for
 		// malcolm devices which no longer exist using the predicate above
-		final Map<String, IScanModelWrapper<IDetectorModel>> detectorParamsByName = getMappingBean().getDetectorParameters().stream().
+		final Map<String, IScanModelWrapper<IDetectorModel>> detectorParamsByName = getBean().getDetectorParameters().stream().
 				filter(nonExistantMalcolmFilter). // filter out malcolm device which no longer exist
 				collect(toMap(IScanModelWrapper<IDetectorModel>::getName, // key by name
 						identity(), // the value is the wrapper itself
@@ -398,7 +405,7 @@ public class DetectorsSection extends AbstractMappingSection {
 
 		// convert to a list and set this as the detector parameters in the bean
 		final List<IScanModelWrapper<IDetectorModel>> detectorParamList = new ArrayList<>(detectorParamsByName.values());
-		getMappingBean().setDetectorParameters(detectorParamList);
+		getBean().setDetectorParameters(detectorParamList);
 
 		return detectorParamsByName;
 	}
@@ -410,7 +417,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	 */
 	private Collection<DeviceInformation<?>> getMalcolmDeviceInfos() {
 		try {
-			return getRunnableDeviceService().getDeviceInformation(DeviceRole.MALCOLM);
+			return runnableDeviceService.getDeviceInformation(DeviceRole.MALCOLM);
 		} catch (Exception e) {
 			logger.error("Could not get malcolm devices.", e);
 			return Collections.emptyList();
@@ -422,7 +429,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		// add any detectors in the bean to the list of chosen detectors if not present
 		// first create a map of detectors in the mapping bean keyed by name
 		final Map<String, IScanModelWrapper<IDetectorModel>> wrappersByName =
-				getMappingBean().getDetectorParameters().stream().collect(toMap(
+				getBean().getDetectorParameters().stream().collect(toMap(
 				IScanModelWrapper<IDetectorModel>::getName, identity()));
 
 		// take the list of chosen detectors and replace them with the ones in the mapping bean
@@ -434,7 +441,7 @@ public class DetectorsSection extends AbstractMappingSection {
 		// add any detectors that are in the bean but not in the list of chosen detectors
 		final Set<String> detectorNames = visibleDetectors.stream().map(IScanModelWrapper<IDetectorModel>::getName).collect(toSet());
 		visibleDetectors.addAll(
-				getMappingBean().getDetectorParameters().stream().
+				getBean().getDetectorParameters().stream().
 					filter(IScanModelWrapper::isIncludeInScan).
 					filter(wrapper -> !detectorNames.contains(wrapper.getName())).
 					collect(Collectors.toList()));
@@ -481,7 +488,7 @@ public class DetectorsSection extends AbstractMappingSection {
 			validateDetectorMap(detectorMap);
 
 			// Map is valid - update the GUI
-			uiSync.asyncExec(() -> updateFromDetectorMap(detectorMap));
+			asyncExec(() -> updateFromDetectorMap(detectorMap));
 		} catch (Exception e) {
 			logger.error("Invalid detectors parameter: {}", value, e);
 		}
@@ -550,7 +557,7 @@ public class DetectorsSection extends AbstractMappingSection {
 	private void updateFromDetectorMap(final Map<String, Double> detectorMap) {
 		// Update the detector controls
 		IScanModelWrapper<IDetectorModel> selectedDetector = null;
-		for (IScanModelWrapper<IDetectorModel> wrapper : getMappingBean().getDetectorParameters()) {
+		for (IScanModelWrapper<IDetectorModel> wrapper : getBean().getDetectorParameters()) {
 			final String detectorName = wrapper.getName();
 			final Object exposure = detectorMap.get(detectorName);
 
@@ -567,7 +574,7 @@ public class DetectorsSection extends AbstractMappingSection {
 				wrapper.setIncludeInScan(false);
 			}
 		}
-		dataBindingContext.updateTargets();
+		getDataBindingContext().updateTargets();
 		if (selectedDetector != null) {
 			detectorSelectionChanged(selectedDetector);
 		}

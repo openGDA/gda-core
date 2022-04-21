@@ -41,13 +41,9 @@ class TomoPathSection extends AbstractTomoViewSection {
 	private ScanPathEditor angle1PathEditor;
 	private ScanPathEditor angle2PathEditor;
 
-	TomoPathSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView);
-	}
-
 	@Override
 	public void createControls(Composite parent) {
-		createSeparator(parent);
+		super.createControls(parent);
 
 		sectionComposite = createComposite(parent, 1, true);
 		createSectionLabel(sectionComposite);
@@ -62,9 +58,9 @@ class TomoPathSection extends AbstractTomoViewSection {
 
 		pathControlsComposite = createComposite(sectionComposite, 2, false);
 		angle1PathEditor = createScanPathEditor(pathControlsComposite,
-				ANGLE_1_LABEL, getTomoBean().getAngle1Model());
+				ANGLE_1_LABEL, getBean().getAngle1Model());
 		angle2PathEditor = createScanPathEditor(pathControlsComposite,
-				ANGLE_2_LABEL, getTomoBean().getAngle2Model());
+				ANGLE_2_LABEL, getBean().getAngle2Model());
 		createRestoreDefaultsButton(pathControlsComposite);
 	}
 
@@ -86,7 +82,7 @@ class TomoPathSection extends AbstractTomoViewSection {
 
 	@SuppressWarnings("unused")
 	private void handleScanPathUpdate(Object source, Object arg) {
-		tomoView.updatePoints();
+		getView().updatePoints();
 	}
 
 	private void createRestoreDefaultsButton(Composite parent) {
@@ -102,9 +98,9 @@ class TomoPathSection extends AbstractTomoViewSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		createScanPathEditors();
-		tomoView.relayout();
+		getView().relayout();
 	}
 
 }

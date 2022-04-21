@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -275,11 +276,11 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		pathEditor.createEditorPart(regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionAndPathComposite);
 
-		detectorsChanged(getMappingBean().getDetectorParameters().stream()
+		detectorsChanged(getBean().getDetectorParameters().stream()
 							.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
 							.collect(toList()));
 
-		relayoutMappingView();
+		relayoutView();
 	}
 
 	@Override
@@ -386,7 +387,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 				if (scanRegion == null) {
 					throw new IllegalArgumentException("Invalid region " + region);
 				}
-				uiSync.syncExec(() -> controller.getRegionSelectorListener().handleRegionChange(scanRegion));
+				syncExec(() -> controller.getRegionSelectorListener().handleRegionChange(scanRegion));
 			}
 
 			// Change to path
@@ -400,7 +401,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 				if (scanPath == null) {
 					throw new IllegalArgumentException("No scan path corresponding to " + path);
 				}
-				uiSync.syncExec(() -> {
+				syncExec(() -> {
 					final IMappingScanRegionShape scanRegion = controller.getScanRegionShape();
 					controller.updateMappingBeanScanRegion(scanRegion, scanPath);
 					controller.getRegionSelectorListener().handleRegionChange(scanRegion);
@@ -414,7 +415,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			controller.getScanPathModel().updateFromPropertiesMap(regionAndPathMap);
 
 			// Update GUI
-			uiSync.asyncExec(this::rebuildMappingSection);
+			asyncExec(this::rebuildMappingSection);
 		} catch (Exception e) {
 			logger.error("Invalid region/path parameter: {}", value, e);
 		}

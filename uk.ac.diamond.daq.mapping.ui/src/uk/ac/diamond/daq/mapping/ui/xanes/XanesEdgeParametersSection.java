@@ -77,9 +77,9 @@ import com.swtdesigner.SWTResourceManager;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters;
+import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.LinesToTrackEntry;
 import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod;
-import uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.EdgeToEnergy;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractHideableMappingSection;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
 
@@ -130,7 +130,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		super.createControls(parent);
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
 
-		dataBindingContext = new DataBindingContext();
+		final DataBindingContext dataBindingContext = getDataBindingContext();
 
 		// Report if bean is not properly configured, but continue creating the view
 		if (energyScannableName == null || energyScannableName.isEmpty()) {
@@ -142,7 +142,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 			scanParameters = new XanesEdgeParameters();
 		}
 
-		content = new Composite(parent, SWT.NONE);
+		content = createComposite(parent, NUM_COLUMNS, false);
 		GridDataFactory.swtDefaults().applyTo(content);
 		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(content);
 		content.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
@@ -243,7 +243,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		final IStructuredSelection currentSelection = linesToTrackCombo.getStructuredSelection();
 
 		// Read all selected processing files and extract lines to track
-		final SortedMap<String, SortedSet<String>> linesToTrack = getLinesToTrack(getMappingBean().getProcessingRequest());
+		final SortedMap<String, SortedSet<String>> linesToTrack = getLinesToTrack(getBean().getProcessingRequest());
 
 		// Add lines and restore current selection if possible
 		final int numLines = linesToTrack.size();
@@ -358,13 +358,13 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		}
 		final IScanPointGeneratorModel scanPathModel = createModelFromEdgeSelection(selectedEdge.getEnergy(), energyScannableName);
 
-		final IScanModelWrapper<IScanPointGeneratorModel> energyScannable = getOuterScannable(getMappingBean(), energyScannableName);
+		final IScanModelWrapper<IScanPointGeneratorModel> energyScannable = getOuterScannable(getBean(), energyScannableName);
 		if (energyScannable != null) {
 			energyScannable.setModel(scanPathModel);
 		}
 
 		// Refresh outer scannables section to update text box
-		getMappingView().getSection(OuterScannablesSection.class).updateControls();
+		getView().getSection(OuterScannablesSection.class).updateControls();
 	}
 
 	@Override

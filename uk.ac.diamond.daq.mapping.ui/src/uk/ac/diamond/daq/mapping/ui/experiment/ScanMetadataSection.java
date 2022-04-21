@@ -23,7 +23,6 @@ import static uk.ac.gda.ui.tool.ClientMessages.SAMPLE_METADATA_EDIT_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -31,7 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.SimpleSampleMetadata;
 
 /**
@@ -58,24 +56,23 @@ public class ScanMetadataSection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		IMappingExperimentBean mappingBean = getMappingBean();
-		Composite essentialParametersComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(essentialParametersComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(essentialParametersComposite);
-		Label sampleNameLabel = new Label(essentialParametersComposite, SWT.NONE);
+
+		final Composite sampleNameComposite = createComposite(parent, 3, true);
+
+		final Label sampleNameLabel = new Label(sampleNameComposite, SWT.NONE);
 		sampleNameLabel.setText("Sample Name");
-		sampleNameText = new Text(essentialParametersComposite, SWT.BORDER);
+		sampleNameText = new Text(sampleNameComposite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sampleNameText);
 
 		sampleNameText.setText(getController().getAcquisitionName());
 		sampleNameText.addListener(SWT.Modify, event -> getController().setAcquisitionName(sampleNameText.getText()));
 
-		Button editMetadataButton = new Button(essentialParametersComposite, SWT.PUSH);
+		final Button editMetadataButton = new Button(sampleNameComposite, SWT.PUSH);
 		editMetadataButton.setText(getMessage(SAMPLE_METADATA_EDIT));
 		editMetadataButton.setToolTipText(getMessage(SAMPLE_METADATA_EDIT_TP));
 
 		editMetadataButton.addListener(SWT.Selection, event -> {
-			SimpleSampleMetadata metadata = (SimpleSampleMetadata) mappingBean.getSampleMetadata();
+			SimpleSampleMetadata metadata = (SimpleSampleMetadata) getBean().getSampleMetadata();
 			EditSampleMetadataDialog dialog = new EditSampleMetadataDialog(parent.getShell(), metadata.getSampleName(), metadata.getDescription());
 			if (dialog.open() == Window.OK) {
 				metadata.setSampleName(dialog.getName());

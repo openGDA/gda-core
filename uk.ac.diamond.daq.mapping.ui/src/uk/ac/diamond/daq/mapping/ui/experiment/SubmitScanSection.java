@@ -32,6 +32,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -85,11 +86,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 	private ScanManagementController smController;
 
 	@Override
-	public boolean createSeparator() {
-		return false;
-	}
-
-	@Override
 	public void createControls(Composite parent) {
 		smController = getService(ScanManagementController.class);
 		smController.initialise();
@@ -107,9 +103,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 	}
 
 	protected void createSubmitSection() {
-		final Composite submitComposite = new Composite(composite, SWT.NONE);
-		GridDataFactory.swtDefaults().applyTo(submitComposite);
-		GridLayoutFactory.swtDefaults().applyTo(submitComposite);
+		final Composite submitComposite = createComposite(composite, 1, false);
 		createSubmitButton(submitComposite);
 	}
 
@@ -125,9 +119,8 @@ public class SubmitScanSection extends AbstractMappingSection {
 	}
 
 	private void createMscanSection() {
-		final Composite mscanComposite = new Composite(composite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(mscanComposite);
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(mscanComposite);
+		final Composite mscanComposite = createComposite(composite, 3, false);
+		((GridData) mscanComposite.getLayoutData()).horizontalAlignment = SWT.TRAIL;
 
 		// Button to copy a scan to the clipboard
 		final Button copyScanCommandButton = new Button(mscanComposite, SWT.PUSH);
@@ -202,8 +195,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private void updateMappingBean(final ScanRequest request) {
 		// Merges a ScanRequest into the mapping bean and refreshes the UI
-		getService(ScanRequestConverter.class)
-			.mergeIntoMappingBean(request, getMappingBean());
+		getService(ScanRequestConverter.class).mergeIntoMappingBean(request, getBean());
 		refreshMappingView();
 	}
 
@@ -231,7 +223,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private void loadNewMappingBean(final IMappingExperimentBean bean) {
 		// Replaces the mapping bean and refreshes the UI
-		getMappingView().setMappingBean(bean);
+		getView().setMappingBean(bean);
 		refreshMappingView();
 	}
 
@@ -250,7 +242,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 				SearchResultViewDialogMode.save, labelProviders);
 		searchDialog.open();
 		if (searchDialog.getReturnCode() == Window.OK) {
-			IMappingExperimentBean mappingBean = getMappingBean();
+			IMappingExperimentBean mappingBean = getBean();
 			mappingBean.setDisplayName(searchDialog.getNewName());
 			mappingBean.setId(searchDialog.getItemId());
 			smController.saveScanAs(mappingBean.getId());
@@ -263,7 +255,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private void refreshMappingView() {
 		smController.updateGridModelIndex();
-		getMappingView().updateControls();
+		getView().updateControls();
 
 	}
 	protected void submitScan() {
@@ -288,10 +280,6 @@ public class SubmitScanSection extends AbstractMappingSection {
 		dialog.setOverwrite(true);
 
 		return dialog.open();
-	}
-
-	private String getVisitConfigDir() {
-		return getService(IFilePathService.class).getVisitConfigDir();
 	}
 
 	private String getVisitDir() {

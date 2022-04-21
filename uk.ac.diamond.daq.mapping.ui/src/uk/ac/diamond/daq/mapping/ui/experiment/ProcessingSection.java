@@ -41,7 +41,6 @@ import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
@@ -86,19 +85,14 @@ public class ProcessingSection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		Composite processingComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(processingComposite);
-		GridLayoutFactory.swtDefaults().numColumns(1).applyTo(processingComposite);
 
+		final Composite processingComposite = createComposite(parent, 1, true, true);
 		createTitleAndAddProcessingRow(processingComposite);
 		createProcessingTable(processingComposite);
 	}
 
 	private void createTitleAndAddProcessingRow(Composite parent) {
-		Composite rowComposite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(rowComposite);
-		GridDataFactory grabHorizontalGridData = GridDataFactory.fillDefaults().grab(true, false);
-		grabHorizontalGridData.applyTo(rowComposite);
+		final Composite rowComposite = createComposite(parent, 2, false);
 
 		Label processingLabel = new Label(rowComposite, SWT.NONE);
 		processingLabel.setText("Processing");
@@ -119,9 +113,7 @@ public class ProcessingSection extends AbstractMappingSection {
 	}
 
 	private void createProcessingTable(Composite parent) {
-		processingChainsComposite = new Composite(parent, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(processingChainsComposite);
-		GridLayoutFactory.fillDefaults().applyTo(processingChainsComposite);
+		processingChainsComposite = createComposite(parent, 1, false, true);
 
 		viewer = new TableViewer(processingChainsComposite, SWT.MULTI |SWT.FULL_SELECTION | SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getTable());
@@ -193,10 +185,10 @@ public class ProcessingSection extends AbstractMappingSection {
 						}
 					}
 					if (!w.isEmpty()) {
-						getMappingBean().getProcessingConfigs().removeAll(w);
+						getBean().getProcessingConfigs().removeAll(w);
 					}
 
-					getMappingView().updateControls();
+					getView().updateControls();
 				}
 			}
 		});
@@ -204,7 +196,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
 		viewer.getTable().setMenu(menu);
 
-		List<ConfigWrapper> configs = getMappingBean().getProcessingConfigs();
+		List<ConfigWrapper> configs = getBean().getProcessingConfigs();
 		viewer.setInput(configs.toArray());
 		setTableSize();
 	}
@@ -219,7 +211,7 @@ public class ProcessingSection extends AbstractMappingSection {
 		ConfigWrapper w = new ConfigWrapper();
 
 		final ProcessingSelectionWizardPage selectionPage = new ProcessingSelectionWizardPage(getEclipseContext(),
-				processingConfig,w, getMappingBean().getDetectorParameters());
+				processingConfig,w, getBean().getDetectorParameters());
 		startPages.add(selectionPage);
 
 		final Supplier<ProcessingSelectionWizardPage.ProcessingMode> selectedMode;
@@ -273,16 +265,15 @@ public class ProcessingSection extends AbstractMappingSection {
 		if (config != null) {
 			// Ensure file is selected
 			config.setActive(true);
-			getMappingBean().addProcessingRequest(config);
+			getBean().addProcessingRequest(config);
 
-			getMappingView().updateControls();
-			getMappingView().showControl(processingChainsComposite.getParent());
+			getView().updateControls();
+			getView().showControl(processingChainsComposite.getParent());
 		}
 	}
 	@Override
 	public void updateControls() {
-
-		List<ConfigWrapper> configs = getMappingBean().getProcessingConfigs();
+		List<ConfigWrapper> configs = getBean().getProcessingConfigs();
 		if (configs == null) {
 			configs = Collections.emptyList();
 		}
@@ -292,7 +283,7 @@ public class ProcessingSection extends AbstractMappingSection {
 
 		setTableSize();
 		processingChainsComposite.getParent().layout(true, true);
-		relayoutMappingView();
+		relayoutView();
 	}
 
 	/**

@@ -108,7 +108,7 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 		try (BufferedReader reader = Files.newBufferedReader(CALIBRATION_FILE_PATH)) {
 			final IScriptService scriptService = getService(IScriptService.class);
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
-			final IMappingExperimentBean mappingBean = getMappingBean();
+			final IMappingExperimentBean mappingBean = getBean();
 			final TomographyCalibrationData calibrationParams = marshallerService.unmarshal(reader.readLine(), TomographyCalibrationData.class);
 			final ScanRequest scanRequest = getScanRequest(mappingBean);
 
@@ -144,7 +144,7 @@ public class TomographySubmitScanSection extends SubmitScanToScriptSection {
 
 	private void showConfigurationDialog() {
 		final TomographyConfigurationDialog dialog = new TomographyConfigurationDialog(getShell(), rotationMotor,
-				xMotor, yMotor, zMotor, getMappingView(), tomoDryRunScript);
+				xMotor, yMotor, zMotor, getView(), tomoDryRunScript);
 		dialog.open();
 	}
 }

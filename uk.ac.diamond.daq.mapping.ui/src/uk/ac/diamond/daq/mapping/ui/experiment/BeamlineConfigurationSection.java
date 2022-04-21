@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.scanning.api.IScannable;
@@ -69,22 +67,18 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	public void createControls(Composite parent) {
 		super.createControls(parent);
 		try {
-			scannableDeviceService = getMappingView().getScannableDeviceService();
+			scannableDeviceService = getView().getScannableDeviceService();
 		} catch (Exception e) {
 			LOGGER.error("Error creating IScannableDeviceService", e);
 		}
 
 		final boolean addFocusScanButton = getService(FocusScanBean.class) != null;
-		Composite beamlineConfigComposite = new Composite(parent, SWT.NONE);
 		final int numColumns = addFocusScanButton ? 4 : 3;
-		GridLayoutFactory.swtDefaults().numColumns(numColumns).equalWidth(false).applyTo(beamlineConfigComposite);
-		GridDataFactory.fillDefaults().grab(false, false).applyTo(beamlineConfigComposite);
+		final Composite beamlineConfigComposite = createComposite(parent, numColumns, true);
 
 		(new Label(beamlineConfigComposite, SWT.NONE)).setText("Configure Beamline");
 
-		Composite configSummaryComposite = new Composite(beamlineConfigComposite, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(false).applyTo(configSummaryComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(configSummaryComposite);
+		final Composite configSummaryComposite = createComposite(beamlineConfigComposite, 2, false);
 		summaryText = new Text(configSummaryComposite, SWT.MULTI | SWT.READ_ONLY);
 		summaryText.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 		summaryText.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -106,7 +100,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void editBeamlineConfiguration() {
-		IMappingExperimentBean mappingBean = getMappingBean();
+		IMappingExperimentBean mappingBean = getBean();
 		EditBeamlineConfigurationDialog dialog = new EditBeamlineConfigurationDialog(getShell(),
 				scannableDeviceService, mappingBean.getBeamlineConfiguration());
 		dialog.create();
@@ -137,7 +131,7 @@ public class BeamlineConfigurationSection extends AbstractMappingSection {
 	}
 
 	private void updateConfiguredScannableSummary() {
-		Map<String, Object> configured = getMappingBean().getBeamlineConfiguration();
+		Map<String, Object> configured = getBean().getBeamlineConfiguration();
 		List<String> txt = Collections.emptyList();
 
 		if (configured != null) {

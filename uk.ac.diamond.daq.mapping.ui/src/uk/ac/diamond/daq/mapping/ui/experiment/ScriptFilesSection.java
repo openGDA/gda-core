@@ -46,6 +46,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
+
 		final Composite scriptsComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(false).applyTo(scriptsComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(scriptsComposite);
@@ -70,7 +71,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	}
 
 	private void openDialog() {
-		IScriptFiles scripts = getMappingBean().getScriptFiles();
+		IScriptFiles scripts = getBean().getScriptFiles();
 		ScriptsSelectionDialog dialog = new ScriptsSelectionDialog(getShell(), scripts);
 		if (dialog.open() == Window.OK) {
 			scripts.setBeforeScanScript(dialog.getBeforeScanScript());
@@ -81,7 +82,7 @@ public class ScriptFilesSection extends AbstractMappingSection {
 	}
 
 	private void updateSummaryText() {
-		IScriptFiles scripts = getMappingBean().getScriptFiles();
+		IScriptFiles scripts = getBean().getScriptFiles();
 		StringBuilder summary = new StringBuilder();
 		boolean beforeSet = Objects.nonNull(scripts.getBeforeScanScript()) && !scripts.getBeforeScanScript().isEmpty();
 		boolean afterSet = Objects.nonNull(scripts.getAfterScanScript()) && !scripts.getAfterScanScript().isEmpty();

@@ -55,14 +55,10 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 
 	private CopyScanConfig copyScanConfig = null;
 
-	protected SubmitScanSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView);
-	}
-
 	@Override
 	public void createControls(Composite parent) {
 		// TODO reuse code from mapping SubmitScanSection
-		createSeparator(parent);
+		super.createControls(parent);
 
 		final Composite sectionComposite = createComposite(parent, 2, true);
 		createSubmitSection(sectionComposite);
@@ -92,7 +88,7 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 	}
 
 	private void copyScanToClipboard() {
-		final CopyScanWizard copyScanWizard = new CopyScanWizard(tomoView.createScanBean(), getCopyScanConfig());
+		final CopyScanWizard copyScanWizard = new CopyScanWizard(getView().createScanBean(), getCopyScanConfig());
 		new CopyScanWizardDialog(getShell(), copyScanWizard).open();
 	}
 
@@ -112,8 +108,8 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 			final String json = new String(bytes, StandardCharsets.UTF_8);
 			final IMarshallerService marshaller = getService(IMarshallerService.class);
 			final TensorTomoScanBean tomoBean = marshaller.unmarshal(json, TensorTomoScanBean.class);
-			tomoView.setTomoBean(tomoBean);
-			tomoView.refreshView();
+			getView().setBean(tomoBean);
+			getView().refreshView();
 		} catch (Exception e) {
 			final String errorMessage = "Could not load a tomography scan from file: " + filename;
 			logger.error(errorMessage, e);
@@ -130,7 +126,7 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 		// or should we do it anyway, in case this view is used by other beamlines?
 		final IMarshallerService marshaller = getService(IMarshallerService.class);
 		try {
-			final String json = marshaller.marshal(getTomoBean());
+			final String json = marshaller.marshal(getBean());
 			Files.write(Paths.get(filename), json.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
 		} catch (Exception e) {
 			final String errorMessage = "Could not save the tomo scan to file: " + filename;
@@ -157,7 +153,7 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 	}
 
 	private void submitScan() {
-		tomoView.submitScan();
+		getView().submitScan();
 	}
 
 }

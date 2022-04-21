@@ -82,8 +82,8 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	@Override
 	protected void submitScan() {
 		final IScriptService scriptService = getService(IScriptService.class);
-		final ScanRequest scanRequest = getScanRequest(getMappingBean());
-		final XanesEdgeParametersSection paramsSection = getMappingView().getSection(XanesEdgeParametersSection.class);
+		final ScanRequest scanRequest = getScanRequest(getBean());
+		final XanesEdgeParametersSection paramsSection = getView().getSection(XanesEdgeParametersSection.class);
 		final XanesEdgeParameters xanesEdgeParameters = paramsSection.getScanParameters();
 
 		if (xanesEdgeParameters.isEnforcedShape()) {
@@ -161,13 +161,13 @@ public class XanesSubmitScanSection extends SubmitScanToScriptSection {
 	 *            <code>true</code> to show the section, <code>false</code> to hide it
 	 */
 	private void setParametersVisibility(boolean visible) {
-		final XanesEdgeParametersSection xanesParams = getMappingView().getSection(XanesEdgeParametersSection.class);
+		final XanesEdgeParametersSection xanesParams = getView().getSection(XanesEdgeParametersSection.class);
 
 		if (xanesParams == null) {
 			logger.error("No XANES parameters section found");
 		} else {
 			xanesParams.setVisible(visible);
-			relayoutMappingView();
+			relayoutView();
 		}
 	}
 

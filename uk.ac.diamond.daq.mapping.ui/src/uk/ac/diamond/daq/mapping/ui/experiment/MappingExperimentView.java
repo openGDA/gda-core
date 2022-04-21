@@ -18,21 +18,17 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.net.URI;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.PersistState;
@@ -46,7 +42,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.OpenRequest;
@@ -60,13 +55,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ClassToInstanceMap;
-import com.google.common.collect.MutableClassToInstanceMap;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
@@ -76,6 +67,9 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
+import uk.ac.diamond.daq.mapping.ui.AbstractSectionView;
+import uk.ac.diamond.daq.mapping.ui.ISectionView;
+import uk.ac.diamond.daq.mapping.ui.IViewSection;
 
 /**
  * An E4-style POJO class for the a view containing several sections view.
@@ -85,7 +79,7 @@ import uk.ac.diamond.daq.mapping.impl.ScanPathModelWrapper;
  * currently too extensive to allow easy mocking, and the real service cannot be obtained without breaking encapsulation
  * or running in an OSGi framework.
  */
-public class MappingExperimentView implements IAdaptable {
+public class MappingExperimentView extends AbstractSectionView<IMappingExperimentBean> implements IAdaptable {
 
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
 
@@ -100,8 +94,6 @@ public class MappingExperimentView implements IAdaptable {
 	private StatusPanel statusPanel;
 
 	@Inject
-	private IEclipseContext injectionContext;
-	@Inject
 	private ScanRequestConverter scanRequestConverter;
 
 	private ScrolledComposite scrolledComposite;
@@ -109,8 +101,6 @@ public class MappingExperimentView implements IAdaptable {
 	private Composite mainComposite;
 
 	private IRunnableDeviceService runnableDeviceService;
-
-	private final ClassToInstanceMap<IMappingSection> sections = MutableClassToInstanceMap.create();
 
 	private final MappingViewConfiguration mappingViewConfiguration;
 
@@ -122,21 +112,17 @@ public class MappingExperimentView implements IAdaptable {
 		Objects.requireNonNull(mappingViewConfiguration, "Cannot get MappingViewConfiguration");
 	}
 
-	public Shell getShell() {
-		return (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
-	}
-
 	@Focus
 	public void setFocus() {
 		handleSetFocus();
 	}
 
 	protected void handleSetFocus() {
-		if (sections != null) {
-			sections.get(RegionAndPathSection.class).setFocus();
-		}
+		final RegionAndPathSection section = getSection(RegionAndPathSection.class);
+		if (section != null) section.setFocus();
 	}
 
+	@Override
 	@PostConstruct
 	public void createView(Composite parent, MPart part) {
 
@@ -201,14 +187,14 @@ public class MappingExperimentView implements IAdaptable {
 	/**
 	 * These sections will be created on a scrollable composite (not always visible)
 	 */
-	protected List<IMappingSection> getScrolledSections() {
+	protected List<AbstractMappingSection> getScrolledSections() {
 		return mappingViewConfiguration.getScrolledSections();
 	}
 
 	/**
 	 * These sections are always visible
 	 */
-	protected List<IMappingSection> getUnscrolledSections() {
+	protected List<AbstractMappingSection> getUnscrolledSections() {
 		return mappingViewConfiguration.getUnscrolledSections();
 	}
 
@@ -218,7 +204,7 @@ public class MappingExperimentView implements IAdaptable {
 			final String json = part.getPersistedState().get(STATE_KEY_MAPPING_BEAN_JSON);
 			if (json != null) {
 				logger.trace("Restoring the previous state of the mapping view.");
-				final IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
+				final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 				try {
 					setMappingBean(marshaller.unmarshal(json, MappingExperimentBean.class));
 				} catch (Exception e) {
@@ -242,10 +228,11 @@ public class MappingExperimentView implements IAdaptable {
 		}
 	}
 
+	@Override
 	@PersistState
 	public void saveState(MPart part) {
 		// serialize the json bean and save it in the preferences
-		final IMarshallerService marshaller = injectionContext.get(IMarshallerService.class);
+		final IMarshallerService marshaller = getEclipseContext().get(IMarshallerService.class);
 		try {
 			logger.trace("Saving the current state of the mapping view.");
 			final String json = marshaller.marshal(mappingBeanProvider.getMappingExperimentBean());
@@ -255,34 +242,8 @@ public class MappingExperimentView implements IAdaptable {
 		}
 
 		// Now save any other persistent data that is outside the mapping bean
-		for (IMappingSection section : sections.values()) {
+		for (IViewSection<IMappingExperimentBean, ISectionView<IMappingExperimentBean>> section : getAllSections()) {
 			section.saveState(part.getPersistedState());
-		}
-	}
-
-	private void createSections(Composite parent, List<IMappingSection> sectionsToCreate, Map<String, String> persistedState) {
-		for (IMappingSection section : sectionsToCreate) {
-			final String sectionName = section.getClass().getSimpleName();
-			logger.debug("Creating mapping section {}", sectionName);
-			try {
-				section.initialize(this);
-				sections.put(section.getClass(), section);
-				section.loadState(persistedState);
-				section.createControls(parent);
-			} catch (Exception e) {
-				logger.error("Error creating mapping section {}", sectionName, e);
-			}
-		}
-	}
-
-	@PreDestroy
-	public final void dispose() {
-		disposeInternal();
-	}
-
-	protected void disposeInternal() {
-		for (IMappingSection section : sections.values()) {
-			section.dispose();
 		}
 	}
 
@@ -325,8 +286,7 @@ public class MappingExperimentView implements IAdaptable {
 		logger.info("Open Request, Received an open request for ScanBean with the name: {}", scanName);
 
 		// Confirm whether this scan should be opened as it will overwrite the contents of the view
-		Shell shell = (Shell) injectionContext.get(IServiceConstants.ACTIVE_SHELL);
-		boolean confirm = MessageDialog.openConfirm(shell, "Open Mapping Scan",
+		boolean confirm = MessageDialog.openConfirm(getShell(), "Open Mapping Scan",
 				MessageFormat.format("Do you want to open the scan ''{0}'' in the Mapping Experiment Setup view?\n"
 				+ "This will overwrite the current contents of this view.", scanName));
 		if (!confirm) {
@@ -355,7 +315,7 @@ public class MappingExperimentView implements IAdaptable {
 			logger.error("Error merging scan request into mapping bean.", e);
 			final String errorMessage = MessageFormat.format(
 					"Could not open scan {0}. Could not recreate the mapping view from the queued scan. See the error log for more details.", scanName);
-			MessageDialog.openError(shell, "Open Results", errorMessage);
+			MessageDialog.openError(getShell(), "Open Results", errorMessage);
 		}
 	}
 
@@ -364,36 +324,23 @@ public class MappingExperimentView implements IAdaptable {
 		mappingBeanProvider.setSetByView(true);
 	}
 
-	public void updateControls() {
-		for (IMappingSection section : sections.values()) {
-			section.updateControls();
-		}
-		relayout();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends AbstractMappingSection> T getSection(Class<T> sectionClass) {
-		return (T) sections.get(sectionClass);
-	}
-
-	public IEclipseContext getEclipseContext() {
-		return injectionContext;
-	}
-
 	protected Composite getMainComposite() {
 		return mainComposite;
 	}
 
+	@Override
 	public IMappingExperimentBean getBean() {
 		return mappingBeanProvider.getMappingExperimentBean();
 	}
 
+	@Override
 	public void updateStatusLabel() {
 		if (statusPanel != null) {
 			statusPanel.updateStatusLabel();
 		}
 	}
 
+	@Override
 	public void setStatusMessage(String message) {
 		if (statusPanel != null) {
 			statusPanel.setMessage(message);
@@ -404,8 +351,10 @@ public class MappingExperimentView implements IAdaptable {
 		scrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	protected void relayout() {
+	@Override
+	public void relayout() {
 		mainComposite.layout(true, true);
+		recalculateMinimumSize();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -429,28 +378,16 @@ public class MappingExperimentView implements IAdaptable {
 		return getRemoteService(IScannableDeviceService.class);
 	}
 
-	private <T> T getRemoteService(Class<T> klass) {
-		IEventService eventService = injectionContext.get(IEventService.class);
-		try {
-			URI jmsURI = new URI(LocalProperties.getActiveMQBrokerURI());
-			return eventService.createRemoteService(jmsURI, klass);
-		} catch (Exception e) {
-			logger.error("Error getting remote service {}", klass, e);
-			return null;
-		}
-	}
-
 	public void detectorSelectionChanged(List<IScanModelWrapper<IDetectorModel>> selectedDetectors) {
-		RegionAndPathSection section = (RegionAndPathSection) sections.get(RegionAndPathSection.class);
+		RegionAndPathSection section = getSection(RegionAndPathSection.class);
 		if (Objects.isNull(section)) return;
 		section.detectorsChanged(selectedDetectors);
 	}
 
 	protected void redrawRegionAndPathComposites() {
-		RegionAndPathSection section = (RegionAndPathSection) sections.get(RegionAndPathSection.class);
+		RegionAndPathSection section = getSection(RegionAndPathSection.class);
 		if (Objects.isNull(section)) return;
 		section.rebuildMappingSection();
-
 	}
 
 	public void showControl(Control control) {

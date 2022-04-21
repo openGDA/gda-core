@@ -24,6 +24,7 @@ import java.util.Set;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
@@ -53,12 +54,10 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 
 	@Override
 	public void createControls(Composite parent) {
-		final Composite main = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(2).equalWidth(true).applyTo(main);
+		final Composite main = createComposite(parent, 2, true);
+		((GridLayout) main.getLayout()).makeColumnsEqualWidth = true;
 
 		GridDataFactory stretch = GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
-		stretch.applyTo(main);
-
 		final Button dark = new Button(main, SWT.CHECK);
 		dark.setText("Collect dark field");
 		stretch.applyTo(dark);
@@ -80,11 +79,6 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 			flat.addListener(SWT.Selection, event -> toggle(flat.getSelection(), flatFieldCollectorName));
 			flat.setSelection(getInitialSelectionState(flatFieldCollectorName, collectFlatByDefault));
 		}
-	}
-
-	@Override
-	public boolean createSeparator() {
-		return true;
 	}
 
 	/**
@@ -120,17 +114,17 @@ public class DarksAndFlatsSection extends AbstractMappingSection {
 
 	private void add(String collectorName, Set<String> monitors) {
 		monitors.add(collectorName);
-		getMappingBean().setPerScanMonitorNames(monitors);
+		getBean().setPerScanMonitorNames(monitors);
 	}
 
 	private void remove(String collectorName) {
 		final Set<String> monitors = getMonitors();
 		monitors.remove(collectorName);
-		getMappingBean().setPerScanMonitorNames(monitors);
+		getBean().setPerScanMonitorNames(monitors);
 	}
 
 	private Set<String> getMonitors() {
-		Set<String> monitors = getMappingBean().getPerScanMonitorNames();
+		Set<String> monitors = getBean().getPerScanMonitorNames();
 		if (monitors == null) {
 			monitors = new HashSet<>();
 		}

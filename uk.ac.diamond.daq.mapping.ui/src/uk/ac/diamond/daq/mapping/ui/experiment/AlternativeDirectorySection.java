@@ -28,7 +28,6 @@ import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
 import static uk.ac.gda.ui.tool.ClientMessages.NOT_A_DIRECTORY;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientButton;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientText;
 
@@ -37,7 +36,6 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 
 import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -83,10 +81,9 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
-		dataBindingContext = new DataBindingContext();
-		final IMappingExperimentBean mappingBean = getMappingBean();
+		final IMappingExperimentBean mappingBean = getBean();
 
-		final Composite tempDirectoryComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, NUM_COLUMNS);
+		final Composite tempDirectoryComposite = createComposite(parent, NUM_COLUMNS, true);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(tempDirectoryComposite);
 
 		useCheck = createClientButton(tempDirectoryComposite, SWT.CHECK, ALTERNATIVE_DIRECTORY_USE, ALTERNATIVE_DIRECTORY_USE_TP);
@@ -111,7 +108,7 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 		// Data binding for the check box
 		final IObservableValue<Boolean> useCheckBoxModelObservable = BeanProperties.value(DirectoryModel.class, "use", Boolean.class).observe(directoryModel);
 		final IObservableValue<Boolean> useCheckBoxWidgetObservable = WidgetProperties.buttonSelection().observe(useCheck);
-		dataBindingContext.bindValue(useCheckBoxWidgetObservable, useCheckBoxModelObservable);
+		getDataBindingContext().bindValue(useCheckBoxWidgetObservable, useCheckBoxModelObservable);
 
 		// When the user changes the text box, check that the directory exists
 		final UpdateValueStrategy<String, String> setDirectoryStrategy = new UpdateValueStrategy<>();
@@ -134,7 +131,7 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 		// Data binding for the text box
 		final IObservableValue<String> directoryModelObservable = BeanProperties.value(DirectoryModel.class, "directory", String.class).observe(directoryModel);
 		final IObservableValue<String> directoryWidgetObservable = WidgetProperties.text(SWT.Modify).observe(directoryText);
-		directoryBinding = dataBindingContext.bindValue(directoryWidgetObservable, directoryModelObservable, setDirectoryStrategy, setTextBoxStrategy);
+		directoryBinding = getDataBindingContext().bindValue(directoryWidgetObservable, directoryModelObservable, setDirectoryStrategy, setTextBoxStrategy);
 		ControlDecorationSupport.create(directoryBinding, SWT.ARROW_LEFT | SWT.TOP);
 	}
 
@@ -182,12 +179,12 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 
 		@SuppressWarnings("unused")
 		public String getDirectory() {
-			return getMappingBean().getAlternativeDirectory();
+			return getBean().getAlternativeDirectory();
 		}
 
 		@SuppressWarnings("unused")
 		public void setDirectory(String directory) {
-			final IMappingExperimentBean mappingBean = getMappingBean();
+			final IMappingExperimentBean mappingBean = getBean();
 			final String oldDirectory = mappingBean.getAlternativeDirectory();
 			mappingBean.setAlternativeDirectory(directory);
 			changeSupport.firePropertyChange("directory", oldDirectory, directory);
@@ -195,12 +192,12 @@ public class AlternativeDirectorySection extends AbstractMappingSection {
 
 		@SuppressWarnings("unused")
 		public boolean isUse() {
-			return getMappingBean().isUseAlternativeDirectory();
+			return getBean().isUseAlternativeDirectory();
 		}
 
 		@SuppressWarnings("unused")
 		public void setUse(boolean use) {
-			getMappingBean().setUseAlternativeDirectory(use);
+			getBean().setUseAlternativeDirectory(use);
 			AlternativeDirectorySection.this.directoryBinding.validateTargetToModel();
 		}
 	}

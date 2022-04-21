@@ -21,10 +21,12 @@ package uk.ac.diamond.daq.mapping.ui.experiment;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
+
 /**
- * Abstract class that can be used as a base for classes that implement {@link HideableMappingSection}
+ * Abstract class that can be used as a base for classes that implement {@link HideableViewSection}
  */
-public abstract class AbstractHideableMappingSection extends AbstractMappingSection implements HideableMappingSection {
+public abstract class AbstractHideableMappingSection extends AbstractMappingSection implements HideableViewSection<IMappingExperimentBean, MappingExperimentView> {
 
 	protected Composite content;
 

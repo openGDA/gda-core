@@ -128,11 +128,11 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 
 		// Select XRF/Imaging detector: deselect other detectors
 		// Ideally, all other detectors should be hidden, but there is currently no way to do this.
-		getMappingBean().getDetectorParameters().stream()
+		getBean().getDetectorParameters().stream()
 			.forEach(d -> d.setIncludeInScan(d.getName().equals(detectorName)));
 
 		// Redraw mapping section
-		getMappingView().updateControls();
+		getView().updateControls();
 
 		// Set initial resolution
 		if (defaultToHighResolution) {
@@ -153,7 +153,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	 * @return the model, or {@code null} in the (unlikely) event that none is configured in the client.
 	 */
 	private TwoAxisGridStepModel getRasterStepModel() {
-		final IScanPointGeneratorModel scanPath = getMappingBean().getScanDefinition().getMappingScanRegion().getScanPath();
+		final IScanPointGeneratorModel scanPath = getBean().getScanDefinition().getMappingScanRegion().getScanPath();
 		if (scanPath instanceof TwoAxisPtychographyModel) {
 			return (TwoAxisGridStepModel) scanPath;
 		}
@@ -173,7 +173,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	@Override
 	protected void submitScan() {
 		final IScriptService scriptService = getService(IScriptService.class);
-		final ScanRequest scanRequest = getScanRequest(getMappingBean());
+		final ScanRequest scanRequest = getScanRequest(getBean());
 		try {
 			final IMarshallerService marshallerService = getService(IMarshallerService.class);
 			scriptService.setNamedValue(VAR_NAME_SCAN_REQUEST_JSON, marshallerService.marshal(scanRequest));

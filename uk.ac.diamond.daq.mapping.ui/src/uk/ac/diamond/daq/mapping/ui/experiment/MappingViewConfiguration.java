@@ -28,8 +28,8 @@ import uk.ac.diamond.daq.osgi.OsgiService;
 @OsgiService(MappingViewConfiguration.class)
 public class MappingViewConfiguration extends ConfigurableBase {
 
-	private List<IMappingSection> scrolledSections;
-	private List<IMappingSection> unscrolledSections;
+	private List<AbstractMappingSection> scrolledSections;
+	private List<AbstractMappingSection> unscrolledSections;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -38,19 +38,19 @@ public class MappingViewConfiguration extends ConfigurableBase {
 		setConfigured(true);
 	}
 
-	public List<IMappingSection> getScrolledSections() {
+	public List<AbstractMappingSection> getScrolledSections() {
 		return scrolledSections;
 	}
 
-	public void setScrolledSections(List<IMappingSection> scrolledSections) {
+	public void setScrolledSections(List<AbstractMappingSection> scrolledSections) {
 		this.scrolledSections = scrolledSections;
 	}
 
-	public List<IMappingSection> getUnscrolledSections() {
+	public List<AbstractMappingSection> getUnscrolledSections() {
 		return unscrolledSections;
 	}
 
-	public void setUnscrolledSections(List<IMappingSection> unscrolledSections) {
+	public void setUnscrolledSections(List<AbstractMappingSection> unscrolledSections) {
 		this.unscrolledSections = unscrolledSections;
 	}
 

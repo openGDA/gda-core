@@ -153,7 +153,7 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 	 *            <code>true</code> to select the motor, <code>false</code> to deselect it
 	 */
 	protected void selectOuterScannable(String scannableName, boolean select) {
-		final MappingExperimentView mappingView = getMappingView();
+		final MappingExperimentView mappingView = getView();
 		final OuterScannablesSection outerScannablesSection = mappingView.getSection(OuterScannablesSection.class);
 		if (outerScannablesSection == null) {
 			logger.error("OuterScannablesSection not found");

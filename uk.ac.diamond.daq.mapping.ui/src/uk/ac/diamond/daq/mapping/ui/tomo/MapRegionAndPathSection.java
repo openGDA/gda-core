@@ -73,7 +73,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 	private static final String X_AXIS_LABEL = "X";
 	private static final String Y_AXIS_LABEL = "Y";
 
-	private final Map<GridPathType, AbstractTwoAxisGridModel> pathModels;
+	private Map<GridPathType, AbstractTwoAxisGridModel> pathModels;
 
 	private Composite regionEditorComposite;
 	private Composite pathEditorComposite;
@@ -85,20 +85,21 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 
 	private Map<GridPathType, Button> gridPathTypeRadioButtons;
 
-	protected MapRegionAndPathSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView);
+	@Override
+	public void initialize(TensorTomoScanSetupView view) {
+		super.initialize(view);
 		mappingStageInfo = getService(MappingStageInfo.class);
 		pathModels = initializePathModels();
 	}
 
 	private Map<GridPathType, AbstractTwoAxisGridModel> initializePathModels() {
 		final Map<GridPathType, AbstractTwoAxisGridModel> pathModels = new EnumMap<>(GridPathType.class);
-		final GridPathType initialType = GridPathType.forModelClass(getTomoBean().getGridPathModel().getClass());
+		final GridPathType initialType = GridPathType.forModelClass(getBean().getGridPathModel().getClass());
 		for (GridPathType gridPathType : GridPathType.values()) {
 			try {
 				final AbstractTwoAxisGridModel pathModel;
 				if (gridPathType == initialType) {
-					pathModel = getTomoBean().getGridPathModel();
+					pathModel = getBean().getGridPathModel();
 				} else {
 					pathModel = gridPathType.modelClass.getDeclaredConstructor().newInstance();
 					pathModel.setxAxisName(mappingStageInfo.getPlotXAxisName());
@@ -115,7 +116,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 
 	@Override
 	public void createControls(Composite parent) {
-		createSeparator(parent);
+		super.createControls(parent);
 
 		final Composite composite = createComposite(parent, 1, true);
 		createUpperControls(composite);
@@ -138,7 +139,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 		final Button redrawRegionButton = new Button(composite, SWT.NONE);
 		redrawRegionButton.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/map--pencil.png")));
 		redrawRegionButton.setToolTipText("Draw/Redraw region");
-		redrawRegionButton.addSelectionListener(widgetSelectedAdapter(e -> tomoView.drawMappingRegion()));
+		redrawRegionButton.addSelectionListener(widgetSelectedAdapter(e -> getView().drawMappingRegion()));
 	}
 
 	protected void createRegionAndPathEditors(final Composite parent) {
@@ -156,7 +157,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 		final Label pathTypeLabel = new Label(pathTypeChoiceComposite, SWT.NONE);
 		pathTypeLabel.setText("Path Type:");
 
-		final GridPathType initialPathType = GridPathType.forModelClass(getTomoBean().getGridPathModel().getClass());
+		final GridPathType initialPathType = GridPathType.forModelClass(getBean().getGridPathModel().getClass());
 		gridPathTypeRadioButtons = new EnumMap<>(GridPathType.class);
 		for (GridPathType gridPathType : GridPathType.values()) {
 			final Button gridPathTypeButton = new Button(pathTypeChoiceComposite, SWT.RADIO);
@@ -174,9 +175,9 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 
 	private void gridPathTypeSelected(GridPathType gridPathType) {
 		if (gridPathTypeRadioButtons.get(gridPathType).getSelection()) {
-			getTomoBean().setGridPathModel(pathModels.get(gridPathType));
+			getBean().setGridPathModel(pathModels.get(gridPathType));
 			createPathEditor();
-			tomoView.relayout();
+			getView().relayout();
 		}
 	}
 
@@ -186,7 +187,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 		}
 
 		pathEditor = (AbstractGridPathEditor) PathEditorProvider.createPathComposite(
-				getTomoBean().getGridPathModel(), getEclipseContext());
+				getBean().getGridPathModel(), getEclipseContext());
 		pathEditor.setAxisScannableNames(mappingStageInfo.getPlotXAxisName(), mappingStageInfo.getPlotYAxisName());
 		pathEditor.setAxisLabels(X_AXIS_LABEL, Y_AXIS_LABEL);
 		pathEditor.setOptionsToDisplay(Set.of(CommonPathOption.ALTERNATING));
@@ -211,7 +212,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 		final Map<String, String> regionUnits = Map.of(xAxisName, UNITS_MILLIMETRES,
 				yAxisName, UNITS_MILLIMETRES);
 		regionEditor = (RectangleRegionEditor) RegionEditorProvider.createRegionEditor(
-				getTomoBean().getGridRegionModel(), regionUnits, getEclipseContext());
+				getBean().getGridRegionModel(), regionUnits, getEclipseContext());
 		regionEditor.setAxisScannableNames(xAxisName, yAxisName);
 		regionEditor.setAxisLabels(X_AXIS_LABEL, Y_AXIS_LABEL);
 		regionEditor.setUnitsEditable(false);
@@ -219,14 +220,14 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 	}
 
 	@Override
-	protected void updateControls() {
+	public void updateControls() {
 		createRegionEditor();
 		createPathEditor();
 
-		final GridPathType newGridPathType = GridPathType.forModelClass(getTomoBean().getGridPathModel().getClass());
+		final GridPathType newGridPathType = GridPathType.forModelClass(getBean().getGridPathModel().getClass());
 		Arrays.stream(GridPathType.values())
 			.forEach(type -> gridPathTypeRadioButtons.get(type).setSelection(type == newGridPathType));
-		tomoView.relayout();
+		getView().relayout();
 	}
 
 }
