@@ -74,7 +74,6 @@ import gda.device.Motor;
 import gda.device.Scannable;
 import gda.device.Stoppable;
 import gda.factory.ConfigurableAware;
-import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -118,7 +117,7 @@ import uk.ac.gda.api.remoting.ServiceInterface;
  * ICurrentScanHolder, IJythonServerNotifer, and IDefaultScannableProvider interfaces.
  */
 @ServiceInterface(Jython.class)
-public class JythonServer extends ConfigurableBase implements LocalJython, ITerminalInputProvider, TextCompleter, ConfigurableAware {
+public class JythonServer implements LocalJython, ITerminalInputProvider, TextCompleter, ConfigurableAware {
 
 	private static final Logger logger = LoggerFactory.getLogger(JythonServer.class);
 
@@ -173,6 +172,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	private boolean stopJythonScannablesOnStopAll = true;
 
 	private final Set<Terminal> myTerminals = new CopyOnWriteArraySet<>();
+
+	private boolean initialised = false;
 
 	/**
 	 * Provide access to the Jython interpreter, so we can test whether it's configured correctly.
@@ -238,9 +239,8 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 		this.messageHandler = messageHandler;
 	}
 
-	@Override
-	public void configure() throws FactoryException {
-		if (!isConfigured()) {
+	private void initialise() throws FactoryException {
+		if (!initialised) {
 			if (messageHandler == null) {
 				final InMemoryMessageHandler memoryMessageHandler = new InMemoryMessageHandler();
 				memoryMessageHandler.setMaxMessagesPerVisit(10);
@@ -256,8 +256,14 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 			} catch (Exception e) {
 				throw new FactoryException("Could not create interpreter", e);
 			}
-			setConfigured(true);
+			initialised = true;
 		}
+	}
+
+
+	@Override
+	public void preConfigure() throws FactoryException {
+		initialise();
 	}
 
 	@Override
@@ -299,9 +305,9 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	}
 
 	void checkStateForRunCommand() {
-		// only allow if configured or initialised or runningLocalStation
-		if (!isConfigured()) {
-			throw new IllegalStateException("JythonServer is not configured yet.");
+		// only allow if initialised
+		if (!initialised) {
+			throw new IllegalStateException("JythonServer is not initialised yet.");
 		}
 	}
 
@@ -676,14 +682,14 @@ public class JythonServer extends ConfigurableBase implements LocalJython, ITerm
 	}
 
 	public void restart() {
-		setConfigured(false);
+		initialised = false;
 		interruptThreads();
 		callResetHooks();
 		defaultScannables.clear();
 
 		try {
 			bufferedLocalStationOutput = new StringBuilder();
-			configure();
+			initialise();
 			runStartupScript();
 		} catch (FactoryException e) {
 			logger.error("Error while restarting the Jython interpreter. Fix the problem and then restart GDA immediately", e);

@@ -70,6 +70,9 @@ public class ConfigurableBeanTracker extends BeanPostProcessorAdapter implements
 	/**
 	 * Configure all {@link Configurable} beans in the application context.
 	 * Any errors are caught and, depending on configuration, possibly ignored
+	 * @param allowExceptions allow startup even if not all beans configure successfully.
+	 *         This does not apply to {@link ConfigurableAware#preConfigure()} or
+	 *         {@link ConfigurableAware#postConfigure()} which always cause failure
 	 * @throws FactoryException if any configure method throws an exception and this server
 	 *         is configured to rethrow configuration errors.
 	 * @see FactoryBase#GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE
@@ -121,8 +124,10 @@ public class ConfigurableBeanTracker extends BeanPostProcessorAdapter implements
 		return order.entrySet().iterator();
 	}
 	/** Call preConfigure on all ConfigurableAware beans */
-	private void preConfigure() {
-		aware.forEach(safeExec(ConfigurableAware::preConfigure));
+	private void preConfigure() throws FactoryException {
+		for (var a : aware) {
+			a.preConfigure();
+		}
 	}
 	/** Call preConfigureBean on all ConfigurableAware beans */
 	private void preConfigureBean(Configurable bean) {
@@ -137,11 +142,13 @@ public class ConfigurableBeanTracker extends BeanPostProcessorAdapter implements
 		aware.forEach(safeExec(a -> a.postConfigureBean(bean, error)));
 	}
 	/** Call postConfigure on all ConfigurableAware beans */
-	private void postConfigure() {
-		aware.forEach(safeExec(ConfigurableAware::postConfigure));
+	private void postConfigure() throws FactoryException {
+		for (var a : aware) {
+			a.postConfigure();
+		}
 	}
 	/** Run a ConfigurableAware method safely, preventing any exceptions interrupting configure process */
-	private Consumer<ConfigurableAware> safeExec(Consumer<ConfigurableAware> method) {
+	private Consumer<ConfigurableAware> safeExec(ConfigurableAwareMethod method) {
 		return listener -> {
 			try {
 				method.accept(listener);
@@ -149,5 +156,10 @@ public class ConfigurableBeanTracker extends BeanPostProcessorAdapter implements
 				logger.error("Failed to run configurable aware task", e);
 			}
 		};
+	}
+
+	@FunctionalInterface
+	private interface ConfigurableAwareMethod {
+	   void accept(ConfigurableAware t) throws FactoryException;
 	}
 }
