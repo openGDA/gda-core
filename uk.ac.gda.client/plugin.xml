@@ -970,6 +970,12 @@
             id="uk.ac.gda.client.liveplot"
             name="Live Plot">
       </page>
+      <page
+            category="org.dawb.workbench.ui.visualizationPreferences"
+            class="uk.ac.gda.client.livecontrol.LiveControlPreferencePage"
+            id="uk.ac.gda.client.liveControlPreferences"
+            name="Live Controls">
+      </page>
    </extension>
    <extension
          point="uk.ac.gda.common.path.constructor">

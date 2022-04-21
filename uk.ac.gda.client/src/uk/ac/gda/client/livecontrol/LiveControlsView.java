@@ -19,7 +19,9 @@
 package uk.ac.gda.client.livecontrol;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -42,6 +44,7 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.factory.Findable;
 import gda.factory.Finder;
+import gda.rcp.GDAClientActivator;
 
 public class LiveControlsView extends ViewPart {
 
@@ -79,9 +82,10 @@ public class LiveControlsView extends ViewPart {
 			return;
 		}
 
+		boolean merged = GDAClientActivator.getDefault().getPreferenceStore().getBoolean(LiveControlPreferencePage.GDA_SHOW_ALL_CONTROLSETS_IN_SINGLE_VIEW);
 		// Try to open view from secondary Id - this should be the name of the ControlSet object to be used for the view
 		String secondaryId = getViewSite().getSecondaryId();
-		if (secondaryId != null) {
+		if (secondaryId != null && !merged) {
 			controlSets.stream()
 				.filter(s -> s.getName().equals(secondaryId))
 				.findFirst()
@@ -91,12 +95,25 @@ public class LiveControlsView extends ViewPart {
 			return;
 		}
 
-		// Show a dialog to allow user to select a control set
 		if (controlSets.size() > 1) {
-			selectControlSet(parent, controlSets);
+			if (merged) {
+				createControlsView(parent, merge(controlSets));
+			} else {
+				// Show a dialog to allow user to select a control set
+				selectControlSet(parent, controlSets);
+			}
 		} else {
 			createControlsView(parent, controlSets.get(0));
 		}
+	}
+
+	private ControlSet merge(List<ControlSet> controlSets) {
+		String name = controlSets.stream().map(ControlSet::getName).collect(Collectors.joining("_"));
+		List<LiveControl> collect = controlSets.stream().map(ControlSet::getControls).flatMap(Collection::stream).collect(Collectors.toList());
+		ControlSet controlset = new ControlSet();
+		controlset.setControls(collect);
+		controlset.setName(name);
+		return controlset;
 	}
 
 	/**
@@ -117,7 +134,7 @@ public class LiveControlsView extends ViewPart {
 			}
 		});
 		dialog.setInput(controlSets);
-		dialog.setTitle("Select name of the Live Cotrols view to open");
+		dialog.setTitle("Select name of the Live Controls view to open");
 		dialog.setBlockOnOpen(true);
 		if (dialog.open() == Window.OK) {
 			ControlSet selectedControlSet = (ControlSet) dialog.getResult()[0];
