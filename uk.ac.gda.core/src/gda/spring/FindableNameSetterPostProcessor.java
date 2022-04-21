@@ -59,7 +59,7 @@ public class FindableNameSetterPostProcessor extends BeanPostProcessorAdapter {
 				throw new RuntimeException("Name of bean " + StringUtils.quote(beanName) + " could not be set");
 			}
 		} else if (!findable.getName().equals(beanName)) {
-			logger.warn("Bean '{}' has id that doesn't match name ('{}')", beanName, findable.getName());
+			logger.info("Bean '{}' has id that doesn't match name ('{}')", beanName, findable.getName());
 		}
 	}
 
