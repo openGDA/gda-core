@@ -57,6 +57,7 @@ public class OdinMultipleFileStrategy implements OdinStrategy {
 	public void prepareWriterForScan(String detName, int scanNumber, double collectionTime) throws DeviceException {
 		controller.setOffsetAndUid(0, 0);
 		controller.prepareDataWriter(1);
+		controller.setNumImages(1);
 		controller.prepareCamera(1, collectionTime, 0.0, imageMode, triggerMode);
 		fileDirectory = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		filePrefix = String.format("%sScan%dPoint", detName, scanNumber);

@@ -120,4 +120,9 @@ public abstract class OdinDetectorDecorator extends DeviceBase implements OdinDe
 		controller.waitForWrittenFrames(noFrames);
 	}
 
+	@Override
+	public void setNumImages(int numImages) throws DeviceException {
+		controller.setNumImages(numImages);
+	}
+
 }

@@ -79,11 +79,12 @@ public class OdinSingleFileStrategy implements OdinStrategy {
 	public void prepareWriterForScan(String detName, int scanNumber, double collectionTime) throws DeviceException {
 		int noPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
 		controller.prepareDataWriter(noPoints);
-		controller.prepareCamera(1, collectionTime, 0.0, imageMode, triggerMode);
 		fileDirectory = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		filePrefix = String.format("%sScan%d", detName, scanNumber);
 		controller.setDataOutput(fileDirectory, filePrefix);
 		controller.startRecording();
+		controller.setNumImages(1);
+		controller.prepareCamera(noPoints, collectionTime, 0.0, imageMode, triggerMode);
 	}
 
 	/**

@@ -110,4 +110,6 @@ public interface OdinDetectorController {
 
 	void waitForWrittenFrames(int noFrames);
 
+	void setNumImages(int numImages) throws DeviceException;
+
 }

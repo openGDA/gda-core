@@ -244,8 +244,6 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 		double acquisition = requestedLiveTime + requestedDeadTime;
 		try {
-
-			numImages.putWait(1);
 			acquireTime.putWait(requestedLiveTime);
 			acquirePeriod.putWait(acquisition);
 			logger.debug("Set exposure times: {} x {}/{}ms", frames, requestedLiveTime, requestedDeadTime);
@@ -408,6 +406,16 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		} catch (IOException e) {
 			logger.error("Error reading detector PV", e);
 			return 0;
+		}
+	}
+
+
+	@Override
+	public void setNumImages(int numImages) throws DeviceException {
+		try {
+			this.numImages.putWait(numImages);
+		} catch (IOException e) {
+			throw new DeviceException("Could not set numImages");
 		}
 	}
 

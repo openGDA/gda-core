@@ -114,4 +114,10 @@ public class OdinDetectorControllerDummy implements OdinDetectorController {
 	public void waitForWrittenFrames(int noFrames) {
 	}
 
+	@Override
+	public void setNumImages(int numImages) {
+		// TODO Auto-generated method stub
+
+	}
+
 }
