@@ -18,9 +18,13 @@
 
 package uk.ac.gda.devices.odin.control;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +53,9 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 	private boolean configured;
 	private String basePv;
-
 	private String fileWriterDataType;
+	private List<OdinDataWriter> dataWriters;
+	private int numDataWriters;
 
 	private PV<String> dataDirectory;
 	private PV<String> fileName;
@@ -66,10 +71,6 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 	private ReadOnlyPV<String> odFpFileName;
 	private ReadOnlyPV<String> odAcquisitionId;
 	private ReadOnlyPV<Integer> odinFramesCaptured;
-	private ReadOnlyPV<String> fp1ErrorState;
-	private ReadOnlyPV<String> fp2ErrorState;
-	private PV<Integer> fp1ClearErrors;
-	private PV<Integer> fp2ClearErrors;
 	private PV<Double> acquireTime;
 	private PV<Double> acquirePeriod;
 	private ReadOnlyPV<String> dataWriter;
@@ -126,12 +127,11 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			odDataType = LazyPVFactory.newEnumPV(basePv + "OD:DataType", String.class);
 			odinFramesCaptured = LazyPVFactory.newReadOnlyIntegerPV(basePv + "OD:NumCaptured_RBV");
 			framesPerBlock = LazyPVFactory.newIntegerPV(basePv + "OD:BlockSize");
-			fp1ErrorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD1:FPErrorMessage_RBV");
-			fp2ErrorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(basePv + "OD2:FPErrorMessage_RBV");
-			fp1ClearErrors = LazyPVFactory.newIntegerPV(basePv + "OD1:FPClearErrors");
-			fp2ClearErrors = LazyPVFactory.newIntegerPV(basePv + "OD2:FPClearErrors");
 			odinOffset = LazyPVFactory.newIntegerPV(basePv + "OD:OFF:Adjustment");
 			odinUid = LazyPVFactory.newIntegerPV(basePv + "OD:PARAM:UID:Adjustment");
+
+			// Create Data Writers
+			dataWriters = IntStream.rangeClosed(1, numDataWriters).mapToObj(OdinDataWriter::new).collect(toList());
 		}
 		configured = true;
 	}
@@ -278,14 +278,17 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 		}
 	}
 
+	public int getNumDataWriters() {
+		return numDataWriters;
+	}
+
+	public void setNumDataWriters(int numDataWriters) {
+		this.numDataWriters = numDataWriters;
+	}
+
 	private void checkWriterErrors() throws IOException {
-		String error1 = fp1ErrorState.get();
-		String error2 = fp2ErrorState.get();
-		if (error1 != null && !error1.isEmpty()) {
-			logger.warn("Data writer 1 was in error state: {}", error1);
-		}
-		if (error2 != null && !error2.isEmpty()) {
-			logger.warn("Data writer 2 was in error state: {}", error2);
+		for (var writer : dataWriters) {
+			writer.logError();
 		}
 	}
 
@@ -343,8 +346,9 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 
 		try {
 			// Clear any writer errors from previous run
-			fp1ClearErrors.putWait(1);
-			fp2ClearErrors.putWait(1);
+			for (var writer : dataWriters) {
+				writer.clearErrors();
+			}
 			fileWriterDataType = odDataType.get(); // Record this in case we need it later e.g. vds
 			// Ensure that the datawriter is set to receive frames of the correct size
 			odinFramesToCapture.putWait(frames);
@@ -418,6 +422,39 @@ public class OdinDetectorControllerEpics extends DeviceBase implements OdinDetec
 			logger.error("Wait interrupted", e);
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	/**
+	 * An Odin detector is deployed with a specific number of filewriters
+	 */
+	private class OdinDataWriter {
+		/** base PV including the ODx suffix e.g. BL07I-EA-EIGER-01:OD1: */
+		private String odBasePv;
+		private int id;
+
+		private ReadOnlyPV<String> errorState;
+		private PV<Integer> clearErrors;
+
+		public OdinDataWriter(int id) {
+			this.id = id;
+			this.odBasePv = String.format("%sOD%d:", basePv, id);
+
+			errorState = LazyPVFactory.newReadOnlyStringFromWaveformPV(odBasePv + "FPErrorMessage_RBV");
+			clearErrors = LazyPVFactory.newIntegerPV(odBasePv + "FPClearErrors");
+
+		}
+
+		public void clearErrors() throws IOException {
+			clearErrors.putWait(1);
+		}
+
+		public void logError() throws IOException {
+			String error = errorState.get();
+			if (error != null && !error.isEmpty()) {
+				logger.warn("Data writer {} was in error state: {}", id, error);
+			}
+		}
+
 	}
 
 
