@@ -2,7 +2,7 @@ from itertools import cycle, count
 import unittest
 from mock import MagicMock, Mock, call, patch
 from gda.configuration.properties import LocalProperties
-from test import roughly
+from bimorphtest import roughly
 import bimorph
 import ellipse
 import inspect

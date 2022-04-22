@@ -1,12 +1,12 @@
 import testhelpers.gda_test_harness
 import sys
 import unittest
-import test.all_tests
+import bimorphtest.all_tests
 
 def suite():
 	
 	suite = unittest.TestSuite()
-	suite.addTest(test.all_tests.suite())
+	suite.addTest(bimorphtest.all_tests.suite())
 	suite = UkAcGdaBimorphTestSuite.wrap(suite)
 	return suite
 

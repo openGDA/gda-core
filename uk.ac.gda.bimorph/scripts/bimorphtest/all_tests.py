@@ -1,6 +1,6 @@
 import unittest
 import bm_test
-from test import bm_optimising_test
+from bimorphtest import bm_optimising_test
 
 def suite():
 	loader = unittest.TestLoader()
