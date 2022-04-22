@@ -441,9 +441,9 @@ class TestRunOptimisation(unittest.TestCase):
         sfl().getSFH.assert_called_once_with()
         self.assertEqual(error_data, sfl().getSFH())
         
-    @patch('bimorph.PathConstructor')
+    @patch('bimorph.InterfaceProvider')
     @patch('bimorph.ScanFileLoader')
-    def test_get_error_data_without_data_directory(self, sfl, pc):
+    def test_get_error_data_without_data_directory(self, sfl, ip):
         self.ro.scanDir = None
         file_loader = Mock()
         def mock_file_loader(file_number, path):
@@ -452,7 +452,7 @@ class TestRunOptimisation(unittest.TestCase):
         sfl.side_effect = mock_file_loader
         error_data = self.ro.getErrorData()
 
-        sfl.assert_has_calls([call(1233, None), call(1233, pc().getDefaultDataDir())])
+        sfl.assert_has_calls([call(1233, None), call(1233, ip.getPathConstructor().getDefaultDataDir())])
         file_loader.getSFH.assert_called_once_with()
         self.assertEqual(file_loader.getSFH(), error_data)
         
