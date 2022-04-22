@@ -20,11 +20,8 @@ package uk.ac.diamond.daq.jyunit.test;
 
 import java.util.List;
 
-import org.junit.Ignore;
-
 import uk.ac.diamond.daq.jyunit.test.framework.JyUnitTestRunner;
 
-@Ignore("DAQ-3975 Tests currently failing")
 public class BimorphJyUnitTests extends JyUnitTestRunner {
 
 	@Override
