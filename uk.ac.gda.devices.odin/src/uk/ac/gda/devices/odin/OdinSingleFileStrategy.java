@@ -25,6 +25,7 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.devices.odin.control.OdinDetectorController;
 
 /**
  * This strategy is for the common case of writing a single hdf5 file per scan.

@@ -32,6 +32,7 @@ import gda.device.detector.NexusDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.devices.odin.control.OdinDetectorController;
 
 /**
  * Detector device for Odin containing a controller to communicate with hardware and a strategy

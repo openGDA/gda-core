@@ -30,6 +30,7 @@ import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.jython.InterfaceProvider;
+import uk.ac.gda.devices.odin.control.OdinDetectorController;
 
 /**
  * This handles collection where each point in the scan writes a hdf5 file containing a single frame.
