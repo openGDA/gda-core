@@ -23,7 +23,6 @@ import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -34,14 +33,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
+import gda.device.DeviceException;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
-import uk.ac.diamond.daq.client.gui.camera.ICameraConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.widgets.DetectorExposureWidget;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.Reloadable;
@@ -113,17 +112,14 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 	}
 
 	private double getDetectorExposure(){
-		var cameraControlClient = CameraHelper.getCameraConfigurationPropertiesByID(getDetectorDocument().getId())
-				.map(CameraHelper::createICameraConfiguration)
-				.map(ICameraConfiguration::getCameraControlClient)
-				.map(Optional::get);
+		return CameraHelper.getCameraControlByCameraID(getDetectorDocument().getId())
+			.map(this::getDetectorExposure).orElse(0.0);
+	}
+
+	private double getDetectorExposure(CameraControl control) {
 		try {
-			if (cameraControlClient.isPresent()) {
-				return cameraControlClient.get().getAcquireTime();
-			} else {
-				return 0.0;
-			}
-		} catch (GDAClientRestException e) {
+			return control.getAcquireTime();
+		} catch (DeviceException e) {
 			logger.warn("Error reading detector exposure {}", e.getMessage());
 			return 0.0;
 		}
@@ -148,7 +144,7 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 	}
 
 	private void updateExposureFromDocument() {
-		if (composite.isDisposed()) return;
+		if (composite == null || composite.isDisposed()) return;
 		exposureWidget.updateFromModel(getDetectorDocument().getExposure());
 	}
 }

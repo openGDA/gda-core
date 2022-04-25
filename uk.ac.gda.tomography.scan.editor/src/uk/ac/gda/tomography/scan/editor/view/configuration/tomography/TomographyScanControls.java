@@ -17,9 +17,7 @@
  */
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
-
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.addDisposableApplicationListener;
 import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
 import static uk.ac.gda.ui.tool.ClientMessages.ANGULAR_STEP;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
@@ -55,29 +53,26 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
 import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
 import static uk.ac.gda.ui.tool.GUIComponents.doubleContent;
-import static uk.ac.gda.ui.tool.GUIComponents.doublePositiveContent;
 import static uk.ac.gda.ui.tool.GUIComponents.integerPositiveContent;
 import static uk.ac.gda.ui.tool.GUIComponents.labelComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.labelledLabelContent;
 import static uk.ac.gda.ui.tool.GUIComponents.radioComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.textContent;
+import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.util.Precision;
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
+import org.eclipse.core.databinding.observable.IChangeListener;
+import org.eclipse.core.databinding.observable.value.SelectObservableValue;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -89,18 +84,15 @@ import org.springframework.context.ApplicationListener;
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
-import uk.ac.diamond.daq.mapping.api.document.helper.MultipleScansHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
 import uk.ac.diamond.daq.mapping.ui.controller.StageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
@@ -108,7 +100,6 @@ import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
 import uk.ac.gda.tomography.scan.editor.view.ScanType;
-import uk.ac.gda.ui.tool.ClientBindingElements;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
@@ -147,27 +138,25 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	/** The MultipleScans Composite elements **/
 	private Text numberRepetitions;
 	private Text waitingTime;
-	private Button repeateMultipleScansType;
+	private Button repeatMultipleScansType;
 	private Button switchbackMultipleScansType;
 
-	private ProcessingRequestComposite processingRequest;
-
 	private ScanpathDocumentHelper dataHelper;
-	private MultipleScansHelper configurationHelper;
 
-	private DataBindingContext dbc = new DataBindingContext();
+	private DataBindingContext bindingContext = new DataBindingContext();
 
 	private Composite mainComposite;
 
-	private List<Reloadable> composites = new ArrayList<>();
+	private List<Reloadable> reloadables = new ArrayList<>();
+	private ProjectionsCompositeFactory projections;
 
 	private static final double HALF_ROTATION_RANGE = 180.0;
 	private static final double FULL_ROTATION_RANGE = 360.0;
+	private static final double ANGULAR_TOLERANCE = 1e-6;
 
 	public TomographyScanControls() {
 		try {
 			this.dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
-			this.configurationHelper = new MultipleScansHelper(this::getScanningConfiguration);
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
 		}
@@ -175,50 +164,19 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		logger.debug("Creating {}", this);
 		mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.BEGINNING).grab(true, true).applyTo(mainComposite);
 		standardMarginHeight(mainComposite.getLayout());
 		standardMarginWidth(mainComposite.getLayout());
 
-		try {
-			createElements(mainComposite, SWT.NONE, SWT.BORDER);
-			bindElements();
-			initialiseElements();
-			addWidgetsListener();
-			addDisposableApplicationListener(this, new UpdateListener());
-			logger.debug("Created {}", this);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
+		createElements(mainComposite, SWT.NONE, SWT.BORDER);
+		bindElements();
+		var updateListener = new UpdateListener();
+		SpringApplicationContextFacade.addApplicationListener(updateListener);
+		mainComposite.addDisposeListener(dispose -> SpringApplicationContextFacade.removeApplicationListener(updateListener));
 		return mainComposite;
 	}
 
-	@Override
-	public void reload() {
-		if (mainComposite.isDisposed()) {
-			logger.warn("Asked to reload when I am disposed! Ignoring...");
-			return;
-		}
-
-		try {
-			bindElements();
-			initialiseElements();
-			for (Reloadable reloadable : composites) {
-				reloadable.reload();
-			}
-			mainComposite.getShell().layout(true, true);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
-	}
-
-	/**
-	 * @param parent
-	 *            a three column composite
-	 * @param labelStyle
-	 * @param textStyle
-	 */
 	private void createElements(Composite parent, int labelStyle, int textStyle) {
 		this.name = textContent(parent, labelStyle, textStyle,
 				NAME, NAME_TOOLTIP);
@@ -228,23 +186,17 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		scanTypeContent(parent);
 		createRangeGroup(parent, labelStyle, textStyle);
 
-		//----- Reference for other configuration components
-		var projections = new ProjectionsCompositeFactory();
-		composites.add(projections);
+		projections = new ProjectionsCompositeFactory();
+		reloadables.add(projections);
 		projections.createComposite(parent, textStyle);
 
-		//----- Reference for other configuration components
 		var exposure = new ExposureCompositeFactory();
-		composites.add(exposure);
+		reloadables.add(exposure);
 		exposure.createComposite(parent, textStyle);
 
-		//----- Reference for other configuration components
 		var darkFlat = new DarkFlatCompositeFactory();
-		composites.add(darkFlat);
+		reloadables.add(darkFlat);
 		darkFlat.createComposite(parent, textStyle);
-		//----- Reference for other configuration components
-
-
 
 		createProcessRequestGroup(parent, SWT.NONE);
 		multipleScansContent(parent, labelStyle, textStyle);
@@ -282,12 +234,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 				ANGULAR_STEP, EMPTY_MESSAGE);
 	}
 
-	/**
-	 * @param parent
-	 *            a three columns composite
-	 * @param labelStyle
-	 * @param textStyle
-	 */
 	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
 		var mainCompositeContent = createClientCompositeWithGridLayout(parent, SWT.NONE, 2);
 		createClientGridDataFactory().grab(true, true).applyTo(mainCompositeContent);
@@ -319,283 +265,199 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 		this.numberRepetitions = integerPositiveContent(group, labelStyle, textStyle,
 				NUM_REPETITIONS, NUM_REPETITIONS_TOOLTIP);
-		this.waitingTime = doublePositiveContent(group, labelStyle, textStyle,
+		this.waitingTime = integerPositiveContent(group, labelStyle, textStyle,
 				WAITING_TIME, WAITING_TIME_TOOLTIP);
 
-		this.repeateMultipleScansType = radioComponent(group,
+		this.repeatMultipleScansType = radioComponent(group,
 				REPEATE_SCAN, REPEATE_SCAN_TOOLTIP);
-		this.repeateMultipleScansType.setData(MultipleScansType.REPEAT_SCAN);
+		this.repeatMultipleScansType.setData(MultipleScansType.REPEAT_SCAN);
 
 		this.switchbackMultipleScansType = radioComponent(group,
 				SWITCHBACK_SCAN, SWITCHBACK_SCAN_TOOLTIP);
 		this.switchbackMultipleScansType.setData(MultipleScansType.SWITCHBACK_SCAN);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<ProcessingRequestContext<?>> getProcessingRequestContext() {
-		// The selectable process elements
-		List<ProcessingRequestContext<?>> processingRequestContexts = new ArrayList<>();
-		try {
-			// makes available for selection a ApplyNexusTemplatesRequest element			;
-			processingRequestContexts.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.NEXUS_TEMPLATE),
-					getNexusTemplatesProcessingDirectory(), getDefaultNexusTemplatesProcessingFile(), true));
-		} catch (AcquisitionConfigurationException e) {
-			logger.error("TODO put description of error here", e);
-		}
+		List<ProcessingRequestContext<?>> availableProcessingOptions = new ArrayList<>();
 
-		// makes available for selection a SavuProcessingRequest element
-		processingRequestContexts.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.SAVU),
+		// nexus template
+		getDefaultNexusTemplatesProcessingFile().ifPresent(defaults ->
+			availableProcessingOptions.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.NEXUS_TEMPLATE),
+					getNexusTemplatesProcessingDirectory(), defaults, true)));
+
+		// savu
+		availableProcessingOptions.add(new ProcessingRequestContext(getProcessingRequestKeyFactory().getProcessingKey(ProcessKey.SAVU),
 				getSavuProcessingFileDirectory(), getSavuDefaultProcessingFile(), false));
-		return processingRequestContexts;
+
+		return availableProcessingOptions;
 	}
 
 	private void createProcessRequestGroup(Composite parent, int labelStyle) {
 		var group = createClientGroup(parent, SWT.NONE, 3, PROCESS_REQUESTS);
 		createClientGridDataFactory().applyTo(group);
-		processingRequest = new ProcessingRequestComposite(getProcessingRequestContext());
-		processingRequest.createComposite(group, labelStyle);
+		var processingComposite = new ProcessingRequestComposite(getProcessingRequestContext());
+		processingComposite.createComposite(group, labelStyle);
+		reloadables.add(processingComposite);
 	}
 
-	private void updateStart() {
-		var currentRange = getRange();
-		customAngleText.setText(Double.toString(currentRange));
-		var updatedStart = parseAngle(startAngleText.getText());
-		dataHelper.updateStartAngle(updatedStart);
-		updateStop(updatedStart + currentRange);
+	private void disposeBindings() {
+		new ArrayList<>(bindingContext.getBindings()).forEach(binding -> {
+			bindingContext.removeBinding(binding);
+			binding.dispose();
+		});
 	}
 
-	private void updateRange() {
-		var currentStart = getScannableTrackDocument().getStart();
-		var updatedRange = parseAngle(customAngleText.getText());
-		updateStop(currentStart + updatedRange);
+	private void bindElements() {
+		bindName();
+		bindScanType();
+		bindMultipleScanType();
+		bindAngularRange();
 	}
 
-	private void updateStop(double stop) {
-		dataHelper.updateStopAngle(stop);
-		endAngleLabel.setText(Double.toString(stop));
-		endAngleLabel.getParent().layout(true,  true);
-		updateAngularStep();
+	private void bindName() {
+		var nameUi = WidgetProperties.text(SWT.Modify).observe(name);
+		var nameModel = PojoProperties.value("name", String.class).observe(getScanningAcquisition());
+		bindingContext.bindValue(nameUi, nameModel);
 	}
 
-	private void updateAngularStep() {
+	/**
+	 * scan type being either continuous (a.k.a. fly scan) or step scan
+	 */
+	private void bindScanType() {
+		// simple selection listeners to add/remove Mutator.CONTINUOUS from model
+		flyScanType.addSelectionListener(widgetSelectedAdapter(selection -> dataHelper.addMutators(Mutator.CONTINUOUS, new ArrayList<>())));
+		stepScanType.addSelectionListener(widgetSelectedAdapter(selection -> dataHelper.removeMutators(Mutator.CONTINUOUS)));
+
+		// manually initialise state from model
+		var model = getScanningParameters().getScanpathDocument();
+		var flyScan = model.getMutators().containsKey(Mutator.CONTINUOUS);
+		selectAndNotify(stepScanType, !flyScan);
+		selectAndNotify(flyScanType, flyScan);
+	}
+
+	private void bindMultipleScanType() {
+		var model = getAcquisitionConfiguration().getMultipleScans();
+
+		var repsUi = WidgetProperties.text(SWT.Modify).observe(numberRepetitions);
+		var repsModel = PojoProperties.value("numberRepetitions", Integer.class).observe(model);
+		bindingContext.bindValue(repsUi, repsModel);
+
+		var delayUi = WidgetProperties.text(SWT.Modify).observe(waitingTime);
+		var delayModel = PojoProperties.value("waitingTime", Integer.class).observe(model);
+		bindingContext.bindValue(delayUi, delayModel);
+
+		var repetitionType = new SelectObservableValue<>(MultipleScansType.class);
+		repetitionType.addOption(MultipleScansType.REPEAT_SCAN, WidgetProperties.buttonSelection().observe(repeatMultipleScansType));
+		repetitionType.addOption(MultipleScansType.SWITCHBACK_SCAN, WidgetProperties.buttonSelection().observe(switchbackMultipleScansType));
+		var typeInModel = PojoProperties.value("multipleScansType", MultipleScansType.class).observe(model);
+		bindingContext.bindValue(repetitionType, typeInModel);
+	}
+
+	private void bindAngularRange() {
+		/* a change listener attached to 'start' and 'custom range' text boxes
+		 * will trigger method to recalculate start and stop, update model, update labels */
+		var startUi = WidgetProperties.text(SWT.Modify).observe(startAngleText);
+		var customUi = WidgetProperties.text(SWT.Modify).observe(customAngleText);
+		IChangeListener changeListener = event -> {
+			updateAnglesInModel();
+			updateAngularStepLabel();
+		};
+		startUi.addChangeListener(changeListener);
+		customUi.addChangeListener(changeListener);
+
+		/* simple selection listener to copy current rotation stage position as start angle */
+		currentAngleButton.addSelectionListener(widgetSelectedAdapter(e-> copyCurrentRotationToStartAngle()));
+
+		/*
+		 * selection listeners on range radio buttons populate 'custom range' box,
+		 * and enable/disable the widget */
+		halfRotationRangeButton.addSelectionListener(widgetSelectedAdapter(selection -> {
+			customAngleText.setText(String.valueOf(HALF_ROTATION_RANGE));
+			customAngleText.setEnabled(false);
+		}));
+
+		fullRotationRangeButton.addSelectionListener(widgetSelectedAdapter(selection -> {
+			customAngleText.setText(String.valueOf(FULL_ROTATION_RANGE));
+			customAngleText.setEnabled(false);
+		}));
+
+		customRotationRangeButton.addSelectionListener(widgetSelectedAdapter(selection ->
+			customAngleText.setEnabled(true)));
+
+		/* manual initialisation of state from model */
+		var document = getScannableTrackDocument();
+		var start = document.getStart();
+		var stop = document.getStop();
+		var range = stop - start;
+		startAngleText.setText(String.valueOf(start));
+		if (Precision.equals(range, HALF_ROTATION_RANGE, ANGULAR_TOLERANCE)) {
+			selectAndNotify(halfRotationRangeButton, true);
+			selectAndNotify(fullRotationRangeButton, false);
+			selectAndNotify(customRotationRangeButton, false);
+		} else if (Precision.equals(range, FULL_ROTATION_RANGE, ANGULAR_TOLERANCE)) {
+			selectAndNotify(halfRotationRangeButton, false);
+			selectAndNotify(fullRotationRangeButton, true);
+			selectAndNotify(customRotationRangeButton, false);
+		} else {
+			selectAndNotify(halfRotationRangeButton, false);
+			selectAndNotify(fullRotationRangeButton, false);
+			selectAndNotify(customRotationRangeButton, true);
+		}
+		customAngleText.setText(String.valueOf(range));
+		customAngleText.setEnabled(customRotationRangeButton.getSelection());
+	}
+
+	private void updateAnglesInModel() {
+		if (startAngleText.getText().isEmpty() || customAngleText.getText().isEmpty()) {
+			// we'll be back soon enough
+			return;
+		}
+		var start = Double.parseDouble(startAngleText.getText());
+		var stop = start + Double.parseDouble(customAngleText.getText());
+		var document = getScannableTrackDocument();
+		document.setStart(start);
+		document.setStop(stop);
+		endAngleLabel.setText(String.valueOf(stop));
+	}
+
+	private void copyCurrentRotationToStartAngle() {
+		double currentMotorPosition = getBean(StageController.class).getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
+		startAngleText.setText(Double.toString(currentMotorPosition));
+	}
+
+	private void updateAngularStepLabel() {
 		double angularStep = getAngularStep();
-		dataHelper.updateStep(angularStep);
 		angularStepLabel.setText(Double.toString(angularStep));
-	}
-
-	private double getRange() {
-		return getScannableTrackDocument().getStop() - getScannableTrackDocument().getStart();
 	}
 
 	private double getAngularStep() {
 		return Math.abs(getRange() / getScannableTrackDocument().getPoints());
 	}
 
-	private double parseAngle(String angle) {
-		if (NumberUtils.isNumber(angle)) {
-			return NumberUtils.toDouble(angle);
-		}
-		return 0.0;
+	private double getRange() {
+		return getScannableTrackDocument().getStop() - getScannableTrackDocument().getStart();
 	}
 
-
-	private SelectionListener scanTypeListener = new SelectionListener() {
-		@Override
-		public void widgetSelected(SelectionEvent event) {
-			if (!(event.getSource() instanceof Button))
-				return;
-
-			if (!((Button) event.getSource()).getSelection())
-				return;
-
-			if (event.getSource().equals(flyScanType)) {
-				addContinuous();
-			} else if (event.getSource().equals(stepScanType)) {
-				removeContinuous();
-			}
-		}
-
-		@Override
-		public void widgetDefaultSelected(SelectionEvent event) {
-			// do nothing
-		}
-
-		private void removeContinuous() {
-			dataHelper.removeMutators(Mutator.CONTINUOUS);
-		}
-	};
-
-	private void addContinuous() {
-		dataHelper.addMutators(Mutator.CONTINUOUS, new ArrayList<>());
-	}
-
-	private void numberRepetitionsListener(ModifyEvent event) {
-		if (!event.getSource().equals(numberRepetitions))
+	@Override
+	public void reload() {
+		if (mainComposite.isDisposed()) {
+			logger.warn("Asked to reload when I am disposed! Ignoring...");
 			return;
-		int repetitions = Optional.ofNullable(numberRepetitions.getText())
-				.filter(s -> !s.isEmpty())
-				.map(Integer::parseInt)
-				.orElseGet(() -> 1);
-		configurationHelper.updateMultipleScanRepetitions(repetitions);
-	}
-
-	private void waitingTimeListener(ModifyEvent event) {
-		if (!event.getSource().equals(waitingTime))
-			return;
-		int wTime = Optional.ofNullable(waitingTime.getText())
-				.filter(s -> !s.isEmpty())
-				.map(Integer::parseInt)
-				.orElseGet(() -> 1);
-		configurationHelper.updateMultipleScanWaitingTime(wTime);
-	}
-
-	private void switchbackScanTypeListener(SelectionEvent event) {
-		if (!event.getSource().equals(switchbackMultipleScansType))
-			return;
-		if (switchbackMultipleScansType.getSelection())
-			configurationHelper.updateMultipleScanType(MultipleScansType.SWITCHBACK_SCAN);
-	}
-
-	private void repeateMultipleScansType(SelectionEvent event) {
-		if (!event.getSource().equals(repeateMultipleScansType))
-			return;
-		if (repeateMultipleScansType.getSelection())
-			configurationHelper.updateMultipleScanType(MultipleScansType.REPEAT_SCAN);
-	}
-
-	private  void addWidgetsListener() {
-		flyScanType.addSelectionListener(scanTypeListener);
-		stepScanType.addSelectionListener(scanTypeListener);
-
-		// Range fields
-		startAngleText.addModifyListener(e-> updateStart());
-		customAngleText.addModifyListener(e-> updateRange());
-
-		halfRotationRangeButton.addSelectionListener(widgetSelectedAdapter(this::rangeTypeListener));
-		fullRotationRangeButton.addSelectionListener(widgetSelectedAdapter(this::rangeTypeListener));
-		customRotationRangeButton.addSelectionListener(widgetSelectedAdapter(this::rangeTypeListener));
-
-		currentAngleButton.addSelectionListener(widgetSelectedAdapter(e-> updateCurrentAngularPosition()));
-
-		numberRepetitions.addModifyListener(this::numberRepetitionsListener);
-		waitingTime.addModifyListener(this::waitingTimeListener);
-		switchbackMultipleScansType.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::switchbackScanTypeListener));
-		repeateMultipleScansType.addSelectionListener(SelectionListener.widgetSelectedAdapter(this::repeateMultipleScansType));
-	}
-
-	private void rangeTypeListener(SelectionEvent event) {
-		if (event.getSource().equals(halfRotationRangeButton)) {
-			customAngleText.setText(Double.toString(HALF_ROTATION_RANGE));
-			customAngleText.setEnabled(false);
-		} else if(event.getSource().equals(fullRotationRangeButton)) {
-			customAngleText.setText(Double.toString(FULL_ROTATION_RANGE));
-			customAngleText.setEnabled(false);
-		} else if(event.getSource().equals(customRotationRangeButton)) {
-			customAngleText.setEnabled(true);
 		}
-	}
 
-	private void bindElements() {
-		bindScanType(dbc);
-		bindMultipleScanType(dbc);
-
-		name.addModifyListener(modifyNameListener);
-	}
-
-	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
-
-	private void updateAcquisitionName() {
-		getScanningAcquisitionTemporaryHelper()
-			.getScanningAcquisition()
-			.ifPresent(a -> a.setName(name.getText()));
-	}
-
-	private void bindScanType(DataBindingContext dbc) {
-		Map<ScanType, Object> enumRadioMap = new EnumMap<>(ScanType.class);
-		enumRadioMap.put(ScanType.FLY, flyScanType);
-		enumRadioMap.put(ScanType.STEP, stepScanType);
-		ClientBindingElements.bindEnumToRadio(dbc, ScanType.class, "scanType", getAcquisitionParameters(), enumRadioMap);
-	}
-
-	private void bindMultipleScanType(DataBindingContext dbc) {
-		Map<MultipleScansType, Object> enumRadioMap = new EnumMap<>(MultipleScansType.class);
-		enumRadioMap.put(MultipleScansType.REPEAT_SCAN, repeateMultipleScansType);
-		enumRadioMap.put(MultipleScansType.SWITCHBACK_SCAN, switchbackMultipleScansType);
-		ClientBindingElements.bindEnumToRadio(dbc, MultipleScansType.class, "multipleScans.multipleScansType",
-				getAcquisitionConfiguration(), enumRadioMap);
-	}
-
-	private void initialiseElements() {
-		getScanningAcquisitionTemporaryHelper()
-			.getScanningAcquisition()
-			.map(ScanningAcquisition::getName)
-			.ifPresent(name::setText);
-		initializeScanType();
-		initializeAngles();
-		updateMultipleScan(getAcquisitionConfiguration());
-		processingRequest.reload();
-	}
-
-	private void initializeScanType() {
-		stepScanType.setSelection(false);
-		flyScanType.setSelection(true);
-		addContinuous();
-	}
-
-	private void initializeAngles() {
-		currentAngleButton.setSelection(false);
-		startAngleText.setText(Double.toString(getScannableTrackDocument().getStart()));
-		setRangeTypeSelection();
-	}
-
-	private void setRangeTypeSelection() {
-		var range = getRange();
-		if (range == HALF_ROTATION_RANGE) {
-			halfRotationRangeButton.setSelection(true);
-			customRotationRangeButton.setSelection(false);
-			customAngleText.setEnabled(false);
-		} else if(range == FULL_ROTATION_RANGE) {
-			fullRotationRangeButton.setSelection(true);
-			customRotationRangeButton.setSelection(false);
-			customAngleText.setEnabled(false);
-		} else {
-			customRotationRangeButton.setSelection(true);
-			halfRotationRangeButton.setSelection(false);
-			fullRotationRangeButton.setSelection(false);
-			customAngleText.setEnabled(true);
-		}
-	}
-
-	private void updateCurrentAngularPosition() {
-		double currentMotorPosition = getBean(StageController.class).getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
-		startAngleText.setText(Double.toString(currentMotorPosition));
+		disposeBindings();
+		bindElements();
+		reloadables.forEach(Reloadable::reload);
 	}
 
 	private class UpdateListener implements ApplicationListener<ScanningAcquisitionChangeEvent> {
 		@Override
 		public void onApplicationEvent(ScanningAcquisitionChangeEvent event) {
-			if ((event.getSource() instanceof ProjectionsCompositeFactory)) {
-				updateAngularStep();
+			if ((event.getSource() == projections) /* && !mainComposite.isDisposed() */) {
+				updateAngularStepLabel();
 			}
 		}
-	}
-
-	private void updateMultipleScan(ScanningConfiguration configuration) {
-		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
-				.filter(i -> configuration.getMultipleScans().getMultipleScansType()
-						.equals(i.getData()))
-				.findFirst()
-				.ifPresent(b -> b.setSelection(true));
-		Arrays.asList(switchbackMultipleScansType, repeateMultipleScansType).stream()
-				.filter(i -> !configuration.getMultipleScans().getMultipleScansType()
-						.equals(i.getData()))
-				.findFirst()
-				.ifPresent(b -> b.setSelection(false));
-		numberRepetitions.setText(Integer.toString(configuration.getMultipleScans().getNumberRepetitions()));
-		waitingTime.setText(Integer.toString(configuration.getMultipleScans().getWaitingTime()));
-	}
-
-	private Optional<ScanningParameters> getAcquisitionParameters() {
-		return getScanningAcquisitionTemporaryHelper().getScanningParameters();
 	}
 
 	private ScanningConfiguration getAcquisitionConfiguration() {
@@ -605,10 +467,7 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	}
 
 	private ScannableTrackDocument getScannableTrackDocument() {
-		List<ScannableTrackDocument> tracks = getScanningAcquisitionTemporaryHelper()
-				.getScanpathDocument()
-				.map(ScanpathDocument::getScannableTrackDocuments)
-				.orElseGet(ArrayList::new);
+		var tracks = getScanningAcquisitionTemporaryHelper().getScannableTrackDocuments();
 
 		if (!tracks.isEmpty()) {
 			return tracks.get(0);
@@ -634,13 +493,12 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		return null;
 	}
 
-	private List<URL> getDefaultNexusTemplatesProcessingFile() throws AcquisitionConfigurationException {
+	private Optional<List<URL>> getDefaultNexusTemplatesProcessingFile() {
 		return SpringApplicationContextFacade.getBean(ClientSpringProperties.class).getAcquisitions().stream()
-				.filter(a -> a.getType().equals(AcquisitionPropertyType.TOMOGRAPHY))
+				.filter(acquistition -> acquistition.getType().equals(AcquisitionPropertyType.TOMOGRAPHY))
 				.findFirst()
 				.map(AcquisitionConfigurationProperties::getProcessingRequest)
-				.map(ProcessingRequestProperties::getNexusTemplates)
-				.orElseThrow(() -> new AcquisitionConfigurationException("There are no properties associated with the acqual acquisition"));
+				.map(ProcessingRequestProperties::getNexusTemplates);
 	}
 
 	private ProcessingRequestKeyFactory getProcessingRequestKeyFactory() {
@@ -653,10 +511,9 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 				.orElseThrow();
 	}
 
-	private ScanningConfiguration getScanningConfiguration() {
+	private ScanningAcquisition getScanningAcquisition() {
 		return getScanningAcquisitionTemporaryHelper()
-				.getAcquisitionConfiguration()
-				.orElseThrow();
+				.getScanningAcquisition().orElseThrow();
 	}
 
 	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
