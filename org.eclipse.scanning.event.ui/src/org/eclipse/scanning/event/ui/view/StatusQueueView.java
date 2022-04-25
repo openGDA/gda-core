@@ -1181,12 +1181,8 @@ public class StatusQueueView extends EventConnectionView {
 
 			@Override
 			public Color getForeground(Object element) {
-				if (jobQueueProxy.isPaused()) {
-					return getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_GRAY);
-				} else {
-					boolean isFinal = ((StatusBean) element).getStatus().isFinal();
-					return getSite().getShell().getDisplay().getSystemColor(isFinal ? SWT.COLOR_BLUE : SWT.COLOR_BLACK);
-				}
+				boolean isFinal = ((StatusBean) element).getStatus().isFinal();
+				return getSite().getShell().getDisplay().getSystemColor(isFinal ? SWT.COLOR_BLUE : SWT.COLOR_BLACK);
 			}
 		});
 
