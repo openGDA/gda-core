@@ -909,16 +909,23 @@
        locationURI="toolbar:uk.ac.gda.client.livecontrol.LiveControlsView">
     <command
           commandId="uk.ac.gda.client.livecontrol.increment.toggle"
-          icon="icons/table_refresh.png"
+          icon="icons/plus-and-minus-16.png"
           label="Toggle Increment Control"
           style="toggle">
     </command>
     <command
           commandId="uk.ac.gda.client.livecontrol.stopbutton.toggle"
-          icon="icons/page_refresh.png"
+          icon="icons/stop-squared-16.png"
           label="Toggle show stop button"
           style="toggle"
           tooltip="Toggle show stop button">
+    </command>
+    <command
+          commandId="uk.ac.gda.client.livecontrol.layout"
+          icon="icons/layout-16.png"
+          label="Toggle Layout"
+          style="toggle"
+          tooltip="Change display layout between horizontal and vertical">
     </command>
  </menuContribution>
  </extension>
@@ -1060,6 +1067,12 @@
          defaultHandler="uk.ac.gda.client.livecontrol.ToggleShowStopButton"
          id="uk.ac.gda.client.livecontrol.stopbutton.toggle"
          name="Show Stop Button">
+   </command>
+   <command
+         defaultHandler="uk.ac.gda.client.livecontrol.ToggleLayoutControl"
+         description="Toggle layout between horizontal and vertical"
+         id="uk.ac.gda.client.livecontrol.layout"
+         name="Toggle Display Layout">
    </command>
 </extension>
 <extension
