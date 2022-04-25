@@ -97,9 +97,9 @@ public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerab
 				Thread.sleep((long) (deltaT * 1000));
 				fileNumber += 1;
 			} catch (InterruptedException e) {
-				terminal.print("DummyHardwareTriggerableAreaDetector interupted while collecting single image\n");
+				getTerminal().print("DummyHardwareTriggerableAreaDetector interupted while collecting single image\n");
 			} finally {
-				terminal.print(MessageFormat.format("{0} {1}s --> {2}\n", getName(), deltaT,
+				getTerminal().print(MessageFormat.format("{0} {1}s --> {2}\n", getName(), deltaT,
 						generateFilePath(fileNumber)));
 				setStatus(Detector.IDLE);
 			}
@@ -108,7 +108,7 @@ public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerab
 
 	@Override
 	void simulatedTriggerRecieved() {
-		terminal.print(MessageFormat.format("{0} triggered --> {2}\n", getName(), generateFilePath(fileNumber)));
+		getTerminal().print(MessageFormat.format("{0} triggered --> {2}\n", getName(), generateFilePath(fileNumber)));
 		fileNumber += 1;
 	}
 }

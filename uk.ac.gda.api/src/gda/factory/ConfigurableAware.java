@@ -30,9 +30,11 @@ public interface ConfigurableAware {
 
 	/**
 	 * Called before the configuration process starts when no beans have been configured.<p>
-	 * Order in which implementations of this method are called is undetermined.
+	 * Order in which implementations of this method are called is undetermined.<p>
+	 * @throws FactoryException if thrown, considered a fatal configuration exception
 	 */
-	default void preConfigure() {}
+	@SuppressWarnings("unused") // exception not thrown in no-op default
+	default void preConfigure() throws FactoryException {}
 
 	/**
 	 * Called before each bean is configured.
@@ -54,6 +56,8 @@ public interface ConfigurableAware {
 	 * When this is called, all beans are guaranteed to have been configured
 	 * although the order in which implementations of this method are called is
 	 * undetermined
+	 * @throws FactoryException if thrown, considered a fatal configuration exception
 	 */
-	default void postConfigure() {}
+	@SuppressWarnings("unused") // exception not thrown in no-op default
+	default void postConfigure() throws FactoryException {}
 }
