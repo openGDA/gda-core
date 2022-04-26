@@ -97,8 +97,9 @@ public class Etfg extends Tfg {
 			break;
 		default:
 			super.setAttribute(attributeName, value);
-			break;
+			return; // return to prevent duplicate notification being sent
 		}
+		notifyIObservers(this, new AttributeChange(attributeName, value));
 	}
 
 	public void setDriveAndInversion(int drv, int inv) throws DeviceException {

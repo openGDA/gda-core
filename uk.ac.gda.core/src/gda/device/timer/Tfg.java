@@ -19,6 +19,7 @@
 
 package gda.device.timer;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -484,40 +485,41 @@ public class Tfg extends DeviceBase implements Timer {
 		switch (attributeName) {
 		case EXT_START_ATTR_NAME:
 			extStart = ((Boolean) value).booleanValue();
-			return;
+			break;
 		case EXT_INHIBIT_ATTR_NAME:
 			extInh = ((Boolean) value).booleanValue();
-			return;
+			break;
 		case AUTO_REARM_ATTR_NAME:
 			autoReArm = ((Boolean) value).booleanValue();
-			return;
+			break;
 		case VME_START_ATTR_NAME:
 			vmeStart = ((Boolean) value).booleanValue();
-			return;
+			break;
 		case SOFTWARE_START_AND_TRIG_ATTR_NAME:
 			softwareTriggering = ((Boolean) value).booleanValue();
-			return;
+			break;
 		case AUTO_CONTINUE_ATTR_NAME:
 			autoContinue = (Boolean) value ? 1 : 0;
 			checkOKToSendCommand();
 			daServer.sendCommand("tfg options auto-cont " + autoContinue);
-			return;
+			break;
 		case USER:
 			user = (String) value;
-			return;
+			break;
 		case PASSWORD:
 			password = (String) value;
-			return;
+			break;
 		case HOST:
 			host = (String) value;
-			return;
+			break;
 		case ENDIAN:
 			remoteEndian = (String) value;
-			return;
+			break;
 		default:
 			logger.warn("Trying to set unrecognised attribute {} to {}", attributeName, value);
-			return;
+			return; // return rather than break to prevent notification being sent
 		}
+		notifyIObservers(this, new AttributeChange(attributeName, value));
 	}
 
 	/**
@@ -715,5 +717,15 @@ public class Tfg extends DeviceBase implements Timer {
 		notifyAll();
 	}
 
+	public static final class AttributeChange implements Serializable {
+		/** Attribute name */
+		public final String name;
+		/** New attribute value */
+		public final Object value;
 
+		public AttributeChange(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
+	}
 }
