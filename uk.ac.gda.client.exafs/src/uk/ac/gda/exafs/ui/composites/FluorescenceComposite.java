@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -51,7 +52,6 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.part.WorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.exafs.scan.ScanObject;
@@ -259,6 +259,10 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			createEdgeEnergy(top, control);
 		}
 		createIonChamberSection(abean, control);
+
+		if (detectorParameters.getExperimentType().equals(DetectorParameters.FLUORESCENCE_TYPE)) {
+			openDetectorSettingsEditor(detectorParameters.getFluorescenceParameters().getConfigFileName());
+		}
 	}
 
 	/**
@@ -481,13 +485,21 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 				configFileName.setText(newName);
 			}
 		}
-		configFile = dir.getFile(configFileName.getText());
+		openDetectorSettingsEditor(configFileName.getText());
+	}
+
+	private void openDetectorSettingsEditor(String filename) {
+		final IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
+		IFile configFile = dir.getFile(StringUtils.defaultString(filename));
 		if (configFile.exists()) {
+			logger.debug("Opening Detector GUI editor for : {}", filename);
 			WorkbenchPart editor =  (WorkbenchPart) ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
 			// Listen to file name change events, so that detector configuration file name can be updated
 			if (updateDetectorFilenameOnSaveAs) {
 				editor.addPartPropertyListener(this::updateDetectorConfigurationFile);
 			}
+		} else {
+			logger.debug("File {} does not exist - not opening Detector setting editor", filename);
 		}
 	}
 
