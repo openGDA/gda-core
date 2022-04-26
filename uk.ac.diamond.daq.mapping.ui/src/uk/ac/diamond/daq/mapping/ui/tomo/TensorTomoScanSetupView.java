@@ -175,6 +175,7 @@ public class TensorTomoScanSetupView {
 				new MapRegionAndPathSection(this),
 				new TomoRegionAndPathSection(this),
 				new AcquistionTimeSection(this),
+				new SampleNameSection(this),
 				new StatusPanelSection(this),
 				new SubmitScanSection(this)
 		);
