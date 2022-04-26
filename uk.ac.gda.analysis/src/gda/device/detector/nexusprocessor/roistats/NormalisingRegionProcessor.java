@@ -60,6 +60,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	private String transmissionFieldName;
 	private double scale = 1.0;
 	private RoiStatsProcessor roiStats;
+	private int requiredRoiCount = 2;
 
 	@Override
 	public void atScanStart() {
@@ -74,7 +75,8 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
-		// TODO probably avoid calling process twice
+		// TODO probably avoid calling process twice but would need a way to ensure that roiStats is processed first
+		verifyRois();
 		GDANexusDetectorData nxsData = roiStats.process(detectorName, dataName, dataset);
 		// signal sum
 		String signalPrefix = roiStats.getRoiList().get(signalRoiIndex).getName();
@@ -109,6 +111,22 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 		return res;
 	}
 
+	/**
+	 * Verify that there are at least the minimum number of ROIs defined on the plot for this processor to work.
+	 * <p>
+	 * Ideally this would be called in atScanStart but at the moment we don't have guarantee that atScanStart is called
+	 * first for the roiStats processor (which is where the ROIs are updated from the plot)
+	 *
+	 * @throws IllegalStateException
+	 *             if an index for signal or background ROI is not present in the ROI list
+	 */
+	private void verifyRois() {
+		var rois = roiStats.getRoiList().size();
+		if (rois < requiredRoiCount) {
+			throw new IllegalStateException("Insufficient active ROIs for normalisation");
+		}
+	}
+
 	private double normalise(double input) {
 		if (normEnabled) {
 			Double[] attenPos;
@@ -130,6 +148,12 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 	private double getDoubleValueFromNxsData(GDANexusDetectorData data, String name) {
 		var sigIndex = Arrays.asList(data.getExtraNames()).indexOf(name);
 		return data.getDoubleVals()[sigIndex];
+	}
+
+	private void updateRequiredRoiCount() {
+		int maxRoiIndex = Math.max(signalRoiIndex,
+				backgroundRoiIndices.stream().mapToInt(Integer::intValue).max().orElse(0));
+		requiredRoiCount = maxRoiIndex + 1;
 	}
 
 	@Override
@@ -156,6 +180,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 
 	public void setSignalRoiIndex(int signalRoiIndex) {
 		this.signalRoiIndex = signalRoiIndex;
+		updateRequiredRoiCount();
 	}
 
 	public List<Integer> getBackgroundRoiIndices() {
@@ -164,6 +189,7 @@ public class NormalisingRegionProcessor extends DatasetProcessorBase {
 
 	public void setBackgroundRoiIndices(List<Integer> backgroundRoiIndices) {
 		this.backgroundRoiIndices = backgroundRoiIndices;
+		updateRequiredRoiCount();
 	}
 
 	public boolean isNorm() {
