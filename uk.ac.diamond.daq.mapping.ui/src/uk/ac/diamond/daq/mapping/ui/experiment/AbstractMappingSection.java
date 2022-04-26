@@ -18,53 +18,28 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.scan.ui.MonitorScanUIElement.MonitorScanRole;
-import org.eclipse.scanning.device.ui.device.MonitorView;
-import org.eclipse.scanning.device.ui.util.PageUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IViewReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
 public abstract class AbstractMappingSection implements IMappingSection {
-	private static final Logger logger = LoggerFactory.getLogger(AbstractMappingSection.class);
-
-	/**
-	 * Number of horizontal dialog units per character, value <code>4</code>.
-	 */
-	private static final int HORIZONTAL_DIALOG_UNIT_PER_CHAR = 4;
-
-	private FontMetrics fontMetrics = null;
 
 	private MappingExperimentView mappingView;
 
@@ -147,28 +122,6 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		mappingView.setStatusMessage(message);
 	}
 
-	protected void setButtonLayoutData(Button button) {
-		// copied from org.eclipse.jface.dialogs.Dialog. Gives buttons a standard minimum width
-		GridData data = new GridData(GridData.FILL_HORIZONTAL);
-		int widthHint = convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
-		Point minSize = button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		data.widthHint = Math.max(widthHint, minSize.x);
-		button.setLayoutData(data);
-	}
-
-	private int convertHorizontalDLUsToPixels(int dlus) {
-		if (fontMetrics == null) {
-			GC gc = new GC(mappingView.getMainComposite());
-			gc.setFont(JFaceResources.getDialogFont());
-			fontMetrics = gc.getFontMetrics();
-			gc.dispose();
-		}
-
-		// round to the nearest pixel
-		return (fontMetrics.getAverageCharWidth() * dlus + HORIZONTAL_DIALOG_UNIT_PER_CHAR / 2)
-				/ HORIZONTAL_DIALOG_UNIT_PER_CHAR;
-	}
-
 	/**
 	 * Updates this section based on the mapping bean.
 	 */
@@ -224,42 +177,9 @@ public abstract class AbstractMappingSection implements IMappingSection {
 		}
 	}
 
-	protected ScanBean createScanBean() {
-		final IMappingExperimentBean mappingBean = getMappingBean();
-		addMonitors(mappingBean);
-
-		final ScanBean scanBean = new ScanBean();
-		String sampleName = mappingBean.getSampleMetadata().getSampleName();
-		if (sampleName == null || sampleName.length() == 0) {
-			sampleName = "unknown sample";
-		}
-		final String pathName = mappingBean.getScanDefinition().getMappingScanRegion().getScanPath().getName();
-		scanBean.setName(String.format("%s - %s Scan", sampleName, pathName));
-		scanBean.setBeamline(System.getProperty("BEAMLINE"));
-
-		final ScanRequest scanRequest = getScanRequest(mappingBean);
-		scanBean.setScanRequest(scanRequest);
-		return scanBean;
-	}
-
 	protected ScanRequest getScanRequest(final IMappingExperimentBean mappingBean) {
 		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
 		return converter.convertToScanRequest(mappingBean);
-	}
-
-	private void addMonitors(IMappingExperimentBean mappingBean) {
-		final IViewReference viewRef = PageUtil.getPage().findViewReference(MonitorView.ID);
-		if (viewRef == null) return;
-		final MonitorView monitorView = (MonitorView) viewRef.getView(true); // TODO should we restore the view?
-
-		final BiFunction<Map<String, MonitorScanRole>, MonitorScanRole, Set<String>> getMonitorNamesForRole =
-				(map, role) -> map.entrySet().stream()
-									.filter(entry -> entry.getValue() == role)
-									.map(Map.Entry::getKey).collect(toSet());
-
-		final Map<String, MonitorScanRole> monitors = monitorView.getEnabledMonitors();
-		mappingBean.setPerPointMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_POINT));
-		mappingBean.setPerScanMonitorNames(getMonitorNamesForRole.apply(monitors, MonitorScanRole.PER_SCAN));
 	}
 
 	public void setCreateSeparator(boolean createSeparator) {
