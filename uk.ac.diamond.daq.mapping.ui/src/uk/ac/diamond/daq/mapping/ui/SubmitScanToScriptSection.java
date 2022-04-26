@@ -29,6 +29,7 @@ import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
+import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.swt.SWT;
@@ -41,8 +42,10 @@ import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.JythonServerFacade;
+import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.experiment.MappingExperimentView;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesSection;
+import uk.ac.diamond.daq.mapping.ui.experiment.ScanRequestConverter;
 import uk.ac.diamond.daq.mapping.ui.experiment.SubmitScanSection;
 
 /**
@@ -65,6 +68,11 @@ public abstract class SubmitScanToScriptSection extends SubmitScanSection {
 		} catch (Exception e) {
 			logger.error("Error creating consumer proxy", e);
 		}
+	}
+
+	protected ScanRequest getScanRequest(final IMappingExperimentBean mappingBean) {
+		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
+		return converter.convertToScanRequest(mappingBean);
 	}
 
 	/**

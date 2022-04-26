@@ -28,7 +28,6 @@ import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -175,11 +174,6 @@ public abstract class AbstractMappingSection implements IMappingSection {
 			dataBindingContext.removeBinding(binding);
 			binding.dispose();
 		}
-	}
-
-	protected ScanRequest getScanRequest(final IMappingExperimentBean mappingBean) {
-		final ScanRequestConverter converter = getService(ScanRequestConverter.class);
-		return converter.convertToScanRequest(mappingBean);
 	}
 
 	public void setCreateSeparator(boolean createSeparator) {
