@@ -18,10 +18,6 @@
 
 package uk.ac.gda.devices.detector.xspress4;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -29,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.tree.NexusTreeProvider;
-import gda.data.swmr.SwmrFileReader;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
@@ -55,16 +50,13 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	private boolean isContinuousModeOn;
 	private TriggerMode triggerModeForContinuousScan = TriggerMode.TtlVeto;
 
-	private String pathToAttributeDataGroup = "/entry/instrument/NDAttributes/";
-	private String scalerDataNameFormat = "Chan%02dSca%d";
-	private String dtcFactorDataNameFormat = "Chan%02dDTCFactor";
-
-	private SwmrFileReader fileReader;
 	private boolean useSwmrFileReading = false;
 
 	private boolean useNexusTreeWriter = false;
 	private transient NexusTreeWriterHelper nexusTreeWriter = new NexusTreeWriterHelper();
 	private int maxFramesToReadAtOnce = 500;
+
+	private XspressDataProvider dataProvider = new XspressDataProvider();
 
 	@Override
 	public void clearMemory() throws DeviceException {
@@ -91,56 +83,11 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 				xspressDetector.setAcquireTime(timePerFrame);
 			}
 
-			if (xspressDetector.isWriteHDF5Files() && useSwmrFileReading) {
-				setupSwmrFileReader();
-			}
+			dataProvider.setupSwmrFileReader(xspressDetector.isWriteHDF5Files() && useSwmrFileReading);
+
 			xspressDetector.getController().startTimeSeries();
 			xspressDetector.atScanLineStart();
 		}
-	}
-
-	/**
-	 *
-	 * @param element
-	 * @param scaler
-	 * @return Name of scaler dataset in hdf file for given detector element and scaler number
-	 */
-	public String getScalerName(int element, int scaler) {
-		return String.format(scalerDataNameFormat, element + 1, scaler);
-	}
-
-	/**
-	 *
-	 * @param element
-	 * @return Name of 'deadtime correction factor' dataset in hdf file for specified detector element
-	 */
-	public String getDeadtimeCorrectionFactorName(int element) {
-		return String.format(dtcFactorDataNameFormat, element+1);
-	}
-
-	private List<String> getAllDatanames(int element) {
-		List<String> names = new ArrayList<>();
-		for(int i=0; i< xspressDetector.getController().getNumScalers(); i++) {
-			names.add(getScalerName(element, i));
-		}
-		names.add(getDeadtimeCorrectionFactorName(element));
-		return names;
-	}
-
-	/**
-	 * Create new SwmrFileReader setup list of dataset in hdf file to be read with names of scaler datasets for each detector element
-	 * (i.e. "Chan..Sca.." datasets in attribute data group of detector hdf file).
-	 */
-	private void setupSwmrFileReader() {
-		fileReader = new SwmrFileReader();
-
-		// Setup list of dataset to be read for each detector element
-		for (int element = 0; element < xspressDetector.getNumberOfElements(); element++) {
-			for(String datasetName : getAllDatanames(element)) {
-				fileReader.addDatasetToRead(datasetName, Paths.get(pathToAttributeDataGroup, datasetName).toString());
-			}
-		}
-		nexusTree.setSwmrFileReader(fileReader);
 	}
 
 	@Override
@@ -179,18 +126,11 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 			}
 
 			// Open hdf file
-			if (useSwmrFileReading && fileReader != null) {
-				if (fileReader.getFilename().isEmpty()) {
-					logger.debug("Opening detector hdf file for reading...");
-					fileReader.openFile(xspressDetector.getController().getHdfFullFileName());
-				}
-				int numFramesHdf = fileReader.getNumAvailableFrames();
-				logger.debug("getNumFrames() : {} from Hdf file", numFramesHdf);
-				return numFramesHdf;
-			} else {
-				logger.warn("getNumFrames() : Using Hdf file but SwmrFileReader has not been set. Using num frames from array counter");
-				return numFramesArrayCounter;
-			}
+			dataProvider.openFile(xspressDetector.getController().getHdfFullFileName());
+
+			int numFramesHdf = dataProvider.getNumAvailableHdfFrames();
+			logger.debug("getNumFrames() : {} from Hdf file", numFramesHdf);
+			return numFramesHdf;
 		} catch (NexusException | ScanFileHolderException e) {
 			throw new DeviceException(e);
 		}
@@ -199,7 +139,8 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		try {
-			NXDetectorData[] detectorData = nexusTree.getDetectorData(startFrame, finalFrame);
+			NXDetectorData[] detectorData = nexusTree.getNXDetectorData(dataProvider.getScalerData(startFrame, finalFrame),
+					dataProvider.getDtcFactorData(startFrame, finalFrame));
 			if (useNexusTreeWriter) {
 				int startIndex = 0;
 				// Skip first frame if writing to scan nexus file - NexusDatawriter should write this point, so
@@ -249,7 +190,8 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	public void setXspress4Detector(Xspress4Detector xspressDetector) {
 		this.xspressDetector = xspressDetector;
-		nexusTree = new Xspress4NexusTree(this);
+		nexusTree = new Xspress4NexusTree(xspressDetector);
+		dataProvider.setXspressController(xspressDetector.getController());
 	}
 
 	@Override
@@ -323,9 +265,9 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 		xspressDetector.getController().stopTimeSeries();
 
 		// Try to release handle to detector hdf file.
-		if (fileReader != null && fileReader.isFileOpen()) {
+		if (useSwmrFileReading) {
 			try {
-				fileReader.releaseFile();
+				dataProvider.releaseFile();
 			} catch (ScanFileHolderException e) {
 				logger.error("Problem closing detector hdf file at scan end : {}", e.getMessage(), e);
 				throw new DeviceException(e);
@@ -551,27 +493,27 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public String getPathToAttributeDataGroup() {
-		return pathToAttributeDataGroup;
+		return dataProvider.getPathToAttributeDataGroup();
 	}
 
 	public void setPathToAttributeDataGroup(String pathToAttributeDataGroup) {
-		this.pathToAttributeDataGroup = pathToAttributeDataGroup;
+		dataProvider.setPathToAttributeDataGroup(pathToAttributeDataGroup);
 	}
 
 	public String getScalerDataNameFormat() {
-		return scalerDataNameFormat;
+		return dataProvider.getScalerDataNameFormat();
 	}
 
 	public void setScalerDataNameFormat(String scalerDataNameFormat) {
-		this.scalerDataNameFormat = scalerDataNameFormat;
+		dataProvider.setScalerDataNameFormat(scalerDataNameFormat);
 	}
 
 	public String getDtcFactorDataNameFormat() {
-		return dtcFactorDataNameFormat;
+		return dataProvider.getDtcFactorDataNameFormat();
 	}
 
 	public void setDtcFactorDataNameFormat(String dtcFactorDataNameFormat) {
-		this.dtcFactorDataNameFormat = dtcFactorDataNameFormat;
+		dataProvider.setDtcFactorDataNameFormat(dtcFactorDataNameFormat);
 	}
 
 	public boolean isUseSwmrFileReading() {

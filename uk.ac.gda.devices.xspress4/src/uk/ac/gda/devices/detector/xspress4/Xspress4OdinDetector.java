@@ -61,10 +61,11 @@ public class Xspress4OdinDetector extends Xspress4Detector {
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-//		super.atScanEnd();
-		// Stop the file writer
-		// Do some stuff here - make link to hdf file(s) in Nexus etc.
-
+		if (!isWriteHDF5Files()) {
+			return;
+		}
+		waitForFileWriter(); // hdf writer
+		//also check the number of frames in the Meta writer?
 	}
 
 	@Override

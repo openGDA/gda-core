@@ -38,7 +38,6 @@ import gda.device.detector.NXDetectorData;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.devices.detector.xspress4.Xspress4BufferedDetector;
-import uk.ac.gda.devices.detector.xspress4.Xspress4NexusTree;
 import uk.ac.gda.devices.detector.xspress4.XspressHdfWriter;
 
 public class XspressHdfWriterTest extends TestBase {
@@ -153,10 +152,8 @@ public class XspressHdfWriterTest extends TestBase {
 		xspress4BufferedDetector.setName("xspress4BufferedDetector");
 		xspress4BufferedDetector.setXspress4Detector(xspress4detector);
 
-		// Generate NXDetectorData containing the detector data.
-		Xspress4NexusTree nexusTree = new Xspress4NexusTree(xspress4BufferedDetector);
-		nexusTree.setSwmrFileReader(fileReader);
-		NXDetectorData[] detectorData = nexusTree.getDetectorData(0, numFrames-1);
+		// Create NXDetectorData containing the detector data.
+		NXDetectorData[] detectorData = xspress4BufferedDetector.readFrames(0, numFrames-1);
 
 		// Names of scaler datasets to be checked.
 		List<String> scalerDataNames = new ArrayList<String>();
