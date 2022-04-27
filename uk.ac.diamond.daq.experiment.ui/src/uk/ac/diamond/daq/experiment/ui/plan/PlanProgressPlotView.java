@@ -6,11 +6,14 @@ import static uk.ac.diamond.daq.experiment.api.remote.EventConstants.EXPERIMENT_
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
@@ -65,6 +68,7 @@ public class PlanProgressPlotView extends ViewPart {
 	
 	private List<IAnnotation> segmentAnnotations;
 	private Map<String, DynamicTraceMaintainer> triggerPlots;
+	private Map<Scannable, DynamicTraceMaintainer> sevPlots;
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -117,6 +121,10 @@ public class PlanProgressPlotView extends ViewPart {
 		if (bean.getDriverName() != null && bean.getDriverProfile() != null) {
 			initialiseDriverPlottingComponents();
 		}
+		
+		setupSevPlotting();
+		
+		startTrajectoryJob();
 	}
 	
 	
@@ -125,14 +133,40 @@ public class PlanProgressPlotView extends ViewPart {
 		segmentAnnotations = new ArrayList<>();
 	}
 	
+	private void setupSevPlotting() {
+		sevPlots = new HashMap<>();
+		addAnyNewSevs();
+	}
+	
+	private void addAnyNewSevs() {
+		for (var name : knownSevs()) {
+			Scannable sev = Finder.find(name);
+			if (sev != null) {
+				sevPlots.computeIfAbsent(sev, scannable -> new DynamicTraceMaintainer(scannable, true));
+			}
+		}
+	}
+	
+	private Set<String> knownSevs() {
+		if (activePlan == null) return Collections.emptySet();
+		
+		var sevs = activePlan.getSegments().stream()
+					.map(SegmentRecord::getSampleEnvironmentName)
+					.collect(Collectors.toSet());
+		
+		sevs.addAll(activePlan.getTriggers().stream()
+					.map(TriggerRecord::getSampleEnvironmentName)
+					.collect(Collectors.toSet()));
+		
+		return sevs;
+	}
+	
 	private void initialiseDriverPlottingComponents() {
 		plotDriverProfile();
 		
 		IExperimentDriver<? extends DriverModel> driver = Finder.find(activePlan.getDriverName());
 		signalSource = Finder.find(driver.getMainReadoutName());
-		trajectory = new DynamicTraceMaintainer("actual trajectory", true);
-		
-		startTrajectoryJob();
+		trajectory = new DynamicTraceMaintainer(signalSource, true);
 	}
 
 	/**
@@ -145,6 +179,7 @@ public class PlanProgressPlotView extends ViewPart {
 	private void updateView() {
 		plotSegments();
 		plotTriggers();
+		addAnyNewSevs();
 		updatePlotTitleAndAxisLabel(activePlan.getName() + ": " + activePlan.getStatus().toString(), "Time (min)");
 		if (activePlan.getStatus() == Status.COMPLETE && trajectoryJob != null && !trajectoryJob.isDone()) {
 			trajectoryJob.cancel(true);
@@ -159,8 +194,14 @@ public class PlanProgressPlotView extends ViewPart {
 	}
 	
 	private void addPointToTrajectory() {
-		trajectory.addPoint(Instant.now().toEpochMilli());
-		trajectory.updateTrace();
+		if (trajectory != null) {
+			trajectory.addPoint(Instant.now().toEpochMilli());
+			trajectory.updateTrace();
+		}
+		sevPlots.values().forEach(trace -> {
+			trace.addPoint(Instant.now().toEpochMilli());
+			trace.updateTrace();
+		});
 	}
 	
 	private void plotDriverProfile() {
@@ -229,11 +270,13 @@ public class PlanProgressPlotView extends ViewPart {
 		
 		private final ILineTrace trace;
 		
+		private final Scannable scannable;
+		
 		/**
-		 * @param traceName
-		 * @param line true to plot the line, false plots individual points instead
+		 * Use this constructor for when the trace name is not scannable name
 		 */
-		public DynamicTraceMaintainer(String traceName, boolean line) {
+		public DynamicTraceMaintainer(String traceName, Scannable scannable, boolean line) {
+			this.scannable = scannable;
 			trace = plottingSystem.createLineTrace(traceName);
 			if (line) {
 				trace.setLineWidth(2);
@@ -242,7 +285,15 @@ public class PlanProgressPlotView extends ViewPart {
 				trace.setPointSize(8);
 				trace.setPointStyle(PointStyle.FILLED_CIRCLE);
 			}
-			Display.getDefault().asyncExec(()->plottingSystem.addTrace(trace));
+			Display.getDefault().asyncExec(() -> plottingSystem.addTrace(trace));
+		}
+		
+		/**
+		 * @param scannable scannable whose position we track
+		 * @param line true to plot the line, false plots individual points instead
+		 */
+		public DynamicTraceMaintainer(Scannable scannable, boolean line) {
+			this(scannable.getName(), scannable, line);
 		}
 		
 		public void updateTrace() {
@@ -252,7 +303,14 @@ public class PlanProgressPlotView extends ViewPart {
 		
 		public void addPoint(long timestamp) {
 			x.add(getRelativeTimeInMinutes(timestamp));
-			y.add(getYPosition());
+			double position;
+			try {
+				position = (double) scannable.getPosition();
+			} catch (DeviceException e) {
+				position = 0.0;
+				logger.error("Error reading {} position", scannable.getName(), e);
+			}
+			y.add(position);
 		}
 		
 		public int getSize() {
@@ -263,8 +321,7 @@ public class PlanProgressPlotView extends ViewPart {
 	private void plotTriggers() {
 		for (TriggerRecord trigRec : activePlan.getTriggers()) {
 			String triggerName = trigRec.getTriggerName();
-			DynamicTraceMaintainer tp = triggerPlots.computeIfAbsent(triggerName, name -> new DynamicTraceMaintainer(name, false));
-			
+			DynamicTraceMaintainer tp = triggerPlots.computeIfAbsent(triggerName, name -> new DynamicTraceMaintainer(name, Finder.find(trigRec.getSampleEnvironmentName()), false));
 			List<TriggerEvent> events = trigRec.getEvents();
 			for (int i = tp.getSize(); i < events.size(); i++) {
 				tp.addPoint(events.get(i).getTimestamp());
