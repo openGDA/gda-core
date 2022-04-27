@@ -18,12 +18,16 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
+import static java.util.Collections.emptySet;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import static uk.ac.diamond.daq.mapping.ui.experiment.RegionAndPathMapper.mapRegionOntoModel;
 
 import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -35,15 +39,15 @@ import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor.PathOption;
 class TomoRegionAndPathSection extends AbstractRegionAndPathSection {
 
 	protected TomoRegionAndPathSection(TensorTomoScanSetupView tomoView) {
-		super(tomoView, RegionAndPathType.TOMO);
+		super(tomoView);
 	}
 
 	@Override
-	protected RegionAndPathConfig createRegionAndPathConfig(RegionAndPathType type) {
+	protected RegionAndPathConfig createRegionAndPathConfig() {
 		final TensorTomoScanBean tomoBean = getTomoBean();
 
 		final RegionAndPathConfig config = new RegionAndPathConfig();
-		config.type = type;
+		config.type = RegionAndPathType.TOMO;
 		config.axis1Name = tomoBean.getAngle1ScannableName();
 		config.axis2Name = tomoBean.getAngle2ScannableName();
 		config.regionModel = tomoBean.getAngleRegionModel();
@@ -53,8 +57,8 @@ class TomoRegionAndPathSection extends AbstractRegionAndPathSection {
 	}
 
 	@Override
-	public void createRegionAndPathEditors(final Composite parent, RegionAndPathConfig config) {
-		super.createRegionAndPathEditors(parent, config);
+	public void createRegionAndPathEditors(final Composite parent) {
+		super.createRegionAndPathEditors(parent);
 		createRestoreDefaultsButton(parent);
 	}
 
@@ -75,8 +79,17 @@ class TomoRegionAndPathSection extends AbstractRegionAndPathSection {
 		tomoRegion.setyStop(90);
 
 		// TODO calculate steps using formula
-		tomoBean.getAnglePathModel().setxAxisStep(1.0);
-		tomoBean.getAnglePathModel().setyAxisStep(1.0);
+		// Code below is just temporary placeholder code until this is done
+		final AbstractTwoAxisGridModel pathModel = tomoBean.getAnglePathModel();
+		if (pathModel instanceof TwoAxisGridStepModel) {
+			((TwoAxisGridStepModel) pathModel).setxAxisStep(1.0);
+			((TwoAxisGridStepModel) pathModel).setyAxisStep(1.0);
+		} else if (pathModel instanceof TwoAxisGridPointsModel) {
+			((TwoAxisGridPointsModel) pathModel).setxAxisPoints(10);
+			((TwoAxisGridPointsModel) pathModel).setyAxisPoints(10);
+		} else {
+			throw new IllegalArgumentException("Unexpected path model type: " + pathModel.getClass()); // shouldn't happen
+		}
 		mapRegionOntoModel(tomoBean.getAngleRegionModel(), tomoBean.getAnglePathModel());
 	}
 
@@ -86,8 +99,13 @@ class TomoRegionAndPathSection extends AbstractRegionAndPathSection {
 	}
 
 	@Override
-	protected Set<PathOption> getPathOptions(final RegionAndPathConfig config) {
-		return Set.of();
+	protected void updateBeanWithGridPath(AbstractTwoAxisGridModel pathModel) {
+		getTomoBean().setAnglePathModel(pathModel);
+	}
+
+	@Override
+	protected Set<PathOption> getPathOptions() {
+		return emptySet();
 	}
 
 }

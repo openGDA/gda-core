@@ -108,6 +108,8 @@ public class TensorTomoScanSetupView {
 	@Inject
 	private IScanBeanSubmitter submitter;
 
+	private Composite mainComposite;
+
 	private ClassToInstanceMap<AbstractTomoViewSection> sections;
 
 	private final IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
@@ -147,9 +149,9 @@ public class TensorTomoScanSetupView {
 	public void createView(Composite parent) {
 		initializeTomoBean(); // ensure the tomo bean is fully initialized
 
-		final Composite composite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(composite);
-		GridDataFactory.fillDefaults().applyTo(composite);
+		mainComposite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
+		GridDataFactory.fillDefaults().applyTo(mainComposite);
 		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 
@@ -158,7 +160,7 @@ public class TensorTomoScanSetupView {
 			return;
 		}
 
-		sections = createSections(composite);
+		sections = createSections();
 		viewCreated = true;
 
 		updatePlotRegion();
@@ -169,7 +171,7 @@ public class TensorTomoScanSetupView {
 		return viewCreated;
 	}
 
-	private ClassToInstanceMap<AbstractTomoViewSection> createSections(Composite parent) {
+	private ClassToInstanceMap<AbstractTomoViewSection> createSections(){
 		// TODO use reflection from list of classes?
 		final List<AbstractTomoViewSection> sectionsList = List.of(
 				new DetectorSection(this),
@@ -182,7 +184,7 @@ public class TensorTomoScanSetupView {
 		);
 
 		for (AbstractTomoViewSection section : sectionsList) {
-			section.createControls(parent);
+			section.createControls(mainComposite);
 		}
 
 		return ImmutableClassToInstanceMap.copyOf(sectionsList.stream().collect(
@@ -317,6 +319,10 @@ public class TensorTomoScanSetupView {
 
 	public Shell getShell() {
 		return (Shell) eclipseContext.get(IServiceConstants.ACTIVE_SHELL);
+	}
+
+	public void relayout() {
+		mainComposite.layout(true, true);
 	}
 
 	@Focus

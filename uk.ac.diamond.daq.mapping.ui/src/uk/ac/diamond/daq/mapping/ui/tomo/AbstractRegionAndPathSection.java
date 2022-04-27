@@ -18,20 +18,26 @@
 
 package uk.ac.diamond.daq.mapping.ui.tomo;
 
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
 import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
-import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor;
+import uk.ac.diamond.daq.mapping.ui.path.AbstractGridPathEditor;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor.PathOption;
 import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
 import uk.ac.diamond.daq.mapping.ui.region.RegionEditorProvider;
@@ -42,20 +48,72 @@ abstract class AbstractRegionAndPathSection extends AbstractTomoViewSection {
 		MAP, TOMO;
 	}
 
-	protected static class RegionAndPathConfig {
-		public RegionAndPathType type;
-		public String axis1Name;
-		public String axis2Name;
-		public IMappingScanRegionShape regionModel;
-		public AbstractTwoAxisGridModel pathModel;
-		public String units;
+	protected enum GridPathType {
+		NUM_STEPS("Num. points", TwoAxisGridPointsModel.class),
+		STEP_SIZE("Step size", TwoAxisGridStepModel.class);
+
+		protected String label;
+		protected Class<? extends AbstractTwoAxisGridModel> modelClass;
+		private GridPathType(String label, Class<? extends AbstractTwoAxisGridModel> modelClass) {
+			this.label = label;
+			this.modelClass = modelClass;
+		}
+		public static GridPathType forModelClass(Class<? extends AbstractTwoAxisGridModel> modelClass) {
+			for (GridPathType type : GridPathType.values()) {
+				if (type.modelClass.equals(modelClass))
+					return type;
+			}
+			throw new IllegalArgumentException("Unknown model class: " + modelClass);
+		}
 	}
 
-	private final RegionAndPathType type;
+	protected static class RegionAndPathConfig {
+		protected RegionAndPathType type;
+		protected String axis1Name;
+		protected String axis2Name;
+		protected IMappingScanRegionShape regionModel;
+		protected AbstractTwoAxisGridModel pathModel;
+		protected String units;
+	}
 
-	protected AbstractRegionAndPathSection(TensorTomoScanSetupView tomoView, RegionAndPathType type) {
+	private static final Logger logger = LoggerFactory.getLogger(AbstractRegionAndPathSection.class);
+
+	private final RegionAndPathConfig config;
+
+	private final Map<GridPathType, AbstractTwoAxisGridModel> pathModels;
+
+	private Composite pathEditorComposite;
+
+	private AbstractGridPathEditor pathEditor;
+
+	protected AbstractRegionAndPathSection(TensorTomoScanSetupView tomoView) {
 		super(tomoView);
-		this.type = type;
+		this.config = createRegionAndPathConfig();
+		pathModels = initializePathModels();
+	}
+
+	protected abstract RegionAndPathConfig createRegionAndPathConfig();
+
+	private Map<GridPathType, AbstractTwoAxisGridModel> initializePathModels() {
+		final Map<GridPathType, AbstractTwoAxisGridModel> pathModels = new EnumMap<>(GridPathType.class);
+		final GridPathType initialType = GridPathType.forModelClass(config.pathModel.getClass());
+		for (GridPathType gridPathType : GridPathType.values()) {
+			try {
+				final AbstractTwoAxisGridModel pathModel;
+				if (gridPathType == initialType) {
+					pathModel = config.pathModel;
+				} else {
+					pathModel = gridPathType.modelClass.getDeclaredConstructor().newInstance(); // TODO this isn't right for tomo
+					pathModel.setxAxisName(config.axis1Name);
+					pathModel.setyAxisName(config.axis2Name);
+				}
+				pathModels.put(gridPathType, pathModel);
+			} catch (Exception e) {
+				logger.error("Could not create instance of model class {}", gridPathType.modelClass, e);
+			}
+		}
+
+		return pathModels;
 	}
 
 	@Override
@@ -64,9 +122,7 @@ abstract class AbstractRegionAndPathSection extends AbstractTomoViewSection {
 
 		final Composite composite = createComposite(parent, 1, true);
 		createUpperControls(composite);
-
-		final RegionAndPathConfig config = createRegionAndPathConfig(type);
-		createRegionAndPathEditors(composite, config);
+		createRegionAndPathEditors(composite);
 	}
 
 	protected void createUpperControls(final Composite composite) {
@@ -76,26 +132,59 @@ abstract class AbstractRegionAndPathSection extends AbstractTomoViewSection {
 
 	protected abstract String getSectionLabel();
 
-	protected void createRegionAndPathEditors(final Composite parent, final RegionAndPathConfig config) {
+	protected void createRegionAndPathEditors(final Composite parent) {
 		final Composite editorsComposite = createComposite(parent, 2, false);
-		GridLayoutFactory.fillDefaults().numColumns(2).spacing(10, 5).applyTo(editorsComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(editorsComposite);
+		((GridLayout) editorsComposite.getLayout()).horizontalSpacing = 10;
 
-		createRegionEditor(editorsComposite, config);
-		createPathEditor(editorsComposite, config);
+		createRegionEditor(editorsComposite);
+		createPathEditorArea(editorsComposite);
 	}
 
-	private void createPathEditor(final Composite parent, final RegionAndPathConfig config) {
+	private void createPathEditorArea(final Composite parent) {
+		final Composite composite = createComposite(parent, 1, false);
+
+		final Composite pathTypeChoiceComposite = createComposite(composite, 3, false);
+		final Label pathTypeLabel = new Label(pathTypeChoiceComposite, SWT.NONE);
+		pathTypeLabel.setText("Path Type:");
+
+		final GridPathType initialPathType = GridPathType.forModelClass(config.pathModel.getClass());
+		for (GridPathType gridPathType : GridPathType.values()) {
+			final Button gridPathTypeButton = new Button(pathTypeChoiceComposite, SWT.RADIO);
+			gridPathTypeButton.setText(gridPathType.label);
+			gridPathTypeButton.setSelection(gridPathType == initialPathType);
+			gridPathTypeButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(
+					e -> { if (gridPathTypeButton.getSelection()) gridPathTypeSelected(gridPathType); }));
+		}
+
 		// grid model is the step for each axis
-		final AbstractPathEditor pathEditor = PathEditorProvider.createPathComposite(config.pathModel, getEclipseContext());
-		pathEditor.setAxisNames(config.axis1Name, config.axis2Name);
-		pathEditor.setOptionsToDisplay(getPathOptions(config));
-		pathEditor.createEditorPart(parent);
+		pathEditorComposite = createComposite(composite, 1, false);
+		createPathEditor();
 	}
 
-	protected abstract Set<PathOption> getPathOptions(final RegionAndPathConfig config);
+	private void gridPathTypeSelected(GridPathType gridPathType) {
+		config.pathModel = pathModels.get(gridPathType);
+		updateBeanWithGridPath(config.pathModel);
+		createPathEditor();
+		tomoView.relayout();
+	}
 
-	private void createRegionEditor(final Composite parent, final RegionAndPathConfig config) {
+	private void createPathEditor() {
+		if (pathEditor != null) {
+			pathEditor.dispose();
+		}
+
+		pathEditor = (AbstractGridPathEditor) PathEditorProvider.createPathComposite(
+				config.pathModel, getEclipseContext());
+		pathEditor.setAxisNames(config.axis1Name, config.axis2Name);
+		pathEditor.setOptionsToDisplay(getPathOptions());
+		pathEditor.createEditorPart(pathEditorComposite);
+	}
+
+	protected abstract void updateBeanWithGridPath(AbstractTwoAxisGridModel pathModel);
+
+	protected abstract Set<PathOption> getPathOptions();
+
+	private void createRegionEditor(final Composite parent) {
 		// Region is the start/stop for each axis
 		final Map<String, String> regionUnits = Map.of(config.axis1Name, config.units, config.axis2Name, config.units);
 		final AbstractRegionPathModelEditor<IMappingScanRegionShape> regionEditor = RegionEditorProvider.createRegionEditor(
@@ -104,8 +193,6 @@ abstract class AbstractRegionAndPathSection extends AbstractTomoViewSection {
 		regionEditor.setUnitsEditable(false);
 		regionEditor.createEditorPart(parent);
 	}
-
-	protected abstract RegionAndPathConfig createRegionAndPathConfig(RegionAndPathType type);
 
 	@Override
 	public void configureScanBean(ScanBean scanBean) {
