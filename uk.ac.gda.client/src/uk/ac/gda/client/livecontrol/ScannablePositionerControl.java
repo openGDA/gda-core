@@ -277,18 +277,22 @@ public class ScannablePositionerControl extends LiveControlBase {
 	}
 
 	public void toggleShowStop() {
-		if (positionerComposite instanceof NudgePositionerComposite) {
-			NudgePositionerComposite npc = (NudgePositionerComposite) positionerComposite;
-			if (npc.isStopButtonVisible()) {
-				npc.hideStopButton();
-				showStop = false;
-			} else {
-				npc.showStopButton();
-				showStop = true;
-			}
+		if (positionerComposite.isStopButtonVisible()) {
+			positionerComposite.hideStopButton();
+			showStop = false;
+		} else {
+			positionerComposite.showStopButton();
+			showStop = true;
 		}
 	}
 
+	public void toggleLayoutControl() {
+		if (horizontalLayout) {
+			horizontalLayout = false;
+		} else {
+			horizontalLayout = true;
+		}
+	}
 
 	@Override
 	public String toString() {

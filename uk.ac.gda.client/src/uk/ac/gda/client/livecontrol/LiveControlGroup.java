@@ -52,6 +52,12 @@ public class LiveControlGroup extends LiveControlBase {
 				.map(ScannablePositionerControl.class::cast).forEach(ScannablePositionerControl::toggleShowStop);
 	}
 
+	public void toggleLayoutControl() {
+		controls.stream().filter(ScannablePositionerControl.class::isInstance)
+				.map(ScannablePositionerControl.class::cast)
+				.forEach(ScannablePositionerControl::toggleLayoutControl);
+	}
+
 	public void setControls(List<LiveControl> controls) {
 		this.controls = controls;
 	}
