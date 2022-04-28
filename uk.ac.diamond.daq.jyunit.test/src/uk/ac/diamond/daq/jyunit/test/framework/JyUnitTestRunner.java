@@ -151,10 +151,10 @@ public abstract class JyUnitTestRunner {
 			logger.info("All tests passed");
 			break;
 		case 1:
-			Assert.fail("There are test failures, see individual test reports");
+			Assert.fail("There are JyUnit test failures, see individual test reports");
 			break;
 		case 2:
-			throw new IllegalStateException("There are test errors, see individual test reports");
+			throw new IllegalStateException("There are JyUnit test errors, see individual test reports");
 		default:
 			throw new IllegalStateException("Unknown Jython return code");
 		}
