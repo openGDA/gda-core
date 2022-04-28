@@ -36,7 +36,7 @@ public class DetectorDocument {
 	/**
 	 * The detector exposure time.
 	 */
-	private final double exposure;
+	private double exposure;
 
 	/**
 	 * The detector name, from the Malcolm DetectorTable, which accepts <i>exposure</i> property.
@@ -73,6 +73,10 @@ public class DetectorDocument {
 
 	public double getExposure() {
 		return exposure;
+	}
+
+	public void setExposure(double exposure) {
+		this.exposure = exposure;
 	}
 
 	public String getMalcolmDetectorName() {

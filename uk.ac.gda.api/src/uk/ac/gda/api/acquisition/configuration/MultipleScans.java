@@ -13,15 +13,15 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = MultipleScans.Builder.class)
 public class MultipleScans {
 
-	private final MultipleScansType multipleScansType;
+	private MultipleScansType multipleScansType;
 	/**
 	 * The number of time scan has to be repeated
 	 */
-	private final int numberRepetitions;
+	private int numberRepetitions;
 	/**
 	 * The time, in milliseconds, to wait between each scan
 	 */
-	private final int waitingTime;
+	private int waitingTime;
 
 	public MultipleScans(MultipleScansType multipleScansType, int numberRepetitions, int waitingTime) {
 		this.multipleScansType = multipleScansType;
@@ -33,12 +33,24 @@ public class MultipleScans {
 		return numberRepetitions;
 	}
 
+	public void setNumberRepetitions(int numberRepetitions) {
+		this.numberRepetitions = numberRepetitions;
+	}
+
 	public int getWaitingTime() {
 		return waitingTime;
 	}
 
+	public void setWaitingTime(int waitingTime) {
+		this.waitingTime = waitingTime;
+	}
+
 	public MultipleScansType getMultipleScansType() {
 		return multipleScansType;
+	}
+
+	public void setMultipleScansType(MultipleScansType multipleScansType) {
+		this.multipleScansType = multipleScansType;
 	}
 
 	@JsonPOJOBuilder

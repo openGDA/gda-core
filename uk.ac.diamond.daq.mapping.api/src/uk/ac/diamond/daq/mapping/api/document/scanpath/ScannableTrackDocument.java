@@ -58,19 +58,19 @@ public class ScannableTrackDocument {
 	/**
 	 * The interval starting point
 	 */
-	private final double start;
+	private double start;
 	/**
 	 * The interval ending point
 	 */
-	private final double stop;
+	private double stop;
 	/**
 	 * The required step from {@code start} to {@code stop}
 	 */
-	private final double step;
+	private double step;
 	/**
 	 * The required number of points from {@code start} to {@code stop}
 	 */
-	private final int points;
+	private int points;
 
 	/**
 	 * @param scannable
@@ -106,16 +106,32 @@ public class ScannableTrackDocument {
 		return start;
 	}
 
+	public void setStart(double start) {
+		this.start = start;
+	}
+
 	public double getStop() {
 		return stop;
+	}
+
+	public void setStop(double stop) {
+		this.stop = stop;
 	}
 
 	public double getStep() {
 		return step;
 	}
 
+	public void setStep(double step) {
+		this.step = step;
+	}
+
 	public int getPoints() {
 		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
 	}
 
 	/**
