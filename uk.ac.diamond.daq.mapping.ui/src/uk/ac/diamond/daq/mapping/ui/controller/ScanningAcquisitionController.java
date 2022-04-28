@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.dawnsci.mapping.ui.Activator;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResource
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceLoadEvent;
 import uk.ac.gda.api.acquisition.resource.event.AcquisitionConfigurationResourceSaveEvent;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
+import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
@@ -54,7 +56,6 @@ import uk.ac.gda.client.properties.stage.position.Position;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
-import uk.ac.gda.ui.tool.document.DocumentFactory;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
@@ -75,8 +76,7 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  * @author Maurizio Nagni
  */
 @Controller
-public class ScanningAcquisitionController
-		implements AcquisitionController<ScanningAcquisition> {
+public class ScanningAcquisitionController implements AcquisitionController<ScanningAcquisition> {
 	private static final Logger logger = LoggerFactory.getLogger(ScanningAcquisitionController.class);
 
 	public static final String DEFAULT_CONFIGURATION_NAME = "UntitledConfiguration";
@@ -96,8 +96,21 @@ public class ScanningAcquisitionController
 	@Autowired
 	private ScanningAcquisitionTemporaryHelper tempHelper;
 
-	@Autowired
-	private DocumentFactory documentFactory;
+	private AcquisitionManager acquisitionManager;
+
+	private AcquisitionManager getAcquisitionManager() {
+		if (acquisitionManager == null) {
+			acquisitionManager = Activator.getService(AcquisitionManager.class);
+		}
+		return acquisitionManager;
+	}
+
+	/**
+	 * For tests only.
+	 */
+	protected void setAcquisitionManager(AcquisitionManager acquisitionManager) {
+		this.acquisitionManager = acquisitionManager;
+	}
 
 	private ScanningAcquisition acquisition;
 
@@ -157,9 +170,9 @@ public class ScanningAcquisitionController
 		updateAcquisitionConfiguration(acquisition, acquisitionKeysToload);
 	}
 
-	private void loadAcquisitionConfiguration(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException {
-		var acquisitionToLoad = documentFactory.newScanningAcquisition(acquisitionKeys);
-		updateAcquisitionConfiguration(acquisitionToLoad, acquisitionKeys);
+	@Override
+	public void initialise(AcquisitionKeys keys) throws AcquisitionControllerException {
+		updateAcquisitionConfiguration(getAcquisitionManager().getAcquisition(keys), keys);
 	}
 
 	/**
@@ -196,7 +209,7 @@ public class ScanningAcquisitionController
 
 	@Override
 	public void newScanningAcquisition(AcquisitionKeys acquisitionKeys) throws AcquisitionControllerException {
-		loadAcquisitionConfiguration(acquisitionKeys);
+		updateAcquisitionConfiguration(getAcquisitionManager().newAcquisition(acquisitionKeys), acquisitionKeys);
 	}
 
 	@Override
