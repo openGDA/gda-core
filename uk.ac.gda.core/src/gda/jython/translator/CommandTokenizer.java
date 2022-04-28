@@ -44,7 +44,7 @@ public class CommandTokenizer {
 	private static final Set<String> STRING_LITERAL_PREFIXES;
 	private static final Map<Token, Token> BRACKET_MAP;
 	static {
-		var word = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890";
+		var word = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890.";
 		WORD_CHARS = word.chars().boxed().collect(toSet());
 		STRING_LITERAL_PREFIXES = Set.of("r", "u", "ur", "R", "U", "UR", "Ur", "uR", "b", "B", "br", "Br", "bR", "BR");
 		BRACKET_MAP = Map.of(

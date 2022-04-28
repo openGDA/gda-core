@@ -173,6 +173,28 @@ public class CommandTokeniserTest {
 	}
 
 	@Test
+	public void floatingPointNumbers() throws Exception {
+		assertThat(ct("6.02e23 + 3.14159 * .1"), contains(
+				WORD.token("6.02e23"),
+				WS.token(" "),
+				OP.token("+"),
+				WS.token(" "),
+				WORD.token("3.14159"),
+				WS.token(" "),
+				OP.token("*"),
+				WS.token(" "),
+				WORD.token(".1")));
+	}
+
+	@Test
+	public void methodCallIsOneToken() throws Exception {
+		assertThat(ct("foo.bar()"), contains(
+				WORD.token("foo.bar"),
+				BRACKET.token("("),
+				BRACKET.token(")")));
+	}
+
+	@Test
 	public void printTriple() {
 		var command = "print('''foo\nbar''')";
 		assertThat(ct(command), contains(
