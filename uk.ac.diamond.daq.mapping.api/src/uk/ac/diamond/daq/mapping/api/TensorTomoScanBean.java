@@ -30,8 +30,8 @@ public class TensorTomoScanBean {
 	// Note: x and y scannable names come from the Mapping Stage Info
 	private IMappingScanRegionShape gridRegionModel; // TODO should be RectangularMappingRegion but that's not API
 	private AbstractTwoAxisGridModel gridPathModel;
-	private IScanModelWrapper<IAxialModel> angle1Model;
-	private IScanModelWrapper<IAxialModel> angle2Model;
+	private IScanModelWrapper<IAxialModel> angle1Model; // an AxialStepModel (start, stop step), AxialArrayModel (list of points) or AxialMultiStepModel
+	private IScanModelWrapper<IAxialModel> angle2Model; // an AxialPointsModel (start, stop, numPoints) or AxialArrayModel (list of points) for 0 degrees of angle1.
 	private String malcolmDeviceName;
 	private IMalcolmModel malcolmModel;
 	private String sampleName;

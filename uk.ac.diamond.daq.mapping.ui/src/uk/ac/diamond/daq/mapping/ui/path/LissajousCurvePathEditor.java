@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-public class LissajousCurvePathEditor extends AbstractPathEditor<TwoAxisLissajousModel> {
+public class LissajousCurvePathEditor extends AbstractMapPathEditor<TwoAxisLissajousModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {

@@ -23,6 +23,10 @@ import java.util.Map;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.scanning.api.points.models.AxialArrayModel;
+import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
@@ -46,6 +50,8 @@ public final class PathEditorProvider {
 	static {
 		// Initialise the pathToEditor map
 		pathToEditor = new HashMap<>();
+
+		// map paths
 		pathToEditor.put(TwoAxisGridPointsModel.class, GridPointsPathEditor.class);
 		pathToEditor.put(TwoAxisGridStepModel.class, GridStepPathEditor.class);
 		pathToEditor.put(TwoAxisPtychographyModel.class, PtychographyGridPathEditor.class);
@@ -55,6 +61,12 @@ public final class PathEditorProvider {
 		pathToEditor.put(TwoAxisLineStepModel.class, LineStepPathEditor.class);
 		pathToEditor.put(TwoAxisLinePointsModel.class, LinePointsPathEditor.class);
 		pathToEditor.put(TwoAxisPointSingleModel.class, SinglePointPathEditor.class);
+
+		// axial paths
+		pathToEditor.put(AxialPointsModel.class, AxialPointsPathEditor.class);
+		pathToEditor.put(AxialStepModel.class, AxialStepPathEditor.class);
+		pathToEditor.put(AxialArrayModel.class, AxialArrayPathEditor.class);
+		pathToEditor.put(AxialMultiStepModel.class, AxialMultiStepPathEditor.class);
 	}
 
 	private PathEditorProvider() {

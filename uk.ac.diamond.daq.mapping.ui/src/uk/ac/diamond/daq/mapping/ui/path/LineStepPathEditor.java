@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class LineStepPathEditor extends AbstractPathEditor<TwoAxisLineStepModel> {
+public class LineStepPathEditor extends AbstractMapPathEditor<TwoAxisLineStepModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {

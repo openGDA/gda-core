@@ -398,6 +398,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		// TODO add template files (from mapping bean)?
 
 		final ScanBean scanBean = new ScanBean();
+		scanBean.setName("Tensor Tomo Scan, " + ANGLE_1_LABEL + " = " + angle1Pos);
 		scanBean.setScanRequest(scanRequest);
 		scanBean.setBeamline(System.getProperty("BEAMLINE"));
 		return scanBean;

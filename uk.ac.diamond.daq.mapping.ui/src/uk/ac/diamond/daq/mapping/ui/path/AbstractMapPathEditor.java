@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2018 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,14 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 
 /**
- * Empty editor for a path defining a single point. No controls required.
+ * Abstract superclass for model editors that edit some type of {@link IMapPathModel}.
+ * @param <T> model class
  */
-public class SinglePointPathEditor extends AbstractPathEditor<TwoAxisPointSingleModel> {
+public abstract class AbstractMapPathEditor<T extends IMapPathModel> extends AbstractPathEditor<T> {
 
-	// no methods defined
+	// this class exists for type safety and defines no methods. See subclasses.
 
 }
-

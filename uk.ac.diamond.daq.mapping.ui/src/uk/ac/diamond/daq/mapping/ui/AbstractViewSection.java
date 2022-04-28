@@ -18,7 +18,10 @@
 
 package uk.ac.diamond.daq.mapping.ui;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.net.URI;
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.eclipse.core.databinding.Binding;
@@ -33,6 +36,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -48,6 +52,14 @@ import gda.configuration.properties.LocalProperties;
  * @param <V> view class
  */
 public abstract class AbstractViewSection<B, V extends ISectionView<B>> implements IViewSection<B, V> {
+
+	public interface LabelledEnum {
+		public String getLabel();
+	}
+
+	public interface EnumSelectionListener<T extends Enum<T>> {
+		public void enumSelected(T selectedEnumConstant);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractViewSection.class);
 
@@ -214,6 +226,23 @@ public abstract class AbstractViewSection<B, V extends ISectionView<B>> implemen
 
 	protected void relayoutView() {
 		getView().relayout();
+	}
+
+	protected <T extends Enum<T> & LabelledEnum> Map<T, Button> createEnumRadioButtons(Composite parent,
+			Class<T> enumClass, T initialSelection, EnumSelectionListener<T> selectionListener) {
+		final EnumMap<T, Button> buttons = new EnumMap<>(enumClass);
+		for (T enumConstant : enumClass.getEnumConstants()) {
+			final Button button = new Button(parent, SWT.RADIO);
+			button.setText(enumConstant.getLabel());
+			button.setSelection(enumConstant == initialSelection);
+			button.addSelectionListener(widgetSelectedAdapter(e -> {
+				if (button.getSelection()) {
+					selectionListener.enumSelected(enumConstant);
+				}
+			}));
+			buttons.put(enumConstant, button);
+		}
+		return buttons;
 	}
 
 	protected String getVisitConfigDir() {

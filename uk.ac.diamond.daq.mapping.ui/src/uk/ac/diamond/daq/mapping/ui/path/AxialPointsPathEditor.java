@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2017 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,27 +18,27 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
+import org.eclipse.scanning.api.points.models.AxialPointsModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-public class LinePointsPathEditor extends AbstractMapPathEditor<TwoAxisLinePointsModel> {
+public class AxialPointsPathEditor extends AbstractAxialPathEditor<AxialPointsModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
+		composite = makeComposite(parent, 6);
 
-		final Composite composite = super.createEditorPart(parent);
+		createLabelledText(composite,  "Start", "start");
+		createLabelledText(composite, "Stop", "stop");
 
 		new Label(composite, SWT.NONE).setText("Points");
-		Spinner points = new Spinner(composite, SWT.BORDER);
-		points.setMinimum(1);
-		points.setMaximum(Integer.MAX_VALUE);
-		grabHorizontalSpace.applyTo(points);
-		binder.bind(points, "points", getModel());
-
-		makeCommonOptionsControls(composite);
+		final Spinner pointsSpinner = new Spinner(composite, SWT.BORDER);
+		pointsSpinner.setMinimum(1);
+		pointsSpinner.setMaximum(Integer.MAX_VALUE);
+		grabHorizontalSpace.applyTo(pointsSpinner);
+		binder.bind(pointsSpinner, "points", getModel());
 
 		return composite;
 	}

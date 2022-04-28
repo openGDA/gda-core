@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2018 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,14 +18,20 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
-import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
+import org.eclipse.swt.widgets.Composite;
 
-/**
- * Empty editor for a path defining a single point. No controls required.
- */
-public class SinglePointPathEditor extends AbstractPathEditor<TwoAxisPointSingleModel> {
+public class AxialStepPathEditor extends AbstractAxialPathEditor<AxialStepModel> {
 
-	// no methods defined
+	@Override
+	public Composite createEditorPart(Composite parent) {
+		composite = makeComposite(parent, 6);
+
+		createLabelledText(composite, "Start", "start");
+		createLabelledText(composite, "Stop", "stop");
+		createLabelledText(composite, "Step", "step");
+
+		return composite;
+	}
 
 }
-

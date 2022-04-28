@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtychographyGridPathEditor extends AbstractPathEditor<TwoAxisPtychographyModel> {
+public class PtychographyGridPathEditor extends AbstractMapPathEditor<TwoAxisPtychographyModel> {
 
 	private static final Logger logger = LoggerFactory.getLogger(PtychographyGridPathEditor.class);
 

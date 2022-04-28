@@ -34,7 +34,7 @@ import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.mapping.ui.experiment.UnitsProvider;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
-public class SpiralPathEditor extends AbstractPathEditor<TwoAxisSpiralModel> {
+public class SpiralPathEditor extends AbstractMapPathEditor<TwoAxisSpiralModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {

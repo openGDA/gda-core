@@ -39,9 +39,11 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TypedListener;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.units.NonSIext;
@@ -75,6 +77,7 @@ import tec.units.indriya.quantity.Quantities;
  */
 public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 
+	@FunctionalInterface
 	public interface UnitSelectionChangedListener<Q extends Quantity<Q>> {
 		public void unitSelectionChanged(Unit<Q> newUnit);
 	}
@@ -267,6 +270,13 @@ public class NumberAndUnitsComposite<Q extends Quantity<Q>> extends Composite {
 
 	public void addUnitSelectionChangedListener(UnitSelectionChangedListener<Q> listener) {
 		unitSelectionChangeListeners.add(listener);
+	}
+
+	public void addModifyListener(ModifyListener listener) {
+		checkWidget();
+		if (listener == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
+		TypedListener typedListener = new TypedListener(listener);
+		addListener(SWT.Modify, typedListener);
 	}
 
 	/**

@@ -49,7 +49,7 @@ import uk.ac.gda.client.NumberUnitsWidgetProperty;
  */
 public class DataBinder {
 
-	private final DataBindingContext dbc = new DataBindingContext();
+	private final DataBindingContext bindingContext = new DataBindingContext();
 
 	/**
 	 * Validates that value > 0
@@ -113,7 +113,7 @@ public class DataBinder {
 			return bind(target, model, validator);
 		}
 
-		return dbc.bindValue(target, model);
+		return bindingContext.bindValue(target, model);
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class DataBinder {
 	 * @return created binding
 	 */
 	public <T, M> Binding bind(IObservableValue<T> targetObservableValue, IObservableValue<M> modelObservableValue) {
-		return dbc.bindValue(targetObservableValue, modelObservableValue);
+		return bindingContext.bindValue(targetObservableValue, modelObservableValue);
 	}
 
 	/**
@@ -136,9 +136,33 @@ public class DataBinder {
 	public <T, M> Binding bind(IObservableValue<T> target, IObservableValue<M> model, IValidator<M> validator) {
 		final UpdateValueStrategy<T, M> strategy = new UpdateValueStrategy<>();
 		strategy.setBeforeSetValidator(validator);
-		final Binding binding = dbc.bindValue(target, model, strategy, new UpdateValueStrategy<M, T>());
+		final Binding binding = bindingContext.bindValue(target, model, strategy, new UpdateValueStrategy<M, T>());
 		ControlDecorationSupport.create(binding, SWT.LEFT);
 		return binding;
+	}
+
+	/**
+	 * Bind a widget and bean property, using custom update strategies.
+	 * @param widget widget
+	 * @param modelBean model bean
+	 * @param modelProperty model property name
+	 * @param modelToTarget custom strategy to update target from model
+	 * @param targetToModel custom strategy to update model from target
+	 * @return binding
+	 *
+	 */
+	public <T, M> Binding bind(Widget widget, Object modelBean, String modelProperty,
+			UpdateValueStrategy<M, T> modelToTarget, UpdateValueStrategy<T, M> targetToModel) {
+		final IObservableValue<T> target = getObservableValue(widget);
+		final IObservableValue<M> model  = getObservableValue(modelProperty, modelBean);
+
+		final Binding binding = bindingContext.bindValue(target, model, targetToModel, modelToTarget);
+		ControlDecorationSupport.create(binding, SWT.LEFT);
+		return binding;
+	}
+
+	public void dispose() {
+		bindingContext.dispose();
 	}
 
 }

@@ -47,16 +47,29 @@ import uk.ac.diamond.daq.mapping.ui.region.RegionEditorProvider;
 
 class MapRegionAndPathSection extends AbstractTomoViewSection {
 
-	protected enum GridPathType {
+	protected enum GridPathType implements LabelledEnum {
+
 		NUM_STEPS("Num. points", TwoAxisGridPointsModel.class),
 		STEP_SIZE("Step size", TwoAxisGridStepModel.class);
 
-		protected String label;
-		protected Class<? extends AbstractTwoAxisGridModel> modelClass;
+		private String label;
+
+		private Class<? extends AbstractTwoAxisGridModel> modelClass;
+
 		private GridPathType(String label, Class<? extends AbstractTwoAxisGridModel> modelClass) {
 			this.label = label;
 			this.modelClass = modelClass;
 		}
+
+		@Override
+		public String getLabel() {
+			return label;
+		}
+
+		public Class<? extends AbstractTwoAxisGridModel> getModelClass() {
+			return modelClass;
+		}
+
 		public static GridPathType forModelClass(Class<? extends AbstractTwoAxisGridModel> modelClass) {
 			for (GridPathType type : GridPathType.values()) {
 				if (type.modelClass.equals(modelClass))
@@ -64,6 +77,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 			}
 			throw new IllegalArgumentException("Unknown model class: " + modelClass);
 		}
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(MapRegionAndPathSection.class);
@@ -158,15 +172,8 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 		pathTypeLabel.setText("Path Type:");
 
 		final GridPathType initialPathType = GridPathType.forModelClass(getBean().getGridPathModel().getClass());
-		gridPathTypeRadioButtons = new EnumMap<>(GridPathType.class);
-		for (GridPathType gridPathType : GridPathType.values()) {
-			final Button gridPathTypeButton = new Button(pathTypeChoiceComposite, SWT.RADIO);
-			gridPathTypeButton.setText(gridPathType.label);
-			gridPathTypeButton.setSelection(gridPathType == initialPathType);
-			gridPathTypeButton.addSelectionListener(widgetSelectedAdapter(
-					e -> gridPathTypeSelected(gridPathType)));
-			gridPathTypeRadioButtons.put(gridPathType, gridPathTypeButton);
-		}
+		gridPathTypeRadioButtons = createEnumRadioButtons(pathTypeChoiceComposite, GridPathType.class,
+				initialPathType, this::gridPathTypeSelected);
 
 		// grid model is the step for each axis
 		pathEditorComposite = createComposite(composite, 1, false);
