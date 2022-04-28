@@ -42,22 +42,23 @@ import uk.ac.gda.client.viewer.ThreeStateDisplay;
  * This LiveControl implementation allows a script to be selected from a configured list of scripts through a combo box
  * and then run (non-blocking). The Spring configuration should specify:
  * <ul>
- * <li>group - the widget has no title/label, so use this to identify it in the UI</li>
  * <li>scripts as a map - keys should be user-friendly descriptions of the scripts!</li>
+ * <li>group - (Optional if within a Group) the widget has no title/label, so use this to identify it in the UI</li>
  * <li>jobTitle - (Optional) Some descriptive text to show in the Eclipse status bar while the scripts run</li>
  * </ul>
  * <p> Example configuration:
- * <pre>
- * {@literal		<bean id="endstation_configurations" class="uk.ac.gda.client.livecontrol.JythonScriptListControl">}
- * {@literal			<property name="jobTitle" value="Configuring endstation" />}
- * {@literal			<property name="group" value="Endstation configuration"/>}
- * {@literal			<property name="scripts">}
- * {@literal				<map>}
- * {@literal					<entry key="XrayEye in" value=".configs/in_xreye.py"/>}
- * {@literal					<entry key="XrayEye out" value=".configs/out_xreye.py"/>}
- * {@literal				</map>}
- * {@literal			</property>}
- * {@literal		</bean>}
+ * <pre>{@code
+ * <bean id="endstation_configurations" class="uk.ac.gda.client.livecontrol.JythonScriptListControl">
+ *   <property name="jobTitle" value="Configuring endstation" />
+ *   <property name="group" value="Endstation configuration"/>
+ *   <property name="scripts">
+ *     <map>
+ *       <entry key="XrayEye in" value=".configs/in_xreye.py"/>
+ *       <entry key="XrayEye out" value=".configs/out_xreye.py"/>
+ *     </map>
+ *   </property>
+ * </bean>
+ * }
  * </pre>
  */
 public class JythonScriptListControl extends LiveControlBase {
@@ -161,5 +162,4 @@ public class JythonScriptListControl extends LiveControlBase {
 	public void setJobTitle(String title) {
 		jobTitle = title;
 	}
-
 }
