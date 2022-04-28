@@ -341,6 +341,8 @@ public class NexusDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapter
 	}
 
 	private void writeNode(INexusTree treeNode, SliceND scanSlice) throws NexusException {
+		if (!treeNode.isPointDependent()) return;
+
 		final String nxClass = treeNode.getNxClass();
 		switch (nxClass) {
 			case NexusExtractor.AttrClassName:
