@@ -122,9 +122,9 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  *
  * @author Maurizio Nagni
  */
-public class TomographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
+public class TomographyScanControls implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyConfigurationLayoutFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TomographyScanControls.class);
 
 	/** Scan prefix **/
 	private Text name;
@@ -164,7 +164,7 @@ public class TomographyConfigurationLayoutFactory implements CompositeFactory, R
 	private static final double HALF_ROTATION_RANGE = 180.0;
 	private static final double FULL_ROTATION_RANGE = 360.0;
 
-	public TomographyConfigurationLayoutFactory() {
+	public TomographyScanControls() {
 		try {
 			this.dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
 			this.configurationHelper = new MultipleScansHelper(this::getScanningConfiguration);

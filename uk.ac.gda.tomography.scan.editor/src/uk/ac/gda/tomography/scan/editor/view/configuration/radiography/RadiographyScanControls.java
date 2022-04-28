@@ -51,9 +51,9 @@ import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 /**
  * @author Maurizio Nagni
  */
-public class RadiographyConfigurationLayoutFactory implements CompositeFactory, Reloadable {
+public class RadiographyScanControls implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(RadiographyConfigurationLayoutFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(RadiographyScanControls.class);
 
 	/** Scan prefix **/
 	private Text name;
