@@ -30,15 +30,15 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import uk.ac.diamond.daq.gasrig.api.GasRigException;
+import uk.ac.diamond.daq.gasrig.api.IGasMix;
 import uk.ac.diamond.daq.gasrig.api.IGasRig;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 @ServiceInterface(IGasRig.class)
-public class GasRig extends FindableConfigurableBase implements IGasRig, IObservable, IObserver {
+public class GasRig extends FindableConfigurableBase implements IGasRig, IObserver {
 
 	protected final Logger logger = LoggerFactory.getLogger(GasRig.class);
 
@@ -117,6 +117,20 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 		return gasMixes;
 	}
 
+	public Gas getGas(int gasId) throws GasRigException {
+		return getAllGases().stream()
+				.filter(gas -> gas.getId() == gasId)
+				.findFirst()
+				.orElseThrow(() -> new GasRigException("No gas found for id " + gasId));
+	}
+
+	public Gas getGas(String gasName) throws GasRigException {
+		return getAllGases().stream()
+				.filter(gas -> gas.getName().equals(gasName))
+				.findFirst()
+				.orElseThrow(() -> new GasRigException("No gas found with name " + gasName));
+	}
+
 	@Override
 	public void addIObserver(IObserver observer) {
 		observableComponent.addIObserver(observer);
@@ -138,7 +152,118 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	}
 
 	@Override
-	public void runDummySequence() {
-		controller.runDummySequence();
+	public void initialise() throws DeviceException {
+		controller.initialise();
+	}
+
+	@Override
+	public void runDummySequence() throws GasRigException {
+		try {
+			controller.runDummySequence();
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to run the dummy sequence";
+			logger.error(message);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
+	public void evacuateEndStation() throws GasRigException {
+		try {
+			controller.evacuateEndStation();
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to evacuate the endstation";
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
+	public void evacuateLine(int lineNumber) throws GasRigException {
+		try {
+			controller.evacuateLine(lineNumber);
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to evacuate line " + lineNumber;;
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
+	public void admitLineToEndStation(int lineNumber) throws GasRigException {
+		try {
+			controller.admitLineToEndStation(lineNumber);
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to admit line " + lineNumber + " to endstation";
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
+	public void configureGasMixForLine(IGasMix gasMix, int lineNumber) throws GasRigException, DeviceException {
+
+		if (areGasesInUseOnOtherLines(gasMix, lineNumber)) {
+			throw new GasRigException("Gases already in use on other line.");
+		}
+
+		boolean shouldSendBackToEndStation = false;
+		if (isLineFlowingToEndStation(lineNumber) && !areSameGasesFlowingToLine(gasMix, lineNumber)) {
+			evacuateLine(lineNumber);
+			shouldSendBackToEndStation = true;
+		}
+
+		updateMassFlowsForLine(gasMix, lineNumber);
+
+		if (shouldSendBackToEndStation) {
+			admitLineToEndStation(lineNumber);
+		}
+	}
+
+	private boolean areGasesInUseOnOtherLines(IGasMix gasMix, int lineNumber) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean isLineFlowingToEndStation(int lineNumber) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	private boolean areSameGasesFlowingToLine(IGasMix gasMix, int lineNumber) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private void updateMassFlowsForLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {
+		for (var gasFlow : gasMix.getAllGasFlows()) {
+			updateMassFlow(gasFlow.getGasId(), gasFlow.getMassFlow(), lineNumber);
+		}
+	}
+
+	private void updateMassFlow(int gasId, double massFlow, int lineNumber) throws DeviceException, GasRigException {
+		Gas gas = getGas(gasId);
+
+		controller.setMassFlow(gasId, massFlow);
+
+		if (massFlow > 0) {
+			controller.admitGasToLine(gas.getName(), lineNumber);
+		} else {
+			controller.closeLineValvesForGas(gasId);
+		}
+	}
+
+	@Override
+	public void admitGasToLine(int gasId, int lineNumber) throws GasRigException, DeviceException {
+		Gas gas = getGas(gasId);
+		controller.admitGasToLine(gas.getName(), lineNumber);
+	}
+
+	@Override
+	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException, GasRigException {
+		// We don't need the gas object here, but we call getGas(gasName) here to check that
+		// there really is a gas with that name and throw an exception if there isn't
+		getGas(gasName);
+		controller.admitGasToLine(gasName, lineNumber);
 	}
 }

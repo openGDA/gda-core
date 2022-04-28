@@ -18,27 +18,37 @@
 
 package uk.ac.diamond.daq.gasrig;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_LABELS_Enum;
+import uk.ac.diamond.daq.gasrig.api.GasRigException;
 import uk.ac.diamond.daq.gasrig.api.GasRigSequenceUpdate;
 
-public class GasRigController extends BaseGasRigController implements IGasRigController, IObservable {
+public class GasRigController extends BaseGasRigController implements IGasRigController {
 
 	private ObservableComponent observableComponent = new ObservableComponent();
 
 	private String currentOrLastSequence;
 	private String currentOrLastStatus;
 	private double currentSequenceProgress;
+	private Map<Integer, GasRigFlowController> flowControllers;
 
-	public GasRigController(String basePvName) {
+	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers) {
 		super(basePvName);
+
+		this.flowControllers = flowControllers.stream()
+				.collect(Collectors.toMap(GasRigFlowController::getGasId, Function.identity()));
 	}
 
 	@Override
@@ -110,22 +120,79 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 		observableComponent.notifyIObservers(this, update);
 	}
 
-	@Override
-	public String getGasName(int gasId) throws DeviceException {
-		return getStringValue(constructGasNamePvSuffix(gasId), "gas name");
-	}
-
-	@Override
-	public double getMaximumMassFlow(int gasId) throws DeviceException {
-		return getDoubleValue(constructMaximumMassFlowPvSuffix(gasId), "maximum mass flow");
-	}
-
-	public void startDummySequence() throws DeviceException {
-		setStringValue(constructSequenceControlPvSuffix(DUMMY_SEQUENCE_NUMBER), SEQUENCE_START, "dummy sequence control");
-	}
-
 	private double getSequenceProgress(int sequenceId) throws DeviceException {
 		return getDoubleValue(constructSequenceProgressPvSuffix(sequenceId), "sequence progress");
+	}
+
+	@Override
+	public String getGasName(int gasId) throws DeviceException, GasRigException {
+		return getFlowController(gasId).getGasName();
+	}
+
+	@Override
+	public double getMaximumMassFlow(int gasId) throws DeviceException, GasRigException {
+		return getFlowController(gasId).getMaximumMassFlow();
+	}
+
+	@Override
+	public void setMassFlow(int gasId, double massFlow) throws DeviceException, GasRigException {
+		getFlowController(gasId).setMassFlow(massFlow);
+	}
+
+	private GasRigFlowController getFlowController(int gasId) throws GasRigException {
+		return Optional.ofNullable(flowControllers.get(gasId))
+				.orElseThrow(() -> new GasRigException("No flow controller configured for gas id " + gasId));
+	}
+
+	@Override
+	public void runDummySequence() throws DeviceException {
+		runSequence(GasRigSequence.DUMMY);
+	}
+
+	@Override
+	public void evacuateEndStation() throws DeviceException {
+		runSequence(GasRigSequence.EVACUATE_ENDSTATION);
+	}
+
+	@Override
+	public void evacuateLine(int lineNumber) throws DeviceException {
+		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, lineNumber);
+		runSequence(GasRigSequence.EVACUATE_LINE);
+	}
+
+	@Override
+	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException {
+		setEnumSequenceParameter(GasRigSequence.ADMIT_GAS_TO_LINE, 1, gasName);
+		setNumericSequenceParameter(GasRigSequence.ADMIT_GAS_TO_LINE, 2, lineNumber);
+		runSequence(GasRigSequence.ADMIT_GAS_TO_LINE);
+	}
+
+	@Override
+	public void admitLineToEndStation(int lineNumber) throws DeviceException {
+		setNumericSequenceParameter(GasRigSequence.ADMIT_LINE_TO_ENDSTATION, 1, lineNumber);
+		runSequence(GasRigSequence.ADMIT_LINE_TO_ENDSTATION);
+	}
+
+	@Override
+	public void initialise() throws DeviceException {
+		runSequence(GasRigSequence.INITIALISE);
+	}
+
+	private void runSequence(GasRigSequence sequence) throws DeviceException {
+		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
+	}
+
+	private void setNumericSequenceParameter(GasRigSequence sequence, int parameterNumber, int parameterValue) throws DeviceException {
+		setIntegerValue(constructNumericSequenceParameterPv(sequence.getSequenceId(), parameterNumber), parameterValue, sequence.getDescription() + " parameter " + parameterValue);
+	}
+
+	private void setEnumSequenceParameter(GasRigSequence sequence, int parameterNumber, String parameterValue) throws DeviceException {
+		setStringValue(constructEnumSequenceParameterPv(sequence.getSequenceId(), parameterNumber), parameterValue, sequence.getDescription() + " parameter " + parameterValue);
+	}
+
+	@Override
+	public void closeLineValvesForGas(int gasId) throws DeviceException, GasRigException {
+		getFlowController(gasId).closeLineValves();
 	}
 
 	@Override
@@ -142,11 +209,5 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	@Override
 	public void deleteIObservers() {
 		observableComponent.deleteIObservers();
-	}
-
-	@Override
-	public void runDummySequence() {
-		// TODO Auto-generated method stub
-
 	}
 }

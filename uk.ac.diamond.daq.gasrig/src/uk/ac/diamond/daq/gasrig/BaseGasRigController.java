@@ -32,15 +32,22 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 
 	private static final String MFC = "MFC-%02d:";
 	private static final String GAS_NAME = MFC + "GAS:STR:RD";
-	private static final String MAX_MASS_FLOW = MFC + "SETPOINT:WR.HOPR";
+	private static final String MASS_FLOW_SETPOINT = MFC + "SETPOINT:WR";
+	private static final String MAX_MASS_FLOW = MASS_FLOW_SETPOINT + ".HOPR";
 
 	private static final String SEQUENCE = "PLC-01:SEQ%d:";
 	private static final String SEQUENCE_CONTROL = SEQUENCE + "CON";
 	private static final String SEQUENCE_STATUS = SEQUENCE + "STA";
 	private static final String SEQUENCE_PROGRESS = SEQUENCE + "PROGRESS";
+	private static final String SEQUENCE_NUMERIC_PARAMETER = SEQUENCE + "PARAM%d:WR";
+	private static final String SEQUENCE_ENUM_PARAMETER = SEQUENCE + "PARAM%d";
+
+	private static final String VALVE_STATUS = "VALVE-%d:STA";
+	private static final String VALVE_CONTROL = "VALVE-%d:CON";
 
 	protected static final String SEQUENCE_START = "Start";
-	protected static final int DUMMY_SEQUENCE_NUMBER = 20;
+	protected static final String VALVE_CLOSE = "Close";
+	protected static final String VALVE_OPEN = "Open";
 
 
 	protected BaseGasRigController(String basePvName) {
@@ -65,5 +72,25 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 
 	protected String constructSequenceProgressPvSuffix(int sequenceNumber) {
 		return String.format(SEQUENCE_PROGRESS, sequenceNumber);
+	}
+
+	protected String constructNumericSequenceParameterPv(int sequenceNumber, int parameterNumber) {
+		return String.format(SEQUENCE_NUMERIC_PARAMETER, sequenceNumber, parameterNumber);
+	}
+
+	protected String constructEnumSequenceParameterPv(int sequenceNumber, int parameterNumber) {
+		return String.format(SEQUENCE_ENUM_PARAMETER, sequenceNumber, parameterNumber);
+	}
+
+	protected String constructValveStatusPv(int valveNumber) {
+		return String.format(VALVE_STATUS, valveNumber);
+	}
+
+	protected String constructValveControlPv(int valveNumber) {
+		return String.format(VALVE_CONTROL, valveNumber);
+	}
+
+	protected String constructMassFlowSetPointPv(int gasId) {
+		return String.format(MASS_FLOW_SETPOINT, gasId);
 	}
 }
