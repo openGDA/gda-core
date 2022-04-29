@@ -34,10 +34,12 @@ import gda.factory.Finder;
  */
 public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	private static final Logger logger = LoggerFactory.getLogger(DeferredScannableGroup.class);
+	private static final int DEFER_OFF_VALUE = 0;
+	private static final int DEFER_ON_VALUE = 1;
+
 	private ControlPoint deferredControlPoint;
 	private String deferredControlPointName;
 
-	private int deferOnValue = 1;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -79,10 +81,10 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	public void setDefer(boolean deferFlag) throws DeviceException {
 		if (deferFlag) {
 			logger.debug("{}: defer ON", getName());
-			deferredControlPoint.setValue(deferOnValue);
+			deferredControlPoint.setValue(DEFER_ON_VALUE);
 		} else {
 			logger.debug("{}: defer OFF", getName());
-			deferredControlPoint.setValue(0);
+			deferredControlPoint.setValue(DEFER_OFF_VALUE);
 		}
 	}
 
@@ -129,13 +131,5 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 */
 	public void setDeferredControlPointName(String deferredControlPointName) {
 		this.deferredControlPointName = deferredControlPointName;
-	}
-
-	public void setDeferOnValue(int deferOnValue) {
-		this.deferOnValue = deferOnValue;
-	}
-
-	public int getDeferOnValue() {
-		return deferOnValue;
 	}
 }
