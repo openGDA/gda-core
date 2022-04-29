@@ -19,14 +19,15 @@
 package uk.ac.diamond.daq.experiment.structure;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Set;
 
 import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
-import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
 import org.eclipse.dawnsci.nexus.builder.NexusBuilderFile;
+import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
@@ -82,7 +83,7 @@ public class NodeFileCreator implements IRequestHandler<NodeFileCreationRequest>
 			final NXobject entry = nxsBuilder.newEntry().getNXentry();
 			
 			children.forEach(child -> 
-				entry.addExternalLink(getLeafName(child), child.getPath(), "/entry/"));
+				entry.addExternalLink(getLeafName(child), getRelativePath(file.getPath(), child.getPath()), "/entry/"));
 			
 			NexusBuilderFile nodeFile = nxsBuilder.createFile(true);
 			nodeFile.close();
@@ -94,6 +95,12 @@ public class NodeFileCreator implements IRequestHandler<NodeFileCreationRequest>
 			getBean().setStatus(Status.FAILED);
 			getBean().setMessage(error);
 		}
+	}
+	
+	private String getRelativePath(String parentFilePath, String childFilePath) {
+		var parentDirectory = Path.of(parentFilePath).getParent();
+		var child = Path.of(childFilePath);
+		return parentDirectory.relativize(child).toString();
 	}
 
 	private String getLeafName(URL location) {
