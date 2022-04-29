@@ -20,7 +20,7 @@ import java.util.List;
  *
  * Previously CollatedStepModel
  */
-public class AxialCollatedStepModel extends AxialStepModel {
+public class AxialCollatedStepModel extends AbstractAxialStepModel {
 
 	private List<String> names = new ArrayList<>();
 

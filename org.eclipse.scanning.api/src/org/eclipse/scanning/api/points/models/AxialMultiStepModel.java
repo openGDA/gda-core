@@ -22,7 +22,7 @@ import org.eclipse.scanning.api.annotation.ui.TypeDescriptor;
  * @author Matthew Dickie
  */
 @TypeDescriptor(editor="org.eclipse.scanning.device.ui.composites.MultiStepComposite")
-public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> {
+public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> implements IAxialModel {
 
 	public AxialMultiStepModel() {
 		setContinuous(false);

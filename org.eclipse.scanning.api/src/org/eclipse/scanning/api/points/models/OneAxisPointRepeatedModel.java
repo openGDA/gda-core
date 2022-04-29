@@ -19,7 +19,7 @@ import org.eclipse.scanning.api.ModelValidationException;
  *
  * Previously RepeatedPointModel
  */
-public class OneAxisPointRepeatedModel extends AbstractPointsModel {
+public class OneAxisPointRepeatedModel extends AbstractPointsModel implements IAxialModel {
 
 	/** The value to set the scannable to at each point. */
 	private double value;

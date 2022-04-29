@@ -20,7 +20,7 @@ import java.util.Arrays;
  *
  * Previously ArrayModel
  */
-public class AxialArrayModel extends AbstractPointsModel {
+public class AxialArrayModel extends AbstractPointsModel implements IAxialModel {
 
 	private double[] positions;
 

@@ -14,8 +14,8 @@ package org.eclipse.scanning.points;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.eclipse.scanning.api.points.models.AbstractAxialStepModel;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
-import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<AxialCollatedStepModel> {
@@ -51,7 +51,7 @@ public class AxialCollatedStepGenerator extends AbstractScanPointGenerator<Axial
         return createWrappingCompoundGenerator(pointGen, continuous);
 	}
 
-	private int size(AxialStepModel model) {
+	private int size(AbstractAxialStepModel model) {
 		// Includes point if would be within 1% (of step length) of end
 		return 1 + BigDecimal.valueOf(0.01*model.getStep()+model.getStop()-model.getStart()).divideToIntegralValue(BigDecimal.valueOf(model.getStep())).intValue();
 	}

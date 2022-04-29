@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2021 Diamond Light Source Ltd.
+ * Copyright © 2022 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,7 +18,12 @@
 
 package org.eclipse.scanning.api.points.models;
 
-public class AxialPointsModel extends AbstractAxialModel implements IAxialModel {
+/**
+ * Abstract superclass of models with a single start, stop, and step value.
+ * Concrete subclasses include {@link AxialStepModel} for the single-axis case
+ * and {@link AxialCollatedStepModel} for multiple axes with the same start stop, step values.
+ */
+public abstract class AbstractAxialStepModel extends AbstractAxialModel {
 
 	/** Start position for the scan */
 	private double start;
@@ -26,61 +31,52 @@ public class AxialPointsModel extends AbstractAxialModel implements IAxialModel 
 	/** Stop position for the scan */
 	private double stop;
 
-	/** Number of steps during the scan */
-	private int points;
+	/** Step during the scan */
+	private double step;
 
-	public AxialPointsModel() {
-		// no-arg constructor for json
+	// Left to prevent problems with deserialisation, see {@link AxialPointsModel}
+	private int count;
+
+	protected AbstractAxialStepModel() {
+		super(); // no-arg constructor for json
 	}
 
-	public AxialPointsModel(String name, double start, double stop, int points) {
+	protected AbstractAxialStepModel(String name, double start, double stop, double step) {
+		super();
 		setName(name);
 		this.start = start;
 		this.stop = stop;
-		this.points = points;
-	}
-
-	/**
-	 * Constructor for a 'static' axial points model- one with a number of exposures but no movement
-	 * @param name
-	 * @param value
-	 * @param points
-	 */
-	public AxialPointsModel(String name, double value, int points) {
-		this(name, value, value, points);
+		this.step = step;
 	}
 
 	public double getStart() {
 		return start;
 	}
-
 	public void setStart(double start) {
 		this.start = start;
 	}
-
 	public double getStop() {
 		return stop;
 	}
-
 	public void setStop(double stop) {
 		this.stop = stop;
 	}
-
-	public int getPoints() {
-		return points;
+	public double getStep() {
+		return step;
 	}
-
-	public void setPoints(int points) {
-		this.points = points;
+	public void setStep(double step) {
+		this.step = step;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + points;
+		result = prime * result + count;
 		long temp;
 		temp = Double.doubleToLongBits(start);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(step);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(stop);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -95,14 +91,26 @@ public class AxialPointsModel extends AbstractAxialModel implements IAxialModel 
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AxialPointsModel other = (AxialPointsModel) obj;
-		if (points != other.points)
+		AbstractAxialStepModel other = (AbstractAxialStepModel) obj;
+		if (count != other.count)
 			return false;
 		if (Double.doubleToLongBits(start) != Double.doubleToLongBits(other.start))
+			return false;
+		if (Double.doubleToLongBits(step) != Double.doubleToLongBits(other.step))
 			return false;
 		if (Double.doubleToLongBits(stop) != Double.doubleToLongBits(other.stop))
 			return false;
 		return true;
 	}
+
+	protected String description() {
+		return "start=" + start + ", stop=" + stop + ", step=" + step + ", " + super.toString();
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() +" ["+description()+"]";
+	}
+
 
 }
