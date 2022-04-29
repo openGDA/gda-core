@@ -39,8 +39,6 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 
 	private int deferOnValue = 1;
 
-	private boolean logDefFlagChangesAsInfo = false;
-
 	@Override
 	public void configure() throws FactoryException {
 		if (isConfigured()) {
@@ -131,14 +129,6 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 */
 	public void setDeferredControlPointName(String deferredControlPointName) {
 		this.deferredControlPointName = deferredControlPointName;
-	}
-
-	public boolean isLogDefFlagChangesAsInfo() {
-		return logDefFlagChangesAsInfo;
-	}
-
-	public void setLogDefFlagChangesAsInfo(boolean logDefFlagChangesAsInfo) {
-		this.logDefFlagChangesAsInfo = logDefFlagChangesAsInfo;
 	}
 
 	public void setDeferOnValue(int deferOnValue) {
