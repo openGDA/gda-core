@@ -35,18 +35,11 @@ import gda.factory.Finder;
 public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	private static final Logger logger = LoggerFactory.getLogger(DeferredScannableGroup.class);
 	private ControlPoint deferredControlPoint;
-	String deferredControlPointName;
+	private String deferredControlPointName;
 
 	private int deferOnValue = 1;
 
 	private boolean logDefFlagChangesAsInfo = false;
-
-	/**
-	 *
-	 */
-	public DeferredScannableGroup() {
-
-	}
 
 	@Override
 	public void configure() throws FactoryException {
@@ -69,7 +62,7 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 		try {
 			super.asynchronousMoveTo(position);
 		} catch (Exception e) {
-			logger.error("Exception while moving deferred scannable group, stopping all axes in group and setting defer flag off",e);
+			logger.error("Exception while moving deferred scannable group, stopping all axes in group and setting defer flag off");
 			stop();
 			throw new DeviceException("Exception while triggering deferred scannable group move:\n " + e.getMessage(), e);
 		}
@@ -86,18 +79,13 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 * @throws DeviceException
 	 */
 	public void setDefer(boolean deferFlag) throws DeviceException {
-		if (deferFlag == true) {
-			logger.info(getName() + ": defer ON");
+		if (deferFlag) {
+			logger.info("{}: defer ON", getName());
 			deferredControlPoint.setValue(deferOnValue);
 		} else {
-			logger.info(getName() + ": defer OFF");
+			logger.info("{}: defer OFF", getName());
 			deferredControlPoint.setValue(0);
 		}
-	}
-
-	@Override
-	public Object getPosition() throws DeviceException {
-		return super.getPosition();
 	}
 
 	/**
