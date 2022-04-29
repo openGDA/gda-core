@@ -277,7 +277,7 @@ public class LatestSwmrFrameFinder implements ILiveLoadedFileListener {
 				// Malcolm scan: one unique keys dataset per detector
 				return detectorNames.stream().collect(toMap(det -> det,
 					det -> keyNodes.entrySet().stream()
-						.filter(entry -> entry.getKey().contains(det))
+						.filter(entry -> entry.getKey().equalsIgnoreCase(det))
 						.map(Entry<String, DataNode>::getValue)
 						.map(node -> getPath(tree, node))
 						.findFirst().orElseThrow(() -> new NoSuchElementException("Cannot find unique keys for detector '" + det + "'"))
