@@ -98,14 +98,6 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	}
 
 	/**
-	 * @return defer on
-	 * @throws DeviceException
-	 */
-	public boolean getDefer() throws DeviceException {
-		return (((Double) deferredControlPoint.getPosition()) == 1);
-	}
-
-	/**
 	 * @return control point
 	 */
 	public ControlPoint getDeferredControlPoint() {
