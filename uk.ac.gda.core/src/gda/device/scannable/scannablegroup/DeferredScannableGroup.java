@@ -80,10 +80,10 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	 */
 	public void setDefer(boolean deferFlag) throws DeviceException {
 		if (deferFlag) {
-			logger.info("{}: defer ON", getName());
+			logger.debug("{}: defer ON", getName());
 			deferredControlPoint.setValue(deferOnValue);
 		} else {
-			logger.info("{}: defer OFF", getName());
+			logger.debug("{}: defer OFF", getName());
 			deferredControlPoint.setValue(0);
 		}
 	}
