@@ -23,9 +23,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import gda.device.DeviceException;
+import gda.factory.Finder;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
@@ -40,6 +44,7 @@ import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
 import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
 import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
 import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
+import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.AcquisitionConfigurationException;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
@@ -56,6 +61,8 @@ import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
  */
 @Component
 public class DocumentFactory {
+
+	private static final Logger logger = LoggerFactory.getLogger(DocumentFactory.class);
 
 	@Autowired
 	private ClientPropertiesHelper clientPropertiesHelper;
@@ -147,10 +154,20 @@ public class DocumentFactory {
 
 		Optional<CameraConfigurationProperties> cameraProperties = clientPropertiesHelper.getAcquisitionPropertiesDocuments(cameraId);
 		if (cameraProperties.isPresent()) {
-				return Optional.ofNullable(new DetectorDocument.Builder()
-						.withName(cameraProperties.get().getCameraControl())
-						.withMalcolmDetectorName(cameraProperties.get().getMalcolmDetectorName())
-						.build());
+			var exposure = 0.0;
+			try {
+				var control = (CameraControl) Finder.find(cameraProperties.get().getCameraControl());
+				if (control != null) {
+					exposure = control.getAcquireTime();
+				}
+			} catch (DeviceException e) {
+				logger.error("Error reading {} exposure time", cameraId, e);
+			}
+			return Optional.ofNullable(new DetectorDocument.Builder()
+					.withName(cameraProperties.get().getCameraControl())
+					.withMalcolmDetectorName(cameraProperties.get().getMalcolmDetectorName())
+					.withExposure(exposure)
+					.build());
 		}
 		return Optional.empty();
 	}
@@ -249,12 +266,34 @@ public class DocumentFactory {
 		configuration.setMultipleScans(multipleScanBuilder.build());
 		acquisition.getAcquisitionConfiguration().setAcquisitionParameters(acquisitionParameters);
 
-		try {
-			DetectorDocumentHelper.getHelper(acquisition, clientPropertiesHelper).apply();
-		} catch (AcquisitionConfigurationException e) {
-			// TODO figure out why this would throw
-		}
+		// detector(s)
+		acquisition.getAcquisitionConfiguration().getAcquisitionParameters().setDetectors(createDetectorDocuments(template));
+		acquisition.getAcquisitionConfiguration().setImageCalibration(createNewImageCalibrationDocument(acquisition));
 		return acquisition;
+	}
+
+	private List<DetectorDocument> createDetectorDocuments(AcquisitionTemplate template) {
+		return template.getDetectors().stream()
+				.map(cameraId -> DocumentFactory.createDetectorDocument(cameraId, clientPropertiesHelper))
+				.filter(Optional::isPresent).map(Optional::get)
+				.collect(Collectors.toList());
+	}
+
+	private ImageCalibration createNewImageCalibrationDocument(ScanningAcquisition acquisition) {
+		var imageCalibrationBuilder = new ImageCalibration.Builder();
+
+		var detectorDocument = acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getDetectors().iterator().next();
+
+		var builderDark = new DarkCalibrationDocument.Builder()
+			.withNumberExposures(0)
+			.withDetectorDocument(detectorDocument);
+		imageCalibrationBuilder.withDarkCalibration(builderDark.build());
+
+		var builderFlat = new FlatCalibrationDocument.Builder()
+				.withNumberExposures(0)
+				.withDetectorDocument(detectorDocument);
+		imageCalibrationBuilder.withFlatCalibration(builderFlat.build());
+		return imageCalibrationBuilder.build();
 	}
 
 	private ScanpathDocument getDefaultScanpathDocument(AcquisitionTemplate template) {

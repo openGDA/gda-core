@@ -22,6 +22,7 @@ import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -110,6 +111,9 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 		template.setType(keys.getPropertyType());
 		template.setSubType(keys.getSubType());
 		template.setScanAxes(Collections.emptyMap());
+
+
+		template.setDetectors(Set.of("PCO_CAMERA"));
 		var manager = new AcquisitionManager(List.of(template));
 		scanningController.setAcquisitionManager(manager);
 	}
