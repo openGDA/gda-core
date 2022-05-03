@@ -44,6 +44,14 @@ public class EpicsMotorDirect extends EpicsMotor {
 		return pvNameDirect;
 	}
 
+	@Override
+	public void configure() throws FactoryException {
+		if (pvNameDirect == null) {
+			throw new IllegalStateException("pvNameDirect is required to configure EpicsMotorDirect");
+		}
+		super.configure();
+	}
+
 	/**
 	 * Create Channel access for motor. Note that val now is intended to be assigned the
 	 * PV string that sends a position directly to a motor, rather than via the motor record.
