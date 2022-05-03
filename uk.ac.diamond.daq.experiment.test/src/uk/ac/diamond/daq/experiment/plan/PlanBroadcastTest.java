@@ -92,6 +92,14 @@ public class PlanBroadcastTest {
 		assertThat(bean.getStatus(), is(Status.COMPLETE));
 	}
 
+	@Test
+	public void abortedPlanIsBroadcastAsTerminated() {
+		plan.addSegment(FIRST_SEGMENT_NAME, s -> s > 1);
+		plan.start();
+		plan.abort();
+		assertThat(bean.getStatus(), is(Status.TERMINATED));
+	}
+
 	private SegmentRecord getLastSegment() {
 		return bean.getSegments().get(bean.getSegments().size()-1);
 	}

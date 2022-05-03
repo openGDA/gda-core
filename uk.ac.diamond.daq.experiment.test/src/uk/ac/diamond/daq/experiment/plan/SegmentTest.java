@@ -30,6 +30,13 @@ public class SegmentTest {
 	}
 
 	@Test
+	public void inactiveFollowingAbort() {
+		segment.activate();
+		segment.abort();
+		assertFalse(segment.isActivated());
+	}
+
+	@Test
 	public void controllingTriggers() {
 		ITrigger enabledTP = mock(ITrigger.class);
 		segment.enable(enabledTP);
@@ -37,6 +44,15 @@ public class SegmentTest {
 		segment.signalChanged(-2.5);
 		verify(enabledTP, times(1)).setEnabled(true); // on activate()
 		verify(enabledTP, times(1)).setEnabled(false); // at segment end
+	}
+
+	@Test
+	public void triggersDisabledFollowingAbort() {
+		var trigger = mock(ITrigger.class);
+		segment.enable(trigger);
+		segment.activate();
+		segment.abort();
+		assertFalse(trigger.isEnabled());
 	}
 
 	private boolean activeAfterSignalChange(double signal) {

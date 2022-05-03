@@ -63,23 +63,28 @@ public abstract class SegmentBase extends FindableBase implements ISegment {
 	}
 	
 	@Override
+	public void abort() {
+		deactivate();
+	}
+	
+	private void deactivate() {
+		sev.removeListener(this);
+		enabledTriggers.forEach(tp -> tp.setEnabled(false)); // Some might be needed in the next segment, but we don't want anything happening in the transfer period.
+		activated = false;
+	}
+	
+	@Override
 	public void signalChanged(double signal) {
 		if (shouldTerminate(signal)) terminateSegment(signal);
 	}
 	
 	abstract boolean shouldTerminate(double signal);
 	
-	private void deactivate(double terminatingSignal) {
-		enabledTriggers.forEach(tp -> tp.setEnabled(false)); // Some might be needed in the next segment, but we don't want anything happening in the transfer period.
-		activated = false;
-		registrar.segmentComplete(this, terminatingSignal);
-	}
-	
 	private synchronized void terminateSegment(double signal) {
 		if (activated) {
 			logger.info("Segment '{}' terminated", getName());
-			sev.removeListener(this);
-			deactivate(signal);
+			deactivate();
+			registrar.segmentComplete(this, signal);
 		} else {
 			logger.debug("Ignoring terminating signal because segment '{}' is already terminated", getName());
 		}

@@ -26,6 +26,12 @@ public interface ISegment extends SEVListener, Findable {
 	 * Called by the Plan
 	 */
 	void activate();
+
+	/**
+	 * Abort and deactivate all its triggers
+	 */
+	void abort();
+
 	boolean isActivated();
 
 }
