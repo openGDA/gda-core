@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -127,6 +128,9 @@ public abstract class XasScanBase implements XasScan {
 	protected String scan_unique_id;
 	protected long timeRepetitionsStarted;
 	protected XasProgressUpdater loggingbean;
+
+	/** Name of Metadata entry : to contain list of scan Nexus files generated so far in the set of repetitions */
+	private String filesInRepetitionEntry = "files_in_repetition_scan";
 
 	/**
 	 * For convenience when calling from Jython.
@@ -448,6 +452,9 @@ public abstract class XasScanBase implements XasScan {
 
 	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions) throws Exception {
 
+		addMetadata();
+		addDetectorMetadata(detectorBean.getDetectorConfigurations());
+
 		DataWriterFactory datawriterFactory = new DefaultDataWriterFactory();
 		DataWriter datawriter = datawriterFactory.createDataWriter();
 
@@ -488,9 +495,6 @@ public abstract class XasScanBase implements XasScan {
 			dataWriter.addDataWriterExtender(fileRegistrar.get(name));
 			logger.info("Adding FileRegistar {} as DataWriterExtender for XasAsciiNexusScan", name);
 		}
-
-		addMetadata();
-		addDetectorMetadata(detectorBean.getDetectorConfigurations());
 	}
 
 	private void addMetadata() throws Exception {
@@ -498,6 +502,12 @@ public abstract class XasScanBase implements XasScan {
 		metashop.add(detectorFileName, getXMLString(detectorBean));
 		metashop.add(sampleFileName, getXMLString(sampleBean));
 		metashop.add(outputFileName, getXMLString(outputBean));
+
+		// Add newline separated list of scans completed so far in the series of repetitions.
+		String completedScanNames = loggingbean.getCompletedScanFileNames()
+			.stream()
+			.collect(Collectors.joining("\n"));
+		metashop.add(filesInRepetitionEntry, completedScanNames);
 
 		if (StringUtils.isNotEmpty(detectorConfigurationFilename)) {
 			metashop.add("DetectorConfigurationParameters", getXMLString(experimentFullPath + File.separator
@@ -740,4 +750,19 @@ public abstract class XasScanBase implements XasScan {
 	public void setScanName(String scanName) {
 		this.scanName = scanName;
 	}
+
+	public String getFilesInRepetitionEntry() {
+		return filesInRepetitionEntry;
+	}
+
+	/**
+	 * Set the name of the entry in the before_scan metadata used to
+	 * record the names of scans completed in a series of repetitions.
+	 *
+	 * @param filesInRepetitionEntry
+	 */
+	public void setFilesInRepetitionEntry(String filesInRepetitionEntry) {
+		this.filesInRepetitionEntry = filesInRepetitionEntry;
+	}
+
 }

@@ -19,15 +19,20 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -35,16 +40,21 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.DatasetException;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.StringDataset;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
+import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
@@ -95,6 +105,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * @since 25/5/2017
  */
 public class ScansSetupUsingXmlTest {
+	private static final Logger logger = LoggerFactory.getLogger(ScansSetupUsingXmlTest.class);
 
 	private final String testFileFolder = "testfiles/gda/scan-xml-files/";
 	private String xspress2ConfigFilename = testFileFolder+"Xspress_Parameters.xml";
@@ -124,6 +135,9 @@ public class ScansSetupUsingXmlTest {
 
 	protected String testDir;
 
+	private NXMetaDataProvider metashop;
+	private String beforeScanEntryName = "before_scan";
+
 	protected void setupForTest(Class<?> classType, String testName) throws Exception {
 		/* String testFolder = */TestHelpers.setUpTest(classType, testName, true);
 		LocalProperties.setScanSetsScanNumber(true);
@@ -137,7 +151,8 @@ public class ScansSetupUsingXmlTest {
 		// Findables the server needs to know about
 		Findable[] findables = new Findable[] { xspress2Detector, counterTimer01, ffi0,
 												qexafs_xspress, qexafs_counterTimer01, qexafsFfI0,
-												qexafsScannable};
+												qexafsScannable,
+												metashop};
 
 		final Factory factory = TestHelpers.createTestFactory();
 		for(Findable f : findables) {
@@ -357,7 +372,10 @@ public class ScansSetupUsingXmlTest {
 
 
 		AsciiDataWriterConfiguration datawriterconfig = new AsciiDataWriterConfiguration();
-		NXMetaDataProvider metashop = new NXMetaDataProvider();
+		metashop = new NXMetaDataProvider();
+		metashop.setName("metashop");
+		LocalProperties.set(NexusDataWriter.GDA_NEXUS_METADATAPROVIDER_NAME, metashop.getName());
+
 		OutputPreparer outputPreparer = new OutputPreparer(datawriterconfig, metashop);
 
 		xasScanFactory = new XasScanFactory();
@@ -421,16 +439,23 @@ public class ScansSetupUsingXmlTest {
 		}
 	}
 
+	private Collection<String> getEntryNames(String nexusFilename, String groupName) throws NexusException {
+		try(var file = NexusFileHDF5.openNexusFileReadOnly(nexusFilename)) {
+			GroupNode g = file.getGroup("/entry1/"+groupName, false);
+			return g.getDataNodeNames();
+		}
+	}
+
 	private void checkDatasetShape(IDataset dataset, int[] expectedShape) {
 		assertArrayEquals(expectedShape, dataset.getShape());
 	}
 
-	private void testNexusFileDetectorDataShape() throws NexusException, DeviceException, DatasetException {
+	private void testNexusFileDetectorDataShape() throws NexusException, DeviceException, DatasetException, IOException {
 		// Get basic information on scan just run (it would be nice to get this from EnergyScan object after running 'doCollection' but
 		// it doesn't provide much useful information....)
-		String nexusName = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
+		String nexusName = getCurrentScanFileName();
 		int numPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
-		Vector<Detector> detectors = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getDetectors();
+		var detectors = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getDetectors();
 
 		for(Detector det : detectors) {
 			if (det instanceof Xspress2Detector || det instanceof Xspress2BufferedDetector) {
@@ -439,6 +464,12 @@ public class ScansSetupUsingXmlTest {
 				checkDetectorDataShape(nexusName, det, numPoints);
 			}
 		}
+
+		testParameterMetadata(nexusName);
+	}
+
+	private String getCurrentScanFileName() {
+		return InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
 	}
 
 	/**
@@ -518,6 +549,42 @@ public class ScansSetupUsingXmlTest {
 		checkDatasetShape(getDataset(nexusFilename, groupName, "tfg resets"), new int[]{numPoints, numElements});
 	}
 
+	private void testRepetitionsMetadata(String filename, String repetitionEntryName, int numRepetitions) throws NexusException, DatasetException {
+		logger.info("Checking repetition metadata entries in {}", beforeScanEntryName);
+
+		Collection<String> beforeScanEntries = getEntryNames(filename, beforeScanEntryName);
+
+		// Check the names of the nexus files run as part of the sequence of repetitions is correct
+		// e.g. 3.nxs should have 1.nxs, 2.nxs as repetition filenames.
+		logger.info("Checking file names in {}", repetitionEntryName);
+		assertTrue(beforeScanEntryName+" does not contain repetition entry "+repetitionEntryName, beforeScanEntries.contains(repetitionEntryName));
+		IDataset repetitionDset = getDataset(filename, beforeScanEntryName, repetitionEntryName);
+		String[] repetitionFiles = DatasetUtils.cast(StringDataset.class, repetitionDset).get().split("\\s+");
+
+		// There should be numRepetitions-1 filenames
+		assertEquals(numRepetitions-1, repetitionFiles.length);
+		for(int i=0; i<repetitionFiles.length; i++) {
+			String expectedName = filename.replace(numRepetitions+".nxs", (i+1)+".nxs");
+			assertEquals(expectedName, repetitionFiles[i]);
+			logger.info("Filename {} is ok", repetitionFiles[i]);
+		}
+	}
+
+	private void testParameterMetadata(String filename) throws NexusException, DatasetException, IOException {
+		logger.info("Checking parameter Metadata entries in {}", beforeScanEntryName);
+
+		// Check the XML parameter files in before_scan metadata match the original files.
+		for(String entryName : getEntryNames(filename, beforeScanEntryName)) {
+			if (entryName.endsWith(".xml")) {
+				IDataset paramDataset = getDataset(filename, beforeScanEntryName, entryName);
+				String paramString = DatasetUtils.cast(StringDataset.class, paramDataset).get();
+				String paramStringFromFile = FileUtils.readFileToString(Paths.get(testFileFolder).resolve(entryName).toFile(), Charset.defaultCharset());
+				assertEquals(paramStringFromFile, paramString);
+				logger.info("{} is ok", entryName);
+			}
+		}
+	}
+
 	/**
 	 * Load settings from XML file and create new bean objects (used to configure the scans).
 	 * @param sampleFileName
@@ -582,5 +649,16 @@ public class ScansSetupUsingXmlTest {
 		energyScan.configureCollection(sampleBean, scanBean, detectorBean, outputBean, detectorConfigurationBean, testFileFolder, 1);
 		energyScan.doCollection();
 		testNexusFileDetectorDataShape();
+	}
+
+	@Test
+	public void testQExafsScanRepetitions() throws Exception {
+		setupForTest(ScansSetupUsingXmlTest.class, "testQExafsScanRepetitions");
+		EnergyScan energyScan = xasScanFactory.createQexafsScan();
+		int numRepetitions = 5;
+		energyScan.configureCollection("Sample_Parameters.xml", "QEXAFS_Parameters.xml", "Detector_Parameters.xml", "Output_Parameters.xml", testFileFolder, numRepetitions);
+		energyScan.doCollection();
+		testNexusFileDetectorDataShape();
+		testRepetitionsMetadata(getCurrentScanFileName(), energyScan.getFilesInRepetitionEntry(), 5);
 	}
 }
