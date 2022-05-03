@@ -31,15 +31,12 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.ClientSWTElements.createClientLabel;
 
-import java.util.function.Consumer;
-
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -83,14 +80,10 @@ import uk.ac.gda.ui.tool.spring.SpringApplicationContextProxy;
 public class ExposureDurationComposite implements CompositeFactory {
 
 	/**
-	 * The editable acquisition time
-	 */
-	private Text exposureText;
-	/**
 	 * The {@code cameraConfiguration} acquisition time
 	 */
 	private Label readOut;
-	private ICameraConfiguration iCameraConfiguration;
+	private ICameraConfiguration cameraConfiguration;
 
 	private Composite container;
 
@@ -102,10 +95,9 @@ public class ExposureDurationComposite implements CompositeFactory {
 	public Composite createComposite(Composite parent, int style) {
 		container = createClientCompositeWithGridLayout(parent, style, 1);
 		createClientGridDataFactory().applyTo(container);
-
+		cameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
 		createElements(container, style);
-		iCameraConfiguration = createICameraConfiguration(getDefaultCameraConfigurationProperties());
-		iCameraConfiguration.getCameraControlClient()
+		cameraConfiguration.getCameraControlClient()
 			.ifPresent(this::initialiseElements);
 		SpringApplicationContextFacade.addDisposableApplicationListener(this, cameraControlSpringEventListener);
 		return container;
@@ -115,7 +107,7 @@ public class ExposureDurationComposite implements CompositeFactory {
 		var group = createClientGroup(parent, SWT.NONE, 3, EXPOSURE);
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false).indent(5, SWT.DEFAULT).applyTo(group);
 
-		exposureText = new ExposureTextField(group, style, () -> iCameraConfiguration).getExposure();
+		var exposureText = new ExposureTextField(group, style, () -> cameraConfiguration).getExposure();
 		createClientGridDataFactory().align(SWT.FILL, SWT.FILL).grab(true, false)
 				.hint(DEFAULT_TEXT_SIZE).indent(5, SWT.DEFAULT).applyTo(exposureText);
 		var unit = createClientLabel(group, SWT.BEGINNING, SECOND_SYMBOL,
@@ -154,22 +146,17 @@ public class ExposureDurationComposite implements CompositeFactory {
 	}
 
 	private ApplicationListener<ChangeActiveCameraEvent> getChangeActiveCameraListener(Composite parent) {
-		return createChangeCameraListener(parent, changeCameraControl);
+		return createChangeCameraListener(parent, detectorChange -> cameraConfiguration = createICameraConfiguration(detectorChange.getActiveCamera()));
 	}
-
-	private Consumer<ChangeActiveCameraEvent> changeCameraControl = event -> {
-		iCameraConfiguration = createICameraConfiguration(event.getActiveCamera());
-	};
 
 	// At the moment is not possible to use anonymous lambda expression because it
 	// generates a class cast exception
 	private ApplicationListener<CameraControlSpringEvent> cameraControlSpringEventListener = new ApplicationListener<CameraControlSpringEvent>() {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
-			Display.getDefault().asyncExec(() -> {
-				if (iCameraConfiguration.getCameraConfigurationProperties().getId().equals(event.getCameraId()))
-					updateModelToGUI(event);
-			});
+			if (cameraConfiguration.getCameraConfigurationProperties().getId().equals(event.getCameraId())) {
+				Display.getDefault().asyncExec(() -> updateModelToGUI(event));
+			}
 		}
 
 		private void updateModelToGUI(CameraControlSpringEvent e) {
