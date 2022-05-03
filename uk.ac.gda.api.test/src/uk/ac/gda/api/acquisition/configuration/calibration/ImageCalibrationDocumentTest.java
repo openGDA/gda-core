@@ -47,7 +47,7 @@ public class ImageCalibrationDocumentTest {
 	    assertTrue(document.getDarkCalibration().isBeforeAcquisition());
 	    assertFalse(document.getFlatCalibration().isBeforeAcquisition());
 	    assertEquals(2.4, document.getFlatCalibration().getDetectorDocument().getExposure(), 0);
-	    assertEquals("motor_x", document.getFlatCalibration().getDetectorDocument().getName());
+	    assertEquals("motor_x", document.getFlatCalibration().getDetectorDocument().getId());
 	    Set<DevicePositionDocument> position = document.getFlatCalibration().getPosition();
 	    assertEquals(2, position.size(), 0);
 	}

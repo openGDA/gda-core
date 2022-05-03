@@ -155,16 +155,17 @@ public class DocumentFactory {
 		Optional<CameraConfigurationProperties> cameraProperties = clientPropertiesHelper.getAcquisitionPropertiesDocuments(cameraId);
 		if (cameraProperties.isPresent()) {
 			var exposure = 0.0;
-			try {
-				var control = (CameraControl) Finder.find(cameraProperties.get().getCameraControl());
-				if (control != null) {
+			var control = (CameraControl) Finder.find(cameraProperties.get().getCameraControl());
+			if (control != null) {
+				try {
 					exposure = control.getAcquireTime();
+				} catch (DeviceException e) {
+					logger.error("Error reading {} exposure time", cameraId, e);
 				}
-			} catch (DeviceException e) {
-				logger.error("Error reading {} exposure time", cameraId, e);
 			}
+
 			return Optional.ofNullable(new DetectorDocument.Builder()
-					.withName(cameraProperties.get().getCameraControl())
+					.withId(cameraProperties.get().getId())
 					.withMalcolmDetectorName(cameraProperties.get().getMalcolmDetectorName())
 					.withExposure(exposure)
 					.build());

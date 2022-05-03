@@ -123,7 +123,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 
 	private final String assembleTooltipInternal(ProcessingRequestPair<DetectorDocument> processingPair) {
 		return processingPair.getValue().stream()
-				.map(DetectorDocument::getName)
+				.map(DetectorDocument::getId)
 				.collect(Collectors.joining(", "));
 	}
 
@@ -184,7 +184,7 @@ public class ProcessingRequestContextDetectorDocumentHandler implements ProcessR
 
 					return Optional.ofNullable(element)
 						.map(DetectorDocument.class::cast)
-						.map(DetectorDocument::getName)
+						.map(DetectorDocument::getId)
 						.orElseGet(() -> "Undefined");
 				}
 

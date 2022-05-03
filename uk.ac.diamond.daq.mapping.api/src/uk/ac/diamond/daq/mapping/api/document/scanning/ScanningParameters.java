@@ -48,9 +48,13 @@ public class ScanningParameters implements AcquisitionParametersBase {
 		return detectors;
 	}
 
+	/**
+	 * Adds the given document to the list of detectors.
+	 * If an existing document has a name equal to the given document, the old one is replaced.
+	 */
 	public void setDetector(DetectorDocument detector) {
 		if (detectors == null) detectors = new ArrayList<>();
-		detectors.stream().filter(doc -> doc.getName().equals(detector.getName())).findFirst().ifPresent(detectors::remove);
+		detectors.stream().filter(doc -> doc.getId().equals(detector.getId())).findFirst().ifPresent(detectors::remove);
 		detectors.add(detector);
 	}
 

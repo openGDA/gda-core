@@ -77,7 +77,7 @@ public class ScanningAcquisitionDetectorUpdater {
 
 			// new document with updated acquire time
 			var detectorDocument = new DetectorDocument.Builder()
-				.withName(cameraControl.getName())
+				.withId(cameraId)
 				.withMalcolmDetectorName(CameraHelper.getCameraConfigurationPropertiesByID(cameraId).orElseThrow().getMalcolmDetectorName())
 				.withExposure(acquireTime)
 				.build();

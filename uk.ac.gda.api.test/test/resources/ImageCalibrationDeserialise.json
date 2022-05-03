@@ -17,7 +17,7 @@
 			}
 		],
 		"detectorDocument": {
-			"name": "motor_x",
+			"id": "motor_x",
 			"exposure": 2.4
 		},
 		"numberExposures": 2,
