@@ -30,6 +30,7 @@ public class MappingPerspective implements IPerspectiveFactory {
 
 		IFolderLayout dataLayout = layout.createFolder("map", IPageLayout.RIGHT, 0.2f, "mappeddata");
 		dataLayout.addView("org.dawnsci.mapping.ui.mapview");
+		dataLayout.addPlaceholder("uk.ac.gda.client.live.stream.view.LiveStreamView:*");
 		vLayout = layout.getViewLayout("org.dawnsci.mapping.ui.mapview");
 		vLayout.setCloseable(false);
 
@@ -56,7 +57,6 @@ public class MappingPerspective implements IPerspectiveFactory {
 		folderLayout.addView(queueViewId);
 
 		folderLayout.addView("uk.ac.gda.client.livecontrol.LiveControlsView");
-		folderLayout.addView("uk.ac.gda.client.liveplot.mjpeg.LiveMJPEGView");
 
 		logger.trace("Finished building Mapping Visualisation perspective");
 	}
