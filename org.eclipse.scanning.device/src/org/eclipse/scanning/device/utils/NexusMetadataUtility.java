@@ -18,6 +18,8 @@
 
 package org.eclipse.scanning.device.utils;
 
+import static java.util.function.Predicate.not;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -514,4 +518,67 @@ public enum NexusMetadataUtility {
 		return userAddedFields;
 	}
 
+	/**
+	 * return a list node path for all field of all {@link INexusMetadataDevice}
+	 *
+	 * @return list of node paths
+	 */
+	public List<String> getFieldNodePathsFromAllNexusMetadataDevices() {
+		final var commonBeamlineDevicesConfiguration = Services.getCommonBeamlineDevicesConfiguration();
+		ThrowingFunction<String, List<String>> f = this::getNexusMetadataDeviceNodePaths;
+		return commonBeamlineDevicesConfiguration.getCommonDeviceNames().stream()
+				.filter(not(disabledMetadataDevices::contains)).map(f::apply).flatMap(List::stream)
+				.collect(Collectors.toList());
+	}
+
+	private List<String> getNexusMetadataDeviceNodePaths(String deviceName) throws NexusException {
+		List<String> deviceNodePaths = new ArrayList<>();
+		final INexusDeviceService nexusDeviceService = ServiceHolder.getNexusDeviceService();
+		final INexusDevice<NXobject> nexusDevice = nexusDeviceService.getNexusDevice(deviceName);
+		INexusMetadataDevice<NXobject> nxMetadataDevice;
+		if (nexusDevice instanceof INexusMetadataDevice) {
+			nxMetadataDevice = (INexusMetadataDevice<NXobject>) nexusDevice;
+			final NexusObjectProvider<NXobject> nexusProvider = nxMetadataDevice.getNexusProvider(null);
+			final NXobject nexusObject = nexusProvider.getNexusObject();
+			final String nexusNodePath = getNexusNodePath(nexusProvider, deviceName);
+			deviceNodePaths.addAll(nexusObject.getDataNodeMap().entrySet().stream().map(e -> nexusNodePath + Node.SEPARATOR + e.getKey())
+			.collect(Collectors.toList()));
+			deviceNodePaths.addAll(nexusObject.getGroupNodeMap().entrySet().stream().map(e -> processGroupNode(e.getKey(), e.getValue(), nexusNodePath))
+			.flatMap(List::stream).collect(Collectors.toList()));
+		}
+		return deviceNodePaths;
+	}
+
+	private List<String> processGroupNode(String name, GroupNode group, String nexusNodePath) {
+		final String newNodePath = nexusNodePath + Node.SEPARATOR + name;
+		if (group.getGroupNodeMap().isEmpty()) {
+			return group.getDataNodeMap().entrySet().stream()
+					.map(e -> newNodePath + Node.SEPARATOR + e.getKey()).collect(Collectors.toList());
+		}
+		return group.getGroupNodeMap().entrySet().stream().map(e -> processGroupNode(e.getKey(), e.getValue(), newNodePath))
+				.flatMap(List::stream).collect(Collectors.toList());
+	}
+
+	/**
+	 * A {@link Function} interface that converts the checked exception into runtime exception to work around
+	 * the limitation of current lambda, stream functions.
+	 *
+	 * As a work around, it should only be used in place that the checked exception is not required to be handled.
+	 *
+	 * @param <T> the type of the input to the function
+	 * @param <R> the type of the result of the function
+	 */
+	@FunctionalInterface
+	private interface ThrowingFunction<T, R> extends Function<T, R> {
+		@Override
+		default R apply(T t) {
+			try {
+				return applyThrows(t);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		R applyThrows(T t) throws Exception;
+	}
 }
