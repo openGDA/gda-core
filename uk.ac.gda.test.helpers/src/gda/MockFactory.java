@@ -70,7 +70,7 @@ public class MockFactory {
 
 	public static ScannableMotion createMockScannableMotion(String name, String[] inputNames, String[] extraNames,
 			String[] outputFormat, int level, Object position) throws DeviceException {
-		return (ScannableMotion) createMockScannable(ScannableMotion.class, name, inputNames,
+		return createMockScannable(ScannableMotion.class, name, inputNames,
 				extraNames, outputFormat, level, position);
 	}
 
@@ -109,13 +109,11 @@ public class MockFactory {
 	}
 
 	// Generic
-
-	@SuppressWarnings("unchecked")
-	public static <S extends Scannable> S createMockScannable(Class<? extends Scannable> clazz, String name,
+	public static <S extends Scannable> S createMockScannable(Class<S> clazz, String name,
 			String[] inputNames, String[] extraNames, String[] outputFormat, int level, Object position)
 			throws DeviceException {
 
-		Scannable scn = mock(clazz, name);
+		S scn = mock(clazz, name);
 		when(scn.getName()).thenReturn(name);
 		when(scn.getInputNames()).thenReturn(inputNames);
 		when(scn.getExtraNames()).thenReturn(extraNames);
@@ -125,7 +123,7 @@ public class MockFactory {
 		when(scn.isBusy()).thenReturn(true);
 		// when(scn.checkPositionValid(anyObject()) == null).thenReturn(true);
 		when(scn.toFormattedString()).thenReturn(name + " : " + position);
-		return (S) scn;
+		return scn;
 	}
 
 	public static Scannable createMockZieScannable(String name, int level) throws DeviceException {
