@@ -19,9 +19,9 @@
 package uk.ac.gda.client.properties.acquisition;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
 import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
@@ -34,12 +34,7 @@ public class AcquisitionTemplate {
 	private AcquisitionEngineDocument engine;
 	private Set<String> detectors;
 
-	/**
-	 * Axis name to scannable name e.g.
-	 *  "x" -> "stage_x"
-	 *  "y" -> "stage_y"
-	 */
-	private Map<String, String> scannablePerAxis;
+	private List<ScannableTrackDocument> defaultPaths;
 
 	private ProcessingRequestProperties processingProperties;
 
@@ -70,11 +65,11 @@ public class AcquisitionTemplate {
 	public void setDetectors(Set<String> detectors) {
 		this.detectors = detectors;
 	}
-	public Map<String, String> getScanAxes() {
-		return scannablePerAxis;
+	public List<ScannableTrackDocument> getDefaultPaths() {
+		return defaultPaths;
 	}
-	public void setScanAxes(Map<String, String> scanAxes) {
-		this.scannablePerAxis = scanAxes;
+	public void setDefaultPaths(List<ScannableTrackDocument> defaultPaths) {
+		this.defaultPaths = defaultPaths;
 	}
 	public ProcessingRequestProperties getProcessingProperties() {
 		return processingProperties;

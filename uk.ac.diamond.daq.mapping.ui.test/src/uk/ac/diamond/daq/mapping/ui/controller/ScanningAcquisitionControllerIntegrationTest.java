@@ -20,7 +20,6 @@ package uk.ac.diamond.daq.mapping.ui.controller;
 
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.ui.experiment.controller.ExperimentScanningAcquisitionController;
 import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
@@ -110,8 +110,13 @@ public abstract class ScanningAcquisitionControllerIntegrationTest {
 		var template = new AcquisitionTemplate();
 		template.setType(keys.getPropertyType());
 		template.setSubType(keys.getSubType());
-		template.setScanAxes(Collections.emptyMap());
-
+		var path = new ScannableTrackDocument.Builder()
+				.withAxis("theta")
+				.withScannable("gts_theta")
+				.withStart(0)
+				.withStop(180)
+				.withPoints(200).build();
+		template.setDefaultPaths(List.of(path));
 
 		template.setDetectors(Set.of("PCO_CAMERA"));
 		var manager = new AcquisitionManager(List.of(template));
