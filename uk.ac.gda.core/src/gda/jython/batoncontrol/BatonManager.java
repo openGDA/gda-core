@@ -101,7 +101,14 @@ public class BatonManager implements IBatonManager {
 	}
 
 	@Override
+	@Deprecated(since = "GDA 9.26", forRemoval = true)
 	public int getAuthorisationLevelOf(String uniqueID) {
+		logger.warn("getAuthorisationLevelOf is deprecated and due for deletion in GDA 9.28 - use effectiveAuthorisationLevelOf");
+		return effectiveAuthorisationLevelOf(uniqueID);
+	}
+
+	@Override
+	public int effectiveAuthorisationLevelOf(String uniqueID) {
 
 		if (!useRBAC) {
 			return 0;
@@ -129,16 +136,6 @@ public class BatonManager implements IBatonManager {
 
 		// else do not have control!
 		return 0;
-	}
-
-	@Override
-	public int getAuthorisationLevelOf(int index) {
-		if (!useRBAC) {
-			return 0;
-		}
-		// Only called immediately after construction of facade, so should not be an issue for DAQ-3783/I04-541
-		// And we have no access to client name here (as expressed as unique JSF ident) for user friendly error
-		return getClientInfo(index).getAuthorisationLevel();
 	}
 
 	@Override

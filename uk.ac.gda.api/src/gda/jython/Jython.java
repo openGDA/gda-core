@@ -388,13 +388,6 @@ public interface Jython extends Findable, IObservable {
 	 */
 	public boolean isBatonHeld();
 
-
-	/**
-	 * @param indexOfClient
-	 * @return the authorisation level of the given client
-	 */
-	public int getAuthorisationLevel(int indexOfClient);
-
 	/**
 	 * Broadcast a message to other users on this beamline. Such messages will be displayed in a special viewer.
 	 *

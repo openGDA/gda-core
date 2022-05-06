@@ -23,22 +23,29 @@ import java.util.List;
 public interface IBatonManager {
 
 	/**
-	 * Determines the authorisation level of the given client. If another client holds the baton then the level is 0.
+	 * Determines the current authorisation level of the given client.
+	 * If this server has RBAC enabled and another client holds the baton
+	 * then the effective level is 0.
 	 *
-	 * @param uniqueID
-	 * @return the authorisation level
+	 * @param uniqueID The UUID of the client facade
+	 * @return the effective authorisation level
 	 */
-	public int getAuthorisationLevelOf(String uniqueID);
+	public int effectiveAuthorisationLevelOf(String uniqueID);
 
 	/**
-	 * This does not take the baton into account, this is simple what is in the authorisation database for the account
-	 * the given Client is running as.
+	 * Determines the authorisation level of the given client.
+	 * If another client holds the baton then the level is 0.
 	 *
-	 * @param index
-	 *            - the public index number of a client
-	 * @return int the authorisation level of the given client
+	 * @see #effectiveAuthorisationLevelOf(String)
+	 * @param uniqueID
+	 * @return the authorisation level
+	 * @deprecated use {@link #effectiveAuthorisationLevelOf(String)} instead.
+	 *     This method will be removed in GDA 9.28
 	 */
-	public int getAuthorisationLevelOf(int index);
+	// This method is misleading as it doesn't always return the authorisation level
+	// of the facade.
+	@Deprecated(since = "GDA 9.26", forRemoval = true)
+	public int getAuthorisationLevelOf(String uniqueID);
 
 	/**
 	 * Register a new facade to this class
