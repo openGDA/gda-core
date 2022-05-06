@@ -174,22 +174,51 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 				getMCAData(500); // collect frame of data (so that new bin setting is picked up by hdf writer)
 			}
 
-			// Set hdf output directory, name :
-			String hdfDir = XspressHelperMethods.getFilePath(filePath, defaultSubDirectory);
-			// make any parent directories
-			File file = new File(hdfDir);
-			if (!file.exists()) {
-				file.mkdirs();
-			}
-			xspress4Controller.setHdfFilePath(hdfDir);
-			xspress4Controller.setHdfNumFrames(numberOfFramesToCollect);
-			xspress4Controller.setHdfFileName(XspressHelperMethods.getFilePrefix(filePrefix));
-
-			// Not needed if auto-increment is off (should be off by default)
-//			xspress3Controller.setNextFileNumber(0);
+			setupHdfWriter(numberOfFramesToCollect);
 		}
 	}
 
+
+	/**
+	 * Set the number of frames to collect, the default file path and default file name in the Hdf writer
+	 * plugin. The output directory (i.e. output path) is created if it doesn't already exist.
+	 *
+	 * @param numberOfFramesToCollect
+	 * @throws DeviceException
+	 */
+	public void setupHdfWriter(int numberOfFramesToCollect) throws DeviceException {
+		// Set hdf output directory, name :
+		String hdfDir = generateHdfDirectoryPath();
+		// make any parent directories
+		File file = new File(hdfDir);
+		file.mkdirs();
+
+		xspress4Controller.setHdfNumFrames(numberOfFramesToCollect);
+		xspress4Controller.setHdfFilePath(hdfDir);
+		xspress4Controller.setHdfFileName(generateDefaultHdfFileName());
+	}
+
+	/**
+	 * Create name of path to where hdf will be written. By calling
+	 * {@link XspressHelperMethods#getFilePath(String, String)} with the currently
+	 * set values from {@link #getFilePath()} and {@link #getFilePrefix()}
+	 *
+	 * @return
+	 */
+	public String generateHdfDirectoryPath() {
+		return XspressHelperMethods.getFilePath(filePath, defaultSubDirectory);
+	}
+
+	/**
+	 * Generate name of Hdf file for current scan
+	 * using {@link XspressHelperMethods#getFilePrefix(String)} with current
+	 * value of {@link #getFilePrefix()}
+	 *
+	 * @return
+	 */
+	public String generateDefaultHdfFileName() {
+		return XspressHelperMethods.getFilePrefix(filePrefix);
+	}
 
 	/**
 	 * Wait for Hdf file writing to flush the final frame of data.
@@ -209,31 +238,36 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void atScanEnd() throws DeviceException {
-		if (writeHdfFiles) {
-			waitForFileWriter();
+		if (!writeHdfFiles) {
+			return;
 		}
 
-		// create link to hdf file...
-		if (writeHdfFiles) {
-			String path = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
-			try (NexusFile nexusFile = NexusFileHDF5.openNexusFile(path)) {
-				Path nexusFilePath = Paths.get(path).getParent();
-				Path hdfFilePath = Paths.get(xspress4Controller.getHdfFullFileName());
-				// Try to get relative path to hdf file from Nexus file
-				Path hdfFileRelativePath = hdfFilePath;
-				try{
-					hdfFileRelativePath = nexusFilePath.relativize(hdfFilePath);
-				}catch(IllegalArgumentException e) {
-					logger.warn("Cannot set relative path to hdf file {} from Nexus file {}. "+
-								"Using absolute path to hdf file instead.", hdfFilePath, nexusFilePath);
-				}
+		waitForFileWriter();
 
-				String relativeLink = hdfFileRelativePath + "#entry/data/data";
-				String nexusLinkName = "/entry1/" + getName() + "/MCAs";
-				nexusFile.linkExternal(new URI(relativeLink), nexusLinkName, false);
-			} catch (Exception e) {
-				logger.error("Problem creating link to hdf file in nexus", e);
+		// create link to hdf file...
+		addLinkToNexusFile(xspress4Controller.getHdfFullFileName(), "#entry/data/data", "MCAs");
+	}
+
+	protected void addLinkToNexusFile(String hdfFileFullName, String pathToDataInHdfFile, String linkName) {
+		String path = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
+		try (NexusFile nexusFile = NexusFileHDF5.openNexusFile(path)) {
+			Path nexusFilePath = Paths.get(path).getParent();
+			Path hdfFilePath = Paths.get(hdfFileFullName);
+
+			// Try to get relative path to hdf file from Nexus file
+			Path hdfFileRelativePath = hdfFilePath;
+			try{
+				hdfFileRelativePath = nexusFilePath.relativize(hdfFilePath);
+			}catch(IllegalArgumentException e) {
+				logger.warn("Cannot set relative path to hdf file {} from Nexus file {}. "+
+							"Using absolute path to hdf file instead.", hdfFilePath, nexusFilePath);
 			}
+
+			String relativeLink = hdfFileRelativePath + pathToDataInHdfFile;
+			String nexusLinkName = "/entry1/" + getName() + "/" + linkName;
+			nexusFile.linkExternal(new URI(relativeLink), nexusLinkName, false);
+		} catch (Exception e) {
+			logger.error("Problem creating link to hdf file in nexus", e);
 		}
 	}
 
@@ -263,7 +297,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	 */
 	public void acquireFrameAndWait(double collectionTimeMillis, double timeoutMillis) throws DeviceException {
 		int numFramesBeforeAcquire = xspress4Controller.getTotalFramesAvailable();
-		logger.info(":Acquire called");
+		logger.info("acquireFrameAndWait called. Current number of frames = {}", numFramesBeforeAcquire);
 		xspress4Controller.startAcquire();
 		try {
 			Thread.sleep((long)collectionTimeMillis);
@@ -282,9 +316,10 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		xspress4Controller.startHdfWriter();
-		xspress4Controller.waitForCaptureState(true);
-
+		if (isWriteHDF5Files()) {
+			xspress4Controller.startHdfWriter();
+			xspress4Controller.waitForCaptureState(true);
+		}
 		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
 		if (currentTriggerMode != TriggerMode.Software) {
 			xspress4Controller.startAcquire();
@@ -294,6 +329,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	@Override
 	public void atPointStart() throws DeviceException {
 		// collect new frame of data (software trigger only)
+		numFramesReadoutAtPointStart = 0;
 		if (currentTriggerMode == TriggerMode.Software) {
 			acquireFrameAndWait();
 		} else {
@@ -501,6 +537,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			logger.info("Setting scaler window1");
 			setScalerWindow(0); // apply to window1 only
 		}
+		logger.info("Setting DTC energy to {} keV", parameters.getDeadtimeCorrectionEnergy());
 		setDtcEnergyKev(parameters.getDeadtimeCorrectionEnergy());
 	}
 

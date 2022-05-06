@@ -85,7 +85,6 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 			dataProvider.setupSwmrFileReader(xspressDetector.isWriteHDF5Files() && useSwmrFileReading);
 
-			xspressDetector.getController().startTimeSeries();
 			xspressDetector.atScanLineStart();
 		}
 	}
@@ -180,6 +179,16 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 		return triggerModeForContinuousScan;
 	}
 
+
+	public void setTriggerModeForContinuousScan(int intMode) throws DeviceException {
+		int maxIntTriggerMode = TriggerMode.values().length-1;
+		if (intMode < 0 || intMode > maxIntTriggerMode) {
+			logger.warn("Cannot set trigger mode to {}, Value should be between 0 and {}", intMode, maxIntTriggerMode);
+			return;
+		}
+		triggerModeForContinuousScan = TriggerMode.values()[intMode];
+	}
+
 	public void setTriggerModeForContinuousScan(TriggerMode triggerModeForContinuousScan) {
 		this.triggerModeForContinuousScan = triggerModeForContinuousScan;
 	}
@@ -262,7 +271,6 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	public void atScanEnd() throws DeviceException {
 		// Wait for the hdf writer to finish
 		xspressDetector.atScanEnd();
-		xspressDetector.getController().stopTimeSeries();
 
 		// Try to release handle to detector hdf file.
 		if (useSwmrFileReading) {
