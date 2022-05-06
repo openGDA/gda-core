@@ -1,16 +1,13 @@
 package uk.ac.diamond.daq.service.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionConfigurationBase;
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
@@ -43,10 +40,9 @@ public class ScanningAcquisitionRestService {
 	 * @return
 	 * @throws ScanningAcquisitionServiceException
 	 */
-	@RequestMapping(value = "/run", method = RequestMethod.POST)
+	@PostMapping(value = "/run")
 	public @ResponseBody ResponseEntity<RunAcquisitionResponse> runScan(
-			@RequestBody AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition)
-			throws ScanningAcquisitionServiceException {
+			@RequestBody AcquisitionBase<? extends AcquisitionConfigurationBase<? extends AcquisitionParametersBase>> acquisition) {
 		return serviceCore.runAcquisition(acquisition);
 	}
 
@@ -58,23 +54,10 @@ public class ScanningAcquisitionRestService {
 	 * @return
 	 * @throws ScanningAcquisitionServiceException
 	 */
-	@RequestMapping(value = "/mscan", method = RequestMethod.POST)
+	@PostMapping(value = "/mscan")
 	public @ResponseBody ResponseEntity<RunAcquisitionResponse> run(
-			@RequestBody MscanRequest request) 
-					throws ScanningAcquisitionServiceException {
+			@RequestBody MscanRequest request) {
 		return serviceCore.runMScan(request);
 	}
-	
-	/**
-	 * Handles the HTTP response for the {@link ExperimentControllerException}
-	 * thrown by this rest service
-	 * 
-	 * @param e the thrown exception
-	 * @return the exception message
-	 */
-	@ExceptionHandler({ ScanningAcquisitionServiceException.class })
-	public @ResponseBody ResponseEntity<RunAcquisitionResponse> handleException(ScanningAcquisitionServiceException e) {
-		RunAcquisitionResponse response = serviceCore.buildResponse(false, "Scanning Acquisition Service Error", e);
-		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-	}
+
 }

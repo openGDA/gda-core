@@ -23,8 +23,12 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.server.ResponseStatusException;
 
 import uk.ac.diamond.daq.service.CommonDocumentService;
 import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
@@ -35,7 +39,6 @@ import uk.ac.gda.common.entity.Document;
 import uk.ac.gda.common.entity.filter.DocumentFilter;
 import uk.ac.gda.common.entity.filter.DocumentFilterBuilder;
 import uk.ac.gda.common.exception.GDAServiceException;
-import uk.ac.gda.core.tool.GDAHttpException;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 
 /**
@@ -46,47 +49,50 @@ import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
  */
 @Controller
 public class ConfigurationsServiceCore {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurationsServiceCore.class);
 
 	@Autowired
 	private CommonDocumentService documentService;
 	
-	public void selectDocument(UUID id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void selectDocument(UUID id, HttpServletRequest request, HttpServletResponse response) {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		try {
 			documentService.selectDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error retrieving document", e);
 		}
 	}
 	
-	public void selectDocuments(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void selectDocuments(HttpServletRequest request, HttpServletResponse response) {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		var filter = getDocumentFilter(request);
 		try {
 			documentService.selectDocuments(ccr, filter, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error retrieving documents", e);
 		}
 	}
 	
-	public void insertDocument(Document document, AcquisitionConfigurationResourceType type, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void insertDocument(Document document, AcquisitionConfigurationResourceType type, HttpServletRequest request, HttpServletResponse response) {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request, type);
 		try {
 			documentService.insertDocument(ccr, document, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
 			if (e.getCause() instanceof FileAlreadyExistsException) {
-				throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_CONFLICT);	
+				logAndWrapException("File already exists", e, HttpStatus.CONFLICT);
+			} else {
+				logAndWrapException("Error saving document", e);
 			}
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
 		}		
 	}
 	
-	public void deleteDocument(UUID id, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void deleteDocument(UUID id, HttpServletRequest request, HttpServletResponse response) {
 		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		try {
 			documentService.deleteDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error deleting document", e);
 		}
 	}
 	
@@ -98,11 +104,12 @@ public class ConfigurationsServiceCore {
 		return builder.build();
 	}
 	
-	public UUID getUUID(String id) throws GDAServiceException {
-		try {
-			return UUID.fromString(id);
-		} catch (IllegalArgumentException e) {
-			throw new GDAServiceException("Cannot convert id: " + id);
-		}
+	private void logAndWrapException(String message, Exception exception) {
+		logAndWrapException(message, exception, HttpStatus.PRECONDITION_FAILED);
+	}
+	
+	private void logAndWrapException(String message, Exception exception, HttpStatus status) {
+		logger.error(message, exception);
+		throw new ResponseStatusException(status, message, exception);
 	}
 }

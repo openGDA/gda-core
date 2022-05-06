@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -46,12 +45,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.server.ResponseStatusException;
 
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.common.entity.Document;
-import uk.ac.gda.common.exception.GDAException;
-import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  *
@@ -75,15 +73,15 @@ public class ConfigurationsServiceTest {
         System.setProperty(GDA_PROPERTIES_FILE, "test/resources/configurationsService/properties/_common/common_instance_java.properties");
 	}
 
-	@Test(expected = GDAHttpException.class)
 	@Ignore
-	public void invalidIDTest() throws GDAHttpException {
+	@Test (expected = ResponseStatusException.class)
+	public void invalidIDTest() throws Exception {
 		configurationsService.getDocument("id", null, null);
 	}
 
-	@Test
 	@Ignore
-	public void getDocumentTest() throws GDAHttpException, IOException  {
+	@Test
+	public void getDocumentTest() throws Exception  {
 		var uuid = "a194ad2e-92f1-4fd5-b64f-0b36a5fe4dcf";
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		var stream = new ByteArrayOutputStream();
@@ -93,9 +91,9 @@ public class ConfigurationsServiceTest {
 		assertTrue(stream.toString().contains(uuid));
 	}
 
-	@Test
 	@Ignore
-	public void getDocumentsIDTest() throws GDAHttpException, IOException {
+	@Test
+	public void getDocumentsIDTest() throws Exception {
 		var uuid2 = "015748eb-4be4-4d0f-a509-f989ec3a0453";
 		var uuid3 = "ab8d1bb0-f43f-4ce9-abfd-9b79778a7607";
 
@@ -114,9 +112,9 @@ public class ConfigurationsServiceTest {
 		assertTrue(stream.toString().contains(uuid3));
 	}
 
-	@Test
 	@Ignore
-	public void getSaveTest() throws IOException, GDAException {
+	@Test
+	public void getSaveTest() throws Exception {
 		var scanningAcquisition = new ScanningAcquisition();
 		scanningAcquisition.setName("saveTest" + UUID.randomUUID().toString());
 

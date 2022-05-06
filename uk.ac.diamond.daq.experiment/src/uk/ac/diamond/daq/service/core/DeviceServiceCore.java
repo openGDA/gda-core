@@ -30,8 +30,12 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.server.ResponseStatusException;
 
 import gda.device.EnumPositioner;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -50,7 +54,6 @@ import uk.ac.diamond.daq.service.command.strategy.OutputStrategyFactory;
 import uk.ac.gda.common.entity.device.DeviceMethods;
 import uk.ac.gda.common.entity.device.DeviceValue;
 import uk.ac.gda.common.exception.GDAServiceException;
-import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  * Implements the {@link CommonDeviceService} based on {@link DeviceRequest}
@@ -60,41 +63,43 @@ import uk.ac.gda.core.tool.GDAHttpException;
  */
 @Controller
 public class DeviceServiceCore {
+	
+	private static final Logger logger = LoggerFactory.getLogger(DeviceServiceCore.class);
 
 	@Autowired
 	private CommonDeviceService deviceService;
 	
 	private final Map<String, Class<?>> interfaces = new HashMap<>();
 	
-	public void getDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void getDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) {
 		DeviceCommandReceiver<DeviceValue> ccr = new BeanDeviceCommandReceiver<>(response, request);
 		try {
 			deviceService.getDeviceValue(deviceRequest, ccr, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error getting device value", e);
 		}
 	}
 
-	public void setDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void setDeviceValue(DeviceRequest deviceRequest, HttpServletRequest request, HttpServletResponse response) {
 		DeviceCommandReceiver<DeviceValue> ccr = new BeanDeviceCommandReceiver<>(response, request);
 		try {
 			deviceService.setDeviceValue(deviceRequest, ccr, OutputStrategyFactory.getJSONOutputStrategy());
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error setting device value", e);
 		}
 	}
 
-	public void getServices(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void getServices(HttpServletResponse response) {
 		List<String> services = new ArrayList<>(getInterfaces().keySet());
 		try {
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(services);
 			getServiceUtils().writeOutput(output, response);
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error getting services", e);
 		}
 	}
 
-	public void getServiceProperties(String serviceName, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	public void getServiceProperties(String serviceName, HttpServletResponse response) {
 		Class<?> service = getInterfaces().getOrDefault(serviceName, null);
 		var builder = new DeviceMethods.Builder();
 		Map<String, List<String>> map = new HashMap<>();
@@ -113,7 +118,7 @@ public class DeviceServiceCore {
 			byte[] output = OutputStrategyFactory.getJSONOutputStrategy().write(builder.build());
 			getServiceUtils().writeOutput(output, response);
 		} catch (GDAServiceException e) {
-			throw new GDAHttpException(e.getMessage(), HttpServletResponse.SC_PRECONDITION_FAILED);
+			logAndWrapException("Error getting service properties", e);
 		}
 	}
 
@@ -161,5 +166,10 @@ public class DeviceServiceCore {
 			interfaces.put("motor", MotorBase.class);
 		}
 		return interfaces;
+	}
+	
+	private void logAndWrapException(String message, Exception exception) {
+		logger.error(message, exception);
+		throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, message, exception);
 	}
 }

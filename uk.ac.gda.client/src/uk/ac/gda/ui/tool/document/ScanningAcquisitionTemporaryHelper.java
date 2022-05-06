@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,7 +168,7 @@ public class ScanningAcquisitionTemporaryHelper {
 		try {
 			getAcquisitionControllerElseThrow().runAcquisition();
 		} catch (AcquisitionControllerException e) {
-			UIHelper.showError(e.getMessage(), e.getCause().getMessage());
+			UIHelper.showError(e.getMessage(), ExceptionUtils.getRootCauseMessage(e));
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(ClientMessages.NO_CONTROLLER, e);
 		}

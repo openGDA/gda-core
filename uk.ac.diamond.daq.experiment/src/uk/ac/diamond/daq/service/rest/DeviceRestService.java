@@ -4,18 +4,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.service.core.DeviceServiceCore;
 import uk.ac.gda.common.entity.device.DeviceValue;
-import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  * Allows any client to communicate with GDA server side spring beans through a REST interface
@@ -45,11 +42,10 @@ public class DeviceRestService {
 	 * Returns a {@code List<String>} of the available services
 	 * @param request
 	 * @param response
-	 * @throws GDAHttpException
 	 */
-	@RequestMapping(value = "/detector/services", method = RequestMethod.GET)
-	public void getServices(HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		serviceCore.getServices(request, response);
+	@GetMapping(value = "/detector/services")
+	public void getServices(HttpServletRequest request, HttpServletResponse response) {
+		serviceCore.getServices(response);
 	}
 
 	/**
@@ -60,11 +56,10 @@ public class DeviceRestService {
 	 * @param service the name of the service to analyse
 	 * @param request
 	 * @param response
-	 * @throws GDAHttpException
 	 */
-	@RequestMapping(value = "/detector/services/{service}/properties", method = RequestMethod.GET)
-	public void getServiceProperties(@PathVariable String service, HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
-		serviceCore.getServiceProperties(service, request, response);
+	@GetMapping(value = "/detector/services/{service}/properties")
+	public void getServiceProperties(@PathVariable String service, HttpServletRequest request, HttpServletResponse response) {
+		serviceCore.getServiceProperties(service, response);
 	}
 
 	/**
@@ -75,11 +70,10 @@ public class DeviceRestService {
 	 * @param propertyName
 	 * @param request
 	 * @param response
-	 * @throws GDAHttpException
 	 */
-	@RequestMapping(value = "/detector/{detectorName}/{serviceName}/{propertyName}", method = RequestMethod.GET)
+	@GetMapping(value = "/detector/{detectorName}/{serviceName}/{propertyName}")
 	public void getDeviceValue(@PathVariable String detectorName, @PathVariable String serviceName, @PathVariable String propertyName,
-			HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+			HttpServletRequest request, HttpServletResponse response) {
 		var deviceRequest = serviceCore.createDeviceRequest(detectorName, serviceName, propertyName);
 		serviceCore.getDeviceValue(deviceRequest, request, response);
 	}
@@ -93,22 +87,11 @@ public class DeviceRestService {
 	 * @param deviceValue
 	 * @param request
 	 * @param response
-	 * @throws GDAHttpException
 	 */
-	@RequestMapping(value = "/detector", method = RequestMethod.POST)
-	public void setDeviceValue(@RequestBody DeviceValue deviceValue, 
-			HttpServletRequest request, HttpServletResponse response) throws GDAHttpException {
+	@PostMapping(value = "/detector")
+	public void setDeviceValue(@RequestBody DeviceValue deviceValue, HttpServletRequest request, HttpServletResponse response) {
 		var deviceRequest = serviceCore.createDeviceRequest(deviceValue);
 		serviceCore.setDeviceValue(deviceRequest, request, response);
 	}
 
-	/**
-	 * Handles the HTTP response for the {@link ExperimentControllerException} thrown by this rest service
-	 * @param e the thrown exception
-	 * @return the exception message
-	 */
-	@ExceptionHandler({ ExperimentControllerException.class })
-    public @ResponseBody String handleException(ExperimentControllerException e) {
-		return e.getMessage();
-    }
 }
