@@ -19,6 +19,7 @@
 
 package gda.jython;
 
+import static java.util.Collections.newSetFromMap;
 import static uk.ac.gda.common.util.EclipseUtils.PLATFORM_BUNDLE_PREFIX;
 import static uk.ac.gda.common.util.EclipseUtils.URI_SEPARATOR;
 
@@ -30,10 +31,13 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -74,9 +78,12 @@ import uk.ac.gda.common.util.EclipseUtils;
  * located anywhere else. This is because there is more to jython than just the files in jython.jar(!).****
  */
 public class GDAJythonInterpreter {
+	private static final String PROTECT_SCANNABLE_PROPERTY = "gda.jython.protectScannables";
 	private static final Logger logger = LoggerFactory.getLogger(GDAJythonInterpreter.class);
 	private static final String JYTHON_BUNDLE_PATH = "uk.ac.diamond.jython";
 	private static final String UTF_8 = "UTF-8";
+	/** The name used for the overwriting protection builtin */
+	private static final String OVERWRITING_NAME = "overwriting";
 	private static final Properties sysProps;
 	/** Custom logger for loaded classes only, used with a specific appender */
 	private static final Logger classLoadLogger = LoggerFactory.getLogger("jython-class-loader");
@@ -263,12 +270,13 @@ public class GDAJythonInterpreter {
 		// Create the __main__ module for the console to use
 		PyModule mod = imp.addModule("__main__");
 
-		PySystemState.getDefaultBuiltins().__setitem__("overwriting", overwriteLock);
+		overwriteLock.protect(OVERWRITING_NAME); // protect itself
+		PySystemState.getDefaultBuiltins().__setitem__(OVERWRITING_NAME, overwriteLock);
 		GdaBuiltin.registerBuiltinsFrom(GeneralCommands.class);
 		GdaBuiltin.registerBuiltinsFrom(ScannableCommands.class);
 
 		// Replace globals dict to prevent scannables and aliases being overwritten
-		GdaGlobals globals = new GdaGlobals();
+		GdaGlobals globals = new GdaGlobals(overwriteLock);
 		globals.update(mod.__dict__);
 		mod.__dict__ = globals;
 
@@ -441,7 +449,13 @@ public class GDAJythonInterpreter {
 		logger.info("Populating Jython namespace...");
 
 		final Map<String, Scannable> nameToScannable = Finder.getFindablesOfType(Scannable.class);
-		nameToScannable.forEach(this::placeInJythonNamespace);
+		var protect = LocalProperties.check(PROTECT_SCANNABLE_PROPERTY);
+		nameToScannable.forEach((name, scannable) -> {
+			placeInJythonNamespace(name, scannable);
+			if (protect) {
+				overwriteLock.protect(name);
+			}
+		});
 
 		logger.info("Finished populating Jython namespace, added {} Scannables", nameToScannable.size());
 	}
@@ -629,42 +643,123 @@ public class GDAJythonInterpreter {
 	}
 
 	/**
-	 * This class was created as a workaround for when overwriting scannables was fully blocked.
-	 * After further discussion, this is no longer a requirement and this class is now deprecated.
-	 * It is left for the cases where beamline scripts still reference it but should be removed in
-	 * version 9.20
-	 * @see <a href="https://jira.diamond.ac.uk/browse/DAQ-704">DAQ-704</a>
-	 * @deprecated
+	 * A builtin to provide a way for users to prevent names being overwritten.
+	 * Also provides a context manager to temporarily override the protection.
 	 */
-	@Deprecated
-	protected static class OverwriteLock extends PyObject implements ContextManager {
+	public static class OverwriteLock extends PyObject implements ContextManager {
+		private final Collection<String> protectedNames = newSetFromMap(new ConcurrentHashMap<>());
+		/**
+		 * The current override state of the current thread. This is stored as an integer rather
+		 * than a boolean so that nested contexts do not interfere with one another. Maintaining
+		 * this count as a {@link ThreadLocal} ensures that any commands running concurrently do not
+		 * unintentionally allow protected names to be assigned to when another thread enters an
+		 * overwriting context.
+		 */
+		private transient ThreadLocal<Integer> locks = ThreadLocal.withInitial(() -> 0);
+		public static String __doc__ // NOSONAR python naming convention
+				= "Manager to allow names to be protected and prevent assignments. \n"
+				+ "This is useful to prevent unintentionally overwriting scannables.\n"
+				+ "This can also be used as a context manager to allow protected names to be\n"
+				+ "assigned to where the user explicitly wants to workaround the protection.\n"
+				+ "Given a protected name base_x,\n"
+				+ "\n"
+				+ "    >>> base_x = 42 // will raise a NameError as it is protected\n"
+				+ "    >>> with overwriting: // explicitly override protection\n"
+				+ "    ...     base_x = 42 // new value is assigned successfully\n"
+				+ "    ... ";
+
+		private OverwriteLock() {}
+
 		@Override
 		public PyObject __enter__(ThreadState ts) {
-			logger.warn("overwriting context manager is deprecated and will be removed in 9.20 - see DAQ-704");
+			logger.trace("Allowing scannable overwriting");
+			updateLock(1);
 			return Py.None;
 		}
 
 		@Override
 		public boolean __exit__(ThreadState ts, PyException exception) {
 			logger.trace("Preventing scannable overwriting");
+			updateLock(-1);
 			return false;
 		}
 
+		private void updateLock(int change) {
+			int previous = locks.get();
+			int next = previous + change;
+			if (next > 0) {
+				logger.trace("Setting overwriting lock from {} -> {}", previous, next);
+				locks.set(next);
+			} else {
+				if (next < 0) {
+					logger.warn("Trying to set overwrite lock to {} - resetting to 0", next);
+				}
+				locks.remove();
+			}
+		}
+
 		@Override
-		public String toString() {
-			return "ScannableOverwritingBypass";
+		public PyString __str__() {
+			return Py.newString("OverwritingProtection");
+		}
+
+		public static String __doc__protect // NOSONAR
+				= "Add a new name to the list of names that should not be assigned to.\n"
+				+ "Any attempt to overwrite these names outside of an overwriting context\n"
+				+ "will raise a NameError.\n"
+				+ "Note that protected names are reset when reset_namespace is called.";
+		public void protect(String name) {
+			protectedNames.add(name);
+		}
+
+		public static String __doc__unprotect // NOSONAR
+				= "Remove a name from the list of names that should be protected.\n"
+				+ "Any subsequent attempts to assign to this name will not be blocked.";
+		public void unprotect(String name) {
+			protectedNames.remove(name);
+		}
+
+		public static String __doc__isProtected  // NOSONAR
+				= "Check whether the given name can be assigned to.\n"
+				+ "This takes into account the state of any overwriting context but is\n"
+				+ "intended for internal use.";
+		public boolean isProtected(String name) {
+			return locks.get() == 0 && protectedNames.contains(name);
+		}
+
+		@Override
+		public boolean equals(Object that) {
+			// Restore Java identity equals
+			return Objects.equals(this, that);
+		}
+		@Override
+		public int hashCode() {
+			// Restore Java default hashcode
+			return Objects.hashCode(this);
 		}
 	}
 
 	/**
-	 * Extension of dictionary to use for python globals so that we can intercept sets
-	 * and check that we're not overriding a scannable or aliased command.
+	 * Extension of dictionary to use for python globals so that we can
+	 * intercept sets and check that we're not overriding a protected name or
+	 * aliased command.
 	 *
-	 * Deletions are intercepted so that deleting an aliased command also removes the alias
+	 * Deletions are intercepted so that deleting an aliased command also
+	 * removes the alias.
 	 */
-	protected static class GdaGlobals extends PyStringMap {
+	public static class GdaGlobals extends PyStringMap {
+		private final OverwriteLock overwriting;
+
+		private GdaGlobals(OverwriteLock lock) {
+			overwriting = lock;
+
+		}
+
 		@Override
 		public void __setitem__(String key, PyObject value) {
+			if (overwriting.isProtected(key)) {
+				throw Py.NameError("Cannot overwrite protected name: " + key);
+			}
 			// Check if we're trying to overwrite an aliased command
 			if (translator != null && translator.hasAlias(key)) {
 				logger.debug("Overwriting aliased command '{}' with '{}'", key, value);
@@ -674,8 +769,11 @@ public class GDAJythonInterpreter {
 
 		@Override
 		public void __delitem__(String key) {
-			// If deleting an aliased command, remove the alias
+			if (overwriting.isProtected(key)) {
+				throw Py.NameError("Cannot delete protected name: " + key);
+			}
 			if (translator != null) {
+				// If deleting an aliased command, remove the alias
 				translator.removeAlias(key);
 			}
 			super.__delitem__(key);
