@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashSet;
@@ -125,7 +124,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 			.filter(Objects::nonNull)
 			.filter(d -> d.getUuid().equals(id))
 			.findFirst()
-			.orElse(null);		
+			.orElse(null);
 
 		getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
@@ -226,7 +225,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		File directory;
 		try {
 			directory = new File(dirConf.toURI());
-			if (directory.isDirectory())
+			if (directory.isFile())
 				directory = directory.getParentFile();
 		} catch (URISyntaxException e) {
 			throw new GDAServiceException("No configuration directory " + dirConf);
@@ -247,7 +246,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		}
 		return fileContext;
 	}
-	
+
 	private ScanningAcquisitionFileService getFileService() {		
 		if (fileService == null) {
 			fileService = SpringApplicationContextFacade.getBean(ScanningAcquisitionFileService.class);
@@ -273,5 +272,23 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		return Optional.ofNullable(type)
 				.orElseGet(() -> AcquisitionConfigurationResourceType.DEFAULT);
 			
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(documentClass, request, response, type);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FilesCollectionCommandReceiver<?> other = (FilesCollectionCommandReceiver<?>) obj;
+		return Objects.equals(documentClass, other.documentClass) && Objects.equals(request, other.request)
+				&& Objects.equals(response, other.response) && type == other.type;
 	}
 }

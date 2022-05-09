@@ -29,23 +29,14 @@ import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.data.ServiceHolder;
 import uk.ac.gda.core.tool.spring.DiffractionContextFile;
 import uk.ac.gda.core.tool.spring.DiffractionFileContext;
 import uk.ac.gda.core.tool.spring.ExperimentContextFile;
 import uk.ac.gda.core.tool.spring.ExperimentFileContext;
-import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class AcquisitionFileDefaultDirContextTest extends AcquisitionFileContextCommonTest {
+public class AcquisitionFileDefaultDirContextTest extends AcquisitionFileContextTestBase {
 
 	@BeforeClass
 	public static void beforeClass() {
