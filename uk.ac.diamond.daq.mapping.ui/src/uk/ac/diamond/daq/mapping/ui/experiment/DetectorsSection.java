@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static uk.ac.diamond.daq.mapping.ui.MappingUIConstants.PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG;
 import static uk.ac.gda.ui.tool.ClientMessages.DETECTOR_PARAMETERS_EDIT_TP;
 import static uk.ac.gda.ui.tool.ClientMessagesUtility.getMessage;
 
@@ -94,8 +95,6 @@ public class DetectorsSection extends AbstractMappingSection {
 
 	private static final int DETECTORS_COLUMNS = 3;
 	private static final String DETECTOR_SELECTION_KEY_JSON = "detectorSelection.json";
-
-	private static final String PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG = "showMappingStageChangeDialog";
 
 	/** Prefix for the property ids we want to listen to for changes*/
 	private static final String PROPERTY_DETECTORS = "uk.ac.diamond.daq.mapping.ui.experiment.detectorssection.detectors";

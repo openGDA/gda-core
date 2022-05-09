@@ -22,6 +22,7 @@ public final class MappingUIConstants {
 
 	public static final String PLUGIN_ID = "uk.ac.diamond.daq.mapping.ui";
 	public static final String NEXUS_FILE_EXTENSION = "nxs";
+	public static final String PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG = "showMappingStageChangeDialog";
 
 	private MappingUIConstants() {
 		// private constructor to prevent instantiation

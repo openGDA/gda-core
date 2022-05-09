@@ -20,7 +20,9 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static uk.ac.diamond.daq.mapping.ui.MappingUIConstants.PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG;
 
+import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -28,9 +30,12 @@ import java.util.Optional;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -52,6 +57,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 
 public class MalcolmDeviceSection extends AbstractTomoViewSection {
@@ -175,6 +181,54 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 		getBean().setMalcolmDeviceName(malcolmInfo.getName());
 		getBean().setMalcolmModel(malcolmInfo.getModel());
 		bindExposureTimeTextToMalcolmModel();
+		updateMappingStage(malcolmInfo);
+	}
+
+	private void updateMappingStage(DeviceInformation<IMalcolmModel> malcolmDeviceInfo) {
+		final MappingStageInfo stageInfo = getService(MappingStageInfo.class);
+		final List<String> malcolmAxes = malcolmDeviceInfo.getAvailableAxes();
+
+		// only update the mapping stage if the malcolm device is configured to move at least two axes
+		if (malcolmAxes.size() < 2) return;
+
+		// if the current fast and slow axes are contained in the malcolm axes, then the mapping stage
+		// is already set correctly for the malcolm device, no update is required
+		boolean updatedFastAndSlowAxes = false;
+		if (!malcolmAxes.contains(stageInfo.getPlotXAxisName()) || !malcolmAxes.contains(stageInfo.getPlotYAxisName())) {
+			// we assume the order is fast-axis, slow-axes. Malcolm devices must be configured to have this order
+			stageInfo.setPlotXAxisName(malcolmAxes.get(0));
+			stageInfo.setPlotYAxisName(malcolmAxes.get(1));
+			updatedFastAndSlowAxes = true;
+		}
+
+		boolean updatedAssociatedAxes = false;
+		if (malcolmAxes.size() > 2 && !malcolmAxes.contains(stageInfo.getAssociatedAxis())) {
+			// for a 3+ dimension malcolm device, we can set the z-axis as well
+			stageInfo.setAssociatedAxis(malcolmAxes.get(2));
+			updatedAssociatedAxes = true;
+		}
+
+		// show a dialog to inform the user of the change (unless overridden in the preferences)
+		if (updatedFastAndSlowAxes || updatedAssociatedAxes) {
+			// show a dialog to inform the user of the change (unless overridden in the preferences)
+			final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+			if (prefs.getBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, true)) {
+				String message = "";
+				if (updatedFastAndSlowAxes) {
+					message += MessageFormat.format("The active fast scan axis for mapping scans has been updated to ''{0}'' and the active slow scan axis to ''{1}''.",
+						stageInfo.getPlotXAxisName(), stageInfo.getPlotYAxisName());
+				}
+				if (updatedAssociatedAxes) {
+					message += MessageFormat.format(" The associated axis has been updated to ''{0}''.", stageInfo.getAssociatedAxis());
+				} else {
+					message += MessageFormat.format(" The associated axis is ''{0}'' and has not been changed.", stageInfo.getAssociatedAxis());
+				}
+				final MessageDialogWithToggle dialog = MessageDialogWithToggle.openInformation(getShell(), "Mapping Stage", message,
+						"Don't show this dialog again", false, null, null);
+				prefs.putBoolean(PREFERENCE_KEY_SHOW_MAPPING_STAGE_CHANGED_DIALOG, !dialog.getToggleState());
+			}
+			getView().redrawMapSection();
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -396,4 +396,9 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		updatePoints();
 	}
 
+	public void redrawMapSection() {
+		getSection(MapRegionAndPathSection.class).updateControls();
+		relayout();
+	}
+
 }
