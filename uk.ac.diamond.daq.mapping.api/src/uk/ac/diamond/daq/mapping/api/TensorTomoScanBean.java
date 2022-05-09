@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.api;
 
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
 
@@ -26,14 +27,12 @@ import uk.ac.diamond.daq.osgi.OsgiService;
 public class TensorTomoScanBean {
 
 	// Note: x and y scannable names come from the Mapping Stage Info
-	private String angle1ScannableName = "angle1";
-	private String angle2ScannableName = "angle2";
 	private IMappingScanRegionShape gridRegionModel; // TODO should be RectangularMappingRegion but that's not API
 	private AbstractTwoAxisGridModel gridPathModel;
-	private IMappingScanRegionShape angleRegionModel; // TODO should be RectangularMappingRegion but that's not API
-	private AbstractTwoAxisGridModel anglePathModel;
-	private double exposureTime = 0.1;
+	private IScanModelWrapper<IScanPointGeneratorModel> angle1Model;
+	private IScanModelWrapper<IScanPointGeneratorModel> angle2Model;
 	private String malcolmDeviceName;
+	private double exposureTime = 0.1;
 
 	public IMappingScanRegionShape getGridRegionModel() {
 		return gridRegionModel;
@@ -51,44 +50,20 @@ public class TensorTomoScanBean {
 		this.gridPathModel = gridPathModel;
 	}
 
-	public String getAngle1ScannableName() {
-		return angle1ScannableName;
+	public IScanModelWrapper<IScanPointGeneratorModel> getAngle1Model() {
+		return angle1Model;
 	}
 
-	public void setAngle1ScannableName(String angle1ScannableName) {
-		this.angle1ScannableName = angle1ScannableName;
+	public void setAngle1Model(IScanModelWrapper<IScanPointGeneratorModel> angle1Model) {
+		this.angle1Model = angle1Model;
 	}
 
-	public String getAngle2ScannableName() {
-		return angle2ScannableName;
+	public IScanModelWrapper<IScanPointGeneratorModel> getAngle2Model() {
+		return angle2Model;
 	}
 
-	public void setAngle2ScannableName(String angle2ScannableName) {
-		this.angle2ScannableName = angle2ScannableName;
-	}
-
-	public IMappingScanRegionShape getAngleRegionModel() {
-		return angleRegionModel;
-	}
-
-	public void setAngleRegionModel(IMappingScanRegionShape angleRegionModel) {
-		this.angleRegionModel = angleRegionModel;
-	}
-
-	public AbstractTwoAxisGridModel getAnglePathModel() {
-		return anglePathModel;
-	}
-
-	public void setAnglePathModel(AbstractTwoAxisGridModel anglePathModel) {
-		this.anglePathModel = anglePathModel;
-	}
-
-	public double getExposureTime() {
-		return exposureTime;
-	}
-
-	public void setExposureTime(double exposureTime) {
-		this.exposureTime = exposureTime;
+	public void setAngle2Model(IScanModelWrapper<IScanPointGeneratorModel> angle2Model) {
+		this.angle2Model = angle2Model;
 	}
 
 	public String getMalcolmDeviceName() {
@@ -97,6 +72,14 @@ public class TensorTomoScanBean {
 
 	public void setMalcolmDeviceName(String malcolmDeviceName) {
 		this.malcolmDeviceName = malcolmDeviceName;
+	}
+
+	public double getExposureTime() {
+		return exposureTime;
+	}
+
+	public void setExposureTime(double exposureTime) {
+		this.exposureTime = exposureTime;
 	}
 
 }

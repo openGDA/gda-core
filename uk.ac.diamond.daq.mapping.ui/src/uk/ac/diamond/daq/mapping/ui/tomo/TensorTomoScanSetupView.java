@@ -47,10 +47,11 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
+import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -63,6 +64,7 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 
 import uk.ac.diamond.daq.mapping.api.IPathInfoCalculator;
 import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
+import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.api.constants.RegionConstants;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
@@ -116,7 +118,6 @@ public class TensorTomoScanSetupView {
 	private final PathInfoCalculatorJob pathInfoCalculationJob;
 
 	private PropertyChangeListener mapRegionBeanPropertyChangeListener = this::mapRegionBeanPropertyChange;
-	private PropertyChangeListener angleRegionBeanPropertyChangeListener = this::angleRegionBeanPropertyChange;
 	private PropertyChangeListener pathBeanPropertyChangeListener = event -> updatePoints();
 
 	private boolean viewCreated = false;
@@ -148,6 +149,7 @@ public class TensorTomoScanSetupView {
 	@PostConstruct
 	public void createView(Composite parent) {
 		initializeTomoBean(); // ensure the tomo bean is fully initialized
+		addTomoBeanListeners();
 
 		mainComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(mainComposite);
@@ -176,7 +178,7 @@ public class TensorTomoScanSetupView {
 		final List<AbstractTomoViewSection> sectionsList = List.of(
 				new DetectorSection(this),
 				new MapRegionAndPathSection(this),
-				new TomoRegionAndPathSection(this),
+				new TomoPathSection(this),
 				new AcquistionTimeSection(this),
 				new SampleNameSection(this),
 				new StatusPanelSection(this),
@@ -193,11 +195,12 @@ public class TensorTomoScanSetupView {
 
 	private boolean checkTomoBean() {
 		try {
-			final String beanClassName = TensorTomoScanBean.class.getSimpleName();
 			Objects.requireNonNull(tomoBean, "Could not find a bean of type: " + TensorTomoScanBean.class
 					+ "\nThis should be defined in spring.");
-			Objects.requireNonNull(tomoBean.getAngle1ScannableName(), "angle1ScannableName not set in " + beanClassName);
-			Objects.requireNonNull(tomoBean.getAngle2ScannableName(), "angle2ScannableName not set in " + beanClassName);
+			Objects.requireNonNull(tomoBean.getAngle1Model(), "angle 1 model not set");
+			Objects.requireNonNull(tomoBean.getAngle1Model().getName(), "angle 1 name not set");
+			Objects.requireNonNull(tomoBean.getAngle2Model(), "angle 2 model not set");
+			Objects.requireNonNull(tomoBean.getAngle2Model().getName(), "angle 2 name not set");
 			// TODO any other checks are required here?
 		} catch (Exception e) {
 			uiSync.asyncExec(() -> MessageDialog.openError(getShell(), "Error",
@@ -211,22 +214,17 @@ public class TensorTomoScanSetupView {
 	private void initializeTomoBean() {
 		if (tomoBean.getGridRegionModel() == null) tomoBean.setGridRegionModel(new RectangularMappingRegion());
 		if (tomoBean.getGridPathModel() == null) tomoBean.setGridPathModel(new TwoAxisGridPointsModel());
-		if (tomoBean.getAngleRegionModel() == null) tomoBean.setAngleRegionModel(new RectangularMappingRegion());
-		if (tomoBean.getAnglePathModel() == null) tomoBean.setAnglePathModel(new TwoAxisGridStepModel());
 
 		// set the initial bounding boxes for the grid path models based on the region models
 		tomoBean.getGridPathModel().setxAxisName(mappingStageInfo.getPlotXAxisName());
 		tomoBean.getGridPathModel().setyAxisName(mappingStageInfo.getPlotYAxisName());
-		tomoBean.getAnglePathModel().setxAxisName(tomoBean.getAngle1ScannableName());
-		tomoBean.getAnglePathModel().setyAxisName(tomoBean.getAngle2ScannableName());
 
 		mapRegionOntoModel(tomoBean.getGridRegionModel(), tomoBean.getGridPathModel());
-		mapRegionOntoModel(tomoBean.getAngleRegionModel(), tomoBean.getAnglePathModel());
 
-		tomoBean.getGridRegionModel().addPropertyChangeListener(mapRegionBeanPropertyChangeListener);
-		tomoBean.getGridPathModel().addPropertyChangeListener(pathBeanPropertyChangeListener);
-		tomoBean.getAngleRegionModel().addPropertyChangeListener(angleRegionBeanPropertyChangeListener);
-		tomoBean.getAnglePathModel().addPropertyChangeListener(pathBeanPropertyChangeListener);
+		final IScanModelWrapper<IScanPointGeneratorModel> angle1 = tomoBean.getAngle1Model();
+		if (angle1.getModel() == null) angle1.setModel(new AxialStepModel(angle1.getName(), 0.0, 180.0, 10.0)); // TODO check defaults
+		final IScanModelWrapper<IScanPointGeneratorModel> angle2 = tomoBean.getAngle2Model();
+		if (angle2.getModel() == null) angle2.setModel(new AxialStepModel(angle2.getName(), 0.0, 90.0, 10.0));
 	}
 
 	private void mapRegionBeanPropertyChange(PropertyChangeEvent event) {
@@ -241,14 +239,7 @@ public class TensorTomoScanSetupView {
 		plotter.updatePlotRegionFrom(tomoBean.getGridRegionModel());
 	}
 
-	private void angleRegionBeanPropertyChange(PropertyChangeEvent event) {
-		mapRegionOntoModel(tomoBean.getAngleRegionModel(), tomoBean.getAnglePathModel());
-		if (event.getPropertyName().equals(RegionConstants.CALC_POINTS)) {
-			updatePoints();
-		}
-	}
-
-	private void updatePoints() {
+	protected void updatePoints() {
 		// We only need the number of points, so no need for a PathInfoCalculatorJob
 		// we can assume that the gridpath has been updated RegionAndPathMapper
 		// TODO remove this method
@@ -257,7 +248,7 @@ public class TensorTomoScanSetupView {
 				.withSourceId(ID)
 				.withScanPathModel(tomoBean.getGridPathModel())
 				.withScanRegion(tomoBean.getGridRegionModel().toROI())
-				.withOuterScannables(List.of(tomoBean.getAnglePathModel()))
+				.withOuterScannables(List.of(tomoBean.getAngle1Model().getModel(), tomoBean.getAngle2Model().getModel()))
 				.build());
 		pathInfoCalculationJob.schedule();
 	}
@@ -291,9 +282,11 @@ public class TensorTomoScanSetupView {
 			// TODO use a converter class, similar to ScanRequestConverter?
 			final ScanRequest scanRequest = new ScanRequest();
 			final CompoundModel compoundModel = new CompoundModel(
-					tomoBean.getAnglePathModel(), tomoBean.getGridPathModel());
+					tomoBean.getAngle1Model().getModel(),
+					tomoBean.getAngle2Model().getModel(),
+					tomoBean.getGridPathModel());
 			// TODO set units (get from scannable) (see ScanRequestConverter)?
-			compoundModel.setRegions(List.of(new ScanRegion(tomoBean.getAngleRegionModel().toROI())));
+			compoundModel.setRegions(List.of(new ScanRegion(tomoBean.getGridRegionModel().toROI())));
 			scanRequest.setCompoundModel(compoundModel);
 
 			// TODO add per-point and per-scan monitors (from mapping bean)?
@@ -332,6 +325,15 @@ public class TensorTomoScanSetupView {
 
 	@PreDestroy
 	public void dispose() {
+		removeTomoBeanListeners();
+	}
+
+	private void addTomoBeanListeners() {
+		tomoBean.getGridRegionModel().addPropertyChangeListener(mapRegionBeanPropertyChangeListener);
+		tomoBean.getGridPathModel().addPropertyChangeListener(pathBeanPropertyChangeListener);
+	}
+
+	private void removeTomoBeanListeners() {
 		tomoBean.getGridRegionModel().removePropertyChangeListener(mapRegionBeanPropertyChangeListener);
 		tomoBean.getGridPathModel().removePropertyChangeListener(pathBeanPropertyChangeListener);
 	}

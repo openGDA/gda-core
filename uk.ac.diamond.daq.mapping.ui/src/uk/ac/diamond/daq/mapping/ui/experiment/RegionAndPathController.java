@@ -561,8 +561,6 @@ public class RegionAndPathController extends AbstractMappingController {
 				.collect(Collectors.toList());
 	}
 
-
-
 	/**
 	 *  Updates the current scan path - this method should be called by the view updater function of client methods to
 	 *  manage the plotter bindings and trigger recalculation of the set of points when a new scan path is chosen.

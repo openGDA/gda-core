@@ -20,54 +20,115 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
+import uk.ac.diamond.daq.mapping.ui.path.AbstractGridPathEditor;
 import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor.CommonPathOption;
-import uk.ac.diamond.daq.mapping.ui.path.AbstractPathEditor.PathOption;
+import uk.ac.diamond.daq.mapping.ui.path.PathEditorProvider;
+import uk.ac.diamond.daq.mapping.ui.region.RectangleRegionEditor;
+import uk.ac.diamond.daq.mapping.ui.region.RegionEditorProvider;
 
-class MapRegionAndPathSection extends AbstractRegionAndPathSection {
+class MapRegionAndPathSection extends AbstractTomoViewSection {
+
+	protected enum GridPathType {
+		NUM_STEPS("Num. points", TwoAxisGridPointsModel.class),
+		STEP_SIZE("Step size", TwoAxisGridStepModel.class);
+
+		protected String label;
+		protected Class<? extends AbstractTwoAxisGridModel> modelClass;
+		private GridPathType(String label, Class<? extends AbstractTwoAxisGridModel> modelClass) {
+			this.label = label;
+			this.modelClass = modelClass;
+		}
+		public static GridPathType forModelClass(Class<? extends AbstractTwoAxisGridModel> modelClass) {
+			for (GridPathType type : GridPathType.values()) {
+				if (type.modelClass.equals(modelClass))
+					return type;
+			}
+			throw new IllegalArgumentException("Unknown model class: " + modelClass);
+		}
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(MapRegionAndPathSection.class);
 
 	private static final String UNITS_MILLIMETRES = "mm";
 
+	private final Map<GridPathType, AbstractTwoAxisGridModel> pathModels;
+
+	private Composite regionEditorComposite;
+	private Composite pathEditorComposite;
+
+	private AbstractGridPathEditor pathEditor;
+	private RectangleRegionEditor regionEditor;
+
+	private MappingStageInfo mappingStageInfo;
+
+	private Map<GridPathType, Button> gridPathTypeRadioButtons;
+
 	protected MapRegionAndPathSection(TensorTomoScanSetupView tomoView) {
 		super(tomoView);
+		mappingStageInfo = getService(MappingStageInfo.class);
+		pathModels = initializePathModels();
+	}
+
+	private Map<GridPathType, AbstractTwoAxisGridModel> initializePathModels() {
+		final Map<GridPathType, AbstractTwoAxisGridModel> pathModels = new EnumMap<>(GridPathType.class);
+		final GridPathType initialType = GridPathType.forModelClass(getTomoBean().getGridPathModel().getClass());
+		for (GridPathType gridPathType : GridPathType.values()) {
+			try {
+				final AbstractTwoAxisGridModel pathModel;
+				if (gridPathType == initialType) {
+					pathModel = getTomoBean().getGridPathModel();
+				} else {
+					pathModel = gridPathType.modelClass.getDeclaredConstructor().newInstance();
+					pathModel.setxAxisName(mappingStageInfo.getPlotXAxisName());
+					pathModel.setyAxisName(mappingStageInfo.getPlotYAxisName());
+				}
+				pathModels.put(gridPathType, pathModel);
+			} catch (Exception e) {
+				logger.error("Could not create instance of model class {}", gridPathType.modelClass, e);
+			}
+		}
+
+		return pathModels;
 	}
 
 	@Override
-	protected RegionAndPathConfig createRegionAndPathConfig() {
-		final TensorTomoScanBean tomoBean = getTomoBean();
-		final MappingStageInfo mappingStageInfo = getService(MappingStageInfo.class);
+	public void createControls(Composite parent) {
+		createSeparator(parent);
 
-		final RegionAndPathConfig config = new RegionAndPathConfig();
-		config.type = RegionAndPathType.TOMO;
-		config.axis1Name = mappingStageInfo.getPlotXAxisName();
-		config.axis2Name = mappingStageInfo.getPlotYAxisName();
-		config.regionModel = tomoBean.getGridRegionModel();
-		config.pathModel = tomoBean.getGridPathModel();
-		config.units = UNITS_MILLIMETRES;
-		return config;
+		final Composite composite = createComposite(parent, 1, true);
+		createUpperControls(composite);
+		createRegionAndPathEditors(composite);
 	}
 
-	@Override
 	protected void createUpperControls(final Composite composite) {
-		super.createUpperControls(composite);
+		final Label label = new Label(composite, SWT.NONE);
+		label.setText("Map Grid Setup");
+
 		createDrawMapControl(composite);
 	}
 
 	private void createDrawMapControl(Composite parent) {
-		final Composite composite = createComposite(parent, 2, true);
+		final Composite composite = createComposite(parent, 2, false);
 
-		// TODO do we need the draw default region button, used by the mapping view (MultiFunctionButton)?
 		final Label redrawLabel = new Label(composite, SWT.NONE);
 		redrawLabel.setText("Click button to draw/redraw mapping region:");
 
@@ -77,19 +138,84 @@ class MapRegionAndPathSection extends AbstractRegionAndPathSection {
 		redrawRegionButton.addSelectionListener(widgetSelectedAdapter(e -> tomoView.drawMappingRegion()));
 	}
 
-	@Override
-	protected String getSectionLabel() {
-		return "Map Grid Setup";
+	protected void createRegionAndPathEditors(final Composite parent) {
+		final Composite editorsComposite = createComposite(parent, 2, false);
+		((GridLayout) editorsComposite.getLayout()).horizontalSpacing = 10;
+
+		createRegionEditorArea(editorsComposite);
+		createPathEditorArea(editorsComposite);
+	}
+
+	private void createPathEditorArea(final Composite parent) {
+		final Composite composite = createComposite(parent, 1, false);
+
+		final Composite pathTypeChoiceComposite = createComposite(composite, 3, false);
+		final Label pathTypeLabel = new Label(pathTypeChoiceComposite, SWT.NONE);
+		pathTypeLabel.setText("Path Type:");
+
+		final GridPathType initialPathType = GridPathType.forModelClass(getTomoBean().getGridPathModel().getClass());
+		gridPathTypeRadioButtons = new EnumMap<>(GridPathType.class);
+		for (GridPathType gridPathType : GridPathType.values()) {
+			final Button gridPathTypeButton = new Button(pathTypeChoiceComposite, SWT.RADIO);
+			gridPathTypeButton.setText(gridPathType.label);
+			gridPathTypeButton.setSelection(gridPathType == initialPathType);
+			gridPathTypeButton.addSelectionListener(widgetSelectedAdapter(
+					e -> gridPathTypeSelected(gridPathType)));
+			gridPathTypeRadioButtons.put(gridPathType, gridPathTypeButton);
+		}
+
+		// grid model is the step for each axis
+		pathEditorComposite = createComposite(composite, 1, false);
+		createPathEditor();
+	}
+
+	private void gridPathTypeSelected(GridPathType gridPathType) {
+		if (gridPathTypeRadioButtons.get(gridPathType).getSelection()) {
+			getTomoBean().setGridPathModel(pathModels.get(gridPathType));
+			createPathEditor();
+			tomoView.relayout();
+		}
+	}
+
+	private void createPathEditor() {
+		if (pathEditor != null) {
+			pathEditor.dispose();
+		}
+
+		pathEditor = (AbstractGridPathEditor) PathEditorProvider.createPathComposite(
+				getTomoBean().getGridPathModel(), getEclipseContext());
+		pathEditor.setAxisNames(mappingStageInfo.getPlotXAxisName(), mappingStageInfo.getPlotYAxisName());
+		pathEditor.setOptionsToDisplay(Set.of(CommonPathOption.ALTERNATING));
+		pathEditor.createEditorPart(pathEditorComposite);
+	}
+
+	private void createRegionEditorArea(final Composite parent) {
+		regionEditorComposite = createComposite(parent, 1, false);
+
+		createRegionEditor();
+	}
+
+	private void createRegionEditor() {
+		if (regionEditor != null) {
+			regionEditor.dispose();
+		}
+
+		// Region is the start/stop for each axis
+		final String xAxisName = mappingStageInfo.getPlotXAxisName();
+		final String yAxisName = mappingStageInfo.getPlotYAxisName();
+
+		final Map<String, String> regionUnits = Map.of(xAxisName, UNITS_MILLIMETRES,
+				yAxisName, UNITS_MILLIMETRES);
+		regionEditor = (RectangleRegionEditor) RegionEditorProvider.createRegionEditor(
+				getTomoBean().getGridRegionModel(), regionUnits, getEclipseContext());
+		regionEditor.setAxisNames(xAxisName, yAxisName);
+		regionEditor.setUnitsEditable(false);
+		regionEditor.createEditorPart(regionEditorComposite);
 	}
 
 	@Override
-	protected void updateBeanWithGridPath(AbstractTwoAxisGridModel pathModel) {
-		getTomoBean().setGridPathModel(pathModel);
-	}
-
-	@Override
-	protected Set<PathOption> getPathOptions() {
-		return Set.of(CommonPathOption.ALTERNATING);
+	public void configureScanBean(ScanBean scanBean) {
+		// nothing to do - creating the CompoundModel is done by the view
 	}
 
 }
