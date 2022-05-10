@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
@@ -200,7 +201,13 @@ public class LiveControlsView extends ViewPart {
 				// If the control belongs in this group add it check for null group first!
 				if (control.getGroup() != null && control.getGroup().equals(group)) {
 					// Create Composite for this control
-					control.createControl(displayGroup);
+					try {
+						control.createControl(displayGroup);
+					} catch(RuntimeException e) {
+						createUnavailableControlLabel(displayGroup, control.getName());
+						logger.error("Could not create control for:  {}", control.getName(), e);
+					}
+
 				}
 			}
 		}
@@ -214,7 +221,13 @@ public class LiveControlsView extends ViewPart {
 				// If the control belongs in this group add it
 				if (control.getGroup() == null) {
 					// Create Composite for this control
-					control.createControl(displayGroup);
+					try {
+						control.createControl(displayGroup);
+					} catch(RuntimeException e) {
+						createUnavailableControlLabel(displayGroup, control.getName());
+						logger.error("Could not create control for:  {}", control.getName(), e);
+					}
+
 				}
 			}
 		}
@@ -225,6 +238,15 @@ public class LiveControlsView extends ViewPart {
 		scrolledComposite.setShowFocusedControl(true);
 
 		setTitleToolTip(controlSet.getName());
+	}
+
+	private void createUnavailableControlLabel(Composite parent, String controlName) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.swtDefaults().margins(3,3).applyTo(composite);
+		composite.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+
+		new Label(composite, SWT.NONE).setText("Could not create control for:");
+		new Label(composite, SWT.NONE).setText(controlName + ", see logs.");
 	}
 
 	@Override
