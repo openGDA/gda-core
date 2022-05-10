@@ -29,15 +29,10 @@ import org.springframework.stereotype.Component;
 import uk.ac.diamond.daq.client.gui.camera.CameraHelper;
 import uk.ac.diamond.daq.client.gui.camera.event.CameraControlSpringEvent;
 import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
-import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.gda.api.acquisition.configuration.processing.FrameCaptureRequest;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
 import uk.ac.gda.api.acquisition.parameters.FrameRequestDocument;
 import uk.ac.gda.api.camera.CameraControl;
-import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 
 /**
@@ -45,9 +40,6 @@ import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
  */
 @Component
 public class ScanningAcquisitionDetectorUpdater {
-
-	@Autowired
-	private ClientPropertiesHelper clientPropertiesHelper;
 
 	@Autowired
 	private ScanningAcquisitionTemporaryHelper acquisitionHelper;
@@ -62,35 +54,10 @@ public class ScanningAcquisitionDetectorUpdater {
 		@Override
 		public void onApplicationEvent(CameraControlSpringEvent event) {
 
-			var cameraId = event.getCameraId();
 			var cameraControl = CameraHelper.getCameraControlByCameraID(event.getCameraId()).orElseThrow();
 			var acquireTime = event.getAcquireTime();
 
-			boolean concernsAcquisition = getAcquisitionPropertiesDocument().getCameras().contains(event.getCameraId());
-			if (concernsAcquisition) {
-				updateAcquireTimeInDetectorDocuments(cameraId, cameraControl, acquireTime, getAcquisitionConfiguration());
-			}
 			getFrameCaptureRequest().ifPresent(request -> updateFrameCaptureRequest(request, cameraControl, acquireTime));
-		}
-
-		private void updateAcquireTimeInDetectorDocuments(String cameraId, CameraControl cameraControl, double acquireTime, ScanningConfiguration scanningConfiguration) {
-
-			// new document with updated acquire time
-			var detectorDocument = new DetectorDocument.Builder()
-				.withId(cameraId)
-				.withMalcolmDetectorName(CameraHelper.getCameraConfigurationPropertiesByID(cameraId).orElseThrow().getMalcolmDetectorName())
-				.withExposure(acquireTime)
-				.build();
-
-			// set as acquisition detector...
-			scanningConfiguration.getAcquisitionParameters().setDetector(detectorDocument);
-
-			var imageCalibrationHelper = new ImageCalibrationHelper(() -> scanningConfiguration);
-			// ...and as dark and flat detector
-			imageCalibrationHelper.updateDarkDetectorDocument(detectorDocument);
-			imageCalibrationHelper.updateFlatDetectorDocument(detectorDocument);
-
-			SpringApplicationContextFacade.publishEvent(new ScanningAcquisitionChangeEvent(this));
 		}
 
 		private Optional<FrameCaptureRequest> getFrameCaptureRequest() {
@@ -123,12 +90,6 @@ public class ScanningAcquisitionDetectorUpdater {
 				});
 		}
 
-		private AcquisitionConfigurationProperties getAcquisitionPropertiesDocument() {
-			return clientPropertiesHelper.getAcquisitionConfigurationProperties(acquisitionHelper.getAcquisitionType()).orElseThrow();
-		}
-		private ScanningConfiguration getAcquisitionConfiguration() {
-			return acquisitionHelper.getAcquisitionConfiguration().orElseThrow();
-		}
 	}
 
 }
