@@ -482,7 +482,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		final List<String> availableAxes = getAvailableAxes();
 		if (!availableAxes.containsAll(model.getAxesToMove())) {
 			throw new MalcolmDeviceException("Unknown axis: " + model.getAxesToMove().stream()
-					.filter(axisName -> !availableAxes.contains(axisName)).findFirst().get());
+					.filter(axisName -> !availableAxes.contains(axisName)).findFirst().orElseThrow());
 		}
 		axesToMove = model.getAxesToMove();
 
@@ -493,6 +493,12 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		devices = detectorModels.stream().collect(Collectors.toMap(
 				INameable::getName, detModel -> new DummyMalcolmDetector((DummyMalcolmDetectorModel) detModel)));
 		devices.put("panda", new DummyPandaDevice());
+	}
+
+	@Override
+	public void initialize() throws MalcolmDeviceException {
+		super.initialize();
+		setAvailableAxes(model.getAxesToMove()); // set the available axes to those of the model
 	}
 
 	@Override
@@ -852,7 +858,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 	public <T> void setAttributeValue(String attributeName, T value) throws ScanningException {
 		Object attr = getAttribute(attributeName);
-		if (attr==null) throw new ScanningException("There is no attribute called "+attributeName);
 		try {
 			Method setValue = attr.getClass().getMethod("setValue", value.getClass());
 			setValue.invoke(attr, value);
