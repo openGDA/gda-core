@@ -74,6 +74,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	private double totalIntensity= 0.0;
 	private double energyStepPerPixel = 0.0;
 	private double maxKE;
+	private static final String ENERGY_MODE = "Kinetic";
 
 	public VGScientaController getController() {
 		return controller;
@@ -809,16 +810,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 		return List.of(AcquisitionMode.FIXED, AcquisitionMode.SWEPT);
 	}
 
-	public void setEnergyMode(String value) throws Exception {
-		controller.setEnergyMode(value);
-	}
-
-	public void setEnergyMode(String value, double timeout) throws Exception {
-		controller.setEnergyMode(value);
-	}
-
-	public String getEnergyMode() throws Exception {
-		return controller.getEnergyMode();
+	public String getEnergyMode() {
+		return ENERGY_MODE;
 	}
 
 	public void setDetectorMode(String value) throws Exception {

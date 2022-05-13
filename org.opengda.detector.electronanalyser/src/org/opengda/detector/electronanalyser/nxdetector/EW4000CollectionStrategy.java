@@ -517,12 +517,10 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 					getAnalyser().setEndEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getLowEnergy(), 10.0);
 					getAnalyser().setCentreEnergy(Double.parseDouble(getDcmenergy().getPosition().toString())*1000-region.getFixEnergy(), 10.0);
 				}
-				getAnalyser().setEnergyMode("Kinetic",10.0);
 			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 10.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 10.0);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 10.0);
-				getAnalyser().setEnergyMode(literal,10.0);
 			}
 			if (lastregion == region) {
 				//only set analyser region when region changed.

@@ -74,9 +74,6 @@ public class VGScientaController extends ConfigurableBase {
 	private static final String ACQUISITION_MODE = "ACQ_MODE";
 	private static final String ACQUISITION_MODE_RBV = "ACQ_MODE_RBV";
 
-	/** Only Kinetic energy mode is supported, this is set during configure */
-	private static final String ENERGY_MODE = "ENERGY_MODE";
-	private static final String ENERGY_MODE_RBV = "ENERGY_MODE_RBV";
 	// To allow conversion to binding energy the analyser needs to know the excitation energy
 	// This shouldn't be used as binding energy mode is not supported but is here for legacy support
 	// private static final String EXCITATION_ENERGY = "EXCITATION_ENERGY";
@@ -242,8 +239,6 @@ public class VGScientaController extends ConfigurableBase {
 			initaliseEnumChannel(ACQUISITION_MODE, acquisitionModes);
 			logger.debug("Avaliable acquisition modes: {}", this.acquisitionModes);
 
-			// Set energy mode to kinetic as this is the only supported option
-			setEnergyMode("Kinetic");
 
 			// Detect the SES camera frame rate for validation and predicting timings
 			int cameraFrameRate = getCameraFrameRate();
@@ -600,27 +595,6 @@ public class VGScientaController extends ConfigurableBase {
 
 	public int getTotalDataPoints() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(TOTAL_DATA_POINTS_RBV));
-	}
-
-	/**
-	 * This method is remains for backwards compatibility it will be changed to private in future. This is to ensure the analyser is always operated in kinetic
-	 * energy mode.
-	 *
-	 * @deprecated This shouldn't be called as the analyser is always operated in kinetic energy mode.
-	 * @param value Only "Kinetic" (not case sensitive)  is valid
-	 * @throws IllegalArgumentException If any argument other than "Kinetic" is passed in
-	 * @throws Exception If there is a problem with the EPICS communication
-	 */
-	@Deprecated
-	public void setEnergyMode(String value) throws Exception {
-		if (!value.equalsIgnoreCase("Kinetic")) {
-			throw new IllegalArgumentException("Only kinetic energy mode is supported");
-		}
-		EPICS_CONTROLLER.caputWait(getChannel(ENERGY_MODE), value);
-	}
-
-	public String getEnergyMode() throws Exception {
-		return EPICS_CONTROLLER.cagetString(getChannel(ENERGY_MODE_RBV));
 	}
 
 	public void setDetectorMode(String value) throws Exception {

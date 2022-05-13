@@ -155,12 +155,10 @@ public class RegionScannable extends ScannableBase implements Scannable {
 					getAnalyser().setEndEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getLowEnergy(), 5.0);
 					getAnalyser().setCentreEnergy(Double.parseDouble(dcmenergy.getPosition().toString())*1000-region.getFixEnergy(), 5.0);
 				}
-				getAnalyser().setEnergyMode("Kinetic",5.0);
 			} else {
 				getAnalyser().setStartEnergy(region.getLowEnergy(), 5.0);
 				getAnalyser().setEndEnergy(region.getHighEnergy(), 5.0);
 				getAnalyser().setCentreEnergy(region.getFixEnergy(), 5.0);
-				getAnalyser().setEnergyMode(literal,5.0);
 			}
 			if (!firstInScan) {
 				busy=false;
