@@ -34,8 +34,8 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.SERIAL_NUMBER;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_NAME;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_VALUE;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
@@ -71,6 +71,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -134,6 +135,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.countertimer.DummyCounterTimer;
 import gda.device.monitor.DummyMonitor;
+import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyUnitsScannable;
 import gda.device.scannable.ScannableBase;
@@ -469,6 +471,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
 	protected static final String MONITOR_NAME = "mon01";
+	protected static final String NULL_FIELD_METADATA_SCANNABLE_NAME = "nullFieldScannable";
 
 	protected static final int EXPECTED_SCAN_NUMBER = 1;
 	protected static final String EXPECTED_ENTRY_IDENTIFER = "1";
@@ -594,8 +597,11 @@ public abstract class AbstractNexusDataWriterScanTest {
 		locationMap.put(scannables[0].getName(), createScannableWriter(scannables[0].getName(),
 				List.of(METADATA_SCANNABLE_NAMES[5])));
 
+		createNullFieldMetadataScannable(NULL_FIELD_METADATA_SCANNABLE_NAME);
+
 		final NexusDataWriterConfiguration config = ServiceHolder.getNexusDataWriterConfiguration();
-		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1]));
+		config.setMetadataScannables(Sets.newHashSet(METADATA_SCANNABLE_NAMES[0], METADATA_SCANNABLE_NAMES[1],
+				NULL_FIELD_METADATA_SCANNABLE_NAME));
 		config.setLocationMap(locationMap);
 
 		final Map<String, Collection<String>> metadataScannablesPerDetectorMap = new HashMap<>();
@@ -626,6 +632,18 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return scannable;
 	}
 
+	private Scannable createNullFieldMetadataScannable(final String name) throws DeviceException {
+		final DummyMultiFieldUnitsScannable<Dimensionless> scannable = new DummyMultiFieldUnitsScannable<>(name);
+		scannable.setInputNames(new String[]{ "input1", "input2" });
+		scannable.setExtraNames(new String[] { "extra1", "extra2", "extra3"});
+		scannable.setCurrentPosition(2.5, null);
+		scannable.setExtraFieldsPosition("one", null, "three");
+		scannable.setOutputFormat(new String[] { "%5.5g", "%5.5g", "%s", "%s", "%s" });
+		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, scannable);
+
+		return scannable;
+	}
+
 	private void createExpectedMetadataScannableNames() {
 		final Set<Integer> includedMetadataScannableIndices = new HashSet<>();
 		includedMetadataScannableIndices.addAll(Sets.newHashSet(0, 1, 5, 6)); // included in all scans
@@ -636,7 +654,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 		expectedMetadataScannableNames = IntStream.range(0, METADATA_SCANNABLE_NAMES.length)
 				.filter(includedMetadataScannableIndices::contains)
 				.mapToObj(i -> METADATA_SCANNABLE_NAMES[i])
-				.collect(toSet());
+				.collect(toCollection(HashSet::new));
+		expectedMetadataScannableNames.add(NULL_FIELD_METADATA_SCANNABLE_NAME);
 	}
 
 	private ScannableWriter createScannableWriter(String scannableName, List<String> prerequisiteNames) {

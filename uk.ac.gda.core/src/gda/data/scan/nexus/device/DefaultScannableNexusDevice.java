@@ -144,7 +144,9 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		final String[] inputNames = scannable.getInputNames();
 		for (int fieldIndex = 0; fieldIndex < inputNames.length; fieldIndex++) {
 			final boolean isSingleInputField = fieldIndex == 0 && inputNames.length == 1;
-			nexusProviders.add(createNexusProviderForInputField(inputNames[fieldIndex], fieldIndex, scanRole, isSingleInputField));
+			if (getFieldDataNode(inputNames[fieldIndex]) != null) {
+				nexusProviders.add(createNexusProviderForInputField(inputNames[fieldIndex], fieldIndex, scanRole, isSingleInputField));
+			}
 		}
 
 		// for scannables with multiple (or zero) input fields, create an NXcollection with links and extra fields
@@ -207,15 +209,17 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		// create the 'value' data node for this input field
 		final String dataNodeName = positioner instanceof NXpositioner ? NXpositioner.NX_VALUE : inputName;
 		final DataNode dataNode = getFieldDataNode(inputName);
-		positioner.addDataNode(dataNodeName, dataNode);
+		if (dataNode != null) { // can be the case for a null-valued field for metadata scannables
+			positioner.addDataNode(dataNodeName, dataNode);
 
-		if (isSingleInputField) {
-			// we don't create an NXcollection for a single field, so add extra fields and attributes here
-			addExtraNameFields(positioner);
-			registerAttributes(positioner);
-			// create the 'value_set' (demand value) data node if applicable (new scanning only)
-			if (demandValueDataNode != null) {
-				positioner.addDataNode(FIELD_NAME_VALUE_SET, demandValueDataNode);
+			if (isSingleInputField) {
+				// we don't create an NXcollection for a single field, so add extra fields and attributes here
+				addExtraNameFields(positioner);
+				registerAttributes(positioner);
+				// create the 'value_set' (demand value) data node if applicable (new scanning only)
+				if (demandValueDataNode != null) {
+					positioner.addDataNode(FIELD_NAME_VALUE_SET, demandValueDataNode);
+				}
 			}
 		}
 

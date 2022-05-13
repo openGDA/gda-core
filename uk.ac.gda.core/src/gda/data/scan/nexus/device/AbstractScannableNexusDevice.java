@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -254,8 +253,9 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	protected void addFields(String[] fieldNames, NXobject nexusObject) {
 		for (String fieldName : fieldNames) {
 			final DataNode dataNode = fieldDataNodes.get(fieldName);
-			Objects.nonNull(dataNode); // sanity check
-			nexusObject.addDataNode(fieldName, dataNode);
+			if (dataNode != null) { // can be null in rare cases
+				nexusObject.addDataNode(fieldName, dataNode);
+			}
 		}
 	}
 
@@ -304,9 +304,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		final Scannable scannable = getScannable();
 		final String[] fieldNames = Stream.concat(Arrays.stream(scannable.getInputNames()),
 				Arrays.stream(scannable.getExtraNames())).toArray(String[]::new);
-		final boolean writeDecimals = LocalProperties.check(PROPERTY_VALUE_WRITE_DECIMALS, false);
-		final int[] numDecimals =  writeDecimals ?
-				Arrays.stream(scannable.getOutputFormat()).mapToInt(this::getNumDecimals).toArray() : null;
+		final int[] numDecimals = getNumDecimalsArray(scannable);
 
 		// create the datasets for each field
 		fieldDataNodes = new LinkedHashMap<>(fieldNames.length);
@@ -323,10 +321,18 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		}
 	}
 
-    // copied from java.util.Formatter
-    private static final Pattern FORMAT_PATTERN = Pattern.compile(
-    		"%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
-    private static final String FLOAT_CONVERSIONS = "fgeFGE"; // conversion characters for floating-point values for java.util.Formatter
+	private int[] getNumDecimalsArray(final Scannable scannable) {
+		if (!LocalProperties.check(PROPERTY_VALUE_WRITE_DECIMALS, false)) return null;
+		if (scannable.getOutputFormat() == null) return null;
+
+		// note, scannable outputFormat must be set to an array of the same length as the scannable position
+		return Arrays.stream(scannable.getOutputFormat()).mapToInt(this::getNumDecimals).toArray();
+	}
+
+	// copied from java.util.Formatter
+	private static final Pattern FORMAT_PATTERN = Pattern.compile(
+			"%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
+	private static final String FLOAT_CONVERSIONS = "fgeFGE"; // conversion characters for floating-point values for java.util.Formatter
 
 	private int getNumDecimals(String outputFormat) {
 		// the output format is a format string for the String.format() method, e.g. "%5.3g", where the
@@ -360,15 +366,8 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 
 	private DataNode createDataField(NexusScanInfo scanInfo, final NexusRole nexusRole,
 			String inputFieldName, int numDecimals, String unitsStr, Object value) {
-		final DataNode dataNode = NexusNodeFactory.createDataNode();
-		if (nexusRole == NexusRole.PER_SCAN) {
-			// simply set the field to the current value
-			dataNode.setDataset(DatasetFactory.createFromObject(value));
-		} else if (nexusRole == NexusRole.PER_POINT) {
-			// otherwise create a lazy writable dataset of the appropriate type
-			dataNode.setDataset(createLazyWritableDataset(inputFieldName,
-					value.getClass(), scanInfo.getRank(), scanInfo.createChunk(1)));
-		}
+		final DataNode dataNode = createDataNode(scanInfo, nexusRole, inputFieldName, value);
+		if (dataNode == null) return null;
 
 		// set 'local_name' attribute to the scannable + input field name
 		dataNode.addAttribute(TreeFactory.createAttribute(ATTR_NAME_LOCAL_NAME, getName() + "." + inputFieldName));
@@ -385,6 +384,29 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		}
 
 		// add the data node to the parent group
+		return dataNode;
+	}
+
+	private DataNode createDataNode(NexusScanInfo scanInfo, final NexusRole nexusRole, String inputFieldName,
+			Object value) {
+		final DataNode dataNode = NexusNodeFactory.createDataNode();
+		if (nexusRole == NexusRole.PER_SCAN) {
+			if (value == null) {
+				logger.warn("Field {} of scannable {} has a null value. It will not be written", inputFieldName, getName());
+				return null;
+			}
+
+			// simply set the field to the current value
+			dataNode.setDataset(DatasetFactory.createFromObject(value));
+		} else if (nexusRole == NexusRole.PER_POINT) {
+			if (value == null) {
+				throw new IllegalArgumentException("Cannot create a lazy dataset for a null value, for field " + inputFieldName + " of scannable " + getName());
+			}
+
+			// otherwise create a lazy writable dataset of the appropriate type
+			dataNode.setDataset(createLazyWritableDataset(inputFieldName,
+					value.getClass(), scanInfo.getRank(), scanInfo.createChunk(1)));
+		}
 		return dataNode;
 	}
 

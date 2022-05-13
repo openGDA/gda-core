@@ -155,7 +155,9 @@ public class BeforeScanSnapshotWriter implements INexusDevice<NXcollection> {
 
 		for (int fieldIndex = 0; fieldIndex < fieldNames.length; fieldIndex++) {
 			if (fieldIndex >= positionArray.length) {
-				logger.warn("Field {} from scannable '{}' ({}) missing from positionArray {}", fieldIndex, getName(), fieldNames[fieldIndex], positionArray);
+				logger.warn("Field '{}' from scannable '{}' (fieldIndex={}) missing from positionArray {}", fieldNames[fieldIndex], getName(), fieldIndex, positionArray);
+			} else if (positionArray[fieldIndex] == null) {
+				logger.warn("Field '{}' from scannable '{}' has a null value and will not be written.", fieldNames[fieldIndex], getName());
 			} else {
 				final DataNode dataNode = NexusNodeFactory.createDataNode();
 				dataNode.setDataset(DatasetFactory.createFromObject(positionArray[fieldIndex]));

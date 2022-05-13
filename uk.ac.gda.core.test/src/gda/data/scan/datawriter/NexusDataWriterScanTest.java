@@ -168,7 +168,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(instrument.getNameScalar(), is(equalTo(EXPECTED_INSTRUMENT_NAME)));
 
 		// group for each device, plus metadata groups: source, monochromator, insertion_device
-		final int expectedGroupNodes = getNumDevices() + 3;
+		// minus nullFieldScannable which is written to the before_scan collection as it does not have a location map entry
+		final int expectedGroupNodes = getNumDevices() + 3 - 1;
 		assertThat(instrument.getNumberOfGroupNodes(), is(expectedGroupNodes));
 		checkSource(instrument);
 	}
@@ -193,6 +194,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	protected String[] getExpectedPositionerNames() {
 		return Streams.concat(Arrays.stream(getScannableAndMonitorNames()),
 				getExpectedMetadataScannableNames().stream())
+				.filter(name -> !name.equals(NULL_FIELD_METADATA_SCANNABLE_NAME))
 				.toArray(String[]::new);
 	}
 

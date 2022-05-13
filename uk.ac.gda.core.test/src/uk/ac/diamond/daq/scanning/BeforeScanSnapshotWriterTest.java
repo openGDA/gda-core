@@ -24,6 +24,7 @@ import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_CO
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -34,9 +35,11 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -46,6 +49,7 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NXcollection;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -100,6 +104,9 @@ public class BeforeScanSnapshotWriterTest {
 		perScanMonitors.add(createMockScannable("meta4", 1, 3));
 		perScanMonitors.add(createMockScannable("meta5", 3, 3));
 		perScanMonitors.add(createMockScannable("meta6", 0, 2));
+		perScanMonitors.add(createStringScannable("strMeta"));
+		// TODO: checkScannable does not currently support checking scannables with null (missing) fields.
+		//perScanMonitors.add(createScannableWithNullFieldValue("nullFieldMeta"));
 		perScanMonitors.stream().forEach(factory::addFindable);
 		scanInfo.setPerScanMonitorNames(perScanMonitors.stream().map(Scannable::getName).collect(toSet()));
 
@@ -138,7 +145,11 @@ public class BeforeScanSnapshotWriterTest {
 
 		final NXcollection beforeScanCollection = nexusProvider.getNexusObject();
 		assertThat(beforeScanCollection, is(notNullValue()));
+		assertThat(beforeScanCollection.getAttributeNames(), contains(NexusConstants.NXCLASS));
+		assertThat(beforeScanCollection.getDataNodeNames(), is(empty()));
 
+		final Set<String> allScannableNames = getAllScannableNames();
+		assertThat(beforeScanCollection.getGroupNodeNames(), containsInAnyOrder(allScannableNames.toArray()));
 		for (String scannableName : getAllScannableNames()) {
 			checkScannable(beforeScanCollection, scannableName);
 		}
@@ -150,6 +161,22 @@ public class BeforeScanSnapshotWriterTest {
 		final int numFields = numInputFields + numExtraFields;
 		final Double[] position = random.doubles(numFields).mapToObj(Double::valueOf).toArray(Double[]::new);
 		return MockFactory.createMockScannable(name, inputNames, extraNames, position);
+	}
+
+	private Scannable createStringScannable(String name) throws DeviceException {
+		final String[] inputNames = createFieldNames("strInput", 3);
+		final String[] extraNames = createFieldNames("strExtra", 2);
+		final String[] position = { "one", "two", "three", "four", "five" };
+		final String[] outputFormat = Collections.nCopies(5, "%s").toArray(String[]::new);
+		return MockFactory.createMockScannable(name, inputNames, extraNames, outputFormat, 5, position);
+	}
+
+	private Scannable createScannableWithNullFieldValue(String name) throws DeviceException {
+		final String[] inputNames = createFieldNames("input", 2);
+		final String[] extraNames = createFieldNames("extra", 3);
+		final Object[] position = { random.nextDouble(), null, "foo", null, "bar" };
+		final String[] outputFormat = { "%1.0f", "%1.0f", "%s", "%s", "%s" };
+		return MockFactory.createMockScannable(name, inputNames, extraNames, outputFormat, 5, position);
 	}
 
 	private String[] createFieldNames(String prefix, int numFields) {
@@ -192,11 +219,11 @@ public class BeforeScanSnapshotWriterTest {
 		}
 	}
 
-	private List<String> getAllScannableNames() {
+	private Set<String> getAllScannableNames() {
 		return Stream.of(scanInfo.getScannableNames(), scanInfo.getPerPointMonitorNames(),
 				scanInfo.getPerScanMonitorNames(), additionalScannableNames)
 			.flatMap(Collection::stream)
-			.collect(toList());
+			.collect(Collectors.toSet());
 	}
 
 	private Object[] getScannablePosition(Scannable scannable) throws DeviceException {

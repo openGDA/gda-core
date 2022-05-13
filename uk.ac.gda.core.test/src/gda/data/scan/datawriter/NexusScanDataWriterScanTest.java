@@ -640,6 +640,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.add(GROUP_NAME_SCANNABLES);
 		expectedGroupNames.addAll(getExpectedMetadataScannableNames());
 		expectedGroupNames.addAll(ServiceHolder.getCommonBeamlineDevicesConfiguration().getCommonDeviceNames());
+		expectedGroupNames.addAll(List.of(NULL_FIELD_METADATA_SCANNABLE_NAME, NULL_FIELD_METADATA_SCANNABLE_NAME + ".input1")); // positioner for input field
 		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
 
 		return expectedGroupNames.toArray(String[]::new);
@@ -658,39 +659,50 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 			final Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 			final String[] allFieldNames = ArrayUtils.addAll(scannable.getInputNames(), scannable.getExtraNames());
-			assertThat(scannableCollection.getDataNodeNames(), containsInAnyOrder(allFieldNames));
+			final Object[] positionArray = getPositionArray(scannable);
+			assertThat(positionArray.length, is(equalTo(allFieldNames.length)));
 
-			final Object position = scannable.getPosition();
+			final String[] expectedFieldNames = IntStream.range(0, allFieldNames.length) // field names for which there is a non-null value
+					.filter(i -> positionArray[i] != null).mapToObj(i -> allFieldNames[i]).toArray(String[]::new);
+			assertThat(scannableCollection.getDataNodeNames(), containsInAnyOrder(expectedFieldNames));
+
 			final String expectedUnits = scannable instanceof ScannableMotionUnits ? ((ScannableMotionUnits) scannable).getUserUnits() : null;
 			for (int fieldIndex = 0; fieldIndex < allFieldNames.length; fieldIndex++) {
 				final DataNode dataNode = scannableCollection.getDataNode(allFieldNames[fieldIndex]);
-				assertThat(dataNode, is(notNullValue()));
-				final IDataset dataset = dataNode.getDataset().getSlice();
-				final double fieldPosition = getPositionForFieldIndex(position, fieldIndex);
-				assertThat(dataset.getShape(), is(equalTo(EMPTY_SHAPE)));
-
-				if (!scannableNames.contains(scannableName)) {
-					// note: in fact before scan is written after the first point, as this is where DataWriters create the nexus tree
-					assertThat(dataset.getDouble(), is(closeTo(fieldPosition, 1e-15)));
-				}
-				final Attribute unitsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_UNITS);
-				if (expectedUnits == null) {
-					assertThat(unitsAttr, is(nullValue()));
+				if (positionArray[fieldIndex] == null) {
+					assertThat(dataNode, is(nullValue()));
 				} else {
-					assertThat(unitsAttr, is(notNullValue()));
-					assertThat(unitsAttr.getFirstElement(), is(equalTo(expectedUnits)));
+					assertThat(dataNode, is(notNullValue()));
+					final IDataset dataset = dataNode.getDataset().getSlice();
+					assertThat(dataset.getShape(), is(equalTo(EMPTY_SHAPE)));
+
+					if (!scannableNames.contains(scannableName)) {
+						if (positionArray[fieldIndex] instanceof Double) {
+							// note: in fact before scan is written after the first point, as this is where DataWriters create the nexus tree
+							final double expectedPos = ((Double) positionArray[fieldIndex]).doubleValue();
+							assertThat(dataset.getDouble(), is(closeTo(expectedPos, 1e-15)));
+						} else {
+							assertThat(dataset.getString(), is(equalTo(positionArray[fieldIndex])));
+						}
+					}
+					final Attribute unitsAttr = dataNode.getAttribute(ATTRIBUTE_NAME_UNITS);
+					if (expectedUnits == null) {
+						assertThat(unitsAttr, is(nullValue()));
+					} else {
+						assertThat(unitsAttr, is(notNullValue()));
+						assertThat(unitsAttr.getFirstElement(), is(equalTo(expectedUnits)));
+					}
 				}
 			}
 		}
 	}
 
-	private double getPositionForFieldIndex(Object position, int fieldIndex) throws DeviceException {
+	private Object[] getPositionArray(Scannable scannable) throws DeviceException {
+		final Object position = scannable.getPosition();
 		if (!position.getClass().isArray()) {
-			if (fieldIndex != 0) throw new IllegalArgumentException("field index must be 0 for a scalar position, was: " + fieldIndex);
-			return (Double) position;
+			return new Object[] { position };
 		}
-
-		return ((Double[]) position)[fieldIndex];
+		return (Object[]) position;
 	}
 
 	@Override
@@ -704,6 +716,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannablesCollection, is(notNullValue()));
 		final Set<String> expectedScannableNames = new HashSet<>(getExpectedMetadataScannableNames());
 		expectedScannableNames.add(scannables[0].getName());
+		expectedScannableNames.remove(NULL_FIELD_METADATA_SCANNABLE_NAME); // no location map entry
 		assertThat(scannablesCollection.getGroupNodeNames(),
 				containsInAnyOrder(expectedScannableNames.toArray(String[]::new)));
 
@@ -727,7 +740,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	@Override
 	protected String[] getExpectedPositionerNames() {
 		return Streams.concat(Arrays.stream(getScannableNames()),
-				getExpectedMetadataScannableNames().stream())
+				getExpectedMetadataScannableNames().stream().
+					map(name -> name.equals(NULL_FIELD_METADATA_SCANNABLE_NAME) ? name + ".input1" : name))
 				.toArray(String[]::new);
 	}
 
