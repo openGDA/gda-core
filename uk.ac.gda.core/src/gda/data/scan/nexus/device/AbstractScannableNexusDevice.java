@@ -19,14 +19,16 @@
 package gda.data.scan.nexus.device;
 
 import static gda.device.Scannable.ATTR_NEXUS_CATEGORY;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.partitioningBy;
 
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -191,21 +193,48 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 	}
 
 	private int calculatePrimaryDataFieldIndex(IExplicitScanObject scanObject) {
-		final Iterator<Object> pointIter = scanObject.iterator();
-		final double[] firstPoint = TypeConverters.toDoubleArray(pointIter.next());
-		final int numFields = firstPoint.length;
-		if (numFields < 2) return 0; // if only 1 field, no comparison required
+		final String[] outputFormats = scanObject.getScannable().getOutputFormat();
+		final int numFields = outputFormats.length;
+		if (numFields < 2) return 0; // if only one field, no comparison required
 
-		final double[] minPoints = Arrays.stream(firstPoint).toArray(); // make copies
-		final double[] maxPoints = Arrays.stream(firstPoint).toArray();
+		// group the indices by whether the type is string. Non-string fields are assumed to be numeric.
+		final Map<Boolean, List<Integer>> indicesByIsString = IntStream.range(0, numFields).boxed()
+				.collect(partitioningBy(i -> outputFormats[i].charAt(outputFormats[i].length() - 1) == 's'));
+		final int[] stringFieldIndices = indicesByIsString.get(true).stream().mapToInt(Integer::intValue).toArray();
+		final int[] numericFieldIndices = indicesByIsString.get(false).stream().mapToInt(Integer::intValue).toArray();
+		if (numericFieldIndices.length == 0) {
+			return 0; // all fields are non-numeric (string) valued, no comparison required
+		} else if (numericFieldIndices.length == 1) {
+			return numericFieldIndices[0]; // only one numeric valued field, return its index
+		}
+
+		// multiple numeric fields, zero or more string valued fields
+		final Iterator<Object> pointIter = scanObject.iterator();
+		final double[] firstPoint = toDoubleArray(pointIter.next(), stringFieldIndices); // removes any string valued fields
+		final double[] minPoints = Arrays.stream(firstPoint).toArray(); // copy the first point to accumulate the...
+		final double[] maxPoints = Arrays.stream(firstPoint).toArray(); // ...minimum and maximum values
 		while (pointIter.hasNext()) {
-			final double[] point = TypeConverters.toDoubleArray(pointIter.next());
+			// iterate over the points and update the max and min arrays
+			final double[] point = toDoubleArray(pointIter.next(), stringFieldIndices);
 			for (int i = 0; i < point.length; i++) { // no nice way to do this with streams
 				minPoints[i] = Math.min(minPoints[i], point[i]);
 				maxPoints[i] = Math.max(maxPoints[i], point[i]);
 			}
 		}
-		return getMaxRangeIndex(minPoints, maxPoints);
+
+		// return the index of the field with the maximum range
+		final int maxRangeIndex = getMaxRangeIndex(minPoints, maxPoints);
+		return stringFieldIndices.length == 0 ? maxRangeIndex : numericFieldIndices[maxRangeIndex];
+	}
+
+	private double[] toDoubleArray(Object point, int[] stringElementIndicies) {
+		if (stringElementIndicies.length > 0) { // remove string valued fields
+			final List<String> pointAsStringList = TypeConverters.toStringList(point);
+			Arrays.stream(stringElementIndicies).forEach(pointAsStringList::remove);
+			point = pointAsStringList.toArray();
+		}
+
+		return TypeConverters.toDoubleArray(point);
 	}
 
 	private int getMaxRangeIndex(double[] first, double[] second) {
@@ -213,7 +242,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 				.mapToDouble(i -> Math.abs(second[i] - first[i])).toArray();
 		// find the index of the maximum range
 		return IntStream.range(0, ranges.length).boxed()
-				.max(Comparator.comparing(index -> ranges[index]))
+				.max(comparing(index -> ranges[index]))
 				.orElseThrow().intValue();
 	}
 
