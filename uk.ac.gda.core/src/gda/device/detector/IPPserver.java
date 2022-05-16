@@ -361,6 +361,18 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 		this.collectData();
 	}
 
+	/**
+	 * Since the plugin will always create a new directory for the current day
+	 * we only call this at the start of a scan as the scans may pass into the next
+	 * day.
+	 * <p>
+	 * {@link #collectData()} should only be used in a scan.
+	 */
+	@Override
+	public void atScanStart() throws DeviceException {
+		ensureFolderExists();
+	}
+
 	@Override
 	public void collectData() throws DeviceException {
 		ScanInformation info = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
@@ -373,6 +385,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 		//TODO implement
 		acquireImage();
 		String snapshotFileNameRoot = fileNameRoot + "_snapshot_" + snapshotNumTracker.incrementNumber();
+		ensureFolderExists();
 		saveData(snapshotFileNameRoot, fileFormat);
 		return new String[] {lastImagePathName};
 	}
@@ -458,6 +471,8 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 * Call ImagePro ipWsSaveAs to save current image to specified path/filename, using specified image format. N.B.
 	 * only supported ImagePro output formats are permitted. eg BMP, TIF, JPG, TGA, GIF, etc. (See ImagePro manual).
 	 *
+	 * Note that {@link #ensureFolderExists()} should be called before this method is used.
+	 *
 	 * @param theFileName
 	 *            filename. If file exists it will be oeverwritten.
 	 * @param theFileFormat
@@ -465,21 +480,13 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 * @throws DeviceException
 	 * @throws DeviceBusyException
 	 */
-	public void saveData(String theFileName, String theFileFormat) throws DeviceException, DeviceBusyException {
+	private void saveData(String theFileName, String theFileFormat) throws DeviceException, DeviceBusyException {
 		String reply = "";
 		int err = -1;
 
 		lastImagePathName = "";
 
 		try {
-			logger.debug("saveData ensuring output folder " + outputFolderRoot + " exists");
-
-			// Ensure a folder for todays date exists under the
-			// outputFolderRoot folder. If not, this command creates the folder.
-			reply = sendCommandAndGetReply("createFolder " + outputFolderRoot);
-
-			logger.debug("saveData createFolder returned: " + reply);
-
 			// make sure format string is uppercase
 			theFileFormat = theFileFormat.toUpperCase();
 
@@ -508,6 +515,25 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 			logger.debug("saveData getLastImagePath: " + lastImagePathName);
 		} catch (InterruptedException e) {
 			throw new DeviceException("Error saving data", e);
+		}
+	}
+
+
+	/**
+	 * Ensure a folder for todays date exists under the outputFolderRoot folder.
+	 * If not, this command creates the folder.
+	 * <p>
+	 * The internal state of the plugin is also configured to use this folder
+	 * for future acquisitions.
+	 */
+	private void ensureFolderExists() throws DeviceException {
+		logger.debug("{} ensuring output folder {} exists", getName(), outputFolderRoot);
+		try {
+			var reply = sendCommandAndGetReply("createFolder " + outputFolderRoot);
+			logger.debug("{} createFolder returned: {}", getName(), reply);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Error ensuring directory exists", e);
 		}
 	}
 
