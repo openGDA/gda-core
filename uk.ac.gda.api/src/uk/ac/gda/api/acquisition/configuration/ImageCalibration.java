@@ -1,5 +1,7 @@
 package uk.ac.gda.api.acquisition.configuration;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -56,4 +58,23 @@ public class ImageCalibration {
 	        return new ImageCalibration(flatCalibration, darkCalibration);
 	    }
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(darkCalibration, flatCalibration);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ImageCalibration other = (ImageCalibration) obj;
+		return Objects.equals(darkCalibration, other.darkCalibration)
+				&& Objects.equals(flatCalibration, other.flatCalibration);
+	}
+
 }

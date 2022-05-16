@@ -1,6 +1,5 @@
 package uk.ac.diamond.daq.experiment.ui.plan.trigger;
 
-import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.EXECUTION_POLICY_PROPERTY;
 import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.INTERVAL_PROPERTY;
 import static uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor.NAME_PROPERTY;
@@ -14,23 +13,31 @@ import static uk.ac.diamond.daq.experiment.ui.ExperimentUiUtils.addSpace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.UpdateValueStrategy;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
+import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.sideeffect.ISideEffect;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.SelectObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue;
-import org.eclipse.jface.databinding.viewers.ViewerProperties;
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties;
+import org.eclipse.jface.fieldassist.AutoCompleteField;
+import org.eclipse.jface.fieldassist.ComboContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -40,17 +47,25 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.daq.experiment.api.plan.TriggerDescriptor;
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
 import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 import uk.ac.diamond.daq.experiment.ui.widget.ElementEditor;
+import uk.ac.gda.client.exception.GDAClientRestException;
+import uk.ac.gda.common.entity.Document;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
 
 /**
  * GUI for editing a {@link TriggerDescriptor}
  */
 public class TriggerEditor implements ElementEditor {
+	
+	private static final Logger logger = LoggerFactory.getLogger(TriggerEditor.class);
 	
 	/**
 	 * For a single, time-based trigger, no control for the tolerance is created.
@@ -61,7 +76,6 @@ public class TriggerEditor implements ElementEditor {
 	// data
 	private TriggerDescriptor model;
 	private Set<String> readouts;
-	private final String experimentId;
 	
 	// ui (static)
 	private Composite composite;
@@ -85,12 +99,14 @@ public class TriggerEditor implements ElementEditor {
 	private final List<Binding> detailBindings;
 	private final List<ISideEffect> sideEffects;
 
+	/** access via {@link #getService()} */
+	private ConfigurationsRestServiceClient service;
+	
 	/**
 	 * Instantiate with experiment service and experiment ID
 	 * so that I can retrieve saved scans
 	 */
 	public TriggerEditor(String experimentId) {
-		this.experimentId = experimentId;
 		dbc = new DataBindingContext();
 		mainBindings = new ArrayList<>();
 		detailBindings = new ArrayList<>();
@@ -115,10 +131,25 @@ public class TriggerEditor implements ElementEditor {
 		
 		new Label(composite, SWT.NONE).setText("Measurement");
 		
-		scanCombo = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		scanCombo = new ComboViewer(composite, SWT.DROP_DOWN);
 		scanCombo.setContentProvider(ArrayContentProvider.getInstance());
-		scanCombo.setInput(getExperimentService().getScanNames(experimentId));
-		STRETCH.copy().applyTo(scanCombo.getControl());
+		scanCombo.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (element instanceof Document) {
+					return ((Document) element).getName();
+				}
+				return super.getText(element);
+			}
+		});
+		
+		var input = getScansList();
+		scanCombo.setInput(input);
+		
+		var scanNames = input.stream().map(Document::getName).collect(Collectors.toList()).toArray(new String[0]);
+		new AutoCompleteField(scanCombo.getControl(), new ComboContentAdapter(), scanNames);
+
+		STRETCH.applyTo(scanCombo.getControl());
 		
 		addSpace(composite);
 		
@@ -160,6 +191,22 @@ public class TriggerEditor implements ElementEditor {
 		STRETCH.copy().hint(SWT.DEFAULT, 100).applyTo(detailComposite);
 		
 		setEnabled(false);
+	}
+	
+	private List<Document> getScansList() {
+		try {
+			return getService().getDocuments();
+		} catch (GDAClientRestException e) {
+			logger.error("Could not retrieve saved scans!", e);
+			return Collections.emptyList();
+		}
+	}
+	
+	private ConfigurationsRestServiceClient getService() {
+		if (service == null) {
+			service = SpringApplicationContextFacade.getBean(ConfigurationsRestServiceClient.class);
+		}
+		return service;
 	}
 	
 	@Override
@@ -282,37 +329,33 @@ public class TriggerEditor implements ElementEditor {
 		readoutsCombo.setInput(readouts);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void bindTarget() {
-		IObservableValue<Double> targetInText = WidgetProperties.text(SWT.Modify).observe(target);
-		IObservableValue<Double> targetInModel = BeanProperties.value(TARGET_PROPERTY).observe(model);
+		IObservableValue<String> targetInText = WidgetProperties.text(SWT.Modify).observe(target);
+		IObservableValue<Double> targetInModel = BeanProperties.value(TARGET_PROPERTY, double.class).observe(model);
 		
 		Binding targetBinding = dbc.bindValue(targetInText, targetInModel);
 		detailBindings.add(targetBinding);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void bindPeriod() {
-		IObservableValue<Double> intervalText = WidgetProperties.text(SWT.Modify).observe(interval);
-		IObservableValue<Double> intervalInModel = BeanProperties.value(INTERVAL_PROPERTY).observe(model);
+		IObservableValue<String> intervalText = WidgetProperties.text(SWT.Modify).observe(interval);
+		IObservableValue<Double> intervalInModel = BeanProperties.value(INTERVAL_PROPERTY, double.class).observe(model);
 		
 		Binding intervalBinding = dbc.bindValue(intervalText, intervalInModel);
 		detailBindings.add(intervalBinding);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void bindTolerance() {
-		IObservableValue<Double> inWidget = WidgetProperties.text(SWT.Modify).observe(tolerance);
-		IObservableValue<Double> inModel = BeanProperties.value(TOLERANCE_PROPERTY).observe(model);
+		IObservableValue<String> inWidget = WidgetProperties.text(SWT.Modify).observe(tolerance);
+		IObservableValue<Double> inModel = BeanProperties.value(TOLERANCE_PROPERTY, double.class).observe(model);
 		
 		Binding toleranceBinding = dbc.bindValue(inWidget, inModel);
 		detailBindings.add(toleranceBinding);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void bindSev() {
-		IViewerObservableValue inWidget = ViewerProperties.singleSelection().observe(readoutsCombo);
-		IObservableValue<String> inModel = BeanProperties.value(SEV_PROPERTY).observe(model);
+		IViewerObservableValue<String> inWidget = ViewerProperties.singleSelection(String.class).observe(readoutsCombo);
+		IObservableValue<String> inModel = BeanProperties.value(SEV_PROPERTY, String.class).observe(model);
 		
 		Binding sevBinding = dbc.bindValue(inWidget, inModel);
 		detailBindings.add(sevBinding);
@@ -322,41 +365,59 @@ public class TriggerEditor implements ElementEditor {
 			readoutsCombo.setSelection(new StructuredSelection(readoutsCombo.getElementAt(0)), true);
 		}
 	}
+	
+	private UUID documentToId(Document doc) {
+		if (doc == null) return null;
+		return doc.getUuid();
+	}
+	
+	private Document idToDocument(UUID id) {
+		if (id == null) return null;
+		try {
+			return getService().getDocument(id.toString());
+		} catch (GDAClientRestException e) {
+			logger.error("Error retrieving scan with id '{}'", id);
+			return null;
+		}
+	}
 
-	@SuppressWarnings("unchecked")
 	private void updateBindings() {
 		removeOldBindings();
 		
 		// name
 		IObservableValue<String> nameTextObservable = WidgetProperties.text(SWT.Modify).observe(nameText);
-		IObservableValue<String> nameInModelObservable = BeanProperties.value(NAME_PROPERTY).observe(model);
+		IObservableValue<String> nameInModelObservable = BeanProperties.value(NAME_PROPERTY, String.class).observe(model);
 		
 		Binding nameBinding = dbc.bindValue(nameTextObservable, nameInModelObservable);
 		mainBindings.add(nameBinding);
 		
 		// scan
-		IViewerObservableValue scanInWidget = ViewerProperties.singleSelection().observe(scanCombo);
-		IObservableValue<String> scanInModel = BeanProperties.value(SCAN_PROPERTY).observe(model);
+		var scanInWidget = ViewerProperties.singleSelection(Document.class).observe(scanCombo);
+		var scanInModel = BeanProperties.value(SCAN_PROPERTY, UUID.class).observe(model);
 		
-		Binding scanBinding = dbc.bindValue(scanInWidget, scanInModel);
+		var docToIdConverter = IConverter.create(Document.class, UUID.class, document -> documentToId((Document) document));
+		var idToDocConverter = IConverter.create(UUID.class, Document.class, id -> idToDocument((UUID) id));
+		
+		Binding scanBinding = dbc.bindValue(scanInWidget, scanInModel, UpdateValueStrategy.create(docToIdConverter), UpdateValueStrategy.create(idToDocConverter));
+		
 		mainBindings.add(scanBinding);
 		
 		// trigger source
-		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value(SOURCE_PROPERTY).observe(model);
+		IObservableValue<SignalSource> sourceInModelObservable = BeanProperties.value(SOURCE_PROPERTY, SignalSource.class).observe(model);
 		
 		SelectObservableValue<SignalSource> sourceSelection = new SelectObservableValue<>();
-		sourceSelection.addOption(SignalSource.POSITION, WidgetProperties.selection().observe(sevSourceButton));
-		sourceSelection.addOption(SignalSource.TIME, WidgetProperties.selection().observe(timeSourceButton));
+		sourceSelection.addOption(SignalSource.POSITION, WidgetProperties.buttonSelection().observe(sevSourceButton));
+		sourceSelection.addOption(SignalSource.TIME, WidgetProperties.buttonSelection().observe(timeSourceButton));
 		
 		Binding sourceBinding = dbc.bindValue(sourceSelection, sourceInModelObservable);
 		mainBindings.add(sourceBinding);
 		
 		// trigger mode
-		IObservableValue<ExecutionPolicy> modeInModelObservable = BeanProperties.value(EXECUTION_POLICY_PROPERTY).observe(model);
+		IObservableValue<ExecutionPolicy> modeInModelObservable = BeanProperties.value(EXECUTION_POLICY_PROPERTY, ExecutionPolicy.class).observe(model);
 		
 		SelectObservableValue<ExecutionPolicy> modeSelection = new SelectObservableValue<>();
-		modeSelection.addOption(ExecutionPolicy.SINGLE, WidgetProperties.selection().observe(oneShotButton));
-		modeSelection.addOption(ExecutionPolicy.REPEATING, WidgetProperties.selection().observe(periodicButton));
+		modeSelection.addOption(ExecutionPolicy.SINGLE, WidgetProperties.buttonSelection().observe(oneShotButton));
+		modeSelection.addOption(ExecutionPolicy.REPEATING, WidgetProperties.buttonSelection().observe(periodicButton));
 		
 		Binding modeBinding = dbc.bindValue(modeSelection, modeInModelObservable);
 		mainBindings.add(modeBinding);

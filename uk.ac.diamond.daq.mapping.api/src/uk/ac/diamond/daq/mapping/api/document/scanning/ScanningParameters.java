@@ -3,6 +3,7 @@ package uk.ac.diamond.daq.mapping.api.document.scanning;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionParametersBase;
@@ -85,4 +86,23 @@ public class ScanningParameters implements AcquisitionParametersBase {
 		return "ScanningParameters [detector=" + detectors + ", scanpathDocument="
 				+ scanpathDocument + ", position=" + position + "]";
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(detectors, position, scanpathDocument);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScanningParameters other = (ScanningParameters) obj;
+		return Objects.equals(detectors, other.detectors) && Objects.equals(position, other.position)
+				&& Objects.equals(scanpathDocument, other.scanpathDocument);
+	}
+
 }

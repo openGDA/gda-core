@@ -131,7 +131,7 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AcquisitionBase<?> other = (AcquisitionBase<?>) obj;
+		var other = (AcquisitionBase<?>) obj;
 		return Objects.equals(acquisitionConfiguration, other.acquisitionConfiguration)
 				&& Objects.equals(acquisitionEngine, other.acquisitionEngine)
 				&& Objects.equals(acquisitionLocation, other.acquisitionLocation)

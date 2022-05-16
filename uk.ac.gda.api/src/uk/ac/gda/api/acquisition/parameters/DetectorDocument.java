@@ -18,6 +18,8 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -108,4 +110,23 @@ public class DetectorDocument {
 	        return new DetectorDocument(id, exposure, malcolmDetectorName);
 	    }
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(exposure, id, malcolmDetectorName);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DetectorDocument other = (DetectorDocument) obj;
+		return Double.doubleToLongBits(exposure) == Double.doubleToLongBits(other.exposure)
+				&& Objects.equals(id, other.id) && Objects.equals(malcolmDetectorName, other.malcolmDetectorName);
+	}
+
 }

@@ -95,4 +95,23 @@ public class MultipleScans {
 			return new MultipleScans(multipleScansType, numberRepetitions, waitingTime);
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(multipleScansType, numberRepetitions, waitingTime);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MultipleScans other = (MultipleScans) obj;
+		return multipleScansType == other.multipleScansType && numberRepetitions == other.numberRepetitions
+				&& waitingTime == other.waitingTime;
+	}
+
 }
