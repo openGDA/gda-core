@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.service.command.receiver;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -34,8 +35,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.naming.directory.InvalidAttributesException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -74,8 +73,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	private static final Logger logger = LoggerFactory.getLogger(FilesCollectionCommandReceiver.class);
 
 	private final Class<T> documentClass;
-	private final HttpServletResponse response;
-	private final HttpServletRequest request;
+	private final OutputStream response;
 	private AcquisitionConfigurationResourceType type;
 
 	// To use it call getFileContext()
@@ -87,15 +85,13 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	// To use it call getServiceUtils()
 	private ServiceUtils serviceUtils;
 	
-	public FilesCollectionCommandReceiver(Class<T> documentClass, HttpServletResponse response, HttpServletRequest request) {
-		this(documentClass, response, request, null);
+	public FilesCollectionCommandReceiver(Class<T> documentClass, OutputStream response) {
+		this(documentClass, response, null);
 	}
 
-	public FilesCollectionCommandReceiver(Class<T> documentClass, HttpServletResponse response, HttpServletRequest request, AcquisitionConfigurationResourceType type) {
-		super();
+	public FilesCollectionCommandReceiver(Class<T> documentClass, OutputStream response, AcquisitionConfigurationResourceType type) {
 		this.documentClass = documentClass;
 		this.response = response;
-		this.request = request;
 		this.type = type;
 	}
 	
@@ -153,7 +149,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	public void deleteDocument(UUID id, OutputStrategy<T> outputStrategy) throws GDAServiceException {
 		T document = deleteDocument(id);
 		if (document != null) 
-			getServiceUtils() .writeOutput(document, outputStrategy, response);
+			getServiceUtils().writeOutput(document, outputStrategy, response);
 	}
 	
 	private T deleteDocument(UUID id) throws GDAServiceException {
@@ -276,7 +272,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(documentClass, request, response, type);
+		return Objects.hash(documentClass, response, type);
 	}
 
 	@Override
@@ -288,7 +284,7 @@ public class FilesCollectionCommandReceiver<T extends Document> implements Colle
 		if (getClass() != obj.getClass())
 			return false;
 		FilesCollectionCommandReceiver<?> other = (FilesCollectionCommandReceiver<?>) obj;
-		return Objects.equals(documentClass, other.documentClass) && Objects.equals(request, other.request)
+		return Objects.equals(documentClass, other.documentClass)
 				&& Objects.equals(response, other.response) && type == other.type;
 	}
 }

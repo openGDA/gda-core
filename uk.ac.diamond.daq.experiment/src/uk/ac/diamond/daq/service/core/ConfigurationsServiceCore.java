@@ -17,6 +17,7 @@
  */
 package uk.ac.diamond.daq.service.core;
 
+import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.UUID;
 
@@ -56,29 +57,29 @@ public class ConfigurationsServiceCore {
 	private CommonDocumentService documentService;
 	
 	public void selectDocument(UUID id, HttpServletRequest request, HttpServletResponse response) {
-		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		try {
+			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream());
 			documentService.selectDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
-		} catch (GDAServiceException e) {
+		} catch (GDAServiceException | IOException e) {
 			logAndWrapException("Error retrieving document", e);
 		}
 	}
 	
 	public void selectDocuments(HttpServletRequest request, HttpServletResponse response) {
-		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		var filter = getDocumentFilter(request);
 		try {
+			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream());
 			documentService.selectDocuments(ccr, filter, OutputStrategyFactory.getJSONOutputStrategy());
-		} catch (GDAServiceException e) {
+		} catch (GDAServiceException | IOException e) {
 			logAndWrapException("Error retrieving documents", e);
 		}
 	}
 	
 	public void insertDocument(Document document, AcquisitionConfigurationResourceType type, HttpServletRequest request, HttpServletResponse response) {
-		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request, type);
 		try {
+			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream(), type);
 			documentService.insertDocument(ccr, document, OutputStrategyFactory.getJSONOutputStrategy());
-		} catch (GDAServiceException e) {
+		} catch (GDAServiceException | IOException e) {
 			if (e.getCause() instanceof FileAlreadyExistsException) {
 				logAndWrapException("File already exists", e, HttpStatus.CONFLICT);
 			} else {
@@ -88,10 +89,10 @@ public class ConfigurationsServiceCore {
 	}
 	
 	public void deleteDocument(UUID id, HttpServletRequest request, HttpServletResponse response) {
-		CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response, request);
 		try {
+			CollectionCommandReceiver<Document> ccr = new FilesCollectionCommandReceiver<>(Document.class, response.getOutputStream());
 			documentService.deleteDocument(ccr, id, OutputStrategyFactory.getJSONOutputStrategy());
-		} catch (GDAServiceException e) {
+		} catch (GDAServiceException | IOException e) {
 			logAndWrapException("Error deleting document", e);
 		}
 	}

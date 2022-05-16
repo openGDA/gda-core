@@ -1,6 +1,7 @@
 package uk.ac.diamond.daq.service;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class ServiceUtils {
 	 * @param response
 	 * @throws GDAServiceException
 	 */
-	public <T> void writeOutput(TypeReference<List<T>> typeReference, List<T> document, OutputStrategy<T> outputStrategy,  final HttpServletResponse response) throws GDAServiceException {
+	public <T> void writeOutput(TypeReference<List<T>> typeReference, List<T> document, OutputStrategy<T> outputStrategy,  final OutputStream response) throws GDAServiceException {
 		writeOutput(outputStrategy.write(typeReference, document), response);
 	}
 
@@ -42,7 +43,7 @@ public class ServiceUtils {
 	 * @param response
 	 * @throws GDAServiceException
 	 */
-	public <T> void writeOutput(T document, OutputStrategy<T> outputStrategy,  final HttpServletResponse response) throws GDAServiceException {
+	public <T> void writeOutput(T document, OutputStrategy<T> outputStrategy,  final OutputStream response) throws GDAServiceException {
 		writeOutput(outputStrategy.write(document), response);
 	}
 
@@ -52,9 +53,9 @@ public class ServiceUtils {
 	 * @param response
 	 * @throws GDAServiceException
 	 */
-	public void writeOutput(byte[] output, final HttpServletResponse response) throws GDAServiceException {
+	public void writeOutput(byte[] output, final OutputStream response) throws GDAServiceException {
 		try {
-			response.getOutputStream().write(output);
+			response.write(output);
 		} catch (IOException e) {
 			throw new GDAServiceException("Cannot write http response", e);
 		}
