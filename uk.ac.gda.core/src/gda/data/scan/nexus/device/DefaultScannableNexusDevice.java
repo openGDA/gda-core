@@ -19,6 +19,7 @@
 package gda.data.scan.nexus.device;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -127,12 +128,20 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		}
 
 		// create the DataNodes for the inputNames, extraNames and demand value if applicable
-		createDataNodes(info);
+		final ScanRole scanRole = info.getScanRole(getName());
+		try {
+			createDataNodes(info);
+		} catch (NexusException e) {
+			if (scanRole == ScanRole.MONITOR_PER_SCAN) {
+				logger.error("Could not create nexus object for scannable {}", scannable.getName(), e);
+				return Collections.emptyList();
+			}
+			throw e;
+		}
 
 		// default behaviour - create an NXpositioner for each field
 		final List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
 		final String[] inputNames = scannable.getInputNames();
-		final ScanRole scanRole = info.getScanRole(getName());
 		for (int fieldIndex = 0; fieldIndex < inputNames.length; fieldIndex++) {
 			final boolean isSingleInputField = fieldIndex == 0 && inputNames.length == 1;
 			nexusProviders.add(createNexusProviderForInputField(inputNames[fieldIndex], fieldIndex, scanRole, isSingleInputField));
