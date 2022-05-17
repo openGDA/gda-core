@@ -19,6 +19,7 @@
 package gda.data.scan.nexus.device;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
@@ -34,6 +35,8 @@ import gda.device.DeviceException;
 public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDeviceAdapter<NXdetector> {
 
 	protected static final String FIELD_NAME_ID = "id";
+
+	private static final String[] NO_FIELDS = new String[0];
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractDetectorNexusDeviceAdapter.class);
 
@@ -90,5 +93,15 @@ public abstract class AbstractDetectorNexusDeviceAdapter extends AbstractNexusDe
 	}
 
 	protected abstract void writeDataFields(NexusScanInfo info, NXdetector detGroup) throws NexusException;
+
+	@Override
+	public String[] getFieldNames() {
+		return NO_FIELDS;
+	}
+
+	@Override
+	public DataNode getFieldDataNode(String fieldName) {
+		return null;
+	}
 
 }

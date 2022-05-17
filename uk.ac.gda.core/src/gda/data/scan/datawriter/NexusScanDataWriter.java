@@ -19,13 +19,16 @@
 package gda.data.scan.datawriter;
 
 import static gda.data.scan.datawriter.NexusDataWriter.CREATE_SRS_FILE_BY_DEFAULT;
+import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
 import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_SRS;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.nexus.INexusDevice;
@@ -162,6 +166,8 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 	private NexusScanMetadataWriter scanMetadataWriter;
 
+	private MeasurementGroupWriter measurementGroupWriter;
+
 	public NexusScanDataWriter() {
 		outputDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
 		beamlineName = GDAMetadataProvider.getInstance().getMetadataValue(METADATA_ENTRY_NAME_INSTRUMENT,
@@ -170,6 +176,9 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 
 		if (LocalProperties.check(GDA_NEXUS_CREATE_SRS, CREATE_SRS_FILE_BY_DEFAULT)) {
 			srsFile = new SrsDataFile();
+		}
+		if (LocalProperties.check(GDA_NEXUS_CREATE_MEASUREMENT_GROUP)) {
+			measurementGroupWriter = new MeasurementGroupWriter();
 		}
 	}
 
@@ -317,8 +326,11 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		// This is where we create the NexusScanModel describing the scan in nexus terms
 		scanMetadataWriter = new NexusScanMetadataWriter();
 		final NexusScanModel nexusScanModel = createNexusScanModel();
-		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
+		if (measurementGroupWriter != null) { // TODO find a better way to do this.
+			measurementGroupWriter.setNexusDevices(nexusScanModel.getNexusDevices());
+		}
 
+		nexusScanFile = ServiceHolder.getNexusScanFileService().newNexusScanFile(nexusScanModel);
 		nexusScanFile.createNexusFile(false, useSwmr); // TODO, set async to true, see DAQ-3124
 	}
 
@@ -369,7 +381,18 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	}
 
 	private List<String> getScanFieldNames() {
-		return Stream.of(firstPoint.getPositionHeader(), firstPoint.getDetectorHeader()).flatMap(Collection::stream).collect(toList());
+		final String[] header = Stream.of(firstPoint.getPositionHeader(), firstPoint.getDetectorHeader())
+				.flatMap(Collection::stream)
+				.toArray(String[]::new);
+		final Double[] pointData = firstPoint.getAllValuesAsDoubles();
+		if (header.length != pointData.length) {
+			throw new IllegalArgumentException("Point data must be same size and header, was " + pointData.length + ", expected " + header.length);
+		}
+
+		return IntStream.range(0, header.length)
+				.filter(i -> pointData[i] != null)
+				.mapToObj(i -> header[i])
+				.collect(toList());
 	}
 
 	private String getCurrentScriptName() {
@@ -491,14 +514,21 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 	private List<INexusDevice<?>> getPerScanMonitors() {
 		final MetadataScannableCalculator calculator = new MetadataScannableCalculator(
 				firstPoint.getDetectorNames(), firstPoint.getScannableNames());
-		final Set<String> metadataScannableNames = new HashSet<>();
-		metadataScannableNames.addAll(calculator.calculateMetadataScannableNames());
-		metadataScannableNames.addAll(getCommonBeamlineDeviceNames());
+		final Set<String> perScanMonitorNames = new HashSet<>();
+		perScanMonitorNames.addAll(calculator.calculateMetadataScannableNames());
+		perScanMonitorNames.addAll(getCommonBeamlineDeviceNames());
 
-		return metadataScannableNames.stream().
-				map(this::createScannableNexusDevice).
-				filter(Objects::nonNull).
-				collect(toList());
+		final List<INexusDevice<?>> perScanMonitors = perScanMonitorNames.stream()
+				.map(this::createScannableNexusDevice)
+				.filter(Objects::nonNull)
+				.collect(toCollection(ArrayList::new));
+
+		if (measurementGroupWriter != null) {
+			measurementGroupWriter.setFirstPoint(firstPoint);
+			perScanMonitors.add(measurementGroupWriter);
+		}
+
+		return perScanMonitors;
 	}
 
 	private IScanObject getScanObject(String scannableName) {
@@ -586,7 +616,7 @@ public class NexusScanDataWriter extends DataWriterBase implements INexusDataWri
 		return new SliceND(scanShape, start, stop, null);
 	}
 
-	private void writeScanPointMetadata(IScanDataPoint point, final SliceND scanSlice) {
+	private void writeScanPointMetadata(IScanDataPoint point, final SliceND scanSlice) throws NexusException {
 		// writes unique keys
 		scanMetadataWriter.writePosition(scanSlice, point.getCurrentPointNumber());
 

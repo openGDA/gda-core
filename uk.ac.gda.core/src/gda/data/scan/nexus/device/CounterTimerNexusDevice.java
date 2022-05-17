@@ -20,6 +20,7 @@ package gda.data.scan.nexus.device;
 
 import java.util.LinkedHashMap;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -39,7 +40,7 @@ import gda.util.TypeConverters;
  */
 public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter {
 
-	private LinkedHashMap<String, ILazyWriteableDataset> writableDatasets = null;
+	private LinkedHashMap<String, DataNode> dataNodes = null;
 
 	public CounterTimerNexusDevice(Detector detector) {
 		super(detector);
@@ -52,13 +53,13 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 
 	@Override
 	protected void writeDataFields(NexusScanInfo info, final NXdetector detGroup) {
-		writableDatasets = new LinkedHashMap<>();
+		dataNodes = new LinkedHashMap<>();
 		for (String fieldName : getDetector().getExtraNames()) {
 			final ILazyWriteableDataset dataset = detGroup.initializeLazyDataset(fieldName, info.getRank(), Double.class);
 			dataset.setFillValue(getFillValue(Double.class));
 			dataset.setChunking(info.createChunk(false, 8));
 			dataset.setWritingAsync(true);
-			writableDatasets.put(fieldName, dataset);
+			dataNodes.put(fieldName, detGroup.getDataNode(fieldName));
 		}
 	}
 
@@ -67,8 +68,9 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 		final double[] dataArray = TypeConverters.toDoubleArray(data);
 
 		int fieldIndex = 0;
-		for (ILazyWriteableDataset dataset : writableDatasets.values()) {
-			// we rely on predictable iteration order for LinkedHashSet of writableDataset
+		for (DataNode dataNode : dataNodes.values()) {
+			// we rely on predictable iteration order for the LinkedHashMap of DataNodes
+			final ILazyWriteableDataset dataset = dataNode.getWriteableDataset();
 			try {
 				IWritableNexusDevice.writeDataset(dataset, dataArray[fieldIndex], scanSlice);
 			} catch (DatasetException e) {
@@ -79,8 +81,18 @@ public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter 
 	}
 
 	@Override
+	public String[] getFieldNames() {
+		return getDetector().getExtraNames();
+	}
+
+	@Override
+	public DataNode getFieldDataNode(String fieldName) {
+		return dataNodes.get(fieldName);
+	}
+
+	@Override
 	public void scanEnd() throws NexusException {
-		writableDatasets = null;
+		dataNodes = null;
 	}
 
 }

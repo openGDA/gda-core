@@ -18,6 +18,7 @@
 
 package gda.data.scan.nexus.device;
 
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.INexusDevice;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -43,6 +44,8 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 	private static final int[] SCALAR_DATA_DIMENSIONS = new int[0];
 
 	private ILazyWriteableDataset writableDataset;
+
+	private DataNode dataNode;
 
 	public GenericDetectorNexusDevice(Detector detector) {
 		super(detector);
@@ -72,6 +75,7 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 			writableDataset.setFillValue(floatFill.equalsIgnoreCase("nan") ? Double.NaN : Double.parseDouble(floatFill));
 			writableDataset.setChunking(info.createChunk(dataDimensions));
 			writableDataset.setWritingAsync(true);
+			dataNode = detGroup.getDataNode(NXdetector.NX_DATA);
 		} catch (Exception e) {
 			throw new NexusException("Could not create dataset for detector " + getName(), e);
 		}
@@ -81,6 +85,20 @@ public class GenericDetectorNexusDevice extends AbstractDetectorNexusDeviceAdapt
 		// a 1-dimensional array of size 1 is written as if it was scalar
 		final int[] dataDims = getDetector().getDataDimensions();
 		return dataDims.length == 1 && dataDims[0] == 1 ? SCALAR_DATA_DIMENSIONS : dataDims;
+	}
+
+	public DataNode getDataNode() {
+		return dataNode;
+	}
+
+	@Override
+	public String[] getFieldNames() {
+		return new String[] { getName() };
+	}
+
+	@Override
+	public DataNode getFieldDataNode(String fieldName) {
+		return fieldName.equals(getName()) ? dataNode : null;
 	}
 
 	@Override

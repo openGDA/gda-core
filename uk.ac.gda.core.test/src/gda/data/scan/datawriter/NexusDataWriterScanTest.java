@@ -21,6 +21,8 @@ package gda.data.scan.datawriter;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_EXTERNAL;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_SPECTRUM;
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.FIELD_NAME_VALUE;
+import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
+import static gda.data.scan.datawriter.NexusDataWriter.GROUP_NAME_MEASUREMENT;
 import static java.util.stream.Collectors.toMap;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertUnits;
@@ -53,6 +55,7 @@ import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.hamcrest.Matchers;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -101,13 +104,23 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	public static void setUpServices() {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
+
+		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
+	}
+
+	@BeforeClass
+	public static void setUpProperties() {
+		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
+	}
+
+	@AfterClass
+	public static void tearDownProperties() {
+		LocalProperties.clearProperty(GDA_NEXUS_CREATE_MEASUREMENT_GROUP);
 	}
 
 	@Override
 	protected void setUpTest(String testName) throws Exception {
 		super.setUpTest(testName);
-
-		LocalProperties.set(NexusDataWriter.GDA_NEXUS_CREATE_SRS, "true");
 	}
 
 	@Override
@@ -134,7 +147,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected void checkNexusMetadata(NXentry entry) {
+	protected void checkNexusMetadata(NXentry entry) throws Exception {
 		super.checkNexusMetadata(entry);
 
 		// entry_identifier
@@ -289,12 +302,17 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected void checkDataGroups(NXentry entry) {
+	protected void checkDataGroups(NXentry entry) throws Exception {
 		// NexusDataWriter creates a single NXdata group
 		final String expectedDataGroupName = detectorType == DetectorType.NONE ? GROUP_NAME_DEFAULT : detector.getName();
 		final Map<String, NXdata> dataGroups = entry.getAllData();
-		assertThat(dataGroups.keySet(), contains(expectedDataGroupName));
-		final NXdata data = dataGroups.get(expectedDataGroupName);
+		assertThat(dataGroups.size(), is(2));
+		assertThat(dataGroups.keySet(), containsInAnyOrder(expectedDataGroupName, GROUP_NAME_MEASUREMENT));
+		checkMeasurementDataGroup(dataGroups.get(GROUP_NAME_MEASUREMENT));
+		checkDataGroup(entry, dataGroups.get(expectedDataGroupName));
+	}
+
+	private void checkDataGroup(NXentry entry, NXdata data) {
 		assertThat(data, is(notNullValue()));
 
 		// create map of expected linked data nodes and add those for the scannables and monitor

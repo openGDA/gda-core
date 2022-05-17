@@ -21,6 +21,10 @@ package gda.data.scan.datawriter;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toCollection;
+import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_AXES;
+import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
+import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_SIGNAL;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,11 +42,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -106,7 +111,9 @@ import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
  * DataWriter that outputs NeXus files and optionally a SRS/Text file as well.
  */
 public class NexusDataWriter extends DataWriterBase implements INexusDataWriter {
-	private static final String INSTRUMENT = "instrument";
+
+	public static final String GROUP_NAME_INSTRUMENT = "instrument";
+	public static final String GROUP_NAME_MEASUREMENT = "measurement";
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusDataWriter.class);
 
@@ -148,7 +155,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	public static final boolean CREATE_SRS_FILE_BY_DEFAULT = true;
 
 	/** Property that if enabled writes a measurement group that contains the data printed to the console during the scan */
-	private static final String GDA_NEXUS_CREATE_MEASUREMENT_GROUP = "gda.nexus.writeMeasurementGroup";
+	public static final String GDA_NEXUS_CREATE_MEASUREMENT_GROUP = "gda.nexus.writeMeasurementGroup";
 
 	/** Property that if enabled create a link called <code>positioners</code> to the <code>before_scan</code> */
 	private static final String GDA_NEXUS_LINK_POSITIONERS_GROUP = "gda.nexus.linkPositionersGroup";
@@ -230,7 +237,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		metadata = GDAMetadataProvider.getInstance();
 
-		beamline = metadata.getMetadataValue(INSTRUMENT, LocalProperties.GDA_INSTRUMENT, "base"); // 'base' is the default beamline line
+		beamline = metadata.getMetadataValue(GROUP_NAME_INSTRUMENT, LocalProperties.GDA_INSTRUMENT, "base"); // 'base' is the default beamline line
 
 		// Check to see if the data directory has been defined.
 		dataDir = InterfaceProvider.getPathConstructor().createFromDefaultProperty();
@@ -522,25 +529,25 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	private void writeMeasurementGroup() {
 		try {
-			List<String> headers = getHeaders(); // May throw if the header contains duplicated names
-
-			List<Double> data = Arrays.asList(thisPoint.getAllValuesAsDoubles());
-			Iterator<Double> dataIterator = data.iterator();
-
 			final GroupNode measurementGroup = getMeasurementGroup();
 
-			int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
-			int[] stop = generateDataStop(startPos, null);
+			final String[] headers = getHeaders();
+			final Double[] data = thisPoint.getAllValuesAsDoubles();
 
-			for (String header : headers) {
+			final int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
+			final int[] stop = generateDataStop(startPos, null);
+			IntStream.range(0, headers.length).filter(i -> data[i] != null).forEach(i -> {
 				try {
-					DataNode dataNode = file.getData(measurementGroup, header);
-					ILazyWriteableDataset lazy = dataNode.getWriteableDataset();
-					lazy.setSlice(null, DatasetFactory.createFromObject(dataIterator.next()), SliceND.createSlice(lazy, startPos, stop));
+					// note we assume that the same fields are null for each point
+					final DataNode dataNode = file.getData(measurementGroup, headers[i]);
+					final ILazyWriteableDataset dataset = dataNode.getWriteableDataset();
+					dataset.setSlice(null, DatasetFactory.createFromObject(data[i]),
+							SliceND.createSlice(dataset, startPos, stop));
 				} catch (DatasetException | NexusException e) {
 					logger.error("Error writing measurement group entry: {}", header, e);
 				}
-			}
+			});
+
 		}
 		catch (IllegalStateException | NexusException e) {
 			logger.error("Not writing measurement data group", e);
@@ -568,7 +575,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to correct location in the file.
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		GroupNode g = file.getGroup(path.toString(), false);
 
@@ -867,7 +874,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private void writeNexusDetector(NexusDetector detector) throws NexusException {
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		GroupNode pg = file.getGroup(path.toString(), false);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		GroupNode g = file.getGroup(path.toString(), false);
 		INexusTree tree = extractNexusTree(detector.getName());
 		for (INexusTree subTree : tree) {
@@ -999,23 +1006,38 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private void makeMeasurementGroup() throws NexusException {
 		logger.debug("Making 'measurement' group");
 		try {
-			final LinkedList<String> headers = getHeaders();
 			final GroupNode measurementGroup = getMeasurementGroup();
+
+			final String[] headers = getHeaders();
+			final Double[] firstPointData = thisPoint.getAllValuesAsDoubles();
 
 			final int[] dataDimensions = generateDataDim(true, scanDimensions, null);
 			final int[] chunking = NexusUtils.estimateChunking(scanDimensions, 8);
+			final int[] dataIndices = IntStream.range(0, scanDimensions.length).toArray();
 
-			for (String header : headers) {
-				ILazyWriteableDataset lazyWriteableDataset = NexusUtils.createLazyWriteableDataset(header, Double.class, dataDimensions, null, chunking);
+			String lastHeader = null; // header of the last field with non-null data
+			for (int fieldIndex = 0; fieldIndex < headers.length; fieldIndex++) {
+				if (firstPointData[fieldIndex] == null) continue; // don't write null valued fields (these will be from detectors)
+
+				final String header = headers[fieldIndex];
+				final ILazyWriteableDataset lazyWriteableDataset = NexusUtils.createLazyWriteableDataset(
+						header, Double.class, dataDimensions, null, chunking);
 				lazyWriteableDataset.setFillValue(getFillValue(Double.class));
 				file.createData(measurementGroup, lazyWriteableDataset); // Makes the dataset
+				NexusUtils.writeAttribute(file, measurementGroup, header + DATA_INDICES_SUFFIX, dataIndices);
+				lastHeader = header;
 			}
 
 			// Add NXData metadata
-			NexusUtils.writeAttribute(file, measurementGroup, "signal", headers.getLast());
+			NexusUtils.writeAttribute(file, measurementGroup, DATA_SIGNAL, lastHeader);
 			// This should be 1D as we are not writing complex detector data here just values
-			String[] axis = new String[] {headers.getFirst()}; // Assume the first scannable is the x axis
-			NexusUtils.writeAttribute(file, measurementGroup, "axes", axis);
+
+			// calculate the axes headers, assuming the first field for each scannable is the axes field
+			final String[] axesHeaders = thisPoint.getScannables().stream()
+					.limit(scanDimensions.length)
+					.map(scn -> scn.getInputNames()[0])
+					.toArray(String[]::new);
+			NexusUtils.writeAttribute(file, measurementGroup, DATA_AXES, axesHeaders);
 
 			// Set to true if creating the group succeeds
 			writingMeasurementGroup = true;
@@ -1032,27 +1054,24 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 	private GroupNode getMeasurementGroup() throws NexusException {
 		final StringBuilder groupPath = new StringBuilder();
 		NexusUtils.addToAugmentPath(groupPath, entryName, NexusExtractor.NXEntryClassName); // /entry1/
-		NexusUtils.addToAugmentPath(groupPath, "measurement", NexusExtractor.NXDataClassName);// /entry1/measurement/
+		NexusUtils.addToAugmentPath(groupPath, GROUP_NAME_MEASUREMENT, NexusExtractor.NXDataClassName);// /entry1/measurement/
 		return file.getGroup(groupPath.toString(), true); // Makes the group if it doesn't exist
 	}
 
 	/**
 	 * @return An ordered list of combined position and detector headers
 	 */
-	private LinkedList<String> getHeaders() {
+	private String[] getHeaders() {
 		final List<String> positionHeaders = thisPoint.getPositionHeader();
 		final List<String> detectorHeaders = thisPoint.getDetectorHeader();
 
-		// Create a set first to detect duplicates
-		Set<String> headers = new LinkedHashSet<>();
-		headers.addAll(positionHeaders);
-		headers.addAll(detectorHeaders);
-		if(headers.size() != positionHeaders.size() + detectorHeaders.size()) {
-			logger.error("Duplicates in position and detector headers: {} & {}", positionHeaders, detectorHeaders);
-			throw new IllegalStateException("Duplicates in position and detector headers");
+		// Create a set first to detect duplicates - use a LinkedHashSet to maintain insertion order
+		final Set<String> headersSet = Stream.concat(positionHeaders.stream(), detectorHeaders.stream()).collect(toCollection(LinkedHashSet::new));
+		if (headersSet.size() != positionHeaders.size() + detectorHeaders.size()) {
+			throw new IllegalStateException("Duplicates in position and detector headers: " + positionHeaders + " & " + detectorHeaders);
 		}
-		// Convert to a list
-		return new LinkedList<>(headers);
+
+		return headersSet.toArray(String[]::new); // return as array
 	}
 
 	private void makeMetadata() {
@@ -1210,7 +1229,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		try {
 			final StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-			NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+			NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 			final int[] dataDim = generateDataDim(true, scanDimensions, null);
 
 			int inputNameIndex = 0;
@@ -1384,7 +1403,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to correct location in the file.
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		NexusUtils.addToAugmentPath(path, "data_file", NexusExtractor.NXNoteClassName);
 		GroupNode group = file.getGroup(path.toString(), false);
@@ -1425,7 +1444,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
 		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
 
@@ -1472,7 +1491,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		// Create NXdetector
 		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
@@ -1535,7 +1554,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		// Create NXdetector
 		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
@@ -1579,7 +1598,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
 		final GroupNode detectorGroup = file.getGroup(path.toString(), true);
 
@@ -1771,7 +1790,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to correct location in the file.
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, scannable.getName(), getGroupClassFor(scannable));
 		GroupNode group = file.getGroup(path.toString(), false);
 
@@ -1810,7 +1829,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 		// Navigate to correct location in the file.
 		final StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
-		NexusUtils.addToAugmentPath(path, INSTRUMENT, NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, GROUP_NAME_INSTRUMENT, NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
 		final GroupNode group = file.getGroup(path.toString(), true);
 

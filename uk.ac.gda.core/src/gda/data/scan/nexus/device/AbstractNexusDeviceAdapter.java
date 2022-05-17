@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.scan.datawriter.IGDAScannableNexusDevice;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -48,7 +49,7 @@ import gda.device.Scannable;
  *
  * @param <N>
  */
-public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements IWritableNexusDevice<N> {
+public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements IWritableNexusDevice<N>, IGDAScannableNexusDevice<N> {
 
 	private static final String PROPERTY_NAME_FLOAT_FILL_VALUE = "gda.nexus.floatfillvalue";
 
@@ -59,7 +60,7 @@ public abstract class AbstractNexusDeviceAdapter<N extends NXobject> implements 
 
 	private final Scannable device;
 
-	public AbstractNexusDeviceAdapter(final Scannable device) {
+	protected AbstractNexusDeviceAdapter(final Scannable device) {
 		this.device = device;
 	}
 

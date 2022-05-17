@@ -240,6 +240,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		}
 	}
 
+	@Override
 	public DataNode getFieldDataNode(String fieldName) {
 		return fieldDataNodes.get(fieldName);
 	}
@@ -485,6 +486,7 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		}
 	}
 
+	@Override
 	public String[] getFieldNames() {
 		return fieldDataNodes.keySet().toArray(String[]::new);
 	}

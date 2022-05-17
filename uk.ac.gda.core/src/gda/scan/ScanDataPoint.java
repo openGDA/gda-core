@@ -20,10 +20,12 @@
 package gda.scan;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
@@ -293,39 +295,43 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 		return detectorData;
 	}
 
-	Double [] allValuesAsDoubles=null;
+	private Double[] allValuesAsDoubles=null;
 
 	@Override
 	public Double[] getAllValuesAsDoubles() throws IllegalArgumentException, IndexOutOfBoundsException {
-		if( allValuesAsDoubles == null){
-			Double[] scannablePosAsDoubles = getPositionsAsDoubles();
-			Double[] detectorDataAsDoubles = getDetectorDataAsDoubles();
-
-			Vector<Double> output = new Vector<>();
-			output.addAll(Arrays.asList(scannablePosAsDoubles));
-			output.addAll(Arrays.asList(detectorDataAsDoubles));
-			allValuesAsDoubles = output.toArray(new Double[] {});
+		if (allValuesAsDoubles == null) {
+			allValuesAsDoubles = Stream.concat(Arrays.stream(getPositionsAsDoubles()), Arrays.stream(getDetectorDataAsDoubles()))
+					.toArray(Double[]::new);
 		}
 		return allValuesAsDoubles;
 	}
 
 	@Override
 	public Double[] getDetectorDataAsDoubles() {
-		Vector<Double> vals = new Vector<>();
-		if (getDetectorData() != null) {
-			for (Object data : getDetectorData()) {
-				PlottableDetectorData wrapper = (data instanceof PlottableDetectorData) ? (PlottableDetectorData) data
-						: new DetectorDataWrapper(data);
-				Double[] dvals = wrapper.getDoubleVals();
-				vals.addAll(Arrays.asList(dvals));
+		final List<Object> detectorData = getDetectorData();
+		if (detectorData == null) return new Double[0];
+
+		final List<Detector> detectors = getDetectors();
+		final List<Double> values = new ArrayList<>();
+		for (int i = 0; i < detectorData.size(); i++) {
+			final Object data = detectorData.get(i);
+			final PlottableDetectorData wrapper = (data instanceof PlottableDetectorData) ? (PlottableDetectorData) data
+					: new DetectorDataWrapper(data);
+			Double[] dvals = wrapper.getDoubleVals();
+
+			// in the case that the detector has no extract names (so would be written by NexusDataWriter.writeGenericDetector) but an array value
+			// we only have one header entry for the detector, so we return a null, indicating to not write this field
+			if (dvals.length > 1 && getDetectors().size() > i &&  detectors.get(i).getExtraNames().length == 0) {
+				dvals = new Double[] { null };
 			}
+			values.addAll(Arrays.asList(dvals));
 		}
-		int expectedSize = getDetectorHeader().size();
-		int actualSize = vals.size();
-		if (actualSize != expectedSize) {
-			throw new IllegalArgumentException("Detector data does not hold the expected number of fields actual:" + actualSize + " expected:" + expectedSize);
+
+		if (values.size() != getDetectorHeader().size()) {
+			throw new IllegalArgumentException("Detector data does not hold the expected number of fields actual:" + values.size() + " expected:" + getDetectorHeader().size());
 		}
-		return vals.toArray(new Double[] {});
+
+		return values.toArray(Double[]::new);
 	}
 
 	@Override

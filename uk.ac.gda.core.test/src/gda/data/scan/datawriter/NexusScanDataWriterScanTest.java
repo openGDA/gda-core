@@ -21,6 +21,8 @@ package gda.data.scan.datawriter;
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
 import static gda.configuration.properties.LocalProperties.GDA_END_STATION_NAME;
 import static gda.configuration.properties.LocalProperties.GDA_INSTRUMENT;
+import static gda.data.scan.datawriter.MeasurementGroupWriter.MEASUREMENT_GROUP_NAME;
+import static gda.data.scan.datawriter.NexusDataWriter.GDA_NEXUS_CREATE_MEASUREMENT_GROUP;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
@@ -66,7 +68,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -312,7 +313,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
 		LocalProperties.set(GDA_INSTRUMENT, EXPECTED_BEAMLINE_NAME);
 		LocalProperties.set(GDA_END_STATION_NAME, EXPECTED_END_STATION_NAME);
-		LocalProperties.set(PROPERTY_VALUE_WRITE_DECIMALS, Boolean.TRUE.toString());
+		LocalProperties.set(PROPERTY_VALUE_WRITE_DECIMALS, true);
+		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
 	@AfterClass
@@ -322,6 +324,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.clearProperty(GDA_INSTRUMENT);
 		LocalProperties.clearProperty(GDA_END_STATION_NAME);
 		LocalProperties.clearProperty(PROPERTY_VALUE_WRITE_DECIMALS);
+		LocalProperties.clearProperty(GDA_NEXUS_CREATE_MEASUREMENT_GROUP);
 	}
 
 	@BeforeClass
@@ -571,7 +574,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected void checkNexusMetadata(NXentry entry) {
+	protected void checkNexusMetadata(NXentry entry) throws Exception {
 		super.checkNexusMetadata(entry);
 
 		// check unique keys and scan timings have been written into the diamond scan NXcollection
@@ -639,26 +642,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		expectedGroupNames.addAll(ServiceHolder.getCommonBeamlineDevicesConfiguration().getCommonDeviceNames());
 		expectedGroupNames.removeAll(List.of(USER_DEVICE_NAME, BEAM_DEVICE_NAME)); // added directly to NXentry
 
-		return expectedGroupNames.toArray(new String[expectedGroupNames.size()]);
-	}
-
-	protected List<String> getExpectedScanFieldNames() {
-		final List<String> scanFields = new ArrayList<>();
-		for (Scannable scannable : scannables) {
-			scanFields.addAll(Arrays.asList(scannable.getInputNames()));
-			scanFields.addAll(Arrays.asList(scannable.getExtraNames()));
-		}
-		if (monitor != null) {
-			scanFields.add(monitor.getName());
-		}
-		if (detector != null) {
-			if (ArrayUtils.isNotEmpty(detector.getExtraNames())) {
-				scanFields.addAll(Arrays.asList(detector.getExtraNames()));
-			} else {
-				scanFields.add(detector.getName());
-			}
-		}
-		return scanFields;
+		return expectedGroupNames.toArray(String[]::new);
 	}
 
 	private void checkBeforeScanCollection(NXcollection beforeScanCollection) throws Exception {
@@ -720,8 +704,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		assertThat(scannablesCollection, is(notNullValue()));
 		final Set<String> expectedScannableNames = new HashSet<>(getExpectedMetadataScannableNames());
 		expectedScannableNames.add(scannables[0].getName());
-		assertThat(scannablesCollection.getGroupNodeNames(), containsInAnyOrder(
-				expectedScannableNames.toArray(new String[expectedScannableNames.size()])));
+		assertThat(scannablesCollection.getGroupNodeNames(),
+				containsInAnyOrder(expectedScannableNames.toArray(String[]::new)));
 
 		final NXpositioner firstScannablePositioner = (NXpositioner) scannablesCollection.getGroupNode(
 				scannables[0].getName());
@@ -882,17 +866,20 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected void checkDataGroups(NXentry entry) {
+	protected void checkDataGroups(NXentry entry) throws Exception {
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 
 		final String dataDeviceName = getDataDeviceName();
 		final List<String> primaryFieldNames = getPrimaryFieldNames();
-		final List<String> expectedDataGroupNames = getExpectedDataGroupNames(dataDeviceName, primaryFieldNames);
-
-		assertThat(dataGroups.keySet(), containsInAnyOrder(expectedDataGroupNames.toArray()));
+		final List<String> expectedDataGroupNamesForPrimaryDevice =
+				getExpectedDataGroupNamesForDevice(dataDeviceName, primaryFieldNames);
+		final String[] allDataGroupNames = ArrayUtils.add(
+				expectedDataGroupNamesForPrimaryDevice.toArray(String[]::new), MEASUREMENT_GROUP_NAME);
+		assertThat(dataGroups.keySet(), containsInAnyOrder(allDataGroupNames));
+		checkMeasurementDataGroup(dataGroups.get(MEASUREMENT_GROUP_NAME));
 
 		for (int i = 0; i < primaryFieldNames.size(); i++) {
-			final String groupName = expectedDataGroupNames.get(i);
+			final String groupName = expectedDataGroupNamesForPrimaryDevice.get(i);
 			final NXdata dataGroup = dataGroups.get(groupName);
 			final String primaryFieldName = primaryFieldNames.get(i);
 			final String signalFieldName = getSignalFieldName(primaryFieldName);
@@ -972,13 +959,14 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		}
 	}
 
-	private List<String> getExpectedDataGroupNames(String dataDeviceName, List<String> primaryFieldNames) {
+	private List<String> getExpectedDataGroupNamesForDevice(String dataDeviceName, List<String> primaryFieldNames) {
+		final List<String> basicDataGroupNames = List.of(dataDeviceName);
 		if (detectorType == DetectorType.NEXUS_DETECTOR || detectorType == DetectorType.MODIFIED_NEXUS_DETECTOR) {
-			return Streams.concat(Stream.of(dataDeviceName),
-					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(Collectors.toList());
+			return Streams.concat(basicDataGroupNames.stream(),
+					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(toList());
 		}
 
-		return List.of(dataDeviceName);
+		return basicDataGroupNames;
 	}
 
 	@Override

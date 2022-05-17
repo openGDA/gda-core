@@ -36,7 +36,10 @@ import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexu
 import static gda.data.scan.datawriter.AbstractNexusDataWriterScanTest.DummyNexusDetector.STRING_ATTR_VALUE;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -66,10 +69,12 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.measure.quantity.Length;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
@@ -1055,7 +1060,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected abstract void checkMetadataScannablePositioner(NXpositioner positioner, int index) throws Exception;
 
-	protected void checkNexusMetadata(NXentry entry) {
+	protected void checkNexusMetadata(NXentry entry) throws Exception {
 		// start_time
 		checkDateTime(entry.getStart_time());
 		// end_time
@@ -1097,8 +1102,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected void checkLinkedDatasets(NXdata data, NXentry entry, Map<String, String> expectedDataNodeLinks) {
-		assertThat(data.getDataNodeNames(), containsInAnyOrder(
-				expectedDataNodeLinks.keySet().toArray(new String[expectedDataNodeLinks.size()])));
+		assertThat(data.getDataNodeNames(), containsInAnyOrder(expectedDataNodeLinks.keySet().toArray(String[]::new)));
 
 		for (Map.Entry<String, String> dataNodeLinkEntry : expectedDataNodeLinks.entrySet()) {
 			final String dataNodeName = dataNodeLinkEntry.getKey();
@@ -1162,6 +1166,52 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(scanEntry.getProgram_nameScalar(), is(equalTo("GDA")));
 		assertThat(scanEntry.getProgram_nameAttributeVersion(), is(equalTo("9.13")));
 		assertThat(scanEntry.getProgram_nameAttributeConfiguration(), is(equalTo("dummy")));
+	}
+
+	protected void checkMeasurementDataGroup(NXdata dataGroup) throws Exception {
+		assertThat(dataGroup, is(notNullValue()));
+
+		final List<String> fieldNames = getExpectedScanFieldNames();
+
+		assertThat(dataGroup.getAttributeNames(), containsInAnyOrder(Stream.concat(
+				Stream.of(NexusConstants.NXCLASS, NexusConstants.DATA_AXES, NexusConstants.DATA_SIGNAL),
+				fieldNames.stream().map(name -> name + NexusConstants.DATA_INDICES_SUFFIX)).toArray()));
+
+		assertSignal(dataGroup, fieldNames.get(fieldNames.size() - 1));
+		assertAxes(dataGroup, getScannableNames());
+		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(fieldNames.toArray()));
+
+		final IDataset expectedIndicesAttrValue = DatasetFactory.createFromObject(
+				IntStream.range(0, scanDimensions.length).toArray());
+		for (String scannableName : fieldNames) {
+			final DataNode dataNode = dataGroup.getDataNode(scannableName);
+			assertThat(dataNode, is(notNullValue()));
+			assertThat(dataNode.getDataset().getElementClass(), is(equalTo(Double.class)));
+			assertThat(dataNode.getDataset().getShape(), is(equalTo(scanDimensions)));
+
+			final Attribute indicesAttr = dataGroup.getAttribute(scannableName + DATA_INDICES_SUFFIX);
+			assertThat(indicesAttr, is(notNullValue()));
+			assertThat(indicesAttr.getValue(), is(equalTo(expectedIndicesAttrValue)));
+		}
+	}
+
+	protected List<String> getExpectedScanFieldNames() throws Exception {
+		final List<String> scanFields = new ArrayList<>();
+		for (Scannable scannable : scannables) {
+			scanFields.addAll(Arrays.asList(scannable.getInputNames()));
+			scanFields.addAll(Arrays.asList(scannable.getExtraNames()));
+		}
+		if (monitor != null) {
+			scanFields.add(monitor.getName());
+		}
+		if (detector != null) {
+			if (ArrayUtils.isNotEmpty(detector.getExtraNames())) {
+				scanFields.addAll(Arrays.asList(detector.getExtraNames()));
+			} else if (detectorType == DetectorType.GENERIC && Arrays.equals(detector.getDataDimensions(), new int[] { 1 })) {
+				scanFields.add(detector.getName());
+			}
+		}
+		return scanFields;
 	}
 
 }
