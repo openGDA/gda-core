@@ -20,6 +20,7 @@ package uk.ac.gda.client.live.stream.view.customui;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -79,6 +80,8 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 
 	private boolean includeCameraGain = false;
 
+	private List<Image> images = new ArrayList<>();
+
 	public LiveStreamViewCameraControls(CameraControl cameraControl) {
 		Objects.requireNonNull(cameraControl, "Camera control must not be null");
 		this.cameraControl = cameraControl;
@@ -127,9 +130,18 @@ public class LiveStreamViewCameraControls extends AbstractLiveStreamViewCustomUi
 		}
 	}
 
+	@Override
+	public void dispose() {
+		images.forEach(Image::dispose);
+		extensions.forEach(LiveStreamViewCameraControlsExtension::dispose);
+		super.dispose();
+	}
+
 	private Image createImage(String fileName) {
 		final ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(ICON_PLUGIN, "icons/" + fileName);
-		return descriptor.createImage();
+		var image = descriptor.createImage();
+		images.add(image);
+		return image;
 	}
 
 	private void resetCamera(@SuppressWarnings("unused") SelectionEvent e) {

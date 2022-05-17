@@ -36,4 +36,11 @@ public interface LiveStreamViewCameraControlsExtension {
 	 *            Object to control the camera
 	 */
 	void createUi(Composite composite, CameraControl cameraControl);
+
+	/**
+	 * Called when the composite is being disposed to allow listeners to be removed, resources disposed etc.
+	 */
+	default void dispose() {
+		// do nothing by default
+	}
 }

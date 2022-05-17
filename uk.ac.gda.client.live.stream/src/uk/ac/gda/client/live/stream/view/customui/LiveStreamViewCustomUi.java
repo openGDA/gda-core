@@ -44,7 +44,7 @@ public interface LiveStreamViewCustomUi {
 	public void createUi(Composite composite);
 
 	/**
-	 * Called when the composite is being disposed to allow listeners to be removed etc.
+	 * Called when the composite is being disposed to allow listeners to be removed, resources disposed etc.
 	 */
 	public void dispose();
 
