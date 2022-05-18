@@ -60,6 +60,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private double width_counts;
 
+	private int pcEncType = Zebra.PC_ENC_ENCSUM; //Enc1-4Av
 
 	@Override
 	public void configure() throws FactoryException {
@@ -121,7 +122,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 			// fixed settings
 			logger.debug("Time before fixed zebra settings");
-			zebraDevice.setPCEnc(Zebra.PC_ENC_ENCSUM); //Enc1-4Av
+			zebraDevice.setPCEnc(pcEncType);
 			zebraDevice.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
 			zebraDevice.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
 			zebraDevice.setPCGateNumberOfGates(1);
@@ -342,5 +343,13 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	public CachedLazyPVFactory getPvFactory() {
 		return this.pvFactory;
+	}
+
+	public int getPcEncType() {
+		return pcEncType;
+	}
+
+	public void setPcEncType(int pcEncType) {
+		this.pcEncType = pcEncType;
 	}
 }
