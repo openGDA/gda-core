@@ -130,8 +130,8 @@ public class StatusQueueView extends EventConnectionView {
 					EventConstants.STATUS_TOPIC,
 					EventConstants.SUBMISSION_QUEUE);
 
-	private static final String SUSPEND_QUEUE = "Suspend queueing of upcoming jobs\nDoes not pause current job";
-	private static final String UNSUSPEND_QUEUE = "Unsuspend queueing of upcoming jobs\nDoes not undefer upcoming job(s)";
+	private static final String SUSPEND_QUEUE_TOOLTIP = "Suspend queueing of upcoming jobs\nDoes not pause current job";
+	private static final String UNSUSPEND_QUEUE_TOOLTIP = "Unsuspend queueing of upcoming jobs\nDoes not undefer upcoming job(s)";
 	private static final String SUSPEND_QUEUE_ICON = "icons/switch-queue-on.png";
 	private static final String UNSUSPEND_QUEUE_ICON = "icons/switch-queue-off.png";
 
@@ -257,10 +257,6 @@ public class StatusQueueView extends EventConnectionView {
 		warnIfListContainsStatus("RUNNING status found in submittedList: ", submittedList, org.eclipse.scanning.api.event.status.Status.RUNNING);
 		warnIfListContainsStatus("SUBMITTED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.SUBMITTED);
 		warnIfListContainsStatus("DEFERRED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.DEFERRED);
-	}
-
-	private void updateQueueStatusActions(QueueStatus status) {
-		suspendQueueAction.setChecked(status == QueueStatus.PAUSED);
 	}
 
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
@@ -521,9 +517,13 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
+	private void updateQueueStatusActions(QueueStatus status) {
+		suspendQueueAction.setChecked(status == QueueStatus.PAUSED);
+	}
+
 	private Action suspendQueueActionCreate() {
 		final boolean isChecked = jobQueueProxy.isPaused();
-		final Action action = new Action(isChecked ? UNSUSPEND_QUEUE : SUSPEND_QUEUE, IAction.AS_CHECK_BOX) {
+		final Action action = new Action(isChecked ? UNSUSPEND_QUEUE_TOOLTIP : SUSPEND_QUEUE_TOOLTIP, IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				suspendQueueActionRun(this);
@@ -542,7 +542,7 @@ public class StatusQueueView extends EventConnectionView {
 		final boolean queueSuspended = jobQueueProxy.isPaused();
 		try {
 			suspendQueue.setChecked(!queueSuspended); // We are toggling it.
-			suspendQueue.setText(queueSuspended ? SUSPEND_QUEUE : UNSUSPEND_QUEUE);
+			suspendQueue.setText(queueSuspended ? SUSPEND_QUEUE_TOOLTIP : UNSUSPEND_QUEUE_TOOLTIP);
 			suspendQueue.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? SUSPEND_QUEUE_ICON : UNSUSPEND_QUEUE_ICON));
 			if (queueSuspended) {
 				jobQueueProxy.resume();
