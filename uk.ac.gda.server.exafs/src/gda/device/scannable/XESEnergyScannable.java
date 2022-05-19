@@ -20,16 +20,16 @@ package uk.ac.gda.beamline.i20.scannable;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.ScannableMotionUnits;
 import gda.device.scannable.ScannableMotionUnitsBase;
 import gda.device.scannable.ScannableStatus;
+import gda.exafs.xes.IXesEnergyScannable;
 import gda.exafs.xes.XesUtils;
 import gda.observable.IObserver;
 import gda.util.CrystalParameters.CrystalMaterial;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@ServiceInterface(ScannableMotionUnits.class)
-public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObserver {
+@ServiceInterface(IXesEnergyScannable.class)
+public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObserver, IXesEnergyScannable {
 
 	private XesSpectrometerScannable xes;
 	private Scannable cut1Scannable;
@@ -58,6 +58,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 			notifyIObservers(this, arg);
 	}
 
+	@Override
 	public int[] getCrystalCut() throws DeviceException {
 		int cut1 = (int) Double.parseDouble(cut1Scannable.getPosition().toString());
 		int cut2 = (int) Double.parseDouble(cut2Scannable.getPosition().toString());
@@ -66,18 +67,19 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		return cut;
 	}
 
-	public int getMaterialType() throws DeviceException {
+	@Override
+	public CrystalMaterial getMaterialType() throws DeviceException {
 		String materialVal = materialScannable.getPosition().toString();
 		if (materialVal.equals("Si"))
-			return 0;
+			return CrystalMaterial.SILICON;
 		else if (materialVal.equals("Ge"))
-			return 1;
+			return CrystalMaterial.GERMANIUM;
 		throw new DeviceException("Material type could not be determined");
 	}
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		CrystalMaterial material = getCurrentMaterial();
+		CrystalMaterial material = getMaterialType();
 		String stringPosition = position.toString();
 		double doublePosition = Double.parseDouble(stringPosition);
 		double bragg = XesUtils.getBragg(doublePosition, material, getCrystalCut());
@@ -89,7 +91,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		CrystalMaterial material = getCurrentMaterial();
+		CrystalMaterial material = getMaterialType();
 		double energy = XesUtils.getFluoEnergy(Double.parseDouble(xes.getPosition().toString()), material, getCrystalCut());
 		if(energy<100000){
 			String en = String.valueOf(energy);
@@ -100,17 +102,6 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 			return energy;
 		}
 		return 0;
-	}
-
-	private CrystalMaterial getCurrentMaterial() throws DeviceException {
-		CrystalMaterial material = null;
-		CrystalMaterial silicon = CrystalMaterial.SILICON;
-		CrystalMaterial germanium = CrystalMaterial.GERMANIUM;
-		if (getMaterialType() == 0)
-			material = silicon;
-		else if (getMaterialType() == 1)
-			material =  germanium;
-		return material;
 	}
 
 	@Override
@@ -158,4 +149,8 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 		this.materialScannable = material;
 	}
 
+	@Override
+	public double getRadius() throws DeviceException {
+		return xes.getRadius();
+	}
 }
