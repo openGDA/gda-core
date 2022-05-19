@@ -159,9 +159,7 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 
 	private void createFormats() {
 		outputFormats.clear();
-		for (RegionOfInterest roi : roiList) {
-			statsProcessor.getOutputFormat().forEach(outputFormats::add);
-		}
+		roiList.forEach(r -> outputFormats.addAll(statsProcessor.getOutputFormat()));
 	}
 
 	public DatasetStats getStatsProcessor() {
