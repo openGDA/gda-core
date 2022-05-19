@@ -19,8 +19,9 @@
 
 package gda.jython.commands;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -142,12 +143,10 @@ public class ScannableCommandsTest {
 	public void testPosWithTripleConcurrentMoveAndFailingScannable() throws Exception {
 		doThrow(new DeviceException("lev5a move failed")).when(lev5a).waitWhileBusy();
 
-		try {
-			ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, lev5b, 1.35, lev4, 1.2);
-			assertFalse(false); // DeviceException expected
-		} catch (DeviceException e) {
-			assertEquals(e.getMessage(), "lev5a move failed");
-		}
+		var e = assertThrows(DeviceException.class,
+				() -> ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, lev5b, 1.35, lev4, 1.2));
+		assertThat(e.getMessage(), is("lev5a move failed"));
+
 		InOrder inOrder = inOrder(lev4, lev5a, lev5b, lev6);
 		// NOTE: The order of this four is unimportant
 		inOrder.verify(lev5a).checkPositionValid(1.3);
