@@ -184,7 +184,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				}
 				commandServer.addIObserver(this);
 				indexNumberInJythonServer = commandServer.addFacade(name, localHost, username, fullName, "");
-				originalAuthorisationLevel = commandServer.getAuthorisationLevel(indexNumberInJythonServer);
+				originalAuthorisationLevel = commandServer.getClientInformation(name).getAuthorisationLevel();
 			} catch (DeviceException e) {
 				final String msg = "Login failed for user: " + UserAuthentication.getUsername();
 				logger.error(msg);

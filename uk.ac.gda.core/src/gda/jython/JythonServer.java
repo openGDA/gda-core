@@ -890,11 +890,6 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	}
 
 	@Override
-	public int getAuthorisationLevel(int indexOfClient) {
-		return this.batonManager.getAuthorisationLevelOf(indexOfClient);
-	}
-
-	@Override
 	public void sendMessage(String myJSFIdentifier, String message) {
 		ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
 		final UserMessage msg = new UserMessage(details.getIndex(), details.getUserID(), message);

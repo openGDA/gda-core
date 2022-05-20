@@ -64,6 +64,13 @@ public class ClientInfo implements Serializable {
 		this.index = index;
 	}
 
+	/**
+	 * Get the fixed authorisation level of this client. Note this is not always
+	 * the authorisation level used when running commands. If the baton is not
+	 * held or RBAC is not enabled, the effective authorisation level will be 0.
+	 * @see IBatonManager#effectiveAuthorisationLevelOf(String)
+	 * @return the authorisation level of this client
+	 */
 	public int getAuthorisationLevel() {
 		return authorisationLevel;
 	}
