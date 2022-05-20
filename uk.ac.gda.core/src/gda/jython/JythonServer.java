@@ -427,9 +427,10 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				return true;
 			}
 			ClientDetails client = this.batonManager.getClientInformation(jsfIdentifier);
+			int authLevel = batonManager.getAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
-			RunSourceRunner runner = new RunSourceRunner(interp, command, client.getAuthorisationLevel(), stdin);
+			RunSourceRunner runner = new RunSourceRunner(interp, command, authLevel, stdin);
 			runner.setName(nameThread(command));
 			threads.add(runner);
 			runner.start();

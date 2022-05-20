@@ -20,6 +20,7 @@ package uk.ac.gda.client.livecontrol;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,8 @@ public class LiveControlsView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(LiveControlsView.class);
 
+	private static final HashMap<String,String> registeredNames = new HashMap<String, String>();
+
 	private boolean controlsWithNoGroup;
 
 	private Composite parent;
@@ -79,7 +82,7 @@ public class LiveControlsView extends ViewPart {
 		// If configName is set then reopen the view, passing the ControlSet object name via the secondary Id
 		if (!configName.isEmpty()) {
 			logger.debug("Trying to create 'live controls' view using configuration : {}", configName);
-			Display.getDefault().asyncExec(() -> reopenWithSecondaryId(configName));
+			Display.getDefault().asyncExec(() -> reopenWithSecondaryId(configName, getSite().getRegisteredName()));
 			return;
 		}
 
@@ -140,7 +143,7 @@ public class LiveControlsView extends ViewPart {
 		if (dialog.open() == Window.OK) {
 			ControlSet selectedControlSet = (ControlSet) dialog.getResult()[0];
 			logger.debug("Opening 'live controls' view from user selected configuration : {}", selectedControlSet.getName());
-			Display.getDefault().asyncExec(() -> reopenWithSecondaryId(selectedControlSet.getName()));
+			Display.getDefault().asyncExec(() -> reopenWithSecondaryId(selectedControlSet.getName(), null));
 		}
 	}
 
@@ -150,9 +153,16 @@ public class LiveControlsView extends ViewPart {
 	 *
 	 * @param controlset
 	 */
-	private void reopenWithSecondaryId(String controlsetName) {
+	private void reopenWithSecondaryId(String controlsetName, String registeredName) {
 		IWorkbenchPage page = getSite().getPage();
 		try {
+			if (registeredName != null) {
+				if (registeredNames.containsKey(controlsetName)) {
+					logger.warn("'{}' already in registeredNames, updating {} to {}", controlsetName,
+							registeredNames.get(controlsetName), registeredName);
+				}
+				registeredNames.put(configName, registeredName);
+			}
 			page.hideView(LiveControlsView.this);
 			page.showView(LiveControlsView.ID, controlsetName, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
@@ -238,6 +248,9 @@ public class LiveControlsView extends ViewPart {
 		scrolledComposite.setShowFocusedControl(true);
 
 		setTitleToolTip(controlSet.getName());
+
+		//Set the part name of this part to be the registered name of the original part
+		setPartName(registeredNames.getOrDefault(controlSet.getName(), controlSet.getName()));
 	}
 
 	private void createUnavailableControlLabel(Composite parent, String controlName) {
