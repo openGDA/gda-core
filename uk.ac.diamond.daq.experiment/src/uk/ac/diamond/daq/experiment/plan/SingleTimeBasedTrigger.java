@@ -1,5 +1,7 @@
 package uk.ac.diamond.daq.experiment.plan;
 
+import java.math.BigDecimal;
+
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
@@ -27,7 +29,7 @@ public class SingleTimeBasedTrigger extends SingleTrigger {
 	
 	@Override
 	protected boolean evaluateTriggerCondition(double signal) {
-		return super.evaluateTriggerCondition(signal - startTime);
+		return super.evaluateTriggerCondition(BigDecimal.valueOf(signal).subtract(BigDecimal.valueOf(startTime)).doubleValue());
 	}
 
 }
