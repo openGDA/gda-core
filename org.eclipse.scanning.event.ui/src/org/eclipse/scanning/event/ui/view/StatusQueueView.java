@@ -130,8 +130,8 @@ public class StatusQueueView extends EventConnectionView {
 					EventConstants.STATUS_TOPIC,
 					EventConstants.SUBMISSION_QUEUE);
 
-	private static final String SUSPEND_QUEUE = "Suspend queueing of upcoming jobs\nDoes not pause current job";
-	private static final String UNSUSPEND_QUEUE = "Unsuspend queueing of upcoming jobs\nDoes not undefer upcoming job(s)";
+	private static final String SUSPEND_QUEUE_TOOLTIP = "Suspend queueing of upcoming jobs\nDoes not pause current job";
+	private static final String UNSUSPEND_QUEUE_TOOLTIP = "Unsuspend queueing of upcoming jobs\nDoes not undefer upcoming job(s)";
 	private static final String SUSPEND_QUEUE_ICON = "icons/switch-queue-on.png";
 	private static final String UNSUSPEND_QUEUE_ICON = "icons/switch-queue-off.png";
 
@@ -259,10 +259,6 @@ public class StatusQueueView extends EventConnectionView {
 		warnIfListContainsStatus("DEFERRED status found in runList:       ", runList, org.eclipse.scanning.api.event.status.Status.DEFERRED);
 	}
 
-	private void updateQueueStatusActions(QueueStatus status) {
-		suspendQueueAction.setChecked(status == QueueStatus.PAUSED);
-	}
-
 	private void warnIfListContainsStatus(String description, List<StatusBean> list, org.eclipse.scanning.api.event.status.Status status) {
 		List<StatusBean> matchingStatusList = list.stream()
 				.filter(x -> x.getStatus()==status)
@@ -384,6 +380,11 @@ public class StatusQueueView extends EventConnectionView {
 		final IContributionManager dropDown = getViewSite().getActionBars().getMenuManager();
 		final MenuManager          menuMan = new MenuManager();
 
+		suspendQueueAction = suspendQueueActionCreate();
+		addActionTo(toolMan, menuMan, dropDown, suspendQueueAction);
+
+		addSeparators(toolMan, menuMan, dropDown);
+
 		openResultsAction = openResultsActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, openResultsAction);
 
@@ -404,8 +405,7 @@ public class StatusQueueView extends EventConnectionView {
 		stopAction = stopActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, stopAction);
 
-		suspendQueueAction = suspendQueueActionCreate();
-		addActionTo(toolMan, menuMan, dropDown, suspendQueueAction);
+		addSeparators(toolMan, menuMan, dropDown);
 
 		removeAction = removeActionCreate();
 		addActionTo(toolMan, menuMan, dropDown, removeAction);
@@ -494,7 +494,7 @@ public class StatusQueueView extends EventConnectionView {
 	}
 
 	private Action downActionCreate() {
-		final Action action = new Action("More forward (run earlier)", Activator.getImageDescriptor("icons/arrow-270.png")) {
+		final Action action = new Action("Move forward (run earlier)", Activator.getImageDescriptor("icons/arrow-270.png")) {
 			@Override
 			public void run() {
 				// When moving items down, if we move an item down before moving down an adjacent item below it, we end
@@ -521,9 +521,16 @@ public class StatusQueueView extends EventConnectionView {
 		return action;
 	}
 
+	private void suspendQueueActionUpdate(QueueStatus status) {
+		final boolean queueSuspended = (status == QueueStatus.PAUSED);
+		suspendQueueAction.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
+		suspendQueueAction.setText(queueSuspended ? UNSUSPEND_QUEUE_TOOLTIP : SUSPEND_QUEUE_TOOLTIP);
+		suspendQueueAction.setChecked(queueSuspended);
+	}
+
 	private Action suspendQueueActionCreate() {
 		final boolean isChecked = jobQueueProxy.isPaused();
-		final Action action = new Action(isChecked ? UNSUSPEND_QUEUE : SUSPEND_QUEUE, IAction.AS_CHECK_BOX) {
+		final Action action = new Action(isChecked ? UNSUSPEND_QUEUE_TOOLTIP : SUSPEND_QUEUE_TOOLTIP, IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				suspendQueueActionRun(this);
@@ -532,7 +539,7 @@ public class StatusQueueView extends EventConnectionView {
 		action.setImageDescriptor(Activator.getImageDescriptor(isChecked ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
 		action.setChecked(isChecked);
 
-		jobQueueProxy.addQueueStatusListener(this::updateQueueStatusActions);
+		jobQueueProxy.addQueueStatusListener(this::suspendQueueActionUpdate);
 		return action;
 	}
 
@@ -542,8 +549,8 @@ public class StatusQueueView extends EventConnectionView {
 		final boolean queueSuspended = jobQueueProxy.isPaused();
 		try {
 			suspendQueue.setChecked(!queueSuspended); // We are toggling it.
-			suspendQueue.setText(queueSuspended ? SUSPEND_QUEUE : UNSUSPEND_QUEUE);
-			suspendQueue.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? SUSPEND_QUEUE_ICON : UNSUSPEND_QUEUE_ICON));
+			suspendQueue.setText(!queueSuspended ? UNSUSPEND_QUEUE_TOOLTIP : SUSPEND_QUEUE_TOOLTIP);
+			suspendQueue.setImageDescriptor(Activator.getImageDescriptor(!queueSuspended ? UNSUSPEND_QUEUE_ICON : SUSPEND_QUEUE_ICON));
 			if (queueSuspended) {
 				jobQueueProxy.resume();
 			} else {
@@ -554,7 +561,7 @@ public class StatusQueueView extends EventConnectionView {
 				"Cannot pause queue "+getSubmissionQueueName()+"\n\nPlease contact your support representative.",
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
-		suspendQueue.setChecked(jobQueueProxy.isPaused());
+		suspendQueueActionUpdate(jobQueueProxy.getQueueStatus());
 	}
 
 	private void pauseActionUpdate(boolean activeScanSelected, boolean activeScanPaused) {
@@ -1325,7 +1332,7 @@ public class StatusQueueView extends EventConnectionView {
 				Job.create("Getting queue status", mon -> {
 					// get the status first in a non-UI thread as it can take time, potentially causing the UI to freeze
 					final QueueStatus queueStatus = jobQueueProxy.getQueueStatus();
-					getDisplay().asyncExec(() -> updateQueueStatusActions(queueStatus)); // update actions in UI thread
+					getDisplay().asyncExec(() -> suspendQueueActionUpdate(queueStatus)); // update actions in UI thread
 				}).schedule();
 
 				// Given that these lists could be large, only summarise the count of beans with each status in each list.
