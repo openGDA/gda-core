@@ -278,13 +278,15 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	 * @throws AcquisitionControllerException
 	 */
 	private void finalizeAcquisition() throws AcquisitionControllerException {
-		// Saves the scannables defined in the client.positions with position equal to Position.Start
-		Set<DevicePositionDocument> startPosition = stageController.reportPositions(Position.START);
-		updateStartPosition(startPosition);
-		updateImageCalibrationStartPosition(startPosition);
+		updateStartPosition();
+		updateImageCalibrationStartPosition();
 	}
 
-	private void updateStartPosition(Set<DevicePositionDocument> startPosition) throws AcquisitionControllerException {
+	private void updateStartPosition() throws AcquisitionControllerException {
+
+		// scannables with current values contributing to a general start position definition
+		var startPosition = new HashSet<>(stageController.reportPositions(Position.START));
+
 		AcquisitionTemplateType templateType = tempHelper.getSelectedAcquisitionTemplateType()
 				.orElseThrow(() -> new AcquisitionControllerException("The actual scanning acquisition has no defined templateType"));
 
@@ -322,7 +324,11 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	 * </li>
 	 * </ol>
 	 */
-	private void updateImageCalibrationStartPosition(Set<DevicePositionDocument> startPosition) {
+	private void updateImageCalibrationStartPosition() {
+
+		// scannables with current values contributing to a general start position definition
+		var startPosition = new HashSet<>(stageController.reportPositions(Position.START));
+
 		ImageCalibrationReader ic = getAcquisitionReader().getAcquisitionConfiguration().getImageCalibration();
 		if (ic.getFlatCalibration().isAfterAcquisition() || ic.getFlatCalibration().isBeforeAcquisition()) {
 			updateAcquisitionPositions(startPosition,
