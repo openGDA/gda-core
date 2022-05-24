@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -38,6 +39,7 @@ public final class PathInfo implements Serializable {
 	private static final String POINT_COUNT_FORMAT = "%,d";
 	private static final String DOUBLE_FORMAT = "%.4g";
 
+	private final UUID eventId;
 	/**
 	 * The source of the path, i.e. the mapping view.
 	 */
@@ -79,6 +81,7 @@ public final class PathInfo implements Serializable {
 	private final double[] yCoordinates;
 
 	public PathInfo(
+			final UUID eventId,
 			final String sourceId,
 			final int innerPointCount,
 			final int totalPointCount,
@@ -87,6 +90,7 @@ public final class PathInfo implements Serializable {
 			final double smallestAbsStep,
 			final double[] xCoordinates,
 			final double[] yCoordinates) {
+		this.eventId = eventId;
 		this.sourceId = sourceId;
 		this.innerPointCount = innerPointCount;
 		this.totalPointCount = totalPointCount;
@@ -95,6 +99,10 @@ public final class PathInfo implements Serializable {
 		this.smallestAbsStep = smallestAbsStep;
 		this.xCoordinates = xCoordinates;
 		this.yCoordinates = yCoordinates;
+	}
+
+	public UUID getEventId() {
+		return eventId;
 	}
 
 	public String getSourceId() {
@@ -225,6 +233,7 @@ public final class PathInfo implements Serializable {
 
 	@JsonPOJOBuilder
 	public static final class Builder {
+		private UUID eventId;
 		private String sourceId;
 		private int innerPointCount;
 		private int totalPointCount;
@@ -234,6 +243,10 @@ public final class PathInfo implements Serializable {
 		private double[] xCoordinates;
 		private double[] yCoordinates;
 
+		public Builder withEventId(UUID eventId) {
+			this.eventId = eventId;
+			return this;
+		}
 		public Builder withSourceId(String sourceId) {
 			this.sourceId = sourceId;
 			return this;
@@ -294,6 +307,7 @@ public final class PathInfo implements Serializable {
 
 		public PathInfo build() {
 			return new PathInfo(
+					eventId,
 					sourceId,
 					innerPointCount,
 					totalPointCount,

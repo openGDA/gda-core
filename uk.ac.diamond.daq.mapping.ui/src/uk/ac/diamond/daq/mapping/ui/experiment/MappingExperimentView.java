@@ -83,6 +83,8 @@ public class MappingExperimentView extends AbstractSectionView<IMappingExperimen
 
 	public static final String ID = "uk.ac.diamond.daq.mapping.ui.experiment.mappingExperimentView";
 
+	public static final String SCAN_POINTS_CALCULATION_TOPIC = "uk/ac/diamond/daq/mapping/client/events/ScanPointsCalculationEvent";
+
 	public static final String PATH_CALCULATION_TOPIC = "uk/ac/diamond/daq/mapping/client/events/PathCalculationEvent";
 
 	private static final String STATE_KEY_MAPPING_BEAN_JSON = "mappingBean.json";
@@ -253,6 +255,12 @@ public class MappingExperimentView extends AbstractSectionView<IMappingExperimen
 		if (ID.equals(pathInfo.getSourceId())) {
 			statusPanel.setPathInfo(pathInfo);
 		}
+	}
+
+	@Inject
+	@Optional
+	private void updateUiWithPath(@UIEventTopic(SCAN_POINTS_CALCULATION_TOPIC) ScanPointsCalculator scanPointsCalculator) {
+		statusPanel.setScanPointsCalculator(scanPointsCalculator);
 	}
 
 	@Inject
