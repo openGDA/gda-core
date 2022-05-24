@@ -29,6 +29,8 @@ import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.factory.FindableBase;
+
 /**
  * Apply a mask to a dataset. The mask is defined by three additive specifications:
  * <li>A list of individual pixel cooordinates</li>
@@ -39,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * is called (the previous dataset will be used).
  *
  */
-public class MaskedDatasetCreator implements DatasetCreator {
+public class MaskedDatasetCreator extends FindableBase implements DatasetCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaskedDatasetCreator.class);
 
