@@ -10,9 +10,11 @@ import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
 import uk.ac.diamond.daq.experiment.api.plan.Payload;
+import uk.ac.diamond.daq.experiment.api.plan.PayloadService;
 import uk.ac.diamond.daq.experiment.plan.trigger.RepeatingTrigger;
 import uk.ac.diamond.daq.experiment.plan.trigger.SingleTimeBasedTrigger;
 import uk.ac.diamond.daq.experiment.plan.trigger.SingleTrigger;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 public class PlanFactory implements IPlanFactory {
 	
@@ -21,6 +23,8 @@ public class PlanFactory implements IPlanFactory {
 	private IPlanRegistrar registrar;
 	
 	private ISampleEnvironmentVariable timer;
+	
+	private PayloadService payloadService;
 
 	@Override
 	public ISampleEnvironmentVariable addSEV(Scannable scannable) {
@@ -69,12 +73,22 @@ public class PlanFactory implements IPlanFactory {
 		trigger.setName(name);
 		return trigger;
 	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, ISampleEnvironmentVariable sev, double target,	double tolerance) {
+		return addTrigger(name, getPayloadService().wrap(payload), sev, target, tolerance);
+	}
 
 	@Override
 	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double interval) {
 		ITrigger trigger = new RepeatingTrigger(registrar, sev, payload, interval);
 		trigger.setName(name);
 		return trigger;
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, ISampleEnvironmentVariable sev, double interval) {
+		return addTrigger(name, getPayloadService().wrap(payload), sev, interval);
 	}
 
 	@Override
@@ -84,5 +98,12 @@ public class PlanFactory implements IPlanFactory {
 	
 	public IPlanRegistrar getRegistrar() {
 		return registrar;
+	}
+	
+	private PayloadService getPayloadService() {
+		if (payloadService == null) {
+			payloadService = SpringApplicationContextFacade.getBean(PayloadService.class);
+		}
+		return payloadService;
 	}
 }

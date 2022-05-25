@@ -26,7 +26,7 @@ public interface ConveniencePlanFactory {
 	 * @param duration			The duration in seconds of this segment
 	 * @param triggers			The triggers which should be enabled during this segment
 	 *
-	 * @return Reference to the created segment
+	 * @return 					Reference to the created segment
 	 */
 	ISegment addSegment(String name, double duration, ITrigger... triggers);
 
@@ -46,6 +46,20 @@ public interface ConveniencePlanFactory {
 
 
 	/**
+	 * Create a trigger that will perform an operation only once,
+	 * when signal from {@code sev} = {@code target} ± {@code tolerance}
+	 *
+	 * @param name 				Name of this trigger
+	 * @param payload			Request to handle upon triggering
+	 * @param target			The optimal triggering signal
+	 * @param tolerance			The acceptable tolerance around the target signal
+	 *
+	 * @return 					Reference to the created trigger
+	 */
+	ITrigger addTrigger(String name, Object payload, double target, double tolerance);
+
+
+	/**
 	 * Creates a trigger which will execute the given operation in specified intervals of signal from sample environment variable provided
 	 *
 	 * @param name of this trigger
@@ -55,5 +69,17 @@ public interface ConveniencePlanFactory {
 	 * @return reference to the created trigger
 	 */
 	ITrigger addTrigger(String name, Payload payload, double interval);
+
+
+	/**
+	 * Creates a trigger which will execute the given operation in specified intervals of signal from sample environment variable provided
+	 *
+	 * @param name of this trigger
+	 * @param payload to handle upon triggering
+	 * @param interval or period between triggers
+	 *
+	 * @return reference to the created trigger
+	 */
+	ITrigger addTrigger(String name, Object payload, double interval);
 
 }

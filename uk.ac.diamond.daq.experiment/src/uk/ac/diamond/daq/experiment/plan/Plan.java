@@ -288,6 +288,12 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 			double tolerance) {
 		return factory.addTrigger(name, payload, sev, target, tolerance);
 	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, ISampleEnvironmentVariable sev, double target,
+			double tolerance) {
+		return factory.addTrigger(name, payload, sev, target, tolerance);
+	}
 
 	@Override
 	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double interval) {
@@ -295,12 +301,27 @@ public class Plan extends FindableBase implements IPlan, IPlanRegistrar, Conveni
 	}
 	
 	@Override
+	public ITrigger addTrigger(String name, Object payload, ISampleEnvironmentVariable sev, double interval) {
+		return factory.addTrigger(name, payload, sev, interval);
+	}
+	
+	@Override
 	public ITrigger addTrigger(String name, Payload payload, double target, double tolerance) {
+		return addTrigger(name, payload, lastDefinedSEV(), target, tolerance);
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, double target, double tolerance) {
 		return addTrigger(name, payload, lastDefinedSEV(), target, tolerance);
 	}
 
 	@Override
 	public ITrigger addTrigger(String name, Payload payload, double interval) {
+		return addTrigger(name, payload, lastDefinedSEV(), interval);
+	}
+	
+	@Override
+	public ITrigger addTrigger(String name, Object payload, double interval) {
 		return addTrigger(name, payload, lastDefinedSEV(), interval);
 	}
 
