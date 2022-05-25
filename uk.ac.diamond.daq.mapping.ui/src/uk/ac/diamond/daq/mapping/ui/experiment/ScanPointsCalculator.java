@@ -24,6 +24,7 @@ import java.util.UUID;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
@@ -57,12 +58,12 @@ public class ScanPointsCalculator {
 	private UUID eventId;
 	private IScanPointGeneratorModel scanPathModel;
 	private IMappingScanRegionShape scanRegionShape;
-	private List<IScanPointGeneratorModel> outerScannables;
+	private List<IAxialModel> outerScannables;
 	private final IPointGeneratorService pointGeneratorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanPointsCalculator.class);
 
-	public ScanPointsCalculator(IScanPointGeneratorModel scanPathModel, IMappingScanRegionShape scanRegionShape, List<IScanPointGeneratorModel> outerScannables) {
+	public ScanPointsCalculator(IScanPointGeneratorModel scanPathModel, IMappingScanRegionShape scanRegionShape, List<IAxialModel> outerScannables) {
 		this.scanPathModel = scanPathModel;
 		this.scanRegionShape = scanRegionShape;
 		this.outerScannables = outerScannables;

@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		outerScannablesBlock.setPointsChangedListener(() -> getService(RegionAndPathController.class).updatePoints());
 	}
 
-	private List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
+	private List<IScanModelWrapper<IAxialModel>> getOuterScannables() {
 		return getBean().getScanDefinition().getOuterScannables();
 	}
 
@@ -93,7 +93,7 @@ public class OuterScannablesSection extends AbstractMappingSection {
 		updatePoints();
 	}
 
-	private void scannablesChanged(List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
+	private void scannablesChanged(List<IScanModelWrapper<IAxialModel>> outerScannables) {
 		// update the bean from the UI
 		getBean().getScanDefinition().setOuterScannables(outerScannables);
 		updateMappingView();

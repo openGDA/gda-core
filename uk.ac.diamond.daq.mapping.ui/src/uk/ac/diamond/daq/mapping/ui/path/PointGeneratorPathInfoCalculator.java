@@ -27,6 +27,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -150,12 +151,12 @@ public class PointGeneratorPathInfoCalculator implements IPathInfoCalculator<Pat
 			return Optional.empty();
 	}
 
-    private int calculateAllOuterPoints(List<IScanPointGeneratorModel> outerPaths) {
-    	// Multiplies together the number of points in each outer scan path
-    	return outerPaths.stream()
-    			.map(this::calculateOuterPoints)
-    			.reduce(1, (product, next) -> product * next);
-    }
+	private int calculateAllOuterPoints(List<IAxialModel> outerPaths) {
+		// Multiplies together the number of points in each outer scan path
+		return outerPaths.stream()
+				.map(this::calculateOuterPoints)
+				.reduce(1, (product, next) -> product * next);
+	}
 
     private int calculateOuterPoints(IScanPathModel outerPath) {
 		try {

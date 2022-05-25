@@ -18,9 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -124,6 +127,10 @@ public class StatusPanel extends AbstractMappingSection {
 		} else {
 			statusLabel.setText("Full scan path calculation in progress...");
 		}
+	}
+
+	protected List<IScanModelWrapper<IAxialModel>> getOuterScannables() {
+		return mappingBean.getScanDefinition().getOuterScannables();
 	}
 
 	void setPathInfo(PathInfo pathInfo) {

@@ -43,6 +43,7 @@ import org.eclipse.scanning.api.event.IEventService;
 import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
@@ -133,7 +134,7 @@ public class StandardsScanView {
 		nameLabel.setText(energyScannableName);
 
 		// Scan path editor to display & edit energy values
-		final IScanModelWrapper<IScanPointGeneratorModel> scannableWrapper = new ScanPathModelWrapper(energyScannableName, null, false);
+		final IScanModelWrapper<IAxialModel> scannableWrapper = new ScanPathModelWrapper<>(energyScannableName, null, false);
 		scanPathEditor = new ScanPathEditor(editorComposite, SWT.NONE, scannableWrapper);
 
 		// Edge, exposure, reverse check box

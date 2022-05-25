@@ -59,6 +59,7 @@ import org.eclipse.scanning.api.event.scan.DeviceInformation;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.ScanningException;
@@ -146,7 +147,7 @@ public class TimeSeriesScanView {
 		return malcolmDeviceInfos;
 	}
 
-	private void scannablesChanged(@SuppressWarnings("unused") List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
+	private void scannablesChanged(@SuppressWarnings("unused") List<IScanModelWrapper<IAxialModel>> outerScannables) {
 		viewComposite.layout(true, true);
 	}
 
@@ -200,9 +201,9 @@ public class TimeSeriesScanView {
 		outerScannablesBlock.createControls(parent);
 	}
 
-	private List<IScanModelWrapper<IScanPointGeneratorModel>> loadOuterScannables(MPart part) {
+	private List<IScanModelWrapper<IAxialModel>> loadOuterScannables(MPart part) {
 		final String outerScannablesJson = part.getPersistedState().get(STATE_KEY_OUTER_SCANNABLES);
-		List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = emptyList();
+		List<IScanModelWrapper<IAxialModel>> outerScannables = emptyList();
 		if (outerScannablesJson != null) {
 			final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
 			try {
@@ -370,8 +371,8 @@ public class TimeSeriesScanView {
 
 		// extract the models from the outer scannables
 		final List<IScanPointGeneratorModel> pointsModels = outerScannablesBlock.getOuterScannables().stream()
-			.filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan)
-			.map(IScanModelWrapper<IScanPointGeneratorModel>::getModel)
+			.filter(IScanModelWrapper::isIncludeInScan)
+			.map(IScanModelWrapper::getModel)
 			.collect(toCollection(ArrayList::new));
 
 		final int numSteps = numStepsSpinner.getSelection();

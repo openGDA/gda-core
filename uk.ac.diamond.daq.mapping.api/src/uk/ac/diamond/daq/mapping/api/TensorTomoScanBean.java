@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.mapping.api;
 
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 
 import uk.ac.diamond.daq.osgi.OsgiService;
 
@@ -30,8 +30,8 @@ public class TensorTomoScanBean {
 	// Note: x and y scannable names come from the Mapping Stage Info
 	private IMappingScanRegionShape gridRegionModel; // TODO should be RectangularMappingRegion but that's not API
 	private AbstractTwoAxisGridModel gridPathModel;
-	private IScanModelWrapper<IScanPointGeneratorModel> angle1Model;
-	private IScanModelWrapper<IScanPointGeneratorModel> angle2Model;
+	private IScanModelWrapper<IAxialModel> angle1Model;
+	private IScanModelWrapper<IAxialModel> angle2Model;
 	private String malcolmDeviceName;
 	private IMalcolmModel malcolmModel;
 	private String sampleName;
@@ -53,19 +53,19 @@ public class TensorTomoScanBean {
 		this.gridPathModel = gridPathModel;
 	}
 
-	public IScanModelWrapper<IScanPointGeneratorModel> getAngle1Model() {
+	public IScanModelWrapper<IAxialModel> getAngle1Model() {
 		return angle1Model;
 	}
 
-	public void setAngle1Model(IScanModelWrapper<IScanPointGeneratorModel> angle1Model) {
+	public void setAngle1Model(IScanModelWrapper<IAxialModel> angle1Model) {
 		this.angle1Model = angle1Model;
 	}
 
-	public IScanModelWrapper<IScanPointGeneratorModel> getAngle2Model() {
+	public IScanModelWrapper<IAxialModel> getAngle2Model() {
 		return angle2Model;
 	}
 
-	public void setAngle2Model(IScanModelWrapper<IScanPointGeneratorModel> angle2Model) {
+	public void setAngle2Model(IScanModelWrapper<IAxialModel> angle2Model) {
 		this.angle2Model = angle2Model;
 	}
 

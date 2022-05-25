@@ -45,7 +45,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -81,7 +81,7 @@ public class OuterScannablesBlock {
 		 * Also note that this list is not live.
 		 * @param scannables new list of {@link IScanModelWrapper}s for the outer scannables
 		 */
-		void scannablesChanged(List<IScanModelWrapper<IScanPointGeneratorModel>> scannables);
+		void scannablesChanged(List<IScanModelWrapper<IAxialModel>> scannables);
 	}
 
 	@FunctionalInterface
@@ -117,7 +117,7 @@ public class OuterScannablesBlock {
 	/**
 	 * The outer scannables shown.
 	 */
-	private List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = new ArrayList<>();
+	private List<IScanModelWrapper<IAxialModel>> outerScannables = new ArrayList<>();
 
 	/**
 	 * Names of the scannables that the user can choose
@@ -151,7 +151,7 @@ public class OuterScannablesBlock {
 	 * clients should add a {@link ScannablesChangedListener} and call
 	 * @param outerScannables
 	 */
-	public void setOuterScannables(List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
+	public void setOuterScannables(List<IScanModelWrapper<IAxialModel>> outerScannables) {
 		this.outerScannables = new ArrayList<>(outerScannables);
 	}
 
@@ -159,7 +159,7 @@ public class OuterScannablesBlock {
 		this.availableScannableNames = availableScannableNames;
 	}
 
-	public List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
+	public List<IScanModelWrapper<IAxialModel>> getOuterScannables() {
 		return this.outerScannables;
 	}
 
@@ -190,7 +190,7 @@ public class OuterScannablesBlock {
 		disposeScanPathEditors();
 
 		// Ensure scannables are shown in alphabetical order (case insensitive)
-		outerScannables.sort(comparing(IScanModelWrapper<IScanPointGeneratorModel>::getName, CASE_INSENSITIVE_ORDER));
+		outerScannables.sort(comparing(IScanModelWrapper::getName, CASE_INSENSITIVE_ORDER));
 
 		if (scannablesComposite != null) {
 			scannablesComposite.dispose();
@@ -203,7 +203,7 @@ public class OuterScannablesBlock {
 		GridLayoutFactory.swtDefaults().numColumns(4).margins(0, 0).applyTo(scannablesComposite);
 
 		// Create a control for each scannable to be shown
-		for (IScanModelWrapper<IScanPointGeneratorModel> scannableAxisParameters : outerScannables) {
+		for (IScanModelWrapper<IAxialModel> scannableAxisParameters : outerScannables) {
 			final String scannableName = scannableAxisParameters.getName();
 
 			// Create checkbox and bind to "includeInScan" in the model
@@ -260,7 +260,7 @@ public class OuterScannablesBlock {
 		}
 	}
 
-	private void deleteScannable(IScanModelWrapper<IScanPointGeneratorModel> scannable) {
+	private void deleteScannable(IScanModelWrapper<IAxialModel> scannable) {
 		if (MessageDialog.openQuestion(getShell(), "Confirm deletion", String.format("Do you want to delete %s?", scannable.getName()))) {
 			outerScannables.remove(scannable);
 			updateControls();
@@ -270,7 +270,7 @@ public class OuterScannablesBlock {
 	private void addScannables() {
 		// Get the scannables to show in the dialog: exclude the scannables that are already shown.
 		final Set<String> scannablesShownNames = outerScannables.stream()
-				.map(IScanModelWrapper<IScanPointGeneratorModel>::getName)
+				.map(IScanModelWrapper::getName)
 				.collect(toSet());
 
 		final List<String> scannablesToChooseNames = availableScannableNames.stream()
@@ -312,7 +312,7 @@ public class OuterScannablesBlock {
 	 *            name of the scannable
 	 * @return optional wrapper for the scannable
 	 */
-	private Optional<IScanModelWrapper<IScanPointGeneratorModel>> getScannableWrapper(String scannableName) {
+	private Optional<IScanModelWrapper<IAxialModel>> getScannableWrapper(String scannableName) {
 		return outerScannables.stream()
 				.filter(item -> item.getName().equals(scannableName))
 				.findFirst();
@@ -336,14 +336,14 @@ public class OuterScannablesBlock {
 	 * @param includeInScan
 	 */
 	private void addScannableInternal(String scannableName, boolean includeInScan) {
-		final Optional<IScanModelWrapper<IScanPointGeneratorModel>> optWrapper = getScannableWrapper(scannableName);
+		final Optional<IScanModelWrapper<IAxialModel>> optWrapper = getScannableWrapper(scannableName);
 		if (optWrapper.isPresent()) {
 			optWrapper.get().setIncludeInScan(includeInScan);
 			return;
 		}
 
 		if (availableScannableNames.contains(scannableName)) {
-			outerScannables.add(new ScanPathModelWrapper(scannableName, null, includeInScan));
+			outerScannables.add(new ScanPathModelWrapper<>(scannableName, null, includeInScan));
 		} else {
 			final String message = String.format("Cannot add %s as outer scannable: not one of the permitted scannables", scannableName);
 			final Status status = new Status(IStatus.WARNING, "uk.ac.diamond.daq.mapping.ui", "Scannable configuration");

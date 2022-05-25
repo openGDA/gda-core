@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.mapping.ui.tomo;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
@@ -70,7 +70,7 @@ class TomoPathSection extends AbstractTomoViewSection {
 	}
 
 	private ScanPathEditor createScanPathEditor(final Composite parent, String axisLabel,
-			final IScanModelWrapper<IScanPointGeneratorModel> angleParams) {
+			final IScanModelWrapper<IAxialModel> angleParams) {
 		final Label label = new Label(parent, SWT.NONE);
 		label.setText(axisLabel);
 

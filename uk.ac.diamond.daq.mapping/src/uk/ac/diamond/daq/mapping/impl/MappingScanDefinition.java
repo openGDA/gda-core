@@ -21,7 +21,7 @@ package uk.ac.diamond.daq.mapping.impl;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegion;
 import uk.ac.diamond.daq.mapping.api.IScanDefinition;
@@ -30,7 +30,7 @@ import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 public class MappingScanDefinition implements IScanDefinition {
 
 	private IMappingScanRegion mappingScanRegion;
-	private List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables;
+	private List<IScanModelWrapper<IAxialModel>> outerScannables;
 	private List<String> permittedOuterScannables;
 	private List<String> defaultOuterScannables;
 
@@ -52,12 +52,12 @@ public class MappingScanDefinition implements IScanDefinition {
 	}
 
 	@Override
-	public List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
+	public List<IScanModelWrapper<IAxialModel>> getOuterScannables() {
 		return outerScannables;
 	}
 
 	@Override
-	public void setOuterScannables(List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables) {
+	public void setOuterScannables(List<IScanModelWrapper<IAxialModel>> outerScannables) {
 		if (outerScannables == null) {
 			throw new NullPointerException();
 		}

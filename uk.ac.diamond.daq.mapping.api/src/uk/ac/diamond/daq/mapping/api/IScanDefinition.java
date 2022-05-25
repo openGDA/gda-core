@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.mapping.api;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 
 public interface IScanDefinition {
 
@@ -47,7 +47,7 @@ public interface IScanDefinition {
 	 *
 	 * @return outerScannables the outer scannables
 	 */
-	List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables();
+	List<IScanModelWrapper<IAxialModel>> getOuterScannables();
 
 	/**
 	 * Sets the list of outer scannables including their parameters for use outside the mapping scan. e.g change
@@ -59,7 +59,7 @@ public interface IScanDefinition {
 	 *
 	 * @param outerScannables
 	 */
-	void setOuterScannables(List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables);
+	void setOuterScannables(List<IScanModelWrapper<IAxialModel>> outerScannables);
 
 	/**
 	 * Gets the list of beamline scannables that the user may choose as outer scannables

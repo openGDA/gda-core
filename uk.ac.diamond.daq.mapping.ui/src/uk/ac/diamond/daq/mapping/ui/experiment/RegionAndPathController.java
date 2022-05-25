@@ -49,6 +49,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.widgets.Display;
@@ -566,14 +567,14 @@ public class RegionAndPathController extends AbstractMappingController {
 				scanPointsCalculator);
 	}
 
-	private List<IScanPointGeneratorModel> getOuterScannables() {
+	private List<IAxialModel> getOuterScannables() {
 		IMappingExperimentBean mappingBean = getMappingBean();
 		return mappingBean
 				.getScanDefinition()
 				.getOuterScannables()
 				.stream()
-				.filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan)
-				.map(IScanModelWrapper<IScanPointGeneratorModel>::getModel)
+				.filter(IScanModelWrapper::isIncludeInScan)
+				.map(IScanModelWrapper::getModel)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}

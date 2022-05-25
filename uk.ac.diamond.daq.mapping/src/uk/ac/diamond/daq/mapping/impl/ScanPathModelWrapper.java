@@ -24,13 +24,13 @@ import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 /**
  * A wrapper for an {@link IScanPathModel} for use in the mapping UI
  */
-public class ScanPathModelWrapper extends ScanModelWrapper<IScanPointGeneratorModel> {
+public class ScanPathModelWrapper<T extends IScanPointGeneratorModel> extends ScanModelWrapper<T> {
 
 	public ScanPathModelWrapper() {
 		// no-arg constructor for json deserialization
 	}
 
-	public ScanPathModelWrapper(String name, IScanPointGeneratorModel model, boolean includeInScan) {
+	public ScanPathModelWrapper(String name, T model, boolean includeInScan) {
 		super(name, model, includeInScan);
 	}
 

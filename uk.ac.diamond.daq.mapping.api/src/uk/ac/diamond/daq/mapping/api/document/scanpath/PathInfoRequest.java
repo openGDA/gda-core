@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -57,7 +58,7 @@ public class PathInfoRequest {
 	 * A list of models describing outer scan paths into which to
 	 * project the mapping scan (can be empty)
 	 */
-	private final List<IScanPointGeneratorModel> outerScannables;
+	private final List<IAxialModel> outerScannables;
 
 	/**
 	 * The maximum number of points to be generated inside a
@@ -70,7 +71,7 @@ public class PathInfoRequest {
 			String sourceId,
 			IScanPointGeneratorModel scanPathModel,
 			IROI scanRegion,
-			List<IScanPointGeneratorModel> outerScannables,
+			List<IAxialModel> outerScannables,
 			int maxPoints) {
 		super();
 		this.eventId = eventId;
@@ -97,7 +98,7 @@ public class PathInfoRequest {
 		return scanRegion;
 	}
 
-	public List<IScanPointGeneratorModel> getOuterScannables() {
+	public List<IAxialModel> getOuterScannables() {
 		return outerScannables;
 	}
 
@@ -170,7 +171,7 @@ public class PathInfoRequest {
 		private String sourceId;
 		private IScanPointGeneratorModel scanPathModel;
 		private IROI scanRegion;
-		private List<IScanPointGeneratorModel> outerScannables;
+		private List<IAxialModel> outerScannables;
 		private Integer maxPoints;
 
 		public Builder withEventId(UUID eventId) {
@@ -192,8 +193,7 @@ public class PathInfoRequest {
 			return this;
 		}
 
-		public Builder withOuterScannables(
-				List<IScanPointGeneratorModel> outerScannables) {
+		public Builder withOuterScannables(List<IAxialModel> outerScannables) {
 			this.outerScannables = outerScannables;
 			return this;
 		}

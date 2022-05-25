@@ -46,6 +46,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.event.status.OpenRequest;
 import org.eclipse.scanning.api.event.status.StatusBean;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -222,8 +223,8 @@ public class MappingExperimentView extends AbstractSectionView<IMappingExperimen
 				if (defaultOuterScannables.isEmpty()) {
 					return;
 				}
-				final List<IScanModelWrapper<IScanPointGeneratorModel>> scanModels = defaultOuterScannables.stream()
-						.map(scannable -> new ScanPathModelWrapper(scannable, null, false))
+				final List<IScanModelWrapper<IAxialModel>> scanModels = defaultOuterScannables.stream()
+						.map(scannable -> new ScanPathModelWrapper<IAxialModel>(scannable, null, false))
 						.collect(Collectors.toList());
 				scanDefinition.setOuterScannables(scanModels);
 			}

@@ -54,7 +54,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.api.scan.models.ScanMetadata;
@@ -229,9 +229,9 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 
 		mapRegionOntoModel(tomoBean.getGridRegionModel(), tomoBean.getGridPathModel());
 
-		final IScanModelWrapper<IScanPointGeneratorModel> angle1 = tomoBean.getAngle1Model();
+		final IScanModelWrapper<IAxialModel> angle1 = tomoBean.getAngle1Model();
 		if (angle1.getModel() == null) angle1.setModel(new AxialStepModel(angle1.getName(), 0.0, 180.0, 10.0)); // TODO check defaults
-		final IScanModelWrapper<IScanPointGeneratorModel> angle2 = tomoBean.getAngle2Model();
+		final IScanModelWrapper<IAxialModel> angle2 = tomoBean.getAngle2Model();
 		if (angle2.getModel() == null) angle2.setModel(new AxialStepModel(angle2.getName(), 0.0, 90.0, 10.0));
 	}
 

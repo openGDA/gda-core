@@ -49,6 +49,7 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
+import org.eclipse.scanning.api.points.models.IAxialModel;
 import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
@@ -126,8 +127,8 @@ public class ScanRequestConverter {
 		// Build the list of models for the scan
 		// first get the models for any outer scannables to be included
 		final List<IScanPointGeneratorModel> models = mappingBean.getScanDefinition().getOuterScannables().stream().
-			filter(IScanModelWrapper<IScanPointGeneratorModel>::isIncludeInScan).
-			map(IScanModelWrapper<IScanPointGeneratorModel>::getModel).
+			filter(IScanModelWrapper<IAxialModel>::isIncludeInScan).
+			map(IScanModelWrapper<IAxialModel>::getModel).
 			filter(Objects::nonNull).
 			collect(toCollection(ArrayList::new)); // use array list as we're going to add an element
 
@@ -470,32 +471,33 @@ public class ScanRequestConverter {
 	}
 
 	private void mergeOuterScannables(CompoundModel compoundModel, IMappingExperimentBean mappingBean) {
-		final List<IScanModelWrapper<IScanPointGeneratorModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
-		final List<IScanPointGeneratorModel> models = compoundModel.getModels();
-		final List<IScanPointGeneratorModel> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
+		final List<IScanModelWrapper<IAxialModel>> outerScannables = mappingBean.getScanDefinition().getOuterScannables();
+		@SuppressWarnings("unchecked")
+		final List<IAxialModel> models = (List<IAxialModel>) (List<?>) compoundModel.getModels();
+		final List<IAxialModel> outerScannableModels = new ArrayList<>(models.subList(0, models.size() - 1));
 
 		// We assume that models have the same name as the wrapper
-		final Iterator<IScanPointGeneratorModel> modelIter = outerScannableModels.iterator();
-		IScanPointGeneratorModel currentModel =  modelIter.hasNext() ? modelIter.next() : null;
+		final Iterator<IAxialModel> modelIter = outerScannableModels.iterator();
+		IAxialModel currentModel =  modelIter.hasNext() ? modelIter.next() : null;
 		// iterate through the list of outer scannable wrappers to find the wrapper for the
 		// current model. If we find a match, then we move on to the next model
-		for (IScanModelWrapper<IScanPointGeneratorModel> outerScannable : outerScannables) {
+		for (IScanModelWrapper<IAxialModel> outerScannable : outerScannables) {
 			if (currentModel == null || !outerScannable.getName().equals(currentModel.getName())) {
 				// this outer scannable wrapper isn't in the scan request
-				((ScanPathModelWrapper) outerScannable).setIncludeInScan(false);
+				outerScannable.setIncludeInScan(false);
 			} else {
 				// this is the wrapper for this model, set it enabled and overwrite its model
 				// with the outer scannable model
-				((ScanPathModelWrapper) outerScannable).setIncludeInScan(true);
-				((ScanPathModelWrapper) outerScannable).setModel(currentModel);
+				outerScannable.setIncludeInScan(true);
+				outerScannable.setModel(currentModel);
 				currentModel = modelIter.hasNext() ? modelIter.next() : null;
 			}
 		}
 
 		// We didn't find a wrapper for this model; let's create one
 		if (currentModel != null) {
-			IScanModelWrapper<IScanPointGeneratorModel> wrapper = new ScanPathModelWrapper(currentModel.getName(), currentModel, true);
-			List<IScanModelWrapper<IScanPointGeneratorModel>> updatedOuterScannables = new ArrayList<>(outerScannables);
+			IScanModelWrapper<IAxialModel> wrapper = new ScanPathModelWrapper<>(currentModel.getName(), currentModel, true);
+			List<IScanModelWrapper<IAxialModel>> updatedOuterScannables = new ArrayList<>(outerScannables);
 			updatedOuterScannables.add(wrapper);
 			mappingBean.getScanDefinition().setOuterScannables(updatedOuterScannables);
 		}
@@ -510,7 +512,7 @@ public class ScanRequestConverter {
 		} else {
 			detectorModelWrappers = new HashMap<>(mappingBean.getDetectorParameters().size());
 			for (IScanModelWrapper<IDetectorModel> detectorModelWrapper : mappingBean.getDetectorParameters()) {
-				((DetectorModelWrapper) detectorModelWrapper).setIncludeInScan(false);
+				((DetectorModelWrapper<?>) detectorModelWrapper).setIncludeInScan(false);
 				detectorModelWrappers.put(detectorModelWrapper.getModel().getName(), detectorModelWrapper);
 			}
 		}
