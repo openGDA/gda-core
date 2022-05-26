@@ -105,4 +105,9 @@ public class AxialPointsModel extends AbstractAxialModel implements IAxialModel 
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "AxialPointsModel [start=" + start + ", stop=" + stop + ", points=" + points + "]";
+	}
+
 }
