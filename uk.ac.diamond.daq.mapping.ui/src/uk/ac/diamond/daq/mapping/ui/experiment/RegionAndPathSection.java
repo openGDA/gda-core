@@ -45,6 +45,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.scanning.api.INameable;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
@@ -81,9 +82,8 @@ public class RegionAndPathSection extends AbstractMappingSection {
 	private static final String PROPERTY_REGION_AND_PATH = "uk.ac.diamond.daq.mapping.ui.experiment.regionandpathsection.regionandpath";
 
 	private Composite regionAndPathComposite;
-	private AbstractRegionPathModelEditor<IScanPathModel> pathEditor;
-
-	private AbstractRegionPathModelEditor<IMappingScanRegionShape> regionEditor;
+	private AbstractRegionPathModelEditor<? extends IMapPathModel> pathEditor;
+	private AbstractRegionPathModelEditor<? extends IMappingScanRegionShape> regionEditor;
 	private ComboViewer regionSelector;
 	private ComboViewer pathSelector;
 	private Optional<String> selectedMalcolmDeviceName = Optional.empty();
@@ -196,7 +196,7 @@ public class RegionAndPathSection extends AbstractMappingSection {
 
 			// Get the new selection.
 			final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-			final IScanPointGeneratorModel selectedPath = (IScanPointGeneratorModel) selection.getFirstElement();
+			final IMapPathModel selectedPath = (IMapPathModel) selection.getFirstElement();
 			controller.changePath(selectedPath);
 			rebuildMappingSection();
 		});
@@ -272,7 +272,8 @@ public class RegionAndPathSection extends AbstractMappingSection {
 		if (scanPath == null) {
 			return; // We can't build a UI to edit null
 		}
-		pathEditor = PathEditorProvider.createPathComposite(scanPath, getEclipseContext());
+
+		pathEditor = (AbstractRegionPathModelEditor<? extends IMapPathModel>) PathEditorProvider.createPathComposite(scanPath, getEclipseContext());
 		pathEditor.createEditorPart(regionAndPathComposite);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).applyTo(regionAndPathComposite);
 
@@ -394,10 +395,10 @@ public class RegionAndPathSection extends AbstractMappingSection {
 			final String path = (String) regionAndPathMap.get("path");
 			if (!StringUtils.isEmpty(path)) {
 				// Get the available scan paths for the current region
-				final Map<String, IScanPointGeneratorModel> scanPathMap = controller.getScanPathListAndLinkPath().stream()
+				final Map<String, IMapPathModel> scanPathMap = controller.getScanPathListAndLinkPath().stream()
 						.collect(toMap(IScanPointGeneratorModel::getName, identity()));
 
-				final IScanPointGeneratorModel scanPath = scanPathMap.get(path);
+				final IMapPathModel scanPath = scanPathMap.get(path);
 				if (scanPath == null) {
 					throw new IllegalArgumentException("No scan path corresponding to " + path);
 				}

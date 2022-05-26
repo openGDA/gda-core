@@ -64,16 +64,17 @@ public final class PathEditorProvider {
 	/**
 	 * This generates a composite for editing the supplied path.
 	 *
-	 * @param scanPath
-	 *            The path to edit
-	 * @param bundleContext
-	 * 			  The IEclipseContext used in ContextInjectionFactory::make
+	 * @param pathModel the path to edit
+	 * @param bundleContext the IEclipseContext used in ContextInjectionFactory::make
+	 * @param <M> the model class
+	 * @param <E> the editor class
 	 * @return An editor for the requested path
 	 */
-	public static AbstractPathEditor createPathComposite(IScanPathModel scanPath, IEclipseContext bundleContext) {
-		Class<? extends AbstractPathEditor> editorClass = pathToEditor.get(scanPath.getClass());
-		AbstractPathEditor editor = ContextInjectionFactory.make(editorClass, bundleContext);
-		editor.setModel(scanPath);
+	public static <M extends IScanPathModel, E extends AbstractPathEditor> E createPathComposite(M pathModel, IEclipseContext bundleContext) {
+		@SuppressWarnings("unchecked")
+		final Class<E> editorClass = (Class<E>) pathToEditor.get(pathModel.getClass());
+		final E editor = ContextInjectionFactory.make(editorClass, bundleContext);
+		editor.setModel(pathModel);
 		return editor;
 	}
 

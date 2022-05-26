@@ -20,7 +20,7 @@ package uk.ac.diamond.daq.mapping.api;
 
 import java.util.List;
 
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 
 public interface IMappingRegionManager {
 
@@ -36,5 +36,5 @@ public interface IMappingRegionManager {
 	 */
 	public <T extends IMappingScanRegionShape> T getTemplateRegion(Class<T> regionClass);
 
-	public List<IScanPointGeneratorModel> getValidPaths(IMappingScanRegionShape scanRegion);
+	public List<IMapPathModel> getValidPaths(IMappingScanRegionShape scanRegion);
 }

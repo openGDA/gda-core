@@ -39,7 +39,6 @@ import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -149,17 +148,17 @@ public class ScanPathEditor extends Composite implements IObservable {
 		return axisText.getText();
 	}
 
-	public void setScanPathModel(IScanPointGeneratorModel model) {
+	public void setScanPathModel(IAxialModel model) {
 		axisText.setText(new ScanPathToStringConverter().convert(model));
 		observable.notifyIObservers(this, model);
 	}
 
 	private void bindScanPathModelToTextField(IScanModelWrapper<IAxialModel> scannableAxisParameters, IObservableValue<String> axisTextValue) {
 		final String scannableName = scannableAxisParameters.getName();
-		final IObservableValue<IScanPointGeneratorModel> axisValue = BeanProperties.value("model", IScanPointGeneratorModel.class).observe(scannableAxisParameters);
+		final IObservableValue<IAxialModel> axisValue = BeanProperties.value("model", IAxialModel.class).observe(scannableAxisParameters);
 
 		// create an update strategy from text to model with a converter and a validator
-		final UpdateValueStrategy<String, IScanPointGeneratorModel> axisTextToModelStrategy = new UpdateValueStrategy<>();
+		final UpdateValueStrategy<String, IAxialModel> axisTextToModelStrategy = new UpdateValueStrategy<>();
 		axisTextToModelStrategy.setConverter(new StringToScanPathConverter(scannableName));
 		axisTextToModelStrategy.setBeforeSetValidator(value -> {
 			// the value created by the converter will be an IScanPointGeneratorModel if the text value is valid, or null if not
@@ -177,7 +176,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 		});
 
 		// create an update strategy from model back to text
-		final UpdateValueStrategy<IScanPointGeneratorModel, String> modelToAxisTextStrategy = new UpdateValueStrategy<>();
+		final UpdateValueStrategy<IAxialModel, String> modelToAxisTextStrategy = new UpdateValueStrategy<>();
 		modelToAxisTextStrategy.setConverter(new ScanPathToStringConverter());
 
 		// create the binding from the values and the two update strategies
@@ -238,14 +237,14 @@ public class ScanPathEditor extends Composite implements IObservable {
 	/**
 	 * Class to convert a path model to a string
 	 */
-	private static class ScanPathToStringConverter extends Converter<IScanPointGeneratorModel, String> {
+	private static class ScanPathToStringConverter extends Converter<IAxialModel, String> {
 
 		public ScanPathToStringConverter() {
-			super(IScanPointGeneratorModel.class, String.class);
+			super(IAxialModel.class, String.class);
 		}
 
 		@Override
-		public String convert(IScanPointGeneratorModel model) {
+		public String convert(IAxialModel model) {
 			if (model == null) {
 				return ""; // this is the case when the outer scannable is not specified
 			} else if (model instanceof AxialStepModel) {
@@ -322,16 +321,16 @@ public class ScanPathEditor extends Composite implements IObservable {
 	 * <p>
 	 * If the string contains a comma, it is interpreted a sequence of points, otherwise as one or more ranges.
 	 */
-	private static final class StringToScanPathConverter extends Converter<String, IScanPointGeneratorModel> {
+	private static final class StringToScanPathConverter extends Converter<String, IAxialModel> {
 		private final String scannableName;
 
 		private StringToScanPathConverter(String scannableName) {
-			super(String.class, IScanPointGeneratorModel.class);
+			super(String.class, IAxialModel.class);
 			this.scannableName = scannableName;
 		}
 
 		@Override
-		public IScanPointGeneratorModel convert(String text) {
+		public IAxialModel convert(String text) {
 			if (text.isEmpty()) {
 				return null;
 			}
@@ -362,7 +361,7 @@ public class ScanPathEditor extends Composite implements IObservable {
 			return null;
 		}
 
-		private IScanPointGeneratorModel convertStringToMultiAxialStepModel(String text) {
+		private IAxialModel convertStringToMultiAxialStepModel(String text) {
 			final String[] stepModelStrs = text.split(";");
 
 			// If there is only one step specified, return a AxialStepModel

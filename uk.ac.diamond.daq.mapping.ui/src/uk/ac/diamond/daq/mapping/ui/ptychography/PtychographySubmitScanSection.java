@@ -27,7 +27,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.eclipse.scanning.api.script.IScriptService;
@@ -153,7 +153,7 @@ public class PtychographySubmitScanSection extends SubmitScanToScriptSection {
 	 * @return the model, or {@code null} in the (unlikely) event that none is configured in the client.
 	 */
 	private TwoAxisGridStepModel getRasterStepModel() {
-		final IScanPointGeneratorModel scanPath = getBean().getScanDefinition().getMappingScanRegion().getScanPath();
+		final IMapPathModel scanPath = getBean().getScanDefinition().getMappingScanRegion().getScanPath();
 		if (scanPath instanceof TwoAxisPtychographyModel) {
 			return (TwoAxisGridStepModel) scanPath;
 		}

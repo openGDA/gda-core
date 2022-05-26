@@ -25,7 +25,7 @@ import java.util.UUID;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.IAxialModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -47,7 +47,7 @@ public class PathInfoRequest {
 	/**
 	 * The model the path of the scan points
 	 */
-	private final IScanPointGeneratorModel scanPathModel;
+	private final IMapPathModel scanPathModel;
 
 	/**
 	 * The model describing the region of interest for the scan
@@ -69,7 +69,7 @@ public class PathInfoRequest {
 	public PathInfoRequest(
 			UUID eventId,
 			String sourceId,
-			IScanPointGeneratorModel scanPathModel,
+			IMapPathModel scanPathModel,
 			IROI scanRegion,
 			List<IAxialModel> outerScannables,
 			int maxPoints) {
@@ -90,7 +90,7 @@ public class PathInfoRequest {
 		return sourceId;
 	}
 
-	public IScanPointGeneratorModel getScanPathModel() {
+	public IMapPathModel getScanPathModel() {
 		return scanPathModel;
 	}
 
@@ -169,7 +169,7 @@ public class PathInfoRequest {
 	public static final class Builder {
 		private UUID eventId;
 		private String sourceId;
-		private IScanPointGeneratorModel scanPathModel;
+		private IMapPathModel scanPathModel;
 		private IROI scanRegion;
 		private List<IAxialModel> outerScannables;
 		private Integer maxPoints;
@@ -183,7 +183,7 @@ public class PathInfoRequest {
 			return this;
 		}
 
-		public Builder withScanPathModel(IScanPointGeneratorModel scanPathModel) {
+		public Builder withScanPathModel(IMapPathModel scanPathModel) {
 			this.scanPathModel = scanPathModel;
 			return this;
 		}

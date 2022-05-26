@@ -44,7 +44,6 @@ import org.eclipse.scanning.api.event.core.IJobQueue;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.api.points.models.IAxialModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.script.IScriptService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -145,7 +144,7 @@ public class StandardsScanView {
 		// List of energy/edge combinations
 		final XanesEdgeCombo edgeCombo = new XanesEdgeCombo(edgeAndExposureComposite);
 		edgeCombo.addSelectionChangedListener(e -> {
-			final IScanPointGeneratorModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
+			final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeCombo.getSelectedEnergy(), energyScannableName);
 			scanPathEditor.setScanPathModel(scanPathModel);
 		});
 
