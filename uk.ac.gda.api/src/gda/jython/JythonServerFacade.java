@@ -322,6 +322,15 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		return indexNumberInJythonServer;
 	}
 
+	/**
+	 * Runs the Jython script, and changes the ScriptStatus as is goes.
+	 *
+	 * <BR><BR>Non-blocking, Interruptible, Script locked.
+	 * <BR> See {@link ICommandRunner} for the other options.
+	 *
+	 * @param scriptName to run
+	 * @return status
+	 */
 	public CommandThreadEvent runScript(String scriptName) {
 		// open up a new file
 		File file = new File(locateScript(scriptName));
@@ -469,23 +478,20 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 		}
 	}
 
-	/**
-	 * @param command to run
-	 * @return true if more is needed, false if not
-	 *
-	 * @see Jython#runsource(String, String)
-	 */
 	@Override
 	public boolean runsource(String command) {
 		return commandServer.runsource(command, name);
 	}
 
 	/**
+	 * Similar to {@link #runsource} but allows a specific InputStream to be used.
+	 *
 	 * @param command to run
 	 * @param stdin input stream to use as stdin for this command
 	 * @return true if more is needed, false if not
 	 *
 	 * @see Jython#runsource(String, String, InputStream)
+	 * @see ICommandRunner
 	 */
 	public boolean runsource(String command, InputStream stdin) {
 		return commandServer.runsource(command, name, stdin);
