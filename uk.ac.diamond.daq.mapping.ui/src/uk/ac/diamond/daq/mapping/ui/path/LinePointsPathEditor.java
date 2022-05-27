@@ -33,6 +33,7 @@ public class LinePointsPathEditor extends AbstractPathEditor {
 		new Label(composite, SWT.NONE).setText("Points");
 		Spinner points = new Spinner(composite, SWT.BORDER);
 		points.setMinimum(1);
+		points.setMaximum(Integer.MAX_VALUE);
 		grabHorizontalSpace.applyTo(points);
 		binder.bind(points, "points", getModel());
 
