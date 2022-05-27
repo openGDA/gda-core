@@ -22,7 +22,6 @@ import static uk.ac.gda.ui.tool.ClientMessages.AT_END;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_END_TOOLTIP;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_START;
 import static uk.ac.gda.ui.tool.ClientMessages.AT_START_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
 import static uk.ac.gda.ui.tool.ClientMessages.DARK_EXPOSURE_TP;
 import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
 import static uk.ac.gda.ui.tool.ClientMessages.FLAT_EXPOSURE_TP;
@@ -36,30 +35,20 @@ import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 import static uk.ac.gda.ui.tool.GUIComponents.checkComponent;
 import static uk.ac.gda.ui.tool.GUIComponents.doublePositiveContent;
 import static uk.ac.gda.ui.tool.GUIComponents.integerPositiveContent;
-import static uk.ac.gda.ui.tool.WidgetUtilities.addWidgetDisposableListener;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.ArrayList;
 
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
-import uk.ac.gda.api.acquisition.configuration.calibration.DarkCalibrationDocument;
-import uk.ac.gda.api.acquisition.configuration.calibration.FlatCalibrationDocument;
-import uk.ac.gda.api.acquisition.parameters.DetectorDocument;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
@@ -71,8 +60,6 @@ import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
  */
 public class DarkFlatCompositeFactory implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(DarkFlatCompositeFactory.class);
-
 	/** The Calibration Composite elements **/
 	private Text numberDark;
 	private Text darkExposure;
@@ -81,45 +68,24 @@ public class DarkFlatCompositeFactory implements CompositeFactory, Reloadable {
 	private Button beforeAcquisition;
 	private Button afterAcquisition;
 
-	private ImageCalibrationHelper imageCalibrationHelper;
 	private Composite composite;
 
-	public DarkFlatCompositeFactory() {
-		try {
-			this.imageCalibrationHelper = new ImageCalibrationHelper(this::getScanningConfiguration);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning("Tomography cannot be instantiated normally", e);
-		}
-	}
+	private DataBindingContext bindingContext = new DataBindingContext();
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		composite = createClientGroup(parent, SWT.NONE, 2, IMAGE_CALIBRATION);
 		createClientGridDataFactory().applyTo(composite);
-
-		logger.debug("Creating {}", this);
-		try {
-			createElements(composite, SWT.NONE, SWT.BORDER);
-			bindElements();
-			initialiseElements();
-			addWidgetsListener();
-			logger.debug("Created {}", this);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
+		createElements(composite, SWT.NONE, SWT.BORDER);
+		bindElements();
 		return composite;
 	}
 
 	@Override
 	public void reload() {
-		if (composite.isDisposed()) return;
-		try {
-			bindElements();
-			initialiseElements();
-			composite.getShell().layout(true, true);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
+		if (composite == null || composite.isDisposed()) return;
+		removeOldBindings();
+		bindElements();
 	}
 
 	private void createElements(Composite parent, int labelStyle, int textStyle) {
@@ -139,109 +105,54 @@ public class DarkFlatCompositeFactory implements CompositeFactory, Reloadable {
 				AT_END, AT_END_TOOLTIP);
 	}
 
-	private void setNumberFlat(Widget widget) {
-		Optional.ofNullable(widget)
-			.map(Text.class::cast)
-			.map(Text::getText)
-			.map(Integer::parseInt)
-			.ifPresent(imageCalibrationHelper::updateFlatNumberExposures);
-	}
-
-	private void setNumberDark(Widget widget) {
-		Optional.ofNullable(widget)
-		.map(Text.class::cast)
-		.map(Text::getText)
-		.map(Integer::parseInt)
-		.ifPresent(imageCalibrationHelper::updateDarkNumberExposures);
+	private void removeOldBindings() {
+		new ArrayList<>(bindingContext.getBindings()).forEach(binding -> {
+			bindingContext.removeBinding(binding);
+			binding.dispose();
+		});
 	}
 
 	private void bindElements() {
-		// Nothing to do
-	}
 
-	private void initialiseElements() {
-		ScanningConfiguration configuration = getAcquisitionConfiguration();
+		/* projections */
 
+		var imageCalibration = getScanningConfiguration().getImageCalibration();
+		var flatsModel = imageCalibration.getFlatCalibration();
+		var darksModel = imageCalibration.getDarkCalibration();
 
-		var ic = configuration.getImageCalibration();
-		Optional.ofNullable(ic.getDarkCalibration())
-			.ifPresent(this::initializeDarkCalibration);
+		var flatProjectionsUi = WidgetProperties.text(SWT.Modify).observe(numberFlat);
+		var flatProjectionsModel = PojoProperties.value("numberExposures", Integer.class).observe(flatsModel);
+		bindingContext.bindValue(flatProjectionsUi, flatProjectionsModel);
 
-		Optional.ofNullable(ic.getFlatCalibration())
-			.ifPresent(this::initializeFlatCalibration);
-	}
+		var darkProjectionsUi = WidgetProperties.text(SWT.Modify).observe(numberDark);
+		var darkProjectionsModel = PojoProperties.value("numberExposures", Integer.class).observe(darksModel);
+		bindingContext.bindValue(darkProjectionsUi, darkProjectionsModel);
 
-	private void initializeDarkCalibration(DarkCalibrationDocument darkCalibrationDocument) {
-		int exposures = Optional.ofNullable(darkCalibrationDocument.getNumberExposures())
-				.orElse(0);
-		numberDark.setText(Integer.toString(exposures));
+		/* exposure */
 
-		double exposure = Optional.ofNullable(darkCalibrationDocument.getDetectorDocument())
-				.map(DetectorDocument::getExposure)
-				.orElse(0d);
-		darkExposure.setText(Double.toString(exposure));
+		var flatDetector = flatsModel.getDetectorDocument();
+		var flatExposureUi = WidgetProperties.text(SWT.Modify).observe(flatExposure);
+		var flatExposureModel = PojoProperties.value("exposure", Double.class).observe(flatDetector);
+		bindingContext.bindValue(flatExposureUi, flatExposureModel);
 
+		var darkDetector = darksModel.getDetectorDocument();
+		var darkExposureUi = WidgetProperties.text(SWT.Modify).observe(darkExposure);
+		var darkExposureModel = PojoProperties.value("exposure", Double.class).observe(darkDetector);
+		bindingContext.bindValue(darkExposureUi, darkExposureModel);
 
-		// For the moment dark and flat have the same boolean values
-		boolean selected = Optional.ofNullable(darkCalibrationDocument.isBeforeAcquisition())
-				.orElse(false);
-		beforeAcquisition.setSelection(selected);
+		/* before/after scan */
 
-		// For the moment dark and flat have the same boolean values
-		selected = Optional.ofNullable(darkCalibrationDocument.isAfterAcquisition())
-				.orElse(false);
-		afterAcquisition.setSelection(selected);
+		var beforeScanUi = WidgetProperties.buttonSelection().observe(beforeAcquisition);
+		var beforeScanFlatsModel = PojoProperties.value("beforeAcquisition", Boolean.class).observe(flatsModel);
+		var beforeScanDarksModel = PojoProperties.value("beforeAcquisition", Boolean.class).observe(darksModel);
+		bindingContext.bindValue(beforeScanUi, beforeScanFlatsModel);
+		bindingContext.bindValue(beforeScanUi, beforeScanDarksModel);
 
-		forceFocusOnEmpty(numberDark, Integer.toString(exposures));
-	}
-
-	private void initializeFlatCalibration(FlatCalibrationDocument flatCalibrationDocument) {
-		int exposures = Optional.ofNullable(flatCalibrationDocument.getNumberExposures())
-				.orElse(0);
-		numberFlat.setText(Integer.toString(exposures));
-
-		double exposure = Optional.ofNullable(flatCalibrationDocument.getDetectorDocument())
-			.map(DetectorDocument::getExposure)
-			.orElse(0d);
-		flatExposure.setText(Double.toString(exposure));
-
-		forceFocusOnEmpty(numberFlat, Integer.toString(exposures));
-	}
-
-	private void forceFocusOnEmpty(Text text, String defaultValue) {
-		text.addFocusListener(FocusListener.focusLostAdapter(c -> {
-			if (text.getText().trim().isEmpty()) {
-				text.setText(defaultValue);
-			}
-		}));
-	}
-
-	private void beforeAcquisitionListener(SelectionEvent event) {
-		if (!event.getSource().equals(beforeAcquisition))
-			return;
-		imageCalibrationHelper.updateDarkBeforeAcquisitionExposures(beforeAcquisition.getSelection());
-		imageCalibrationHelper.updateFlatBeforeAcquisitionExposures(beforeAcquisition.getSelection());
-	}
-
-	private void afterAcquisitionListener(SelectionEvent event) {
-		if (!event.getSource().equals(afterAcquisition))
-			return;
-		imageCalibrationHelper.updateDarkAfterAcquisitionExposures(afterAcquisition.getSelection());
-		imageCalibrationHelper.updateFlatAfterAcquisitionExposures(afterAcquisition.getSelection());
-	}
-
-	private  void addWidgetsListener() {
-		// Calibration fields
-		addWidgetDisposableListener(beforeAcquisition, SelectionListener.widgetSelectedAdapter(this::beforeAcquisitionListener));
-		addWidgetDisposableListener(afterAcquisition, SelectionListener.widgetSelectedAdapter(this::afterAcquisitionListener));
-		addWidgetDisposableListener(numberDark, SWT.Modify, event -> setNumberDark(event.widget));
-		addWidgetDisposableListener(numberFlat, SWT.Modify, event -> setNumberFlat(event.widget));
-	}
-
-	private ScanningConfiguration getAcquisitionConfiguration() {
-		return getScanningAcquisitionTemporaryHelper()
-			.getAcquisitionConfiguration()
-			.orElseThrow();
+		var afterScanUi = WidgetProperties.buttonSelection().observe(afterAcquisition);
+		var afterScanFlatsModel = PojoProperties.value("afterAcquisition", Boolean.class).observe(flatsModel);
+		var afterScanDarksModel = PojoProperties.value("afterAcquisition", Boolean.class).observe(darksModel);
+		bindingContext.bindValue(afterScanUi, afterScanFlatsModel);
+		bindingContext.bindValue(afterScanUi, afterScanDarksModel);
 	}
 
 	private ScanningConfiguration getScanningConfiguration() {
