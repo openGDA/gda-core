@@ -523,10 +523,12 @@ public class StatusQueueView extends EventConnectionView {
 
 	private void suspendQueueActionUpdate(QueueStatus status) {
 		final boolean queueSuspended = (status == QueueStatus.PAUSED);
+		final Color colour = getDisplay().getSystemColor(queueSuspended ? SWT.COLOR_GRAY : SWT.COLOR_BLACK);
 		suspendQueueAction.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
 		suspendQueueAction.setText(queueSuspended ? UNSUSPEND_QUEUE_TOOLTIP : SUSPEND_QUEUE_TOOLTIP);
 		suspendQueueAction.setChecked(queueSuspended);
-		suspendQueueViewUpdate(queueSuspended);
+		// Grey out the table viewer when the queue is suspended
+		viewer.getControl().setForeground(colour);
 	}
 
 	private Action suspendQueueActionCreate() {
@@ -539,14 +541,12 @@ public class StatusQueueView extends EventConnectionView {
 		};
 		action.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
 		action.setChecked(queueSuspended);
-		suspendQueueViewUpdate(queueSuspended);
 
 		jobQueueProxy.addQueueStatusListener(this::suspendQueueActionUpdate);
 		return action;
 	}
 
 	private void suspendQueueActionRun(IAction suspendQueue) {
-		// The button can get out of sync if two clients are used.
 		final boolean queueSuspended = jobQueueProxy.isPaused();
 		suspendQueue.setChecked(!queueSuspended); // We are toggling it.
 		suspendQueue.setText(!queueSuspended ? UNSUSPEND_QUEUE_TOOLTIP : SUSPEND_QUEUE_TOOLTIP);
@@ -564,23 +564,6 @@ public class StatusQueueView extends EventConnectionView {
 				new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage()));
 		}
 		suspendQueueActionUpdate(jobQueueProxy.getQueueStatus());
-		suspendQueueViewUpdate(jobQueueProxy.isPaused());
-	}
-
-	private void suspendQueueViewUpdate(boolean suspended) {
-		String name;
-		Color colour;
-
-		if(suspended) {
-			name = "Queue - suspended";
-			colour = getDisplay().getSystemColor(SWT.COLOR_GRAY);
-		} else {
-			name = "Queue";
-			colour = getDisplay().getSystemColor(SWT.COLOR_BLACK);
-		}
-
-		setPartName(name);
-		viewer.getControl().setForeground(colour);
 	}
 
 	private void pauseActionUpdate(boolean activeScanSelected, boolean activeScanPaused) {
