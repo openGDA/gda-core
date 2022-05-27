@@ -43,15 +43,15 @@ public class FlatCalibrationDocument {
 	/**
 	 * The number of flat exposures to take
 	 */
-	private final int numberExposures;
+	private int numberExposures;
 	/**
 	 * Defines if the flat exposure(s) are made before the acquisition
 	 */
-	private final boolean beforeAcquisition;
+	private boolean beforeAcquisition;
 	/**
 	 * Defines if the flat exposure(s) are made after the acquisition
 	 */
-	private final boolean afterAcquisition;
+	private boolean afterAcquisition;
 
 	private FlatCalibrationDocument(DetectorDocument detectorDocument, int numberExposures, boolean beforeAcquisition,
 			boolean afterAcquisition, Set<DevicePositionDocument> position) {
@@ -70,12 +70,24 @@ public class FlatCalibrationDocument {
 		return numberExposures;
 	}
 
+	public void setNumberExposures(int numberExposures) {
+		this.numberExposures = numberExposures;
+	}
+
 	public boolean isBeforeAcquisition() {
 		return beforeAcquisition;
 	}
 
+	public void setBeforeAcquisition(boolean beforeAcquisition) {
+		this.beforeAcquisition = beforeAcquisition;
+	}
+
 	public boolean isAfterAcquisition() {
 		return afterAcquisition;
+	}
+
+	public void setAfterAcquisition(boolean afterAcquisition) {
+		this.afterAcquisition = afterAcquisition;
 	}
 
 	public Set<DevicePositionDocument> getPosition() {
