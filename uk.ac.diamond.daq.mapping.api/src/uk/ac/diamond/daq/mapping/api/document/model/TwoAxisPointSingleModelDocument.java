@@ -18,16 +18,12 @@
 
 package uk.ac.diamond.daq.mapping.api.document.model;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.springframework.util.Assert;
 
-import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
@@ -42,21 +38,28 @@ public class TwoAxisPointSingleModelDocument implements AcquisitionTemplate {
 
 	private final ScanpathDocument scanpathDocument;
 
-	private IScanPointGeneratorModel pathModel;
-	private IROI roi;
-
 	TwoAxisPointSingleModelDocument(ScanpathDocument scanpathDocument) {
 		this.scanpathDocument = scanpathDocument;
 	}
 
 	@Override
 	public IScanPointGeneratorModel getIScanPointGeneratorModel() {
-		return Optional.ofNullable(pathModel).orElseGet(createPathModel);
+		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
+		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
+
+		TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
+		model.setX(scannableOne.getStart());
+		model.setxAxisName(scannableOne.getScannable());
+		model.setY(scannableTwo.getStart());
+		model.setyAxisName(scannableTwo.getScannable());
+		return model;
 	}
 
 	@Override
 	public IROI getROI() {
-		return Optional.ofNullable(roi).orElseGet(createROI);
+		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
+		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
+		return new PointROI(scannableOne.getStart(), scannableTwo.getStart());
 	}
 
 	@Override
@@ -70,41 +73,13 @@ public class TwoAxisPointSingleModelDocument implements AcquisitionTemplate {
 
 	private void executeValidation() {
 		// Has to define two axes
-		Assert.isTrue(getScanpathDocument().getScannableTrackDocuments().size() == 2);
+		Assert.isTrue(getScanpathDocument().getScannableTrackDocuments().size() == 2, "Two dimensions required");
 		ScannableTrackDocument std1 = getScanpathDocument().getScannableTrackDocuments().get(0);
 		ScannableTrackDocument std2 = getScanpathDocument().getScannableTrackDocuments().get(1);
-		// Each axis need to have start equal stop (is a point on each line)
-		Assert.isTrue(std1.getStart() == std1.getStop());
-		Assert.isTrue(std2.getStart() == std2.getStop());
 
 		// Different axes
-		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()));
-
-		// Ignores any other property
+		Assert.isTrue(!std1.getScannable().equals(std2.getScannable()), "Each dimension needs a different axis");
 	}
-
-	private Supplier<IScanPointGeneratorModel> createPathModel = () -> {
-		// Temporary trick to support line until a multi dimentional approach is defined
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
-
-		TwoAxisPointSingleModel model = new TwoAxisPointSingleModel();
-		model.setX(scannableOne.getStart());
-		model.setxAxisName(scannableOne.getScannable());
-		model.setY(scannableTwo.getStart());
-		model.setyAxisName(scannableTwo.getScannable());
-		model.setAlternating(getScanpathDocument().getMutators().containsKey(Mutator.ALTERNATING));
-		model.setContinuous(getScanpathDocument().getMutators().containsKey(Mutator.CONTINUOUS));
-		return model;
-	};
-
-	private Supplier<IROI> createROI = () -> {
-		// Temporary trick to support line until a multi dimentional approach is defined
-		ScannableTrackDocument scannableOne = getScanpathDocument().getScannableTrackDocuments().get(0);
-		ScannableTrackDocument scannableTwo = getScanpathDocument().getScannableTrackDocuments().get(1);
-		this.roi = new PointROI(scannableOne.getStart(), scannableTwo.getStart());
-		return this.roi;
-	};
 
 	@Override
 	public ScanpathDocument getScanpathDocument() {
