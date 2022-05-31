@@ -180,7 +180,7 @@ public enum NexusMetadataUtility {
 				.orElseThrow();
 		// remove field name from local cache
 		if (userAddedFields.remove(new ImmutablePair<>(deviceName, fieldName))) {
-			// Only allow user added filed to be removed
+			// Only allow user added field to be removed
 			nxMetadataDevice.removeNode(fieldName);
 		} else {
 			InterfaceProvider.getTerminalPrinter().print("Field '" + fieldName + "' in device '" + deviceName
@@ -208,7 +208,6 @@ public enum NexusMetadataUtility {
 	 * remove all user added devices and fields
 	 */
 	public void clear() {
-		userAddedFields.stream().forEach(e -> remove(e.getLeft(), e.getRight()));
 		userAddedFields.clear();
 		userAddedNexusMetadataDevices.clear();
 		disabledMetadataDevices.clear();
