@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:complexType name="ManualBean">
+		<xsd:all>
+			<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
+			<xsd:element name="temperature" type="xsd:string" minOccurs="1"/>
+			<xsd:element name="delay" type="xsd:double" minOccurs="0"/>
+			<xsd:element name="channels" type="xsd:int" minOccurs="0"/>
+			<xsd:element name="illumination" type="xsd:double" minOccurs="0"/>
+			<xsd:element name="lightExpose" type="xsd:boolean" minOccurs="0"/>
+			<xsd:element name="frames" type="xsd:int" minOccurs="0"/>
+			<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
+			<xsd:element name="visit" type="xsd:string" minOccurs="1"/>
+		</xsd:all>
+	</xsd:complexType>
+	
+	<xsd:element name="ManualSessionBean">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="measurement" type="ManualBean" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
