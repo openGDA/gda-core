@@ -18,7 +18,10 @@
 
 package gda.device.robot;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.reflect.Array;
+import java.util.Collection;
 
 import org.python.core.PySequence;
 import org.slf4j.Logger;
@@ -27,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceException;
 import gda.device.Robot;
 import gda.device.robot.CurrentSamplePosition.CurrentSamplePositionListener;
+import gda.device.robot.RobotExternalStateCheck.InvalidExternalState;
 import gda.device.robot.RobotNX100Controller.ErrorListener;
 import gda.device.robot.RobotNX100Controller.Job;
 import gda.device.robot.RobotSampleState.SampleStateListener;
@@ -63,6 +67,8 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	private boolean stopInProgress = false;
 
 	private DoorLatchState doorLatch;
+
+	private Collection<RobotExternalStateCheck> externalChecks = emptyList();
 
 	public DoorLatchState getDoorLatch() {
 		return doorLatch;
@@ -174,12 +180,19 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	@Override
 	public void start() throws DeviceException {
+		ensureExternalStatus();
 		robotController.clearError();
 		robotController.servoOn();
 		error();
 		robotController.release();
 		error();
 		started=true;
+	}
+
+	private void ensureExternalStatus() throws InvalidExternalState {
+		for (var check: externalChecks) {
+			check.check();
+		}
 	}
 
 	@Override
@@ -208,6 +221,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	 * @throws DeviceException
 	 */
 	private void runJob(Job job) throws DeviceException {
+		ensureExternalStatus();
 		robotController.setJob(job);
 		try {
 			Thread.sleep(100);
@@ -475,4 +489,11 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 		this.sampleNumber = sampleNumber;
 	}
 
+	public Collection<RobotExternalStateCheck> getExternalChecks() {
+		return externalChecks;
+	}
+
+	public void setExternalChecks(Collection<RobotExternalStateCheck> checks) {
+		externalChecks = checks;
+	}
 }
