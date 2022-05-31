@@ -89,10 +89,10 @@ public abstract class JyUnitTestRunner {
 
 	protected static String getWorkspaceGit() {
 		Path pathFragment = Paths.get("").toAbsolutePath();
-		while (pathFragment != null && !pathFragment.getFileName().toString().equals("workspace_git")) {
+		while (pathFragment.getFileName() != null && !pathFragment.getFileName().toString().equals("workspace_git")) {
 			pathFragment = pathFragment.getParent();
 		}
-		if (pathFragment == null) {
+		if (pathFragment.getFileName() == null) {
 			throw new UncheckedIOException(new IOException("Could not find workspace_git directory"));
 		}
 		return pathFragment.toString();
