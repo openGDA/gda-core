@@ -347,7 +347,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		// See bug #335 for why this must repeat most of the code of the
 		// runCommand(String, String) method.
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
+			int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			RunCommandRunner runner = new RunCommandRunner(this, command, authorisationLevel);
 			threads.add(runner);
 			// start the thread and return immediately.
@@ -371,7 +371,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 		}
 		boolean started = false;
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
+			int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			RunScriptRunner runner = new RunScriptRunner(this, command, authorisationLevel);
 			runner.setName(scriptName);
 			threads.add(runner);
@@ -400,7 +400,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 	@Override
 	public String evaluateCommand(String command, String jsfIdentifier) {
 		try {
-			int authorisationLevel = this.batonManager.getAuthorisationLevelOf(jsfIdentifier);
+			int authorisationLevel = this.batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			EvaluateRunner runner = new EvaluateRunner(interp, command, authorisationLevel);
 			runner.setName(nameThread(command));
 			runner.start();
@@ -427,7 +427,7 @@ public class JythonServer implements LocalJython, ITerminalInputProvider, TextCo
 				return true;
 			}
 			ClientDetails client = this.batonManager.getClientInformation(jsfIdentifier);
-			int authLevel = batonManager.getAuthorisationLevelOf(jsfIdentifier);
+			int authLevel = batonManager.effectiveAuthorisationLevelOf(jsfIdentifier);
 			echoInputToServerSideTerminalObservers(">>> " + command);
 			updateIObservers(new TerminalInput(command, client.getUserID(), client.getIndex()));
 			RunSourceRunner runner = new RunSourceRunner(interp, command, authLevel, stdin);
