@@ -18,11 +18,8 @@
 
 package uk.ac.gda.api.acquisition.parameters;
 
-import static gda.TestHelpers.deserialiseDocument;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 
@@ -30,57 +27,22 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import uk.ac.gda.common.exception.GDAException;
-
 public class DevicePositionDocumentTest {
 
 	private static final String MOTOR_X = "motor_x";
-	private static final String CLOSE = "CLOSE";
 
 	@Test
-	public void deserialiseDevicePositionDocumentOnlyType() throws GDAException {
-		DevicePositionDocument document = deserialiseDocument(
-				"test/resources/DevicePositionDocumentTypeOnly.json", DevicePositionDocument.class);
-
-		assertEquals(0.0, document.getPosition(), 0);
-		assertNull(document.getDevice());
-		assertNull(document.getAxis());
-		assertNull(document.getLabelledPosition());
-		assertEquals(DevicePositionDocument.ValueType.NUMERIC, document.getValueType());
-	}
-
-	@Test(expected = GDAException.class)
-	public void deserialiseDevicePositionDocumentWrongType() throws GDAException {
-		deserialiseDocument(
-				"test/resources/DevicePositionDocumentWrongType.json", DevicePositionDocument.class);
-	}
-
-	@Test
-	public void deserialiseDevicePositionDocumentNoType() throws GDAException {
-		DevicePositionDocument document = deserialiseDocument(
-				"test/resources/DevicePositionDocumentNoType.json", DevicePositionDocument.class);
-
-		assertEquals(2.0, document.getPosition(), 0);
-		assertEquals("motor_y", document.getDevice());
-		assertEquals("Y", document.getAxis());
-		assertEquals(CLOSE, document.getLabelledPosition());
-		assertNull(document.getValueType());
-	}
-
-	@Test
-	public void serialiseDevicePositionDocumentWithPosition() throws IOException {
+	public void serialiseDevicePositionDocument() throws IOException {
 
 		DevicePositionDocument.Builder builder = new DevicePositionDocument.Builder();
 		builder.withDevice(MOTOR_X);
 		builder.withAxis("X");
 		builder.withPosition(2.0);
-		builder.withLabelledPosition(CLOSE);
 
 		String json = new ObjectMapper().writeValueAsString(builder.build());
 
 		assertThat(json, containsString("\"device\":\"motor_x\""));
 		assertThat(json, containsString("\"axis\":\"X\""));
 		assertThat(json, containsString("\"position\":2.0"));
-		assertThat(json, containsString("\"labelledPosition\":\"CLOSE\""));
 	}
 }

@@ -40,7 +40,6 @@ import gda.device.EnumPositioner;
 import gda.device.IScannableMotor;
 import gda.device.Scannable;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.client.properties.stage.services.DevicePositionDocumentService;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 import uk.ac.gda.ui.tool.spring.FinderService;
@@ -81,9 +80,7 @@ public class DevicePositionServiceTest {
 
 		DevicePositionDocument document = helper.devicePositionAsDocument("device_one", IScannableMotor.class);
 		Assert.assertEquals("device_one", document.getDevice());
-		Assert.assertEquals(2.3, document.getPosition(), 0);
-		Assert.assertEquals(ValueType.NUMERIC, document.getValueType());
-		Assert.assertNull(document.getLabelledPosition());
+		Assert.assertEquals(2.3, (double) document.getPosition(), 0);
 	}
 
 	/**
@@ -99,9 +96,7 @@ public class DevicePositionServiceTest {
 
 		DevicePositionDocument document = helper.devicePositionAsDocument("device_two", EnumPositioner.class);
 		Assert.assertEquals("device_two", document.getDevice());
-		Assert.assertEquals("CLOSE", document.getLabelledPosition());
-		Assert.assertEquals(ValueType.LABELLED, document.getValueType());
-		Assert.assertEquals(0.0, document.getPosition(), 0.0);
+		Assert.assertEquals("CLOSE", document.getPosition());
 	}
 
 	/**

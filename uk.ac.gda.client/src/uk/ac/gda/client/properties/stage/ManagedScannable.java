@@ -23,6 +23,8 @@ import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.publishE
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import uk.ac.gda.client.event.ManagedScannableEvent;
@@ -118,10 +120,10 @@ public class ManagedScannable<T> {
 		}
 
 		try {
-			if (position instanceof String) {
-				moveToEnumPosition(String.class.cast(position));
-			} else {
+			if (NumberUtils.isNumber(position.toString())) {
 				getScannable().moveTo(position);
+			} else {
+				moveToEnumPosition(position.toString());
 			}
 		} catch (DeviceException e) {
 			throw new GDAClientException("Cannot handle device", e);

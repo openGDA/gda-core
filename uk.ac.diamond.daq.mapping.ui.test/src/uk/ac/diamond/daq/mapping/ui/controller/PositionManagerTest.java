@@ -46,7 +46,6 @@ import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplateConfiguration;
 import uk.ac.gda.client.properties.mode.Modes;
@@ -316,30 +315,13 @@ public class PositionManagerTest {
 	}
 
 	private DevicePositionDocument createPosition(String deviceName, Object position) {
-		if (position instanceof String) {
-			return createPosition(deviceName, (String) position);
-		} else {
-			return createPosition(deviceName, (double) position);
-		}
-	}
-
-	private DevicePositionDocument createPosition(String deviceName, String position) {
 		return new DevicePositionDocument.Builder()
-				.withValueType(ValueType.LABELLED)
-				.withDevice(deviceName)
-				.withLabelledPosition(position).build();
-	}
-
-	private DevicePositionDocument createPosition(String deviceName, double position) {
-		return new DevicePositionDocument.Builder()
-				.withValueType(ValueType.NUMERIC)
 				.withDevice(deviceName)
 				.withPosition(position).build();
 	}
 
 	private void dummyCreateDevicePositionDocument(ScannablePropertiesValue value) {
-		var position = value.getLabelledPosition() == null ?
-				value.getPosition() : value.getLabelledPosition();
+		var position = value.getPosition();
 		var document = createPosition(value.getScannableKeys().getScannableId(), position);
 		when(stageController.createDevicePositionDocument(value)).thenReturn(document);
 	}
@@ -366,11 +348,7 @@ public class PositionManagerTest {
 	private ScannablePropertiesValue createScannablePropertiesValue(String name, Object position) {
 		var spv = new ScannablePropertiesValue();
 		spv.setScannableKeys(dummyScannableKey(name));
-		if (position instanceof String) {
-			spv.setLabelledPosition((String) position);
-		} else {
-			spv.setPosition((double) position);
-		}
+		spv.setPosition(position);
 		return spv;
 	}
 

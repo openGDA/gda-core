@@ -59,9 +59,9 @@ public class StringManagedScannableCompositeFactory implements CompositeFactory 
 	 */
 	private final Map<String, Integer> valueToLabel = new HashMap<>();
 
-	private final ManagedScannable<String> managedScanable;
+	private final ManagedScannable<Object> managedScanable;
 
-	public StringManagedScannableCompositeFactory(ManagedScannable<String> managedScanable) {
+	public StringManagedScannableCompositeFactory(ManagedScannable<Object> managedScanable) {
 		super();
 		this.managedScanable = managedScanable;
 	}
@@ -90,7 +90,7 @@ public class StringManagedScannableCompositeFactory implements CompositeFactory 
 	 * @param managedScanable
 	 * @return
 	 */
-	private List<ImmutablePair<String, String>> createImmutablePairsCollection(ManagedScannable<String> managedScanable) {
+	private List<ImmutablePair<String, String>> createImmutablePairsCollection(ManagedScannable<Object> managedScanable) {
 		List<ImmutablePair<String, String>> positions = new ArrayList<>();
 		Map<String, String> enumMap = managedScanable.getScannablePropertiesDocument().getEnumsMap();
 		var index = 0;
@@ -118,7 +118,7 @@ public class StringManagedScannableCompositeFactory implements CompositeFactory 
 		};
 	}
 
-	private ManagedScannable<String> getManagedScannable() {
+	private ManagedScannable<Object> getManagedScannable() {
 		return managedScanable;
 	}
 }

@@ -41,7 +41,6 @@ import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
-import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument.ValueType;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.api.camera.CameraControl;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
@@ -66,9 +65,8 @@ public class ScanningAcquisitionControllerRunRequestTestModeTest extends Scannin
 
 	private DevicePositionDocument createShutterOpenRequest() {
 		var builder = new DevicePositionDocument.Builder();
-		builder.withValueType(ValueType.LABELLED);
 		builder.withDevice(EH_SHUTTER);
-		builder.withLabelledPosition(Position.Open.toString());
+		builder.withPosition(Position.Open.toString());
 		return builder.build();
 	}
 

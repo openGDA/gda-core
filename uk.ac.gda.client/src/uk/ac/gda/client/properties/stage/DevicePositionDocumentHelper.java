@@ -69,31 +69,11 @@ public class DevicePositionDocumentHelper {
 		public void moveTo() throws GDAClientException {
 			ScannableProperties scannablePropertiesDocument = new ScannableProperties();
 			scannablePropertiesDocument.setScannable(positionDocument.getDevice());
-			switch (positionDocument.getValueType()) {
-				case LABELLED:
-					moveToLabelled(scannablePropertiesDocument);
-					break;
-				case NUMERIC:
-					moveToNumeric(scannablePropertiesDocument);
-					break;
-				default:
-					break;
-			}
-			ManagedScannable<String> ms = new ManagedScannable<>(scannablePropertiesDocument);
-			try {
-				ms.moveTo(positionDocument.getLabelledPosition());
-			} catch (GDAClientException e) {
-
-			}
+			moveTo(scannablePropertiesDocument);
 		}
 
-		private void moveToLabelled(ScannableProperties scannablePropertiesDocument) throws GDAClientException {
-			ManagedScannable<String> ms = new ManagedScannable<>(scannablePropertiesDocument);
-			ms.moveTo(positionDocument.getLabelledPosition());
-		}
-
-		private void moveToNumeric(ScannableProperties scannablePropertiesDocument) throws GDAClientException {
-			ManagedScannable<Double> ms = new ManagedScannable<>(scannablePropertiesDocument);
+		private void moveTo(ScannableProperties scannablePropertiesDocument) throws GDAClientException {
+			ManagedScannable<Object> ms = new ManagedScannable<>(scannablePropertiesDocument);
 			ms.moveTo(positionDocument.getPosition());
 		}
 	}

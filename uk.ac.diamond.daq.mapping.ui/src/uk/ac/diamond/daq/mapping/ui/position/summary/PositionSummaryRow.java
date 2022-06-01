@@ -192,7 +192,7 @@ class PositionSummaryRow {
 
 		private String positionReport() {
 			return getPositionDocuments().stream()
-				.map(DevicePositionDocument::toCompactString)
+				.map(DevicePositionDocument::toString)
 				.collect(Collectors.joining("\n"));
 		}
 

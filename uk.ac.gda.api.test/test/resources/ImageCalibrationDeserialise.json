@@ -4,16 +4,12 @@
 			{
 				"device": "motor_x",
 				"axis": "X",
-				"valueType": "NUMERIC",
-				"position": 2.4,
-				"labelledPosition": null
+				"position": 2.4
 			},
 			{
 				"device": "shutter_motor",
 				"axis": "shutter",
-				"valueType": "LABELLED",
-				"position": null,
-				"labelledPosition": "CLOSE"
+				"position": "CLOSE"
 			}
 		],
 		"detectorDocument": {

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
@@ -232,14 +233,9 @@ public class ScanRequestFactory {
 	}
 
 	private IPosition createPositionMap(Set<DevicePositionDocument> devicePositions) {
-		final Map<String, Object> positionMap = new HashMap<>();
-		devicePositions.forEach(p -> {
-			if (DevicePositionDocument.ValueType.LABELLED.equals(p.getValueType())) {
-				positionMap.put(p.getDevice(), p.getLabelledPosition());
-			} else if (DevicePositionDocument.ValueType.NUMERIC.equals(p.getValueType())) {
-				positionMap.put(p.getDevice(), p.getPosition());
-			}
-		});
+		var positionMap = devicePositions.stream()
+			.collect(Collectors.toMap(DevicePositionDocument::getDevice,
+									  DevicePositionDocument::getPosition));
 		return new MapPosition(positionMap);
 	}
 
