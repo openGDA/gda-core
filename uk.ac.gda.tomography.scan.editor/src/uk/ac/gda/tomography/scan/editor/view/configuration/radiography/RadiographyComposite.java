@@ -60,7 +60,7 @@ import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 public class RadiographyComposite implements NamedCompositeFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(RadiographyComposite.class);
-	private static final AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.STANDARD, AcquisitionTemplateType.STATIC_POINT);
+	private static final AcquisitionKeys key = new AcquisitionKeys(AcquisitionPropertyType.TOMOGRAPHY, AcquisitionSubType.RADIOGRAPHY, AcquisitionTemplateType.STATIC_POINT);
 
 	private final Supplier<Composite> buttonsCompositeSupplier;
 
