@@ -17,13 +17,12 @@
  */
 package uk.ac.diamond.daq.service.core;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.server.ResponseStatusException;
 
 import uk.ac.diamond.daq.mapping.api.document.base.AcquisitionBase;
 import uk.ac.diamond.daq.mapping.api.document.exception.ScanningAcquisitionServiceException;
@@ -31,7 +30,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.service.ScanningAcquisitionService;
 import uk.ac.diamond.daq.service.rest.ScanningAcquisitionRestService;
 import uk.ac.gda.api.acquisition.request.MscanRequest;
-import uk.ac.gda.api.acquisition.response.ExceptionResponse;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
@@ -53,36 +51,36 @@ public class AcquisitionServiceCore {
 	 * @return
 	 * @throws ScanningAcquisitionServiceException
 	 */
-	public ResponseEntity<RunAcquisitionResponse> runAcquisition(AcquisitionBase<?> acquisition) throws ScanningAcquisitionServiceException {
-		SpringApplicationContextFacade.getBean(ScanningAcquisitionService.class).run(acquisition);
+	public ResponseEntity<RunAcquisitionResponse> runAcquisition(AcquisitionBase<?> acquisition) {
+		try {
+			var service = SpringApplicationContextFacade.getBean(ScanningAcquisitionService.class);
+			service.run(acquisition);
+		} catch (ScanningAcquisitionServiceException e) {
+			logAndWrapException("Error running acquisition", e);
+		}
 		RunAcquisitionResponse response = buildResponse(true, "Acquisition submitted");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	public ResponseEntity<RunAcquisitionResponse> runMScan(MscanRequest request) throws ScanningAcquisitionServiceException {
-		new MScanServiceCoreHelper().runMScan(request);
+	public ResponseEntity<RunAcquisitionResponse> runMScan(MscanRequest request) {
+		try {
+			new MScanServiceCoreHelper().runMScan(request);
+		} catch (ScanningAcquisitionServiceException e) {
+			logAndWrapException("Error running mscan command", e);
+		}
 		RunAcquisitionResponse response = buildResponse(true, "mscan submitted");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	protected RunAcquisitionResponse buildResponse(boolean submitted, String message) {
-		return responseBuilder(submitted, message)
-				.build();
-	}
-
-	public RunAcquisitionResponse buildResponse(boolean submitted, String message, Exception exception) {
-		var exceptionResponseBuilder = new ExceptionResponse.Builder()
-				.withMessage(exception.getMessage());
-		Optional.ofNullable(exception.getCause())
-			.ifPresent(c -> exceptionResponseBuilder.withCauseMessage(c.getMessage()));
-		return responseBuilder(submitted, message)
-				.withException(exceptionResponseBuilder.build())
-				.build();
-	}
-
-	private RunAcquisitionResponse.Builder responseBuilder(boolean submitted, String message) {
+	private RunAcquisitionResponse buildResponse(boolean submitted, String message) {
 		return new RunAcquisitionResponse.Builder()
 				.withSubmitted(submitted)
-				.withMessage(message);
+				.withMessage(message)
+				.build();
+	}
+	
+	private void logAndWrapException(String message, Exception exception) {
+		logger.error(message, exception);
+		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message, exception);
 	}
 }

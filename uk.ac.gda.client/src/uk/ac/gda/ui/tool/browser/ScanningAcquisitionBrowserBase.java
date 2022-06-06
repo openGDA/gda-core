@@ -152,7 +152,7 @@ public abstract class ScanningAcquisitionBrowserBase extends Browser<ScanningAcq
 			loadFromFile(resource.getLocation());
 			setSelected(resource);
 		} catch (AcquisitionControllerException e) {
-			logger.error("Cannot parse acquisition configuration at {}", resource);
+			logger.error("Cannot parse acquisition configuration at {}", resource.getLocation(), e);
 		}
 	}
 

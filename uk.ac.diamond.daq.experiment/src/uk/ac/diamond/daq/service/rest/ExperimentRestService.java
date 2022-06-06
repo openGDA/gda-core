@@ -1,8 +1,6 @@
 package uk.ac.diamond.daq.service.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +16,6 @@ import uk.ac.diamond.daq.experiment.api.entity.ExperimentServiceResponse;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentNodeExistsException;
-import uk.ac.gda.core.tool.GDAHttpException;
 
 /**
  * Exposes as REST service the server {@link ExperimentController}.
@@ -103,13 +100,9 @@ public class ExperimentRestService {
 	}
 
 	@GetMapping(value = "/sessions")
-	public @ResponseBody ClosedExperimentsResponse closedExperiments() throws GDAHttpException {
+	public @ResponseBody ClosedExperimentsResponse closedExperiments() throws ExperimentControllerException {
 		var response = new ClosedExperimentsResponse.Builder();
-		try {
-			response.withIndexes(getExperimentController().closedExperiments());
-		} catch (ExperimentControllerException e) {
-			throw new GDAHttpException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-		}
+		response.withIndexes(getExperimentController().closedExperiments());
 		return response.build();
 	}
 	
@@ -117,18 +110,11 @@ public class ExperimentRestService {
 	 * Handles the HTTP response for the {@link ExperimentControllerException} thrown by this rest service
 	 * @param e the thrown exception
 	 * @return the exception message
-	 * @deprecated Use instead {@link ExperimentRestService#exceptionHandler(GDAHttpException)}
 	 */
-	@Deprecated
 	@ExceptionHandler({ ExperimentControllerException.class })
     public @ResponseBody String handleException(ExperimentControllerException e) {
 		return e.getMessage();
     }
-
-	@ExceptionHandler(GDAHttpException.class)
-	public ResponseEntity<GDAHttpException> exceptionHandler(GDAHttpException exc) {
-		return new ResponseEntity<>(exc, HttpStatus.valueOf(exc.getStatus()));
-	}
 	
 	/**
 	 * Retrieves the server {@link ExperimentController} instance.

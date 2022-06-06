@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -44,7 +42,6 @@ import org.springframework.web.client.RestTemplate;
 import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
 import uk.ac.gda.client.exception.GDAClientRestException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
-import uk.ac.gda.ui.tool.rest.response.ResponseEntityErrorHandler;
 
 /**
  * Provides basic functionalities for a rest service client
@@ -52,8 +49,6 @@ import uk.ac.gda.ui.tool.rest.response.ResponseEntityErrorHandler;
  * @author Maurizio Nagni
  */
 class ClientRestService {
-
-	static Logger logger = LoggerFactory.getLogger(ClientRestService.class);
 
 	private ClientRestService() {
 	}
@@ -105,9 +100,9 @@ class ClientRestService {
 	}
 
 	private static HttpHeaders createRequestHeader() {
-	    HttpHeaders requestHeaders = new HttpHeaders();
-	    requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-	    return requestHeaders;
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+		return requestHeaders;
 	}
 
 	/**
@@ -137,21 +132,15 @@ class ClientRestService {
 
 	private static RestTemplate createRestTemplate() {
 		restTemplate = doCreateRestTemplate();
-	    addMessageConverters(restTemplate);
-		// adds error handlers AFTER the messages converters are added to the restTemplate
-		addErrorHandler(restTemplate);
-	    addLoggingInterceptor(restTemplate);
+		addMessageConverters(restTemplate);
+		addLoggingInterceptor(restTemplate);
 		return restTemplate;
 	}
 
 	private static RestTemplate doCreateRestTemplate() {
 		ClientHttpRequestFactory factory;
-		if (logger.isDebugEnabled()) {
-		    factory = new BufferingClientHttpRequestFactory(createClientHttpRequestFactory());
-		} else {
-			factory = createClientHttpRequestFactory();
-		}
-	    return new RestTemplate(factory);
+		factory = new BufferingClientHttpRequestFactory(createClientHttpRequestFactory());
+		return new RestTemplate(factory);
 	}
 
 	private static ClientHttpRequestFactory createClientHttpRequestFactory() {
@@ -173,16 +162,10 @@ class ClientRestService {
 	private static void addLoggingInterceptor(RestTemplate restTemplate) {
 		List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
 		if (CollectionUtils.isEmpty(interceptors)) {
-		    interceptors = new ArrayList<>();
+			interceptors = new ArrayList<>();
 		}
 		interceptors.add(new LoggingInterceptor());
 		restTemplate.setInterceptors(interceptors);
-	}
-
-	private static void addErrorHandler(RestTemplate restTemplate) {
-		Optional.ofNullable(restTemplate.getMessageConverters())
-			.map(ResponseEntityErrorHandler::new)
-			.ifPresent(restTemplate::setErrorHandler);
 	}
 
 	private static DocumentMapper getDocumentMapper() {
