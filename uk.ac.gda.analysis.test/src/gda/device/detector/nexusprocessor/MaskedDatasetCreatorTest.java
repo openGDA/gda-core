@@ -47,7 +47,7 @@ public class MaskedDatasetCreatorTest {
 	}
 
 	@Test
-	public void testThresholdMassk() throws Exception {
+	public void testThresholdMask() throws Exception {
 		maskProc.setThreshold(25, 45);
 		var frame = DatasetFactory.createFromObject(new int[] { 10, 20, 30, 40, 50, 60, 70, 80, 90 }, 3, 3);
 		var processed = maskProc.createDataSet(frame);

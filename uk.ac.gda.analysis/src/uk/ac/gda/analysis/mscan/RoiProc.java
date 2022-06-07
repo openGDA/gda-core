@@ -15,13 +15,8 @@
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package uk.ac.gda.analysis.mscan;
-
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROIList;
 import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
@@ -47,10 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.device.detector.nexusprocessor.roistats.RegionOfInterest;
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-
 /**
  * Read ROIs from the plotting system and calculate stats for each ROI
  */
@@ -62,53 +51,29 @@ public class RoiProc implements MalcolmSwmrProcessor {
 	private String plotName = "Area Detector";
 	private NexusObjectWrapper<NXdetector> nexusProvider;
 	private Map<RegionOfInterest, List<LazyWriteableDataset>> datasets = new HashMap<>();
+	private Map<RegionOfInterest, Double> lastestStatForRoi = new HashMap<>();
 	private int[] scanShape;
-
 
 	@Override
 	public void initialise(NexusScanInfo info, NexusObjectWrapper<NXdetector> nexusWrapper) {
 		this.nexusProvider = nexusWrapper;
 		createDetectorNexusObj(info);
-
 	}
-
 
 	/**
 	 * Get a bean from the plot view and update list of rois
 	 */
 	private void updateRois() {
-		GuiBean bean;
 		rois.clear();
-		try {
-			bean = SDAPlotter.getGuiBean(plotName);
-		} catch (Exception e) {
-			logger.error("Could not get gui bean for plot: {}", plotName, e);
-			return;
-		}
-		Serializable roiListS = bean.get(GuiParameters.ROIDATALIST);
-
-		if (roiListS instanceof RectangularROIList) {
-			ArrayList<RectangularROI> rawRoiList = new ArrayList<>((RectangularROIList) roiListS);
-			rawRoiList.sort(Comparator.comparing(RectangularROI::getName));
-			// isPlot corresponds to the "Active" property in the GUI (not visible)
-			rawRoiList.removeIf(roi -> !roi.isPlot());
-			logger.info("Rois defined on {}: {}", plotName, rawRoiList);
-			rawRoiList.stream().map(RegionOfInterest::new).forEach(rois::add);
-		} else {
-			// It is null or not rectangular rois
-			logger.warn("No rois defined");
-			rois.clear();
-		}
+		rois.addAll(RegionOfInterest.getRoisForPlot(plotName));
 	}
-
-
 
 	private void createDetectorNexusObj(NexusScanInfo info) {
 		updateRois();
 		scanShape = info.getShape();
 		datasets.clear();
 		for (RegionOfInterest roi : rois) {
-			LazyWriteableDataset sumData = makeEmptyDataset(roi.getNamePrefix() + "_sum");
+			LazyWriteableDataset sumData = makeEmptyDataset(roi.getName() + "_sum");
 			// Currently only recording the sum
 			//LazyWriteableDataset meanData = makeEmptyDataset(roi.getNamePrefix() + "_mean");
 			//LazyWriteableDataset maxData = makeEmptyDataset(roi.getNamePrefix() + "_max");
@@ -117,10 +82,8 @@ public class RoiProc implements MalcolmSwmrProcessor {
 	}
 
 	private LazyWriteableDataset makeEmptyDataset(String name) {
-
 		int[] ones = new int[scanShape.length];
 		Arrays.fill(ones, 1);
-
 		LazyWriteableDataset dataset = new LazyWriteableDataset(name, Double.class, ones, scanShape, null, null);
 		dataset.setChunking(scanShape);
 		nexusProvider.getNexusObject().createDataNode(name, dataset);
@@ -144,7 +107,6 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		return rois.size();
 	}
 
-
 	public void processFrame(ILazyDataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
 		for (RegionOfInterest roi : rois) {
@@ -162,14 +124,13 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		logger.debug("End of processFrame");
 	}
 
-
 	private void writeRoiStat(RegionOfInterest roi, Dataset roiData, SliceFromSeriesMetadata meta,
 			Function<Dataset, Object> stat, LazyWriteableDataset statDataset) {
 		Object statResult = stat.apply(roiData);
-		logger.debug("Statistic: {}, ROI: {},  value: {}", statDataset.getName(), roi.getNamePrefix(), statResult);
+		lastestStatForRoi.put(roi, ((Number)statResult).doubleValue());
+		logger.debug("Statistic: {}, ROI: {},  value: {}", statDataset.getName(), roi.getName(), statResult);
 		Dataset newStatData = DatasetFactory.createFromObject(statResult);
 		SliceND statSlice = new SliceND(statDataset.getShape(), statDataset.getMaxShape(), (Slice[]) null);
-
 		Slice[] inputSlice = meta.getSliceFromInput();
 		for (int i = 0; i < statDataset.getRank(); i++) {
 			statSlice.setSlice(i, inputSlice[i]);
@@ -181,15 +142,19 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		}
 	}
 
+	public Set<RegionOfInterest> getRois() {
+		return rois;
+	}
+
+	public Double latestStatForRoi(RegionOfInterest roi) {
+		return lastestStatForRoi.get(roi);
+	}
 
 	public String getPlotName() {
 		return plotName;
 	}
 
-
 	public void setPlotName(String plotName) {
 		this.plotName = plotName;
 	}
-
-
 }

@@ -18,29 +18,25 @@
 
 package gda.device.detector.nexusprocessor.roistats;
 
-import java.io.Serializable;
+import static gda.data.nexus.extractor.NexusExtractor.SDSClassName;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROIList;
+import org.eclipse.dawnsci.nexus.NexusBaseClass;
 import org.eclipse.january.dataset.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nexusprocessor.DataSetProcessorBase;
 import gda.device.detector.nexusprocessor.DatasetStats;
-import gda.device.detector.nexusprocessor.roistats.RegionOfInterest.RoiMetadata;
 import gda.factory.FactoryException;
-import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 
 /**
  * Receive dataset from processing Nexus Detector Retrieve rois from gui.
@@ -49,29 +45,63 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  */
 public class RoiStatsProcessor extends DataSetProcessorBase {
 
+	private static final Logger logger = LoggerFactory.getLogger(RoiStatsProcessor.class);
+
 	private List<String> extraNames = new ArrayList<>();
 	private List<String> outputFormats = new ArrayList<>();
 	private List<RegionOfInterest> roiList = new ArrayList<>();
 	private String plotName;
 	private DatasetStats statsProcessor;
 
-	private static final Logger logger = LoggerFactory.getLogger(RoiStatsProcessor.class);
-
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		NXDetectorData result = new NXDetectorData();
 		for (RegionOfInterest roi : roiList) {
-			Set<RoiMetadata> rois = roi.getRoiMetadata();
-			NXDetectorData roiData = new NXDetectorData(rois.stream().map(RoiMetadata::getName).toArray(String[]::new), rois.stream().map(RoiMetadata::getFormat).toArray(String[]::new), detectorName);
-			for (RoiMetadata roiMeta : rois) {
-				// in addData the null args are: units, signalVal and interpretation
-				roiData.addData(detectorName, roiMeta.getName(), new NexusGroupData(roiMeta.getData()), null, null, null, true);
-				roiData.setPlottableValue(roiMeta.getName(), roiMeta.getData());
-			}
-			roiData.mergeIn(statsProcessor.process(detectorName, roi.getNamePrefix(), dataset.getSliceView(roi.getSlice())));
+			NXDetectorData roiData = new NXDetectorData();
+			roiData.mergeIn(statsProcessor.process(detectorName, roi.getName(), dataset.getSliceView(roi.getSlice())));
+			writeNXRegionForRoi(roiData.getDetTree(detectorName), roi);
 			result.mergeIn(roiData);
 		}
 		return result;
+	}
+
+	/**
+	 * At the moment this is just writing metadata to an NXcollection.
+	 * Once the NXregion has been added to the Nexus standard it should
+	 * be modified.
+	 *
+	 * @see <a href="https://github.com/nexusformat/definitions/issues/944">GitHub issue</a>
+	 */
+	private void writeNXRegionForRoi(INexusTree parent, RegionOfInterest roi) {
+		var nXRoi = new NexusTreeNode(roi.getName(), NexusBaseClass.NX_COLLECTION.toString(), null);
+
+		addToNode("x", roi.getX(), Integer.class, nXRoi);
+		addToNode("y", roi.getY(), Integer.class, nXRoi);
+		addToNode("width", roi.getWidth(), Integer.class, nXRoi);
+		addToNode("height", roi.getHeight(), Integer.class, nXRoi);
+		addToNode("angle", roi.getAngle(), Double.class, nXRoi);
+
+		parent.addChildNode(nXRoi);
+	}
+
+	/**
+	 * Write a name-value pair into a NexusTreeNode
+	 * @param name metadata name
+	 * @param value metadata value
+	 * @param numClass class of Number
+	 * @param node node to add to
+	 */
+	private void addToNode(String name, Number value, Class<? extends Number> numClass, NexusTreeNode node) {
+		NexusGroupData dataGroup;
+		if (numClass.equals(Integer.class)) {
+			dataGroup = new NexusGroupData(value.intValue());
+		} else if (numClass.equals(Double.class)) {
+			dataGroup = new NexusGroupData(value.doubleValue());
+		} else {
+			logger.error("Unsupported metadata type: {} will not be written", numClass);
+			return;
+		}
+		node.addChildNode(new NexusTreeNode(name, SDSClassName, null, dataGroup));
 	}
 
 	public String getPlotName() {
@@ -96,35 +126,22 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 	 * Get a bean from the plot view and update list of rois
 	 */
 	private void updateRois() {
-		GuiBean bean;
-		roiList.clear();
-		try {
-			bean = SDAPlotter.getGuiBean(plotName);
-		} catch (Exception e) {
-			logger.error("Could not get gui bean for plot: {}", plotName, e);
-			return;
-		}
-		Serializable roiListS = bean.get(GuiParameters.ROIDATALIST);
+		roiList = RegionOfInterest.getRoisForPlot(plotName);
+	}
 
-		if (roiListS instanceof RectangularROIList) {
-			ArrayList<RectangularROI> rawRoiList = new ArrayList<>((RectangularROIList) roiListS);
-			rawRoiList.sort(Comparator.comparing(RectangularROI::getName));
-			// isPlot corresponds to the "Active" property in the GUI (not visible)
-			rawRoiList.removeIf(roi -> !roi.isPlot());
-			logger.info("Rois defined on {}: {}", plotName, rawRoiList);
-			rawRoiList.stream().map(RegionOfInterest::new).forEach(roiList::add);
-		} else {
-			// It is null or not rectangular rois
-			logger.warn("No rois defined");
-			roiList.clear();
-		}
+	public void updateNames() {
+		createNames();
+		createFormats();
+	}
+	public void setRois(List<RegionOfInterest> rois) {
+		this.roiList.clear();
+		this.roiList.addAll(rois);
 	}
 
 	@Override
 	public void atScanStart() {
 		updateRois();
-		createNames();
-		createFormats();
+		updateNames();
 		statsProcessor.atScanStart();
 	}
 
@@ -136,17 +153,13 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 	private void createNames() {
 		extraNames.clear();
 		for (RegionOfInterest roi : roiList) {
-			roi.getRoiMetadata().stream().map(RoiMetadata::getName).forEach(extraNames::add);
-			statsProcessor.getExtraNames().stream().map(name -> roi.getNamePrefix() + "_" + name).forEach(extraNames::add);
+			statsProcessor.getExtraNames().stream().map(name -> roi.getName() + "." + name).forEach(extraNames::add);
 		}
 	}
 
 	private void createFormats() {
 		outputFormats.clear();
-		for (RegionOfInterest roi : roiList) {
-			roi.getRoiMetadata().stream().map(RoiMetadata::getFormat).forEach(outputFormats::add);
-			statsProcessor.getOutputFormat().forEach(outputFormats::add);
-		}
+		roiList.forEach(r -> outputFormats.addAll(statsProcessor.getOutputFormat()));
 	}
 
 	public DatasetStats getStatsProcessor() {
@@ -163,6 +176,10 @@ public class RoiStatsProcessor extends DataSetProcessorBase {
 			throw new FactoryException("Must have a stats processor set");
 		}
 		setConfigured(true);
+	}
+
+	public List<RegionOfInterest> getRoiList() {
+		return roiList;
 	}
 
 }

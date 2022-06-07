@@ -78,7 +78,7 @@ public class DatasetStats extends DataSetProcessorBase {
 			return null;
 		}
 		String nxsDataName = dataName.isEmpty() ? "" : dataName + ".";
-		NXDetectorData res = new NXDetectorData(extraNames.stream().toArray(String[]::new), outputFormats.stream().toArray(String[]::new), dataName);
+		NXDetectorData res = new NXDetectorData(extraNames.stream().map(s -> nxsDataName + s).toArray(String[]::new), outputFormats.stream().toArray(String[]::new), dataName);
 		// Cast to larger type otherwise stats can overflow due to InterfaceUtils#toBiggestNumber in AbstractDataset#sum
 		Class<? extends Dataset> safeType = DTypeUtils.getLargestDataset(dataset.getClass());
 		Dataset promotedDataset = dataset.cast(safeType);
@@ -90,7 +90,7 @@ public class DatasetStats extends DataSetProcessorBase {
 			NexusGroupData data = new NexusGroupData(DatasetFactory.createFromObject(statistic, 1));
 			data.isDetectorEntryData = true;
 			res.addData(detectorName, nxsDataName + statName, data, null, 1);
-			res.setPlottableValue(statName, statistic.doubleValue());
+			res.setPlottableValue(nxsDataName + statName, statistic.doubleValue());
 		}
 		return res;
 	}

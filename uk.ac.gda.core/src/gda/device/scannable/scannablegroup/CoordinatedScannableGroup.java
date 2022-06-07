@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import gda.device.DeviceException;
+import gda.device.IScannableMotor;
+import gda.device.Motor;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
@@ -155,7 +157,9 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	 * @return the wrapped scannable
 	 */
 	protected ICoordinatedChildScannable wrapScannable(Scannable delegate) {
-		if (ScannableMotionUnits.class.isAssignableFrom(delegate.getClass())) {
+		if (IScannableMotor.class.isAssignableFrom(delegate.getClass())) {
+			return new CoordinatedChildScannableMotor((IScannableMotor) delegate, this);
+		} else if (ScannableMotionUnits.class.isAssignableFrom(delegate.getClass())) {
 			return new CoordinatedChildScannableMotionUnits((ScannableMotionUnits) delegate, this);
 		} else if (ScannableMotion.class.isAssignableFrom(delegate.getClass())) {
 			return new CoordinatedChildScannableMotion((ScannableMotion) delegate, this);
@@ -945,5 +949,106 @@ class CoordinatedChildScannableMotionUnits extends CoordinatedChildScannableMoti
 		scannableMotionUnitsDelegate.setOffset(offsetPositionInExternalUnits);
 
 	}
+}
+
+class CoordinatedChildScannableMotor extends CoordinatedChildScannableMotionUnits implements IScannableMotor {
+
+	private IScannableMotor scannableMotorDelegate;
+
+	public CoordinatedChildScannableMotor(IScannableMotor delegate, ICoordinatedParentScannable group) {
+		super(delegate, group);
+		scannableMotorDelegate = delegate;
+	}
+
+	@Override
+	public String getControllerRecordName() {
+		return scannableMotorDelegate.getControllerRecordName();
+	}
+
+	@Override
+	public void setMotor(Motor motor) {
+		scannableMotorDelegate.setMotor(motor);
+
+	}
+
+	@Override
+	public Motor getMotor() {
+		return scannableMotorDelegate.getMotor();
+	}
+
+	@Override
+	public void setMotorName(String motorName) {
+		scannableMotorDelegate.setMotorName(motorName);
+
+	}
+
+	@Override
+	public String getMotorName() {
+		return scannableMotorDelegate.getMotorName();
+	}
+
+	@Override
+	public double getSpeed() throws DeviceException {
+		return scannableMotorDelegate.getSpeed();
+	}
+
+	@Override
+	public double getMotorResolution() throws DeviceException {
+		return scannableMotorDelegate.getMotorResolution();
+	}
+
+	@Override
+	public double getDemandPositionTolerance() {
+		return scannableMotorDelegate.getDemandPositionTolerance();
+	}
+
+	@Override
+	public double getUserOffset() throws DeviceException {
+		return scannableMotorDelegate.getUserOffset();
+	}
+
+	@Override
+	public double getTimeToVelocity() throws DeviceException {
+		return scannableMotorDelegate.getTimeToVelocity();
+	}
+
+	@Override
+	public void setTimeToVelocity(double timeToVelocity) throws DeviceException {
+		scannableMotorDelegate.setTimeToVelocity(timeToVelocity);
+
+	}
+
+	@Override
+	public void setSpeed(double requiredSpeed) throws DeviceException {
+		scannableMotorDelegate.setSpeed(requiredSpeed);
+
+	}
+
+	@Override
+	public void setPosition(Object position) throws DeviceException {
+		scannableMotorDelegate.setPosition(position);
+
+	}
+
+	@Override
+	public Double getLowerMotorLimit() throws DeviceException {
+		return scannableMotorDelegate.getLowerMotorLimit();
+	}
+
+	@Override
+	public Double getUpperMotorLimit() throws DeviceException {
+		return scannableMotorDelegate.getUpperMotorLimit();
+	}
+
+	@Override
+	public Double getLowerInnerLimit() throws DeviceException {
+		return scannableMotorDelegate.getLowerInnerLimit();
+	}
+
+	@Override
+	public Double getUpperInnerLimit() throws DeviceException {
+		return scannableMotorDelegate.getUpperInnerLimit();
+	}
+
 }
 
