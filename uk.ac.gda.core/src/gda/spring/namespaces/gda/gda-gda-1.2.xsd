@@ -1,6 +1,7 @@
 <xsd:schema targetNamespace="http://www.diamond.ac.uk/schema/gda/gda"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns="http://www.diamond.ac.uk/schema/gda/gda"
+            elementFormDefault="qualified"
             attributeFormDefault="unqualified">
 	
 	<xsd:complexType name="rbacType" />
@@ -14,6 +15,19 @@
 
 	<xsd:element name="export" type="remoteType" />
 	<xsd:element name="import" type="remoteType" />
+
+	<xsd:complexType name="serviceType">
+		<xsd:attribute name="interface" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="proxyType">
+		<xsd:sequence>
+			<xsd:element name="service" type="serviceType" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string" use="required" />
+	</xsd:complexType>
+
+	<xsd:element name="proxy" type="proxyType"/>
 
 	<!-- Deprecated import/export tags -->
 	<xsd:complexType name="rmiExportType">
