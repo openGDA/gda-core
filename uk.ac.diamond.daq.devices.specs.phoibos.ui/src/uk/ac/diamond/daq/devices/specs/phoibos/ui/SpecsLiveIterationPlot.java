@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveIterationSpectraUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
@@ -80,14 +82,22 @@ public class SpecsLiveIterationPlot extends SpecsLivePlot implements IObserver {
 		}
 		final IDataset energyAxisDataset = DatasetFactory.createFromObject(energyAxis);
 
+		double[] spectrum = null;
+
+		try {
+			spectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
+		} catch (TimeoutException | CAException | InterruptedException e1) {
+			logger.error("Could not get spectrum from channel", e1);
+		}
+
 		// Data
-		IDataset spectrum = DatasetFactory.createFromObject(update.getIterationSpectrum());
-		spectrum.setName("Iteration " + update.getIterationNumber());
+		IDataset data = DatasetFactory.createFromObject(spectrum);
+		data.setName("Iteration " + update.getIterationNumber());
 
 		// Something in the plotting system here isn't thread safe so do in UI thread
 		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 			// Thread safe so don't need to be in the UI thread
-			plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(spectrum), null);
+			plottingSystem.updatePlot1D(energyAxisDataset, Arrays.asList(data), null);
 			plottingSystem.getSelectedYAxis().setTitle("Intensity (arb. units)");
 
 			if (displayInBindingEnergy) {

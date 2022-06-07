@@ -46,6 +46,7 @@ import gda.observable.IObserver;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosConfigurableScannableInfo;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegionValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
@@ -53,7 +54,6 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -1060,7 +1060,7 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		// If the update rate is too high just drop this one
 		if(updateLimiter.tryAcquire()) {
 			if(getAcquisitionMode().equals(FIXED_ENERGY)) {
-				notifyIObservers(this, getSpectrumUpdate());
+				notifyIObservers(this, createAlignmentEvent());
 			}else {
 				notifyIObservers(this, getLiveDataUpdate());
 			}
@@ -1070,8 +1070,8 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 		}
 	}
 
-	private SpecsPhoibosSpectrumUpdate getSpectrumUpdate() {
-		return new SpecsPhoibosSpectrumUpdate(getSpectrum(0));
+	private SpecsPhoibosLiveUpdate createAlignmentEvent() {
+		return new SpecsPhoibosLiveUpdate();
 	}
 
 	private SpecsPhoibosLiveDataUpdate getLiveDataUpdate() {
@@ -1096,8 +1096,6 @@ public class SpecsPhoibosAnalyser extends NXDetector implements ISpecsPhoibosAna
 				.currentPoint(getCurrentPoint())
 				.totalIterations(getIterations())
 				.currentPointInIteration(getPointInIteration())
-				.spectrum(getSpectrum())
-				.image(getImage())
 				.keEnergyAxis(keEnergyAxis)
 				.beEnergyAxis(beEnergyAxis)
 				.yAxis(getYAxis())

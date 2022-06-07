@@ -28,11 +28,29 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 
 public class SpecsLiveImagePlot extends SpecsLivePlot {
 	private static final Logger logger = LoggerFactory.getLogger(SpecsLiveImagePlot.class);
+
+	private Channel imageChannel;
+	private Channel totalPointsIterationChannel;
+	private Channel slicesChannel;
+
+
+	public SpecsLiveImagePlot() {
+		try {
+			totalPointsIterationChannel = epicsController.createChannel(pvProvider.getTotalPointsIterationPV());
+			imageChannel = epicsController.createChannel(pvProvider.getImagePV());
+			slicesChannel = epicsController.createChannel(pvProvider.getSlicesPV());
+		} catch (CAException | TimeoutException e) {
+			logger.error("Could not create channels for image", e);
+		}
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -83,13 +101,38 @@ public class SpecsLiveImagePlot extends SpecsLivePlot {
 			List<IDataset> axis = Arrays.asList(energyAxisDataset, yAxis);
 
 			// Get the image data
-			IDataset image = DatasetFactory.createFromObject(dataUpdate.getImage());
+			IDataset data = DatasetFactory.createFromObject(constructImage());
 
 			// Thread safe so don't need to be in the UI thread
-			plottingSystem.updatePlot2D(image, axis, null);
+			plottingSystem.updatePlot2D(data, axis, null);
 			plottingSystem.repaint();
 
 			logger.trace("Updated plotting system");
+		}
+
+	}
+
+	private double[][] constructImage(){
+		try {
+			// Get the expected image size
+			final int energyChannels = epicsController.cagetInt(totalPointsIterationChannel);
+			final int yChannels = epicsController.cagetInt(slicesChannel);
+
+			// Get the image data from the IOC
+			final double[] image1DArray = epicsController.cagetDoubleArray(imageChannel, energyChannels*yChannels);
+
+			// Reshape the data
+			final double[][] image2DArray = new double[yChannels][energyChannels];
+			for (int i = 0; i < yChannels; i++) {
+				System.arraycopy(image1DArray, (i * energyChannels), image2DArray[i], 0, energyChannels);
+			}
+
+			return image2DArray;
+
+		} catch (TimeoutException | CAException | InterruptedException e) {
+			final String msg = "Could not create image from channels";
+			logger.error(msg, e);
+			throw new RuntimeException(msg, e);
 		}
 
 	}

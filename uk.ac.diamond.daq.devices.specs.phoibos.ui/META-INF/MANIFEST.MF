@@ -24,7 +24,8 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.104.2",
  org.eclipse.e4.core.commands;bundle-version="0.11.0",
  org.apache.commons.lang,
  uk.ac.gda.core;bundle-version="9.4.0",
- uk.ac.gda.client;bundle-version="9.7.0"
+ uk.ac.gda.client;bundle-version="9.7.0",
+ uk.ac.gda.epics
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: gda.configuration.properties,
  javax.annotation;version="1.0.0";resolution:=optional,

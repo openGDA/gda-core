@@ -49,6 +49,7 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosConfigurableScannableInfo;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveIterationSpectraUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegion;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosRegionValidation;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosScannableValue;
@@ -56,7 +57,6 @@ import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequence;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceFileUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceHelper;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSequenceValidation;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
 /**
@@ -1186,7 +1186,7 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		// If the update rate is too high just drop this one
 		if(updateLimiter.tryAcquire()) {
 			if(getAcquisitionMode().equals(FIXED_ENERGY)) {
-				notifyIObservers(this, getSpectrumUpdate());
+				notifyIObservers(this, createAlignmentEvent());
 			}else {
 				updateSpectra();
 				notifyIObservers(this, getLiveDataUpdate());
@@ -1197,8 +1197,8 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		}
 	}
 
-	private SpecsPhoibosSpectrumUpdate getSpectrumUpdate() {
-		return new SpecsPhoibosSpectrumUpdate(getSpectrum(0));
+	private SpecsPhoibosLiveUpdate createAlignmentEvent() {
+		return new SpecsPhoibosLiveUpdate();
 	}
 
 	private SpecsPhoibosLiveIterationSpectraUpdate getLiveDataUpdate() {
@@ -1219,15 +1219,12 @@ public class SpecsPhoibosAnalyserSeparateIterations extends NXDetector implement
 		SpecsPhoibosLiveIterationSpectraUpdate.Builder builder = new SpecsPhoibosLiveIterationSpectraUpdate.Builder();
 
 		builder.iterationNumber(currentIteration + 1)
-			.iterationSpectrum(getSpectrum())
 			.regionName(currentlyRunningRegionName)
 			.positionString(positionString)
 			.totalPoints(getTotalPoints())
 			.currentPoint(getCurrentPoint())
 			.totalIterations(getIterations())
 			.currentPointInIteration(getPointInIteration())
-			.spectrum(getSummedSpectrum())
-			.image(getImage())
 			.keEnergyAxis(keEnergyAxis)
 			.beEnergyAxis(beEnergyAxis)
 			.yAxis(getYAxis())

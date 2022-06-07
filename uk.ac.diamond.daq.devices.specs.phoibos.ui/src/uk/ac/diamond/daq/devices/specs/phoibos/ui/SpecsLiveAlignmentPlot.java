@@ -29,8 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.observable.IObserver;
+import gov.aps.jca.CAException;
+import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveUpdate;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
 
 public class SpecsLiveAlignmentPlot extends SpecsLivePlot implements IObserver {
 
@@ -60,16 +62,22 @@ public class SpecsLiveAlignmentPlot extends SpecsLivePlot implements IObserver {
 	@Override
 	public void updatePlot(SpecsPhoibosLiveUpdate update) {
 
-		if (update instanceof SpecsPhoibosSpectrumUpdate) {
-			SpecsPhoibosSpectrumUpdate spectrumUpdate = (SpecsPhoibosSpectrumUpdate) update;
+		if (!(update instanceof SpecsPhoibosLiveDataUpdate)) {
 
 			// Get data
-			IDataset spectrum = DatasetFactory.createFromObject(spectrumUpdate.getSpectrum());
-			spectrum.setName("Alignment Spectrum");
-			plottingSystem.updatePlot1D(null, Arrays.asList(spectrum), null);
+			double[] spectrum = null ;
+			try {
+				spectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
+			} catch (TimeoutException | CAException | InterruptedException e) {
+				logger.error("Could not get spectrum form channel", e);
+			}
+
+			IDataset dataset = DatasetFactory.createFromObject(spectrum);
+			dataset.setName("Alignment Spectrum");
+			plottingSystem.updatePlot1D(null, Arrays.asList(dataset), null);
 
 			// Set plotting system
-			double maxY = spectrum.max(false).doubleValue();
+			double maxY = dataset.max(false).doubleValue();
 
 			PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 				plottingSystem.getSelectedXAxis().setAutoscale(true);
@@ -77,7 +85,6 @@ public class SpecsLiveAlignmentPlot extends SpecsLivePlot implements IObserver {
 				setPlotTitles();
 			});
 			logger.trace("Updated plotting system");
-
 		}
 	}
 

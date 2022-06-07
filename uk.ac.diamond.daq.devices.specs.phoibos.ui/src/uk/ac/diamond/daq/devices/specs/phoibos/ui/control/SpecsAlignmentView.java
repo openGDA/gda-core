@@ -48,11 +48,16 @@ import com.swtdesigner.SWTResourceManager;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.epics.connection.EpicsController;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.AnalyserPVProvider;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyser;
 import uk.ac.diamond.daq.devices.specs.phoibos.api.ISpecsPhoibosAnalyserStatus;
-import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosSpectrumUpdate;
+import uk.ac.diamond.daq.devices.specs.phoibos.api.SpecsPhoibosLiveDataUpdate;
 
 public class SpecsAlignmentView implements IObserver {
 
@@ -60,6 +65,10 @@ public class SpecsAlignmentView implements IObserver {
 
 	private ISpecsPhoibosAnalyser analyser;
 	private ISpecsPhoibosAnalyserStatus status;
+
+	protected final EpicsController epicsController = EpicsController.getInstance();
+	private final AnalyserPVProvider pvProvider;
+	private Channel spectrumChannel;
 
 	private Text passEnergyText;
 	private Text kineticEnergyText;
@@ -115,6 +124,13 @@ public class SpecsAlignmentView implements IObserver {
 		status.addIObserver(this::updateIndicator);
 
 		photonEnergy =  Finder.find(PHOTON_ENERGY);
+
+		pvProvider = Finder.findLocalSingleton(AnalyserPVProvider.class);
+		try {
+			spectrumChannel = epicsController.createChannel(pvProvider.getSpectrumPV());
+		} catch (CAException | TimeoutException e) {
+			logger.error("Could not create spectrum channel", e);
+		}
 
 	}
 
@@ -269,12 +285,18 @@ public class SpecsAlignmentView implements IObserver {
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (arg instanceof SpecsPhoibosSpectrumUpdate) {
-			SpecsPhoibosSpectrumUpdate event = (SpecsPhoibosSpectrumUpdate) arg;
+		if (!(arg instanceof SpecsPhoibosLiveDataUpdate)) {
+
+			double[] spectrum = null ;
+			try {
+				spectrum = epicsController.cagetDoubleArray(spectrumChannel, 0);
+			} catch (TimeoutException | CAException | InterruptedException e) {
+				logger.error("Could not get spectrum form channel", e);
+			}
+			int lastIndex = spectrum.length - 1;
+			double latestValue = spectrum[lastIndex];
 			Display.getDefault().asyncExec(() -> {
-				double[] data = event.getSpectrum();
-				int lastIndex = event.getDataLength()-1;
-				countsText.setText(formatReading(data[lastIndex]));
+				countsText.setText(formatReading(latestValue));
 			});
 		}
 	}

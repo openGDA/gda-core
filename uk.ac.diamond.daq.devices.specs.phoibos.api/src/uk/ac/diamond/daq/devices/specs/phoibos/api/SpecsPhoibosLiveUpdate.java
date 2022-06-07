@@ -22,13 +22,5 @@ import java.io.Serializable;
 
 public class SpecsPhoibosLiveUpdate implements Serializable {
 
-	private final double[] spectrum;
 
-	public SpecsPhoibosLiveUpdate(double[] spectrum) {
-		this.spectrum = spectrum;
-	}
-
-	public double[] getSpectrum() {
-		return spectrum;
-	}
 }

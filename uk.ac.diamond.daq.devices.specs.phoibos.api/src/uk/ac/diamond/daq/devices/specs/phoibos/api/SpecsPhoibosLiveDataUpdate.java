@@ -38,21 +38,18 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 	private final int totalIterations;
 	private final int currentPointInIteration;
 
-	private final double[][] image;
 	private final double[] keEnergyAxis;
 	private final double[] beEnergyAxis;
 	private final double[] yAxis;
 	private final String yAxisUnits;
 
 	protected SpecsPhoibosLiveDataUpdate(Builder builder) {
-		super(builder.spectrum);
 		regionName = builder.regionName;
 		positionString = builder.positionString;
 		totalPoints = builder.totalPoints;
 		currentPoint = builder.currentPoint;
 		totalIterations = builder.totalIterations;
 		currentPointInIteration = builder.currentPointInIteration;
-		image = builder.image;
 		keEnergyAxis = builder.keEnergyAxis;
 		beEnergyAxis = builder.beEnergyAxis;
 		yAxis = builder.yAxis;
@@ -85,10 +82,6 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 		return currentPointInIteration;
 	}
 
-	public double[][] getImage() {
-		return image;
-	}
-
 	public double[] getKeEnergyAxis() {
 		return keEnergyAxis;
 	}
@@ -113,8 +106,6 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 		private int currentPoint;
 		private int totalIterations;
 		private int currentPointInIteration;
-		private double[] spectrum;
-		private double[][] image;
 		private double[] keEnergyAxis;
 		private double[] beEnergyAxis;
 		private double[] yAxis;
@@ -147,16 +138,6 @@ public class SpecsPhoibosLiveDataUpdate extends SpecsPhoibosLiveUpdate {
 
 		public Builder currentPointInIteration(int val) {
 			currentPointInIteration = val;
-			return this;
-		}
-
-		public Builder spectrum(double[] val) {
-			spectrum = val;
-			return this;
-		}
-
-		public Builder image(double[][] val) {
-			image = val;
 			return this;
 		}
 
