@@ -46,6 +46,12 @@ public class RegionOfInterest {
 	private final int height;
 	private final double angle;
 
+	/**
+	 * Create a {@link RegionOfInterest} from a {@link RectangularROI}.
+	 * <p>
+	 * TODO consider if {@link RectangularROI} may already be sufficient to replace this class.
+	 * @param roi
+	 */
 	public RegionOfInterest(RectangularROI roi) {
 		slice = getSliceFromRoi(roi);
 		// Remove spaces from roi name
@@ -56,16 +62,6 @@ public class RegionOfInterest {
 		width = slice[1].getStop() - slice[1].getStart();
 		height =  slice[0].getStop() - slice[0].getStart();
 		angle = roi.getAngleDegrees();
-	}
-
-	public RegionOfInterest(String name, int x, int y, int width, int height, double angle) {
-		this.name = name;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.angle = angle;
-		slice = new Slice[] {};
 	}
 
 	private Slice[] getSliceFromRoi(RectangularROI roi) {
