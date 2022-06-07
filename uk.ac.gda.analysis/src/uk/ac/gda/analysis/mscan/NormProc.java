@@ -107,9 +107,8 @@ public class NormProc implements MalcolmSwmrProcessor {
 
 		var backgroundRois = backgroundRoiIndices.stream().map(i -> getRegionFromSet("Region_" + i)).collect(Collectors.toList());
 
-		double backgroundSum = backgroundRois.stream().map(roiProc::latestStatForRoi)
-				.reduce(0.0, (a, b) -> a + b);
-		int backgroundArea = backgroundRois.stream().map(RegionOfInterest::getArea).reduce(0, (a, b) -> a + b);
+		double backgroundSum = backgroundRois.stream().mapToDouble(roiProc::latestStatForRoi).sum();
+		int backgroundArea = backgroundRois.stream().mapToInt(RegionOfInterest::getArea).sum();
 
 
 		double meanbg = 0;
@@ -142,7 +141,7 @@ public class NormProc implements MalcolmSwmrProcessor {
 
 
 	private RegionOfInterest getRegionFromSet(String prefix) {
-		return roiProc.getRois().stream().filter(r -> r.getName().contains(prefix)).findFirst().orElseThrow();
+		return roiProc.getRois().stream().filter(r -> r.getName().startsWith(prefix)).findFirst().orElseThrow();
 	}
 
 	private void writeDouble(double data, SliceFromSeriesMetadata metaSlice) {
