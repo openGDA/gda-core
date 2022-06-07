@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.odin;
+package uk.ac.gda.devices.odin.control;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
