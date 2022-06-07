@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.api.document.base;
 
 import java.net.URL;
 import java.time.Period;
+import java.util.Objects;
 import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.Acquisition;
@@ -116,5 +117,27 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 		this.type = type;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(acquisitionConfiguration, acquisitionEngine, acquisitionLocation, description,
+				executionPeriod, name, type, uuid);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AcquisitionBase<?> other = (AcquisitionBase<?>) obj;
+		return Objects.equals(acquisitionConfiguration, other.acquisitionConfiguration)
+				&& Objects.equals(acquisitionEngine, other.acquisitionEngine)
+				&& Objects.equals(acquisitionLocation, other.acquisitionLocation)
+				&& Objects.equals(description, other.description)
+				&& Objects.equals(executionPeriod, other.executionPeriod) && Objects.equals(name, other.name)
+				&& type == other.type && Objects.equals(uuid, other.uuid);
+	}
 
 }

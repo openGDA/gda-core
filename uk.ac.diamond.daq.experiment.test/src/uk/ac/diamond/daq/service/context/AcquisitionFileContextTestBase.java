@@ -28,12 +28,21 @@ import java.nio.file.Path;
 
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.data.ServiceHolder;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
+import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
-class AcquisitionFileContextCommonTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { AcquisitionFileContextTestConfiguration.class }, initializers = {ClassLoaderInitializer.class})
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+abstract class AcquisitionFileContextTestBase {
 
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
@@ -46,7 +55,7 @@ class AcquisitionFileContextCommonTest {
 	}
 
 	protected void prepareFilesystem() throws IOException {
-		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextCommonTest.class.getName());
+		Path testTmpDir = Files.createTempDirectory(AcquisitionFileContextTestBase.class.getName());
 		testTmpDir.toFile().deleteOnExit();
 		var visitDir = new File(testTmpDir.toFile(), "visit");
 		var processingDir = new File(visitDir, "processing");
