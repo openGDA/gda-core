@@ -143,7 +143,8 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 
 	@Override
 	public double getCurrentTemperature() throws DeviceException {
-		return currentTemp = controller.getTemp();
+		currentTemp = controller.getTemp();
+		return currentTemp ;
 	}
 
 	/**
@@ -177,7 +178,7 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 	}
 
 	/**
-	 * program a temperature ramp into hardware, this does not initiate the program, it validates the target temperature
+	 * Program a temperature ramp into hardware, this does not initiate the program, it validates the target temperature
 	 * and ramp rate. {@inheritDoc}
 	 *
 	 * @see gda.device.temperature.TemperatureBase#sendRamp(int)
