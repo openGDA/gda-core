@@ -178,27 +178,29 @@ public class ScannableCommands {
 						}
 					}
 					// **isBusy()**
-					// Wait for all moves to complete. If there is a problem with one, then stop the Scannables
-					// which may still be moving (those that have not yet been waited for), and _then_ throw the
-					// exception.
+					// Wait for all moves to complete. If there is a problem with any scannable, stop all Scannables
+					// which may still be moving (the current scannable and those that have not yet been waited for),
+					// and _then_ throw the exception.
 					Exception exceptionCaughtWhileWaitingOnIsBusy = null;
+					String firstFailingScannable = null;
 					for (Scannable scn1 : currentLevelScannables.getValue()) {
 						if (exceptionCaughtWhileWaitingOnIsBusy == null) {
 							// normal behaviour
 							try {
 								scn1.waitWhileBusy();
-							} catch (Exception e) {
-								logger.error("Exception occured while waiting for {} to complete move:", scn1.getName(), e);
-								// cause future passes through the loop to stop Scannables
+							} catch (Exception e) { // Capture the root cause error, for reference
 								exceptionCaughtWhileWaitingOnIsBusy = e;
+								firstFailingScannable = scn1.getName();
+								logger.error("Exception occured while waiting for {} to complete move:", firstFailingScannable, e);
 							}
-						} else {
-							// stop any motors that may be still moving
+						}
+						if (exceptionCaughtWhileWaitingOnIsBusy != null) {
+							// stop any motors that may be still moving, including the one which raised an Exception
 							try {
-								logger.info("Stopping {} due to problem moving previous scannable.", scn1.getName());
+								logger.info("Stopping {} due to problem with {}", scn1.getName(), firstFailingScannable);
 								scn1.stop();
 							} catch (DeviceException e) {
-								logger.error("Caught exception while stopping {}: ", scn1.getName(), e);
+								logger.error("Caught and ignored exception while stopping {}: ", scn1.getName(), e);
 							}
 						}
 					}

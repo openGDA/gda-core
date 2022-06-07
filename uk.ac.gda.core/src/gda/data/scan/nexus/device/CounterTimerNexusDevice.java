@@ -30,6 +30,7 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.ILazyWriteableDataset;
 import org.eclipse.january.dataset.SliceND;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.device.Detector;
 import gda.util.TypeConverters;
@@ -40,15 +41,34 @@ import gda.util.TypeConverters;
  */
 public class CounterTimerNexusDevice extends AbstractDetectorNexusDeviceAdapter {
 
+	public static final String PRIMARY_EXTRANAME_DATA_FIELD_INDEX = "gda.nexus.nexusScanDataWriter.primaryExtraNameDataFieldIndex";
+	public static final int PRIMARY_EXTRANAME_DATA_FIELD_LAST = -1;
+
 	private LinkedHashMap<String, DataNode> dataNodes = null;
 
 	public CounterTimerNexusDevice(Detector detector) {
 		super(detector);
 	}
 
+	/**
+	 * Return the extra name field for counter timer Nexus devices.
+	 * <BR><BR>
+	 * Defaults to the last extra name field (-1)
+	 * <BR><BR>
+	 * To revert to the previous CounterTimerNexusDevice behaviour, add
+	 * <BR><code>
+	 * gda.nexus.nexusScanDataWriter.primaryExtraNameDataFieldIndex=0
+	 * </code><BR>
+	 * to the common_instance_java.properties file for a beamline.
+	 */
 	@Override
 	protected String getPrimaryDataFieldName() {
-		return getDetector().getExtraNames()[0];
+		final var extraNames = getDetector().getExtraNames();
+		int index =  LocalProperties.getAsInt(PRIMARY_EXTRANAME_DATA_FIELD_INDEX, PRIMARY_EXTRANAME_DATA_FIELD_LAST);
+		if (index < 0) { // Negative, so count back from last
+			index += extraNames.length;
+		}
+		return extraNames[index];
 	}
 
 	@Override
