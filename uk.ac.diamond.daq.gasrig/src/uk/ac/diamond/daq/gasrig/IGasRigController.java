@@ -20,13 +20,27 @@ package uk.ac.diamond.daq.gasrig;
 
 import gda.device.DeviceException;
 import gda.observable.IObservable;
+import uk.ac.diamond.daq.gasrig.api.GasRigException;
 
 public interface IGasRigController extends IObservable {
 
-	public String getGasName(int gasId) throws DeviceException;
+	public String getGasName(int gasId) throws DeviceException, GasRigException;
 
-	public double getMaximumMassFlow(int gasId) throws DeviceException;
+	public double getMaximumMassFlow(int gasId) throws DeviceException, GasRigException;
 
-	public void runDummySequence();
+	public void runDummySequence() throws DeviceException;
 
+	public void evacuateEndStation() throws DeviceException;
+
+	public void evacuateLine(int lineNumber) throws DeviceException;
+
+	void admitLineToEndStation(int lineNumber) throws DeviceException;
+
+	void admitGasToLine(String gasName, int lineNumber) throws DeviceException;
+
+	void setMassFlow(int gasId, double massFlow) throws DeviceException, GasRigException;
+
+	void initialise() throws DeviceException;
+
+	public void closeLineValvesForGas(int gasId) throws DeviceException, GasRigException;
 }

@@ -24,4 +24,7 @@ public class GasRigException extends Exception {
 		super(errorMessage);
 	}
 
+	public GasRigException(String errorMessage, Exception exception) {
+		super(errorMessage, exception);
+	}
 }

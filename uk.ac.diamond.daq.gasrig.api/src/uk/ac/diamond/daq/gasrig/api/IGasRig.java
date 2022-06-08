@@ -21,18 +21,106 @@ package uk.ac.diamond.daq.gasrig.api;
 import java.util.List;
 import java.util.Map;
 
+import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
 public interface IGasRig extends Findable, IObservable {
 
+	/**
+	 * Gets all the gases the aren't assigned to a cabinet
+	 *
+	 * @return The Gases
+	 */
 	public List<? extends IGas> getNonCabinetGases();
 
+	/**
+	 * Gets all the cabinets that have been configured
+	 * @return The cabinets
+	 */
 	public List<? extends ICabinet> getCabinets();
 
+	/**
+	 * Gets the gas mix object for a specific line
+	 *
+	 * @param lineNumber
+	 * @return The gas mix for the specified line
+	 * @throws GasRigException If that line number does not exist
+	 */
 	public IGasMix getGasMix(int lineNumber) throws GasRigException;
 
+	/**
+	 * Gets a Map where the keys are the line numbers, and the values
+	 * are the gasmixes for those line numbers
+	 *
+	 * @return The map of gas mixes
+	 */
 	public Map<Integer, ? extends IGasMix> getGasMixes();
 
-	public void runDummySequence();
+	/**
+	 * Executes the dummy sequence on the PLC
+	 *
+	 * @throws GasRigException
+	 */
+	public void runDummySequence() throws GasRigException;
+
+	/**
+	 * Asks EPICS to pump out the endstation
+	 *
+	 * @throws GasRigException
+	 */
+	public void evacuateEndStation() throws GasRigException;
+
+	/**
+	 * Asks EPICS to evacute the specified line
+	 *
+	 * @param lineNumber
+	 * @throws GasRigException
+	 */
+	public void evacuateLine(int lineNumber) throws GasRigException;
+
+	/**
+	 * Admits the specified line to the endstation
+	 *
+	 * @param lineNumber
+	 * @throws GasRigException
+	 */
+	public void admitLineToEndStation(int lineNumber) throws GasRigException;
+
+	/**
+	 * Admits the specified gas to the specified line
+	 *
+	 * @param gasId The gas ID (which matches the MFC number)
+	 * @param lineNumber The line to admit it to
+	 * @throws GasRigException
+	 * @throws DeviceException
+	 */
+	public void admitGasToLine(int gasId, int lineNumber) throws GasRigException, DeviceException;
+
+	/**
+	 * Admits the specified gas to the specified line
+	 *
+	 * @param gasName The gas name (which matches the gas name in EPICS)
+	 * @param lineNumber The line to admit it to
+	 * @throws GasRigException
+	 * @throws DeviceException
+	 */
+	public void admitGasToLine(String gasName, int lineNumber) throws GasRigException, DeviceException;
+
+	/**
+	 * Configure a mix of gases for the specified line
+	 *
+	 * @param gasMix The GasMix object
+	 * @param lineNumber The line number to configure the mix for
+	 * @throws GasRigException
+	 * @throws DeviceException
+	 */
+	public void configureGasMixForLine(IGasMix gasMix, int lineNumber) throws GasRigException, DeviceException;
+
+	/**
+	 * Asks EPICS to run the initialisation procedure
+	 *
+	 * @throws DeviceException
+	 */
+	public void initialise() throws DeviceException;
 }

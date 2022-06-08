@@ -102,4 +102,44 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 
 		observableComponent.notifyIObservers(this, new GasRigSequenceUpdate("Dunmmy", "Finished", 100));
 	}
+
+	@Override
+	public void evacuateEndStation() throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void evacuateLine(int lineNumber) throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void admitLineToEndStation(int lineNumber) throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setMassFlow(int gasId, double massFlow) throws DeviceException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void initialise() throws DeviceException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void closeLineValvesForGas(int gasId) {
+		// TODO Auto-generated method stub
+
+	}
 }
