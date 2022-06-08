@@ -24,14 +24,14 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.nexusprocessor.DataSetProcessorBase;
+import gda.device.detector.nexusprocessor.DatasetProcessorBase;
 
 import java.util.Collection;
 
 import org.eclipse.january.dataset.Dataset;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ExcaliburNDArraySimulatorParameterReader extends DataSetProcessorBase implements InitializingBean {
+public class ExcaliburNDArraySimulatorParameterReader extends DatasetProcessorBase implements InitializingBean {
 	ExcaliburNDArraySimulator sim;
 
 	public ExcaliburNDArraySimulator getSim() {
