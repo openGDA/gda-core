@@ -45,9 +45,9 @@ import gda.jython.InterfaceProvider;
  * The frame number to read is identified by the {@code frameNo} dataset in the
  * {@link GDANexusDetectorData} passed in from the detector.
  */
-public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcessor {
+public class SwmrHdfDatasetProviderProcessor extends NexusProviderDatasetProcessor {
 
-	private static final Logger logger = LoggerFactory.getLogger(SwmrHdfDataSetProviderProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(SwmrHdfDatasetProviderProcessor.class);
 	private static final int[] SINGLE_FRAME_STEP = new int[] {1, 1, 1};
 	private static final int[] SINGLE_UID_STEP = new int[] {1};
 
@@ -71,8 +71,8 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 	private String uidName = "uid";
 
 
-	public SwmrHdfDataSetProviderProcessor(String detName, String dataName, String className,
-			List<DataSetProcessor> processors, DatasetCreator datasetCreator) {
+	public SwmrHdfDatasetProviderProcessor(String detName, String dataName, String className,
+			List<DatasetProcessor> processors, DatasetCreator datasetCreator) {
 		super(detName, dataName, className, processors, datasetCreator);
 	}
 
@@ -186,18 +186,18 @@ public class SwmrHdfDataSetProviderProcessor extends NexusProviderDatasetProcess
 	@Override
 	public void atScanStart() {
 		numberScanPoints = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
-		getProcessors().forEach(DataSetProcessor::atScanStart);
+		getProcessors().forEach(DatasetProcessor::atScanStart);
 	}
 
 	@Override
 	public void stop() {
-		getProcessors().forEach(DataSetProcessor::stop);
+		getProcessors().forEach(DatasetProcessor::stop);
 		closeFile();
 	}
 
 	@Override
 	public void atScanEnd() {
-		getProcessors().forEach(DataSetProcessor::atScanEnd);
+		getProcessors().forEach(DatasetProcessor::atScanEnd);
 		closeFile();
 	}
 

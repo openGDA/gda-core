@@ -55,7 +55,7 @@ public class NexusDetectorProcessorTest {
 	private NexusTreeProviderProcessors processor;
 	private NXDetectorData result;
 	private NXDetectorData detector_data;
-	private DataSetProcessor dsp;
+	private DatasetProcessor dsp;
 
 	@Before
 	public void oneTimeSetUp() throws Exception {
@@ -79,7 +79,7 @@ public class NexusDetectorProcessorTest {
 		result.addData(DETNAME, PROCESSOR_DATA, new NexusGroupData(DOUBLE_FROM_PROCESSOR), null, null);
 		result.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR });
 
-		dsp = Mockito.mock(DataSetProcessor.class);
+		dsp = Mockito.mock(DatasetProcessor.class);
 		when(dsp.process(ArgumentMatchers.any(String.class), ArgumentMatchers.any(String.class), ArgumentMatchers.any(Dataset.class)))
 				.thenReturn(result);
 		when(dsp.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p" }));
@@ -87,7 +87,7 @@ public class NexusDetectorProcessorTest {
 		when(dsp.isEnabled()).thenReturn(true);
 
 		// make list of dataset processors
-		List<DataSetProcessor> processors = new Vector<DataSetProcessor>();
+		List<DatasetProcessor> processors = new Vector<DatasetProcessor>();
 		processors.add(dsp);
 
 		// make list of processors
@@ -189,7 +189,7 @@ public class NexusDetectorProcessorTest {
 		result2.addData(DETNAME, PROCESSOR_DATA2, new NexusGroupData(DOUBLE_FROM_PROCESSOR2), null, null);
 		result2.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR2 });
 
-		DataSetProcessor dsp2 = Mockito.mock(DataSetProcessor.class);
+		DatasetProcessor dsp2 = Mockito.mock(DatasetProcessor.class);
 		when(dsp2.process(ArgumentMatchers.any(String.class), ArgumentMatchers.any(String.class), ArgumentMatchers.any(Dataset.class)))
 				.thenReturn(result2);
 		when(dsp2.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p2" }));
@@ -201,7 +201,7 @@ public class NexusDetectorProcessorTest {
 		result3.addData(DETNAME, PROCESSOR_DATA3, new NexusGroupData(DOUBLE_FROM_PROCESSOR3), null, null);
 		result3.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR3 });
 
-		DataSetProcessor dsp3 = Mockito.mock(DataSetProcessor.class);
+		DatasetProcessor dsp3 = Mockito.mock(DatasetProcessor.class);
 		when(dsp3.process(ArgumentMatchers.any(String.class), ArgumentMatchers.any(String.class), ArgumentMatchers.any(Dataset.class)))
 				.thenReturn(result3);
 		when(dsp3.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p3" }));
@@ -213,7 +213,7 @@ public class NexusDetectorProcessorTest {
 		result4.addData(DETNAME, PROCESSOR_DATA4, new NexusGroupData(DOUBLE_FROM_PROCESSOR4), null, null);
 		result4.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR4 });
 
-		DataSetProcessor dsp4 = Mockito.mock(DataSetProcessor.class);
+		DatasetProcessor dsp4 = Mockito.mock(DatasetProcessor.class);
 		when(dsp4.process(ArgumentMatchers.any(String.class), ArgumentMatchers.any(String.class), ArgumentMatchers.any(Dataset.class)))
 				.thenReturn(result4);
 		when(dsp4.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p4" }));
@@ -221,11 +221,11 @@ public class NexusDetectorProcessorTest {
 		when(dsp4.isEnabled()).thenReturn(true);
 
 		// make list of dataset processors
-		List<DataSetProcessor> processors = new Vector<DataSetProcessor>();
+		List<DatasetProcessor> processors = new Vector<DatasetProcessor>();
 		processors.add(dsp);
 		processors.add(dsp2);
 
-		List<DataSetProcessor> processors2 = new Vector<DataSetProcessor>();
+		List<DatasetProcessor> processors2 = new Vector<DatasetProcessor>();
 		processors2.add(dsp3);
 		processors2.add(dsp4);
 
@@ -290,11 +290,11 @@ public class NexusDetectorProcessorTest {
 		NexusDetector det = Mockito.mock(NexusDetector.class);
 		when(det.readout()).thenReturn(detector_data);
 
-		DataSetFitter dsp2 = new DataSetFitter();
+		DatasetFitter dsp2 = new DatasetFitter();
 		dsp2.afterPropertiesSet();
 
 		// make list of dataset processors
-		List<DataSetProcessor> processors = new Vector<DataSetProcessor>();
+		List<DatasetProcessor> processors = new Vector<DatasetProcessor>();
 		processors.add(dsp2);
 
 		// make list of processors
@@ -348,12 +348,12 @@ public class NexusDetectorProcessorTest {
 		NexusDetector det = Mockito.mock(NexusDetector.class);
 		when(det.readout()).thenReturn(detector_data);
 
-		DataSetFitter dsp2 = new DataSetFitter();
+		DatasetFitter dsp2 = new DatasetFitter();
 		dsp2.afterPropertiesSet();
 		dsp2.setEnable(false);
 
 		// make list of dataset processors
-		List<DataSetProcessor> processors = new Vector<DataSetProcessor>();
+		List<DatasetProcessor> processors = new Vector<DatasetProcessor>();
 		processors.add(dsp2);
 
 		// make list of processors
@@ -402,7 +402,7 @@ public class NexusDetectorProcessorTest {
 		dsroi.setSliceArray(sliceArray);
 
 		DatasetStats stats = new DatasetStats();
-		List<DataSetProcessor> processors = new Vector<DataSetProcessor>();
+		List<DatasetProcessor> processors = new Vector<DatasetProcessor>();
 		processors.add(stats);
 
 		// make list of processors

@@ -34,7 +34,7 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.nexusprocessor.DataSetProcessorBase;
+import gda.device.detector.nexusprocessor.DatasetProcessorBase;
 import gda.device.detector.nexusprocessor.DatasetStats;
 import gda.factory.FactoryException;
 
@@ -43,7 +43,7 @@ import gda.factory.FactoryException;
  * <p>
  * For each roi, create a dataset for it and pass into a {@link DatasetStats} processor.
  */
-public class RoiStatsProcessor extends DataSetProcessorBase {
+public class RoiStatsProcessor extends DatasetProcessorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(RoiStatsProcessor.class);
 
