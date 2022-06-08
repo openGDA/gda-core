@@ -18,7 +18,7 @@
 
 package gda.device.detector.addetector;
 
-import static gda.device.detector.nexusprocessor.SwmrHdfDataSetProviderProcessor.FRAME_NO_DATASET_NAME;
+import static gda.device.detector.nexusprocessor.SwmrHdfDatasetProviderProcessor.FRAME_NO_DATASET_NAME;
 
 import java.io.File;
 import java.util.ArrayList;
