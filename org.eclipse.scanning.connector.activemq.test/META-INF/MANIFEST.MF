@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ActiveMQ Connector Test
+Bundle-Name: Scanning ActiveMQ Connector Test
 Bundle-SymbolicName: org.eclipse.scanning.connector.activemq.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.scanning.connector.activemq;bundle-version="1.0.0"

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Ui
+Bundle-Name: Scanning UI
 Bundle-SymbolicName: org.eclipse.scanning.event.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.scanning.event.ui.Activator

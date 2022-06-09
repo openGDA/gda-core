@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Device
+Bundle-Name: Scanning Device
 Bundle-SymbolicName: org.eclipse.scanning.device;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
