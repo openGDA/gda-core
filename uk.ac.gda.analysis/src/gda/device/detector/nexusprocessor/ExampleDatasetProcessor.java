@@ -29,11 +29,11 @@ import java.util.List;
 import org.eclipse.january.dataset.Dataset;
 
 /**
- * Example DataSetProcessor that adds data to the NexusProvider Test implementation of INexusProviderDataSetProcessor.
+ * Example DatasetProcessor that adds data to the NexusProvider Test implementation of INexusProviderDataSetProcessor.
  * Extends extraNames by 1 element, adds that value to the nx data and to the plottable data. The value increases by 1
  * for each call.
  */
-public class ExampleDataSetProcessor extends DataSetProcessorBase {
+public class ExampleDatasetProcessor extends DatasetProcessorBase {
 	private static final String ItemName = "testVal";
 	Double val = 0.;
 	private List<String> extraNames = Arrays.asList(new String[] { ItemName });

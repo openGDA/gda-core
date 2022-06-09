@@ -377,7 +377,7 @@ public class ImageViewerComposite extends Composite {
 		setZoomLevel(newZoomLevel);
 	}
 
-	// private DataSetPlotter datasetPlotter;
+	// private DatasetPlotter datasetPlotter;
 	private int redSelect;
 	private int greenSelect;
 	private int blueSelect;

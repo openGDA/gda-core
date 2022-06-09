@@ -44,7 +44,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 	 * @param datasetCreator
 	 */
 	public NexusProviderFilenameProcessor(String detName, String dataName, String className,
-			List<DataSetProcessor> processors, DatasetCreator datasetCreator) {
+			List<DatasetProcessor> processors, DatasetCreator datasetCreator) {
 		super(detName, dataName, className, processors, datasetCreator);
 	}
 

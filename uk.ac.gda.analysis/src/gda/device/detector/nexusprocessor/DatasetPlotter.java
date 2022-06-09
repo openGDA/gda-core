@@ -18,36 +18,44 @@
 
 package gda.device.detector.nexusprocessor;
 
+import gda.device.detector.GDANexusDetectorData;
+
 import java.util.Collection;
 
-import gda.factory.FindableConfigurableBase;
+import org.eclipse.january.dataset.Dataset;
 
-public abstract class DataSetProcessorBase extends FindableConfigurableBase implements DataSetProcessor {
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
-	boolean enable=true;
+/**
+ * DatasetProcessor that sends data to client for plotting
+ */
+public class DatasetPlotter extends DatasetProcessorBase {
+
+	private String plotName="Plot 1";
 
 	@Override
-	public boolean isEnabled() {
-		return enable;
+	public GDANexusDetectorData process(String detName, String dataName, Dataset dataset) throws Exception {
+		if (enable) {
+			SDAPlotter.imagePlot(plotName, dataset);
+		}
+		return null;
+	}
+
+	public String getPlotName() {
+		return plotName;
+	}
+
+	public void setPlotName(String plotName) {
+		this.plotName = plotName;
 	}
 
 	@Override
-	public void setEnable(boolean enable) {
-		this.enable = enable;
-	}
-
-	protected abstract Collection<String> _getExtraNames();
-	protected abstract Collection<String> _getOutputFormat();
-
-	@Override
-	public Collection<String> getExtraNames() {
-		return enable ? _getExtraNames() : null;
+	protected Collection<String> _getExtraNames() {
+		return null;
 	}
 
 	@Override
-	public Collection<String> getOutputFormat() {
-		return enable ?  _getOutputFormat() : null;
+	protected Collection<String> _getOutputFormat() {
+		return null;
 	}
-
-
 }

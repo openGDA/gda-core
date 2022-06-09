@@ -37,7 +37,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	private String className;
 	private String dataName;
 	private String detName;
-	private List<DataSetProcessor> processors;
+	private List<DatasetProcessor> processors;
 	private DatasetCreator datasetCreator;
 
 	public DatasetCreator getDatasetCreator() {
@@ -65,7 +65,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 				: datasetCreator.createDataSet(extractDataset(nexusTreeProvider));
 
 		GDANexusDetectorData result = null;
-		result = getProcessors().stream().filter(DataSetProcessor::isEnabled)
+		result = getProcessors().stream().filter(DatasetProcessor::isEnabled)
 				.map(processor -> processDataset(processor, dataset))
 				.reduce(new NXDetectorData(), GDANexusDetectorData::mergeIn);
 		return result;
@@ -81,10 +81,10 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	}
 
 	/**
-	 * Wrapper for {@link DataSetProcessor#process(String, String, Dataset)} to convert
+	 * Wrapper for {@link DatasetProcessor#process(String, String, Dataset)} to convert
 	 * Exception into a RuntimeException
 	 */
-	private GDANexusDetectorData processDataset(DataSetProcessor processor, Dataset dataset) {
+	private GDANexusDetectorData processDataset(DatasetProcessor processor, Dataset dataset) {
 		try {
 			return processor.process(getDetName(), getDataName(), dataset);
 		} catch (Exception e) {
@@ -93,7 +93,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	}
 
 	public NexusProviderDatasetProcessor(String detName, String dataName, String className,
-			List<DataSetProcessor> processors, DatasetCreator datasetCreator) {
+			List<DatasetProcessor> processors, DatasetCreator datasetCreator) {
 		super();
 		this.className = className;
 		this.dataName = dataName;
@@ -126,12 +126,12 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		this.detName = detName;
 	}
 
-	public List<DataSetProcessor> getProcessors() {
+	public List<DatasetProcessor> getProcessors() {
 		return processors;
 	}
 
 	//only to be called before a scan as it effect extraNames and outputFormat
-	public void setProcessors(List<DataSetProcessor> newProcessors) {
+	public void setProcessors(List<DatasetProcessor> newProcessors) {
 		this.processors = newProcessors;
 	}
 
@@ -141,7 +141,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 			return null;
 
 		Collection<String> allExtraNames = new ArrayList<>();
-		for (DataSetProcessor processor : processors) {
+		for (DatasetProcessor processor : processors) {
 			Collection<String> extraNames = processor.isEnabled() ? processor.getExtraNames() : null;
 			if (extraNames != null) {
 				allExtraNames.addAll(extraNames);
@@ -156,7 +156,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 			return null;
 
 		Collection<String> totalList = new ArrayList<>();
-		for (DataSetProcessor processor : processors) {
+		for (DatasetProcessor processor : processors) {
 			Collection<String> itemList = processor.isEnabled() ? processor.getOutputFormat() : null;
 			if (itemList != null) {
 				totalList.addAll(itemList);
@@ -168,7 +168,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 
 	@Override
 	public boolean isEnabled() {
-		for (DataSetProcessor processor : processors) {
+		for (DatasetProcessor processor : processors) {
 			if( processor.isEnabled())
 				return true;
 		}

@@ -38,7 +38,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.nexusprocessor.DataSetProcessorBase;
+import gda.device.detector.nexusprocessor.DatasetProcessorBase;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.JythonServerFacade;
 
@@ -48,7 +48,7 @@ import gda.jython.JythonServerFacade;
  * <p>
  * Adapted from beamline provided Jython script.
  */
-public class NormalisingRegionProcessor extends DataSetProcessorBase {
+public class NormalisingRegionProcessor extends DatasetProcessorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(NormalisingRegionProcessor.class);
 

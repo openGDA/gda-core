@@ -39,10 +39,10 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Offset;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 
-public class DataSetFitter extends DataSetProcessorBase implements InitializingBean{
+public class DatasetFitter extends DatasetProcessorBase implements InitializingBean{
 	private static final String[] NAMES_PER_DIM = { "centre", "fwhm", "area", "offset" };
 
-	private static final Logger logger = LoggerFactory.getLogger(DataSetFitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(DatasetFitter.class);
 
 	List<String> extraNames;
 	List<String> formats;

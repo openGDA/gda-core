@@ -41,7 +41,7 @@ import gda.device.detector.NXDetectorData;
  * The available statistics are defined in {@link Statistic}. Which
  * statistics are enabled can be configured using {@link #setEnabledStats(List)}.
  */
-public class DatasetStats extends DataSetProcessorBase {
+public class DatasetStats extends DatasetProcessorBase {
 
 	private static final String INT_FORMAT = "%.0f";
 	private static final String FLOAT_FORMAT = "%f";

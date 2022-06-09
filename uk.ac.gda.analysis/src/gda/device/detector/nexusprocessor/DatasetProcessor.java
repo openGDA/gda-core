@@ -28,7 +28,7 @@ import gda.device.detector.GDANexusDetectorData;
  * interface for processing a dataset. Process method returns <code>ProcessorResults</code> if extraNames or
  * outputFormat changes that inform observers
  */
-public interface DataSetProcessor {
+public interface DatasetProcessor {
 
 	String getName();
 

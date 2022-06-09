@@ -30,9 +30,9 @@
  * NexusTreeProviderProcessor
  * <p>
  * <code>NexusProviderDatasetProcessor</code> - implementation of NexusTreeProviderProcessor that extracts a dataset
- * from a specified location in the NXDetectorData and passes on to a set of <code>DataSetProcessor</code>
+ * from a specified location in the NXDetectorData and passes on to a set of <code>DatasetProcessor</code>
  * <p>
- * <code>DataSetProcessor</code> - interface for processing a dataset. Process method returns
+ * <code>DatasetProcessor</code> - interface for processing a dataset. Process method returns
  * <code>ProcessorResults</code>
  * <p>
  * <code>ProcessorResults</code> - interface of result of processing a NexusProvider. Includes method to return
@@ -42,10 +42,10 @@
  * <p>
  * <code>NexusDataFactory</code> - factory class for creating NexusData items
  * <p>
- * <code>DataSetPlotter</code> - DataSetProcessor that sends data to client for plotting
+ * <code>DatasetPlotter</code> - DatasetProcessor that sends data to client for plotting
  * <p>
- * <code>DataSetFitter</code> - DataSetProcessor that fits gaussian in the 2d dataset
+ * <code>DatasetFitter</code> - DatasetProcessor that fits gaussian in the 2d dataset
  * <p>
- * <code>ExampleDataSetProcessor</code> - Example DataSetProcessor that adds data to the NexusProvider
+ * <code>ExampleDatasetProcessor</code> - Example DatasetProcessor that adds data to the NexusProvider
  */
 package gda.device.detector.nexusprocessor;
