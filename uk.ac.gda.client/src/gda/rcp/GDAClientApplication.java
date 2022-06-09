@@ -21,10 +21,7 @@ package gda.rcp;
 import static gda.configuration.properties.LocalProperties.GDA_CHECK_USER_VISIT_VALID;
 import static java.util.Arrays.stream;
 
-import java.io.File;
-import java.net.URL;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
@@ -105,11 +102,12 @@ public class GDAClientApplication implements IApplication {
 				return EXIT_OK;
 			}
 
-			//set workspace before creating items in call to createObjectFactory as the latter
-			//may cause the accessing of preferences which is not possible until the workspace is set
-			final String workspacePath = getWorkSpacePath();
-			createVisitBasedWorkspace(workspacePath);
-
+			Location instanceLocation = Platform.getInstanceLocation();
+			if (instanceLocation != null && instanceLocation.isSet()) {
+				logger.info("Workspace set to '{}'", instanceLocation.getURL());
+			} else {
+				throw new Exception("Workspace location not set.");
+			}
 
 			// To break the dependency of uk.ac.gda.common.BeansFactory of RCP/Eclipse, we
 			// manually force initialisation here. In the object server this is handled
@@ -433,93 +431,6 @@ public class GDAClientApplication implements IApplication {
 	 * Launch the ObjectServer to create the client implementation (as the AcquisitionFrame would do in original gda)
 	 */
 	private static boolean started = false;
-
-	/**
-	 *
-	 * @param workspacePath
-	 * @throws Exception if the workspace failed to be set
-	 */
-	private void createVisitBasedWorkspace(final String workspacePath) throws Exception {
-
-		boolean newWorkspace = false;
-		final File workspace = new File(workspacePath);
-		if (!workspace.exists()) {
-			// New workspace
-			newWorkspace = true;
-			if (!workspace.mkdirs()) {
-				final String msg = "Cannot create workspace in " + workspace.getAbsolutePath() + " not setting workspace";
-				throw new Exception(msg);
-			}
-		}
-		workspace.setWritable(true);
-		workspace.setReadable(true);
-
-		if (!workspace.canRead() || !workspace.canWrite() || !workspace.canExecute()) {
-			final String msg = "Not setting workspace to " + workspace.getAbsolutePath()
-					+ " due to insufficient permissions.";
-			throw new Exception(msg);
-		}
-
-		URL url;
-		Location instanceLocation;
-		try {
-			url = workspace.toURI().toURL();
-			instanceLocation = Platform.getInstanceLocation();
-			if (!instanceLocation.isSet()) {
-				instanceLocation.set(url, false);
-			} else {
-				// generally it is expected that the instanceLocation is only set in development environment
-
-				if (instanceLocation.getURL().equals(instanceLocation.getDefault())) {
-					// If you get this exception you have hit a race condition similar to what was reported in GDA-3414.
-					// This has probably occurred because some Eclipse component was run prior to the workbench being
-					// fully initialised. To track down the area, place a breakpoint in BasicLocation#getUrl()'s if statement
-					// that controls if the Location has not been initialised. Once you know who is calling getUrl too early,
-					// figure out how to delay it until the workbench has been started.
-					// NOTE: this check may be brittle as it is dependent on current implementation of LocationManager#initializeLocations
-					throw new Exception("Workspace has already been set when trying to set visit based workspace location.");
-				}
-
-				logger.info("Workspace instance location has been set with -data command line argument to '{}'", instanceLocation.getURL());
-				// for correct reporting further on
-				url = instanceLocation.getURL();
-			}
-		} catch (Exception e) {
-			final String msg = "Cannot set workspace to " + workspace.getAbsolutePath();
-			throw new Exception(msg, e);
-		}
-		if (instanceLocation.lock()) {
-			logger.info("Workspace set to '{}'", url);
-		} else {
-			throw new Exception("Workspace at " + url + " is locked.\n Is another instance of GDA already running?");
-		}
-		GDAClientActivator.getDefault().getPreferenceStore().setValue(PreferenceConstants.NEW_WORKSPACE, newWorkspace);
-	}
-
-	private String getWorkSpacePath() {
-
-		// ensure we do not take these values from the metadata when defining the workspace that this client will use
-		HashMap<String,String> metadataOverrides = new HashMap<String,String>();
-		metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
-		metadataOverrides.put("federalid", UserAuthentication.getUsername());
-		metadataOverrides.put("user", UserAuthentication.getUsername());
-
-		String path = null;
-		try {
-			path = InterfaceProvider.getPathConstructor().createFromProperty("gda.rcp.workspace",metadataOverrides);
-		} catch (Exception ne) {
-			path = null;
-		}
-
-		if (path == null) {
-			final String varDir = LocalProperties.getVarDir();
-			final String username = UserAuthentication.getUsername();
-			final String visit = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-			final String template = String.format("%s/.workspace-%s-%s", varDir, username, visit);
-			path = InterfaceProvider.getPathConstructor().createFromTemplate(template);
-		}
-		return path;
-	}
 
 	/**
 	 * Application wide monitoring or special logging modifications
