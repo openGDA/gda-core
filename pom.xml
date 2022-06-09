@@ -41,6 +41,7 @@
 		<module>uk.ac.diamond.daq.experiment.api</module>
 		<module>uk.ac.diamond.daq.experiment.test</module>
 		<module>uk.ac.diamond.daq.experiment.scans</module>
+		<module>uk.ac.diamond.daq.experiment.scans.test</module>
 		<module>uk.ac.diamond.daq.experiment.ui</module>
 		<module>uk.ac.diamond.daq.jython.api</module>
 		<module>uk.ac.diamond.daq.jyunit.test</module>
