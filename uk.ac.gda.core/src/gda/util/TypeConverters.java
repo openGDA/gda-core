@@ -78,6 +78,8 @@ public class TypeConverters {
 		} else if (object instanceof PyFloat[]) {
 			return Arrays.stream((PyFloat[]) object).map(obj -> Py.tojava(obj, Number.class))
 					.mapToDouble(Number::doubleValue).toArray();
+		} else if (object instanceof Object[]) {
+			return Arrays.stream((Object[]) object).mapToDouble(TypeConverters::toDouble).toArray();
 		} else if (object instanceof Number) {
 			return new double[] { ((Number) object).doubleValue() };
 		} else if (object instanceof PyFloat) {

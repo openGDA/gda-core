@@ -18,7 +18,9 @@
 
 package gda.data.scan.datawriter;
 
+import static gda.MockFactory.createMockScannable;
 import static gda.configuration.properties.LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT;
+import static java.util.Collections.emptySet;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
@@ -30,6 +32,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,6 +41,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -58,13 +64,13 @@ import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
 import org.eclipse.dawnsci.nexus.scan.impl.NexusScanFileServiceImpl;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.scanning.device.Services;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.python.core.Py;
 import org.python.core.PyTuple;
 
-import gda.MockFactory;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
@@ -76,19 +82,20 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.scan.ConcurrentScan;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
-public class ScannableWithStringInputFieldTest {
+class ScannableWithStringInputFieldTest {
 
 	private static final String DETECTOR_NAME = "det1";
 	private static final String SCANNABLE_NAME = "s1";
 
-	private static final String[] FIELD_NAMES = new String[] { "numVal", "strVal" };
+	private static final String[] NO_FIELDS = new String[0];
 
-	private static Object[][] SCAN_POSITIONS = new Object[][] {
-		{ 700.0, "pc" },
-		{ 700.0, "nc" },
-		{ 705.0, "nc" },
-		{ 705.0, "pc" }
-	};
+	private static final Object[] STRING_POSITION = { "pc", "nc", "nc", "pc" };
+	private static final int NUM_POSITIONS = 4;
+
+	private int numFields;
+	private String[] fieldNames;
+	private Set<Integer> stringFieldIndices;
+	private int maxRangeFieldIndex;
 
 	private Detector detector;
 
@@ -96,7 +103,7 @@ public class ScannableWithStringInputFieldTest {
 
 	private String outputDir;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		detector = createDetector();
 	}
@@ -137,11 +144,41 @@ public class ScannableWithStringInputFieldTest {
 		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
 	}
 
-	@Test
-	public void testScannableWithNumericAndStringInputField() throws Exception {
-		setUpTest("testScannableWithNumericAndStringInputField");
+	static Stream<Arguments> provideArgs() {
+		return Stream.of(
+				Arguments.of(1, 0, emptySet()), // num
+				Arguments.of(1, 0, Set.of(0)), // str
+				Arguments.of(2, 0, emptySet()), // num (max), num
+				Arguments.of(2, 1, emptySet()), // num, num (max)
+				Arguments.of(2, 0, Set.of(1)), //  num, str
+				Arguments.of(2, 1, Set.of(0)), // str, num
+				Arguments.of(2, 0, Set.of(0, 1)), // str, str
+				Arguments.of(3, 0, Set.of(2)), // num (max), num, str
+				Arguments.of(3, 1, Set.of(2)), // num, num (max), str
+				Arguments.of(3, 1, Set.of(0, 2)), // str, num, str
+				Arguments.of(3, 0, Set.of(0, 1, 2)), // str, str, str
+				Arguments.of(8, 5, emptySet()), // all numbers
+				Arguments.of(8, 3, Set.of(0, 1, 2, 4, 5, 6, 7)), // one number, rest strings
+				Arguments.of(8, 6, Set.of(1, 3, 5, 7)), // multiple strings and numbers
+				Arguments.of(8, 2, Set.of(6)), // one string, rest numbers
+				Arguments.of(8, 0, Set.of(0, 1, 2, 3, 4, 5, 6, 7)) // all strings
+		);
+	}
 
-		scannable = createScannable();
+	@ParameterizedTest(name="numFields: {0}, maxRangeFieldIndex: {1}, stringFieldIndices: {2}")
+	@MethodSource("provideArgs")
+	void testScannable(int numFields, int maxRangeFieldIndex, Set<Integer> stringFieldIndices) throws Exception {
+		this.numFields = numFields;
+		this.maxRangeFieldIndex = maxRangeFieldIndex;
+		this.stringFieldIndices = stringFieldIndices;
+
+		fieldNames = IntStream.range(0, numFields).mapToObj(i -> "field" + i).toArray(String[]::new);
+		this.scannable = createScannable(stringFieldIndices);
+
+		// each test needs a unique name so that we have a unique output dir
+		setUpTest("testScannable" + numFields + "-" + maxRangeFieldIndex + "-" +
+					String.join("-", stringFieldIndices.stream().map(i -> i.toString()).toArray(String[]::new)));
+
 		final Object[] scanArguments = createScanArguments();
 		final ConcurrentScan scan = new ConcurrentScan(scanArguments);
 
@@ -157,22 +194,56 @@ public class ScannableWithStringInputFieldTest {
 		}
 	}
 
-	private Scannable createScannable() throws Exception {
-		final Scannable numScannable = MockFactory.createMockScannable(FIELD_NAMES[0],
-				new String[] { FIELD_NAMES[0] }, new String[0], new Double[] { 0.0 });
-		final Scannable strScannable = MockFactory.createMockScannable(FIELD_NAMES[1],
-				new String[] { FIELD_NAMES[1] }, new String[0], new String[] { "%s" }, 5, "pc");
+	private Scannable createScannable(Set<Integer> stringFieldIndices) throws Exception {
+		final Scannable[] fieldScannables = IntStream.range(0, numFields)
+			.mapToObj(fieldIndex -> createFieldScannable(fieldNames[fieldIndex], stringFieldIndices.contains(fieldIndex)))
+			.toArray(Scannable[]::new);
 
-		return new ScannableGroup(SCANNABLE_NAME, new Scannable[] { numScannable, strScannable });
+		return new ScannableGroup(SCANNABLE_NAME, fieldScannables);
+	}
+
+	private Scannable createFieldScannable(String fieldName, boolean isStringField) {
+		final String[] inputNames = new String[] { fieldName };
+		final String[] outputNames = new String[] { isStringField ? "%s" : "%5.5f" };
+		final Object startPos = isStringField ? "none" : 0.0;
+
+		try {
+			return createMockScannable(fieldName, inputNames, NO_FIELDS, outputNames, 5, startPos);
+		} catch (DeviceException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Object[] createScanArguments() {
 		final List<Object> arguments = new ArrayList<>();
 		arguments.add(scannable);
-		arguments.add(new PyTuple(Py.javas2pys((Object[]) SCAN_POSITIONS)));
+		arguments.add(createScanPositions());
 		arguments.add(detector);
 
 		return arguments.toArray();
+	}
+
+	private PyTuple createScanPositions() {
+		final Object[][] scanPositions = IntStream.range(0, NUM_POSITIONS)
+			.mapToObj(posIndex -> createPosition(posIndex))
+			.toArray(Object[][]::new);
+
+		// return as PyTuple. Note cast to Object[] is required to match varargs
+		return new PyTuple(Py.javas2pys((Object[]) scanPositions));
+	}
+
+	private Object createPosition(int posIndex) {
+		return IntStream.range(0, numFields)
+			.mapToObj(fieldIndex -> createPositionForField(posIndex, fieldIndex))
+			.toArray();
+	}
+
+	private Object createPositionForField(int posIndex, int fieldIndex) {
+		if (stringFieldIndices.contains(fieldIndex)) {
+			return STRING_POSITION[posIndex];
+		}
+
+		return posIndex * (fieldIndex == maxRangeFieldIndex ? 2.0 : 1.0);
 	}
 
 	private void checkNexusFile(NexusFile nexusFile) throws NexusException {
@@ -186,41 +257,49 @@ public class ScannableWithStringInputFieldTest {
 		assertThat(instrument, is(notNullValue()));
 
 		final NXcollection scannableCollection = instrument.getCollection(SCANNABLE_NAME);
-		assertThat(scannableCollection, is(notNullValue()));
+		assertThat(scannableCollection, is(fieldNames.length == 1 ? nullValue() : notNullValue()));
 
-		final int[] scanShape = { SCAN_POSITIONS.length };
-		for (int i = 0; i < FIELD_NAMES.length; i++) {
-			final String fieldName = FIELD_NAMES[i];
-			final DataNode dataNode = scannableCollection.getDataNode(fieldName);
-			assertThat(dataNode, is(notNullValue()));
-			assertThat(dataNode.getDataset().getShape(), is(scanShape));
-
-			final String positionerName = SCANNABLE_NAME + "." + FIELD_NAMES[i];
+		final int[] scanShape = { NUM_POSITIONS };
+		for (int i = 0; i < numFields; i++) {
+			final String fieldName = fieldNames[i];
+			final String positionerName =  SCANNABLE_NAME + (fieldNames.length == 1 ? "" : "." + fieldName);
 			final NXpositioner positioner = instrument.getPositioner(positionerName);
 			assertThat(positioner, is(notNullValue()));
 			assertThat(positioner.getDataNodeNames(), contains(NXpositioner.NX_NAME, NXpositioner.NX_VALUE));
 			assertThat(positioner.getNameScalar(), is(equalTo(positionerName)));
-			assertThat(positioner.getDataNode(NXpositioner.NX_VALUE), is(Matchers.sameInstance(dataNode)));
+
+			if (numFields > 1) {
+				final DataNode dataNode = scannableCollection.getDataNode(fieldName);
+				assertThat(dataNode, is(notNullValue()));
+				assertThat(dataNode.getDataset().getShape(), is(scanShape));
+				assertThat(positioner.getDataNode(NXpositioner.NX_VALUE), is(sameInstance(dataNode)));
+			}
 		}
 
 		// check the NXdata group
 		assertThat(entry.getAllData().keySet(), contains(DETECTOR_NAME));
 		final NXdata dataGroup = entry.getData(DETECTOR_NAME);
 		assertThat(dataGroup, is(notNullValue()));
-		final String[] scannableLinkedFieldNames = Arrays.stream(FIELD_NAMES).map(fieldName -> SCANNABLE_NAME + "_" + fieldName).toArray(String[]::new);
+		final String[] scannableLinkedFieldNames = Arrays.stream(fieldNames)
+				.map(fieldName -> SCANNABLE_NAME + (numFields == 1 ? "" : "_" + fieldName))
+				.toArray(String[]::new);
 		final String[] expectedDataGroupFieldNames = ArrayUtils.add(scannableLinkedFieldNames, NXdetector.NX_DATA);
 		assertThat(dataGroup.getDataNodeNames(), containsInAnyOrder(expectedDataGroupFieldNames));
 
 		assertSignal(dataGroup, NXdetector.NX_DATA);
-		assertAxes(dataGroup, SCANNABLE_NAME + "_" + FIELD_NAMES[0]);
-		for (int i = 0; i < FIELD_NAMES.length; i++) {
-			final String fieldName = FIELD_NAMES[i];
+		assertAxes(dataGroup, SCANNABLE_NAME + (numFields == 1 ? "" : "_" + fieldNames[maxRangeFieldIndex]));
+		for (int i = 0; i < numFields; i++) {
+			final String fieldName = fieldNames[i];
 			final String dataFieldName = scannableLinkedFieldNames[i];
 			final DataNode dataNode = dataGroup.getDataNode(dataFieldName);
 			assertThat(dataNode, is(notNullValue()));
-			assertThat(dataNode, is(sameInstance(scannableCollection.getDataNode(fieldName))));
 			assertIndices(dataGroup, dataFieldName, 0);
-			assertTarget(dataGroup, dataFieldName, nexusRoot, "/entry/instrument/" + SCANNABLE_NAME + "/" + fieldName);
+			assertTarget(dataGroup, dataFieldName, nexusRoot, "/entry/instrument/" + SCANNABLE_NAME + "/"
+						+ (numFields == 1 ? NXpositioner.NX_VALUE: fieldName));
+
+			if (numFields > 1) {
+				assertThat(dataNode, is(sameInstance(scannableCollection.getDataNode(fieldName))));
+			}
 		}
 	}
 

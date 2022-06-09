@@ -25,6 +25,7 @@ import static java.util.stream.Collectors.partitioningBy;
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -200,22 +201,22 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 		// group the indices by whether the type is string. Non-string fields are assumed to be numeric.
 		final Map<Boolean, List<Integer>> indicesByIsString = IntStream.range(0, numFields).boxed()
 				.collect(partitioningBy(i -> outputFormats[i].charAt(outputFormats[i].length() - 1) == 's'));
-		final int[] stringFieldIndices = indicesByIsString.get(true).stream().mapToInt(Integer::intValue).toArray();
-		final int[] numericFieldIndices = indicesByIsString.get(false).stream().mapToInt(Integer::intValue).toArray();
-		if (numericFieldIndices.length == 0) {
-			return 0; // all fields are non-numeric (string) valued, no comparison required
-		} else if (numericFieldIndices.length == 1) {
-			return numericFieldIndices[0]; // only one numeric valued field, return its index
+		final List<Integer> stringFieldIndices = indicesByIsString.get(true);
+		final List<Integer> numericFieldIndices = indicesByIsString.get(false);
+		if (numericFieldIndices.isEmpty()) {
+			return 0; // all fields are non-numeric (string) valued, return index of first field
+		} else if (numericFieldIndices.size() == 1) {
+			return numericFieldIndices.get(0); // only one numeric valued field, return its index
 		}
 
 		// multiple numeric fields, zero or more string valued fields
 		final Iterator<Object> pointIter = scanObject.iterator();
-		final double[] firstPoint = toDoubleArray(pointIter.next(), stringFieldIndices); // removes any string valued fields
+		final double[] firstPoint = toDoubleArray(pointIter.next(), stringFieldIndices, false); // removes any string valued fields
 		final double[] minPoints = Arrays.stream(firstPoint).toArray(); // copy the first point to accumulate the...
 		final double[] maxPoints = Arrays.stream(firstPoint).toArray(); // ...minimum and maximum values
 		while (pointIter.hasNext()) {
 			// iterate over the points and update the max and min arrays
-			final double[] point = toDoubleArray(pointIter.next(), stringFieldIndices);
+			final double[] point = toDoubleArray(pointIter.next(), stringFieldIndices, true);
 			for (int i = 0; i < point.length; i++) { // no nice way to do this with streams
 				minPoints[i] = Math.min(minPoints[i], point[i]);
 				maxPoints[i] = Math.max(maxPoints[i], point[i]);
@@ -224,14 +225,18 @@ public abstract class AbstractScannableNexusDevice<N extends NXobject> extends A
 
 		// return the index of the field with the maximum range
 		final int maxRangeIndex = getMaxRangeIndex(minPoints, maxPoints);
-		return stringFieldIndices.length == 0 ? maxRangeIndex : numericFieldIndices[maxRangeIndex];
+		return stringFieldIndices.isEmpty() ? maxRangeIndex : numericFieldIndices.get(maxRangeIndex);
 	}
 
-	private double[] toDoubleArray(Object point, int[] stringElementIndicies) {
-		if (stringElementIndicies.length > 0) { // remove string valued fields
+	private double[] toDoubleArray(Object point, List<Integer> stringElementIndicies, boolean listInReverseOrder) {
+		if (!stringElementIndicies.isEmpty()) { // remove string valued fields
 			final List<String> pointAsStringList = TypeConverters.toStringList(point);
-			Arrays.stream(stringElementIndicies).forEach(pointAsStringList::remove);
-			point = pointAsStringList.toArray();
+			if (!listInReverseOrder) {
+				// reverse the indices list if not already, so subsequent indices aren't affected by removing elements
+				Collections.reverse(stringElementIndicies);
+			}
+			stringElementIndicies.stream().mapToInt(Integer::intValue).forEach(pointAsStringList::remove);
+			point = pointAsStringList;
 		}
 
 		return TypeConverters.toDoubleArray(point);
