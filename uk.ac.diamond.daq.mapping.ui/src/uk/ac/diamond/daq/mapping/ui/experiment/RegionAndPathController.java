@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -538,15 +539,31 @@ public class RegionAndPathController extends AbstractMappingController {
 		checkInitialised();
 		pathCalculationJob.cancel();
 		if (scanPathModel != null && scanRegionShape != null) {
+
+			var eventId = UUID.randomUUID();
+			var outerScannables = getOuterScannables();
+
+			ScanPointsCalculator scanPointsCalculator = new ScanPointsCalculator(scanPathModel, scanRegionShape, outerScannables);
+			scanPointsCalculator.setEventId(eventId);
+			publishScanPointsCalculatorEvent(scanPointsCalculator);
+
 			pathCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+					.withEventId(eventId)
 					.withSourceId(MappingExperimentView.ID)
 					.withScanPathModel(scanPathModel)
 					.withScanRegion(scanRegionShape.toROI())
-					.withOuterScannables(getOuterScannables())
+					.withOuterScannables(outerScannables)
 					.build());
 
 			pathCalculationJob.schedule();
 		}
+	}
+
+	private void publishScanPointsCalculatorEvent(ScanPointsCalculator scanPointsCalculator) {
+		IEventBroker eventBroker = getService(IEventBroker.class);
+		eventBroker.post(
+				MappingExperimentView.SCAN_POINTS_CALCULATION_TOPIC,
+				scanPointsCalculator);
 	}
 
 	private List<IScanPointGeneratorModel> getOuterScannables() {
@@ -611,17 +628,14 @@ public class RegionAndPathController extends AbstractMappingController {
 		job.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void running(IJobChangeEvent event) {
-				uiSync.asyncExec(() -> {
-					publishStatusMessage("Scan path calculation in progress");
-					plotter.removePath();
-				});
+				uiSync.asyncExec(() -> plotter.removePath());
 			}
 			@Override
 			public void done(final IJobChangeEvent event) {
 				uiSync.asyncExec(() -> {
 					IStatus result = event.getResult();
 					if (result.getSeverity() == IStatus.CANCEL) {
-						publishStatusMessage("Scan path calculation was cancelled");
+						logger.warn("Scan path calculation was cancelled", result.getException());
 					} else if (!result.isOK()) {
 						publishStatusMessage("Error in scan path calculation - see log for details");
 						logger.warn("Error in scan path calculation", result.getException());

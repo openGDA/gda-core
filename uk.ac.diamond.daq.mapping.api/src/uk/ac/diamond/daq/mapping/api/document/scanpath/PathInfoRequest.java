@@ -21,6 +21,7 @@ package uk.ac.diamond.daq.mapping.api.document.scanpath;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
@@ -34,6 +35,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 @JsonDeserialize(builder = PathInfoRequest.Builder.class)
 public class PathInfoRequest {
 	private static final int DEFAULT_MAX_POINTS = 100000;
+
+	private final UUID eventId;
 
 	/**
 	 * The id of the source for this request, e.g. the mapping view
@@ -63,17 +66,23 @@ public class PathInfoRequest {
 	private final int maxPoints;
 
 	public PathInfoRequest(
+			UUID eventId,
 			String sourceId,
 			IScanPointGeneratorModel scanPathModel,
 			IROI scanRegion,
 			List<IScanPointGeneratorModel> outerScannables,
 			int maxPoints) {
 		super();
+		this.eventId = eventId;
 		this.sourceId = sourceId;
 		this.scanPathModel = scanPathModel;
 		this.scanRegion = scanRegion;
 		this.outerScannables = outerScannables;
 		this.maxPoints = maxPoints;
+	}
+
+	public UUID getEventId() {
+		return eventId;
 	}
 
 	public String getSourceId() {
@@ -117,7 +126,10 @@ public class PathInfoRequest {
 		if (getClass() != obj.getClass())
 			return false;
 		PathInfoRequest other = (PathInfoRequest) obj;
-		if (sourceId == null) {
+		if (eventId == null) {
+			if (other.eventId != null)
+				return false;
+		} else if (sourceId == null) {
 			if (other.sourceId != null)
 				return false;
 		} else if (!sourceId.equals(other.sourceId)) {
@@ -154,12 +166,17 @@ public class PathInfoRequest {
 
 	@JsonPOJOBuilder
 	public static final class Builder {
+		private UUID eventId;
 		private String sourceId;
 		private IScanPointGeneratorModel scanPathModel;
 		private IROI scanRegion;
 		private List<IScanPointGeneratorModel> outerScannables;
 		private Integer maxPoints;
 
+		public Builder withEventId(UUID eventId) {
+			this.eventId = eventId;
+			return this;
+		}
 		public Builder withSourceId(String sourceId) {
 			this.sourceId = sourceId;
 			return this;
@@ -188,6 +205,7 @@ public class PathInfoRequest {
 
 		public PathInfoRequest build() {
 			return new PathInfoRequest(
+					Objects.requireNonNull(eventId),
 					Objects.requireNonNull(sourceId),
 					Objects.requireNonNull(scanPathModel),
 					Objects.requireNonNull(scanRegion),

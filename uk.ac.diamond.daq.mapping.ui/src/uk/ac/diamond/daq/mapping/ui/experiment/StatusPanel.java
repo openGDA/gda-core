@@ -18,11 +18,9 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment;
 
-import java.util.List;
-
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -36,8 +34,8 @@ import uk.ac.diamond.daq.mapping.api.document.scanpath.PathInfo;
 public class StatusPanel extends AbstractMappingSection {
 
 	private Label statusLabel;
-	private String message;
 	private PathInfo pathInfo;
+	private ScanPointsCalculator scanPointsCalculator;
 	private IMappingExperimentBean mappingBean;
 
 	private static final Logger logger = LoggerFactory.getLogger(StatusPanel.class);
@@ -45,13 +43,13 @@ public class StatusPanel extends AbstractMappingSection {
 	@Override
 	public void createControls(Composite parent) {
 		super.createControls(parent);
+		final Composite sectionComposite = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(sectionComposite);
+		GridLayoutFactory.fillDefaults().applyTo(sectionComposite);
 
-		final Composite sectionComposite = createComposite(parent, 1, true);
 		statusLabel = new Label(sectionComposite, SWT.NONE);
 		statusLabel.setText(" \n "); // to make sure height is allocated correctly
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(statusLabel);
-
-		updateStatusLabel();
 	}
 
 	@Override
@@ -61,36 +59,27 @@ public class StatusPanel extends AbstractMappingSection {
 			return;
 		}
 
-		final String firstLine;
-		final String secondLine;
-		if (message != null && message.length() > 0) {
-			firstLine = message;
-			secondLine = "";
-		} else {
-			if (pathInfo == null) return; // come back later
-			firstLine = getNumberOfPointsString() + getExposureString();
+		String firstLine = "";
+		String secondLine = "";
+
+		if (displayScanPointsCalculatorResults()) {
+			firstLine = getScanPointsCalculatorString();
+			secondLine = "Full scan path calculation in progress...";
+		} else if (pathInfo != null){
+			firstLine = getPathInfoString();
 			secondLine = getStepsString();
 		}
-		String text = firstLine + "\n" + secondLine;
-		statusLabel.setText(text);
+
+		statusLabel.setText(firstLine + "\n" + secondLine);
 	}
 
-	private String getNumberOfPointsString() {
-		int innerPoints = pathInfo.getInnerPointCount();
-		int totalPoints = pathInfo.getTotalPointCount();
-		int actualPoints = pathInfo.getReturnedPointCount();
-
-		String pointsMessage = String.format("Map points: %,d",
-				totalPoints);
-		if (actualPoints < innerPoints)
-			pointsMessage += String.format(" (Only displaying the first %,d points)",
-								actualPoints);
-		return pointsMessage;
+	private String getNumberOfPointsString(int scanPoints) {
+		return String.format("Map points: % ,d", scanPoints);
 	}
 
-	private String getExposureString() {
-		double totalTime = getPointExposureTime();
-		return String.format("    Exposure time: %02.0f:%02.0f:%02.0f",
+	private String getExposureString(int scanPoints) {
+		double totalTime = getExposureTime() * scanPoints;
+		return String.format("    Total exposure time: %02.0f:%02.0f:%02.0f",
 					Math.floor(totalTime / 3600.0),
 					Math.floor((totalTime % 3600.0) / 60.0),
 					totalTime % 60.0);
@@ -103,29 +92,56 @@ public class StatusPanel extends AbstractMappingSection {
 				pathInfo.getFormattedSmallestAbsStep());
 	}
 
-	protected List<IScanModelWrapper<IScanPointGeneratorModel>> getOuterScannables() {
-		return mappingBean.getScanDefinition().getOuterScannables();
+	private double getExposureTime() {
+		return mappingBean.getDetectorParameters().stream()
+				.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
+				.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
+				.max().orElse(0);
+	}
+
+	private String getScanPointsCalculatorString() {
+		int totalPoints = scanPointsCalculator.calculateScanPoints();
+		return getNumberOfPointsString(totalPoints) + getExposureString(totalPoints);
+	}
+
+	private String getPathInfoString() {
+		int innerPoints = pathInfo.getInnerPointCount();
+		int totalPoints = pathInfo.getTotalPointCount();
+		int actualPoints = pathInfo.getReturnedPointCount();
+
+		String pointsMessage = getNumberOfPointsString(totalPoints);
+		if (actualPoints < innerPoints)
+			pointsMessage += String.format(" (Only displaying the first %,d points)",
+								actualPoints);
+
+		return pointsMessage + getExposureString(totalPoints);
+	}
+
+	void setScanPointsCalculator(ScanPointsCalculator scanPointsCalculator) {
+		this.scanPointsCalculator = scanPointsCalculator;
+		if (scanPointsCalculator.canCalculateScanPoints()) {
+			updateStatusLabel();
+		} else {
+			statusLabel.setText("Full scan path calculation in progress...");
+		}
 	}
 
 	void setPathInfo(PathInfo pathInfo) {
 		this.pathInfo = pathInfo;
-		this.message = null;
 		updateStatusLabel();
 	}
 
 	void setMessage(String message) {
-		this.message = message;
-		updateStatusLabel();
+		statusLabel.setText(message);
 	}
 
 	void setMappingBean(IMappingExperimentBean mappingBean) {
 		this.mappingBean = mappingBean;
 	}
 
-	private double getPointExposureTime() {
-		return mappingBean.getDetectorParameters().stream()
-				.filter(IScanModelWrapper<IDetectorModel>::isIncludeInScan)
-				.mapToDouble(wrapper -> wrapper.getModel().getExposureTime())
-				.max().orElse(0) * pathInfo.getTotalPointCount();
+	private boolean displayScanPointsCalculatorResults() {
+		return scanPointsCalculator != null && (pathInfo == null || !pathInfo.getEventId().equals(scanPointsCalculator.getEventId()));
 	}
+
+
 }
