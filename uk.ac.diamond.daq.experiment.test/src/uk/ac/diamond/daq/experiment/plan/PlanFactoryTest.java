@@ -11,7 +11,10 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
+import uk.ac.diamond.daq.experiment.plan.trigger.RepeatingTrigger;
+import uk.ac.diamond.daq.experiment.plan.trigger.SingleTimeBasedTrigger;
+import uk.ac.diamond.daq.experiment.plan.trigger.SingleTrigger;
 
 /**
  * These tests document the standard procedure for creating
@@ -25,6 +28,8 @@ public class PlanFactoryTest {
 	private PlanFactory factory;
 	private ISampleEnvironmentVariable sev;
 	private ISampleEnvironmentVariable timer;
+
+	private Payload payload;
 
 	@Before
 	public void setup() {
@@ -63,7 +68,7 @@ public class PlanFactoryTest {
 	@Test
 	public void singleTrigger() {
 		ITrigger singleGenericTrigger = factory.addTrigger(TRIGGER_NAME, // trigger name
-															this::work,  // triggerable
+															payload,  	 // payload
 															sev,		 // signal source
 															3.5,		 // triggering signal
 															0.01);		 // tolerance
@@ -78,27 +83,20 @@ public class PlanFactoryTest {
 	 */
 	@Test
 	public void singleTimeTrigger() {
-		ITrigger singleTimeTrigger = factory.addTrigger(TRIGGER_NAME, this::work, timer, 5, 0.2);
+		ITrigger singleTimeTrigger = factory.addTrigger(TRIGGER_NAME, payload, timer, 5, 0.2);
 		assertThat(singleTimeTrigger, is(instanceOf(SingleTimeBasedTrigger.class)));
 	}
 
 	/**
-	 * Creates a trigger which triggers a generic {@link Triggerable}
+	 * Creates a trigger which triggers a generic {@link Payload}
 	 * in specified intervals of signal from given {@link ISampleEnvironmentVariable}.
 	 *
 	 * Unlike with single triggers, there is no special implementation for time-based triggering.
 	 */
 	@Test
 	public void repeatingTrigger() {
-		ITrigger repeatingTrigger = factory.addTrigger(TRIGGER_NAME, this::work, sev, 2.5);
+		ITrigger repeatingTrigger = factory.addTrigger(TRIGGER_NAME, payload, sev, 2.5);
 		assertThat(repeatingTrigger, is(instanceOf(RepeatingTrigger.class)));
-	}
-
-	/**
-	 * placeholder Triggerable
-	 */
-	private Object work() {
-		return null;
 	}
 
 }

@@ -6,7 +6,7 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 public class ScanningAcquisitionPayload implements Payload {
 	
 	private final ScanningAcquisition scan;
-	private final QueueResolution queueResolution;
+	private QueueResolution queueResolution;
 	
 	
 	public ScanningAcquisitionPayload(ScanningAcquisition scan, QueueResolution queueResolution) {
@@ -22,6 +22,11 @@ public class ScanningAcquisitionPayload implements Payload {
 
 	public QueueResolution getQueueResolution() {
 		return queueResolution;
+	}
+	
+	
+	public void setQueueResolution(QueueResolution queueResolution) {
+		this.queueResolution = queueResolution;
 	}
 
 }

@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.experiment.plan;
+package uk.ac.diamond.daq.experiment.plan.trigger;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,12 +9,12 @@ import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 
 /**
  * Works like PositionTrigger but without executor service.
- * No triggerable job but triggering signals increment trigger count (getTriggerCount())
+ * No payload but triggering signals increment trigger count (getTriggerCount())
  */
-class DummySEVTrigger extends TriggerBase {
+public class DummySEVTrigger extends TriggerBase {
 
 	public DummySEVTrigger(String name, IPlanRegistrar registrar, double positionInterval, ISampleEnvironmentVariable sev) {
-		super(registrar, () -> null, sev);
+		super(registrar, null, sev);
 		setName(name);
 		this.thesev = sev;
 		this.positionInterval = positionInterval;

@@ -2,25 +2,40 @@ package uk.ac.diamond.daq.experiment.plan;
 
 import static uk.ac.diamond.daq.experiment.api.Services.getExperimentService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
-import uk.ac.diamond.daq.experiment.api.TriggerableScan;
+import uk.ac.diamond.daq.experiment.api.ExperimentException;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.plan.IPlan;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
+import uk.ac.diamond.daq.experiment.api.plan.PayloadService;
 import uk.ac.diamond.daq.experiment.api.remote.PlanRequest;
 import uk.ac.diamond.daq.experiment.api.remote.SegmentRequest;
 import uk.ac.diamond.daq.experiment.api.remote.TriggerRequest;
+import uk.ac.diamond.daq.mapping.api.document.DocumentMapper;
+import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.diamond.daq.service.CommonDocumentService;
+import uk.ac.diamond.daq.service.command.receiver.CollectionCommandReceiver;
+import uk.ac.diamond.daq.service.command.receiver.FilesCollectionCommandReceiver;
+import uk.ac.diamond.daq.service.command.strategy.OutputStrategyFactory;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 public class PlanRequestParser {
 
 	private IPlan plan;
 	private IExperimentDriver<DriverModel> driver;
+	private CommonDocumentService documentService;
+	private DocumentMapper mapper;
+	private PayloadService payloadService;
 
 	public IPlan parsePlanRequest(PlanRequest planRequest) throws DeviceException {
 		plan = new Plan(planRequest.getPlanName());
@@ -54,11 +69,44 @@ public class PlanRequestParser {
 			throw new IllegalStateException("Not a recognised signal source (" + request.getSignalSource() + ")");
 		}
 	}
+	
+	private Payload getScanPayload(UUID scanId) {
+		OutputStream output = new ByteArrayOutputStream();
+		CollectionCommandReceiver<ScanningAcquisition> receiver = new FilesCollectionCommandReceiver<>(ScanningAcquisition.class, output);
+		try {
+			getDocumentService().selectDocument(receiver, scanId, OutputStrategyFactory.getJSONOutputStrategy());
+			var document = getMapper().convertFromJSON(output.toString(), ScanningAcquisition.class);
+			return getPayloadService().wrap(document);
+		} catch (Exception e) {
+			throw new ExperimentException("Error retrieving scan payload", e);
+		}
+	}
+	
+	private CommonDocumentService getDocumentService() {
+		if (documentService == null) {
+			documentService = SpringApplicationContextFacade.getBean(CommonDocumentService.class);
+		}
+		return documentService;
+	}
+	
+	private DocumentMapper getMapper() {
+		if (mapper == null) {
+			mapper = SpringApplicationContextFacade.getBean(DocumentMapper.class);
+		}
+		return mapper;
+	}
+	
+	private PayloadService getPayloadService() {
+		if (payloadService == null) {
+			payloadService = SpringApplicationContextFacade.getBean(PayloadService.class);
+		}
+		return payloadService;
+	}
 
 	private ITrigger convertToTrigger(TriggerRequest request) {
 
-		TriggerableScan scanRequest = getExperimentService().getScan(request.getScanName(),
-				plan.getName());
+		var scanPayload = getScanPayload(request.getScanId());
+		
 		ISampleEnvironmentVariable sev;
 
 		switch (request.getSignalSource()) {
@@ -76,10 +124,10 @@ public class PlanRequestParser {
 
 		switch (request.getExecutionPolicy()) {
 		case REPEATING:
-			return plan.addTrigger(request.getName(), scanRequest, sev, request.getInterval());
+			return plan.addTrigger(request.getName(), scanPayload, sev, request.getInterval());
 
 		case SINGLE:
-			return plan.addTrigger(request.getName(), scanRequest, sev, request.getTarget(), request.getTolerance());
+			return plan.addTrigger(request.getName(), scanPayload, sev, request.getTarget(), request.getTolerance());
 
 		default:
 			throw new IllegalStateException("Unrecognised execution policy ('" + request.getExecutionPolicy() + "')");
@@ -87,3 +135,4 @@ public class PlanRequestParser {
 	}
 
 }
+;

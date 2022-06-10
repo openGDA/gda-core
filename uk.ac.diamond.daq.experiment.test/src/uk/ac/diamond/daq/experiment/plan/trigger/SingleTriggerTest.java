@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.experiment.plan;
+package uk.ac.diamond.daq.experiment.plan.trigger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -12,7 +12,7 @@ import org.mockito.junit.MockitoRule;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 
 public class SingleTriggerTest {
 
@@ -29,14 +29,14 @@ public class SingleTriggerTest {
 	private ISampleEnvironmentVariable sev;
 
 	@Mock
-	private Triggerable triggerable;
+	private Payload payload;
 
 	@Rule
 	public MockitoRule setupMocks = MockitoJUnit.rule();
 
 	@Before
 	public void createTrigger() {
-		trigger = new SingleTrigger(registrar, sev, triggerable, target, tolerance);
+		trigger = new SingleTrigger(registrar, sev, payload, target, tolerance);
 	}
 
 	@Test

@@ -70,27 +70,27 @@ public interface IPlanFactory {
 	 * when signal from {@code sev} = {@code target} ± {@code tolerance}
 	 *
 	 * @param name 				Name of this trigger
-	 * @param triggerable		Triggered job
+	 * @param payload			Request to handle upon triggering
 	 * @param sev 				The {@link ISampleEnvironmentVariable} used as triggering signal source
 	 * @param target			The optimal triggering signal
 	 * @param tolerance			The acceptable tolerance around the target signal
 	 *
 	 * @return 					Reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target, double tolerance);
+	ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double target, double tolerance);
 
 
 	/**
 	 * Creates a trigger which will execute the given operation in specified intervals of signal from sample environment variable provided
 	 *
 	 * @param name of this trigger
-	 * @param runnable which this trigger will perform
+	 * @param payload to handle upon triggering
 	 * @param sev the {@link ISampleEnvironmentVariable} this trigger will listen to
 	 * @param interval or period between triggers
 	 *
 	 * @return reference to the created trigger
 	 */
-	ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval);
+	ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double interval);
 
 
 	/**

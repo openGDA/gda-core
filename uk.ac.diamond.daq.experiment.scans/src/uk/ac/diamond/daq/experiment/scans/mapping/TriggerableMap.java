@@ -18,12 +18,12 @@
 
 package uk.ac.diamond.daq.experiment.scans.mapping;
 
-import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanRequest;
 
 import uk.ac.diamond.daq.experiment.api.TriggerableScan;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 
-public class TriggerableMap implements TriggerableScan {
+public class TriggerableMap implements Payload, TriggerableScan {
 
 	private String name;
 	private ScanRequest scanRequest;
@@ -35,23 +35,10 @@ public class TriggerableMap implements TriggerableScan {
 		this.important = important;
 	}
 
-	@Override
-	public ScanBean trigger() {
-		ScanBean bean = new ScanBean(scanRequest);
-		bean.setName(name);
-		return bean;
-	}
-
-	/**
-	 * Used by Marshaller
-	 */
 	public ScanRequest getScanRequest() {
 		return scanRequest;
 	}
 
-	/**
-	 * Used by Marshaller
-	 */
 	public boolean isImportant() {
 		return important;
 	}

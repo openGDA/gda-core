@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.experiment.plan;
+package uk.ac.diamond.daq.experiment.plan.trigger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,7 +13,7 @@ import org.mockito.junit.MockitoRule;
 
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 
 public class RepeatingTriggerTest {
 
@@ -30,7 +30,7 @@ public class RepeatingTriggerTest {
 	private ISampleEnvironmentVariable sev;
 
 	@Mock
-	private Triggerable triggerable;
+	private Payload payload;
 
 	@Rule
 	public MockitoRule setupMocks = MockitoJUnit.rule();
@@ -38,7 +38,7 @@ public class RepeatingTriggerTest {
 	@Before
 	public void setupTrigger() {
 		when(sev.read()).thenReturn(initialSignal);
-		trigger = new RepeatingTrigger(registrar, sev, triggerable, interval);
+		trigger = new RepeatingTrigger(registrar, sev, payload, interval);
 		trigger.enable(); // caches initial signal
 	}
 

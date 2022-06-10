@@ -9,7 +9,10 @@ import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ISegment;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
 import uk.ac.diamond.daq.experiment.api.plan.LimitCondition;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
+import uk.ac.diamond.daq.experiment.plan.trigger.RepeatingTrigger;
+import uk.ac.diamond.daq.experiment.plan.trigger.SingleTimeBasedTrigger;
+import uk.ac.diamond.daq.experiment.plan.trigger.SingleTrigger;
 
 public class PlanFactory implements IPlanFactory {
 	
@@ -56,21 +59,20 @@ public class PlanFactory implements IPlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double target,	double tolerance) {
+	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double target,	double tolerance) {
 		ITrigger trigger;
 		if (sev.equals(timer)) {
-			trigger = new SingleTimeBasedTrigger(registrar, sev, triggerable, target, tolerance);
+			trigger = new SingleTimeBasedTrigger(registrar, sev, payload, target, tolerance);
 		} else {
-			trigger = new SingleTrigger(registrar, sev, triggerable, target, tolerance);
+			trigger = new SingleTrigger(registrar, sev, payload, target, tolerance);
 		}
 		trigger.setName(name);
 		return trigger;
 	}
 
 	@Override
-
-	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev, double interval) {
-		ITrigger trigger = new RepeatingTrigger(registrar, sev, triggerable, interval);
+	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev, double interval) {
+		ITrigger trigger = new RepeatingTrigger(registrar, sev, payload, interval);
 		trigger.setName(name);
 		return trigger;
 	}

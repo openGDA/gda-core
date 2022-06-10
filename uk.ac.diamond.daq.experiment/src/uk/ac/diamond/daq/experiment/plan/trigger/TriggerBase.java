@@ -1,4 +1,4 @@
-package uk.ac.diamond.daq.experiment.plan;
+package uk.ac.diamond.daq.experiment.plan.trigger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,14 +11,16 @@ import gda.factory.FindableBase;
 import uk.ac.diamond.daq.experiment.api.plan.IPlanRegistrar;
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
+import uk.ac.diamond.daq.experiment.api.plan.PayloadService;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
+import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 
 public abstract class TriggerBase extends FindableBase implements ITrigger {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TriggerBase.class);
 	
-	private final Triggerable triggerable;
+	private final Payload payload;
 	private final ISampleEnvironmentVariable sev;	
 	private final IPlanRegistrar registrar;
 	
@@ -26,9 +28,11 @@ public abstract class TriggerBase extends FindableBase implements ITrigger {
 	private boolean enabled;
 	private volatile boolean evaluating;
 
-	TriggerBase(IPlanRegistrar registrar, Triggerable triggerable, ISampleEnvironmentVariable sev) {
+	private PayloadService payloadService;
+
+	TriggerBase(IPlanRegistrar registrar, Payload payload, ISampleEnvironmentVariable sev) {
 		this.registrar = registrar;
-		this.triggerable = triggerable;
+		this.payload = payload;
 		this.sev = sev;
 	}
 	
@@ -66,8 +70,8 @@ public abstract class TriggerBase extends FindableBase implements ITrigger {
 		return sev;
 	}
 	
-	protected Triggerable getTriggerable() {
-		return triggerable;
+	protected Payload getPayload() {
+		return payload;
 	}
 	
 	public String getSampleEnvironmentName() {
@@ -87,16 +91,11 @@ public abstract class TriggerBase extends FindableBase implements ITrigger {
 					executorService.execute(()->{
 						final TriggerEvent event = new TriggerEvent(signal);
 						registrar.triggerOccurred(this);
-												
-						TriggerProcessor processor = TriggerProcessorFactory.getProcessor(triggerable.getClass());
+						
 						try {
-							if (processor != null) {
-								final Object id = processor.process(triggerable);
-								if (id instanceof IdBean) {
-									event.setId(((IdBean) id).getUniqueId());
-								}
-							} else {
-								triggerable.trigger();
+							final Object id = getPayloadService().handle(payload);
+							if (id instanceof IdBean) {
+								event.setId(((IdBean) id).getUniqueId());
 							}
 						} catch (Exception e) {
 							logger.error("Problem while executing trigger '{}'", getName(), e);
@@ -110,6 +109,13 @@ public abstract class TriggerBase extends FindableBase implements ITrigger {
 				evaluating = false;
 			}
 		}
+	}
+	
+	private PayloadService getPayloadService() {
+		if (payloadService == null) {
+			payloadService = SpringApplicationContextFacade.getBean(PayloadService.class);
+		}
+		return payloadService;
 	}
 	
 	/**

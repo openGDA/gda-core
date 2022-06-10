@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -23,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventConnectorService;
 import org.eclipse.scanning.api.event.IEventService;
-import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.status.Status;
 import org.hamcrest.Matcher;
@@ -35,13 +35,14 @@ import gda.device.DeviceException;
 import uk.ac.diamond.daq.experiment.api.driver.DriverModel;
 import uk.ac.diamond.daq.experiment.api.driver.IExperimentDriver;
 import uk.ac.diamond.daq.experiment.api.driver.SingleAxisLinearSeries;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
 import uk.ac.diamond.daq.experiment.api.plan.event.PlanStatusBean;
 import uk.ac.diamond.daq.experiment.api.plan.event.SegmentRecord;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerEvent;
 import uk.ac.diamond.daq.experiment.api.plan.event.TriggerRecord;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.driver.NoImplDriver;
+import uk.ac.diamond.daq.experiment.plan.trigger.DummySEVTrigger;
 
 /**
  * Tests related to the recording and broadcasting of events by the experiment plan
@@ -62,6 +63,8 @@ public class PlanBroadcastTest {
 
 	private Plan plan;
 	private MockSEV sev;
+
+	private Payload payload;
 
 	private DummyPublisher publisher;
 
@@ -129,8 +132,8 @@ public class PlanBroadcastTest {
 	@Test
 	public void triggersAreBroadcasted() {
 		plan.addSegment(FIRST_SEGMENT_NAME, s -> s >= 5,
-				plan.addTrigger(TRIGGER_ONE_NAME, this::work, 1),
-				plan.addTrigger(TRIGGER_TWO_NAME, this::work, 0.3));
+				plan.addTrigger(TRIGGER_ONE_NAME, payload, 1),
+				plan.addTrigger(TRIGGER_TWO_NAME, payload, 0.3));
 
 		plan.start();
 
@@ -177,8 +180,8 @@ public class PlanBroadcastTest {
 	@Test
 	public void allTriggersRecorded() {
 
-		DummySEVTrigger t1 = (DummySEVTrigger) plan.addTrigger(TRIGGER_ONE_NAME, this::work, 4);
-		DummySEVTrigger t2 = (DummySEVTrigger) plan.addTrigger(TRIGGER_TWO_NAME, this::work, 1);
+		DummySEVTrigger t1 = (DummySEVTrigger) plan.addTrigger(TRIGGER_ONE_NAME, payload, 4);
+		DummySEVTrigger t2 = (DummySEVTrigger) plan.addTrigger(TRIGGER_TWO_NAME, payload, 1);
 
 		plan.addSegment(FIRST_SEGMENT_NAME, x -> x > 12, t1);
 		plan.addSegment(SECOND_SEGMENT_NAME, x -> x > 30, t2);
@@ -196,7 +199,7 @@ public class PlanBroadcastTest {
 	@Test
 	public void broadcastSevNamesForSegmentsAndTriggers() {
 		plan.addSegment(FIRST_SEGMENT_NAME, s -> s > 1,
-				plan.addTrigger(TRIGGER_ONE_NAME, this::work, 0.5));
+				plan.addTrigger(TRIGGER_ONE_NAME, payload, 0.5));
 
 		plan.start();
 
@@ -208,14 +211,14 @@ public class PlanBroadcastTest {
 
 	/**
 	 * This test ensures we have a link between our trigger and some scan that ends up on the queue
+	 *
+	 * FIXME no it doesnt!
 	 */
 	@Test
 	public void broadcastScanUniqueId() throws Exception {
 
-		MockTriggerableScan triggerableScan = new MockTriggerableScan();
-
 		plan.addSegment(FIRST_SEGMENT_NAME, s -> s > 1,
-				plan.addTrigger(TRIGGER_ONE_NAME, triggerableScan, 0.5, 0.01));
+				plan.addTrigger(TRIGGER_ONE_NAME, payload, 0.5, 0.01));
 
 		publisher.useCounter(4); // segment start, trigger start, trigger end, plan end
 
@@ -226,27 +229,15 @@ public class PlanBroadcastTest {
 		assertThat(publisher.await(), is(true)); // expected events published within reasonable time
 	}
 
-	private class MockTriggerableScan implements Triggerable {
-
-		private final IdBean idBean = new IdBean();
-
-		@Override
-		public Object trigger() {
-			// do the scan, then return idBean
-			return idBean;
-		}
-
-	}
-
 	@Test
 	public void significantSEVSignalsRecorded() {
 		/* we need to record sev signals which:
 		 * - cause segment transition
-		 * - trigger a trigger's triggerableoperation
+		 * - trigger a trigger's payload
 		 */
 
 		plan.addSegment(FIRST_SEGMENT_NAME, x -> x >= 10, // a signal of 10 or higher would cause this segment to terminate
-				plan.addTrigger(TRIGGER_ONE_NAME, this::work, 2.5)); // this trigger fires in sev signal intervals of 2.5 (or greater)
+				plan.addTrigger(TRIGGER_ONE_NAME, payload, 2.5)); // this trigger fires in sev signal intervals of 2.5 (or greater)
 
 		plan.start();
 
@@ -316,12 +307,12 @@ public class PlanBroadcastTest {
 		plan.getExperimentRecord().getTriggerRecord(TRIGGER_ONE_NAME);
 	}
 
-	@Test (expected=IllegalStateException.class)
+	@Test
 	public void getRecordWhileRunningThrows() {
 		plan.addSegment(FIRST_SEGMENT_NAME, sev, x -> false);
 		plan.start();
 		assertTrue(plan.isRunning());
-		plan.getExperimentRecord();
+		assertThrows(IllegalStateException.class, plan::getExperimentRecord);
 	}
 
 	private void initPlan() {
@@ -343,13 +334,6 @@ public class PlanBroadcastTest {
 
 		ExperimentRecord experimentRecord = new ExperimentRecord("doesn't matter");
 		experimentRecord.setEventService(eventService);
-	}
-
-	/**
-	 * a {@link Triggerable} with a more meaningful name
-	 */
-	private Object work() {
-		return null;
 	}
 
 	/**

@@ -4,7 +4,8 @@ import java.util.function.DoubleSupplier;
 
 import uk.ac.diamond.daq.experiment.api.plan.ISampleEnvironmentVariable;
 import uk.ac.diamond.daq.experiment.api.plan.ITrigger;
-import uk.ac.diamond.daq.experiment.api.plan.Triggerable;
+import uk.ac.diamond.daq.experiment.api.plan.Payload;
+import uk.ac.diamond.daq.experiment.plan.trigger.DummySEVTrigger;
 
 /**
  * Factory that injects our mock implementations
@@ -23,7 +24,7 @@ class TestFactory extends PlanFactory {
 	}
 
 	@Override
-	public ITrigger addTrigger(String name, Triggerable triggerable, ISampleEnvironmentVariable sev,
+	public ITrigger addTrigger(String name, Payload payload, ISampleEnvironmentVariable sev,
 			double triggerInterval) {
 		ITrigger trigger = new DummySEVTrigger(name, getRegistrar(), triggerInterval, sev);
 		trigger.setName(name);
