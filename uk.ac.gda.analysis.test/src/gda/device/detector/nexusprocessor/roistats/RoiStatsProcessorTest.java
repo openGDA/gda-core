@@ -25,18 +25,22 @@ import java.util.List;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.nexusprocessor.DatasetStats;
 import gda.factory.FactoryException;
 
-public class RoiStatsProcessorTest {
+class RoiStatsProcessorTest {
 	private DatasetStats stat;
 	private RoiStatsProcessor roistats;
 
-	@Before
+	@BeforeEach
 	public void setup() throws FactoryException {
 		stat = new DatasetStats();
 		stat.setEnabledStats(Arrays.asList(DatasetStats.Statistic.SUM));
@@ -47,7 +51,7 @@ public class RoiStatsProcessorTest {
 	}
 
 	@Test
-	public void testRoiStats() throws Exception {
+	void testRoiStats() throws Exception {
 		var roiName = "roi1";
 		Dataset testDataset = DatasetFactory.createFromObject(new int[] { 100, 100 });
 		testDataset.resize(new int[] { 1000, 1000 });
@@ -57,6 +61,18 @@ public class RoiStatsProcessorTest {
 		GDANexusDetectorData res = roistats.process("det", "data", testDataset);
 		double sumresult = res.getDoubleVals()[Arrays.asList(res.getExtraNames()).indexOf(roiName + ".total")];
 		assertEquals(100, sumresult, 1);
+	}
+
+	@Test
+	void shouldRefuseToProcessRotatedRoi() throws Exception {
+		RectangularROI rectangularRoi = new RectangularROI(10, 75);
+		rectangularRoi.setName("rotated");
+
+		try (MockedStatic<RegionOfInterest> staticRoi = Mockito.mockStatic(RegionOfInterest.class)) {
+			Mockito.when(RegionOfInterest.getRoisForPlot(ArgumentMatchers.isNull())).thenReturn(Arrays.asList(new RegionOfInterest(rectangularRoi)));
+			Assertions.assertThrows(IllegalStateException.class,  () -> roistats.atScanStart());
+		}
+
 	}
 
 	private void setRois(List<RegionOfInterest> rois) {
