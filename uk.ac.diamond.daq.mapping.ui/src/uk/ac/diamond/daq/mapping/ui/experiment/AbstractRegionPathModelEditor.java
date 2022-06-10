@@ -70,7 +70,7 @@ public abstract class AbstractRegionPathModelEditor<T> extends AbstractModelEdit
 	 */
 	private UnitsProvider units;
 
-	private boolean unitsEditable;
+	private boolean unitsEditable = true;
 
 	/**
 	 * Apply to a control to make it fill horizontal space
