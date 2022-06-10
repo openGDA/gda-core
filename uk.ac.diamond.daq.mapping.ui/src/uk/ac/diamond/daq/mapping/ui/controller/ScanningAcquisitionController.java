@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.dawnsci.mapping.ui.Activator;
-import org.eclipse.scanning.api.scan.ScanningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
-import uk.ac.diamond.daq.mapping.api.ScanRequestSavedEvent;
-import uk.ac.diamond.daq.mapping.api.document.ScanRequestFactory;
 import uk.ac.diamond.daq.mapping.api.document.helper.ImageCalibrationHelper;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.AcquisitionReader;
 import uk.ac.diamond.daq.mapping.api.document.helper.reader.ImageCalibrationReader;
@@ -58,7 +55,6 @@ import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.document.ClientPropertiesHelper;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.rest.ConfigurationsRestServiceClient;
-import uk.ac.gda.ui.tool.spring.ClientRemoteServices;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**
@@ -83,9 +79,6 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 
 	@Autowired
 	private StageController stageController;
-
-	@Autowired
-	private ClientRemoteServices remoteServices;
 
 	@Autowired
 	private ConfigurationsRestServiceClient configurationService;
@@ -126,7 +119,7 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 	@Override
 	public void saveAcquisitionConfiguration() throws AcquisitionControllerException {
 		finalizeAcquisition();
-		save(formatConfigurationFileName(getAcquisition().getName()));
+		save();
 	}
 
 	@Override
@@ -196,14 +189,7 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		return acquisition.getKey();
 	}
 
-	private String formatConfigurationFileName(String fileName) {
-		return Optional.ofNullable(fileName)
-			.map(n -> fileName.replaceAll("\\s", ""))
-			.filter(n -> n.length() > 0)
-			.orElseGet(() -> "noNameConfiguration");
-	}
-
-	private void save(String fileName) throws AcquisitionControllerException {
+	private void save() throws AcquisitionControllerException {
 		ScanningAcquisition savedAcquisition = null;
 		AcquisitionConfigurationResourceType type = AcquisitionConfigurationResourceType.DEFAULT;
 		try {
@@ -222,28 +208,6 @@ public class ScanningAcquisitionController implements AcquisitionController<Scan
 		}
 
 		publishEvent(new AcquisitionConfigurationResourceSaveEvent(this, getAcquisition().getUuid(), type));
-		publishScanRequestSavedEvent(fileName);
-	}
-
-	/**
-	 * Creates a ScanRequest for sake of the fully automated implementation.
-	 * @param fileName
-	 *
-	 * @deprecated the fully automated can, and should, use an approach consistent with the ScanningAcquisitionController
-	 * and compose its operations using the saved ScanningAcquisition.
-	 * While this class is a client side controller, this methods keeps this class dependent from objects,
-	 * like ScanRequestFactory, that instead live naturally in the server side.
-	 * This inconsistency is fixed in K11-1313
-	 */
-	@Deprecated
-	private void publishScanRequestSavedEvent(String fileName) {
-		try {
-			var srf = new ScanRequestFactory(getAcquisition());
-			var scanRequest = srf.createScanRequest(remoteServices.getIRunnableDeviceService());
-			publishEvent(new ScanRequestSavedEvent(this, fileName, scanRequest));
-		} catch (ScanningException e) {
-			logger.error("Canot create scanRequest", e);
-		}
 	}
 
 	/**
