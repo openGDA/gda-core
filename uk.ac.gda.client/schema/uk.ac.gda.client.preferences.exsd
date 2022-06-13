@@ -69,8 +69,6 @@
                   </enumeration>
                   <enumeration value="gda.client.dashboard.dummy">
                   </enumeration>
-                  <enumeration value="gda.client.new.workspace">
-                  </enumeration>
                </restriction>
             </simpleType>
          </attribute>

@@ -50,8 +50,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		booleanPrefs.add(PreferenceConstants.DASHBOARD_BOUNDS);
 		store.setDefault(PreferenceConstants.DASHBOARD_DESCRIPTION,  false);
 		booleanPrefs.add(PreferenceConstants.DASHBOARD_DESCRIPTION);
-		store.setDefault(PreferenceConstants.NEW_WORKSPACE,          false);
-		booleanPrefs.add(PreferenceConstants.NEW_WORKSPACE);
 
 		// Ints
 		integerPrefs = new HashSet<String>(7);
