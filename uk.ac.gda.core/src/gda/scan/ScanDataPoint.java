@@ -82,6 +82,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * The {@link gda.device.Detector} detectors that participate in the scan.
+	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
 	private final transient Vector<Detector> detectors = new Vector<>();
 
@@ -104,7 +105,8 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private Vector<Object> scannablePositions = new Vector<>();
 
 	/**
-	 * the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans
+	 * the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans.
+	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
 	private transient Vector<IScanObject> scanObjects = new Vector<>();
 
@@ -115,6 +117,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * The {@link gda.device.Scannable} scannables that participate in the scan.
+	 * Note, this will be null once the point has been deserialized, i.e. on the client
 	 */
 	private transient Vector<Scannable> scannables = new Vector<>();
 
@@ -321,7 +324,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 			// in the case that the detector has no extract names (so would be written by NexusDataWriter.writeGenericDetector) but an array value
 			// we only have one header entry for the detector, so we return a null, indicating to not write this field
-			if (dvals.length > 1 && getDetectors().size() > i &&  detectors.get(i).getExtraNames().length == 0) {
+			if (dvals.length > 1 && detectors != null && detectors.size() > i &&  detectors.get(i).getExtraNames().length == 0) {
 				dvals = new Double[] { null };
 			}
 			values.addAll(Arrays.asList(dvals));
