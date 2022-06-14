@@ -26,7 +26,6 @@ import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_
 import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.COLLECTION_NAME_SCANNABLES;
 import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_VALUE_SET;
 import static org.eclipse.dawnsci.nexus.NexusConstants.NXCLASS;
-import static org.eclipse.dawnsci.nexus.builder.data.NexusDataBuilder.ATTR_NAME_TARGET;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
@@ -89,6 +88,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NXsample;
 import org.eclipse.dawnsci.nexus.NXtransformations;
 import org.eclipse.dawnsci.nexus.NexusBaseClass;
+import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.NexusUtils;
@@ -947,7 +947,7 @@ public class ScannableNexusWrapperScanTest {
 		for (int fieldIndex = 0; fieldIndex < valueFieldNames.length; fieldIndex++) {
 			final DataNode dataNode = nexusObject.getDataNode(valueFieldNames[fieldIndex]);
 			assertThat(dataNode.getAttributeNames(), containsInAnyOrder(
-					ATTR_NAME_LOCAL_NAME, ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_UNITS, ATTR_NAME_TARGET,
+					ATTR_NAME_LOCAL_NAME, ATTR_NAME_GDA_FIELD_NAME, ATTR_NAME_UNITS, NexusConstants.TARGET,
 					NXtransformations.NX_AXISNAME_ATTRIBUTE_DEPENDS_ON,
 					NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET, NXtransformations.NX_AXISNAME_ATTRIBUTE_OFFSET_UNITS,
 					NXtransformations.NX_AXISNAME_ATTRIBUTE_TRANSFORMATION_TYPE,
