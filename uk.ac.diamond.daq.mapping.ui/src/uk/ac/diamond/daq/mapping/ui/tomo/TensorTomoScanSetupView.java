@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -269,6 +270,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		// TODO remove this method
 		pathInfoCalculationJob.cancel();
 		pathInfoCalculationJob.setPathInfoRequest(PathInfoRequest.builder()
+				.withEventId(UUID.randomUUID())
 				.withSourceId(ID)
 				.withScanPathModel(tomoBean.getGridPathModel())
 				.withScanRegion(tomoBean.getGridRegionModel().toROI())
