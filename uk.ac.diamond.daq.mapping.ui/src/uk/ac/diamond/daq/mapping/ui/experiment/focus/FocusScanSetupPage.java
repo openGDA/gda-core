@@ -39,10 +39,10 @@ import org.dawnsci.mapping.ui.datamodel.PlottableMapObject;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.conversion.Converter;
-import org.eclipse.core.databinding.conversion.NumberToStringConverter;
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -51,10 +51,9 @@ import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.dawnsci.plotting.api.trace.MetadataPlotUtils;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.UISynchronize;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -125,9 +124,6 @@ class FocusScanSetupPage extends WizardPage {
 	private static final String AXES_GDA_MALCOLM = "GDA moving mapping axes, Malcolm moving focus axis";
 
 	@Inject
-	private IEclipseContext injectionContext;
-
-	@Inject
 	private UISynchronize uiSync;
 
 	@Inject
@@ -187,7 +183,7 @@ class FocusScanSetupPage extends WizardPage {
 
 	private EnergyFocusEditor energyFocusEditor;
 
-	private UpdateValueStrategy endPointTextUpdateStrategy;
+	private UpdateValueStrategy<Object, String> endPointTextUpdateStrategy;
 
 	FocusScanSetupPage() {
 		super(FocusScanSetupPage.class.getSimpleName());
@@ -219,7 +215,7 @@ class FocusScanSetupPage extends WizardPage {
 
 		pathCalculationJob = createPathCalculationJob();
 
-		endPointTextUpdateStrategy = new UpdateValueStrategy();
+		endPointTextUpdateStrategy = new UpdateValueStrategy<Object, String>();
 		endPointTextUpdateStrategy.setConverter(new EndPointNumberConverter());
 	}
 
@@ -500,10 +496,9 @@ class FocusScanSetupPage extends WizardPage {
 		linePathStackLayout.topControl = linePathLabel;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void bindEndPointTextToProperty(Text control, String propertyName, Object bean) {
-		final IObservableValue<?> model = BeanProperties.value(propertyName).observe(bean);
-		final IObservableValue<?> target = WidgetProperties.text(SWT.Modify).observe(control);
+		final IObservableValue<Object> model = BeanProperties.value(propertyName).observe(bean);
+		final IObservableValue<String> target = WidgetProperties.text(SWT.Modify).observe(control);
 		bindingContext.bindValue(target, model, null, endPointTextUpdateStrategy);
 	}
 
@@ -591,7 +586,7 @@ class FocusScanSetupPage extends WizardPage {
 			final IDetectorModel model = ((IScanModelWrapper<IDetectorModel>) selected).getModel();
 
 			@SuppressWarnings("unchecked")
-			final IObservableValue<Double> exposureTimeValue = PojoProperties.value("exposureTime").observe(model);
+			final IObservableValue<?> exposureTimeValue = PojoProperties.value("exposureTime").observe(model);
 			exposureTimeBinding = bindingContext.bindValue(exposureTextValue, exposureTimeValue);
 		});
 
@@ -704,11 +699,11 @@ class FocusScanSetupPage extends WizardPage {
 		final IObservableValue<?> model = BeanProperties.value(propertyName).observe(bean);
 		final IObservableValue<?> target;
 		if (control instanceof NumberAndUnitsComposite) {
-			target = new NumberUnitsWidgetProperty<Length>().observe(control);
+			target = new NumberUnitsWidgetProperty<Length, Control>().observe(control);
 		} else if (control instanceof Text) {
 			target = WidgetProperties.text(SWT.Modify).observe(control);
 		} else {
-			target = WidgetProperties.selection().observe(control);
+			target = WidgetProperties.widgetSelection().observe(control);
 		}
 		bindingContext.bindValue(target, model);
 	}
@@ -718,22 +713,22 @@ class FocusScanSetupPage extends WizardPage {
 	 * <p>
 	 * This uses the same formats that {@link NumberAndUnitsComposite} uses for the mapping scan setup
 	 */
-	private static class EndPointNumberConverter extends Converter {
+	private static class EndPointNumberConverter extends Converter<Object, String> {
 
 		/** Use scientific format when the absolute number in the current units is <=1e-3 or >=1e3 */
 		private final DecimalFormat scientificFormat = new DecimalFormat("0.#####E0");
-		private final Converter scientificConverter = NumberToStringConverter.fromDouble(scientificFormat, false);
+		private final Converter<Object, String> scientificConverter = NumberToStringConverter.fromDouble(scientificFormat, false);
 
 		/** Use decimal when the absolute number in the current units is 1e-3< number <1e3 */
 		private final DecimalFormat decimalFormat = new DecimalFormat("0.#####");
-		private final Converter decimalConverter = NumberToStringConverter.fromDouble(decimalFormat, false);
+		private final Converter<Object, String> decimalConverter = NumberToStringConverter.fromDouble(decimalFormat, false);
 
 		public EndPointNumberConverter() {
 			super(Double.class, String.class);
 		}
 
 		@Override
-		public Object convert(Object fromObject) {
+		public String convert(Object fromObject) {
 			final double value = (double) fromObject;
 			if (value != 0.0 && (value <= 1e-3 || value >= 1e3)) {
 				return scientificConverter.convert(fromObject);

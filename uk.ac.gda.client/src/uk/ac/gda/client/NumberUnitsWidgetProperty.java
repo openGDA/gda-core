@@ -4,13 +4,14 @@ import javax.measure.Quantity;
 
 import org.eclipse.jface.databinding.swt.WidgetValueProperty;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Widget;
 
 /**
  * Property for JFace data binding to {@link NumberAndUnitsComposite} and similar classes
  *
  * @author James Mudd
  */
-public class NumberUnitsWidgetProperty<Q extends Quantity<Q>> extends WidgetValueProperty {
+public class NumberUnitsWidgetProperty<Q extends Quantity<Q>, S extends Widget> extends WidgetValueProperty<S, Double> {
 
 	public NumberUnitsWidgetProperty() {
 		super(SWT.Modify);
@@ -23,7 +24,7 @@ public class NumberUnitsWidgetProperty<Q extends Quantity<Q>> extends WidgetValu
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Object doGetValue(Object source) {
+	protected Double doGetValue(S source) {
 		if (source instanceof NumberAndUnitsComposite) {
 			return ((NumberAndUnitsComposite<Q>) source).getValue();
 		}
@@ -32,9 +33,9 @@ public class NumberUnitsWidgetProperty<Q extends Quantity<Q>> extends WidgetValu
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void doSetValue(Object source, Object value) {
-		if (source instanceof NumberAndUnitsComposite && value instanceof Double) {
-			((NumberAndUnitsComposite<Q>) source).setValue((double) value);
+	protected void doSetValue(S source, Double value) {
+		if (source instanceof NumberAndUnitsComposite) {
+			((NumberAndUnitsComposite<Q>) source).setValue(value);
 		}
 	}
 

@@ -55,7 +55,8 @@ public class DataBinder {
 	 * Validates that value > 0
 	 */
 	public static final IValidator<Double> GREATER_THAN_ZERO = value -> value > 0.0 ? ValidationStatus.ok() : ValidationStatus.error("Value must be greater than zero!");
-	private static final NumberUnitsWidgetProperty<?> nuwProperty = new NumberUnitsWidgetProperty<>();
+
+	private static final NumberUnitsWidgetProperty<?, NumberAndUnitsComposite<?>> NUMBER_AND_UNIT_WIDGET_PROPERTY = new NumberUnitsWidgetProperty<>();
 
 	/**
 	 * Get an IObservableValue from a widget.
@@ -64,9 +65,13 @@ public class DataBinder {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> IObservableValue<T> getObservableValue(Widget widget) {
-		if (widget instanceof Text) return (IObservableValue<T>) WidgetProperties.text(SWT.Modify).observe(widget);
-		if (widget instanceof NumberAndUnitsComposite) return nuwProperty.observe(widget);
-		if (widget instanceof Spinner || widget instanceof Button) return (IObservableValue<T>) WidgetProperties.widgetSelection().observe(widget);
+		if (widget instanceof Text) {
+			return (IObservableValue<T>)WidgetProperties.text(SWT.Modify).observe(widget);
+		} else if (widget instanceof NumberAndUnitsComposite) {
+			return (IObservableValue<T>) NUMBER_AND_UNIT_WIDGET_PROPERTY.observe((NumberAndUnitsComposite<?>) widget);
+		} else if (widget instanceof Spinner || widget instanceof Button) {
+			return (IObservableValue<T>) WidgetProperties.widgetSelection().observe(widget);
+		}
 		return null;
 	}
 

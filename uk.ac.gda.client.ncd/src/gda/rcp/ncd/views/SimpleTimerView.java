@@ -32,12 +32,12 @@ import javax.measure.Unit;
 import javax.measure.quantity.Time;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.beans.typed.BeanProperties;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
 import org.eclipse.core.databinding.observable.ChangeEvent;
 import org.eclipse.core.databinding.observable.IChangeListener;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -172,7 +172,7 @@ public class SimpleTimerView extends ViewPart {
 		GridDataFactory.swtDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).span(2, 1).applyTo(spacer);
 
 		/* Data Bindings ****************************************************************************/
-		IObservableValue numberOfFramesTarget = WidgetProperties.text(SWT.Modify).observe(numberOfFramesText);
+		IObservableValue<String> numberOfFramesTarget = WidgetProperties.text(SWT.Modify).observe(numberOfFramesText);
 		numberOfFramesTarget.addValueChangeListener(e -> {
 			try {
 				Integer.parseInt(e.getObservableValue().getValue().toString());
@@ -183,29 +183,23 @@ public class SimpleTimerView extends ViewPart {
 				enableButtons(false);
 			}
 		});
-		IObservableValue numberOfFramesModel = BeanProperties.value("numberOfFrames").observe(simpleTimerConfiguration);
+		IObservableValue<Integer> numberOfFramesModel = PojoProperties.<SimpleTimerConfiguration, Integer>value("numberOfFrames").observe(simpleTimerConfiguration);
 		numberOfFramesModel.addChangeListener(changeListener);
 		dbc.bindValue(numberOfFramesTarget, numberOfFramesModel);
 
-		IObservableValue exposureTimeTarget = new NumberUnitsWidgetProperty<Time>().observe(exposureTime);
-		IObservableValue exposureTimeModel = PojoProperties.value("exposure").observe(simpleTimerConfiguration);
+		IObservableValue<Double> exposureTimeTarget = new NumberUnitsWidgetProperty<Time, NumberAndUnitsComposite<?>>().observe(exposureTime);
+		IObservableValue<Double> exposureTimeModel = PojoProperties.<SimpleTimerConfiguration, Double>value("exposure").observe(simpleTimerConfiguration);
 		exposureTimeModel.addChangeListener(changeListener);
 		dbc.bindValue(exposureTimeTarget, exposureTimeModel);
 
-		IObservableValue delayTarget = WidgetProperties.selection().observe(delayCheckBox);
-		IObservableValue delayModel = BeanProperties.value("delay").observe(simpleTimerConfiguration);
+		IObservableValue<Boolean> delayTarget = WidgetProperties.<Button, Boolean>widgetSelection().observe(delayCheckBox);
+		IObservableValue<Boolean> delayModel = BeanProperties.<SimpleTimerConfiguration, Boolean>value("delay").observe(simpleTimerConfiguration);
 		delayModel.addChangeListener(changeListener);
-		delayModel.addChangeListener(e -> {
-			if (simpleTimerConfiguration.isDelay()) {
-				delayTime.setEnabled(true);
-			} else {
-				delayTime.setEnabled(false);
-			}
-		});
+		delayModel.addChangeListener(e -> delayTime.setEnabled(simpleTimerConfiguration.isDelay()));
 		dbc.bindValue(delayTarget, delayModel);
 
-		IObservableValue delayTimeTarget = new NumberUnitsWidgetProperty<Time>().observe(delayTime);
-		IObservableValue delayTimeModel = PojoProperties.value("delayTime").observe(simpleTimerConfiguration);
+		IObservableValue<Double> delayTimeTarget = new NumberUnitsWidgetProperty<Time, NumberAndUnitsComposite<?>>().observe(delayTime);
+		IObservableValue<Double> delayTimeModel = PojoProperties.<SimpleTimerConfiguration, Double>value("delayTime").observe(simpleTimerConfiguration);
 		delayTimeModel.addChangeListener(changeListener);
 		dbc.bindValue(delayTimeTarget, delayTimeModel);
 
