@@ -173,6 +173,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 				Status status = scanBean.getStatus();
 				if (scanBean.getUniqueId().equals(UID)
 						&& status.isFinal()) {
+					bean.merge(scanBean);
 					finalStatus.set(status);
 					latch.countDown();
 				}
@@ -196,7 +197,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 		if (finalStatus.getPlain().equals(Status.FAILED)) {
 			logger.error("Blocking scan failed with status={} bean={} subscriber={}",
 					finalStatus.getPlain().toString(), bean, subscriber);
-			throw new ScanningException("Blocking scan finished with failed status");
+			throw new ScanningException("Blocking scan finished with failed status: " + bean.getMessage());
 		}
 	}
 
