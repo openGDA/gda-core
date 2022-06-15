@@ -170,7 +170,7 @@ public final class ScanBean extends StatusBean {
 	@Override
 	public String toString() {
 		return "ScanBean [mappingBeanId=" + mappingBeanId
-				+ ", experimentId" + experimentId
+				+ ", experimentId=" + experimentId
 				+ ", beamline=" + beamline
 				+ ", point=" + point
 				+ ", size=" + size

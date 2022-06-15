@@ -109,9 +109,9 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 				publishToStatusTopic(json);
 			}
 
-			logger.trace("submit({}) completed, closing...", bean);
+			logger.trace("submit({}) completed, closing...", bean.getUniqueId());
 		} catch (Exception e) {
-			throw new EventException("Could not submit bean to queue " + getSubmitQueueName(), e);
+			throw new EventException("Could not submit bean " + bean.getUniqueId() + " to queue " + getSubmitQueueName(), e);
 		}
 	}
 
@@ -149,7 +149,7 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 
 	@Override
 	public void blockingSubmit(T bean) throws EventException, InterruptedException, IllegalStateException, ScanningException {
-		logger.trace("blockingSubmit(...)"); // Call to submit details the bean so no need to duplicate here
+		logger.trace("blockingSubmit({})...", bean.getUniqueId()); // submit() logs the full bean so no need here
 
 		String topic = getStatusTopicName();
 		if (topic == null) {
@@ -189,10 +189,13 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 
 		submit(bean);
 		latch.await();
-		logger.trace("blockingSubmit({}) subscriber latch released. {}", bean, subscriber);
+		logger.trace("blockingSubmit({}) subscriber latch released. {}", bean.getUniqueId(), subscriber);
 		subscriber.disconnect();
-		logger.trace("blockingSubmit({}) subscriber disconnected.   {}", bean, subscriber);
+		logger.trace("blockingSubmit({}) subscriber disconnected.   {}", bean.getUniqueId(), subscriber);
+		logger.debug("blockingSubmit({}) completed, status={}", bean.getUniqueId(), finalStatus.getPlain().toString());
 		if (finalStatus.getPlain().equals(Status.FAILED)) {
+			logger.error("Blocking scan failed with status={} bean={} subscriber={}",
+					finalStatus.getPlain().toString(), bean, subscriber);
 			throw new ScanningException("Blocking scan finished with failed status");
 		}
 	}
