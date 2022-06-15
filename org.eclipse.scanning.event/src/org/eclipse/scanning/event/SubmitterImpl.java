@@ -202,24 +202,20 @@ class SubmitterImpl<T extends StatusBean> extends AbstractConnection implements 
 		return priority;
 	}
 
-
 	@Override
 	public void setPriority(int priority) {
 		if (priority < 0) throw new IllegalArgumentException("Priority must be at least 0");
 		this.priority = priority;
 	}
 
-
 	@Override
 	public long getLifeTime() {
 		return lifeTime;
 	}
-
 
 	@Override
 	public void setLifeTime(long lifeTime) {
 		if (lifeTime < 0) throw new IllegalArgumentException("Time to live must be at least 0ms");
 		this.lifeTime = lifeTime;
 	}
-
 }

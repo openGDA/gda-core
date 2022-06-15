@@ -357,5 +357,4 @@ public class QueueCommandBean  extends IdBean {
 		sb.append("]");
 		return sb.toString();
 	}
-
 }
