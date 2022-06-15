@@ -36,7 +36,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 
 /**
  * Tests regarding the {@link NexusExperimentController}'s use of {@link ExperimentTreeCache}.
@@ -54,7 +54,7 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 	@Before
 	public void setup() throws Exception {
 		/* needed when closing a) multipart acquisition and/or b) experiment */
-		doReturn(new NodeFileCreationRequest()).when(nodeFileRequesterService)
+		doReturn(new NodeInsertionRequest()).when(nodeFileRequesterService)
 			.getNodeFileCreationRequestResponse(ArgumentMatchers.any());
 
 		 treeCaptor = ArgumentCaptor.forClass(ExperimentTree.class);
@@ -106,7 +106,7 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 	@Test
 	public void cacheStateWhenEndingMultipartAcquisition() throws Exception {
 
-		doReturn(new NodeFileCreationRequest()).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
+		doReturn(new NodeInsertionRequest()).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
 
 		URL root = getController().startExperiment(EXPERIMENT_NAME);
 		getController().startMultipartAcquisition(ACQUISITION_NAME);
@@ -121,7 +121,7 @@ public class NexusExperimentControllerCachingTest extends NexusExperimentControl
 
 	@Test
 	public void cacheStateWhenEndingExperiment() throws Exception {
-		doReturn(new NodeFileCreationRequest()).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
+		doReturn(new NodeInsertionRequest()).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
 		getController().startExperiment(EXPERIMENT_NAME);
 		getController().stopExperiment();
 

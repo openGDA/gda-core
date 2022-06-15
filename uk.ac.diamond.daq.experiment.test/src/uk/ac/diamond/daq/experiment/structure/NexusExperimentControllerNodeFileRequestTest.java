@@ -23,42 +23,24 @@ import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.eclipse.scanning.api.event.status.Status;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 
 /**
  * Tests regarding the {@link NexusExperimentController}'s use of {@link NodeFileRequesterService}.
  */
 public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimentControllerTestBase {
 
-	@Autowired
-	private NodeFileRequesterService nodeFileRequesterService;
-
-	private ArgumentCaptor<NodeFileCreationRequest> jobCaptor = ArgumentCaptor.forClass(NodeFileCreationRequest.class);
-
-	@Before
-	public void mockServiceResponse() throws Exception {
-		var response = new NodeFileCreationRequest();
-		response.setStatus(Status.COMPLETE);
-		doReturn(response).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
-	}
+	private ArgumentCaptor<NodeInsertionRequest> jobCaptor = ArgumentCaptor.forClass(NodeInsertionRequest.class);
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -66,85 +48,56 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
         System.setProperty(GDA_PROPERTIES_FILE, "test/resources/defaultContext/properties/_common/common_instance_java.properties");
 	}
 
-
 	@Test
-	public void stopExperimentCallsIndexFileCreator() throws Exception {
-
+	public void prepareAcquisitionTriggersNodeFileCreationRequest() throws Exception {
 		URL experimentRoot = getController().startExperiment(EXPERIMENT_NAME);
-		var firstUrl = getController().prepareAcquisition(ACQUISITION_NAME + "1");
-		var secondUrl = getController().prepareAcquisition(ACQUISITION_NAME + "2");
-
-		getController().stopExperiment();
-
-		var nxsUrls = new HashSet<>();
-		nxsUrls.add(firstUrl);
-		nxsUrls.add(secondUrl);
+		var acquisitionUrl = getController().prepareAcquisition(ACQUISITION_NAME);
 
 		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
-		NodeFileCreationRequest job = jobCaptor.getValue();
+		NodeInsertionRequest job = jobCaptor.getValue();
 
 		assertThat(job.getNodeLocation(), is(equalTo(experimentRoot)));
-		assertThat(job.getChildren(), is(equalTo(nxsUrls)));
+		assertThat(job.getChildren(), is(equalTo(Set.of(acquisitionUrl))));
 	}
 
 	@Test
-	public void multiPartAcquisitionRequestsNodeFileCreation() throws Exception {
-		getController().startExperiment(EXPERIMENT_NAME);
+	public void multipartAcquisitionTriggersNodeFileCreationRequest() throws Exception {
+		var experimentUrl = getController().startExperiment(EXPERIMENT_NAME);
 
-		URL acquisition = getController().startMultipartAcquisition(ACQUISITION_NAME);
-		URL scan1 = getController().prepareAcquisition(ACQUISITION_NAME+1);
-		URL scan2 = getController().prepareAcquisition(ACQUISITION_NAME+2);
-
-		getController().stopMultipartAcquisition();
+		var multipartUrl = getController().startMultipartAcquisition(ACQUISITION_NAME);
 
 		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
-		NodeFileCreationRequest job = jobCaptor.getValue();
+		NodeInsertionRequest job = jobCaptor.getValue();
 
-		assertThat(job.getNodeLocation(), is(equalTo(acquisition)));
-
-		var scans = new HashSet<>();
-		scans.add(scan1);
-		scans.add(scan2);
-		assertThat(job.getChildren(), is(equalTo(scans)));
+		assertThat(job.getNodeLocation(), is(equalTo(experimentUrl)));
+		assertThat(job.getChildren(), is(equalTo(Set.of(multipartUrl))));
 	}
 
 	@Test
-	public void stopExperimentClosesAllOpenMultipartAcquisitions() throws Exception {
-		URL experiment = getController().startExperiment(EXPERIMENT_NAME);
+	public void eachAcquisitionWithinMultipartAcquisitionTriggersRequest() throws Exception {
+		var experimentUrl = getController().startExperiment(EXPERIMENT_NAME);
 
-		URL firstLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
-		URL secondLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
-		getController().prepareAcquisition(ACQUISITION_NAME); // need a concrete child for the multipart to actually close
+		var multipartAcquisitionUrl = getController().startMultipartAcquisition(ACQUISITION_NAME);
+		var scan1Url = getController().prepareAcquisition(ACQUISITION_NAME+1);
+		var scan2Url = getController().prepareAcquisition(ACQUISITION_NAME+2);
 
-		var expectedNodeFiles = new HashSet<>();
-		expectedNodeFiles.add(experiment);
-		expectedNodeFiles.add(firstLevel);
-		expectedNodeFiles.add(secondLevel);
-
-		getController().stopExperiment();
-
+		// 3 requests in total...
 		verify(nodeFileRequesterService, times(3)).getNodeFileCreationRequestResponse(jobCaptor.capture());
 
-		Set<URL> nodeFiles = jobCaptor.getAllValues().stream()
-								.map(NodeFileCreationRequest::getNodeLocation)
-								.collect(Collectors.toSet());
+		// first to link multipart acquisition to experiment file
+		verifyRequest(jobCaptor.getAllValues().get(0), experimentUrl, multipartAcquisitionUrl);
 
-		assertThat(nodeFiles, is(equalTo(expectedNodeFiles)));
+		// second to link scan 1 to multipart acquisition file
+		verifyRequest(jobCaptor.getAllValues().get(1), multipartAcquisitionUrl, scan1Url);
+
+		// third to link scan 2 to multipart acquisition file
+		verifyRequest(jobCaptor.getAllValues().get(2), multipartAcquisitionUrl, scan2Url);
 	}
 
-	@Test
-	public void multiPartIsAbleToCloseWithoutChildren() throws Exception {
-		getController().startExperiment(EXPERIMENT_NAME);
-
-		// start multipart acquisition...
-		getController().startMultipartAcquisition(ACQUISITION_NAME);
-
-		// on second thoughts... stop it (without generating acquisitions inside it)
-		getController().stopMultipartAcquisition();
-
-		verifyNoMoreInteractions(nodeFileRequesterService);
+	private void verifyRequest(NodeInsertionRequest request, URL parent, URL child) {
+		assertThat(request.getNodeLocation(), is(equalTo(parent)));
+		assertThat(request.getChildren(), is(equalTo(Set.of(child))));
 	}
-
 }

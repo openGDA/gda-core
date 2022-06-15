@@ -18,16 +18,17 @@
 
 package uk.ac.diamond.daq.experiment.structure;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
-import org.eclipse.dawnsci.nexus.NXobject;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusUtils;
-import org.eclipse.dawnsci.nexus.builder.NexusBuilderFactory;
-import org.eclipse.dawnsci.nexus.builder.NexusBuilderFile;
-import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
+import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.IRequestHandler;
@@ -35,21 +36,19 @@ import org.eclipse.scanning.api.event.status.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.daq.experiment.api.Activator;
-import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 
 
 /**
  * Builds a node NeXus file consisting of a single NXentry
  * composed of links to the individual NeXus files
  */
-public class NodeFileCreator implements IRequestHandler<NodeFileCreationRequest> {
+public class NodeFileCreator implements IRequestHandler<NodeInsertionRequest> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NodeFileCreator.class);
-	private NexusBuilderFactory factory;
 	
-	private final NodeFileCreationRequest request;
-	private final IPublisher<NodeFileCreationRequest> publisher;
+	private final NodeInsertionRequest request;
+	private final IPublisher<NodeInsertionRequest> publisher;
 	
 	/** 
 	 * Constructor arguments are here to fulfil the {@link IRequestHandler} contract,
@@ -58,43 +57,55 @@ public class NodeFileCreator implements IRequestHandler<NodeFileCreationRequest>
 	 * @param request
 	 * @param publisher
 	 */
-	NodeFileCreator(NodeFileCreationRequest request, IPublisher<NodeFileCreationRequest> publisher) {
+	NodeFileCreator(NodeInsertionRequest request, IPublisher<NodeInsertionRequest> publisher) {
 		this.request = request;
 		this.publisher = publisher;
 	}
 
 	@Override
-	public NodeFileCreationRequest process(NodeFileCreationRequest request) throws EventException {
-		createIndexFile(request.getNodeLocation(), request.getChildren());
+	public NodeInsertionRequest process(NodeInsertionRequest request) throws EventException {
+		handleRequest(request.getNodeLocation(), request.getChildren());
 		return request;
 	}
 
-	private void createIndexFile(URL file, Set<URL> children) {
+	private void handleRequest(URL file, Set<URL> children) {
 		
 		if (children.isEmpty()) {
 			getBean().setMessage("Nothing to link; won't do anything");
+			getBean().setStatus(Status.COMPLETE);
 			return;
 		}
 		
 		getBean().setStatus(Status.RUNNING);
-		NexusFileBuilder nxsBuilder = getNexusBuilderFactory().newNexusFileBuilder(file.getPath());
 		
-		try {
-			final NXobject entry = nxsBuilder.newEntry().getNXentry();
+		try (var nexus = ServiceHolder.getNexusFileFactory().newNexusFile(file.getPath(), true)) {
+			getParentDirectory(file.getPath()).mkdirs();
+			nexus.openToWrite(true);
 			
-			children.forEach(child -> 
-				entry.addExternalLink(getLeafName(child), getRelativePath(file.getPath(), child.getPath()), "/entry/"));
+			for (var child : children) {
+				nexus.linkExternal(getRelativeURI(file, child), getDestinationNodePath(child), true);
+			}
 			
-			NexusBuilderFile nodeFile = nxsBuilder.createFile(true);
-			nodeFile.close();
+			nexus.flush();
 			getBean().setStatus(Status.COMPLETE);
-			
-		} catch (NexusException e) {
+		} catch (NexusException | URISyntaxException e) {
 			String error = "Could not create node file '"  + file.getPath() + "'";
 			logger.error(error, e);
 			getBean().setStatus(Status.FAILED);
 			getBean().setMessage(error);
 		}
+	}
+	
+	private File getParentDirectory(String filepath) {
+		return Paths.get(filepath).getParent().toFile();
+	}
+	
+	/**
+	 * Returns a URI describing the relative path of {@code child} to {@code parent},
+	 * and the internal HDF path {@code /entry/}.
+	 */
+	private URI getRelativeURI(URL parent, URL child) throws URISyntaxException {
+		return new URI(getRelativePath(parent.getPath(), child.getPath()) + "#/entry/");
 	}
 	
 	private String getRelativePath(String parentFilePath, String childFilePath) {
@@ -103,24 +114,17 @@ public class NodeFileCreator implements IRequestHandler<NodeFileCreationRequest>
 		return parentDirectory.relativize(child).toString();
 	}
 
-	private String getLeafName(URL location) {
-		return NexusUtils.getName(location.getPath());
-	}
-
-	private NexusBuilderFactory getNexusBuilderFactory() {
-		if (factory == null) {
-			factory = Activator.getService(NexusBuilderFactory.class);
-		}
-		return factory;
+	private String getDestinationNodePath(URL location) {
+		return "/entry/" + NexusUtils.getName(location.getPath());
 	}
 
 	@Override
-	public NodeFileCreationRequest getBean() {
+	public NodeInsertionRequest getBean() {
 		return request;
 	}
 
 	@Override
-	public IPublisher<NodeFileCreationRequest> getPublisher() {
+	public IPublisher<NodeInsertionRequest> getPublisher() {
 		return publisher;
 	}
 
