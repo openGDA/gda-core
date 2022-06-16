@@ -28,7 +28,6 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.apache.activemq.command.ActiveMQQueue;
@@ -44,14 +43,14 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
+import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.diamond.daq.jms.ErrorResponse;
-import uk.ac.diamond.daq.jms.Request;
 import uk.ac.diamond.daq.jms.Response;
 import uk.ac.diamond.daq.jms.positioner.Positioner;
-import uk.ac.diamond.daq.jms.positioner.PositionerCommands;
 import uk.ac.diamond.daq.jms.positioner.PositionerQueue;
 import uk.ac.diamond.daq.jms.positioner.PositionerStatus;
+import uk.ac.diamond.daq.jms.positioner.request.AvailablePositionersRequest;
 import uk.ac.diamond.daq.jms.positioner.request.GetPositionRequest;
 import uk.ac.diamond.daq.jms.positioner.request.GetPositionerRequest;
 import uk.ac.diamond.daq.jms.positioner.request.SetPositionRequest;
@@ -81,6 +80,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 
 	private boolean connected;
 	private boolean configured;
+	private MessageProducer posUpdate;
 
 	private MessageConverter messageConveter = jacksonJmsMessageConverter();
 
@@ -94,6 +94,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
 		converter.setTargetType(MessageType.TEXT);
 		converter.setTypeIdPropertyName("_type");
+		converter.setBeanClassLoader(GDAClassLoaderService.getClassLoaderService().getClassLoader());
 		return converter;
 	}
 
@@ -103,7 +104,8 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 			session = ServiceHolder.getSessionService().getSession();
 
 			MessageConsumer consumer = session.createConsumer(new ActiveMQQueue(PositionerQueue.COMMAND_QUEUE));
-
+			var topic = session.createTopic(PositionerQueue.UPDATE_QUEUE);
+			posUpdate = session.createProducer(topic);
 			connected = true;
 
 			consumer.setMessageListener(this);
@@ -132,38 +134,29 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 	@Override
 	public void onMessage(Message message) {
 		try {
-			if (message instanceof ObjectMessage) {
-				Object payload = ((ObjectMessage) message).getObject();
-				if (payload instanceof Request) {
-					Request request = (Request) payload;
-					String requestName = request.getRequestName();
-					Response response = null;
-					try {
-						if (PositionerCommands.AVAILABLE_POSITIONERS.equals(requestName)) {
-							response = availablePositioners();
-						} else if (PositionerCommands.GET_POSITIONER.equals(requestName)) {
-							response = getPositioner((GetPositionerRequest) request);
-						} else if (PositionerCommands.GET_POSITION.equals(requestName)) {
-							response = getPosition((GetPositionRequest) request);
-						} else if (PositionerCommands.SET_POSITION.equals(requestName)) {
-							response = setPosition((SetPositionRequest) request);
-						} else if (PositionerCommands.STOP.equals(requestName)) {
-							response = stop((StopRequest) request);
-						} else {
-							String error = String.format("Unknown request: %s", requestName);
-							response = new ErrorResponse(SERVICE_ID, error);
-						}
-					} catch (PositionerServiceException e) {
-						log.error("Request {} failed: {}", requestName, e.getMessage());
-						response = e.getErrorResponse();
-					}
-					if (response != null) {
-						Message resonseMessage = messageConveter.toMessage(response, session);
-						resonseMessage.setJMSCorrelationID(message.getJMSMessageID());
-						MessageProducer producer = session.createProducer(message.getJMSReplyTo());
-						producer.send(resonseMessage);
-					}
+			var result = messageConveter.fromMessage(message);
+			Response response = null;
+			try {
+				if (result instanceof AvailablePositionersRequest) {
+					response = availablePositioners();
+				} else if (result instanceof GetPositionerRequest) {
+					response = getPositioner((GetPositionerRequest) result);
+				} else if (result instanceof GetPositionRequest) {
+					response = getPosition((GetPositionRequest) result);
+				} else if (result instanceof SetPositionRequest) {
+					response = setPosition((SetPositionRequest) result);
+				} else if (result instanceof StopRequest) {
+					response = stop((StopRequest) result);
 				}
+			} catch (PositionerServiceException e) {
+				log.error("Request {} failed: {}", result, e.getMessage());
+				response = e.getErrorResponse();
+			}
+			if (response != null) {
+				Message resonseMessage = messageConveter.toMessage(response, session);
+				resonseMessage.setJMSCorrelationID(message.getJMSMessageID());
+				MessageProducer producer = session.createProducer(message.getJMSReplyTo());
+				producer.send(resonseMessage);
 			}
 		} catch (JMSException e) {
 			log.error("Failed to send response to request", e);
@@ -253,8 +246,7 @@ public class PositionerService implements IObserver, Configurable, MessageListen
 				Response response = new PositionerUpdateResponse(SERVICE_ID, ((Scannable) theObserved).getName(),
 						position, status);
 				Message resonseMessage = messageConveter.toMessage(response, session);
-				MessageProducer producer = session.createProducer(new ActiveMQQueue(PositionerQueue.UPDATE_QUEUE));
-				producer.send(resonseMessage);
+				posUpdate.send(resonseMessage);
 			} catch (PositionerFactoryException | JMSException e) {
 				log.error("Failed to send update", e);
 			}
