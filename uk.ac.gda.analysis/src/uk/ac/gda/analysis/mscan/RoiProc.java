@@ -95,6 +95,9 @@ public class RoiProc implements MalcolmSwmrProcessor {
 	public void processFrame(Dataset data, SliceFromSeriesMetadata metaSlice) {
 		logger.debug("Start of processFrame");
 		for (RegionOfInterest roi : rois) {
+			if(roi.getAngle() > RegionOfInterest.MAX_ROTATION_ANGLE) {
+				throw new IllegalStateException("Cannot take slice of rotated RegionOfInterest.");
+			}
 			Dataset roiDataset = data.squeeze().getSliceView(roi.getSlice());
 			writeRoiStat(roi, roiDataset, metaSlice, Dataset::sum, datasets.get(roi).get(0));
 			//writeRoiStat(roi, roiDataset, metaSlice, Dataset::mean, datasets.get(roi).get(1));
@@ -111,6 +114,9 @@ public class RoiProc implements MalcolmSwmrProcessor {
 		logger.debug("Start of processFrame");
 		for (RegionOfInterest roi : rois) {
 			Dataset roiDataset;
+			if(roi.getAngle() > RegionOfInterest.MAX_ROTATION_ANGLE) {
+				throw new IllegalStateException("Cannot take slice of rotated RegionOfInterest.");
+			}
 			try {
 				roiDataset = DatasetUtils.convertToDataset(data.squeezeEnds().getSlice(roi.getSlice()));
 			} catch (DatasetException e) {

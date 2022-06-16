@@ -35,6 +35,8 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * {@link RoiStatsProcessor}.
  */
 public class RegionOfInterest {
+	public static final double MAX_ROTATION_ANGLE = 1e-6;
+
 	private static final Logger logger = LoggerFactory.getLogger(RegionOfInterest.class);
 
 	/** This is the name of the roi (with spaces removed) used to prefix the data names */
@@ -53,18 +55,21 @@ public class RegionOfInterest {
 	 * @param roi
 	 */
 	public RegionOfInterest(RectangularROI roi) {
-		slice = getSliceFromRoi(roi);
 		// Remove spaces from roi name
 		name = roi.getName().replace(" ", "_");
 		// As the slice[] is [y, x], the indexing here is 0 for y, 1 for x
-		x = slice[1].getStart();
-		y = slice[0].getStart();
-		width = slice[1].getStop() - slice[1].getStart();
-		height =  slice[0].getStop() - slice[0].getStart();
+		x = roi.getIntPoint()[0];
+		y = roi.getIntPoint()[1];
+		width = roi.getIntLengths()[0];
+		height =  roi.getIntLengths()[1];
 		angle = roi.getAngleDegrees();
+		slice = getSliceFromRoi(roi);
 	}
 
 	private Slice[] getSliceFromRoi(RectangularROI roi) {
+		if(roi.getAngleDegrees() > MAX_ROTATION_ANGLE) {
+			return new Slice[] {};
+		}
 		int roiX = roi.getIntPoint()[0];
 		int roiY = roi.getIntPoint()[1];
 		int roiWidth = roi.getIntLengths()[0];
@@ -78,6 +83,7 @@ public class RegionOfInterest {
 	}
 
 	/**
+	 * Note this will be have been empty if this ROI has been rotated as the values would correspond to the original position, not the rotated one.
 	 * @return slice array is ordered [y, x] to match Dataset indexing
 	 */
 	public Slice[] getSlice() {

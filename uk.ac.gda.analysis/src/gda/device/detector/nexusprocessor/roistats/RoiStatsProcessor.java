@@ -127,6 +127,11 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	 */
 	private void updateRois() {
 		roiList = RegionOfInterest.getRoisForPlot(plotName);
+		for (RegionOfInterest roi : roiList) {
+			if (Math.abs(roi.getAngle()) > RegionOfInterest.MAX_ROTATION_ANGLE ) {
+				throw new IllegalStateException("Cannot take slice of rotated RegionOfInterest.");
+			}
+		}
 	}
 
 	public void updateNames() {
@@ -179,7 +184,7 @@ public class RoiStatsProcessor extends DatasetProcessorBase {
 	}
 
 	public List<RegionOfInterest> getRoiList() {
-		return roiList;
+		return new ArrayList<>(roiList);
 	}
 
 }
