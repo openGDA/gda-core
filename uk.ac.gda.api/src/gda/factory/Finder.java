@@ -415,7 +415,8 @@ public enum Finder {
 			return Optional.empty();
 		}
 		final String moduleName = LocalProperties.get(GDA_JYTHON_FINDABLES_MODULE_NAME, "gdaserver");
-		final String moduleDir = LocalProperties.get(GDA_JYTHON_FINDABLES_MODULE_DIR, LocalProperties.getConfigDir() + File.separator + "scripts");
+		final String moduleDir = LocalProperties.get(
+				GDA_JYTHON_FINDABLES_MODULE_DIR, LocalProperties.getVarDir() + File.separator + "scripts");
 		final var moduleFile = new File(moduleDir, moduleName + ".py");
 		if (!moduleFile.getParentFile().mkdirs() && !moduleFile.getParentFile().exists()) {
 			throw new FactoryException("Could not create parent directory '" + moduleFile.getParent() + "' for " + moduleName + ".py file");
