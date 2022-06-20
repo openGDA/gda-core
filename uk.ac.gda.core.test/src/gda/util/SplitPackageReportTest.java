@@ -74,6 +74,8 @@ public class SplitPackageReportTest {
 	/** package name -> list of bundles exporting it */
 	private static final Map<String, Set<String>> packagesExportedByMoreThanOneBundle = new TreeMap<>();
 
+	private static final Set<String> packagesExportedBySplitPackageResolverOnly = new HashSet<>();
+
 	@BeforeClass
 	public static void readManifestsAndRecordSplitPackages() throws Exception {
 		// Just in case this were to be called multiple times
@@ -99,6 +101,8 @@ public class SplitPackageReportTest {
 			final Set<String> exportingBundles = packageMap.get(pkg);
 			if (exportingBundles.size() > 1) {
 				packagesExportedByMoreThanOneBundle.put(pkg, exportingBundles);
+			} else if (exportingBundles.contains(SPLIT_PACKAGE_RESOLVER_NAME)) {
+				packagesExportedBySplitPackageResolverOnly.add(pkg);
 			}
 		}
 	}
@@ -195,6 +199,15 @@ public class SplitPackageReportTest {
 						pkgName));
 			}
 		}
+	}
+
+	@Test
+	public void checkForDeletedPackages() {
+		if (!packagesExportedBySplitPackageResolverOnly.isEmpty()) {
+			fail(String.format("Package(s) %s no longer exist(s). Remove from split package resolver",
+					packagesExportedBySplitPackageResolverOnly));
+		}
+
 	}
 
     /**
