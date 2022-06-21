@@ -122,7 +122,8 @@ public class PositionerDeterminedScannable extends ScannableBase {
 			scannable.addIObserver(updatesForwarding);
 			activeScannable = scannable;
 		} catch (DeviceException e) {
-			logger.error("Error reading positioner. Could be delegating to wrong scannable ({})", activeScannable.getName(), e);
+			var currentDelegate = activeScannable == null ? "NOT SET" : activeScannable.getName();
+			logger.error("Error reading positioner. Could be delegating to wrong scannable ({})", currentDelegate, e);
 		}
 		notifyIObservers(this, ScannableStatus.IDLE);
 	}
