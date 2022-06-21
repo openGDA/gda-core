@@ -150,9 +150,11 @@ public class VGScientaController extends ConfigurableBase {
 	/** The energy scale is in KE eV */
 	private static final String ENERGY_SCALE_RBV = "X_SCALE_RBV";
 	private static final String ENERGY_UNITS_RBV = "X_UNITS_RBV";
+	private static final String ENERGY_COUNT_RBV = "X_COUNT_RBV";
 	// Y scale is the angle or position in deg or mm
 	private static final String Y_SCALE_RBV = "Y_SCALE_RBV";
 	private static final String Y_UNITS_RBV = "Y_UNITS_RBV";
+	private static final String Y_COUNT_RBV = "Y_COUNT_RBV";
 	// Intensity unit is the value of the image e.g. counts/sec
 	private static final String INTENSITY_UNITS_RBV = "I_UNITS_RBV";
 
@@ -555,7 +557,7 @@ public class VGScientaController extends ConfigurableBase {
 	}
 
 	public double[] getYAxis() throws Exception {
-		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(Y_SCALE_RBV), getSlice());
+		return EPICS_CONTROLLER.cagetDoubleArray(getChannel(Y_SCALE_RBV), getYCount());
 	}
 
 	public String getEnergyUnits() throws Exception {
@@ -594,7 +596,11 @@ public class VGScientaController extends ConfigurableBase {
 	}
 
 	public int getTotalDataPoints() throws Exception {
-		return EPICS_CONTROLLER.cagetInt(getChannel(TOTAL_DATA_POINTS_RBV));
+		return EPICS_CONTROLLER.cagetInt(getChannel(ENERGY_COUNT_RBV));
+	}
+
+	public int getYCount() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(Y_COUNT_RBV));
 	}
 
 	public void setDetectorMode(String value) throws Exception {
