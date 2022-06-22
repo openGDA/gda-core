@@ -20,8 +20,7 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
-import java.io.IOException;
+import static org.mockito.Mockito.when;
 
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.scan.IFilePathService;
@@ -69,12 +68,16 @@ public abstract class NexusExperimentControllerTestBase {
 	protected IFilePathService filePathService;
 
 	@Before
-	public void prepareFileSystem() throws IOException {
+	public void prepareFileSystem() throws Exception {
 		filePathService = mock(IFilePathService.class);
 
-		doReturn(testDirectory.newFolder("visit").getAbsolutePath()).when(filePathService).getVisitDir();
-		doReturn(testDirectory.newFolder("processing").getAbsolutePath()).when(filePathService).getProcessingDir();
-		doReturn(testDirectory.newFolder("xml").getAbsolutePath()).when(filePathService).getVisitConfigDir();
+		var visitDir = testDirectory.newFolder("visit").getAbsolutePath();
+		when(filePathService.getVisitDir()).thenReturn(visitDir);
+		when(filePathService.getNextPath(null)).thenReturn(visitDir+"/scan.nxs");
+		when(filePathService.getProcessingDir()).thenReturn(testDirectory.newFolder("processing").getAbsolutePath());
+		when(filePathService.getVisitConfigDir()).thenReturn(testDirectory.newFolder("xml").getAbsolutePath());
+		when(filePathService.getPersistenceDir()).thenReturn(testDirectory.newFolder("var").getAbsolutePath());
+
 		var sh = new ServiceHolder();
 		sh.setFilePathService(filePathService);
 	}
