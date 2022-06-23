@@ -277,7 +277,7 @@ public class TimeSeriesScanView {
 			editor.createEditorPart(parent);
 			return editor;
 		} catch (ScanningException e) {
-			logger.error("Could not get malcolm device: ", malcolmDeviceName, e);
+			logger.error("Could not get malcolm device: {}", malcolmDeviceName, e);
 			return null;
 		}
 	}
