@@ -46,8 +46,10 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 	private static final String VALVE_CONTROL = "VALVE-%d:CON";
 
 	protected static final String SEQUENCE_START = "Start";
-	protected static final String VALVE_CLOSE = "Close";
+	protected static final String VALVE_CLOSE = "Closed";
 	protected static final String VALVE_OPEN = "Open";
+	protected static final String LINE_1 = "line1";
+	protected static final String LINE_2 = "line 2";
 
 
 	protected BaseGasRigController(String basePvName) {

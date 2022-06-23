@@ -47,4 +47,8 @@ public interface IGasRigController extends IObservable {
 	void admitLinesToEndStation() throws DeviceException;
 
 	void admitLinesToExhaust() throws DeviceException;
+
+	boolean isGasFlowingToLine(int gasId, int lineNumber) throws DeviceException, GasRigException;
+
+	boolean isLineFlowingToEndstation(int lineNumber) throws DeviceException;
 }

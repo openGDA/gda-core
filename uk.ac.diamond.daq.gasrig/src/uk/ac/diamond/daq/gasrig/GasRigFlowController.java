@@ -67,4 +67,8 @@ public class GasRigFlowController extends BaseGasRigController {
 		String valveStatus = getStringValue(constructValveStatusPv(valveNumber), "valve status");
 		return valveStatus.equals(VALVE_OPEN);
 	}
+
+	public int getValveNumber(int lineNumber) {
+		return lineValveNumbers.get(lineNumber);
+	}
 }

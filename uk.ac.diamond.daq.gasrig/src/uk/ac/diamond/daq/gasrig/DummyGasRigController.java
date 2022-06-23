@@ -24,6 +24,7 @@ import gda.device.DeviceException;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import uk.ac.diamond.daq.gasrig.api.GasRigException;
 import uk.ac.diamond.daq.gasrig.api.GasRigSequenceUpdate;
 
 /**
@@ -153,5 +154,17 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 	public void admitLinesToExhaust() throws DeviceException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public boolean isGasFlowingToLine(int gasId, int lineNumber) throws DeviceException, GasRigException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isLineFlowingToEndstation(int lineNumber) throws DeviceException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

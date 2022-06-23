@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import gda.device.DeviceException;
+import gda.device.scannable.PVScannable;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -43,10 +44,16 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	private String currentOrLastStatus;
 	private double currentSequenceProgress;
 	private Map<Integer, GasRigFlowController> flowControllers;
+	private int switchingValve;
+	private PVScannable endstationValve;
+	private int line2Valve;
 
-	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers) {
+	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers,
+			int switchingValve, PVScannable endstationValve, int line2Valve) {
 		super(basePvName);
-
+		this.switchingValve = switchingValve;
+		this.endstationValve = endstationValve;
+		this.line2Valve = line2Valve;
 		this.flowControllers = flowControllers.stream()
 				.collect(Collectors.toMap(GasRigFlowController::getGasId, Function.identity()));
 	}
@@ -203,6 +210,34 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	@Override
 	public void closeLineValvesForGas(int gasId) throws DeviceException, GasRigException {
 		getFlowController(gasId).closeLineValves();
+	}
+
+	@Override
+	public boolean isGasFlowingToLine(int gasId, int lineNumber) throws DeviceException, GasRigException {
+		int valveNumber = getFlowController(gasId).getValveNumber(lineNumber);
+		return getFlowController(gasId).isValveOpen(valveNumber);
+	}
+
+	private boolean isValveOpen(int valveNumber) throws DeviceException {
+		String valveStatus = getStringValue(constructValveStatusPv(valveNumber), "valve status");
+		return valveStatus.equals(VALVE_OPEN);
+	}
+
+	private String getSwitchingValveStatus() throws DeviceException {
+		return getStringValue(constructValveStatusPv(switchingValve), "switching valve status");
+	}
+
+	@Override
+	public boolean isLineFlowingToEndstation(int lineNumber) throws DeviceException {
+		if((int)endstationValve.getPosition() != 1) {
+			return false;
+		} else if(lineNumber == 1 && getSwitchingValveStatus().equals(LINE_1)) {
+			return true;
+		} else if(lineNumber == 2 && getSwitchingValveStatus().equals(LINE_2)
+				&& isValveOpen(line2Valve)) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override

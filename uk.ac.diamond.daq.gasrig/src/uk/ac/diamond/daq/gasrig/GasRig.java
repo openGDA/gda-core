@@ -220,19 +220,34 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 		}
 	}
 
-	private boolean areGasesInUseOnOtherLines(IGasMix gasMix, int lineNumber) {
-		// TODO Auto-generated method stub
+	private boolean areGasesInUseOnOtherLines(IGasMix gasMix, int lineNumber) throws GasRigException, DeviceException {
+		for (int l=1; l==numberOfLines; l++) {
+			if(l != lineNumber) {
+				for (var gasFlow : gasMix.getAllGasFlows()) {
+					if (gasFlow.getPressure() > 0) {
+						if(controller.isGasFlowingToLine(gasFlow.getGasId(), l)) {
+							return true;
+						}
+					}
+				}
+			}
+		}
 		return false;
 	}
 
-	private boolean isLineFlowingToEndStation(int lineNumber) {
-		// TODO Auto-generated method stub
+	private boolean isLineFlowingToEndStation(int lineNumber) throws DeviceException {
+		return controller.isLineFlowingToEndstation(lineNumber);
+	}
+
+	private boolean areSameGasesFlowingToLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {
+		for (var gasFlow : gasMix.getAllGasFlows()) {
+			if (gasFlow.getPressure() == 0) {
+				if(controller.isGasFlowingToLine(gasFlow.getGasId(), lineNumber)) {
+					return false;
+				}
+			}
+		}
 		return true;
-	}
-
-	private boolean areSameGasesFlowingToLine(IGasMix gasMix, int lineNumber) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	private void updateMassFlowsForLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {
