@@ -222,15 +222,8 @@ public class ScanRequestConverter {
 	}
 
 	private IMapPathModel getMapPathAndConfigureScanAxes(IMappingScanRegion scanRegion) {
-		// check the scan path is an IMapPathModel
-		if (!(scanRegion.getScanPath() instanceof IMapPathModel)) {
-			final String message = "Could not set fast and slow axis. The scan path is not an instance of IMapPathModel.";
-			logger.error(message);
-			throw new IllegalArgumentException(message);
-		}
-
 		// get the fast and slow axis of the scan.
-		final IMapPathModel mapPath = (IMapPathModel) scanRegion.getScanPath();
+		final IMapPathModel mapPath = scanRegion.getScanPath();
 		if (mappingStageInfo != null) {
 			// If the mapping stage is set, use these axis, and update the default map path with them
 			String xAxisName = mappingStageInfo.getPlotXAxisName();
@@ -245,7 +238,7 @@ public class ScanRequestConverter {
 			Optional.ofNullable(yAxis).ifPresent(axis -> mapPath.setyAxisUnits(axis.getHardwareUnitString()));
 		} else {
 			// Otherwise we use the default axis in the map path model
-			logger.warn("No mapping axis manager is set - the scan request will use default axis names and uni!");
+			logger.warn("No mapping axis manager is set - the scan request will use default axis names and units!");
 		}
 
 		return mapPath;
