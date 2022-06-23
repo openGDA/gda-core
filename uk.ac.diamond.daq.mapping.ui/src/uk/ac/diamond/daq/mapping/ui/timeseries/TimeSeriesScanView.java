@@ -262,8 +262,11 @@ public class TimeSeriesScanView {
 	}
 
 	private String getSelectedMalcolmDeviceName() {
-		final DeviceInformation<?> selectedDeviceInfo = ((DeviceInformation<?>) malcolmDevicesComboViewer.getStructuredSelection().getFirstElement());
-		return selectedDeviceInfo == null ? null : selectedDeviceInfo.getName(); // selection can be empty initially
+		if (malcolmDevicesComboViewer != null) {
+			final DeviceInformation<?> selectedDeviceInfo = ((DeviceInformation<?>) malcolmDevicesComboViewer.getStructuredSelection().getFirstElement());
+			return selectedDeviceInfo == null ? null : selectedDeviceInfo.getName(); // selection can be empty initially
+		}
+		return null;
 	}
 
 	private MalcolmModelEditor createMalcolmModelEditor(Composite parent, String malcolmDeviceName) {
