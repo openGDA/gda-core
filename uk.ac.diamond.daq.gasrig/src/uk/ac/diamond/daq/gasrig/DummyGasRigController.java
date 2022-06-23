@@ -142,4 +142,16 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void admitLinesToEndStation() throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void admitLinesToExhaust() throws DeviceException {
+		// TODO Auto-generated method stub
+
+	}
 }

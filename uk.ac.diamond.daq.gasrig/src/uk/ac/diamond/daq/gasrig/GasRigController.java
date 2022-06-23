@@ -178,6 +178,16 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 		runSequence(GasRigSequence.INITIALISE);
 	}
 
+	@Override
+	public void admitLinesToEndStation() throws DeviceException {
+		runSequence(GasRigSequence.ADMIT_LINES_TO_ENDSTATION);
+	}
+
+	@Override
+	public void admitLinesToExhaust() throws DeviceException {
+		runSequence(GasRigSequence.ADMIT_LINES_TO_EXHAUST);
+	}
+
 	private void runSequence(GasRigSequence sequence) throws DeviceException {
 		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
 	}

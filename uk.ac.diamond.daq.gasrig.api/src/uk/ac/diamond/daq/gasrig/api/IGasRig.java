@@ -123,4 +123,18 @@ public interface IGasRig extends Findable, IObservable {
 	 * @throws DeviceException
 	 */
 	public void initialise() throws DeviceException;
+
+	/**
+	 * Asks EPICS to admit both lines to endstation
+	 *
+	 * @throws GasRigException
+	 */
+	public void admitLinesToEndstation() throws GasRigException;
+
+	/**
+	 * Asks EPICS to admit both lines to exhaust
+	 *
+	 * @throws GasRigException
+	 */
+	public void admitLinesToExhaust() throws GasRigException;
 }

@@ -266,4 +266,26 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 		getGas(gasName);
 		controller.admitGasToLine(gasName, lineNumber);
 	}
+
+	@Override
+	public void admitLinesToEndstation() throws GasRigException {
+		try {
+			controller.admitLinesToEndStation();
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to admit lines to endstation";
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
+
+	@Override
+	public void admitLinesToExhaust() throws GasRigException {
+		try {
+			controller.admitLinesToExhaust();
+		} catch (DeviceException exception) {
+			String message = "An error occured while attempting to admit lines to exhaust";
+			logger.error(message, exception);
+			throw new GasRigException(message, exception);
+		}
+	}
 }

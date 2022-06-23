@@ -25,6 +25,8 @@ public enum GasRigSequence {
 	EVACUATE_ENDSTATION(3, "Evacuate Endstation"),
 	ADMIT_GAS_TO_LINE(4, "Admit Gas X to Line Y"),
 	ADMIT_LINE_TO_ENDSTATION(5, "Admit Line X to Endstation"),
+	ADMIT_LINES_TO_ENDSTATION(6, "Admit both lines to Endstation"),
+	ADMIT_LINES_TO_EXHAUST(7, "Admit both lines to Exhaust"),
 	DUMMY(20, "Dummy Sequence");
 
 	private final int sequenceId;
