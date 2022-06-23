@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.models.AbstractTwoAxisGridModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.python.core.PyObject;
 import org.slf4j.Logger;
@@ -39,28 +40,28 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final T model = getModel();
 		final BoundingBox box = model.getBoundingBox();
 
-		final int columns = getXPoints();
-		final int rows = getYPoints();
 		final List<String> axes = model.getScannableNames();
 		final String xName = model.getxAxisName();
 		final String xUnits = model.getxAxisUnits();
 		final String yName = model.getyAxisName();
 		final String yUnits = model.getyAxisUnits();
-		final double xStep = getXStep();
-		final double yStep = getYStep();
-		final double minX = model.getStart(box.getxAxisStart(), xStep);
-		final double minY = model.getStart(box.getyAxisStart(), yStep);
-		final double maxX = model.getStop(minX, box.getxAxisLength(), xStep);
-		final double maxY = model.getStop(minY, box.getyAxisLength(), yStep);
+		final int xCount = getXPoints();
+		final int yCount = getYPoints();
+		final double xStep = IBoundsToFit.getLongestFittingStep(box.getxAxisLength(), getXStep(), model.isBoundsToFit());
+		final double yStep = IBoundsToFit.getLongestFittingStep(box.getyAxisLength(), getYStep(), model.isBoundsToFit());
+		final double minX = IBoundsToFit.getFirstPoint(box.getxAxisStart(), xCount == 1, xStep, model.isBoundsToFit());
+		final double minY = IBoundsToFit.getFirstPoint(box.getyAxisStart(), yCount == 1, yStep, model.isBoundsToFit());
+		final double maxX = IBoundsToFit.getFinalPoint(box.getxAxisStart(), box.getxAxisEnd(), xCount, xStep, model.isBoundsToFit());
+		final double maxY = IBoundsToFit.getFinalPoint(box.getyAxisStart(), box.getyAxisEnd(), yCount, yStep, model.isBoundsToFit());
 		final boolean alternating = model.isAlternating();
 		final boolean continuous = model.isContinuous();
 
 		final PPointGenerator yLine = lineGeneratorFactory.createObject(
-				yName, yUnits, minY, maxY, rows,
+				yName, yUnits, minY, maxY, yCount,
 				// If !model.isAlternateBothAxes(), we only want to alternate the innermost axis
 				alternating && (model.isAlternateBothAxes() || model.isVerticalOrientation()));
 		final PPointGenerator xLine = lineGeneratorFactory.createObject(
-				xName, xUnits, minX, maxX, columns,
+				xName, xUnits, minX, maxX, xCount,
 				alternating && (model.isAlternateBothAxes() || !model.isVerticalOrientation()));
 
 		final PPointGenerator[] generators = new PPointGenerator[2];
@@ -72,19 +73,27 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 	}
 
 	protected int getXPoints() {
-		return model.getPointsOnLine(model.getBoundingBox().getxAxisLength(), getXStep());
+		return IBoundsToFit.getPointsOnLine(model.getBoundingBox().getxAxisLength(), getXStep(), model.isBoundsToFit());
 	}
 
 	protected int getYPoints() {
-		return model.getPointsOnLine(model.getBoundingBox().getyAxisLength(), getYStep());
+		return IBoundsToFit.getPointsOnLine(model.getBoundingBox().getyAxisLength(), getYStep(), model.isBoundsToFit());
 	}
 
 	protected double getXStep() {
-		return model.getBoundingBox().getxAxisLength() / getXPoints();
+		int points = getXPoints();
+		if (!model.isBoundsToFit() && Math.abs(points) != 1) {
+			points -= Math.signum(points);
+		}
+		return model.getBoundingBox().getxAxisLength() / points;
 	}
 
 	protected double getYStep() {
-		return model.getBoundingBox().getyAxisLength() / getYPoints();
+		int points = getYPoints();
+		if (!model.isBoundsToFit() && Math.abs(points) != 1) {
+			points -= Math.signum(points);
+		}
+		return model.getBoundingBox().getyAxisLength() / points;
 	}
 
 	protected PyObject[] getMutator() {

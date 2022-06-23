@@ -21,6 +21,7 @@ package org.eclipse.scanning.points;
 import java.util.List;
 
 import org.eclipse.scanning.api.points.models.AxialPointsModel;
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 class AxialPointsGenerator extends AbstractScanPointGenerator<AxialPointsModel> {
@@ -41,9 +42,10 @@ class AxialPointsGenerator extends AbstractScanPointGenerator<AxialPointsModel> 
         final boolean continuous = model.isContinuous();
         final double length = model.getStop() - model.getStart();
         final int numPoints = model.getPoints();
-        final double step = length / numPoints;
-        final double start = model.getStart(model.getStart(), step);
-        final double stop   = model.getStop(start, length, step);
+        final double denominator = model.isBoundsToFit() ? numPoints : numPoints - 1;
+        final double step = numPoints == 1 ? length : length / denominator;
+        final double start = IBoundsToFit.getFirstPoint(model.getStart(), numPoints == 1, step, model.isBoundsToFit());
+        final double stop   = IBoundsToFit.getFinalPoint(model.getStart(), model.getStop(), numPoints, step, model.isBoundsToFit());
 
         final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 

@@ -25,10 +25,8 @@ class TwoAxisLinePointsModelValidator extends AbstractBoundingLineModelValidator
 
 	@Override
 	public TwoAxisLinePointsModel validate(TwoAxisLinePointsModel model) {
-		// DAQ-3426, discourage use of ambiguous case where unsure whether to put 1 point at start or mid.
-		// In the case of 1 point, a TwoAxisPoint model should be used instead
-		if (model.getPoints() < 2) {
-			throw new ModelValidationException("Must have two or more points in model!", model, "points");
+		if (model.getPoints() < 1) {
+			throw new ModelValidationException("Model must have a positive number of points!", model, "points");
 		}
 		return super.validate(model);
 	}
