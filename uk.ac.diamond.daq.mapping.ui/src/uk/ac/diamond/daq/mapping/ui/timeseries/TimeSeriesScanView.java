@@ -168,8 +168,10 @@ public class TimeSeriesScanView {
 
 	@PreDestroy
 	public void dispose() {
-		malcolmModelEditor.dispose();
-		malcolmModelEditor = null;
+		if (malcolmModelEditor != null) {
+			malcolmModelEditor.dispose();
+			malcolmModelEditor = null;
+		}
 	}
 
 	private void createErrorLabel(Composite parent, String errorText) {
