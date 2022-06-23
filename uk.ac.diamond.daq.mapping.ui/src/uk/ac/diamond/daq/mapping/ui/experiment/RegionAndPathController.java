@@ -50,8 +50,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.scanning.api.points.models.IAxialModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPathModel;
-import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -193,12 +193,12 @@ public class RegionAndPathController extends AbstractMappingController {
 	 */
 	public final class RegionPathState {
 		private final IMappingScanRegionShape scanRegionShape;
-		private final IScanPointGeneratorModel scanPathModel;
+		private final IMapPathModel scanPathModel;
 		private final List<IMappingScanRegionShape> scanRegionShapeList;
-		private final List<IScanPointGeneratorModel> scanPathList;
+		private final List<IMapPathModel> scanPathList;
 
 		RegionPathState(final IMappingScanRegionShape shape, final List<IMappingScanRegionShape> shapeList,
-						final IScanPointGeneratorModel path, final List<IScanPointGeneratorModel> pathList) {
+						final IMapPathModel path, final List<IMapPathModel> pathList) {
 			scanRegionShape = shape;
 			scanRegionShapeList = shapeList;
 			scanPathModel = path;
@@ -209,7 +209,7 @@ public class RegionAndPathController extends AbstractMappingController {
 			return scanRegionShape;
 		}
 
-		public final IScanPointGeneratorModel scanPathModel() {
+		public final IMapPathModel scanPathModel() {
 			return scanPathModel;
 		}
 
@@ -217,7 +217,7 @@ public class RegionAndPathController extends AbstractMappingController {
 			return scanRegionShapeList;
 		}
 
-		public final List<IScanPointGeneratorModel> scanPathList() {
+		public final List<IMapPathModel> scanPathList() {
 			return scanPathList;
 		}
 	}
@@ -233,7 +233,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	private IPathInfoCalculator<PathInfoRequest> pathInfoCalculator;
 	private PathInfoCalculatorJob pathCalculationJob;
 	private IMappingScanRegionShape scanRegionShape = null;
-	private IScanPointGeneratorModel scanPathModel = null;
+	private IMapPathModel scanPathModel = null;
 
 	private List<Consumer<RegionPathState>> viewUpdaters = new ArrayList<>();
 	private List<Consumer<String>> statusMessageConsumers = new ArrayList<>();
@@ -338,12 +338,12 @@ public class RegionAndPathController extends AbstractMappingController {
 	}
 
 	/**
-	 * Returns the current value of {@link IScanPathModel} held by the controller as the scanPathModel resulting
+	 * Returns the current {@link IMapPathModel} held by the controller as the scanPathModel resulting
 	 * from all previous updates.
 	 *
 	 * @return	The current scanPathModel
 	 */
-	public final IScanPointGeneratorModel getScanPathModel() {
+	public final IMapPathModel getScanPathModel() {
 		checkInitialised();
 		return scanPathModel;
 	}
@@ -355,7 +355,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	 *
 	 * @return The list of available region shapes.
 	 */
-	public List<IMappingScanRegionShape>getRegionListAndLinkRegion() {
+	public List<IMappingScanRegionShape> getRegionListAndLinkRegion() {
 		checkInitialised();
 		List<IMappingScanRegionShape> regionList = getTemplateRegions();
 		if (scanRegionShape == null) {
@@ -407,9 +407,9 @@ public class RegionAndPathController extends AbstractMappingController {
 	 *
 	 * @return The list of available scan paths.
 	 */
-	public List<IScanPointGeneratorModel> getScanPathListAndLinkPath() {
+	public List<IMapPathModel> getScanPathListAndLinkPath() {
 		checkInitialised();
-		List<IScanPointGeneratorModel> scanPathList = getValidPathsList();
+		List<IMapPathModel> scanPathList = getValidPathsList();
 		if (scanPathModel == null) {
 			scanPathModel = scanPathList.get(0);
 		} else {
@@ -437,7 +437,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	 * individual types; to get the same list but referring to the active instance use
 	 * {@link #getScanPathListAndLinkPath()}
 	 */
-	public List<IScanPointGeneratorModel> getValidPathsList() {
+	public List<IMapPathModel> getValidPathsList() {
 		return getValidPathsList(scanRegionShape);
 	}
 
@@ -447,7 +447,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	 * individual types; to get the same list but referring to the active instance use
 	 * {@link #getScanPathListAndLinkPath()}
 	 */
-	public List<IScanPointGeneratorModel> getValidPathsList(final IMappingScanRegionShape scanRegionShape) {
+	public List<IMapPathModel> getValidPathsList(final IMappingScanRegionShape scanRegionShape) {
 		return mappingRegionManager.getValidPaths(scanRegionShape);
 	}
 
@@ -507,7 +507,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	 * @param newPathValue			The path model to be stored
 	 */
 	public void updateMappingBeanScanRegion(final IMappingScanRegionShape newRegionShapeValue,
-			final IScanPointGeneratorModel newPathValue) {
+			final IMapPathModel newPathValue) {
 		checkInitialised();
 		IMappingScanRegion mappingScanRegion = getScanRegionFromBean();
 		mappingScanRegion.setRegion(newRegionShapeValue);
@@ -585,7 +585,7 @@ public class RegionAndPathController extends AbstractMappingController {
 	 *
 	 * @param newPath The new path to be set.
 	 */
-	public void changePath(IScanPointGeneratorModel newPath) {
+	public void changePath(IMapPathModel newPath) {
 		checkInitialised();
 		logger.debug("Changing path to {}", newPath);
 

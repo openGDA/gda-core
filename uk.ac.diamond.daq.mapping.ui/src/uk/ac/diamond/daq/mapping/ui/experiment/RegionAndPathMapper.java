@@ -25,6 +25,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.IBoundingBoxModel;
 import org.eclipse.scanning.api.points.models.IBoundingLineModel;
+import org.eclipse.scanning.api.points.models.IMapPathModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 
 import uk.ac.diamond.daq.mapping.api.IMappingScanRegionShape;
@@ -44,7 +45,7 @@ public final class RegionAndPathMapper {
 	 */
 	public static void mapRegionOntoModel(
 			IMappingScanRegionShape scanRegionShape,
-			IScanPointGeneratorModel scanPathModel) {
+			IMapPathModel scanPathModel) {
 		if (scanRegionShape == null || scanRegionShape.toROI() == null)
 			return;
 
