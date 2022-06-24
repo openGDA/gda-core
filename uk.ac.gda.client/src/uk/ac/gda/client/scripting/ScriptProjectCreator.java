@@ -115,14 +115,17 @@ public class ScriptProjectCreator {
 		monitor.subTask("Creating interpreter");
 		// gets the info for the python side
 		String encoding = null;
+		var arguments = new String[] {"-B"}; // Don't write bytecode
 		Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
-				FileUtils.getFileAbsolutePath(script), executable, null, null, null, monitor, encoding);
+				FileUtils.getFileAbsolutePath(script), executable, arguments, null, null, monitor, encoding);
 
 		InterpreterInfo info = null;
 		try {
 			// HACK Otherwise Pydev shows a dialog to the user.
 			ModulesManagerWithBuild.IN_TESTS = true;
 			info = InterpreterInfo.fromString(outTup.o1, false);
+			// Set the env var to not write bytecode as files created are only readable by owner
+			info.setEnvVariables(new String[] {"PYTHONDONTWRITEBYTECODE=true"});
 		} catch (Exception e) {
 			logger.error("Something went wrong creating the InterpreterInfo.", e);
 		} finally {
