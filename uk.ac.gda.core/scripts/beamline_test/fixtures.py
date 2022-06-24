@@ -1,41 +1,47 @@
 import pytest
 
-@pytest.fixture
-def meta():
-    from gdaserver import GDAMetadata as meta
-    initial = {}
-    for entry in meta.getMetadataEntries():
-        initial[entry.name] = (entry, entry.metadataValue)
-    try:
-        yield meta
-    finally:
-        meta.setMetadataEntries([entry for (entry, _) in initial.values()])
-        for name, (_, value) in initial.items():
-            meta[name] = value
+class DefaultGdaFixtures(object):
+    """
+    Default fixtures for all GDA tests
 
-@pytest.fixture
-def main():
-    import __main__
-    return __main__
+    Additional fixtures can be added per-beamline by adding them to a conftest.py
+    file in the root of the tests directory for that beamline.
+    """
+    @pytest.fixture
+    def meta(self):
+        from gdaserver import GDAMetadata as meta
+        initial = {}
+        for entry in meta.getMetadataEntries():
+            initial[entry.name] = (entry, entry.metadataValue)
+        try:
+            yield meta
+        finally:
+            meta.setMetadataEntries([entry for (entry, _) in initial.values()])
+            for name, (_, value) in initial.items():
+                meta[name] = value
 
-@pytest.fixture
-def config():
-    from gda.configuration.properties import LocalProperties
-    return LocalProperties.getConfigDir()
+    @pytest.fixture
+    def main(self):
+        import __main__
+        return __main__
 
-@pytest.fixture
-def scan_command():
-    import __main__
-    yield __main__.scan
+    @pytest.fixture
+    def config(self):
+        from gda.configuration.properties import LocalProperties
+        return LocalProperties.getConfigDir()
 
-@pytest.fixture
-def gaussian_pair():
-    from gdascripts.pd.pd_gaussian import GaussianX, GaussianY
-    gx = GaussianX('gx')
-    gy = GaussianY('gy', gx, 0, 1, 1, 0, 0)
-    return (gx, gy)
+    @pytest.fixture
+    def scan_command(self, main):
+        yield main.scan if hasattr(main, 'scan') else scan
 
-@pytest.fixture()
-def find():
-    from gda.factory import Finder
-    return Finder.find
+    @pytest.fixture
+    def gaussian_pair(self):
+        from gdascripts.pd.pd_gaussian import GaussianX, GaussianY
+        gx = GaussianX('gx')
+        gy = GaussianY('gy', gx, 0, 1, 1, 0, 0)
+        return (gx, gy)
+
+    @pytest.fixture()
+    def find(self):
+        from gda.factory import Finder
+        return Finder.find

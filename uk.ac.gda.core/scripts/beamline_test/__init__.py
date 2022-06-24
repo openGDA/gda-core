@@ -10,13 +10,15 @@ from gda.configuration.properties import LocalProperties
 from gda.jython import PyTestRunner
 from gdaserver import command_server
 
+from beamline_test.fixtures import DefaultGdaFixtures
+
 logger = logging.getLogger("beamline_test")
 
 def run_tests(testdir='tests'):
     test_root = path.join(LocalProperties.getConfigDir(), testdir)
     logger.info('Running tests in %s', test_root)
     with PyTestRunner(command_server):
-        pytest.cmdline.main(['-v', '-p', 'no:cacheprovider', test_root], plugins=[JavaExceptionHandling()])
+        pytest.cmdline.main(['-v', '-p', 'no:cacheprovider', test_root], plugins=[JavaExceptionHandling(), DefaultGdaFixtures()])
 
 class PyTestFailure(BaseException):
     """Custom exception to wrap any Java exceptions raised in tests"""
