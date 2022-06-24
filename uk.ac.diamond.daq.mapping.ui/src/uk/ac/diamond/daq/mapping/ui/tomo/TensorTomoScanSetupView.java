@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.nexus.NXsample;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.di.Focus;
@@ -93,9 +92,6 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	private static final String STATE_KEY_TOMO_BEAN_JSON = TensorTomoScanBean.class.getSimpleName() + ".json";
 
 	private static final Logger logger = LoggerFactory.getLogger(TensorTomoScanSetupView.class);
-
-	@Inject
-	private IEclipseContext eclipseContext;
 
 	@Inject
 	private MappingStageInfo mappingStageInfo;
@@ -173,7 +169,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 	@Override
 	@PersistState
 	public void saveState(MPart part) {
-		final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
+		final IMarshallerService marshaller = getService(IMarshallerService.class);
 		try {
 			logger.trace("Saving the current state of the Tensor Tomography Scan Setup View");
 			final String json = marshaller.marshal(getBean());
@@ -241,7 +237,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 		if (json != null) {
 			// no previous bean, get the spring declared one from the eclipse context
 			logger.trace("Restoring the previous state of the Tensor Tomo Scan Setup View");
-			final IMarshallerService marshaller = eclipseContext.get(IMarshallerService.class);
+			final IMarshallerService marshaller = getService(IMarshallerService.class);
 			try {
 				return marshaller.unmarshal(json, TensorTomoScanBean.class);
 			} catch (Exception e) {
@@ -249,7 +245,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 			}
 		}
 
-		return eclipseContext.get(TensorTomoScanBean.class);
+		return getService(TensorTomoScanBean.class);
 	}
 
 	private void mapRegionBeanPropertyChange(PropertyChangeEvent event) {
