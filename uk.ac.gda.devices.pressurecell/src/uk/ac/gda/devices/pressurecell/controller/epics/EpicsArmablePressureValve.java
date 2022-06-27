@@ -143,20 +143,18 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 
 	@Override
 	public void arm() throws DeviceException {
-		logger.debug("{} - Arming valve", name);
-		if (state == CLOSED_ARMED || state == OPEN_ARMED) {
-			throw new DeviceException(name + " - Valve already armed");
+		if (!(state == CLOSED_ARMED || state == OPEN_ARMED)) {
+			logger.debug("{} - Arming valve", name);
+			move(Request.ARM, () -> controlPV.putWait(ValveControl.ARM), state == CLOSED ? CLOSED_ARMED : OPEN_ARMED);
 		}
-		move(Request.ARM, () -> controlPV.putWait(ValveControl.ARM), state == CLOSED ? CLOSED_ARMED : OPEN_ARMED);
 	}
 
 	@Override
 	public void disarm() throws DeviceException {
-		logger.debug("{} - Disarming valve", name);
-		if (state == CLOSED || state == OPEN) {
-			throw new DeviceException(name + " - Valve not armed");
+		if (!(state == CLOSED || state == OPEN)) {
+			logger.debug("{} - Disarming valve", name);
+			move(Request.DISARM, () -> controlPV.putWait(ValveControl.DISARM), state == CLOSED_ARMED ? CLOSED : OPEN);
 		}
-		move(Request.DISARM, () -> controlPV.putWait(ValveControl.DISARM), state == CLOSED_ARMED ? CLOSED : OPEN);
 	}
 
 	/**
