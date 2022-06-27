@@ -38,7 +38,7 @@ import com.google.common.collect.Sets;
  * Abstract superclass for grid-like paths (subclasses of {@link AbstractTwoAxisGridModel}),
  *
  */
-public class AbstractGridPathEditor extends AbstractPathEditor {
+public class AbstractGridPathEditor<T extends AbstractTwoAxisGridModel> extends AbstractPathEditor<T> {
 
 	public enum GridPathOption implements PathOption {
 		ORIENTATION

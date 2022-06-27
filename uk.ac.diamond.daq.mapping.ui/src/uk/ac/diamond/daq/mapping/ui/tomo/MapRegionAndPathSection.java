@@ -78,7 +78,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 	private Composite regionEditorComposite;
 	private Composite pathEditorComposite;
 
-	private AbstractGridPathEditor pathEditor;
+	private AbstractGridPathEditor<?> pathEditor;
 	private RectangleRegionEditor regionEditor;
 
 	private MappingStageInfo mappingStageInfo;
@@ -186,7 +186,7 @@ class MapRegionAndPathSection extends AbstractTomoViewSection {
 			pathEditor.dispose();
 		}
 
-		pathEditor = (AbstractGridPathEditor) PathEditorProvider.createPathComposite(
+		pathEditor = (AbstractGridPathEditor<?>) PathEditorProvider.createPathComposite(
 				getBean().getGridPathModel(), getEclipseContext());
 		pathEditor.setAxisScannableNames(mappingStageInfo.getPlotXAxisName(), mappingStageInfo.getPlotYAxisName());
 		pathEditor.setAxisLabels(X_AXIS_LABEL, Y_AXIS_LABEL);

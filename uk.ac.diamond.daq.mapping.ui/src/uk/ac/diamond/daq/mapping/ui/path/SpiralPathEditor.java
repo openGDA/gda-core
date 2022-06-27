@@ -34,7 +34,7 @@ import gda.util.QuantityFactory;
 import uk.ac.diamond.daq.mapping.ui.experiment.UnitsProvider;
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
-public class SpiralPathEditor extends AbstractPathEditor {
+public class SpiralPathEditor extends AbstractPathEditor<TwoAxisSpiralModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
@@ -47,7 +47,7 @@ public class SpiralPathEditor extends AbstractPathEditor {
 		 * Scale is not backed by an actual scannable, but its value is treated approximately as millimetres, so simulate
 		 * this here.
 		 */
-		final TwoAxisSpiralModel model = (TwoAxisSpiralModel) getModel();
+		final TwoAxisSpiralModel model = getModel();
 		final Unit<Length> modelUnit = MILLI(METRE);
 		final Unit<Length> initialScaleUnit = QuantityFactory.createUnitFromString(model.getInitialScaleUnit());
 		@SuppressWarnings({ "rawtypes", "unchecked" })

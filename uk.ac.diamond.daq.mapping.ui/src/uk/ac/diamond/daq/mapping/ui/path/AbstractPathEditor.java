@@ -40,7 +40,7 @@ import uk.ac.diamond.daq.mapping.ui.experiment.AbstractRegionPathModelEditor;
 /**
  * Parent class for all path editors used in RegionAndPathSection.
  */
-public abstract class AbstractPathEditor extends AbstractRegionPathModelEditor<IScanPathModel> {
+public abstract class AbstractPathEditor<T extends IScanPathModel> extends AbstractRegionPathModelEditor<T> {
 
 	/**
 	 * An option for which controls can be created. Subclasses can

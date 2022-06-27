@@ -20,12 +20,13 @@ package uk.ac.diamond.daq.mapping.ui.path;
 
 import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZERO;
 
+import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class LineStepPathEditor extends AbstractPathEditor {
+public class LineStepPathEditor extends AbstractPathEditor<TwoAxisLineStepModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {

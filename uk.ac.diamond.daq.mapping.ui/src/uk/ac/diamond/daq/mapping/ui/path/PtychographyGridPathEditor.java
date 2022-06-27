@@ -26,6 +26,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.scanning.api.points.models.AbstractOverlapModel;
+import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -38,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PtychographyGridPathEditor extends AbstractPathEditor {
+public class PtychographyGridPathEditor extends AbstractPathEditor<TwoAxisPtychographyModel> {
 
 	private static final Logger logger = LoggerFactory.getLogger(PtychographyGridPathEditor.class);
 
@@ -70,7 +71,7 @@ public class PtychographyGridPathEditor extends AbstractPathEditor {
 
 		try {
 			Object[] beamDimensions = getBeamDimensions();
-			AbstractOverlapModel overlapModel = (AbstractOverlapModel) getModel();
+			AbstractOverlapModel overlapModel = getModel();
 			overlapModel.setBeamSize(beamDimensions);
 			overlapText.setText(String.valueOf(overlapModel.getOverlap()));
 
@@ -80,11 +81,11 @@ public class PtychographyGridPathEditor extends AbstractPathEditor {
 			// Show 'invalid' icon on text if overlap is outside valid range
 			ControlDecorationSupport.create(new MultiValidator() {
 
-				IObservableValue observable = binder.getObservableValue(overlapText);
+				IObservableValue<String> observable = binder.getObservableValue(overlapText);
 
 				@Override
 				protected IStatus validate() {
-					double range = Double.parseDouble((String) observable.getValue());
+					double range = Double.parseDouble(observable.getValue());
 					return range >= 0 && range < 1 ? ValidationStatus.ok() :
 						ValidationStatus.error("0 <= overlap < 1");
 				}

@@ -18,13 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-public class GridPointsPathEditor extends AbstractGridPathEditor {
+public class GridPointsPathEditor extends AbstractGridPathEditor<TwoAxisGridPointsModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {

@@ -18,13 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.scanning.api.points.models.TwoAxisGridPointsRandomOffsetModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-public class GridPointsRandomOffsetPathEditor extends AbstractGridPathEditor {
+public class GridPointsRandomOffsetPathEditor extends AbstractGridPathEditor<TwoAxisGridPointsRandomOffsetModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
