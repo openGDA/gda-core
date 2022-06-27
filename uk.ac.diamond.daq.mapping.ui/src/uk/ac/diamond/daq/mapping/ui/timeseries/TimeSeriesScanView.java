@@ -168,8 +168,10 @@ public class TimeSeriesScanView {
 
 	@PreDestroy
 	public void dispose() {
-		malcolmModelEditor.dispose();
-		malcolmModelEditor = null;
+		if (malcolmModelEditor != null) {
+			malcolmModelEditor.dispose();
+			malcolmModelEditor = null;
+		}
 	}
 
 	private void createErrorLabel(Composite parent, String errorText) {
@@ -260,8 +262,11 @@ public class TimeSeriesScanView {
 	}
 
 	private String getSelectedMalcolmDeviceName() {
-		final DeviceInformation<?> selectedDeviceInfo = ((DeviceInformation<?>) malcolmDevicesComboViewer.getStructuredSelection().getFirstElement());
-		return selectedDeviceInfo == null ? null : selectedDeviceInfo.getName(); // selection can be empty initially
+		if (malcolmDevicesComboViewer != null) {
+			final DeviceInformation<?> selectedDeviceInfo = ((DeviceInformation<?>) malcolmDevicesComboViewer.getStructuredSelection().getFirstElement());
+			return selectedDeviceInfo == null ? null : selectedDeviceInfo.getName(); // selection can be empty initially
+		}
+		return null;
 	}
 
 	private MalcolmModelEditor createMalcolmModelEditor(Composite parent, String malcolmDeviceName) {
@@ -272,7 +277,7 @@ public class TimeSeriesScanView {
 			editor.createEditorPart(parent);
 			return editor;
 		} catch (ScanningException e) {
-			logger.error("Could not get malcolm device: ", malcolmDeviceName, e);
+			logger.error("Could not get malcolm device: {}", malcolmDeviceName, e);
 			return null;
 		}
 	}
