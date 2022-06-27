@@ -203,8 +203,10 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 			} else {
 				throw new DeviceException(name + " - valve already moving");
 			}
-		} catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (InterruptedException ie) {
 			Thread.currentThread().interrupt();
+			throw new DeviceException(name, "Interrupted while waiting for move to " + targetState);
+		} catch (IOException | ExecutionException | TimeoutException e) {
 			throw new DeviceException(name + " - Could not set valve to " + targetState, e);
 		}
 	}
