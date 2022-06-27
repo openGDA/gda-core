@@ -753,7 +753,7 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 		// Only readout the shape once per scan to save on EPICS communications
 		if (firstReadoutInScan) {
 			int energyChannels = controller.getEnergyChannels();
-			int yChannels = controller.getSlice();
+			int yChannels = controller.getYCount();
 			dataShape = new int[] { yChannels, energyChannels };
 		}
 
