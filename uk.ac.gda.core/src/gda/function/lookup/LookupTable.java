@@ -121,20 +121,6 @@ public class LookupTable extends AbstractColumnFile implements Lookup {
 		this.columnUnit = columnUnit;
 	}
 
-	/** @deprecated use {@link #getDirectory} instead */
-	@Deprecated(forRemoval = true, since = "GDA 9.18")
-	public String getDirLUT() {
-		logger.warn("getDirLUT is deprecated, use getDirectory instead. This will be removed in GDA 9.26");
-		return getDirectory();
-	}
-
-	/** @deprecated use {@link #setDirectory} instead */
-	@Deprecated(forRemoval = true, since = "GDA 9.18")
-	public void setDirLUT(String dirLUT) {
-		logger.warn("setDirLUT is deprecated, use setDirectory instead. This will be removed in GDA 9.26");
-		setDirectory(dirLUT);
-	}
-
 	private MultiValueMap lookupMap = new MultiValueMap();
 
 	@Override
