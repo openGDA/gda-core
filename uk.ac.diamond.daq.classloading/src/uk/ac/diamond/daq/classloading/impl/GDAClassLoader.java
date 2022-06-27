@@ -24,7 +24,9 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -115,6 +117,19 @@ public class GDAClassLoader extends ClassLoader {
 		} catch (LoaderIOException e) {
 			throw e.getCause();
 		}
+	}
+
+	/**
+	 * This method is invoked by Spring/CGLib reflection when creating proxies
+	 * It was added due to increased encapsulation of JDK internals in
+	 * Java 17. Previously {@code defineClass} in {@link ClassLoader} was called
+	 * by reflection but this is now prohibited.
+	 * <p>
+	 * The preferred approach is with {@link MethodHandles} but this proved to be
+	 * incompatible with the current OSGi/class loading structure in GDA.
+	 */
+	public Class<?> publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain) {
+		return super.defineClass(name, b, 0, b.length, protectionDomain);
 	}
 
 	private Collection<URL> getResourcesFromBundle(String name, Bundle bundle) {
