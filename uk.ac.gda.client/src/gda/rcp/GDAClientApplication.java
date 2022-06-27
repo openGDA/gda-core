@@ -46,6 +46,7 @@ import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.IcatProvider;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
@@ -201,7 +202,12 @@ public class GDAClientApplication implements IApplication {
 	 */
 	private void fixVisitID() {
 		logger.info("User '{}' running GDA client using visit '{}'", UserAuthentication.getUsername(), LocalProperties.get(LocalProperties.RCP_APP_VISIT));
-		InterfaceProvider.getBatonStateProvider().changeVisitID(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
+		IBatonStateProvider batonStateProvider = InterfaceProvider.getBatonStateProvider();
+		if (batonStateProvider == null) {
+			throw new IllegalStateException("Error getting baton state provider.");
+
+		}
+		batonStateProvider.changeVisitID(LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 	}
 
 	private void createScanDataPointService() {

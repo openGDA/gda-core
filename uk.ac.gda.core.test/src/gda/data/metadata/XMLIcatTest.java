@@ -19,8 +19,9 @@
 
 package gda.data.metadata;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,9 +30,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.icat.Icat;
@@ -40,7 +41,9 @@ import gda.factory.Factory;
 import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.authenticator.UserAuthentication;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.util.TestUtils;
+import gda.util.Version;
 
 /**
  *
@@ -52,7 +55,7 @@ public class XMLIcatTest {
 	/**
 	 * @throws Exception
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		LocalProperties.set(Icat.URL_PROP, TestUtils.getResourceAsFile(getClass(), "testicat.xml").getPath());
 		LocalProperties.set(Icat.SHIFT_TOL_PROP,"1440");
@@ -72,13 +75,16 @@ public class XMLIcatTest {
 		UserAuthentication.setToUseOSAuthentication();
 
 		Jython jython = mock(Jython.class);
+		when(jython.getRelease(anyString())).thenReturn(Version.getRelease());
+		when(jython.getClientInformation(anyString())).thenReturn(mock(ClientDetails.class));
 		Factory factory = mock(Factory.class);
 		when(factory.getFindables()).thenReturn(Arrays.asList(jython));
+		when(factory.getFindable(Jython.SERVER_NAME)).thenReturn(jython);
 		Finder.addFactory(factory);
 
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		Finder.removeAllFactories();
 		GDAMetadataProvider.setInstanceForTesting(null);
@@ -113,8 +119,9 @@ public class XMLIcatTest {
 			assertTrue(test.equals("test experiment 2"));
 		} catch (Exception e) {
 			fail("exception occurred: " + e.getMessage());
+		} finally {
+			IcatProvider.deleteInstance();
 		}
-		IcatProvider.deleteInstance();
 	}
 
 }

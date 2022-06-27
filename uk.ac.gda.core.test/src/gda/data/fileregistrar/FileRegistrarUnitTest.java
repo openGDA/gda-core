@@ -18,8 +18,10 @@
 
 package gda.data.fileregistrar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,9 +36,9 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.eclipse.scanning.api.scan.IScanService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
@@ -47,7 +49,9 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.Jython;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.scan.IScanDataPoint;
+import gda.util.Version;
 
 public class FileRegistrarUnitTest {
 
@@ -70,8 +74,7 @@ public class FileRegistrarUnitTest {
 
 	private static final String SCAN_FILE = "/dls/ixx/2017/cm-12345-1/ixx-444.nxs";
 	private static final String[] SCAN_FILES = { "/dls/ixx/2017/cm-12345-1/ixx-444.nxs",
-			"/dls/ixx/2017/cm-12345-1/ixx-555-EXCALIBUR.h5",
-			"/dls/ixx/2017/cm-12345-1/ixx-666-PANDA.h5" };
+			"/dls/ixx/2017/cm-12345-1/ixx-555-EXCALIBUR.h5", "/dls/ixx/2017/cm-12345-1/ixx-666-PANDA.h5" };
 
 	private IcatXMLCreator icatXmlCreator;
 	private ScanObserver scanObserver;
@@ -79,7 +82,7 @@ public class FileRegistrarUnitTest {
 	private ArgumentCaptor<String> scanIdCaptor;
 	private ArgumentCaptor<String[]> fileArrayCaptor;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		icatXmlCreator = mock(IcatXMLCreator.class);
 		scanObserver = new ScanObserver();
@@ -90,23 +93,26 @@ public class FileRegistrarUnitTest {
 		new ServiceHolder().setFilePathService(filePathService);
 	}
 
-	@Before
-	public void addMockJythonToFinder() {
+	@BeforeEach
+	public void addMockJythonToFinder() throws FactoryException {
 		Jython jython = mock(Jython.class);
+		when(jython.getRelease(anyString())).thenReturn(Version.getRelease());
+		when(jython.getClientInformation(anyString())).thenReturn(mock(ClientDetails.class));
 		Factory factory = mock(Factory.class);
 		when(factory.getFindables()).thenReturn(Arrays.asList(jython));
+		when(factory.getFindable(Jython.SERVER_NAME)).thenReturn(jython);
 		Finder.addFactory(factory);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUpFinder() {
 		Finder.removeAllFactories();
 	}
 
 	@SuppressWarnings("unused")
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testIcatXMLCreatorRequired() throws Exception {
-		new FileRegistrar(null);
+		assertThrows(FactoryException.class, () -> new FileRegistrar(null));
 	}
 
 	@Test
@@ -224,8 +230,10 @@ public class FileRegistrarUnitTest {
 		final int[] dims1 = new int[] { 10 };
 		final Detector simpleDetector = TestHelpers.createTestDetector("SimpleDetector", 0.0,
 				new String[] { "simpleDetector1" }, new String[] {}, 0,
-				new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g" },
-				TestHelpers.createTestNexusGroupData(DoubleDataset.class, dims1, true), SCAN_FILE, "description1", "detectorID1", "detectorType1");
+				new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g",
+						"%5.2g" },
+				TestHelpers.createTestNexusGroupData(DoubleDataset.class, dims1, true), SCAN_FILE, "description1",
+				"detectorID1", "detectorType1");
 
 		final IScanDataPoint dataPoint1 = mock(IScanDataPoint.class);
 		when(dataPoint1.getDetectors()).thenReturn(new Vector<Detector>(Arrays.asList(simpleDetector)));
