@@ -215,7 +215,7 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 	 * <h1>Monitor the status of the valve</h1>
 	 *
 	 * When the status changes, check if a move has been requested and update it if required.
-	 * If a move has not been requested, this move must have been triggered for elsewhere (most
+	 * If a move has not been requested, this move must have been triggered from elsewhere (most
 	 * likely directly in epics).
 	 * <br>
 	 * If a move has been requested, check if the new state matches the move and mark it as complete
@@ -233,6 +233,7 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 			}
 			request = null;
 		} else if (((state == CLOSED_ARMED || state == OPEN_ARMED) && request == Request.ARM) // arm complete
+				|| ((state == OPEN || state == CLOSED) && request == Request.DISARM) // disarm complete
 				|| (state == OPEN && request == Request.OPEN) // open complete
 				|| (state == CLOSED && request == Request.CLOSE)) { // close complete
 			logger.debug("{} - Move complete. Now {}", name, state);
