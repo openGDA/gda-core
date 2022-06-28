@@ -68,7 +68,14 @@ public class NexusScanFileHandler extends FileNameFilteringFileHandler {
 				if (xData == null || yData == null) {
 					throw new IllegalStateException("Could not determine datasets");
 				}
-				plotView.updatePlot(xData, yData, makeTitle(), xData.getName(), yData.getName(), newPlot, PlotType.XY);
+				if (yData.getRank() == 1) {
+					plotView.updatePlot(xData, yData, makeTitle(), xData.getName(), yData.getName(), newPlot, PlotType.XY);
+				} else {
+					yData.squeezeEnds();
+					if (yData.getRank() == 2) {
+						plotView.updateImagePlot(yData, makeTitle());
+					}
+				}
 				return true;
 			} catch (Exception e) {
 				logger.error("Could not load scan data", e);
