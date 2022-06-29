@@ -132,7 +132,7 @@ class GeneratorWrapper(PPointGenerator):
     def getInitialBounds(self):
         return MapPosition(self.generator.get_point(0).lower)
     def getFinalBounds(self):
-        return MapPosition(self.generator.get_point(-1).upper)
+        return MapPosition(self.generator.get_point(self.generator.size - 1).upper)
 
     def toDict(self):
         return self.generator.to_dict()
