@@ -19,6 +19,7 @@
 package gda.data.fileregistrar;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -47,16 +48,17 @@ public class IcatXMLCreatorTest {
 	@Before
 	public void setUp() throws Exception {
 		xmlCreator = new IcatXMLCreatorForTest();
+		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testConfigureFailsIfNoDirectorySet() throws Exception {
-		xmlCreator.configure();
+		var creatorWithoutDirectory = new IcatXMLCreatorForTest();
+		assertThrows(FactoryException.class, creatorWithoutDirectory::configure);
 	}
 
 	@Test
 	public void testOutputFilePath() throws Exception {
-		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
 		xmlCreator.setFilePrefix("ixx");
 
 		xmlCreator.setMetadata(createMetadata("ixx", "Test scan", "cm19664-1"));
@@ -70,7 +72,6 @@ public class IcatXMLCreatorTest {
 
 	@Test
 	public void testFilePrefixReadFromMetadataIfNotSet() throws Exception {
-		xmlCreator.setDirectory("/scratch/temp/cm19664-1");
 		xmlCreator.setMetadata(createMetadata("iyy", "Test scan", "cm19664-1"));
 		xmlCreator.configure();
 
