@@ -43,9 +43,9 @@ public class RandomOffsetGridTest {
 	public void testSimpleBox() throws Exception {
 
 		BoundingBox box = new BoundingBox();
-		box.setxAxisStart(-0.5);
-		box.setyAxisStart(-1.0);
-		box.setxAxisLength(5);
+		box.setxAxisStart(-2);
+		box.setyAxisStart(-2);
+		box.setxAxisLength(4);
 		box.setyAxisLength(10);
 
 		final double offsetScale = 0.25;
@@ -74,7 +74,7 @@ public class RandomOffsetGridTest {
 			IPosition t2 = it2.next();
 			assertEquals(t1.getIndices(), t2.getIndices());
 			assertEquals(t1.getNames(), t2.getNames());
-			assertEquals(t1.getValue("x"), t2.getValue("x"), offsetScale);
+			assertEquals(t1.getValue("x"), t2.getValue("x"), offsetScale); // Steps in fast axis have length 1, so offset <= offsetScale
 			assertEquals(t1.getValue("y"), t2.getValue("y"), offsetScale);
 		}
 	}

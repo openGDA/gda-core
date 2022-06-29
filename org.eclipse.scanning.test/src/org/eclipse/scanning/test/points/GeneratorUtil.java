@@ -18,7 +18,6 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Collections;
 
-import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.scan.ScanInformation;
 
@@ -33,17 +32,19 @@ class GeneratorUtil {
 	}
 
 	/**
-	 * Checks the points list vs the iterator
+	 * Checks that the ScanInformation constructed from a generator is accurate and that a generator is of the expected shape (, size, rank)
 	 * @param gen
 	 * @param expectedShape
-	 * @throws GeneratorException
 	 */
-	public static void testGeneratorPoints(IPointGenerator<?> gen, int... expectedShape) throws GeneratorException {
+	public static void testGeneratorPoints(IPointGenerator<?> gen, int... expectedShape) {
 
 		// Check the estimator. In this case it is not doing anything
 		// that we don't already know, so we can test it.
 		final ScanInformation scanInfo = new ScanInformation(gen, Collections.emptySet(), null);
+		// Shape estimator = gen
 		assertThat("Different size from shape estimator!", scanInfo.getSize(), is(equalTo(gen.size())));
+		assertThat("Different rank from shape estimator!", scanInfo.getRank(), is(equalTo(gen.getRank())));
+		assertThat("Different shape from shape estimator!", scanInfo.getShape(), is(equalTo(gen.getShape())));
 
 		if (expectedShape!=null && expectedShape.length>0) {// They set one
 		    int[] shape = gen.getShape();
@@ -51,8 +52,10 @@ class GeneratorUtil {
 			for (int dim : expectedShape) {
 				size *= dim;
 			}
+			// gen = expected, expected = estimator
 			assertThat("Different size from expected!", gen.size(), is(equalTo(size)));
-		    assertArrayEquals(expectedShape, shape);
+			assertThat("Different rank from expected!", gen.getRank(), is(equalTo(expectedShape.length)));
+		    assertArrayEquals("Different shape from expected!", expectedShape, shape);
 		}
 	}
 

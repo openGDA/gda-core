@@ -25,7 +25,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.scanning.api.ModelValidationException;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
-import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
@@ -33,22 +32,9 @@ import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
-import org.eclipse.scanning.points.PointGeneratorService;
-import org.eclipse.scanning.points.ServiceHolder;
-import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class LinearTest {
-
-	private static final IPointGeneratorService service = new PointGeneratorService();
-
-	@BeforeClass
-	public static void setUpClass() {
-		final ServiceHolder serviceHolder = new ServiceHolder();
-		serviceHolder.setValidatorService(new ValidatorService());
-		serviceHolder.setPointGeneratorService(service);
-	}
+public class LinearTest extends AbstractGeneratorTest {
 
 	@Test
 	public void testOneDEqualSpacing() throws Exception {

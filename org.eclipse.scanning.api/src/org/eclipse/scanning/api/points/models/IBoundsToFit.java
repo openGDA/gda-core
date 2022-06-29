@@ -60,12 +60,10 @@ public interface IBoundsToFit {
 	 * @return the number of points for the underlying point generator to place in this axis
 	 */
 	static int getPointsOnLine(double length, double step, boolean boundsToFit) {
-		int points = (int) ((1.01 * Math.abs(step) + Math.abs(length)) / step);
-		if (boundsToFit && points != 1) {
-			points --;
-		}
+		double effectiveLength = Math.abs(length) + Math.abs(step) * (boundsToFit ? 0.01 : 1.01);
+		int points = (int) Math.max(effectiveLength / Math.abs(step), 1);
 		// Allow to return the correct (but invalid) negative number of steps if required.
-		return (int) (points * Math.signum(length));
+		return (int) (points * Math.signum(step * length));
 	}
 
 	/**
@@ -124,15 +122,14 @@ public interface IBoundsToFit {
 	 * It steps a !boundsToFit model in half a step if it is a single point.
 	 * Otherwise it returns the model's start position.
 	 * @param start the model's start
-	 * @param stop the model's stop
 	 * @param numPoints the number of points calculated from IBoundsToFit.getPointsOnLine
 	 * @param step the step calculated from IBoundsToFit.getLongestFittingStep
 	 * @param boundsToFit model.isBoundsToFit()
 	 * @return the value of stop to pass to the generator of this model.
 	 */
-	static double getFinalPoint(double start, double stop, int numPoints, double step, boolean boundsToFit) {
+	static double getFinalPoint(double start, int numPoints, double step, boolean boundsToFit) {
 		if (boundsToFit) {
-			return (numPoints == 1) ? stop : start + (numPoints - 0.5) * step;
+			return (numPoints == 1) ? start + step : start + (numPoints - 0.5) * step;
 		}
 		return (numPoints == 1) ? start + step / 2 :  start + (numPoints - 1) * step;
 	}

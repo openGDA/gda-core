@@ -51,8 +51,8 @@ abstract class AbstractGridGenerator<T extends AbstractTwoAxisGridModel> extends
 		final double yStep = IBoundsToFit.getLongestFittingStep(box.getyAxisLength(), getYStep(), model.isBoundsToFit());
 		final double minX = IBoundsToFit.getFirstPoint(box.getxAxisStart(), xCount == 1, xStep, model.isBoundsToFit());
 		final double minY = IBoundsToFit.getFirstPoint(box.getyAxisStart(), yCount == 1, yStep, model.isBoundsToFit());
-		final double maxX = IBoundsToFit.getFinalPoint(box.getxAxisStart(), box.getxAxisEnd(), xCount, xStep, model.isBoundsToFit());
-		final double maxY = IBoundsToFit.getFinalPoint(box.getyAxisStart(), box.getyAxisEnd(), yCount, yStep, model.isBoundsToFit());
+		final double maxX = IBoundsToFit.getFinalPoint(box.getxAxisStart(), xCount, xStep, model.isBoundsToFit());
+		final double maxY = IBoundsToFit.getFinalPoint(box.getyAxisStart(), yCount, yStep, model.isBoundsToFit());
 		final boolean alternating = model.isAlternating();
 		final boolean continuous = model.isContinuous();
 

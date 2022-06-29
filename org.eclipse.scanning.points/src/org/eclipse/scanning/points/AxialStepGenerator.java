@@ -37,7 +37,7 @@ class AxialStepGenerator extends AbstractScanPointGenerator<AxialStepModel> {
         final double step = IBoundsToFit.getLongestFittingStep(length, model.getStep(), model.isBoundsToFit());
         final int numPoints = IBoundsToFit.getPointsOnLine(length, step, model.isBoundsToFit());
         final double start = IBoundsToFit.getFirstPoint(model.getStart(), numPoints == 1, step, model.isBoundsToFit());
-        final double stop = IBoundsToFit.getFinalPoint(model.getStart(), model.getStop(), numPoints, step, model.isBoundsToFit());
+        final double stop = IBoundsToFit.getFinalPoint(model.getStart(), numPoints, step, model.isBoundsToFit());
 
 
         final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);

@@ -45,7 +45,7 @@ class AxialPointsGenerator extends AbstractScanPointGenerator<AxialPointsModel> 
         final double denominator = model.isBoundsToFit() ? numPoints : numPoints - 1;
         final double step = numPoints == 1 ? length : length / denominator;
         final double start = IBoundsToFit.getFirstPoint(model.getStart(), numPoints == 1, step, model.isBoundsToFit());
-        final double stop   = IBoundsToFit.getFinalPoint(model.getStart(), model.getStop(), numPoints, step, model.isBoundsToFit());
+        final double stop   = IBoundsToFit.getFinalPoint(model.getStart(), numPoints, step, model.isBoundsToFit());
 
         final PPointGenerator pointGen = lineGeneratorFactory.createObject(name, units, start, stop, numPoints, alternating);
 

@@ -47,8 +47,8 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 		final double yStep = IBoundsToFit.getLongestFittingStep(yLength, step * Math.sin(line.getAngle()), model.isBoundsToFit());
 		final double minX = IBoundsToFit.getFirstPoint(line.getxStart(), numPoints == 1, xStep, model.isBoundsToFit());
 		final double minY = IBoundsToFit.getFirstPoint(line.getyStart(), numPoints == 1, yStep, model.isBoundsToFit());
-		final double maxX = IBoundsToFit.getFinalPoint(line.getxStart(), line.getxStart() + xLength, numPoints, xStep, model.isBoundsToFit());
-		final double maxY = IBoundsToFit.getFinalPoint(line.getxStart(), line.getyStart() + yLength, numPoints, yStep, model.isBoundsToFit());
+		final double maxX = IBoundsToFit.getFinalPoint(line.getxStart(), numPoints, xStep, model.isBoundsToFit());
+		final double maxY = IBoundsToFit.getFinalPoint(line.getxStart(), numPoints, yStep, model.isBoundsToFit());
 
 
 		final List<String> axes =  model.getScannableNames();

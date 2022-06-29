@@ -20,12 +20,10 @@ package org.eclipse.scanning.test.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +34,6 @@ import org.eclipse.scanning.api.points.AbstractGenerator;
 import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
-import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
@@ -83,7 +80,7 @@ public class NoModelTest {
 		AbstractScanPointGenerator<TwoAxisLissajousModel> gen = (AbstractScanPointGenerator<TwoAxisLissajousModel>) pgs.createGenerator(model);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
-		compareIterators(gen.iterator(), nmg.iterator());
+		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
@@ -102,7 +99,7 @@ public class NoModelTest {
 		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(model, roi);
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
 
-		compareIterators(gen.iterator(), nmg.iterator());
+		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
@@ -119,7 +116,7 @@ public class NoModelTest {
 		TwoAxisSpiralModel sm = new TwoAxisSpiralModel("x", "y", 1, box);
 		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, new ArrayList<>(), Arrays.asList(rom));
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
-		compareIterators(gen.iterator(), nmg.iterator());
+		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
@@ -142,7 +139,7 @@ public class NoModelTest {
 		AbstractScanPointGenerator<CompoundModel> gen = (AbstractScanPointGenerator<CompoundModel>) pgs.createGenerator(sm, roiList, Arrays.asList(rom), 3);
 
 		NoModelGenerator nmg = new NoModelGenerator(gen.getPointGenerator());
-		compareIterators(gen.iterator(), nmg.iterator());
+		assertEquals(gen.createPoints(), nmg.createPoints());
 	}
 
 	@Test
@@ -178,7 +175,7 @@ public class NoModelTest {
 		AbstractGenerator<CompoundModel> gen2 = (AbstractGenerator<CompoundModel>) pgs.createCompoundGenerator(Arrays.asList(nmg, asg));
 		assertArrayEquals(gen.getShape(), gen2.getShape());
 
-		compareIterators(gen.iterator(), gen2.iterator());
+		assertEquals(gen.createPoints(), gen2.createPoints());
 	}
 
 	@Test(expected = ModelValidationException.class)
@@ -235,13 +232,6 @@ public class NoModelTest {
 		assertEquals(expected, genFromGenerators.getFirstPoint());
 
 
-	}
-
-	private void compareIterators(Iterator<IPosition> creator, Iterator<IPosition> created) {
-		while (creator.hasNext()) {
-			assertEquals(creator.next(), created.next());
-		}
-		if (created.hasNext()) fail();
 	}
 
 }

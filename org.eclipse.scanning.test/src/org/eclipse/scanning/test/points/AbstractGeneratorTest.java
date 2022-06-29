@@ -17,12 +17,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.ScanRegion;
+import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
@@ -43,6 +45,15 @@ public abstract class AbstractGeneratorTest {
 		ServiceHolder.getValidatorService().validate(model);
 	}
 
+	/**
+	 * Checks whether a model, with an optional IROI, matches its predicted size, when constructed  as a model and when wrapped in a CompoundModel.
+	 * If the region is non-null, the model should be in axes (x, y)
+	 * @param model
+	 * @param roi
+	 * @param size
+	 * @throws GeneratorException
+	 * @throws Exception
+	 */
 	protected void checkWrtCompound(IScanPointGeneratorModel model, IROI roi, int size) throws Exception {
 
 		// Get the point list
@@ -59,6 +70,15 @@ public abstract class AbstractGeneratorTest {
 	    List<IPosition> cpointList = cgenerator.createPoints();
 		assertEquals(size, cpointList.size());
 		assertEquals(size, cgenerator.size());
+	}
+
+	/**
+	 * Checks whether a generator's bounds (half step either side of first, last step) are as predicted.
+	 * Bounds are the limits of motion for continuous motion, and also necessarily must be within limits of each other for ConsecutiveMultiModels.
+	 */
+	protected void checkBounds(IPointGenerator<?> gen, String axis, double lowerBound, double upperBound) {
+		assertEquals("Lower bound not as expected", lowerBound, ((AbstractScanPointGenerator<?>) gen).initialBounds().get(axis));
+		assertEquals("Upper bound not as expected", upperBound, ((AbstractScanPointGenerator<?>) gen).finalBounds().get(axis));
 	}
 
 }
