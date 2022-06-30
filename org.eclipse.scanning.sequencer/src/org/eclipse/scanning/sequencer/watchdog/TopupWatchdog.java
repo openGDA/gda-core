@@ -204,18 +204,28 @@ public class TopupWatchdog extends AbstractWatchdog<TopupWatchdogModel> implemen
 		try {
 			busy = true;
 			if (!isPositionValid(t)) {
-				rewind = t<0; // We did not detect it before loosing beam
+				rewind = t<0; // We did not detect it before losing beam
 				controller.pause(getId(), getModel());
-			} else { // We are a valid place in the topup, see if we can resume
-				// the warmup period has ended, we can resume the scan
+			} else {
+				// We are a valid place in the topup: we can resume the scan
 				if (rewind && lastCompletedPoint!=null) {
-					controller.seek(getId(), lastCompletedPoint.getStepIndex()); // Probably only does something useful for malcolm
-					rewind = false;
+					// We paused when topup was already ongoing: rewind first
+					rewindToLastCompletedPoint();
 				}
 				controller.resume(getId());
 			}
 		} finally {
 			busy = false;
+		}
+	}
+
+	private void rewindToLastCompletedPoint() {
+		try {
+			controller.seek(getId(), lastCompletedPoint.getStepIndex()); // Probably only does something useful for malcolm
+		} catch (Exception e) {
+			logger.error("Error seeking; step index = {}", lastCompletedPoint.getStepIndex(), e);
+		} finally {
+			rewind = false;
 		}
 	}
 

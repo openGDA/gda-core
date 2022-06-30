@@ -140,9 +140,11 @@ public final class LocationManager {
 	 * Seek within the iterator for the given location.
 	 * @param location
 	 * @param iterator
-	 * @return null if position not found.
+	 * @return the position at the given location.
+	 * @throws ScanningException
 	 */
-	public IPosition seek(int location, Iterator<IPosition> iterator) {
+	public IPosition seek(int location, Iterator<IPosition> iterator) throws ScanningException {
+		// FIXME See DAQ-4188: probable logic bug here
 
 		stepNumber=0;
 		/*
@@ -156,7 +158,7 @@ public final class LocationManager {
 			stepNumber+=Math.max(innerSize, 1);
 		}
 
-		return null;
+		throw new ScanningException("Could not find requested position.");
 	}
 
 	public boolean isInnerScan() {
