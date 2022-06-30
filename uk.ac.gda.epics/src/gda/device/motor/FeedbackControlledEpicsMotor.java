@@ -26,27 +26,13 @@ public class FeedbackControlledEpicsMotor extends EpicsMotor {
 
 	@Override
 	protected void createChannelAccess() throws FactoryException {
+		super.createChannelAccess();
 		try {
-			val = channelManager.createChannel(pvName + ".VAL", false);
 			rbv = channelManager.createChannel(pvName + ".RBV", false);
-			offset = channelManager.createChannel(pvName + ".OFF", false);
-			stop = channelManager.createChannel(pvName + ".STOP", false);
-			velo = channelManager.createChannel(pvName + ".VELO", false);
-			accl = channelManager.createChannel(pvName + ".ACCL", false);
 			dmov = channelManager.createChannel(pvName + ".DMOV", false);
-			lvio = channelManager.createChannel(pvName + ".LVIO");
-			hlm = channelManager.createChannel(pvName + ".HLM", highLimitMonitor, false);
-			llm = channelManager.createChannel(pvName + ".LLM", lowLimitMonitor, false);
 			dhlm = channelManager.createChannel(pvName + ".DHLM", false);
 			dllm = channelManager.createChannel(pvName + ".DLLM", false);
-			homf = channelManager.createChannel(pvName + ".HOMF", false);
-
-			rdbd = channelManager.createChannel(pvName + ".RDBD", false);
-			mres = channelManager.createChannel(pvName + ".MRES", false);
-			unitString = channelManager.createChannel(pvName + ".EGU", false);
 			msta = channelManager.createChannel(pvName + ".MSTA", false);
-			spmg = channelManager.createChannel(pvName + ".SPMG", false);
-
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
 
