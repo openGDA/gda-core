@@ -87,7 +87,7 @@ public class RadiographyComposite implements NamedCompositeFactory {
 			return errorComposite;
 		}
 
-		var controls = createScanControls().createComposite(parent, style);
+		var controls = getScanControls().createComposite(parent, style);
 		var buttonsComposite = buttonsCompositeSupplier.get();
 		Arrays.asList(buttonsComposite.getChildren()).forEach(Control::dispose);
 		getButtonControlsFactory().createComposite(buttonsComposite, SWT.NONE);
@@ -97,8 +97,10 @@ public class RadiographyComposite implements NamedCompositeFactory {
 		return controls;
 	}
 
-	private CompositeFactory createScanControls() {
-		scanControls = new RadiographyScanControls();
+	private CompositeFactory getScanControls() {
+		if (scanControls == null) {
+			this.scanControls = new RadiographyScanControls();
+		}
 		return scanControls;
 	}
 
@@ -149,12 +151,13 @@ public class RadiographyComposite implements NamedCompositeFactory {
 
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (!(event.getSource() instanceof ScanningAcquisitionController)) return;
-
-			var controller = (ScanningAcquisitionController) event.getSource();
-			if (controller.getAcquisitionKeys().equals(key)) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(scanControls::reload);
+			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
+				return;
 			}
+			if (!AcquisitionPropertyType.TOMOGRAPHY.equals(((ScanningAcquisitionController)event.getSource()).getAcquisitionKeys().getPropertyType())) {
+				return;
+			}
+			PlatformUI.getWorkbench().getDisplay().asyncExec(scanControls::reload);
 		}
 	}
 

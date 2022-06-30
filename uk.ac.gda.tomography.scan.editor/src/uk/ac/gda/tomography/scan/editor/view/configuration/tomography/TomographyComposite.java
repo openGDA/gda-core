@@ -46,6 +46,7 @@ import uk.ac.gda.client.composites.AcquisitionCompositeButtonGroupFactoryBuilder
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.ClientMessages;
+import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 
@@ -84,7 +85,7 @@ public class TomographyComposite implements NamedCompositeFactory {
 			return errorComposite;
 		}
 
-		var controls = createScanControls().createComposite(parent, style);
+		var controls = getControlledCompositeFactory().createComposite(parent, style);
 		var buttonsComposite = buttonsCompositeSupplier.get();
 		Arrays.asList(buttonsComposite.getChildren()).forEach(Control::dispose);
 		getButtonControlsFactory().createComposite(buttonsComposite, SWT.NONE);
@@ -111,8 +112,10 @@ public class TomographyComposite implements NamedCompositeFactory {
 		return ClientMessages.TOMOGRAPHY_TP;
 	}
 
-	private CompositeFactory createScanControls() {
-		scanControls = new TomographyScanControls();
+	public CompositeFactory getControlledCompositeFactory() {
+		if (scanControls == null) {
+			this.scanControls = new TomographyScanControls();
+		}
 		return scanControls;
 	}
 
@@ -155,10 +158,14 @@ public class TomographyComposite implements NamedCompositeFactory {
 
 		@Override
 		public void onApplicationEvent(AcquisitionConfigurationResourceLoadEvent event) {
-			if (!(event.getSource() instanceof ScanningAcquisitionController)) return;
-			var controller = (ScanningAcquisitionController) event.getSource();
-			if (controller.getAcquisitionKeys().equals(key)) {
-				PlatformUI.getWorkbench().getDisplay().asyncExec(scanControls::reload);
+			if (!(event.getSource() instanceof ScanningAcquisitionController)) {
+				return;
+			}
+			if (((ScanningAcquisitionController) event.getSource()).getAcquisitionKeys() != key) {
+				return;
+			}
+			if (getControlledCompositeFactory() instanceof Reloadable) {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(((Reloadable)getControlledCompositeFactory())::reload);
 			}
 		}
 	}

@@ -18,46 +18,12 @@
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static uk.ac.gda.core.tool.spring.SpringApplicationContextFacade.getBean;
-import static uk.ac.gda.ui.tool.ClientMessages.ANGULAR_STEP;
-import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.CUSTOM_END_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.EMPTY_MESSAGE;
-import static uk.ac.gda.ui.tool.ClientMessages.FINAL_ANGLE;
-import static uk.ac.gda.ui.tool.ClientMessages.FLY_SCAN;
-import static uk.ac.gda.ui.tool.ClientMessages.FLY_SCAN_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.FULL_ANGLE;
-import static uk.ac.gda.ui.tool.ClientMessages.FULL_ANGLE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.MULTIPLE_SCANS;
-import static uk.ac.gda.ui.tool.ClientMessages.NAME;
-import static uk.ac.gda.ui.tool.ClientMessages.NAME_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_REPETITIONS_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.PROCESS_REQUESTS;
-import static uk.ac.gda.ui.tool.ClientMessages.RANGE;
-import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN;
-import static uk.ac.gda.ui.tool.ClientMessages.REPEATE_SCAN_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.START;
-import static uk.ac.gda.ui.tool.ClientMessages.START_ANGLE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.STEP_SCAN;
-import static uk.ac.gda.ui.tool.ClientMessages.STEP_SCAN_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.STRAIGHT_ANGLE;
-import static uk.ac.gda.ui.tool.ClientMessages.STRAIGHT_ANGLE_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.SWITCHBACK_SCAN;
-import static uk.ac.gda.ui.tool.ClientMessages.SWITCHBACK_SCAN_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.WAITING_TIME;
-import static uk.ac.gda.ui.tool.ClientMessages.WAITING_TIME_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
-import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
-import static uk.ac.gda.ui.tool.GUIComponents.doubleContent;
-import static uk.ac.gda.ui.tool.GUIComponents.integerPositiveContent;
-import static uk.ac.gda.ui.tool.GUIComponents.labelComponent;
-import static uk.ac.gda.ui.tool.GUIComponents.labelledLabelContent;
-import static uk.ac.gda.ui.tool.GUIComponents.radioComponent;
-import static uk.ac.gda.ui.tool.GUIComponents.textContent;
+import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.innerComposite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.label;
+import static uk.ac.gda.ui.tool.ClientSWTElements.numericTextBox;
+import static uk.ac.gda.ui.tool.ClientSWTElements.spinner;
 import static uk.ac.gda.ui.tool.WidgetUtilities.selectAndNotify;
 
 import java.net.URL;
@@ -75,31 +41,29 @@ import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.springframework.context.ApplicationListener;
 
+import gda.factory.Finder;
 import gda.mscan.element.Mutator;
 import gda.rcp.views.CompositeFactory;
-import uk.ac.diamond.daq.mapping.api.document.event.ScanningAcquisitionChangeEvent;
 import uk.ac.diamond.daq.mapping.api.document.helper.ScanpathDocumentHelper;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScannableTrackDocument;
-import uk.ac.diamond.daq.mapping.ui.controller.StageController;
+import uk.ac.diamond.daq.mapping.ui.stage.IStageController;
 import uk.ac.diamond.daq.mapping.ui.stage.enumeration.StageDevice;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
-import uk.ac.gda.api.acquisition.configuration.MultipleScansType;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
 import uk.ac.gda.client.properties.acquisition.processing.ProcessingRequestProperties;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.core.tool.spring.TomographyContextFile;
-import uk.ac.gda.tomography.scan.editor.view.ScanType;
+import uk.ac.gda.tomography.scan.editor.view.configuration.TomographyConfiguration;
+import uk.ac.gda.ui.tool.ClientSWTElements;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
+import uk.ac.gda.ui.tool.images.ClientImages;
 import uk.ac.gda.ui.tool.processing.ProcessingRequestComposite;
 import uk.ac.gda.ui.tool.processing.context.ProcessingRequestContext;
 import uk.ac.gda.ui.tool.processing.keys.ProcessingRequestKeyFactory;
@@ -113,162 +77,150 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  */
 public class TomographyScanControls implements CompositeFactory, Reloadable {
 
-	/** Scan prefix **/
 	private Text name;
 
-	/** Scan type **/
 	private Button flyScanType;
 	private Button stepScanType;
 
-	private Text startAngleText;
-	private Text customAngleText;
+	private Text startAngle;
+	private Text endAngle;
 
-	private Label endAngleLabel;
-	private Label angularStepLabel;
+	private Button halfRotation;
+	private Button fullRotation;
+	private Button customRotation;
 
-	private Button halfRotationRangeButton;
-	private Button fullRotationRangeButton;
-	private Button customRotationRangeButton;
-	private Button currentAngleButton;
-
-	/** The MultipleScans Composite elements **/
-	private Text numberRepetitions;
-	private Text waitingTime;
-	private Button repeatMultipleScansType;
-	private Button switchbackMultipleScansType;
-
-	private ScanpathDocumentHelper dataHelper;
+	private final ScanpathDocumentHelper dataHelper;
+	private final TomographyConfiguration config;
 
 	private DataBindingContext bindingContext = new DataBindingContext();
 
 	private List<Reloadable> reloadables = new ArrayList<>();
-	private ProjectionsCompositeFactory projections;
+	private Text stepSize;
+
+	private Spinner projections;
 
 	private static final double HALF_ROTATION_RANGE = 180.0;
 	private static final double FULL_ROTATION_RANGE = 360.0;
 	private static final double ANGULAR_TOLERANCE = 1e-6;
 
 	public TomographyScanControls() {
-		try {
-			this.dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
+		config = Finder.findLocalSingleton(TomographyConfiguration.class);
+		dataHelper = new ScanpathDocumentHelper(this::getScanningParameters);
 	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		Composite mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.BEGINNING).grab(true, true).applyTo(mainComposite);
-		standardMarginHeight(mainComposite.getLayout());
-		standardMarginWidth(mainComposite.getLayout());
 
-		createElements(mainComposite, SWT.NONE, SWT.BORDER);
-		bindElements();
-		var updateListener = new UpdateListener();
-		SpringApplicationContextFacade.addApplicationListener(updateListener);
-		mainComposite.addDisposeListener(dispose -> SpringApplicationContextFacade.removeApplicationListener(updateListener));
-		return mainComposite;
+		var composite = composite(parent, 1);
+		STRETCH.copy().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
+
+		createNameControl(composite);
+		scanTypeContent(composite);
+		createAngularControls(composite);
+		createDetectorControls(composite);
+		createDarksAndFlatsControls(composite);
+		createPositionControls(composite);
+		createProcessingControls(composite);
+
+		bindControls();
+
+		return composite;
 	}
 
-	private void createElements(Composite parent, int labelStyle, int textStyle) {
-		this.name = textContent(parent, labelStyle, textStyle,
-				NAME, NAME_TOOLTIP);
-		// guarantee that fills the horizontal space
-		createClientGridDataFactory().grab(true, true).applyTo(name);
+	private void createNameControl(Composite parent) {
+		var composite = composite(parent, 2);
+		label(composite, "Acquisition name");
+		name = new Text(composite, SWT.BORDER);
+		STRETCH.applyTo(name);
+	}
 
-		scanTypeContent(parent);
-		createRangeGroup(parent, labelStyle, textStyle);
+	private void createAngularControls(Composite parent) {
+		var startStop = composite(parent, 2);
 
-		projections = new ProjectionsCompositeFactory();
-		reloadables.add(projections);
-		projections.createComposite(parent, textStyle);
+		label(startStop, "Start angle");
+		label(startStop, "End angle");
 
-		var exposure = new ExposureCompositeFactory();
-		reloadables.add(exposure);
-		exposure.createComposite(parent, textStyle);
+		var startControls = innerComposite(startStop, 2, false);
 
-		var darkFlat = new DarkFlatCompositeFactory();
-		reloadables.add(darkFlat);
-		darkFlat.createComposite(parent, textStyle);
+		startAngle = numericTextBox(startControls);
+		var currentAngle = new Button(startControls, SWT.PUSH);
+		var img = ClientSWTElements.getImage(ClientImages.POSITION_PIN);
+		currentAngle.setToolTipText("Grab current position");
+		currentAngle.setImage(img);
+		currentAngle.addDisposeListener(dispose -> img.dispose());
+		currentAngle.addListener(SWT.Selection,event -> copyCurrentThetaPosition());
 
-		createProcessRequestGroup(parent, SWT.NONE);
-		multipleScansContent(parent, labelStyle, textStyle);
+		endAngle = numericTextBox(startStop);
+
+		var range = composite(parent, 4);
+
+		label(range, "Angular range");
+
+		halfRotation = new Button(range, SWT.RADIO);
+		halfRotation.setText("180°");
+		STRETCH.applyTo(halfRotation);
+
+		fullRotation = new Button(range, SWT.RADIO);
+		fullRotation.setText("360°");
+		STRETCH.applyTo(fullRotation);
+
+		customRotation = new Button(range, SWT.RADIO);
+		customRotation.setText("Custom range");
+		STRETCH.applyTo(customRotation);
+
+		var points = composite(parent, 2);
+
+		label(points, "Projections");
+		label(points, "Step size");
+
+		projections = spinner(points);
+
+		stepSize = new Text(points, SWT.BORDER);
+		stepSize.setEnabled(false);
+		STRETCH.applyTo(stepSize);
+	}
+
+	private void copyCurrentThetaPosition() {
+		double currentMotorPosition = getStageController().getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
+		startAngle.setText(Double.toString(currentMotorPosition));
+	}
+
+	private IStageController getStageController() {
+		return SpringApplicationContextFacade.getBean(IStageController.class);
+	}
+
+	private void createDetectorControls(Composite parent) {
+		var exposure = composite(parent, 2);
+
+		label(exposure, "Detector exposure (s)");
+		var exposureControl = new ExposureCompositeFactory();
+		exposureControl.createComposite(exposure, SWT.NONE);
+		reloadables.add(exposureControl);
+	}
+
+	private void createDarksAndFlatsControls(Composite parent) {
+		var darkAndFlats = new DarkFlatCompositeFactory();
+		darkAndFlats.createComposite(parent, SWT.NONE);
+		reloadables.add(darkAndFlats);
+	}
+
+	private void bindControls() {
+		bindName();
+		bindScanType();
+		bindAngleControls();
 	}
 
 	private void scanTypeContent(Composite parent) {
-		var mainCompositeContent = createClientCompositeWithGridLayout(parent, SWT.NONE, 2);
-		createClientGridDataFactory().grab(true, true).applyTo(mainCompositeContent);
+		var composite = composite(parent, 2);
+		label(composite, ""); // just a space in the grid
+		var buttons = composite(composite, 2);
+		flyScanType = new Button(buttons, SWT.RADIO);
+		flyScanType.setText("Continuous");
+		STRETCH.applyTo(flyScanType);
 
-		this.flyScanType = radioComponent(mainCompositeContent,
-				FLY_SCAN, FLY_SCAN_TOOLTIP);
-		this.flyScanType.setData(ScanType.FLY);
-
-		this.stepScanType = radioComponent(mainCompositeContent,
-				STEP_SCAN, STEP_SCAN_TOOLTIP);
-		this.stepScanType.setData(ScanType.STEP);
-	}
-
-	private void createRangeGroup(Composite parent, int labelStyle, int textStyle) {
-		var group = createClientGroup(parent, SWT.NONE, 2, RANGE);
-		createClientGridDataFactory().applyTo(group);
-
-		var leftCompositeContent = createClientCompositeWithGridLayout(group, SWT.NONE, 1);
-		createClientGridDataFactory().grab(true, true).applyTo(leftCompositeContent);
-
-		var rightCompositeContent = createClientCompositeWithGridLayout(group, SWT.NONE, 1);
-		createClientGridDataFactory().grab(true, true).applyTo(rightCompositeContent);
-
-		startAngleContent(leftCompositeContent, labelStyle, textStyle);
-		endAngleContent(leftCompositeContent, labelStyle, textStyle);
-
-		this.endAngleLabel = labelledLabelContent(rightCompositeContent, labelStyle,
-				FINAL_ANGLE, EMPTY_MESSAGE);
-		this.angularStepLabel = labelledLabelContent(rightCompositeContent, labelStyle,
-				ANGULAR_STEP, EMPTY_MESSAGE);
-	}
-
-	private void startAngleContent(Composite parent, int labelStyle, int textStyle) {
-		var mainCompositeContent = createClientCompositeWithGridLayout(parent, SWT.NONE, 2);
-		createClientGridDataFactory().grab(true, true).applyTo(mainCompositeContent);
-
-		this.startAngleText = doubleContent(mainCompositeContent, labelStyle, textStyle,
-				START, START_ANGLE_TOOLTIP);
-		this.currentAngleButton = new Button(mainCompositeContent, SWT.PUSH);
-		currentAngleButton.setText("Get current angle");
-	}
-
-	private void endAngleContent(Composite parent, int labelStyle, int textStyle) {
-		var mainCompositeContent = createClientCompositeWithGridLayout(parent, SWT.NONE, 5);
-		createClientGridDataFactory().grab(true, true).applyTo(mainCompositeContent);
-
-		labelComponent(mainCompositeContent, labelStyle, RANGE);
-		this.halfRotationRangeButton = radioComponent(mainCompositeContent,
-				STRAIGHT_ANGLE, STRAIGHT_ANGLE_TOOLTIP);
-		this.fullRotationRangeButton = radioComponent(mainCompositeContent,
-				FULL_ANGLE, FULL_ANGLE_TOOLTIP);
-		this.customRotationRangeButton = radioComponent(mainCompositeContent,
-				EMPTY_MESSAGE, CUSTOM_END_TOOLTIP);
-		this.customAngleText = doubleContent(mainCompositeContent, labelStyle, textStyle,
-				EMPTY_MESSAGE, CUSTOM_END_TOOLTIP);
-	}
-
-	private void multipleScansContent(Composite parent, int labelStyle, int textStyle) {
-		var group = createClientGroup(parent, SWT.NONE, 2, MULTIPLE_SCANS);
-		createClientGridDataFactory().applyTo(group);
-
-		this.numberRepetitions = integerPositiveContent(group, labelStyle, textStyle,
-				NUM_REPETITIONS, NUM_REPETITIONS_TOOLTIP);
-		this.waitingTime = integerPositiveContent(group, labelStyle, textStyle,
-				WAITING_TIME, WAITING_TIME_TOOLTIP);
-
-		this.repeatMultipleScansType = radioComponent(group,
-				REPEATE_SCAN, REPEATE_SCAN_TOOLTIP);
-		this.repeatMultipleScansType.setData(MultipleScansType.REPEAT_SCAN);
-
-		this.switchbackMultipleScansType = radioComponent(group,
-				SWITCHBACK_SCAN, SWITCHBACK_SCAN_TOOLTIP);
-		this.switchbackMultipleScansType.setData(MultipleScansType.SWITCHBACK_SCAN);
+		stepScanType = new Button(buttons, SWT.RADIO);
+		stepScanType.setText("Step");
+		STRETCH.applyTo(stepScanType);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -287,11 +239,18 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		return availableProcessingOptions;
 	}
 
-	private void createProcessRequestGroup(Composite parent, int labelStyle) {
-		var group = createClientGroup(parent, SWT.NONE, 3, PROCESS_REQUESTS);
-		createClientGridDataFactory().applyTo(group);
+	private void createPositionControls(Composite parent) {
+
+		var position = new InAndOutOfBeamPositionControls(config);
+		position.createControls(parent);
+		reloadables.add(position);
+	}
+
+	private void createProcessingControls(Composite parent) {
+		var composite = composite(parent, 1);
+		label(composite, "Processing");
 		var processingComposite = new ProcessingRequestComposite(getProcessingRequestContext());
-		processingComposite.createComposite(group, labelStyle);
+		processingComposite.createComposite(composite, SWT.NONE);
 		reloadables.add(processingComposite);
 	}
 
@@ -300,13 +259,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 			bindingContext.removeBinding(binding);
 			binding.dispose();
 		});
-	}
-
-	private void bindElements() {
-		bindName();
-		bindScanType();
-		bindMultipleScanType();
-		bindAngularRange();
 	}
 
 	private void bindName() {
@@ -330,99 +282,118 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 		selectAndNotify(flyScanType, flyScan);
 	}
 
-	private void bindMultipleScanType() {
-		var model = getAcquisitionConfiguration().getMultipleScans();
+	private SelectObservableValue<AngularRange> rangeSelection;
 
-		var repsUi = WidgetProperties.text(SWT.Modify).observe(numberRepetitions);
-		var repsModel = PojoProperties.value("numberRepetitions", Integer.class).observe(model);
-		bindingContext.bindValue(repsUi, repsModel);
+	private enum AngularRange {
 
-		var delayUi = WidgetProperties.text(SWT.Modify).observe(waitingTime);
-		var delayModel = PojoProperties.value("waitingTime", Integer.class).observe(model);
-		bindingContext.bindValue(delayUi, delayModel);
+		HALF_ROTATION(180.0),
+		FULL_ROTATION(360.0),
+		CUSTOM_ROTATION(Double.NaN);
 
-		var repetitionType = new SelectObservableValue<>(MultipleScansType.class);
-		repetitionType.addOption(MultipleScansType.REPEAT_SCAN, WidgetProperties.buttonSelection().observe(repeatMultipleScansType));
-		repetitionType.addOption(MultipleScansType.SWITCHBACK_SCAN, WidgetProperties.buttonSelection().observe(switchbackMultipleScansType));
-		var typeInModel = PojoProperties.value("multipleScansType", MultipleScansType.class).observe(model);
-		bindingContext.bindValue(repetitionType, typeInModel);
+		private Double range;
+
+		AngularRange(Double range) {
+			this.range = range;
+		}
+
+		public Double getRange() {
+			return range;
+		}
+
 	}
 
-	private void bindAngularRange() {
-		/* a change listener attached to 'start' and 'custom range' text boxes
-		 * will trigger method to recalculate start and stop, update model, update labels */
-		var startUi = WidgetProperties.text(SWT.Modify).observe(startAngleText);
-		var customUi = WidgetProperties.text(SWT.Modify).observe(customAngleText);
-		IChangeListener changeListener = event -> {
+	private void bindAngleControls() {
+
+		// manual initialisation of UI from model (easier to set these values before adding listeners)
+		var model = getScannableTrackDocument();
+
+		startAngle.setText(String.valueOf(model.getStart()));
+		endAngle.setText(String.valueOf(model.getStop()));
+		projections.setSelection(model.getPoints());
+
+		// create widget observables
+		var startObservable = WidgetProperties.text(SWT.Modify).observe(startAngle);
+		var endObservable = WidgetProperties.text(SWT.Modify).observe(endAngle);
+		var projectionsObservable = WidgetProperties.spinnerSelection().observe(projections);
+
+		rangeSelection = new SelectObservableValue<>();
+		rangeSelection.addOption(AngularRange.HALF_ROTATION, WidgetProperties.buttonSelection().observe(halfRotation));
+		rangeSelection.addOption(AngularRange.FULL_ROTATION, WidgetProperties.buttonSelection().observe(fullRotation));
+		rangeSelection.addOption(AngularRange.CUSTOM_ROTATION, WidgetProperties.buttonSelection().observe(customRotation));
+
+		// add change listeners
+		IChangeListener updateAnglesInModelThenStepSize = event -> {
 			updateAnglesInModel();
 			updateAngularStepLabel();
 		};
-		startUi.addChangeListener(changeListener);
-		customUi.addChangeListener(changeListener);
 
-		/* simple selection listener to copy current rotation stage position as start angle */
-		currentAngleButton.addSelectionListener(widgetSelectedAdapter(e-> copyCurrentRotationToStartAngle()));
+		startObservable.addChangeListener(event -> {
+			if (rangeSelection.getValue() == AngularRange.CUSTOM_ROTATION) {
+				updateAnglesInModel();
+				updateAngularStepLabel();
+			} else {
+				updateStop();
+			}
+		});
 
-		/*
-		 * selection listeners on range radio buttons populate 'custom range' box,
-		 * and enable/disable the widget */
-		halfRotationRangeButton.addSelectionListener(widgetSelectedAdapter(selection -> {
-			customAngleText.setText(String.valueOf(HALF_ROTATION_RANGE));
-			customAngleText.setEnabled(false);
-		}));
+		endObservable.addChangeListener(updateAnglesInModelThenStepSize);
 
-		fullRotationRangeButton.addSelectionListener(widgetSelectedAdapter(selection -> {
-			customAngleText.setText(String.valueOf(FULL_ROTATION_RANGE));
-			customAngleText.setEnabled(false);
-		}));
+		projectionsObservable.addChangeListener(updateAnglesInModelThenStepSize);
 
-		customRotationRangeButton.addSelectionListener(widgetSelectedAdapter(selection ->
-			customAngleText.setEnabled(true)));
+		rangeSelection.addChangeListener(event -> updateStop());
 
-		/* manual initialisation of state from model */
-		var document = getScannableTrackDocument();
-		var start = document.getStart();
-		var stop = document.getStop();
-		var range = stop - start;
-		startAngleText.setText(String.valueOf(start));
+
+		// continue manual initialisation of UI from model
+		var range = getRange();
 		if (Precision.equals(range, HALF_ROTATION_RANGE, ANGULAR_TOLERANCE)) {
-			selectAndNotify(halfRotationRangeButton, true);
-			selectAndNotify(fullRotationRangeButton, false);
-			selectAndNotify(customRotationRangeButton, false);
+			selectAndNotify(halfRotation, true);
+			selectAndNotify(fullRotation, false);
+			selectAndNotify(customRotation, false);
 		} else if (Precision.equals(range, FULL_ROTATION_RANGE, ANGULAR_TOLERANCE)) {
-			selectAndNotify(halfRotationRangeButton, false);
-			selectAndNotify(fullRotationRangeButton, true);
-			selectAndNotify(customRotationRangeButton, false);
+			selectAndNotify(halfRotation, false);
+			selectAndNotify(fullRotation, true);
+			selectAndNotify(customRotation, false);
 		} else {
-			selectAndNotify(halfRotationRangeButton, false);
-			selectAndNotify(fullRotationRangeButton, false);
-			selectAndNotify(customRotationRangeButton, true);
+			selectAndNotify(halfRotation, false);
+			selectAndNotify(fullRotation, false);
+			selectAndNotify(customRotation, true);
 		}
-		customAngleText.setText(String.valueOf(range));
-		customAngleText.setEnabled(customRotationRangeButton.getSelection());
+
+		updateAngularStepLabel();
+	}
+
+	/**
+	 * Populate the end angle box based on start angle and angular range selection
+	 * <p>
+	 * Change listeners attached to end angle box are triggered
+	 * if value changed in this method!
+	 */
+	private void updateStop() {
+		var start = Double.parseDouble(startAngle.getText());
+		var selection = rangeSelection.getValue();
+		if (selection == null) return;
+		switch (selection) {
+		case CUSTOM_ROTATION:
+			endAngle.setEnabled(true);
+			break;
+		case FULL_ROTATION:
+		case HALF_ROTATION:
+			endAngle.setEnabled(false);
+			endAngle.setText(String.valueOf(start + selection.getRange()));
+			break;
+		}
 	}
 
 	private void updateAnglesInModel() {
-		if (startAngleText.getText().isEmpty() || customAngleText.getText().isEmpty()) {
-			// we'll be back soon enough
-			return;
-		}
-		var start = Double.parseDouble(startAngleText.getText());
-		var stop = start + Double.parseDouble(customAngleText.getText());
-		var document = getScannableTrackDocument();
-		document.setStart(start);
-		document.setStop(stop);
-		endAngleLabel.setText(String.valueOf(stop));
-	}
-
-	private void copyCurrentRotationToStartAngle() {
-		double currentMotorPosition = getBean(StageController.class).getMotorPosition(StageDevice.MOTOR_STAGE_ROT_Y);
-		startAngleText.setText(Double.toString(currentMotorPosition));
+		var model = getScannableTrackDocument();
+		model.setStart(Double.parseDouble(startAngle.getText()));
+		model.setStop(Double.parseDouble(endAngle.getText()));
+		model.setPoints(projections.getSelection());
 	}
 
 	private void updateAngularStepLabel() {
 		double angularStep = getAngularStep();
-		angularStepLabel.setText(Double.toString(angularStep));
+		stepSize.setText(Double.toString(angularStep));
 	}
 
 	private double getAngularStep() {
@@ -436,23 +407,8 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 	@Override
 	public void reload() {
 		disposeBindings();
-		bindElements();
+		bindControls();
 		reloadables.forEach(Reloadable::reload);
-	}
-
-	private class UpdateListener implements ApplicationListener<ScanningAcquisitionChangeEvent> {
-		@Override
-		public void onApplicationEvent(ScanningAcquisitionChangeEvent event) {
-			if ((event.getSource() == projections) /* && !mainComposite.isDisposed() */) {
-				updateAngularStepLabel();
-			}
-		}
-	}
-
-	private ScanningConfiguration getAcquisitionConfiguration() {
-		return getScanningAcquisitionTemporaryHelper()
-			.getAcquisitionConfiguration()
-			.orElseThrow();
 	}
 
 	private ScannableTrackDocument getScannableTrackDocument() {

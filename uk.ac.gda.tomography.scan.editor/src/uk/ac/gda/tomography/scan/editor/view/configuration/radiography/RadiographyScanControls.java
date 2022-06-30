@@ -18,139 +18,135 @@
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.radiography;
 
-import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.NAME;
-import static uk.ac.gda.ui.tool.ClientMessages.NAME_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientCompositeWithGridLayout;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginHeight;
-import static uk.ac.gda.ui.tool.ClientSWTElements.standardMarginWidth;
+import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.label;
+import static uk.ac.gda.ui.tool.ClientSWTElements.spinner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.beans.typed.PojoProperties;
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import gda.factory.Finder;
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
-import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
+import uk.ac.gda.tomography.scan.editor.view.configuration.TomographyConfiguration;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.DarkFlatCompositeFactory;
 import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.ExposureCompositeFactory;
-import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.ProjectionsCompositeFactory;
-import uk.ac.gda.ui.tool.GUIComponents;
+import uk.ac.gda.tomography.scan.editor.view.configuration.tomography.InAndOutOfBeamPositionControls;
 import uk.ac.gda.ui.tool.Reloadable;
 import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
 
-/**
- * @author Maurizio Nagni
- */
+
 public class RadiographyScanControls implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(RadiographyScanControls.class);
-
-	/** Scan prefix **/
 	private Text name;
+	private Spinner projections;
 
-	private Composite mainComposite;
+	private List<Reloadable> reloadables = new ArrayList<>();
+	private DataBindingContext bindingContext = new DataBindingContext();
 
-	private List<Reloadable> composites = new ArrayList<>();
+	private final TomographyConfiguration config;
+
+	public RadiographyScanControls() {
+		config = Finder.findLocalSingleton(TomographyConfiguration.class);
+	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		logger.debug("Creating {}", this);
-		mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
-		createClientGridDataFactory().align(SWT.FILL, SWT.BEGINNING).grab(true, true).applyTo(mainComposite);
-		standardMarginHeight(mainComposite.getLayout());
-		standardMarginWidth(mainComposite.getLayout());
+		var composite = composite(parent, 1);
+		STRETCH.copy().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(composite);
 
-		try {
-			createElements(mainComposite, SWT.NONE, SWT.BORDER);
-			bindElements();
-			initialiseElements();
-			addWidgetsListener();
-			logger.debug("Created {}", this);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
-		return mainComposite;
+		createNameControl(composite);
+		createProjectionsControls(composite);
+		createDetectorControls(composite);
+		createDarksAndFlatsControls(composite);
+		createPositionControls(composite);
+
+		bindControls();
+
+		return composite;
+	}
+
+	private void createNameControl(Composite parent) {
+		var composite = composite(parent, 2);
+		label(composite, "Acquisition name");
+		name = new Text(composite, SWT.BORDER);
+		STRETCH.applyTo(name);
+	}
+
+	private void createProjectionsControls(Composite parent) {
+		var projectionsComposite = composite(parent, 2);
+		label(projectionsComposite, "Projections");
+		projections = spinner(projectionsComposite);
+	}
+
+	private void createDetectorControls(Composite parent) {
+		var exposure = composite(parent, 2);
+
+		label(exposure, "Detector exposure (s)");
+		var exposureControl = new ExposureCompositeFactory();
+		exposureControl.createComposite(exposure, SWT.NONE);
+		reloadables.add(exposureControl);
+	}
+
+	private void createDarksAndFlatsControls(Composite parent) {
+		var darkAndFlats = new DarkFlatCompositeFactory();
+		darkAndFlats.createComposite(parent, SWT.NONE);
+		reloadables.add(darkAndFlats);
+	}
+
+	private void createPositionControls(Composite parent) {
+		var position = new InAndOutOfBeamPositionControls(config);
+		position.createControls(parent);
+		reloadables.add(position);
 	}
 
 	@Override
 	public void reload() {
-		try {
-			bindElements();
-			initialiseElements();
-			composites.forEach(Reloadable::reload);
-			mainComposite.getShell().layout(true, true);
-		} catch (NoSuchElementException e) {
-			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
-		}
+		disposeBindings();
+		bindControls();
+		reloadables.forEach(Reloadable::reload);
 	}
 
-	/**
-	 * @param parent
-	 *            a three column composite
-	 * @param labelStyle
-	 * @param textStyle
-	 */
-	private void createElements(Composite parent, int labelStyle, int textStyle) {
-		this.name = GUIComponents.textContent(parent, labelStyle, textStyle,
-				NAME, NAME_TOOLTIP);
-		// guarantee that fills the horizontal space
-		createClientGridDataFactory().grab(true, true).applyTo(name);
-
-		//----- Reference for other configuration components
-		var projections = new ProjectionsCompositeFactory();
-		composites.add(projections);
-		projections.createComposite(parent, textStyle);
-
-		//----- Reference for other configuration components
-		var exposure = new ExposureCompositeFactory();
-		composites.add(exposure);
-		exposure.createComposite(parent, textStyle);
-
-		//----- Reference for other configuration components
-		var darkFlat = new DarkFlatCompositeFactory();
-		composites.add(darkFlat);
-		darkFlat.createComposite(parent, textStyle);
-		//----- Reference for other configuration components
+	private void disposeBindings() {
+		new ArrayList<>(bindingContext.getBindings()).forEach(binding -> {
+			bindingContext.removeBinding(binding);
+			binding.dispose();
+		});
 	}
 
-	// ---- BINDING ----
-	private void bindElements() {
-		name.addModifyListener(modifyNameListener);
+	private void bindControls() {
+		bindName();
+		bindProjections();
 	}
 
-	private final ModifyListener modifyNameListener = event -> updateAcquisitionName();
-
-	private void updateAcquisitionName() {
-		getScanningAcquisitionTemporaryHelper()
-			.getScanningAcquisition()
-			.ifPresent(a -> a.setName(name.getText()));
+	private void bindName() {
+		var nameUi = WidgetProperties.text(SWT.Modify).observe(name);
+		var nameModel = PojoProperties.value("name", String.class).observe(getScanningAcquisition());
+		bindingContext.bindValue(nameUi, nameModel);
 	}
 
-	// ---- INITIALIZATION ----
-	private void initialiseElements() {
-		getScanningAcquisitionTemporaryHelper()
-			.getScanningAcquisition()
-			.map(ScanningAcquisition::getName)
-			.ifPresent(name::setText);
-	}
-
-
-	// ---- WIDGET LISTENER ----
-	private  void addWidgetsListener() {
-		// Nothing to do
+	private void bindProjections() {
+		var projectionsUi = WidgetProperties.spinnerSelection().observe(projections);
+		var projectionsModel = PojoProperties.value("points", Integer.class).observe(getScanningAcquisition().getAcquisitionConfiguration().getAcquisitionParameters().getScanpathDocument().getScannableTrackDocuments().get(0));
+		bindingContext.bindValue(projectionsUi, projectionsModel);
 	}
 
 	private ScanningAcquisitionTemporaryHelper getScanningAcquisitionTemporaryHelper() {
 		return SpringApplicationContextFacade.getBean(ScanningAcquisitionTemporaryHelper.class);
+	}
+
+	private ScanningAcquisition getScanningAcquisition() {
+		return getScanningAcquisitionTemporaryHelper()
+				.getScanningAcquisition().orElseThrow();
 	}
 }

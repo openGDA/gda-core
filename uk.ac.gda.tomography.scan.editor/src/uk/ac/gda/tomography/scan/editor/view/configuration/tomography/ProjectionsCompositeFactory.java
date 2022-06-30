@@ -93,6 +93,7 @@ public class ProjectionsCompositeFactory implements CompositeFactory, Reloadable
 
 	@Override
 	public void reload() {
+		if (projections == null || projections.isDisposed()) return;
 		disposeBindings();
 		bindControls();
 	}

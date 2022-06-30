@@ -19,14 +19,9 @@
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
 
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIGURATION_LAYOUT_ERROR;
-import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
 
 import java.util.NoSuchElementException;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
@@ -50,7 +45,8 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExposureCompositeFactory.class);
 
-	private Composite composite;
+	/** for dispose check */
+	private Composite parent;
 	private DetectorExposureWidget exposureWidget;
 
 	private ScanningParameters parameters;
@@ -65,22 +61,19 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		composite = createClientGroup(parent, SWT.NONE, 1, EXPOSURE);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(composite);
-
-		var elementsComposite = new Composite(composite, SWT.NONE);
-		GridLayoutFactory.swtDefaults().numColumns(3).equalWidth(true).applyTo(elementsComposite);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(elementsComposite);
+		this.parent = parent;
 
 		ScanningAcquisitionListener acquisitionListener = new ScanningAcquisitionListener();
-		SpringApplicationContextFacade.addDisposableApplicationListener(composite, acquisitionListener);
 
-		exposureWidget = new DetectorExposureWidget(elementsComposite, this::updateDetectorDocument, this::getDetectorExposure);
+
+		exposureWidget = new DetectorExposureWidget(parent, this::updateDetectorDocument, this::getDetectorExposure);
 
 		refreshParameters();
 		updateExposureFromDocument();
 
-		return composite;
+		SpringApplicationContextFacade.addDisposableApplicationListener(parent, acquisitionListener);
+
+		return parent;
 	}
 
 	private DetectorDocument getDetectorDocument() {
@@ -89,10 +82,10 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 
 	@Override
 	public void reload() {
+		if (parent == null || parent.isDisposed()) return;
 		try {
 			refreshParameters();
 			updateExposureFromDocument();
-			composite.getShell().layout(true, true);
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);
 		}
@@ -143,7 +136,7 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 	}
 
 	private void updateExposureFromDocument() {
-		if (composite == null || composite.isDisposed()) return;
+		if (parent == null || parent.isDisposed()) return;
 		exposureWidget.updateFromModel(getDetectorDocument().getExposure());
 	}
 }

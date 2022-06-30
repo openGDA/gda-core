@@ -10,6 +10,7 @@ Export-Package: uk.ac.gda.tomography.browser,
  uk.ac.gda.tomography.browser.provider,
  uk.ac.gda.tomography.scan.editor,
  uk.ac.gda.tomography.scan.editor.view,
+ uk.ac.gda.tomography.scan.editor.view.configuration,
  uk.ac.gda.tomography.scan.presentation,
  uk.ac.gda.tomography.view
 Require-Bundle: uk.ac.gda.core;bundle-version="8.26.0",
