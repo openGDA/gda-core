@@ -51,6 +51,7 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	private Map<Integer, GasMix> gasMixes;
 	private MolarMassTable molarMasses;
 
+
 	public GasRig(IGasRigController controller, List<Gas> nonCabinetGases, List<Cabinet> cabinets, MolarMassTable molarMasses, int numberOfLines) {
 		this.controller = controller;
 		this.nonCabinetGases = nonCabinetGases;
@@ -207,21 +208,11 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 			throw new GasRigException("Gases already in use on other line.");
 		}
 
-		boolean shouldSendBackToEndStation = false;
-		if (isLineFlowingToEndStation(lineNumber) && !areSameGasesFlowingToLine(gasMix, lineNumber)) {
-			evacuateLine(lineNumber);
-			shouldSendBackToEndStation = true;
-		}
-
 		updateMassFlowsForLine(gasMix, lineNumber);
-
-		if (shouldSendBackToEndStation) {
-			admitLineToEndStation(lineNumber);
-		}
 	}
 
 	private boolean areGasesInUseOnOtherLines(IGasMix gasMix, int lineNumber) throws GasRigException, DeviceException {
-		for (int l=1; l==numberOfLines; l++) {
+		for (int l=1; l<=numberOfLines; l++) {
 			if(l != lineNumber) {
 				for (var gasFlow : gasMix.getAllGasFlows()) {
 					if (gasFlow.getPressure() > 0) {
@@ -235,19 +226,14 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 		return false;
 	}
 
-	private boolean isLineFlowingToEndStation(int lineNumber) throws DeviceException {
-		return controller.isLineFlowingToEndstation(lineNumber);
+	@Override
+	public void setButterflyValvePressure(double value) throws DeviceException {
+		controller.setButterflyValvePressure(value);
 	}
 
-	private boolean areSameGasesFlowingToLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {
-		for (var gasFlow : gasMix.getAllGasFlows()) {
-			if (gasFlow.getPressure() == 0) {
-				if(controller.isGasFlowingToLine(gasFlow.getGasId(), lineNumber)) {
-					return false;
-				}
-			}
-		}
-		return true;
+	@Override
+	public void setButterflyValvePosition(double value) throws DeviceException {
+		controller.setButterflyValvePosition(value);
 	}
 
 	private void updateMassFlowsForLine(IGasMix gasMix, int lineNumber) throws DeviceException, GasRigException {
@@ -259,13 +245,16 @@ public class GasRig extends FindableConfigurableBase implements IGasRig, IObserv
 	private void updateMassFlow(int gasId, double massFlow, int lineNumber) throws DeviceException, GasRigException {
 		Gas gas = getGas(gasId);
 
-		controller.setMassFlow(gasId, massFlow);
-
 		if (massFlow > 0) {
 			controller.admitGasToLine(gas.getName(), lineNumber);
 		} else {
-			controller.closeLineValvesForGas(gasId);
+			controller.closeLineValveForGas(gasId, lineNumber);
 		}
+
+		controller.setMassFlow(gasId, massFlow);
+
+		// TODO Call update method from here with info about progress
+
 	}
 
 	@Override

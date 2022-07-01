@@ -137,4 +137,20 @@ public interface IGasRig extends Findable, IObservable {
 	 * @throws GasRigException
 	 */
 	public void admitLinesToExhaust() throws GasRigException;
+
+	/**
+	 * Set pressure on butterfly valve
+	 *
+	 * @param value
+	 * @throws DeviceException
+	 */
+	void setButterflyValvePressure(double value) throws DeviceException;
+
+	/**
+	 * Set position on butterfly valve
+	 *
+	 * @param value
+	 * @throws DeviceException
+	 */
+	void setButterflyValvePosition(double value) throws DeviceException;
 }

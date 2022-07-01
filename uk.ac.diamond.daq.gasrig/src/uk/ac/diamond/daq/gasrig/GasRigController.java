@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import gda.device.DeviceException;
+import gda.device.controlpoint.EpicsControlPoint;
 import gda.device.scannable.PVScannable;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
@@ -44,16 +45,14 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	private String currentOrLastStatus;
 	private double currentSequenceProgress;
 	private Map<Integer, GasRigFlowController> flowControllers;
-	private int switchingValve;
-	private PVScannable endstationValve;
-	private int line2Valve;
+	private PVScannable butterflyValvePressure;
+	private EpicsControlPoint butterflyValvePosition;
 
 	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers,
-			int switchingValve, PVScannable endstationValve, int line2Valve) {
+			PVScannable butterflyValvePressure, EpicsControlPoint butterflyValvePosition) {
 		super(basePvName);
-		this.switchingValve = switchingValve;
-		this.endstationValve = endstationValve;
-		this.line2Valve = line2Valve;
+		this.butterflyValvePressure = butterflyValvePressure;
+		this.butterflyValvePosition = butterflyValvePosition;
 		this.flowControllers = flowControllers.stream()
 				.collect(Collectors.toMap(GasRigFlowController::getGasId, Function.identity()));
 	}
@@ -158,13 +157,13 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void evacuateEndStation() throws DeviceException {
-		runSequence(GasRigSequence.EVACUATE_ENDSTATION);
+		runSequenceAsynchronously(GasRigSequence.EVACUATE_ENDSTATION);
 	}
 
 	@Override
 	public void evacuateLine(int lineNumber) throws DeviceException {
 		setNumericSequenceParameter(GasRigSequence.EVACUATE_LINE, 1, lineNumber);
-		runSequence(GasRigSequence.EVACUATE_LINE);
+		runSequenceAsynchronously(GasRigSequence.EVACUATE_LINE);
 	}
 
 	@Override
@@ -182,7 +181,7 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void initialise() throws DeviceException {
-		runSequence(GasRigSequence.INITIALISE);
+		runSequenceAsynchronously(GasRigSequence.INITIALISE);
 	}
 
 	@Override
@@ -199,6 +198,10 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 		setStringValue(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
 	}
 
+	private void runSequenceAsynchronously(GasRigSequence sequence) throws DeviceException {
+		setStringValueAsynchronously(constructSequenceControlPvSuffix(sequence.getSequenceId()), SEQUENCE_START, sequence.getDescription() + " control");
+	}
+
 	private void setNumericSequenceParameter(GasRigSequence sequence, int parameterNumber, int parameterValue) throws DeviceException {
 		setIntegerValue(constructNumericSequenceParameterPv(sequence.getSequenceId(), parameterNumber), parameterValue, sequence.getDescription() + " parameter " + parameterValue);
 	}
@@ -213,31 +216,25 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	}
 
 	@Override
+	public void closeLineValveForGas(int gasId, int lineNumber) throws DeviceException, GasRigException {
+		int valveNumber = getFlowController(gasId).getValveNumber(lineNumber);
+		getFlowController(gasId).closeValve(valveNumber);
+	}
+
+	@Override
 	public boolean isGasFlowingToLine(int gasId, int lineNumber) throws DeviceException, GasRigException {
 		int valveNumber = getFlowController(gasId).getValveNumber(lineNumber);
 		return getFlowController(gasId).isValveOpen(valveNumber);
 	}
 
-	private boolean isValveOpen(int valveNumber) throws DeviceException {
-		String valveStatus = getStringValue(constructValveStatusPv(valveNumber), "valve status");
-		return valveStatus.equals(VALVE_OPEN);
-	}
-
-	private String getSwitchingValveStatus() throws DeviceException {
-		return getStringValue(constructValveStatusPv(switchingValve), "switching valve status");
+	@Override
+	public void setButterflyValvePressure(double value) throws DeviceException {
+		butterflyValvePressure.asynchronousMoveTo(value);
 	}
 
 	@Override
-	public boolean isLineFlowingToEndstation(int lineNumber) throws DeviceException {
-		if((int)endstationValve.getPosition() != 1) {
-			return false;
-		} else if(lineNumber == 1 && getSwitchingValveStatus().equals(LINE_1)) {
-			return true;
-		} else if(lineNumber == 2 && getSwitchingValveStatus().equals(LINE_2)
-				&& isValveOpen(line2Valve)) {
-			return true;
-		}
-		return false;
+	public void setButterflyValvePosition(double value) throws DeviceException {
+		butterflyValvePosition.asynchronousMoveTo(value);
 	}
 
 	@Override

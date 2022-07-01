@@ -48,7 +48,11 @@ public interface IGasRigController extends IObservable {
 
 	void admitLinesToExhaust() throws DeviceException;
 
+	void closeLineValveForGas(int gasId, int lineNumber) throws DeviceException, GasRigException;
+
 	boolean isGasFlowingToLine(int gasId, int lineNumber) throws DeviceException, GasRigException;
 
-	boolean isLineFlowingToEndstation(int lineNumber) throws DeviceException;
+	void setButterflyValvePressure(double value) throws DeviceException;
+
+	void setButterflyValvePosition(double value) throws DeviceException;
 }

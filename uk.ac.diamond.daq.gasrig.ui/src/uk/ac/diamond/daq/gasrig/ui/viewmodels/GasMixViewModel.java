@@ -155,4 +155,9 @@ public class GasMixViewModel extends PropertyChangeSupportViewModel {
 		firePropertyChange(LOWEST_WEIGHTED_FLOW, previousLowestWeightedFlow, lowestWeightedFlow);
 		previousLowestWeightedFlow = lowestWeightedFlow;
 	}
+
+	public IGasMix getGasMix() {
+		return gasMix;
+	}
+
 }

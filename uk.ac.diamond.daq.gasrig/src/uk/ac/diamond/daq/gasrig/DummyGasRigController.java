@@ -96,7 +96,6 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 			try {
 				Thread.sleep((500));
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e);
 			}
 		}
@@ -106,65 +105,69 @@ public class DummyGasRigController extends BaseGasRigController implements IGasR
 
 	@Override
 	public void evacuateEndStation() throws DeviceException {
-		// TODO Auto-generated method stub
+		logger.info("Evacuating Endstation");
 
 	}
 
 	@Override
 	public void evacuateLine(int lineNumber) throws DeviceException {
-		// TODO Auto-generated method stub
-
+		logger.info("Evacuating line {}", lineNumber);
 	}
 
 	@Override
 	public void admitLineToEndStation(int lineNumber) throws DeviceException {
-		// TODO Auto-generated method stub
+		logger.info("Admitting line {} to endstation", lineNumber);
 
 	}
 
 	@Override
 	public void setMassFlow(int gasId, double massFlow) throws DeviceException {
-		// TODO Auto-generated method stub
+		logger.info("Setting mass flow of gas {} to {}", gasId, massFlow);
 	}
 
 	@Override
 	public void initialise() throws DeviceException {
-		// TODO Auto-generated method stub
+		logger.info("Initializing gas rig");
 	}
 
 	@Override
 	public void admitGasToLine(String gasName, int lineNumber) throws DeviceException {
-		// TODO Auto-generated method stub
-
+		logger.info("Admitting gas {} to line {}", gasName, lineNumber);
 	}
 
 	@Override
 	public void closeLineValvesForGas(int gasId) {
-		// TODO Auto-generated method stub
-
+		// Currently not used
 	}
 
 	@Override
 	public void admitLinesToEndStation() throws DeviceException {
-		// TODO Auto-generated method stub
-
+		logger.info("Admitting lines to Endstation");
 	}
 
 	@Override
 	public void admitLinesToExhaust() throws DeviceException {
-		// TODO Auto-generated method stub
+		logger.info("Admitting lines to exhaust");
 
+	}
+
+	@Override
+	public void closeLineValveForGas(int gasId, int lineNumber) throws DeviceException, GasRigException {
+		logger.info("Closing line valve {} for gas {}", gasId, lineNumber);
 	}
 
 	@Override
 	public boolean isGasFlowingToLine(int gasId, int lineNumber) throws DeviceException, GasRigException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean isLineFlowingToEndstation(int lineNumber) throws DeviceException {
-		// TODO Auto-generated method stub
-		return false;
+	public void setButterflyValvePressure(double value) throws DeviceException {
+		logger.info("Setting butterfly pressure to {}", value);
+	}
+
+	@Override
+	public void setButterflyValvePosition(double value) throws DeviceException {
+		logger.info("Setting butterfly position to {}", value);
 	}
 }
