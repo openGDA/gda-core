@@ -18,6 +18,10 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.START;
+import static org.eclipse.scanning.api.constants.PathConstants.STEP;
+import static org.eclipse.scanning.api.constants.PathConstants.STOP;
+
 /**
  * Abstract superclass of models with a single start, stop, and step value.
  * Concrete subclasses include {@link AxialStepModel} for the single-axis case
@@ -52,20 +56,26 @@ public abstract class AbstractAxialStepModel extends AbstractAxialModel {
 	public double getStart() {
 		return start;
 	}
-	public void setStart(double start) {
-		this.start = start;
+	public void setStart(double newValue) {
+		final double oldValue = this.start;
+		this.start = newValue;
+		this.pcs.firePropertyChange(START, oldValue, newValue);
 	}
 	public double getStop() {
 		return stop;
 	}
-	public void setStop(double stop) {
-		this.stop = stop;
+	public void setStop(double newValue) {
+		final double oldValue = this.stop;
+		this.stop = newValue;
+		this.pcs.firePropertyChange(STOP, oldValue, newValue);
 	}
 	public double getStep() {
 		return step;
 	}
-	public void setStep(double step) {
-		this.step = step;
+	public void setStep(double newValue) {
+		final double oldValue = this.step;
+		this.step = newValue;
+		this.pcs.firePropertyChange(STEP, oldValue, newValue);
 	}
 
 	@Override

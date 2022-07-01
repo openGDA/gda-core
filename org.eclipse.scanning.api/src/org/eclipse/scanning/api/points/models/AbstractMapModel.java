@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.X_AXIS_NAME;
+import static org.eclipse.scanning.api.constants.PathConstants.Y_AXIS_NAME;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +48,7 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	public void setxAxisName(String newValue) {
 		String oldValue = this.xAxisName;
 		this.xAxisName = newValue;
-		this.pcs.firePropertyChange("xAxisName", oldValue, newValue);
+		this.pcs.firePropertyChange(X_AXIS_NAME, oldValue, newValue);
 	}
 
 	@Override
@@ -57,7 +60,7 @@ public abstract class AbstractMapModel extends AbstractPointsModel implements IM
 	public void setyAxisName(String newValue) {
 		String oldValue = this.yAxisName;
 		this.yAxisName = newValue;
-		this.pcs.firePropertyChange("yAxisName", oldValue, newValue);
+		this.pcs.firePropertyChange(Y_AXIS_NAME, oldValue, newValue);
 	}
 
 	@Override

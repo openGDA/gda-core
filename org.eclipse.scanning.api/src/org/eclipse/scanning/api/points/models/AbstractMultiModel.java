@@ -18,6 +18,8 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.MODELS;
+
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -41,14 +43,14 @@ public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> ext
 	}
 
 	public void setModels(List<T> models) {
-		pcs.firePropertyChange("models", this.models, models);
+		pcs.firePropertyChange(MODELS, this.models, models);
 		this.models = models == null ? new ArrayList<>() : new ArrayList<>(models);
 	}
 
 	public void addModel(T model) {
 		List<T> newModels = new ArrayList<>(this.models);
 		newModels.add(model);
-		pcs.firePropertyChange("models", models, newModels);
+		pcs.firePropertyChange(MODELS, models, newModels);
 		models = newModels;
 	}
 
@@ -58,7 +60,7 @@ public abstract class AbstractMultiModel<T extends IScanPointGeneratorModel> ext
 	public void clear() {
 		List<T> oldModels = new ArrayList<>(models);
 		models.clear();
-		pcs.firePropertyChange("models", oldModels, models);
+		pcs.firePropertyChange(MODELS, oldModels, models);
 	}
 
 	@Override

@@ -20,11 +20,18 @@ package org.eclipse.scanning.api.constants;
 
 public final class PathConstants {
 
+	public static final String X_AXIS_NAME = "xAxisName";
+	public static final String Y_AXIS_NAME = "yAxisName";
+
 	public static final String X_AXIS_STEP = "xAxisStep";
 	public static final String Y_AXIS_STEP = "yAxisStep";
 
 	public static final String X_AXIS_POINTS = "xAxisPoints";
 	public static final String Y_AXIS_POINTS = "yAxisPoints";
+
+	public static final String MODELS = "models";
+
+	public static final String UNITS = "units";
 
 	public static final String SCALE = "scale";
 	public static final String OFFSET = "offset";
@@ -37,12 +44,20 @@ public final class PathConstants {
 	public static final String LINE_POINTS = "points";
 	public static final String LINE_STEP = "step";
 
+	public static final String SIZE = "size";
+
 	public static final String OVERLAP = "overlap";
 	public static final String RANDOM_OFFSET = "randomOffset";
 
 	public static final String ALTERNATING = "alternating";
 	public static final String CONTINUOUS = "continuous";
 	public static final String ORIENTATION = "orientation";
+
+	public static final String START = "start";
+	public static final String STOP = "stop";
+	public static final String STEP = "step";
+	public static final String POINTS = "points";
+	public static final String POSITIONS = "positions";
 
 	private PathConstants() {
 		// prevent instantiation

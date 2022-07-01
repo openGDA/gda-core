@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.SIZE;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -39,8 +41,10 @@ public class StaticModel extends AbstractPointsModel {
 		return size;
 	}
 
-	public void setSize(int size) {
-		this.size = size;
+	public void setSize(int newValue) {
+		final int oldValue = this.size;
+		this.size = newValue;
+		this.pcs.firePropertyChange(SIZE, oldValue, newValue);
 	}
 
 	@Override

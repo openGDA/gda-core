@@ -13,6 +13,7 @@ package org.eclipse.scanning.api.points.models;
 
 import static org.eclipse.scanning.api.constants.PathConstants.ALTERNATING;
 import static org.eclipse.scanning.api.constants.PathConstants.CONTINUOUS;
+import static org.eclipse.scanning.api.constants.PathConstants.UNITS;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -93,7 +94,7 @@ public abstract class AbstractPointsModel extends AbstractNameable implements IS
 
 	@Override
 	public void setUnits(List<String> units) {
-		pcs.firePropertyChange("units", this.units, units);
+		pcs.firePropertyChange(UNITS, this.units, units);
 		this.units = units;
 	}
 

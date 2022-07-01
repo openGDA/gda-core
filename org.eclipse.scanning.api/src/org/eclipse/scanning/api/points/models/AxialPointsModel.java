@@ -18,6 +18,10 @@
 
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.POINTS;
+import static org.eclipse.scanning.api.constants.PathConstants.START;
+import static org.eclipse.scanning.api.constants.PathConstants.STOP;
+
 public class AxialPointsModel extends AbstractAxialModel implements IAxialModel {
 
 	/** Start position for the scan */
@@ -54,24 +58,30 @@ public class AxialPointsModel extends AbstractAxialModel implements IAxialModel 
 		return start;
 	}
 
-	public void setStart(double start) {
-		this.start = start;
+	public void setStart(double newValue) {
+		final double oldValue = this.start;
+		this.start = newValue;
+		this.pcs.firePropertyChange(START, oldValue, newValue);
 	}
 
 	public double getStop() {
 		return stop;
 	}
 
-	public void setStop(double stop) {
-		this.stop = stop;
+	public void setStop(double newValue) {
+		final double oldValue = this.stop;
+		this.stop = newValue;
+		this.pcs.firePropertyChange(STOP, oldValue, newValue);
 	}
 
 	public int getPoints() {
 		return points;
 	}
 
-	public void setPoints(int points) {
-		this.points = points;
+	public void setPoints(int newValue) {
+		final double oldValue = this.points;
+		this.points = newValue;
+		this.pcs.firePropertyChange(POINTS, oldValue, newValue);
 	}
 
 	@Override

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.points.models;
 
+import static org.eclipse.scanning.api.constants.PathConstants.POSITIONS;
+
 import java.util.Arrays;
 
 /**
@@ -48,7 +50,7 @@ public class AxialArrayModel extends AbstractPointsModel implements IAxialModel 
 	public void setPositions(double... positions) {
 		double[] oldValue = this.positions;
 		this.positions = positions;
-		this.pcs.firePropertyChange("positions", oldValue, positions);
+		this.pcs.firePropertyChange(POSITIONS, oldValue, positions);
 	}
 
 	@Override
