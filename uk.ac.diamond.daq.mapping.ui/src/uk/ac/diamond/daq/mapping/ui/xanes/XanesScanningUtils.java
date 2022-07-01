@@ -92,7 +92,7 @@ public class XanesScanningUtils {
 		return model;
 	}
 
-	private static double roundDouble(double input) {
+	public static double roundDouble(double input) {
 		return BigDecimal.valueOf(input).setScale(7, RoundingMode.HALF_UP).doubleValue();
 	}
 
