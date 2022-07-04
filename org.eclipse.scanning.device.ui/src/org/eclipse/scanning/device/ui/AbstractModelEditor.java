@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 public abstract class AbstractModelEditor<T> implements IModelEditor<T> {
 
 	private T model;
-	private Composite composite;
+	protected Composite composite;
 
 	/**
 	 * @return the model being edited by this editor
@@ -80,8 +80,8 @@ public abstract class AbstractModelEditor<T> implements IModelEditor<T> {
 	/**
 	 * @return a blank 2-column composite
 	 */
-	private Composite makeComposite(Composite parentComposite) {
-		composite = new Composite(parentComposite, SWT.NONE);
+	protected Composite makeComposite(Composite parent) {
+		final Composite composite = new Composite(parent, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.TOP).applyTo(composite);
 		GridLayoutFactory.fillDefaults().numColumns(2).spacing(10, 5).applyTo(composite);
 		return composite;
