@@ -65,14 +65,13 @@ public class TensorTomoScanPerspective implements IPerspectiveFactory {
 		viewLayout = layout.getViewLayout(MappingExperimentView.ID);
 		viewLayout.setCloseable(false);
 
-		// TODO: bottom middle is a placeholder for the Tomogram Visual Representation View
 		final IFolderLayout bottomMiddle = layout.createFolder("visual", IPageLayout.BOTTOM, 0.5f, "map");
-		bottomMiddle.addView(IPageLayout.ID_PROGRESS_VIEW); // TODO: just a placeholder view, remove
-
-		final IFolderLayout bottomRight = layout.createFolder("jython", IPageLayout.BOTTOM, 0.5f, "params");
-		bottomRight.addView("org.dawnsci.mapping.ui.spectrumview");
+		bottomMiddle.addView("org.dawnsci.mapping.ui.spectrumview");
 		viewLayout = layout.getViewLayout("org.dawnsci.mapping.ui.spectrumview");
 		viewLayout.setCloseable(false);
+		// TODO: add Tomogram Visual Representation View here
+
+		final IFolderLayout bottomRight = layout.createFolder("jython", IPageLayout.BOTTOM, 0.5f, "params");
 		bottomRight.addView("gda.rcp.jythonterminalview");
 		String queueViewId = StatusQueueView.createId(LocalProperties.get(LocalProperties.GDA_ACTIVEMQ_BROKER_URI, ""),
 				"org.eclipse.scanning.api",
