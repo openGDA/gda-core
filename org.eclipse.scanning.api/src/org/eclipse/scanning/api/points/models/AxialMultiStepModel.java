@@ -60,7 +60,7 @@ public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> impl
 
 	/**
 	 *  Utility method to ensure backwards compatibility of user scripts.
-	 *  Encourage use of {@link #setModels()}
+	 *  Encourage use of {@link #setModels(List)}
 	 */
 	@Deprecated
 	public void setStepModels(List<AxialStepModel> models){
@@ -73,25 +73,6 @@ public class AxialMultiStepModel extends AbstractMultiModel<AxialStepModel> impl
 					"Child step model must have the same name as the MultiStepModel. Expected ''{0}'', was ''{1}''", getName(), stepModel.getName()));
 		}
 		addModel(stepModel);
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(getClass().getSimpleName() +" [stepModels=[");
-		for (AxialStepModel stepModel : getModels()) {
-			sb.append("start=");
-			sb.append(stepModel.getStart());
-			sb.append(", stop=");
-			sb.append(stepModel.getStop());
-			sb.append(", step=");
-			sb.append(stepModel.getStep());
-			sb.append("; ");
-		}
-		sb.deleteCharAt(sb.length()-1);
-		sb.append("], " + super.toString() + "]");
-
-		return sb.toString();
 	}
 
 }
