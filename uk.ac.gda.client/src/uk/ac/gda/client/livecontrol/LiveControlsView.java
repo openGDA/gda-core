@@ -56,6 +56,10 @@ public class LiveControlsView extends ViewPart {
 
 	private static final HashMap<String,String> registeredNames = new HashMap<String, String>();
 
+	private static final String DEFAULT_LIVE_CONTROLS_NAME = "Live Controls";
+
+	private boolean defaultName;
+
 	private boolean controlsWithNoGroup;
 
 	private Composite parent;
@@ -107,6 +111,7 @@ public class LiveControlsView extends ViewPart {
 				selectControlSet(parent, controlSets);
 			}
 		} else {
+			defaultName = true;
 			createControlsView(parent, controlSets.get(0));
 		}
 	}
@@ -249,8 +254,13 @@ public class LiveControlsView extends ViewPart {
 
 		setTitleToolTip(controlSet.getName());
 
-		//Set the part name of this part to be the registered name of the original part
-		setPartName(registeredNames.getOrDefault(controlSet.getName(), controlSet.getName()));
+		if (defaultName) {
+			setPartName(DEFAULT_LIVE_CONTROLS_NAME);
+		} else {
+			//Set the part name of this part to be the registered name of the original part
+			setPartName(registeredNames.getOrDefault(controlSet.getName(), controlSet.getName()));
+		}
+
 	}
 
 	private void createUnavailableControlLabel(Composite parent, String controlName) {
