@@ -22,6 +22,7 @@ import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.E
 import static uk.ac.diamond.daq.mapping.api.XanesEdgeParameters.TrackingMethod.REFERENCE;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.createModelFromEdgeSelection;
 import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.getOuterScannable;
+import static uk.ac.diamond.daq.mapping.ui.xanes.XanesScanningUtils.roundDouble;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_ENFORCE_SHAPE;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK;
 import static uk.ac.gda.ui.tool.ClientMessages.XANES_LINES_TO_TRACK_TOOLTIP;
@@ -66,6 +67,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +109,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 */
 	private static final String XANES_SCAN_KEY = LocalProperties.get(PROPERTY_NAME_XANES_SCAN_KEY, DEFAULT_XANES_SCAN_KEY);
 
-	private static final int NUM_COLUMNS = 6;
+	private static final int NUM_COLUMNS = 5;
+
+	private static final int MAX_NUMBER_OFFSET = 1000;
 
 	/**
 	 * The edge parameters to pass to the XANES script
@@ -123,7 +128,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 	 * Populated from the currently-selected processing files
 	 */
 	private ComboViewer linesToTrackCombo;
-	private Button enforcedShape;
+
+	private Spinner energyOffsetSpinner;
+	private Text edgeEnergyText;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -154,11 +161,28 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		final XanesEdgeCombo elementsAndEdgeCombo = new XanesEdgeCombo(content);
 		elementsAndEdgeCombo.addSelectionChangedListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
 
+		// Energy offset
+		createLabel(content, "Energy Offset (eV)", 0);
+		energyOffsetSpinner = new Spinner(content, SWT.BORDER);
+		energyOffsetSpinner.setMaximum(Integer.MAX_VALUE);
+		energyOffsetSpinner.setMinimum(Integer.MIN_VALUE);
+		energyOffsetSpinner.setDigits(0);
+		energyOffsetSpinner.addModifyListener(e -> handleEdgeSelectionChanged(elementsAndEdgeCombo.getSelection()));
+
+		createLabel(content, "Edge Energy (keV)", 0);
+		edgeEnergyText = new Text(content, SWT.BORDER);
+		edgeEnergyText.setEditable(false);
+
+		Composite composite = createComposite(parent, NUM_COLUMNS, false);
+		GridDataFactory.swtDefaults().applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(NUM_COLUMNS).applyTo(composite);
+		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TRANSPARENT));
+
 		// Lines to track combo box
-		createLabel(content, getMessage(XANES_LINES_TO_TRACK), 1);
-		linesToTrackCombo = new ComboViewer(content);
+		createLabel(composite, getMessage(XANES_LINES_TO_TRACK), 0);
+		linesToTrackCombo = new ComboViewer(composite);
 		linesToTrackCombo.getCombo().setToolTipText(getMessage(XANES_LINES_TO_TRACK_TOOLTIP));
-		GridDataFactory.fillDefaults().hint(80, SWT.DEFAULT).applyTo(linesToTrackCombo.getCombo());
+		GridDataFactory.fillDefaults().indent(7, SWT.NONE).hint(87, SWT.DEFAULT).applyTo(linesToTrackCombo.getCombo());
 
 		linesToTrackCombo.setContentProvider(ArrayContentProvider.getInstance());
 		linesToTrackCombo.setLabelProvider(new LabelProvider() {
@@ -180,9 +204,9 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 		// Radio buttons to choose tracking method (reference/edge)
 		final SelectObservableValue<String> radioButtonObservable = new SelectObservableValue<>();
-		final Button btnUseReference = createRadioButton(content, getMessage(XANES_USE_REFERENCE));
+		final Button btnUseReference = createRadioButton(composite, getMessage(XANES_USE_REFERENCE));
 		radioButtonObservable.addOption(REFERENCE.toString(), WidgetProperties.buttonSelection().observe(btnUseReference));
-		final Button btnUseEdge = createRadioButton(content, getMessage(XANES_USE_EDGE));
+		final Button btnUseEdge = createRadioButton(composite, getMessage(XANES_USE_EDGE));
 		radioButtonObservable.addOption(EDGE.toString(), WidgetProperties.buttonSelection().observe(btnUseEdge));
 
 		// Bind radio buttons to model
@@ -196,7 +220,7 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		}
 
 		// Check box to switch Step -> Points models to prevent floating point issues changing the shape of a scan
-		enforcedShape = createCheckButton(content, getMessage(XANES_ENFORCE_SHAPE));
+		Button enforcedShape = createCheckButton(composite, getMessage(XANES_ENFORCE_SHAPE));
 		enforcedShape.setSelection(true);
 
 		// Bind check box to model
@@ -356,7 +380,10 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 		if (selectedEdge == null) {
 			return;
 		}
-		final IAxialModel scanPathModel = createModelFromEdgeSelection(selectedEdge.getEnergy(), energyScannableName);
+
+		final double edgeEnergy = getEdgeEnergy(selectedEdge.getEnergy());
+		edgeEnergyText.setText(String.valueOf(edgeEnergy));
+		final IAxialModel scanPathModel = createModelFromEdgeSelection(edgeEnergy, energyScannableName);
 
 		final IScanModelWrapper<IAxialModel> energyScannable = getOuterScannable(getBean(), energyScannableName);
 		if (energyScannable != null) {
@@ -365,6 +392,11 @@ public class XanesEdgeParametersSection extends AbstractHideableMappingSection {
 
 		// Refresh outer scannables section to update text box
 		getView().getSection(OuterScannablesSection.class).updateControls();
+	}
+
+	private double getEdgeEnergy(double edgeEnergy) {
+		double energyOffset = Double.parseDouble(energyOffsetSpinner.getText()) / 1000;
+		return roundDouble(edgeEnergy + energyOffset);
 	}
 
 	@Override
