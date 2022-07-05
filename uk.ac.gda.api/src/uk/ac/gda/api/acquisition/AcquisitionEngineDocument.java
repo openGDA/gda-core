@@ -18,6 +18,8 @@
 
 package uk.ac.gda.api.acquisition;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -124,4 +126,22 @@ public class AcquisitionEngineDocument {
 			return new AcquisitionEngineDocument(id, type);
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, type);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AcquisitionEngineDocument other = (AcquisitionEngineDocument) obj;
+		return Objects.equals(id, other.id) && type == other.type;
+	}
+
 }

@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.api.plan;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.UUID;
 
 import uk.ac.diamond.daq.experiment.api.remote.ExecutionPolicy;
 import uk.ac.diamond.daq.experiment.api.remote.SignalSource;
@@ -11,7 +12,7 @@ import uk.ac.diamond.daq.experiment.api.ui.EditableWithListWidget;
 public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest {
 
 	public static final String NAME_PROPERTY = "name";
-	public static final String SCAN_PROPERTY = "scanName";
+	public static final String SCAN_PROPERTY = "scanId";
 	public static final String SOURCE_PROPERTY = "signalSource";
 	public static final String EXECUTION_POLICY_PROPERTY = "executionPolicy";
 	public static final String SEV_PROPERTY = "sampleEnvironmentVariableName";
@@ -29,6 +30,8 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 	}
 
 	private String name;
+
+	private UUID scanId;
 
 	private String scanName;
 
@@ -51,6 +54,17 @@ public class TriggerDescriptor implements EditableWithListWidget, TriggerRequest
 		this.name = name;
 		pcs.firePropertyChange(NAME_PROPERTY, oldName, this.name);
 		pcs.firePropertyChange(REFRESH_PROPERTY, oldName, name);
+	}
+
+	public void setScanId(UUID scanId) {
+		var old = this.scanId;
+		this.scanId = scanId;
+		pcs.firePropertyChange(SCAN_PROPERTY, old, this.scanId);
+	}
+
+	@Override
+	public UUID getScanId() {
+		return scanId;
 	}
 
 	@Override

@@ -117,4 +117,23 @@ public class ScanpathDocument {
 			return new ScanpathDocument(modelDocument, scannableTrackDocuments, mutators);
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(modelDocument, mutators, scannableTrackDocuments);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ScanpathDocument other = (ScanpathDocument) obj;
+		return modelDocument == other.modelDocument && Objects.equals(mutators, other.mutators)
+				&& Objects.equals(scannableTrackDocuments, other.scannableTrackDocuments);
+	}
+
 }

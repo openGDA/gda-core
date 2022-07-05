@@ -18,6 +18,7 @@
 
 package uk.ac.gda.api.acquisition.configuration.calibration;
 
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -144,4 +145,24 @@ public class FlatCalibrationDocument {
 	        		beforeAcquisition, afterAcquisition, position);
 	    }
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(afterAcquisition, beforeAcquisition, detectorDocument, numberExposures, position);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FlatCalibrationDocument other = (FlatCalibrationDocument) obj;
+		return afterAcquisition == other.afterAcquisition && beforeAcquisition == other.beforeAcquisition
+				&& Objects.equals(detectorDocument, other.detectorDocument) && numberExposures == other.numberExposures
+				&& Objects.equals(position, other.position);
+	}
+
 }

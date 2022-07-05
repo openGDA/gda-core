@@ -20,6 +20,7 @@ package uk.ac.diamond.daq.mapping.api.document.base;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
@@ -96,4 +97,25 @@ public class AcquisitionConfigurationBase<T extends AcquisitionParametersBase> i
 	public void setEndPosition(Set<DevicePositionDocument> endPosition) {
 		this.endPosition = endPosition;
 	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(acquisitionParameters, endPosition, imageCalibration, metadata, multipleScans,
+				processingRequest);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		var other = (AcquisitionConfigurationBase<?>) obj;
+		return Objects.equals(acquisitionParameters, other.acquisitionParameters)
+				&& Objects.equals(endPosition, other.endPosition)
+				&& Objects.equals(imageCalibration, other.imageCalibration) && Objects.equals(metadata, other.metadata)
+				&& Objects.equals(multipleScans, other.multipleScans)
+				&& Objects.equals(processingRequest, other.processingRequest);
+	}
+
 }
