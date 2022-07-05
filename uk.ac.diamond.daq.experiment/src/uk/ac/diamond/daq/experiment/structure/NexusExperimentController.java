@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,7 +49,7 @@ import org.springframework.stereotype.Component;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentNodeExistsException;
-import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.gda.core.tool.URLFactory;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.core.tool.spring.ExperimentContextFile;
@@ -96,8 +97,6 @@ public class NexusExperimentController implements ExperimentController {
 	@Autowired
 	private AcquisitionFileContext acquisitionFileContext;
 
-	private NexusExperimentController() {}
-
 	@PostConstruct
 	private void restoreState() {
 		try {
@@ -136,7 +135,6 @@ public class NexusExperimentController implements ExperimentController {
 		while (isMultipartAcquisitionInProgress()) {
 			stopMultipartAcquisition();
 		}
-		closeNode(tree.getActiveNode());
 		setTree(null);
 	}
 
@@ -162,9 +160,13 @@ public class NexusExperimentController implements ExperimentController {
 		ensureExperimentIsRunning();
 		ExperimentNode acquisition = createNode(name, DEFAULT_ACQUISITION_PREFIX, tree.getActiveNode());
 		tree.addChild(acquisition);
+		
+		addLinkToNodeFile(tree.getActiveNode().getLocation(), acquisition.getLocation());
+		
 		if (multipart)
 			tree.moveDown(acquisition.getId());
 		cacheState();
+		
 		return acquisition.getLocation();
 	}
 
@@ -175,7 +177,6 @@ public class NexusExperimentController implements ExperimentController {
 	@Override
 	public void stopMultipartAcquisition() throws ExperimentControllerException {
 		if (isMultipartAcquisitionInProgress()) {
-			closeNode(tree.getActiveNode());
 			tree.moveUp();
 			cacheState();
 		} else {
@@ -252,34 +253,32 @@ public class NexusExperimentController implements ExperimentController {
 			throw new ExperimentControllerException("Experiment is not running");
 		}
 	}
-
-	private NodeFileCreationRequest closeNode(ExperimentNode node) throws ExperimentControllerException {
-		NodeFileCreationRequest job = null;
-		// no need to create a node file if the node is childless
-		if (!node.hasChildren())
-			return job;
-
-		job = createNodeFileCreationRequestJob(node);
-
+	
+	private void addLinkToNodeFile(URL parent, URL child) throws ExperimentControllerException {
+		var job = createNodeFileCreationRequestJob(parent, child);
+		var response = processRequest(job);
+		if (response.getStatus() == Status.FAILED) {
+			logger.error(response.getMessage());
+		}
+	}
+	
+	private NodeInsertionRequest createNodeFileCreationRequestJob(URL parent, URL child) {
+		NodeInsertionRequest job = new NodeInsertionRequest();
+		job.setNodeLocation(parent);
+		job.setChildren(Set.of(child));
+		return job;
+	}
+	
+	private NodeInsertionRequest processRequest(NodeInsertionRequest request) throws ExperimentControllerException {
 		try {
-			job = nodeFileRequesterService.getNodeFileCreationRequestResponse(job);
-			if (job.getStatus() == Status.FAILED) {
-				throw new ExperimentControllerException(job.getMessage());
+			request = nodeFileRequesterService.getNodeFileCreationRequestResponse(request);
+			if (request.getStatus() == Status.FAILED) {
+				throw new ExperimentControllerException(request.getMessage());
 			}
 		} catch (EventException | InterruptedException e) { // NOSONAR please, since we are rethrowing
 			throw new ExperimentControllerException(e);
 		}
-		return job;
-	}
-
-	private NodeFileCreationRequest createNodeFileCreationRequestJob(ExperimentNode node) {
-		NodeFileCreationRequest job = new NodeFileCreationRequest();
-		job.setNodeLocation(node.getLocation());
-		job.setChildren(node.getChildren().stream()
-										.map(tree::getNode)
-										.map(ExperimentNode::getLocation)
-										.collect(Collectors.toSet()));
-		return job;
+		return request;
 	}
 
 	private URL getRootDir() throws ExperimentControllerException {

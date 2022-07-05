@@ -9,10 +9,11 @@ import org.eclipse.scanning.api.event.IdBean;
 import org.eclipse.scanning.api.event.status.Status;
 
 /**
- * A request for the creation of a node file which consists of a single entry
- * composed of links to the given children
+ * A request for inserting URLs in {@link #getChildren()}
+ * as children of node in {@link #getNodeLocation()},
+ * which may or may not already exist.
  */
-public class NodeFileCreationRequest extends IdBean {
+public class NodeInsertionRequest extends IdBean {
 
 	private static final long serialVersionUID = 5720169548682575663L;
 
@@ -80,7 +81,7 @@ public class NodeFileCreationRequest extends IdBean {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NodeFileCreationRequest other = (NodeFileCreationRequest) obj;
+		NodeInsertionRequest other = (NodeInsertionRequest) obj;
 		if (children == null) {
 			if (other.children != null)
 				return false;

@@ -23,11 +23,13 @@ import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 
+import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.scan.IFilePathService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -36,6 +38,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
+import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;
 
@@ -57,6 +60,9 @@ public abstract class NexusExperimentControllerTestBase {
 	@Autowired
 	private ExperimentController controller;
 
+	@Autowired
+	protected NodeFileRequesterService nodeFileRequesterService;
+
 	@Rule
 	public TemporaryFolder testDirectory = new TemporaryFolder();
 
@@ -71,6 +77,13 @@ public abstract class NexusExperimentControllerTestBase {
 		doReturn(testDirectory.newFolder("xml").getAbsolutePath()).when(filePathService).getVisitConfigDir();
 		var sh = new ServiceHolder();
 		sh.setFilePathService(filePathService);
+	}
+
+	@Before
+	public void mockNodeFileRequestResponse() throws Exception {
+		var response = new NodeInsertionRequest();
+		response.setStatus(Status.COMPLETE);
+		doReturn(response).when(nodeFileRequesterService).getNodeFileCreationRequestResponse(ArgumentMatchers.any());
 	}
 
 	protected AcquisitionFileContext getContext() {

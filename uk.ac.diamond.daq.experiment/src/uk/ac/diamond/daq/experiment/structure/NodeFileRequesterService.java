@@ -31,11 +31,11 @@ import org.springframework.stereotype.Service;
 import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.experiment.api.Activator;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
-import uk.ac.diamond.daq.experiment.api.structure.NodeFileCreationRequest;
+import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 
 /**
- * Service through which the {@link ExperimentController} requests the creation of node files
- * at the end of multipart acquisitions and the overall experiment.
+ * Service through which the {@link ExperimentController} requests the insertion of node files
+ * as they are created during the experiment.
  * <p>
  * The ActiveMQ topics through which the requests operate can be modified by setting the properties
  * <ul>
@@ -52,9 +52,9 @@ public class NodeFileRequesterService {
 	@Value("${experiment.structure.job.response.topic:uk.ac.diamond.daq.experiment.structure.job.response.topic}")
 	private String responseTopic;
 
-	private IRequester<NodeFileCreationRequest> nodeFileRequester;
+	private IRequester<NodeInsertionRequest> nodeFileRequester;
 
-	private IRequester<NodeFileCreationRequest> getNodeFileRequester() throws EventException {
+	private IRequester<NodeInsertionRequest> getNodeFileRequester() throws EventException {
 		if (nodeFileRequester == null) {
 			createNodeFileRequester();
 		}
@@ -72,7 +72,7 @@ public class NodeFileRequesterService {
 		}
 	}
 
-	public NodeFileCreationRequest getNodeFileCreationRequestResponse(NodeFileCreationRequest job)
+	public NodeInsertionRequest getNodeFileCreationRequestResponse(NodeInsertionRequest job)
 			throws EventException, InterruptedException {
 		return getNodeFileRequester().post(job);
 	}
