@@ -18,7 +18,10 @@
 
 package uk.ac.gda.ui.tool.document;
 
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,11 +32,13 @@ import org.springframework.stereotype.Component;
 
 import gda.device.DeviceException;
 import gda.factory.Finder;
+import gda.mscan.element.Mutator;
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningParameters;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 import uk.ac.gda.api.acquisition.configuration.ImageCalibration;
 import uk.ac.gda.api.acquisition.configuration.MultipleScans;
@@ -160,7 +165,15 @@ public class DocumentFactory {
 
 	private ScanpathDocument getDefaultScanpathDocument(AcquisitionTemplate template) {
 		AcquisitionTemplateType pathType = getDefaultAcquisitionTemplateType(template);
-		return new ScanpathDocument.Builder().withModelDocument(pathType).withScannableTrackDocuments(template.getDefaultPaths()).build();
+		Map<Mutator, List<Number>> mutators = new EnumMap<>(Mutator.class);
+		if (template.getEngine().getType() == AcquisitionEngineType.MALCOLM) {
+			mutators.putAll(Map.of(Mutator.CONTINUOUS, Collections.emptyList()));
+		}
+		return new ScanpathDocument.Builder()
+				.withModelDocument(pathType)
+				.withScannableTrackDocuments(template.getDefaultPaths())
+				.withMutators(mutators)
+				.build();
 	}
 
 	private AcquisitionTemplateType getDefaultAcquisitionTemplateType(AcquisitionTemplate template) {
