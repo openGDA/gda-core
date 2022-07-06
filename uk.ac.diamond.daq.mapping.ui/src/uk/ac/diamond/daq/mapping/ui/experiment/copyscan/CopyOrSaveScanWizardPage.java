@@ -92,7 +92,7 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	 * Multi-line text box to display the class that is generated.<br>
 	 * This can be selected & copied - though it has already been copied to the clipboard anyway.
 	 */
-	private Text classText;
+	private Text scanCommandText;
 
 	protected CopyOrSaveScanWizardPage(ScanBean scanBean, CopyScanConfig config) {
 		super(CopyOrSaveScanWizardPage.class.getSimpleName());
@@ -107,10 +107,10 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(mainComposite);
 
-		classText = new Text(mainComposite, SWT.READ_ONLY | SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-		GridDataFactory.fillDefaults().hint(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT).grab(true, true).applyTo(classText);
-		classText.setFont(JFaceResources.getTextFont());
-		classText.setTabs(4);
+		scanCommandText = new Text(mainComposite, SWT.READ_ONLY | SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+		GridDataFactory.fillDefaults().hint(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT).grab(true, true).applyTo(scanCommandText);
+		scanCommandText.setFont(JFaceResources.getTextFont());
+		scanCommandText.setTabs(4);
 
 		final Button saveButton = createClientButton(mainComposite, SWT.PUSH, SAVE, SAVE);
 		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(saveButton);
@@ -137,7 +137,7 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 			clipboard.setContents(new Object[] { scanCommand }, new Transfer[] { TextTransfer.getInstance() });
 			clipboard.dispose();
 
-			classText.setText(scanCommand);
+			scanCommandText.setText(scanCommand);
 		} catch (Exception e) {
 			logger.error("Copy to clipboard failed.", e);
 			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error Copying Scan Command",
@@ -195,7 +195,7 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 			}
 		}
 		try (BufferedWriter outFile = new BufferedWriter(new FileWriter(file))) {
-			outFile.write(classText.getText());
+			outFile.write(scanCommandText.getText());
 			config.setLastSaveLocation(file.getParentFile());
 		} catch (IOException e) {
 			MessageDialog.openError(getShell(),
