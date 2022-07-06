@@ -7,3 +7,4 @@ Automatic-Module-Name: uk.ac.diamond.daq.gasrig.api
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: uk.ac.diamond.daq.gasrig.api
 Require-Bundle: uk.ac.gda.core
+Import-Package: gda.observable

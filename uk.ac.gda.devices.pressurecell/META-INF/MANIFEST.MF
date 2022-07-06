@@ -8,7 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: uk.ac.gda.devices.pressurecell
 Require-Bundle: uk.ac.gda.core;bundle-version="9.20.0",
  uk.ac.gda.epics
-Import-Package: org.slf4j
+Import-Package: gda.observable,
+ org.slf4j
 Export-Package: uk.ac.gda.devices.pressurecell,
  uk.ac.gda.devices.pressurecell.controller,
  uk.ac.gda.devices.pressurecell.controller.dummy,
