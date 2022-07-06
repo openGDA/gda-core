@@ -122,7 +122,7 @@ class Config(tk.Tk):
         os.environ['BEAMLINE'] = self.beamline
         profiles = ','.join(self.selected)
         logger.debug('Launching with %s', profiles)
-        option = ' --springprofiles=' + profiles
+        option = ' --springprofiles ' + profiles
         os.system(COMMAND + option)
         self.quit()
 
