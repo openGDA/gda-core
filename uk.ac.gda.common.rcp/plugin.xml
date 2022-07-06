@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="uk.ac.common.beans.factory" name="XML Beans" schema="schema/uk.ac.common.beans.factory.exsd"/>
+   <extension-point id="uk.ac.common.doe.beans" name="DOE Beans Provider" schema="schema/uk.ac.common.doe.beans.exsd"/>
+   <extension-point id="uk.ac.gda.common.path.constructor" name="Path Constructor" schema="schema/uk.ac.gda.common.path.constructor.exsd"/>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.gda.richbeans.examples.ExampleEditor"
+            default="true"
+            icon="icons/ParametersEditorIcon.png"
+            id="org.diamond.ui.examples.ExampleEditor"
+            name="Example Parameters">
+         <contentTypeBinding
+               contentTypeId="org.diamond.ui.examples.getExampleContent">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.richbeans.examples.ExampleDescriber"
+            file-extensions="xml"
+            id="org.diamond.ui.examples.getExampleContent"
+            name="name"
+            priority="high">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.gda.client.general.category"
+            name="Data Acquisition - General">
+      </category>
+      <view
+            category="uk.ac.gda.client.general.category"
+            class="uk.ac.gda.ui.doe.DOEView"
+            icon="icons/table_multiple.png"
+            id="uk.ac.gda.ui.doe.DOEView"
+            name="Design of Experiments">
+      </view>
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.gda.ui.doe.RefreshDOEHandler"
+            id="uk.ac.gda.common.rcp.refreshDOE"
+            name="Refresh">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.ui.doe.DOEView">
+         <command
+               commandId="uk.ac.gda.common.rcp.refreshDOE"
+               icon="icons/page_refresh.png"
+               label="Refresh"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+</plugin>
