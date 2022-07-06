@@ -51,6 +51,7 @@ public class ExperimentTreeCacheTest {
 	private IFilePathService filePathService;
 
 	private static final String EXPERIMENT_NAME = "GaN crystallinity";
+	private static final String NODE_NAME = "Diffraction";
 
 	@Before
 	public void setup() {
@@ -73,7 +74,7 @@ public class ExperimentTreeCacheTest {
 
 	@Test
 	public void singleNodeExperiment() throws IOException {
-		ExperimentTree tree = buildTree(EXPERIMENT_NAME, new ExperimentNode(getUrl("data/experiment"), null));
+		ExperimentTree tree = buildTree(EXPERIMENT_NAME, new ExperimentNode(NODE_NAME, getUrl("data/experiment"), null));
 		test(tree);
 	}
 
@@ -85,20 +86,20 @@ public class ExperimentTreeCacheTest {
 
 	@Test
 	public void singleLevelChildren() throws IOException {
-		ExperimentTree tree = buildTree(EXPERIMENT_NAME, new ExperimentNode(getUrl("data/experiment"), null));
-		tree.addChild(new ExperimentNode(getUrl("data/experiment/acq1"), tree.getActiveNode().getId()));
-		tree.addChild(new ExperimentNode(getUrl("data/experiment/acq2"), tree.getActiveNode().getId()));
+		ExperimentTree tree = buildTree(EXPERIMENT_NAME, new ExperimentNode(NODE_NAME, getUrl("data/experiment"), null));
+		tree.addChild(new ExperimentNode(NODE_NAME, getUrl("data/experiment/acq1"), tree.getActiveNode().getId()));
+		tree.addChild(new ExperimentNode(NODE_NAME, getUrl("data/experiment/acq2"), tree.getActiveNode().getId()));
 
 		test(tree);
 	}
 
 	@Test
 	public void multiLevelChildren() throws ExperimentControllerException, IOException {
-		ExperimentTree tree = buildTree(EXPERIMENT_NAME, new ExperimentNode(getUrl("data/experiment"), null));
-		ExperimentNode pointAndShoot = new ExperimentNode(getUrl("data/experiment/pointAndShoot"), tree.getActiveNode().getId());
+		ExperimentTree tree = buildTree(EXPERIMENT_NAME, new ExperimentNode(NODE_NAME, getUrl("data/experiment"), null));
+		ExperimentNode pointAndShoot = new ExperimentNode(NODE_NAME, getUrl("data/experiment/pointAndShoot"), tree.getActiveNode().getId());
 		tree.addChild(pointAndShoot);
 		tree.moveDown(pointAndShoot.getId());
-		tree.addChild(new ExperimentNode(getUrl("data/experiment/pointAndShoot/subAcquisition"), pointAndShoot.getId()));
+		tree.addChild(new ExperimentNode(NODE_NAME, getUrl("data/experiment/pointAndShoot/subAcquisition"), pointAndShoot.getId()));
 
 		test(tree);
 	}

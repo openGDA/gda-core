@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -92,6 +93,14 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 		assertTrue(urlsAtSameLevel(acq1, acq2));
 	}
 
+	@Test
+	public void acquisitionUrlsCreatedViaFilePathService() throws Exception {
+		getController().startExperiment(EXPERIMENT_NAME);
+		URL expectedUrl = Paths.get(filePathService.getNextPath(null)).toUri().toURL();
+		URL acquisition = getController().prepareAcquisition(ACQUISITION_NAME);
+		assertThat(acquisition, is(equalTo(expectedUrl)));
+	}
+
 	/**
 	 * Test that two urls have the same parent node in tree
 	 */
@@ -108,31 +117,12 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	}
 
 	@Test
-	public void multiPartAcquisitionCreatesSubNode() throws Exception {
-		getController().startExperiment(EXPERIMENT_NAME);
-		URL standardAcquisition = getController().prepareAcquisition(ACQUISITION_NAME);
-
-		var pointAndShootName = "Point And Shoot";
-
-		URL pointAndShoot = getController().startMultipartAcquisition(pointAndShootName);
-		URL child1 = getController().prepareAcquisition(pointAndShootName);
-		URL child2 = getController().prepareAcquisition(pointAndShootName);
-
-		assertTrue(urlsAtSameLevel(standardAcquisition, pointAndShoot));
-		assertTrue(urlsAtSameLevel(child1, child2));
-
-		assertTrue(isParent(pointAndShoot, child1));
-	}
-
-	@Test
 	public void supportForMultiLevelMultiPartAcquisitions() throws Exception {
 		getController().startExperiment(EXPERIMENT_NAME);
 		URL firstLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
 		URL secondLevel = getController().startMultipartAcquisition(ACQUISITION_NAME);
-		URL secondLevelPart = getController().prepareAcquisition(ACQUISITION_NAME);
 
 		assertTrue(isParent(firstLevel, secondLevel));
-		assertTrue(isParent(secondLevel, secondLevelPart));
 	}
 
 	private boolean isParent(URL parentFile, URL childFile) {
@@ -156,29 +146,15 @@ public class NexusExperimentControllerTest extends NexusExperimentControllerTest
 	}
 
 	@Test
-	public void acquisitionNameFoundInUrl() throws ExperimentControllerException {
-		getController().startExperiment(EXPERIMENT_NAME);
-		var acquisitionUrl = getController().prepareAcquisition(ACQUISITION_NAME);
-		assertThat(acquisitionUrl.getFile(), containsString(ACQUISITION_NAME));
-	}
-
-	@Test
-	public void nullAcquisitionNameReplacedByDefaultPrefix() throws ExperimentControllerException {
-		getController().startExperiment(EXPERIMENT_NAME);
-		URL acquisitionFolder = getController().prepareAcquisition(null);
-		assertThat(acquisitionFolder.getFile(), containsString(NexusExperimentController.DEFAULT_ACQUISITION_PREFIX));
-	}
-
-	@Test
 	public void nonAlphaNumericCharactersReplaced() throws ExperimentControllerException {
 		URL experimentFolder = getController().startExperiment("$my experiment &");
 		assertThat(experimentFolder.getFile(), containsString("MyExperiment"));
 	}
 
-	@Test(expected = ExperimentControllerException.class)
+	@Test
 	public void createsTwoExperimentSoThrowException() throws ExperimentControllerException {
 		getController().startExperiment(null);
-		getController().startExperiment(null);
+		assertThrows(ExperimentControllerException.class, () -> getController().startExperiment(null));
 	}
 
 	@Test(expected = ExperimentControllerException.class)

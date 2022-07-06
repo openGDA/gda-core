@@ -24,10 +24,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
+import java.util.Map;
 
 import org.eclipse.dawnsci.nexus.NexusException;
-import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.core.IPublisher;
@@ -68,7 +67,7 @@ public class NodeFileCreator implements IRequestHandler<NodeInsertionRequest> {
 		return request;
 	}
 
-	private void handleRequest(URL file, Set<URL> children) {
+	private void handleRequest(URL file, Map<String, URL> children) {
 		
 		if (children.isEmpty()) {
 			getBean().setMessage("Nothing to link; won't do anything");
@@ -82,8 +81,8 @@ public class NodeFileCreator implements IRequestHandler<NodeInsertionRequest> {
 			getParentDirectory(file.getPath()).mkdirs();
 			nexus.openToWrite(true);
 			
-			for (var child : children) {
-				nexus.linkExternal(getRelativeURI(file, child), getDestinationNodePath(child), true);
+			for (var child : children.entrySet()) {
+				nexus.linkExternal(getRelativeURI(file, child.getValue()), getDestinationNodePath(child.getKey()), true);
 			}
 			
 			nexus.flush();
@@ -114,8 +113,8 @@ public class NodeFileCreator implements IRequestHandler<NodeInsertionRequest> {
 		return parentDirectory.relativize(child).toString();
 	}
 
-	private String getDestinationNodePath(URL location) {
-		return "/entry/" + NexusUtils.getName(location.getPath());
+	private String getDestinationNodePath(String childName) {
+		return "/entry/" + childName;
 	}
 
 	@Override

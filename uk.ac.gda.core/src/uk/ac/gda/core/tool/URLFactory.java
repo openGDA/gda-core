@@ -23,23 +23,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringUtils;
 
 public class URLFactory {
-	private NameHelper nameHelper = new NameHelper();
 
 	/**
-	 * Generates a unique file URL based on the given root
+	 * Generates a file URL based on the given root
 	 */
-	public URL generateFormattedNameFile(URL root, String name, String defaultName, String fileExtension, DateFormat format) throws MalformedURLException {
-		String safeName = nameHelper.appendToFormattedDate(format, nameHelper.makeUrlSafe(name, defaultName));
-		return generateUrl(root, safeName, formatFileName(safeName, fileExtension));
+	public URL generateFileUrl(URL root, String name, String fileExtension) throws MalformedURLException {
+		return generateUrl(root, name, appendExtension(name, fileExtension));
 	}
 
 	/** With absolute path */
@@ -67,34 +58,9 @@ public class URLFactory {
 		}
 	}
 
-	private String formatFileName(String name, String extension) {
+	private String appendExtension(String name, String extension) {
 		extension = extension.startsWith(".") ? extension : "." + extension;
 		return name + extension;
-	}
-
-
-	private static class NameHelper {
-		private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
-
-		public String makeUrlSafe(String rawName, String defaultName) {
-			String value = StringUtils.isNotBlank(rawName) ? rawName : defaultName;
-			String alphaNumericOnly = INVALID_CHARACTERS_PATTERN.matcher(value).replaceAll(" ");
-			return Arrays.stream(alphaNumericOnly.split(" "))
-				.map(String::trim)
-				.filter(word -> !word.isEmpty())
-				.map(this::capitalise)
-				.collect(Collectors.joining());
-		}
-
-		public String appendToFormattedDate(DateFormat format, String name) {
-			return format.format(new Date()) + "_" + name;
-		}
-
-		private String capitalise(String word) {
-			String initial = word.substring(0, 1);
-			return word.replaceFirst(initial, initial.toUpperCase());
-		}
-
 	}
 
 }

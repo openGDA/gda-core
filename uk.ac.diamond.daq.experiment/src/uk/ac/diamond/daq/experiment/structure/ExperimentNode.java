@@ -2,6 +2,7 @@ package uk.ac.diamond.daq.experiment.structure;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,16 +17,18 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class ExperimentNode {
 
 	private UUID id;
+	private String name;
 	private URL location;
 	private UUID parent;
 	private Set<UUID> children;
 
-	public ExperimentNode(URL location, UUID parent) {
-		this(UUID.randomUUID(), location, parent, new HashSet<>());
+	public ExperimentNode(String name, URL location, UUID parent) {
+		this(UUID.randomUUID(), name, location, parent, new HashSet<>());
 	}
 
-	private ExperimentNode(UUID id, URL location, UUID parent, Set<UUID> children) {
+	private ExperimentNode(UUID id, String name, URL location, UUID parent, Set<UUID> children) {
 		this.id = id;
+		this.name = name;
 		this.location = location;
 		this.parent = parent;
 		this.children = children;
@@ -47,6 +50,10 @@ public class ExperimentNode {
 	public UUID getId() {
 		return id;
 	}
+	
+	public String getName() {
+		return name;
+	}
 
 	public URL getLocation() {
 		return location;
@@ -63,6 +70,7 @@ public class ExperimentNode {
 	@JsonPOJOBuilder
 	public static class Builder {
 		private UUID id;
+		private String name;
 		private UUID parent;
 		private URL location;
 		private Set<UUID> children;
@@ -74,6 +82,11 @@ public class ExperimentNode {
 
 		Builder withParentId(UUID parentId) {
 			this.parent = parentId;
+			return this;
+		}
+		
+		Builder withName(String name) {
+			this.name = name;
 			return this;
 		}
 
@@ -88,20 +101,14 @@ public class ExperimentNode {
 		}
 
 		public ExperimentNode build() {
-			return new ExperimentNode(id, location, parent, children);
+			return new ExperimentNode(id, name, location, parent, children);
 		}
 
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((children == null) ? 0 : children.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((location == null) ? 0 : location.hashCode());
-		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
-		return result;
+		return Objects.hash(children, id, location, name, parent);
 	}
 
 	@Override
@@ -113,27 +120,9 @@ public class ExperimentNode {
 		if (getClass() != obj.getClass())
 			return false;
 		ExperimentNode other = (ExperimentNode) obj;
-		if (children == null) {
-			if (other.children != null)
-				return false;
-		} else if (!children.equals(other.children))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (location == null) {
-			if (other.location != null)
-				return false;
-		} else if (!location.equals(other.location))
-			return false;
-		if (parent == null) {
-			if (other.parent != null)
-				return false;
-		} else if (!parent.equals(other.parent))
-			return false;
-		return true;
+		return Objects.equals(children, other.children) && Objects.equals(id, other.id)
+				&& Objects.equals(location, other.location) && Objects.equals(name, other.name)
+				&& Objects.equals(parent, other.parent);
 	}
 
 }

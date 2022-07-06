@@ -21,13 +21,13 @@ package uk.ac.diamond.daq.experiment.structure;
 import static gda.configuration.properties.LocalProperties.GDA_CONFIG;
 import static gda.configuration.properties.LocalProperties.GDA_PROPERTIES_FILE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.net.URL;
-import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,7 +58,23 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 		NodeInsertionRequest job = jobCaptor.getValue();
 
 		assertThat(job.getNodeLocation(), is(equalTo(experimentRoot)));
-		assertThat(job.getChildren(), is(equalTo(Set.of(acquisitionUrl))));
+		assertThat(job.getChildren().size(), is(1));
+		var child = job.getChildren().entrySet().iterator().next();
+		assertThat(child.getKey(), containsString(ACQUISITION_NAME));
+		assertThat(child.getValue(), is(equalTo(acquisitionUrl)));
+	}
+
+	@Test
+	public void nullAcquisitionNameReplacedByDefaultPrefix() throws Exception {
+		getController().startExperiment(EXPERIMENT_NAME);
+		getController().prepareAcquisition(null);
+
+		verify(nodeFileRequesterService).getNodeFileCreationRequestResponse(jobCaptor.capture());
+		NodeInsertionRequest job = jobCaptor.getValue();
+
+		assertThat(job.getChildren().size(), is(1));
+		var child = job.getChildren().entrySet().iterator().next();
+		assertThat(child.getKey(), containsString(NexusExperimentController.DEFAULT_ACQUISITION_PREFIX));
 	}
 
 	@Test
@@ -72,7 +88,10 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 		NodeInsertionRequest job = jobCaptor.getValue();
 
 		assertThat(job.getNodeLocation(), is(equalTo(experimentUrl)));
-		assertThat(job.getChildren(), is(equalTo(Set.of(multipartUrl))));
+		assertThat(job.getChildren().size(), is(1));
+		var child = job.getChildren().entrySet().iterator().next();
+		assertThat(child.getKey(), containsString(ACQUISITION_NAME));
+		assertThat(child.getValue(), is(equalTo(multipartUrl)));
 	}
 
 	@Test
@@ -96,8 +115,24 @@ public class NexusExperimentControllerNodeFileRequestTest extends NexusExperimen
 		verifyRequest(jobCaptor.getAllValues().get(2), multipartAcquisitionUrl, scan2Url);
 	}
 
+	@Test
+	public void testTreeAfterStoppingMultipartAcquisition() throws Exception {
+		var experimentUrl = getController().startExperiment(EXPERIMENT_NAME);
+
+		getController().startMultipartAcquisition(ACQUISITION_NAME);
+		getController().prepareAcquisition(ACQUISITION_NAME+1);
+		getController().stopMultipartAcquisition();
+		var scan2Url = getController().prepareAcquisition(ACQUISITION_NAME+2);
+
+		verify(nodeFileRequesterService, times(3)).getNodeFileCreationRequestResponse(jobCaptor.capture());
+		/* first two requests identical to those in eachAcquisitionWithinMultipartAcquisitionTriggersRequest()
+		   but scan2 is child of experiment */
+		verifyRequest(jobCaptor.getAllValues().get(2), experimentUrl, scan2Url);
+	}
+
 	private void verifyRequest(NodeInsertionRequest request, URL parent, URL child) {
 		assertThat(request.getNodeLocation(), is(equalTo(parent)));
-		assertThat(request.getChildren(), is(equalTo(Set.of(child))));
+		assertThat(request.getChildren().values().iterator().next(), is(equalTo(child)));
 	}
+
 }

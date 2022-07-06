@@ -21,24 +21,20 @@ package uk.ac.diamond.daq.experiment.structure;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.status.Status;
 import org.slf4j.Logger;
@@ -46,9 +42,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import gda.data.NumTracker;
+import gda.data.ServiceHolder;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
-import uk.ac.diamond.daq.experiment.api.structure.ExperimentNodeExistsException;
 import uk.ac.diamond.daq.experiment.api.structure.NodeInsertionRequest;
 import uk.ac.gda.core.tool.URLFactory;
 import uk.ac.gda.core.tool.spring.AcquisitionFileContext;
@@ -76,10 +73,6 @@ public class NexusExperimentController implements ExperimentController {
 
 	private static final String FILE_EXTENSION = "nxs";
 
-	public final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-	public final SimpleDateFormat daytimeFormat = new SimpleDateFormat("DDHHmmss");
-
-
 	/** Represents all the acquisitions within the experiment as a tree data structure */
 	private ExperimentTree tree;
 
@@ -89,7 +82,9 @@ public class NexusExperimentController implements ExperimentController {
 
 	/** Used to generate URLs in a consistent fashion */
 	private URLFactory urlFactory = new URLFactory();
-
+	
+	private SafeUniqueNameGenerator nameGenerator = new SafeUniqueNameGenerator();
+	
 	/** Creates node NeXus files for the experiment and for multipart acquisitions */
 	@Autowired
 	private NodeFileRequesterService nodeFileRequesterService;
@@ -114,7 +109,7 @@ public class NexusExperimentController implements ExperimentController {
 
 		setTree(new ExperimentTree.Builder()
 					.withExperimentName(experimentName)
-					.withActiveNode(createNode(experimentName, DEFAULT_EXPERIMENT_PREFIX))
+					.withActiveNode(createNode(experimentName, null, false))
 					.build());
 		return tree.getActiveNode().getLocation();
 	}
@@ -158,15 +153,18 @@ public class NexusExperimentController implements ExperimentController {
 	 */
 	private URL prepareAcquisition(String name, boolean multipart) throws ExperimentControllerException {
 		ensureExperimentIsRunning();
-		ExperimentNode acquisition = createNode(name, DEFAULT_ACQUISITION_PREFIX, tree.getActiveNode());
+		
+		var parent = tree.getActiveNode();
+		var acquisition = createNode(name, parent, multipart);
+		
 		tree.addChild(acquisition);
 		
-		addLinkToNodeFile(tree.getActiveNode().getLocation(), acquisition.getLocation());
-		
-		if (multipart)
+		if (multipart) {
 			tree.moveDown(acquisition.getId());
-		cacheState();
+		}
 		
+		addLinkToNodeFile(parent.getLocation(), acquisition.getName(), acquisition.getLocation());
+		cacheState();
 		return acquisition.getLocation();
 	}
 
@@ -208,44 +206,37 @@ public class NexusExperimentController implements ExperimentController {
 	}
 	
 	/**
-	 * Creates the root node.
-	 *
-	 * @param name
-	 * @param defaultName
+	 * @param name Will be formatted and made unique
+	 * @param parent {@code null} for root node
+	 * @param multipart {@code true} if node will have children
 	 * @return
-	 * @throws ExperimentControllerException if the experiment cannot be created
-	 * @throws ExperimentNodeExistsException if the experiment node already exists
+	 * @throws ExperimentControllerException
 	 */
-	private ExperimentNode createNode(String name, String defaultName) throws ExperimentControllerException {
+	private ExperimentNode createNode(String name, ExperimentNode parent, boolean multipart) throws ExperimentControllerException {
 		try {
-			URL url = getNodeUrl(getRootDir(), name, defaultName, dateFormat);
-			if (Files.exists(Paths.get(url.toURI()).getParent(), LinkOption.NOFOLLOW_LINKS)) {
-				throw new ExperimentNodeExistsException("Already exists an experiment with the same name");
+			if (parent == null) {
+				return createInternalNode(getRootDir(), name, DEFAULT_EXPERIMENT_PREFIX, null);
+			} else if (multipart) {
+				var root = urlFactory.getParent(parent.getLocation());
+				return createInternalNode(root, name, DEFAULT_ACQUISITION_PREFIX, parent.getId());
+			} else {
+				return createLeafNode(name, DEFAULT_ACQUISITION_PREFIX, parent.getId());
 			}
-			return createNode(url, null);
-		} catch (MalformedURLException e) {
-			throw new ExperimentControllerException("Could not create experiment node", e);
-		} catch (URISyntaxException e) {
-			logger.error("Cannot transform URL to URI", e);
-		}
-		return null;
-	}
-
-	private ExperimentNode createNode(String name, String defaultName, ExperimentNode parent) throws ExperimentControllerException {
-		try {
-			URL url = getNodeUrl(urlFactory.getParent(parent.getLocation()), name, defaultName, daytimeFormat);
-			return createNode(url, parent.getId());
-		} catch (MalformedURLException e) {
-			throw new ExperimentControllerException("Could not create experiment node", e);
+		} catch (Exception e) {
+			throw new ExperimentControllerException("Error creating experiment node", e);
 		}
 	}
-
-	private URL getNodeUrl(URL root, String name, String defaultName, DateFormat format) throws MalformedURLException {
-		return urlFactory.generateFormattedNameFile(root, name, defaultName, FILE_EXTENSION, format);
+	
+	private ExperimentNode createInternalNode(URL root, String name, String defaultName, UUID parentId) throws Exception {
+		var safeUniqueName = nameGenerator.safeUniqueName(name, defaultName);
+		URL location = urlFactory.generateFileUrl(root, safeUniqueName, FILE_EXTENSION);
+		return new ExperimentNode(safeUniqueName, location, parentId);
 	}
-
-	private ExperimentNode createNode(URL location, UUID parentId) {
-		return new ExperimentNode(location, parentId);
+	
+	private ExperimentNode createLeafNode(String name, String defaultName, UUID parentId) throws Exception {
+			URL url = urlFactory.generateUrl(ServiceHolder.getFilePathService().getNextPath(null));
+			String safeUniqueName = nameGenerator.safeUniqueName(name, defaultName, ServiceHolder.getFilePathService().getScanNumber());
+			return new ExperimentNode(safeUniqueName, url, parentId);
 	}
 
 	private void ensureExperimentIsRunning() throws ExperimentControllerException {
@@ -254,18 +245,15 @@ public class NexusExperimentController implements ExperimentController {
 		}
 	}
 	
-	private void addLinkToNodeFile(URL parent, URL child) throws ExperimentControllerException {
-		var job = createNodeFileCreationRequestJob(parent, child);
-		var response = processRequest(job);
-		if (response.getStatus() == Status.FAILED) {
-			logger.error(response.getMessage());
-		}
+	private void addLinkToNodeFile(URL parent, String childName, URL childLocation) throws ExperimentControllerException {
+		var job = createNodeFileCreationRequestJob(parent, childName, childLocation);
+		processRequest(job);
 	}
 	
-	private NodeInsertionRequest createNodeFileCreationRequestJob(URL parent, URL child) {
+	private NodeInsertionRequest createNodeFileCreationRequestJob(URL parent, String childName, URL childLocation) {
 		NodeInsertionRequest job = new NodeInsertionRequest();
 		job.setNodeLocation(parent);
-		job.setChildren(Set.of(child));
+		job.setChildren(Map.of(childName, childLocation));
 		return job;
 	}
 	
@@ -275,15 +263,18 @@ public class NexusExperimentController implements ExperimentController {
 			if (request.getStatus() == Status.FAILED) {
 				throw new ExperimentControllerException(request.getMessage());
 			}
-		} catch (EventException | InterruptedException e) { // NOSONAR please, since we are rethrowing
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ExperimentControllerException(e);
+		} catch (EventException e) { 
 			throw new ExperimentControllerException(e);
 		}
 		return request;
 	}
 
 	private URL getRootDir() throws ExperimentControllerException {
-		if (getAcquisitionFileContext() != null) {
-			return getAcquisitionFileContext().getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
+		if (acquisitionFileContext != null) {
+			return acquisitionFileContext.getExperimentContext().getContextFile(ExperimentContextFile.EXPERIMENTS_DIRECTORY);
 		}
 		throw new ExperimentControllerException("GDAContext not available");
 	}
@@ -295,8 +286,62 @@ public class NexusExperimentController implements ExperimentController {
 			logger.error("Could not cache experiment state", e);
 		}
 	}
+	
+	/**
+	 * Safe means replacing any non-alphanumeric characters with a safe character.
+	 * Unique just means appending a unique* integer to a name to prevent file overwriting.
+	 * 
+	 * <p>
+	 * *{@link #safeUniqueName(String, String)} uses an internal {@link NumTracker};
+	 * {@link #safeUniqueName(String, String, int)} assumes the caller can guarantee of uniqueness of the {@code int}
+	 */
+	private static class SafeUniqueNameGenerator {
+		private static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9\\.\\-\\_]");
+		
+		/**
+		 * Lazily initialised; call via {@link #getNumTracker()}
+		 */
+		private NumTracker internalNumTracker;
+		
+		private NumTracker getNumTracker() throws IOException {
+			if (internalNumTracker == null) {
+				var persistenceDir = ServiceHolder.getFilePathService().getPersistenceDir();
+				internalNumTracker = new NumTracker(NexusExperimentController.class.getName() + "_numtracker", persistenceDir);
+			}
+			return internalNumTracker;
+		}
+		
+		/**
+		 * Internal logic to guarantee uniqueness
+		 */
+		public String safeUniqueName(String rawName, String defaultName) throws IOException {
+			return uniqueName(safeName(rawName, defaultName), getNumTracker().incrementNumber());
+		}
+		
+		/**
+		 * Caller responsible for providing unique {@code int}
+		 */
+		public String safeUniqueName(String rawName, String defaultName, int suffix) {
+			return uniqueName(safeName(rawName, defaultName), suffix);
+		}
+		
+		private String safeName(String rawName, String defaultName) {
+			String value = StringUtils.isNotBlank(rawName) ? rawName : defaultName;
+			String alphaNumericOnly = INVALID_CHARACTERS_PATTERN.matcher(value).replaceAll(" ");
+			return Arrays.stream(alphaNumericOnly.split(" "))
+				.map(String::trim)
+				.filter(word -> !word.isEmpty())
+				.map(this::capitalise)
+				.collect(Collectors.joining());
+		}
+		
+		private String uniqueName(String name, int suffix) {
+			return String.format("%s-%d", name, suffix);
+		}
 
-	private AcquisitionFileContext getAcquisitionFileContext() {
-		return acquisitionFileContext;
+		private String capitalise(String word) {
+			String initial = word.substring(0, 1);
+			return word.replaceFirst(initial, initial.toUpperCase());
+		}
 	}
 }
