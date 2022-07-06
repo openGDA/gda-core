@@ -9,7 +9,8 @@ Bundle-Vendor: Diamond Light Source Ltd
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .
 Require-Bundle: uk.ac.gda.core;bundle-version="8.50.0"
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
+Import-Package: gda.observable,
+ org.slf4j;version="[1.7.2,2.0.0)"
 Export-Package: gda.example.scriptcontroller.logging,
  gda.org.myls,
  gda.org.myls.powersupply,

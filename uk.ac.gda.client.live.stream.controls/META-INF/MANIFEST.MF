@@ -28,6 +28,7 @@ Export-Package: uk.ac.gda.client.live.stream.controls,
  uk.ac.gda.client.live.stream.controls.utils
 Import-Package: com.swtdesigner,
  gda.configuration.properties,
+ gda.observable,
  org.eclipse.dawnsci.analysis.api.roi,
  org.eclipse.dawnsci.analysis.dataset.roi,
  org.eclipse.dawnsci.plotting.api.region,
