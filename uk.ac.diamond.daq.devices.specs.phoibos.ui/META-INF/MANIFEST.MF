@@ -28,6 +28,7 @@ Require-Bundle: org.eclipse.swt;bundle-version="3.104.2",
  uk.ac.gda.epics
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: gda.configuration.properties,
+ gda.observable,
  javax.annotation;version="1.0.0";resolution:=optional,
  javax.inject;version="1.0.0",
  org.eclipse.e4.core.contexts,
