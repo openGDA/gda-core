@@ -28,6 +28,7 @@ import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
 import gda.device.Scannable;
+import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
@@ -51,25 +52,37 @@ public class PositionerDeterminedScannable extends ScannableBase {
 	 */
 	private final IObserver updatesForwarding = (source, argument) -> notifyIObservers(this, argument);
 
-	public PositionerDeterminedScannable(EnumPositioner selector, Map<String, Scannable> delegates) throws DeviceException {
+	public PositionerDeterminedScannable(EnumPositioner selector, Map<String, Scannable> delegates) {
+		this.selector = Objects.requireNonNull(selector);
+		this.delegates = Objects.requireNonNull(delegates);
+	}
+
+	@Override
+	public void configure() throws FactoryException {
+		if (!selector.isConfigured()) {
+			selector.configure();
+		}
+
 		validate(selector, delegates);
-		this.selector = selector;
-		this.delegates = delegates;
 
 		// select initial delegate
 		refreshDelegateScannable();
 
 		// trigger delegate selection when selector completes a move
 		this.selector.addIObserver(this::refreshDelegateScannable);
+
+		setConfigured(true);
 	}
 
-	private void validate(EnumPositioner selector, Map<String, Scannable> delegates) throws DeviceException {
-		Objects.requireNonNull(selector);
-		Objects.requireNonNull(delegates);
-		for (var position : selector.getPositions()) {
-			if (!delegates.containsKey(position)) {
-				throw new DeviceException("Missing delegate scannable for position '{}'", position);
+	private void validate(EnumPositioner selector, Map<String, Scannable> delegates) throws FactoryException {
+		try {
+			for (var position : selector.getPositions()) {
+				if (!delegates.containsKey(position)) {
+					throw new FactoryException(String.format("Missing delegate scannable for position '%s'", position));
+				}
 			}
+		} catch (DeviceException e) {
+			throw new FactoryException("Error reading EnumPositioner positions", e);
 		}
 	}
 
