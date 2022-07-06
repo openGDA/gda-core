@@ -29,7 +29,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_GENER
 import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.CONFIGURE;
 import static org.eclipse.scanning.api.malcolm.connector.MalcolmMethod.PAUSE;
 import static org.eclipse.scanning.connector.epics.EpicsConnectionConstants.TYPE_ID_TABLE;
-import static org.eclipse.scanning.malcolm.core.MalcolmDevice.ATTRIBUTE_NAME_COMPLETED_STEPS;
+import static org.eclipse.scanning.malcolm.core.MalcolmDevice.ATTRIBUTE_NAME_LAST_GOOD_STEP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -299,9 +299,9 @@ public class ExampleMalcolmDeviceTest {
 
 		// Check the 'seek' call is as expected
 		Structure expectedSeekStructure = FieldFactory.getFieldCreate().createFieldBuilder()
-				.add(ATTRIBUTE_NAME_COMPLETED_STEPS, ScalarType.pvInt).createStructure();
+				.add(ATTRIBUTE_NAME_LAST_GOOD_STEP, ScalarType.pvInt).createStructure();
 		PVStructure expectedSeekPVStructure = PVDataFactory.getPVDataCreate().createPVStructure(expectedSeekStructure);
-		expectedSeekPVStructure.getIntField(ATTRIBUTE_NAME_COMPLETED_STEPS).put(4);
+		expectedSeekPVStructure.getIntField(ATTRIBUTE_NAME_LAST_GOOD_STEP).put(4);
 
 		PVStructure actualSeekStructure = rpcCalls.get(PAUSE.name().toLowerCase());
 		assertThat(actualSeekStructure.getStructure(), is(equalTo(expectedSeekStructure)));

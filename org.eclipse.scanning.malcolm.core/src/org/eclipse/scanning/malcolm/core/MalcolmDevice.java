@@ -192,6 +192,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 
 	// Constants, note: these constants are here instead of MalcolmConstants as they are not required outside of this class and tests
 	public static final String ATTRIBUTE_NAME_COMPLETED_STEPS = "completedSteps";
+	public static final String ATTRIBUTE_NAME_LAST_GOOD_STEP = "lastGoodStep";
 	public static final String FILE_EXTENSION_H5 = "h5";
 	public static final String STANDARD_MALCOLM_ERROR_STR = "Error from Malcolm: ";
 
@@ -740,7 +741,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	public void seek(int stepNumber) throws MalcolmDeviceException {
 		logger.debug("seek() called with step number {}", stepNumber);
 		LinkedHashMap<String, Integer> seekParameters = new LinkedHashMap<>(); // TODO why is this a linked hash map
-		seekParameters.put(ATTRIBUTE_NAME_COMPLETED_STEPS, stepNumber);
+		seekParameters.put(ATTRIBUTE_NAME_LAST_GOOD_STEP, stepNumber);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.PAUSE, seekParameters);
 		sendMessageWithTimeout(msg, Timeout.CONFIG.toMillis());
 	}

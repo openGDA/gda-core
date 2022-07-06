@@ -24,6 +24,7 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_H
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_SIMULTANEOUS_AXES;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.ATTRIBUTE_NAME_STATE;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.FIELD_NAME_META;
+import static org.eclipse.scanning.malcolm.core.MalcolmDevice.ATTRIBUTE_NAME_LAST_GOOD_STEP;
 import static org.eclipse.scanning.malcolm.core.MalcolmDevice.STANDARD_MALCOLM_ERROR_STR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -506,7 +507,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	public void testSeek() throws Exception {
 		final int seekToStepNum = 31;
 		LinkedHashMap<String, Integer> expectedSeekParams = new LinkedHashMap<>();
-		expectedSeekParams.put("completedSteps", seekToStepNum);
+		expectedSeekParams.put(ATTRIBUTE_NAME_LAST_GOOD_STEP, seekToStepNum);
 
 		testCall(malc -> malc.seek(seekToStepNum), MalcolmMethod.PAUSE, expectedSeekParams);
 	}
