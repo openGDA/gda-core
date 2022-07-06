@@ -68,7 +68,7 @@ import gda.jython.InterfaceProvider;
 import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
 import uk.ac.diamond.daq.concurrent.Async;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;

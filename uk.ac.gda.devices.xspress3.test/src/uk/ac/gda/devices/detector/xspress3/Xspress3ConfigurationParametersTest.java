@@ -29,7 +29,7 @@ import org.junit.Test;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;

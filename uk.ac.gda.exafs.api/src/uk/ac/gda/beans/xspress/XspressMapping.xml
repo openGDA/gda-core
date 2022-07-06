@@ -46,7 +46,7 @@
 		</field>		
 	</class>
 
-	<class name="uk.ac.gda.beans.DetectorROI">
+	<class name="uk.ac.gda.beans.exafs.DetectorROI">
 		<map-to xml="xspressROI"/>
 		<field name="roiName" type="string">
 			<bind-xml name="roiName" node="element"/>
@@ -76,7 +76,7 @@
 		<field name="excluded" type="boolean">
 			<bind-xml name="excluded" node="element"/>
 		</field>
-		<field name="Region" type="uk.ac.gda.beans.DetectorROI"
+		<field name="Region" type="uk.ac.gda.beans.exafs.DetectorROI"
 			collection="collection" set-method="addRegion" get-method="getRegionList">
 			<bind-xml name="Region" node="element"/>
 		</field>

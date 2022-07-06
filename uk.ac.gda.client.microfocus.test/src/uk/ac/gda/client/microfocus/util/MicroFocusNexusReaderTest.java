@@ -26,7 +26,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.util.beans.BeansFactory;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 

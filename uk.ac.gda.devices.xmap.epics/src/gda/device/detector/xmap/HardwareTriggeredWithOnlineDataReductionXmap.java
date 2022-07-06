@@ -30,7 +30,7 @@ import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 
 /**
  * Drive the XIA Xmap card using hardware triggers, returning an MCA and Region of Interest totals at each point.

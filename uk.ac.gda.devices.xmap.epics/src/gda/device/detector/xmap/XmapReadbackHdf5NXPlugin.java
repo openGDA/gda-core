@@ -18,7 +18,7 @@ import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**

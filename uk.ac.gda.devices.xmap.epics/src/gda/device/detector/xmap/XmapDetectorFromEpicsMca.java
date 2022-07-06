@@ -47,7 +47,7 @@ import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.IEpicsMCASimple;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.FactoryException;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;

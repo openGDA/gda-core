@@ -25,7 +25,7 @@ import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 
 /**

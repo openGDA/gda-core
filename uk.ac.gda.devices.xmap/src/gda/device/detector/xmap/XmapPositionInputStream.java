@@ -37,7 +37,7 @@ import gda.device.detector.xmap.util.XmapBufferedHdf5FileLoader;
 import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.device.scannable.PositionInputStream;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
 
