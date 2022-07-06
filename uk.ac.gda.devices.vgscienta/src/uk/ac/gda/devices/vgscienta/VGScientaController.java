@@ -162,10 +162,10 @@ public class VGScientaController extends ConfigurableBase {
 	/** Image is the full 2D data the size will be TOTAL_DATA_POINTS_RBV * SLICES_RBV */
 	private static final String IMAGE_DATA = "IMAGE";
 	/**
-	 * LAST_IMAGE_DATA is the image collected from the last completed iteration as opposed
+	 * IMAGE_ACCUMULATED is the image collected from the last completed iteration as opposed
 	 * to IMAGE which is the current data
 	 */
-	private static final String LAST_IMAGE_DATA = "IMAGE_LAST";
+	private static final String IMAGE_ACCUMULATED = "IMAGE_ACCUMULATED";
 	// Spectrum is the integrated energy spectrum (sum of all y channels) the size is TOTAL_DATA_POINTS_RBV
 	private static final String SPECTRUM_DATA = "INT_SPECTRUM";
 	// External IO allows data to be collected by SES synchronised with the analyser acquisition
@@ -683,7 +683,7 @@ public class VGScientaController extends ConfigurableBase {
 	 */
 	public float[] getLastImageAsFloat(int i) throws Exception {
 		long startTime = System.nanoTime();
-		float[] data = EPICS_CONTROLLER.cagetFloatArray(getChannel(LAST_IMAGE_DATA), i);
+		float[] data = EPICS_CONTROLLER.cagetFloatArray(getChannel(IMAGE_ACCUMULATED), i);
 		long endTime = System.nanoTime();
 		logger.trace("Getting image, {} float values took: {} ms", i, (endTime - startTime) / 1.0E6);
 		return data;
