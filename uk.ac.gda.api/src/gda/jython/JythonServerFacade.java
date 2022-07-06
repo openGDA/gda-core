@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
@@ -172,7 +173,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 			if (!csRelease.equals(myRelease)) {
 				final String msg = "Using a different release of the GDA to the Command Server.";
 				logger.error(msg);
-				throw new InstantiationException(msg); // Important - do no exit incorrect for rcp gda client
+				throw new IllegalStateException(msg);
 			}
 
 			// register with the Command Server and validate login information supplied by the user
@@ -191,37 +192,33 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				throw new InstantiationException(msg); // Important - do no exit incorrect for rcp gda client
 			}
 
-		} catch (Exception ex) {
+		} catch (UnknownHostException ex) {
 			logger.error("Error during instantiation", ex);
 			throw new InstantiationException("CommandServerFacade: error during instantiation: " + ex.getMessage());
 		}
 	}
 
 	/**
-	 * Returns the local singleton instance.
+	 * Returns the local singleton instance, or null if there was an exception creating it.
 	 *
 	 * @return JythonServerFacade
 	 */
-	public static synchronized JythonServerFacade getInstance() {
-
-		if (theInstance == null) {
-			try {
-				theInstance = new JythonServerFacade();
-			} catch (InstantiationException ex) {
-				logger.error("Error instatiating JythonServerFacade", ex);
-			}
+	public static JythonServerFacade getInstance() {
+		try {
+			return getCurrentInstance();
+		} catch (InstantiationException ex) {
+			logger.error("Error instatiating JythonServerFacade", ex);
+			return null;
 		}
-		return theInstance;
 	}
 
 	/**
 	 * Returns the local singleton instance throwing an Exception if one is required rather than logging it directly.
 	 *
 	 * @return JythonServerFacade
-	 * @throws Exception
+	 * @throws InstantiationException
 	 */
-	public static synchronized JythonServerFacade getCurrentInstance() throws Exception {
-
+	public static synchronized JythonServerFacade getCurrentInstance() throws InstantiationException {
 		if (theInstance == null) {
 			theInstance = new JythonServerFacade();
 		}
