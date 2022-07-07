@@ -19,12 +19,7 @@
 package gda.data.nexus;
 
 import static org.junit.Assert.assertEquals;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNode;
-import gda.data.nexus.tree.NexusTreeNodeSelection;
-import gda.util.TestUtils;
+import static org.junit.Assume.assumeFalse;
 
 import java.io.File;
 import java.io.StringReader;
@@ -32,17 +27,21 @@ import java.io.StringReader;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeBuilder;
+import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.nexus.tree.NexusTreeNodeSelection;
 import uk.ac.gda.util.OSUtils;
 
 
 public class NexusReadinTest {
-	
+
 	static String filename = "testfiles/gda/data/nexus/nexus-readin.nxs";
-	
+
 	@Test
 	public void readValue() throws Exception {
-		TestUtils.skipTestIf(OSUtils.is32bitJVM(),
-				this.getClass().getCanonicalName() + ".readValue skipped, since this test fails in native code on a 32-bit machine");
+		assumeFalse(this.getClass().getCanonicalName() + ".readValue skipped, since this test fails in native code on a 32-bit machine", OSUtils.is32bitJVM());
 		assert new File(filename).canRead();
 		assertEquals(209.0, getValue(), 0);
 	}
