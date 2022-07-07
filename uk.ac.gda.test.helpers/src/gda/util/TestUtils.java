@@ -18,8 +18,6 @@
 
 package gda.util;
 
-import static org.junit.Assume.assumeTrue;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,34 +30,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 public class TestUtils {
-
-	/**
-	 * Utility function to skip a JUnit test if the specified condition is true.
-	 * If called from a method annotated with @Test, and condition is true, the @Test method will halt and be ignored (skipped).
-	 * If called from a method annotated with @Before or @BeforeClass, all @Test methods of the class are ignored (skipped).
-	 *
-	 * Existing test runners (we're talking JUnit 4.5 and Ant 1.7.1, as bundled with Eclipse 3.5.1, don't have the concept of a
-	 * skipped test (tests are classified as either a pass or fail). Tests that fail an assumption are reported as passed.
-	 *
-	 * Internally, a failing assumption throws an AssumptionViolatedException (in JUnit 4,5; this may have changed in later releases).
-	 *
-	 * @param condition - boolean specifying whether the test method or test class is to be skipped
-	 * @param reason - explanation of why the test is skipped
-	 */
-	public static void skipTestIf(boolean condition, String reason) {
-		if (condition) {
-			System.out.println("JUnit test skipped: " + reason);
-			assumeTrue(false);
-		}
-	}
-	/**
-	 * Utility function to skip a JUnit test.
-	 * @param reason - explanation of why the test is skipped
-	 */
-	public static void skipTest(String reason) {
-		System.out.println("JUnit test skipped: " + reason);
-		assumeTrue(false);
-	}
 
 	/**
 	 * Prefix to folder in which test files are to be generated
