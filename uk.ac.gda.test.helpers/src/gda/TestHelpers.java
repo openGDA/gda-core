@@ -177,16 +177,6 @@ public class TestHelpers {
 	}
 
 	/**
-	 * @param name - Not used
-	 * @return Factory implementation that can be used for testing - simply add findables and add to Finder instance
-	 * @deprecated replace with {@link #createTestFactory()} i.e. no name specified
-	 */
-	@Deprecated
-	public static Factory createTestFactory(@SuppressWarnings("unused") String name) {
-		return new TestFactory();
-	}
-
-	/**
 	 * @return Factory implementation that can be used for testing - simply add findables and add to Finder instance
 	 */
 	public static Factory createTestFactory() {
