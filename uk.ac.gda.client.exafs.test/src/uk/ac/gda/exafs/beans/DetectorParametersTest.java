@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.beans;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -139,11 +140,10 @@ public class DetectorParametersTest {
 	 */
 	@Test
 	public void testCreateFromXML_withTransmission() throws Exception {
-		TestUtils
-				.skipTestIf(
-						!OSUtils.isLinuxOS(),
-						this.getClass().getCanonicalName()
-								+ ".testCreateFromXML_withTransmission skipped, since PressureCalculation currently only runs on linux");
+		assumeTrue(this.getClass().getCanonicalName()
+				+ ".testCreateFromXML_withTransmission skipped, since PressureCalculation currently only runs on linux",
+				OSUtils.isLinuxOS());
+
 		DetectorParameters expectedValue = new DetectorParameters();
 		expectedValue.addDetectorGroup(new DetectorGroup("transmission", new String[] { "counterTimer01" }));
 		expectedValue.addDetectorGroup(new DetectorGroup("Silicon", new String[] { "xmapMca", "counterTimer01" }));
@@ -178,11 +178,10 @@ public class DetectorParametersTest {
 	 */
 	@Test
 	public void testCreateFromXML_withFluorescence() throws Exception {
-		TestUtils
-				.skipTestIf(
-						!OSUtils.isLinuxOS(),
-						this.getClass().getCanonicalName()
-								+ ".testCreateFromXML_withFluorescence skipped, since PressureCalculation currently only runs on linux");
+		assumeTrue(this.getClass().getCanonicalName()
+				+ ".testCreateFromXML_withFluorescence skipped, since PressureCalculation currently only runs on linux",
+				OSUtils.isLinuxOS());
+
 		DetectorParameters expectedValue = new DetectorParameters();
 		expectedValue.addDetectorGroup(new DetectorGroup("transmission", new String[] { "counterTimer01" }));
 		expectedValue.addDetectorGroup(new DetectorGroup("Silicon", new String[] { "xmapMca", "counterTimer01" }));
