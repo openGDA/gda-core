@@ -66,7 +66,6 @@ import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.impl.MappingExperimentBean;
 import uk.ac.diamond.daq.mapping.impl.MappingStageInfo;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
-import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanConfig;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 import uk.ac.diamond.daq.mapping.ui.experiment.file.DescriptiveFilenameFactory;
@@ -92,12 +91,6 @@ public class ScanManagementController extends AbstractMappingController {
 	private DescriptiveFilenameFactory filenameFactory = new DescriptiveFilenameFactory();
 
 	private int gridModelIndex = 0;
-
-	/**
-	 * Configuration for the wizard that copies the current scan to the clipboard<br>
-	 * Cached to allow allow the current file save directory to be preserved between calls.
-	 */
-	private CopyScanConfig copyScanConfig;
 
 	public ScanManagementController() {
 		logger.debug("Created ScanManagementController");
@@ -409,15 +402,8 @@ public class ScanManagementController extends AbstractMappingController {
 	 * class
 	 */
 	public void copyScanToClipboard() {
-		final CopyScanWizard copyScanWizard = new CopyScanWizard(createScanBean(), getCopyScanConfig());
+		final CopyScanWizard copyScanWizard = new CopyScanWizard(createScanBean());
 		new CopyScanWizardDialog(Display.getCurrent().getActiveShell(), copyScanWizard).open();
-	}
-
-	private CopyScanConfig getCopyScanConfig() {
-		if (copyScanConfig == null) {
-			copyScanConfig = new CopyScanConfig();
-		}
-		return copyScanConfig;
 	}
 
 	/**
