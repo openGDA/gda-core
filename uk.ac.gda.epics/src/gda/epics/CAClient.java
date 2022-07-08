@@ -185,6 +185,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 
 		return value;
 	}
+
 	private static String DBRtoString(DBR dbr) {
 		String valStr = null;
 		Object _value= dbr.getValue();
@@ -261,7 +262,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 				}
 			}
 			return valStr;
-		} finally{
+		} finally {
 			if( channel != null)
 				epicsController.destroy(channel);
 		}
@@ -276,7 +277,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		try{
 			channel = epicsController.createChannel(pv);
 			return epicsController.getCTRL(channel);
-		} finally{
+		} finally {
 			if( channel != null)
 				epicsController.destroy(channel);
 		}
@@ -291,7 +292,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		try{
 			caClient.configure();
 			caClient.caput(value);
-		} finally{
+		} finally {
 			caClient.clearup();
 		}
 	}
@@ -303,7 +304,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		try{
 			caClient.configure();
 			caClient.caput((value+'\0').getBytes());
-		} finally{
+		} finally {
 			caClient.clearup();
 		}
 	}
@@ -316,7 +317,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		try{
 			caClient.configure();
 			caClient.caput(value);
-		} finally{
+		} finally {
 			caClient.clearup();
 		}
 	}
@@ -328,7 +329,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		try{
 			caClient.configure();
 			caClient.caput(value);
-		} finally{
+		} finally {
 			caClient.clearup();
 		}
 	}
@@ -923,16 +924,18 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		try {
 			if (!isConfigured()) {
 				if (pvName != null) {
-//					theChannel = controller.createChannel(pvName,this);
 					theChannel = channelmanager.createChannel(pvName);
-				} else if (pvNames != null) {
-					chs = new Channel[pvNames.size()];
-					for (int i = 0; i < pvNames.size(); i++) {
-//						chs[i] = controller.createChannel(pvNames.get(i),this);
-						chs[i] = channelmanager.createChannel(pvNames.get(i),this);
-					}
 				} else {
-					logger.info("No PV strings are given.");
+					if (pvNames != null) {
+						int numberOfNames = pvNames.size();
+						chs = new Channel[numberOfNames];
+						for (int i = 0; i < numberOfNames; i++) {
+							var nextPvName = pvNames.get(i);
+							chs[i] = channelmanager.createChannel(nextPvName,this);
+						}
+					} else {
+						logger.info("No PV strings are given.");
+					}
 				}
 				setConfigured(true);
 			}
@@ -953,6 +956,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	public Monitor camonitor(MonitorListener ml) throws CAException, InterruptedException {
 		return controller.setMonitor(theChannel, ml);
 	}
+
 	public Monitor camonitor(MonitorListener ml, int count) throws CAException, InterruptedException {
 		return controller.setMonitor(theChannel, ml, count);
 	}
@@ -1069,8 +1073,6 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		return uvalues;
 	}
 
-
-
 	/**
 	 * @param numberOfElements
 	 * @return byte[]
@@ -1140,6 +1142,7 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 		float[] values = controller.cagetFloatArray(theChannel, numberOfElements);
 		return values;
 	}
+
 	/**
 	 * @return double
 	 * @throws CAException
@@ -1176,15 +1179,16 @@ public class CAClient extends EpicsBase implements MonitorListener, ConnectionLi
 	}
 
 	/**
-	 * Gets an array of all available positions from an Enum typed PV
-	 * @return array of available positions
+	 * Returns available positions from an Enum typed PV as String array
+	 * @return all available positions
 	 * @throws TimeoutException
 	 * @throws CAException
 	 * @throws InterruptedException
 	 */
-	public String[] cagetLables() throws TimeoutException, CAException, InterruptedException {
+	public String[] cagetLabels() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetLabels(theChannel);
 	}
+
 	/**
 	 * Sets the value to the PV on EPICS server.
 	 *
