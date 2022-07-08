@@ -37,7 +37,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.util.TestUtils;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;

@@ -14,7 +14,7 @@ import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xspress.Xspress2Detector;
 import gda.factory.ConfigurableBase;
 import gda.factory.FactoryException;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;

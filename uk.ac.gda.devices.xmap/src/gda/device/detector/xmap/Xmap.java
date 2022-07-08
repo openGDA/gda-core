@@ -34,7 +34,7 @@ import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;

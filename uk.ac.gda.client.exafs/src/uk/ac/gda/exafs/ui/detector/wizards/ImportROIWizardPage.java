@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.exafs.ExafsActivator;
 
 public abstract class ImportROIWizardPage extends WizardPage {

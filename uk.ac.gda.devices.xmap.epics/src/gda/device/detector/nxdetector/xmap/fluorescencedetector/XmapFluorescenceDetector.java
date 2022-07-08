@@ -36,7 +36,7 @@ import gda.device.detector.nxdetector.xmap.controller.XmapModes.PresetMode;
 import gda.device.detector.xmap.NexusXmap;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;

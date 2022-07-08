@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 
 public class DummyXspress3Detector extends DetectorBase {
 

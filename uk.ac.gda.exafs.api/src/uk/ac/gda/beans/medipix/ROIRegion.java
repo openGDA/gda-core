@@ -20,7 +20,7 @@ package uk.ac.gda.beans.medipix;
 
 import java.io.Serializable;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 
 public class ROIRegion implements Serializable {
 

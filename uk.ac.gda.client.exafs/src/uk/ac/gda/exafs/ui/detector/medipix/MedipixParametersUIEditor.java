@@ -60,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.factory.Finder;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.medipix.MedipixParameters;
 import uk.ac.gda.beans.medipix.ROIRegion;
 import uk.ac.gda.client.live.stream.view.CameraConfiguration;

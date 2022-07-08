@@ -37,7 +37,7 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;

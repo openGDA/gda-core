@@ -25,7 +25,7 @@ import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
 import uk.ac.gda.api.remoting.ServiceInterface;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;

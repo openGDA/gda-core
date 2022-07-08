@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Group;
 
 import com.swtdesigner.SWTResourceManager;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.common.rcp.util.GridUtils;
 

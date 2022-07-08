@@ -42,7 +42,7 @@
 		<field name="number" type="integer">
 			<bind-xml name="number" node="element" />
 		</field>
-		<field name="ROI" type="uk.ac.gda.beans.DetectorROI"
+		<field name="ROI" type="uk.ac.gda.beans.exafs.DetectorROI"
 			collection="collection" set-method="addRegion" get-method="getRegionList">
 			<bind-xml name="ROI" node="element" />
 		</field>
@@ -67,7 +67,7 @@
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.beans.DetectorROI">
+	<class name="uk.ac.gda.beans.exafs.DetectorROI">
 		<map-to xml="ROI" />
 		<field name="roiName" type="string">
 			<bind-xml name="name" node="element" />

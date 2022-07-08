@@ -23,7 +23,7 @@ import java.util.List;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.richbeans.widgets.selector.ListEditor;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.BeansFactory;
 

@@ -8,7 +8,7 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.xmap.util.XmapFileLoader;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
 

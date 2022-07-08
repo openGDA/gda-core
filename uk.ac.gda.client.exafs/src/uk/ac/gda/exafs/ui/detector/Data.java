@@ -30,7 +30,7 @@ import org.eclipse.richbeans.widgets.data.DataWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.ElementCountsData;
+import uk.ac.gda.beans.exafs.ElementCountsData;
 
 public class Data {
 

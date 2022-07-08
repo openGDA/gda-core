@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 
 /**
  * Reads a raw HDF5 file from Xia XMap and returns deadtime corrected MCAs and

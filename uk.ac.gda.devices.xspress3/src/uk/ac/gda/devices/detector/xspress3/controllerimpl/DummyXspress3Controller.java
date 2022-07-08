@@ -30,7 +30,7 @@ import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.CAPTURE_MODE;
 import uk.ac.gda.devices.detector.xspress3.ReadyForNextRow;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;

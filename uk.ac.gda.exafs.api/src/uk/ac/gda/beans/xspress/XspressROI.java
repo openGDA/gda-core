@@ -18,7 +18,7 @@
 
 package uk.ac.gda.beans.xspress;
 
-import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.exafs.DetectorROI;
 
 /**
  * a region of interest in an Xspress MCA. Note that the total size of all ROIs
