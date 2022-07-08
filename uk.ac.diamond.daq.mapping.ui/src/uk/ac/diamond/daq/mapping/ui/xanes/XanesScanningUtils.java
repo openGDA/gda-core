@@ -20,23 +20,28 @@ package uk.ac.diamond.daq.mapping.ui.xanes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.scanning.api.points.models.AxialMultiStepModel;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.IAxialModel;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 
 public class XanesScanningUtils {
+
+	private static final String PROPERTY_ENERGY_DEFAULT_UNITS = "gda.scan.energy.defaultUnits";
+
 	/**
 	 * The energy steps around the edge energy (EE)
 	 * <p>
 	 * For example, <code>-0.1, -0.020, 0.008</code> means "from (EE - 0.1) to (EE - 0.020), move in steps of 0.008"
 	 */
-	private static final double[][] xanesStepRanges = {
+	private static final double[][] stepRanges = {
 			{ -0.1, -0.020, 0.008 },
 			{ -0.019, +0.020, 0.0005 },
 			{ +0.021, +0.040, 0.001 },
@@ -79,12 +84,17 @@ public class XanesScanningUtils {
 	 * @return corresponding step model
 	 */
 	public static AxialMultiStepModel createModelFromEdgeSelection(double edgeEnergy, String energyScannableName) {
-		final List<AxialStepModel> stepModels = new ArrayList<>(xanesStepRanges.length);
+		String energyUnits = LocalProperties.get(PROPERTY_ENERGY_DEFAULT_UNITS, "keV");
 
 		// Create a step model for each range of energies around the edge
-		for (double[] range : xanesStepRanges) {
-			stepModels.add(new AxialStepModel(energyScannableName, roundDouble(edgeEnergy + range[0]), roundDouble(edgeEnergy + range[1]), range[2]));
-		}
+		var multiplier = energyUnits.equals("eV") ? 1000 : 1;
+		final var stepModels = Arrays.stream(stepRanges)
+		      .map(range -> new AxialStepModel(energyScannableName,
+				roundDouble((edgeEnergy + range[0])*multiplier),
+				roundDouble((edgeEnergy + range[1])*multiplier),
+				range[2]*multiplier))
+		      .collect(Collectors.toList());
+
 
 		// Create a multi-step model containing these step models
 		final AxialMultiStepModel model = new AxialMultiStepModel(energyScannableName, stepModels);
