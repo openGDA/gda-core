@@ -3,8 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: VGScienta Analyser device plugin
 Bundle-SymbolicName: uk.ac.gda.devices.vgscienta;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Require-Bundle: uk.ac.gda.common,
- uk.ac.gda.api,
+Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.core,
  uk.ac.gda.epics,
  uk.ac.gda.nexus;bundle-version="1.0.0",
@@ -14,7 +13,8 @@ Require-Bundle: uk.ac.gda.common,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: Diamond Light Source
-Import-Package: org.python.core,
+Import-Package: gda.observable,
+ org.python.core,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.diamond.daq.pes.api

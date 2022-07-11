@@ -35,11 +35,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  gda.configuration.properties,
+ gda.observable,
  org.apache.commons.io,
  org.eclipse.ui.dialogs,
  org.slf4j,
- uk.ac.gda.ui.dialog,
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.gda.ui.dialog
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: org.opengda.detector.electronanalyser.client,
  org.opengda.detector.electronanalyser.client.actions,
