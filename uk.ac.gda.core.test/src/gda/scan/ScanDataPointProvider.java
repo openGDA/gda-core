@@ -87,6 +87,31 @@ public class ScanDataPointProvider {
 		}
 	}
 
+	/**
+	 * simulate 2 scannable groups used in scan command may contain the same scannable.
+	 * @param number
+	 * @param totalPoints
+	 * @param scannableData
+	 * @param detectorData
+	 * @return Scan Data Point
+	 */
+	public static IScanDataPoint getPointWithDuplicatedHeader(int number, int totalPoints, Collection<Double> scannableData, Collection<Object> detectorData) {
+		ScanDataPoint point = new ScanDataPoint();
+		point.setCurrentPointNumber(number);
+		Counter det = new Counter();
+		point.setDetectorHeader(detectorData.stream().map(d -> "det" + det.get()).toArray(String[]::new));
+		point.setDetectorData(
+				new Vector<>(detectorData),
+				detectorData.stream()
+						.map(d -> new String[] {"%f"})
+						.toArray(String[][]::new)
+		);
+		point.setScannableHeader(scannableData.stream().map(s -> "scan").toArray(String[]::new));
+		point.setScannablePositions(new Vector<>(scannableData));
+		point.setNumberOfPoints(totalPoints);
+		return point;
+	}
+
 	public static IScanDataPoint getPoint(int number, int totalPoints, Collection<Double> scannableData, Collection<Object> detectorData) {
 		ScanDataPoint point = new ScanDataPoint();
 		point.setCurrentPointNumber(number);

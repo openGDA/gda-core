@@ -19,6 +19,7 @@
 package gda.scan;
 
 import static gda.scan.ScanDataPointProvider.getPoint;
+import static gda.scan.ScanDataPointProvider.getPointWithDuplicatedHeader;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
@@ -47,6 +48,19 @@ public class ScanDataPointCacheTest {
 	public void testChangingNumberOfScannablesThrows() throws Exception {
 		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
 		cache.update(null, getPoint(1, 3, asList(0.2), asList()));
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testMoreScannablesThanCachedThrows() throws Exception {
+		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
+		cache.update(null, getPoint(1, 3, asList(0.2, 0.5), asList(3.2)));
+	}
+
+	@Test
+	public void testPointWithDuplicatedHeader() throws Exception {
+		cache.update(null, getPointWithDuplicatedHeader(0, 3, asList(0.1), asList(3.1)));
+		cache.update(null, getPointWithDuplicatedHeader(1, 3, asList(0.2, 0.5), asList(3.2)));
+		assertEquals(asList(0.1, 0.2), cache.getPositionsFor("scan"));
 	}
 
 	@Test(expected=IllegalArgumentException.class)
