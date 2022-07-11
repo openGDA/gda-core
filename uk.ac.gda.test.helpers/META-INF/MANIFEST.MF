@@ -11,7 +11,6 @@ Require-Bundle: org.mockito.mockito-core,
  uk.ac.gda.common.client;bundle-version="1.0.0",
  uk.ac.gda.api,
  uk.ac.gda.core;bundle-version="8.26.0",
- uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.nexus,
  org.eclipse.dawnsci.nexus,
  org.eclipse.dawnsci.analysis.dataset,
@@ -30,8 +29,11 @@ Export-Package: gda,
  uk.ac.gda.test.helpers.swt
 Import-Package: com.fasterxml.jackson.core;version="2.9.9",
  com.fasterxml.jackson.databind;version="2.9.93",
+ gda.configuration.properties,
+ gda.observable,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory.config;version="4.0.6.RELEASE",
  org.springframework.context;version="4.0.6.RELEASE",
- org.springframework.context.support;version="4.0.6.RELEASE"
+ org.springframework.context.support;version="4.0.6.RELEASE",
+ uk.ac.gda.common.exception
 Automatic-Module-Name: uk.ac.gda.test.helpers
