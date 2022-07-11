@@ -15,3 +15,5 @@ Require-Bundle: javassist,
  org.objenesis,
  uk.ac.gda.test.helpers;bundle-version="1.0.0"
 Automatic-Module-Name: uk.ac.gda.client.microfocus.test
+Import-Package: uk.ac.gda.util.beans,
+ uk.ac.gda.util.beans.xml

@@ -5,7 +5,8 @@ Bundle-SymbolicName: uk.ac.gda.client.exafs.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: uk.ac.gda.client.exafs;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Import-Package: org.eclipse.dawnsci.plotting.api,
+Import-Package: gda.configuration.properties,
+ org.eclipse.dawnsci.plotting.api,
  org.eclipse.dawnsci.plotting.api.trace,
  org.eclipse.richbeans.binding,
  org.eclipse.richbeans.widgets,
@@ -15,9 +16,13 @@ Import-Package: org.eclipse.dawnsci.plotting.api,
  org.eclipse.swtbot.swt.finder.widgets,
  org.eclipse.ui.actions,
  org.eclipse.ui.ide,
+ uk.ac.gda,
  uk.ac.gda.beans.exafs,
  uk.ac.gda.exafs.ui.composites.detectors.internal,
- uk.ac.gda.richbeans.editors
+ uk.ac.gda.richbeans.editors,
+ uk.ac.gda.util,
+ uk.ac.gda.util.beans,
+ uk.ac.gda.util.beans.xml
 Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.junit;bundle-version="[4.12.0,5.0.0)",
  org.eclipse.swtbot.swt.finder,

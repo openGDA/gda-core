@@ -10,5 +10,7 @@ Require-Bundle: javassist,
  org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
 Automatic-Module-Name: uk.ac.gda.devices.hidenrga.test

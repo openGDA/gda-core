@@ -8,7 +8,6 @@ Bundle-Vendor: Diamond Light Source
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Require-Bundle: uk.ac.gda.api,
  uk.ac.gda.exafs.api,
- uk.ac.gda.common,
  uk.ac.gda.core,
  uk.ac.gda.epics,
  uk.ac.gda.devices.xspress2,
@@ -22,7 +21,9 @@ Require-Bundle: uk.ac.gda.api,
  org.eclipse.dawnsci.hdf5,
  org.eclipse.dawnsci.nexus,
  org.eclipse.january
-Import-Package: org.apache.commons.io,
- org.springframework.beans.factory
+Import-Package: gda.observable,
+ org.apache.commons.io,
+ org.springframework.beans.factory,
+ uk.ac.gda.util.beans.xml
 Export-Package: uk.ac.gda.devices.detector.xspress4
 Automatic-Module-Name: uk.ac.gda.devices.xspress4

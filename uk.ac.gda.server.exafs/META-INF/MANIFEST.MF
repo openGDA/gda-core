@@ -6,7 +6,6 @@ Bundle-SymbolicName: uk.ac.gda.server.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.nexus;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.api,
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.lang;bundle-version="2.6.0",
@@ -40,10 +39,13 @@ Export-Package: gda.device.detector,
  uk.ac.gda.server.exafs.scan,
  uk.ac.gda.server.exafs.scan.iterators,
  uk.ac.gda.server.exafs.scan.preparers
-Import-Package: gda.device.detector.addetector,
+Import-Package: gda.configuration.properties,
+ gda.device.detector.addetector,
  gda.device.detector.addetector.triggering,
  gda.device.detector.areadetector.v17,
  gda.device.detector.areadetector.v17.impl,
  gda.device.detector.xspress,
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ gda.observable,
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.server.exafs

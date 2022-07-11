@@ -10,7 +10,6 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.1",
  org.eclipse.core.runtime;bundle-version="3.5.0",
  org.eclipse.core.resources;bundle-version="3.5.1",
  uk.ac.gda.client;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
@@ -51,10 +50,14 @@ Export-Package: uk.ac.gda.client.microfocus.controller,
  uk.ac.gda.microfocus.ui.describers
 Bundle-ActivationPolicy: lazy
 Import-Package: Jama,
+ gda.configuration.properties,
+ gda.observable,
  org.eclipse.draw2d,
  org.eclipse.draw2d.geometry,
  org.python.core,
- org.slf4j;version="[1.7.2,2.0.0)"
+ org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.gda.util.beans.xml,
+ uk.ac.gda.util.io
 Bundle-Vendor: Diamond Light Source
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.gda.client.microfocus

@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.server.exafs;bundle-version="1.0.0",
  uk.ac.gda.core,
- uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.epics;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.api,
@@ -24,3 +23,4 @@ Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
 Export-Package: gda.device.scannable.zebra,
  uk.ac.gda.server.exafs.epics.device.scannable
 Automatic-Module-Name: uk.ac.gda.server.exafs.epics
+Import-Package: gda.observable

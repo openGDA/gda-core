@@ -11,12 +11,14 @@ Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  slf4j.api;bundle-version="[1.7.2,2.0.0)",
  uk.ac.gda.devices.xmap;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.6.0",
  uk.ac.gda.api
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: gda.device.detector.nxdetector.xmap.fluorescencedetector,
  gda.device.detector.xmap
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.devices.xmap.epics

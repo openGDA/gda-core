@@ -7,7 +7,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Require-Bundle: uk.ac.gda.epics,
  uk.ac.gda.core,
- uk.ac.gda.common,
  slf4j.api;bundle-version="[1.7.2,2.0.0)",
  org.apache.commons.lang;bundle-version="2.6.0",
  org.eclipse.core.runtime;bundle-version="3.8.0",
@@ -21,4 +20,6 @@ Export-Package: gda.device.hidenrga,
  uk.ac.gda.devices.hidenrga.ui.handlers,
  uk.ac.gda.devices.hidenrga.ui.views
 Automatic-Module-Name: uk.ac.gda.devices.hidenrga
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.springframework.beans.factory;version="4.0.6.RELEASE"

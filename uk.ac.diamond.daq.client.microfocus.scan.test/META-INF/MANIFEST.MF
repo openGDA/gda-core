@@ -13,3 +13,4 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  net.bytebuddy.byte-buddy-agent,
  javassist
 Automatic-Module-Name: uk.ac.diamond.daq.client.microfocus.scan.test
+Import-Package: gda.observable

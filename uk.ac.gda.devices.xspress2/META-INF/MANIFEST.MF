@@ -5,7 +5,6 @@ Bundle-SymbolicName: uk.ac.gda.devices.xspress2
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
- uk.ac.gda.common,
  uk.ac.gda.core,
  uk.ac.gda.nexus,
  uk.ac.gda.api,
@@ -21,8 +20,12 @@ Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.detector.xspress,
  gda.device.detector.xspress.xspress2data
-Import-Package: org.apache.commons.beanutils;version="1.9.1",
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.apache.commons.beanutils;version="1.9.1",
  org.apache.commons.lang;version="2.6.0",
  org.slf4j,
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.gda.util,
+ uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.devices.xspress2

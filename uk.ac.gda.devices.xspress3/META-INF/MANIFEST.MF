@@ -11,7 +11,6 @@ Require-Bundle: uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  org.apache.commons.beanutils;bundle-version="1.9.1",
  org.apache.commons.lang;bundle-version="2.6.0",
- uk.ac.gda.common,
  uk.ac.gda.core;bundle-version="8.40.0",
  uk.ac.gda.exafs.api;bundle-version="1.0.0",
  slf4j.api;bundle-version="[1.7.2,2.0.0)",
@@ -21,7 +20,10 @@ Export-Package: uk.ac.gda.devices.detector.xspress3,
  uk.ac.gda.devices.detector.xspress3.controllerimpl,
  uk.ac.gda.devices.detector.xspress3.fullCalculations
 Bundle-Vendor: Diamond Light Source
-Import-Package: org.eclipse.dawnsci.analysis.dataset.impl,
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.eclipse.dawnsci.analysis.dataset.impl,
  org.eclipse.dawnsci.hdf5,
- org.springframework.beans.factory;version="4.0.6.RELEASE"
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
+ uk.ac.gda.util.beans.xml
 Automatic-Module-Name: uk.ac.gda.devices.xspress3
