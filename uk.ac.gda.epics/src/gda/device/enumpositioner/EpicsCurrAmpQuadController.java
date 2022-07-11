@@ -72,7 +72,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	private Channel range = null;
 
-	private Object lock = new Object();
+	private final Object lock = new Object();
 
 	private Current1MonitorListener i1MonitorListener;
 
@@ -89,8 +89,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	private gov.aps.jca.Monitor i3Monitor;
 
 	private gov.aps.jca.Monitor i4Monitor;
-
-	private RangeMonitorListener rangeMonitor;
 
 	private Channel current1Ch = null;
 
@@ -113,7 +111,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		i2MonitorListener = new Current2MonitorListener();
 		i3MonitorListener = new Current3MonitorListener();
 		i4MonitorListener = new Current4MonitorListener();
-		rangeMonitor = new RangeMonitorListener();
 
 		setInputNames(new String[]{"rangeValue"});
 		setExtraNames(new String[]{ "current1", "current2", "current3", "current4"});
@@ -142,10 +139,12 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	private void createChannelAccess() throws FactoryException {
 		try {
-			range = channelManager.createChannel(getRangePv(), rangeMonitor, MonitorType.CTRL, false);
+			range = channelManager.createChannel(getRangePv(), this::monitorRange, MonitorType.CTRL, false);
 
 			if (getRangeRbvPv() != null) {
-				range_rbv = channelManager.createChannel(getRangeRbvPv(), rangeMonitor, MonitorType.CTRL, true);
+				range_rbv = channelManager.createChannel(getRangeRbvPv(), this::monitorRange, MonitorType.CTRL, true);
+			} else {
+				range_rbv = range;
 			}
 
 			current1Ch = channelManager.createChannel(getCurrent1Pv(), false);
@@ -333,26 +332,23 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	}
 
-	private class RangeMonitorListener implements MonitorListener {
-		@Override
-		public void monitorChanged(MonitorEvent mev) {
-			short value = -1;
-			DBR dbr = mev.getDBR();
-			if (dbr.isENUM()) {
-				value = ((DBR_Enum) dbr).getEnumValue()[0];
+	protected void monitorRange(MonitorEvent mev) {
+		short value = -1;
+		DBR dbr = mev.getDBR();
+		if (dbr.isENUM()) {
+			value = ((DBR_Enum) dbr).getEnumValue()[0];
+		}
+		if (value == 0) {
+			synchronized (lock) {
+				setPositionerStatus(EnumPositionerStatus.ERROR);
 			}
-			if (value == 0) {
-				synchronized (lock) {
-					setPositionerStatus(EnumPositionerStatus.ERROR);
-				}
-			} else if (value == 1 || value == 3) {
-				synchronized (lock) {
-					setPositionerStatus(EnumPositionerStatus.IDLE);
-				}
-			} else if (value == 2 || value == 4) {
-				synchronized (lock) {
-					setPositionerStatus(EnumPositionerStatus.MOVING);
-				}
+		} else if (value == 1 || value == 3) {
+			synchronized (lock) {
+				setPositionerStatus(EnumPositionerStatus.IDLE);
+			}
+		} else if (value == 2 || value == 4) {
+			synchronized (lock) {
+				setPositionerStatus(EnumPositionerStatus.MOVING);
 			}
 		}
 	}
@@ -362,15 +358,6 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	 * @throws DeviceException
 	 */
 	public String getRangeValue() throws DeviceException {
-		try {
-			short test = controller.cagetEnum(range);
-			return getPosition(test);
-		} catch (Exception e) {
-			throw new DeviceException("failed to get position from " + range.getName(), e);
-		}
-	}
-
-	public String getRangeReadbackValue() throws DeviceException {
 		try {
 			short test = controller.cagetEnum(range_rbv);
 			return getPosition(test);
@@ -614,4 +601,5 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		return PVNameUtil.getBasePvName(getCurrent1Pv(), getCurrent2Pv(), getCurrent3Pv(), getCurrent4Pv());
 
 	}
+
 }
