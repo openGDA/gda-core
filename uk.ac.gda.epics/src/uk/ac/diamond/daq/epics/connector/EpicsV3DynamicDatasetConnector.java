@@ -386,8 +386,27 @@ public class EpicsV3DynamicDatasetConnector implements IDatasetConnector {
 
 			// Build the new dataset
 			if (isRgb()) {
+
+				Dataset flatDataset = DatasetFactory.createFromObject(data);
+				Dataset reshaped;
+				switch (colourMode) {
+				case "RGB2":
+					reshaped = flatDataset.reshape(height, 3, width);
+					reshaped = reshaped.swapAxes(1, 2);
+					break;
+				case "RGB3":
+					reshaped = flatDataset.reshape(3, height, width);
+					reshaped = reshaped.swapAxes(0, 1);
+					reshaped = reshaped.swapAxes(1, 2);
+					break;
+				default:
+					reshaped = flatDataset.reshape(height, width, 3);
+					break;
+				}
+
+				dataset = DatasetUtils.createCompoundDatasetFromLastAxis(reshaped, false);
 				Class<? extends Dataset> clazz = data instanceof byte[] ? RGBByteDataset.class : RGBDataset.class;
-				dataset = DatasetFactory.createFromObject(clazz, data, getDataShape());
+				dataset = DatasetUtils.cast(clazz, dataset);
 			} else {
 				dataset = DatasetFactory.createFromObject(data, getDataShape());
 			}
