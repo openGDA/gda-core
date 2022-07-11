@@ -19,7 +19,8 @@ Require-Bundle: uk.ac.gda.nexus,
  org.eclipse.dawnsci.nexus,
  uk.ac.diamond.scisoft.analysis,
  uk.ac.diamond.daq.persistence;bundle-version="1.0.0"
-Import-Package: org.springframework.beans.factory;version="4.0.6.RELEASE"
+Import-Package: gda.observable,
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Automatic-Module-Name: uk.ac.gda.edxd.detector
 Export-Package: uk.ac.gda.devices.edxd

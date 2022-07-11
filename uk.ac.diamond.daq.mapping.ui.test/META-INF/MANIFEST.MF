@@ -16,7 +16,9 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  uk.ac.diamond.jython,
  uk.ac.gda.test.helpers;bundle-version="1.0.0"
 Automatic-Module-Name: uk.ac.diamond.daq.mapping.ui.test
-Import-Package: org.springframework.context.annotation,
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.springframework.context.annotation,
  org.springframework.test.annotation;version="4.0.6",
  org.springframework.test.context;version="4.0.6",
  org.springframework.test.context.junit4;version="4.0.6"

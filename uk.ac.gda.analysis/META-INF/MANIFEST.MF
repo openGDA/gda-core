@@ -45,7 +45,6 @@ Require-Bundle: org.eclipse.january;bundle-version="2.3.0",
  uk.ac.diamond.scisoft.deprecated,
  uk.ac.gda.core,
  uk.ac.diamond.jama;bundle-version="1.0.1",
- uk.ac.gda.common,
  uk.ac.gda.nexus,
  uk.ac.gda.api,
  uk.ac.diamond.CBFlib,
@@ -64,6 +63,8 @@ Eclipse-RegisterBuddy: uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.api, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Import-Package: com.google.common.util.concurrent;version="27.1.0",
+ gda.configuration.properties,
+ gda.observable,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
  uk.ac.diamond.scisoft.analysis.plotclient

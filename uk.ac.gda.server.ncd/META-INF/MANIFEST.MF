@@ -8,7 +8,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
  uk.ac.gda.core;bundle-version="1.0.0",
- uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.api,
  org.eclipse.january;bundle-version="1.0.0",
@@ -45,8 +44,12 @@ Eclipse-RegisterBuddy: uk.ac.gda.core,
  org.springframework.beans.factory
 Import-Package: Jama,
  com.google.common.eventbus;version="16.0.1",
+ gda.configuration.properties,
+ gda.observable,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.diamond.daq.msgbus,
- uk.ac.diamond.daq.scm.api.events
+ uk.ac.diamond.daq.scm.api.events,
+ uk.ac.gda.util.beans.xml,
+ uk.ac.gda.util.io
 Automatic-Module-Name: uk.ac.gda.server.ncd

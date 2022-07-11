@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.ui,
  org.opengda.lde.model,
  org.eclipse.emf.edit,
  org.opengda.lde.model.edit,
- uk.ac.gda.common,
  org.eclipse.core.resources,
  uk.ac.gda.client,
  org.eclipse.swt,
@@ -47,6 +46,8 @@ Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Import-Package: com.google.common.base;version="16.0.1",
+ gda.configuration.properties,
+ gda.observable,
  javax.mail.internet;version="1.5.0",
  org.apache.commons.collections4;version="4.0.0",
  org.apache.commons.collections4.map;version="4.0.0",

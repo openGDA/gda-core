@@ -10,7 +10,6 @@ Require-Bundle: org.aopalliance,
  si.uom.si-units;bundle-version="0.9.0",
  tec.units.indriya,
  tec.uom.lib.uom-lib-common,
- uk.ac.gda.common,
  uk.ac.gda.nexus;bundle-version="1.0.0",
  org.apache.commons.math;bundle-version="[2.2.0,3.0.0)",
  uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
@@ -174,7 +173,9 @@ Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Import-Package: javax.activation;version="1.1.0",
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ javax.activation;version="1.1.0",
  javax.annotation;version="1.2.0",
  javax.jms,
  javax.mail;version="1.5.0",
@@ -215,7 +216,13 @@ Import-Package: javax.activation;version="1.1.0",
  org.springframework.remoting.rmi;version="4.0.6.RELEASE",
  org.springframework.remoting.support;version="4.0.6.RELEASE",
  org.springframework.stereotype;version="4.0.6.RELEASE",
- org.springframework.util;version="4.0.6.RELEASE"
+ org.springframework.util;version="4.0.6.RELEASE",
+ uk.ac.gda.common.exception,
+ uk.ac.gda.common.util,
+ uk.ac.gda.util,
+ uk.ac.gda.util.beans.xml,
+ uk.ac.gda.util.io,
+ uk.ac.gda.util.map
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Bundle-Activator: uk.ac.gda.core.GDACoreActivator

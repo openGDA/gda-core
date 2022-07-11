@@ -15,7 +15,6 @@ Export-Package: uk.ac.diamond.daq.context.web,
  uk.ac.diamond.daq.service.rest,
  uk.ac.diamond.daq.web
 Require-Bundle: uk.ac.gda.api,
- uk.ac.gda.common,
  uk.ac.diamond.daq.experiment.api,
  uk.ac.diamond.daq.experiment.scans,
  org.eclipse.scanning.api,
@@ -30,7 +29,9 @@ Require-Bundle: uk.ac.gda.api,
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.9.93",
  uk.ac.gda.epics,
  uk.ac.diamond.daq.classloading
-Import-Package: javax.annotation;version="1.2.0",
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ javax.annotation;version="1.2.0",
  javax.servlet,
  javax.servlet.http,
  org.apache.commons.io;version="2.6.0",
@@ -72,7 +73,12 @@ Import-Package: javax.annotation;version="1.2.0",
  org.springframework.web.method.support;version="4.0.6.RELEASE",
  org.springframework.web.server;version="5.3.12",
  org.springframework.web.servlet;version="4.0.6.RELEASE",
- org.springframework.web.servlet.config.annotation;version="4.0.6.RELEASE"
+ org.springframework.web.servlet.config.annotation;version="4.0.6.RELEASE",
+ uk.ac.gda.common.command,
+ uk.ac.gda.common.entity,
+ uk.ac.gda.common.entity.device,
+ uk.ac.gda.common.entity.filter,
+ uk.ac.gda.common.exception
 Bundle-Vendor: Diamond Light Source
 Service-Component: OSGI-INF/*.xml
 Automatic-Module-Name: uk.ac.diamond.daq.experiment

@@ -53,8 +53,7 @@ Export-Package: gda.analysis.numerical.optimization.optimizers,
  uk.ac.gda.api.scan,
  uk.ac.gda.api.virtualaxis,
  uk.ac.gda.client.experimentdefinition
-Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
- javax.measure.unit-api;bundle-version="1.0.0",
+Require-Bundle: javax.measure.unit-api;bundle-version="1.0.0",
  si.uom.si-quantity;bundle-version="0.9.0",
  si.uom.si-units;bundle-version="0.9.0",
  tec.units.indriya,
@@ -65,13 +64,16 @@ Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  org.eclipse.core.resources,
  com.google.guava,
  uk.ac.diamond.scisoft.analysis,
- com.fasterxml.jackson.core.jackson-annotations
+ com.fasterxml.jackson.core.jackson-annotations,
+ uk.ac.gda.common
 Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Import-Package: com.fasterxml.jackson.databind.annotation;version="2.6.2",
+ gda.configuration.properties,
+ gda.observable,
  org.eclipse.scanning.api.event.scan,
  org.slf4j;version="[1.7.2,2.0.0)",
  org.springframework.beans.factory;version="3.0.4",
