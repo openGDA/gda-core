@@ -12,7 +12,8 @@ Require-Bundle: uk.ac.diamond.daq.jython.api;bundle-version="1.0.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: scripts/,
  .
-Import-Package: org.slf4j;version="1.7.25",
+Import-Package: gda.observable,
+ org.slf4j;version="1.7.25",
  org.springframework.beans.factory;version="4.0.6.RELEASE"
 Export-Package: uk.ac.gda.bimorph,
  uk.ac.gda.bimorph.epics
