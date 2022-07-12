@@ -4,7 +4,6 @@ from org.eclipse.dawnsci.analysis.dataset.roi import RectangularROI, Rectangular
 from org.eclipse.january.dataset import DatasetFactory
 from org.slf4j import LoggerFactory
 from gda.device import DetectorSnapper, DeviceException
-from gda.device.detector.addetector.filewriter.FileWriterBase import logStackTrace
 
 try:
 	from gda.analysis import Plotter
@@ -18,6 +17,7 @@ from gda.device.Detector import BUSY
 from gda.device.scannable import ScannableMotionBase
 from gda.device.scannable import PositionCallableProvider
 from gda.factory import Finder
+from gda.util.logging.LoggingUtils import logStackTrace
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer
 from java.util.concurrent import Callable #@UnresolvedImport
 import time

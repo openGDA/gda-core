@@ -18,15 +18,16 @@
 
 package gda.device.detector;
 
-import gda.device.DeviceException;
-import gda.device.continuouscontroller.ConstantVelocityMoveController2;
-import gda.device.scannable.VariableCollectionTimeDetector;
-
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.continuouscontroller.ConstantVelocityMoveController2;
+import gda.device.scannable.VariableCollectionTimeDetector;
+import gda.util.logging.LoggingUtils;
 
 public class HardwareTriggeredNXDetectorWithReadoutTimeAndVariableCollectionTime extends HardwareTriggeredNXDetectorWithReadoutTime
 		implements VariableCollectionTimeDetector {
@@ -66,7 +67,8 @@ public class HardwareTriggeredNXDetectorWithReadoutTimeAndVariableCollectionTime
 
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
-		logger.trace("setCollectionTime({}) times={} stack trace {}", collectionTime,  Arrays.toString(times), Arrays.toString(Thread.currentThread().getStackTrace()));
+		logger.trace("setCollectionTime({}) times={}", collectionTime,  Arrays.toString(times));
+		LoggingUtils.logStackTrace(logger, "setCollectionTime()");
 		resetTimeProfileIfUsed();
 		times = ArrayUtils.add(times, collectionTime);
 		super.setCollectionTime(-1);
@@ -83,7 +85,7 @@ public class HardwareTriggeredNXDetectorWithReadoutTimeAndVariableCollectionTime
 			logger.debug("resetTimeProfileIfUsed() time profile already used, reseting...");
 			timeProfileUsed = false;
 			times = ArrayUtils.EMPTY_DOUBLE_ARRAY;
-			
+
 			if (getHardwareTriggerProvider() instanceof ConstantVelocityMoveController2) {
 				ConstantVelocityMoveController2 cvmc = ((ConstantVelocityMoveController2)getHardwareTriggerProvider());
 				logger.debug("resetTimeProfileIfUsed() also reseting point being prepared... was {} ({} is a ConstantVelocityMoveController2)", cvmc.getPointBeingPrepared(), cvmc.getName());
