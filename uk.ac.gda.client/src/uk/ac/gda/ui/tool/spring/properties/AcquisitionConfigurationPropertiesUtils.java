@@ -24,8 +24,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
 
 /**

@@ -16,13 +16,8 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.daq.mapping.api.document;
+package uk.ac.gda.api.acquisition;
 
-/**
- * Defines some keys to identifies different types of {@link AcquisitionTemplate}
- *
- * @author Maurizio Nagni
- */
 public enum AcquisitionTemplateType {
 	/**
 	 * Identifies a point in a 2D space

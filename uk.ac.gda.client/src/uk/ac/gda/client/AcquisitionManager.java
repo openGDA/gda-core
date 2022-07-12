@@ -25,7 +25,7 @@ import java.util.MissingResourceException;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.osgi.OsgiService;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.properties.acquisition.AcquisitionTemplate;
 import uk.ac.gda.core.tool.spring.SpringApplicationContextFacade;
 import uk.ac.gda.ui.tool.document.DocumentFactory;
@@ -51,7 +51,9 @@ public class AcquisitionManager {
 	}
 
 	private ScanningAcquisition acquisitionFromTemplate(AcquisitionKeys key) {
-		return getDocumentFactory().newScanningAcquisition(getTemplate(key));
+		var acquisition = getDocumentFactory().newScanningAcquisition(getTemplate(key));
+		acquisition.setKey(key);
+		return acquisition;
 	}
 
 	private AcquisitionTemplate getTemplate(AcquisitionKeys key) {

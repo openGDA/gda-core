@@ -20,15 +20,15 @@ package uk.ac.gda.ui.tool.controller;
 
 import java.util.UUID;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.Acquisition;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.configuration.AcquisitionConfiguration;
 import uk.ac.gda.api.acquisition.parameters.AcquisitionParameters;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.ui.tool.document.DocumentFactory;
 import uk.ac.gda.ui.tool.selectable.NamedCompositeFactory;
 

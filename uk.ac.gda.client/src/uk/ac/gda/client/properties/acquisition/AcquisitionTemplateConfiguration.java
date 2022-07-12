@@ -20,7 +20,7 @@ package uk.ac.gda.client.properties.acquisition;
 
 import java.util.List;
 
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.client.properties.stage.position.ScannablePropertiesValue;
 
 public class AcquisitionTemplateConfiguration {

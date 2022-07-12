@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import uk.ac.gda.api.acquisition.Acquisition;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionType;
 
 /**
@@ -44,6 +45,7 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 	private AcquisitionEngineDocument acquisitionEngine;
 
 	private AcquisitionType type;
+	private AcquisitionKeys key;
 
 	@Override
 	public UUID getUuid() {
@@ -117,10 +119,18 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 		this.type = type;
 	}
 
+	public AcquisitionKeys getKey() {
+		return key;
+	}
+
+	public void setKey(AcquisitionKeys key) {
+		this.key = key;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(acquisitionConfiguration, acquisitionEngine, acquisitionLocation, description,
-				executionPeriod, name, type, uuid);
+				executionPeriod, key, name, type, uuid);
 	}
 
 	@Override
@@ -131,13 +141,13 @@ public class AcquisitionBase<T extends AcquisitionConfigurationBase<? extends Ac
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		var other = (AcquisitionBase<?>) obj;
+		AcquisitionBase<?> other = (AcquisitionBase<?>) obj;
 		return Objects.equals(acquisitionConfiguration, other.acquisitionConfiguration)
 				&& Objects.equals(acquisitionEngine, other.acquisitionEngine)
 				&& Objects.equals(acquisitionLocation, other.acquisitionLocation)
 				&& Objects.equals(description, other.description)
-				&& Objects.equals(executionPeriod, other.executionPeriod) && Objects.equals(name, other.name)
-				&& type == other.type && Objects.equals(uuid, other.uuid);
+				&& Objects.equals(executionPeriod, other.executionPeriod) && Objects.equals(key, other.key)
+				&& Objects.equals(name, other.name) && type == other.type && Objects.equals(uuid, other.uuid);
 	}
 
 }

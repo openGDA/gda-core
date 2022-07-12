@@ -30,11 +30,11 @@ import uk.ac.diamond.daq.experiment.api.structure.ExperimentController;
 import uk.ac.diamond.daq.experiment.api.structure.ExperimentControllerException;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.diamond.daq.mapping.ui.controller.ScanningAcquisitionController;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.resource.AcquisitionConfigurationResource;
 import uk.ac.gda.api.acquisition.response.RunAcquisitionResponse;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
 import uk.ac.gda.client.exception.GDAClientRestException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 import uk.ac.gda.ui.tool.controller.AcquisitionController;
 import uk.ac.gda.ui.tool.rest.ExperimentControllerServiceClient;
 

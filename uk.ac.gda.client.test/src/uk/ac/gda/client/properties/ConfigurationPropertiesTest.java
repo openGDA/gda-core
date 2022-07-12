@@ -30,10 +30,10 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.api.acquisition.AcquisitionEngineDocument.AcquisitionEngineType;
 import uk.ac.gda.api.camera.ImageMode;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
-import uk.ac.gda.client.properties.acquisition.AcquisitionPropertyType;
 import uk.ac.gda.client.properties.camera.CameraConfigurationProperties;
 import uk.ac.gda.client.properties.controller.ControllerConfiguration;
 import uk.ac.gda.test.helpers.ClassLoaderInitializer;

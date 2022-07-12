@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplate;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.scanpath.ScanpathDocument;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.common.exception.GDAException;
 
 /**

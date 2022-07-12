@@ -30,8 +30,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import gda.mscan.element.Mutator;
-import uk.ac.diamond.daq.mapping.api.document.AcquisitionTemplateType;
 import uk.ac.diamond.daq.mapping.api.document.deserializer.MutatorDeserializer;
+import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 
 /**
  * Describes a generic acquisition model. Classes extending this realise specific acquisition configuration.

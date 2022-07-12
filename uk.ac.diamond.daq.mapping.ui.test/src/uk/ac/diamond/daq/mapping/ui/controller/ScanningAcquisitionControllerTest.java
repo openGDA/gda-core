@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
+import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.client.AcquisitionManager;
 import uk.ac.gda.client.exception.AcquisitionControllerException;
-import uk.ac.gda.client.properties.acquisition.AcquisitionKeys;
 
 public class ScanningAcquisitionControllerTest {
 
