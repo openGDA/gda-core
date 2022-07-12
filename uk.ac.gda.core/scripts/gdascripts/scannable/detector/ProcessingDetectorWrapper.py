@@ -11,12 +11,14 @@ except ImportError:
 	Plotter = None
 
 import java.lang.Long #@UnresolvedImport
+from java.time import Instant #@UnresolvedImport
 
 from gda.data.fileregistrar import IFileRegistrar
 from gda.device.Detector import BUSY
 from gda.device.scannable import ScannableMotionBase
 from gda.device.scannable import PositionCallableProvider
 from gda.factory import Finder
+from gda.util.logging.LoggingUtils import logSince
 from gda.util.logging.LoggingUtils import logStackTrace
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer
 from java.util.concurrent import Callable #@UnresolvedImport
@@ -269,7 +271,13 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 		self.det.waitWhileBusy() # from BlockingDetector interface
 
 	def getPosition(self):
-		return self.getPositionCallable().call()
+		self.logger.trace("getPosition() _operatingInScan={} _preparedForScan={}",
+			self._operatingInScan, self._preparedForScan)
+		start_time = Instant.now()
+		result=self.getPositionCallable().call()
+		logSince(self.logger, "getPosition() took", start_time)
+		self.logger.trace("getPosition() returning {}", result)
+		return result
 
 	def atScanEnd(self):
 		self._operatingInScan = False

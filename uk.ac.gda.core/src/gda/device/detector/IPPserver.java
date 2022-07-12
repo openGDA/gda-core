@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import gda.device.DeviceException;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import gda.util.logging.LoggingUtils;
 
 /**
  * Interface to the ImageProPlus package for data collection from a Photonics Science CCD.
@@ -107,9 +109,11 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 			 */
 			try {
 				logger.debug("IPPserver::ClientSocketHandlerAdapter opening socket");
+				final Instant startTime = Instant.now();
 
 				theSocket = new Socket(getHost(), getPort());
 
+				LoggingUtils.logSince(logger, "socket opened within", startTime);
 				logger.debug("IPPserver::ClientSocketHandlerAdapter socket opened ok");
 
 				out = new BufferedWriter(new OutputStreamWriter(theSocket.getOutputStream()));
@@ -129,6 +133,8 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 						logger.error("IPPServer.openSocket() caught InteruptedException: ", e);
 					}
 					String connectedMessage = readNB();
+
+					LoggingUtils.logSince(logger, "socket opened and connected within", startTime);
 					logger.debug("IPPserver plugin connection reply:\r\n" + connectedMessage);
 				} else {
 					connected = false;
@@ -185,11 +191,14 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 			if (connected == true) {
 				logger.debug("IPPserver::ClientSocketHandlerAdapter writing: " + s);
+				final Instant startTime = Instant.now();
 
 				out.write(s, 0, s.length());
+				LoggingUtils.logSince(logger, "write() took", startTime);
 				out.flush();
 
 				logger.debug("IPPserver::ClientSocketHandlerAdapter wrote ok");
+				LoggingUtils.logSince(logger, "write() & flush() took", startTime);
 
 				return true;
 			}
@@ -223,6 +232,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 			}
 
 			if (connected == true) {
+				final Instant startTime = Instant.now();
 				StringBuffer sb = new StringBuffer(256);
 				char c;
 
@@ -236,19 +246,20 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 						}
 						if (!hasBeenWaiting) {
 							hasBeenWaiting = true;
-							logger
-									.debug("IPPserver::ClientSocketHandlerAdapter read - socket not ready - polling socket in loop...");
+							logger.debug("IPPserver::ClientSocketHandlerAdapter read - socket not ready - polling socket in loop...");
 						}
 						Thread.sleep(waitTime);
 						timeWaitingForReady += waitTime;
 					}
 					if (hasBeenWaiting) {
 						logger.debug("IPPserver::ClientSocketHandlerAdapter read - socket now ready");
+						LoggingUtils.logSince(logger, "read() ready within", startTime);
 					}
 					c = (char) in.read();
 					sb.append(c);
 				} while (c != '\n');
 
+				LoggingUtils.logSince(logger, "read() completed within", startTime);
 				logger.debug("IPPserver::ClientSocketHandlerAdapter read - read from socket: " + sb);
 				return (sb.toString()).trim();
 			}
@@ -356,6 +367,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
+		logger.trace("asynchronousMoveTo({})", position);
 		Double collectionTime = ScannableUtils.objectToArray(position)[0];
 		this.setCollectionTime(collectionTime);
 		this.collectData();
@@ -370,18 +382,22 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 */
 	@Override
 	public void atScanStart() throws DeviceException {
+		logger.trace("atScanStart()");
 		ensureFolderExists();
 	}
 
 	@Override
 	public void collectData() throws DeviceException {
+		logger.trace("collectData()");
 		ScanInformation info = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		logger.trace("ScanInformation={}", info);
 		acquireImage(); // this command will have attempted to secure a connection if required
 		saveData(fileNameRoot + "_" + info.getScanNumber() + "_", fileFormat);
 	}
 
 	@Override
 	public String[] acquire() throws DeviceException {
+		logger.trace("acquire()");
 		//TODO implement
 		acquireImage();
 		String snapshotFileNameRoot = fileNameRoot + "_snapshot_" + snapshotNumTracker.incrementNumber();
@@ -392,16 +408,19 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 	@Override
 	public void prepareForAcquisition(double acquisitionTime) throws DeviceException {
+		logger.trace("prepareForAcquisition({})", acquisitionTime);
 		setCollectionTime(acquisitionTime);
 	}
 
 	@Override
 	public double getAcquireTime() throws DeviceException {
+		logger.trace("getAcquireTime()");
 		return getCollectionTime();
 	}
 
 	@Override
 	public double getAcquirePeriod() throws DeviceException {
+		logger.trace("getAcquirePeriod()");
 		return getAcquireTime();
 	}
 
@@ -426,7 +445,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 *             If a request to send a command is made while a request is already being handled.
 	 */
 	public void acquireImage() throws DeviceException, DeviceBusyException {
-		logger.debug("acquireImage acquiring image using ImagePro camera");
+		logger.debug("acquireImage() acquiring image using ImagePro camera, collectiontime={}", collectionTime);
 		// 1) Set exposure time
 		if (collectionTime != 0.0) {
 			sendCommandToSetExposureTime(); // This command will attempt to secure a connection if required
@@ -481,6 +500,8 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 * @throws DeviceBusyException
 	 */
 	private void saveData(String theFileName, String theFileFormat) throws DeviceException, DeviceBusyException {
+		logger.trace("saveData({}, {}) lastImagePathName={}", theFileName, theFileFormat, lastImagePathName);
+
 		String reply = "";
 		int err = -1;
 
@@ -494,8 +515,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 			theFileName = theFileName.replace('/', '\\');
 			// theFileName += "." + theFileFormat;
 
-			logger.debug(theFileName);
-			logger.debug(fileFormat);
+			logger.trace("converted theFileName={}", theFileName);
 
 			reply = sendCommandAndGetReply("ipWsSaveAs " + theFileName + " " + theFileFormat);
 
@@ -509,10 +529,12 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 			// fetch full pathname for last aquired image
 			lastImagePathName = sendCommandAndGetReply("getLastImagePath");
 
+			logger.trace("updated lastImagePathName={}", lastImagePathName);
+
 			// strip off reply header to get actual returned pathname
 			lastImagePathName = lastImagePathName.substring(8).trim();
 
-			logger.debug("saveData getLastImagePath: " + lastImagePathName);
+			logger.debug("updated lastImagePathName={}", lastImagePathName);
 		} catch (InterruptedException e) {
 			throw new DeviceException("Error saving data", e);
 		}
@@ -664,6 +686,8 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 	@Override
 	public Object readout() throws DeviceException {
+		logger.debug("readout() returning {}", lastImagePathName);
+		LoggingUtils.logStackTrace(logger, "readout");
 		return lastImagePathName;
 	}
 
@@ -679,6 +703,8 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 *            the output folder root pathname
 	 */
 	public void setOutputFolderRoot(String outputFolderRoot) {
+		logger.trace("setOutputFolderRoot({})", outputFolderRoot);
+		LoggingUtils.logStackTrace(logger, "setOutputFolderRoot");
 		this.outputFolderRoot = outputFolderRoot;
 	}
 
@@ -695,6 +721,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 	 */
 	public void setFileNameRoot(String fileNameRoot) {
 		logger.debug("IPPserver set FileName root" + fileNameRoot);
+		LoggingUtils.logStackTrace(logger, "setFileNameRoot");
 		this.fileNameRoot = fileNameRoot;
 	}
 
@@ -716,6 +743,7 @@ public class IPPserver extends DetectorBase implements DetectorSnapper {
 
 	@Override
 	public int getStatus() throws DeviceException {
+		logger.trace("getStatus() always returns 0");
 		return 0;
 	}
 
