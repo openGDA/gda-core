@@ -5,7 +5,8 @@ from gda.data.metadata import GDAMetadataProvider
 from gda.jython.batoncontrol import BatonChanged
 import os
 import gov.aps.jca.TimeoutException  # @UnresolvedImport
-import java.lang.IllegalStateException
+import java.lang.IllegalStateException # @UnresolvedImport
+from org.slf4j import LoggerFactory
 from __builtin__ import isinstance
 
 class VisitSetter(IObserver):
@@ -74,17 +75,29 @@ class DetectorAdapter():
         self.toreplace = toreplace
         self.replacement = replacement
         self.report_path = report_path
-        
+        self.logger = LoggerFactory.getLogger("%s:%s" % (self.__class__.__name__, detector.getName()))
+
     def setVisitDirectory(self, path):
         fullpath = os.path.join(path, self.subfolder) if self.subfolder else os.path.join(path)
+        self.logger.debug("setVisitDirectory({}) with subfolder={}, create_folder={}, toreplace={} & replacement={} so raw fullpath={}",
+             path, self.subfolder, self.create_folder, self.toreplace, self.replacement, fullpath)
+
         if self.create_folder:
             if not os.path.exists(fullpath):
                 try:
                     os.makedirs(fullpath)
                 except:
+                    self.logger.warn("Could not create folder {}", fullpath)
                     print "!!! Warning !!! Could not create directory: " + fullpath
+
         if self.toreplace:
-            fullpath = fullpath.replace(self.toreplace, self.replacement)
+            oldpath=fullpath
+            fullpath=fullpath.replace(self.toreplace, self.replacement)
+            if fullpath == oldpath:
+                self.logger.warn("No substitution made on {} with toreplace={} & replacement={}",
+                    fullpath, self.toreplace, self.replacement)
+
+        self.logger.debug("setVisitDirectory({}) -> {}", path, fullpath)
         self.setDirectory(fullpath)
     
     def setDirectory(self, path):
