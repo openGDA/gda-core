@@ -68,6 +68,7 @@
 		<module>uk.ac.diamond.daq.server.rcpcontroller</module>
 		<module>uk.ac.diamond.daq.stage</module>
 		<module>uk.ac.diamond.daq.stage.test</module>
+		<module>uk.ac.diamond.scisoft.deprecated.rcp</module>
 		<module>uk.ac.diamond.scisoft.gda.feature</module>
 		<module>uk.ac.gda.analysis</module>
 		<module>uk.ac.gda.analysis.test</module>
