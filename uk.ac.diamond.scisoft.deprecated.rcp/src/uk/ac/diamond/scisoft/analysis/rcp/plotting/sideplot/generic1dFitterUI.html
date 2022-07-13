@@ -1,0 +1,145 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>8. Fitting 1D Sideplot &mdash; GDA v8.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="copyright" title="Copyright" href="../../copyright.html" />
+    <link rel="top" title="GDA v8.8 documentation" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="../../index.html">GDA v8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fitting-1d-sideplot">
+<h1>8. Fitting 1D Sideplot<a class="headerlink" href="#fitting-1d-sideplot" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>8.1. Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This side plot has been designed to allow peaks to be fitted to a 1 dimensional dataset. There are 2 basic modes of operation:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference internal" href="#auto-fitting">Auto Fitting</a>.</li>
+<li><a class="reference internal" href="#click-and-drag-fitting">Click and drag fitting</a>.</li>
+</ul>
+</blockquote>
+<p>The fitting algorithm works in the following manner. Initially the first derivative of the one dimensional dataset is taken. A smoothing function is applied during this process. The default value for the smoothing value is 1% of the data length or this value can be set manually using the Fitting1D <a class="reference internal" href="#preferences-page">preferences page</a>. Using the first derivative, the regions thought to contain peaks are found.  These peak containing regions are identified by a region of positive gradient followed by a region of negative gradient. Using this information an optimisation routine is applied to the data in the region where the peak was found. The selected peaks is then fitted to the data. Currently, the types of peaks fitted can be chosen in the side plot or in the <a href="#id3"><span class="problematic" id="id4">`preference page`_</span></a>.</p>
+<div class="figure">
+<img alt="../../_images/FittingViewAuto.png" src="../../_images/FittingViewAuto.png" />
+</div>
+<p>The results from the peak fitting are then shown in the table and their positions are indicated in the plot. An individual peak can be selected from the table and the region where the peak came from is highlighted and in the main plot view, the data and the fitted peak are displayed in the plot at the bottom of the sideplot.</p>
+</div>
+<div class="section" id="auto-fitting">
+<span id="id1"></span><h2>8.2. Auto Fitting<a class="headerlink" href="#auto-fitting" title="Permalink to this headline">¶</a></h2>
+<p>The mode of operation is designed to make an attempt at fitting peaks to the input data automatically but still allowing the user to manipulate the peaks found after this operation. There are two ways to do this: The first method is to specify the number of peaks that the fitting routing should fit. This will attempt to fit the <em>n</em>  peaks with the largest area and then stop. If there are less than <em>n</em> peaks in the data then the routine will fit the maximum number of peaks that the peak finding routine has found.</p>
+<p>The second method of automatic fitting is to continue to fit peaks to the data until a threshold is met. There are two different measures which are available through the preference page: <strong>area</strong> and <strong>height</strong>. Using this method will continue to fit peaks to the data until the peak being fitted is less than the threshold selected in the preference page. For example, if area is selected as the measure and the  threshold is set 0.05 the peak fitting routine will continue until the next peak being fitted is less than the 5% of the area of the largest peak. The automatically found peaks are coloured blue in the table.</p>
+</div>
+<div class="section" id="click-and-drag-fitting">
+<span id="id2"></span><h2>8.3. Click and Drag fitting<a class="headerlink" href="#click-and-drag-fitting" title="Permalink to this headline">¶</a></h2>
+<p>This allows regions to be selected from the plot and peaks to fitted within this region. To do this right click and drag across the region containing the peak. When the button is released then the a menu allowing the user to choose the number of peaks that are to be fitted to the region selected. Using the advanced settings, the type of peak, fitting method (including accuracy) and the smoothing can be specified. If a peak is found then the table is updated and the manually found peaks are coloured green</p>
+<div class="figure">
+<img alt="../../_images/Fitting1DDragging.png" src="../../_images/Fitting1DDragging.png" />
+</div>
+</div>
+<div class="section" id="peak-manipulation">
+<h2>8.4. Peak Manipulation<a class="headerlink" href="#peak-manipulation" title="Permalink to this headline">¶</a></h2>
+<p>Once peaks have been found, the location of these peaks can be shown on the main plot by selecting &#8216;show all peaks&#8217;. This will highlight the region of data where a peaks has been found in the main plotter. The box is defined as the full width at half maximum of the fitted peak. This allows the performance of the peak fitting to be assessed by examining the plot after the routing is finished. By right clicking on a row in the table the data and the fitted peak is shown in the lower plot. Overlayed onto this sub plot is the full width at half maximum and the mean of the fitted peak.</p>
+<p>If the peak is found to be incorrectly fitted then the peak can be deleted from the list. This is particularly useful if the automatic peak fitting has found an erroneous peak. This is achieved by left clicking on the row in the table and selecting delete. A peak can also be edited using the edit option. Using this a different probability density function can be fitted to the region where the existing peak was found, for example. If no peak is found the table remains unchanged.</p>
+</div>
+<div class="section" id="preferences">
+<span id="preferences-page"></span><h2>8.5. Preferences.<a class="headerlink" href="#preferences" title="Permalink to this headline">¶</a></h2>
+<p>The preferences interface is used to control various features in the fitting routine and interface. The preferences can be found in Windows &gt; Preferences.</p>
+<div class="figure">
+<img alt="../../_images/Fitting1DPreferences.png" src="../../_images/Fitting1DPreferences.png" />
+</div>
+<p>The &#8216;Peak control&#8217; section allows which type of peak is fitted to the data in the plot. This will then be the type of peak fitted for auto fitting and is preserved between sessions. The number of peaks is the maximum number of peaks the routine will fit if automatic stopping is not selected. If automatic stopping is selected then this will be disabled.</p>
+<p>Below this is the algorithm controls. This allows the the type of fitting algorithm employed and the accuracy of that algorithm to be specified. The lower the number the more accurate, but more expensive and time consuming, the fitting will be. The smoothing that is applied to calculate the differential of the data being fitted can also be specified. The units associated with this smoothing are the number of data points in the data. When auto smoothing is selected the smoothing is set to 1% of then data length.</p>
+<p>The stopping criteria can also be customised. When selected the routine will continue until the specified threshold is met. This threshold is the proportion of the largest peak. The measure can be either the height of the largest peak or the area of the largest peak.</p>
+<p>For example, if the threshold is set to 0.10 and the largest peak is has an area of 100 then the routing will continue to run until the next peak being fitted as an area of less that 10. At this point the routine will stop and the results from the peaks found will be displayed.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">8. Fitting 1D Sideplot</a><ul>
+<li><a class="reference internal" href="#overview">8.1. Overview</a></li>
+<li><a class="reference internal" href="#auto-fitting">8.2. Auto Fitting</a></li>
+<li><a class="reference internal" href="#click-and-drag-fitting">8.3. Click and Drag fitting</a></li>
+<li><a class="reference internal" href="#peak-manipulation">8.4. Peak Manipulation</a></li>
+<li><a class="reference internal" href="#preferences">8.5. Preferences.</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/uk.ac.diamond.scisoft.analysis/userguide/generic1dFitterUI.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="../../index.html">GDA v8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; <a href="../../copyright.html">Copyright</a> 2010, August.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>
