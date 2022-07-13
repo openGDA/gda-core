@@ -37,6 +37,7 @@ import org.eclipse.january.dataset.Slice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.nexusprocessor.DatasetCreator;
 import uk.ac.diamond.daq.api.messaging.MessagingService;
 import uk.ac.diamond.daq.api.messaging.messages.ScanMessage;
 import uk.ac.diamond.daq.api.messaging.messages.SwmrStatus;
@@ -60,6 +61,7 @@ public class SwmrMalcolmProcessingReader {
 	private final String detFrameEntry;
 	private final String detUidEntry;
 	private Future<?> future;
+	private final DatasetCreator datasetCreator;
 	private boolean doOptimise = false;
 
 	/**
@@ -68,14 +70,16 @@ public class SwmrMalcolmProcessingReader {
 	 * @param procs processes to receive frames
 	 * @param detFrameEntry name of detector frame dataset
 	 * @param detUidEntry name of detector uid dataset
+	 * @param datasetCreator applies a transformation to the dataset, if null none will be applied
 	 */
-	public SwmrMalcolmProcessingReader(Path filepath, int count, Collection<MalcolmSwmrProcessor> procs, String detFrameEntry, String detUidEntry) {
+	public SwmrMalcolmProcessingReader(Path filepath, int count, Collection<MalcolmSwmrProcessor> procs, String detFrameEntry, String detUidEntry, DatasetCreator datasetCreator) {
 		this.filepath = filepath;
 		this.count = count;
 		this.procs = procs;
 		this.detFrameEntry = detFrameEntry;
 		this.detUidEntry = detUidEntry;
 		this.messageService = GDACoreActivator.getService(MessagingService.class);
+		this.datasetCreator = datasetCreator;
 		if (procs.size() < 3) {
 			doOptimise = procs.stream().allMatch( p -> p instanceof PlotProc || p instanceof RoiProc);
 		}
@@ -145,15 +149,16 @@ public class SwmrMalcolmProcessingReader {
 			SliceFromSeriesMetadata md = next.getFirstMetadata(SliceFromSeriesMetadata.class);
 			logger.debug("Ready for slice {}", Slice.createString(md.getSliceFromInput()));
 
-			Dataset slice;
+			Dataset unmaskedSlice;
 			try {
-				slice = DatasetUtils.convertToDataset(next.getSlice());
+				unmaskedSlice = DatasetUtils.convertToDataset(next.getSlice());
 			} catch (DatasetException e) {
 				logger.error("Error obtaining slice, meta: {}", md, e);
 				return;
 			}
-			slice.clearMetadata(null);
-			procs.forEach(proc -> proc.processFrame(slice, md));
+			unmaskedSlice.clearMetadata(null);
+			Dataset maskedSlice = datasetCreator == null ? unmaskedSlice : datasetCreator.createDataSet(unmaskedSlice);
+			procs.forEach(proc -> proc.processFrame(maskedSlice, md));
 			sendUpdateMessage();
 			logger.debug("Complete for slice {}", Slice.createString(md.getSliceFromInput()));
 		}

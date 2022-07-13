@@ -46,6 +46,9 @@ import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.detector.nexusprocessor.DatasetCreator;
+import gda.device.detector.nexusprocessor.MaskedDatasetCreator;
+
 /**
  * Extension of Malcolm device to allow live processing to be performed within GDA
  * This is achieved using {@link SwmrMalcolmProcessingReader} responsible for reading
@@ -71,6 +74,8 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 	private LazyWriteableDataset kDataset;
 
 	private LazyWriteableDataset lDataset;
+
+	private DatasetCreator datasetCreator;
 
 	@FileDeclared
 	public void startSwmrReader() {
@@ -104,7 +109,7 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 
 		processors.forEach(p -> p.initialise(info, mDetWrapper));
-		swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, processors, detFrameEntry, detUidEntry);
+		swmrReader = new SwmrMalcolmProcessingReader(detDatafile, count, processors, detFrameEntry, detUidEntry, datasetCreator);
 
 		if (hklProvider != null) {
 			prepareHkl(info, malcNxs);
@@ -208,6 +213,10 @@ public class ProcessingMalcolmDevice extends MalcolmDevice {
 
 	public void setPrimaryDataName(String primaryDataName) {
 		this.primaryDataName = primaryDataName;
+	}
+
+	public void setDatasetCreator(MaskedDatasetCreator datasetCreator) {
+		this.datasetCreator = datasetCreator;
 	}
 
 }

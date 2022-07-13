@@ -25,6 +25,6 @@ import org.eclipse.january.dataset.Dataset;
  * is a region of interest in the first
  */
 public interface DatasetCreator {
-	Dataset createDataSet(Dataset ds) throws Exception;
+	Dataset createDataSet(Dataset ds);
 
 }
