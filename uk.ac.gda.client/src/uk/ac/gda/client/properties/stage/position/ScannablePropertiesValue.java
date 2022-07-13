@@ -36,14 +36,23 @@ public class ScannablePropertiesValue {
 		CURRENT
 	}
 
+	private String scannableName;
 	private ScannableKeys scannableKeys;
 	private PositionType positionType = PositionType.ABSOLUTE;
 	private Object position;
 
+
+	public String getScannableName() {
+		return scannableName;
+	}
+
+	public void setScannableName(String scannableName) {
+		this.scannableName = scannableName;
+	}
+
 	/**
-	 * Identifies the scannable
-	 *
-	 * @return a scannable identificator
+	 * Identifies the scannable.
+	 * If {@code null}, get the scannable name directly via {@link #getScannableName()}
 	 */
 	public ScannableKeys getScannableKeys() {
 		return scannableKeys;

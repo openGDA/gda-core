@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -140,7 +141,7 @@ public class PositionManagerTest {
 				createPosition(Y_AXIS, 21.4)
 				);
 
-		var startPosition = manager.getStartPosition(acquisition, key);
+		var startPosition = manager.getStartPosition(key);
 
 		assertThat(startPosition, is(equalTo(expected)));
 	}
@@ -172,7 +173,21 @@ public class PositionManagerTest {
 				createPosition(Y_AXIS, 21.4)
 				);
 
-		var startPosition = manager.getStartPosition(acquisition, key);
+		var startPosition = manager.getStartPosition(key);
+
+		assertThat(startPosition, is(equalTo(expected)));
+	}
+
+	@Test
+	public void subTypePositionsTrumpAcquisitionPropertyTypePositions() {
+		key = new AcquisitionKeys(AcquisitionPropertyType.DIFFRACTION, AcquisitionSubType.BEAM_SELECTOR, AcquisitionTemplateType.STATIC_POINT);
+
+		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(X_AXIS, 50.0, Y_AXIS, 100.0));
+		var position = List.of(createScannablePropertiesValue(X_AXIS, 0.0), createScannablePropertiesValue(Y_AXIS, 12.0));
+		mockSubTypePosition(key.getSubType(), position);
+
+		var expected = Set.of(createPosition(X_AXIS, 0.0), createPosition(Y_AXIS, 12.0));
+		var startPosition = manager.getStartPosition(key);
 
 		assertThat(startPosition, is(equalTo(expected)));
 	}
@@ -190,30 +205,15 @@ public class PositionManagerTest {
 	 * Replaces previously collected documents if relating to same device.
 	 */
 	@Test
-	public void acquisitionTemplateTypePositionsTrumpAcquisitionPropertyTypePositions() {
+	public void acquisitionTemplateTypePositionsTrumpSubTypePositions() {
 
 		key = new AcquisitionKeys(AcquisitionPropertyType.CALIBRATION, AcquisitionSubType.STANDARD, AcquisitionTemplateType.FLAT);
 
-		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(BASE_POSITIONER, POSITIONER_IN));
+		mockSubTypePosition(key.getSubType(), List.of(createScannablePropertiesValue(BASE_POSITIONER, POSITIONER_IN)));
 		mockAcquisitionTemplateType(key, Map.of(BASE_POSITIONER, POSITIONER_OUT));
 
 		var expectedPosition = Set.of(createPosition(BASE_POSITIONER, POSITIONER_OUT));
-		var startPosition = manager.getStartPosition(acquisition, key);
-
-		assertThat(startPosition, is(equalTo(expectedPosition)));
-	}
-
-	/**
-	 * The final source of positions come from the acquisition instance,
-	 * which may be set via some acquisition GUI
-	 */
-	@Test
-	public void acquisitionInstanceTrumpsAll() {
-		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_OPEN));
-		mockInstancePosition(Map.of(SHUTTER, SHUTTER_CLOSE));
-
-		var expectedPosition = Set.of(createPosition(SHUTTER, SHUTTER_CLOSE));
-		var startPosition = manager.getStartPosition(acquisition, key);
+		var startPosition = manager.getStartPosition(key);
 
 		assertThat(startPosition, is(equalTo(expectedPosition)));
 	}
@@ -233,17 +233,20 @@ public class PositionManagerTest {
 	public void excludesDevicesConfiguredInTestModeWhenInTestMode() {
 		mockGlobalPosition(Map.of(SHUTTER, SHUTTER_OPEN));
 		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(BASE_POSITIONER, POSITIONER_IN));
-		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_CLOSE));
 
 		var xpos = 42.3;
 		var ypos = 0.45;
-		mockInstancePosition(Map.of(X_AXIS, xpos, Y_AXIS, ypos));
+		mockSubTypePosition(key.getSubType(),
+				List.of(createScannablePropertiesValue(X_AXIS, xpos),
+						createScannablePropertiesValue(Y_AXIS, ypos)));
+
+		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_CLOSE));
 
 		excludeInTestMode(SHUTTER, BASE_POSITIONER);
 		setTestModeActive(true);
 
 		var expectedPosition = Set.of(createPosition(X_AXIS, xpos), createPosition(Y_AXIS, ypos));
-		var startPosition = manager.getStartPosition(acquisition, key);
+		var startPosition = manager.getStartPosition(key);
 
 		assertThat(startPosition, is(equalTo(expectedPosition)));
 	}
@@ -252,11 +255,15 @@ public class PositionManagerTest {
 	public void doesNotExcludeDevicesWhenNotInTestMode() {
 		mockGlobalPosition(Map.of(SHUTTER, SHUTTER_OPEN));
 		mockAcquisitionPropertyType(key.getPropertyType(), Map.of(BASE_POSITIONER, POSITIONER_IN));
-		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_CLOSE));
+
 
 		var xpos = 42.3;
 		var ypos = 0.45;
-		mockInstancePosition(Map.of(X_AXIS, xpos, Y_AXIS, ypos));
+		mockSubTypePosition(key.getSubType(),
+				List.of(createScannablePropertiesValue(X_AXIS, xpos),
+						createScannablePropertiesValue(Y_AXIS, ypos)));
+
+		mockAcquisitionTemplateType(key, Map.of(SHUTTER, SHUTTER_CLOSE));
 
 		excludeInTestMode(SHUTTER, BASE_POSITIONER);
 		setTestModeActive(false);
@@ -266,7 +273,7 @@ public class PositionManagerTest {
 				createPosition(BASE_POSITIONER, POSITIONER_IN),
 				createPosition(X_AXIS, xpos),
 				createPosition(Y_AXIS, ypos));
-		var startPosition = manager.getStartPosition(acquisition, key);
+		var startPosition = manager.getStartPosition(key);
 
 		assertThat(startPosition, is(equalTo(expectedPosition)));
 	}
@@ -289,6 +296,11 @@ public class PositionManagerTest {
 		when(clientPropertiesHelper.getAcquisitionConfigurationProperties(type)).thenReturn(Optional.of(configuration));
 	}
 
+	private void mockSubTypePosition(AcquisitionSubType subType, List<ScannablePropertiesValue> position) {
+		position.forEach(this::dummyCreateDevicePositionDocument);
+		manager.configurePosition(subType, position);
+	}
+
 	private void mockAcquisitionTemplateType(AcquisitionKeys key, Map<String, Object> positions) {
 		var position = positions.entrySet().stream()
 				.map(entry -> createScannablePropertiesValue(entry.getKey(), entry.getValue()))
@@ -298,10 +310,6 @@ public class PositionManagerTest {
 
 		position.forEach(this::dummyCreateDevicePositionDocument);
 		when(clientPropertiesHelper.getAcquisitionTemplateConfiguration(key)).thenReturn(Optional.of(configuration));
-	}
-
-	private void mockInstancePosition(Map<String, Object> positions) {
-		when(scanningParameters.getStartPosition()).thenReturn(toDevicePositionDocuments(positions));
 	}
 
 	private void excludeInTestMode(String... devices) {

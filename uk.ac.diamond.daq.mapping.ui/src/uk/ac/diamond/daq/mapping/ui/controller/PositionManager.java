@@ -19,8 +19,10 @@
 package uk.ac.diamond.daq.mapping.ui.controller;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,9 +30,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningAcquisition;
 import uk.ac.gda.api.acquisition.AcquisitionKeys;
 import uk.ac.gda.api.acquisition.AcquisitionPropertyType;
+import uk.ac.gda.api.acquisition.AcquisitionSubType;
 import uk.ac.gda.api.acquisition.AcquisitionTemplateType;
 import uk.ac.gda.api.acquisition.parameters.DevicePositionDocument;
 import uk.ac.gda.client.properties.acquisition.AcquisitionConfigurationProperties;
@@ -50,6 +52,11 @@ public class PositionManager {
 
 	@Autowired
 	private ClientPropertiesHelper clientPropertiesHelper;
+
+
+	private Map<AcquisitionPropertyType, List<ScannablePropertiesValue>> positionsPerScanType = new EnumMap<>(AcquisitionPropertyType.class);
+	private Map<AcquisitionTemplateType, List<ScannablePropertiesValue>> positionsPerTemplate = new EnumMap<>(AcquisitionTemplateType.class);
+	private Map<AcquisitionSubType, List<ScannablePropertiesValue>> positionsPerSubType = new EnumMap<>(AcquisitionSubType.class);
 
 	/**
 	 * Returns the start position for an acquisition, compiled from several configuration sources:
@@ -75,23 +82,48 @@ public class PositionManager {
 	 * Additionally, if {@link TestMode} is active and devices are configured for exclusion,
 	 * these will be filtered out.
 	 */
-	public Set<DevicePositionDocument> getStartPosition(ScanningAcquisition acquisition, AcquisitionKeys keys) {
+	public Set<DevicePositionDocument> getStartPosition(AcquisitionKeys keys) {
 		final Set<DevicePositionDocument> overallPosition = new HashSet<>(getGlobalStartPosition());
 
 		final var acquisitionStartPosition = getAcquisitionPropertyStartPosition(keys.getPropertyType());
 		addReplacingPreviousReferences(overallPosition, acquisitionStartPosition);
 
+		final var subtypeStartPosition = getSubtypeStartPosition(keys.getSubType());
+		addReplacingPreviousReferences(overallPosition, subtypeStartPosition);
+
 		final var templateStartPosition = getAcquisitionTemplateStartPosition(keys);
 		addReplacingPreviousReferences(overallPosition, templateStartPosition);
-
-		final var instanceStartPosition = getInstanceStartPosition(acquisition);
-		addReplacingPreviousReferences(overallPosition, instanceStartPosition);
 
 		final var devicesToExclude = getDevicesToExclude();
 		overallPosition.removeIf(document -> devicesToExclude.contains(document.getDevice()));
 
 		return overallPosition;
 	}
+
+	public void configurePosition(AcquisitionPropertyType scanType, List<ScannablePropertiesValue> position) {
+		positionsPerScanType.put(scanType, position);
+	}
+
+	public List<ScannablePropertiesValue> getConfiguredPosition(AcquisitionPropertyType scanType) {
+		return positionsPerScanType.getOrDefault(scanType, Collections.emptyList());
+	}
+
+	public void configurePosition(AcquisitionTemplateType template, List<ScannablePropertiesValue> position) {
+		positionsPerTemplate.put(template, position);
+	}
+
+	public List<ScannablePropertiesValue> getConfiguredPosition(AcquisitionTemplateType template) {
+		return positionsPerTemplate.getOrDefault(template, Collections.emptyList());
+	}
+
+	public void configurePosition(AcquisitionSubType subType, List<ScannablePropertiesValue> position) {
+		positionsPerSubType.put(subType, position);
+	}
+
+	public List<ScannablePropertiesValue> getConfiguredPosition(AcquisitionSubType subType) {
+		return positionsPerSubType.getOrDefault(subType, Collections.emptyList());
+	}
+
 
 	/**
 	 * Adds all the contents of {@code subset} to {@code overall}.
@@ -120,18 +152,28 @@ public class PositionManager {
 	 * Scannable/position pairs configured against {@link AcquisitionPropertyType} property
 	 */
 	private Set<DevicePositionDocument> getAcquisitionPropertyStartPosition(AcquisitionPropertyType type) {
-		return convertToDevicePositionDocuments(clientPropertiesHelper.getAcquisitionConfigurationProperties(type)
+		List<ScannablePropertiesValue> positions = positionsPerScanType.computeIfAbsent(type, this::getFromProperties);
+		return convertToDevicePositionDocuments(positions);
+	}
+
+	private List<ScannablePropertiesValue> getFromProperties(AcquisitionPropertyType type) {
+		return clientPropertiesHelper.getAcquisitionConfigurationProperties(type)
 			.map(AcquisitionConfigurationProperties::getStartPosition)
-			.orElse(Collections.emptyList()));
+			.orElse(Collections.emptyList());
+	}
+
+	private List<ScannablePropertiesValue> getFromProperties(AcquisitionKeys key) {
+		return clientPropertiesHelper.getAcquisitionTemplateConfiguration(key)
+			.map(AcquisitionTemplateConfiguration::getStartPosition)
+			.orElse(Collections.emptyList());
 	}
 
 	/**
 	 * Scannable/position pairs configured against {@link AcquisitionTemplateType} property
 	 */
 	private Set<DevicePositionDocument> getAcquisitionTemplateStartPosition(AcquisitionKeys key) {
-		return convertToDevicePositionDocuments(clientPropertiesHelper.getAcquisitionTemplateConfiguration(key)
-				.map(AcquisitionTemplateConfiguration::getStartPosition)
-				.orElse(Collections.emptyList()));
+		List<ScannablePropertiesValue> positions = positionsPerTemplate.computeIfAbsent(key.getTemplateType(), ignored -> getFromProperties(key));
+		return convertToDevicePositionDocuments(positions);
 	}
 
 	private Set<DevicePositionDocument> convertToDevicePositionDocuments(List<ScannablePropertiesValue> values) {
@@ -141,11 +183,8 @@ public class PositionManager {
 				.collect(Collectors.toSet());
 	}
 
-	/**
-	 * Start position defined in this {@link ScanningAcquisition} instance
-	 */
-	private Set<DevicePositionDocument> getInstanceStartPosition(ScanningAcquisition acquisition) {
-		return acquisition.getAcquisitionConfiguration().getAcquisitionParameters().getStartPosition();
+	private Set<DevicePositionDocument> getSubtypeStartPosition(AcquisitionSubType subtype) {
+		return convertToDevicePositionDocuments(positionsPerSubType.getOrDefault(subtype, Collections.emptyList()));
 	}
 
 	/**
