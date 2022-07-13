@@ -1525,13 +1525,11 @@ public abstract class ScanBase implements NestableScan {
 
 }
 
-class ParentScanComponent implements ScanParent{
-
-	public static boolean throwExceptionForUnexpectedStateTransition = true;
+class ParentScanComponent {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParentScanComponent.class);
 
-	ScanStatus status;
+	private ScanStatus status;
 
 	/**
 	 * When set to true, the scan should complete the current data point, and then exit normally going through the same
@@ -1540,7 +1538,6 @@ class ParentScanComponent implements ScanParent{
 	private boolean finishEarlyRequested;
 
 	public ParentScanComponent(ScanStatus initialStatus) {
-		super();
 		this.status = initialStatus;
 	}
 
@@ -1559,7 +1556,6 @@ class ParentScanComponent implements ScanParent{
 		return status;
 	}
 
-	@Override
 	public void setStatus(ScanStatus newStatus) {
 		if (this.status.possibleFollowUps().contains(newStatus)) {
 			this.status = newStatus;
