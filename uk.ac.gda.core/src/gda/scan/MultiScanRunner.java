@@ -41,10 +41,11 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 	private int TotalNumberOfPoints=0;
 	private ScanBase first;
 	private ScanBase lastscan;
-	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
+	protected ParentScanComponent parentComponent;
 
 	public MultiScanRunner(final List<MultiScanItem> scans) {
 		this.scans = scans;
+		parentComponent = new ParentScanComponent(this, ScanStatus.NOTSTARTED);
 	}
 
 	@Override

@@ -176,7 +176,7 @@ public abstract class ScanBase implements NestableScan {
 	protected boolean callCollectDataOnDetectors = true;
 
 	// TODO This should be null for non-parents. For now we make it null in setIsChild(true)
-	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
+	protected ParentScanComponent parentComponent;
 
 	private final boolean isScripted;
 
@@ -210,6 +210,7 @@ public abstract class ScanBase implements NestableScan {
 			threadHasBeenAuthorised = false;
 			isScripted = false;
 		}
+		parentComponent = new ParentScanComponent(this, ScanStatus.NOTSTARTED);
 	}
 
 	@Override
@@ -1530,6 +1531,7 @@ class ParentScanComponent {
 	private static final Logger logger = LoggerFactory.getLogger(ParentScanComponent.class);
 
 	private ScanStatus status;
+	private final Scan scan;
 
 	/**
 	 * When set to true, the scan should complete the current data point, and then exit normally going through the same
@@ -1537,7 +1539,8 @@ class ParentScanComponent {
 	 */
 	private boolean finishEarlyRequested;
 
-	public ParentScanComponent(ScanStatus initialStatus) {
+	public ParentScanComponent(Scan scan, ScanStatus initialStatus) {
+		this.scan = scan;
 		this.status = initialStatus;
 	}
 
@@ -1560,7 +1563,7 @@ class ParentScanComponent {
 		if (this.status.possibleFollowUps().contains(newStatus)) {
 			this.status = newStatus;
 			// notify Command (Jython) Server that the status has changed
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this, this.getStatus());
+			InterfaceProvider.getJythonServerNotifer().notifyServer(scan, this.getStatus());
 		} else {
 			logger.error("Scan status change from '{}' to '{}' is not expected", this.status.name(),
 					newStatus.name());
