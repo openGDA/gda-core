@@ -64,6 +64,7 @@ public class ZebraImplTest {
 		when(pvFactory.getPVInteger(anyString())).thenReturn(mockIntegerPV);
 
 		zebraImpl = new ZebraImpl();
+		zebraImpl.setName("zebra");
 		zebraImpl.setPvFactory(pvFactory);
 		zebraImpl.setZebraPrefix("TESTZEBRA:ZEBRA:");
 		zebraImpl.afterPropertiesSet();
@@ -90,7 +91,19 @@ public class ZebraImplTest {
 
 	@Test
 	public void testAfterPropertiesSetMissingName() {
-		final ZebraImpl zebraImpl2 = new ZebraImpl();
+		ZebraImpl zebraImpl2 = new ZebraImpl();
+		zebraImpl2.setZebraPrefix("Zebra");
+		try {
+			zebraImpl2.afterPropertiesSet();
+			fail("Calling afterPropertiesSet() with no name set should fail");
+		} catch (Exception e) {
+			assertEquals("name is not set", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testAfterPropertiesSetEmptyName() {
+		ZebraImpl zebraImpl2 = new ZebraImpl();
 		zebraImpl2.setName("");
 		zebraImpl2.setZebraPrefix("Zebra");
 		try {
@@ -103,7 +116,8 @@ public class ZebraImplTest {
 
 	@Test
 	public void testAfterPropertiesSetMissingPrefix() {
-		final ZebraImpl zebraImpl2 = new ZebraImpl();
+		ZebraImpl zebraImpl2 = new ZebraImpl();
+		zebraImpl2.setName("zebra_two");
 		try {
 			zebraImpl2.afterPropertiesSet();
 			fail("Calling afterPropertiesSet() with no prefix set should fail");

@@ -133,10 +133,6 @@ public class ZebraImpl extends FindableBase implements Zebra, InitializingBean {
 
 	private boolean armPutNoWait = false;
 
-	public ZebraImpl() {
-		setName("zebra");
-	}
-
 	public boolean isArmPutNoWait() {
 		return armPutNoWait;
 	}
