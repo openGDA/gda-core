@@ -18,14 +18,20 @@
 
 package gda.scan;
 
+import static org.apache.commons.lang3.ArrayUtils.removeAll;
+import static org.apache.commons.lang3.ArrayUtils.toObject;
+import static org.apache.commons.lang3.ArrayUtils.toPrimitive;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,14 +52,43 @@ public class ScanDataPointCache extends DataPointCache {
 	protected void addDataPoint(IScanDataPoint sdp) {
 		// Get all the scannable and detector positions
 		final List<Double> positions = Arrays.asList(sdp.getAllValuesAsDoubles());
-		if (positions.size() != cache.size()) {
+		if (cache.size() == positions.size()) {
+			populateCache(sdp, positions);
+			return;
+		}
+
+		String[] pointNames = ArrayUtils.addAll(sdp.getScannableHeader(), sdp.getDetectorHeader().toArray(String[]::new));
+
+		// find index for each duplicated point name if any
+		Map<String, List<Integer>> duplicates = getDuplicatesInHeader(pointNames);
+
+		if (cache.size() > positions.size() || (positions.size() > cache.size() && duplicates.isEmpty())) {
 			throw new IllegalArgumentException("Cache won't work SDP contains different number of positions than expected."
 					+ " cacheSize=" + cache.size()
 					+ " pointSize=" + positions.size()
 					+ " cacheNames=" + cache.keySet()
-					+ " pointNames" + Arrays.toString(ArrayUtils.addAll(sdp.getScannableHeader(), sdp.getDetectorHeader().toArray())));
+					+ " pointNames=" + pointNames);
 		}
 
+		if (positions.size() > cache.size() && !duplicates.isEmpty()) {
+			logger.warn(
+					"SDP contains different number of positions than expected. cacheSize={}, pointSize={}, cacheNames={}, pointNames={}",
+					cache.size(), positions.size(), cache.keySet(), pointNames);
+			duplicates.forEach((k, v) -> logger.warn("duplicate name '{}' are found at index {}", k, v));
+			Double[] array = positions.toArray(new Double[positions.size()]);
+			// merge duplicate indexes for all keys (point names) after remove last index from the values of each key
+			Integer[] mergedDuplicateIndexes = duplicates.values().stream().map(s -> s.remove(s.size() - 1))
+					.collect(Collectors.toList()).toArray(new Integer[] {});
+			// remove duplicated position values for each key but keep the last value
+			List<Double> reducedpositions = Arrays.asList(toObject(removeAll(toPrimitive(array), toPrimitive(mergedDuplicateIndexes))));
+			logger.debug(
+					"reduced positions for SDP processor. cacheSize={}, pointSize={}, cacheNames={}, pointValues={}",
+					cache.size(), reducedpositions.size(), cache.keySet(), reducedpositions);
+			populateCache(sdp, reducedpositions);
+		}
+	}
+
+	private void populateCache(IScanDataPoint sdp, final List<Double> positions) {
 		final Iterator<Double> positionIterator = positions.iterator();
 
 		// Loop over the scannables adding their positions from this point
@@ -90,5 +125,14 @@ public class ScanDataPointCache extends DataPointCache {
 			throw new IllegalArgumentException(scannableName + " not found in data point cache");
 		}
 		return cache.get(scannableName);
+	}
+
+	private Map<String, List<Integer>> getDuplicatesInHeader(String ... data) {
+	    Map<String, List<Integer>> duplicates = IntStream.range(0, data.length)
+	            .boxed()
+	            .collect(Collectors.groupingBy(i -> data[i], LinkedHashMap::new, Collectors.toList()));
+	    duplicates.entrySet().removeIf(e -> e.getValue().size() < 2);
+
+	    return duplicates;
 	}
 }
