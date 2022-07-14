@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide;bundle-version="3.8.2",
  uk.ac.gda.client,
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
- uk.ac.gda.common,
  uk.ac.gda.api,
  uk.ac.gda.devices.vgscienta;bundle-version="1.0.0",
  org.eclipse.richbeans.widgets;bundle-version="1.0.0",
@@ -24,7 +23,10 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: Diamond Light Source
-Import-Package: org.slf4j;version="[1.7.2,2.0.0)"
+Import-Package: gda.configuration.properties,
+ gda.observable,
+ org.slf4j;version="[1.7.2,2.0.0)",
+ uk.ac.gda.util.beans.xml
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework, 
  uk.ac.gda.api,
  uk.ac.gda.core
