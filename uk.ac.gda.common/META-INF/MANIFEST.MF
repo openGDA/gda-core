@@ -12,12 +12,10 @@ Bundle-NativeCode: lib/linux-x86/libgda_common.so;
  osname=linux; processor=x86_64,
  *
 Export-Package: gda.configuration.properties,
- gda.observable,
  gda.util,
  gda.util.logging,
  uk.ac.diamond.technicaldebt,
  uk.ac.gda,
- uk.ac.gda.beans,
  uk.ac.gda.common.command,
  uk.ac.gda.common.entity,
  uk.ac.gda.common.entity.device,

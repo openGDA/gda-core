@@ -16,3 +16,4 @@ Require-Bundle: org.junit;bundle-version="[4.12.0,5.0.0)",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.9.9",
  org.apache.commons.logging
 Automatic-Module-Name: uk.ac.gda.common.test
+Import-Package: gda.observable
