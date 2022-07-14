@@ -187,8 +187,8 @@ public abstract class AbstractTwoAxisGridModel extends AbstractBoundingBoxModel 
 		final double xStep = model.getxAxisStep();
 		final double yStep = model.getyAxisStep();
 
-		final int xPoints = IBoundsToFit.getPointsOnLine(copy.getxAxisLength(), xStep, model.isBoundsToFit());
-		final int yPoints = IBoundsToFit.getPointsOnLine(copy.getyAxisLength(), yStep, model.isBoundsToFit());
+		final int xPoints = model.getPointsOnLine(copy.getxAxisLength(), xStep);
+		final int yPoints = model.getPointsOnLine(copy.getyAxisLength(), yStep);
 
 		pointsModel.setxAxisPoints(xPoints);
 		pointsModel.setyAxisPoints(yPoints);

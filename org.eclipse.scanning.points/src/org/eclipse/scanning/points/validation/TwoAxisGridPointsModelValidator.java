@@ -25,11 +25,13 @@ class TwoAxisGridPointsModelValidator extends AbstractMapModelValidator<TwoAxisG
 
 	@Override
 	public TwoAxisGridPointsModel validate(TwoAxisGridPointsModel model) {
-		if (model.getyAxisPoints() < 1) {
-			throw new ModelValidationException("Model must have a positive number of y-axis points!", model, "yAxisPoints");
+		// DAQ-3426, discourage use of ambiguous case where unsure whether to put 1 point at start or mid.
+		// In the case of a single axis points = 1, an Axial model should be used, and in the case of both, a TwoAxisPoint
+		if (model.getyAxisPoints() < 2) {
+			throw new ModelValidationException("Model must have at least 2 y-axis points!", model, "yAxisPoints");
 		}
-		if (model.getxAxisPoints() < 1) {
-			throw new ModelValidationException("Model must have a positive number of x-axis points!", model, "xAxisPoints");
+		if (model.getxAxisPoints() < 2) {
+			throw new ModelValidationException("Model must have at least 2 x-axis points!", model, "xAxisPoints");
 		}
 		return super.validate(model);
 	}

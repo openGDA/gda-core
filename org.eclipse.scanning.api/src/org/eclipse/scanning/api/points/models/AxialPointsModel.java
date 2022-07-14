@@ -22,14 +22,6 @@ import static org.eclipse.scanning.api.constants.PathConstants.POINTS;
 import static org.eclipse.scanning.api.constants.PathConstants.START;
 import static org.eclipse.scanning.api.constants.PathConstants.STOP;
 
-/**
- * A model for a scan along one axis with start and stop positions and a number of points.
- * M = Number of points - 1
- * Nth point is at Start + Length * (N / M) for N in [0..M] with if boundsToFit is false
- * 	0th point is at Start for Number of points = 1
- * Nth point is at Start + Length * (N + 0.5) / (M + 1) for N in [0..M] if boundsToFit is true
- * 	0th point is at Start + Length/2 for Number of points = 1
- */
 public class AxialPointsModel extends AbstractAxialModel implements IAxialModel {
 
 	/** Start position for the scan */
