@@ -19,8 +19,6 @@
 package uk.ac.diamond.daq.epics.connector;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -297,8 +295,27 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 		Object data = extractArray(imageDataArray);
 
 		if (colourMode != 0) {
+			Dataset flatDataset = DatasetFactory.createFromObject(data);
+			Dataset reshaped;
+
+			switch (colourMode) {
+			case 3:
+				reshaped = flatDataset.reshape(height, 3, width);
+				reshaped = reshaped.swapAxes(1, 2);
+				break;
+			case 4:
+				reshaped = flatDataset.reshape(3, height, width);
+				reshaped = reshaped.swapAxes(0, 1);
+				reshaped = reshaped.swapAxes(1, 2);
+				break;
+			default:
+				reshaped = flatDataset.reshape(height, width, 3);
+				break;
+			}
+
+			dataset = DatasetUtils.createCompoundDatasetFromLastAxis(reshaped, false);
 			Class<? extends Dataset> clazz = data instanceof byte[] ? RGBByteDataset.class : RGBDataset.class;
-			dataset = DatasetFactory.createFromObject(clazz, data, getDataShape());
+			dataset = DatasetUtils.cast(clazz, dataset);
 		} else {
 			dataset = DatasetFactory.createFromObject(data, getDataShape());
 		}
@@ -454,17 +471,14 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 				int nattr = attributeStructures.getLength();
 				StructureArrayData attrdata = new StructureArrayData();
 				attributeStructures.get(0, nattr, attrdata);
-				Map<String, PVInt> attribMap = new HashMap<>();
 				for (PVStructure structure : attrdata.data) {
-					// Only want to extract colour mode which is an integer
-					attribMap.put(structure.getSubField(PVString.class, "name").get(), structure.getSubField(PVUnion.class, "value").get(PVInt.class));
+					if ("ColorMode".equals(structure.getSubField(PVString.class, "name").get())) {
+						// Only want to extract colour mode which is an integer
+						return structure.getSubField(PVUnion.class, "value").get(PVInt.class).get();
+					}
 				}
-				if (attribMap.containsKey("ColorMode")) {
-					return attribMap.get("ColorMode").get();
-				} else {
-					// No ColorMode attribute found assume mono
-					return 0;
-				}
+				// No ColorMode attribute found assume mono
+				return 0;
 			}
 			throw new IllegalStateException("PV Structure does not contain attributes");
 
