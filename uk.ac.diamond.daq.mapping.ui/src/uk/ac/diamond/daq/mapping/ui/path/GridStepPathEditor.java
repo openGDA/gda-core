@@ -24,17 +24,17 @@ import static uk.ac.diamond.daq.mapping.ui.experiment.DataBinder.GREATER_THAN_ZE
 
 import javax.measure.quantity.Length;
 
+import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.client.NumberAndUnitsComposite;
 
-public class GridStepPathEditor extends AbstractGridPathEditor {
+public class GridStepPathEditor extends AbstractGridPathEditor<TwoAxisGridStepModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
-
 		final Composite composite = super.createEditorPart(parent);
 
 		new Label(composite, SWT.NONE).setText(getXAxisLabel() + " Step");

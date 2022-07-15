@@ -41,7 +41,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
  */
 public final class PathEditorProvider {
 
-	private static final Map<Class<? extends IScanPathModel>, Class<? extends AbstractPathEditor>> pathToEditor;
+	private static final Map<Class<? extends IScanPathModel>, Class<? extends AbstractPathEditor<?>>> pathToEditor;
 
 	static {
 		// Initialise the pathToEditor map
@@ -54,7 +54,7 @@ public final class PathEditorProvider {
 		pathToEditor.put(TwoAxisGridPointsRandomOffsetModel.class, GridPointsRandomOffsetPathEditor.class);
 		pathToEditor.put(TwoAxisLineStepModel.class, LineStepPathEditor.class);
 		pathToEditor.put(TwoAxisLinePointsModel.class, LinePointsPathEditor.class);
-		pathToEditor.put(TwoAxisPointSingleModel.class, NoPathEditor.class);
+		pathToEditor.put(TwoAxisPointSingleModel.class, SinglePointPathEditor.class);
 	}
 
 	private PathEditorProvider() {
@@ -70,7 +70,7 @@ public final class PathEditorProvider {
 	 * @param <E> the editor class
 	 * @return An editor for the requested path
 	 */
-	public static <M extends IScanPathModel, E extends AbstractPathEditor> E createPathComposite(M pathModel, IEclipseContext bundleContext) {
+	public static <M extends IScanPathModel, E extends AbstractPathEditor<M>> E createPathComposite(M pathModel, IEclipseContext bundleContext) {
 		@SuppressWarnings("unchecked")
 		final Class<E> editorClass = (Class<E>) pathToEditor.get(pathModel.getClass());
 		final E editor = ContextInjectionFactory.make(editorClass, bundleContext);

@@ -18,8 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
+
 /**
- * Empty editor for when no controls are required
- * e.g. single point, defined by the point ROI
+ * Empty editor for when a single point. No controls required.
  */
-public class NoPathEditor extends AbstractPathEditor {}
+public class SinglePointPathEditor extends AbstractPathEditor<TwoAxisPointSingleModel> {
+
+	// no methods defined
+
+}

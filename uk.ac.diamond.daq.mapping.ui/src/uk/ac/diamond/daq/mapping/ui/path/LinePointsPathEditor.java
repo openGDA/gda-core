@@ -18,12 +18,13 @@
 
 package uk.ac.diamond.daq.mapping.ui.path;
 
+import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-public class LinePointsPathEditor extends AbstractPathEditor {
+public class LinePointsPathEditor extends AbstractPathEditor<TwoAxisLinePointsModel> {
 
 	@Override
 	public Composite createEditorPart(Composite parent) {
