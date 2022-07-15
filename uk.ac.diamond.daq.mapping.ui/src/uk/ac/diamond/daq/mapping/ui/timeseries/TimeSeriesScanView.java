@@ -81,7 +81,6 @@ import uk.ac.diamond.daq.mapping.api.IScanBeanSubmitter;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.experiment.OuterScannablesBlock;
-import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanConfig;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 
@@ -111,8 +110,6 @@ public class TimeSeriesScanView {
 
 	private ComboViewer malcolmDevicesComboViewer;
 	private Spinner numStepsSpinner;
-
-	private CopyScanConfig copyScanConfig = new CopyScanConfig(); // TODO persist using saveState? (should mapping view do same?)
 
 	private OuterScannablesBlock outerScannablesBlock;
 
@@ -396,7 +393,7 @@ public class TimeSeriesScanView {
 	}
 
 	private void copyScanCommand() {
-		new CopyScanWizardDialog(getShell(), new CopyScanWizard(createScanBean(), copyScanConfig)).open();
+		new CopyScanWizardDialog(getShell(), new CopyScanWizard(createScanBean())).open();
 	}
 
 	private IRunnableDeviceService getRunnableDeviceService() throws ScanningException {

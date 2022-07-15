@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.mapping.ui.experiment.copyscan;
 
 import static gda.configuration.properties.LocalProperties.GDA_BEAMLINE_NAME;
+import static uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard.KEY_NAME_LAST_SAVE_LOCATION;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE;
 import static uk.ac.gda.ui.tool.ClientMessages.CONFIRM_FILE_OVERWRITE_TITLE;
 import static uk.ac.gda.ui.tool.ClientMessages.COPY_SCAN_GENERATE_CLASS_ERROR;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
@@ -86,20 +88,19 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	private static final String TEMPLATE_FILE_PATH = "files/save_scan/jython_class_template.txt";
 
 	private final ScanBean scanBean;
-	private final CopyScanConfig config;
 
 	/**
 	 * Multi-line text box to display the class that is generated.<br>
 	 * This can be selected & copied - though it has already been copied to the clipboard anyway.
 	 */
-	private Text classText;
+	private Text scanCommandText;
 
-	protected CopyOrSaveScanWizardPage(ScanBean scanBean, CopyScanConfig config) {
+	protected CopyOrSaveScanWizardPage(ScanBean scanBean) {
 		super(CopyOrSaveScanWizardPage.class.getSimpleName());
+		this.scanBean = scanBean;
+
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_DESCRIPTION));
-		this.scanBean = scanBean;
-		this.config = config;
 	}
 
 	@Override
@@ -107,10 +108,10 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().applyTo(mainComposite);
 
-		classText = new Text(mainComposite, SWT.READ_ONLY | SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-		GridDataFactory.fillDefaults().hint(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT).grab(true, true).applyTo(classText);
-		classText.setFont(JFaceResources.getTextFont());
-		classText.setTabs(4);
+		scanCommandText = new Text(mainComposite, SWT.READ_ONLY | SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+		GridDataFactory.fillDefaults().hint(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT).grab(true, true).applyTo(scanCommandText);
+		scanCommandText.setFont(JFaceResources.getTextFont());
+		scanCommandText.setTabs(4);
 
 		final Button saveButton = createClientButton(mainComposite, SWT.PUSH, SAVE, SAVE);
 		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(saveButton);
@@ -137,7 +138,7 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 			clipboard.setContents(new Object[] { scanCommand }, new Transfer[] { TextTransfer.getInstance() });
 			clipboard.dispose();
 
-			classText.setText(scanCommand);
+			scanCommandText.setText(scanCommand);
 		} catch (Exception e) {
 			logger.error("Copy to clipboard failed.", e);
 			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error Copying Scan Command",
@@ -150,7 +151,8 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 			final IMarshallerService marshallerService = PlatformUI.getWorkbench().getService(IMarshallerService.class);
 			final String scanRequestJson = marshallerService.marshal(scanBean.getScanRequest());
 			final String classTemplate = readClassTemplate();
-			return String.format(classTemplate, config.getClassName(), scanRequestJson);
+			final String className = ((CopyScanWizard) getWizard()).getClassName();
+			return String.format(classTemplate, className, scanRequestJson);
 		} catch (Exception e) {
 			final String message = ClientMessagesUtility.getMessage(COPY_SCAN_GENERATE_CLASS_ERROR);
 			logger.error(message, e);
@@ -174,10 +176,11 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	 */
 	private void saveClass() {
 		final FileDialog fileSave = new FileDialog(getShell(), SWT.SAVE);
-		fileSave.setFileName(config.getClassName() + ".py");
+		final String className = ((CopyScanWizard) getWizard()).getClassName();
+		fileSave.setFileName(className + ".py");
 		fileSave.setFilterExtensions(FILTER_EXTENSIONS);
 		fileSave.setFilterNames(FILTER_NAMES);
-		fileSave.setFilterPath(getInitialFileSaveLocation().getAbsolutePath());
+		fileSave.setFilterPath(getInitialFileSaveLocation());
 
 		final String filePath = fileSave.open();
 		if (filePath == null) {
@@ -195,8 +198,8 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 			}
 		}
 		try (BufferedWriter outFile = new BufferedWriter(new FileWriter(file))) {
-			outFile.write(classText.getText());
-			config.setLastSaveLocation(file.getParentFile());
+			outFile.write(scanCommandText.getText());
+			getDialogSettings().put(KEY_NAME_LAST_SAVE_LOCATION, Paths.get(filePath).toAbsolutePath().getParent().toString());
 		} catch (IOException e) {
 			MessageDialog.openError(getShell(),
 					ClientMessagesUtility.getMessage(COPY_SCAN_SAVE_CLASS_ERROR_TITLE),
@@ -210,11 +213,11 @@ class CopyOrSaveScanWizardPage extends WizardPage {
 	 * If the user has already saved a file, go to the corresponding directory, otherwise go to the user scripts
 	 * directory.
 	 */
-	private File getInitialFileSaveLocation() {
-		final File lastSaveLocation = config.getLastSaveLocation();
-		if (lastSaveLocation != null && lastSaveLocation.length() > 0) {
+	private String getInitialFileSaveLocation() {
+		final String lastSaveLocation = getDialogSettings().get(KEY_NAME_LAST_SAVE_LOCATION);
+		if (lastSaveLocation != null && !lastSaveLocation.isBlank()) {
 			return lastSaveLocation;
 		}
-		return new File(DEFAULT_SAVE_DIRECTORY);
+		return DEFAULT_SAVE_DIRECTORY;
 	}
 }

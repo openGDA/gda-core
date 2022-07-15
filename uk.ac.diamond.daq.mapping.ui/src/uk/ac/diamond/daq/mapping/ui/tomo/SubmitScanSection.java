@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.daq.mapping.api.TensorTomoScanBean;
 import uk.ac.diamond.daq.mapping.ui.Activator;
 import uk.ac.diamond.daq.mapping.ui.MappingUIConstants;
-import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanConfig;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard;
 import uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizardDialog;
 
@@ -52,8 +51,6 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 	private static final String[] TOMO_FILE_FILTER_EXTENSIONS = new String[] { "*.tomo", "*.*" };
 
 	private static final Logger logger = LoggerFactory.getLogger(SubmitScanSection.class);
-
-	private CopyScanConfig copyScanConfig = null;
 
 	@Override
 	public void createControls(Composite parent) {
@@ -88,15 +85,8 @@ class SubmitScanSection extends AbstractTomoViewSection  {
 	}
 
 	private void copyScanToClipboard() {
-		final CopyScanWizard copyScanWizard = new CopyScanWizard(getView().createScanBean(), getCopyScanConfig());
+		final CopyScanWizard copyScanWizard = new CopyScanWizard(getView().createScanBean());
 		new CopyScanWizardDialog(getShell(), copyScanWizard).open();
-	}
-
-	private CopyScanConfig getCopyScanConfig() {
-		if (copyScanConfig == null) {
-			copyScanConfig = new CopyScanConfig();
-		}
-		return copyScanConfig;
 	}
 
 	private void loadScan() {

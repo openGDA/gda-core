@@ -18,10 +18,14 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.copyscan;
 
+import org.eclipse.jface.dialogs.DialogSettings;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.ui.PlatformUI;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * Wizard to guide the user through the process of saving the scan currently configured in the mapping experiment view
@@ -31,14 +35,40 @@ import org.eclipse.swt.graphics.Font;
  */
 public class CopyScanWizard extends Wizard {
 
-	private final ChooseClassNameWizardPage chooseNamePage;
-	private final CopyOrSaveScanWizardPage saveClassPage;
+	protected static final String PROPERTY_NAME_CLASS_NAME = "className";
+
+	protected static final String KEY_NAME_LAST_SAVE_LOCATION = "lastSaveLocation";
+	protected static final String KEY_NAME_CLASS_NAME = "className";
 
 	protected static final Font DEFAULT_FONT = JFaceResources.getFontRegistry().get("Cantarell");
 
-	public CopyScanWizard(ScanBean scanBean, CopyScanConfig config) {
-		chooseNamePage = new ChooseClassNameWizardPage(config);
-		saveClassPage = new CopyOrSaveScanWizardPage(scanBean, config);
+	private final ChooseClassNameWizardPage chooseNamePage;
+	private final CopyOrSaveScanWizardPage saveClassPage;
+
+	private String className;
+
+	public CopyScanWizard(ScanBean scanBean) {
+		chooseNamePage = new ChooseClassNameWizardPage();
+		saveClassPage = new CopyOrSaveScanWizardPage(scanBean);
+
+		initializeDialogSettings();
+		className = getDialogSettings().get(KEY_NAME_CLASS_NAME);
+	}
+
+	private void initializeDialogSettings() {
+		final IDialogSettings bundleDialogSettings = PlatformUI.getDialogSettingsProvider(
+				FrameworkUtil.getBundle(getClass())).getDialogSettings();
+		final IDialogSettings dialogSettings = DialogSettings.getOrCreateSection(
+				bundleDialogSettings, CopyScanWizard.class.getSimpleName());
+		setDialogSettings(dialogSettings);
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 	@Override
@@ -55,6 +85,8 @@ public class CopyScanWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+		getDialogSettings().put(KEY_NAME_CLASS_NAME, className);
+
 		return true;
 	}
 }

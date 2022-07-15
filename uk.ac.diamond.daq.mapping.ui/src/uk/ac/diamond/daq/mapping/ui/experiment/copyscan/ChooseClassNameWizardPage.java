@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.mapping.ui.experiment.copyscan;
 
+import static uk.ac.diamond.daq.mapping.ui.experiment.copyscan.CopyScanWizard.PROPERTY_NAME_CLASS_NAME;
 import static uk.ac.gda.ui.tool.ClientMessages.COPY_SCAN_CLASS_NAME;
 import static uk.ac.gda.ui.tool.ClientMessages.COPY_SCAN_ENTER_NAME_DESCRIPTION;
 import static uk.ac.gda.ui.tool.ClientMessages.COPY_SCAN_ENTER_NAME_INVALID;
@@ -56,13 +57,11 @@ class ChooseClassNameWizardPage extends WizardPage {
 	private static final String VALID_CLASS_NAME_REGEX = "[A-Z][a-zA-Z0-9_]*";
 
 	private final DataBindingContext bindingContext = new DataBindingContext();
-	private final CopyScanConfig config;
 
-	protected ChooseClassNameWizardPage(CopyScanConfig config) {
+	protected ChooseClassNameWizardPage() {
 		super(ChooseClassNameWizardPage.class.getSimpleName());
 		setTitle(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_TITLE));
 		setDescription(ClientMessagesUtility.getMessage(COPY_SCAN_ENTER_NAME_DESCRIPTION));
-		this.config = config;
 	}
 
 	@Override
@@ -77,7 +76,7 @@ class ChooseClassNameWizardPage extends WizardPage {
 		GridDataFactory.swtDefaults().hint(TEXT_LENGTH, SWT.DEFAULT).applyTo(classNameText);
 		classNameText.setFont(CopyScanWizard.DEFAULT_FONT);
 
-		final IObservableValue<String> classNameModel = PojoProperties.value("className", String.class).observe(config);
+		final IObservableValue<String> classNameModel = PojoProperties.value(PROPERTY_NAME_CLASS_NAME, String.class).observe(getWizard());
 		final IObservableValue<String> classNameWidget = WidgetProperties.text(SWT.Modify).observe(classNameText);
 
 		final UpdateValueStrategy<String, String> strategy = new UpdateValueStrategy<>();
