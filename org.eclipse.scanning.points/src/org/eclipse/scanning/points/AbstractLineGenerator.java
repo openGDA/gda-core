@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.scanning.api.points.models.AbstractBoundingLineModel;
 import org.eclipse.scanning.api.points.models.BoundingLine;
+import org.eclipse.scanning.api.points.models.IBoundsToFit;
 import org.eclipse.scanning.jython.JythonObjectFactory;
 
 public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel> extends AbstractScanPointGenerator<T> {
@@ -40,17 +41,20 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 
 		final int numPoints = getPoints();
 		final double step = getStep();
-		final double xStep = step * Math.cos(line.getAngle());
-		final double yStep = step * Math.sin(line.getAngle());
-		final double minX = model.getStart(line.getxStart(), xStep);
-		final double minY = model.getStart(line.getyStart(), yStep);
 		final double xLength = line.getLength() * Math.cos(line.getAngle());
 		final double yLength = line.getLength() * Math.sin(line.getAngle());
+		final double xStep = IBoundsToFit.getLongestFittingStep(xLength, step * Math.cos(line.getAngle()), model.isBoundsToFit());
+		final double yStep = IBoundsToFit.getLongestFittingStep(yLength, step * Math.sin(line.getAngle()), model.isBoundsToFit());
+		final double minX = IBoundsToFit.getFirstPoint(line.getxStart(), numPoints == 1, xStep, model.isBoundsToFit());
+		final double minY = IBoundsToFit.getFirstPoint(line.getyStart(), numPoints == 1, yStep, model.isBoundsToFit());
+		final double maxX = IBoundsToFit.getFinalPoint(line.getxStart(), line.getxStart() + xLength, numPoints, xStep, model.isBoundsToFit());
+		final double maxY = IBoundsToFit.getFinalPoint(line.getxStart(), line.getyStart() + yLength, numPoints, yStep, model.isBoundsToFit());
+
 
 		final List<String> axes =  model.getScannableNames();
 		final List<String> units = model.getUnits();
 		final double[] start = {minX, minY};
-		final double[] stop = {model.getStop(minX, xLength, xStep), model.getStop(minY, yLength, yStep)};
+		final double[] stop = {maxX, maxY};
 		final boolean alternating = model.isAlternating();
 		final boolean continuous = model.isContinuous();
 
@@ -61,11 +65,12 @@ public abstract class AbstractLineGenerator<T extends AbstractBoundingLineModel>
 	}
 
 	protected double getStep() {
-		return model.getBoundingLine().getLength() / getPoints();
+		int steps = getPoints();
+		return model.getBoundingLine().getLength() / ((model.isBoundsToFit() || steps == 1) ? steps : steps - 1);
 	}
 
 	protected int getPoints() {
-		return model.getPointsOnLine(model.getBoundingLine().getLength(), getStep());
+		return IBoundsToFit.getPointsOnLine(model.getBoundingLine().getLength(), getStep(), model.isBoundsToFit());
 	}
 
 

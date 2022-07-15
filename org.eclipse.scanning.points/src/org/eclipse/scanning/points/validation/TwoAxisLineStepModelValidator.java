@@ -28,12 +28,6 @@ class TwoAxisLineStepModelValidator extends AbstractBoundingLineModelValidator<T
 		if (model.getStep() <= 0) {
 			throw new ModelValidationException("Model step size must be positive!", model, "step");
 		}
-		// DAQ-3426, discourage use of ambiguous case where step > length, unsure whether to put 1 point at start or mid.
-		// In the case of a step > length, a TwoAxisPoint model should be used instead
-		if (model.getStep() > model.getBoundingLine().getLength()) {
-			throw new ModelValidationException("Model step larger than its length", model, "step");
-		}
-
 		return super.validate(model);
 	}
 }

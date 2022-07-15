@@ -18,8 +18,20 @@
 
 package org.eclipse.scanning.api.points.models;
 
-import java.math.BigDecimal;
-
+/**
+ * Interface for models that can be asked to have both their points (non-continuous motion) and bounds (continuous
+ * motion, half-distance between points either side) within their region.
+ * Therefore, as the number of points in an axis -> 0, the 0th point trends towards the centre of a region,
+ * opposed to the non boundsFit behaviour that as number of points -> 0, 0th point remains at the start of the axial model.
+ *
+ * In the case of Stepped models, this reduces the number of points that can fit into each axis by one (by moving the
+ * stepped region half a step in from both edges).
+ *
+ * In the case of Counted models, this reduces the distance between points, from Length / M to Length / (M - 1):
+ * i.e. by a factor of (M - 1) / M in each axis.
+ * Where M = Number of points - 1
+ *
+ */
 public interface IBoundsToFit {
 
 	static final String PROPERTY_NAME_BOUNDS_TO_FIT = "boundsToFit";
@@ -33,22 +45,96 @@ public interface IBoundsToFit {
 		setBoundsToFit(Boolean.getBoolean(PROPERTY_DEFAULT_BOUNDS_FIT));
 	}
 
-	public default int getPointsOnLine(double length, double step) {
-		final int points = BigDecimal.valueOf(0.01 * step + length).divideToIntegralValue(BigDecimal.valueOf(step)).intValue();
-		// To allow for EnforcedShape to return the correct (but invalid) negative number of steps if required.
-		// + 1 step allows for the point at the end of the model when not boundsToFit
-		return isBoundsToFit() ? points : points + (int) (1 * Math.signum(points));
+	/**
+	 * Returns the number of points that fit onto a line, with standard assumptions:
+	 * 1. If a point is within 1% of the end of the line, it is included in the line
+	 * 2a. For a model with !boundsToFit, the Nth point is at start + N * step
+	 * 2b. For a model with boundsToFit, the Nth point is at start + (N + 0.5) * step
+	 * 3. Except in the case that the step and length are directed in opposite directions,
+	 * the 0th point will always be included, and so the minimum number of points is 1.
+	 *
+	 * Allows this behaviour to be consistent between models that define a step.
+	 * @param length the model's length
+	 * @param step the model's step length
+	 * @param boundsToFit model.isBoundsToFit()
+	 * @return the number of points for the underlying point generator to place in this axis
+	 */
+	static int getPointsOnLine(double length, double step, boolean boundsToFit) {
+		int points = (int) ((1.01 * Math.abs(step) + Math.abs(length)) / step);
+		if (boundsToFit && points != 1) {
+			points --;
+		}
+		// Allow to return the correct (but invalid) negative number of steps if required.
+		return (int) (points * Math.signum(length));
 	}
 
-	public default double getStart(double start, double step) {
-		if (isBoundsToFit()) start += step / 2.0;
-		return start;
+	/**
+	 * Returns the length of the step of a model, for a model with boundsToFit, this should
+	 * be capped at the length of the model in that axis, so that its bounds remain within the region.
+	 * For a model with !boundsToFit, returns the passed step.
+	 * For a model with boundsToFit, returns the magnitude of whichever is larger of step and length, but facing in the direction of step.
+	 * @param length the model's length
+	 * @param step the model's step length
+	 * @param boundsToFit model.isBoundsToFit()
+	 * @return the step length for this model, to be used by generators and later static functions in this class.
+	 */
+	static double getLongestFittingStep(double length, double step, boolean boundsToFit) {
+		if (boundsToFit && Math.abs(length) < Math.abs(step)) {
+			return Math.abs(length) * Math.signum(step);
+		}
+		return step;
 	}
 
-	public default double getStop(double start, double length, double step) {
-		if (length == 0 && step == 0) return start;
-		// Trim region that would not have been stepped in, -1 because of point at edge
-		return start + (getPointsOnLine(length, step) - 1) * step;
+	/**
+	 * Returns the start point of a model, with standard assumptions:
+	 * 1. The 0th point of a model with !boundsToFit should be at the start of its range
+	 * However, the underlying Python generator, in the case of a single point, has special casing to
+	 * place the point in the centre of the range
+	 * 2. The 0th point of a model with boundsToFit should be 1/2 step in from the edges
+	 * However, the same Python behaviour handles this half step, so we instead return the edge of the range.
+	 *
+	 * This method steps a boundsToFit model in half a step from the edge, unless it is for a single point.
+	 * It steps a !boundsToFit model in half a step if it is a single point.
+	 * Otherwise it returns the model's start position.
+	 * @param start the model's start
+	 * @param isSinglePoint	numPoints == 1
+	 * @param step the step calculated from IBoundsToFit.getLongestFittingStep
+	 * @param boundsToFit model.isBoundsToFit()
+	 * @return the value of start to pass to the generator of this model.
+	 */
+	static double getFirstPoint(double start, boolean isSinglePoint, double step, boolean boundsToFit) {
+		if (boundsToFit) {
+			return isSinglePoint ? start : start + step/2;
+		}
+		return isSinglePoint ? start - step / 2 : start;
+	}
+
+	/**
+	 * Returns the stop point of a model, with standard assumptions:
+	 * 1. The underlying point generator takes the number of points on the line, and therefore any excess length
+	 * beyond the integer number of steps must be removed.
+	 * 2. The Nth point of a model with !boundsToFit should be at start + N * step
+	 * However, the underlying Python generator, in the case of a single point, has special casing to
+	 * place the point in the centre of the range
+	 * 3. The Nth point of a model with boundsToFit should be 1/2 step in from the edges
+	 * However, the same Python behaviour handles this half step, so we instead return the edge of the range.
+	 *
+	 * This method returns a position on the line that is an integer numbers of steps along the line from its start,
+	 * either within the model's stop or 1% of the step length outside.
+	 * It steps a !boundsToFit model in half a step if it is a single point.
+	 * Otherwise it returns the model's start position.
+	 * @param start the model's start
+	 * @param stop the model's stop
+	 * @param numPoints the number of points calculated from IBoundsToFit.getPointsOnLine
+	 * @param step the step calculated from IBoundsToFit.getLongestFittingStep
+	 * @param boundsToFit model.isBoundsToFit()
+	 * @return the value of stop to pass to the generator of this model.
+	 */
+	static double getFinalPoint(double start, double stop, int numPoints, double step, boolean boundsToFit) {
+		if (boundsToFit) {
+			return (numPoints == 1) ? stop : start + (numPoints - 0.5) * step;
+		}
+		return (numPoints == 1) ? start + step / 2 :  start + (numPoints - 1) * step;
 	}
 
 }

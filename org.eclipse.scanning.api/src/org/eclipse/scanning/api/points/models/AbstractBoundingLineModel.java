@@ -116,7 +116,7 @@ public abstract class AbstractBoundingLineModel extends AbstractMapModel impleme
 
 		final double step = model.getStep();
 
-		final int points = model.getPointsOnLine(copy.getLength(), step);
+		final int points = IBoundsToFit.getPointsOnLine(copy.getLength(), step, model.isBoundsToFit());
 		pointsModel.setPoints(points);
 
 		// Trim region that would not have been stepped in (-1 point because of point at end)

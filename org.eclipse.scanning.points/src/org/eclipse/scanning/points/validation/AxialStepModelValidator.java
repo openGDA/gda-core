@@ -30,9 +30,6 @@ class AxialStepModelValidator extends AbstractPointsModelValidator<AxialStepMode
 		if (model.getStep() == 0) {
 			throw new ModelValidationException("Model step size must be nonzero!", model, "step");
 		}
-		if (Math.abs(model.getStep()) > Math.abs(model.getStop() - model.getStart())) {
-			throw new ModelValidationException("Model step size must be less than length, to allow at least 2 points", model, "start", "stop", "step");
-		}
 		final int dir = Integer.signum(BigDecimal.valueOf(model.getStop() - model.getStart())
 				.divideToIntegralValue(BigDecimal.valueOf(model.getStep()))
 				.intValue());
