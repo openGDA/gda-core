@@ -324,6 +324,10 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 	}
 
 	@Override
+	public void setArrayPort(String port) throws Exception {
+	}
+
+	@Override
 	public void setLazyOpen(boolean open) throws Exception {
 	}
 

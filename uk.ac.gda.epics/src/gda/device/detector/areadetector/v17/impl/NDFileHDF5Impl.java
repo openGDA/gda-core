@@ -34,6 +34,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 
 public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
+
 	/* Note  NDFileHDF5Impl doesn't extend NDBaseImpl since it 'contains an' NDFile rather than being an NDFile. */
 
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
@@ -780,12 +781,12 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	@Override
 	public String getArrayPort() throws Exception {
-		try {
-			return EPICS_CONTROLLER.cagetString(getChannel("NDArrayPort"));
-		} catch (Exception ex) {
-			logger.warn("Cannot get Array port", ex);
-			throw ex;
-		}
+		return getFile().getPluginBase().getNDArrayPort();
+	}
+
+	@Override
+	public void setArrayPort(String port) throws Exception {
+		getFile().getPluginBase().setNDArrayPort(port);
 	}
 
 	@Override

@@ -143,6 +143,8 @@ public interface NDFileHDF5 {
 
 	String getArrayPort() throws Exception ;
 
+	void setArrayPort(String port) throws Exception ;
+	
 	String getLayoutFileName() throws Exception ;
 
 	void setLayoutFileName(String fileName) throws Exception ;
