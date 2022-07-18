@@ -18,6 +18,7 @@
 
 package gda.scan;
 
+import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
 
 import java.sql.Timestamp;
@@ -46,12 +47,15 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 	public MultiScanRunner(final List<MultiScanItem> scans) {
 		this.scans = scans;
 		parentComponent = new ParentScanComponent(this, ScanStatus.NOTSTARTED);
+		MultiScanItem multiScanItem = scans.get(0);
+		first =  multiScanItem.scan;
 	}
 
 	@Override
 	public void runScan() throws InterruptedException, Exception {
-
 		try{
+			first.prepareScanForCollection();
+			getCurrentScanInformationHolder().setCurrentScan(this);
 			setStatus(ScanStatus.RUNNING);
 			if (LocalProperties.check(ScanBase.GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
 				java.util.Date date= new java.util.Date();
@@ -62,9 +66,6 @@ public class MultiScanRunner implements NestableScan, ContiguousScan {
 				TotalNumberOfPoints += item.scan.getTotalNumberOfPoints();
 			}
 
-			MultiScanItem multiScanItem = scans.get(0);
-			first =  multiScanItem.scan;
-			first.prepareScanForCollection();
 			int pointCount = -1;
 
 			for (MultiScanItem item : scans) {

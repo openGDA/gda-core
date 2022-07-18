@@ -1099,7 +1099,6 @@ public abstract class ScanBase implements NestableScan {
 	protected void prepareScanForCollection() throws Exception {
 
 		prepareScanNumber();
-		prepareStaticVariables();
 
 		// unless it has already been defined, create a new datahandler
 		// for this scan
@@ -1321,6 +1320,7 @@ public abstract class ScanBase implements NestableScan {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
 		signalScanStarted();
+		prepareStaticVariables();
 		setStatus(ScanStatus.RUNNING);
 		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
 			java.util.Date date= new java.util.Date();
