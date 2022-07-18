@@ -77,6 +77,7 @@ import javax.measure.quantity.Length;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.nexus.IWritableNexusDevice;
@@ -128,7 +129,6 @@ import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.device.detector.DummyDetector;
 import gda.device.detector.NXDetectorData;
@@ -139,6 +139,7 @@ import gda.device.scannable.DummyMultiFieldUnitsScannable;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.DummyUnitsScannable;
 import gda.device.scannable.ScannableBase;
+import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
@@ -146,30 +147,39 @@ import gda.scan.IScanDataPoint;
 
 public abstract class AbstractNexusDataWriterScanTest {
 
-	public enum DetectorType {
-		NONE(),
-		NEXUS_DEVICE(NXdetector.NX_DATA),
-		COUNTER_TIMER,
-		GENERIC(NXdetector.NX_DATA),
-		FILE_CREATOR,
+	public enum PrimaryDeviceType {
+		NONE(false),
+		SINGLE_FIELD_MONITOR(false),
+		MULTI_FIELD_MONITOR(false),
+		NEXUS_DEVICE(true, NXdetector.NX_DATA),
+		COUNTER_TIMER(true),
+		GENERIC(true, NXdetector.NX_DATA),
+		FILE_CREATOR(true),
 		/**
 		 *  Explicitly non-alphabetical, non-order of attachment to test prioritising of NexusGroupData
 		 */
-		NEXUS_DETECTOR(FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA, FIELD_NAME_EXTERNAL),
+		NEXUS_DETECTOR(true, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA, FIELD_NAME_EXTERNAL),
 		/**
 		 *  Alternate order to test re-prioritising when set
 		 */
-		MODIFIED_NEXUS_DETECTOR(FIELD_NAME_EXTERNAL, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA);
+		MODIFIED_NEXUS_DETECTOR(true, FIELD_NAME_EXTERNAL, FIELD_NAME_SPECTRUM, FIELD_NAME_VALUE, NXdetector.NX_DATA);
 
-		private List<String> primaryFieldNames;
+		private final boolean isDetector;
+		private final List<String> primaryFieldNames;
 
-		DetectorType(String... primaryFieldNames) {
+		PrimaryDeviceType(boolean isDetector, String... primaryFieldNames) {
+			this.isDetector = isDetector;
 			this.primaryFieldNames = List.of(primaryFieldNames);
 		}
 
 		public List<String> getPrimaryFieldNames() {
 			return primaryFieldNames;
 		}
+
+		public boolean isDetector() {
+			return isDetector;
+		}
+
 	}
 
 	/**
@@ -470,7 +480,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	protected static final String INSTRUMENT_NAME = "instrument";
 	protected static final String SCANNABLE_NAME_PREFIX = "scannable";
-	protected static final String MONITOR_NAME = "mon01";
+	protected static final String SINGLE_FIELD_MONITOR_NAME = "mon01";
+	protected static final String MULTI_FIELD_MONITOR_NAME = "multiMon";
 	protected static final String NULL_FIELD_METADATA_SCANNABLE_NAME = "nullFieldScannable";
 
 	protected static final int EXPECTED_SCAN_NUMBER = 1;
@@ -486,6 +497,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double SCANNABLE_UPPER_BOUND = 987.654;
 
 	public static final String[] COUNTER_TIMER_NAMES = { "one", "two", "three", "four" };
+	public static final String[] MULTI_FIELD_MONITOR_FIELD_NAMES = { "h", "k", "l" };
 
 	protected static final String EXPECTED_MONOCHROMATOR_NAME = "myMonochromator";
 	protected static final double EXPECTED_MONOCHROMATOR_ENERGY = 5.432;
@@ -494,21 +506,23 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected static final double EXPECTED_SOURCE_ENERGY = 3.0;
 	protected static final double EXPECTED_SOURCE_CURRENT = 25.5;
 
-	protected static final double MONITOR_VALUE = 2.5;
+	protected static final double SINGLE_FIELD_MONITOR_VALUE = 2.5;
+	protected static final Double[] MULTI_FIELD_MONITOR_VALUES = new Double[] { 28.0, -24.5, 3.9 };
 	protected static final String SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-STAGE-01:S";
 	protected static final String META_SCANNABLE_PV_NAME_PREFIX = "BL00P-MO-META-01:S";
 
+	protected boolean createMonitor = true;
 	private String outputDir;
 
 	protected final int scanRank;
 	protected final int[] scanDimensions;
 	protected Scannable[] scannables;
-	protected Monitor monitor;
+	protected Scannable monitor;
 	protected Set<String> expectedMetadataScannableNames;
 
 	protected Detector detector;
 
-	protected DetectorType detectorType; // the type of detector we're testing, in terms of nexus writing, e.g. counter timer
+	protected PrimaryDeviceType primaryDeviceType; // the type of detector we're testing, in terms of nexus writing, e.g. counter timer
 
 	private Object[] scanArguments;
 
@@ -547,12 +561,13 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final String testDir = TestHelpers.setUpTest(this.getClass(), testName + scanRank + "d", true);
 		outputDir = testDir + "/Data/";
 
-		setUpScannablesAndMonitor();
+		setUpScannables();
+		setupMonitor();
 		setUpMetadata();
 		setupMetadataScannables();
 	}
 
-	private void setUpScannablesAndMonitor() throws Exception {
+	private void setUpScannables() throws Exception {
 		this.scannables = new Scannable[scanRank];
 		for (int i = 0; i < scanRank; i++) {
 			final String name = SCANNABLE_NAME_PREFIX + i;
@@ -564,14 +579,30 @@ public abstract class AbstractNexusDataWriterScanTest {
 			InterfaceProvider.getJythonNamespace().placeInJythonNamespace(name, dummyScannable);
 			this.scannables[i] = dummyScannable;
 		}
+	}
 
-		final DummyMonitor dummyMonitor = new DummyMonitor();
-		dummyMonitor.setConstantValue(MONITOR_VALUE);
-		dummyMonitor.setName(MONITOR_NAME);
-		dummyMonitor.configure();
-		InterfaceProvider.getJythonNamespace().placeInJythonNamespace(MONITOR_NAME, dummyMonitor);
+	private void setupMonitor() throws DeviceException {
+		if (!createMonitor) return;
 
-		this.monitor = dummyMonitor;
+		switch (primaryDeviceType) {
+			case NONE: break; // no monitor
+			case MULTI_FIELD_MONITOR:
+				final DummyMultiFieldUnitsScannable<Length> multiFieldMonitor = new DummyMultiFieldUnitsScannable<>(MULTI_FIELD_MONITOR_NAME);
+				multiFieldMonitor.setHardwareUnitString("mm");
+				multiFieldMonitor.setUserUnits("mm");
+				multiFieldMonitor.setInputNames(MULTI_FIELD_MONITOR_FIELD_NAMES);
+				multiFieldMonitor.setCurrentPosition((Object[]) MULTI_FIELD_MONITOR_VALUES);
+				InterfaceProvider.getJythonNamespace().placeInJythonNamespace(MULTI_FIELD_MONITOR_NAME, multiFieldMonitor);
+				this.monitor = multiFieldMonitor;
+				break;
+			default: // create monitor with single extra name field
+				final DummyMonitor dummyMonitor = new DummyMonitor();
+				dummyMonitor.setConstantValue(SINGLE_FIELD_MONITOR_VALUE);
+				dummyMonitor.setName(SINGLE_FIELD_MONITOR_NAME);
+				dummyMonitor.configure();
+				InterfaceProvider.getJythonNamespace().placeInJythonNamespace(SINGLE_FIELD_MONITOR_NAME, dummyMonitor);
+				this.monitor = dummyMonitor;
+		}
 	}
 
 	private void setupMetadataScannables() throws Exception {
@@ -668,18 +699,34 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	@Test
-	public void concurrentScanNoDetector() throws Exception {
-		concurrentScan(null, DetectorType.NONE, "NoDetector");
+	public void concurrentScanNoDetectorOrMonitor() throws Exception {
+		concurrentScan(null, PrimaryDeviceType.NONE, "NoDetectorOrMonitor");
 	}
 
 	@Test
-	public void concurrentScanNoDetectorOrMonitor() throws Exception {
-		monitor = null;
-		concurrentScan(null, DetectorType.NONE, "NoDetectorOrMonitor");
+	public void concurrentScanNoDetectorSingleFieldMonitor() throws Exception {
+		concurrentScan(null, PrimaryDeviceType.SINGLE_FIELD_MONITOR, "NoDetectorSingleFieldMonitor");
+	}
+
+	@Test
+	public void concurrentScanNoDetectorMultiFieldMonitor() throws Exception {
+		concurrentScan(null, PrimaryDeviceType.MULTI_FIELD_MONITOR, "NoDetectorMultiFieldMonitor");
 	}
 
 	@Test
 	public void concurrentScanCounterTimer() throws Exception {
+		final DummyCounterTimer detector = createCounterTimer();
+		concurrentScan(detector, PrimaryDeviceType.COUNTER_TIMER, "CounterTimer");
+	}
+
+	@Test
+	public void concurrentScanCounterTimerNoMonitor() throws Exception {
+		createMonitor = false;
+		final DummyCounterTimer detector = createCounterTimer();
+		concurrentScan(detector, PrimaryDeviceType.COUNTER_TIMER, "CounterTimer");
+	}
+
+	private DummyCounterTimer createCounterTimer() throws FactoryException, DeviceException {
 		final DummyCounterTimer detector = new DummyCounterTimer();
 		detector.setName("counterTimer");
 		detector.setDataDecimalPlaces(3);
@@ -694,29 +741,28 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 		detector.setOutputFormat(Collections.nCopies(
 				COUNTER_TIMER_NAMES.length, ScannableBase.DEFAULT_OUTPUT_FORMAT).toArray(String[]::new));
-
-		concurrentScan(detector, DetectorType.COUNTER_TIMER, "CounterTimer");
+		return detector;
 	}
 
 	@Test
 	public void concurrentScanGenericDetector_scalarData() throws Exception {
 		detector = new DummyGenericDetector(1);
 		detector.setName("Generic Detector");
-		concurrentScan(detector, DetectorType.GENERIC, "GenericDetector_scalarData");
+		concurrentScan(detector, PrimaryDeviceType.GENERIC, "GenericDetector_scalarData");
 	}
 
 	@Test
 	public void concurrentScanGenericDetector_arrayData() throws Exception {
 		detector = new DummyGenericDetector(6);
 		detector.setName("Generic Detector");
-		concurrentScan(detector, DetectorType.GENERIC, "GenericDetector_arrayData");
+		concurrentScan(detector, PrimaryDeviceType.GENERIC, "GenericDetector_arrayData");
 	}
 
 	@Test
 	public void concurrentScanFileCreatorDetector() throws Exception {
 		detector = new DummyFileCreatorDetector();
 		detector.setName("fileCreatorDetector");
-		concurrentScan(detector, DetectorType.FILE_CREATOR, "FileCreatorDetector");
+		concurrentScan(detector, PrimaryDeviceType.FILE_CREATOR, "FileCreatorDetector");
 	}
 
 	@Test
@@ -734,7 +780,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		castDetector.setScanDimensions(scanDimensions);
 
 		detector.setName("nexusDetector");
-		concurrentScan(detector, DetectorType.MODIFIED_NEXUS_DETECTOR, "NexusDetector");
+		concurrentScan(detector, PrimaryDeviceType.MODIFIED_NEXUS_DETECTOR, "NexusDetector");
 	}
 
 	@Test
@@ -743,15 +789,15 @@ public abstract class AbstractNexusDataWriterScanTest {
 		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);
 
 		detector.setName("nexusDetector");
-		concurrentScan(detector, DetectorType.NEXUS_DETECTOR, "NexusDetector");
+		concurrentScan(detector, PrimaryDeviceType.NEXUS_DETECTOR, "NexusDetector");
 	}
 
-	protected void concurrentScan(Detector detector, DetectorType detectorType, String testSuffix) throws Exception {
+	protected void concurrentScan(Detector detector, PrimaryDeviceType detectorType, String testSuffix) throws Exception {
 		this.detector = detector;
-		this.detectorType = detectorType;
+		this.primaryDeviceType = detectorType;
 
 		setUpTest("concurrentScan" + testSuffix); // create test dir and initialize properties
-		if (detectorType == DetectorType.NEXUS_DETECTOR) {
+		if (detectorType == PrimaryDeviceType.NEXUS_DETECTOR) {
 			((DummyNexusDetector) detector).setOutputDir(outputDir); // to write external file
 		}
 
@@ -931,7 +977,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		final NXdetector detectorGroup = instrument.getDetector(detector.getName());
 		assertThat(detectorGroup, is(notNullValue()));
 
-		switch (detectorType) {
+		switch (primaryDeviceType) {
 			case NONE:
 				break; // detector == null, so this case is not reached
 			case NEXUS_DEVICE:
@@ -951,7 +997,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 				checkNexusDetector(detectorGroup);
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown detector type: " + detectorType);
+				throw new IllegalArgumentException("Unknown detector type: " + primaryDeviceType);
 		}
 	}
 
@@ -1067,7 +1113,28 @@ public abstract class AbstractNexusDataWriterScanTest {
 		assertThat(note.getDescriptionScalar(), is(equalTo("This is a note")));
 	}
 
-	protected abstract void checkMonitor(NXinstrument instrument) throws Exception;
+	private void checkMonitor(NXinstrument instrument) throws Exception {
+		// check the monitor has been written correctly
+		final GroupNode singleFieldMonitorPos = instrument.getGroupNode(SINGLE_FIELD_MONITOR_NAME);
+		final GroupNode multiFieldMonitorPos = instrument.getGroupNode(MULTI_FIELD_MONITOR_NAME);
+
+		if (!createMonitor || primaryDeviceType == PrimaryDeviceType.NONE) {
+			assertThat(singleFieldMonitorPos, is(nullValue()));
+			assertThat(multiFieldMonitorPos, is(nullValue()));
+		} else if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) {
+			assertThat(singleFieldMonitorPos, is(nullValue()));
+			assertThat(multiFieldMonitorPos, is(notNullValue()));
+			checkMultiFieldMonitor(multiFieldMonitorPos);
+		} else { // all other cases include a single field monitor
+			assertThat(singleFieldMonitorPos, is(notNullValue()));
+			checkSingleFieldMonitor(singleFieldMonitorPos);
+			assertThat(multiFieldMonitorPos, is(nullValue()));
+		}
+	}
+
+	protected abstract void checkSingleFieldMonitor(GroupNode monitorGroup) throws Exception;
+
+	protected abstract void checkMultiFieldMonitor(GroupNode monitorGroup) throws Exception;
 
 	protected abstract void checkConfiguredScannablePositioner(String scannableName, NXpositioner positioner) throws Exception;
 
@@ -1121,7 +1188,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	}
 
 	protected void checkLinkedDatasets(NXdata data, NXentry entry, Map<String, String> expectedDataNodeLinks) {
-		assertThat(data.getDataNodeNames(), containsInAnyOrder(expectedDataNodeLinks.keySet().toArray(String[]::new)));
+		assertThat(data.getDataNodeNames(), containsInAnyOrder(expectedDataNodeLinks.keySet().toArray()));
 
 		for (Map.Entry<String, String> dataNodeLinkEntry : expectedDataNodeLinks.entrySet()) {
 			final String dataNodeName = dataNodeLinkEntry.getKey();
@@ -1221,12 +1288,14 @@ public abstract class AbstractNexusDataWriterScanTest {
 			scanFields.addAll(Arrays.asList(scannable.getExtraNames()));
 		}
 		if (monitor != null) {
-			scanFields.add(monitor.getName());
+			scanFields.addAll(Arrays.asList(monitor.getInputNames()));
+			scanFields.addAll(Arrays.asList(monitor.getExtraNames()));
 		}
+
 		if (detector != null) {
 			if (ArrayUtils.isNotEmpty(detector.getExtraNames())) {
 				scanFields.addAll(Arrays.asList(detector.getExtraNames()));
-			} else if (detectorType == DetectorType.GENERIC && Arrays.equals(detector.getDataDimensions(), new int[] { 1 })) {
+			} else if (primaryDeviceType == PrimaryDeviceType.GENERIC && Arrays.equals(detector.getDataDimensions(), new int[] { 1 })) {
 				scanFields.add(detector.getName());
 			}
 		}

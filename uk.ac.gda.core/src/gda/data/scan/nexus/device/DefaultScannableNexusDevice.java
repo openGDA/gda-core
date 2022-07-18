@@ -18,8 +18,9 @@
 
 package gda.data.scan.nexus.device;
 
+import static java.util.Collections.emptyList;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -134,24 +135,30 @@ public class DefaultScannableNexusDevice<N extends NXobject> extends AbstractSca
 		} catch (NexusException e) {
 			if (scanRole == ScanRole.MONITOR_PER_SCAN) {
 				logger.error("Could not create nexus object for scannable {}", scannable.getName(), e);
-				return Collections.emptyList();
+				return emptyList();
 			}
 			throw e;
 		}
 
-		// default behaviour - create an NXpositioner for each field
+		return createNexusObjectProviders(scannable, scanRole, info);
+	}
+
+	private List<NexusObjectProvider<?>> createNexusObjectProviders(final Scannable scannable, final ScanRole scanRole,
+			NexusScanInfo info) throws NexusException {
 		final List<NexusObjectProvider<?>> nexusProviders = new ArrayList<>();
+
+		// for scannables with multiple (or zero) input fields, create an NXcollection with links and extra fields
 		final String[] inputNames = scannable.getInputNames();
+		if (scannable.getInputNames().length != 1) { // will also cover no input field case
+			nexusProviders.add(createCollectionProvider(info));
+		}
+
+		// default behaviour - create an NXpositioner for each field
 		for (int fieldIndex = 0; fieldIndex < inputNames.length; fieldIndex++) {
 			final boolean isSingleInputField = fieldIndex == 0 && inputNames.length == 1;
 			if (getFieldDataNode(inputNames[fieldIndex]) != null) {
 				nexusProviders.add(createNexusProviderForInputField(inputNames[fieldIndex], fieldIndex, scanRole, isSingleInputField));
 			}
-		}
-
-		// for scannables with multiple (or zero) input fields, create an NXcollection with links and extra fields
-		if (scannable.getInputNames().length != 1) { // will also cover no input field case
-			nexusProviders.add(createCollectionProvider(info));
 		}
 
 		return nexusProviders;

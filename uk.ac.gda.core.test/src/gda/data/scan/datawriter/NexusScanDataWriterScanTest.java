@@ -27,12 +27,15 @@ import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_BEAMLINE;
 import static gda.data.scan.datawriter.NexusScanDataWriter.FIELD_NAME_END_STATION;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_NAME_ENTRY_NAME;
 import static gda.data.scan.datawriter.NexusScanDataWriter.PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCANNABLE_NAME;
+import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.ATTR_NAME_GDA_SCAN_ROLE;
 import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.FIELD_NAME_NAME;
 import static gda.data.scan.nexus.device.AbstractScannableNexusDevice.PROPERTY_VALUE_WRITE_DECIMALS;
 import static gda.data.scan.nexus.device.BeforeScanSnapshotWriter.BEFORE_SCAN_COLLECTION_NAME;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.dawnsci.nexus.NexusConstants.DATA_INDICES_SUFFIX;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_CURRENT_SCRIPT_NAME;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_COMMAND;
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.FIELD_NAME_SCAN_DURATION;
@@ -98,6 +101,7 @@ import org.eclipse.dawnsci.nexus.NexusConstants;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
 import org.eclipse.dawnsci.nexus.NexusScanInfo;
+import org.eclipse.dawnsci.nexus.NexusScanInfo.ScanRole;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectWrapper;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusBuilderFactory;
@@ -238,7 +242,6 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	private static final String GROUP_NAME_SCANNABLES = "scannables";
 
 	private static final String INSTRUMENT_NAME = "instrument";
-	private static final String MONITOR_NAME = "mon01";
 
 	private static final String BEAM_DEVICE_NAME = "beam";
 	private static final String INSERTION_DEVICE_NAME = "insertion_device";
@@ -561,7 +564,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	public void concurrentScanNexusDeviceDetector() throws Exception {
 		detector = new DummyNexusDeviceDetector();
 		detector.setName("det");
-		concurrentScan(detector, DetectorType.NEXUS_DEVICE, "NexusDeviceDetector");
+		concurrentScan(detector, PrimaryDeviceType.NEXUS_DEVICE, "NexusDeviceDetector");
 	}
 
 	@Test
@@ -570,7 +573,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		detector.setName("det");
 		final IWritableNexusDevice<NXdetector> nexusDevice = new DummyDetectorNexusDevice(detector.getName());
 		ServiceHolder.getNexusDeviceService().register(nexusDevice);
-		concurrentScan(detector, DetectorType.NEXUS_DEVICE, "RegisteredNexusDevice");
+		concurrentScan(detector, PrimaryDeviceType.NEXUS_DEVICE, "RegisteredNexusDevice");
 	}
 
 	@Override
@@ -635,6 +638,12 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		final Set<String> expectedGroupNames = new HashSet<>(List.of(getScannableAndMonitorNames()));
 		if (detector != null) {
 			expectedGroupNames.add(detector.getName());
+		}
+
+		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) {
+			expectedGroupNames.addAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)
+					.map(fieldName -> MULTI_FIELD_MONITOR_NAME + "." + fieldName)
+					.collect(toList()));
 		}
 
 		expectedGroupNames.add(GROUP_NAME_SCANNABLES);
@@ -739,10 +748,18 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	@Override
 	protected String[] getExpectedPositionerNames() {
-		return Streams.concat(Arrays.stream(getScannableNames()),
-				getExpectedMetadataScannableNames().stream().
-					map(name -> name.equals(NULL_FIELD_METADATA_SCANNABLE_NAME) ? name + ".input1" : name))
-				.toArray(String[]::new);
+		final Set<String> expectedPositionerNames = new HashSet<>();
+		expectedPositionerNames.addAll(Arrays.asList(getScannableNames())); // add scannable names
+		expectedPositionerNames.addAll(getExpectedMetadataScannableNames().stream() // add positioner names for per-scan monitors
+					.map(name -> name.equals(NULL_FIELD_METADATA_SCANNABLE_NAME) ? name + ".input1" : name)
+					.collect(toList()));
+		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) { // add positioner names for per-point monitor if multi-field
+			expectedPositionerNames.addAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)
+					.map(fieldName -> MULTI_FIELD_MONITOR_NAME + "." + fieldName)
+					.collect(toList()));
+		}
+
+		return expectedPositionerNames.toArray(String[]::new);
 	}
 
 	@Override
@@ -816,35 +833,65 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	@Override
-	protected void checkMonitor(NXinstrument instrument) throws Exception {
+	protected void checkSingleFieldMonitor(final GroupNode monitorGroup) throws DatasetException {
 		// check the monitor has been written correctly
-		final NXcollection monitorCollection = instrument.getCollection(MONITOR_NAME);
-		if (monitor == null) {
-			assertThat(monitorCollection, is(nullValue()));
-			return;
-		}
+		assertThat(monitorGroup, is(instanceOf(NXcollection.class)));
 
-		assertThat(monitorCollection, is(notNullValue()));
-
-		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, MONITOR_NAME };
+		final NXcollection monitorCollection = (NXcollection) monitorGroup;
+		final String[] expectedDataNodeNames = { NXpositioner.NX_NAME, SINGLE_FIELD_MONITOR_NAME };
 		assertThat(monitorCollection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
 
-		assertThat(monitorCollection.getString(FIELD_NAME_NAME), is(equalTo(MONITOR_NAME)));
+		assertThat(monitorCollection.getString(FIELD_NAME_NAME), is(equalTo(SINGLE_FIELD_MONITOR_NAME)));
 
-		final DataNode monitorValueDataNode = monitorCollection.getDataNode(MONITOR_NAME);
+		final DataNode monitorValueDataNode = monitorCollection.getDataNode(SINGLE_FIELD_MONITOR_NAME);
 		assertThat(monitorValueDataNode, is(notNullValue()));
 
 		final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
 				ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS };
 		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
 
-		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(MONITOR_NAME)));
+		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(MONITOR_NAME + "." + MONITOR_NAME)));
+				is(equalTo(SINGLE_FIELD_MONITOR_NAME + "." + SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
-				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + MONITOR_NAME)));
-		assertThat(monitorValueDataNode.getDataset().getSlice(), is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MONITOR_VALUE)))); // check values
+				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + SINGLE_FIELD_MONITOR_NAME + "/" + SINGLE_FIELD_MONITOR_NAME)));
+		assertThat(monitorValueDataNode.getDataset().getSlice(), is(equalTo(DatasetFactory.zeros(scanDimensions).fill(SINGLE_FIELD_MONITOR_VALUE)))); // check values
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(5));
+	}
+
+	@Override
+	protected void checkMultiFieldMonitor(final GroupNode monitorGroup) throws DatasetException {
+		assertThat(monitorGroup, is(instanceOf(NXcollection.class)));
+
+		final NXcollection monitorCollection = (NXcollection) monitorGroup;
+
+		assertThat(monitorCollection.getAttributeNames(), containsInAnyOrder(
+				NexusConstants.NXCLASS, ATTR_NAME_GDA_SCANNABLE_NAME, ATTR_NAME_GDA_SCAN_ROLE));
+		assertThat(monitorCollection.getAttribute(ATTR_NAME_GDA_SCANNABLE_NAME).getFirstElement(), is(equalTo(MULTI_FIELD_MONITOR_NAME)));
+		assertThat(monitorCollection.getAttribute(ATTR_NAME_GDA_SCAN_ROLE).getFirstElement(),
+				is(equalTo(ScanRole.MONITOR_PER_POINT.toString().toLowerCase())));
+
+		final String[] expectedDataNodeNames = ArrayUtils.add(MULTI_FIELD_MONITOR_FIELD_NAMES, FIELD_NAME_NAME);
+		assertThat(monitorCollection.getDataNodeNames(), containsInAnyOrder(expectedDataNodeNames));
+		assertThat(monitorCollection.getDataNode(FIELD_NAME_NAME).getDataset().getSlice().getString(), is(equalTo(MULTI_FIELD_MONITOR_NAME)));
+		for (int i = 0; i < MULTI_FIELD_MONITOR_FIELD_NAMES.length; i++) {
+			final String fieldName = MULTI_FIELD_MONITOR_FIELD_NAMES[i];
+			final DataNode fieldDataNode = monitorCollection.getDataNode(fieldName);
+			assertThat(fieldDataNode, is(notNullValue()));
+
+			final String[] expectedAttributeNames = { ATTRIBUTE_NAME_GDA_FIELD_NAME,
+					ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_DECIMALS, ATTRIBUTE_NAME_UNITS };
+			assertThat(fieldDataNode.getAttributeNames(), containsInAnyOrder(expectedAttributeNames));
+
+			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_GDA_FIELD_NAME).getFirstElement(), is(equalTo(fieldName)));
+			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
+					is(equalTo(MULTI_FIELD_MONITOR_NAME + "." + fieldName)));
+			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
+					is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MULTI_FIELD_MONITOR_NAME + "/" + fieldName)));
+			assertThat(fieldDataNode.getDataset().getSlice(), is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MULTI_FIELD_MONITOR_VALUES[i]))));
+			assertThat(fieldDataNode.getAttribute(ATTRIBUTE_NAME_DECIMALS).getValue().getInt(), is(5));
+			// TODO validate units
+		}
 	}
 
 	@Override
@@ -895,6 +942,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		for (int i = 0; i < primaryFieldNames.size(); i++) {
 			final String groupName = expectedDataGroupNamesForPrimaryDevice.get(i);
 			final NXdata dataGroup = dataGroups.get(groupName);
+			assertThat(dataGroup, is(notNullValue()));
 			final String primaryFieldName = primaryFieldNames.get(i);
 			final String signalFieldName = getSignalFieldName(primaryFieldName);
 			checkDataGroup(entry, dataGroup, signalFieldName, dataDeviceName, primaryFieldNames.get(i));
@@ -902,7 +950,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 	}
 
 	private boolean isDetectorPrimaryDevice() {
-		return detector != null && detectorType != DetectorType.FILE_CREATOR;
+		return detector != null && primaryDeviceType != PrimaryDeviceType.FILE_CREATOR;
 	}
 
 	private String getDataDeviceName() {
@@ -916,15 +964,19 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private List<String> getPrimaryFieldNames() {
 		// return the primary fields of the primary device
-		if (isDetectorPrimaryDevice()) return detectorType.getPrimaryFieldNames();
-		if (monitor != null) return List.of(MONITOR_NAME);
-		return List.of(NXpositioner.NX_VALUE);
+		if (primaryDeviceType.isDetector()) return primaryDeviceType.getPrimaryFieldNames();
+		if (primaryDeviceType == PrimaryDeviceType.SINGLE_FIELD_MONITOR) return List.of(SINGLE_FIELD_MONITOR_NAME);
+		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) return List.of(MULTI_FIELD_MONITOR_FIELD_NAMES[0]);
+
+		return List.of(NXpositioner.NX_VALUE); // primary device is first scannable
 	}
 
 	private String getSignalFieldName(String primaryFieldName) {
-		if (isDetectorPrimaryDevice()) return primaryFieldName;
-		if (monitor != null) return MONITOR_NAME;
-		return NXpositioner.NX_VALUE;
+		if (primaryDeviceType.isDetector()) return primaryFieldName;
+		if (primaryDeviceType == PrimaryDeviceType.SINGLE_FIELD_MONITOR) return SINGLE_FIELD_MONITOR_NAME;
+		if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) return MULTI_FIELD_MONITOR_NAME + "_" + primaryFieldName;
+		return NXpositioner.NX_VALUE; // primary device is first scannable
+
 	}
 
 	private void checkDataGroup(NXentry entry, final NXdata data, final String signalFieldName,
@@ -939,16 +991,25 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 				toMap(Function.identity(), scannableName -> String.format("instrument/%s/%s", scannableName,
 						scannableName.equals(scannables[0].getName()) ? scannableName : NXpositioner.NX_VALUE))));
 		expectedAttributeNames.addAll(Arrays.stream(scannables)
-				.map(Scannable::getName).map(name -> name + "_indices").collect(toSet()));
+				.map(Scannable::getName).map(name -> name + DATA_INDICES_SUFFIX).collect(toSet()));
 
 		// check that the signal field points to the value of the detector (or monitor if no detector, and the first scannable if no monitor)
 		expectedDataNodeLinks.put(signalFieldName, String.format("instrument/%s/%s", dataDeviceName,
 				dataDeviceName.equals(scannables[0].getName()) ? dataDeviceName : primaryFieldName));
 
-		if (monitor != null && isDetectorPrimaryDevice()) {
-			// monitor value already added as the signal field if monitor is primary device
-			expectedDataNodeLinks.put(MONITOR_NAME, String.format("instrument/%s/%s", MONITOR_NAME, MONITOR_NAME));
-			expectedAttributeNames.add(MONITOR_NAME + "_indices");
+		if (monitor != null) {
+			if (isDetectorPrimaryDevice()) {
+				// monitor value already added as the signal field if monitor is primary device
+				expectedDataNodeLinks.put(SINGLE_FIELD_MONITOR_NAME, String.format("instrument/%s/%s", SINGLE_FIELD_MONITOR_NAME, SINGLE_FIELD_MONITOR_NAME));
+				expectedAttributeNames.add(SINGLE_FIELD_MONITOR_NAME + DATA_INDICES_SUFFIX);
+			} else if (primaryDeviceType == PrimaryDeviceType.MULTI_FIELD_MONITOR) { // add fields for multi-field monitor
+				expectedDataNodeLinks.putAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES).skip(1) // skip first field, as that's the signal field not a axis field
+						.collect(toMap(fieldName -> MULTI_FIELD_MONITOR_NAME + "_" + fieldName,
+								fieldName -> String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName))));
+				expectedAttributeNames.addAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES).skip(1) // skip first field again
+						.map(fieldName -> MULTI_FIELD_MONITOR_NAME + "_" + fieldName + DATA_INDICES_SUFFIX)
+						.collect(toList()));
+			}
 		}
 
 		// assert that all the expected linked data nodes are present
@@ -969,13 +1030,13 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		Arrays.stream(scannables).map(Scannable::getName).forEach(
 				scannableName -> assertIndices(data, scannableName, expectedIndices));
 		if (isDetectorPrimaryDevice()) {
-			assertIndices(data, MONITOR_NAME, expectedIndices);
+			assertIndices(data, SINGLE_FIELD_MONITOR_NAME, expectedIndices);
 		}
 	}
 
 	private List<String> getExpectedDataGroupNamesForDevice(String dataDeviceName, List<String> primaryFieldNames) {
 		final List<String> basicDataGroupNames = List.of(dataDeviceName);
-		if (detectorType == DetectorType.NEXUS_DETECTOR || detectorType == DetectorType.MODIFIED_NEXUS_DETECTOR) {
+		if (primaryDeviceType == PrimaryDeviceType.NEXUS_DETECTOR || primaryDeviceType == PrimaryDeviceType.MODIFIED_NEXUS_DETECTOR) {
 			return Streams.concat(basicDataGroupNames.stream(),
 					primaryFieldNames.stream().skip(1).map(name -> dataDeviceName + "_" + name)).collect(toList());
 		}

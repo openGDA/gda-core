@@ -64,8 +64,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-import com.google.common.collect.Iterables;
-
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.ScannableMotionUnits;
@@ -299,11 +297,11 @@ public class ScannableNexusWrapperTest {
 		final List<NexusObjectProvider<?>> nexusObjectProviders = scannableNexusWrapper.getNexusProviders(scanInfo);
 		assertThat(nexusObjectProviders.size(), is(equalTo(inputNames.length + 1)));
 
-		for (int i = 0; i < inputNames.length; i++) {
-			final String inputName = inputNames[i];
+		for (int inputFieldIndex = 0; inputFieldIndex < inputNames.length; inputFieldIndex++) {
+			final String inputName = inputNames[inputFieldIndex];
 			final String positionerName = mockScannable.getName() + "." + inputName;
 			@SuppressWarnings("unchecked")
-			final NexusObjectProvider<NXpositioner> positionerProvider = (NexusObjectProvider<NXpositioner>) nexusObjectProviders.get(i);
+			final NexusObjectProvider<NXpositioner> positionerProvider = (NexusObjectProvider<NXpositioner>) nexusObjectProviders.get(inputFieldIndex + 1);
 
 			assertThat(positionerProvider, is(notNullValue()));
 			assertThat(positionerProvider.getName(), is(positionerName));
@@ -334,13 +332,13 @@ public class ScannableNexusWrapperTest {
 			assertThat(valueDataNode, is(notNullValue()));
 			assertThat(valueDataNode.getDataset(), is(notNullValue()));
 
-			assertThat(positioner.getSoft_limit_minScalar().doubleValue(), is(closeTo(lowerLimits[i], 1e-15)));
-			assertThat(positioner.getSoft_limit_maxScalar().doubleValue(), is(closeTo(upperLimits[i], 1e-15)));
+			assertThat(positioner.getSoft_limit_minScalar().doubleValue(), is(closeTo(lowerLimits[inputFieldIndex], 1e-15)));
+			assertThat(positioner.getSoft_limit_maxScalar().doubleValue(), is(closeTo(upperLimits[inputFieldIndex], 1e-15)));
 		}
 
 		// assert collection
 		@SuppressWarnings("unchecked")
-		final NexusObjectProvider<NXcollection> collectionProvider = (NexusObjectProvider<NXcollection>) Iterables.getLast(nexusObjectProviders);
+		final NexusObjectProvider<NXcollection> collectionProvider = (NexusObjectProvider<NXcollection>) nexusObjectProviders.get(0);
 		assertThat(collectionProvider, is(notNullValue()));
 		assertThat(collectionProvider.getName(), is(equalTo(scannableName)));
 		assertThat(collectionProvider.getNexusBaseClass(), is(NexusBaseClass.NX_COLLECTION));
@@ -361,11 +359,11 @@ public class ScannableNexusWrapperTest {
 		assertThat(collection.getAttrString(null, ATTR_NAME_GDA_SCAN_ROLE), is(equalTo(ScanRole.MONITOR_PER_SCAN.toString().toLowerCase())));
 
 		// check links to input fields
-		for (int i = 0; i < inputNames.length; i++) {
-			final DataNode inputFieldDataNode = collection.getDataNode(inputNames[i]);
+		for (int inputFieldIndex = 0; inputFieldIndex < inputNames.length; inputFieldIndex++) {
+			final DataNode inputFieldDataNode = collection.getDataNode(inputNames[inputFieldIndex]);
 			assertThat(inputFieldDataNode, is(notNullValue()));
-			assertThat(inputFieldDataNode, is(sameInstance(
-					nexusObjectProviders.get(i).getNexusObject().getDataNode(NXpositioner.NX_VALUE))));
+			final NXpositioner positioner = (NXpositioner) nexusObjectProviders.get(inputFieldIndex + 1).getNexusObject();
+			assertThat(inputFieldDataNode, is(sameInstance(positioner.getDataNode(NXpositioner.NX_VALUE))));
 		}
 
 		for (int i = 0; i < extraNames.length; i++) {

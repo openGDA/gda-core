@@ -31,9 +31,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -43,6 +43,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -53,6 +54,7 @@ import org.eclipse.dawnsci.nexus.NXpositioner;
 import org.eclipse.dawnsci.nexus.NXsource;
 import org.eclipse.dawnsci.nexus.NXuser;
 import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
+import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
@@ -255,18 +257,13 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	}
 
 	@Override
-	protected void checkMonitor(NXinstrument instrument) throws Exception {
-		// check the monitor has been written correctly
-		final NXpositioner monitorPos = instrument.getPositioner(MONITOR_NAME);
-		if (monitor == null) {
-			assertThat(monitorPos, is(nullValue()));
-			return;
-		}
+	protected void checkSingleFieldMonitor(final GroupNode monitorGroup) throws DatasetException {
+		assertThat(monitorGroup, is(instanceOf(NXpositioner.class)));
 
-		assertThat(monitorPos, is(notNullValue()));
-		assertThat(monitorPos.getDataNodeNames(), contains(MONITOR_NAME));
+		final NXpositioner monitorPos = (NXpositioner) monitorGroup;
+		assertThat(monitorPos.getDataNodeNames(), contains(SINGLE_FIELD_MONITOR_NAME));
 
-		final DataNode monitorValueDataNode = monitorPos.getDataNode(monitor.getName());
+		final DataNode monitorValueDataNode = monitorPos.getDataNode(monitor.getExtraNames()[0]);
 		assertThat(monitorValueDataNode, is(notNullValue()));
 
 		String[] expectedDataNodeAttrNames = { ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET };
@@ -274,13 +271,33 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		assertThat(monitorValueDataNode.getAttributeNames(), containsInAnyOrder(expectedDataNodeAttrNames));
 
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_LOCAL_NAME).getFirstElement(),
-				is(equalTo(MONITOR_NAME + "." + MONITOR_NAME)));
+				is(equalTo(SINGLE_FIELD_MONITOR_NAME + "." + SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_TARGET).getFirstElement(),
-				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + MONITOR_NAME + "/" + MONITOR_NAME)));
+				is(equalTo("/" + ENTRY_NAME + "/" + INSTRUMENT_NAME + "/" + SINGLE_FIELD_MONITOR_NAME + "/" + SINGLE_FIELD_MONITOR_NAME)));
 		assertThat(monitorValueDataNode.getDataset().getSlice(),
-				is(equalTo(DatasetFactory.zeros(scanDimensions).fill(MONITOR_VALUE)))); // check values
+				is(equalTo(DatasetFactory.zeros(scanDimensions).fill(SINGLE_FIELD_MONITOR_VALUE)))); // check values
 		if (detector == null) {
 			assertThat(monitorValueDataNode.getAttribute(ATTRIBUTE_NAME_SIGNAL).getFirstElement(), is(equalTo("1")));
+		}
+	}
+
+	@Override
+	protected void checkMultiFieldMonitor(final GroupNode monitorGroup) throws DatasetException {
+		assertThat(monitorGroup, is(instanceOf(NXpositioner.class)));
+
+		final NXpositioner multiMonitorPos = (NXpositioner) monitorGroup;
+		assertThat(multiMonitorPos.getDataNodeNames(), contains(MULTI_FIELD_MONITOR_FIELD_NAMES));
+
+		for (String fieldName : MULTI_FIELD_MONITOR_FIELD_NAMES) {
+			final DataNode dataNode = multiMonitorPos.getDataNode(fieldName);
+			assertThat(dataNode, is(notNullValue()));
+
+			String[] expectedDataNodeAttrNames = { ATTRIBUTE_NAME_LOCAL_NAME, ATTRIBUTE_NAME_TARGET, ATTRIBUTE_NAME_AXIS };
+			if (fieldName.equals(MULTI_FIELD_MONITOR_FIELD_NAMES[0])) { // the first field is the primary axis field
+				expectedDataNodeAttrNames = ArrayUtils.addAll(expectedDataNodeAttrNames, ATTRIBUTE_NAME_LABEL, ATTRIBUTE_NAME_PRIMARY);
+			}
+
+			assertThat(dataNode.getAttributeNames(), containsInAnyOrder(expectedDataNodeAttrNames));
 		}
 	}
 
@@ -306,7 +323,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 	@Override
 	protected void checkDataGroups(NXentry entry) throws Exception {
 		// NexusDataWriter creates a single NXdata group
-		final String expectedDataGroupName = detectorType == DetectorType.NONE ? GROUP_NAME_DEFAULT : detector.getName();
+		final String expectedDataGroupName = primaryDeviceType.isDetector() ? detector.getName() : GROUP_NAME_DEFAULT;
 		final Map<String, NXdata> dataGroups = entry.getAllData();
 		assertThat(dataGroups.size(), is(2));
 		assertThat(dataGroups.keySet(), containsInAnyOrder(expectedDataGroupName, GROUP_NAME_MEASUREMENT));
@@ -321,14 +338,20 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		final Map<String, String> expectedDataNodeLinks = new LinkedHashMap<>();
 		expectedDataNodeLinks.putAll(Arrays.stream(scannables).map(Scannable::getName).collect(
 				toMap(Function.identity(), scannableName -> String.format("instrument/%s/%s", scannableName, scannableName))));
-		if (monitor != null) {
-			expectedDataNodeLinks.put(MONITOR_NAME, String.format("instrument/%s/%s", MONITOR_NAME, MONITOR_NAME));
+		if (createMonitor && primaryDeviceType != PrimaryDeviceType.NONE && primaryDeviceType != PrimaryDeviceType.MULTI_FIELD_MONITOR) {
+			expectedDataNodeLinks.put(SINGLE_FIELD_MONITOR_NAME, String.format("instrument/%s/%s", SINGLE_FIELD_MONITOR_NAME, SINGLE_FIELD_MONITOR_NAME));
 		}
 
 		final String detectorPath = detector != null ? "instrument/" + detector.getName() + "/" : null;
 		// add expected
-		switch (detectorType) {
+		switch (primaryDeviceType) {
 			case NONE: break;
+			case SINGLE_FIELD_MONITOR: break; // expected node link for monitor already added above
+			case MULTI_FIELD_MONITOR:
+				expectedDataNodeLinks.putAll(Arrays.stream(MULTI_FIELD_MONITOR_FIELD_NAMES)
+						.collect(toMap(Function.identity(), fieldName ->
+								String.format("instrument/%s/%s", MULTI_FIELD_MONITOR_NAME, fieldName))));
+				break;
 			case NEXUS_DEVICE: break;
 			case COUNTER_TIMER:
 				// a data node is added for each extra name of the detector
@@ -350,7 +373,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 				expectedDataNodeLinks.put(FIELD_NAME_EXTERNAL, detectorPath + FIELD_NAME_EXTERNAL);
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown detector type " + detectorType);
+				throw new IllegalArgumentException("Unknown detector type " + primaryDeviceType);
 		}
 
 		// assert that all the expected linked data nodes are present
