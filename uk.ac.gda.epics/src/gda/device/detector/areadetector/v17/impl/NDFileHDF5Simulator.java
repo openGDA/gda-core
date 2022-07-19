@@ -370,6 +370,28 @@ public class NDFileHDF5Simulator implements NDFileHDF5 {
 
 	@Override
 	public void setExtraDimensions(int[] actualDims) throws Exception {
+	}
 
+	@Override
+	public String getLayoutFileName() throws Exception {
+		return null;
+	}
+
+	@Override
+	public void setLayoutFileName(String fileName) throws Exception {
+	}
+
+	@Override
+	public int getPredefinedPositionMode() throws Exception {
+		return 0;
+	}
+
+	@Override
+	public boolean isPredefinedPositionMode() throws Exception {
+		return false;
+	}
+
+	@Override
+	public void setPredefinedPositionMode(boolean mode) throws Exception {
 	}
 }

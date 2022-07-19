@@ -148,6 +148,12 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String USE_SWMR = "SWMRMode";
 
+	private static final String LAYOUT_FILE_NAME = "XMLFileName";
+	private static final String LAYOUT_FILE_NAME_RBV = "XMLFileName_RBV";
+	private static final String POSITION_MODE = "PositionMode";
+	private static final String POSITION_MODE_RBV = "PositionMode_RBV";
+
+
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
@@ -856,9 +862,33 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	}
 
 	@Override
+	public void setLayoutFileName(String fileName) throws Exception {
+		EPICS_CONTROLLER.caputWait(getChannel(LAYOUT_FILE_NAME), fileName);
+	}
+
+	@Override
+	public String getLayoutFileName() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(LAYOUT_FILE_NAME_RBV));
+	}
+
+	@Override
+	public int getPredefinedPositionMode() throws Exception {
+		return EPICS_CONTROLLER.cagetInt(getChannel(POSITION_MODE_RBV));
+	}
+
+	@Override
+	public boolean isPredefinedPositionMode() throws Exception {
+		return getPredefinedPositionMode() == 1;
+	}
+
+	@Override
+	public void setPredefinedPositionMode(boolean storeAttributesByDimension) throws Exception {
+		EPICS_CONTROLLER.caput(getChannel(POSITION_MODE), storeAttributesByDimension ? 1 : 0);
+	}
+
+	@Override
 	public void setBoundaryAlign(int boundaryAlign) throws Exception {
 		EPICS_CONTROLLER.caputWait(getChannel(BoundaryAlign), boundaryAlign);
-
 	}
 
 	@Override

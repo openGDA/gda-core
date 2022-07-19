@@ -143,6 +143,16 @@ public interface NDFileHDF5 {
 
 	String getArrayPort() throws Exception ;
 
+	String getLayoutFileName() throws Exception ;
+
+	void setLayoutFileName(String fileName) throws Exception ;
+
+	int getPredefinedPositionMode() throws Exception ;
+
+	boolean isPredefinedPositionMode() throws Exception ;
+
+	void setPredefinedPositionMode(boolean mode) throws Exception ;
+
 	/**
 	 * Lazy open specifies if the file will be created when capture is started or if it will be created when the first frame arrives at the HDF5 writer. If true
 	 * the file will only be created when the first frame is written.
