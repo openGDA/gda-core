@@ -319,6 +319,11 @@ public class XesOffsets extends FindableConfigurableBase implements IXesOffsets 
 		return spectrometerGroup.getName();
 	}
 
+	@Override
+	public String getXesEnergyScannableName() {
+		return xesEnergyScannable.getName();
+	}
+
 	public String getStoreDirectory() {
 		return storeDirectory;
 	}
