@@ -63,7 +63,7 @@ import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanEvent;
-import gda.util.LibGdaCommon;
+import uk.ac.diamond.daq.linux.UserUtilities;
 
 /**
  * Provides a single point of access for the Jython package for all Java classes. This will work whether the Java is
@@ -181,7 +181,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				originalUsername = UserAuthentication.getUsername();
 				// username is an empty string on the GDA server
 				if (StringUtils.hasText(originalUsername)) {
-					fullName = LibGdaCommon.getFullNameOfUser(originalUsername);
+					fullName = UserUtilities.getFullNameOfUser(originalUsername);
 				}
 				commandServer.addIObserver(this);
 				indexNumberInJythonServer = commandServer.addFacade(name, localHost, username, fullName, "");
@@ -276,7 +276,7 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 	 */
 	private static String getCurrentFullName() {
 		String currentUsername = getCurrentUsername();
-		return LibGdaCommon.getFullNameOfUser(currentUsername);
+		return UserUtilities.getFullNameOfUser(currentUsername);
 	}
 
 	// methods to copy the Jython interface
