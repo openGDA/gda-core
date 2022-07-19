@@ -67,4 +67,6 @@ public interface IXesOffsets extends Findable {
 	void applyFromLive(double fluoEnergy) throws DeviceException, IOException;
 
 	String getSpectrometerGroupName();
+
+	String getXesEnergyScannableName();
 }
