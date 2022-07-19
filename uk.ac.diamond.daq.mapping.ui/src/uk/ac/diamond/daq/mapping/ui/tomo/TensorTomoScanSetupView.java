@@ -294,6 +294,7 @@ public class TensorTomoScanSetupView extends AbstractSectionView<TensorTomoScanB
 
 	@Override
 	public void updateStatusLabel() {
+		if (!isViewCreated()) return;
 		getSection(StatusPanelSection.class).updateStatusLabel();
 	}
 
