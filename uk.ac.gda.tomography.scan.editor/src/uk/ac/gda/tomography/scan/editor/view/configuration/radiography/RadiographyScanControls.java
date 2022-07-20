@@ -84,13 +84,10 @@ public class RadiographyScanControls implements CompositeFactory, Reloadable {
 
 	@Override
 	public void reload() {
-		if (mainComposite.isDisposed()) {
-			logger.warn("Asked to reload when I am disposed! Ignoring...");
-			return;
-		}
 		try {
 			bindElements();
 			initialiseElements();
+			composites.forEach(Reloadable::reload);
 			mainComposite.getShell().layout(true, true);
 		} catch (NoSuchElementException e) {
 			UIHelper.showWarning(CONFIGURATION_LAYOUT_ERROR, e);

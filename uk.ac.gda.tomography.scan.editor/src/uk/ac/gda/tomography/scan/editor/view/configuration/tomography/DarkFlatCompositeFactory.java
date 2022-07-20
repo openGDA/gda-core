@@ -18,23 +18,11 @@
 
 package uk.ac.gda.tomography.scan.editor.view.configuration.tomography;
 
-import static uk.ac.gda.ui.tool.ClientMessages.AT_END;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_END_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_START;
-import static uk.ac.gda.ui.tool.ClientMessages.AT_START_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.DARK_EXPOSURE_TP;
-import static uk.ac.gda.ui.tool.ClientMessages.EXPOSURE;
-import static uk.ac.gda.ui.tool.ClientMessages.FLAT_EXPOSURE_TP;
-import static uk.ac.gda.ui.tool.ClientMessages.IMAGE_CALIBRATION;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_DARK;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_DARK_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_FLAT;
-import static uk.ac.gda.ui.tool.ClientMessages.NUM_FLAT_TOOLTIP;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGridDataFactory;
-import static uk.ac.gda.ui.tool.ClientSWTElements.createClientGroup;
-import static uk.ac.gda.ui.tool.GUIComponents.checkComponent;
-import static uk.ac.gda.ui.tool.GUIComponents.doublePositiveContent;
-import static uk.ac.gda.ui.tool.GUIComponents.integerPositiveContent;
+import static uk.ac.gda.ui.tool.ClientSWTElements.STRETCH;
+import static uk.ac.gda.ui.tool.ClientSWTElements.composite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.innerComposite;
+import static uk.ac.gda.ui.tool.ClientSWTElements.label;
+import static uk.ac.gda.ui.tool.ClientSWTElements.spinner;
 
 import java.util.ArrayList;
 
@@ -44,7 +32,7 @@ import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Spinner;
 
 import gda.rcp.views.CompositeFactory;
 import uk.ac.diamond.daq.mapping.api.document.scanning.ScanningConfiguration;
@@ -60,49 +48,43 @@ import uk.ac.gda.ui.tool.document.ScanningAcquisitionTemporaryHelper;
  */
 public class DarkFlatCompositeFactory implements CompositeFactory, Reloadable {
 
-	/** The Calibration Composite elements **/
-	private Text numberDark;
-	private Text darkExposure;
-	private Text numberFlat;
-	private Text flatExposure;
-	private Button beforeAcquisition;
-	private Button afterAcquisition;
+	private Button darkFlatsAtStart;
+	private Button darkFlatsAtEnd;
 
-	private Composite composite;
+	private Spinner darkFields;
+	private Spinner flatFields;
 
 	private DataBindingContext bindingContext = new DataBindingContext();
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		composite = createClientGroup(parent, SWT.NONE, 2, IMAGE_CALIBRATION);
-		createClientGridDataFactory().applyTo(composite);
-		createElements(composite, SWT.NONE, SWT.BORDER);
+		var darksAndFlats = composite(parent, 2);
+
+		label(darksAndFlats, "Acquire darks/flats");
+		var startEndButtons = innerComposite(darksAndFlats, 2, true);
+		darkFlatsAtStart = new Button(startEndButtons, SWT.CHECK);
+		darkFlatsAtStart.setText("@Start");
+		STRETCH.applyTo(darkFlatsAtStart);
+
+		darkFlatsAtEnd = new Button(startEndButtons, SWT.CHECK);
+		darkFlatsAtEnd.setText("@End");
+		STRETCH.applyTo(darkFlatsAtEnd);
+
+		label(darksAndFlats, "Dark fields");
+		label(darksAndFlats, "Flat fields");
+
+		darkFields = spinner(darksAndFlats);
+		flatFields = spinner(darksAndFlats);
+
 		bindElements();
-		return composite;
+
+		return darksAndFlats;
 	}
 
 	@Override
 	public void reload() {
-		if (composite == null || composite.isDisposed()) return;
 		removeOldBindings();
 		bindElements();
-	}
-
-	private void createElements(Composite parent, int labelStyle, int textStyle) {
-		this.numberDark = integerPositiveContent(parent, labelStyle, textStyle,
-				NUM_DARK, NUM_DARK_TOOLTIP);
-		this.darkExposure = doublePositiveContent(parent, labelStyle, textStyle,
-				EXPOSURE, DARK_EXPOSURE_TP);
-
-		this.numberFlat = integerPositiveContent(parent, labelStyle, textStyle,
-				NUM_FLAT, NUM_FLAT_TOOLTIP);
-		this.flatExposure = doublePositiveContent(parent, labelStyle, textStyle,
-				EXPOSURE, FLAT_EXPOSURE_TP);
-
-		this.beforeAcquisition = checkComponent(parent,
-				AT_START, AT_START_TOOLTIP);
-		this.afterAcquisition = checkComponent(parent,
-				AT_END, AT_END_TOOLTIP);
 	}
 
 	private void removeOldBindings() {
@@ -120,35 +102,23 @@ public class DarkFlatCompositeFactory implements CompositeFactory, Reloadable {
 		var flatsModel = imageCalibration.getFlatCalibration();
 		var darksModel = imageCalibration.getDarkCalibration();
 
-		var flatProjectionsUi = WidgetProperties.text(SWT.Modify).observe(numberFlat);
+		var flatProjectionsUi = WidgetProperties.spinnerSelection().observe(flatFields);
 		var flatProjectionsModel = PojoProperties.value("numberExposures", Integer.class).observe(flatsModel);
 		bindingContext.bindValue(flatProjectionsUi, flatProjectionsModel);
 
-		var darkProjectionsUi = WidgetProperties.text(SWT.Modify).observe(numberDark);
+		var darkProjectionsUi = WidgetProperties.spinnerSelection().observe(darkFields);
 		var darkProjectionsModel = PojoProperties.value("numberExposures", Integer.class).observe(darksModel);
 		bindingContext.bindValue(darkProjectionsUi, darkProjectionsModel);
 
-		/* exposure */
-
-		var flatDetector = flatsModel.getDetectorDocument();
-		var flatExposureUi = WidgetProperties.text(SWT.Modify).observe(flatExposure);
-		var flatExposureModel = PojoProperties.value("exposure", Double.class).observe(flatDetector);
-		bindingContext.bindValue(flatExposureUi, flatExposureModel);
-
-		var darkDetector = darksModel.getDetectorDocument();
-		var darkExposureUi = WidgetProperties.text(SWT.Modify).observe(darkExposure);
-		var darkExposureModel = PojoProperties.value("exposure", Double.class).observe(darkDetector);
-		bindingContext.bindValue(darkExposureUi, darkExposureModel);
-
 		/* before/after scan */
 
-		var beforeScanUi = WidgetProperties.buttonSelection().observe(beforeAcquisition);
+		var beforeScanUi = WidgetProperties.buttonSelection().observe(darkFlatsAtStart);
 		var beforeScanFlatsModel = PojoProperties.value("beforeAcquisition", Boolean.class).observe(flatsModel);
 		var beforeScanDarksModel = PojoProperties.value("beforeAcquisition", Boolean.class).observe(darksModel);
 		bindingContext.bindValue(beforeScanUi, beforeScanFlatsModel);
 		bindingContext.bindValue(beforeScanUi, beforeScanDarksModel);
 
-		var afterScanUi = WidgetProperties.buttonSelection().observe(afterAcquisition);
+		var afterScanUi = WidgetProperties.buttonSelection().observe(darkFlatsAtEnd);
 		var afterScanFlatsModel = PojoProperties.value("afterAcquisition", Boolean.class).observe(flatsModel);
 		var afterScanDarksModel = PojoProperties.value("afterAcquisition", Boolean.class).observe(darksModel);
 		bindingContext.bindValue(afterScanUi, afterScanFlatsModel);

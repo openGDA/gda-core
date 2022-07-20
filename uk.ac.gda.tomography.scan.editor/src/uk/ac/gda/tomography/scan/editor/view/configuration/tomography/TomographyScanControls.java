@@ -77,8 +77,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 import gda.mscan.element.Mutator;
@@ -115,8 +113,6 @@ import uk.ac.gda.ui.tool.spring.ClientSpringProperties;
  */
 public class TomographyScanControls implements CompositeFactory, Reloadable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TomographyScanControls.class);
-
 	/** Scan prefix **/
 	private Text name;
 
@@ -145,8 +141,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	private DataBindingContext bindingContext = new DataBindingContext();
 
-	private Composite mainComposite;
-
 	private List<Reloadable> reloadables = new ArrayList<>();
 	private ProjectionsCompositeFactory projections;
 
@@ -164,7 +158,7 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
+		Composite mainComposite = createClientCompositeWithGridLayout(parent, SWT.NONE, 1);
 		createClientGridDataFactory().align(SWT.FILL, SWT.BEGINNING).grab(true, true).applyTo(mainComposite);
 		standardMarginHeight(mainComposite.getLayout());
 		standardMarginWidth(mainComposite.getLayout());
@@ -441,11 +435,6 @@ public class TomographyScanControls implements CompositeFactory, Reloadable {
 
 	@Override
 	public void reload() {
-		if (mainComposite.isDisposed()) {
-			logger.warn("Asked to reload when I am disposed! Ignoring...");
-			return;
-		}
-
 		disposeBindings();
 		bindElements();
 		reloadables.forEach(Reloadable::reload);

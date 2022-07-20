@@ -89,7 +89,6 @@ public class ExposureCompositeFactory implements CompositeFactory, Reloadable {
 
 	@Override
 	public void reload() {
-		if (composite == null || composite.isDisposed()) return;
 		try {
 			refreshParameters();
 			updateExposureFromDocument();
