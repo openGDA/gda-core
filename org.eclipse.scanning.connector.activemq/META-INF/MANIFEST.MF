@@ -8,12 +8,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Service-Component: OSGI-INF/*.xml
 Require-Bundle: org.eclipse.scanning.api;bundle-version="1.0.0",
  org.eclipse.january;bundle-version="1.0.0",
- org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
- uk.ac.gda.common.activemq
+ org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.scanning.connector.activemq
 Import-Package: javax.jms,
  org.apache.activemq,
  org.apache.activemq.broker,
- org.apache.activemq.usage
+ org.apache.activemq.usage,
+ uk.ac.gda.common.activemq
 Automatic-Module-Name: org.eclipse.scanning.connector.activemq
