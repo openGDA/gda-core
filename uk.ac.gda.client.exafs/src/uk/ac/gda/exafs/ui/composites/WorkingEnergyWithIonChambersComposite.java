@@ -133,6 +133,12 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 		}
 	}
 
+	@Override
+	protected void updateState(boolean isOn) {
+		super.updateState(isOn);
+		showMythenParameters(collectDiffractionImages.getValue());
+	}
+
 	protected void createDiffractionSection(final Composite top) {
 		boolean collectDiffractionData = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN);
 		boolean diffractionCollectedWithFluoData = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DIFFRACTION_COLLECTED_CONCURRENTLY);
