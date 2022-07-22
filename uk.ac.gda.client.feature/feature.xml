@@ -528,13 +528,6 @@
          unpack="false"/>
 
    <plugin
-         id="uk.ac.gda.common.activemq"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.scanning.device.ui"
          download-size="0"
          install-size="0"
@@ -550,6 +543,13 @@
 
    <plugin
          id="com.h2database"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.platform-messaging"
          download-size="0"
          install-size="0"
          version="0.0.0"
