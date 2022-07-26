@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
@@ -51,7 +52,6 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.devices.detector.DetectorWithConfigurationFile;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector.XspressHelperMethods;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -64,19 +64,16 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * (i.e. resolution grade information, deadtime correction calculation information, in-window sum, total FF, etc). <p>
  *
  * The strategy is to store settings for the collection using the {@link XspressParameters} class (as used by {@link XSpress2}).
- * The detector is driven using {@link Xspress3Controller} where possible, and by {@link Xspress4Controller} where access to
- * additional PVs not present on Xspress3 is required.
+ * Access to PVs on the  detector is via an implementation of {@link Xspress4Controller}.
  */
 @ServiceInterface(FluorescenceDetector.class)
 @SuppressWarnings("serial")
 public class Xspress4Detector extends DetectorBase implements FluorescenceDetector, NexusDetector, DetectorWithConfigurationFile {
+	private static final Logger logger = LoggerFactory.getLogger(Xspress4Detector.class);
 
 	/** Trigger modes (caget -d31 BL20I-EA-XSP4-01:TriggerMode). Use 'TTL veto' for hardware triggered scans, 'Software' for software triggered scans*/
 	public enum TriggerMode {Software, Hardware, Burst, TtlVeto, IDC, SoftwareStartStop, TtlBoth, LvdsVetoOnly, LvdsBoth};
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress4Detector.class);
-
-	private Xspress3Controller xspress3Controller;
 	private Xspress4Controller xspress4Controller;
 	private Xspress4NexusTree xspress4NexusTree;
 
@@ -98,7 +95,6 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	private String defaultSubDirectory = "";
 	public static int MAX_ROI_PER_CHANNEL = 4;
-	private int numberDetectorElements = 0;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -109,11 +105,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		inputNames = new String[] {};
 		filePrefix = getName();
 
-		if (xspress3Controller == null || xspress4Controller == null) {
-			throw new FactoryException("Controllers have not been set for Xspress4 detector - it will not function correctly or work in scans");
-		} else {
-			numberDetectorElements = xspress4Controller.getNumElements();
-		}
+		checkControllersAreSet();
 
 		// setup default name-index map if not configured through spring
 		if (nexusScalerNameIndexMap.isEmpty()) {
@@ -130,12 +122,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		xspress4NexusTree = new Xspress4NexusTree(this);
 	}
 
-	public void setXspress3Controller(Xspress3Controller controller) {
-		this.xspress3Controller = controller;
-	}
-
-	public Xspress3Controller getXspress3Controller() {
-		return xspress3Controller;
+	protected void checkControllersAreSet() {
+		Objects.requireNonNull(xspress4Controller, "Controller has not been set for Xspress4 detector - it will not function correctly or work in scans");
 	}
 
 	public void setController(Xspress4Controller controller) {
@@ -156,7 +144,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		}
 
 		// Make sure detector is stopped first
-		xspress3Controller.doStop();
+		xspress4Controller.stopAcquire();
 
 		// reset counter for total number of frames read out
 		xspress4Controller.resetFramesReadOut();
@@ -175,7 +163,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	public void setupNumFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
 
-		xspress3Controller.setNumFramesToAcquire(numberOfFramesToCollect);
+		xspress4Controller.setNumImages(numberOfFramesToCollect);
 
 		if (writeHdfFiles) {
 
@@ -193,20 +181,24 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			if (!file.exists()) {
 				file.mkdirs();
 			}
-			xspress3Controller.setFilePath(hdfDir);
-			xspress3Controller.setFilePrefix(XspressHelperMethods.getFilePrefix(filePrefix));
-			xspress3Controller.setNextFileNumber(0);
-			xspress3Controller.setHDFNumFramesToAcquire(numberOfFramesToCollect);
+			xspress4Controller.setHdfFilePath(hdfDir);
+			xspress4Controller.setHdfNumFrames(numberOfFramesToCollect);
+			xspress4Controller.setHdfFileName(XspressHelperMethods.getFilePrefix(filePrefix));
+
+			// Not needed if auto-increment is off (should be off by default)
+//			xspress3Controller.setNextFileNumber(0);
 		}
 	}
 
 	@Override
 	public void atScanEnd() throws DeviceException {
 		if (writeHdfFiles) {
-			if (xspress3Controller.getTotalHDFFramesAvailable() < xspress3Controller.getNumFramesToAcquire()) {
-				xspress3Controller.doStopSavingFiles();
+			if (xspress4Controller.getHdfNumCapturedFrames() < xspress4Controller.getHdfNumFramesRbv()) {
+				xspress4Controller.stopHdfWriter();
 			} else {
-				xspress3Controller.setSavingFiles(false);
+				// wait for captures to finish, then stop the writer.
+				xspress4Controller.waitForCaptureState(false);
+				xspress4Controller.stopHdfWriter();
 			}
 		}
 
@@ -215,7 +207,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			String path = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getFilename();
 			try (NexusFile nexusFile = NexusFileHDF5.openNexusFile(path)) {
 				Path nexusFilePath = Paths.get(path).getParent();
-				Path hdfFilePath = Paths.get(xspress3Controller.getFullFileName());
+				Path hdfFilePath = Paths.get(xspress4Controller.getHdfFullFileName());
 				// Try to get relative path to hdf file from Nexus file
 				Path hdfFileRelativePath = hdfFilePath;
 				try{
@@ -236,7 +228,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 
 	@Override
 	public void atCommandFailure() throws DeviceException {
-		xspress3Controller.doStopSavingFiles();
+		xspress4Controller.stopHdfWriter();
 		atScanEnd();
 	}
 
@@ -259,9 +251,9 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	 * @throws DeviceException
 	 */
 	public void acquireFrameAndWait(double collectionTimeMillis, double timeoutMillis) throws DeviceException {
-		int numFramesBeforeAcquire = xspress3Controller.getTotalFramesAvailable();
+		int numFramesBeforeAcquire = xspress4Controller.getTotalFramesAvailable();
 		logger.info(":Acquire called");
-		xspress3Controller.doStart();
+		xspress4Controller.startAcquire();
 		try {
 			Thread.sleep((long)collectionTimeMillis);
 			xspress4Controller.waitForCounterToIncrement(numFramesBeforeAcquire, (long)timeoutMillis);
@@ -272,19 +264,19 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			logger.warn("Interrupted while waiting for acquire");
 		}
 		logger.info("Wait for acquire finished");
-		if (xspress3Controller.getTotalFramesAvailable()==numFramesBeforeAcquire) {
+		if (xspress4Controller.getTotalFramesAvailable()==numFramesBeforeAcquire) {
 			logger.warn("Acquire not finished after waiting for {} secs", timeoutMillis*0.001);
 		}
 	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-//		detector.setFramesRead(0);
-		xspress3Controller.setSavingFiles(writeHdfFiles);
-		xspress3Controller.doErase();
+		xspress4Controller.startHdfWriter();
+		xspress4Controller.waitForCaptureState(true);
+
 		// Start Acquire if using hardware triggering (i.e. detector waits for external trigger for each frame)
 		if (currentTriggerMode != TriggerMode.Software) {
-			xspress3Controller.doStart();
+			xspress4Controller.startAcquire();
 		}
 	}
 
@@ -295,13 +287,13 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			acquireFrameAndWait();
 		} else {
 			// Get number of frames available from array counter
-			numFramesReadoutAtPointStart = xspress3Controller.getTotalFramesAvailable();
+			numFramesReadoutAtPointStart = xspress4Controller.getTotalFramesAvailable();
 		}
 	}
 
 	@Override
 	public void stop() throws DeviceException {
-		xspress3Controller.doStop();
+		xspress4Controller.stopAcquire();
 		atScanEnd();
 	}
 
@@ -326,7 +318,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 		if (mcaCollectionInProgress) {
 			return Detector.BUSY;
 		}
-		int status = xspress3Controller.getStatus();
+		int status = xspress4Controller.getDetectorState().toGdaDetectorState();
 		if (status == Detector.FAULT || status == Detector.STANDBY) {
 			return status;
 		}
@@ -349,20 +341,19 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public double[][] getMCAData(double timeMillis) throws DeviceException {
 		double mcaData[][] = null;
 		try {
-			xspress3Controller.doStop();
+			xspress4Controller.stopAcquire();
 
 			// Store the currently set trigger mode
 			TriggerMode trigMode = getTriggerMode();
 
 			//Set software trigger mode, collection for 1 frame of data
 			setTriggerMode(TriggerMode.Software);
-			xspress3Controller.setNumFramesToAcquire(1);
+			xspress4Controller.setNumImages(1);
 			setAcquireTime(timeMillis*0.001);
 
 			// Record frame of data on detector
-			xspress3Controller.doErase();
 			acquireFrameAndWait(timeMillis, timeMillis);
-			xspress3Controller.doStop();
+			xspress4Controller.stopAcquire();
 
 			// Reset trigger mode to original value
 			setTriggerMode(trigMode);
@@ -511,7 +502,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	public void setScalerWindow(int windowNumber) throws DeviceException {
 		for (DetectorElement element : parameters.getDetectorList()) {
 			int elementNumber = element.getNumber();
-			xspress3Controller.setWindows(elementNumber, windowNumber, new int[] { element.getWindowStart(), element.getWindowEnd() });
+			xspress4Controller.setScalerWindow(elementNumber, windowNumber, element.getWindowStart(), element.getWindowEnd());
 		}
 	}
 
@@ -527,7 +518,7 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 			for(int i=0; i<numWindowsToSet; i++) {
 				int start = element.getRegionList().get(i).getRoiStart();
 				int end = element.getRegionList().get(i).getRoiEnd();
-				xspress3Controller.setWindows(elementNumber, i, new int[] {start, end});
+				xspress4Controller.setScalerWindow(elementNumber, i, start, end);
 			}
 		}
 	}
@@ -563,6 +554,8 @@ public class Xspress4Detector extends DetectorBase implements FluorescenceDetect
 	 * @throws IOException
 	 */
 	private Dataset getDeadtimeScalerData() throws DeviceException {
+		int numberDetectorElements = xspress4Controller.getNumElements();
+
 		double[][] allScalerData = new double[numberDetectorElements][8];  // [num elements][num scalers]
 
 		// Get array of scaler values for each detector element

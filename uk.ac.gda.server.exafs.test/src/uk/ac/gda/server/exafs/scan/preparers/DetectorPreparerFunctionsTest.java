@@ -60,6 +60,7 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.DummyXspress3Controller;
+import uk.ac.gda.devices.detector.xspress4.DummyXspress4Controller;
 import uk.ac.gda.devices.detector.xspress4.Xspress4Detector;
 import uk.ac.gda.server.exafs.scan.DetectorPreparerFunctions;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -87,7 +88,7 @@ public class DetectorPreparerFunctionsTest {
 	private MockedStatic<XMLHelpers> xmlHelpersMock;
 
 	@Before
-	public void setup() {
+	public void setup() throws DeviceException {
 		setupMockDetectors();
 
 		preparerFunctions = new DetectorPreparerFunctions();
@@ -99,7 +100,7 @@ public class DetectorPreparerFunctionsTest {
 		xmlHelpersMock = Mockito.mockStatic(XMLHelpers.class);
 	}
 
-	private void setupMockDetectors() {
+	private void setupMockDetectors() throws DeviceException {
 		xspress2 = createMock(Xspress2Detector.class, "xspress2");
 		xspress3 = createMock(Xspress3Detector.class, "xspress3");
 		xspress4 = createMock(Xspress4Detector.class, "xspress4");
@@ -112,9 +113,9 @@ public class DetectorPreparerFunctionsTest {
 		Mockito.when(xspress3.getController()).thenReturn(controllerXsp3);
 		Mockito.when(controllerXsp3.getFilePath()).thenReturn(hdfPathXspress3);
 
-		DummyXspress3Controller controllerXsp4 = createMock(DummyXspress3Controller.class, "controllerXsp4");
-		Mockito.when(controllerXsp4.getFilePath()).thenReturn(hdfPathXspress4);
-		Mockito.when(xspress4.getXspress3Controller()).thenReturn(controllerXsp4);
+		DummyXspress4Controller controllerXsp4 = createMock(DummyXspress4Controller.class, "controllerXsp4");
+		Mockito.when(xspress4.getController()).thenReturn(controllerXsp4);
+		Mockito.when(controllerXsp4.getHdfFullFileName()).thenReturn(hdfPathXspress4);
 
 		xmap = Mockito.mock(NexusXmapFluorescenceDetectorAdapter.class);
 		Mockito.when(xmap.getName()).thenReturn("xmap");
@@ -344,7 +345,7 @@ public class DetectorPreparerFunctionsTest {
 			Mockito.verify(xspress4, never()).applyConfigurationParameters(xspressParams);
 			Mockito.verify(xspress4, never()).setConfigFileName(detectorConfigXmlFullPath(detConfig));
 		}
-		Mockito.verify(xspress4.getXspress3Controller()).setFilePath(Paths.get(preparerFunctions.getDataDirectory(), preparerFunctions.getDirForDetectorData(xspress4.getName())).toString());
+		Mockito.verify(xspress4.getController()).setHdfFilePath(Paths.get(preparerFunctions.getDataDirectory(), preparerFunctions.getDirForDetectorData(xspress4.getName())).toString());
 
 		// Check the name of hdf directory of the detector before it was configured has been stored
 		String intialHdfPath = preparerFunctions.getInitialHdfFilePaths().get(xspress4);
@@ -353,7 +354,7 @@ public class DetectorPreparerFunctionsTest {
 
 	private void checkXspress4Restored() throws DeviceException {
 		// Check hdf path was set back to its initial value
-		Mockito.verify(xspress4.getXspress3Controller()).setFilePath(hdfPathXspress4);
+		Mockito.verify(xspress4.getController()).setHdfFilePath(hdfPathXspress4);
 	}
 
 	private void checkMedipix(MedipixParameters medipixParams) {

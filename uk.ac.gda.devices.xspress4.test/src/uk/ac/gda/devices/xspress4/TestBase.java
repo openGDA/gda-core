@@ -52,7 +52,6 @@ import gda.jython.InterfaceProvider;
 import uk.ac.gda.beans.exafs.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.devices.detector.xspress3.controllerimpl.DummyXspress3Controller;
 import uk.ac.gda.devices.detector.xspress4.DummyXspress4Controller;
 import uk.ac.gda.devices.detector.xspress4.Xspress4Detector;
 import uk.ac.gda.devices.xspress4.HelperClasses.CheckType;
@@ -62,7 +61,6 @@ public class TestBase {
 	private static Logger logger = LoggerFactory.getLogger(TestBase.class);
 
 	protected Xspress4Detector xspress4detector;
-	protected DummyXspress3Controller xsp3controller;
 	protected Tfg tfg;
 	protected DummyDAServer daserver;
 	protected ScannableMotor dummyScannableMotor;
@@ -83,21 +81,13 @@ public class TestBase {
 		tfg.setDaServer(daserver);
 		tfg.configure();
 
-		xsp3controller = new DummyXspress3Controller(tfg, daserver);
-		xsp3controller.setName("controllerForDetector");
-		xsp3controller.setNumFramesToAcquire(1);
-		xsp3controller.setNumberOfChannels(numElements); //number of detector elements
-		xsp3controller.configure();
-		xsp3controller.setSimulationFileName(simulationFileName);
-
 		xsp4Controller = new DummyXspress4Controller();
-		xsp4Controller.setNumElements(xsp3controller.getNumberOfChannels());
+		xsp4Controller.setNumElements(numElements);
 		xsp4Controller.setNumMcaChannels(128);
 		xsp4Controller.setNumScalers(8);
 
 		xspress4detector = new Xspress4Detector();
 		xspress4detector.setName("xspress4detector");
-		xspress4detector.setXspress3Controller(xsp3controller);
 		xspress4detector.setController(xsp4Controller);
 		xspress4detector.setWriteHDF5Files(false);
 		xspress4detector.configure();
@@ -131,7 +121,7 @@ public class TestBase {
 
 	protected void setupEnvironment() {
 		// Findables the server needs to know about
-		Findable[] findables = new Findable[] { xspress4detector, xsp3controller, dummyScannableMotor };
+		Findable[] findables = new Findable[] { xspress4detector, xsp4Controller, dummyScannableMotor };
 
 		final Factory factory = TestHelpers.createTestFactory();
 		for (Findable f : findables) {

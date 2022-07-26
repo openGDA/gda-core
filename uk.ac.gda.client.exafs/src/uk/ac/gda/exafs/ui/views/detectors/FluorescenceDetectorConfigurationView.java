@@ -21,7 +21,6 @@ package uk.ac.gda.exafs.ui.views.detectors;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -189,12 +188,7 @@ public class FluorescenceDetectorConfigurationView extends ViewPart {
 	 */
 	private FluorescenceDetector getDetectorChoiceFromUser(List<FluorescenceDetector> detectors) {
 		// Sort the detector list alphabetically by name
-		Collections.sort(detectors, new Comparator<FluorescenceDetector>() {
-			@Override
-			public int compare(FluorescenceDetector o1, FluorescenceDetector o2) {
-				return o1.getName().compareTo(o2.getName());
-			}
-		});
+		Collections.sort(detectors, (e1, e2) -> e1.getName().compareTo(e2.getName()));
 
 		// Set up the dialog to get a detector choice from the user
 		ListDialog dialog = new ListDialog(getSite().getShell());

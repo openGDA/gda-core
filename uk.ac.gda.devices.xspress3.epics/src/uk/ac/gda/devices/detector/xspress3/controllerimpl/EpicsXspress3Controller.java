@@ -26,7 +26,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -390,26 +389,7 @@ public class EpicsXspress3Controller extends FindableConfigurableBase implements
 	public int getStatus() throws DeviceException {
 		try {
 			XSPRESS3_EPICS_STATUS currentStatus = getPvProvider().pvGetState.get();
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Idle || currentStatus == XSPRESS3_EPICS_STATUS.Aborted) {
-				return Detector.IDLE;
-			}
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Error) {
-				return Detector.FAULT;
-			}
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Acquire || currentStatus == XSPRESS3_EPICS_STATUS.Readout
-					|| currentStatus == XSPRESS3_EPICS_STATUS.Correct || currentStatus == XSPRESS3_EPICS_STATUS.Saving
-					|| currentStatus == XSPRESS3_EPICS_STATUS.Aborting) {
-				return Detector.BUSY;
-			}
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Waiting) {
-				return Detector.PAUSED;
-			}
-			if (currentStatus == XSPRESS3_EPICS_STATUS.Initializing
-					|| currentStatus == XSPRESS3_EPICS_STATUS.Disconnected) {
-				return Detector.STANDBY;
-			}
-			// unknown
-			return Detector.FAULT;
+			return currentStatus.toGdaDetectorState();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting state", e);
 		}

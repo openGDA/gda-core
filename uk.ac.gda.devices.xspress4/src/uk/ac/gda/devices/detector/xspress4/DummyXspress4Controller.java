@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
 import gda.factory.FindableBase;
+import uk.ac.gda.devices.detector.xspress3.controllerimpl.XSPRESS3_EPICS_STATUS;
 
 public class DummyXspress4Controller extends FindableBase implements Xspress4Controller, InitializingBean {
 
@@ -42,6 +43,8 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 	private boolean saveResGradeData = false;
 	private int totalNumFramesAvailable = 0;
 	private int timeSeriesNumPoints = 0;
+
+	private String simulationFileName;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -213,4 +216,83 @@ public class DummyXspress4Controller extends FindableBase implements Xspress4Con
 		this.numMcaChannels = numMcaChannels;
 	}
 
+	@Override
+	public XSPRESS3_EPICS_STATUS getDetectorState() throws DeviceException {
+		return XSPRESS3_EPICS_STATUS.IDLE;
+	}
+
+	@Override
+	public void stopAcquire() throws DeviceException {
+		logger.debug("stopAcquire called");
+	}
+
+	@Override
+	public void startAcquire() throws DeviceException {
+	}
+
+	@Override
+	public void setNumImages(int numImages) {
+	}
+
+	@Override
+	public void sendSoftwareTrigger() throws DeviceException {
+	}
+
+	@Override
+	public void startHdfWriter() throws DeviceException {
+	}
+
+	@Override
+	public void stopHdfWriter() throws DeviceException {
+	}
+
+	@Override
+	public void setHdfFilePath(String path) throws DeviceException {
+	}
+
+	@Override
+	public void setHdfFileName(String name) throws DeviceException {
+	}
+
+	@Override
+	public String getHdfFullFileName() throws DeviceException {
+		return simulationFileName;
+	}
+
+	@Override
+	public void setHdfNumFrames(int numFrames) throws DeviceException {
+	}
+
+	@Override
+	public int getHdfNumCapturedFrames() throws DeviceException {
+		return 0;
+	}
+
+	@Override
+	public void waitForCaptureState(boolean state) throws DeviceException {
+	}
+
+	@Override
+	public int getHdfNumFramesRbv() throws DeviceException {
+		return 0;
+	}
+
+	@Override
+	public String getHdfFilePath() throws DeviceException {
+		return null;
+	}
+
+	@Override
+	public void setScalerWindow(int channel, int windowNumber, int lowLimit, int highLimit) throws DeviceException {
+	}
+
+
+	/**
+	 * An hdf file containing MCA data.
+	 *
+	 * @param filename
+	 */
+	public void setSimulationFileName(String filename){
+		this.simulationFileName = filename;
+	}
 }

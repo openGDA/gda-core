@@ -64,9 +64,9 @@ public class DetectorHdfFunctions {
 			det.setFilePath(hdfFileDir);
 		} else if (detector instanceof Xspress4Detector) {
 			Xspress4Detector det = (Xspress4Detector) detector;
-			originalPath = det.getXspress3Controller().getFilePath();
+			originalPath = det.getController().getHdfFullFileName();
 			logger.debug("Xspress4 : setting {} hdf file path template to {}", detector.getName(), hdfFileDir);
-			det.getXspress3Controller().setFilePath(hdfFileDir);
+			det.getController().setHdfFilePath(hdfFileDir);
 			det.setFilePath(hdfFileDir);
 		} else if (detector instanceof NXDetector) {
 			originalPath = setHdfFilePath((NXDetector)detector, hdfFileDir);
@@ -118,7 +118,7 @@ public class DetectorHdfFunctions {
 			return det.getController().getFilePath();
 		} else if (detector instanceof Xspress4Detector) {
 			Xspress4Detector det = (Xspress4Detector) detector;
-			return det.getXspress3Controller().getFilePath();
+			return det.getController().getHdfFilePath();
 		} else if (detector instanceof NXDetector) {
 			 return getHdfFilePath((NXDetector)detector);
 		} else {
