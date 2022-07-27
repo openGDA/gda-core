@@ -116,7 +116,7 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				popup.show(pce, j.getX(), j.getY());
+				popup.show(pce, j.getX(), -10);
 			}
 		});
 
