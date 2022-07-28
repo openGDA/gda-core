@@ -1,20 +1,13 @@
 Manifest-Version: 1.0
-Eclipse-BundleShape: dir
 Bundle-ManifestVersion: 2
 Bundle-Name: GDA Common
 Bundle-SymbolicName: uk.ac.gda.common;singleton:=true
 Eclipse-BuddyPolicy: registered
 Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-NativeCode: lib/linux-x86/libgda_common.so;
- osname=linux; processor=x86,
- lib/linux-x86_64/libgda_common.so;
- osname=linux; processor=x86_64,
- *
 Export-Package: gda.configuration.properties,
  gda.util,
  gda.util.logging,
- uk.ac.diamond.technicaldebt,
  uk.ac.gda,
  uk.ac.gda.common.command,
  uk.ac.gda.common.entity,
@@ -31,7 +24,6 @@ Export-Package: gda.configuration.properties,
  uk.ac.gda.util.list,
  uk.ac.gda.util.map,
  uk.ac.gda.util.number,
- uk.ac.gda.util.reflect,
  uk.ac.gda.util.schema
 Require-Bundle: ch.qos.logback.classic;bundle-version="[1.0.7,1.2.3.a)",
  ch.qos.logback.core;bundle-version="[1.0.7,1.2.3.a)",
