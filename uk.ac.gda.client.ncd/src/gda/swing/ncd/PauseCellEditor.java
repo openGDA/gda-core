@@ -19,8 +19,9 @@
 package gda.swing.ncd;
 
 import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 import javax.swing.BorderFactory;
@@ -31,17 +32,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
 
-/**
- * 
- */
 public class PauseCellEditor extends JPanel implements TableCellEditor {
 	protected EventListenerList listenerList = new EventListenerList();
 
@@ -49,16 +48,25 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 
 	private PauseMenu popup;
 
-	private PauseCellEditor pce;
-
-	private JComponent j;
-
-	/**
-	 * @param itemList
-	 */
 	public PauseCellEditor(String[] itemList) {
-		pce = this;
 		popup = new PauseMenu(itemList);
+		popup.addPopupMenuListener(new PopupMenuListener() {
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) { /* no-op */ }
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { /* no-op */ }
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e) {
+				fireEditingCanceled();
+			}
+		});
+		popup.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseExited(MouseEvent me) {
+				setPopupVisible(false);
+				stopCellEditing();
+			}
+		});
 		putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 	}
 
@@ -112,14 +120,8 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 
 	@Override
 	public boolean shouldSelectCell(EventObject event) {
-		j = (JComponent) event.getSource();
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				popup.show(pce, j.getX(), j.getY());
-			}
-		});
-
+		var j = (JComponent) event.getSource();
+		SwingUtilities.invokeLater(() -> popup.show(this, j.getX(), -10));
 		return true;
 	}
 
@@ -130,7 +132,7 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 
 	/**
 	 * Tells the table what component to use to edit value {@inheritDoc}
-	 * 
+	 *
 	 * @see javax.swing.table.TableCellEditor#getTableCellEditorComponent(javax.swing.JTable, java.lang.Object, boolean,
 	 *      int, int)
 	 */
@@ -139,9 +141,6 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 		return this;
 	}
 
-	/**
-	 * @param visible
-	 */
 	public void setPopupVisible(boolean visible) {
 		popup.setVisible(visible);
 	}
@@ -150,7 +149,8 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 	 * A class to control all option selectable for the pause bits of TFG2.
 	 */
 	public class PauseMenu extends JPopupMenu {
-		private JMenuItem subMenu, subMenu2;
+		private JMenuItem subMenu;
+		private JMenuItem subMenu2;
 
 		private String[] iconName = { "leadingEdge.gif", "fallingEdge.gif" };
 
@@ -160,53 +160,34 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 
 		/**
 		 * Create Pause menu comprising submenu of all possible trigger sources.
-		 * 
+		 *
 		 * @param pauseLabelList
 		 */
 		public PauseMenu(String[] pauseLabelList) {
 			group = new ButtonGroup();
 			selectedText = pauseLabelList[0];
 
-			JRadioButtonMenuItem rbMenuItem1 = new JRadioButtonMenuItem(pauseLabelList[0], true);
-			rbMenuItem1.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					JMenuItem mi = (JMenuItem) e.getSource();
-					selectedText = mi.getText();
-					if (mi.isSelected())
-						stopCellEditing();
-				}
-			});
-			group.add(rbMenuItem1);
-			add(rbMenuItem1);
+			ActionListener stopEditing = e -> {
+				selectedText = ((JMenuItem)e.getSource()).getText();
+				stopCellEditing();
+			};
 
-			JRadioButtonMenuItem rbMenuItem2 = new JRadioButtonMenuItem(pauseLabelList[1], false);
-			rbMenuItem2.addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					JMenuItem mi = (JMenuItem) e.getSource();
-					selectedText = mi.getText();
-					if (mi.isSelected())
-						stopCellEditing();
-				}
-			});
+			var rbMenuItem1 = new JMenuItem(pauseLabelList[0]);
+			rbMenuItem1.addActionListener(stopEditing);
+			group.add(rbMenuItem1);
+			add(rbMenuItem1, 0);
+
+			var rbMenuItem2 = new JMenuItem(pauseLabelList[1]);
+			rbMenuItem2.addActionListener(stopEditing);
 			group.add(rbMenuItem2);
-			add(rbMenuItem2);
+			add(rbMenuItem2, 1);
 
 			subMenu = new JMenu("Signal");
 			subMenu.setIcon(new ImageIcon(getClass().getResource(iconName[0])));
 
 			for (int i = 2; i < 18; i++) {
-				JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem(pauseLabelList[i], false);
-				rbMenuItem.addItemListener(new ItemListener() {
-					@Override
-					public void itemStateChanged(ItemEvent e) {
-						JMenuItem mi = (JMenuItem) e.getSource();
-						selectedText = mi.getText();
-						if (mi.isSelected())
-							stopCellEditing();
-					}
-				});
+				var rbMenuItem = new JMenuItem(pauseLabelList[i]);
+				rbMenuItem.addActionListener(stopEditing);
 				subMenu.add(rbMenuItem);
 				group.add(rbMenuItem);
 			}
@@ -216,16 +197,8 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 			subMenu2 = new JMenu("Signal");
 			subMenu2.setIcon(new ImageIcon(getClass().getResource(iconName[1])));
 			for (int i = 18; i < 34; i++) {
-				JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem(pauseLabelList[i], false);
-				rbMenuItem.addItemListener(new ItemListener() {
-					@Override
-					public void itemStateChanged(ItemEvent e) {
-						JMenuItem mi = (JMenuItem) e.getSource();
-						selectedText = mi.getText();
-						if (mi.isSelected())
-							stopCellEditing();
-					}
-				});
+				var rbMenuItem = new JMenuItem(pauseLabelList[i]);
+				rbMenuItem.addActionListener(stopEditing);
 				subMenu2.add(rbMenuItem);
 				group.add(rbMenuItem);
 			}
@@ -237,7 +210,7 @@ public class PauseCellEditor extends JPanel implements TableCellEditor {
 
 		/**
 		 * Get the text representing the selected menu item.
-		 * 
+		 *
 		 * @return the text represrepresenting the selected menu item
 		 */
 		public String getText() {

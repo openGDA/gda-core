@@ -128,7 +128,7 @@ public class BinaryCellEditor extends JPanel implements TableCellEditor {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				popup.show(bce, j.getX(), j.getY());
+				popup.show(bce, j.getX(), -10);
 			}
 		});
 
