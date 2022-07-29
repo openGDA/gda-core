@@ -121,6 +121,7 @@ public class MalcolmDeviceSection extends AbstractTomoViewSection {
 			}
 			setSelectedMalcolmDevice();
 		} catch (Exception e) {
+			MessageDialog.openError(getShell(), "Tensor Tomograpy Setup", "Could not get malcolm devices: " + e + "\n. See error log for details");
 			logger.error("Could not get malcolm devices", e);
 		}
 	}
