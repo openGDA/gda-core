@@ -41,6 +41,7 @@ import org.dawnsci.processing.ui.api.IOperationModelWizard;
 import org.dawnsci.processing.ui.model.AbstractOperationSetupWizardPage;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.dawnsci.analysis.api.persistence.IMarshallerService;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -72,6 +73,7 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -83,9 +85,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.configuration.properties.LocalProperties;
+import uk.ac.diamond.daq.autoprocessing.ui.AutoProcessingConfigComposite;
 import uk.ac.diamond.daq.mapping.api.ConfigWrapper;
 import uk.ac.diamond.daq.mapping.api.IScanModelWrapper;
 import uk.ac.diamond.daq.mapping.api.ProcessingSetupConfiguration;
+import uk.ac.diamond.daq.mapping.ui.Activator;
 
 /**
  * A wizard page to setup which the dataset to be processed and the
@@ -128,7 +132,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	}
 
 	public enum ProcessingMode {
-		NEW_DAWN, EXISTING_DAWN, OTHER;
+		NEW_DAWN, EXISTING_DAWN, OTHER, RESTAPI;
 	}
 
 	public static final String PROPERTY_NAME_MALCOLM_ACQUIRE_SUPPORT = "org.eclipse.scanning.malcolm.supports.acquire";
@@ -151,6 +155,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private Text existingConfigText;
 	private Text appText;
 
+	private AutoProcessingConfigComposite restConfigComposite;
+
 	private ComboViewer templatesComboViewer;
 
 	private ComboViewer detectorsComboViewer;
@@ -160,6 +166,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	private Button useExistingButton;
 
 	private Button useOtherButton;
+
+	private Button useRESTButton;
 
 	private IRunnableDeviceService runnableDeviceService = null;
 
@@ -213,9 +221,11 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		GridDataFactory.swtDefaults().applyTo(createNewButton);
 
 		List<Control> selectTemplateControls = createSelectTemplateControls(composite);
-		createNewButton.addSelectionListener(new RadioButtonHandler(createNewButton, selectTemplateControls, ProcessingMode.NEW_DAWN));
+		RadioButtonHandler radioButtonHandler = new RadioButtonHandler(createNewButton, selectTemplateControls, ProcessingMode.NEW_DAWN);
+		createNewButton.addSelectionListener(radioButtonHandler);
 		createNewButton.setSelection(!getTemplateFiles().isEmpty());
 		createNewButton.setEnabled(!getTemplateFiles().isEmpty());
+		radioButtonHandler.setControlsEnabled(!getTemplateFiles().isEmpty());
 
 		useExistingButton = new Button(composite, SWT.RADIO);
 		useExistingButton.setText("Use an existing processing file:");
@@ -226,7 +236,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				new RadioButtonHandler(useExistingButton, useExistingControls, ProcessingMode.EXISTING_DAWN);
 		useExistingButton.addSelectionListener(existingControlsButtonHandler);
 		useExistingButton.setSelection(getTemplateFiles().isEmpty());
-		existingControlsButtonHandler.setControlsEnabled(false);
+		existingControlsButtonHandler.setControlsEnabled(getTemplateFiles().isEmpty());
 
 		useOtherButton = new Button(composite, SWT.RADIO);
 		useOtherButton.setText("Specify application and config. file:");
@@ -237,6 +247,55 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 		useOtherButton.addSelectionListener(existingOtherButtonHandler);
 		useOtherButton.setSelection(false);
 		existingOtherButtonHandler.setControlsEnabled(false);
+
+		URI uri = buildRestApiURI();
+
+		if (uri != null) {
+			useRESTButton = new Button(composite, SWT.RADIO);
+			useRESTButton.setText("Specify application and setup config:");
+			useRESTButton.setSelection(false);
+			GridDataFactory.swtDefaults().span(2, 1).applyTo(useRESTButton);
+			Control restui = createRestApiSetup(composite, uri);
+
+			RadioButtonHandler restButtonHandler =
+					new RadioButtonHandler(useRESTButton, Arrays.asList(restui), ProcessingMode.RESTAPI);
+			restButtonHandler.setControlsEnabled(false);
+
+			useRESTButton.addSelectionListener(restButtonHandler);
+		}
+	}
+
+
+	private URI buildRestApiURI() {
+
+		String host = LocalProperties.get("gda.autoprocessing.server.host");
+
+		if (host == null) {
+			return null;
+		}
+
+		int port = LocalProperties.getInt("gda.autoprocessing.server.port",5000);
+
+		URI uri;
+
+		try {
+			uri = new URI(host + ":" + port);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+
+		return uri;
+	}
+
+	private Control createRestApiSetup(Composite composite, URI uri) {
+		IMarshallerService service =  Activator.getService(IMarshallerService.class);
+		composite.setLayout(new GridLayout());
+
+		restConfigComposite = new AutoProcessingConfigComposite(composite, service, uri);
+		restConfigComposite.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
+
+		return restConfigComposite;
+
 	}
 
 	private void createDetectorSelectionControls(Composite parent) {
@@ -611,6 +670,8 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 				}
 			}
 			break;
+		case RESTAPI:
+			pageComplete = true;
 		}
 
 		setPageComplete(pageComplete);
@@ -620,7 +681,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 	@Override
 	public boolean shouldSkipRemainingPages() {
 		// if we're using an existing processing file we skip the rest of the wizard
-		return ProcessingMode.EXISTING_DAWN.equals(mode) || ProcessingMode.OTHER.equals(mode);
+		return ProcessingMode.EXISTING_DAWN.equals(mode) || ProcessingMode.OTHER.equals(mode) || ProcessingMode.RESTAPI.equals(mode);
 	}
 
 	@Override
@@ -632,7 +693,7 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 
 	@Override
 	public void wizardTerminatingButtonPressed(int buttonId) {
-		if (buttonId == Window.OK && (ProcessingMode.EXISTING_DAWN.equals(mode) || ProcessingMode.OTHER.equals(mode))) {
+		if (buttonId == Window.OK && (ProcessingMode.EXISTING_DAWN.equals(mode) || ProcessingMode.OTHER.equals(mode) || ProcessingMode.RESTAPI.equals(mode))) {
 			// when we're using an existing processing file, this method
 			// gets called instead of finishPage being called directly by the wizard
 			finishPage();
@@ -739,6 +800,14 @@ class ProcessingSelectionWizardPage extends AbstractOperationSetupWizardPage {
 			configWrapper.setAppName(appText.getText());
 			configWrapper.setName(new File(path).getName());
 			configWrapper.setPathToConfig(path);
+			return;
+		}
+
+		if (ProcessingMode.RESTAPI.equals(mode) && restConfigComposite != null) {
+			String[] configuration = restConfigComposite.getConfiguration();
+			configWrapper.setAppName(configuration[0]);
+			configWrapper.setName(configuration[1]);
+			configWrapper.setPathToConfig(configuration[1]);
 			return;
 		}
 
