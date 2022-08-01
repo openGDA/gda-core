@@ -17,5 +17,6 @@ Import-Package: javax.jms,
  org.springframework.core;version="5.3.12",
  org.springframework.jms.support.converter;version="5.3.12"
 Export-Package: uk.ac.diamond.daq.server.services.jython,
+ uk.ac.diamond.daq.server.services.monitor,
  uk.ac.diamond.daq.server.services.positioner,
  uk.ac.diamond.daq.server.services.positioner.plugin
