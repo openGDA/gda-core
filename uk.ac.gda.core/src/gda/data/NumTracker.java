@@ -22,6 +22,7 @@ package gda.data;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 import org.slf4j.Logger;
@@ -116,7 +117,7 @@ public class NumTracker {
 			deleteNumberedFile(nextNum - 1);
 			return nextNum;
 		}
-		return 0;
+		throw new IllegalStateException("Could not increment run number");
 	}
 
 	/**
@@ -210,9 +211,7 @@ public class NumTracker {
 	}
 
 	/**
-	 * Write a new file (in {number}.extension format) in the directory. This method will create the directory
-	 * if it does not exist.
-	 *
+	 * Write a new file (in {number}.extension format) in the directory.
 	 * @param number the number of the file to create
 	 *
 	 * @return true if the file was successfully created; false otherwise
@@ -222,13 +221,19 @@ public class NumTracker {
 		if (dir.exists()) {
 			File theFile = makeFile(number);
 			try {
-				theFile.createNewFile();
-				logger.debug("Created temporary run number file: {}", theFile);
-				return true;
+				var created = theFile.createNewFile();
+				if (created) {
+					logger.debug("Created temporary run number file: {}", theFile);
+				} else {
+					// This shouldn't happen but might indicate a race condition incrementing scan numbers
+					logger.warn("Could not create temporary run number as '{}' already exists", theFile);
+				}
+				return created;
 			} catch (IOException e) {
-				logger.error("Could not create temporary run number file: {}", theFile, e);
+				throw new UncheckedIOException("Could not create run number file", e);
 			}
 		}
+		logger.warn("Could not create run number file as directory does not exist");
 		return false;
 	}
 
