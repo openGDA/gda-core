@@ -32,6 +32,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.MonitorListener;
+import gov.aps.jca.event.PutListener;
 
 public class BaseEpicsDeviceController extends ConfigurableBase {
 
@@ -148,6 +149,39 @@ public class BaseEpicsDeviceController extends ConfigurableBase {
 	protected void setStringValue(String channelName, String value, String fieldNameForErrorMessage) throws DeviceException {
 		try {
 			epicsController.caputWait(getChannel(channelName), value);
+		} catch (InterruptedException exception) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException(String.format(EPICS_SET_INTERRUPTED_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		} catch (Exception exception) {
+			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		}
+	}
+
+	protected void setStringValue(String channelName, String value, double timeout, String fieldNameForErrorMessage) throws DeviceException{
+		try {
+			epicsController.caput(getChannel(channelName), value, timeout);
+		} catch (InterruptedException exception) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException(String.format(EPICS_SET_INTERRUPTED_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		} catch (Exception exception) {
+			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		}
+	}
+
+	protected void setStringValueAsynchronously(String channelName, String value, String fieldNameForErrorMessage) throws DeviceException {
+		try {
+			epicsController.caput(getChannel(channelName), value);
+		} catch (InterruptedException exception) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException(String.format(EPICS_SET_INTERRUPTED_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		} catch (Exception exception) {
+			throw new DeviceException(String.format(EPICS_SET_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
+		}
+	}
+
+	protected void setStringValueAsynchronously(String channelName, String value, PutListener pl, String fieldNameForErrorMessage) throws DeviceException {
+		try {
+			epicsController.caput(getChannel(channelName), value, pl);
 		} catch (InterruptedException exception) {
 			Thread.currentThread().interrupt();
 			throw new DeviceException(String.format(EPICS_SET_INTERRUPTED_ERROR_MESSAGE_TEMPLATE, fieldNameForErrorMessage, value), exception);
