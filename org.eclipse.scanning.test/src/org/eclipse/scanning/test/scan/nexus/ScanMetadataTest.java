@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toMap;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
@@ -19,20 +21,21 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNot
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.eclipse.scanning.sequencer.nexus.SolsticeConstants.SYSTEM_PROPERTY_NAME_ENTRY_NAME;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +76,7 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -96,37 +100,36 @@ public class ScanMetadataTest extends NexusTest {
 
 	@Before
 	public void before() throws ScanningException, IOException {
-
 		MandelbrotModel model = createMandelbrotModel();
 
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(Matchers.notNullValue()));
 		detector.addRunListener(IRunListener.createRunPerformedListener(
 				event -> System.out.println("Ran mandelbrot detector @ "+event.getPosition())));
 	}
 
 	@Test
 	public void testScanMetadata() throws Exception {
-		List<ScanMetadata> scanMetadata = new ArrayList<>();
+		final List<ScanMetadata> scanMetadata = new ArrayList<>();
 		ScanMetadata entryMetadata = new ScanMetadata(MetadataType.ENTRY);
 		entryMetadata.addField(NXentry.NX_TITLE, "Scan Metadata Test Entry");
 //		entryMetadata.addField(NXentry.NX_EXPERIMENT_IDENTIFIER, "i05-1"); // this is now written in the nexus file by the visit id
 		entryMetadata.addField(NXentry.NX_ENTRY_IDENTIFIER, 12345678l);
 		scanMetadata.add(entryMetadata);
 
-		ScanMetadata instrumentMetadata = new ScanMetadata(MetadataType.INSTRUMENT);
+		final ScanMetadata instrumentMetadata = new ScanMetadata(MetadataType.INSTRUMENT);
 		instrumentMetadata.addField("beamline", "i05-1");
 		scanMetadata.add(instrumentMetadata);
 
-		ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
+		final ScanMetadata sampleMetadata = new ScanMetadata(MetadataType.SAMPLE);
 		sampleMetadata.addField(NXsample.NX_CHEMICAL_FORMULA, "H2O");
 		sampleMetadata.addField(NXsample.NX_TEMPERATURE, 22.0);
 		sampleMetadata.addField(NXsample.NX_DESCRIPTION, "Test sample");
 		scanMetadata.add(sampleMetadata);
 
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, scanMetadata, 2, 2);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, scanMetadata, 2, 2);
 		final NXroot root = getNexusRoot(scanner);
-		assertEquals(root.getAllEntry().keySet(), new HashSet<>(Arrays.asList(EXPECTED_ENTRY_NAME)));
+		assertThat(root.getAllEntry().keySet(), contains(EXPECTED_ENTRY_NAME));
 		assertScanNotFinished(getNexusRoot(scanner).getEntry(EXPECTED_ENTRY_NAME));
 		scanner.run(null);
 
@@ -171,18 +174,18 @@ public class ScanMetadataTest extends NexusTest {
 
 	private void checkMetadata(NXentry entry, List<ScanMetadata> scanMetadataList) {
 		for (ScanMetadata scanMetadata : scanMetadataList) {
-			MetadataType type = scanMetadata.getType();
-			NXobject object = getNexusObjectForMetadataType(entry, type);
+			final MetadataType type = scanMetadata.getType();
+			final NXobject object = getNexusObjectForMetadataType(entry, type);
 
-			Map<String, Object> metadataFields = scanMetadata.getFields();
+			final Map<String, Object> metadataFields = scanMetadata.getFields();
 			for (String metadataFieldName : metadataFields.keySet()) {
-				Object expectedValue = scanMetadata.getFieldValue(metadataFieldName);
+				final Object expectedValue = scanMetadata.getFieldValue(metadataFieldName);
 
-				Dataset dataset = DatasetUtils.convertToDataset(object.getDataset(metadataFieldName));
-				assertNotNull(dataset);
-				assertEquals(1, dataset.getSize());
-				assertTrue(InterfaceUtils.getInterface(expectedValue).isInstance(dataset));
-				assertEquals(expectedValue, dataset.getObjectAbs(0));
+				final Dataset dataset = DatasetUtils.convertToDataset(object.getDataset(metadataFieldName));
+				assertThat(dataset, is(notNullValue()));
+				assertThat(dataset.getSize(), is(1));
+				assertThat(dataset, is(instanceOf(InterfaceUtils.getInterface(expectedValue))));
+				assertThat(dataset.getObjectAbs(0), is(Matchers.equalTo(expectedValue)));
 			}
 		}
 	}
@@ -210,10 +213,10 @@ public class ScanMetadataTest extends NexusTest {
 			List<ScanMetadata> scanMetadata, int... sizes) throws Exception {
 
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 
 		final NXroot rootNode = getNexusRoot(scanner);
-		assertEquals(rootNode.getAllEntry().keySet(), new HashSet<>(Arrays.asList(EXPECTED_ENTRY_NAME)));
+		assertThat(rootNode.getAllEntry().keySet(), contains(EXPECTED_ENTRY_NAME));
 		final NXentry entry = rootNode.getEntry(EXPECTED_ENTRY_NAME);
 		checkMetadata(entry, scanMetadata);
 		// check that the scan points have been written correctly
@@ -226,24 +229,24 @@ public class ScanMetadataTest extends NexusTest {
 		// axis for additional dimensions of a datafield, e.g. image
 		signalFieldAxes.put(NXdetector.NX_DATA, Arrays.asList("real", "imaginary"));
 		signalFieldAxes.put("spectrum", Arrays.asList("spectrum_axis"));
-		signalFieldAxes.put("value", Collections.emptyList());
+		signalFieldAxes.put("value", emptyList());
 
 		final String detectorName = scanModel.getDetectors().get(0).getName();
 		final NXdetector detector = instrument.getDetector(detectorName);
 		// map of detector data field to name of nxData group where that field
 		// is the @signal field
 		final Map<String, String> expectedDataGroupNames =
-				signalFieldAxes.keySet().stream().collect(Collectors.toMap(Function.identity(),
+				signalFieldAxes.keySet().stream().collect(toMap(Function.identity(),
 				x -> detectorName + (x.equals(NXdetector.NX_DATA) ? "" : "_" + x)));
 
 		// validate the main NXdata generated by the NexusDataBuilder
 		final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
-		assertEquals(signalFieldAxes.size(), nxDataGroups.size());
-		assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
+		assertThat(nxDataGroups.size(), is(equalTo(signalFieldAxes.size())));
+		assertThat(nxDataGroups.keySet(), containsInAnyOrder(expectedDataGroupNames.values().toArray(String[]::new)));
 		for (String nxDataGroupName : nxDataGroups.keySet()) {
-			NXdata nxData = entry.getData(nxDataGroupName);
+			final NXdata nxData = entry.getData(nxDataGroupName);
 
-			String sourceFieldName = nxDataGroupName.equals(detectorName) ? NXdetector.NX_DATA
+			final String sourceFieldName = nxDataGroupName.equals(detectorName) ? NXdetector.NX_DATA
 					: nxDataGroupName.substring(nxDataGroupName.indexOf('_') + 1);
 			assertSignal(nxData, sourceFieldName);
 			// check the nxData's signal field is a link to the appropriate source data node of the detector
@@ -256,20 +259,20 @@ public class ScanMetadataTest extends NexusTest {
 			// check that the other primary data fields of the detector haven't been added to this NXdata
 			for (String primaryDataFieldName : signalFieldAxes.keySet()) {
 				if (!primaryDataFieldName.equals(sourceFieldName)) {
-					assertNull(nxData.getDataNode(primaryDataFieldName));
+					assertThat(nxData.getDataNode(primaryDataFieldName), is(nullValue()));
 				}
 			}
 
-			int[] shape = dataset.getShape();
+			final int[] shape = dataset.getShape();
 			for (int i = 0; i < sizes.length; i++)
-				assertEquals(sizes[i], shape[i]);
+				assertThat(shape[i], is(equalTo(sizes[i])));
 
 			// Make sure none of the numbers are NaNs. The detector
 			// is expected to fill this scan with non-nulls.
 			final PositionIterator it = new PositionIterator(shape);
 			while (it.hasNext()) {
 				int[] next = it.getPos();
-				assertFalse(Double.isNaN(dataset.getDouble(next)));
+				assertThat(Double.isNaN(dataset.getDouble(next)), is(false));
 			}
 
 			// Check axes
@@ -277,41 +280,37 @@ public class ScanMetadataTest extends NexusTest {
 			final Collection<String> scannableNames = pos.getNames();
 
 			// Append _value_demand to each name in list, then add detector axis fields to result
-			List<String> expectedAxesNames = Stream.concat(
+			final List<String> expectedAxesNames = Stream.concat(
 					scannableNames.stream().map(x -> x + "_value_set"),
 					signalFieldAxes.get(sourceFieldName).stream()).collect(Collectors.toList());
 			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-			int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+			final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 			int i = -1;
 			for (String  scannableName : scannableNames) {
-
 			    i++;
-				NXpositioner positioner = instrument.getPositioner(scannableName);
-				assertNotNull(positioner);
+				final NXpositioner positioner = instrument.getPositioner(scannableName);
+				assertThat(positioner, is(notNullValue()));
 
 				dataNode = positioner.getDataNode("value_set");
 				dataset = dataNode.getDataset().getSlice();
-				shape = dataset.getShape();
-				assertEquals(1, shape.length);
-				assertEquals(sizes[i], shape[0]);
+				assertThat(dataset.getShape(), is(equalTo(new int[] { sizes[i] })));
 
-				String nxDataFieldName = scannableName + "_value_set";
-				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
-				assertIndices(nxData, nxDataFieldName, i);
-				assertTarget(nxData, nxDataFieldName, rootNode,
+				final String demandValueFieldName = scannableName + "_value_set";
+				assertThat(dataNode, is(sameInstance(nxData.getDataNode(demandValueFieldName))));
+				assertIndices(nxData, demandValueFieldName, i);
+				assertTarget(nxData, demandValueFieldName, rootNode,
 						"/" + EXPECTED_ENTRY_NAME + "/instrument/" + scannableName + "/value_set");
 
 				// Actual values should be scanD
 				dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 				dataset = dataNode.getDataset().getSlice();
-				shape = dataset.getShape();
-				assertArrayEquals(sizes, shape);
+				assertThat(dataset.getShape(), is(equalTo(sizes)));
 
-				nxDataFieldName = scannableName + "_" + NXpositioner.NX_VALUE;
-				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
-				assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
-				assertTarget(nxData, nxDataFieldName, rootNode,
+				final String valueFieldName = scannableName + "_" + NXpositioner.NX_VALUE;
+				assertThat(dataNode, is(sameInstance(nxData.getDataNode(valueFieldName))));
+				assertIndices(nxData, valueFieldName, defaultDimensionMappings);
+				assertTarget(nxData, valueFieldName, rootNode,
 						"/"+ EXPECTED_ENTRY_NAME + "/instrument/" + scannableName + "/" + NXpositioner.NX_VALUE);
 			}
 		}

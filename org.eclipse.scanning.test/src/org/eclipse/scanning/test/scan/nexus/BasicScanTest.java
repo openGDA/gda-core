@@ -17,11 +17,15 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -118,22 +122,15 @@ public class BasicScanTest extends NexusTest {
 	}
 
 	private void test(IScannable<?> monitorPerPoint, IScannable<?> monitorPerScan, int... shape) throws Exception {
-
-		long before = System.currentTimeMillis();
+		final long before = System.currentTimeMillis();
 		// Tell configure detector to write 1 image into a 2D scan
-		IRunnableDevice<ScanModel> scanner = createStepScan(monitorPerPoint, monitorPerScan, shape);
+		final IRunnableDevice<ScanModel> scanner = createStepScan(monitorPerPoint, monitorPerScan, shape);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
-		long after = System.currentTimeMillis();
-		System.out.println("Running "+product(shape)+" points took "+(after-before)+" ms");
+		final long after = System.currentTimeMillis();
+		System.out.println("Running "+ getScanSize(shape)+" points took "+(after-before)+" ms");
 
 		checkNexusFile(scanner, shape);
-	}
-
-	private int product(int[] shape) {
-		int total = 1;
-		for (int i : shape) total*=i;
-		return total;
 	}
 
 	protected void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception {
@@ -154,7 +151,7 @@ public class BasicScanTest extends NexusTest {
 		final Optional<IScannable<?>> firstMonitor = scanModel.getMonitorsPerPoint().stream().findFirst();
         final String dataGroupName = firstMonitor.map(INameable::getName).orElse(pos.getNames().get(0));
 		final NXdata nxData = entry.getData(dataGroupName);
-		assertNotNull(nxData);
+		assertThat(nxData, is(notNullValue()));
 
 		// Check axes
 		final String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
@@ -168,13 +165,12 @@ public class BasicScanTest extends NexusTest {
 		for (String  scannableName : scannableNames) {
 		    i++;
 			NXpositioner positioner = instrument.getPositioner(scannableName);
-			assertNotNull(positioner);
+			assertThat(positioner, is(notNullValue()));
 
 			dataNode = positioner.getDataNode("value_set");
 			dataset = dataNode.getDataset().getSlice();
 			shape = dataset.getShape();
-			assertEquals(1, shape.length);
-			assertEquals(sizes[i], shape[0]);
+			assertThat(dataset.getShape(), is(equalTo(new int[] { sizes[i] })));
 
 			String nxDataFieldName = scannableName + "_value_set";
 			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
@@ -197,35 +193,31 @@ public class BasicScanTest extends NexusTest {
 	}
 
 	private void checkMetadataScannables(final ScanModel scanModel, NXinstrument instrument) throws DatasetException {
-		DataNode dataNode;
-		Dataset dataset;
-
 		if (scanModel.getMonitorsPerScan() == null) return;
 
         for (IScannable<?> metadataScannable : scanModel.getMonitorsPerScan()) {
 			NXpositioner positioner = instrument.getPositioner(metadataScannable.getName());
-			assertNotNull(positioner);
-			assertEquals(metadataScannable.getName(), positioner.getNameScalar());
+			assertThat(positioner, is(nullValue()));
+			assertThat(positioner.getNameScalar(), is(equalTo(metadataScannable.getName())));
 
-			dataNode = positioner.getDataNode("value_set"); // TODO should not be here for metadata scannable
-			assertNotNull(dataNode);
-			dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
-			assertEquals(1, dataset.getSize());
-			assertTrue(dataset instanceof DoubleDataset);
+			DataNode dataNode = positioner.getDataNode("value_set"); // TODO should not be here for metadata scannable
+			assertThat(dataNode, is(notNullValue()));
+			Dataset dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
+			assertThat(dataset.getSize(), is(1));
+			assertThat(dataset, is(instanceOf(DoubleDataset.class)));
 			assertEquals(10.0, dataset.getElementDoubleAbs(0), 1e-15);
 
 			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
-			assertNotNull(dataNode);
+			assertThat(dataNode, is(notNullValue()));
 			dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
-			assertEquals(1, dataset.getSize());
-			assertTrue(dataset instanceof DoubleDataset);
+			assertThat(dataset.getSize(), is(1));
+			assertThat(dataset, is(instanceOf(DoubleDataset.class)));
 			assertEquals(10.0, dataset.getElementDoubleAbs(0), 1e-15);
 		}
 	}
 
-	private IRunnableDevice<ScanModel> createStepScan(IScannable<?> monitorPerPoint,
-			                                          IScannable<?> monitorPerScan,
-			                                          int... size) throws Exception {
+	private IRunnableDevice<ScanModel> createStepScan(
+			IScannable<?> monitorPerPoint, IScannable<?> monitorPerScan, int... size) throws Exception {
 
 		final CompoundModel compoundModel = createNestedStepScans(0, size);
 

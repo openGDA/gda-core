@@ -11,18 +11,20 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.File;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.dataset.roi.CircularROI;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -43,9 +45,9 @@ public class MandelbrotExampleTest extends NexusTest {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		MandelbrotModel model = createMandelbrotModel();
+		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
@@ -90,7 +92,7 @@ public class MandelbrotExampleTest extends NexusTest {
 		long diff3 = (after-before);
 		System.out.println("Writing 1 image in 4D stack took: "+diff3+" ms");
 
-		assertTrue(diff3<Math.max(20, diff2*1.5));
+		assertThat((double) diff3, is(lessThan(Math.max(20, diff2 * 1.5))));
 	}
 
 	@Test
@@ -120,57 +122,42 @@ public class MandelbrotExampleTest extends NexusTest {
 
 	@Test
 	public void test3DSpiralScan() throws Exception {
-		IRunnableDevice<ScanModel> scanner = createSpiralScan(detector, output); // Outer scan of another scannable, for instance temp.
+		final IRunnableDevice<ScanModel> scanner = createSpiralScan(detector, output); // Outer scan of another scannable, for instance temp.
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
 
-		NXdata nXdata = nxDataGroups.get(nxDataGroups.keySet().iterator().next());
+		final NXdata nXdata = nxDataGroups.get(nxDataGroups.keySet().iterator().next());
 		//3d spiral, outer should be 0, inner should both be 1
 		Attribute att = nXdata.getAttribute("neXusScannable1_value_set_indices");
 		String e = att.getFirstElement();
-		assertEquals(0, Integer.parseInt(e));
+		assertThat(Integer.parseInt(e), is(0));
 
 		att = nXdata.getAttribute("xNex" + "_value_set_indices");
 		e = att.getFirstElement();
-		assertEquals(1, Integer.parseInt(e));
+		assertThat(Integer.parseInt(e), is(1));
 
 		att = nXdata.getAttribute("yNex" + "_value_set_indices");
 		e = att.getFirstElement();
-		assertEquals(1, Integer.parseInt(e));
+		assertThat(Integer.parseInt(e), is(1));
 	}
 
 	@Test
 	public void test2DGridScanNoImage() throws Exception {
 		detector.getModel().setSaveImage(false);
 		try {
-
-			IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, new int[]{8,5}); // Outer scan of another scannable, for instance temp.
+			final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, new int[]{8,5}); // Outer scan of another scannable, for instance temp.
 			assertScanNotFinished(getNexusRoot(scanner).getEntry());
 			scanner.run(null);
 
-			NXroot rootNode = getNexusRoot(scanner);
-			NXentry entry = rootNode.getEntry();
-			Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
+			final NXroot rootNode = getNexusRoot(scanner);
+			final NXentry entry = rootNode.getEntry();
+			final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
 
-			boolean found = false;
-
-			Iterator<NXdata> it = nxDataGroups.values().iterator();
-			//check no NXdata of rank 4
-			while (it.hasNext()) {
-
-				NXdata next = it.next();
-				String signal = next.getAttributeSignal();
-				if (next.getDataNode(signal).getDataset().getRank()==4) {
-					found = true;
-					break;
-				}
-
-			}
-			assertFalse(found);
-
+			final List<DataNode> signalFields = nxDataGroups.values().stream().map(data -> data.getDataNode(data.getAttributeSignal())).collect(toList());
+			assertThat(signalFields.stream().anyMatch(f -> f.getDataset().getRank() == 4), is(false));
 		} finally {
 			detector.getModel().setSaveImage(true);
 		}
@@ -214,7 +201,7 @@ public class MandelbrotExampleTest extends NexusTest {
 		testGridScan(false,300,2, 5);
 		long after = System.currentTimeMillis();
 		long diff  = after-before;
-		assertTrue(diff<20000);
+		assertThat(diff, is(lessThan(20000l)));
 	}
 
 	@Test
@@ -242,16 +229,16 @@ public class MandelbrotExampleTest extends NexusTest {
 	}
 
 	private void testGridScanWithCircularRegion(boolean snake, int... shape) throws Exception {
-		IROI region = new CircularROI(2, 1, 1);
+		final IROI region = new CircularROI(2, 1, 1);
 
 		final int circularShape = 7; // size of inner grid scan in circular region
 		// note: this assumes the last two shape dimensions are 3 and 5
 
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, region, snake, shape);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, region, snake, shape);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
 
-		int[] datasetShape = new int[shape.length - 1];
+		final int[] datasetShape = new int[shape.length - 1];
 		System.arraycopy(shape, 0, datasetShape, 0, shape.length - 2);
 		datasetShape[datasetShape.length - 1] = circularShape;
 

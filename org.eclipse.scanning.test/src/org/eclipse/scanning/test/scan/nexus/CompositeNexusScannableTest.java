@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -149,7 +148,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		MandelbrotModel model = createMandelbrotModel();
+		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 
@@ -160,19 +159,19 @@ public class CompositeNexusScannableTest extends NexusTest {
 	@Test
 	public void testNXSlitCompositeNexusScannable() throws Exception {
 		// Arrange
-		CompositeNexusScannable<NXslit> primarySlit = new CompositeNexusScannable<>();
+		final CompositeNexusScannable<NXslit> primarySlit = new CompositeNexusScannable<>();
 		primarySlit.setName("primary_slit");
 		primarySlit.setNexusClass(NexusBaseClass.NX_SLIT);
 		primarySlit.setNexusCategory(NexusBaseClass.NX_INSTRUMENT);
 
-		List<ChildNode> childNodes = new ArrayList<>();
+		final List<ChildNode> childNodes = new ArrayList<>();
 
 		// create the nodes for x_gap and y_gap
 		final String gapXName = "s1gapX"; // TODO Move to @Before method?
-		IScannable<?> s1gapX = new MockNeXusScannable(gapXName, 1.234, 1);
+		final IScannable<?> s1gapX = new MockNeXusScannable(gapXName, 1.234, 1);
 		((MockScannableConnector) connector).register(s1gapX);
 		final String gapYName = "s1gapY";
-		IScannable<?> s1gapY = new MockNeXusScannable(gapYName, 2.345, 1);
+		final IScannable<?> s1gapY = new MockNeXusScannable(gapYName, 2.345, 1);
 		((MockScannableConnector) connector).register(s1gapY);
 
 		childNodes.add(new ChildFieldNode(gapXName, NXpositioner.NX_VALUE, "x_gap"));
@@ -182,29 +181,29 @@ public class CompositeNexusScannableTest extends NexusTest {
 		// TODO: should we add a mechanism within ComplexCompositeNexusScannable
 		// rather than
 		// create a new scannable for this?
-		TransformsScannable transformsScannable = new TransformsScannable();
+		final TransformsScannable transformsScannable = new TransformsScannable();
 		transformsScannable.setName("transforms");
 		((MockScannableConnector) connector).register(transformsScannable);
 
-		ChildGroupNode transformsNode = new ChildGroupNode();
+		final ChildGroupNode transformsNode = new ChildGroupNode();
 		transformsNode.setScannableName(transformsScannable.getName());
 		childNodes.add(transformsNode);
 
 		// create the beam
-		BeamPerScanMonitor beamScannable = new BeamPerScanMonitor();
+		final BeamPerScanMonitor beamScannable = new BeamPerScanMonitor();
 		((MockScannableConnector) connector).register(beamScannable);
 
-		ChildGroupNode beamNode = new ChildGroupNode();
+		final ChildGroupNode beamNode = new ChildGroupNode();
 		beamNode.setScannableName(beamScannable.getName());
 		beamNode.setGroupName("beam");
 		childNodes.add(beamNode);
 
 		// create the motors composite scannable
-		CompositeNexusScannable<NXcollection> motorsCompositeScannable = new CompositeNexusScannable<>();
+		final CompositeNexusScannable<NXcollection> motorsCompositeScannable = new CompositeNexusScannable<>();
 		motorsCompositeScannable.setName("primary_slit_motors");
 		((MockScannableConnector) connector).register(motorsCompositeScannable);
 
-		List<SlitMotorScannable> slitMotorScannables = new ArrayList<>();
+		final List<SlitMotorScannable> slitMotorScannables = new ArrayList<>();
 		slitMotorScannables.add(new SlitMotorScannable("s1dsX", 1.0, "downstream_x", "Downstream X position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1dsY", 2.0, "downstream_y", "Downstream Y position"));
 		slitMotorScannables.add(new SlitMotorScannable("s1usX", 3.0, "upstream_x", "Upstream X position"));
@@ -212,9 +211,9 @@ public class CompositeNexusScannableTest extends NexusTest {
 		slitMotorScannables.forEach(((MockScannableConnector) connector)::register);
 		motorsCompositeScannable.setChildNodes(slitMotorScannables.stream().
 				map(scannable -> new ChildGroupNode(scannable.getName(), scannable.getNexusGroupName())).
-				collect(Collectors.toList()));
+				collect(toList()));
 
-		ChildGroupNode motorsNode = new ChildGroupNode();
+		final ChildGroupNode motorsNode = new ChildGroupNode();
 		motorsNode.setScannableName("primary_slit_motors");
 		motorsNode.setGroupName("motors");
 		childNodes.add(motorsNode);
@@ -225,18 +224,18 @@ public class CompositeNexusScannableTest extends NexusTest {
 		((MockScannableConnector) connector).register(primarySlit);
 
 		// Act: run the scan
-		NXroot root = createAndRunScan(primarySlit);
-		NXentry entry = root.getEntry();
+		final NXroot root = createAndRunScan(primarySlit);
+		final NXentry entry = root.getEntry();
 
 		// Assert: check the nexus file
 		assertThat(entry.getGroupNodeNames(), containsInAnyOrder(
 				"instrument", "sample", GROUP_NAME_DIAMOND_SCAN,
 				detector.getName(), detector.getName() + "_spectrum", detector.getName() + "_value"));
-		NXinstrument instrument = entry.getInstrument();
+		final NXinstrument instrument = entry.getInstrument();
 		assertThat(instrument.getGroupNodeNames(), containsInAnyOrder(
 				detector.getName(), "xNex", "yNex", "primary_slit"));
 
-		NXslit nxSlit = (NXslit) instrument.getGroupNode("primary_slit");
+		final NXslit nxSlit = (NXslit) instrument.getGroupNode("primary_slit");
 		assertThat(nxSlit, is(notNullValue()));
 		assertThat(nxSlit.getNexusBaseClass(), is(NexusBaseClass.NX_SLIT));
 		assertThat(nxSlit.getGroupNodeNames(), containsInAnyOrder("beam", "motors", "transforms"));
@@ -248,7 +247,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 		// assertEquals(2.345, nxSlit.getY_gapScalar().doubleValue(), 1e-15);
 		assertDatasetValue(2.345, nxSlit.getDataset("y_gap"));
 
-		NXtransformations transforms = (NXtransformations) nxSlit.getGroupNode("transforms");
+		final NXtransformations transforms = (NXtransformations) nxSlit.getGroupNode("transforms");
 		assertDatasetValue(123.456, transforms.getDataset("x_centre"));
 		assertDatasetValue("translation", transforms.getAttr("x_centre", "transformation_type"));
 		assertDatasetValue(new int[] { 1, 0, 0 }, transforms.getAttr("x_centre", "vector"));
@@ -264,13 +263,13 @@ public class CompositeNexusScannableTest extends NexusTest {
 		assertDatasetValue("mm", transforms.getAttr("y_centre", "units"));
 		assertDatasetValue("y centre controller name", transforms.getAttr("y_centre", "controller_record"));
 
-		NXbeam beam = (NXbeam) nxSlit.getGroupNode("beam");
+		final NXbeam beam = (NXbeam) nxSlit.getGroupNode("beam");
 		assertThat(beam, is(notNullValue()));
 
 		assertThat(beam.getIncident_beam_divergenceScalar(), is(closeTo(0.123, 1e-15)));
 		assertThat(beam.getFinal_beam_divergenceScalar(), is(closeTo(0.456, 1e-15)));
 
-		NXcollection motors = (NXcollection) nxSlit.getGroupNode("motors");
+		final NXcollection motors = (NXcollection) nxSlit.getGroupNode("motors");
 		assertThat(motors, is(notNullValue()));
 		assertThat(motors.getDataNodeNames(), is(empty()));
 		assertThat(motors.getGroupNodeNames(), containsInAnyOrder(

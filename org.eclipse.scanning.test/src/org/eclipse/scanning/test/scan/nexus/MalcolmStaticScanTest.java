@@ -1,8 +1,11 @@
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +60,7 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 		checkSize(scanner, size);
 		checkFiles();
 		checkNexusFile(scanner, false, size);
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 	}
 
 	// Create a scan where the Malcolm device just does a static scan, but there may be outer scannables
@@ -100,9 +103,9 @@ public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 	}
 
 	private void checkFiles() {
-		assertEquals(3, participant.getCount(FileDeclared.class));
-		final List<String> paths = participant.getPaths();
-		assertTrue(paths.stream().anyMatch(path -> path.endsWith("detector.h5")));
-		assertTrue(paths.stream().anyMatch(path -> path.endsWith("detector2.h5")));
+		assertThat(participant.getCount(FileDeclared.class), is(3));
+
+		final List<String> fileNames = participant.getPaths().stream().map(File::new).map(File::getName).collect(toList());
+		assertThat(fileNames, containsInAnyOrder(output.getName(), "detector.h5", "detector2.h5"));
 	}
 }

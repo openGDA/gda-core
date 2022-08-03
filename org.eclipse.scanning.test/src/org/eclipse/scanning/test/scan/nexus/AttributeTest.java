@@ -15,12 +15,13 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -68,7 +69,7 @@ import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AttributeTest extends NexusTest{
+public class AttributeTest extends NexusTest {
 
 	protected IEventService eventService;
 
@@ -76,16 +77,16 @@ public class AttributeTest extends NexusTest{
 
 	@Before
 	public void before() throws ScanningException, IOException {
-		MandelbrotModel model = createMandelbrotModel();
+		final MandelbrotModel model = createMandelbrotModel();
 
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
 	public void testName() throws Exception {
 		// All scannables should have their name set ok
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
 		scanner.run(null);
 
 		checkNexusFile(scanner, 2, 2);
@@ -94,12 +95,12 @@ public class AttributeTest extends NexusTest{
 
 	@Test
 	public void testDescription() throws Exception {
-		IScannable<?> x = connector.getScannable("xNex");
+		final IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
-		IScanAttributeContainer xc = (IScanAttributeContainer)x;
+		final IScanAttributeContainer xc = (IScanAttributeContainer) x;
 		xc.setScanAttribute("description", "Reality is a shapeless unity.\nThe mind which distinguishes between aspects of this unity, sees only disunity.\nRemain unconcerned.");
 
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
 		scanner.run(null);
 
 		checkNexusFile(scanner, 2, 2);
@@ -108,12 +109,12 @@ public class AttributeTest extends NexusTest{
 
 	@Test
 	public void testFred() throws Exception {
-		IScannable<?> x = connector.getScannable("xNex");
+		final IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
-		IScanAttributeContainer xc = (IScanAttributeContainer)x;
+		final IScanAttributeContainer xc = (IScanAttributeContainer)x;
 		xc.setScanAttribute("fred", "Fred this is your conscious speaking.");
 
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
 		scanner.run(null);
 
 		checkNexusFile(scanner, 2, 2);
@@ -122,9 +123,9 @@ public class AttributeTest extends NexusTest{
 
 	@Test
 	public void testSetMultipleAttributes() throws Exception {
-		IScannable<?> x = connector.getScannable("xNex");
+		final IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
-		IScanAttributeContainer xc = (IScanAttributeContainer)x;
+		final IScanAttributeContainer xc = (IScanAttributeContainer)x;
 
 		// @see http://download.nexusformat.org/doc/html/classes/base_classes/NXpositioner.html
 		//description: NX_CHAR
@@ -150,7 +151,7 @@ public class AttributeTest extends NexusTest{
 		// controller_record: NX_CHAR
 		xc.setScanAttribute("controller_record", "Homer Simpson");
 
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
 		scanner.run(null);
 
 		checkNexusFile(scanner, 2, 2);
@@ -161,76 +162,75 @@ public class AttributeTest extends NexusTest{
 	}
 
 	private void checkAttribute(IRunnableDevice<ScanModel> scanner, String sName, String attrName) throws Exception {
-		IScannable<?> s = connector.getScannable(sName);
+		final IScannable<?> s = connector.getScannable(sName);
 		if (!(s instanceof IScanAttributeContainer)) throw new Exception(sName+" is not "+IScanAttributeContainer.class.getSimpleName());
 
-		IScanAttributeContainer sc = (IScanAttributeContainer)s;
-		Object attrValue = sc.getScanAttribute(attrName);
+		final IScanAttributeContainer sc = (IScanAttributeContainer) s;
+		final Object attrValue = sc.getScanAttribute(attrName);
 
-		String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
-		NexusFile nf = fileFactory.newNexusFile(filePath);
+		final String filePath = ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getFilePath();
+		final NexusFile nf = fileFactory.newNexusFile(filePath);
 		nf.openToRead();
 
-		DataNode node = nf.getData("/entry/instrument/" + sName + "/"+attrName);
-		Dataset sData =  DatasetUtils.sliceAndConvertLazyDataset(node.getDataset());
+		final DataNode node = nf.getData("/entry/instrument/" + sName + "/"+attrName);
+		final Dataset sData =  DatasetUtils.sliceAndConvertLazyDataset(node.getDataset());
 
 		if ("name".equals(attrName)) {
-			assertEquals(sData.getStringAbs(0), sName);
+			assertThat(sName, is(equalTo(sData.getStringAbs(0))));
 		} else if (attrValue instanceof Number) {
-			assertTrue(sData.getElementDoubleAbs(0)==((Number)attrValue).doubleValue());
+			assertThat(((Number) attrValue).doubleValue(), is(closeTo(sData.getElementDoubleAbs(0), 1e-15)));
 		} else {
-			assertEquals(sData.getStringAbs(0), attrValue);
+			assertThat(attrValue, is(equalTo(sData.getStringAbs(0))));
 		}
-
 	}
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int... sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 
-		NXroot rootNode = getNexusRoot(scanner);
-		NXentry entry = rootNode.getEntry();
-		NXinstrument instrument = entry.getInstrument();
+		final NXroot rootNode = getNexusRoot(scanner);
+		final NXentry entry = rootNode.getEntry();
+		final NXinstrument instrument = entry.getInstrument();
 
-		LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
+		final LinkedHashMap<String, List<String>> signalFieldAxes = new LinkedHashMap<>();
 		// axis for additional dimensions of a datafield, e.g. image
 		signalFieldAxes.put(NXdetector.NX_DATA, Arrays.asList("real", "imaginary"));
 		signalFieldAxes.put("spectrum", Arrays.asList("spectrum_axis"));
 		signalFieldAxes.put("value", Collections.emptyList());
 
-		String detectorName = scanModel.getDetectors().get(0).getName();
-		NXdetector detector = instrument.getDetector(detectorName);
+		final String detectorName = scanModel.getDetectors().get(0).getName();
+		final NXdetector detector = instrument.getDetector(detectorName);
 		// map of detector data field to name of nxData group where that field is the @signal field
-		Map<String, String> expectedDataGroupNames =
+		final Map<String, String> expectedDataGroupNames =
 				signalFieldAxes.keySet().stream().collect(Collectors.toMap(Function.identity(),
 				x -> detectorName + (x.equals(NXdetector.NX_DATA) ? "" : "_" + x)));
 
 		// validate the main NXdata generated by the NexusDataBuilder
-		Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
-		assertEquals(signalFieldAxes.size(), nxDataGroups.size());
-		assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
+		final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
+		assertThat(nxDataGroups.size(), is(equalTo(signalFieldAxes.size())));
+		assertThat(nxDataGroups.keySet(), containsInAnyOrder(expectedDataGroupNames.values().toArray(String[]::new)));
 		for (String nxDataGroupName : nxDataGroups.keySet()) {
-			NXdata nxData = entry.getData(nxDataGroupName);
+			final NXdata nxData = entry.getData(nxDataGroupName);
 
-			String sourceFieldName = nxDataGroupName.equals(detectorName) ? NXdetector.NX_DATA :
+			final String sourceFieldName = nxDataGroupName.equals(detectorName) ? NXdetector.NX_DATA :
 				nxDataGroupName.substring(nxDataGroupName.indexOf('_') + 1);
 			assertSignal(nxData, sourceFieldName);
 			// check the nxData's signal field is a link to the appropriate source data node of the detector
 			DataNode dataNode = detector.getDataNode(sourceFieldName);
 			IDataset dataset = dataNode.getDataset().getSlice();
 
-			assertSame(dataNode, nxData.getDataNode(sourceFieldName));
+			assertThat(nxData.getDataNode(sourceFieldName), is(sameInstance(dataNode)));
 
 			int[] shape = dataset.getShape();
 			for (int i = 0; i < sizes.length; i++)
-				assertEquals(sizes[i], shape[i]);
+				assertThat(shape[i], is(equalTo(sizes[i])));
 
 			// Make sure none of the numbers are NaNs. The detector
 			// is expected to fill this scan with non-nulls.
 			final PositionIterator it = new PositionIterator(shape);
 			while (it.hasNext()) {
 				int[] next = it.getPos();
-				assertFalse(Double.isNaN(dataset.getDouble(next)));
+				assertThat(Double.isNaN(dataset.getDouble(next)), is(false));
 			}
 
 			// Check axes
@@ -243,38 +243,33 @@ public class AttributeTest extends NexusTest{
 					signalFieldAxes.get(sourceFieldName).stream()).collect(Collectors.toList());
 			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-			int[] defaultDimensionMappings = IntStream.range(0, sizes.length)
-					.toArray();
+			int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 
 			int i = -1;
 			for (String  scannableName : scannableNames) {
-
 			    i++;
 				// Demand values should be 1D
-				NXpositioner positioner = instrument
-						.getPositioner(scannableName);
-				assertNotNull(positioner);
+				final NXpositioner positioner = instrument.getPositioner(scannableName);
+				assertThat(positioner, is(notNullValue()));
 
 				dataNode = positioner.getDataNode("value_set");
 				dataset = dataNode.getDataset().getSlice();
 				shape = dataset.getShape();
-				assertEquals(1, shape.length);
-				assertEquals(sizes[i], shape[0]);
+				assertThat(shape, is(equalTo(new int[] { sizes[i] })));
 
 				String nxDataFieldName = scannableName + "_value_set";
-				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+				assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 				assertIndices(nxData, nxDataFieldName, i);
-				assertTarget(nxData, nxDataFieldName, rootNode,
-						"/entry/instrument/" + scannableName + "/value_set");
+				assertTarget(nxData, nxDataFieldName, rootNode, "/entry/instrument/" + scannableName + "/value_set");
 
 				// Actual values should be scanD
 				dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 				dataset = dataNode.getDataset().getSlice();
 				shape = dataset.getShape();
-				assertArrayEquals(sizes, shape);
+				assertThat(shape, is(equalTo(sizes)));
 
 				nxDataFieldName = scannableName + "_" + NXpositioner.NX_VALUE;
-				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+				assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 				assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 				assertTarget(nxData, nxDataFieldName, rootNode,
 						"/entry/instrument/" + scannableName + "/"
@@ -317,6 +312,5 @@ public class AttributeTest extends NexusTest{
 
 		return scanner;
 	}
-
 
 }

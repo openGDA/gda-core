@@ -334,7 +334,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		connector.register(scannable);
 	}
 
-	private void setUpMetadata() throws Exception {
+	private void setUpMetadata() {
 		final ClientDetails userDetails = new ClientDetails(0, EXPECTED_USER_ID, EXPECTED_USER_NAME, "ws001", 0, true, "visit1");
 		final IBatonStateProvider batonStateProvider = mock(IBatonStateProvider.class);
 		when(batonStateProvider.getBatonHolder()).thenReturn(userDetails);

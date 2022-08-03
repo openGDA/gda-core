@@ -64,7 +64,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		MandelbrotModel model = createMandelbrotModel();
+		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
@@ -78,7 +78,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 		ServiceHolder.getNexusDeviceService().register(metadataAppender);
 
 		final int[] shape = { 8, 5 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
 
@@ -96,7 +96,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 		ServiceHolder.getNexusDeviceService().register(metadataAppender);
 
 		final int[] shape = { 8, 5 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, shape);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
 

@@ -91,7 +91,7 @@ public class TemplateScanTest extends NexusTest {
 		templateFilePath.toFile().deleteOnExit();
 
 		// run the template with the
-		String templateFileName = templateFilePath.getFileName().toString();
+		final String templateFileName = templateFilePath.getFileName().toString();
 		createAndRunTemplateScan(templateFileName);
 	}
 

@@ -11,7 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 
 import java.io.File;
 
@@ -66,13 +68,13 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		eservice = new EventServiceImpl(activemqConnectorService); // Do not copy this get the service from OSGi!
 
 		// We publish an event to make sure all these libraries are loaded
-		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
+		final IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
 		publisher.broadcast(new ScanBean());
 
 		// We write a nexus file to ensure that the library is loaded
-		File file = File.createTempFile("test_nexus", ".nxs");
+		final File file = File.createTempFile("test_nexus", ".nxs");
 		file.deleteOnExit();
-		IPointGenerator<AxialStepModel> gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 3, 1));
+		final IPointGenerator<AxialStepModel> gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 3, 1));
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, file));
 		scan.run(null);
 
@@ -82,7 +84,6 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		delegate.stop();
 	}
 
-
 	@Before
 	public void before() throws GeneratorException {
 		this.gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 1000, 1));
@@ -90,7 +91,6 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 	@Test
 	public void testBareNexusStepScanSpeedNoNexus() throws Exception {
-
 		// We create a step scan
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen));
 		runAndCheck("No NeXus scan", scan, 5, 1, 100L);
@@ -99,9 +99,8 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 	@Test
 	public void testBareNexusStepNoSetSlice() throws Exception {
-
-		IScannable<?> scannable = connector.getScannable("xNex");
-		MockNeXusScannable xNex = (MockNeXusScannable)scannable;
+		final IScannable<?> scannable = connector.getScannable("xNex");
+		final MockNeXusScannable xNex = (MockNeXusScannable) scannable;
 		try {
 			xNex.setWritingOn(false);
 			// We create a step scan
@@ -114,7 +113,6 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 	@Test
 	public void testBareNexusStepScanSpeed() throws Exception {
-
 		// We create a step scan
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output));
 		runAndCheck("Normal NeXus Scan", scan, 10, 3072, 2000L);
@@ -122,7 +120,6 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 	@Test
 	public void testPublishedNexusStepScanSpeed() throws Exception {
-
 		// We create a step scan
 		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output), publisher);
@@ -131,14 +128,12 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 
 	private void runAndCheck(String name, final IRunnableDevice<ScanModel> scan, int pointTime, int fileSizeKB, long treeTime) throws Exception {
-
-		long before = System.currentTimeMillis();
+		final long before = System.currentTimeMillis();
 		scan.run(null);
-		long after = System.currentTimeMillis();
+		final long after = System.currentTimeMillis();
+		final long time = (after-before);
 
-		long time = (after-before);
-
-		AbstractRunnableDevice<ScanModel> ascan = (AbstractRunnableDevice<ScanModel>)scan;
+		final AbstractRunnableDevice<ScanModel> ascan = (AbstractRunnableDevice<ScanModel>)scan;
 		System.out.println("\n------------------------------");
 		System.out.println(name);
 		System.out.println("------------------------------");
@@ -148,9 +143,9 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		System.out.println("File size is "+output.length()/1024+"kB");
 		System.out.println();
 
-		assertTrue("The configure time must be less than "+treeTime+"ms", ascan.getConfigureTime()<treeTime);
-		assertTrue("The time must be less than "+pointTime+"ms", (time/gen.size())<pointTime);
-		long sizeKB = (output.length()/1024);
-		assertTrue("The size must be less than "+fileSizeKB+"kB. It is "+sizeKB+"kB", sizeKB<fileSizeKB);
+		assertThat("The configure time must be less than "+treeTime+"ms", ascan.getConfigureTime(), is(lessThan(treeTime)));
+		assertThat("The time must be less than "+pointTime+"ms", (time/gen.size()), is(lessThan((long) pointTime)));
+		final long sizeKB = (output.length()/1024);
+		assertThat("The size must be less than "+fileSizeKB+"kB. It is "+sizeKB+"kB", sizeKB, is(lessThan((long) fileSizeKB)));
 	}
 }

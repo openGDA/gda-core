@@ -23,7 +23,7 @@ import static org.eclipse.scanning.example.detector.MandelbrotDetector.FIELD_NAM
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Arrays;
 
@@ -53,7 +53,7 @@ public class DefaultDataGroupConfigurationTest extends NexusTest {
 	public static void before() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test

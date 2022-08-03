@@ -1,8 +1,10 @@
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -17,7 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ScanTimeoutTest  extends NexusTest {
+public class ScanTimeoutTest extends NexusTest {
 
 	private RandomLineDevice linedetector;
 
@@ -26,7 +28,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		final RandomLineModel rlModel = new RandomLineModel();
 		rlModel.setTimeout(10);
 		linedetector = (RandomLineDevice) TestDetectorHelpers.createAndConfigureRandomLineDetector(rlModel);
-		assertNotNull(linedetector);
+		assertThat(linedetector, is(notNullValue()));
 	}
 
 	@After
@@ -36,13 +38,12 @@ public class ScanTimeoutTest  extends NexusTest {
 
 	@Test
 	public void testLine() throws Exception {
-
-		IRunnableDevice<ScanModel> scanner = createScanner(linedetector,  2, 2);
+		final IRunnableDevice<ScanModel> scanner = createScanner(linedetector,  2, 2);
 		scanner.run(null);
 
-		assertEquals(1, linedetector.getCount("configure"));
-		assertEquals(4, linedetector.getCount("run"));
-		assertEquals(4, linedetector.getCount("write"));
+		assertThat(linedetector.getCount("configure"), is(1));
+		assertThat(linedetector.getCount("run"), is(4));
+		assertThat(linedetector.getCount("write"), is(4));
 	}
 
 	@Test(expected=ScanningException.class)
@@ -53,9 +54,8 @@ public class ScanTimeoutTest  extends NexusTest {
 			linedetector.getModel().setTimeout(1);      // Only 1 second allowed.
 
 			// All scannables should have their name set ok
-			IRunnableDevice<ScanModel> scanner = createScanner(linedetector,  2, 2);
+			final IRunnableDevice<ScanModel> scanner = createScanner(linedetector, 2, 2);
 			scanner.run(null);
-
 		} finally {
 			linedetector.getModel().setExposureTime(0);
 			linedetector.getModel().setTimeout(-1);
@@ -69,7 +69,7 @@ public class ScanTimeoutTest  extends NexusTest {
 			linedetector.setThrowWriteExceptions(true);
 
 			// All scannables should have their name set ok
-			IRunnableDevice<ScanModel> scanner = createScanner(linedetector,  2, 2);
+			final IRunnableDevice<ScanModel> scanner = createScanner(linedetector, 2, 2);
 			scanner.run(null);
 
 		} finally {
@@ -80,30 +80,27 @@ public class ScanTimeoutTest  extends NexusTest {
 
 	@Test
 	public void testMultiStep() throws Exception {
-
-		IRunnableDevice<ScanModel> scanner = createMultiStepScanner(linedetector);
-		long before = System.currentTimeMillis();
+		final IRunnableDevice<ScanModel> scanner = createMultiStepScanner(linedetector);
+		final long before = System.currentTimeMillis();
 		scanner.run();
-		long after = System.currentTimeMillis();
-		long time  = after-before;
-		assertTrue("The time to run the scan must be less than 2000 but it was "+time+"ms", time<2000);
+		final long after = System.currentTimeMillis();
+		final long time  = after - before;
 
-		assertEquals(1, linedetector.getCount("configure"));
-		assertEquals(0.001,  ((RandomLineModel)linedetector.getValue("configure", 0)).getExposureTime(), 0.000001);
+		assertThat("The time to run the scan must be less than 2000 but it was "+time+"ms", time, is(lessThan(2000l)));
 
-		assertEquals(21, linedetector.getCount("run"));
-		assertEquals(21, linedetector.getCount("write"));
+		assertThat(linedetector.getCount("configure"), is(1));
+		assertThat(((RandomLineModel)linedetector.getValue("configure", 0)).getExposureTime(), is(closeTo(0.001, 1e-5)));
+
+		assertThat(linedetector.getCount("run"), is(21));
+		assertThat(linedetector.getCount("write"), is(21));
 	}
 
-
 	private IRunnableDevice<ScanModel> createScanner(IRunnableDevice<RandomLineModel> device, int... shape) throws Exception {
-
-		ScanModel smodel = createGridScanModel(device, output, true, shape);
+		final ScanModel smodel = createGridScanModel(device, output, true, shape);
 		return scanService.createScanDevice(smodel);
 	}
 
 	private IRunnableDevice<ScanModel> createMultiStepScanner(IRunnableDevice<RandomLineModel> device) throws Exception {
-
 		final AxialMultiStepModel multiStepModel = new AxialMultiStepModel();
 		multiStepModel.setName("x");
 		multiStepModel.addRange(10, 20, 2); // Te = 0.0015
@@ -112,7 +109,7 @@ public class ScanTimeoutTest  extends NexusTest {
 		multiStepModel.setContinuous(false);
 
 		final IPointGenerator<? extends IScanPointGeneratorModel> pointGen = pointGenService.createGenerator(multiStepModel);
-		assertEquals(21, pointGen.size());
+		assertThat(pointGen.size(), is(21));
 
 		final ScanModel scanModel = new ScanModel();
 		scanModel.setPointGenerator(pointGen);

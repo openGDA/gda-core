@@ -18,9 +18,11 @@
 
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,7 +59,7 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 			final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detModel.getName());
 			metadataAppender.setNexusMetadata(detMetadata);
 			ServiceHolder.getNexusDeviceService().register(metadataAppender);
-			assertSame(metadataAppender, ServiceHolder.getNexusDeviceService().getDecorator(detModel.getName()));
+			assertThat(ServiceHolder.getNexusDeviceService().getDecorator(detModel.getName()), is(sameInstance(metadataAppender)));
 		}
 
 		final int[] shape = { 8, 5 };
@@ -66,7 +68,7 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 
 		checkSize(scanner, shape);
 
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		checkNexusFile(scanner, shape);
 	}
 
@@ -97,17 +99,17 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 
 	private void checkMalcolmDetectorMetadata(NXinstrument instrument, String name) throws NexusException {
 		final NXdetector detector = instrument.getDetector(name);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 		SimpleNexusMetadataAppender<?> metadataAppender = (SimpleNexusMetadataAppender<?>) ServiceHolder.getNexusDeviceService().getDecorator(name);
-		assertNotNull(metadataAppender);
+		assertThat(metadataAppender, is(notNullValue()));
 		for (Map.Entry<String, Object> metadataEntry : metadataAppender.getNexusMetadata().entrySet()) {
 			// annoyingly there doesn't seem to be a way to get the scalar value of a field
 			final DataNode dataNode = detector.getDataNode(metadataEntry.getKey());
-			assertNotNull(dataNode);
+			assertThat(dataNode, is(notNullValue()));
 			if (dataNode.isString()) {
-				assertEquals(metadataEntry.getValue(), detector.getString(metadataEntry.getKey()));
+				assertThat(detector.getString(metadataEntry.getKey()), is(equalTo(metadataEntry.getValue())));
 			} else {
-				assertEquals(metadataEntry.getValue(), detector.getNumber(metadataEntry.getKey()));
+				assertThat(detector.getNumber(metadataEntry.getKey()), is(equalTo(metadataEntry.getValue())));
 			}
 		}
 	}

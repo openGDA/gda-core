@@ -22,8 +22,7 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataset
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,7 +126,7 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 		malcolmDevice.configureScan(scanModel);
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(
@@ -202,10 +201,10 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 
 		// check that the image_key dataset has been written
 		final DataNode imageKeyDataNode = detector.getDataNode(FIELD_NAME_IMAGE_KEY);
-		assertNotNull(imageKeyDataNode);
+		assertThat(imageKeyDataNode, is(notNullValue()));
 		final IDataset imageKeyDataset = imageKeyDataNode.getDataset().getSlice();
-		assertNotNull(imageKeyDataset);
-		assertArrayEquals(sizes, imageKeyDataset.getShape());
+		assertThat(imageKeyDataset, is(notNullValue()));
+		assertThat(imageKeyDataset.getShape(), is(equalTo(sizes)));
 
 		final List<Integer> expectedImageKeyValues = new ArrayList<>();
 		if (withDarksAndFlats) {

@@ -11,7 +11,9 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableEventDevice;
@@ -44,20 +46,19 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 
 	@Before
 	public void before() throws Exception {
-
-		MandelbrotModel model = createMandelbrotModel();
+		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
 	public void test2DNexusScan() throws Exception {
-		int[] shape = { 2, 5 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape); // Outer scan of another scannable, for instance temp.
+		final int[] shape = { 2, 5 };
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape); // Outer scan of another scannable, for instance temp.
 		scanner.run(null);
 	}
-	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
 
+	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");
@@ -82,7 +83,7 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 		System.out.println("File writing is not set, so no NeXus file is created.");
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(

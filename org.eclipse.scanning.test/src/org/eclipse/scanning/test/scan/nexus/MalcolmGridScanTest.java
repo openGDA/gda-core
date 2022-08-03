@@ -1,8 +1,11 @@
 package org.eclipse.scanning.test.scan.nexus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +59,6 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		return model;
 	}
 
-
 	@Test
 	public void testMalcolmScan() throws Exception {
 		IRunnableDevice<ScanModel> scanner = createMalcolmGridScan(malcolmDevice, output, snake, shape); // Outer scan of another scannable, for instance temp.
@@ -66,15 +68,15 @@ public class MalcolmGridScanTest extends AbstractMalcolmScanTest {
 		checkFiles();
 
 		// Check we reached armed (it will normally throw an exception on error)
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		checkNexusFile(scanner, snake, shape); // Step model is +1 on the size
 	}
 
 	private void checkFiles() {
-		assertEquals(4, participant.getCount(FileDeclared.class));
-		List<String> paths = participant.getPaths();
-		assertTrue(paths.stream().anyMatch(path -> path.endsWith("detector.h5")));
-		assertTrue(paths.stream().anyMatch(path -> path.endsWith("detector2.h5")));
-		assertTrue(paths.stream().anyMatch(path -> path.endsWith("panda.h5")));
+		assertThat(participant.getCount(FileDeclared.class), is(4));
+
+		final List<String> fileNames = participant.getPaths().stream().map(File::new).map(File::getName).collect(toList());
+		assertThat(fileNames, containsInAnyOrder(output.getName(), "detector.h5", "detector2.h5", "panda.h5"));
 	}
+
 }

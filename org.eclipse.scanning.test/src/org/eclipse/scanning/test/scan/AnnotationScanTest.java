@@ -2,8 +2,10 @@ package org.eclipse.scanning.test.scan;
 
 import static org.eclipse.scanning.api.scan.LevelRole.RUN;
 import static org.eclipse.scanning.api.scan.LevelRole.WRITE;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -214,7 +216,7 @@ public class AnnotationScanTest extends NexusTest {
 
 	@Test
 	public void testInjectedContext() throws Exception {
-		IRunnableDevice<ScanModel> scanner = createGridScan(injectionDetector, injectionMonitor, null, 2, 2);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(injectionDetector, injectionMonitor, null, 2, 2);
 		scanner.run(null);
 
 		// check that each annotated method for each device has been invoked with objects
@@ -244,8 +246,8 @@ public class AnnotationScanTest extends NexusTest {
 	};
 
 	private <A extends Annotation> void checkInjectedContext(InjectionDevice device, Class<A> annotationClass, boolean includeCommonContext, Class<?>... expectedContextClasses) {
-		Set<Object> injectedContext = device.getMethodContext(annotationClass);
-		assertNotNull(injectedContext);
+		final Set<Object> injectedContext = device.getMethodContext(annotationClass);
+		assertThat(injectedContext, is(notNullValue()));
 
 		// stream the total set of expected classes, filter out those found in context - if the resulting stream isn't empty we're missing something
 		final Predicate<Class<?>> contextHasInstance = klass -> injectedContext.stream().anyMatch(obj -> klass.isInstance(obj));
@@ -253,7 +255,7 @@ public class AnnotationScanTest extends NexusTest {
 		if (includeCommonContext) {
 			expectedClassStream = Stream.concat(expectedClassStream, Arrays.stream(COMMON_CONTEXT_CLASSES));
 		}
-		Optional<Class<?>> missingExpectedContext = expectedClassStream.filter(klass -> !contextHasInstance.test(klass)).findFirst();
+		final Optional<Class<?>> missingExpectedContext = expectedClassStream.filter(klass -> !contextHasInstance.test(klass)).findFirst();
 		if (missingExpectedContext.isPresent()) {
 			Assert.fail("Context missing expected instance of: " + missingExpectedContext.get());
 		}

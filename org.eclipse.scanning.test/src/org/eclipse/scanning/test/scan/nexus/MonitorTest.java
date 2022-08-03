@@ -19,12 +19,13 @@ import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNot
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
 import static org.eclipse.scanning.example.scannable.MockNeXusScannable.FIELD_NAME_SET_VALUE;
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,8 +74,7 @@ public class MonitorTest extends NexusTest {
 
 	@Before
 	public void before() throws Exception {
-
-		ConstantVelocityModel model = new ConstantVelocityModel("cv scan", 100, 200, 25);
+		final ConstantVelocityModel model = new ConstantVelocityModel("cv scan", 100, 200, 25);
 		model.setName("cv device");
 
 		detector = TestDetectorHelpers.createAndConfigureConstantVelocityDetector(model);
@@ -109,10 +109,10 @@ public class MonitorTest extends NexusTest {
 	@Test
 	public void testMixture() throws Exception {
 		// NOTE That they must be MockNeXusScannables which we test.
-		List<String> perPoint = Arrays.asList("monitor0", "monitor3");
-		List<String> perScan = Arrays.asList("z", "monitor1");
+		final List<String> perPoint = Arrays.asList("monitor0", "monitor3");
+		final List<String> perScan = Arrays.asList("z", "monitor1");
 
-		IRunnableDevice<ScanModel> scanner = runScan(perPoint, perScan, 5);
+		final IRunnableDevice<ScanModel> scanner = runScan(perPoint, perScan, 5);
 
 		assertPerPointMonitors(scanner, perPoint, 5);
 		assertPerScanMonitors(scanner, perScan);
@@ -135,14 +135,13 @@ public class MonitorTest extends NexusTest {
 	}
 
 	private void testScan(int... shape) throws Exception {
-
 		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_POINT, shape);
 	}
 
 
 	private void testScan(MonitorScanRole mrole, MonitorScanRole testedRole, int... shape) throws Exception {
 		final List<String> monitors = Arrays.asList("monitor1", "monitor2");
-		IRunnableDevice<ScanModel> scanner;
+		final IRunnableDevice<ScanModel> scanner;
 		if (mrole == MonitorScanRole.PER_POINT) {
 			scanner = runScan(monitors, null, shape);
 		} else {
@@ -153,8 +152,8 @@ public class MonitorTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel>runScan(List<String> monitorsPerPoint, List<String> monitorsPerScan, int... shape) throws Exception {
-
-		IRunnableDevice<ScanModel> scanner = createNestedStepScanWithMonitors(detector, monitorsPerPoint, monitorsPerScan, shape); // Outer scan of another scannable, for instance temp.
+		final IRunnableDevice<ScanModel> scanner = createNestedStepScanWithMonitors(detector,
+				monitorsPerPoint, monitorsPerScan, shape); // Outer scan of another scannable, for instance temp.
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 
 		scanner.run(null);
@@ -164,7 +163,7 @@ public class MonitorTest extends NexusTest {
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, List<String> monitorNames, MonitorScanRole role,
 			int... sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 		final NXroot rootNode = getNexusRoot(scanner);
 		final NXentry entry = rootNode.getEntry();
 		final NXinstrument instrument = entry.getInstrument();
@@ -183,7 +182,7 @@ public class MonitorTest extends NexusTest {
 		final NXdata nxData = entry.getData(detectorName);
 		assertNotNull(nxData);
 		assertSignal(nxData, NXdetector.NX_DATA);
-		assertSame(dataNode, nxData.getDataNode(NXdetector.NX_DATA));
+		assertThat(nxData.getDataNode(NXdetector.NX_DATA), is(sameInstance(dataNode)));
 
 		for (int i = 0; i < sizes.length; i++)
 			assertEquals(sizes[i], shape[i]);
@@ -193,7 +192,7 @@ public class MonitorTest extends NexusTest {
 		final PositionIterator it = new PositionIterator(shape);
 		while (it.hasNext()) {
 			int[] next = it.getPos();
-			assertFalse(Double.isNaN(dataset.getDouble(next)));
+			assertThat(Double.isNaN(dataset.getDouble(next)), is(false));
 		}
 
 		// Check axes
@@ -201,7 +200,7 @@ public class MonitorTest extends NexusTest {
 
 		// Append _value_demand to each name in scannable names list, and appends
 		// the item "." 3 times to the resulting list
-		String[] expectedAxesNames = Stream
+		final String[] expectedAxesNames = Stream
 				.concat(pos.getNames().stream().map(x -> x + "_value_set"), Collections.nCopies(3, ".").stream())
 				.toArray(String[]::new);
 		assertAxes(nxData, expectedAxesNames);
@@ -232,18 +231,18 @@ public class MonitorTest extends NexusTest {
 			final String deviceName = allNames.get(i);
 			// This test uses NXpositioner for all scannables and monitors
 			final NXpositioner positioner = instrument.getPositioner(deviceName);
-			assertNotNull(positioner);
+			assertThat(positioner, is(notNullValue()));
 
 			DataNode dataNode = positioner.getDataNode(FIELD_NAME_SET_VALUE);
 			IDataset dataset = dataNode.getDataset().getSlice();
 			int[] shape = dataset.getShape();
-			assertEquals(1, shape.length);
+			assertThat(shape.length, is(1));
 			String nxDataFieldName;
 			if (i < scannableNames.size()) {
 				// in practise monitors wouldn't have the 'demand' field
-				assertEquals(sizes[i], shape[0]);
+				assertThat(shape[0], is(sizes[i]));
 				nxDataFieldName = deviceName + "_" + FIELD_NAME_SET_VALUE;
-				assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+				assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 				assertIndices(nxData, nxDataFieldName, i);
 				assertTarget(nxData, nxDataFieldName, rootNode, "/entry/instrument/" + deviceName + "/value_set");
 			}
@@ -252,10 +251,10 @@ public class MonitorTest extends NexusTest {
 			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
 			dataset = dataNode.getDataset().getSlice();
 			shape = dataset.getShape();
-			assertArrayEquals("The value of monitor, '" + deviceName + "' is incorrect", sizes, shape);
+			assertThat("The value of monitor, '" + deviceName + "' is incorrect", shape, is(equalTo(sizes)));
 
 			nxDataFieldName = deviceName + "_" + NXpositioner.NX_VALUE;
-			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+			assertThat(nxData.getDataNode(nxDataFieldName), is(sameInstance(dataNode)));
 			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 			assertTarget(nxData, nxDataFieldName, rootNode,
 					"/entry/instrument/" + deviceName + "/" + NXpositioner.NX_VALUE);
@@ -272,20 +271,20 @@ public class MonitorTest extends NexusTest {
 		// check each metadata scannable has been written correctly
 		for (IScannable<?> scannable : perScanMonitors) {
 			final String name = scannable.getName();
-			assertTrue(perScanNames.contains(name));
+			assertThat(perScanNames.contains(name), is(true));
 
 			final NXobject nexusObject = (NXobject) instrument.getGroupNode(name);
 
 			// Check that the nexus object is of the expected base class
-			assertNotNull("The scannable '"+name+"' could not be found.", nexusObject);
-			assertEquals(name, nexusObject.getString("name"));
-			assertEquals(0, nexusObject.getNumberOfGroupNodes());
-			assertEquals(1, nexusObject.getNumberOfAttributes());
+			assertThat("The scannable '"+name+"' could not be found.", nexusObject, is(notNullValue()));
+			assertThat(nexusObject.getString("name"), is(equalTo(name)));
+			assertThat(nexusObject.getNumberOfGroupNodes(), is(0));
+			assertThat(nexusObject.getNumberOfAttributes(), is(1));
 
-			DataNode dataNode = nexusObject.getDataNode("value");
-			IDataset dataset = dataNode.getDataset().getSlice();
+			final DataNode dataNode = nexusObject.getDataNode("value");
+			final IDataset dataset = dataNode.getDataset().getSlice();
 
-			assertEquals(0, dataset.getRank()); // A scalar value not the shape of the scan.
+			assertThat(dataset.getRank(), is(0)); // A scalar value not the shape of the scan.
 		}
 	}
 

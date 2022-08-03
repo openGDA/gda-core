@@ -5,15 +5,18 @@ import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_DIAMO
 import static org.eclipse.dawnsci.nexus.scan.NexusScanConstants.GROUP_NAME_UNIQUE_KEYS;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
+import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertNXentryMetadata;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertScanNotFinished;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertTarget;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertSame;
 
 import java.io.File;
@@ -62,9 +65,9 @@ public class PosDetectorScanTest extends NexusTest {
 
 	@Before
 	public void before() throws Exception {
-		PosDetectorModel model = new PosDetectorModel(3);
+		final PosDetectorModel model = new PosDetectorModel(3);
 		detector = TestDetectorHelpers.createAndConfigurePosDetector(model);
-		assertNotNull(detector);
+		assertThat(detector, is(notNullValue()));
 	}
 
 	@After
@@ -81,10 +84,10 @@ public class PosDetectorScanTest extends NexusTest {
 	@Test
 	public void testPosScan() throws Exception {
 		final int[] scanShape = new int[] { 8, 5 };
-		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, scanShape);
+		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, scanShape);
 		// add a the UniqueKeyChecker as a position listener to check the unique key is written at each point
 		((IPositionListenable) scanner).addPositionListener(
-				new UniqueKeyChecker(scanner.getModel().getFilePath(), scanShape));
+				new UniqueKeyChecker(scanner.getModel().getFilePath()));
 
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 
@@ -95,13 +98,10 @@ public class PosDetectorScanTest extends NexusTest {
 
 	private static class UniqueKeyChecker implements IPositionListener {
 
-		private final int[] scanShape;
 		private final String filePath;
-		private ILazyDataset uniqueKeysDataset;
 
-		UniqueKeyChecker(String filePath, final int[] scanShape) {
+		UniqueKeyChecker(String filePath) {
 			this.filePath = filePath;
-			this.scanShape = scanShape;
 		}
 
 		@Override
@@ -114,19 +114,18 @@ public class PosDetectorScanTest extends NexusTest {
 			checkUniqueKeyWritten(event.getPosition());
 		}
 
-		private IDataset getUniqueKeysDataset() throws ScanningException {
+		private IDataset getUniqueKeysDataset() {
 			try (NexusFile nf = fileFactory.newNexusFile(filePath)) {
 				nf.openToRead();
 
-				ILazyDataset uniqueKeysDataset = null;
-				TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-				NXroot root = (NXroot) nexusTree.getGroupNode();
-				NXentry entry = root.getEntry();
+				final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+				final NXroot root = (NXroot) nexusTree.getGroupNode();
+				final NXentry entry = root.getEntry();
 
-				NXcollection solsticeScanCollection = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
-				NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_UNIQUE_KEYS);
-				DataNode dataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
-				uniqueKeysDataset = dataNode.getDataset();
+				final NXcollection solsticeScanCollection = entry.getCollection(GROUP_NAME_DIAMOND_SCAN);
+				final NXcollection keysCollection = (NXcollection) solsticeScanCollection.getGroupNode(GROUP_NAME_UNIQUE_KEYS);
+				final DataNode dataNode = keysCollection.getDataNode(FIELD_NAME_UNIQUE_KEYS);
+				final ILazyDataset uniqueKeysDataset = dataNode.getDataset();
 
 //				((IDynamicDataset) uniqueKeysDataset).refreshShape();
 				return uniqueKeysDataset.getSlice(); // it's only a small dataset, so this is ok
@@ -135,19 +134,19 @@ public class PosDetectorScanTest extends NexusTest {
 			}
 		}
 
-		private void checkUniqueKeyWritten(IPosition position) throws ScanningException {
-			IDataset uniqueKeysDataset = getUniqueKeysDataset();
-			assertNotNull(uniqueKeysDataset);
+		private void checkUniqueKeyWritten(IPosition position) {
+			final IDataset uniqueKeysDataset = getUniqueKeysDataset();
+			assertThat(uniqueKeysDataset, is(notNullValue()));
 
 			int uniqueKey = uniqueKeysDataset.getInt(position.getIndex(0), position.getIndex(1));
-			assertEquals(position.getStepIndex() + 1, uniqueKey);
+			assertThat(uniqueKey, is(equalTo(position.getStepIndex() + 1)));
 		}
 
 	}
 
 	private void checkNexusFile(IRunnableDevice<ScanModel> scanner, int[] sizes) throws Exception {
 		final ScanModel scanModel = ((AbstractRunnableDevice<ScanModel>) scanner).getModel();
-		assertEquals(DeviceState.ARMED, scanner.getDeviceState());
+		assertThat(scanner.getDeviceState(), is(DeviceState.ARMED));
 
 		final NXroot rootNode = getNexusRoot(scanner);
 		final NXentry entry = rootNode.getEntry();
@@ -159,24 +158,24 @@ public class PosDetectorScanTest extends NexusTest {
 
 		final String detectorName = detector.getName();
 		final NXdetector nxDetector = instrument.getDetector(detectorName);
-		assertNotNull(nxDetector);
-		assertEquals(((IDetectorModel) scanner.getModel().getDetectors().get(0).getModel()).getExposureTime(),
-				nxDetector.getCount_timeScalar().doubleValue(), 1e-15);
+		assertThat(nxDetector, is(notNullValue()));
+		final double expectedExposureTime = ((IDetectorModel) scanner.getModel().getDetectors().get(0).getModel()).getExposureTime();
+		assertThat(nxDetector.getCount_timeScalar().doubleValue(), is(closeTo(expectedExposureTime, 1e-15)));
 
-		assertEquals(1, entry.getAllData().size());
+		assertThat(entry.getAllData().size(), is(1));
 		final NXdata dataGroup = entry.getData(detectorName);
-		assertNotNull(dataGroup);
+		assertThat(dataGroup, is(notNullValue()));
 
 		assertSignal(dataGroup, NXdetector.NX_DATA);
 
 		final DataNode dataNode = nxDetector.getDataNode(NXdetector.NX_DATA);
-		assertNotNull(dataNode);
+		assertThat(dataNode, is(notNullValue()));
 		assertDataNodesEqual("", dataNode, dataGroup.getDataNode(NXdetector.NX_DATA));
 
 		final IDataset dataset = dataNode.getDataset().getSlice();
 		int[] shape = dataset.getShape();
 		for (int i = 0; i < sizes.length; i++) {
-			assertEquals(sizes[i], shape[i]);
+			assertThat(shape[i], is(equalTo(sizes[i])));
 		}
 
 		// Make sure none of the numbers are NaNs. The detector
@@ -184,20 +183,20 @@ public class PosDetectorScanTest extends NexusTest {
 		final PositionIterator it = new PositionIterator(shape);
 		while (it.hasNext()) {
 			int[] next = it.getPos();
-			assertFalse(Double.isNaN(dataset.getDouble(next)));
+			assertThat(Double.isNaN(dataset.getDouble(next)), is(false));
 		}
 
 		// Check axes
 		final IPosition pos = scanModel.getPointGenerator().iterator().next();
 		final List<String> scannableNames = pos.getNames();
-		assertEquals(sizes.length, scannableNames.size());
+		assertThat(scannableNames.size(), is(sizes.length));
 
 		// Append _value_demand to each position name, append "." twice for 2 image dimensions
 		final List<String> expectedAxesNames = Stream.concat(scannableNames.stream().map(x -> x + "_value_set"),
 				Collections.nCopies(2, ".").stream()).collect(Collectors.toList());
 		assertAxes(dataGroup, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-		int[] defaultDimensionMappings = IntStream.range(0, scannableNames.size()).toArray();
+		final int[] defaultDimensionMappings = IntStream.range(0, scannableNames.size()).toArray();
 
 		int i = 0;
 		for (String positionerName : scannableNames) {
@@ -205,16 +204,13 @@ public class PosDetectorScanTest extends NexusTest {
 
 			// check value_demand data node
 			final String demandFieldName = positionerName + "_" + NXpositioner.NX_VALUE + "_set";
-			assertSame(dataGroup.getDataNode(demandFieldName),
-					positioner.getDataNode("value_set"));
+			assertSame(positioner.getDataNode("value_set"), is(sameInstance(dataGroup.getDataNode(demandFieldName))));
 			assertIndices(dataGroup, demandFieldName, i);
-			assertTarget(dataGroup, demandFieldName, rootNode,
-					"/entry/instrument/" + positionerName + "/value_set");
+			assertTarget(dataGroup, demandFieldName, rootNode, "/entry/instrument/" + positionerName + "/value_set");
 
 			// check value data node
 			final String valueFieldName = positionerName + "_" + NXpositioner.NX_VALUE;
-			assertSame(dataGroup.getDataNode(valueFieldName),
-					positioner.getDataNode(NXpositioner.NX_VALUE));
+			assertThat(positioner.getDataNode(NXpositioner.NX_VALUE), is(equalTo(dataGroup.getDataNode(valueFieldName))));
 			assertIndices(dataGroup, valueFieldName, defaultDimensionMappings);
 			assertTarget(dataGroup, valueFieldName, rootNode,
 					"/entry/instrument/" + positionerName + "/" + NXpositioner.NX_VALUE);

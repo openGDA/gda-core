@@ -35,7 +35,7 @@ public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 
 	@Test
 	public void testMalcolmAcquire() throws Exception {
-		IRunnableDevice<ScanModel> scanner = createAcquireScan(malcolmDevice, output);
+		final IRunnableDevice<ScanModel> scanner = createAcquireScan(malcolmDevice, output);
 		scanner.run(null);
 
 		checkNexusFile(scanner, false);
@@ -52,11 +52,11 @@ public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 	}
 
 	private IRunnableDevice<ScanModel> createAcquireScan(final IRunnableDevice<? extends IDetectorModel> detector, File file) throws Exception {
-		StaticModel staticModel = new StaticModel();
-		IPointGenerator<StaticModel> pointGen = pointGenService.createGenerator(staticModel);
+		final StaticModel staticModel = new StaticModel();
+		final IPointGenerator<StaticModel> pointGen = pointGenService.createGenerator(staticModel);
 
 		// Create the model for an acquire scan
-		ScanModel scanModel = new ScanModel();
+		final ScanModel scanModel = new ScanModel();
 		scanModel.setDetector(detector);
 
 		// Create a file to scan into
@@ -69,7 +69,7 @@ public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 		((IRunnableEventDevice<ScanModel>) scanner).addRunListener(IRunListener.createRunWillPerformListener(
 				event -> System.out.println("Running acquire scan for detector " + detector.getName())));
 

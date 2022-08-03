@@ -11,18 +11,20 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDataNodesEqual;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertSignal;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -92,7 +93,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		malcolmDevice.register();
 
 		malcolmDevice.setOutputDir(malcolmOutputDir);
-		assertNotNull(malcolmDevice);
+		assertThat(malcolmDevice, is(notNullValue()));
 		((AbstractMalcolmDevice) malcolmDevice).addRunListener(IRunListener.createRunPerformedListener(
 				event -> System.out.println("Ran test malcolm device @ " + event.getPosition())));
 		participant = new MockScanParticpiant();
@@ -100,7 +101,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	}
 
 	@After
-	public void teardown() throws Exception {
+	public void teardown() {
 		// delete the temp directory and all its files
 		for (File file : new File(malcolmOutputDir).listFiles()) {
 			file.delete();
@@ -113,32 +114,32 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	// Create model, but do not set axes etc.
 	protected DummyMalcolmModel createMalcolmModelTwoDetectors() {
-		DummyMalcolmModel model = new DummyMalcolmModel();
+		final DummyMalcolmModel model = new DummyMalcolmModel();
 		model.setTimeout(10 * 60); // increased timeout for debugging purposes
 		model.setExposureTime(0.1);
 
-		DummyMalcolmDetectorModel det1Model = new DummyMalcolmDetectorModel();
+		final DummyMalcolmDetectorModel det1Model = new DummyMalcolmDetectorModel();
 		det1Model.setName("detector");
 		det1Model.setFramesPerStep(1);
 		det1Model.setExposureTime(0.08);
 
-		DummyMalcolmDatasetModel detector1dataset1 = new DummyMalcolmDatasetModel();
+		final DummyMalcolmDatasetModel detector1dataset1 = new DummyMalcolmDatasetModel();
 		detector1dataset1.setName("detector");
 		detector1dataset1.setRank(2);
 		detector1dataset1.setDtype(Double.class);
 
-		DummyMalcolmDatasetModel detector1dataset2 = new DummyMalcolmDatasetModel();
+		final DummyMalcolmDatasetModel detector1dataset2 = new DummyMalcolmDatasetModel();
 		detector1dataset2.setName("sum");
 		detector1dataset2.setRank(1);
 		detector1dataset2.setDtype(Double.class);
 		det1Model.setDatasets(Arrays.asList(detector1dataset1, detector1dataset2));
 
-		DummyMalcolmDetectorModel det2Model = new DummyMalcolmDetectorModel();
+		final DummyMalcolmDetectorModel det2Model = new DummyMalcolmDetectorModel();
 		det2Model.setName("detector2");
 		det1Model.setFramesPerStep(2);
 		det1Model.setExposureTime(0.4);
 
-		DummyMalcolmDatasetModel detector2dataset = new DummyMalcolmDatasetModel();
+		final DummyMalcolmDatasetModel detector2dataset = new DummyMalcolmDatasetModel();
 		detector2dataset.setName("detector2");
 		detector2dataset.setRank(2);
 		detector2dataset.setDtype(Double.class);
@@ -148,18 +149,20 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 		return model;
 	}
+
 	protected void checkSize(IRunnableDevice<ScanModel> scanner, int[] shape) {
-		ScanBean bean =  ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getBean();
+		final ScanBean bean =  ((AbstractRunnableDevice<ScanModel>) scanner).getModel().getBean();
 		int expectedSize = Arrays.stream(shape).reduce(1, (x, y) -> x * y);
-		assertEquals(expectedSize, bean.getSize());
+		assertThat(bean.getSize(), is(equalTo(expectedSize)));
 	}
 
 	private Map<String, List<String>> getExpectedPrimaryDataFieldsPerDetector() {
-		Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
-		DummyMalcolmModel model = malcolmDevice.getModel();
+		final Map<String, List<String>> primaryDataFieldsPerDetector = new HashMap<>();
+		final DummyMalcolmModel model = malcolmDevice.getModel();
 		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
-			List<String> list = ((DummyMalcolmDetectorModel) detectorModel).getDatasets().stream().map(d -> d.getName())
-				.collect(Collectors.toCollection(ArrayList::new));
+			final List<String> list = ((DummyMalcolmDetectorModel) detectorModel).getDatasets().stream()
+					.map(d -> d.getName())
+					.collect(toCollection(ArrayList::new));
 			list.set(0, NXdata.NX_DATA); // the first dataset is the primary one, so the field is called 'data' in the nexus tree
 			primaryDataFieldsPerDetector.put(detectorModel.getName(), list);
 		}
@@ -168,9 +171,9 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	}
 
 	private List<String> getExpectedUniqueKeysPath(DummyMalcolmModel dummyMalcolmModel) {
-		List<String> expectedUniqueKeyPaths = dummyMalcolmModel.getDetectorModels().stream()
+		final List<String> expectedUniqueKeyPaths = dummyMalcolmModel.getDetectorModels().stream()
 			.map(IMalcolmDetectorModel::getName)
-			.collect(Collectors.toCollection(ArrayList::new));
+			.collect(toList());
 		if (!dummyMalcolmModel.getPositionerNames().isEmpty()) {
 			expectedUniqueKeyPaths.add("panda");
 		}
@@ -194,13 +197,13 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		// map from detector name -> primary data fields
 		final Map<String, List<String>> primaryDataFieldNamesPerDetector = getExpectedPrimaryDataFieldsPerDetector();
 		final Map<String, NXdata> nxDataGroups = entry.getChildren(NXdata.class);
-		assertEquals(primaryDataFieldNamesPerDetector.values().stream().flatMap(Collection::stream).count(),
-				nxDataGroups.size());
+		assertThat(nxDataGroups.size(), is(equalTo(
+				(int) primaryDataFieldNamesPerDetector.values().stream().flatMap(Collection::stream).count())));
 
 		for (IMalcolmDetectorModel detectorModel : dummyMalcolmModel.getDetectorModels()) {
 			final String detectorName = detectorModel.getName();
 			final NXdetector detector = instrument.getDetector(detectorName);
-			assertNotNull(detector);
+			assertThat(detector, is(notNullValue()));
 
 			final List<String> primaryDataFieldNames = primaryDataFieldNamesPerDetector.get(detectorName);
 			checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, entry,
@@ -214,14 +217,14 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			IMalcolmDetectorModel detectorModel, ScanModel scanModel, NXentry entry,
 			List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes)
 			throws DatasetException {
-		assertEquals(detectorModel.getExposureTime(), detector.getCount_timeScalar().doubleValue(), 1e-15);
+		assertThat(detector.getCount_timeScalar().doubleValue(), is(closeTo(detectorModel.getExposureTime(), 1e-15)));
 
 		final String detectorName = detectorModel.getName();
-		final Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream().collect(Collectors.toMap(
-				Function.identity(),
+		final Map<String, String> expectedDataGroupNames = primaryDataFieldNames.stream()
+				.collect(toMap(Function.identity(),
 				fieldName -> detectorName + (fieldName.equals(NXdetector.NX_DATA) ? "" : "_" + fieldName)));
 
-		assertTrue(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()));
+		assertThat(nxDataGroups.keySet().containsAll(expectedDataGroupNames.values()), is(true));
 
 		boolean isFirst = true;
 		for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
@@ -234,8 +237,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 			assertSignal(nxData, sourceFieldName);
 			// check the nxData's signal field is a link to the appropriate source data node of the detector
-			DataNode dataNode = detector.getDataNode(sourceFieldName);
-			IDataset dataset = dataNode.getDataset().getSlice();
+			final DataNode dataNode = detector.getDataNode(sourceFieldName);
+			final IDataset dataset = dataNode.getDataset().getSlice();
 			// test the data nodes for equality instead of identity as they both come from external links
 			assertDataNodesEqual("/entry/instrument/"+detectorName+"/"+sourceFieldName,
 					dataNode, nxData.getDataNode(sourceFieldName));
@@ -245,20 +248,22 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			// check that other primary data fields of the detector haven't been added to this NXdata
 			for (String primaryDataFieldName : primaryDataFieldNames) {
 				if (!primaryDataFieldName.equals(sourceFieldName)) {
-					assertNull(nxData.getDataNode(primaryDataFieldName));
+					assertThat(nxData.getDataNode(primaryDataFieldName), is(nullValue()));
 				}
 			}
 
 			int[] shape = dataset.getShape();
-			for (int i = 0; i < sizes.length; i++)
-				assertEquals(sizes[i], shape[i]);
+
+			for (int i = 0; i < sizes.length; i++) {
+				assertThat(shape[i], is(equalTo(sizes[i])));
+			}
 
 			// Make sure none of the numbers are NaNs. The detector is expected
 			// to fill this scan with non-nulls
 			final PositionIterator it = new PositionIterator(shape);
 			while (it.hasNext()) {
-				int[] next = it.getPos();
-				assertFalse(Double.isNaN(dataset.getDouble(next)));
+				int[] value = it.getPos();
+				assertThat(Double.isNaN(dataset.getDouble(value)), is(false));
 			}
 
 			// Check axes
@@ -268,7 +273,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			// Append _value_set to each name in list, then add detector axes fields to result
 			// stage_y doesn't have _value_set as to mimic the real i18 malcolm device
 			// malcolm doesn't know this value (as instead it has three jacks j1,j2,j3 for the y position)
-			int additionalRank = datasetModel.getRank(); // i.e. rank per position, e.g. 2 for images
+			final int additionalRank = datasetModel.getRank(); // i.e. rank per position, e.g. 2 for images
 			final List<String> expectedAxesNames = Stream.concat(
 					axisNames.stream().map(axisName -> axisName +
 							(!axisName.equals("stage_y") ? "_value_set" : "")),
@@ -280,11 +285,11 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			}
 			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-			int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
+			final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 			for (int axisIndex = 0; axisIndex < axisNames.size(); axisIndex++) {
 				final String axisName = axisNames.get(axisIndex);
 				final NXpositioner positioner = entry.getInstrument().getPositioner(axisName);
-				assertNotNull(positioner);
+				assertThat(positioner, is(notNullValue()));
 
 				checkPositioner(positioner, dummyMalcolmModel, nxData, defaultDimensionMappings,
 						axisIndex, axisName, sizes);
@@ -298,9 +303,8 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			throws DatasetException {
 		DataNode dataNode = positioner.getDataNode("value_set");
 		IDataset dataset = dataNode.getDataset().getSlice();
-		int[] shape = dataset.getShape();
-		assertEquals(1, shape.length);
-		assertEquals(sizes[axisIndex], shape[0]);
+		final int[] expectedShape = new int[] { sizes[axisIndex] };
+		assertThat(dataset.getShape(), is(equalTo(expectedShape)));
 
 		String nxDataFieldName = axisName + (!axisName.equals("stage_y") ? "_value_set" : "");
 		assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
@@ -313,10 +317,9 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		if (dummyMalcolmModel.getPositionerNames().contains(axisName)) {
 			// Actual values should be scanD
 			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
-			assertNotNull(dataNode);
+			assertThat(dataNode, is(notNullValue()));
 			dataset = dataNode.getDataset().getSlice();
-			shape = dataset.getShape();
-			assertArrayEquals(sizes, shape);
+			assertThat(dataset.getShape(), is(equalTo(sizes)));
 
 			nxDataFieldName = axisName + "_" + NXpositioner.NX_VALUE;
 //						assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
@@ -362,7 +365,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		System.out.println("File writing to " + scanModel.getFilePath());
 
 		// Create a scan and run it without publishing events
-		IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
+		final IRunnableDevice<ScanModel> scanner = scanService.createScanDevice(scanModel);
 
 		final IPointGenerator<?> fgen = pointGen;
 		((IRunnableEventDevice<ScanModel>)scanner).addRunListener(IRunListener.createRunWillPerformListener(

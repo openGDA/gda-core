@@ -17,10 +17,11 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_C
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_RANK;
 import static org.eclipse.scanning.example.malcolm.DummyMalcolmDevice.FILE_EXTENSION_HDF5;
 import static org.eclipse.scanning.example.malcolm.DummyMalcolmDevice.UNIQUE_KEYS_DATASET_PATH;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -95,28 +96,28 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	}
 
 	private IPointGenerator<CompoundModel> getGenerator(int... size) throws GeneratorException {
-		TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
+		final TwoAxisGridPointsModel gmodel = new TwoAxisGridPointsModel();
 		gmodel.setxAxisName("stage_x");
 		gmodel.setxAxisPoints(size[size.length - 1]);
 		gmodel.setyAxisName("stage_y");
 		gmodel.setyAxisPoints(size[size.length - 2]);
 		gmodel.setBoundingBox(new BoundingBox(0, 0, 3, 3));
 
-		CompoundModel cModel = createNestedStepScans(2, size);
+		final CompoundModel cModel = createNestedStepScans(2, size);
 		cModel.addModel(gmodel);
 
 		return pointGenService.createCompoundGenerator(cModel);
 	}
 
 	public static DummyMalcolmModel createModel() {
-		DummyMalcolmModel model = new DummyMalcolmModel();
+		final DummyMalcolmModel model = new DummyMalcolmModel();
 
-		DummyMalcolmDetectorModel det1Model = new DummyMalcolmDetectorModel();
+		final DummyMalcolmDetectorModel det1Model = new DummyMalcolmDetectorModel();
 		det1Model.setName("detector");
 		det1Model.addDataset(new DummyMalcolmDatasetModel("detector", 2, Double.class));
 		det1Model.addDataset(new DummyMalcolmDatasetModel("sum", 1, Double.class));
 
-		DummyMalcolmDetectorModel det2Model = new DummyMalcolmDetectorModel();
+		final DummyMalcolmDetectorModel det2Model = new DummyMalcolmDetectorModel();
 		det2Model.setName("detector2");
 		det2Model.addDataset(new DummyMalcolmDatasetModel("detector", 2, Double.class));
 
@@ -129,13 +130,13 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 	@Test
 	public void testDummyMalcolmNexusFiles() throws Exception {
-		DummyMalcolmModel model = createModel();
-		IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
+		final DummyMalcolmModel model = createModel();
+		final IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice) malcolmDevice).setPointGenerator(getGenerator(2, 2));// Generator isn't actually used by the test malcolm device
 		((AbstractMalcolmDevice) malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
-		int scanRank = 2;
-		assertNotNull(malcolmDevice);
+		final int scanRank = 2;
+		assertThat(malcolmDevice, is(notNullValue()));
 		malcolmDevice.configure(model);
 
 		malcolmDevice.run(new StaticPosition());
@@ -146,38 +147,37 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 	@Test
 	public void testMalcolmNexusObjects() throws Exception {
-		DummyMalcolmModel model = createModel();
-		IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
+		final DummyMalcolmModel model = createModel();
+		final IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
 		int scanRank = 3;
 		// Cannot set the generator from @PreConfigure in this unit test.
 		((AbstractMalcolmDevice) malcolmDevice).setPointGenerator(getGenerator(2, 2, 2));// Generator isn't actually used by the test malcolm device
 		((AbstractMalcolmDevice) malcolmDevice).setOutputDir(malcolmOutputDir.getAbsolutePath());
 		malcolmDevice.configure(model);
 
-		NexusScanInfo nexusScanInfo = new NexusScanInfo();
+		final NexusScanInfo nexusScanInfo = new NexusScanInfo();
 		nexusScanInfo.setRank(scanRank);
-		List<NexusObjectProvider<?>> nexusProviders = ((INexusDevice<?>) malcolmDevice).getNexusProviders(nexusScanInfo);
+		final List<NexusObjectProvider<?>> nexusProviders = ((INexusDevice<?>) malcolmDevice).getNexusProviders(nexusScanInfo);
 
 		checkNexusObjectProviders(nexusProviders, model, scanRank);
 	}
 
 	private NXentry getNexusEntry(String filePath) throws Exception {
-		INexusFileFactory fileFactory = org.eclipse.dawnsci.nexus.ServiceHolder
-				.getNexusFileFactory();
+		final INexusFileFactory fileFactory = org.eclipse.dawnsci.nexus.ServiceHolder.getNexusFileFactory();
 		try (NexusFile nf = fileFactory.newNexusFile(filePath)) {
-				nf.openToRead();
-			TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
-			NXroot root = (NXroot) nexusTree.getGroupNode();
+			nf.openToRead();
+			final TreeFile nexusTree = NexusUtils.loadNexusTree(nf);
+			final NXroot root = (NXroot) nexusTree.getGroupNode();
 			return root.getEntry();
 		}
 	}
 
 	private void checkMalcolmNexusFiles(IMalcolmDevice malcolmDevice, int scanRank)
 			throws MalcolmDeviceException, Exception {
-		MalcolmTable table = malcolmDevice.getDatasets();
-		Map<String, NXentry> nexusEntries = new HashMap<>();
+		final MalcolmTable table = malcolmDevice.getDatasets();
+		final Map<String, NXentry> nexusEntries = new HashMap<>();
 		for (Map<String, Object> datasetRow : table) {
-			String filename = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);
+			final String filename = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);
 
 			// load the nexus entry for the file (may be cached from a previous dataset)
 			NXentry entry = nexusEntries.get(filename);
@@ -185,34 +185,34 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 				entry = getNexusEntry(malcolmDevice.getOutputDir() + "/" + filename);
 				nexusEntries.put(filename, entry);
 			}
-			assertNotNull(entry);
+			assertThat(entry, is(notNullValue()));
 
-			String path = (String) datasetRow.get(DATASETS_TABLE_COLUMN_PATH);
+			final String path = (String) datasetRow.get(DATASETS_TABLE_COLUMN_PATH);
 
-			String[] pathSegments = path.split("/");
-			assertEquals("", pathSegments[0]); // first element is empty as path starts with '/'
-			assertEquals("entry", pathSegments[1]);
+			final String[] pathSegments = path.split("/");
+			assertThat(pathSegments[0], isEmptyString()); // first element is empty as path starts with '/'
+			assertThat(pathSegments[1], is(equalTo("entry")));
 			// find the parent group
 			GroupNode groupNode = entry;
 			for (int i = 2; i < pathSegments.length - 1; i++) {
 				groupNode = groupNode.getGroupNode(pathSegments[i]);
 			}
-			assertNotNull(groupNode);
+			assertThat(groupNode, is(notNullValue()));
 
 			// check the datanode is not null and has the expected rank
-			DataNode dataNode = groupNode.getDataNode(pathSegments[pathSegments.length - 1]);
-			assertNotNull(dataNode);
+			final DataNode dataNode = groupNode.getDataNode(pathSegments[pathSegments.length - 1]);
+			assertThat(dataNode, is(notNullValue()));
 
 			int datasetRank = ((Integer) datasetRow.get(DATASETS_TABLE_COLUMN_RANK)).intValue();
-			assertEquals(datasetRank, dataNode.getRank());
+			assertThat(dataNode.getRank(), is(datasetRank));
 
 			// assert that the uniquekeys dataset is present
-			String[] uniqueKeysPathSegments = UNIQUE_KEYS_DATASET_PATH.split("/");
-			NXcollection ndAttributesCollection = entry.getCollection(uniqueKeysPathSegments[2]);
-			assertNotNull(ndAttributesCollection);
-			DataNode uniqueKeysDataNode = ndAttributesCollection.getDataNode(uniqueKeysPathSegments[3]);
-			assertNotNull(uniqueKeysDataNode);
-			assertEquals(scanRank, uniqueKeysDataNode.getRank());
+			final String[] uniqueKeysPathSegments = UNIQUE_KEYS_DATASET_PATH.split("/");
+			final NXcollection ndAttributesCollection = entry.getCollection(uniqueKeysPathSegments[2]);
+			assertThat(ndAttributesCollection, is(notNullValue()));
+			final DataNode uniqueKeysDataNode = ndAttributesCollection.getDataNode(uniqueKeysPathSegments[3]);
+			assertThat(uniqueKeysDataNode, is(notNullValue()));
+			assertThat(uniqueKeysDataNode.getRank(), is(scanRank));
 		}
 	}
 
@@ -225,29 +225,30 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 			final String deviceName = detectorModel.getName();
 			final NexusObjectProvider<?> nexusProvider = nexusObjectMap.get(deviceName);
 			final NXobject nexusObject = nexusProvider.getNexusObject();
-			assertNotNull(nexusProvider);
-			assertNotNull(nexusObject);
+			assertThat(nexusProvider, is(notNullValue()));
+			assertThat(nexusObject, is(notNullValue()));
 			final String expectedFileName = malcolmOutputDir.getName() + "/" + detectorModel.getName() + FILE_EXTENSION_HDF5;
-			assertArrayEquals(new Object[] { expectedFileName }, nexusProvider.getExternalFileNames().toArray());
+			assertThat(nexusProvider.getExternalFileNames().toArray(), is(equalTo(new Object[] { expectedFileName } )));
 
 			boolean isFirst = true;
 			for (DummyMalcolmDatasetModel datasetModel : ((DummyMalcolmDetectorModel) detectorModel).getDatasets()) {
 				final String targetDatasetName = datasetModel.getName();
 				final String linkName = isFirst ? NXdata.NX_DATA : targetDatasetName;
 				final SymbolicNode externalLinkNode = nexusObject.getSymbolicNode(linkName);
-				assertNotNull(externalLinkNode);
-				assertEquals(scanRank + datasetModel.getRank(), nexusProvider.getExternalDatasetRank(linkName));
-				assertEquals(expectedFileName, externalLinkNode.getSourceURI().toString());
+				assertThat(externalLinkNode, is(notNullValue()));
+				assertThat(nexusProvider.getExternalDatasetRank(linkName), is(scanRank + datasetModel.getRank()));
+
+				assertThat(externalLinkNode.getSourceURI().toString(), is(equalTo(expectedFileName)));
 
 				// check the nexus provider which describes how to add the device to the tree
 				// (in particular how NXdata groups should be built) is configured correctly
 				if (isFirst) {
-					assertEquals(linkName, nexusProvider.getPrimaryDataFieldName());
+					assertThat(nexusProvider.getPrimaryDataFieldName(), is(equalTo(linkName)));
 					isFirst = false;
 				} else {
-					assertTrue(nexusProvider.getAdditionalPrimaryDataFieldNames().contains(targetDatasetName));
+					assertThat(nexusProvider.getAdditionalPrimaryDataFieldNames().contains(targetDatasetName), is(true));
 				}
-				assertEquals(String.format("/entry/%s/%s", targetDatasetName, targetDatasetName), externalLinkNode.getPath());
+				assertThat(externalLinkNode.getPath(), is(equalTo(String.format("/entry/%s/%s", targetDatasetName, targetDatasetName))));
 			}
 		}
 	}
