@@ -55,6 +55,7 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	private boolean useNexusTreeWriter = false;
 	private transient NexusTreeWriterHelper nexusTreeWriter = new NexusTreeWriterHelper();
 	private int maxFramesToReadAtOnce = 500;
+	private int minFramesBeforeHdfRead = 100;
 
 	private XspressDataProvider dataProvider = new XspressDataProvider();
 
@@ -106,7 +107,6 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public int getNumberFrames() throws DeviceException {
-		final int minFramesBeforeHdfRead = 10;
 		try {
 			if (!useSwmrFileReading) {
 				int numFrames = xspressDetector.getController().getTimeSeriesNumPoints();
@@ -524,6 +524,18 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 		dataProvider.setDtcFactorDataNameFormat(dtcFactorDataNameFormat);
 	}
 
+	public void setTwoDHdfData(boolean twoD) {
+		dataProvider.setTwoDHdfData(twoD);
+	}
+
+	public boolean isTwoDHdfData() {
+		return dataProvider.isTwoDHdfData();
+	}
+
+	public XspressDataProvider getDataProvider() {
+		return dataProvider;
+	}
+
 	public boolean isUseSwmrFileReading() {
 		return useSwmrFileReading;
 	}
@@ -556,5 +568,13 @@ public class Xspress4BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public double[] getDeadtimeCorrectionFactors() throws DeviceException {
 		return xspressDetector.getDeadtimeCorrectionFactors();
+	}
+
+	public int getMinFramesBeforeHdfRead() {
+		return minFramesBeforeHdfRead;
+	}
+
+	public void setMinFramesBeforeHdfRead(int minFramesBeforeHdfRead) {
+		this.minFramesBeforeHdfRead = minFramesBeforeHdfRead;
 	}
 }

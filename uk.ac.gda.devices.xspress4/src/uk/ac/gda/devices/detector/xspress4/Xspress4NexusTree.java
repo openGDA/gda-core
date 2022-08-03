@@ -19,8 +19,10 @@
 package uk.ac.gda.devices.detector.xspress4;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -106,31 +108,37 @@ public class Xspress4NexusTree {
 	/**
 	 * Convert scalar data and dtc factor data into a NXDetectorData object
 	 *
-	 * @param scalerData list of datasets containing scalar data (one element in list per detector element/channel)
-	 * @param dtcFactorData list of datasets containing dtc factor data (one element in list per detector element/channel)
+	 * @param scalerData list of datasets containing scalar data (one per scalar type, shape =[numFrames, num channels]
+	 * @param dtcFactorData dataset containing DTC data  shape = [num frames, num channels]
 	 * @return
 	 * @throws DeviceException
 	 * @throws NexusException
 	 * @throws ScanFileHolderException
 	 */
-	public NXDetectorData[] getNXDetectorData(List<Dataset> scalerData, List<Dataset> dtcFactorData) throws DeviceException, NexusException, ScanFileHolderException {
+	public NXDetectorData[] getNXDetectorData(List<Dataset> scalerData, Dataset dtcFactorData) throws DeviceException, NexusException, ScanFileHolderException {
 
 		logger.info("Getting NXDetector data from scalar and DTC factor data");
-		logger.debug("Scalar data     : {} channels, shape = {}", scalerData.size(), scalerData.get(0));
-		logger.debug("DTC factor data : {} channels, shape = {}", dtcFactorData.size(), dtcFactorData.get(0));
+		logger.debug("Scalar data     : {} dataset, shape = {}", scalerData.size(), scalerData.get(0));
+		logger.debug("DTC factor data : shape = {}", dtcFactorData);
 
-		// check dimensions are correct
-		if (scalerData.size() != dtcFactorData.size()) {
-			throw new IllegalArgumentException("Scaler and DTC factor data do not have same length.");
+		if (scalerData.size() != controller.getNumScalers()) {
+			throw new IllegalArgumentException("Scaler dataset list does not match expected length. Expected "+controller.getNumScalers()+" values were found "+scalerData.size());
 		}
 
-		if (scalerData.size() != numberDetectorElements) {
-			throw new IllegalArgumentException("Scaler and DTC data arrays does not match expected length. Expected "+numberDetectorElements+" values found "+scalerData.size());
+		// Check DTC and scaler datasets all have the same shape
+		Optional<Dataset> shapeMismatchData = scalerData.stream()
+			.filter(dataSet -> !Arrays.equals(dataSet.getShape(), dtcFactorData.getShape()))
+			.findAny();
 
+		if (shapeMismatchData.isPresent()) {
+			int ind = scalerData.indexOf(shapeMismatchData.get());
+			throw new IllegalArgumentException("Scaler data "+ind+" and DTC data shapes do not match. Expected "+dtcFactorData.toString()+", found "+shapeMismatchData.get());
 		}
+
+
 		int[] dataShape = scalerData.get(0).getShape();
+		int numScalers = scalerData.size();
 		int numFrames = dataShape[0];
-		int numScalers = dataShape[1];
 
 		// Create dataset to store all scaler values from all detector elements for 1 frame
 		Dataset scalerDataset = DatasetFactory.zeros(DoubleDataset.class, numberDetectorElements, numScalers);
@@ -147,13 +155,13 @@ public class Xspress4NexusTree {
 			// Get the data to be added to the frame.
 			for(int i=0; i<numberDetectorElements; i++) {
 				// raw in window counts for element
-				windowCounts[i] = scalerData.get(i).getDouble(frame, inWindowCountsScalerNumber);
+				windowCounts[i] = scalerData.get(inWindowCountsScalerNumber).getDouble(frame, i);
 
 				// Set all scaler values for current frame for detector element
 				for(int j=0; j<numScalers; j++) {
-					scalerDataset.set( scalerData.get(i).getDouble(frame, j), i, j);
+					scalerDataset.set( scalerData.get(j).getDouble(frame, i), i, j);
 				}
-				dtcFactors[i] = dtcFactorData.get(i).getDouble(frame);
+				dtcFactors[i] = dtcFactorData.getDouble(frame, i);
 			}
 
 			NXDetectorData thisFrame = new NXDetectorData(extraNames, outputFormat, detector.getName());

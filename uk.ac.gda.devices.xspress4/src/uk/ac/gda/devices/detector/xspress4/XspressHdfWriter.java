@@ -54,7 +54,8 @@ public class XspressHdfWriter extends ScannableBase {
 
 	/** Path to group in hdf file where datasets will be written to */
 	private String pathToGroup = "/entry/instrument/NDAttributes/";
-	private static final String defaultDataNameFormat = "Chan%02dSca%d";
+	private String defaultDataNameFormat = "Chan%02dSca%d";
+	private String default2dDataNameFormat = "scalar_chan%d";
 
 	/** List of names of datasets to be written to hdf file */
 	private List<String> datasetNames = new ArrayList<>();
@@ -67,6 +68,7 @@ public class XspressHdfWriter extends ScannableBase {
 	private String fileName = "/scratch/testfile.h5";
 	private int numFrames = 50;
 	private double timePerFrame = 0.5;
+	private boolean write2dData = false;
 
 	/** How many frames of data should be added to lazy datasets in each append and write operation */
 	private int numFramesToAppendEachTime = 20;
@@ -102,8 +104,12 @@ public class XspressHdfWriter extends ScannableBase {
 	public void setDefaultNames() {
 		datasetNames = new ArrayList<>();
 		for(int channel=0; channel<numElements; channel++) {
-			for(int scaler=0; scaler<numScalers; scaler++) {
-				datasetNames.add(String.format(defaultDataNameFormat, channel+1, scaler));
+			if (write2dData) {
+				datasetNames.add(String.format(default2dDataNameFormat, channel));
+			} else {
+				for(int scaler=0; scaler<numScalers; scaler++) {
+					datasetNames.add(String.format(defaultDataNameFormat, channel+1, scaler));
+				}
 			}
 		}
 	}
@@ -169,6 +175,13 @@ public class XspressHdfWriter extends ScannableBase {
 		int[] maxShape = {ILazyWriteableDataset.UNLIMITED};
 		int[] chunking = NexusUtils.estimateChunking( new int[] {numFrames}, Double.BYTES);
 
+		if (write2dData) {
+			logger.info("Using 2-dimensional datasets");
+			initialShape = new int[] {0, numScalers};
+			maxShape = new int [] {ILazyWriteableDataset.UNLIMITED, numScalers};
+			chunking = NexusUtils.estimateChunking( new int[] {numFrames, numScalers}, Double.BYTES);
+		}
+
 		for(String datasetName : datasetNames) {
 			logger.info("  {}", datasetName);
 			// create new lazy dataset
@@ -182,6 +195,7 @@ public class XspressHdfWriter extends ScannableBase {
 		}
 	}
 
+
 	/**
 	 * Append up to 'numFramesToWrite' frames of data to lazy datasets.
 	 * @param numFramesToWrite
@@ -193,14 +207,28 @@ public class XspressHdfWriter extends ScannableBase {
 		}
 		int[] start = {currentFrame};
 		int[] stop = {currentFrame+numFramesToWrite};
-		int[] step = {1};
+		Dataset data = DatasetFactory.zeros(DoubleDataset.class, numFramesToWrite);
+
+		if (write2dData) {
+			logger.info("Using 2-dimensional datasets");
+			start = new int[] {currentFrame, 0};
+			stop = new int [] {currentFrame+numFramesToWrite, numScalers};
+			data = DatasetFactory.zeros(DoubleDataset.class, numFramesToWrite, numScalers);
+		}
 
 		logger.debug("Appending values to lazy dataset : start = {}, stop = {}", Arrays.toString(start), Arrays.toString(stop));
 
-		Dataset data = DatasetFactory.zeros(DoubleDataset.class, numFramesToWrite);
 		for(int i=0; i<lazyDatasets.size(); i++) {
-			data.set(i*1000 + currentFrame, 0);
-			lazyDatasets.get(i).setSlice(null, data, start, stop, step);
+			for(int j=0; j<numFramesToWrite; j++) {
+				if (write2dData) {
+					for(int k=0; k<stop[1]; k++) {
+						data.set(i*1000+k*10+j, j, k);
+					}
+				} else {
+					data.set(i*1000 + currentFrame, j);
+				}
+			}
+			lazyDatasets.get(i).setSlice(null, data, start, stop, null);
 		}
 		currentFrame+=numFramesToWrite;
 	}
@@ -277,5 +305,21 @@ public class XspressHdfWriter extends ScannableBase {
 
 	public void setNumFramesToAppendEachTime(int numFramesToAppendEachTime) {
 		this.numFramesToAppendEachTime = numFramesToAppendEachTime;
+	}
+
+	public String getDefaultDataNameFormat() {
+		return defaultDataNameFormat;
+	}
+
+	public void setDefaultDataNameFormat(String defaultDataNameFormat) {
+		this.defaultDataNameFormat = defaultDataNameFormat;
+	}
+
+	public boolean isWrite2dData() {
+		return write2dData;
+	}
+
+	public void setWrite2dData(boolean write2dData) {
+		this.write2dData = write2dData;
 	}
 }

@@ -57,7 +57,8 @@ public enum XspressPvName {
 	SCA_ARRAY_TEMPLATE(":C%d_SCAS"),
 	SCA_TEMPLATE(":C%d_SCA%d:Value_RBV"),
 	RES_GRADE_TEMPLATE(":C%d_SCA%d_RESGRADES"),
-	ARRAY_DATA_TEMPLATE(":ARR%d:ArrayData"),
+	MCA_ARRAY_DATA_TEMPLATE(":ARR%d:ArrayData"),
+	MCA_ARRAY_DATA_ALL(":ARR:ArrayData"),
 	DTC_FACTOR_TEMPLATE(":C%d_DTC_FACTOR"),
 
 	// Low and high window limits for scaler5 and scaler6
@@ -66,6 +67,12 @@ public enum XspressPvName {
 	SCA5_WINDOW_HIGH(":C%d_SCA5_HLM"),
 	SCA6_WINDOW_LOW(":C%d_SCA6_LLM"),
 	SCA6_WINDOW_HIGH(":C%d_SCA6_HLM"),
+
+	// Low and high window limit Rbvs for scaler5 and scaler6
+	SCA5_WINDOW_LOW_RBV(":C%d_SCA5_LLM_RBV"),
+	SCA5_WINDOW_HIGH_RBV(":C%d_SCA5_HLM_RBV"),
+	SCA6_WINDOW_LOW_RBV(":C%d_SCA6_LLM_RBV"),
+	SCA6_WINDOW_HIGH_RBV(":C%d_SCA6_HLM_RBV"),
 
 	// Time series array PVs
 	SCA_TIMESERIES_TEMPLATE(":C%d_SCAS:%d:TSArrayValue"),

@@ -151,6 +151,8 @@ public class XspressHdfWriterTest extends TestBase {
 		Xspress4BufferedDetector xspress4BufferedDetector = new Xspress4BufferedDetector();
 		xspress4BufferedDetector.setName("xspress4BufferedDetector");
 		xspress4BufferedDetector.setXspress4Detector(xspress4detector);
+		xspress4BufferedDetector.getDataProvider().setupSwmrFileReader(true);
+		xspress4BufferedDetector.getDataProvider().openFile(hdfFile);
 
 		// Create NXDetectorData containing the detector data.
 		NXDetectorData[] detectorData = xspress4BufferedDetector.readFrames(0, numFrames-1);

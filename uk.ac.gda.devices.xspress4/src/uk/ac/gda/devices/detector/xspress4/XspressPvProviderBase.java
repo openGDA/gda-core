@@ -40,6 +40,10 @@ public abstract class XspressPvProviderBase {
 	public abstract void createPvs();
 
 	protected String getPvName(XspressPvName pv) {
+		return getPvName(pv, prefix);
+	}
+
+	protected String getPvName(XspressPvName pv, String prefix) {
 		return prefix + pvNameMap.getOrDefault(pv, pv.pvName());
 	}
 

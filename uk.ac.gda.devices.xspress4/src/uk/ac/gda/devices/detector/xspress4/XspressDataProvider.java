@@ -20,6 +20,7 @@ package uk.ac.gda.devices.detector.xspress4;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
@@ -43,6 +44,18 @@ public class XspressDataProvider {
 	private String pathToAttributeDataGroup = "/entry/instrument/NDAttributes/";
 	private String scalerDataNameFormat = "Chan%02dSca%d";
 	private String dtcFactorDataNameFormat = "Chan%02dDTCFactor";
+
+	private List<String> datasetNames = Collections.emptyList();
+
+	private boolean twoDHdfData;
+
+	public boolean isTwoDHdfData() {
+		return twoDHdfData;
+	}
+
+	public void setTwoDHdfData(boolean dataIsTwoD) {
+		this.twoDHdfData = dataIsTwoD;
+	}
 
 	public void setFileReader(SwmrFileReader fileReader) {
 		this.fileReader = fileReader;
@@ -91,30 +104,32 @@ public class XspressDataProvider {
 			return;
 		}
 
+		datasetNames = new ArrayList<>();
+		// Setup list of dataset to be read for each detector element
+		if (twoDHdfData) {
+			// Data is stored in 2-dimensional datasets, 1 dataset per scalar value type (shape = [numFrames, numChannels]
+			for(int i=0; i<xspressController.getNumScalers(); i++) {
+				datasetNames.add(getScalerName(i));
+			}
+			datasetNames.add(getDtcFactorDataNameFormat());
+		} else {
+			for (int chan = 0; chan < xspressController.getNumElements(); chan++) {
+				for(int i=0; i<xspressController.getNumScalers(); i++) {
+					datasetNames.add(getScalerName(chan, i));
+				}
+				datasetNames.add(getDeadtimeCorrectionFactorName(chan));
+			}
+		}
+
 		logger.debug("Creating new Swmr file reader");
 		fileReader = new SwmrFileReader();
 
-		// Setup list of dataset to be read for each detector element
 		logger.debug("Datasets to be read : ");
-		for (int element = 0; element < xspressController.getNumElements(); element++) {
-			for(String datasetName : getAllDatanames(element)) {
-				logger.debug("{}", datasetName);
-				fileReader.addDatasetToRead(datasetName, Paths.get(pathToAttributeDataGroup, datasetName).toString());
-			}
-		}
-	}
-
-	/**
-	 * @param element
-	 * @return List of scaler and DTC factor dataset names for given detector element number
-	 */
-	private List<String> getAllDatanames(int element) {
-		List<String> names = new ArrayList<>();
-		for(int i=0; i<xspressController.getNumScalers(); i++) {
-			names.add(getScalerName(element, i));
-		}
-		names.add(getDeadtimeCorrectionFactorName(element));
-		return names;
+		datasetNames.forEach(n -> {
+			String pathToData = pathToAttributeDataGroup+n;
+			fileReader.addDatasetToRead(n, pathToData);
+			logger.debug("{}", pathToData);
+		});
 	}
 
 	/**
@@ -123,7 +138,7 @@ public class XspressDataProvider {
 	 *
 	 * @param lowFrame
 	 * @param highFrame
-	 * @return List of datasets, one per detector element.
+	 * @return List of datasets, one per scalar type (shape = [num frames, num channels]
 	 * @throws NexusException
 	 * @throws DeviceException
 	 * @throws ScanFileHolderException
@@ -151,7 +166,7 @@ public class XspressDataProvider {
 	 *
 	 * @param lowFrame
 	 * @param highFrame
-	 * @return List of datasets (1 per detector channel/element). Shape [numFrames, numScalers]
+	 * @return List of datasets (1 per scalar, Shape [numFrames, numChannels]
 	 * @throws NexusException
 	 */
 	private List<Dataset> getScalerDataFromSwmr(int lowFrame, int highFrame) throws NexusException {
@@ -159,34 +174,31 @@ public class XspressDataProvider {
 		int[] shape = new int[] { highFrame - lowFrame + 1 };
 		int[] step = new int[] { 1 };
 
-		int totalFramesAvailable = fileReader.getNumAvailableFrames();
 		int numFrames = shape[0];
-
-		logger.debug("{} frames of data available in hdf file, reading {} frames of scaler data", totalFramesAvailable, numFrames);
 		logger.info("Getting scaler values from SWMR file for frames {} to {}", lowFrame, highFrame);
 
 		int numScalers = xspressController.getNumScalers();
+		int numChannels = xspressController.getNumElements();
 
 		// Read shape of the first dataset and see if scaler data is stored in 2d blocks
-		int[] dataShape = fileReader.getCurrentShape(getScalerDataPath(0,0));
+		int[] dataShape = fileReader.getCurrentShape(pathToAttributeDataGroup+datasetNames.get(0));
 		boolean dataIsTwoD = dataShape.length == 2;
 
 		logger.debug("Reading data two dimension scaler datasets : {}", dataIsTwoD);
 
 		List<Dataset> allDatasets = new ArrayList<>();
-		for(int i=0; i<xspressController.getNumElements(); i++) {
-
+		for(int j=0; j<numScalers; j++) {
 			Dataset dataForChannel;
 			if (dataIsTwoD) {
-				dataForChannel = fileReader.readDataset(getScalerDataPath(i), new int[] {lowFrame, 0}, new int[] {numFrames, numScalers}, new int[] {1,1});
+				dataForChannel = fileReader.readDataset(getScalerDataPath(j), new int[] {lowFrame, 0}, new int[] {numFrames, numChannels}, new int[] {1,1});
 			} else {
-				// Read all the scaler datasets for detector element and put into a single 2d dataset
-				dataForChannel = DatasetFactory.zeros(numFrames, numScalers);
-				for(int j=0; j<numScalers; j++) {
+				dataForChannel = DatasetFactory.zeros(numFrames, numChannels);
+				// Read scaler type across all channels into 2d dataset
+				for(int i=0; i<xspressController.getNumElements(); i++) {
 					String scalerDataPath = getScalerDataPath(i, j);
 					Dataset scalerData = fileReader.readDataset(scalerDataPath, start, shape, step);
 					scalerData.setShape(numFrames, 1);
-					dataForChannel.setSlice(scalerData, new int[] {0, j}, new int[] {numFrames, j+1}, null);
+					dataForChannel.setSlice(scalerData, new int[] {0, i}, new int[] {numFrames, i+1}, null);
 				}
 			}
 			allDatasets.add(dataForChannel);
@@ -239,10 +251,10 @@ public class XspressDataProvider {
 	 * Read deadtime correction factor datasets from detector SWMR file or array PVs across specified range of frames.<p>
 	 * @param lowFrame
 	 * @param highFrame
-	 * @return List of datasets, one per detector element. Shape = [numFrames]
+	 * @return Datasets, element. Shape = [numFrames, num channels]
 	 * @throws NexusException
 	 */
-	public List<Dataset> getDtcFactorData(int lowFrame, int highFrame) throws NexusException {
+	public Dataset getDtcFactorData(int lowFrame, int highFrame) throws NexusException {
 		if (fileReader == null) {
 			return getDtcDataFromPvs(lowFrame, highFrame);
 		} else {
@@ -258,14 +270,10 @@ public class XspressDataProvider {
 	 * @param highFrame
 	 * @return list of datasets (1 per channel/detector element). Shape = [highFrame - lowFrame + 1]
 	 */
-	private List<Dataset> getDtcDataFromPvs(int lowFrame, int highFrame){
+	private Dataset getDtcDataFromPvs(int lowFrame, int highFrame){
 		logger.info("Getting DTC factor values from PVs for frames {} to {}", lowFrame, highFrame);
-		List<Dataset> values = new ArrayList<>();
 		int numFrames = highFrame - lowFrame + 1;
-		for(int i=0; i<xspressController.getNumElements(); i++) {
-			values.add(DatasetFactory.ones(numFrames));
-		}
-		return values;
+		return DatasetFactory.ones(DoubleDataset.class, numFrames, xspressController.getNumElements());
 	}
 
 	/**
@@ -273,22 +281,31 @@ public class XspressDataProvider {
  	 * These might not be present in old versions of IOC, in which case a warning is logger and values as are substituted with 1s.
 	 * @param lowFrame
 	 * @param highFrame
-	 * @return list of datasets (1 per channel/detector element). Shape = [numFrames]
+	 * @return datasets. Shape = [numFrames, num channels]
 	 * @throws NexusException
 	 */
-	private List<Dataset> getDtcDataFromSwmr(int lowFrame, int highFrame) throws NexusException{
+	private Dataset getDtcDataFromSwmr(int lowFrame, int highFrame) throws NexusException{
 		logger.info("Getting DTC factor values from SWMR file for frames {} to {}", lowFrame, highFrame);
-		List<Dataset> values = new ArrayList<>();
 		int numFrames = highFrame - lowFrame + 1;
-		for(int i=0; i<xspressController.getNumElements(); i++) {
-			Dataset dtcFactorData = fileReader.readDataset(getDtcFactorDataPath(i), new int[] {lowFrame}, new int[] {numFrames}, new int[] {1});
-			if (dtcFactorData == null) {
-				logger.warn("Could not read DTC factor data from {}. Substituting values with 1", getDtcFactorDataPath(i));
-				dtcFactorData = DatasetFactory.ones(numFrames);
+		if (twoDHdfData) {
+			return fileReader.readDataset(getDtcFactorDataPath(0), new int[] {lowFrame, 0}, new int[] {numFrames, xspressController.getNumElements()}, new int[] {1,1});
+		} else {
+			int[] start = {lowFrame};
+			int[] shape = {numFrames};
+			int[] step = {1};
+			Dataset dataForChannel = DatasetFactory.zeros(numFrames, xspressController.getNumElements());
+			for(int i=0; i<xspressController.getNumElements(); i++) {
+				String dataPath = getDtcFactorDataPath(i);
+				Dataset scalerData = fileReader.readDataset(dataPath, start, shape, step);
+				if (scalerData == null) {
+					logger.warn("DTC data {} is not present in Hdf file- replacing with 1s", dataPath);
+					scalerData = DatasetFactory.ones(numFrames, 1);
+				}
+				scalerData.setShape(numFrames, 1);
+				dataForChannel.setSlice(scalerData, new int[] {0, i}, new int[] {numFrames, i+1}, null);
 			}
-			values.add(dtcFactorData);
+			return dataForChannel;
 		}
-		return values;
 	}
 
 	/**
@@ -298,13 +315,13 @@ public class XspressDataProvider {
 	 * @param scaler scaler number
 	 * @return
 	 */
-	private String getScalerName(int element, int scaler) {
-		int numSubs = (int) scalerDataNameFormat.chars().filter(c -> c=='%').count();
-		if (numSubs == 1 ) {
-			return String.format(scalerDataNameFormat, element);
-		}else {
-			return String.format(scalerDataNameFormat, element+1, scaler);
+	private String getScalerName(int... values) {
+		if (values.length==1) {
+			return String.format(scalerDataNameFormat, values[0]);
+		} else if (values.length==2) {
+			return String.format(scalerDataNameFormat, values[0]+1, values[1]);
 		}
+		return scalerDataNameFormat;
 	}
 
 	/**
@@ -312,7 +329,7 @@ public class XspressDataProvider {
 	 * @return Name of 'deadtime correction factor' dataset in hdf file for specified detector element
 	 */
 	private String getDeadtimeCorrectionFactorName(int element) {
-		return String.format(dtcFactorDataNameFormat, element);
+		return String.format(dtcFactorDataNameFormat, element+1);
 	}
 
 	/**
@@ -320,12 +337,8 @@ public class XspressDataProvider {
 	 * @param scaler
 	 * @return Path to scaler data in Hdf file for given channel and scaler number.
 	 */
-	private String getScalerDataPath(int channel, int scaler) {
-		return Paths.get(pathToAttributeDataGroup, getScalerName(channel, scaler)).toString();
-	}
-
-	private String getScalerDataPath(int channel) {
-		return getScalerDataPath(channel, 0);
+	private String getScalerDataPath(int... values) {
+		return Paths.get(pathToAttributeDataGroup, getScalerName(values)).toString();
 	}
 
 	/**

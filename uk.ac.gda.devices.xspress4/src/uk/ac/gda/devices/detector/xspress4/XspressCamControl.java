@@ -27,9 +27,13 @@ import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DET_CONNECTED;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DISCONNECT;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.DTC_ENERGY_KEV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA5_WINDOW_HIGH;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA5_WINDOW_HIGH_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA5_WINDOW_LOW;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA5_WINDOW_LOW_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA6_WINDOW_HIGH;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA6_WINDOW_HIGH_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA6_WINDOW_LOW;
+import static uk.ac.gda.devices.detector.xspress4.XspressPvName.SCA6_WINDOW_LOW_RBV;
 import static uk.ac.gda.devices.detector.xspress4.XspressPvName.TRIGGER_MODE_TEMPLATE;
 
 import java.util.ArrayList;
@@ -71,6 +75,12 @@ public class XspressCamControl extends XspressPvProviderBase {
 	protected List<PV<Integer>> pvScaler6LowLimit;
 	protected List<PV<Integer>> pvScaler6HighLimit;
 
+	/** Pvs for getting the Readback values of scaler window limits (one PV per channel of the detector) */
+	protected List<PV<Integer>> pvScaler5LowLimitRbv;
+	protected List<PV<Integer>> pvScaler5HighLimitRbv;
+	protected List<PV<Integer>> pvScaler6LowLimitRbv;
+	protected List<PV<Integer>> pvScaler6HighLimitRbv;
+
 	/** Detector state Pvs **/
 	protected ReadOnlyPV<XSPRESS3_EPICS_STATUS> pvGetState = null;
 	protected PV<Integer> pvConnect = null;
@@ -100,6 +110,11 @@ public class XspressCamControl extends XspressPvProviderBase {
 		pvScaler6LowLimit = createWindowLimitPvs(getPvName(SCA6_WINDOW_LOW));
 		pvScaler6HighLimit = createWindowLimitPvs(getPvName(SCA6_WINDOW_HIGH));
 
+		pvScaler5LowLimitRbv = createWindowLimitPvs(getPvName(SCA5_WINDOW_LOW_RBV));
+		pvScaler5HighLimitRbv = createWindowLimitPvs(getPvName(SCA5_WINDOW_HIGH_RBV));
+		pvScaler6LowLimitRbv = createWindowLimitPvs(getPvName(SCA6_WINDOW_LOW_RBV));
+		pvScaler6HighLimitRbv = createWindowLimitPvs(getPvName(SCA6_WINDOW_HIGH_RBV));
+
 		pvConnect = LazyPVFactory.newIntegerPV(getPvName(CONNECT));
 		pvDisconnect = LazyPVFactory.newIntegerPV(getPvName(DISCONNECT));
 		pvIsConnected = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(getPvName(DET_CONNECTED));
@@ -115,7 +130,9 @@ public class XspressCamControl extends XspressPvProviderBase {
 
 	@Override
 	protected Stream<ReadOnlyPV<?>> getPvs() {
-		Stream<ReadOnlyPV<?>> windowPvs = Stream.of(pvScaler5LowLimit, pvScaler5HighLimit, pvScaler6HighLimit, pvScaler6LowLimit).flatMap(Collection::stream);
+		Stream<ReadOnlyPV<?>> windowPvs = Stream.of(pvScaler5LowLimit, pvScaler5HighLimit, pvScaler6HighLimit, pvScaler6LowLimit,
+											pvScaler5LowLimitRbv, pvScaler5HighLimitRbv, pvScaler6HighLimitRbv, pvScaler6LowLimitRbv)
+										.flatMap(Collection::stream);
 		Stream<ReadOnlyPV<?>> controlPvs=  Stream.of(pvTriggerMode, pvAcquireTime, pvArrayCounter, pvArrayCounterRbv,
 				pvDtcEnergyKev, pvAcquire, pvNumImages, pvNumImagesRbv, pvGetState,
 				pvConnect, pvDisconnect, pvIsConnected);

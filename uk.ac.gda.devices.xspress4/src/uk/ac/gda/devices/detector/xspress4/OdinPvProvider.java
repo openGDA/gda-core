@@ -59,7 +59,10 @@ public class OdinPvProvider extends XspressPvProviderBase {
 		pvMetaIsConnectedRbv = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(getPvName(META_CONNECTED_RBV));
 		pvMetaIsActiveRbv = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(getPvName(META_ACQUISITION_ACTIVE_RBV));
 		pvMetaIsWritingRbv = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(getPvName(META_WRITING_RBV));
-		pvSofwareTrigger = LazyPVFactory.newIntegerPV(getPvName(TRIGGER_DETECTOR));
+	}
+
+	public void createCamPvs(String camPrefix) {
+		pvSofwareTrigger = LazyPVFactory.newIntegerPV(getPvName(TRIGGER_DETECTOR, camPrefix));
 	}
 
 	@Override
