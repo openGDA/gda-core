@@ -18,18 +18,16 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
-import gda.data.nexus.extractor.NexusGroupData;
+import java.util.Arrays;
+import java.util.List;
+
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.ArrayData;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NonAsynchronousNXPlugin;
 import gda.scan.ScanInformation;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 
@@ -170,27 +168,4 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 		this.ndArrayPortVal = ndArrayPortVal;
 	}
 
-}
-class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
-	private boolean firstReadoutInScan=true;
-	private NexusGroupData arrayData;
-
-	NXDetectorDataArrayAppender(NexusGroupData arrayData2, boolean firstReadoutInScan)  {
-		arrayData = arrayData2;
-		this.firstReadoutInScan = firstReadoutInScan;
-	}
-
-	@Override
-	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
-		try {
-			arrayData.isDetectorEntryData = true;
-			data.addData(detectorName, "data", arrayData, null, 1);
-			if (firstReadoutInScan) {
-				// TODO add sensible axes
-				firstReadoutInScan=false;
-			}
-		} catch (Exception e) {
-			throw new DeviceException(e);
-		}
-	}
 }
