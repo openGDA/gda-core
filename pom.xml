@@ -20,6 +20,11 @@
 		<module>documentation.gda</module>
 		<!--module>example-config</module-->
 		<module>org.apache.derby.fragment.daq.persistence</module>
+		<module>org.dawnsci.common.live</module>
+		<module>org.dawnsci.datavis.live</module>
+		<module>org.dawnsci.datavis.live.test</module>
+		<module>org.dawnsci.mapping.ui.live</module>
+		<module>org.dawnsci.visualisation.remote.feature</module>
 		<module>org.opengda.lde</module>
 		<module>org.opengda.lde.model</module>
 		<module>org.opengda.lde.model.edit</module>
