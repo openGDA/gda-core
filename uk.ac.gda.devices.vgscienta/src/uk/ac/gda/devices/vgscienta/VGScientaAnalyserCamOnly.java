@@ -49,14 +49,15 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
+import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
-import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
+import uk.ac.diamond.daq.pes.api.IElectronAnalyserWithDeflector;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@ServiceInterface(IElectronAnalyser.class)
-public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IElectronAnalyser {
+@ServiceInterface(IElectronAnalyserWithDeflector.class)
+public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IElectronAnalyserWithDeflector {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCamOnly.class);
 
 	protected boolean inScan = false;
@@ -89,6 +90,8 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 
 	private double acquireTimeRBV;
 	private int[] dataShape;
+
+	private AnalyserDeflectorRangeConfiguration deflectorRangeConfiguration;
 
 	/**
 	 * This is the energy covered by one pixel in pass energy 1 in meV
@@ -981,5 +984,27 @@ public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListe
 	@Override
 	public int getMaximumNumberOfSteps() {
 		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public double getDeflectorX() throws DeviceException {
+		return controller.getDeflectorX();
+	}
+
+	@Override
+	public void setDeflectorX(double deflectorX) throws DeviceException {
+		controller.setDeflectorX(deflectorX);
+	}
+
+	@Override
+	public AnalyserDeflectorRangeConfiguration getDeflectorRangeConfiguration() {
+		if (deflectorRangeConfiguration == null) {
+			logger.error("No deflector range configured");
+		}
+		return deflectorRangeConfiguration;
+	}
+
+	public void setDeflectorRangeConfiguration(AnalyserDeflectorRangeConfiguration deflectorRangeConfiguration) {
+		this.deflectorRangeConfiguration = deflectorRangeConfiguration;
 	}
 }
