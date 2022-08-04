@@ -90,9 +90,11 @@
 		<module>uk.ac.gda.client.ncd</module>
 		<module>uk.ac.gda.client.ncd.feature</module>
 		<module>uk.ac.gda.client.test</module>
+		<module>uk.ac.gda.common</module>
 		<module>uk.ac.gda.common.client</module>
 		<module>uk.ac.gda.common.rcp</module>
 		<module>uk.ac.gda.common.rcp.test</module>
+		<module>uk.ac.gda.common.test</module>
 		<module>uk.ac.gda.core</module>
 		<module>uk.ac.gda.core.test</module>
 		<module>uk.ac.gda.edxd.calibration</module>
@@ -104,6 +106,7 @@
 		<module>uk.ac.gda.example.server</module>
 		<module>uk.ac.gda.logging.dependencies.fragment</module>
 		<module>uk.ac.gda.lookuptable.editor</module>
+		<module>uk.ac.gda.test.helpers</module>
 		<module>uk.ac.gda.server.ncd</module>
 		<module>uk.ac.gda.server.ncd.epics</module>
 		<module>uk.ac.gda.server.ncd.test</module>
