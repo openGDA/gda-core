@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,38 +47,38 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.RandomIntDetector;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class TemplateScanTest extends NexusTest {
+class TemplateScanTest extends NexusTest {
 
 	private static final String TEMPLATE_FILE_PATH = "testfiles/test-template.yaml";
 
 	private RandomIntDetector detector;
 	private IScannable<?> monitor;
 
-	@Before
-	public void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		detector = new RandomIntDetector();
 		detector.configure(new SimpleDetectorModel("det1", 0.1));
 		monitor = connector.getScannable("temp");
 	}
 
 	@Test
-	public void testTemplateScan() throws Exception {
+	void testTemplateScan() throws Exception {
 		final String templateFileAbsolutePath =
 				Paths.get(TEMPLATE_FILE_PATH).toAbsolutePath().toString();
 		final IRunnableDevice<ScanModel> scanner = createAndRunTemplateScan(templateFileAbsolutePath);
 		checkNexusFile(scanner);
 	}
 
-	@Test(expected = ScanningException.class)
-	public void testTemplateScanNonExistantFile() throws Exception {
-		createAndRunTemplateScan("testfiles/nonExist.yaml");
+	@Test
+	void testTemplateScanNonExistantFile() {
+		assertThrows(ScanningException.class, () -> createAndRunTemplateScan("testfiles/nonExist.yaml"));
 	}
 
 	@Test
-	public void testTemplateRelativeFilePath() throws Exception {
+	void testTemplateRelativeFilePath() throws Exception {
 		// create a temporary file path within the persistence dir (/tmp/var here, gda.var in GDA)
 		final String persistenceDir = ServiceTestHelper.getFilePathService().getPersistenceDir();
 		final Path templateFilePath = Files.createTempFile(Paths.get(persistenceDir), "test-template", ".yaml");

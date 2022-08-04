@@ -53,25 +53,25 @@ import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.PosDetectorModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("Flaky new-scanning test")
-public class PosDetectorScanTest extends NexusTest {
+@Disabled("Flaky new-scanning test")
+class PosDetectorScanTest extends NexusTest {
 
 	private IWritableDetector<PosDetectorModel> detector;
 
-	@Before
-	public void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		final PosDetectorModel model = new PosDetectorModel(3);
 		detector = TestDetectorHelpers.createAndConfigurePosDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
 
-	@After
-	public void after() throws Exception {
+	@AfterEach
+	void after() {
 		File parentDir = output.getParentFile();
 		String fileName = output.getName().substring(0, output.getName().indexOf('.'));
 		File outputDir = new File(parentDir, fileName);
@@ -82,7 +82,7 @@ public class PosDetectorScanTest extends NexusTest {
 	}
 
 	@Test
-	public void testPosScan() throws Exception {
+	void testPosScan() throws Exception {
 		final int[] scanShape = new int[] { 8, 5 };
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, scanShape);
 		// add a the UniqueKeyChecker as a position listener to check the unique key is written at each point

@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThrows;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.points.IPointGenerator;
@@ -15,29 +16,29 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.RandomLineDevice;
 import org.eclipse.scanning.example.detector.RandomLineModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ScanTimeoutTest extends NexusTest {
+class ScanTimeoutTest extends NexusTest {
 
 	private RandomLineDevice linedetector;
 
-	@Before
-	public void before() throws ScanningException {
+	@BeforeEach
+	void before() throws ScanningException {
 		final RandomLineModel rlModel = new RandomLineModel();
 		rlModel.setTimeout(10);
 		linedetector = (RandomLineDevice) TestDetectorHelpers.createAndConfigureRandomLineDetector(rlModel);
 		assertThat(linedetector, is(notNullValue()));
 	}
 
-	@After
-	public void after() throws Exception {
+	@AfterEach
+	void after() throws Exception {
 		linedetector.reset();
 	}
 
 	@Test
-	public void testLine() throws Exception {
+	void testLine() throws Exception {
 		final IRunnableDevice<ScanModel> scanner = createScanner(linedetector,  2, 2);
 		scanner.run(null);
 
@@ -46,32 +47,29 @@ public class ScanTimeoutTest extends NexusTest {
 		assertThat(linedetector.getCount("write"), is(4));
 	}
 
-	@Test(expected=ScanningException.class)
-	public void testLineTimeoutThrowsException() throws Exception {
-
+	@Test
+	void testLineTimeoutThrowsException() throws Exception {
 		try {
 			linedetector.getModel().setExposureTime(2); // Sleeps for 2 seconds.
 			linedetector.getModel().setTimeout(1);      // Only 1 second allowed.
 
 			// All scannables should have their name set ok
 			final IRunnableDevice<ScanModel> scanner = createScanner(linedetector, 2, 2);
-			scanner.run(null);
+			assertThrows(ScanningException.class, () -> scanner.run(null));
 		} finally {
 			linedetector.getModel().setExposureTime(0);
 			linedetector.getModel().setTimeout(-1);
 		}
 	}
 
-	@Test(expected=ScanningException.class)
-	public void testLineThrowsWriteException() throws Exception {
-
+	@Test
+	void testLineThrowsWriteException() throws Exception {
 		try {
 			linedetector.setThrowWriteExceptions(true);
 
 			// All scannables should have their name set ok
 			final IRunnableDevice<ScanModel> scanner = createScanner(linedetector, 2, 2);
-			scanner.run(null);
-
+			assertThrows(ScanningException.class, () -> scanner.run(null));
 		} finally {
 			linedetector.setThrowWriteExceptions(false);
 		}
@@ -79,7 +77,7 @@ public class ScanTimeoutTest extends NexusTest {
 
 
 	@Test
-	public void testMultiStep() throws Exception {
+	void testMultiStep() throws Exception {
 		final IRunnableDevice<ScanModel> scanner = createMultiStepScanner(linedetector);
 		final long before = System.currentTimeMillis();
 		scanner.run();

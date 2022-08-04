@@ -53,10 +53,10 @@ import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class CompositeNexusScannableTest extends NexusTest {
+class CompositeNexusScannableTest extends NexusTest {
 
 	private static final class BeamPerScanMonitor extends MockScannable implements INexusDevice<NXbeam> {
 
@@ -146,8 +146,8 @@ public class CompositeNexusScannableTest extends NexusTest {
 
 	private static final int[] SCAN_SIZE = { 2, 3 };
 
-	@BeforeClass
-	public static void beforeClass() throws Exception {
+	@BeforeAll
+	static void beforeClass() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
@@ -157,7 +157,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	}
 
 	@Test
-	public void testNXSlitCompositeNexusScannable() throws Exception {
+	void testNXSlitCompositeNexusScannable() throws Exception {
 		// Arrange
 		final CompositeNexusScannable<NXslit> primarySlit = new CompositeNexusScannable<>();
 		primarySlit.setName("primary_slit");
@@ -286,7 +286,7 @@ public class CompositeNexusScannableTest extends NexusTest {
 	}
 
 	@Test
-	public void testCompositeNexusScannable() throws Exception {
+	void testCompositeNexusScannable() throws Exception {
 		// Create a list of 3 ChildFieldNodes and 5 ChildGroupNodes
 		final int numFieldNodes = 3;
 		final int numGroupNodes = 5;

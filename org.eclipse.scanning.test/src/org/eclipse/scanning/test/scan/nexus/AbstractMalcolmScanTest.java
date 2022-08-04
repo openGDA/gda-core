@@ -72,8 +72,8 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractMalcolmScanTest extends NexusTest {
 
@@ -83,7 +83,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 
 	protected MockScanParticpiant participant;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		// create a temp directory for the dummy malcolm device to write hdf files into
 		malcolmOutputDir = ServiceTestHelper.getFilePathService().createFolderForLinkedFiles(output.getName());
@@ -103,7 +103,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 		scanService.addScanParticipant(participant);
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		// delete the temp directory and all its files
 		for (File file : new File(malcolmOutputDir).listFiles()) {

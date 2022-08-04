@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.scan.nexus;
 
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertAxes;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertDiamondScanGroup;
 import static org.eclipse.dawnsci.nexus.test.utilities.NexusAssert.assertIndices;
@@ -23,9 +24,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -73,14 +72,13 @@ import org.eclipse.scanning.example.scannable.MockNeXusSlit;
 import org.eclipse.scanning.example.scannable.MockScannableConfiguration;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PerScanMonitorTest extends NexusTest {
+class PerScanMonitorTest extends NexusTest {
 
-	@Before
-	public void beforeTest() throws Exception {
+	@BeforeEach
+	void beforeTest() throws Exception {
 		// Make a few detectors and models...
 		final MockScannableConfiguration dcsModel = new MockScannableConfiguration();
 		dcsModel.setXGapName("s1gapX");
@@ -114,7 +112,7 @@ public class PerScanMonitorTest extends NexusTest {
 	@Test
 	public void modelCheck() throws Exception {
 		final MockScannableConfiguration conf = new MockScannableConfiguration("s1gapX", "s1gapY", "s1cenX", "s1cenY");
-		assertEquals(conf, ((AbstractScannable<?>)connector.getScannable("dcs")).getModel());
+		assertThat(((AbstractScannable<?>) connector.getScannable("dcs")).getModel(), is(equalTo(conf)));
 	}
 
 	@Test
@@ -144,8 +142,7 @@ public class PerScanMonitorTest extends NexusTest {
 		((MockScannableConnector) connector).setGlobalPerScanMonitorNames("perScanMonitor3");
 		((MockScannableConnector) connector).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor3", "perScanMonitor4", "perScanMonitor5");
 		((MockScannableConnector) connector).setGlobalPerScanMonitorPrerequisiteNames("perScanMonitor5", "perScanMonitor6");
-		test("monitor1", "perScanMonitor1", "perScanMonitor2",
-				"perScanMonitor3", "perScanMonitor4", "perScanMonitor5", "perScanMonitor6");
+		test("monitor1", "perScanMonitor1", "perScanMonitor2", "perScanMonitor3", "perScanMonitor4", "perScanMonitor5", "perScanMonitor6");
 	}
 
 	@Test
@@ -200,7 +197,7 @@ public class PerScanMonitorTest extends NexusTest {
         final Optional<IScannable<?>> firstMonitor = scanModel.getMonitorsPerPoint().stream().findFirst();
         final String dataGroupName = firstMonitor.map(INameable::getName).orElse(pos.getNames().get(0));
 		final NXdata nxData = entry.getData(dataGroupName);
-		assertNotNull(nxData);
+		assertThat(nxData, is(notNullValue()));
 
 		// Check axes
 		final String[] expectedAxesNames = scannableNames.stream().map(x -> x + "_value_set").toArray(String[]::new);
@@ -219,7 +216,7 @@ public class PerScanMonitorTest extends NexusTest {
 			assertThat(dataset.getShape(), is(equalTo(new int[] { sizes[i] })));
 
 			String nxDataFieldName = scannableName + "_value_set";
-			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+			assertThat(dataNode, is(sameInstance(nxData.getDataNode(nxDataFieldName))));
 			assertIndices(nxData, nxDataFieldName, i);
 			assertTarget(nxData, nxDataFieldName, rootNode,
 					"/entry/instrument/" + scannableName + "/value_set");
@@ -230,7 +227,7 @@ public class PerScanMonitorTest extends NexusTest {
 			assertThat(dataset.getShape(), is(equalTo(sizes)));
 
 			nxDataFieldName = scannableName + "_" + NXpositioner.NX_VALUE;
-			assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
+			assertThat(dataNode, is(sameInstance(nxData.getDataNode(nxDataFieldName))));
 			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
 			assertTarget(nxData, nxDataFieldName, rootNode,
 					"/entry/instrument/" + scannableName + "/" + NXpositioner.NX_VALUE);
@@ -240,10 +237,10 @@ public class PerScanMonitorTest extends NexusTest {
 	private void checkPerScanMonitors(final ScanModel scanModel, NXentry entry,
 			Set<String> expectedPerScanMonitorNames) throws Exception {
 		final Set<String> perScanMonitorNames = scanModel.getMonitorsPerScan().stream()
-				.map(INameable::getName).collect(Collectors.toSet());
+				.map(INameable::getName).collect(toSet());
 		final Set<String> nexusDeviceNames = scanModel.getAdditionalScanObjects().stream()
 				.filter(INexusDevice.class::isInstance).map(INexusDevice.class::cast)
-				.map(INexusDevice::getName).collect(Collectors.toSet());
+				.map(INexusDevice::getName).collect(toSet());
 
 		final Set<String> perScanAndNexusDeviceNames = new HashSet<>(perScanMonitorNames);
 		perScanAndNexusDeviceNames.addAll(nexusDeviceNames);
@@ -265,7 +262,7 @@ public class PerScanMonitorTest extends NexusTest {
 				checkUser((NXuser) nexusObjectForDevice, perScanMonitorName);
 				break;
 			default:
-				Assert.fail("Unexpected nexus base class: " + nexusObjectForDevice.getNexusBaseClass());
+				fail("Unexpected nexus base class: " + nexusObjectForDevice.getNexusBaseClass());
 			}
 		}
 	}
@@ -313,7 +310,7 @@ public class PerScanMonitorTest extends NexusTest {
 		assertThat(dataset.getElementDoubleAbs(0), is(closeTo(expectedValue, 1e-15)));
 
 		dataNode = slit.getDataNode(NXslit.NX_Y_GAP);
-		assertNotNull(dataNode);
+		assertThat(dataNode, is(notNullValue()));
 		dataset = DatasetUtils.sliceAndConvertLazyDataset(dataNode.getDataset());
 		assertThat(dataset.getSize(), is(1));
 		assertThat(dataset, is(instanceOf(DoubleDataset.class)));

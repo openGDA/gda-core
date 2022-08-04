@@ -29,12 +29,12 @@ import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
+class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 
 	@Test
-	public void testMalcolmAcquire() throws Exception {
+	void testMalcolmAcquire() throws Exception {
 		final IRunnableDevice<ScanModel> scanner = createAcquireScan(malcolmDevice, output);
 		scanner.run(null);
 
@@ -75,6 +75,5 @@ public class MalcolmAcquireTest extends AbstractMalcolmScanTest {
 
 		return scanner;
 	}
-
 
 }

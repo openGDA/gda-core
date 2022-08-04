@@ -53,12 +53,12 @@ import org.eclipse.scanning.api.scan.models.ScanMetadata;
 import org.eclipse.scanning.api.scan.models.ScanMetadata.MetadataType;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.RandomIntDetector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class NexusAppDefValidationTest extends NexusTest {
+class NexusAppDefValidationTest extends NexusTest {
 
 	private static final String VALID_TEMPLATE_PATH = "testfiles/test-template.yaml";
 	private static final String INVALID_TEMPLATE_PATH = "testfiles/invalid-template.yaml";
@@ -66,21 +66,21 @@ public class NexusAppDefValidationTest extends NexusTest {
 	private RandomIntDetector detector;
 	private IScannable<?> monitor;
 
-	@BeforeClass
-	public static void setUpBeforeClass() {
+	@BeforeAll
+	static void setUpBeforeClass() {
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
 		final NexusValidationService validationService = new NexusValidationServiceImpl();
 		validationService.setValidateDiamond(false);
 		new ServiceHolder().setNexusValidationService(validationService);
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() {
+	@AfterAll
+	static void tearDownAfterClass() {
 		System.clearProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS);
 	}
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 		detector = new RandomIntDetector();
 		detector.configure(new SimpleDetectorModel("det1", 0.1));
 		monitor = connector.getScannable("temp");
@@ -109,7 +109,7 @@ public class NexusAppDefValidationTest extends NexusTest {
 	}
 
 	@Test
-	public void testNexusValidationMainEntry() throws Exception {
+	void testNexusValidationMainEntry() throws Exception {
 		final ScanMetadata entryMetadata = new ScanMetadata(MetadataType.ENTRY);
 		entryMetadata.addField(NXentry.NX_DEFINITION, NexusApplicationDefinition.NX_TOMO.toString());
 		final List<ScanMetadata> scanMetadata = Arrays.asList(entryMetadata);
@@ -120,7 +120,7 @@ public class NexusAppDefValidationTest extends NexusTest {
 	}
 
 	@Test
-	public void testNexusValidationMainSubentry() throws Exception {
+	void testNexusValidationMainSubentry() throws Exception {
 		final INexusDevice<NXsubentry> subEntryDevice = new INexusDevice<NXsubentry>() {
 
 			@Override
@@ -144,12 +144,12 @@ public class NexusAppDefValidationTest extends NexusTest {
 	}
 
 	@Test
-	public void testNexusValidationSecondEntryValid() throws Exception {
+	void testNexusValidationSecondEntryValid() throws Exception {
 		assertThat(testNexusValidatationTemplate(VALID_TEMPLATE_PATH).isOk(), is(true));
 	}
 
 	@Test
-	public void testNexusValidationSecondEntryInvalid() throws Exception {
+	void testNexusValidationSecondEntryInvalid() throws Exception {
 		assertThat(testNexusValidatationTemplate(INVALID_TEMPLATE_PATH).isError(), is(true));
 	}
 

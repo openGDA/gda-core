@@ -68,16 +68,16 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.jython.IBatonStateProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
 
-public class DiamondDefaultNexusStructureTest extends NexusTest {
+class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private static final String BEAM_DEVICE_NAME = "beam";
 	private static final String INSERTION_DEVICE_NAME = "insertion_device";
@@ -149,8 +149,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 
 	private IWritableDetector<MandelbrotModel> detector;
 
-	@BeforeClass
-	public static void setupBeforeClass() {
+	@BeforeAll
+	static void setupBeforeClass() {
 		new org.eclipse.dawnsci.nexus.scan.ServiceHolder().setNexusValidationService(new NexusValidationServiceImpl());
 
 		System.setProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS, Boolean.toString(true));
@@ -158,8 +158,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		System.setProperty(SYSTEM_PROPERTY_NAME_END_STATION, END_STATION);
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() {
+	@AfterAll
+	static void tearDownAfterClass() {
 		System.clearProperty(SYSTEM_PROPERTY_NAME_VALIDATE_NEXUS);
 		System.clearProperty(SYSTEM_PROPERTY_NAME_INSTRUMENT);
 		System.clearProperty(SYSTEM_PROPERTY_NAME_END_STATION);
@@ -167,8 +167,8 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 		new ServiceHolder().setCommonBeamlineDevicesConfiguration(null);
 	}
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 		MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertNotNull(detector);
@@ -342,7 +342,7 @@ public class DiamondDefaultNexusStructureTest extends NexusTest {
 	}
 
 	@Test
-	public void testSimpleScan() throws Exception {
+	void testSimpleScan() throws Exception {
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, SHAPE);
 		scanner.run(null);
 

@@ -36,10 +36,10 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.nexus.DefaultDataGroupConfiguration;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class DefaultDataGroupConfigurationTest extends NexusTest {
+class DefaultDataGroupConfigurationTest extends NexusTest {
 
 	private static final String IMAGE_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME;
 	private static final String SPECTRUM_DATA_GROUP_NAME = MANDELBROT_DETECTOR_NAME + "_" + FIELD_NAME_SPECTRUM;
@@ -49,46 +49,46 @@ public class DefaultDataGroupConfigurationTest extends NexusTest {
 
 	private static IWritableDetector<MandelbrotModel> detector;
 
-	@BeforeClass
-	public static void before() throws Exception {
+	@BeforeAll
+	static void beforeAll() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
-	public void testNoDefaultDataGroupConfiguration() throws Exception {
+	void testNoDefaultDataGroupConfiguration() throws Exception {
 		runScanAndCheckNexusFile(IMAGE_DATA_GROUP_NAME);
 	}
 
 	@Test
-	public void testDefaultGroupConfiguration() throws Exception {
+	void testDefaultGroupConfiguration() throws Exception {
 		final String dataGroupName = SPECTRUM_DATA_GROUP_NAME;
 		createDefaultDataGroupConfiguration(dataGroupName);
 		runScanAndCheckNexusFile(dataGroupName);
 	}
 
 	@Test
-	public void testDefaultGroupConfigurationNoSuchGroup() throws Exception {
+	void testDefaultGroupConfigurationNoSuchGroup() throws Exception {
 		createDefaultDataGroupConfiguration("nonExist");
 		runScanAndCheckNexusFile(IMAGE_DATA_GROUP_NAME);
 	}
 
 	@Test
-	public void testDefaultGroupConfigurationListFirst() throws Exception {
+	void testDefaultGroupConfigurationListFirst() throws Exception {
 		final String dataGroupName = VALUE_DATA_GROUP_NAME;
 		createDefaultDataGroupConfiguration(dataGroupName, "nonExist");
 		runScanAndCheckNexusFile(dataGroupName);
 	}
 
 	@Test
-	public void testDefaultGroupConfigurationListSecond() throws Exception {
+	void testDefaultGroupConfigurationListSecond() throws Exception {
 		createDefaultDataGroupConfiguration("nonExist", VALUE_DATA_GROUP_NAME);
 		runScanAndCheckNexusFile(VALUE_DATA_GROUP_NAME);
 	}
 
 	@Test
-	public void testDefaultGroupConfigurationListNoSuchGroup() throws Exception {
+	void testDefaultGroupConfigurationListNoSuchGroup() throws Exception {
 		createDefaultDataGroupConfiguration("nonExist1", "nonExist2");
 		runScanAndCheckNexusFile(IMAGE_DATA_GROUP_NAME);
 	}

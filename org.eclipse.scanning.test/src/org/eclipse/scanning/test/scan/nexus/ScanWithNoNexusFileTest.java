@@ -27,8 +27,8 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test ensures that the scan still runs smoothly when no nexus file is created.
@@ -40,11 +40,11 @@ import org.junit.Test;
  * However, it is arguable that it should be the detectors who check for this instead as it may
  * be possible that they have other things to do on write.
  */
-public class ScanWithNoNexusFileTest extends NexusTest {
+class ScanWithNoNexusFileTest extends NexusTest {
 
 	private static IWritableDetector<MandelbrotModel> detector;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
@@ -52,7 +52,8 @@ public class ScanWithNoNexusFileTest extends NexusTest {
 	}
 
 	@Test
-	public void test2DNexusScan() throws Exception {
+	void test2DNexusScan() throws Exception { // NOSONAR - this test has no assertions
+		// we just check that the scan runs with no exceptions
 		final int[] shape = { 2, 5 };
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, shape); // Outer scan of another scannable, for instance temp.
 		scanner.run(null);

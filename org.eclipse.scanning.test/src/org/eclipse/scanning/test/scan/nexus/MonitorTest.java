@@ -61,8 +61,9 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.ConstantVelocityModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MonitorTest extends NexusTest {
 
@@ -72,8 +73,8 @@ public class MonitorTest extends NexusTest {
 
 	private static IWritableDetector<ConstantVelocityModel> detector;
 
-	@Before
-	public void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		final ConstantVelocityModel model = new ConstantVelocityModel("cv scan", 100, 200, 25);
 		model.setName("cv device");
 
@@ -84,30 +85,31 @@ public class MonitorTest extends NexusTest {
 	}
 
 	@Test
-	public void test1DOuter() throws Exception {
+	void test1DOuter() throws Exception {
 		testScan(8);
 	}
 
 	@Test
-	public void testPerPoint() throws Exception {
+	void testPerPoint() throws Exception {
 		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_POINT, 2); // They all are anyway
 	}
 	@Test
-	public void testPerPointIsPerScanToo() throws Exception {
+	void testPerPointIsPerScanToo() throws Exception {
 		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_SCAN, 2); // They all are anyway
 	}
 
 	@Test
-	public void testPerScan() throws Exception {
+	void testPerScan() throws Exception {
 		testScan(MonitorScanRole.PER_SCAN, MonitorScanRole.PER_SCAN, 2);
-	}
-	@Test(expected=AssertionError.class)
-	public void testPerScanIsNotPerPoint() throws Exception {
-		testScan(MonitorScanRole.PER_SCAN, MonitorScanRole.PER_POINT, 2);
 	}
 
 	@Test
-	public void testMixture() throws Exception {
+	void testPerScanIsNotPerPoint() {
+		Assertions.assertThrows(AssertionError.class, () -> testScan(MonitorScanRole.PER_SCAN, MonitorScanRole.PER_POINT, 2));
+	}
+
+	@Test
+	void testMixture() throws Exception {
 		// NOTE That they must be MockNeXusScannables which we test.
 		final List<String> perPoint = Arrays.asList("monitor0", "monitor3");
 		final List<String> perScan = Arrays.asList("z", "monitor1");
@@ -120,24 +122,23 @@ public class MonitorTest extends NexusTest {
 
 
 	@Test
-	public void test2DOuter() throws Exception {
+	void test2DOuter() throws Exception {
 		testScan(5, 8);
 	}
 
 	@Test
-	public void test3DOuter() throws Exception {
+	void test3DOuter() throws Exception {
 		testScan(2, 2, 2);
 	}
 
 	@Test
-	public void test8DOuter() throws Exception {
+	void test8DOuter() throws Exception {
 		testScan(2, 2, 2, 2, 2, 2, 2, 2);
 	}
 
 	private void testScan(int... shape) throws Exception {
 		testScan(MonitorScanRole.PER_POINT, MonitorScanRole.PER_POINT, shape);
 	}
-
 
 	private void testScan(MonitorScanRole mrole, MonitorScanRole testedRole, int... shape) throws Exception {
 		final List<String> monitors = Arrays.asList("monitor1", "monitor2");

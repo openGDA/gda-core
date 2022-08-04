@@ -75,8 +75,8 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +103,7 @@ public abstract class NexusTest {
 	protected static IFilePathService        filePathService;
 
 
-	@BeforeClass
+	@BeforeAll
 	public static void setServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -120,7 +120,7 @@ public abstract class NexusTest {
 
 	protected File output;
 
-	@Before
+	@BeforeEach
 	public void createFile() throws IOException {
 		output = Files.createTempFile(Paths.get(filePathService.getVisitDir()), "test_nexus", ".nxs").toFile();
 		output.deleteOnExit();

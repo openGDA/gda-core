@@ -56,43 +56,43 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class BasicScanTest extends NexusTest {
 
     private IScannable<?> monitor;
 
-    @BeforeClass
-	public static void beforeClass() {
+    @BeforeAll
+	static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setValidatorService(new ValidatorService());
 		serviceHolder.setPointGeneratorService(new PointGeneratorService());
 	}
 
-    @Before
-	public void beforeTest() throws Exception {
+    @BeforeEach
+	void beforeTest() throws Exception {
 		monitor = connector.getScannable("monitor1");
 	}
 
 	@Test
-	public void testBasicScan1D() throws Exception {
+	void testBasicScan1D() throws Exception {
 		test(null, null, 5);
 	}
 
 	@Test
-	public void testBasicScan2D() throws Exception {
+	void testBasicScan2D() throws Exception {
 		test(null, null, 8, 5);
 	}
 
 	@Test
-	public void testBasicScan3D() throws Exception {
+	void testBasicScan3D() throws Exception {
 		test(null, null, 5, 8, 5);
 	}
 
 	@Test
-	public void testBasicScan1DWithMonitor() throws Exception {
+	void testBasicScan1DWithMonitor() throws Exception {
 		test(monitor, null, 5);
 	}
 
@@ -103,7 +103,7 @@ public class BasicScanTest extends NexusTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testBasicScan1DWithMonitorMultipleTimes() throws Exception {
+	void testBasicScan1DWithMonitorMultipleTimes() throws Exception {
 
 		for (int i = 0; i < 5; i++) {
 			//System.out.println("Iteration "+i+":");
@@ -112,12 +112,12 @@ public class BasicScanTest extends NexusTest {
 	}
 
 	@Test
-	public void testBasicScan2DWithMonitor() throws Exception {
+	void testBasicScan2DWithMonitor() throws Exception {
 		test(monitor, null, 8, 5);
 	}
 
 	@Test
-	public void testBasicScan3DWithMonitor() throws Exception {
+	void testBasicScan3DWithMonitor() throws Exception {
 		test(monitor, null, 5, 8, 5);
 	}
 

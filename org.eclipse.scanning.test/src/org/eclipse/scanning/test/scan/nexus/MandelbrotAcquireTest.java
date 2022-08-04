@@ -51,22 +51,22 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MandelbrotAcquireTest extends NexusTest {
+class MandelbrotAcquireTest extends NexusTest {
 
 	private static IWritableDetector<MandelbrotModel> detector;
 
-	@Before
-	public void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
-	public void testAcquire() throws Exception {
+	void testAcquire() throws Exception {
 		IRunnableDevice<ScanModel> scanner = createAcquireScan(detector, output);
 		scanner.run(null);
 

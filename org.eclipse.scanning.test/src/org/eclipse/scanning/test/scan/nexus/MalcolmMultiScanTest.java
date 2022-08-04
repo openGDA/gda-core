@@ -55,9 +55,9 @@ import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
+class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 
 	private static final String FIELD_NAME_IMAGE_KEY = "image_key";
 	private static final String SCANNABLE_NAME_SHUTTER = "portshutter";
@@ -79,12 +79,12 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 	}
 
 	@Test
-	public void testMalcolmMultiScan() throws Exception {
+	void testMalcolmMultiScan() throws Exception {
 		testMalcolmMultiScan(true);
 	}
 
 	@Test
-	public void testMalcolmMultiScanNoDarksOrFlats() throws Exception {
+	void testMalcolmMultiScanNoDarksOrFlats() throws Exception {
 		testMalcolmMultiScan(false);
 	}
 

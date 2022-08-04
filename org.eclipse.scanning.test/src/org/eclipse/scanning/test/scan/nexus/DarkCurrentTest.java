@@ -61,16 +61,16 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.DarkImageModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class DarkCurrentTest extends NexusTest {
+class DarkCurrentTest extends NexusTest {
 
 	private IWritableDetector<MandelbrotModel> detector;
 	private IWritableDetector<DarkImageModel>  dark;
 
-	@Before
-	public void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
@@ -86,7 +86,7 @@ public class DarkCurrentTest extends NexusTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testDarkImage() throws Exception {
+	void testDarkImage() throws Exception {
 		// Tell configure detector to write 1 image into a 2D scan
 		final IRunnableDevice<ScanModel> scanner = createGridScan(8, 5);
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());

@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -50,11 +51,10 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.sequencer.SubscanModerator;
 import org.eclipse.scanning.test.scan.nexus.NexusTest;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class AnnotationScanTest extends NexusTest {
+class AnnotationScanTest extends NexusTest {
 
 	private static interface InjectionDevice {
 
@@ -208,14 +208,14 @@ public class AnnotationScanTest extends NexusTest {
 	private InjectionMonitor injectionMonitor;
 	private InjectionDetector injectionDetector;
 
-	@Before
-	public void before() {
+	@BeforeEach
+	void before() {
 		injectionMonitor = new InjectionMonitor();
 		injectionDetector = new InjectionDetector();
 	}
 
 	@Test
-	public void testInjectedContext() throws Exception {
+	void testInjectedContext() throws Exception {
 		final IRunnableDevice<ScanModel> scanner = createGridScan(injectionDetector, injectionMonitor, null, 2, 2);
 		scanner.run(null);
 
@@ -257,7 +257,7 @@ public class AnnotationScanTest extends NexusTest {
 		}
 		final Optional<Class<?>> missingExpectedContext = expectedClassStream.filter(klass -> !contextHasInstance.test(klass)).findFirst();
 		if (missingExpectedContext.isPresent()) {
-			Assert.fail("Context missing expected instance of: " + missingExpectedContext.get());
+			fail("Context missing expected instance of: " + missingExpectedContext.get());
 		}
 	}
 

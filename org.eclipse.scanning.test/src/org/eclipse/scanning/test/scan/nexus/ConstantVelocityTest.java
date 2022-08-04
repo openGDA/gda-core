@@ -28,11 +28,11 @@ import static org.junit.Assert.assertSame;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.nexus.INexusFileFactory;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
@@ -55,15 +55,16 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.ConstantVelocityModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class ConstantVelocityTest extends NexusTest {
+class ConstantVelocityTest extends NexusTest {
 
 	private static IWritableDetector<ConstantVelocityModel> detector;
 
-	@Before
-	public void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		final ConstantVelocityModel model = new ConstantVelocityModel("cv scan", 100, 200, 25);
 		model.setName("cv device");
 
@@ -74,27 +75,19 @@ public class ConstantVelocityTest extends NexusTest {
 				event -> System.out.println("Ran cv device detector @ " + event.getPosition())));
 	}
 
-	@Test
-	public void test1DOuter() throws Exception {
-		testScan(8);
+	static Stream<List<Integer>> scanDimensions() {
+		return Stream.of(
+				List.of(8),
+				List.of(5, 8),
+				List.of(2, 2, 2),
+				List.of(2, 2, 2, 2, 2, 2, 2, 2)
+			);
 	}
 
-	@Test
-	public void test2DOuter() throws Exception {
-		testScan(5, 8);
-	}
-
-	@Test
-	public void test3DOuter() throws Exception {
-		testScan(2, 2, 2);
-	}
-
-	@Test
-	public void test8DOuter() throws Exception {
-		testScan(2, 2, 2, 2, 2, 2, 2, 2);
-	}
-
-	private void testScan(int... shape) throws Exception {
+	@ParameterizedTest(name="scanDimensions={0}")
+	@MethodSource("scanDimensions")
+	void testScan(List<Integer> scanDimensions) throws Exception {
+		final int[] shape = scanDimensions.stream().mapToInt(Integer::intValue).toArray();
 		final IRunnableDevice<ScanModel> scanner = createNestedStepScan(detector, shape); // Outer scan of another scannable, for instance temp.
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
@@ -205,14 +198,6 @@ public class ConstantVelocityTest extends NexusTest {
 				event -> System.out.println("Running acquisition scan of size " + pointGen.size())));
 
 		return scanner;
-	}
-
-	public static INexusFileFactory getFileFactory() {
-		return fileFactory;
-	}
-
-	public static void setFileFactory(INexusFileFactory fileFactory) {
-		NexusTest.fileFactory = fileFactory;
 	}
 
 }

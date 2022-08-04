@@ -66,17 +66,17 @@ import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class AttributeTest extends NexusTest {
+class AttributeTest extends NexusTest {
 
 	protected IEventService eventService;
 
 	private IWritableDetector<MandelbrotModel> detector;
 
-	@Before
-	public void before() throws ScanningException, IOException {
+	@BeforeEach
+	void before() throws ScanningException, IOException {
 		final MandelbrotModel model = createMandelbrotModel();
 
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
@@ -84,7 +84,7 @@ public class AttributeTest extends NexusTest {
 	}
 
 	@Test
-	public void testName() throws Exception {
+	void testName() throws Exception {
 		// All scannables should have their name set ok
 		final IRunnableDevice<ScanModel> scanner = createGridScan(detector, 2, 2);
 		scanner.run(null);
@@ -94,7 +94,7 @@ public class AttributeTest extends NexusTest {
 	}
 
 	@Test
-	public void testDescription() throws Exception {
+	void testDescription() throws Exception {
 		final IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		final IScanAttributeContainer xc = (IScanAttributeContainer) x;
@@ -108,7 +108,7 @@ public class AttributeTest extends NexusTest {
 	}
 
 	@Test
-	public void testFred() throws Exception {
+	void testFred() throws Exception {
 		final IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		final IScanAttributeContainer xc = (IScanAttributeContainer)x;
@@ -122,7 +122,7 @@ public class AttributeTest extends NexusTest {
 	}
 
 	@Test
-	public void testSetMultipleAttributes() throws Exception {
+	void testSetMultipleAttributes() throws Exception {
 		final IScannable<?> x = connector.getScannable("xNex");
 		if (!(x instanceof IScanAttributeContainer)) throw new Exception("xNex is not "+IScanAttributeContainer.class.getSimpleName());
 		final IScanAttributeContainer xc = (IScanAttributeContainer)x;
@@ -279,7 +279,6 @@ public class AttributeTest extends NexusTest {
 	}
 
 	private IRunnableDevice<ScanModel> createGridScan(final IRunnableDevice<? extends IDetectorModel> detector, int... size) throws Exception {
-
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel();
 		gridModel.setxAxisName("xNex");

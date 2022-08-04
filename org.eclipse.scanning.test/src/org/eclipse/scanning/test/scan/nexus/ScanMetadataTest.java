@@ -77,29 +77,29 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ScanMetadataTest extends NexusTest {
+class ScanMetadataTest extends NexusTest {
 
 	private static final String EXPECTED_ENTRY_NAME = "myEntry";
 
 	private IWritableDetector<MandelbrotModel> detector;
 
-	@BeforeClass
-	public static void setupClass() {
+	@BeforeAll
+	static void setupClass() {
 		System.setProperty(SYSTEM_PROPERTY_NAME_ENTRY_NAME, EXPECTED_ENTRY_NAME);
 	}
 
-	@AfterClass
-	public static void tearDownClass() {
+	@AfterAll
+	static void tearDownClass() {
 		System.clearProperty(SYSTEM_PROPERTY_NAME_ENTRY_NAME);
 	}
 
-	@Before
-	public void before() throws ScanningException, IOException {
+	@BeforeEach
+	void before() throws ScanningException, IOException {
 		MandelbrotModel model = createMandelbrotModel();
 
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
@@ -109,7 +109,7 @@ public class ScanMetadataTest extends NexusTest {
 	}
 
 	@Test
-	public void testScanMetadata() throws Exception {
+	void testScanMetadata() throws Exception {
 		final List<ScanMetadata> scanMetadata = new ArrayList<>();
 		ScanMetadata entryMetadata = new ScanMetadata(MetadataType.ENTRY);
 		entryMetadata.addField(NXentry.NX_TITLE, "Scan Metadata Test Entry");

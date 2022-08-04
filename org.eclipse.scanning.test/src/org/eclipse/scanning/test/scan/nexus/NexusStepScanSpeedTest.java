@@ -33,10 +33,10 @@ import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.example.scannable.MockNeXusScannable;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.test.BrokerDelegate;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
@@ -48,15 +48,14 @@ import uk.ac.gda.common.activemq.test.TestSessionService;
  * @author Matthew Gerring
  *
  */
-public class NexusStepScanSpeedTest extends NexusTest {
+class NexusStepScanSpeedTest extends NexusTest {
 
 	private static EventServiceImpl eservice;
 	private static BrokerDelegate delegate;
 	private IPointGenerator<AxialStepModel> gen;
 
-	@BeforeClass
-    public static void createEventService() throws Exception {
-
+	@BeforeAll
+    static void createEventService() throws Exception {
 		delegate = new BrokerDelegate();
 		delegate.start();
 
@@ -77,20 +76,20 @@ public class NexusStepScanSpeedTest extends NexusTest {
 		final IPointGenerator<AxialStepModel> gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 3, 1));
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, file));
 		scan.run(null);
-
 	}
-	@AfterClass
-    public static void stop() throws Exception {
+
+	@AfterAll
+    static void stop() throws Exception {
 		delegate.stop();
 	}
 
-	@Before
-	public void before() throws GeneratorException {
+	@BeforeEach
+	void before() throws GeneratorException {
 		this.gen = pointGenService.createGenerator(new AxialStepModel("xNex", 0, 1000, 1));
 	}
 
 	@Test
-	public void testBareNexusStepScanSpeedNoNexus() throws Exception {
+	void testBareNexusStepScanSpeedNoNexus() throws Exception {
 		// We create a step scan
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen));
 		runAndCheck("No NeXus scan", scan, 5, 1, 100L);
@@ -98,7 +97,7 @@ public class NexusStepScanSpeedTest extends NexusTest {
 
 
 	@Test
-	public void testBareNexusStepNoSetSlice() throws Exception {
+	void testBareNexusStepNoSetSlice() throws Exception {
 		final IScannable<?> scannable = connector.getScannable("xNex");
 		final MockNeXusScannable xNex = (MockNeXusScannable) scannable;
 		try {
@@ -112,14 +111,14 @@ public class NexusStepScanSpeedTest extends NexusTest {
 	}
 
 	@Test
-	public void testBareNexusStepScanSpeed() throws Exception {
+	void testBareNexusStepScanSpeed() throws Exception {
 		// We create a step scan
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output));
 		runAndCheck("Normal NeXus Scan", scan, 10, 3072, 2000L);
 	}
 
 	@Test
-	public void testPublishedNexusStepScanSpeed() throws Exception {
+	void testPublishedNexusStepScanSpeed() throws Exception {
 		// We create a step scan
 		IPublisher<ScanBean> publisher = eservice.createPublisher(delegate.uri, EventConstants.SCAN_TOPIC);
 		final IRunnableDevice<ScanModel> scan = scanService.createScanDevice(new ScanModel(gen, output), publisher);

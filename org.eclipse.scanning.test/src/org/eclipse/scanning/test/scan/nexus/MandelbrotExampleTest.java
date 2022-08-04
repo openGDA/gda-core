@@ -36,22 +36,22 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MandelbrotExampleTest extends NexusTest {
+class MandelbrotExampleTest extends NexusTest {
 
 	private static IWritableDetector<MandelbrotModel> detector;
 
-	@BeforeClass
-	public static void before() throws Exception {
+	@BeforeEach
+	void before() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
-	public void test2ConsecutiveSmallScans() throws Exception {
+	void test2ConsecutiveSmallScans() throws Exception {
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, 2, 2);
 		scanner.run(null);
 
@@ -65,7 +65,7 @@ public class MandelbrotExampleTest extends NexusTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testWriteTime2Dvs3D() throws Exception {
+	void testWriteTime2Dvs3D() throws Exception {
 
 		// Tell configure detector to write 1 image into a 2D scan
 		IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, 3, 2);
@@ -96,32 +96,32 @@ public class MandelbrotExampleTest extends NexusTest {
 	}
 
 	@Test
-	public void test2DGridScan() throws Exception {
+	void test2DGridScan() throws Exception {
 		testGridScan(false, 3, 2);
 	}
 
 	@Test
-	public void test2DSnakeGridScan() throws Exception {
+	void test2DSnakeGridScan() throws Exception {
 		testGridScan(true, 3, 2);
 	}
 
 	@Test
-	public void test2DSnakeWithOddNumberOfLinesGridScan() throws Exception {
+	void test2DSnakeWithOddNumberOfLinesGridScan() throws Exception {
 		testGridScan(true, 7, 5);
 	}
 
 	@Test
-	public void test2DGridScanWithCircularRegion() throws Exception {
+	void test2DGridScanWithCircularRegion() throws Exception {
 		testGridScanWithCircularRegion(false, 3, 5);
 	}
 
 	@Test
-	public void test2DSnakeGridScanWithCircularRegion() throws Exception {
+	void test2DSnakeGridScanWithCircularRegion() throws Exception {
 		testGridScanWithCircularRegion(true, 3, 5);
 	}
 
 	@Test
-	public void test3DSpiralScan() throws Exception {
+	void test3DSpiralScan() throws Exception {
 		final IRunnableDevice<ScanModel> scanner = createSpiralScan(detector, output); // Outer scan of another scannable, for instance temp.
 		assertScanNotFinished(getNexusRoot(scanner).getEntry());
 		scanner.run(null);
@@ -145,7 +145,7 @@ public class MandelbrotExampleTest extends NexusTest {
 	}
 
 	@Test
-	public void test2DGridScanNoImage() throws Exception {
+	void test2DGridScanNoImage() throws Exception {
 		detector.getModel().setSaveImage(false);
 		try {
 			final IRunnableDevice<ScanModel> scanner = createGridScan(detector, output, false, new int[]{8,5}); // Outer scan of another scannable, for instance temp.
@@ -165,32 +165,32 @@ public class MandelbrotExampleTest extends NexusTest {
 	}
 
 	@Test
-	public void test3DGridScan() throws Exception {
+	void test3DGridScan() throws Exception {
 		testGridScan(false, 3, 2, 5);
 	}
 
 	@Test
-	public void test3DSnakeGridScanEvenNumRows() throws Exception {
+	void test3DSnakeGridScanEvenNumRows() throws Exception {
 		testGridScan(true, 3, 2, 5);
 	}
 
 	@Test
-	public void test3DSnakeGridScanOddNumRows() throws Exception {
+	void test3DSnakeGridScanOddNumRows() throws Exception {
 		testGridScan(true, 3, 3, 5);
 	}
 
 	@Test
-	public void test3DGridScanWithCircularRegion() throws Exception {
+	void test3DGridScanWithCircularRegion() throws Exception {
 		testGridScanWithCircularRegion(false, 3, 3, 5);
 	}
 
 	@Test
-	public void test3DSnakeGridScanWithCircularRegion() throws Exception {
+	void test3DSnakeGridScanWithCircularRegion() throws Exception {
 		testGridScanWithCircularRegion(true, 3, 3, 5);
 	}
 
 	@Test
-	public void test4DSnakeGridScanWithCircularRegion() throws Exception {
+	void test4DSnakeGridScanWithCircularRegion() throws Exception {
 		testGridScanWithCircularRegion(true, 2, 3, 3, 5);
 	}
 
@@ -205,17 +205,17 @@ public class MandelbrotExampleTest extends NexusTest {
 	}
 
 	@Test
-	public void test4DGridScan() throws Exception {
+	void test4DGridScan() throws Exception {
 		testGridScan(false,3,3,2, 2);
 	}
 
 	@Test
-	public void test5DGridScan() throws Exception {
+	void test5DGridScan() throws Exception {
 		testGridScan(false, 2, 2, 2, 2, 2);
 	}
 
 	@Test
-	public void test8DGridScan() throws Exception {
+	void test8DGridScan() throws Exception {
 		testGridScan(false, 2, 2, 2, 2, 2, 2, 2, 2);
 	}
 

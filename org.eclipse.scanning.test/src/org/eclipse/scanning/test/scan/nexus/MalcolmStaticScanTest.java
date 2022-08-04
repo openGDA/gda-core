@@ -22,27 +22,27 @@ import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the use of Malcolm to acquire data without moving any scannables.<br>
  * This would be used for software scans using detectors that can only acquire via Malcolm.
  *
  */
-public class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
+class MalcolmStaticScanTest extends AbstractMalcolmScanTest {
 
 	@Test
-	public void test0d() throws Exception {
+	void test0d() throws Exception {
 		runMalcolmScan();
 	}
 
 	@Test
-	public void test1d() throws Exception {
+	void test1d() throws Exception {
 		runMalcolmScan(5);
 	}
 
 	@Test
-	public void test3d() throws Exception {
+	void test3d() throws Exception {
 		runMalcolmScan(5, 3, 2);
 	}
 

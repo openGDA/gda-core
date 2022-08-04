@@ -63,9 +63,9 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test uses the RunnableDeviceService to create a {@link DummyMalcolmDevice}
@@ -79,15 +79,15 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 
 	private File malcolmOutputDir;
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeEach
+	void setUp() throws Exception {
 		// create a temp directory for the dummy malcolm device to write hdf files into
 		malcolmOutputDir = Files.createTempDirectory(DummyMalcolmDeviceTest.class.getSimpleName()).toFile();
 		malcolmOutputDir.deleteOnExit();
 	}
 
-	@After
-	public void teardown() throws Exception {
+	@AfterEach
+	void teardown() {
 		// delete the temp directory and all its files
 		for (File file : malcolmOutputDir.listFiles()) {
 			file.delete();
@@ -129,7 +129,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	}
 
 	@Test
-	public void testDummyMalcolmNexusFiles() throws Exception {
+	void testDummyMalcolmNexusFiles() throws Exception {
 		final DummyMalcolmModel model = createModel();
 		final IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
 		// Cannot set the generator from @PreConfigure in this unit test.
@@ -146,7 +146,7 @@ public class DummyMalcolmDeviceTest extends NexusTest {
 	}
 
 	@Test
-	public void testMalcolmNexusObjects() throws Exception {
+	void testMalcolmNexusObjects() throws Exception {
 		final DummyMalcolmModel model = createModel();
 		final IMalcolmDevice malcolmDevice = TestDetectorHelpers.createDummyMalcolmDetector();
 		int scanRank = 3;

@@ -40,13 +40,13 @@ import org.eclipse.scanning.api.event.scan.DeviceState;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
+class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 
 	@Test
-	public void testMalcolmDetectorMetadata() throws Exception {
+	void testMalcolmDetectorMetadata() throws Exception {
 		final List<IMalcolmDetectorModel> detModels = malcolmDevice.getModel().getDetectorModels();
 
 		for (int i = 0; i < detModels.size(); i++) {
@@ -72,8 +72,8 @@ public class MalcolmDetectorMetadataScanTest extends AbstractMalcolmScanTest {
 		checkNexusFile(scanner, shape);
 	}
 
-	@After
-	public void removeServices() {
+	@AfterEach
+	void removeServices() {
 		var serviceHolder = new ServiceHolder();
 		serviceHolder.setNexusDeviceService(null);
 	}

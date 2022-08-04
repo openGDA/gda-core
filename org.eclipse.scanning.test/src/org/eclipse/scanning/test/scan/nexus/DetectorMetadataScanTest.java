@@ -53,24 +53,24 @@ import org.eclipse.scanning.device.Transformation.TransformationType;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class DetectorMetadataScanTest extends NexusTest {
+class DetectorMetadataScanTest extends NexusTest {
 
 	private static final int[] EMPTY_SHAPE = new int[0];
 
 	private static IWritableDetector<MandelbrotModel> detector;
 
-	@BeforeClass
-	public static void before() throws Exception {
+	@BeforeAll
+	static void before() throws Exception {
 		final MandelbrotModel model = createMandelbrotModel();
 		detector = TestDetectorHelpers.createAndConfigureMandelbrotDetector(model);
 		assertThat(detector, is(notNullValue()));
 	}
 
 	@Test
-	public void testScanWithSimpleNexusMetadataAppender() throws Exception {
+	void testScanWithSimpleNexusMetadataAppender() throws Exception {
 		final Map<String, Object> metadata = createExpectedMetadata();
 		final SimpleNexusMetadataAppender<?> metadataAppender = new SimpleNexusMetadataAppender<>(detector.getName());
 		metadataAppender.setNexusMetadata(metadata);
@@ -87,7 +87,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 	}
 
 	@Test
-	public void testScanWithNexusMetadataAppender() throws Exception {
+	void testScanWithNexusMetadataAppender() throws Exception {
 		final Map<String, Object> metadata = createExpectedMetadata();
 		final NexusMetadataAppender<?> metadataAppender = new NexusMetadataAppender<>();
 		metadataAppender.setName(detector.getName());
@@ -105,7 +105,7 @@ public class DetectorMetadataScanTest extends NexusTest {
 	}
 
 	@Test
-	public void testScanWithTransformationsAppenders() throws Exception {
+	void testScanWithTransformationsAppenders() throws Exception {
 		final DetectorTransformationsAppender detectorAppender = new DetectorTransformationsAppender();
 		detectorAppender.setName(detector.getName());
 
