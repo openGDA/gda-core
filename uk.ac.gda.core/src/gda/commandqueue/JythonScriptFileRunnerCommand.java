@@ -114,7 +114,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase {
 
 			InterfaceProvider.getScriptController().resumeCurrentScript();
 
-			InterfaceProvider.getCommandRunner().runScript(new File(scriptFile));
+			runCommand();
 
 			// wait 1 second for the script to start
 			Thread.sleep(1000);
@@ -155,6 +155,10 @@ public class JythonScriptFileRunnerCommand extends CommandBase {
 				jProgressProvider.deleteIObserver(progressProviderObserver);
 			}
 		}
+	}
+
+	public void runCommand() {
+		InterfaceProvider.getCommandRunner().runScript(new File(scriptFile));
 	}
 
 	@Override
