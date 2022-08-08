@@ -38,6 +38,8 @@ import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gda.factory.FindableConfigurableBase;
 import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.event.MonitorEvent;
 import uk.ac.diamond.daq.pes.api.IElectronAnalyser;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
@@ -49,7 +51,6 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private IElectronAnalyser analyser;
 	private final  EpicsController epicsController = EpicsController.getInstance();
 	private String arrayPV;
-	private String frameNumberPV;
 	private String acquirePV;
 	private Channel arrayChannel;
 	private boolean sumFrames = false; // false by default to maintain backwards compatibility with Spring config
@@ -65,8 +66,7 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		try {
 			arrayChannel = epicsController.createChannel(arrayPV);
 
-			final Channel frameNumber = epicsController.createChannel(frameNumberPV);
-			epicsController.setMonitor(frameNumber, this::updatedFrameReceived);
+			epicsController.setMonitor(arrayChannel, this::updatedFrameReceived);
 
 			// If we are accumulating frames need to know when a new acquisition starts so we can clear the summedFrames
 			if (sumFrames) {
@@ -84,8 +84,16 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 	private void updatedFrameReceived(final MonitorEvent event) {
 		logger.trace("Might soon be sending some thing to plot {} with axes from {} because of {}", plotName, analyser.getName(), event);
 
+		DBR dbr = event.getDBR();
+		float[] array = ((DBR_Float)dbr).getFloatValue();
+
 		try {
-			executor.submit(this::plotNewArray);
+			executor.submit(new Runnable() {
+				@Override
+				public void run() {
+					plotNewArray(array);
+				}
+			});
 			logger.trace("Plot jobs for {} queued successfully", plotName);
 		} catch (RejectedExecutionException ree) {
 			logger.debug("Plot jobs for {} are queueing up, as expected in certain circumstances, so this one got skipped", plotName);
@@ -101,7 +109,7 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		summedFrames = null;
 	}
 
-	private IDataset getArrayAsDataset(int x, int y) throws Exception {
+	private IDataset getArrayAsDataset(float[] array, int x, int y) throws Exception {
 		int[] dims = new int[] {x, y};
 		int arraySize = dims[0]*dims[1];
 		if (arraySize < 1) {
@@ -109,10 +117,14 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		}
 		logger.trace("About to get array for {}", plotName);
 		// Get as float[] not double[] for performance
-		float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
-		Dataset newData = DatasetFactory.createFromObject(array, dims);
+		//float[] array = epicsController.cagetFloatArray(arrayChannel, arraySize);
+
+		float[] croppedArray = Arrays.copyOfRange(array, 0, arraySize);
+
+		Dataset newData = DatasetFactory.createFromObject(croppedArray, dims);
 		// Flip the data across the 0 position of the Y axis I05-221
 		Dataset flipedData = DatasetUtils.flipUpDown(newData);
+
 
 		if (!sumFrames) {
 			return flipedData; // If we're not accumulating just return the newest data
@@ -150,11 +162,11 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 		return yAxis;
 	}
 
-	private void plotNewArray() {
+	private void plotNewArray(float[] array) {
 		try {
 			IDataset xAxis = getXAxis();
 			IDataset yAxis = getYAxis();
-			IDataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
+			IDataset ds = getArrayAsDataset(array, yAxis.getShape()[0], xAxis.getShape()[0]);
 
 			logger.trace("Dispatching plot to {}", plotName);
 			SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
@@ -185,14 +197,6 @@ class AnalyserLiveDataDispatcher extends FindableConfigurableBase {
 
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
-	}
-
-	public String getFrameNumberPV() {
-		return frameNumberPV;
-	}
-
-	public void setFrameNumberPV(String frameNumberPV) {
-		this.frameNumberPV = frameNumberPV;
 	}
 
 	public Channel getArrayChannel() {
