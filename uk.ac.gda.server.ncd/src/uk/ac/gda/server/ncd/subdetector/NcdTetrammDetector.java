@@ -54,10 +54,7 @@ public class NcdTetrammDetector extends NcdSubDetector {
 	private int frameCount;
 	/** The averaging time for each frame */
 	private double frameLengthS = 1;
-	/** The number of values per frame - set indirectly by adjusting values per reading */
-	private int targetValuesPerFrame = 1_000;
-	/** The base sampling rate of the detector - should not change */
-	private int baseSampleRate = 10_000;
+
 	/** The nexus path to the data in the detector file */
 	private String innerPath = "#entry/instrument/detector/data";
 
@@ -99,7 +96,6 @@ public class NcdTetrammDetector extends NcdSubDetector {
 		logger.debug("{} - Starting scan {}", getName(), info.getScanNumber());
 		setFilePath(info);
 		controller.setAveragingTime(frameLengthS);
-		controller.setValuesPerReading((int)(frameLengthS * baseSampleRate / targetValuesPerFrame));
 		controller.setDimensions(frameCount, info.getDimensions());
 		controller.initialise();
 		controller.setAcquire(true);
@@ -219,22 +215,6 @@ public class NcdTetrammDetector extends NcdSubDetector {
 
 	public void setChannel(int channel) {
 		this.channel = channel;
-	}
-
-	public int getTargetValuesPerFrame() {
-		return targetValuesPerFrame;
-	}
-
-	public void setTargetValuesPerFrame(int targetValuesPerFrame) {
-		this.targetValuesPerFrame = targetValuesPerFrame;
-	}
-
-	public int getBaseSampleRate() {
-		return baseSampleRate;
-	}
-
-	public void setBaseSampleRate(int baseSampleRate) {
-		this.baseSampleRate = baseSampleRate;
 	}
 
 	public String getInnerPath() {

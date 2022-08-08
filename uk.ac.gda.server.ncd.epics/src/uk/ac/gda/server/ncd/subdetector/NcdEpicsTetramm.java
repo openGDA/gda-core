@@ -91,8 +91,22 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	/** The values per reading for the detector while the detector is not in a scan */
 	private int idleValuesPerReading = 10;
 
-	/** The minimum number of readings that can be summed to give a single reading */
+	/**
+	 * The minimum number of readings that can be summed to give a single reading.
+	 * This is used along with the {@link #maximumReadingsPerFrame} to determine
+	 * the values per reading used for a data collection
+	 */
 	private int minimumValuesPerReading = 5;
+
+	/**
+	 * The maximum number of readings that will be recorded into a frame.
+	 * This is used along with the {@link #minimumValuesPerReading} to determine
+	 * the values per reading used for a data collection.
+	 */
+	private int maximumReadingsPerFrame = 1000;
+
+	/** The base sampling rate of the detector - should not change */
+	private int baseSampleRate = 10_000;
 
 	/** The format the filewriter should use for its file path building */
 	private String filenameFormat = "%s/%s.h5";
@@ -211,6 +225,12 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	@Override
 	public void setAveragingTime(double time) throws DeviceException {
 		set(averagingTimePV, time, "averaging time");
+		var valuesPerReading = (int)time * baseSampleRate / maximumReadingsPerFrame;
+		if (valuesPerReading < minimumValuesPerReading) {
+			logger.debug("Required values per reading below minimum, frame size will be reduced");
+			valuesPerReading = minimumValuesPerReading;
+		}
+		setValuesPerReading(valuesPerReading);
 		refreshFileSizeDimensions(time);
 	}
 
@@ -425,5 +445,21 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 			throw new IllegalArgumentException("Minimum samples per reading must be > 0");
 		}
 		this.minimumValuesPerReading = minimumValuesPerReading;
+	}
+
+	public int getMaximumReadingsPerFrame() {
+		return maximumReadingsPerFrame;
+	}
+
+	public void setMaximumReadingsPerFrame(int maximumReadingsPerFrame) {
+		this.maximumReadingsPerFrame = maximumReadingsPerFrame;
+	}
+
+	public int getBaseSampleRate() {
+		return baseSampleRate;
+	}
+
+	public void setBaseSampleRate(int baseSampleRate) {
+		this.baseSampleRate = baseSampleRate;
 	}
 }
