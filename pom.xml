@@ -25,6 +25,8 @@
 		<module>org.dawnsci.datavis.live.test</module>
 		<module>org.dawnsci.mapping.ui.live</module>
 		<module>org.dawnsci.visualisation.remote.feature</module>
+		<module>org.eclipse.dawnsci.hdf5.model</module>
+		<module>org.eclipse.dawnsci.hdf5.model.test</module>
 		<module>org.opengda.lde</module>
 		<module>org.opengda.lde.model</module>
 		<module>org.opengda.lde.model.edit</module>
