@@ -61,7 +61,7 @@ public class MaskedDatasetCreator extends FindableBase implements DatasetCreator
 	private Number maxThreshold = Integer.MAX_VALUE;
 
 	@Override
-	public Dataset createDataSet(Dataset ds) throws Exception {
+	public Dataset createDataSet(Dataset ds)  {
 		if (previousDs == null) {
 			// first time so create mask
 			createMask(ds);
