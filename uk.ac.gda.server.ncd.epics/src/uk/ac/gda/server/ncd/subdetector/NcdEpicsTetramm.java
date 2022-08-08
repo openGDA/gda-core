@@ -106,7 +106,7 @@ public class NcdEpicsTetramm extends FindableConfigurableBase implements NcdTetr
 	private int maximumReadingsPerFrame = 1000;
 
 	/** The base sampling rate of the detector - should not change */
-	private int baseSampleRate = 10_000;
+	private int baseSampleRate = 100_000;
 
 	/** The format the filewriter should use for its file path building */
 	private String filenameFormat = "%s/%s.h5";
