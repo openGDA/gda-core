@@ -13,12 +13,14 @@ package org.eclipse.dawnsci.hdf5.model.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -35,17 +37,27 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.StringDataset;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.util.TestUtils;
 
 public class HierarchicalDataFileModelTest {
 
-	private static final IHierarchicalDataFileGetReader get_i05_4859_Reader = new IHierarchicalDataFileGetReader() {
+	private static Path i05TestPath;
 
-		@Override
-		public NexusFile getReader() throws Exception {
-			return NexusFileHDF5.openNexusFile(new File("testfiles/i05-4859.nxs").getAbsolutePath());
-		}
-	};
+	@BeforeClass
+	public static void prepareTestFileLocation() {
+		String testFileLocation = TestUtils.getGDALargeTestFilesLocation();
+		assumeNotNull(testFileLocation); // Skip test if property not set
+		i05TestPath = Paths.get(testFileLocation, "HierarchicalDataFileModelTest/i05-4859.nxs");
+	}
+
+	private final IHierarchicalDataFileGetReader get_i05_4859_Reader =  this::geti05Nexus;
+
+	private NexusFile geti05Nexus() throws Exception {
+		return NexusFileHDF5.openNexusFile(i05TestPath.toString());
+	}
 
 	/**
 	 * Used to debug the file structure to help write the other tests
