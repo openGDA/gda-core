@@ -179,15 +179,15 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final IPointGenerator<CompoundModel> pointGen = compoundModel == null ? null : pointGenService.createCompoundGenerator(compoundModel);
 		final EpicsMalcolmModel expectedEpicsMalcolmModel = createExpectedEpicsMalcolmModel(pointGen, fileDir, getExpectedMalcolmDetectorInfos());
 
-		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
-		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
-				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
-
 		// create the expected 'configure' message to get the default detectors
 		MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(
 				createExpectedMalcolmGetConfigureReply());
+
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 
 		// create the expected validate message and configure the mock connection to reply as expected
 		// note: the mock connection layer needs to reply as validate calls validateWithReturn internally
@@ -248,15 +248,15 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// Arrange
 		final MalcolmModel malcolmModel = createMalcolmModel();
 
-		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
-		final MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
-		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
-				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
-
 		// create the expected 'configure' message to get the default detectors
 		final MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(
 				createExpectedMalcolmGetConfigureReply());
+
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		final MalcolmMessage expectedGetSimultaneousAxesMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 
 		// create the EpicsMalcolmModels expected to be sent to malcolm and to be received
 		final List<MalcolmDetectorInfo> expectedSentDetectorInfos = getExpectedMalcolmDetectorInfos(false);
@@ -351,6 +351,11 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(
 				createExpectedMalcolmGetConfigureReply());
+
+		// create the expected message to get the simultaneous axes (required to configure the malcolm device) and reply as expected
+		final MalcolmMessage expectedGetSimultaneousAxesMessage2 = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage2)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute(getAxesToMove(compoundModel))));
 
 		// create the EpicsMalcolmModels expected to be sent to malcolm and to be received
 		final List<MalcolmDetectorInfo> expectedSentDetectorInfos = getExpectedMalcolmDetectorInfos(false);
@@ -647,6 +652,9 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		// create the expected meta message used to get the malcolm version
 		final StringArrayAttribute metaFieldValue = new StringArrayAttribute();
 		metaFieldValue.setTags(new String[] { "version:pymalcolm:4.2" });
+		final MalcolmMessage expectedGetSimultaneousAxesMessage2 = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
+		when(malcolmConnection.send(malcolmDevice, expectedGetSimultaneousAxesMessage2)).thenReturn(
+				createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y")));
 		final MalcolmMessage expectedGetMetaMessage = createExpectedMalcolmMessage(id++, Type.GET, FIELD_NAME_META);
 		when(malcolmConnection.send(malcolmDevice, expectedGetMetaMessage)).thenReturn(
 				createExpectedMalcolmOkReply(metaFieldValue));

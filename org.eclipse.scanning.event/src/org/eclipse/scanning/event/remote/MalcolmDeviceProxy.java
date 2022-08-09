@@ -130,6 +130,16 @@ public class MalcolmDeviceProxy extends RunnableDeviceProxy<IMalcolmModel> imple
 	}
 
 	@Override
+	public List<String> getConfiguredAxes() throws ScanningException {
+		try {
+			updateDeviceInfo();
+			return info.getConfiguredAxes();
+		} catch (Exception e) {
+			throw new MalcolmDeviceException(this, e);
+		}
+	}
+
+	@Override
 	public List<MalcolmDetectorInfo> getDetectorInfos() throws MalcolmDeviceException {
 		try {
 			updateDeviceInfo();

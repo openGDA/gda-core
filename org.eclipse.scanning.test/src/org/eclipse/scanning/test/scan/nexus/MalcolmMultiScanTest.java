@@ -34,7 +34,6 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdata;
 import org.eclipse.dawnsci.nexus.NXdetector;
 import org.eclipse.dawnsci.nexus.NXentry;
-import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
@@ -196,7 +195,7 @@ public class MalcolmMultiScanTest extends AbstractMalcolmScanTest {
 	@Override
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
 			IMalcolmDetectorModel detectorModel, ScanModel scanModel, NXentry entry, List<String> primaryDataFieldNames,
-			Map<String, NXdata> nxDataGroups, int[] sizes) throws DatasetException {
+			Map<String, NXdata> nxDataGroups, int[] sizes) throws Exception {
 		super.checkDetector(detector, dummyMalcolmModel, detectorModel, scanModel, entry, primaryDataFieldNames, nxDataGroups, sizes);
 
 		// check that the image_key dataset has been written

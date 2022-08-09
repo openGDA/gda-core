@@ -13,6 +13,7 @@ package org.eclipse.scanning.malcolm.core;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_FILENAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_NAME;
 import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_COLUMN_PATH;
@@ -23,9 +24,11 @@ import static org.eclipse.scanning.api.malcolm.MalcolmConstants.DATASETS_TABLE_C
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.nexus.NXdetector;
@@ -60,11 +63,63 @@ import org.slf4j.LoggerFactory;
  */
 class MalcolmNexusObjectBuilder {
 
+	private static final class DatasetInfo {
+		private final String deviceName;
+		private final String datasetName;
+		private final String fileName;
+		private final String path;
+		private final int rank;
+		private final MalcolmDatasetType type;
+		private final String uniqueIdPath;
+
+		private DatasetInfo(String deviceName, String datasetName, String fileName, String path, int rank,
+				MalcolmDatasetType type, String uniqueIdPath) {
+			this.deviceName = deviceName;
+			this.datasetName = datasetName;
+			this.fileName = fileName;
+			this.path = path;
+			this.rank = rank;
+			this.type = type;
+			this.uniqueIdPath = uniqueIdPath;
+		}
+
+		@Override
+		public String toString() {
+			return "deviceName=" + deviceName + ", datasetName=" + datasetName + ", fileName=" + fileName
+					+ ", path=" + path + ", rank=" + rank + ", type=" + type + ", uniqueIdPath=" + uniqueIdPath + "]";
+		}
+
+		protected static DatasetInfo fromMap(Map<String, Object> datasetRow) {
+			final String fullName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_NAME);
+			final String[] nameSegments = fullName.split("\\.");
+			final String deviceName = nameSegments[0];
+			final String datasetName = nameSegments[1];
+
+			final String fileName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);
+			final String path = (String) datasetRow.get(DATASETS_TABLE_COLUMN_PATH);
+			final int rank = ((Integer) datasetRow.get(DATASETS_TABLE_COLUMN_RANK)).intValue();
+			final MalcolmDatasetType type = getDatasetType(datasetRow);
+			final String uniqueIdPath = (String) datasetRow.get(DATASETS_TABLE_COLUMN_UNIQUEID);
+
+			return new DatasetInfo(deviceName, datasetName, fileName, path, rank, type, uniqueIdPath);
+		}
+
+		private static MalcolmDatasetType getDatasetType(Map<String, Object> datasetRow) {
+			final String datasetTypeStr = (String) datasetRow.get(DATASETS_TABLE_COLUMN_TYPE);
+			final MalcolmDatasetType datasetType = MalcolmDatasetType.fromString(datasetTypeStr);
+			if (datasetType == MalcolmDatasetType.UNKNOWN) { // a warning only allows new datatypes to be added
+				logger.warn("Unknown malcolm dataset type '{}'", datasetTypeStr);
+			}
+			return datasetType;
+		}
+
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(MalcolmNexusObjectBuilder.class);
+
 	private static final String PROPERTY_NAME_UNIQUE_KEYS = "uniqueKeys";
 
 	private static final String FIELD_NAME_IMAGE_KEY = "image_key";
-
-	private static final Logger logger = LoggerFactory.getLogger(MalcolmNexusObjectBuilder.class);
 
 	private final AbstractMalcolmDevice malcolmDevice;
 
@@ -74,15 +129,18 @@ class MalcolmNexusObjectBuilder {
 	// scan file is in the parent directory of the malcolm output dir.
 	private final String malcolmOutputDirName;
 
+	private final Set<String> malcolmAxes;
+
 	private final Map<String, NexusObjectWrapper<NXobject>> nexusWrappers;
 
 	private Map<String, Double> detectorExposureTimes = null;
 
-	MalcolmNexusObjectBuilder(AbstractMalcolmDevice malcolmDevice) {
+	MalcolmNexusObjectBuilder(AbstractMalcolmDevice malcolmDevice) throws ScanningException {
 		this.malcolmDevice = malcolmDevice;
 		nexusWrappers = new HashMap<>();
 		malcolmOutputDirName = new File(malcolmDevice.getOutputDir()).getName();
 		tomoModel = malcolmDevice.getMultiScanModel();
+		malcolmAxes = getMalcolmAxes();
 	}
 
 	/**
@@ -100,50 +158,33 @@ class MalcolmNexusObjectBuilder {
 			throw new ScanningException("No datasets found for malcolm device: " + malcolmDevice.getName());
 		}
 
-		for (Map<String, Object> datasetRow : datasetsTable) {
-			final String datasetFullName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_NAME);
-			final String externalFileName = (String) datasetRow.get(DATASETS_TABLE_COLUMN_FILENAME);
-			final String datasetPath = (String) datasetRow.get(DATASETS_TABLE_COLUMN_PATH);
-			final int datasetRank = ((Integer) datasetRow.get(DATASETS_TABLE_COLUMN_RANK)).intValue();
-			final MalcolmDatasetType datasetType = getDatasetType(datasetRow);
-			final String uniqueIdPath = (String) datasetRow.get(DATASETS_TABLE_COLUMN_UNIQUEID);
-
-			final String[] nameSegments = datasetFullName.split("\\.");
-			final String deviceName = nameSegments[0];
-			final String datasetName = nameSegments[1];
-
-			// get the nexus object and its wrapper, creating it if necessary
-			final NexusObjectWrapper<NXobject> nexusWrapper = getNexusProvider(deviceName, datasetType);
-			if (nexusWrapper != null) {
-				final NXobject nexusObject = nexusWrapper.getNexusObject();
-
-				// create the external link to the hdf5 file written by the malcolm device
-				final String externalFilePath = malcolmOutputDirName + "/" + externalFileName; // path relative to parent dir of scan file
-				nexusWrapper.addExternalLink(nexusObject, datasetName, externalFilePath,
-						datasetPath, datasetRank);
-
-				if (uniqueIdPath != null && !uniqueIdPath.isEmpty()) {
-					nexusWrapper.setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS, uniqueIdPath);
-				}
-				if (datasetType == MalcolmDatasetType.PRIMARY && tomoModel.isPresent()) {
-					writeImageKey((NXdetector) nexusObject, tomoModel.get());
-				}
-
-				// configure the nexus wrapper for the dataset
-				configureNexusWrapperForDataset(datasetType, datasetName, nexusWrapper);
-			}
-		}
+		// process the datasets, creating nexus wrappers for each device
+		datasetsTable.stream().map(DatasetInfo::fromMap).filter(this::canProcess).forEach(this::addDataset);
 
 		return new ArrayList<>(nexusWrappers.values());
 	}
 
-	private MalcolmDatasetType getDatasetType(Map<String, Object> datasetRow) {
-		final String datasetTypeStr = (String) datasetRow.get(DATASETS_TABLE_COLUMN_TYPE);
-		final MalcolmDatasetType datasetType = MalcolmDatasetType.fromString(datasetTypeStr);
-		if (datasetType == MalcolmDatasetType.UNKNOWN) {
-			logger.warn("Unknown dataset type '{}' for malcolm device {}", datasetTypeStr, malcolmDevice.getName());
+	private void addDataset(DatasetInfo dataset) {
+		// get the nexus object and its wrapper, creating it if necessary
+		final NexusObjectWrapper<NXobject> nexusWrapper = getNexusProvider(dataset);
+
+		logger.debug("Adding dataset: {} to {} {}", dataset, nexusWrapper.getNexusBaseClass(), dataset.deviceName);
+		final NXobject nexusObject = nexusWrapper.getNexusObject();
+
+		// create the external link to the hdf5 file written by the malcolm device
+		final String externalFilePath = malcolmOutputDirName + "/" + dataset.fileName; // path relative to parent dir of scan file
+		nexusWrapper.addExternalLink(nexusObject, dataset.datasetName, externalFilePath,
+				dataset.path, dataset.rank);
+
+		if (dataset.uniqueIdPath != null && !dataset.uniqueIdPath.isEmpty()) {
+			nexusWrapper.setPropertyValue(PROPERTY_NAME_UNIQUE_KEYS, dataset.uniqueIdPath);
 		}
-		return datasetType;
+		if (dataset.type == MalcolmDatasetType.PRIMARY && tomoModel.isPresent()) {
+			writeImageKey((NXdetector) nexusObject, tomoModel.get());
+		}
+
+		// configure the nexus wrapper for the dataset
+		configureNexusWrapperForDataset(dataset.type, dataset.datasetName, nexusWrapper);
 	}
 
 	/**
@@ -183,28 +224,57 @@ class MalcolmNexusObjectBuilder {
 		}
 	}
 
-	private NexusObjectWrapper<NXobject> getNexusProvider(String deviceName, MalcolmDatasetType datasetType) {
-		if (nexusWrappers.containsKey(deviceName)) {
-			return nexusWrappers.get(deviceName);
+	private boolean canProcess(DatasetInfo dataset) {
+		if (nexusWrappers.containsKey(dataset.deviceName)) {
+			return true; // we've already processed another dataset for this device type
 		}
 
-		final NexusBaseClass nexusBaseClass = datasetType.getNexusBaseClass();
+		// malcolm creates position_set datasets for all axes in the point generator. Ignore those for axes that
+		// malcolm doesn't control, otherwise there would be a clash with the nexus object for the GDA scannable.
+		if (dataset.type == MalcolmDatasetType.POSITION_SET && !malcolmAxes.contains(dataset.deviceName)) {
+			logger.debug("Skipping dataset {}.{} as it is for an axis not controlled by malcolm", dataset.deviceName, dataset.datasetName);
+			return false;
+		}
+
+		// otherwise, see if we know how to write this kind of dataset
+		final NexusBaseClass nexusBaseClass = dataset.type.getNexusBaseClass();
 		if (nexusBaseClass == null) {
-			logger.warn("Unknown malcolm dataset type: {}", datasetType);
-			return null;
+			logger.warn("Unknown malcolm dataset type: {}", dataset.type);
+			return false;
 		}
 
-		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
+		return true;
+	}
 
+	private Set<String> getMalcolmAxes() throws ScanningException {
+		// the malcolm model may have been explicitly configured with axes to move
+		if (malcolmDevice.getModel().getAxesToMove() != null) {
+			return new HashSet<>(malcolmDevice.getModel().getAxesToMove());
+		}
+
+		// otherwise malcolm controls the scan axes that are in its list of available axes
+		final List<String> allMalcolmAxes = malcolmDevice.getAvailableAxes();
+		return malcolmDevice.getPointGenerator().getNames().stream()
+					.filter(allMalcolmAxes::contains)
+					.collect(toSet());
+	}
+
+	private NexusObjectWrapper<NXobject> getNexusProvider(DatasetInfo dataset) {
+		if (nexusWrappers.containsKey(dataset.deviceName)) {
+			return nexusWrappers.get(dataset.deviceName);
+		}
+
+		final NexusBaseClass nexusBaseClass = dataset.type.getNexusBaseClass();
+		final NXobject nexusObject = NexusNodeFactory.createNXobjectForClass(nexusBaseClass);
 		if (nexusBaseClass == NexusBaseClass.NX_DETECTOR) {
-			((NXdetector) nexusObject).setCount_timeScalar(getDetectorExposureTime(deviceName));
+			((NXdetector) nexusObject).setCount_timeScalar(getDetectorExposureTime(dataset.deviceName));
 		} else if (nexusBaseClass == NexusBaseClass.NX_MONITOR) {
 			((NXmonitor) nexusObject).setCount_timeScalar(malcolmDevice.getModel().getExposureTime());
 		}
 
-		final NexusObjectWrapper<NXobject> nexusWrapper = new NexusObjectWrapper<>(deviceName, nexusObject);
-		nexusWrapper.setScanRole(datasetType.getScanRole().toNexusScanRole());
-		nexusWrappers.put(deviceName, nexusWrapper);
+		final NexusObjectWrapper<NXobject> nexusWrapper = new NexusObjectWrapper<>(dataset.deviceName, nexusObject);
+		nexusWrapper.setScanRole(dataset.type.getScanRole().toNexusScanRole());
+		nexusWrappers.put(dataset.deviceName, nexusWrapper);
 
 		return nexusWrapper;
 	}

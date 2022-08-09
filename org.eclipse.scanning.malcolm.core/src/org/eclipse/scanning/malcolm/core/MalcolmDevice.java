@@ -42,6 +42,7 @@ import java.util.function.Function;
 
 import org.eclipse.scanning.api.ValidationException;
 import org.eclipse.scanning.api.annotation.scan.ScanFinally;
+import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.device.models.IMalcolmModel;
@@ -65,6 +66,7 @@ import org.eclipse.scanning.api.malcolm.connector.IMalcolmMessageGenerator;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethod;
 import org.eclipse.scanning.api.malcolm.connector.MalcolmMethodMeta;
 import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
+import org.eclipse.scanning.api.malcolm.event.MalcolmStateChangedEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.api.points.GeneratorException;
@@ -365,6 +367,23 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		}
 	}
 
+	/**
+	 * Returns the most recent device state from malcolm. This returns
+	 * the device state from the most recently state change from the actual
+	 * malcolm device. This value returned from this method is the same value that
+	 * {@link MalcolmStateChangedEvent#getPreviousState()} will be in the next such event.
+	 * @return latest device state of the malcolm device
+	 * @throws ScanningException
+	 */
+	public DeviceState getLatestDeviceState() throws ScanningException {
+		return super.getDeviceState();
+	}
+
+	/**
+	 * Overrides {@link IRunnableDevice#getDeviceState()} to ask the actual
+	 * malcolm device for the device state.
+	 * @return the device state of the malcolm device
+	 */
 	@Override
 	public DeviceState getDeviceState() throws MalcolmDeviceException {
 		final ChoiceAttribute choiceAttr = getEndpointValue(ATTRIBUTE_NAME_STATE);
@@ -548,11 +567,13 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	}
 
 	@Override
-	public void configure(IMalcolmModel model) throws MalcolmDeviceException {
+	public void configure(IMalcolmModel model) throws ScanningException {
 		logger.debug("configure() called on malcolm device {}", getName());
 
 		// Abort and/or reset the device before configure in case it's in a fault state
 		goToReadyState();
+
+		super.configure(model); // sets the model, which we need to do before calling createEpicsMalcolmModel
 
 		final EpicsMalcolmModel epicsModel = createEpicsMalcolmModel(model);
 		final MalcolmMessage msg = messageGenerator.createCallMessage(MalcolmMethod.CONFIGURE, epicsModel);
@@ -572,8 +593,6 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		if (pointGen != null && scanModel != null) scanModel.setPointGenerator(pointGen);
 
 		updateDetectorInfos((MalcolmTable) result.get(FIELD_NAME_DETECTORS));
-
-		setModel(model);
 	}
 
 	private void updateDetectorInfos(MalcolmTable detectorsTable) {
@@ -611,8 +630,9 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	 * configure outside of a scan, for example it is necessary to call
 	 * @param model the IMalcolmModel to use
 	 * @return
+	 * @throws ScanningException
 	 */
-	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model) throws MalcolmDeviceException {
+	private EpicsMalcolmModel createEpicsMalcolmModel(IMalcolmModel model) throws ScanningException {
 		// get the point generator for the scan, with the duration set
 		this.pointGenerator = createPointGenerator(model);
 
@@ -620,17 +640,12 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		final String outputDir = this.outputDir == null ? Services.getFilePathService().getTempDir() : this.outputDir;
 		final String fileTemplate = Paths.get(outputDir).getFileName().toString() + "-%s." + FILE_EXTENSION_H5;
 
-		// get the axes to move
-		List<String> axesToMove = model.getAxesToMove();
-		if (axesToMove == null) {
-			axesToMove = calculateAxesToMove(getAvailableAxes(), pointGenerator);
-		}
-
 		// convert the detector models to a MalcolmTable
 		final MalcolmTable detectorTable = detectorModelsToTable(model.getDetectorModels());
 
 		// create the EpicsMalcolmModel with all the arguments that malcolm's configure and validate methods require
 		final int[] breakpoints = getBreakpoints();
+		final List<String> axesToMove = getConfiguredAxes(model);
 		return new EpicsMalcolmModel(outputDir, fileTemplate, axesToMove, pointGenerator, detectorTable, breakpoints);
 	}
 

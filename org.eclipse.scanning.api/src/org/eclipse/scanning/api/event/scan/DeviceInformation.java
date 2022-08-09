@@ -155,6 +155,12 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 	private List<String> availableAxes;
 
 	/**
+	 * The configured axes of the malcolm device.
+	 * This field is only used for {@link IMalcolmDevice}s.
+	 */
+	private List<String> configuredAxes;
+
+	/**
 	 * The version of the malcolm device. Naturally, this field is only set for malcolm devices.
 	 */
 	private MalcolmVersion malcolmVersion;
@@ -269,6 +275,7 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 		result = prime * result + (activated ? 1231 : 1237);
 		result = prime * result + (alive ? 1231 : 1237);
 		result = prime * result + ((availableAxes == null) ? 0 : availableAxes.hashCode());
+		result = prime * result + ((configuredAxes == null) ? 0 : configuredAxes.hashCode());
 		result = prime * result + (busy ? 1231 : 1237);
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((deviceRole == null) ? 0 : deviceRole.hashCode());
@@ -308,6 +315,11 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 			if (other.availableAxes != null)
 				return false;
 		} else if (!availableAxes.equals(other.availableAxes))
+			return false;
+		if (configuredAxes == null) {
+			if (other.configuredAxes != null)
+				return false;
+		} else if (!configuredAxes.equals(other.configuredAxes))
 			return false;
 		if (busy != other.busy)
 			return false;
@@ -488,6 +500,14 @@ public class DeviceInformation<T> implements IModelProvider<T> {
 
 	public void setAvailableAxes(List<String> list) {
 		this.availableAxes = list;
+	}
+
+	public List<String> getConfiguredAxes() {
+		return configuredAxes;
+	}
+
+	public void setConfiguredAxes(List<String> list) {
+		this.configuredAxes = list;
 	}
 
 	public boolean isShownByDefault() {

@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import org.eclipse.scanning.api.device.IRunnableEventDevice;
 import org.eclipse.scanning.api.device.models.IMalcolmDetectorModel;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.malcolm.IMalcolmDevice;
+import org.eclipse.scanning.api.malcolm.attributes.MalcolmDatasetType;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
@@ -61,6 +63,7 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.IScanPointGeneratorModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
+import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmDatasetModel;
@@ -216,7 +219,7 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 	protected void checkDetector(NXdetector detector, DummyMalcolmModel dummyMalcolmModel,
 			IMalcolmDetectorModel detectorModel, ScanModel scanModel, NXentry entry,
 			List<String> primaryDataFieldNames, Map<String, NXdata> nxDataGroups, int[] sizes)
-			throws DatasetException {
+			throws Exception {
 		assertThat(detector.getCount_timeScalar().doubleValue(), is(closeTo(detectorModel.getExposureTime(), 1e-15)));
 
 		final String detectorName = detectorModel.getName();
@@ -285,53 +288,79 @@ public abstract class AbstractMalcolmScanTest extends NexusTest {
 			}
 			assertAxes(nxData, expectedAxesNames.toArray(new String[expectedAxesNames.size()]));
 
-			final int[] defaultDimensionMappings = IntStream.range(0, sizes.length).toArray();
 			for (int axisIndex = 0; axisIndex < axisNames.size(); axisIndex++) {
 				final String axisName = axisNames.get(axisIndex);
 				final NXpositioner positioner = entry.getInstrument().getPositioner(axisName);
 				assertThat(positioner, is(notNullValue()));
 
-				checkPositioner(positioner, dummyMalcolmModel, nxData, defaultDimensionMappings,
-						axisIndex, axisName, sizes);
+				checkPositioner(positioner, dummyMalcolmModel, nxData, axisName, axisIndex, sizes);
 			}
 			isFirst = false;
 		}
 	}
 
-	private void checkPositioner(final NXpositioner positioner, DummyMalcolmModel dummyMalcolmModel,
-			final NXdata nxData, int[] defaultDimensionMappings, int axisIndex, String axisName, int[] sizes)
-			throws DatasetException {
-		DataNode dataNode = positioner.getDataNode("value_set");
-		IDataset dataset = dataNode.getDataset().getSlice();
-		final int[] expectedShape = new int[] { sizes[axisIndex] };
+	private void checkPositioner(NXpositioner positioner, DummyMalcolmModel dummyMalcolmModel,
+			NXdata dataGroup, String axisName, int axisIndex, int[] sizes) throws Exception{
+		// value field is not created for malcolm controlled axis for which there is no positioner
+		// (this is stage_y, since its actual motors are j1, j2 and j3 (jacks)).
+		final boolean hasValueField = !isMalcolmAxis(axisName) || dummyMalcolmModel.getPositionerNames().contains(axisName);
+
+		if (hasValueField) {
+			checkDataset(positioner, dataGroup, axisName, axisIndex, sizes, true, MalcolmDatasetType.POSITION_VALUE);
+		}
+		checkDataset(positioner, dataGroup, axisName, axisIndex, sizes, hasValueField, MalcolmDatasetType.POSITION_SET);
+	}
+
+	protected List<String> getMalcolmAxes() throws ScanningException {
+		return malcolmDevice.getModel().getAxesToMove() != null ?
+				malcolmDevice.getModel().getAxesToMove() : malcolmDevice.getAvailableAxes();
+	}
+
+	protected boolean isMalcolmAxis(String axisName) throws ScanningException {
+		return getMalcolmAxes().contains(axisName);
+	}
+
+	private void checkDataset(NXpositioner positioner, NXdata dataGroup, String axisName, int axisIndex,
+			int[] sizes, boolean hasValueField, MalcolmDatasetType type) throws DatasetException {
+		// check the value_set field
+		final List<String> malcolmAxes = malcolmDevice.getModel().getAxesToMove();
+		final boolean isMalcolmAxis = malcolmAxes.contains(axisName);
+		final String dataNodeName = NXpositioner.NX_VALUE + (type == MalcolmDatasetType.POSITION_SET ? "_set" : "");
+		final DataNode dataNode = positioner.getDataNode(dataNodeName);
+		assertThat(dataNode, is(notNullValue()));
+		final IDataset dataset = dataNode.getDataset().getSlice();
+
+		final int expectedRank;
+		final int[] expectedShape;
+		final int[] expectedIndices;
+		switch (type) {
+			case POSITION_VALUE:
+				expectedRank = isMalcolmAxis ? sizes.length : sizes.length - malcolmAxes.size();
+				expectedShape = isMalcolmAxis ? sizes : Arrays.copyOfRange(sizes, 0, expectedRank);
+				expectedIndices = IntStream.range(0, expectedShape.length).toArray();
+				break;
+			case POSITION_SET:
+				expectedRank = 1;
+				expectedShape = new int[] { sizes[axisIndex] };
+				expectedIndices = new int[] { axisIndex };
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid dataset type: " + type);
+		}
+
+		assertThat(dataset.getRank(), is(expectedRank));
 		assertThat(dataset.getShape(), is(equalTo(expectedShape)));
 
-		String nxDataFieldName = axisName + (!axisName.equals("stage_y") ? "_value_set" : "");
-		assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
-		assertIndices(nxData, nxDataFieldName, axisIndex);
-		// The value of the target attribute seems to come from the external file
-//					assertTarget(nxData, nxDataFieldName, rootNode,
-//							"/entry/" + firstDetectorName + "/" + nxDataFieldName);
-
-		// value field (a.k.a rbv) only created if in list of positioners in model
-		if (dummyMalcolmModel.getPositionerNames().contains(axisName)) {
-			// Actual values should be scanD
-			dataNode = positioner.getDataNode(NXpositioner.NX_VALUE);
-			assertThat(dataNode, is(notNullValue()));
-			dataset = dataNode.getDataset().getSlice();
-			assertThat(dataset.getShape(), is(equalTo(sizes)));
-
-			nxDataFieldName = axisName + "_" + NXpositioner.NX_VALUE;
-//						assertSame(dataNode, nxData.getDataNode(nxDataFieldName));
-			assertDataNodesEqual("", dataNode, nxData.getDataNode(nxDataFieldName));
-			assertIndices(nxData, nxDataFieldName, defaultDimensionMappings);
-//					assertTarget(nxData, nxDataFieldName, rootNode,
-//							"/entry/instrument/" + axisName + "/" + NXpositioner.NX_VALUE);
+		final String dataGroupFieldName = type == MalcolmDatasetType.POSITION_SET && !hasValueField ? axisName : axisName + "_" + dataNodeName;
+		if (isMalcolmAxis) {
+			assertDataNodesEqual("", dataNode, dataGroup.getDataNode(dataGroupFieldName));
+		} else {
+			assertThat(dataGroup.getDataNode(dataGroupFieldName), is(sameInstance(dataNode)));
 		}
+		assertIndices(dataGroup, dataGroupFieldName, expectedIndices);
 	}
 
 	protected IRunnableDevice<ScanModel> createMalcolmGridScan(final IMalcolmDevice malcolmDevice, File file, boolean snake, int... size) throws Exception {
-
 		// Create scan points for a grid and make a generator
 		final TwoAxisGridPointsModel gridModel = new TwoAxisGridPointsModel(); // Note stage_x and stage_y scannables controlled by malcolm
 		gridModel.setxAxisName("stage_x");

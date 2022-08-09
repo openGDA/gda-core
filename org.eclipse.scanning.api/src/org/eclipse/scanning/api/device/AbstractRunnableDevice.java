@@ -267,7 +267,6 @@ public abstract class AbstractRunnableDevice<T> extends AbstractNameable impleme
 		for (IRunListener l : la) l.writePerformed(evt);
 	}
 
-
 	@Override
 	public T getModel() {
 		return model;
@@ -284,31 +283,29 @@ public abstract class AbstractRunnableDevice<T> extends AbstractNameable impleme
 		setDeviceState(DeviceState.ARMED);
 	}
 
-
 	@Override
 	public void abort() throws ScanningException, InterruptedException {
-
+		// do nothing by default, subclasses may override
 	}
 
 	@Override
 	public void disable() throws ScanningException {
-
+		// do nothing by default, subclasses may override
 	}
 
 	@Override
 	public void pause() throws ScanningException, InterruptedException {
-
+		// do nothing by default, subclasses may override
 	}
 
 	@Override
 	public void seek(int stepNumber) throws ScanningException, InterruptedException {
-       // Do nothing
+		// do nothing by default, subclasses may override
 	}
-
 
 	@Override
 	public void resume() throws ScanningException, InterruptedException {
-
+		// do nothing by default, subclasses may override
 	}
 
 	/**

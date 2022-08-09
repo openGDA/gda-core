@@ -34,7 +34,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -189,8 +188,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 		@Override
 		public void createNexusFile(String dirPath) throws NexusException {
-			int scanRank = getScanRank();
-
 			final String filePath = dirPath + model.getName() + FILE_EXTENSION_HDF5;
 			System.out.println("Dummy malcolm device creating nexus file " + filePath);
 			TreeFile treeFile = NexusNodeFactory.createTreeFile(filePath);
@@ -216,8 +213,9 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 
 				addDataset(datasetName,  dataGroup.initializeLazyDataset(datasetName,
 						scanRank + datasetModel.getRank(), datasetModel.getDtype()), getDataShape(datasetModel));
-				// add the demand values for the axes
-				for (String axisName : axesToMove) {
+				// add the demand values for the all axes in the point generator
+				// Note: this is what a real malcolm device does, but it probably shouldn't (see DAQ-3655 and DAQ-4236)
+				for (String axisName : pointGenerator.getNames()) {
 					DataNode axisDemandDataNode = axesDemandDataNodes.get(axisName);
 					String dataNodeName = axisName + "_set";
 					if (axisDemandDataNode == null) {
@@ -259,7 +257,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 			}
 
 			// write the demand position for each malcolm controlled axis
-			for (String axisName : axesToMove) {
+			for (String axisName : pointGenerator.getNames()) {
 				writeDemandData(axisName, position);
 			}
 
@@ -371,7 +369,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 	private StringArrayAttribute availableAxes;
 	private TableAttribute datasets;
 	private TableAttribute layout;
-	private List<String> axesToMove;
 
 	private Map<String, MalcolmAttribute<?>> allAttributes;
 
@@ -456,38 +453,23 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		availableAxes.setDescription("Default axis names to scan for configure()");
 		availableAxes.setWriteable(false);
 		allAttributes.put(availableAxes.getName(), availableAxes);
-		axesToMove = new ArrayList<>(model.getAxesToMove());
 
 		// set scanRank to the size of axesToMove initially. this will be overwritten before a scan starts
 		scanRank = availableAxes.getValue().length;
 	}
 
 	@Override
-	public void setModel(IMalcolmModel model) {
-		super.setModel(model);
-		axesToMove = model.getAxesToMove();
-	}
-
-	@Override
 	public void configure(IMalcolmModel model) throws ScanningException {
 		setDeviceState(DeviceState.CONFIGURING);
+
+		// super.configure sets device state to ready
+		super.configure(model);
 
 		// Note: cannot create dataset attr at this point as we don't know the scan rank,
 		// which is required for the datasets for the scannables
 		totalSteps.setValue(64);
 		configuredSteps.setValue(64);
 		stepIndex = 0;
-
-		// check that all the axes in axesToMove are in the set of available axes
-		final List<String> availableAxes = getAvailableAxes();
-		if (!availableAxes.containsAll(model.getAxesToMove())) {
-			throw new MalcolmDeviceException("Unknown axis: " + model.getAxesToMove().stream()
-					.filter(axisName -> !availableAxes.contains(axisName)).findFirst().orElseThrow());
-		}
-		axesToMove = model.getAxesToMove();
-
-		// super.configure sets device state to ready
-		super.configure(model);
 
 		final List<IMalcolmDetectorModel> detectorModels = ((DummyMalcolmModel) model).getDetectorModels();
 		devices = detectorModels.stream().collect(Collectors.toMap(
@@ -541,7 +523,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		if (pointGenerator!=null) { // Some tests end up using the configure call of
 			                        // RunnableDeviceService which does not have a pointGenerator
 			scanRank = pointGenerator.getRank(); // note, scanRank of a static generator is 1 (i.e. acquire scan)
-			axesToMove = calculateAxesToMove(axesToMove, pointGenerator);
 		}
 	}
 
@@ -597,7 +578,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		return scanRank;
 	}
 
-	private TableAttribute createDatasetsAttribute(DummyMalcolmModel model) {
+	private TableAttribute createDatasetsAttribute(DummyMalcolmModel model) throws ScanningException {
 		final LinkedHashMap<String, Class<?>> types = new LinkedHashMap<>();
 		types.put(DATASETS_TABLE_COLUMN_NAME, String.class);
 		types.put(DATASETS_TABLE_COLUMN_FILENAME, String.class);
@@ -609,7 +590,6 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		// add rows for each DummyMalcolmDatasetModel
 		MalcolmTable table = new MalcolmTable(types);
 
-		int scanRank = getScanRank();
 		for (IMalcolmDetectorModel detectorModel : model.getDetectorModels()) {
 			String deviceName = detectorModel.getName();
 			MalcolmDatasetType datasetType = PRIMARY; // the first dataset is the primary dataset
@@ -625,13 +605,16 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 			}
 		}
 
-		// Add rows for the demand values for the axes controlled by malcolm. Malcolm adds these
+		// Add rows for the demand values for the all axes in the point generator, if present, otherwise the axes
+		// controlled by this malcolm device. This is what the real malcolm device does, but it should probably
+		// only write the demand values for axes it controls, see DAQ-3655 and DAQ-4236
 		// to the NXdata for each primary and secondary dataset of each detector. As they
 		// are all the same, the datasets attribute only returns the first one
 		if (!model.getDetectorModels().isEmpty()) {
 			final String firstDetectorName = model.getDetectorModels().get(0).getName();
-			for (String axisToMove : axesToMove) {
-				final String datasetName = "value_set";
+			final List<String> setValueAxesToWrite = pointGenerator != null ? pointGenerator.getNames() : getConfiguredAxes();
+			for (String axisToMove : setValueAxesToWrite) {
+				final String datasetName = NXpositioner.NX_VALUE + "_set";
 				final String path = String.format("/entry/%s/%s_set", firstDetectorName, axisToMove); // e.g. /entry/detector/x_set
 				table.addRow(createDatasetRow(axisToMove, datasetName,
 						firstDetectorName + FILE_EXTENSION_HDF5, POSITION_SET, path, 1));
@@ -639,7 +622,7 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 		}
 
 		// Add rows for the value datasets of each positioner (i.e. read-back-value)
-		for (String positionerName: model.getPositionerNames()) {
+		for (String positionerName : model.getPositionerNames()) {
 			final String path = String.format("/entry/%s/%s", positionerName, positionerName); // e.g. /entry/j1/j1
 			table.addRow(createDatasetRow(positionerName, "value",
 					"panda" + FILE_EXTENSION_HDF5, POSITION_VALUE, path, scanRank));
@@ -658,15 +641,15 @@ public class DummyMalcolmDevice extends AbstractMalcolmDevice {
 					MONITOR, path, scanRank)); // TODO can currently only handle scalar monitors
 		}
 
-		TableAttribute datasets = new TableAttribute();
-		datasets.setValue(table);
-		datasets.setHeadings(table.getHeadings().toArray(new String[table.getHeadings().size()]));
-		datasets.setName("datasets");
-		datasets.setLabel("datasets");
-		datasets.setDescription("Datasets produced in HDF file");
-		datasets.setWriteable(true);
+		final TableAttribute datasetsAttr = new TableAttribute();
+		datasetsAttr.setValue(table);
+		datasetsAttr.setHeadings(table.getHeadings().toArray(new String[table.getHeadings().size()]));
+		datasetsAttr.setName(ATTRIBUTE_NAME_DATASETS);
+		datasetsAttr.setLabel(ATTRIBUTE_NAME_DATASETS);
+		datasetsAttr.setDescription("Datasets produced in HDF file");
+		datasetsAttr.setWriteable(true);
 
-		return datasets;
+		return datasetsAttr;
 	}
 
 	private Map<String, Object> createDatasetRow(String deviceName, String datasetName,

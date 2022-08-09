@@ -138,6 +138,45 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	}
 
 	@Override
+	public void configure(IMalcolmModel model) throws ScanningException {
+		// check that all the axes in axesToMove are in the set of available axes
+		final List<String> availableAxes = getAvailableAxes();
+		if (model.getAxesToMove() != null && !availableAxes.containsAll(model.getAxesToMove())) {
+			throw new MalcolmDeviceException("Unknown axis: " + model.getAxesToMove().stream()
+					.filter(axisName -> !availableAxes.contains(axisName)).findFirst().orElseThrow());
+		}
+
+		super.configure(model);
+	}
+
+	@Override
+	public List<String> getConfiguredAxes() throws ScanningException {
+		return getConfiguredAxes(getModel());
+	}
+
+	public List<String> getConfiguredAxes(IMalcolmModel model) throws ScanningException {
+		final List<String> configuredAxes = (model != null && model.getAxesToMove() != null) ? model.getAxesToMove() : getAvailableAxes();
+
+		return pointGenerator == null ? configuredAxes : calculateAxesToMove(configuredAxes);
+	}
+
+	/**
+	 * Calculate the value of the axesToMove property of the EpicsMalcolmModel to send to malcolm,
+	 * based on the given configured axes and the currently configured point generator
+	 * @param configuredAxes the axes malcolm is or would have been configured with
+	 * @return the axes that malcolm should move in the scan
+	 */
+	protected List<String> calculateAxesToMove(List<String> configuredAxes) {
+		final List<String> scannableNames = pointGenerator.getNames();
+		int i = scannableNames.size() - 1;
+		while (i >= 0 && configuredAxes.contains(scannableNames.get(i))) {
+			i--;
+		}
+		// i is now the index of the first non-malcolm axis, or -1 if all axes are malcolm controlled
+		return new ArrayList<>(scannableNames.subList(i + 1, scannableNames.size()));
+	}
+
+	@Override
 	public void setPointGenerator(IPointGenerator<? extends IScanPointGeneratorModel> pointGenerator) {
 		this.pointGenerator = pointGenerator;
 	}
@@ -157,20 +196,9 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		return Optional.empty();
 	}
 
-
 	@Override
 	public IPointGenerator<? extends IScanPointGeneratorModel> getPointGenerator() {
 		return pointGenerator;
-	}
-
-	protected List<String> calculateAxesToMove(List<String> availableAxes, IPointGenerator<?> pointGen) {
-		final List<String> scannableNames = pointGen.getNames();
-		int i = scannableNames.size() - 1;
-		while (i >= 0 && availableAxes.contains(scannableNames.get(i))) {
-			i--;
-		}
-		// i is now the index of the first non-malcolm axis, or -1 if all axes are malcolm controlled
-		return new ArrayList<>(scannableNames.subList(i + 1, scannableNames.size()));
 	}
 
 	@Override
@@ -199,6 +227,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 		final DeviceInformation<IMalcolmModel> info = super.getDeviceInformation(includeNonAlive);
 		if (includeNonAlive || info.isAlive()) {
 			info.setAvailableAxes(getAvailableAxes());
+			info.setConfiguredAxes(getConfiguredAxes());
 			info.setMalcolmVersion(getVersion());
 			info.setMalcolmDetectorInfos(getDetectorInfos());
 		}
@@ -212,7 +241,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	 * @throws Exception
 	 */
 	protected void beforeExecute() throws Exception {
-		logger.debug("Entering beforeExecute, state is " + getDeviceState());
+		logger.debug("Entering beforeExecute, state is: {}", getDeviceState());
 	}
 
 	/**
@@ -221,7 +250,7 @@ public abstract class AbstractMalcolmDevice extends AbstractRunnableDevice<IMalc
 	 * @throws Exception
 	 */
 	protected void afterExecute() throws Exception {
-		logger.debug("Entering afterExecute, state is " + getDeviceState());
+		logger.debug("Entering afterExecute, state is: {}", getDeviceState());
 	}
 
 	protected void setTemplateBean(MalcolmEvent bean) {

@@ -166,6 +166,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		final MalcolmMessage expectedSubscribeCompletedStepsMessage = createExpectedMalcolmMessage(id++, Type.SUBSCRIBE, "completedSteps");
 		final MalcolmMessage expectedGetDeviceStateMessage2 = createExpectedMalcolmMessage(id++, Type.GET, "state");
 
+		final DeviceState currentDeviceState = ((MalcolmDevice) malcolmDevice).getLatestDeviceState();
 		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage)).thenReturn(
 				createExpectedMalcolmStateReply(DeviceState.READY));
 		when(malcolmConnection.send(malcolmDevice, expectedGetDeviceStateMessage2)).thenReturn(
@@ -201,7 +202,7 @@ public abstract class AbstractMalcolmDeviceTest {
 		assertThat(malcolmDevice.isAlive(), is(true));
 		verify(malcolmConnection, timeout(1000)).send(malcolmDevice, expectedGetDeviceStateMessage2);
 		verify(malcolmEventListener, timeout(1000)).eventPerformed(
-				createExpectedMalcolmEvent(DeviceState.READY, DeviceState.OFFLINE, "connected to " + malcolmDevice.getName()));
+				createExpectedMalcolmEvent(DeviceState.READY, currentDeviceState, "connected to " + malcolmDevice.getName()));
 		verifyNoMoreInteractions(malcolmEventListener);
 //		verifyNoMoreInteractions(malcolmConnection); // This doesn't work, not sure why
 	}
@@ -226,10 +227,12 @@ public abstract class AbstractMalcolmDeviceTest {
 		final MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
 
 		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y"));
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via setScannable
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from MalcolmDevice.configure via getConfiguredAxes
 
 		final MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
 		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(createExpectedMalcolmGetConfigureReply());
+
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from MalcolmDevice.configure via getConfiguredAxes
 
 		// create the EpicsMalcolmModels expected to be sent to malcolm and to be received
 		final List<MalcolmDetectorInfo> expectedSentDetectorInfos = getExpectedMalcolmDetectorInfos(false);

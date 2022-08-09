@@ -413,9 +413,10 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		// call methods in the mocked communication layer, so we need to set up replies for those
 		final MalcolmMessage axesToMoveReply = createExpectedMalcolmOkReply(new StringArrayAttribute("stage_x", "stage_y"));
 		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via setScannable
-		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via LocationManager and SubscanModerator constructors
-		final MalcolmMessage datasetsReply = createDatasetsReply(pointGen, getExpectedMalcolmDetectorInfos(false));
+		when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via SubScanModerator.moderate
 		if (!abort) {
+			when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via MalcolmNexusObjectBuilder.getMalcolmAxes
+			final MalcolmMessage datasetsReply = createDatasetsReply(pointGen, getExpectedMalcolmDetectorInfos(false));
 			when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_DATASETS))).thenReturn(datasetsReply);
 			when(malcolmConnection.send(malcolmDevice, createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES))).thenReturn(axesToMoveReply); // called from AcquisitionDevice.configure via LocationManager and SubscanModerator constructors
 		}

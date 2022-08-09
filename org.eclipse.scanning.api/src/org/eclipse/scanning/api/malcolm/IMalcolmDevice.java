@@ -89,6 +89,16 @@ public interface IMalcolmDevice extends IRunnableEventDevice<IMalcolmModel>, IVa
 	public List<String> getAvailableAxes() throws ScanningException;
 
 	/**
+	 * Returns the axes that this malcolm device is currently configured to move.
+	 * Normally, the value returned is the same as {@link #getAvailableAxes()}, except if the last time
+	 * that malcolm was configured by calling {@link IMalcolmDevice#configure(IMalcolmModel)},
+	 * {@link IMalcolmModel#getAxesToMove()} was non-null, in which case it is the
+	 * @return the axes that the malcolm device is currently configured to move
+	 * @throws ScanningException
+	 */
+	public List<String> getConfiguredAxes() throws ScanningException;
+
+	/**
 	 * Returns the {@link MalcolmDetectorInfo}s for the detectors controlled by this malcolm device,
 	 * describing their current state.
 	 * @return detector infos
