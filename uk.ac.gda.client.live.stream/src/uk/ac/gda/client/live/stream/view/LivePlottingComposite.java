@@ -412,7 +412,7 @@ public class LivePlottingComposite extends Composite {
 			private String buildTitle() {
 				final double fps = getFps();
 				final String cameraName = liveStreamConnection.getCameraConfig().getName();
-				return String.format("%s: %s - Frame: %d (%.1f fps)", cameraName, liveStreamConnection.getStreamType(),
+				return String.format("%s: %s - Frame: %d (%04.1f fps)", cameraName, liveStreamConnection.getStreamType(),
 						frameCounter.incrementAndGet(), fps);
 			}
 
