@@ -54,6 +54,27 @@ public class QueueCommandBean  extends IdBean {
 
 	/**
 	 * An enumeration of the commands that an {@link IJobQueue} can perform.
+	 * <P><UL>
+	 * <LI>{@link #PAUSE_QUEUE}
+	 * <LI>{@link #RESUME_QUEUE}
+	 * <LI>{@link #STOP_QUEUE}
+	 * <LI>{@link #CLEAR_QUEUE}
+	 * <LI>{@link #CLEAR_COMPLETED}
+	 * <LI>{@link #SUBMIT_JOB}
+	 * <LI>{@link #PAUSE_JOB}
+	 * <LI>{@link #RESUME_JOB}
+	 * <LI>{@link #TERMINATE_JOB}
+	 * <LI>{@link #MOVE_FORWARD}
+	 * <LI>{@link #MOVE_BACKWARD}
+	 * <LI>{@link #REMOVE_FROM_QUEUE}
+	 * <LI>{@link #REMOVE_COMPLETED}
+	 * <LI>{@link #GET_QUEUE}
+	 * <LI>{@link #GET_RUNNING_AND_COMPLETED}
+	 * <LI>{@link #GET_INFO}
+	 * <LI>{@link #REFRESH_QUEUE_VIEW}
+	 * <LI>{@link #DEFER}
+	 * <LI>{@link #UNDEFER}
+	 * </UL>
 	 */
 	public enum Command {
 
@@ -357,5 +378,4 @@ public class QueueCommandBean  extends IdBean {
 		sb.append("]");
 		return sb.toString();
 	}
-
 }
