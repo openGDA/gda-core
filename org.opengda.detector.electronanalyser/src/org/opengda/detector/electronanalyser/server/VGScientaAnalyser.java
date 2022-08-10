@@ -45,6 +45,7 @@ import gda.device.detector.areadetector.v17.NDProcess;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 import uk.ac.diamond.daq.pes.api.AcquisitionMode;
+import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.gda.api.remoting.ServiceInterface;
 import uk.ac.gda.devices.vgscienta.IVGScientaAnalyserRMI;
@@ -1128,5 +1129,20 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyserR
 	@Override
 	public int getMaximumNumberOfSteps() {
 		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public double getDeflectorX() throws DeviceException {
+		return 0;
+	}
+
+	@Override
+	public void setDeflectorX(double deflectorX) throws DeviceException {
+
+	}
+
+	@Override
+	public AnalyserDeflectorRangeConfiguration getDeflectorRangeConfiguration() {
+		return null;
 	}
 }

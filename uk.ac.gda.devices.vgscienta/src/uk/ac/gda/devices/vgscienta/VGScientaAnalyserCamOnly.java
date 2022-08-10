@@ -52,12 +52,11 @@ import uk.ac.diamond.daq.pes.api.AcquisitionMode;
 import uk.ac.diamond.daq.pes.api.AnalyserDeflectorRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.AnalyserEnergyRangeConfiguration;
 import uk.ac.diamond.daq.pes.api.DetectorConfiguration;
-import uk.ac.diamond.daq.pes.api.IElectronAnalyserWithDeflector;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.gda.api.remoting.ServiceInterface;
 
-@ServiceInterface(IElectronAnalyserWithDeflector.class)
-public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IElectronAnalyserWithDeflector {
+@ServiceInterface(IVGScientaAnalyserRMI.class)
+public class VGScientaAnalyserCamOnly extends ADDetector implements MonitorListener, IVGScientaAnalyserRMI {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyserCamOnly.class);
 
 	protected boolean inScan = false;
