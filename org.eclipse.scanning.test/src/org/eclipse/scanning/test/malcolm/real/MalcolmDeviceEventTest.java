@@ -35,13 +35,18 @@ import org.eclipse.scanning.api.malcolm.event.MalcolmEvent;
 import org.eclipse.scanning.api.malcolm.message.MalcolmMessage;
 import org.eclipse.scanning.api.malcolm.message.Type;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
+@ExtendWith(MockitoExtension.class)
+class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 
+	@BeforeEach
 	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+	public void setUpMalcolmDevice() throws Exception {
+		super.setUpMalcolmDevice();
 		initializeMalcolmDevice();
 	}
 
@@ -72,7 +77,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testReceiveStateChange() throws Exception {
+	void testReceiveStateChange() {
 		// Arrange
 		DeviceState oldState = DeviceState.READY;
 		DeviceState newState = DeviceState.CONFIGURING;
@@ -100,7 +105,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testReceiveScanEvent() throws Exception {
+	void testReceiveScanEvent() throws Exception {
 		// Arrange
 		// create a mock position listener and add it to the malcolm device
 
@@ -128,7 +133,7 @@ public class MalcolmDeviceEventTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testConnectionStateChange() throws Exception {
+	void testConnectionStateChange() throws Exception {
 		// Arrange
 		assertThat(malcolmDevice.isAlive(), is(true));
 

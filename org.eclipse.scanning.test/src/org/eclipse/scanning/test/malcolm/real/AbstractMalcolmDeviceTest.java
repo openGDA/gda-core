@@ -87,27 +87,23 @@ import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import com.google.common.collect.Iterables;
 
-public abstract class AbstractMalcolmDeviceTest {
+abstract class AbstractMalcolmDeviceTest {
 
-	protected IScanService scanService;
-	protected IPointGeneratorService pointGenService;
-	protected IMalcolmDevice malcolmDevice;
+	protected static IScanService scanService;
+	protected static IPointGeneratorService pointGenService;
 
 	@Mock
 	protected IMalcolmConnection malcolmConnection;
 
-	@Rule
-	public MockitoRule mockitoRule = MockitoJUnit.rule();
+	protected IMalcolmDevice malcolmDevice;
 
 	protected IMalcolmConnectionEventListener stateChangeListener;
 	protected IMalcolmConnectionEventListener scanEventListener;
@@ -118,21 +114,25 @@ public abstract class AbstractMalcolmDeviceTest {
 
 	protected int id = 0;
 
-	@Before
-	public void setUp() throws Exception {
+	@BeforeAll
+	static void setUpServices() {
 		ServiceTestHelper.setupServices();
-		this.scanService = ServiceTestHelper.getScanService();
+		scanService = ServiceTestHelper.getScanService();
 		pointGenService = ServiceTestHelper.getPointGeneratorService();
 
 		Services services = new Services();
 		services.setPointGeneratorService(pointGenService);
 		services.setFilePathService(ServiceTestHelper.getFilePathService());
+	}
 
+	@SuppressWarnings("unused") // subclass throws Exception
+	@BeforeEach
+	public void setUpMalcolmDevice() throws Exception {
 		when(malcolmConnection.getMessageGenerator()).thenReturn(new MalcolmMessageGenerator());
 		malcolmDevice = new MalcolmDevice("malcolm", malcolmConnection, scanService);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		malcolmDevice.dispose();
 		malcolmConnection.disconnect();

@@ -38,7 +38,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -100,13 +100,20 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 /**
  * A test that uses a {@link MalcolmDevice} in a scan.
  */
-public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	private static final String UNIQUE_KEYS_DATASET_PATH = "/entry/NDAttributes/NDArrayUniqueId";
 
@@ -126,9 +133,8 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 
 	private File outputFile;
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+	@BeforeEach
+	public void setUpPathAndScannables() throws Exception {
 		final Path outputDir = Paths.get(ServiceTestHelper.getFilePathService().getVisitDir());
 		outputFile = Files.createTempFile(outputDir, "test_nexus", ".nxs").toFile();
 		outputFile.deleteOnExit();
@@ -137,6 +143,12 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 		doReturn(zAxisScannable).when(scannableDeviceService).getScannable("stage_z");
 		when(zAxisScannable.getName()).thenReturn("stage_z");
 		RunnableDeviceServiceImpl.setDeviceConnectorService(scannableDeviceService);
+	}
+
+	@BeforeEach
+	@Override
+	public void setUpMalcolmDevice() throws Exception {
+		super.setUpMalcolmDevice();
 		initializeMalcolmDevice();
 	}
 
@@ -165,14 +177,14 @@ public class MalcolmDeviceScanTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testMalcolmScan() throws Exception {
+	void testMalcolmScan() throws Exception {
 		final IScanDevice scanner = testMalcolmScan(false);
 
 		checkNexusFile(scanner);
 	}
 
 	@Test
-	public void testMalcolmScanAborted() throws Exception {
+	void testMalcolmScanAborted() throws Exception {
 		testMalcolmScan(true);
 	}
 

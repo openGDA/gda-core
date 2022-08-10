@@ -81,12 +81,15 @@ import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.malcolm.core.EpicsMalcolmModel;
 import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * A test class for testing a real {@link MalcolmDevice}, but with a mock {@link IMalcolmConnection}.
  */
-public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
+@ExtendWith(MockitoExtension.class)
+class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	@FunctionalInterface
 	public interface MalcolmCall {
@@ -96,7 +99,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	private static final String OUTPUT_DIR = "/path/to/ixx-1234";
 
 	@Test
-	public void testGetDeviceState() throws Exception {
+	void testGetDeviceState() throws Exception {
 		// test some common values, so we know it returns the value from the connection and always the same
 		final DeviceState[] deviceStates = new DeviceState[] {
 				DeviceState.READY, DeviceState.ARMED, DeviceState.RUNNING, DeviceState.PAUSED,
@@ -119,7 +122,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testGetDeviceHealth() throws Exception {
+	void testGetDeviceHealth() throws Exception {
 		final String[] healthValues = new String[] { "ok", "fault" }; // TODO what are the possible values?
 		for (int i = 0; i < healthValues.length; i++) {
 			// Arrange
@@ -137,7 +140,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testIsDeviceBusy() throws Exception {
+	void testIsDeviceBusy() throws Exception {
 		// is device busy simply calls getDeviceState and returns !DeviceState.isRest()
 		// test some common values, just we test that it returns the value from the connection,
 		final DeviceState[] deviceStates = new DeviceState[] {
@@ -161,13 +164,13 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testValidateNoScan() throws Exception {
+	void testValidateNoScan() throws Exception {
 		// tests validating a malcolm device outside of a scan. A default point generator and fileDir should be used
 		testValidate(null, null);
 	}
 
 	@Test
-	public void testValidate() throws Exception {
+	void testValidate() throws Exception {
 		testValidate(createCompoundModel(), OUTPUT_DIR);
 	}
 
@@ -230,17 +233,17 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testValidateWithReturnNoScan() throws Exception {
+	void testValidateWithReturnNoScan() throws Exception {
 		testValidateWithReturn(false, null, null);
 	}
 
 	@Test
-	public void testValidateWithReturn() throws Exception {
+	void testValidateWithReturn() throws Exception {
 		testValidateWithReturn(false, createCompoundModel(), OUTPUT_DIR);
 	}
 
 	@Test
-	public void testValidateWithReturnModified() throws Exception {
+	void testValidateWithReturnModified() throws Exception {
 		testValidateWithReturn(true, createCompoundModel(), OUTPUT_DIR);
 	}
 
@@ -297,22 +300,22 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testInitialize() throws Exception {
+	void testInitialize() throws Exception {
 		initializeMalcolmDevice();
 	}
 
 	@Test
-	public void testConfigure() throws Exception {
+	void testConfigure() throws Exception {
 		testConfigure(false, createCompoundModel());
 	}
 
 	@Test
-	public void testConfigureModified() throws Exception {
+	void testConfigureModified() throws Exception {
 		testConfigure(true, createCompoundModel());
 	}
 
 	@Test
-	public void testConfigureBreakpoints() throws Exception {
+	void testConfigureBreakpoints() throws Exception {
 		final InterpolatedMultiScanModel multiScanModel = new InterpolatedMultiScanModel();
 		multiScanModel.setContinuous(true);
 		final AxialStepModel mainScanModel = new AxialStepModel("theta", 0.0, 180.0, 10.0);
@@ -444,17 +447,17 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testRun() throws Exception {
+	void testRun() throws Exception {
 		testCall(IMalcolmDevice::run, MalcolmMethod.RUN, null);
 	}
 
 	@Test
-	public void testRunWithPosition() throws Exception {
+	void testRunWithPosition() throws Exception {
 		testCall(malc -> malc.run(new Scalar<>("outer", 2, 0.5)), MalcolmMethod.RUN, null);
 	}
 
 	@Test
-	public void testAbortRun() throws Exception {
+	void testAbortRun() throws Exception {
 		// set up a WaitingAnswer for the run method
 		final MalcolmMessage expectedRunMessage = createExpectedCallMessage(id++, MalcolmMethod.RUN, null);
 		final WaitingAnswer<MalcolmMessage> runAnswer = new WaitingAnswer<>(
@@ -510,7 +513,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testSeek() throws Exception {
+	void testSeek() throws Exception {
 		final int seekToStepNum = 31;
 		LinkedHashMap<String, Integer> expectedSeekParams = new LinkedHashMap<>();
 		expectedSeekParams.put(ATTRIBUTE_NAME_LAST_GOOD_STEP, seekToStepNum);
@@ -519,17 +522,17 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testAbort() throws Exception {
+	void testAbort() throws Exception {
 		testCall(IMalcolmDevice::abort, MalcolmMethod.ABORT, null);
 	}
 
 	@Test
-	public void testDisable() throws Exception {
+	void testDisable() throws Exception {
 		testCall(IMalcolmDevice::disable, MalcolmMethod.DISABLE, null);
 	}
 
 	@Test
-	public void testReset() throws Exception {
+	void testReset() throws Exception {
 		// Arrange
 		MalcolmMessage expectedResetMessage = createExpectedCallMessage(id++, MalcolmMethod.RESET, null);
 		when(malcolmConnection.send(malcolmDevice, expectedResetMessage)).thenReturn(createExpectedMalcolmOkReply(null));
@@ -542,17 +545,17 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testPause() throws Exception {
+	void testPause() throws Exception {
 		testCall(IMalcolmDevice::pause, MalcolmMethod.PAUSE, null);
 	}
 
 	@Test
-	public void testResume() throws Exception {
+	void testResume() throws Exception {
 		testCall(IMalcolmDevice::resume, MalcolmMethod.RESUME, null);
 	}
 
 	@Test
-	public void testDispose() throws Exception {
+	void testDispose() throws Exception {
 		initializeMalcolmDevice();
 
 		// Act
@@ -568,7 +571,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testGetAvailableAxes() throws Exception {
+	void testGetAvailableAxes() throws Exception {
 		// Arrange: set up mocks
 		final MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_SIMULTANEOUS_AXES);
 		final String[] axesNames = new String[] { "stage_x", "stage_y" };
@@ -581,7 +584,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testGetDatasets() throws Exception {
+	void testGetDatasets() throws Exception {
 		// Arrange: set up mocks
 		final MalcolmMessage expectedMessage = createExpectedMalcolmMessage(id++, Type.GET, ATTRIBUTE_NAME_DATASETS);
 		final MalcolmTable datasetsTable = new MalcolmTable(); // TODO complete table
@@ -596,7 +599,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 	}
 
 	@Test
-	public void testGetMalcolmDetectorInfos() throws Exception {
+	void testGetMalcolmDetectorInfos() throws Exception {
 		// Arrange
 		initializeMalcolmDevice();
 
@@ -613,7 +616,7 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testGetDeviceInformation() throws Exception {
+	void testGetDeviceInformation() throws Exception {
 		final IMalcolmModel model = createMalcolmModel();
 		configureMocksForConfigure(new ScanModel(), false);
 		malcolmDevice.configure(model);
@@ -658,10 +661,6 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 		final MalcolmMessage expectedGetMetaMessage = createExpectedMalcolmMessage(id++, Type.GET, FIELD_NAME_META);
 		when(malcolmConnection.send(malcolmDevice, expectedGetMetaMessage)).thenReturn(
 				createExpectedMalcolmOkReply(metaFieldValue));
-		// create the expected get 'configure' message to get the default detectors
-		final MalcolmMessage expectedGetConfigureMessage = createExpectedMalcolmMessage(id++, Type.GET, MalcolmMethod.CONFIGURE.toString());
-		final MalcolmMessage expectedGetConfigureReply = createExpectedMalcolmGetConfigureReply();
-		when(malcolmConnection.send(malcolmDevice, expectedGetConfigureMessage)).thenReturn(expectedGetConfigureReply);
 
 		// Act
 		final DeviceInformation<IMalcolmModel> deviceInfo2 =
