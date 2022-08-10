@@ -73,13 +73,13 @@ public final class ScanBean extends StatusBean {
 	private int scanNumber;
 
 	public ScanBean() {
-        super();
+		super();
 	}
 
 	public ScanBean(ScanRequest req) {
-        super();
-        this.scanRequest = req;
-        this.status = Status.SUBMITTED;
+		super();
+		this.scanRequest = req;
+		this.status = Status.SUBMITTED;
 		setHostName(getLocalHostName());
 		setName(createNameFromRequest(req));
 	}
@@ -122,7 +122,7 @@ public final class ScanBean extends StatusBean {
 			buf.append("] ");
 		}
 
-	    return buf.toString();
+		return buf.toString();
 
 	}
 
@@ -170,7 +170,7 @@ public final class ScanBean extends StatusBean {
 	@Override
 	public String toString() {
 		return "ScanBean [mappingBeanId=" + mappingBeanId
-				+ ", experimentId" + experimentId
+				+ ", experimentId=" + experimentId
 				+ ", beamline=" + beamline
 				+ ", point=" + point
 				+ ", size=" + size
