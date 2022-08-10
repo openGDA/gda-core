@@ -95,7 +95,7 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 	private PvaClientMonitor pvaClientMonitor;
 	private ScalarType dataType;
 	private String pvName;
-	private int colourMode;
+	private NTNDArrayColorMode colourMode;
 	private int dataSize;
 	private final RateLimiter frameRateLimiter = RateLimiter.create(20);
 	private final Set<IDataListener> listeners = new CopyOnWriteArraySet<>();
@@ -252,7 +252,7 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 		return new int[] { height, width };
 	}
 
-	private void updateArrayAttributes(int[] dimensions, int colourMode) {
+	private void updateArrayAttributes(int[] dimensions, NTNDArrayColorMode colourMode) {
 
 		this.colourMode = colourMode;
 		int dim0 = dimensions[0];
@@ -264,26 +264,31 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 			dim2 = 0;
 		}
 
-		// ColourMode definitions at http://epics-pvdata.sourceforge.net/alpha/normativeTypes/normativeTypes.html
-		if (colourMode == 0) {
+		switch (colourMode) {
+		case MONO:
 			width = dim0;
 			height = dim1;
 			rgbChannels = 1;
-		} else {
-			if (colourMode == 3) {
-				width = dim0;
-				height = dim2;
-				rgbChannels = dim1;
-			} else if (colourMode == 4) {
-				width = dim0;
-				height = dim1;
-				rgbChannels = dim2;
-			} else { // colourMode is 2
-				width = dim1;
-				height = dim2;
-				rgbChannels = dim0;
-			}
+			break;
+		case RGB2:
+			width = dim0;
+			height = dim2;
+			rgbChannels = dim1;
+			break;
+		case RGB3:
+			width = dim0;
+			height = dim1;
+			rgbChannels = dim2;
+			break;
+		case RGB1:
+			width = dim1;
+			height = dim2;
+			rgbChannels = dim0;
+			break;
+		default:
+			throw new UnsupportedOperationException("ColorMode " + colourMode + " is not supported");
 		}
+
 		dataSize = width * height * rgbChannels;
 	}
 
@@ -294,16 +299,16 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 		dataType = imageDataArray.getScalarArray().getElementType();
 		Object data = extractArray(imageDataArray);
 
-		if (colourMode != 0) {
+		if (colourMode != NTNDArrayColorMode.MONO) {
 			Dataset flatDataset = DatasetFactory.createFromObject(data);
 			Dataset reshaped;
 
 			switch (colourMode) {
-			case 3:
+			case RGB2:
 				reshaped = flatDataset.reshape(height, 3, width);
 				reshaped = reshaped.swapAxes(1, 2);
 				break;
-			case 4:
+			case RGB3:
 				reshaped = flatDataset.reshape(3, height, width);
 				reshaped = reshaped.swapAxes(0, 1);
 				reshaped = reshaped.swapAxes(1, 2);
@@ -412,14 +417,14 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 	 */
 	private static class LivestreamDataFromPvaStructure {
 		private final PVScalarArray imageArray;
-		private final int colourMode;
+		private final NTNDArrayColorMode colourMode;
 		private final int[] dimensions;
 
 		public PVScalarArray getImageArray() {
 			return imageArray;
 		}
 
-		public int getColorMode() {
+		public NTNDArrayColorMode getColorMode() {
 			return colourMode;
 		}
 
@@ -465,7 +470,7 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 			return dims;
 		}
 
-		private int extractColourMode(PVStructure pvStructure) {
+		private NTNDArrayColorMode extractColourMode(PVStructure pvStructure) {
 			PVStructureArray attributeStructures = pvStructure.getSubField(PVStructureArray.class, "attribute");
 			if (attributeStructures != null) {
 				int nattr = attributeStructures.getLength();
@@ -474,11 +479,12 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 				for (PVStructure structure : attrdata.data) {
 					if ("ColorMode".equals(structure.getSubField(PVString.class, "name").get())) {
 						// Only want to extract colour mode which is an integer
-						return structure.getSubField(PVUnion.class, "value").get(PVInt.class).get();
+						return NTNDArrayColorMode.valueOf(structure.getSubField(PVUnion.class, "value").get(PVInt.class).get());
 					}
 				}
+
 				// No ColorMode attribute found assume mono
-				return 0;
+				return NTNDArrayColorMode.MONO;
 			}
 			throw new IllegalStateException("PV Structure does not contain attributes");
 
@@ -510,4 +516,5 @@ public class EpicsV4DynamicDatasetConnector implements IDatasetConnector {
 			return imageData;
 		}
 	}
+
 }
