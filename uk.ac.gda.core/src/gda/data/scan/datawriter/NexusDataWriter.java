@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -159,6 +160,9 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 
 	/** Property that if enabled create a link called <code>positioners</code> to the <code>before_scan</code> */
 	private static final String GDA_NEXUS_LINK_POSITIONERS_GROUP = "gda.nexus.linkPositionersGroup";
+
+	/** Property to determine whether the nexus title needs to be prettified*/
+	private static final String GDA_NEXUS_PRETTIFY_TITLE = "gda.nexus.prettifyTitle";
 
 	/** Are we going to write an SRS file as well? */
 	private boolean createSrsFile = CREATE_SRS_FILE_BY_DEFAULT;
@@ -1086,7 +1090,7 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 				String title = metadata.getMetadataValue("title");
 				if(title == null || title.isEmpty()) {
 					// If no title is set use the scan command as the title (DAQ-1861)
-					title = thisPoint.getCommand();
+					title = createTitle(thisPoint.getCommand());
 				}
 				NexusUtils.writeString(file, g, "title", title);
 			}
@@ -1098,6 +1102,20 @@ public class NexusDataWriter extends DataWriterBase implements INexusDataWriter 
 		} catch (Exception e) {
 			logger.warn("error writing less important scan information", e);
 		}
+	}
+
+	/*
+	 * @param command
+	 * 			- The command being run
+	 * This will create a sanitized version of the command to use as the title
+	 */
+	private String createTitle(String command) {
+		if (LocalProperties.check(GDA_NEXUS_PRETTIFY_TITLE)) {
+			String newTitle = List.of(command.replaceAll("[^a-zA-Z]", " ").split(" "))
+					.stream().filter(word -> !word.isEmpty()).distinct().collect(Collectors.joining(" "));
+			return newTitle.trim();
+		}
+		return command;
 	}
 
 	/**
