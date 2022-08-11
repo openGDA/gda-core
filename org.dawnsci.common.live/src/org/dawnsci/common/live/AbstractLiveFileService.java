@@ -19,6 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.dawnsci.datavis.api.ILiveFileListener;
+import org.dawnsci.datavis.api.ILiveFileService;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.api.event.EventException;
 import org.eclipse.scanning.api.event.IEventService;
@@ -33,7 +34,7 @@ import org.eclipse.scanning.api.ui.CommandConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractLiveFileService {
+public abstract class AbstractLiveFileService implements ILiveFileService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractLiveFileService.class);
 	
