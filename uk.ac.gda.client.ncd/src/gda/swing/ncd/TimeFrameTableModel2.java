@@ -18,9 +18,6 @@
 
 package gda.swing.ncd;
 
-import gda.device.DeviceException;
-import gda.device.Timer;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.StringTokenizer;
@@ -30,6 +27,10 @@ import javax.swing.table.AbstractTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.device.DeviceException;
+import gda.device.Timer;
 
 /**
  * 
@@ -107,11 +108,25 @@ public class TimeFrameTableModel2 extends AbstractTableModel {
 	/**
 	 * The names of the tfg front panel output ports
 	 */
-	public static final String[] displayOutputs = { "Output 0", "Output 1", "Output 2", "Output 3", "Output 4",
-			"Output 5", "Output 6", "Output 7" };
+	public static final String[] displayOutputs;
 
 	private static final String[] columnNames = { "Group", "Frames", "Wait Time", "Wait Units", "Run Time",
 			"Run Units", "Wait Pause", "Run Pause", "Wait Pulses", "Run Pulses" };
+
+	static {
+		String nameProperty = "gda.ncd.outputnames";
+		var outputs = LocalProperties.getStringArray(nameProperty);
+		if (outputs.length == 8) {
+			logger.info("Configured with output names: {}", new Object[] {outputs}); // NOSONAR Need to wrap in Object[] to disambiguate logging call
+			displayOutputs = outputs;
+		} else {
+			if (LocalProperties.contains(nameProperty)) {
+				logger.debug("Incorrect number of names configured ({}/8) - reverting to defaults", outputs.length);
+			}
+			displayOutputs = new String[] { "Output 0", "Output 1", "Output 2", "Output 3", "Output 4",
+					"Output 5", "Output 6", "Output 7" };
+		}
+	}
 
 	private Vector<TimeFrameGroup2> vector;
 
