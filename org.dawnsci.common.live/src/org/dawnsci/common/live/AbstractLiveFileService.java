@@ -2,6 +2,7 @@ package org.dawnsci.common.live;
 
 import static java.util.stream.Collectors.toList;
 
+import gda.configuration.properties.LocalProperties;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public abstract class AbstractLiveFileService implements ILiveFileService {
 	private AtomicReference<Runnable> atomicRunnable = new AtomicReference<>();
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	private static final long MIN_REFRESH_TIME = 2000;
+	private static final long MIN_REFRESH_TIME = LocalProperties.getAsInt("gda.live.file.min.refresh", 2000);
 	
 	private boolean attached = false;
 	
