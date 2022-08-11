@@ -19,14 +19,14 @@
 package gda.device.motor;
 
 import gda.factory.FactoryException;
+import gov.aps.jca.CAException;
 /**
- * This motor does not monitor the readback PV as it is continously updating even it had reached the target and stopped.
+ * This motor does not monitor PVs as they are continuously updating even they had reached the target and stopped.
  */
 public class FeedbackControlledEpicsMotor extends EpicsMotor {
 
 	@Override
 	protected void createChannelAccess() throws FactoryException {
-		super.createChannelAccess();
 		try {
 			rbv = channelManager.createChannel(pvName + ".RBV", false);
 			dmov = channelManager.createChannel(pvName + ".DMOV", false);
@@ -35,10 +35,10 @@ public class FeedbackControlledEpicsMotor extends EpicsMotor {
 			msta = channelManager.createChannel(pvName + ".MSTA", false);
 			// acknowledge that creation phase is completed
 			channelManager.creationPhaseCompleted();
+			super.createChannelAccess();
 
-		} catch (Throwable th) {
-			// TODO take care of destruction
-			throw new FactoryException("failed to connect to all channels", th);
+		} catch (CAException e) {
+			throw new FactoryException("failed to connect to all channels", e);
 		}
 	}
 
