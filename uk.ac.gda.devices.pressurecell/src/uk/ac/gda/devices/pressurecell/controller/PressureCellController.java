@@ -86,6 +86,9 @@ public interface PressureCellController {
 	/** Move to set pressure - blocks until pressure is reached */
 	void go() throws DeviceException, InterruptedException;
 
+	/** Reset and close all valves */
+	void resetValves() throws DeviceException;
+
 	/**
 	 * Prepare for pressure jump
 	 * <br>

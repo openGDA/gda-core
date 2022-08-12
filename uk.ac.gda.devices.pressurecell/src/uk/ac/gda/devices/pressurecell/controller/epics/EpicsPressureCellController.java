@@ -378,6 +378,18 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	}
 
 	@Override
+	public void resetValves() throws DeviceException {
+		v5.disarm();
+		v6.disarm();
+		v3.reset();
+		v5.reset();
+		v6.reset();
+		v3.close();
+		v5.close();
+		v6.close();
+	}
+
+	@Override
 	public void setJump() throws DeviceException {
 		try {
 			logger.debug("{} - Starting controller towards jump pressures", name);
