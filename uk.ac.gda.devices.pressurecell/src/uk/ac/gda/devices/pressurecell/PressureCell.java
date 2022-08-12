@@ -34,12 +34,21 @@ import gda.device.scannable.ScannableUtils;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.devices.pressurecell.controller.PressureCellController;
 
+/**
+ * Scannable interface to the pressure cell allowing it to be used in step scans.
+ * <br>
+ * Access to lower level controls are available via the controller instance
+ * from the {@link #getController()} method.
+ */
 public class PressureCell extends ScannableBase {
 	private static final Logger logger = LoggerFactory.getLogger(PressureCell.class);
+	public static final String __doc__ = // NOSONAR
+			"Pressure Cell scannable letting the pressure cell be used in step scans.\n"
+			+ "Access to lower level controls are available via the controller attribute.";
 	private PressureCellController controller;
 	private Future<?> move = CompletableFuture.completedFuture(null);
 
-	/** Set pressure at the pump to the same as the intemediate chamber */
+	/** Set pressure at the pump to the same as the intermediate chamber */
 	private void matchIntermediatePressure() throws DeviceException, InterruptedException {
 		logger.debug("{} - Matching intermediate pressure", getName());
 		if (!controller.getV3().isOpen()) {

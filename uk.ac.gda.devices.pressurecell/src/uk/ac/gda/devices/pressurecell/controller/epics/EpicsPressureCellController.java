@@ -52,7 +52,7 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPressureCellController.class);
 
 	/**
-	 * Root of all PVs used by this controller up to (but not including first ':'.
+	 * Root of all PVs used by this controller up to (but not including) first ':'.
 	 * <br>
 	 * eg BL38P-EA-HPXC-01
 	 */
