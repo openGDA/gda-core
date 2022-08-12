@@ -134,12 +134,14 @@ public class StatusQueueView extends EventConnectionView {
 	private static final String UNSUSPEND_QUEUE_TOOLTIP = "Unsuspend queueing of upcoming jobs\nDoes not undefer upcoming job(s)";
 	private static final String SUSPEND_QUEUE_ICON = "icons/switch-queue-on.png";
 	private static final String UNSUSPEND_QUEUE_ICON = "icons/switch-queue-off.png";
+	private static final String SUSPEND_QUEUE_PART_NAME = " - suspended";
 
 	// UI
 	private TableViewer viewer;
 	private DelegatingSelectionProvider selectionProvider;
 	private Job queueJob;
 	private boolean queueJobAgain = false;
+	private String partName;
 
 	// Data
 	private Map<String, StatusBean> queue;
@@ -205,6 +207,7 @@ public class StatusQueueView extends EventConnectionView {
 
 			String name = getSecondaryIdAttribute("partName");
 			if (name!=null) setPartName(name);
+			partName = getPartName();
 
 			createActions();
 
@@ -529,6 +532,8 @@ public class StatusQueueView extends EventConnectionView {
 		suspendQueueAction.setChecked(queueSuspended);
 		// Grey out the table viewer when the queue is suspended
 		viewer.getControl().setForeground(colour);
+		// Append suspended to the view name when the queue is suspended
+		setPartName(queueSuspended ? partName + SUSPEND_QUEUE_PART_NAME : partName);
 	}
 
 	private Action suspendQueueActionCreate() {
@@ -542,7 +547,8 @@ public class StatusQueueView extends EventConnectionView {
 		action.setImageDescriptor(Activator.getImageDescriptor(queueSuspended ? UNSUSPEND_QUEUE_ICON  : SUSPEND_QUEUE_ICON));
 		action.setChecked(queueSuspended);
 
-		jobQueueProxy.addQueueStatusListener(this::suspendQueueActionUpdate);
+		// This should be called from the UI thread
+		jobQueueProxy.addQueueStatusListener(queueStatus -> Display.getDefault().asyncExec(() -> suspendQueueActionUpdate(queueStatus)));
 		return action;
 	}
 

@@ -54,14 +54,14 @@ public class StatusBean extends IdBean {
 	 */
 	private Properties properties;
 
-	private StatusBean( Status none,String name, String message, double percentComplete,
-			            String userName, String uniqueId, long submissionTime) {
+	private StatusBean(Status none,String name, String message, double percentComplete,
+					   String userName, String uniqueId, long submissionTime) {
 
 		this.status          = none;
 		this.name            = name;
 		this.percentComplete = percentComplete;
-        this.userName        = userName;
-        this.submissionTime  = submissionTime;
+		this.userName        = userName;
+		this.submissionTime  = submissionTime;
 	}
 
 
@@ -107,12 +107,15 @@ public class StatusBean extends IdBean {
 	public Status getStatus() {
 		return status;
 	}
+
 	public void setStatus(Status status) {
 		this.status = status;
 	}
+
 	public double getPercentComplete() {
 		return percentComplete;
 	}
+
 	public void setPercentComplete(double percentComplete) {
 		this.percentComplete = percentComplete;
 	}
@@ -157,6 +160,7 @@ public class StatusBean extends IdBean {
 				+ ((userName == null) ? 0 : userName.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -208,24 +212,21 @@ public class StatusBean extends IdBean {
 		return true;
 	}
 
-
 	public String getName() {
 		if (name==null) createName();
 		return name;
 	}
 
-    /**
-     * Override to generate a name automatically.
-     */
+	/**
+	 * Override to generate a name automatically.
+	 */
 	protected void createName() {
 		// TODO Auto-generated method stub
-
 	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	public String getUserName() {
 		return userName;
@@ -243,30 +244,29 @@ public class StatusBean extends IdBean {
 		this.submissionTime = submissionTime;
 	}
 
-
 	public String getMessage() {
 		return message;
 	}
-
 
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
-
 	@Override
 	public String toString() {
-		return "StatusBean [previousStatus=" + previousStatus + ", status="
-				+ status + ", name=" + name + ", message=" + message
-				+ ", percentComplete=" + percentComplete + ", userName="
-				+ userName + ", hostName=" + hostName + ", runDirectory="
-				+ runDirectory + ", submissionTime=" + submissionTime
+		return "StatusBean [previousStatus=" + previousStatus
+				+ ", status=" + status
+				+ ", name=" + name + ", message=" + message
+				+ ", percentComplete=" + percentComplete
+				+ ", userName=" + userName
+				+ ", hostName=" + hostName
+				+ ", runDirectory=" + runDirectory
+				+ ", submissionTime=" + submissionTime
 				+ ", startTime=" + startTime
 				+ ", estimatedTime=" + estimatedTime
 				+ ", properties=" + properties
-		        + ", id=" + getUniqueId() + "]";
+				+ ", id=" + getUniqueId() + "]";
 	}
-
 
 	public String getRunDirectory() {
 		return runDirectory;
@@ -276,32 +276,26 @@ public class StatusBean extends IdBean {
 		this.runDirectory = visitDir;
 	}
 
-
 	public String getHostName() {
 		return hostName;
 	}
-
 
 	public void setHostName(String hostName) {
 		this.hostName = hostName;
 	}
 
-
 	public Properties getProperties() {
 		return properties;
 	}
-
 
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
 
-
 	public void setProperty(String key, String value) {
 		if (properties==null) properties = new Properties();
 		properties.setProperty(key, value);
 	}
-
 
 	public String getProperty(String key) {
 		return properties.getProperty(key);
@@ -310,7 +304,6 @@ public class StatusBean extends IdBean {
 	public Status getPreviousStatus() {
 		return previousStatus;
 	}
-
 
 	public void setPreviousStatus(Status previousStatus) {
 		this.previousStatus = previousStatus;

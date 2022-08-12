@@ -11,11 +11,27 @@
  *******************************************************************************/
 package org.eclipse.scanning.api.event.status;
 
+import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
+
 /**
  * States of jobs on the cluster.
- *
- * @author Matthew Gerring
- *
+ * <P><UL>
+ * <LI>{@link #SUBMITTED}			Initial state & result of a {@link Command#UNDEFER}
+ * <LI>{@link #PREPARING}			State while configuring devices to run before a scan
+ * <LI>{@link #RUNNING}				State while actually performing a scan
+ * <LI>{@link #REQUEST_PAUSE}		Transient state after a {@link Command#PAUSE_JOB}
+ * <LI>{@link #PAUSED}				State after a {@link #REQUEST_PAUSE}
+ * <LI>{@link #REQUEST_RESUME}		Transient state after a {@link Command#RESUME_JOB}
+ * <LI>{@link #RESUMED}				State after a {@link #REQUEST_RESUME}
+ * <LI>{@link #REQUEST_TERMINATE}	Transient state after a {@link Command#TERMINATE_JOB}
+ * <LI>{@link #TERMINATED}			State after an abort, interrupt or a {@link #REQUEST_TERMINATE}
+ * <LI>{@link #FAILED}				State after a failed run
+ * <LI>{@link #FINISHING}			State while tidying up after a scan
+ * <LI>{@link #COMPLETE}			State after a successful run
+ * <LI>{@link #UNFINISHED}			Unused
+ * <LI>{@link #DEFERRED}			State after a {@link Command#DEFER}
+ * <LI>{@link #NONE}				An alternative {@link #FAILED} state, rarely used
+ * </UL>
  */
 public enum Status {
 
