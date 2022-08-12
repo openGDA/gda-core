@@ -44,6 +44,8 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 
 	private static final String VALVE_STATUS = "VALVE-%d:STA";
 	private static final String VALVE_CONTROL = "VALVE-%d:CON";
+	private static final String BUTTERFLY_VALVE_SET_PRESSURE = "VALVE-92:SETPRESSURE";
+	private static final String BUTTERFLY_VALVE_SET_POSITION = "VALVE-92:SETPOSITION";
 
 	protected static final String SEQUENCE_START = "Start";
 	protected static final String VALVE_CLOSE = "Close";
@@ -90,6 +92,14 @@ public abstract class BaseGasRigController extends BaseEpicsDeviceController {
 
 	protected String constructValveControlPv(int valveNumber) {
 		return String.format(VALVE_CONTROL, valveNumber);
+	}
+
+	protected String getButterflyValveSetPressurePv() {
+		return BUTTERFLY_VALVE_SET_PRESSURE;
+	}
+
+	protected String getButterflyValveSetPositionPv() {
+		return BUTTERFLY_VALVE_SET_POSITION;
 	}
 
 	protected String constructMassFlowSetPointPv(int gasId) {

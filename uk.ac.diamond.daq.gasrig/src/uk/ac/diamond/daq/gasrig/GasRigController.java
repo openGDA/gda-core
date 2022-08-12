@@ -25,8 +25,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import gda.device.DeviceException;
-import gda.device.controlpoint.EpicsControlPoint;
-import gda.device.scannable.PVScannable;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
@@ -45,14 +43,10 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 	private String currentOrLastStatus;
 	private double currentSequenceProgress;
 	private Map<Integer, GasRigFlowController> flowControllers;
-	private PVScannable butterflyValvePressure;
-	private EpicsControlPoint butterflyValvePosition;
 
-	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers,
-			PVScannable butterflyValvePressure, EpicsControlPoint butterflyValvePosition) {
+
+	public GasRigController(String basePvName, List<GasRigFlowController> flowControllers) {
 		super(basePvName);
-		this.butterflyValvePressure = butterflyValvePressure;
-		this.butterflyValvePosition = butterflyValvePosition;
 		this.flowControllers = flowControllers.stream()
 				.collect(Collectors.toMap(GasRigFlowController::getGasId, Function.identity()));
 	}
@@ -229,12 +223,22 @@ public class GasRigController extends BaseGasRigController implements IGasRigCon
 
 	@Override
 	public void setButterflyValvePressure(double value) throws DeviceException {
-		butterflyValvePressure.asynchronousMoveTo(value);
+		String butteflyValveControlPv = constructValveControlPv(92);
+		setDoubleValue(getButterflyValveSetPressurePv(), value, "butterfly valve pressure");
+		setDoubleValue(butteflyValveControlPv, 4, "V92 control - Set pressure");
+		setDoubleValue(butteflyValveControlPv, 2, "V92 control - Reset");
+		setDoubleValue(butteflyValveControlPv, 0, "V92 control - Pressure ctrl");
+		logger.info("Configuring V92 pressure completed successfully");
 	}
 
 	@Override
 	public void setButterflyValvePosition(double value) throws DeviceException {
-		butterflyValvePosition.asynchronousMoveTo(value);
+		String butteflyValveControlPv = constructValveControlPv(92);
+		setDoubleValue(getButterflyValveSetPositionPv(), value, "butterfly valve position");
+		setDoubleValue(butteflyValveControlPv, 6, "V92 control - Set position");
+		setDoubleValue(butteflyValveControlPv, 2, "V92 control - Reset");
+		setDoubleValue(butteflyValveControlPv, 5, "V92 control - Position ctrl");
+		logger.info("Configuring V92 position completed successfully");
 	}
 
 	@Override
