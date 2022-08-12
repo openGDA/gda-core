@@ -10,11 +10,11 @@ from org.slf4j import LoggerFactory
 from __builtin__ import isinstance
 
 class VisitSetter(IObserver):
-    
+
     def __init__(self, detector_adapters = []):
         self.detector_adapters = list(detector_adapters)
         JythonServerFacade.getInstance().addBatonChangedObserver(self)
-        
+
     def datadir(self, *args):
         if len(args) > 0:
             raise ValueError("The data directory now depends on the visit. Use the 'visit' command to change this.")
@@ -32,17 +32,17 @@ class VisitSetter(IObserver):
 
     def getVisitDirectory(self):
         return InterfaceProvider.getPathConstructor().createFromDefaultProperty()
-    
+
     def setDetectorDirectories(self):
         for det in self.detector_adapters:
             try:
                 det.setVisitDirectory(self.getVisitDirectory())
             except gov.aps.jca.TimeoutException:
                 "EPICS TimeoutException: Failed to set directory on " + det.detector.name
-            
+
     def addDetectorAdapter(self, adapter):
         self.detector_adapters.append(adapter)
-            
+
     def __str__(self):
         s = ""
         s+= '%12s : %s\n' % ("visit", self.visit())
@@ -67,7 +67,7 @@ class VisitSetter(IObserver):
 
 
 class DetectorAdapter():
-    
+
     def __init__(self, detector, subfolder=None, create_folder=False, toreplace=None, replacement=None, report_path=True):
         self.detector = detector
         self.subfolder = subfolder
@@ -99,48 +99,49 @@ class DetectorAdapter():
 
         self.logger.debug("setVisitDirectory({}) -> {}", path, fullpath)
         self.setDirectory(fullpath)
-    
+
     def setDirectory(self, path):
         raise Exception("Not implemented")
-    
+
     def getDirectory(self):
         raise Exception("Not implemented")
 
-    
+
 class PilatusAdapter(DetectorAdapter): #pil100k
-    
+
     def setDirectory(self, path):
         self.detector.setFilepath(path + '/') # Required by epics
-        
+
     def getDirectory(self):
         return self.detector.getFilepath()
 
+
 class FileWritingDetectorAdapter(DetectorAdapter): # ADDetector, ADPco
-    
+
     def setDirectory(self, path):
         try:
             self.detector.setFilePath(path + '/') # Required by epics
         except java.lang.IllegalStateException:
             print "!!!!! Could not connect to (EPICS) " + self.detector.name + ": path not set to : '" + path +"'"
-        
+
     def getDirectory(self):
         return self.detector.getFilePath()
 
 
 class IPPAdapter(DetectorAdapter): #ippimages, "/dls/b16/data", "N:")+"/ippimages"
-    
+
     def setDirectory(self, windowspath):
         self.detector.setOutputFolderRoot(windowspath)
-        
+
     def getDirectory(self):
         return self.detector.getOutputFolderRoot()
 
 
 class ProcessingDetectorWrapperAdapter(DetectorAdapter):
     """Sets the root_datadir property only (does not determine where files are written)"""
-    
+
     def setDirectory(self, path):
         self.detector.root_datadir = path
-        
+
     def getDirectory(self):
         return self.detector.root_datadir
