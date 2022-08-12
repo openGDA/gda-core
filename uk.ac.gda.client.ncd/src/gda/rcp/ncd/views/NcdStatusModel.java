@@ -20,14 +20,14 @@ package gda.rcp.ncd.views;
 
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.FileType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannablePositionChangeEvent;
-import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.daq.msgbus.MsgBus;
@@ -36,6 +36,8 @@ import uk.ac.diamond.daq.scm.api.events.NcdMsgFactory;
 import uk.ac.diamond.daq.scm.api.events.StatusUpdated;
 
 public class NcdStatusModel implements IObserver {
+
+	private static final Logger logger = LoggerFactory.getLogger(NcdStatusModel.class);
 
 	private static final String THICKNESS_METADATA = "sample_thickness";
 	private static final String BACKGROUND_METADATA = "sample_background";
@@ -71,6 +73,7 @@ public class NcdStatusModel implements IObserver {
 		return Double.NaN;
 	}
 	public void setSampleThickness(double thickness) {
+		logger.trace("Setting sample thickness to {}", thickness);
 		try {
 			this.thicknessScannable.moveTo(thickness);
 		} catch (DeviceException e) {
@@ -81,6 +84,7 @@ public class NcdStatusModel implements IObserver {
 	}
 
 	public void setSampleBackground(String backgroundPath) {
+		logger.trace("Setting background file to {}", backgroundPath);
 		if (backgroundPath == null) {
 			backgroundPath = "";
 		}
@@ -92,11 +96,8 @@ public class NcdStatusModel implements IObserver {
 	private NcdMsgFactory waxsMaskMsg = new NcdMsgFactory("WAXS", NcdMetaType.MASK);
 
 	public NcdStatusModel() {
-		Findable thickness = Finder.find(THICKNESS_METADATA);
-		if (thickness instanceof Scannable) {
-			setThicknessScannable(((Scannable) thickness));
-		} else {
-		}
+		Finder.findOptionalOfType(THICKNESS_METADATA, Scannable.class)
+				.ifPresent(this::setThicknessScannable);
 		meta = GDAMetadataProvider.getInstance();
 		if (meta != null) {
 			meta.addIObserver(this);
@@ -111,6 +112,7 @@ public class NcdStatusModel implements IObserver {
 	}
 
 	public void setSaxsMask(String saxsMask) {
+		logger.trace("Setting SAXS mask to {}", saxsMask);
 		if (saxsMask == null) {
 			MsgBus.publish(saxsMaskMsg.changeRequest(null, null));
 		} else if (saxsMask.contains("#")) {
@@ -126,6 +128,7 @@ public class NcdStatusModel implements IObserver {
 	}
 
 	public void setSaxsCalibration(String saxsCalibration) {
+		logger.trace("Setting SAXS calibration to {}", saxsCalibration);
 		MsgBus.publish(saxsCalMsg.changeRequest(saxsCalibration, null));
 	}
 
@@ -134,6 +137,7 @@ public class NcdStatusModel implements IObserver {
 	}
 
 	public void setWaxsCalibration(String waxsCalibration) {
+		logger.trace("Setting WAXS calibration to {}", waxsCalibration);
 		MsgBus.publish(waxsCalMsg.changeRequest(waxsCalibration, null));
 	}
 
@@ -142,6 +146,7 @@ public class NcdStatusModel implements IObserver {
 	}
 
 	public void setWaxsMask(String waxsMask) {
+		logger.trace("Setting WAXS mask to {}", waxsMask);
 		if (waxsMask == null) {
 			MsgBus.publish(waxsMaskMsg.changeRequest(null, null));
 		} else if (waxsMask.contains("#")) {
@@ -193,12 +198,9 @@ public class NcdStatusModel implements IObserver {
 				sampleThickness = (double)e.newPosition;
 				MsgBus.publish(new StatusUpdated());
 			}
-		} else if (source instanceof IMetadataEntry){
-			IMetadataEntry me = (IMetadataEntry)source;
-			if (me.getName().equals(BACKGROUND_METADATA)) {
-				sampleBackground = String.valueOf(arg);
-				MsgBus.publish(new StatusUpdated());
-			}
+		} else if (source instanceof Metadata) {
+			// This will cause a refresh for all entries that are updated - see DAQ-3862
+			MsgBus.publish(new StatusUpdated());
 		}
 	}
 }

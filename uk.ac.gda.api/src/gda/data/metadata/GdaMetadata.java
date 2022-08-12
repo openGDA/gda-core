@@ -160,6 +160,9 @@ public class GdaMetadata extends FindableConfigurableBase implements Metadata, I
 
 	@Override
 	public void addIObserver(IObserver observer) {
+		// It would be useful to change the events sent by metadata to include the key of the changed value
+		// but this would be a breaking change so log classes that use the updates.
+		logger.warn("Adding an observer to metadata: {}. Update will not include source metadata entry.", observer.getClass());
 		observableComponent.addIObserver(observer);
 	}
 
