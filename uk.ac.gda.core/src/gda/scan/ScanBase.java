@@ -176,7 +176,7 @@ public abstract class ScanBase implements NestableScan {
 	protected boolean callCollectDataOnDetectors = true;
 
 	// TODO This should be null for non-parents. For now we make it null in setIsChild(true)
-	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
+	protected ParentScanComponent parentComponent;
 
 	private final boolean isScripted;
 
@@ -210,6 +210,7 @@ public abstract class ScanBase implements NestableScan {
 			threadHasBeenAuthorised = false;
 			isScripted = false;
 		}
+		parentComponent = new ParentScanComponent(this, ScanStatus.NOTSTARTED);
 	}
 
 	@Override
@@ -1098,7 +1099,6 @@ public abstract class ScanBase implements NestableScan {
 	protected void prepareScanForCollection() throws Exception {
 
 		prepareScanNumber();
-		prepareStaticVariables();
 
 		// unless it has already been defined, create a new datahandler
 		// for this scan
@@ -1320,6 +1320,7 @@ public abstract class ScanBase implements NestableScan {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
 		signalScanStarted();
+		prepareStaticVariables();
 		setStatus(ScanStatus.RUNNING);
 		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
 			java.util.Date date= new java.util.Date();
@@ -1525,13 +1526,12 @@ public abstract class ScanBase implements NestableScan {
 
 }
 
-class ParentScanComponent implements ScanParent{
-
-	public static boolean throwExceptionForUnexpectedStateTransition = true;
+class ParentScanComponent {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParentScanComponent.class);
 
-	ScanStatus status;
+	private ScanStatus status;
+	private final Scan scan;
 
 	/**
 	 * When set to true, the scan should complete the current data point, and then exit normally going through the same
@@ -1539,8 +1539,8 @@ class ParentScanComponent implements ScanParent{
 	 */
 	private boolean finishEarlyRequested;
 
-	public ParentScanComponent(ScanStatus initialStatus) {
-		super();
+	public ParentScanComponent(Scan scan, ScanStatus initialStatus) {
+		this.scan = scan;
 		this.status = initialStatus;
 	}
 
@@ -1559,12 +1559,11 @@ class ParentScanComponent implements ScanParent{
 		return status;
 	}
 
-	@Override
 	public void setStatus(ScanStatus newStatus) {
 		if (this.status.possibleFollowUps().contains(newStatus)) {
 			this.status = newStatus;
 			// notify Command (Jython) Server that the status has changed
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this, this.getStatus());
+			InterfaceProvider.getJythonServerNotifer().notifyServer(scan, this.getStatus());
 		} else {
 			logger.error("Scan status change from '{}' to '{}' is not expected", this.status.name(),
 					newStatus.name());
