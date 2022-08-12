@@ -393,9 +393,25 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	public void setJump() throws DeviceException {
 		try {
 			logger.debug("{} - Starting controller towards jump pressures", name);
-			setJumpPV.putWait(1);
+			resetValves();
+			var move = new CompletableFuture<Double>();
+			if (currentMove.compareAndSet(null, move)) {
+				var toPressure = getJumpToPressure();
+				setJumpPV.putWait(1);
+				var endPressure = move.get();
+				if (abs(endPressure-toPressure) > tolerance) {
+					throw new DeviceException(getName() + " - Move completed but pressure was not at target (pressure: " + endPressure + ", target: " + toPressure + ")");
+				}
+			} else {
+				throw new DeviceException(getName() + " - Device is already busy");
+			}
 		} catch (IOException e) {
 			throw new DeviceException("Could not set pressure cell to jump pressure", e);
+		} catch (ExecutionException e) {
+			throw new DeviceException("Error while waiting for move to complete", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Thread interrupted while waiting for jump pressures to be set", e);
 		}
 	}
 

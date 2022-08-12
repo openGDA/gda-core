@@ -157,6 +157,7 @@ public class DummyPressureCellController implements PressureCellController {
 	public void setJump() throws DeviceException {
 		cellPressure = jumpFromPressure;
 		chamberPressure = jumpToPressure;
+		resetValves();
 		v3.close();
 		v5.close();
 		v6.close();
