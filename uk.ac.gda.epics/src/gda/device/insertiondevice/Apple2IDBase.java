@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorProperties.MotorEvent;
+import gda.device.MotorStatus;
 
 /**
  * This is the base class of a low-level controller for the AppleII ID.
@@ -123,6 +124,7 @@ public abstract class Apple2IDBase extends DeviceBase implements IApple2ID {
 		// Start the first move
 		if (!pendingMoves.isEmpty()) {
 			startNextMove();
+			notifyIObservers(this, MotorStatus.BUSY);
 		}
 	}
 
