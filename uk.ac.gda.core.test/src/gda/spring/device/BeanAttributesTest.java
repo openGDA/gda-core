@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -40,7 +40,7 @@ public class BeanAttributesTest {
 
 	private Map<String, String> raw = new HashMap<>();
 
-	@After
+	@AfterEach
 	public void resetMode() {
 		LocalProperties.set(MODE, INITIAL_MODE);
 	}

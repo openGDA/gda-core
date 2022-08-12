@@ -73,8 +73,8 @@ import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.sequencer.ScanRequestBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -184,7 +184,7 @@ public class MScanSubmitterTest {
 		return new CompoundModel(model, roi);
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		try(final MockedStatic<JythonServerFacade> facade = mockStatic(JythonServerFacade.class)) {
 			facade.when(JythonServerFacade::getInstance).thenReturn(theFacadeInstance);

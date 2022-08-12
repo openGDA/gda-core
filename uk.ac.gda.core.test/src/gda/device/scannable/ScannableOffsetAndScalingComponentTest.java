@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.Scannable;
 import gda.device.scannable.component.ScannableOffsetAndScalingComponent;
@@ -39,7 +39,7 @@ public class ScannableOffsetAndScalingComponentTest {
 	private Scannable mockHostScannable;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		mockHostScannable = mock(Scannable.class);
 		when(mockHostScannable.getInputNames()).thenReturn(new String[]{"i1", "i2"});

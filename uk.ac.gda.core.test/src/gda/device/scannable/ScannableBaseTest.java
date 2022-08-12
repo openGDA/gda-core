@@ -30,8 +30,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
@@ -83,7 +83,7 @@ public class ScannableBaseTest {
 
 	// ScannableBase
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException {
 		createScannableToTest();
 		configureTwoInputFields();

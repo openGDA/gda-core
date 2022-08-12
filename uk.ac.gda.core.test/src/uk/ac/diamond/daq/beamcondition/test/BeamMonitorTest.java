@@ -43,10 +43,10 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -83,7 +83,7 @@ public class BeamMonitorTest {
 	private MockFuture<Object> future;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		Mockito.when(Async.scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class)))
 			.thenAnswer(i -> {
@@ -107,7 +107,7 @@ public class BeamMonitorTest {
 
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		monitor.shutdown();
 		InterfaceProvider.setTerminalPrinterForTesting(null);

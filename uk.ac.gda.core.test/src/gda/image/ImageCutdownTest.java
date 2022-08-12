@@ -34,7 +34,7 @@ import java.util.Map;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.RGBByteDataset;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gda.util.TestUtils;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;

@@ -24,8 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import gda.MockFactory;
@@ -88,7 +88,7 @@ public class ConstantVelocityScanLineTest {
 	private DummyHardwareTriggerableAreaDetector dummydet1;
 	private DummyHardwareTriggerableAreaDetector dummydet2;
 
-	@Before()
+	@BeforeEach()
 	public void before() throws DeviceException {
 
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());

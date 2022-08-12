@@ -27,8 +27,9 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotionBase;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 //import static org.junit.Assert.*;
 //import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.when;
@@ -39,7 +40,7 @@ public class RelativeLimitValidatorTest {
 	private Scannable mockedHost;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		validator = new RelativeLimitValidator();
 		mockedHost = mock(Scannable.class);

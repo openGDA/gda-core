@@ -23,8 +23,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.diamond.daq.beamcondition.BeamCondition;
 import uk.ac.diamond.daq.beamcondition.BeamConditionBase;
@@ -32,7 +32,7 @@ import uk.ac.diamond.daq.beamcondition.BeamConditionBase;
 public class BeamConditionBaseTest {
 	BeamCondition condition = spy(BeamConditionBase.class);
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 
 		//Thread.sleep(anyLong());

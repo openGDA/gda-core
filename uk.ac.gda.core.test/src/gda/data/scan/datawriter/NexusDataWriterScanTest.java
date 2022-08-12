@@ -57,8 +57,8 @@ import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -102,7 +102,7 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		super(scanRank);
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpServices() {
 		final ServiceHolder gdaDataServiceHolder = new ServiceHolder();
 		gdaDataServiceHolder.setNexusTemplateService(new NexusTemplateServiceImpl());
@@ -110,12 +110,12 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpProperties() {
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownProperties() {
 		LocalProperties.clearProperty(GDA_NEXUS_CREATE_MEASUREMENT_GROUP);
 	}

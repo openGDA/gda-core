@@ -26,8 +26,8 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.detector.DummyDAServer;
@@ -44,7 +44,7 @@ public class TfgScalerTest {
 	private TfgScaler tfgscaler;
 	private TfgScalerWithLogValues tfgScalerWithLogValues;
 
-	@Before
+	@BeforeEach
 	public void setup() throws FactoryException, DeviceException{
 
 		daserver = new DummyDAServer();

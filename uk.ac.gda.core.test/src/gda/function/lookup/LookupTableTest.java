@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;

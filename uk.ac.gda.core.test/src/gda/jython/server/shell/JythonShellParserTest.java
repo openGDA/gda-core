@@ -32,10 +32,10 @@ import java.util.function.UnaryOperator;
 
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
@@ -59,7 +59,7 @@ public class JythonShellParserTest {
 
 	private MockedConstruction<GdaJythonLine> mockedLine;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		when(translate.apply(anyString())).thenAnswer(i -> i.getArgument(0));
 		parser = new JythonShellParser(translate);
@@ -71,7 +71,7 @@ public class JythonShellParserTest {
 
 	}
 
-	@After
+	@AfterEach
 	public void closeMock() {
 		mockedLine
 		.close();

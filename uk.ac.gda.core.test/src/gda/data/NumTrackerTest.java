@@ -21,13 +21,13 @@ package gda.data;
 import gda.TestHelpers;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class NumTrackerTest {
 
 	static String testDirName;
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testDirName = TestHelpers.setUpTest(NumTrackerTest.class, "NumTrackerTest", true);
 	}

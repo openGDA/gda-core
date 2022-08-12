@@ -29,8 +29,8 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jscience.physics.units.NonSIext;
@@ -46,7 +46,7 @@ public class LookupTableQuantityConverterTest {
 	 */
 	private static final double DELTA = 0.00001;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() {
 		NonSIext.initializeClass();
 		LocalProperties.set("gda.function.columnDataFile.lookupDir", "testfiles/gda/util/converters/LookupTableQuantityConverterTest");

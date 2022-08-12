@@ -31,8 +31,8 @@ import org.eclipse.scanning.api.script.ScriptExecutionException;
 import org.eclipse.scanning.api.script.ScriptLanguage;
 import org.eclipse.scanning.api.script.ScriptRequest;
 import org.eclipse.scanning.api.script.UnsupportedLanguageException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class GDAJythonScriptServiceTest {
@@ -41,7 +41,7 @@ public class GDAJythonScriptServiceTest {
 
 	private ICommandRunner mockCommandRunner;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		mockCommandRunner = Mockito.mock(ICommandRunner.class);
 		InterfaceProvider.setCommandRunnerForTesting(mockCommandRunner);

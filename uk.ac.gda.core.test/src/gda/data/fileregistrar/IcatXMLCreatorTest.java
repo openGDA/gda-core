@@ -30,8 +30,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.data.metadata.Metadata;
 import gda.factory.FactoryException;
@@ -45,7 +45,7 @@ public class IcatXMLCreatorTest {
 			+ "<study> <investigation> \n";
 	private static final String EXPECTED_FOOTER = "</investigation>\n</study>\n</icat>\n";
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		xmlCreator = new IcatXMLCreatorForTest();
 		xmlCreator.setDirectory("/scratch/temp/cm19664-1");

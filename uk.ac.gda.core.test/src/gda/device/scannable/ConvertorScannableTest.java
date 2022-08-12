@@ -34,9 +34,9 @@ import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.configuration.properties.LocalProperties;
@@ -53,13 +53,13 @@ public class ConvertorScannableTest {
 
 	private String saveLookupDir;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		saveLookupDir = LocalProperties.get(LOOKUP_TABLE_DIRECTORY_PROPERTY);
 		LocalProperties.set(LOOKUP_TABLE_DIRECTORY_PROPERTY, "testfiles/gda/device/scannable/ConvertorScannableTest");
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		LocalProperties.set(LOOKUP_TABLE_DIRECTORY_PROPERTY, saveLookupDir);
 	}

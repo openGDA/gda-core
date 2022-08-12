@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -43,7 +43,7 @@ public class MotomanRobotScannableGroupTest {
 	private Scannable sKappa;
 	private Scannable sPhi;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws FactoryException {
 		kTheta = createMockScannable("kTheta");
 		kPhi = createMockScannable("kPhi");

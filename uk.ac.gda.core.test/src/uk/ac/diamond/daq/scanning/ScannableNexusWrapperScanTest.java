@@ -133,10 +133,10 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockOperationService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -286,7 +286,7 @@ public class ScannableNexusWrapperScanTest {
 	private Map<String, ScannableWriter> locationMap;
 	private Set<String> legacyMetadataScannables;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setServices() throws Exception {
 		jythonServer = mock(JythonServer.class);
 		scannableDeviceService = new ScannableDeviceConnectorService();
@@ -321,12 +321,12 @@ public class ScannableNexusWrapperScanTest {
 		pointsServiceHolder.setPointGeneratorService(new PointGeneratorService());
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void createJythonServer() throws Exception {
 		jythonServer = mock(JythonServer.class);
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		final MandelbrotModel model = new MandelbrotModel();
 		model.setName("mandelbrot");
@@ -396,13 +396,13 @@ public class ScannableNexusWrapperScanTest {
 		Finder.addFactory(factory);
 	}
 
-	@Before
+	@BeforeEach
 	public void createFile() throws IOException {
 		output = File.createTempFile("test_legacy_nexus", ".nxs");
 		output.deleteOnExit();
 	}
 
-	@After
+	@AfterEach
 	public void deleteFile() {
 		output.delete();
 		// Remove factories from Finder so they do not affect other tests

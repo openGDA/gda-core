@@ -22,17 +22,17 @@ package gda.jython.authenticator;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 
 import gda.configuration.properties.LocalProperties;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the JaasAuthenticator class
  */
 public class JaasAuthenticatorTest {
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		LocalProperties.clearProperty(Authenticator.AUTHENTICATORCLASS_PROPERTY);
 		LocalProperties.clearProperty(JaasAuthenticator.GDA_ACCESSCONTROL_JAAS_REALM);

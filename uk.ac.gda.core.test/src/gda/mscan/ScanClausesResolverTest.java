@@ -28,8 +28,8 @@ import static org.junit.Assert.assertThrows;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.mscan.element.RegionShape;
 import gda.mscan.element.ScanDataConsumer;
@@ -52,7 +52,7 @@ public class ScanClausesResolverTest extends ResolutionTestsBase {
 	private IClauseElementProcessor processingScanDataConsumerProc;
 	private IClauseElementProcessor tokenStringProc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		num2Proc = mockNumberProc(2);
 		num3Proc = mockNumberProc(3);

@@ -24,9 +24,8 @@ package gda.util.userOptions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import org.junit.Test;
-
 import gda.util.TestUtils;
+import org.junit.jupiter.api.Test;
 
 public class UserOptionsTest {
 	static final String TEMPLATE_NAME = "GDAUserOptionsTemplate";

@@ -24,8 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.device.DeviceException;
@@ -42,7 +42,7 @@ public class ScannableGroupTest {
 	Scannable b;
 	Scannable c;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException, FactoryException {
 		a = MockFactory.createMockScannable("a");
 		b = MockFactory.createMockScannable("b");

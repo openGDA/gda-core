@@ -27,8 +27,8 @@ import javax.measure.Unit;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.jscience.physics.units.NonSIext;
 import gda.util.QuantityFactory;
@@ -41,7 +41,7 @@ import gda.util.QuantityFactory;
 public class JEPQuantityConverterTest {
 	private static final String TEST_FILE_FOLDER = "testfiles/gda/util/converters/JEPQuantityConverterTest";
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() {
 		NonSIext.initializeClass();
 	}

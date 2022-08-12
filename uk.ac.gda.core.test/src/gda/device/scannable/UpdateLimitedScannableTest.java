@@ -30,8 +30,8 @@ import static org.mockito.Mockito.when;
 import java.util.Date;
 import java.util.function.Supplier;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.Scannable;
 import gda.observable.IObserver;
@@ -42,7 +42,7 @@ public class UpdateLimitedScannableTest {
 	UpdateLimitedScannable updateLimitedScannable;
 	long mockCurrentTime = 100;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		Supplier<Date> mockDateFactory = () -> {
 			Date mockDate = mock(Date.class);

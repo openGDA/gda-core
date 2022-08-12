@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.eclipse.dawnsci.nexus.device.impl.NexusDeviceService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,14 +63,14 @@ import gda.device.scannable.ScannableUtils;
 
 public class MultiScanTest {
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		NexusDataWriter.clearConfiguration();
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setNexusDeviceService(new NexusDeviceService());
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		LocalProperties.clearProperty(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
 	}

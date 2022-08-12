@@ -26,9 +26,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -48,7 +48,7 @@ public class ScannableThresholdConditionTest {
 	private ScannableThresholdCheck condition;
 	private ObservableComponent observable = new ObservableComponent();
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		when(scannable.getName()).thenReturn("scannable");
 		when(scannable.getPosition()).thenReturn(42.0);

@@ -24,11 +24,11 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("This test is intended to be run on a beamline workstation to check DAServerStatusChecker responses are correct")
+@Disabled("This test is intended to be run on a beamline workstation to check DAServerStatusChecker responses are correct")
 public class DAServerStatusCheckerTest {
 
 	private DAServerStatusChecker checker;
@@ -41,7 +41,7 @@ public class DAServerStatusCheckerTest {
 	private int port;
 	private String host;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		checker = new DAServerStatusChecker();
 		host = hosts.get(0);

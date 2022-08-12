@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import gda.jython.IScanDataPointProvider;
 import gda.scan.ScanDataPoint;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;

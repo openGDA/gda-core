@@ -33,11 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -75,7 +75,7 @@ public class RmiRemotingIntegrationTest {
 
 	private RmiProxyFactory rmiProxyFactory;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
 		new ServiceHolder().setSessionService(new TestSessionService());
@@ -89,7 +89,7 @@ public class RmiRemotingIntegrationTest {
 		Finder.removeAllFactories();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownAfterClass() throws Exception {
 		// Cleanup properties set
 		LocalProperties.unsetActiveMQBrokerURI();
@@ -99,7 +99,7 @@ public class RmiRemotingIntegrationTest {
 	}
 
 	@SuppressWarnings("unused") // As the RmiProxyFactory adds itself to the Finder
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		when(mockFactory.isLocal()).thenReturn(true);
 
@@ -114,7 +114,7 @@ public class RmiRemotingIntegrationTest {
 		Finder.addFactory(mockFactory);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		rmiAutoExporter.shutdown();
 		// Clean out the Finder

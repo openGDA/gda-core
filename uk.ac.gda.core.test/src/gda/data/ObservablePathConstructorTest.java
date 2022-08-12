@@ -31,8 +31,8 @@ import gda.observable.IObserver;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ObservablePathConstructorTest {
 
@@ -41,7 +41,7 @@ public class ObservablePathConstructorTest {
 	private StoredMetadataEntry meta1;
 	private StoredMetadataEntry meta2;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws FactoryException {
 		meta1 = new StoredMetadataEntry("meta1", "value1");
 		meta2 = new StoredMetadataEntry("meta2", "value2");

@@ -21,11 +21,11 @@ package gda.device.detectorfilemonitor;
 import java.io.File;
 
 import org.junit.Assert;
-import org.junit.Test;
 
 import gda.device.detectorfilemonitor.impl.SimpleHighestExistingFileMonitor;
 import gda.observable.IObserver;
 import gda.util.TestUtils;
+import org.junit.jupiter.api.Test;
 
 public class SimpleHighestExistingFileMonitorTest {
 

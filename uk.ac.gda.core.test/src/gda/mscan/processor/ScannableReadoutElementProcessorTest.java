@@ -30,8 +30,8 @@ import java.util.Arrays;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.IRunnableDeviceService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -58,7 +58,7 @@ public class ScannableReadoutElementProcessorTest {
 	@Mock
 	private IRunnableDevice<Object> rDevice;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		processor = new ScannableReadoutElementProcessor(device);
 		when(context.grammar()).thenCallRealMethod();

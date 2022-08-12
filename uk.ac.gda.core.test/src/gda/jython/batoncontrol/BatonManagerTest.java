@@ -23,9 +23,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
@@ -43,7 +43,7 @@ public class BatonManagerTest {
 
 	BatonManager manager;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		LocalProperties.set("gda.accesscontrol.firstClientTakesBaton", "true");
 		LocalProperties.set( LocalProperties.GDA_BATON_MANAGEMENT_ENABLED, "true");
@@ -63,7 +63,7 @@ public class BatonManagerTest {
 		manager.addFacade("rst", details3);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		LocalProperties.clearProperty("gda.accesscontrol.firstClientTakesBaton");
 		LocalProperties.clearProperty( LocalProperties.GDA_BATON_MANAGEMENT_ENABLED);

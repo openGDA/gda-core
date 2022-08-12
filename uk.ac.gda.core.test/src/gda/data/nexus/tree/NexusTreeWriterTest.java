@@ -22,11 +22,11 @@ package gda.data.nexus.tree;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileHDF5;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.junit.Assert;
-import org.junit.Test;
 
 import gda.TestHelpers;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
+import org.junit.jupiter.api.Test;
 
 /**
  *

@@ -22,9 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -32,11 +32,12 @@ import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.hardwaretriggerable.DummyHardwareTriggerableAreaDetector;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
+
 public class DummyHardwareTriggerableAreaDetectorTest {
 
 	private DummyHardwareTriggerableAreaDetector det;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		setupTerminal();
 		det = new DummyHardwareTriggerableAreaDetector("det");
@@ -67,7 +68,7 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 	}
 
 	@Test
-	@Ignore("2010/03/01 Test ignored since it frequently fails with a race condition - test needs reworking")
+	@Disabled("2010/03/01 Test ignored since it frequently fails with a race condition - test needs reworking")
 	public void testOperationInEmulatedScanWithHardwareTriggering() throws DeviceException, InterruptedException {
 		HardwareTriggerProvider triggerProvider = mock(HardwareTriggerProvider.class);
 		det.setHardwareTriggerProvider(triggerProvider);

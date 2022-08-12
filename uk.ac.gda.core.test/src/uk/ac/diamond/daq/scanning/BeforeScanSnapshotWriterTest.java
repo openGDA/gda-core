@@ -54,9 +54,9 @@ import org.eclipse.dawnsci.nexus.NexusScanInfo;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.TestHelpers;
@@ -76,7 +76,7 @@ public class BeforeScanSnapshotWriterTest {
 	private Random random;
 	private Set<String> additionalScannableNames;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		random = new Random(12345l);
 		scanInfo = new NexusScanInfo();
@@ -119,7 +119,7 @@ public class BeforeScanSnapshotWriterTest {
 		additionalScannableNames = additionalScannables.stream().map(Scannable::getName).collect(toSet());
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		Finder.removeAllFactories();
 		random = null;

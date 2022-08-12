@@ -25,8 +25,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DataPointCacheTest {
 	private DataPointCache cache;
@@ -34,7 +34,7 @@ public class DataPointCacheTest {
 	private IScanDataPoint firstPoint;
 	private IScanDataPoint nextPoint;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		firstPoint = mock(IScanDataPoint.class);
 		nextPoint = mock(IScanDataPoint.class);

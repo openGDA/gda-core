@@ -29,9 +29,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -56,7 +56,7 @@ public class SingleCommandRunnerTest {
 	private MockExec exec = new MockExec();
 	private MockExec execTwo = new MockExec();
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		doAnswer(exec).doAnswer(execTwo).when(mockJython).exec(anyString());
 
@@ -65,7 +65,7 @@ public class SingleCommandRunnerTest {
 		runner.setRunner(mockJython);
 	}
 
-	@After
+	@AfterEach
 	public void clearup() {
 		// ensure Aysnc tasks aren't left running
 		exec.complete();

@@ -21,8 +21,8 @@ package gda.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -36,7 +36,7 @@ public class OSCommandRunnerTest {
 	 *
 	 * @throws Exception if setup fails
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(OSCommandRunnerTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);

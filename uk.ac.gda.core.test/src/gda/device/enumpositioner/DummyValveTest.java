@@ -30,8 +30,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
@@ -42,7 +42,7 @@ public class DummyValveTest {
 	private DummyValveForTest valve;
 	private IObserver observer;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		valve = new DummyValveForTest();
 		observer = mock(IObserver.class);

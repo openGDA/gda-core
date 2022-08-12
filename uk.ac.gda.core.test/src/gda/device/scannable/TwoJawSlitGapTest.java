@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.device.DeviceException;
@@ -62,7 +62,7 @@ public class TwoJawSlitGapTest {
 
 	private TwoJawSlitGap slitGap;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		firstJaw = createJaw(FIRST_JAW_NAME, FIRST_JAW_LOWER_LIMIT, FIRST_JAW_UPPER_LIMIT);
 		secondJaw = createJaw(SECOND_JAW_NAME, SECOND_JAW_LOWER_LIMIT, SECOND_JAW_UPPER_LIMIT);

@@ -127,9 +127,9 @@ import org.eclipse.scanning.device.ScannableField;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -310,7 +310,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		super(scanRank);
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpProperties() {
 		LocalProperties.set(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, PROPERTY_VALUE_DATA_FORMAT_NEXUS_SCAN);
 		LocalProperties.set(PROPERTY_NAME_ENTRY_NAME, ENTRY_NAME);
@@ -320,7 +320,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.set(GDA_NEXUS_CREATE_MEASUREMENT_GROUP, true);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownProperties() {
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
 		LocalProperties.clearProperty(PROPERTY_NAME_ENTRY_NAME);
@@ -330,7 +330,7 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		LocalProperties.clearProperty(GDA_NEXUS_CREATE_MEASUREMENT_GROUP);
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpServices() {
 		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
 

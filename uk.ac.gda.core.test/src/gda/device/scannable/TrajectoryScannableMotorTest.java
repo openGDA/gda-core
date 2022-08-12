@@ -28,8 +28,8 @@ import gda.device.Motor;
 import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.factory.FactoryException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TrajectoryScannableMotorTest {
 
@@ -39,7 +39,7 @@ public class TrajectoryScannableMotorTest {
 
 	private Motor motor;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws FactoryException {
 		controller = mock(TrajectoryMoveController.class);
 		when(controller.getNumberAxes()).thenReturn(4);

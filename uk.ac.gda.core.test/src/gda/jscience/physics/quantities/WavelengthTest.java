@@ -35,7 +35,7 @@ import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import tec.units.indriya.quantity.Quantities;
 

@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Callable;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -110,7 +110,7 @@ public class MultithreadedScanDataPointPipelineTest {
 	private Callable<Object> callabledetb2;
 	private Callable<Object> callabledetb3;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		mockDataWriter = mock(DataWriter.class);
 		mockScan = mock(ScanBase.class);

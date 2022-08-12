@@ -26,7 +26,7 @@ import gda.factory.FactoryException;
 import java.io.File;
 import java.util.HashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MessageBeanTest {
 

@@ -23,10 +23,10 @@ import static org.junit.Assert.assertTrue;
 
 import javax.measure.quantity.Length;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import gda.device.DeviceException;
+import org.junit.jupiter.api.Test;
 
 public class DummyUnitsScannableTest {
 	private static final String SCANNABLE_NAME = "dummyScannable";
@@ -38,7 +38,7 @@ public class DummyUnitsScannableTest {
 
 	private DummyUnitsScannable<Length> scannable;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException {
 		scannable = new DummyUnitsScannable<>(SCANNABLE_NAME, 0, HARDWARE_UNITS, USER_UNITS);
 	}

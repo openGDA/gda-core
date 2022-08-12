@@ -20,10 +20,10 @@ package gda.beamline.health;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import gda.factory.FactoryException;
+import org.junit.jupiter.api.Test;
 
 public class ServerConditionTest {
 
@@ -31,7 +31,7 @@ public class ServerConditionTest {
 
 	private ServerConditionForTest serverCondition;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws FactoryException {
 		serverCondition = new ServerConditionForTest();
 		serverCondition.configure();

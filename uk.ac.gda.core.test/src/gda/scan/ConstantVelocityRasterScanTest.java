@@ -32,8 +32,8 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.jython.ITerminalPrinter;
 import gda.jython.InterfaceProvider;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 /**
@@ -57,7 +57,7 @@ public class ConstantVelocityRasterScanTest {
 	private HardwareTriggerableDetector mockeddet1;
 	private HardwareTriggerableDetector mockeddet2;
 
-	@Before()
+	@BeforeEach()
 	public void before() throws DeviceException {
 
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());

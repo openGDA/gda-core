@@ -19,14 +19,14 @@
 
 package gda.util.converters;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
-
-import org.junit.Test;
 
 /**
  * SplitQuantitiesConverterTest Class. It is assumed the that working directory points to the test folder above gda

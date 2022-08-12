@@ -34,8 +34,8 @@ import javax.measure.quantity.Angle;
 import javax.measure.quantity.Energy;
 import javax.measure.quantity.Length;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import tec.units.indriya.quantity.Quantities;
 
@@ -52,7 +52,7 @@ public class CoupledQuantitiesConverterTest {
 
 	private CoupledQuantitiesConverter<Length, Energy, Angle> coupledConverter;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		coupledConverter = new CoupledQuantitiesConverter<>(new SourceToIntermediateConverter(), new IntermediateToTargetConverter());
 	}

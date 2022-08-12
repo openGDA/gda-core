@@ -22,8 +22,8 @@ package gda.device.memory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.detector.DummyDAServer;
@@ -38,7 +38,7 @@ public class GdhistTest {
 	private Gdhist memory = new Gdhist();
 	private DummyDAServer dummyDAServer = new DummyDAServer();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(GdhistTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);

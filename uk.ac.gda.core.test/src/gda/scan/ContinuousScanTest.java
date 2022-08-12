@@ -24,8 +24,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -319,7 +319,7 @@ public class ContinuousScanTest {
 
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void cleanUp() {
 		LocalProperties.clearProperty(GDA_SCAN_SETS_SCANNUMBER);
 		LocalProperties.clearProperty(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST);

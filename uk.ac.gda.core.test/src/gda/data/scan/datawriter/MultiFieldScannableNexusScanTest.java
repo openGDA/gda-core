@@ -73,9 +73,9 @@ import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.device.Services;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -107,7 +107,7 @@ public class MultiFieldScannableNexusScanTest {
 	private Double[] upperLimits;
 
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpServices() {
 		final NexusDeviceService nexusDeviceService = new NexusDeviceService();
 
@@ -127,7 +127,7 @@ public class MultiFieldScannableNexusScanTest {
 		new Services().setScannableDeviceService(new ScannableDeviceConnectorService());
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		LocalProperties.clearProperty(GDA_DATA_SCAN_DATAWRITER_DATAFORMAT);
 	}

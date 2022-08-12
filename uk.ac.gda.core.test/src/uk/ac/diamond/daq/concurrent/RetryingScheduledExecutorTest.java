@@ -32,9 +32,9 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RetryingScheduledExecutorTest {
 
@@ -42,13 +42,13 @@ public class RetryingScheduledExecutorTest {
 
 	private List<Long> callTimes;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		callTimes = new ArrayList<Long>(8);
 		executor = new RetryingScheduledExecutor(1);
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		executor.shutdownNow();
 	}

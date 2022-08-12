@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.python.core.PyInteger;
 import org.python.core.PyList;
@@ -45,7 +45,7 @@ public class JythonCompleterTest {
 	private Jython jy;
 	private PyMethod jyFunc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		jy = Mockito.mock(JythonServer.class);
 		jyFunc = Mockito.mock(PyMethod.class);

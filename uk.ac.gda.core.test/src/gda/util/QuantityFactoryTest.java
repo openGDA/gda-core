@@ -43,7 +43,7 @@ import javax.measure.quantity.Energy;
 import javax.measure.quantity.Frequency;
 import javax.measure.quantity.Length;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyString;

@@ -30,7 +30,7 @@ import static tec.units.indriya.unit.MetricPrefix.MICRO;
 import static tec.units.indriya.unit.Units.METRE;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.device.DeviceException;

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class BeamlineHealthMonitorTest {
@@ -41,7 +41,7 @@ public class BeamlineHealthMonitorTest {
 
 	private BeamlineHealthMonitor monitor;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		condition1 = createMockCondition(DESCRIPTIONS[0], CURRENT_STATES[0], ERROR_MESSAGES[0]);
 		condition2 = createMockCondition(DESCRIPTIONS[1], CURRENT_STATES[1], ERROR_MESSAGES[1]);

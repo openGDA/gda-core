@@ -14,9 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -50,7 +50,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	private InOrder inOrder;
 	private BufferedDetectorToAsyncNXCollectionStrategyAdapter adapter;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// Set up mock detector
 		inOrder = inOrder(bufferedDetector);
@@ -61,7 +61,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		adapter = new BufferedDetectorToAsyncNXCollectionStrategyAdapter(bufferedDetector);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		adapter = null;
 	}

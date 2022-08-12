@@ -26,8 +26,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -47,7 +47,7 @@ public class GdaRmiProxyTest {
 	@Mock
 	private RmiProxyFactory rmiProxyFactory;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		gdaRmiProxy = new GdaRmiProxy();
 		Finder.removeAllFactories();

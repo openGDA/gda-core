@@ -19,11 +19,11 @@
 
 package gda.scan;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-
-import org.junit.Test;
 
 /**
  *

@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -48,7 +48,7 @@ public class RegionShapeElementProcessorTest {
 	@Mock
 	private ClausesContext context;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		processor = new RegionShapeElementProcessor(shape);
 		when(context.grammar()).thenCallRealMethod();

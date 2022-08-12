@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -47,7 +47,7 @@ public class JythonServerTest {
 	private ScriptPaths pathsList;
 	private String[] pathsArray;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		jythonServer = new JythonServer();
 		pathsArray = new String[] {"testfiles/gda/scanning/../jython/JythonServerTest/Hello", "testfiles/gda/jython/JythonServerTest/Hello/../Test"};
@@ -67,7 +67,7 @@ public class JythonServerTest {
 		});
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		jythonServer = null;
 		pathsList = null;

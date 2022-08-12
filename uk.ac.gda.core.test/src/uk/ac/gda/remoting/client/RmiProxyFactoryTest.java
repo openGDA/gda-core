@@ -47,11 +47,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.util.SocketUtils;
 
@@ -88,7 +88,7 @@ public class RmiProxyFactoryTest {
 
 	private Set<String> exportedNames;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker(); // Use in JVM broker
 		new ServiceHolder().setSessionService(new TestSessionService());
@@ -105,7 +105,7 @@ public class RmiProxyFactoryTest {
 		Finder.removeAllFactories();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownAfterClass() throws Exception {
 		// Cleanup properties set
 		LocalProperties.unsetActiveMQBrokerURI();
@@ -117,7 +117,7 @@ public class RmiProxyFactoryTest {
 		UnicastRemoteObject.unexportObject(registry, true);
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// Setup an exporter
 		exporter = new RmiServiceExporter();
@@ -136,7 +136,7 @@ public class RmiProxyFactoryTest {
 		Finder.addFactory(rmiProxyFactory);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		// Clean out all exported objects
 		for (String name : registry.list()) {

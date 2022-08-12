@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PositionStreamIndexerTest {
 	public interface SimplePositionInputStream extends PositionInputStream<Object> {
@@ -54,7 +54,7 @@ public class PositionStreamIndexerTest {
 	private PositionStreamIndexer<Object> indexer;
 	private List<Object> objects;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		stream = mock(SimplePositionInputStream.class);
 		objects = new ArrayList<Object>();

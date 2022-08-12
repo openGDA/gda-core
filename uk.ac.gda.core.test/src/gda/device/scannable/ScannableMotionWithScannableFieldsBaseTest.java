@@ -34,8 +34,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.python.core.PyFloat;
@@ -57,7 +57,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 	private ScannableField e1;
 	private ScannableField e2;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		scn = new ScannableMotionWithScannableFieldsBase();// "scn", new String[] { "i1", "i2" }, new String[] { "e1", "e2" });
 		scn = spy(scn);

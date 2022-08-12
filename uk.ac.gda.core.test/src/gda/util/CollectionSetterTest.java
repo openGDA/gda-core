@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 import javax.measure.Quantity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.IMetadataEntry;

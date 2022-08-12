@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.File;
 import java.nio.file.Paths;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.factory.FactoryException;

@@ -24,8 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
@@ -33,6 +32,7 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.spring.context.SpringContext;
 import gda.util.findableHashtable.Hashtable;
+import org.junit.jupiter.api.Test;
 
 /**
  * A Class for performing junit tests on GDA FindableHashtable. Separate Java properties and object server XML files are
@@ -63,7 +63,7 @@ public class FindableHashtableTest {
 	 * Test setup to be run once at the start.
 	 * @throws FactoryException
 	 */
-	@BeforeClass()
+	@BeforeAll()
 	public static void setUpBeforeClass() throws Exception {
 		/*
 		 * The following line is required to ensure that the default LocalProperties are obtained from the test's Java

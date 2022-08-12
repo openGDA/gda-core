@@ -29,13 +29,14 @@ import gda.jython.InterfaceProvider;
 
 import java.util.concurrent.Callable;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class DummyHardwareTriggerableDetectorTest {
 
 	private DummyHardwareTriggerableSimpleDetector det;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		setupTerminal();
 		det = new DummyHardwareTriggerableSimpleDetector("det");

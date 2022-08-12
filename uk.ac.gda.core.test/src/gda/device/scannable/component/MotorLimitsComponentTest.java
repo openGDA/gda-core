@@ -24,8 +24,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.Motor;
@@ -36,7 +36,7 @@ public class MotorLimitsComponentTest {
 	private Motor motor;
 	private MotorLimitsComponent lc;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		motor = mock(Motor.class);
 		when(motor.getName()).thenReturn("name");

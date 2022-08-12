@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -53,7 +53,7 @@ public class GeneralCommandsTest {
 	private Map<String, Findable> findablesMap;
 	private Map<String, Scannable> scannablesMap;
 
-	@Before
+	@BeforeEach
 	public void createNamespaceWithGroup() {
 		Finder.removeAllFactories();
 		InterfaceProvider.setTerminalPrinterForTesting(printingFacade);
@@ -93,7 +93,7 @@ public class GeneralCommandsTest {
 		}
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void cleanUpFactories() {
 		Finder.removeAllFactories();
 		InterfaceProvider.setTerminalPrinterForTesting(null);

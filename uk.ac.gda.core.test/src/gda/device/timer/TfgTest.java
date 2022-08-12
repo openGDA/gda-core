@@ -33,10 +33,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -51,20 +51,20 @@ public class TfgTest {
 	private Tfg tfg = new Tfg();
 	private DummyDAServer daserver = new DummyDAServer();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(TfgTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 	}
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		tfg.setDaServer(daserver);
 		tfg.configure();
 	}
 
 
-	@After
+	@AfterEach
 	public void shutdownTfg() {
 		tfg.shutdown();
 	}

@@ -59,8 +59,8 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.scan.PositionEvent;
 import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
@@ -75,7 +75,7 @@ public class ScannableNexusWrapperTest {
 
 	private IScannable<Object> scannable;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		DummyScannable wrappedScannable = new DummyScannable("sax", 3.7);
 		wrappedScannable.setLowerGdaLimits(0.5);

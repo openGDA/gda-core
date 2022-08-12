@@ -27,8 +27,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.EnumPositioner;
 import gda.observable.ObservableComponent;
@@ -41,7 +41,7 @@ public class EnumPositionCheckTest {
 	private EnumPositionCheck condition;
 	private ObservableComponent observable = new ObservableComponent();
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		condition = new EnumPositionCheck();
 

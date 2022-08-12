@@ -23,12 +23,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.junit.After;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import gda.observable.IObserver;
 
@@ -41,26 +40,26 @@ public class CommandQueueTest {
 
 	/**
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 	}
 
 	/**
 	 */
-	@AfterClass
+	@AfterAll
 	public static void tearDownAfterClass() {
 	}
 
 	/**
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() {
 		queue = new CommandQueue();
 	}
 
 	/**
 	 */
-	@After
+	@AfterEach
 	public void tearDown() {
 	}
 

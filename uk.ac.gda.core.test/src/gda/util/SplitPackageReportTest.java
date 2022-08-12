@@ -49,8 +49,8 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import org.eclipse.osgi.util.ManifestElement;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public class SplitPackageReportTest {
 
 	private static final Set<String> packagesExportedBySplitPackageResolverOnly = new HashSet<>();
 
-	@BeforeClass
+	@BeforeAll
 	public static void readManifestsAndRecordSplitPackages() throws Exception {
 		// Just in case this were to be called multiple times
 		packageMap.clear();

@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.python.core.Py;
 import org.python.core.PyObject;
 

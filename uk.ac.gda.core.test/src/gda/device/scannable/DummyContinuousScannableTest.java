@@ -23,8 +23,7 @@ import static org.junit.Assert.fail;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.DummyBufferedDetector;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * test the communication between the DummyContinuousScannable and DummyHistogramDetector designed to work togther in

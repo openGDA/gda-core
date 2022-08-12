@@ -23,8 +23,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import gda.device.detector.NXDetectorData;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("unused") // to avoid warnings about un-thrown exceptions
 public class NXDetectorDataPlottableValuesAppenderTest {
@@ -40,7 +40,7 @@ public class NXDetectorDataPlottableValuesAppenderTest {
 	private NXDetectorData dataToAppend;
 	private NXDetectorData parentData;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		parentData = new NXDetectorData(TWO_EXTRA_NAMES, TWO_OUTPUT_FORMATS, DETECTOR_NAME);
 	}

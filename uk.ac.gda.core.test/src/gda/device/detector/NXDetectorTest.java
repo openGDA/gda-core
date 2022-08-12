@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -79,7 +79,7 @@ public class NXDetectorTest {
 
 	private List<NXDetectorDataAppender> appenderList2;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanInformationHolder);
 

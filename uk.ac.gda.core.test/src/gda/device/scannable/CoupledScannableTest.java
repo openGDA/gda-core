@@ -36,8 +36,8 @@ import java.util.function.Function;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
@@ -61,7 +61,7 @@ public class CoupledScannableTest {
 
 	private final IdentityFunction identityFunction = new IdentityFunction();
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		coupled = new CoupledScannable();
 		coupled.setName("tesCoupledScannable");

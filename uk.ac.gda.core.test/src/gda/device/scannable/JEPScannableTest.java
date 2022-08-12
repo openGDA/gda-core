@@ -24,8 +24,8 @@ import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the JEPScannable class except for the parts which require calls to evaluate a Jython command rather than simply
@@ -39,7 +39,7 @@ public class JEPScannableTest {
 	private int b;
 	private MockJythonServerFacade jsf;
 
-	@Before
+	@BeforeEach
 	public void createJythonNamespace() {
 		scannable1 = new DummyScannable("scannable1", 8);
 		scannable2 = new DummyScannable("scannable2", 5);

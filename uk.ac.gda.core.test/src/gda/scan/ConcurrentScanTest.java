@@ -39,9 +39,9 @@ import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -109,7 +109,7 @@ public class ConcurrentScanTest {
 	 * @throws Exception
 	 *             if setup fails
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		lev4 = MockFactory.createMockScannable("lev4", 4);
 		lev5a = MockFactory.createMockScannable("lev5a", 5);
@@ -1121,7 +1121,7 @@ public class ConcurrentScanTest {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	public void testWithDetectorsSingleStartPositionAndScanSetToSetCollectionTimeAtEachStep() throws Exception {
 		// Code not written yet
 		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(),

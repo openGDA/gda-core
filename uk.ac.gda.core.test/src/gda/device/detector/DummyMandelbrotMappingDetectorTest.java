@@ -25,15 +25,15 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.scannable.DummyScannable;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DummyMandelbrotMappingDetectorTest {
 
 	private DummyMandelbrotMappingDetector detector;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		detector = new DummyMandelbrotMappingDetector();
 
@@ -51,7 +51,7 @@ public class DummyMandelbrotMappingDetectorTest {
 		detector.atScanStart();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		detector.atScanEnd();
 		detector = null;

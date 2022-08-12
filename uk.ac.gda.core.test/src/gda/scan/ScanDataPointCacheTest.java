@@ -23,14 +23,14 @@ import static gda.scan.ScanDataPointProvider.getPointWithDuplicatedHeader;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ScanDataPointCacheTest {
 
 	private ScanDataPointCache cache;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		cache = new ScanDataPointCache();
 	}

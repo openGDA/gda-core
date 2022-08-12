@@ -29,8 +29,8 @@ import java.util.function.Function;
 
 import javax.measure.Quantity;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 
@@ -50,7 +50,7 @@ public class SequentialScannableTest {
 
 	private LocalDateTime testStartTime;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		testStartTime = LocalDateTime.now();
 

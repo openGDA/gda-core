@@ -29,8 +29,8 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Scannable;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -54,7 +54,7 @@ public class ConcurrentScanWithConcurrentReadoutTest extends ConcurrentScanTest 
 		LocalProperties.set(LocalProperties.GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY, "true"); // default as interpreted by ConcurrentScan
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		LocalProperties.clearProperty(LocalProperties.GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY);
 	}

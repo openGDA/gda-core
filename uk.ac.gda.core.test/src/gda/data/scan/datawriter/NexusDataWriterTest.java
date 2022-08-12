@@ -72,9 +72,9 @@ import org.eclipse.dawnsci.nexus.template.impl.NexusTemplateServiceImpl;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -372,7 +372,7 @@ public class NexusDataWriterTest {
 
 	private INexusDevice<NXuser> userDevice;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		testScratchDirectoryName = TestHelpers.setUpTest(NexusDataWriterTest.class, "", true);
 
@@ -393,7 +393,7 @@ public class NexusDataWriterTest {
 		nexusFilePath = nexusDataWriter.getCurrentFileName();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		new File(nexusDataWriter.getCurrentFileName()).delete();
 		new File(testScratchDirectoryName).delete();

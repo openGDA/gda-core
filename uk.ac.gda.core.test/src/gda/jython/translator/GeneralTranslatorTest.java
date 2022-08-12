@@ -28,11 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import gda.jython.InterfaceProvider;
 import gda.jython.MockJythonServerFacade;
@@ -44,7 +44,7 @@ public class GeneralTranslatorTest {
 	private final static String TEST_FILE_FOLDER = "testfiles/gda/jython/translator/GeneralTranslatorTest/";
 	private GeneralTranslator translator = new GeneralTranslator();
 
-	@BeforeClass
+	@BeforeAll
 	public static void prepareInterfaceProvider() throws Exception {
 		MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
 		InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
@@ -64,7 +64,7 @@ public class GeneralTranslatorTest {
 		mockJythonServerFacade.setEvaluateCommandResult("['scan']");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void clearInterfaceProvider() {
 		InterfaceProvider.setCommandRunnerForTesting(null);
 		InterfaceProvider.setCurrentScanControllerForTesting(null);
@@ -206,7 +206,7 @@ public class GeneralTranslatorTest {
 	}
 
 	@Test
-	@Ignore("2010/10/26 Test ignored since not passing GDA-3703")
+	@Disabled("2010/10/26 Test ignored since not passing GDA-3703")
 	public void test_translateMultilineComment(){
 		setAliases("pos");
 		String original_command = "print \"\"\"\npos a 1.0\n\"\"\"";

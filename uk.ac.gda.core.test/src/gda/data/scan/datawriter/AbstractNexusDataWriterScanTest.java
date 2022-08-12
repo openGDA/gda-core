@@ -107,9 +107,9 @@ import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.PositionIterator;
 import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -536,7 +536,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		}
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownServices() {
 		GDAMetadataProvider.setInstanceForTesting(null);
 		Finder.removeAllFactories();
@@ -550,7 +550,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 		GDAMetadataProvider.getInstance().addMetadataEntry(new StoredMetadataEntry(metadataKey, value.toString()));
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		scannables = null;
 		monitor = null;

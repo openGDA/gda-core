@@ -24,8 +24,8 @@ import static org.hamcrest.Matchers.is;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -46,7 +46,7 @@ public class BeanClassProviderTest {
 	private Map<String, String> fallbacks = new HashMap<>();
 	private Map<String, String> attributes = new HashMap<>();
 
-	@After
+	@AfterEach
 	public void resetMode() {
 		resetMode(MODE_X, INITIAL_X_CLASS);
 		resetMode(MODE_Y, INITIAL_Y_CLASS);

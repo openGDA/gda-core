@@ -30,8 +30,8 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.FactoryException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 public class DeferredScannableTest {
@@ -39,7 +39,7 @@ public class DeferredScannableTest {
 	ControlPoint mockedControlPoint;
 	Scannable rawa;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException, FactoryException {
 		rawa = MockFactory.createMockScannable("a");
 		mockedControlPoint = mock(ControlPoint.class);

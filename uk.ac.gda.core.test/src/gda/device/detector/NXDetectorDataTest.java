@@ -23,9 +23,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IntegerDataset;
-import org.junit.Test;
 
 import gda.data.nexus.extractor.NexusGroupData;
+import org.junit.jupiter.api.Test;
 
 public class NXDetectorDataTest {
 

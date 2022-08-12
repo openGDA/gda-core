@@ -40,8 +40,8 @@ import gda.jython.InterfaceProvider;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 /**
@@ -67,7 +67,7 @@ public class TrajectoryScanLineTest {
 	private DummyHardwareTriggerableAreaDetector dummydet2;
 	private DummyTrajectoryMoveController dummyController;
 
-	@Before()
+	@BeforeEach()
 	public void before() throws DeviceException {
 
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());

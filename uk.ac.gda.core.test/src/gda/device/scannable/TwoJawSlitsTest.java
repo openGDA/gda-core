@@ -29,9 +29,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
@@ -69,7 +69,7 @@ public class TwoJawSlitsTest {
 	private TwoJawSlitGap gap;
 	private TwoJawSlitPosition position;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		factory = TestHelpers.createTestFactory();
 		Finder.removeAllFactories();
@@ -120,7 +120,7 @@ public class TwoJawSlitsTest {
 		position.configure();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		// Remove factories from Finder so they do not affect other tests
 		Finder.removeAllFactories();

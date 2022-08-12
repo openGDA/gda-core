@@ -35,8 +35,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.data.metadata.Metadata;
@@ -52,7 +52,7 @@ public class IcatXMLCreatorFileWritingTest {
 	private String expectedHeader;
 	private String expectedFooter;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		xmlCreator = new IcatXMLCreator();
 

@@ -27,9 +27,9 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -52,7 +52,7 @@ import gda.util.findableHashtable.Hashtable;
  * under ${gda.tests}/gda/src...
  */
 
-@Ignore("2010/06/03 Test class ignored since the setup code needs re-writing GDA-3277")
+@Disabled("2010/06/03 Test class ignored since the setup code needs re-writing GDA-3277")
 public class ScanTest {
 	private static Finder finder = null;
 
@@ -66,7 +66,7 @@ public class ScanTest {
 	 * Test suite setup.
 	 * @throws FactoryException
 	 */
-	@BeforeClass()
+	@BeforeAll()
 	public static void setup() throws Exception {
 		// TODO: Make sure all GDA files required/written by this test are all
 		// stored

@@ -29,8 +29,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.device.DeviceException;
@@ -55,7 +55,7 @@ public class CoordinatedScannableGroupTest {
 	private PositionValidator validator1;
 	private PositionValidator validator2;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException, FactoryException {
 		rawa = MockFactory.createMockScannable("rawa");
 		rawb = MockFactory.createMockScannableMotion("rawb");

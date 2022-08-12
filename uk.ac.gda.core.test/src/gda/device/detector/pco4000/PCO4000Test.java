@@ -26,8 +26,8 @@ import gda.util.TestUtils;
 
 import java.io.File;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -42,7 +42,7 @@ public class PCO4000Test {
 	 *
 	 * @throws Exception if setup fails
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(PCO4000Test.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);

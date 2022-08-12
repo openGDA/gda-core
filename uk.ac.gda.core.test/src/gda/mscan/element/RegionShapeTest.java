@@ -48,14 +48,14 @@ import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PointROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.PolygonalROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class RegionShapeTest {
 
 	private static Map<RegionShape, List<Number>> correctLengthRegionShapeData = new EnumMap<>(RegionShape.class);
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupClass() {
 		correctLengthRegionShapeData.put(RECTANGLE, Arrays.asList(5.0, 6.0, 7.0, 8.0));
 		correctLengthRegionShapeData.put(CENTRED_RECTANGLE, Arrays.asList(5.0, 6.0, 7.0, 8.0));

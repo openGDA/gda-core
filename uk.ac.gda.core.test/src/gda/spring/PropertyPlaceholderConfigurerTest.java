@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.is;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
 import org.springframework.beans.factory.xml.PluggableSchemaResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;

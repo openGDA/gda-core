@@ -36,9 +36,9 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -52,7 +52,7 @@ public class EtfgTest {
 	private Etfg tfg = new Etfg();
 	private DummyDAServer daserver = new DummyDAServer();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(EtfgTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
@@ -346,7 +346,7 @@ public class EtfgTest {
 		assertEquals(Timer.IDLE, tfg.getStatus());
 	}
 
-	@After
+	@AfterEach
 	public void cleanupTfg() {
 		tfg.shutdown();
 	}

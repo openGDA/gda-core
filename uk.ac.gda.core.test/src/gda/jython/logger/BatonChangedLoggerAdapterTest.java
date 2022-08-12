@@ -25,7 +25,7 @@ import gda.jython.IBatonStateProvider;
 import gda.jython.batoncontrol.BatonChanged;
 import gda.jython.batoncontrol.ClientDetails;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;

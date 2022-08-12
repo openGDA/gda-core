@@ -32,8 +32,8 @@ import static org.mockito.Mockito.verify;
 import java.util.Arrays;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import gda.MockFactory;
@@ -55,7 +55,7 @@ public class ScannableCommandsTest {
 	 * @throws Exception
 	 *             if setup fails
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		InterfaceProvider.setTerminalPrinterForTesting(new MockJythonServerFacade());
 

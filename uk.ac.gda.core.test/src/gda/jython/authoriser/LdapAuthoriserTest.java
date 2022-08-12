@@ -33,9 +33,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
@@ -58,7 +58,7 @@ public class LdapAuthoriserTest {
 	/**
 	 * @throws Exception
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 
 		NamingEnumeration<SearchResult> localStaffResults = mockResultsForGroup(STAFF_GROUP);
@@ -87,7 +87,7 @@ public class LdapAuthoriserTest {
 
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDown() {
 		ldapMixinMock.close();
 		LocalProperties.clearProperty(Authoriser.DEFAULT_LEVEL_PROPERTY);

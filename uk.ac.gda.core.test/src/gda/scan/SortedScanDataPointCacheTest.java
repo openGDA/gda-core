@@ -24,14 +24,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SortedScanDataPointCacheTest {
 
 	private SortedScanDataPointCache cache;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		cache = new SortedScanDataPointCache();
 	}

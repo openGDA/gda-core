@@ -39,9 +39,9 @@ import static org.mockito.Mockito.when;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
 import static tec.units.indriya.unit.Units.METRE;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
@@ -72,7 +72,7 @@ public class ScannableMotorTest {
 	/**
 	 * @throws Exception
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		motor = mock(Motor.class);
 		when(motor.getStatus()).thenReturn(READY);
@@ -90,7 +90,7 @@ public class ScannableMotorTest {
 		assertFalse(sm.isReturningDemandPosition());
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		LocalProperties.clearProperty("gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits");
 		// Remove factories from Finder so they do not affect other tests

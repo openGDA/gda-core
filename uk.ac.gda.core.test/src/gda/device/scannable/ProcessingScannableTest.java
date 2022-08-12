@@ -38,12 +38,12 @@ import java.util.Map.Entry;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ProcessingScannableTest {
 	private ProcessingScannable pr;
-	@Before
+	@BeforeEach
 	public void setup() {
 		pr = new ProcessingScannable("test");
 	}

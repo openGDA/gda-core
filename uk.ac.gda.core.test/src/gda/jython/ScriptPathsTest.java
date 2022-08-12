@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ScriptPathsTest {
 
@@ -41,7 +41,7 @@ public class ScriptPathsTest {
 	private String startupScript = "/some/folder/localStation.py";
 	private File existsScriptLocationFile = new File("testfiles/gda/jython/JythonServerTest" + File.separator + "exists.py");
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		defaultPaths = new ScriptPaths();
 		testfilesProject = new ScriptProject(testfilesPath, "Test Project", ScriptProjectType.USER);
@@ -53,7 +53,7 @@ public class ScriptPathsTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		defaultPaths = null;
 		testfilesPaths = null;

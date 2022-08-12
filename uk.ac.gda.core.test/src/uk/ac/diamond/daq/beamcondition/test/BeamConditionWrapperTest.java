@@ -27,9 +27,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.function.BooleanSupplier;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -47,7 +47,7 @@ public class BeamConditionWrapperTest {
 
 	private BeamConditionWrapper condition;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		condition = new BeamConditionWrapper("condition", function);
 	}

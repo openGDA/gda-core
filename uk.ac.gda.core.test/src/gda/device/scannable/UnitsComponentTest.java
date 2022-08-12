@@ -39,8 +39,8 @@ import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyTuple;
 
@@ -78,7 +78,7 @@ public class UnitsComponentTest {
 	private static final List<String> VOLUMETRIC_DENSITY_UNITS = Arrays.asList("mg/ml");
 	private static final List<String> PRESSURE_UNITS = Arrays.asList("Pa", "mPa", "kPa", "MPa", "bar", "mbar");
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() {
 		Collections.sort(LENGTH_UNITS);
 		Collections.sort(ANGLE_UNITS);

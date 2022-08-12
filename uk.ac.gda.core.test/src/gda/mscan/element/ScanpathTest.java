@@ -62,9 +62,9 @@ import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -98,7 +98,7 @@ public class ScanpathTest {
 	@Mock
 	private Scannable scannable2;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupClass() {
 		for (Scanpath scanpath : Scanpath.values()) {
 			emptyPathData.put(scanpath, new Double[] {});
@@ -116,7 +116,7 @@ public class ScanpathTest {
 		correctLengthPathData.put(STATIC, new Double[] {1.0});
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		when(scannable1.getName()).thenReturn("name1");
 		when(scannable2.getName()).thenReturn("name2");

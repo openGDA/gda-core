@@ -27,9 +27,9 @@ import gda.util.TestUtils;
 
 import java.io.File;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 // tests methods in DummyImageCreator particularly those of DetectorBase
 /**
@@ -40,7 +40,7 @@ public class DummyImageCreatorTest {
 
 	/**
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() {
 		imageDetector = new DummyImageCreator();
 		final File testScratchDirectoryName = TestUtils.createClassScratchDirectory(DummyImageCreatorTest.class);
@@ -132,7 +132,7 @@ public class DummyImageCreatorTest {
 	 * @throws DeviceException
 	 */
 	@Test
-	@Ignore("2010/06/07 Test ignored since not passing GDA-3282")
+	@Disabled("2010/06/07 Test ignored since not passing GDA-3282")
 	public void testGetStatus() throws DeviceException {
 		assertEquals("default status is false", imageDetector.getStatus(), false);
 

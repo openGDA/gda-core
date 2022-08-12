@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 
@@ -33,7 +33,7 @@ public class LdapMixinTest {
 
 	private static HostnameResolver resolver;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createTestResolver() {
 		TestHostnameResolver r = new TestHostnameResolver();
 		r.addEntry(LdapAuthenticator.DEFAULT_LDAP_HOST, "1.1.1.1", "2.2.2.2");

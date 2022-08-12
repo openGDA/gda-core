@@ -38,11 +38,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -81,7 +80,7 @@ public class RmiAutomatedExporterTest {
 	@Mock
 	private Factory mockFactory;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupClass() throws Exception {
 		LocalProperties.forceActiveMQEmbeddedBroker();
 		new ServiceHolder().setSessionService(new TestSessionService());
@@ -92,7 +91,7 @@ public class RmiAutomatedExporterTest {
 		LocalProperties.set(GDA_ACCESS_CONTROL_ENABLED, "true");
 	}
 
-	@Before
+	@BeforeEach
 	public void setUpTest() throws Exception {
 		rmiAutoExporter = new RmiAutomatedExporter();
 		when(mockFactory.isLocal()).thenReturn(true);
@@ -106,13 +105,13 @@ public class RmiAutomatedExporterTest {
 		Finder.addFactory(mockFactory);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		rmiAutoExporter.shutdown();
 		Finder.removeAllFactories();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownClass() {
 		LocalProperties.clearProperty(RMI_PORT_PROPERTY);
 		LocalProperties.clearProperty(GDA_ACCESS_CONTROL_ENABLED);

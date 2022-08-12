@@ -20,10 +20,10 @@ package gda.beamline.health;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import gda.factory.FactoryException;
+import org.junit.jupiter.api.Test;
 
 public class ComponentHealthConditionBaseTest {
 
@@ -31,7 +31,7 @@ public class ComponentHealthConditionBaseTest {
 
 	private ComponentCondition componentCondition;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		componentCondition = new ComponentCondition();
 	}

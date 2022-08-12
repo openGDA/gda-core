@@ -50,10 +50,10 @@ import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -88,7 +88,7 @@ public class JythonShellTest {
 	@Mock MockedStatic<Highlighters> highlightersMock;
 	@Mock MockedStatic<LineReaderBuilder> lineReaderBuilderMock;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		Mockito.when(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).thenReturn("example");
 		Mockito.when(LocalProperties.get(anyString(), anyString())).thenAnswer(i -> i.getArgument(1, String.class));
@@ -108,7 +108,7 @@ public class JythonShellTest {
 		shell = new JythonShell(terminal);
 	}
 
-	@After
+	@AfterEach
 	public void clearup() {
 		shell.close();
 	}

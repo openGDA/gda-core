@@ -25,10 +25,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
 import gda.util.ElogEntry.ElogException;
@@ -49,7 +49,7 @@ public class ElogEntryTest {
 	/**
 	 * Determines the absolute path to the test files.
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() {
 		testfile1 = new File("testfiles/gda/util/ElogEntryTest/Elog1.jpeg").getPath();
 		testfile2 = new File("testfiles/gda/util/ElogEntryTest/Elog1.jpeg").getPath();
@@ -61,7 +61,7 @@ public class ElogEntryTest {
 	 * @throws ElogException
 	 */
 	@Test
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryOK() throws ElogException {
 
 		String
@@ -82,7 +82,7 @@ public class ElogEntryTest {
 	 * @throws ElogException
 	 */
 	@Test(expected=ElogEntry.ElogException.class)
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryFailGroupID() throws ElogException {
 
 		String
@@ -104,7 +104,7 @@ public class ElogEntryTest {
 	 * @throws ElogException
 	 */
 	@Test(expected=ElogEntry.ElogException.class)
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryFailLogID() throws ElogException {
 
 		String
@@ -126,7 +126,7 @@ public class ElogEntryTest {
 	 * @throws ElogException
 	 */
 	@Test(expected=ElogEntry.ElogException.class)
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryFailUserID() throws ElogException {
 
 		String
@@ -148,7 +148,7 @@ public class ElogEntryTest {
 	 * @throws ElogException
 	 */
 	@Test(expected=ElogEntry.ElogException.class)
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryFailImages() throws ElogException {
 
 		String
@@ -169,7 +169,7 @@ public class ElogEntryTest {
 	 * @throws ElogException
 	 */
 	@Test
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryNoImages() throws ElogException {
 
 		String
@@ -187,7 +187,7 @@ public class ElogEntryTest {
 	 * Tests that an asynchronous ELog entry works.
 	 */
 	@Test
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryAsyn() {
 
 		String visit = "aa34bg";
@@ -203,7 +203,7 @@ public class ElogEntryTest {
 	}
 
 	@Test
-	@Ignore // Don't flood elog
+	@Disabled // Don't flood elog
 	public void testElogEntryNonStaticOK() throws ElogException {
 		String visit = "aa34bg";
 		String logID = "OPR";

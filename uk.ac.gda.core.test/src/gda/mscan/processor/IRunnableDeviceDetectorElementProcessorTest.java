@@ -30,8 +30,8 @@ import java.util.Arrays;
 
 import org.eclipse.scanning.api.device.IRunnableDevice;
 import org.eclipse.scanning.api.device.models.IDetectorModel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -53,7 +53,7 @@ public class IRunnableDeviceDetectorElementProcessorTest {
 	@Mock
 	private ClausesContext context;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		processor = new IRunnableDeviceDetectorElementProcessor(device);
 		when(context.grammar()).thenCallRealMethod();

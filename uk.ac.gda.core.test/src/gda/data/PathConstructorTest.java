@@ -27,9 +27,9 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.GDAMetadataProvider;
@@ -59,7 +59,7 @@ public class PathConstructorTest {
 	private static String year = null;
 	private String propertyName = "test.property";
 
-	@Before
+	@BeforeEach
 	public void setUpBeforeEachTest() throws Exception {
 
 		Finder.removeAllFactories();
@@ -182,7 +182,7 @@ public class PathConstructorTest {
 		assertEquals("/test/token", InterfaceProvider.getPathConstructor().createFromTemplate("/test/$invalid$/token"));
 	}
 
-	@After
+	@AfterEach
 	public void cleanUpAfterEachTest() {
 
 		Finder.removeAllFactories();

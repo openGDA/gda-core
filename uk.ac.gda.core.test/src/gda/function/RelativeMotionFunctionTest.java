@@ -32,8 +32,8 @@ import javax.measure.Quantity;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
@@ -58,7 +58,7 @@ public class RelativeMotionFunctionTest {
 	private ILinearFunction<Length, Length> lengthToLengthCoupling;
 	private ILinearFunction<Length, Angle> lengthToAngleCoupling;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException {
 		lengthToLengthFunction = new RelativeMotionFunction<>();
 		lengthToAngleFunction = new RelativeMotionFunction<>();

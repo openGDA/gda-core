@@ -28,8 +28,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.Serializable;
 import java.util.Dictionary;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -50,7 +50,7 @@ public class OsgiServiceBeanHandlerTest {
 	@Mock
 	BundleContext mockContext;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 
 		// Set mock in bundle context

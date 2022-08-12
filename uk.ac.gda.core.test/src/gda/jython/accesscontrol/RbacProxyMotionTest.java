@@ -22,22 +22,22 @@ import static gda.configuration.properties.LocalProperties.GDA_ACCESS_CONTROL_EN
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
+import org.junit.jupiter.api.Test;
 
 public class RbacProxyMotionTest {
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		LocalProperties.set(GDA_ACCESS_CONTROL_ENABLED, "true");
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		LocalProperties.clearProperty(GDA_ACCESS_CONTROL_ENABLED);
 	}

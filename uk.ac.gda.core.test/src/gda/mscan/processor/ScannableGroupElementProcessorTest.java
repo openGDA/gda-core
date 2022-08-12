@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -59,7 +59,7 @@ public class ScannableGroupElementProcessorTest {
 	@Mock
 	private ClausesContext context;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		when((sGroup.getGroupMembers())).thenReturn(Arrays.asList(scannable1, scannable2));
 		processor = new ScannableGroupElementProcessor(sGroup);

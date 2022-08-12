@@ -28,10 +28,10 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.TestHelpers;
@@ -61,7 +61,7 @@ public class NXMetaDataProviderTest {
 	private Map<String, String> formattingMap;
 	private List<MetaDataUserSuppliedItem> userSuppliedItems;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException, FactoryException {
 		ServiceHolder.getNexusDataWriterConfiguration().setMetadataScannables(new HashSet<>());
 		this.rand = new Random();
@@ -121,7 +121,7 @@ public class NXMetaDataProviderTest {
 		scnGroup = new ScannableGroup("scnGroup", new Scannable[] { bsx, mscnIn3Ex2 });
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		LocalProperties.set("gda.nexus.metadata.provider.name", "");
 		// Remove factories from Finder so they do not affect other tests

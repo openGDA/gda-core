@@ -28,8 +28,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -71,7 +71,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 	ScannableMotor scnb;
 	ScannableMotor scnc;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws DeviceException, FactoryException {
 		controller = mock(TrajectoryMoveController.class);
 		when(controller.getNumberAxes()).thenReturn(3);

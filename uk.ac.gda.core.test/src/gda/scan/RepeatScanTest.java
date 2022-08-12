@@ -32,9 +32,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -83,7 +83,7 @@ public class RepeatScanTest {
 	DetectorFrameControllerImpl d2;
 	DetectorFrameControllerImpl d3;
 	@SuppressWarnings("rawtypes")
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		LocalProperties.setScanSetsScanNumber(true);
 		LocalProperties.set(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST, ScanBaseFirstScanNumber);
@@ -121,7 +121,7 @@ public class RepeatScanTest {
 	}
 
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		LocalProperties.clearProperty(GDA_SCAN_SETS_SCANNUMBER);
 		LocalProperties.clearProperty(GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST);

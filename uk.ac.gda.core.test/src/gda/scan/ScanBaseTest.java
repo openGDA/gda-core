@@ -22,9 +22,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Vector;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import gda.device.DeviceException;
@@ -37,13 +37,13 @@ public class ScanBaseTest {
 
 	private JythonServerFacade mockJsf;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		mockJsf = Mockito.mock(JythonServerFacade.class);
 		InterfaceProvider.setAuthorisationHolderForTesting(mockJsf);
 	}
 
-	@After
+	@AfterEach
 	public void cleanUp() {
 		InterfaceProvider.setAuthorisationHolderForTesting(null);
 	}

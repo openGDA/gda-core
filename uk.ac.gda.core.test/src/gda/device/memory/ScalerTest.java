@@ -22,13 +22,13 @@ package gda.device.memory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 import gda.device.DeviceException;
 import gda.device.detector.DummyDAServer;
 import gda.factory.FactoryException;
 import gda.util.TestUtils;
+import org.junit.jupiter.api.Test;
 
 /**
  * Memory test case
@@ -38,7 +38,7 @@ public class ScalerTest {
 	private Scaler memory = new Scaler();
 	private DummyDAServer dummyDAServer = new DummyDAServer();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(ScalerTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);

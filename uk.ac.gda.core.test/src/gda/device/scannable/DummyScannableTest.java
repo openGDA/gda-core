@@ -23,8 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
@@ -41,7 +41,7 @@ public class DummyScannableTest {
 
 	private DummyScannable theScannable;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		theScannable = new DummyScannable("testPD");
 		theScannable.moveTo(INITIAL_POSITION);

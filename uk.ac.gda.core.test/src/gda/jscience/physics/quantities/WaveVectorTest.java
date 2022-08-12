@@ -27,7 +27,7 @@ import static tec.units.indriya.unit.Units.JOULE;
 import javax.measure.Quantity;
 import javax.measure.quantity.Energy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import tec.units.indriya.quantity.Quantities;
 

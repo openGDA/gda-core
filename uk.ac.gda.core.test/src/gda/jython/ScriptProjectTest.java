@@ -24,9 +24,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ScriptProjectTest {
 
@@ -34,14 +34,14 @@ public class ScriptProjectTest {
 	private ScriptProject configProject;
 	private ScriptProject coreProject;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		userProject = new ScriptProject("/tmp", "Scripts - User", ScriptProjectType.USER);
 		configProject = new ScriptProject("/tmp", "Scripts - Config", ScriptProjectType.CONFIG);
 		coreProject = new ScriptProject("/tmp", "Scripts - Core", ScriptProjectType.CORE);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		userProject = null;
 		configProject = null;

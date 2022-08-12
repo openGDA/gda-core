@@ -48,8 +48,8 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Speed;
 
 import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.python.core.Py;
 import org.python.core.PyList;
 import org.python.core.PyObject;
@@ -75,7 +75,7 @@ public class ScannableUtilsTest {
 	/**
 	 * start with a scannable with reasonable defaults
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() {
 		scannable = mock(Scannable.class);
 		when(scannable.getName()).thenReturn(new String("Alfred"));

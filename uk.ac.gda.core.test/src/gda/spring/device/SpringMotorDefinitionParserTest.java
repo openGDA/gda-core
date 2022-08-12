@@ -39,9 +39,9 @@ import java.util.Map.Entry;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -88,7 +88,7 @@ public class SpringMotorDefinitionParserTest {
 	private Map<String, String> attrs = new HashMap<>();
 	@Mock private MockedStatic<LocalProperties> localPropertiesMock;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		when(context.getRegistry()).thenReturn(registry);
 		when(context.getReaderContext()).thenReturn(readerContext);

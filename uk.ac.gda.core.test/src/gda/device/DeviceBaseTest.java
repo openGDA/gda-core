@@ -26,8 +26,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.adc.DummyAdc;
 import gda.factory.FactoryException;
@@ -42,7 +42,7 @@ public class DeviceBaseTest implements IObserver {
 
 	/**
 	 */
-	@Before
+	@BeforeEach
 	public void setUp() {
 		dummyAdc = new DummyAdc();
 	}

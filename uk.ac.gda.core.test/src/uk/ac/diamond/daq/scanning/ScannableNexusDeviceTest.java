@@ -66,9 +66,9 @@ import org.eclipse.dawnsci.nexus.NexusUtils;
 import org.eclipse.dawnsci.nexus.builder.NexusObjectProvider;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.data.ServiceHolder;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
@@ -99,12 +99,12 @@ public class ScannableNexusDeviceTest {
 	private Double[] lowerLimits;
 	private Double[] upperLimits;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		new ServiceHolder().setScannableNexusDeviceConfigurationRegistry(new ScannableNexusDeviceConfigurationRegistry());
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		new ServiceHolder().setNexusWriterConfiguration(null);
 	}

@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PositionInputStreamCombinerTest {
 	public interface SimplePositionInputStream extends PositionInputStream<Object> {
@@ -65,7 +65,7 @@ public class PositionInputStreamCombinerTest {
 	private List<Object> pair2 = asList(a2, b2);
 	private List<Object> pair3 = asList(a3, b3);
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		stream1 = mock(SimplePositionInputStream.class);
 		stream2 = mock(SimplePositionInputStream.class);

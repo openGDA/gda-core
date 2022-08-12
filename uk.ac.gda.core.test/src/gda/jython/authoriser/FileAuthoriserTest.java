@@ -23,11 +23,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 import gda.configuration.properties.LocalProperties;
 import gda.util.TestUtils;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the FileAuthoriser class
@@ -39,7 +39,7 @@ public class FileAuthoriserTest {
 	/**
 	 * @throws Exception
 	 */
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(FileAuthoriserTest.class
 				.getCanonicalName());
