@@ -60,7 +60,7 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	/** Name of this controller - used for logging + debug only */
 	private String name;
 	/** Pressure tolerance used to determine if a move has completed successfully */
-	private double tolerance = 5;
+	private double tolerance = 20;
 
 	/** PV for the cell pressure RBV */
 	private ReadOnlyPV<Double> cellPressurePV;
@@ -401,6 +401,14 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 
 	public void setRootPv(String rootPv) {
 		this.rootPv = rootPv;
+	}
+
+	public void setTolerance(double tolerance) {
+		this.tolerance = tolerance;
+	}
+
+	public double getTolerance() {
+		return this.tolerance;
 	}
 
 	public void setV3(EpicsPressureValve valve) {
