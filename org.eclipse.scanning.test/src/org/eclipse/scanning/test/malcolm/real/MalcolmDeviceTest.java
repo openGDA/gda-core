@@ -221,7 +221,8 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 			malcolmDevice.validate(malcolmModel);
 			fail("A validation exception was expected");
 		} catch (ValidationException e) {
-			assertThat(e.getMessage(), is(equalTo("org.eclipse.scanning.api.malcolm.MalcolmDeviceException: " + STANDARD_MALCOLM_ERROR_STR + errorMessage)));
+			assertThat(e.getMessage(), is(equalTo(MalcolmDeviceException.class.getName() + ": " +
+					STANDARD_MALCOLM_ERROR_STR + errorMessage + "\n\tfor message: " + expectedValidateMessage)));
 		}
 
 		// check that the malcolm connection received the expected validate message
@@ -413,28 +414,28 @@ public class MalcolmDeviceTest extends AbstractMalcolmDeviceTest {
 
 	private void testCall(MalcolmCall malcolmCall, MalcolmMethod method, Object params) throws Exception {
 		// Arrange
-		MalcolmMessage expectedRunMessage = createExpectedCallMessage(id++, method, params);
-		when(malcolmConnection.send(malcolmDevice, expectedRunMessage)).thenReturn(createExpectedMalcolmOkReply(null));
+		MalcolmMessage expectedCallMessage = createExpectedCallMessage(id++, method, params);
+		when(malcolmConnection.send(malcolmDevice, expectedCallMessage)).thenReturn(createExpectedMalcolmOkReply(null));
 
 		// Act
 		malcolmCall.call(malcolmDevice);
 
 		// Assert
-		verify(malcolmConnection).send(malcolmDevice, expectedRunMessage);
+		verify(malcolmConnection).send(malcolmDevice, expectedCallMessage);
 
 		// Arrange, this time with an error message
 		final String errorMessage = "Could not " + method; // e.g. 'Could not run'
-		expectedRunMessage = createExpectedCallMessage(id++, method, params);
-		when(malcolmConnection.send(malcolmDevice, expectedRunMessage)).thenReturn(createExpectedMalcolmErrorReply(errorMessage));
+		expectedCallMessage = createExpectedCallMessage(id++, method, params);
+		when(malcolmConnection.send(malcolmDevice, expectedCallMessage)).thenReturn(createExpectedMalcolmErrorReply(errorMessage));
 
 		// Act / Assert
 		try {
 			malcolmCall.call(malcolmDevice);
 			fail("An exception was expected");
 		} catch (MalcolmDeviceException e) {
-			assertThat(e.getMessage(), is(equalTo(STANDARD_MALCOLM_ERROR_STR + errorMessage)));
+			assertThat(e.getMessage(), is(equalTo(STANDARD_MALCOLM_ERROR_STR + errorMessage + "\n\tfor message: " + expectedCallMessage)));
 		}
-		verify(malcolmConnection).send(malcolmDevice, expectedRunMessage);
+		verify(malcolmConnection).send(malcolmDevice, expectedCallMessage);
 	}
 
 	@Test

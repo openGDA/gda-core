@@ -593,10 +593,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 	@SuppressWarnings("unchecked")
 	private <T> T getEndpointValue(String endpointName) throws MalcolmDeviceException {
 		logger.debug("Getting endpoint value {}", endpointName);
-		final MalcolmMessage reply = getEndpointReply(endpointName);
-		exceptionOnError(reply);
-
-		return (T) reply.getValue();
+		return (T) getEndpointReply(endpointName).getValue();
 	}
 
 	private MalcolmMessage getEndpointReply(String endpointName) throws MalcolmDeviceException {
@@ -708,7 +705,7 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 			}
 
 			logger.debug("Received reply from malcolm device: {}", reply);
-			exceptionOnError(reply);
+			exceptionOnError(message, reply);
 			return reply;
 		} catch (MalcolmDeviceException e) {
 			throw e;
@@ -717,13 +714,13 @@ public class MalcolmDevice extends AbstractMalcolmDevice {
 		}
 	}
 
-	private void exceptionOnError(MalcolmMessage reply) throws MalcolmDeviceException {
+	private void exceptionOnError(MalcolmMessage message, MalcolmMessage reply) throws MalcolmDeviceException {
 		if (reply == null) {
 			// the real malcolm device should never return a null reply, but Mockito tests will if
 			// Mockito.when has not been used to configure the mock to return a reply for a particular message
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + " got null reply");
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + " got null reply for message: " + message);
 		} else if (reply.getType()==Type.ERROR) {
-			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage());
+			throw new MalcolmDeviceException(STANDARD_MALCOLM_ERROR_STR + reply.getMessage() + "\n\tfor message: " + message);
 		}
 	}
 
