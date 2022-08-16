@@ -22,6 +22,8 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -49,6 +51,8 @@ import uk.ac.diamond.daq.client.gui.persistence.SearchResultViewDialogMode;
 import uk.ac.diamond.daq.mapping.api.IMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.api.PersistableMappingExperimentBean;
 import uk.ac.diamond.daq.mapping.ui.MultiFunctionButton;
+import uk.ac.diamond.daq.mapping.ui.experiment.StateReporter.State;
+import uk.ac.diamond.daq.mapping.ui.experiment.StateReporter.StateReport;
 import uk.ac.diamond.daq.persistence.manager.PersistenceServiceWrapper;
 
 /**
@@ -83,7 +87,11 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	private RGB buttonColour = null;
 
+	private RGB badStateButtonColour;
+
 	private ScanManagementController smController;
+
+	private Optional<StateReporter> stateReporter = Optional.empty();
 
 	@Override
 	public void createControls(Composite parent) {
@@ -94,6 +102,11 @@ public class SubmitScanSection extends AbstractMappingSection {
 		createMainComposite(parent);
 		createSubmitSection();
 		createMscanSection();
+
+		if (stateReporter.isPresent()) {
+			stateReporter.get().initialize(stateConsumer);
+			composite.addDisposeListener(e -> removeListeners());
+		}
 	}
 
 	private void createMainComposite(Composite parent) {
@@ -104,6 +117,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 
 	protected void createSubmitSection() {
 		final Composite submitComposite = createComposite(composite, 1, false);
+		setButtonColour(new RGB(255, 255, 255));
 		createSubmitButton(submitComposite);
 	}
 
@@ -114,6 +128,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		if (buttonColour != null) {
 			submitScanButton.setBackground(new Color(Display.getDefault(), buttonColour));
 		}
+		badStateButtonColour = new RGB(244,166,152);
 		GridDataFactory.swtDefaults().applyTo(submitScanButton);
 		submitScanButton.addSelectionListener(widgetSelectedAdapter(e -> submitScan()));
 	}
@@ -191,6 +206,7 @@ public class SubmitScanSection extends AbstractMappingSection {
 		}
 
 		saveScanButton.draw(mscanComposite);
+
 	}
 
 	private void updateMappingBean(final ScanRequest request) {
@@ -359,6 +375,10 @@ public class SubmitScanSection extends AbstractMappingSection {
 		this.buttonColour = buttonColour;
 	}
 
+	protected RGB getButtonColour() {
+		return buttonColour;
+	}
+
 	/**
 	 * Set the enabled state of the Submit button
 	 *
@@ -367,5 +387,37 @@ public class SubmitScanSection extends AbstractMappingSection {
 	 */
 	protected void setSubmitScanButtonEnabled(boolean enabled) {
 		submitScanButton.setEnabled(enabled);
+	}
+
+	public void setStateReporter(StateReporter stateReporter) {
+		this.stateReporter = Optional.of(stateReporter);
+	}
+
+	private Consumer<StateReport> stateConsumer = stateReport -> {
+		if (stateReport.getState().equals(State.GOOD)) {
+			updateSubmitButton(getButtonColour(), stateReport.getMessage());
+		} else {
+			updateSubmitButton(badStateButtonColour, stateReport.getMessage());
+		}
+	};
+
+	/**
+	 * Sets the colour and tooltip message of the submit button
+	 * <p>
+	 * This is used to reflect a change of state on the beamline
+	 * It can be used to warn users about something that requires their attention before queueing the scan
+	 *
+	 * @param buttonColour RGB value of the required colour
+	 * @param message message to display as button tooltip
+	 */
+	private void updateSubmitButton(RGB buttonColour, String message) {
+		Display.getDefault().asyncExec(() -> {
+			submitScanButton.setBackground(new Color(Display.getDefault(), buttonColour));
+			submitScanButton.setToolTipText(message);
+		});
+	}
+
+	private void removeListeners() {
+		stateReporter.get().dispose();
 	}
 }
