@@ -163,6 +163,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	private boolean alwaysPrepare=false; // Set to true to disable alreadyPrepared mechanism
 
 	private boolean lazyOpen=false;
+	private Optional<Boolean> swmrModeEnabled=Optional.empty();
 
 	public boolean isLazyOpen() {
 		return lazyOpen;
@@ -276,6 +277,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory
 		getNdFileHDF5().setStoreAttr(storeAttr? 1:0);
 		getNdFileHDF5().setStorePerform(storePerform?1:0);
+		if(swmrModeEnabled.isPresent()) {
+			getNdFileHDF5().setUseSWMR(swmrModeEnabled.get());
+		}
 		// save attributes with correct dimensions, add this option as not available in all beamlines yet
 		if (isAttrByDimSupported())
 			getNdFileHDF5().setStoreAttributesByDimension(attrByDim);
@@ -653,4 +657,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		this.alwaysPrepare = alwaysPrepare;
 	}
 
+	public void setSwmrModeEnabled(boolean swmrModeEnabled) {
+		this.swmrModeEnabled = Optional.of(swmrModeEnabled);
+	}
 }
