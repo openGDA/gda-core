@@ -18,6 +18,9 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.richbeans.api.binding.IBeanController;
 import org.eclipse.richbeans.api.binding.IBeanService;
@@ -136,7 +139,9 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 	@Override
 	protected void updateState(boolean isOn) {
 		super.updateState(isOn);
-		showMythenParameters(collectDiffractionImages.getValue());
+		if (collectDiffractionImages != null) {
+			showMythenParameters(collectDiffractionImages.getValue());
+		}
 	}
 
 	protected void createDiffractionSection(final Composite top) {
@@ -189,13 +194,10 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 		}
 	}
 
-	void showMythenParameters(boolean show) {
-		mythenEnergy.setVisible(show);
-		mythenTime.setVisible(show);
-		mythenFrames.setVisible(show);
-		mythenEnergyLabel.setVisible(show);
-		mythenTimeLabel.setVisible(show);
-		mythenFramesLabel.setVisible(show);
+	private void showMythenParameters(boolean show) {
+		Stream.of(mythenEnergy, mythenTime, mythenFrames, mythenEnergyLabel, mythenTimeLabel, mythenFramesLabel)
+			.filter(Objects::nonNull)
+			.forEach(w -> w.setVisible(show));
 	}
 
 	public ScaleBox getMythenEnergy() {
