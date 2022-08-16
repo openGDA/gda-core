@@ -18,7 +18,6 @@
 
 package gda.device.scannable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import gda.device.DeviceException;
 import gda.scan.NamedQueueTask;
+import gda.util.logging.LoggingUtils;
 
 /**
  * Used as a component in {@link PositionCallableProvider}s that implement {@link PositionInputStream}s an indexer can
@@ -141,8 +141,8 @@ class PositionStreamIndexPuller<T> implements Callable<T> {
 				called = true;
 			}
 		} else {
-			logger.warn("@{}.call method called twice for index: {}, stack trace {}", Integer.toHexString(hashCode()), index, Arrays.toString(Thread.currentThread().getStackTrace()));
-
+			logger.warn("@{}.call method called twice for index: {}", Integer.toHexString(hashCode()), index);
+			LoggingUtils.logStackTrace(logger, "call()");
 		}
 		return value;
 	}

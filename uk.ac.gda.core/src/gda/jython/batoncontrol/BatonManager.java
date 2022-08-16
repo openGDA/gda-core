@@ -20,14 +20,12 @@
 package gda.jython.batoncontrol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -40,6 +38,7 @@ import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
 import gda.jython.IJythonServerNotifer;
 import gda.jython.InterfaceProvider;
+import gda.util.logging.LoggingUtils;
 
 /**
  * Component used by JythonServer to manage the list of clients registered to that server. If enabled, there is a baton which can be 'requested' by one of the
@@ -447,11 +446,10 @@ public class BatonManager implements IBatonManager {
 	private void notifyServerOfBatonChange() {
 		// during object server startup, this may come back null
 		final IJythonServerNotifer jythonServerNotifer = InterfaceProvider.getJythonServerNotifer();
-		if (logger.isDebugEnabled()) {
-			logger.debug("notifyServerOfBatonChange() called when jythonServerNotifer={}, called from {} (abridged)",
-					jythonServerNotifer,
-					Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).limit(10).collect(Collectors.toList()));
-		}
+
+		logger.debug("notifyServerOfBatonChange() called when jythonServerNotifer={}", jythonServerNotifer);
+		LoggingUtils.logStackTrace(logger, "notifyServerOfBatonChange()");
+
 		if (jythonServerNotifer != null) {
 			jythonServerNotifer.notifyServer(this, new BatonChanged());
 		}

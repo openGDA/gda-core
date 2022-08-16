@@ -21,8 +21,6 @@ package uk.ac.gda.remoting.client;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -34,6 +32,7 @@ import com.google.common.base.Stopwatch;
 
 import gda.observable.IObservable;
 import gda.observable.ObservableComponent;
+import gda.util.logging.LoggingUtils;
 import uk.ac.diamond.daq.classloading.GDAClassLoaderService;
 
 /**
@@ -104,10 +103,7 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 			logger.debug("RPC call to '{}.{}' took {} ms from Non UI thread [{}]", declaringClass.getName(),
 					method.getName(), elapsedTime, threadName);
 		}
-		if (logger.isTraceEnabled()) { // getStackTrace() is expensive so guard against unnecessary calls.
-			logger.trace("RPC call to '{}.{}' called from {}", declaringClass.getName(), method.getName(),
-					Arrays.stream(Thread.currentThread().getStackTrace()).skip(2).collect(Collectors.toList()));
-		}
+		LoggingUtils.logStackTrace(logger, "logRmiCalls()");
 	}
 
 	/**

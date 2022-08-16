@@ -20,7 +20,6 @@
 package gda.device.detector;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
+import gda.util.logging.LoggingUtils;
 
 /**
  * Base class for all Detectors.
@@ -48,13 +48,15 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	@Override
 	public double getCollectionTime() throws DeviceException {
-		logger.trace("getCollectionTime()={}, stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
+		logger.trace("getCollectionTime() returning {}", collectionTime);
+		LoggingUtils.logStackTrace(logger, "getCollectionTime()");
 		return collectionTime;
 	}
 
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
-		logger.trace("setCollectionTime({}) stack trace {}", collectionTime, Arrays.toString(Thread.currentThread().getStackTrace()));
+		logger.trace("setCollectionTime({})", collectionTime);
+		LoggingUtils.logStackTrace(logger, "setCollectionTime()");
 		this.collectionTime = collectionTime;
 	}
 

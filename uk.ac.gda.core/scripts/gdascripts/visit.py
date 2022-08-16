@@ -5,15 +5,16 @@ from gda.data.metadata import GDAMetadataProvider
 from gda.jython.batoncontrol import BatonChanged
 import os
 import gov.aps.jca.TimeoutException  # @UnresolvedImport
-import java.lang.IllegalStateException
+import java.lang.IllegalStateException # @UnresolvedImport
+from org.slf4j import LoggerFactory
 from __builtin__ import isinstance
 
 class VisitSetter(IObserver):
-    
+
     def __init__(self, detector_adapters = []):
         self.detector_adapters = list(detector_adapters)
         JythonServerFacade.getInstance().addBatonChangedObserver(self)
-        
+
     def datadir(self, *args):
         if len(args) > 0:
             raise ValueError("The data directory now depends on the visit. Use the 'visit' command to change this.")
@@ -31,17 +32,17 @@ class VisitSetter(IObserver):
 
     def getVisitDirectory(self):
         return InterfaceProvider.getPathConstructor().createFromDefaultProperty()
-    
+
     def setDetectorDirectories(self):
         for det in self.detector_adapters:
             try:
                 det.setVisitDirectory(self.getVisitDirectory())
             except gov.aps.jca.TimeoutException:
                 "EPICS TimeoutException: Failed to set directory on " + det.detector.name
-            
+
     def addDetectorAdapter(self, adapter):
         self.detector_adapters.append(adapter)
-            
+
     def __str__(self):
         s = ""
         s+= '%12s : %s\n' % ("visit", self.visit())
@@ -66,7 +67,7 @@ class VisitSetter(IObserver):
 
 
 class DetectorAdapter():
-    
+
     def __init__(self, detector, subfolder=None, create_folder=False, toreplace=None, replacement=None, report_path=True):
         self.detector = detector
         self.subfolder = subfolder
@@ -74,60 +75,73 @@ class DetectorAdapter():
         self.toreplace = toreplace
         self.replacement = replacement
         self.report_path = report_path
-        
+        self.logger = LoggerFactory.getLogger("%s:%s" % (self.__class__.__name__, detector.getName()))
+
     def setVisitDirectory(self, path):
         fullpath = os.path.join(path, self.subfolder) if self.subfolder else os.path.join(path)
+        self.logger.debug("setVisitDirectory({}) with subfolder={}, create_folder={}, toreplace={} & replacement={} so raw fullpath={}",
+             path, self.subfolder, self.create_folder, self.toreplace, self.replacement, fullpath)
+
         if self.create_folder:
             if not os.path.exists(fullpath):
                 try:
                     os.makedirs(fullpath)
                 except:
+                    self.logger.warn("Could not create folder {}", fullpath)
                     print "!!! Warning !!! Could not create directory: " + fullpath
+
         if self.toreplace:
-            fullpath = fullpath.replace(self.toreplace, self.replacement)
+            oldpath=fullpath
+            fullpath=fullpath.replace(self.toreplace, self.replacement)
+            if fullpath == oldpath:
+                self.logger.warn("No substitution made on {} with toreplace={} & replacement={}",
+                    fullpath, self.toreplace, self.replacement)
+
+        self.logger.debug("setVisitDirectory({}) -> {}", path, fullpath)
         self.setDirectory(fullpath)
-    
+
     def setDirectory(self, path):
         raise Exception("Not implemented")
-    
+
     def getDirectory(self):
         raise Exception("Not implemented")
 
-    
+
 class PilatusAdapter(DetectorAdapter): #pil100k
-    
+
     def setDirectory(self, path):
         self.detector.setFilepath(path + '/') # Required by epics
-        
+
     def getDirectory(self):
         return self.detector.getFilepath()
 
+
 class FileWritingDetectorAdapter(DetectorAdapter): # ADDetector, ADPco
-    
+
     def setDirectory(self, path):
         try:
             self.detector.setFilePath(path + '/') # Required by epics
         except java.lang.IllegalStateException:
             print "!!!!! Could not connect to (EPICS) " + self.detector.name + ": path not set to : '" + path +"'"
-        
+
     def getDirectory(self):
         return self.detector.getFilePath()
 
 
 class IPPAdapter(DetectorAdapter): #ippimages, "/dls/b16/data", "N:")+"/ippimages"
-    
+
     def setDirectory(self, windowspath):
         self.detector.setOutputFolderRoot(windowspath)
-        
+
     def getDirectory(self):
         return self.detector.getOutputFolderRoot()
 
 
 class ProcessingDetectorWrapperAdapter(DetectorAdapter):
     """Sets the root_datadir property only (does not determine where files are written)"""
-    
+
     def setDirectory(self, path):
         self.detector.root_datadir = path
-        
+
     def getDirectory(self):
         return self.detector.root_datadir
