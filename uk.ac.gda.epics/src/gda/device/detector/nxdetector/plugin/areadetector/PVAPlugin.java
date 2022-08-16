@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2012 Diamond Light Source Ltd.
+ * Copyright © 2021 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,31 +18,38 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import org.eclipse.january.dataset.DatasetFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.device.detector.addetector.ArrayData;
-import gda.device.detector.areadetector.v17.NDArray;
+import gda.device.detector.areadetector.v17.NDPva;
 
-public class ADArrayPlugin extends ADDirectReadBase {
+/**
+ * A basic strategy for collection using the PVA plugin
+ */
+public class PVAPlugin extends ADDirectReadBase {
 
-	private final NDArray ndArray;
+	private final NDPva ndPva;
 
-	public ADArrayPlugin(NDArray ndArray) {
+	public PVAPlugin(NDPva ndArray) {
 		super(ndArray);
-		this.ndArray = ndArray;
+		this.ndPva = ndArray;
 	}
 
 	@Override
 	public String getName() {
-		return "array";
+		return "pva";
 	}
 
 	@Override
 	protected NexusGroupData getData() throws Exception {
-		return ArrayData.readArrayData(ndArray);
+		return NexusGroupData.createFromDataset(
+				DatasetFactory.createFromObject(
+						ndPva.getImageObject(), ndPva.getHeight(), ndPva.getWidth()
+						)
+				);
 	}
 
-	public NDArray getNdArray() {
-		return ndArray;
+	public NDPva getNdPva() {
+		return ndPva;
 	}
-
 }
