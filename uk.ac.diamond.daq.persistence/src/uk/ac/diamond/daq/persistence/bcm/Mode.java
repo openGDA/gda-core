@@ -618,7 +618,7 @@ public class Mode {
 	}
 
 	protected void purgeSnapshots() {
-		long date = 0;
+		Date date = new Date(0);
 		Snapshot s;
 
 		/*
@@ -627,14 +627,14 @@ public class Mode {
 		 */
 		em.getTransaction().begin();
 		try {
-			while (true) {
-				s = getSnapshot(new Date(date));
-
+			s = getSnapshot(date);
+			while (s != null) {
 				if (s != currentSnapshot) {
 					em.remove(s);
 				} else {
-					date = currentSnapshot.getId().getTime() + 1;
+					date =new Date(currentSnapshot.getId().getTime() + 1);
 				}
+				s = getSnapshot(date);
 			}
 		} catch (BcmException e) {
 			// no more snapshots except the current
