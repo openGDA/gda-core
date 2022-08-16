@@ -33,7 +33,14 @@ import gda.device.DeviceException;
  */
 public interface ArmablePressureValve {
 	public enum ArmedValveState {
-		FAULT, OPEN, OPEN_ARMED, CLOSED, CLOSED_ARMED;
+		FAULT,
+		OPEN,
+		OPEN_ARMED,
+		CLOSED,
+		CLOSED_ARMED;
+		public boolean isOpen() {
+			return this == OPEN || this == OPEN_ARMED;
+		}
 	}
 	/** Open the valve - blocks until move is complete */
 	void open() throws DeviceException;

@@ -142,9 +142,22 @@ public class DummyPressureCellController implements PressureCellController {
 	}
 
 	@Override
+	public void resetValves() throws DeviceException {
+		v3.reset();
+		v5.reset();
+		v6.reset();
+		v5.disarm();
+		v6.disarm();
+		v3.close();
+		v5.close();
+		v6.close();
+	}
+
+	@Override
 	public void setJump() throws DeviceException {
 		cellPressure = jumpFromPressure;
 		chamberPressure = jumpToPressure;
+		resetValves();
 		v3.close();
 		v5.close();
 		v6.close();

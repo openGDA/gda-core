@@ -52,7 +52,7 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPressureCellController.class);
 
 	/**
-	 * Root of all PVs used by this controller up to (but not including first ':'.
+	 * Root of all PVs used by this controller up to (but not including) first ':'.
 	 * <br>
 	 * eg BL38P-EA-HPXC-01
 	 */
@@ -60,7 +60,7 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	/** Name of this controller - used for logging + debug only */
 	private String name;
 	/** Pressure tolerance used to determine if a move has completed successfully */
-	private double tolerance = 5;
+	private double tolerance = 20;
 
 	/** PV for the cell pressure RBV */
 	private ReadOnlyPV<Double> cellPressurePV;
@@ -378,12 +378,40 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 	}
 
 	@Override
+	public void resetValves() throws DeviceException {
+		v5.disarm();
+		v6.disarm();
+		v3.reset();
+		v5.reset();
+		v6.reset();
+		v3.close();
+		v5.close();
+		v6.close();
+	}
+
+	@Override
 	public void setJump() throws DeviceException {
 		try {
 			logger.debug("{} - Starting controller towards jump pressures", name);
-			setJumpPV.putWait(1);
+			resetValves();
+			var move = new CompletableFuture<Double>();
+			if (currentMove.compareAndSet(null, move)) {
+				var toPressure = getJumpToPressure();
+				setJumpPV.putWait(1);
+				var endPressure = move.get();
+				if (abs(endPressure-toPressure) > tolerance) {
+					throw new DeviceException(getName() + " - Move completed but pressure was not at target (pressure: " + endPressure + ", target: " + toPressure + ")");
+				}
+			} else {
+				throw new DeviceException(getName() + " - Device is already busy");
+			}
 		} catch (IOException e) {
 			throw new DeviceException("Could not set pressure cell to jump pressure", e);
+		} catch (ExecutionException e) {
+			throw new DeviceException("Error while waiting for move to complete", e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException("Thread interrupted while waiting for jump pressures to be set", e);
 		}
 	}
 
@@ -401,6 +429,14 @@ public class EpicsPressureCellController extends ConfigurableBase implements Pre
 
 	public void setRootPv(String rootPv) {
 		this.rootPv = rootPv;
+	}
+
+	public void setTolerance(double tolerance) {
+		this.tolerance = tolerance;
+	}
+
+	public double getTolerance() {
+		return this.tolerance;
 	}
 
 	public void setV3(EpicsPressureValve valve) {

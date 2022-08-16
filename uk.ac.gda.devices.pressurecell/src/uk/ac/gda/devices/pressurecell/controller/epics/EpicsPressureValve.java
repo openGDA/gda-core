@@ -55,11 +55,6 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 		void run() throws IOException;
 	}
 
-	/** The possible actions that can be requested with this valve */
-	private enum Request {
-		OPEN, CLOSE;
-	}
-
 	/** Readback PV for the current valve state */
 	private ReadOnlyPV<ValveState> statusPV;
 	/** Control PV for closing and resetting the valve */
@@ -77,8 +72,8 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 	/** Time in seconds to wait before a move is assumed to have failed */
 	private long timeout = 5;
 
-	/** The action currently in progress */
-	private volatile Request request;
+	/** The end result of the action currently in progress */
+	private volatile ValveState target;
 
 	/** The future representing the current move */
 	/* AtomicReference to stop multiple moved being started at once */
@@ -120,27 +115,26 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 			if (move != null) {
 				move.completeExceptionally(new DeviceException(name + " - Valve went into fault state"));
 			}
-			request = null;
+			target = null;
 		} else if (state == ValveState.OPENING || state == ValveState.CLOSING) {
-			if (request != null) {
+			if (target != null) {
 				logger.debug("{} - move started", name);
 			}
 			// else move was started by epics - only log when complete
 		} else { // state is either open or closed
-			if (request == null) { // we didn't ask for the move
+			if (target == null) { // we didn't ask for the move
 				logger.debug("{} - Valve moved from epics. Now {}", name, state);
-			} else if ((state == ValveState.OPEN && request == Request.OPEN)
-					|| (state == ValveState.CLOSED && request == Request.CLOSE)) {
+			} else if (state == target) {
 				logger.debug("{} - Move complete. Now {}", name, state);
-				request = null;
+				target = null;
 				var move = currentMove.getAndSet(null);
 				if (move != null) {
 					move.complete(state);
 				} else {
-					logger.warn("{} - Requested move but no move in progress", name);
+					logger.warn("{} - Requested move ({}) but no move in progress", target, name);
 				}
 			} else {
-				logger.warn("{} - Unexpected status. Status: {} but {} requested", name, state, request);
+				logger.warn("{} - Unexpected status. Status: {} but aiming for {}", name, state, target);
 			}
 		}
 	}
@@ -157,13 +151,13 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 	@Override
 	public void open() throws DeviceException {
 		logger.debug("{} - Opening valve", name);
-		move(Request.OPEN, () -> openPV.putWait(1), ValveState.OPEN);
+		move(() -> openPV.putWait(1), ValveState.OPEN);
 	}
 
 	@Override
 	public void close() throws DeviceException {
 		logger.debug("{} - Closing valve", name);
-		move(Request.CLOSE, () -> controlPV.putWait(ValveControl.CLOSE), ValveState.CLOSED);
+		move(() -> controlPV.putWait(ValveControl.CLOSE), ValveState.CLOSED);
 	}
 
 	/**
@@ -178,7 +172,6 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 	 * The status is being monitored so when it changes the future can be completed and its get method
 	 * will return. If the move times out, the move is assumed to have failed and an exception is raised.
 	 *
-	 * @param req The requested action type. Used by the status monitor to determine if a move is complete
 	 * @param action The action required to trigger the move
 	 * @param targetState The end state. Used to determine if a move is required and whether it was successful if so.
 	 * @throws DeviceException If anything goes wrong during the move.
@@ -190,7 +183,7 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 	 *  <li>If there is an error in Epics</li>
 	 *  </ul>
 	 */
-	private void move(Request req, Action action, ValveState targetState) throws DeviceException {
+	private void move(Action action, ValveState targetState) throws DeviceException {
 		ValveState current = getState();
 		if (current == targetState) {
 			logger.debug("{} - valve already {}", name, targetState);
@@ -201,12 +194,12 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 		try {
 			var move = new CompletableFuture<ValveState>();
 			if (currentMove.compareAndSet(null, move)) {
-				request = req;
+				target = targetState;
 				action.run();
 				if (move.get(timeout, SECONDS) != targetState) {
 					// reset move so that future moves don't fail
 					currentMove.set(null);
-					request = null;
+					target = null;
 					throw new DeviceException(name + " - state not " + targetState + " after move: " + move.get());
 				}
 			} else {
@@ -225,7 +218,7 @@ public class EpicsPressureValve extends ConfigurableBase implements PressureValv
 			if (currentMove.getAndSet(null) != null) {
 				logger.warn("{} - Incomplete action discarded", name);
 			}
-			request = null;
+			target = null;
 			controlPV.putWait(ValveControl.RESET);
 		} catch (IOException e) {
 			throw new DeviceException("Could not reset valve", e);

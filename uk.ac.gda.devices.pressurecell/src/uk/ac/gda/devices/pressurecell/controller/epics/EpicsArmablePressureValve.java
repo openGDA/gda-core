@@ -55,11 +55,6 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 		void run() throws IOException;
 	}
 
-	/** The possible actions that can be requested with this valve */
-	private enum Request {
-		OPEN, CLOSE, ARM, DISARM;
-	}
-
 	/**
 	 * The root PV of this valve up to but not including the final ':'
 	 * eg BL38P-EA-HPXC-01:V6
@@ -84,7 +79,7 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 	private ArmedValveState state;
 
 	/** The latest move requested for this valve - used to determine when a move is complete */
-	private volatile Request request;
+	private volatile ArmedValveState target;
 
 	/** The future representing the current move */
 	/* AtomicReference to stop multiple moves being started at once */
@@ -119,13 +114,13 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 	@Override
 	public void open() throws DeviceException {
 		logger.debug("{} - Opening valve", name);
-		move(Request.OPEN, () -> openPV.putWait(1), OPEN);
+		move(() -> openPV.putWait(1), OPEN);
 	}
 
 	@Override
 	public void close() throws DeviceException {
 		logger.debug("{} - Closing valve", name);
-		move(Request.CLOSE, () -> controlPV.putWait(ValveControl.CLOSE), CLOSED);
+		move(() -> controlPV.putWait(ValveControl.CLOSE), CLOSED);
 	}
 
 	@Override
@@ -133,7 +128,7 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 		try {
 			logger.debug("{} - Resetting valve", name);
 			if (currentMove.getAndSet(null) != null) {
-				logger.debug("{} - Incomplete action discarded", name);
+				logger.warn("{} - Incomplete action discarded", name);
 			}
 			controlPV.putWait(ValveControl.RESET);
 		} catch (IOException e) {
@@ -143,24 +138,20 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 
 	@Override
 	public void arm() throws DeviceException {
-		if (!(state == CLOSED_ARMED || state == OPEN_ARMED)) {
-			logger.debug("{} - Arming valve", name);
-			move(Request.ARM, () -> controlPV.putWait(ValveControl.ARM), state == CLOSED ? CLOSED_ARMED : OPEN_ARMED);
-		}
+		logger.debug("{} - Arming valve", name);
+		move(() -> controlPV.putWait(ValveControl.ARM), state.isOpen() ? OPEN_ARMED : CLOSED_ARMED);
 	}
 
 	@Override
 	public void disarm() throws DeviceException {
-		if (!(state == CLOSED || state == OPEN)) {
-			logger.debug("{} - Disarming valve", name);
-			move(Request.DISARM, () -> controlPV.putWait(ValveControl.DISARM), state == CLOSED_ARMED ? CLOSED : OPEN);
-		}
+		logger.debug("{} - Disarming valve", name);
+		move(() -> controlPV.putWait(ValveControl.DISARM), state.isOpen() ? OPEN : CLOSED);
 	}
 
 	/**
 	 * <h1>Move the valve to a new state</h1>
 	 *
-	 * The the PV used to set the state of the valve does not block. There is also no feedback
+	 * The PV used to set the state of the valve does not block. There is also no feedback
 	 * for a valve failing to move (eg if interlocks are not reset).
 	 * <br>
 	 * To ensure that any failures are reported, this creates a new Future representing the requested
@@ -169,7 +160,6 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 	 * The status is being monitored so when it changes the future can be completed and its get method
 	 * will return. If the move times out, the move is assumed to have failed and an exception is raised.
 	 *
-	 * @param req The requested action type. Used by the status monitor to determine if a move is complete
 	 * @param action The action required to trigger the move
 	 * @param targetState The end state. Used to determine if a move is required and whether it was successful if so.
 	 * @throws DeviceException If anything goes wrong during the move.
@@ -181,7 +171,7 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 	 *  <li>If there is an error in Epics</li>
 	 *  </ul>
 	 */
-	private void move(Request req, Action action, ArmedValveState targetState) throws DeviceException {
+	private void move(Action action, ArmedValveState targetState) throws DeviceException {
 		ArmedValveState current = getState();
 		if (current == targetState) {
 			logger.debug("{} - valve already {}", name, targetState);
@@ -192,12 +182,12 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 		try {
 			var move = new CompletableFuture<ArmedValveState>();
 			if (currentMove.compareAndSet(null, move)) {
-				request = req;
+				target = targetState;
 				action.run();
 				if (move.get(timeout, SECONDS) != targetState) {
 					// reset move so that future moves don't fail
 					currentMove.set(null);
-					request = null;
+					target = null;
 					throw new DeviceException(name + " - state not " + targetState + " after move: " + move.get());
 				}
 			} else {
@@ -231,24 +221,21 @@ public class EpicsArmablePressureValve extends ConfigurableBase implements Armab
 			if (move != null) {
 				move.completeExceptionally(new DeviceException(name + " - Valve went into fault state"));
 			}
-			request = null;
-		} else if (((state == CLOSED_ARMED || state == OPEN_ARMED) && request == Request.ARM) // arm complete
-				|| ((state == OPEN || state == CLOSED) && request == Request.DISARM) // disarm complete
-				|| (state == OPEN && request == Request.OPEN) // open complete
-				|| (state == CLOSED && request == Request.CLOSE)) { // close complete
+			target = null;
+		} else if (state == target) {
 			logger.debug("{} - Move complete. Now {}", name, state);
-			request = null;
+			target = null;
 			var move = currentMove.getAndSet(null);
 			if (move != null) {
 				move.complete(state);
 			} else {
 				logger.warn("{} - Requested move but no move in progress", name);
 			}
-		} else if (request == null) {
+		} else if (target == null) {
 			logger.debug("{} - valve state changed from epics", name);
 		} else {
-			logger.warn("{} -Unexpected valve state change. {} -> {} but {} requested",
-					name, this.state, state, request);
+			logger.warn("{} - Unexpected valve state change. {} -> {} but aiming for {}",
+					name, this.state, state, target);
 		}
 		this.state = state;
 	}

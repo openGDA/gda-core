@@ -33,13 +33,41 @@ import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
 import uk.ac.diamond.daq.concurrent.Async;
 import uk.ac.gda.devices.pressurecell.controller.PressureCellController;
+import uk.ac.gda.devices.pressurecell.data.PressureCellDataController;
 
+/**
+ * Scannable interface to the pressure cell allowing it to be used in step scans.
+ * <br>
+ * Access to lower level controls are available via the controller instance
+ * from the {@link #getController()} method.
+ */
 public class PressureCell extends ScannableBase {
 	private static final Logger logger = LoggerFactory.getLogger(PressureCell.class);
+	public static final String __doc__ = // NOSONAR
+			"Pressure Cell scannable letting the pressure cell be used in step scans.\n"
+			+ "Access to lower level controls are available via the controller attribute.";
 	private PressureCellController controller;
+	private PressureCellDataController dataController;
 	private Future<?> move = CompletableFuture.completedFuture(null);
 
-	/** Set pressure at the pump to the same as the intemediate chamber */
+	public void setFilePath(String directory, String filename) throws DeviceException {
+		dataController.setFilePath(directory, filename);
+	}
+
+	public void setAcquire(boolean acquiring) throws DeviceException {
+		dataController.setAcquire(acquiring);
+		dataController.setDataWriter(acquiring);
+	}
+
+	public String getLastFileName() throws DeviceException {
+		return dataController.getLastFileName();
+	}
+
+	public void setTriggers(int before, int after) throws DeviceException {
+		dataController.setTriggers(before, after);
+	}
+
+	/** Set pressure at the pump to the same as the intermediate chamber */
 	private void matchIntermediatePressure() throws DeviceException, InterruptedException {
 		logger.debug("{} - Matching intermediate pressure", getName());
 		if (!controller.getV3().isOpen()) {
@@ -81,6 +109,30 @@ public class PressureCell extends ScannableBase {
 		});
 	}
 
+	public void setJumpPressures(double from, double to) throws DeviceException {
+		controller.setJumpToPressure(to);
+		controller.setJumpFromPressure(from);
+		controller.setJump();
+	}
+
+	public void armJumpValve() throws DeviceException {
+		double pCell = controller.getCellPressure();
+		double pMid = controller.getIntermediatePressure();
+		// valves should already be closed but just to make sure
+		controller.getV5().close();
+		controller.getV6().close();
+		controller.getV3().close();
+		if (pCell > pMid) {
+			// jumping to a lower pressure
+			controller.getV5().disarm();
+			controller.getV6().arm();
+		} else {
+			// jumping to a higher pressure
+			controller.getV5().arm();
+			controller.getV6().disarm();
+		}
+	}
+
 	public PressureCellController getController() {
 		return controller;
 	}
@@ -120,5 +172,13 @@ public class PressureCell extends ScannableBase {
 		// * This should return immediately if the move is complete.
 		// * If the move timed out, it would have thrown.
 		controller.waitForIdle(millis, MILLISECONDS);
+	}
+
+	public PressureCellDataController getDataController() {
+		return dataController;
+	}
+
+	public void setDataController(PressureCellDataController dataController) {
+		this.dataController = dataController;
 	}
 }
