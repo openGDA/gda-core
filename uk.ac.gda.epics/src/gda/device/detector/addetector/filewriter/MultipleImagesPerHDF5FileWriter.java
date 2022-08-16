@@ -48,6 +48,7 @@ import gda.device.detector.nxdata.NXDetectorSerialAppender;
 import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import gda.util.logging.LoggerLimiter;
 import gda.util.logging.LoggingUtils;
 import gov.aps.jca.TimeoutException;
 
@@ -420,7 +421,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	private void endRecording() throws Exception {
 		LoggingUtils.logStackTrace(logger, "endRecording()");
-		LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+		var logLimiter = new LoggerLimiter(Duration.ofSeconds(10), true);
 
 		short capture_RBV;
 		long numCaptured_RBV;
@@ -522,7 +523,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 		}
 		logger.debug("firstReadoutInScan={}, numCaptured={}, numToBeCaptured={}", firstReadoutInScan, numCaptured, numToBeCaptured);
 
-		LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+		var logLimiter = new LoggerLimiter(Duration.ofSeconds(10), true);
 
 		while( numCaptured< numToBeCaptured){
 			if (logLimiter.isLogDue()) {
@@ -591,7 +592,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 			@Override
 			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
 
-				LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
+				var logLimiter = new LoggerLimiter(Duration.ofSeconds(10), true);
 
 				try{
 					String filename = "";

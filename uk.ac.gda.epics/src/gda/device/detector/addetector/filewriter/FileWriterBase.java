@@ -20,8 +20,6 @@ package gda.device.detector.addetector.filewriter;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.time.Duration;
-import java.time.Instant;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -392,39 +390,4 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriter
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 	}
 
-	/** Simple class to manage rate limiting of log messages
-	 *
-	 * For example:
-	 *
-	 * LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
-	 * ...
-	 * if (logLimiter.isLogDue()) {
-	 * 		logger.warn("... blocked for {} seconds ...logLimiter.getTimeSinceStart().getSeconds());
-	 * }
-	 */
-	public static class LogLimiter {
-		public LogLimiter(Duration toNextReport, boolean backOff) {
-			super();
-			this.toNextReport = toNextReport;
-			this.betweenReports = toNextReport;
-			this.backOff = backOff;
-		}
-
-		final boolean backOff;
-		final Instant startTime = Instant.now();
-		final Duration betweenReports;
-		Duration toNextReport;
-
-		public boolean isLogDue() {
-			if (Duration.between(startTime, Instant.now()).minus(toNextReport).isNegative()) {
-				return false;
-			}
-			toNextReport = backOff ? toNextReport.multipliedBy(2) : toNextReport.plus(betweenReports);
-			return true;
-		}
-
-		public Duration getTimeSinceStart() {
-			return Duration.between(startTime, Instant.now());
-		}
-	}
 }
