@@ -48,6 +48,7 @@ import gda.device.detector.nxdata.NXDetectorSerialAppender;
 import gda.device.detector.nxdetector.FrameCountingNXPlugin;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import gda.util.logging.LoggingUtils;
 import gov.aps.jca.TimeoutException;
 
 public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements FrameCountingNXPlugin {
@@ -256,7 +257,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	@Override // interface NXPluginBase
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		logger.trace("prepareForCollection({}, {}) isEnabled={}, alreadyPrepared={}, alwaysPrepare={}", numberImagesPerCollection, scanInfo, isEnabled(), alreadyPrepared, alwaysPrepare);
-		logStackTrace(logger, "prepareForCollection(...)");
+		LoggingUtils.logStackTrace(logger, "prepareForCollection(...)");
 
 		if(!isEnabled())
 			return;
@@ -353,7 +354,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	}
 
 	private void startRecording() throws Exception {
-		logStackTrace(logger, "startRecording()");
+		LoggingUtils.logStackTrace(logger, "startRecording()");
 		//if (getNdFileHDF5().getCapture() == 1)
 			//	throw new DeviceException("detector found already saving data when it should not be");
 
@@ -386,7 +387,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void completeLine() throws Exception {
-		logStackTrace(logger, "completeLine()");
+		LoggingUtils.logStackTrace(logger, "completeLine()");
 		super.completeLine();
 	}
 
@@ -405,7 +406,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	@Override
 	public void completeCollection(int framesCollected) throws Exception {
 		logger.trace("completeCollection({})", framesCollected);
-		logStackTrace(logger, "completeCollection(...)");
+		LoggingUtils.logStackTrace(logger, "completeCollection(...)");
 		expectedFrameCount = framesCollected;
 		alreadyPrepared=false;
 		if(!isEnabled())
@@ -418,7 +419,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	}
 
 	private void endRecording() throws Exception {
-		logStackTrace(logger, "endRecording()");
+		LoggingUtils.logStackTrace(logger, "endRecording()");
 		LogLimiter logLimiter = new LogLimiter(Duration.ofSeconds(10), true);
 
 		short capture_RBV;
@@ -468,7 +469,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void stop() throws Exception {
-		logStackTrace(logger, "stop()");
+		LoggingUtils.logStackTrace(logger, "stop()");
 		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
@@ -478,7 +479,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 
 	@Override // interface NXPluginBase
 	public void atCommandFailure() throws Exception {
-		logStackTrace(logger, "atCommandFailure()");
+		LoggingUtils.logStackTrace(logger, "atCommandFailure()");
 		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
@@ -499,7 +500,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements F
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		logger.trace("read({}), firstReadoutInScan={}, numCaptured={}, numToBeCaptured={}", maxToRead, firstReadoutInScan, numCaptured, numToBeCaptured);
-		logStackTrace(logger, "read(...)");
+		LoggingUtils.logStackTrace(logger, "read(...)");
 		NXDetectorDataAppender dataAppender;
 		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
 		if (isEnabled()) {

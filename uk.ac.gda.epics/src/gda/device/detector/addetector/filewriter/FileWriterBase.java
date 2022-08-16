@@ -22,11 +22,8 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 import gda.device.DeviceException;
@@ -428,26 +425,6 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, NXFileWriter
 
 		public Duration getTimeSinceStart() {
 			return Duration.between(startTime, Instant.now());
-		}
-	}
-
-	/** Simple function to log an abridged stack trace to the TRACE logger provided
-	 *
-	 * For example:
-	 *
-	 * logStackTrace(logger, "myFunction()");
-	 */
-	public static void logStackTrace(Logger logger, String from) {
-		final String[] prefixesToSkip = {"sun.reflect", "java.lang.reflect",
-				"org.python.core", "org.python.proxies", "org.python.pycode", "org.python.util"};
-
-		if (logger.isTraceEnabled()) {
-			logger.trace("{} called from (abridged): {}", from, Arrays.stream(Thread.currentThread().getStackTrace()).
-					skip(2). // Skip this function and the getStackTrace function itself
-					map(ste -> StringUtils.startsWithAny(ste.getClassName(), prefixesToSkip)? "..." : ste.toString()).
-					distinct().
-					collect(Collectors.joining("\n\t", "\n\t", ""))
-				);
 		}
 	}
 }

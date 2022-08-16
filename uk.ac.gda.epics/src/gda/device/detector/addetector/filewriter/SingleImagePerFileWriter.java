@@ -38,6 +38,7 @@ import gda.device.detectorfilemonitor.HighestExistingFileMonitorSettings;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
+import gda.util.logging.LoggingUtils;
 
 /**
  * Write each image to a separate file.
@@ -201,7 +202,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		logger.trace("prepareForCollection({}, {}) isEnabled={}, alreadyPrepared={}, alwaysPrepare={}", numberImagesPerCollection, scanInfo, isEnabled(), alreadyPrepared, alwaysPrepare);
-		logStackTrace(logger, "prepareForCollection(...)");
+		LoggingUtils.logStackTrace(logger, "prepareForCollection(...)");
 
 		if (!isEnabled())
 			return;
@@ -333,7 +334,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public void completeCollection() throws Exception {
-		logStackTrace(logger, "completeCollection()");
+		LoggingUtils.logStackTrace(logger, "completeCollection()");
 
 		alreadyPrepared=false;
 		if (!isEnabled())
@@ -350,14 +351,14 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 
 	@Override
 	public void stop() throws Exception {
-		logStackTrace(logger, "stop()");
+		LoggingUtils.logStackTrace(logger, "stop()");
 		alreadyPrepared=false;
 		super.stop();
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		logStackTrace(logger, "atCommandFailure()");
+		LoggingUtils.logStackTrace(logger, "atCommandFailure()");
 		alreadyPrepared=false;
 		super.atCommandFailure();
 	}
@@ -394,7 +395,7 @@ public class SingleImagePerFileWriter extends FileWriterBase {
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		logStackTrace(logger, "read(...)");
+		LoggingUtils.logStackTrace(logger, "read(...)");
 		ArrayList<NXDetectorDataAppender> l = new ArrayList<NXDetectorDataAppender>();
 		l.add(readNXDetectorDataAppender());
 		return l;
