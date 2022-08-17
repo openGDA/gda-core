@@ -109,7 +109,8 @@ import org.eclipse.january.dataset.Random;
 import org.eclipse.january.dataset.SliceND;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -184,8 +185,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	/**
 	 * A generic detector that extends DummyDetector to return an fixed-length double array.
-	 * Used by {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector_scalarData()}
-	 * and {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector_arrayData()}
+	 * Used by {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector_scalarData(int)}
+	 * and {@link AbstractNexusDataWriterScanTest#concurrentScanGenericDetector_arrayData(int)}
 	 */
 	protected static class DummyGenericDetector extends DummyDetector {
 
@@ -229,7 +230,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 	/**
 	 * A detector that write its own data (or rather claims to by {@link #createsOwnFiles()} returning true),
 	 * meaning that its data doesn't need to be written by the data writer. Used by
-	 * {@link AbstractNexusDataWriterScanTest#concurrentScanFileCreatorDetector()}
+	 * {@link AbstractNexusDataWriterScanTest#concurrentScanFileCreatorDetector(int)}
 	 */
 	protected static class DummyFileCreatorDetector extends DummyDetector {
 
@@ -269,7 +270,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	/**
 	 * A simple detector that extends DummyDetector to return an image as a two-dimensional DoubleDataset.
-	 * Used by {@link NexusScanDataWriterScanTest#concurrentScanRegisteredNexusDevice()}
+	 * Used by {@link NexusScanDataWriterScanTest#concurrentScanRegisteredNexusDevice(int)}
 	 */
 	protected static class DummyImageDetector extends DummyDetector {
 
@@ -514,8 +515,8 @@ public abstract class AbstractNexusDataWriterScanTest {
 	protected boolean createMonitor = true;
 	private String outputDir;
 
-	protected final int scanRank;
-	protected final int[] scanDimensions;
+	protected int scanRank;
+	protected int[] scanDimensions;
 	protected Scannable[] scannables;
 	protected Scannable monitor;
 	protected Set<String> expectedMetadataScannableNames;
@@ -526,7 +527,7 @@ public abstract class AbstractNexusDataWriterScanTest {
 
 	private Object[] scanArguments;
 
-	protected AbstractNexusDataWriterScanTest(int scanRank) {
+	protected void setupFields(int scanRank) {
 		this.scanRank = scanRank;
 		scanDimensions = new int[scanRank];
 		// dimensions 0 and 1 use GRID_SHAPE, any remaining use DEFAULT_NUM_AXIS_POINTS to keep the
@@ -698,29 +699,39 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return writer;
 	}
 
-	@Test
-	public void concurrentScanNoDetectorOrMonitor() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNoDetectorOrMonitor(int scanRank) throws Exception {
+		setupFields(scanRank);
 		concurrentScan(null, PrimaryDeviceType.NONE, "NoDetectorOrMonitor");
 	}
 
-	@Test
-	public void concurrentScanNoDetectorSingleFieldMonitor() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNoDetectorSingleFieldMonitor(int scanRank) throws Exception {
+		setupFields(scanRank);
 		concurrentScan(null, PrimaryDeviceType.SINGLE_FIELD_MONITOR, "NoDetectorSingleFieldMonitor");
 	}
 
-	@Test
-	public void concurrentScanNoDetectorMultiFieldMonitor() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNoDetectorMultiFieldMonitor(int scanRank) throws Exception {
+		setupFields(scanRank);
 		concurrentScan(null, PrimaryDeviceType.MULTI_FIELD_MONITOR, "NoDetectorMultiFieldMonitor");
 	}
 
-	@Test
-	public void concurrentScanCounterTimer() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanCounterTimer(int scanRank) throws Exception {
+		setupFields(scanRank);
 		final DummyCounterTimer detector = createCounterTimer();
 		concurrentScan(detector, PrimaryDeviceType.COUNTER_TIMER, "CounterTimer");
 	}
 
-	@Test
-	public void concurrentScanCounterTimerNoMonitor() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanCounterTimerNoMonitor(int scanRank) throws Exception {
+		setupFields(scanRank);
 		createMonitor = false;
 		final DummyCounterTimer detector = createCounterTimer();
 		concurrentScan(detector, PrimaryDeviceType.COUNTER_TIMER, "CounterTimer");
@@ -744,29 +755,37 @@ public abstract class AbstractNexusDataWriterScanTest {
 		return detector;
 	}
 
-	@Test
-	public void concurrentScanGenericDetector_scalarData() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanGenericDetector_scalarData(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyGenericDetector(1);
 		detector.setName("Generic Detector");
 		concurrentScan(detector, PrimaryDeviceType.GENERIC, "GenericDetector_scalarData");
 	}
 
-	@Test
-	public void concurrentScanGenericDetector_arrayData() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanGenericDetector_arrayData(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyGenericDetector(6);
 		detector.setName("Generic Detector");
 		concurrentScan(detector, PrimaryDeviceType.GENERIC, "GenericDetector_arrayData");
 	}
 
-	@Test
-	public void concurrentScanFileCreatorDetector() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanFileCreatorDetector(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyFileCreatorDetector();
 		detector.setName("fileCreatorDetector");
 		concurrentScan(detector, PrimaryDeviceType.FILE_CREATOR, "FileCreatorDetector");
 	}
 
-	@Test
-	public void concurrentScanNexusDetectorWithPrimaryFieldSet() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNexusDetectorWithPrimaryFieldSet(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyNexusDetector() {
 			@Override
 			public Object acquireData() {
@@ -783,8 +802,10 @@ public abstract class AbstractNexusDataWriterScanTest {
 		concurrentScan(detector, PrimaryDeviceType.MODIFIED_NEXUS_DETECTOR, "NexusDetector");
 	}
 
-	@Test
-	public void concurrentScanNexusDetector() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNexusDetector(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyNexusDetector();
 		((DummyNexusDetector) detector).setScanDimensions(scanDimensions);
 

@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
@@ -59,9 +60,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.provider.Arguments;
 
 import com.google.common.collect.Streams;
 
@@ -69,7 +68,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.ServiceHolder;
 import gda.device.Scannable;
 
-@RunWith(value=Parameterized.class)
 public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final int[] METADATA_DATASET_SHAPE = new int[] { 1 };
@@ -93,13 +91,8 @@ public class NexusDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	private static final String EXPECTED_INSTRUMENT_NAME = "i06";
 
-	@Parameters(name="scanRank = {0}")
-	public static Object[] data() {
-		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
-	}
-
-	public NexusDataWriterScanTest(int scanRank) {
-		super(scanRank);
+	static Stream<Arguments> parameters() {
+		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
 	}
 
 	@BeforeAll

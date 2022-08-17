@@ -129,10 +129,9 @@ import org.eclipse.scanning.device.SourceNexusDevice;
 import org.eclipse.scanning.device.UserNexusDevice;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.Streams;
 
@@ -152,7 +151,6 @@ import gda.jython.MockJythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
 import uk.ac.diamond.daq.scanning.ScannableDeviceConnectorService;
 
-@RunWith(value=Parameterized.class)
 public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest {
 
 	/**
@@ -301,13 +299,8 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 
 	private static final String EXPECTED_SCRIPT_NAME = "currentScript.py";
 
-	@Parameters(name="scanRank = {0}")
-	public static Object[] data() {
-		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Integer::valueOf).toArray();
-	}
-
-	public NexusScanDataWriterScanTest(int scanRank) {
-		super(scanRank);
+	static Stream<Arguments> parameters() {
+		return IntStream.rangeClosed(1, MAX_SCAN_RANK).mapToObj(Arguments::of);
 	}
 
 	@BeforeAll
@@ -560,15 +553,19 @@ public class NexusScanDataWriterScanTest extends AbstractNexusDataWriterScanTest
 		ServiceHolder.getNexusDeviceService().register(mirrorDevice);
 	}
 
-	@Test
-	public void concurrentScanNexusDeviceDetector() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanNexusDeviceDetector(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyNexusDeviceDetector();
 		detector.setName("det");
 		concurrentScan(detector, PrimaryDeviceType.NEXUS_DEVICE, "NexusDeviceDetector");
 	}
 
-	@Test
-	public void concurrentScanRegisteredNexusDevice() throws Exception {
+	@ParameterizedTest(name = "scanRank = {0}")
+	@MethodSource("parameters")
+	public void concurrentScanRegisteredNexusDevice(int scanRank) throws Exception {
+		setupFields(scanRank);
 		detector = new DummyImageDetector();
 		detector.setName("det");
 		final IWritableNexusDevice<NXdetector> nexusDevice = new DummyDetectorNexusDevice(detector.getName());
