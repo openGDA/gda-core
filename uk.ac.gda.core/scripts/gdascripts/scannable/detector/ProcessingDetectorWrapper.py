@@ -10,7 +10,6 @@ try:
 except ImportError:
 	Plotter = None
 
-import java.lang.Long #@UnresolvedImport
 from java.time import Instant #@UnresolvedImport
 
 from gda.data.fileregistrar import IFileRegistrar
@@ -23,6 +22,9 @@ from gda.util.logging.LoggingUtils import logStackTrace
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer
 from java.util.concurrent import Callable #@UnresolvedImport
 import time
+import os
+import re
+
 from gdascripts.analysis.io.DatasetProvider import LazyDataSetProvider, BasicDataSetProvider
 import gda.device.detector.NXDetectorData
 import gda.device.detector.NXDetectorDataWithFilepathForSrs
@@ -334,9 +336,9 @@ class ProcessingDetectorWrapper(ScannableMotionBase, PositionCallableProvider):
 	def __getFilePathRepresentation(self):
 		if self.returnPathAsImageNumberOnly:
 			path = self.getFilepath()
-			# return a java Long to prevent the PyLong from adding an 'L' to long 
 			try:
-				return java.lang.Long(int(''.join([c for c in path.split('/')[-1] if c.isdigit()])))
+				fname = os.path.splitext(os.path.basename(path))[0] # filename only
+				return int(re.findall("\d+$", fname)[0])
 			except ValueError:
 				return -1
 		else:
