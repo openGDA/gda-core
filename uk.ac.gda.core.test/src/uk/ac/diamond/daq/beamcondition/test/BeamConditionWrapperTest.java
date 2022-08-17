@@ -28,20 +28,16 @@ import static org.mockito.Mockito.when;
 import java.util.function.BooleanSupplier;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.ac.diamond.daq.beamcondition.BeamConditionWrapper;
 
 
-
+@ExtendWith(MockitoExtension.class)
 public class BeamConditionWrapperTest {
-
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock BooleanSupplier function;
 

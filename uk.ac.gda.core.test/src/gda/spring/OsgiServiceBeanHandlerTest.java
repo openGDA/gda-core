@@ -31,10 +31,10 @@ import java.util.Dictionary;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
@@ -42,7 +42,7 @@ import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import uk.ac.diamond.daq.osgi.OsgiService;
 import uk.ac.gda.core.GDACoreActivator;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OsgiServiceBeanHandlerTest {
 
 	// Class under test

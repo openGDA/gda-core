@@ -33,25 +33,25 @@ import java.util.function.UnaryOperator;
 
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyObject;
 import org.python.core.ThreadState;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class JythonShellParserTest {
-
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock private UnaryOperator<String> translate;
 	@Mock MockedStatic<Py> pyMock;

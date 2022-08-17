@@ -31,9 +31,11 @@ import java.util.concurrent.Callable;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import gda.MockFactory;
 import gda.data.scan.datawriter.DataWriter;
@@ -44,7 +46,8 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.jython.IJythonServerNotifer;
 
 //Uses MockFactory to create scannables, so must be lenient with unused stubbing
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class MultithreadedScanDataPointPipelineTest {
 
 	public interface PositionCallableProvidingScannable extends PositionCallableProvider<Object>, Scannable {

@@ -41,14 +41,15 @@ import java.util.Map.Entry;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -65,6 +66,8 @@ import org.w3c.dom.Node;
 import gda.configuration.properties.LocalProperties;
 import gda.device.scannable.ScannableMotor;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SpringMotorDefinitionParserTest {
 	private static final String LIVE = "live";
 	private static final String DUMMY = "dummy";
@@ -74,9 +77,6 @@ public class SpringMotorDefinitionParserTest {
 	private static final String DEFAULT_LIVE_MOTOR_PROPERTY = DEFAULT_MOTOR_CLASS_PROPERTY_BASE + LIVE;
 
 	private BeanDefinitionParser parser;
-
-	@Rule
-	public MockitoRule rule = MockitoJUnit.rule();
 
 	@Mock Element element;
 	@Mock ParserContext context;

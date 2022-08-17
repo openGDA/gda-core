@@ -27,16 +27,16 @@ import java.io.File;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import gda.jython.InterfaceProvider;
 import uk.ac.gda.api.io.IPathConstructor;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ReRunFromFileElementProcessorTest {
 
 	private final static String TEST_FILE_FOLDER = "testfiles/gda/mscan/processor";

@@ -42,9 +42,11 @@ import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +66,8 @@ import gda.scan.ScanInformation.ScanInformationBuilder;
  * Class to test writing of nexus files during a scan
  */
 // As using MockFactory to create mock scannables, must be lenient with unused stubbing
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ConcurrentScanTest {
 	private static final Logger logger = LoggerFactory.getLogger(ConcurrentScanTest.class);
 	@SuppressWarnings("rawtypes")

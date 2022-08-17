@@ -44,9 +44,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.remoting.rmi.RmiInvocationHandler;
 import org.springframework.remoting.rmi.RmiRegistryFactoryBean;
 import org.springframework.util.SocketUtils;
@@ -72,7 +72,7 @@ import uk.ac.gda.common.activemq.test.TestSessionService;
  *
  * @author James Mudd
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RmiAutomatedExporterTest {
 
 	private RmiAutomatedExporter rmiAutoExporter;

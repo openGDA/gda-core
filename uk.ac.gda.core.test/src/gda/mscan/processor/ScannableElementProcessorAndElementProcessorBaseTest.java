@@ -30,9 +30,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
@@ -44,7 +46,8 @@ import gda.mscan.element.Scanpath;
  * Tests the ScannableElementProcessor and it's abstract base ElementProcessorBase as this
  * can't be instantiated on its own.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ScannableElementProcessorAndElementProcessorBaseTest {
 
 	private ScannableElementProcessor processor;

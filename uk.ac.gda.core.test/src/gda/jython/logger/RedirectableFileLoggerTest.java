@@ -29,15 +29,15 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import gda.TestHelpers;
 import gda.data.ObservablePathProvider;
 import gda.data.PathChanged;
 
-@RunWith( MockitoJUnitRunner.class )
+@ExtendWith(MockitoExtension.class)
 public class RedirectableFileLoggerTest {
 
 	private static final String FILENAME = "gdaterminal.log";
