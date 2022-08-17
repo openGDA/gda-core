@@ -19,15 +19,16 @@
 package gda.device.detector.countertimer;
 
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests that the newly-introduced setters for collection fields that are
  */
-public class CollectionSetterTest extends TestCase {
+public class CollectionSetterTest {
 
-	/**
-	 */
+	@Test
 	public void testCounterTimerBase() {
 		gda.device.detector.DetectorBase ctb = new DummyCounterTimer();
 		assertEquals(0, ctb.getExtraNames().length);

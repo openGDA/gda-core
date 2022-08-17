@@ -19,20 +19,23 @@
 
 package gda.device.motor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import gda.device.scannable.ScannableMotor;
-import junit.framework.TestCase;
 
 /**
  *
  */
-public class DummyShutteredScannableMotorTest extends TestCase {
+public class DummyShutteredScannableMotorTest {
 	private DummyMotor dummyMotor;
 	private ScannableMotor scannableMotor;
 	private ShutteredScannableMotor shutteredMotor;
 
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
-		super.setUp();
 		dummyMotor = new DummyMotor();
 		dummyMotor.setName("test_motor");
 		dummyMotor.configure();
@@ -43,20 +46,7 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		shutteredMotor.setMotor(scannableMotor);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	/**
-	 *
-	 */
-	public void testSetUp() {
-		assertNotNull(dummyMotor);
-		assertNotNull(scannableMotor);
-		assertNotNull(shutteredMotor);
-	}
-
+	@Test
 	public void testDoCalculations() {
 		//three cases:
 		//1. very long exposure - slow movement

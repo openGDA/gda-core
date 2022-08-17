@@ -19,12 +19,15 @@
 
 package gda.data.metadata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Calendar;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class MetadataEntryTest extends TestCase {
+public class MetadataEntryTest {
 
+	@Test
 	public void testDateMetadataEntry() {
 		DateMetadataEntry dme = new DateMetadataEntry("test", "yyyy-M-d");
 
@@ -37,12 +40,14 @@ public class MetadataEntryTest extends TestCase {
 		assertEquals(expectedDate, dme.getMetadataValue());
 	}
 
+	@Test
 	public void testPropertyMetadataEntry() {
 		PropertyMetadataEntry pme = new PropertyMetadataEntry("test", "user.name");
 		String expectedUsername = System.getProperty("user.name");
 		assertEquals(expectedUsername, pme.getMetadataValue());
 	}
 
+	@Test
 	public void testStoredMetadataEntry() {
 		StoredMetadataEntry sme = new StoredMetadataEntry("test", "testvalue");
 		assertEquals("testvalue", sme.getMetadataValue());

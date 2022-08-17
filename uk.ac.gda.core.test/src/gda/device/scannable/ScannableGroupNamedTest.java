@@ -18,8 +18,10 @@
 package gda.device.scannable;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
 import gda.device.scannable.scannablegroup.ScannableGroupNamed;
@@ -31,6 +33,7 @@ public class ScannableGroupNamedTest extends ScannableGroupTest {
 	private ScannableGroupNamed sg2;
 
 	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
 		super.setUp();
 		sg2 = new ScannableGroupNamed();

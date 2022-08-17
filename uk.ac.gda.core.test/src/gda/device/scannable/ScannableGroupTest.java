@@ -20,6 +20,8 @@
 package gda.device.scannable;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -28,7 +30,9 @@ import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.MockFactory;
 import gda.TestHelpers;
@@ -39,12 +43,11 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-import junit.framework.TestCase;
 
 /**
  * Tests {@link ScannableGroup}.
  */
-public class ScannableGroupTest extends TestCase {
+public class ScannableGroupTest {
 
 	protected static final List<Scannable> EMPTY_SCANNABLE_LIST = Collections.emptyList();
 
@@ -52,7 +55,7 @@ public class ScannableGroupTest extends TestCase {
 	protected Scannable s2;
 	protected IScannableGroup sg;
 
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
 		s1 = new DummyScannable("s1");
 		s2 = new DummyScannable("s2");
@@ -66,7 +69,7 @@ public class ScannableGroupTest extends TestCase {
 		Finder.addFactory(factory);
 	}
 
-	@Override
+	@AfterEach
 	protected void tearDown() throws Exception {
 		// Remove factories from Finder so they do not affect other tests
 		Finder.removeAllFactories();

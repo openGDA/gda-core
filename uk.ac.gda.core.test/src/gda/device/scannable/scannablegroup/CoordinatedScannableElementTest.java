@@ -22,21 +22,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import gda.MockFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import junit.framework.TestCase;
 
 /**
  *
  */
-public class CoordinatedScannableElementTest extends TestCase{
+public class CoordinatedScannableElementTest {
 
 	private Scannable wrapped;
 	private CoordinatedScannableGroup mockedGroup;
 	private CoordinatedChildScannable element;
 
-	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		wrapped = MockFactory.createMockScannable("wrapped");
 		mockedGroup = mock(CoordinatedScannableGroup.class, "mockGroup");
@@ -49,39 +51,45 @@ public class CoordinatedScannableElementTest extends TestCase{
 //		new CoordinatedElementScannable(multi, mockedGroup);
 //	}
 
+	@Test
 	public void testPhysicalAsynchronousMoveTo() throws DeviceException {
 		element.physicalAsynchronousMoveTo(1);
 		verify(wrapped).asynchronousMoveTo(1);
 	}
 
+	@Test
 	public void testPhysicalIsBusy() throws DeviceException {
 		element.physicalIsBusy();
 		verify(wrapped).isBusy();
 	}
 
+	@Test
 	public void testAtLevelMoveStart() throws DeviceException {
 		element.atLevelMoveStart();
 		verify(mockedGroup).addChildToMove(element);
 	}
 
+	@Test
 	public void testAsynchronousMoveToWhenGroupTargeting() throws DeviceException {
 		when(mockedGroup.isTargeting()).thenReturn(true);
 		element.asynchronousMoveTo(1);
 		verify(mockedGroup).setChildTarget(element, 1);
 	}
 
+	@Test
 	public void testAsynchronousMoveToWhenGroupNotTargeting() throws DeviceException {
 		when(mockedGroup.isTargeting()).thenReturn(false);
 		element.asynchronousMoveTo(1);
 		verify(wrapped).asynchronousMoveTo(1);
 	}
 
-
+	@Test
 	public void testIsBusy() throws DeviceException {
 		element.isBusy();
 		verify(mockedGroup).isBusy();
 	}
 
+	@Test
 	public void testAtCommandFailure() throws DeviceException {
 		element.atCommandFailure();
 		verify(mockedGroup).atCommandFailure();

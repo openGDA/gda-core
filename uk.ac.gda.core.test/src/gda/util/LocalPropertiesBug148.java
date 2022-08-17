@@ -19,47 +19,31 @@
 
 package gda.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import gda.configuration.properties.LocalProperties;
-import junit.framework.TestCase;
 
 /**
  * LocalPropertiesBug148 Class
  */
-public class LocalPropertiesBug148 extends TestCase {
+public class LocalPropertiesBug148 {
 
 	private final String test_NAME = "test.name", test_VALUE = "test value", test1_NAME = "test.name1",
 			test1_VALUE = "test value1";
 
-	/*
-	 * @see TestCase#setUp()
-	 */
-	@Override
+	@BeforeEach
 	protected void setUp() throws Exception {
-		super.setUp();
 		LocalProperties.get("user.home");
 		System.setProperty(test_NAME, test_VALUE);
-	}
-
-	/*
-	 * @see TestCase#tearDown()
-	 */
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	/**
-	 * Constructor for LocalPropertiesBug148.
-	 *
-	 * @param arg0
-	 */
-	public LocalPropertiesBug148(String arg0) {
-		super(arg0);
 	}
 
 	/**
 	 * Class under test for String get(String)
 	 */
+	@Test
 	public void testGet() {
 		String testValue = LocalProperties.get(test_NAME);
 		assertEquals(test_VALUE, testValue);
@@ -73,6 +57,7 @@ public class LocalPropertiesBug148 extends TestCase {
 	/**
 	 * Class under test for String set(String key, String val)
 	 */
+	@Test
 	public void testSet() {
 		LocalProperties.set(test1_NAME, test1_VALUE);
 		String test1Value = LocalProperties.get(test1_NAME);
