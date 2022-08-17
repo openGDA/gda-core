@@ -33,12 +33,9 @@ import java.util.List;
 
 import javax.measure.Quantity;
 
-import org.junit.experimental.runners.Enclosed;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
@@ -46,16 +43,14 @@ import org.python.core.PyString;
 
 import tec.units.indriya.quantity.Quantities;
 
-@RunWith(Enclosed.class)
+
 public class PositionConvertorFunctionsTest {
 	// Tolerance for imprecision of floating-point calculations
 	private static final double FP_TOLERANCE = 0.00001;
 
-	@RunWith(Parameterized.class)
-	public static class ParameterizedTests {
 
-		@Parameters(name = "Test {index}: {2}")
-		public static Collection<Object[]> data() {
+
+		public static Collection<Object[]> singleObjectParameters() {
 			// Array of {input, expectedResult, description}
 			return Arrays.asList(new Object[][] {
 					// testToObject
@@ -100,30 +95,20 @@ public class PositionConvertorFunctionsTest {
 					{ PositionConvertorFunctions.toDouble(Quantities.getQuantity(Double.NaN, METRE)), Double.NaN, "toDouble(Quantities.getQuantity(NaN, METRE))" }});
 		}
 
-		@Parameter
-		public Object input;
 
-		@Parameter(1)
-		public Object expectedResult;
 
-		@Parameter(2)
-		public String description;
-
-		@Test
-		public void test() {
+		@ParameterizedTest(name = "{2}")
+		@MethodSource("singleObjectParameters")
+		void test(Object input, Object expectedResult, @SuppressWarnings("unused") Object description) {
 			if (expectedResult instanceof Double) {
 				assertEquals((double) expectedResult, (double) input, FP_TOLERANCE);
 			} else {
 				assertEquals(expectedResult, input);
 			}
 		}
-	}
 
-	@RunWith(Parameterized.class)
-	public static class ParameterizedArrayTests {
 
-		@Parameters(name = "Test {index}: {2}")
-		public static Collection<Object[]> data() {
+		public static Collection<Object[]> arrayParameters() {
 			// Array of {input, expectedResult, description}
 			return Arrays.asList(new Object[][] {
 					// testToObjectArrayWithSingleObjects
@@ -170,23 +155,17 @@ public class PositionConvertorFunctionsTest {
 							});
 		}
 
-		@Parameter
-		public Object[] input;
 
-		@Parameter(1)
-		public Object[] expectedResult;
 
-		@Parameter(2)
-		public String description;
-
-		@Test
-		public void testArrays() {
+		@ParameterizedTest(name = "{2}")
+		@MethodSource("arrayParameters")
+		void testArrays(Object[] input, Object[] expectedResult, @SuppressWarnings("unused") String description) {
 			assertArrayEquals(expectedResult, input);
 		}
 
-	}
 
-	public static class NonParameterizedTests {
+
+
 
 		@Test
 		public void testToObjectArrayWithArray() {
@@ -266,5 +245,5 @@ public class PositionConvertorFunctionsTest {
 			assertEquals(1000., actual[1], FP_TOLERANCE);
 			assertNull(actual[2]);
 		}
-	}
+
 }
