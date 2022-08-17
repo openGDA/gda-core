@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -114,9 +115,9 @@ public class GdaBuiltinTest {
 		assertThat(second, is(Py.java2py("helloWorld"))); // return as jython object
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void methodlessBuiltinThrows() {
-		builtinFor(Commands.class, "missing");
+		assertThrows(IllegalArgumentException.class, () -> builtinFor(Commands.class, "missing"));
 	}
 
 	@Test

@@ -26,12 +26,14 @@ import static gda.device.MotorStatus.READY;
 import static gda.device.MotorStatus.SOFT_LIMIT_VIOLATION;
 import static gda.device.MotorStatus.UPPER_LIMIT;
 import static gda.device.scannable.ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,6 +44,7 @@ import static tec.units.indriya.unit.Units.METRE;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.ArgumentCaptor;
 
 import gda.TestHelpers;
@@ -637,16 +640,16 @@ public class ScannableMotorTest {
 		assertEquals(800., sm.getUpperMotorLimit(), FP_TOLERANCE); // microns
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetLowerMotorLimitWithNoMotorLimitsComponent() throws Exception {
 		sm.setMotorLimitsComponent(null);
-		sm.getLowerMotorLimit();
+		assertThrows(DeviceException.class, sm::getLowerMotorLimit);
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetUpperMotorLimitWithNoMotorLimitsComponent() throws Exception {
 		sm.setMotorLimitsComponent(null);
-		sm.getUpperMotorLimit();
+		assertThrows(DeviceException.class, sm::getUpperMotorLimit);
 	}
 
 	@Test
@@ -784,10 +787,10 @@ public class ScannableMotorTest {
 		assertEquals(Double.MAX_VALUE, sm.getUpperGdaLimits()[0], FP_TOLERANCE);
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testIsBusyCannotGetStatus() throws Exception {
 		when(motor.getStatus()).thenThrow(new MotorException(FAULT, "Error getting motor status"));
-		sm.isBusy();
+		assertThrows(DeviceException.class, sm::isBusy);
 	}
 
 	@Test
@@ -814,33 +817,38 @@ public class ScannableMotorTest {
 		assertFalse(sm.isBusy());
 	}
 
-	@Test(expected = MotorException.class, timeout = 500)
+	@Test
+	@Timeout(value = 500, unit = MILLISECONDS)
 	public void testWaitWhileBusyCannotGetMotorStatus() throws Exception {
 		when(motor.getStatus()).thenThrow(new MotorException(FAULT, "Error getting motor status"));
-		sm.waitWhileBusy();
+		assertThrows(MotorException.class, sm::waitWhileBusy);
 	}
 
-	@Test(expected = DeviceException.class, timeout = 500)
+	@Test
+	@Timeout(value = 500, unit = MILLISECONDS)
 	public void testWaitWhileBusyMotorAtFault() throws Exception {
 		when(motor.getStatus()).thenReturn(FAULT);
-		sm.waitWhileBusy();
+		assertThrows(DeviceException.class, sm::waitWhileBusy);
 	}
 
-	@Test(expected = DeviceException.class, timeout = 500)
+	@Test
+	@Timeout(value = 500, unit = MILLISECONDS)
 	public void testWaitWhileBusyMotorAtUpperLimit() throws Exception {
 		when(motor.getStatus()).thenReturn(UPPER_LIMIT);
-		sm.waitWhileBusy();
+		assertThrows(DeviceException.class, sm::waitWhileBusy);
 	}
 
-	@Test(expected = DeviceException.class, timeout = 500)
+	@Test
+	@Timeout(value = 500, unit = MILLISECONDS)
 	public void testWaitWhileBusyMotorAtLowerLimit() throws Exception {
 		when(motor.getStatus()).thenReturn(LOWER_LIMIT);
-		sm.waitWhileBusy();
+		assertThrows(DeviceException.class, sm::waitWhileBusy);
 	}
 
-	@Test(expected = DeviceException.class, timeout = 500)
+	@Test
+	@Timeout(value = 500, unit = MILLISECONDS)
 	public void testWaitWhileBusyMotorAtSoftLimitViolation() throws Exception {
 		when(motor.getStatus()).thenReturn(SOFT_LIMIT_VIOLATION);
-		sm.waitWhileBusy();
+		assertThrows(DeviceException.class, sm::waitWhileBusy);
 	}
 }

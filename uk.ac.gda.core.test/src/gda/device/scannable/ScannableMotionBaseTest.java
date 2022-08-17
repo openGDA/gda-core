@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -145,14 +146,14 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		assertEquals(null, (Object) getSM().getUpperGdaLimits());
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testSetUpperGdaLimitsDoubleException() throws Exception {
-		getSM().setUpperGdaLimits(1.); // Two inputs expected
+		assertThrows(Exception.class, () -> getSM().setUpperGdaLimits(1.)); // Two inputs expected
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testSetLowerGdaLimitsDoubleException() throws Exception {
-		getSM().setLowerGdaLimits(1.); // Two inputs expected
+		assertThrows(Exception.class, () -> getSM().setLowerGdaLimits(1.)); // Two inputs expected
 	}
 
 	// Set with array
@@ -187,14 +188,14 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		assertEquals(null, (Object) getSM().getUpperGdaLimits());
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testSetUpperGdaLimitsArrayException() throws Exception {
-		getSM().setUpperGdaLimits(new Double[] { 1. });
+		assertThrows(Exception.class, () -> getSM().setUpperGdaLimits(new Double[] { 1. }));
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testSetLowerGdaLimitsArrayException() throws Exception {
-		getSM().setLowerGdaLimits(new Double[] { 1., 2., 3. });
+		assertThrows(Exception.class, () -> getSM().setLowerGdaLimits(new Double[] { 1., 2., 3. }));
 	}
 
 	// TEST LIMIT CHECKING

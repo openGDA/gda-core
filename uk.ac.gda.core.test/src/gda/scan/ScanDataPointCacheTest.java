@@ -22,6 +22,7 @@ import static gda.scan.ScanDataPointProvider.getPoint;
 import static gda.scan.ScanDataPointProvider.getPointWithDuplicatedHeader;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,16 +45,17 @@ public class ScanDataPointCacheTest {
 		assertEquals(asList(3.1, 3.2, 3.3), cache.getPositionsFor("det0"));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testChangingNumberOfScannablesThrows() throws Exception {
 		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
-		cache.update(null, getPoint(1, 3, asList(0.2), asList()));
+		assertThrows(IllegalArgumentException.class, () -> cache.update(null, getPoint(1, 3, asList(0.2), asList())));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testMoreScannablesThanCachedThrows() throws Exception {
 		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
-		cache.update(null, getPoint(1, 3, asList(0.2, 0.5), asList(3.2)));
+		assertThrows(IllegalArgumentException.class,
+				() -> cache.update(null, getPoint(1, 3, asList(0.2, 0.5), asList(3.2))));
 	}
 
 	@Test
@@ -63,16 +65,17 @@ public class ScanDataPointCacheTest {
 		assertEquals(asList(0.1, 0.2), cache.getPositionsFor("scan"));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testNullScannableNamesAreHandledCorrectly() throws Exception {
 		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
-		cache.getPositionsFor(null);
+		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor(null));
+
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testMissingScannableNameThrows() throws Exception {
 		cache.update(null, getPoint(0, 3, asList(0.1), asList(3.1)));
-		cache.getPositionsFor("missing scannable");
+		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("missing scannable"));
 	}
 }
 

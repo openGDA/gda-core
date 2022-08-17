@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -38,9 +39,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -173,7 +175,7 @@ public class RmiAutomatedExporterTest {
 		verifyNoMoreInteractions(mockFactory);
 	}
 
-	@Test(expected=NotBoundException.class) // Should throw to indicate the object is not exported
+	@Test
 	public void testRbacWrappedExportWithoutServiceInterface() throws Exception {
 
 		TestFindableWithoutServiceInterface findable = new TestFindableWithoutServiceInterface("testRbacObj");
@@ -192,10 +194,10 @@ public class RmiAutomatedExporterTest {
 		verifyNoMoreInteractions(mockFactory);
 
 		// Should throw verifying its not in the registry
-		rmiRegistry.lookup(AUTO_EXPORT_RMI_PREFIX + "testRbacObj");
+		assertThrows(NotBoundException.class, () -> rmiRegistry.lookup(AUTO_EXPORT_RMI_PREFIX + "testRbacObj"));
 	}
 
-	@Test(expected=NotBoundException.class) // Should throw to indicate the object is not exported
+	@Test
 	public void testRequestingMissingObjectDoesntExport() throws Exception {
 		when(mockFactory.getFindable("missingObject")).thenReturn(null);
 
@@ -208,7 +210,7 @@ public class RmiAutomatedExporterTest {
 		verifyNoMoreInteractions(mockFactory);
 
 		// Should throw verifying its not in the registry
-		rmiRegistry.lookup(AUTO_EXPORT_RMI_PREFIX + "missingObject");
+		assertThrows(NotBoundException.class, () -> rmiRegistry.lookup(AUTO_EXPORT_RMI_PREFIX + "missingObject"));
 	}
 
 	@Test
@@ -233,9 +235,10 @@ public class RmiAutomatedExporterTest {
 		verifyNoMoreInteractions(mockFactory);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testGettingAllFindablesWithTypeNotExtendingFindableThrows() throws Exception {
-		rmiAutoExporter.getRemoteObjectNamesImplementingType(Map.class.getCanonicalName());
+		assertThrows(IllegalArgumentException.class,
+				() -> rmiAutoExporter.getRemoteObjectNamesImplementingType(Map.class.getCanonicalName()));
 	}
 
 	@Test

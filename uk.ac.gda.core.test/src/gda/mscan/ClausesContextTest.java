@@ -562,7 +562,7 @@ public class ClausesContextTest {
 		assertThat(unvalidatedClauseContext.getScanpath(), is(Scanpath.defaultValue()));
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test
 	public void unboundedRegionShapeParamsListCannotBeOverfilled() throws Exception {
 		prepareForNumericParamTest(unvalidatedClauseContext, RegionShape.POLYGON);
 		assertThat(unvalidatedClauseContext.getRequiredParamCount(), is(6));
@@ -583,7 +583,7 @@ public class ClausesContextTest {
 		assertThat(unvalidatedClauseContext.addParam(7), is(true));
 		assertThat(unvalidatedClauseContext.paramsFull(), is(false));
 		assertThat(unvalidatedClauseContext.getPathParams().size(), is(0));
-		unvalidatedClauseContext.getScanpath();
+		assertThrows(NoSuchElementException.class, unvalidatedClauseContext::getScanpath);
 	}
 	@Test
 	public void unboundedScanpathParamsListCannotBeOverfilled() throws Exception {

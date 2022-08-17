@@ -22,6 +22,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.matches;
@@ -29,17 +30,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
-import gda.device.detector.nxdetector.NXFileWriterPlugin;
-import gda.device.detector.nxdetector.NXPlugin;
-import gda.device.detector.nxdetector.NXPluginBase;
-import gda.jython.ICurrentScanInformationHolder;
-import gda.jython.InterfaceProvider;
-import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +45,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
+import gda.device.detector.nxdetector.NXPlugin;
+import gda.device.detector.nxdetector.NXPluginBase;
+import gda.jython.ICurrentScanInformationHolder;
+import gda.jython.InterfaceProvider;
+import gda.scan.ScanInformation;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NXDetectorTest {
@@ -119,27 +121,29 @@ public class NXDetectorTest {
 		assertEquals(expected, det.getPluginMap());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSetCollectionStrategyWithDuplicatePluginName() {
 		when(collectionStrategy.getName()).thenReturn("c");
 		det = new NXDetector();
 		det.setAdditionalPluginList(Arrays.asList((NXPluginBase)fileWriter, plugin));
-		det.setCollectionStrategy(collectionStrategy);
+		assertThrows(IllegalArgumentException.class, () -> det.setCollectionStrategy(collectionStrategy));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSetAdditionalPluginListWithDuplicateCollectionStrategyName() {
 		when(collectionStrategy.getName()).thenReturn("b");
 		det = new NXDetector();
 		det.setCollectionStrategy(collectionStrategy);
-		det.setAdditionalPluginList(Arrays.asList((NXPluginBase)fileWriter, plugin));
+		assertThrows(IllegalArgumentException.class,
+				() -> det.setAdditionalPluginList(Arrays.asList((NXPluginBase) fileWriter, plugin)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSetAdditionalPluginListWithDuplicateNames() {
 		when(plugin.getName()).thenReturn("b");
 		det = new NXDetector();
-		det.setAdditionalPluginList(Arrays.asList((NXPluginBase)fileWriter, plugin));
+		assertThrows(IllegalArgumentException.class,
+				() -> det.setAdditionalPluginList(Arrays.asList((NXPluginBase) fileWriter, plugin)));
 	}
 
 	// Scannable
@@ -157,12 +161,12 @@ public class NXDetectorTest {
 		assertArrayEquals(new String[] { "a", "b", "c", "d", "e" }, det.getExtraNames());
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void testGetExtraNamesWithDuplicate() {
 		when(collectionStrategy.getInputStreamNames()).thenReturn(Arrays.asList("a", "b"));
 		when(fileWriter.getInputStreamNames()).thenReturn(Arrays.asList("c"));
 		when(plugin.getInputStreamNames()).thenReturn(Arrays.asList("d", "a"));
-		det.getExtraNames();
+		assertThrows(IllegalStateException.class, det::getExtraNames);
 	}
 
 	@Test

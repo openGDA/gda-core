@@ -19,6 +19,7 @@
 package gda.jython.server.shell;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -220,15 +221,14 @@ public class JythonShellTest {
 		output.verifyNoMoreInteractions(); // no extra newline added
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testNullCommandThrows() throws Exception {
 		// See DAQ-1427 (Closing SSH without CTRL+D causes a infinite loop)
 		when(reader.readLine(anyString()))
 				.thenReturn(null)
 				.thenThrow(new IllegalStateException()); // Should not be called again
 
-		shell.run();
-		Mockito.verifyNoInteractions(jsf); // null command should not be run
+		assertThrows(NullPointerException.class, shell::run);
 	}
 
 	@Test

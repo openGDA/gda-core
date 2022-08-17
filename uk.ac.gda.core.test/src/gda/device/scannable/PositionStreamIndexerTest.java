@@ -19,10 +19,10 @@
 package gda.device.scannable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import gda.device.DeviceException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,8 @@ import java.util.concurrent.Callable;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import gda.device.DeviceException;
 
 public class PositionStreamIndexerTest {
 	public interface SimplePositionInputStream extends PositionInputStream<Object> {
@@ -64,10 +66,10 @@ public class PositionStreamIndexerTest {
 		indexer = new PositionStreamIndexer<Object>(stream);
 	}
 
-	@Test(expected=IllegalStateException.class)
+	@Test
 	public void testExceptionWhenReadingEmptyList() throws Exception {
 		when(stream.read(anyInt())).thenReturn(new ArrayList<Object>());
-		indexer.getPositionCallable().call();
+		assertThrows(IllegalStateException.class, indexer.getPositionCallable()::call);
 	}
 
 	@Test

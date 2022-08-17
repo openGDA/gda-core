@@ -18,16 +18,20 @@
 
 package uk.ac.gda.remoting.client;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -54,10 +58,9 @@ public class GdaRmiProxyTest {
 		Finder.addFactory(rmiProxyFactory);
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testExceptionThrownIfNameIsNotSet() throws Exception {
-		// Should throw NPE
-		gdaRmiProxy.afterPropertiesSet();
+		assertThrows(NullPointerException.class, gdaRmiProxy::afterPropertiesSet);
 	}
 
 	@Test
@@ -75,9 +78,10 @@ public class GdaRmiProxyTest {
 		assertThat(Scannable.class.isAssignableFrom(gdaRmiProxy.getObjectType()), is(true));
 	}
 
-	@Test(expected=FactoryBeanNotInitializedException.class) // Defined by FactoryBean#getObject
+	@Test
 	public void testGetObjectThrowsWhenObjectIsNotSetYet() throws Exception {
-		gdaRmiProxy.getObject();
+		// Defined by FactoryBean#getObject
+		assertThrows(FactoryBeanNotInitializedException.class, gdaRmiProxy::getObject);
 	}
 
 	@Test // Defined by FactoryBean#getObjectType
@@ -91,10 +95,11 @@ public class GdaRmiProxyTest {
 	}
 
 	// This should throw within the timeout as this context cannot be resolved
-	@Test(expected=BeanCreationException.class, timeout=10000)
+	@Test
+	@Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
 	public void testDaq1945NoInfinteLoopResolvingContext() throws Exception {
 		// Try to resolve a context containing 10 GdaRmiProxy but no RmiProxyFactory. Use this class to class load with
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("testSpringContext.xml", GdaRmiProxyTest.class);
-		context.close();
+		assertThrows(BeanCreationException.class,
+				() -> new ClassPathXmlApplicationContext("testSpringContext.xml", GdaRmiProxyTest.class));
 	}
 }

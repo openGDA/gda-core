@@ -24,6 +24,7 @@ import static gda.device.enumpositioner.ValvePosition.RESET;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -60,9 +61,9 @@ public class DummyValveTest {
 		assertTrue(valve.isConfigured());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNegativeTimeToMoveFails() throws Exception {
-		valve.setTimeToMove(-5);
+		assertThrows(IllegalArgumentException.class, () -> valve.setTimeToMove(-5));
 	}
 
 	@Test
@@ -76,16 +77,16 @@ public class DummyValveTest {
 		assertTrue(valve.isBusy());
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testRawAsynchronousMoveToFailsWhenBusy() throws Exception {
 		valve.setPositionerStatusForTest(EnumPositionerStatus.MOVING);
-		valve.rawAsynchronousMoveTo(CLOSE);
+		assertThrows(DeviceException.class, () -> valve.rawAsynchronousMoveTo(CLOSE));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testMoveToFailsWhenBusy() throws Exception {
 		valve.setPositionerStatusForTest(EnumPositionerStatus.MOVING);
-		valve.moveTo(CLOSE);
+		assertThrows(DeviceException.class, () -> valve.moveTo(CLOSE));
 	}
 
 	@Test
@@ -135,9 +136,9 @@ public class DummyValveTest {
 		assertEquals("Closed", valve.getPosition());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testMoveToInvalidPositionFails() throws Exception {
-		valve.moveTo("Somewhere");
+		assertThrows(IllegalArgumentException.class, () -> valve.moveTo("Somewhere"));
 	}
 
 	/**

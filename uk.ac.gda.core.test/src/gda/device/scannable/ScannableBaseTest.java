@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -336,10 +337,10 @@ public class ScannableBaseTest {
 		getSB().waitWhileBusy(.150);
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testWaitWhileBusyWithTimeoutFailure() throws DeviceException, InterruptedException {
 		when(getSB().isBusy()).thenReturn(true, false);
-		getSB().waitWhileBusy(.050);
+		assertThrows(DeviceException.class, () -> getSB().waitWhileBusy(.050));
 	}
 
 	@Test

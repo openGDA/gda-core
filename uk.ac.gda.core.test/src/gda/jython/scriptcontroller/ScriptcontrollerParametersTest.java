@@ -19,6 +19,7 @@
 package gda.jython.scriptcontroller;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.MissingFormatArgumentException;
 
@@ -93,13 +94,13 @@ public class ScriptcontrollerParametersTest {
 		assertEquals(RESULT_PARAMETER_ALL, controller.getCommand());
 	}
 
-	@Test(expected = MissingFormatArgumentException.class)
+	@Test
 	public void testMissingParameters() {
 		ScriptControllerBase controller = new ScriptControllerBase();
 		controller.setCommand(COMMAND);
 		controller.setCommandFormat(FORMAT_ALL);
 		controller.addParameter(PARAM_ONE);
-		controller.getCommand();
+		assertThrows(MissingFormatArgumentException.class, controller::getCommand);
 	}
 
 	@Test

@@ -20,6 +20,7 @@ package gda.device.scannable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -152,7 +153,7 @@ public class TwoJawSlitPositionTest {
 		verifyMove(secondJaw, secondJawExpectedTarget);
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testMoveToMultipleTriesFails() throws DeviceException {
 		final double firstJawInitialPosition = 0.5;
 		final double secondJawInitialPosition = -0.3;
@@ -163,7 +164,7 @@ public class TwoJawSlitPositionTest {
 		when(secondJaw.getPosition()).thenReturn(secondJawInitialPosition);
 
 		slitPosition.setNumberTries(2);
-		slitPosition.moveTo(targetPosition);
+		assertThrows(DeviceException.class, () -> slitPosition.moveTo(targetPosition));
 	}
 
 	// Verify that the jaw has been told to move to the expected position

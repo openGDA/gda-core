@@ -20,6 +20,7 @@ package gda.util.converters;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static si.uom.NonSI.DEGREE_ANGLE;
 import static si.uom.NonSI.ELECTRON_VOLT;
 import static tec.units.indriya.unit.MetricPrefix.KILO;
@@ -56,13 +57,14 @@ public class CoupledQuantityConverterTest {
 	 * intermediate units, but that the first one in each list is exactly the same. I'm not convinced that this is
 	 * desirable, but for now this test documents the current behaviour.
 	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testIntermediateUnitsDifferentOrder() {
 		final SourceToIntermediateConverter sourceConverter = new SourceToIntermediateConverter();
 		sourceConverter.setTargetUnits(Arrays.asList("deg", "mdeg"));
 		final IntermediateToTargetConverter targetConverter = new IntermediateToTargetConverter();
 		targetConverter.setSourceUnits(Arrays.asList("mdeg", "deg"));
-		coupledConverter = new CoupledQuantityConverter<>(sourceConverter, targetConverter);
+		assertThrows(IllegalArgumentException.class,
+				() -> coupledConverter = new CoupledQuantityConverter<>(sourceConverter, targetConverter));
 	}
 
 	@Test

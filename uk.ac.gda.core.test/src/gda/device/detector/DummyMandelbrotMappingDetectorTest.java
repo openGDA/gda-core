@@ -18,16 +18,19 @@
 
 package gda.device.detector;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.scannable.DummyScannable;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.scannable.DummyScannable;
 
 public class DummyMandelbrotMappingDetectorTest {
 
@@ -57,15 +60,15 @@ public class DummyMandelbrotMappingDetectorTest {
 		detector = null;
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void shouldThrowIfCollectDataCalledBeforeScanStart() throws Exception {
-		new DummyMandelbrotMappingDetector().collectData();
+		assertThrows(DeviceException.class, new DummyMandelbrotMappingDetector()::collectData);
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void shouldThrowIfReadoutCalledTooSoon() throws Exception {
 		detector.collectData();
-		detector.readout();
+		assertThrows(DeviceException.class, detector::readout);
 	}
 
 	@Test

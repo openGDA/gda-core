@@ -21,6 +21,7 @@ package gda.device.memory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -142,10 +143,10 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testClearException() throws DeviceException {
 		memory.setFail();
-		memory.clear();
+		assertThrows(DeviceException.class, memory::clear);
 	}
 
 	/**
@@ -153,11 +154,11 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testClearException2() throws DeviceException {
 		memory.close();
 		memory.setFail();
-		memory.clear();
+		assertThrows(DeviceException.class, memory::clear);
 	}
 
 	/**
@@ -179,10 +180,10 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testClearIntIntException() throws DeviceException {
 		memory.setFail();
-		memory.clear(0, 512);
+		assertThrows(DeviceException.class, () -> memory.clear(0, 512));
 	}
 
 	/**
@@ -204,10 +205,10 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testClearIntIntIntIntIntIntException() throws DeviceException {
 		memory.setFail();
-		memory.clear(0, 512, 0, 1, 0, 127);
+		assertThrows(DeviceException.class, () -> memory.clear(0, 512, 0, 1, 0, 127));
 	}
 
 	/**
@@ -229,10 +230,10 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testStartException() throws DeviceException {
 		memory.setFail();
-		memory.start();
+		assertThrows(DeviceException.class, memory::start);
 	}
 
 	/**
@@ -254,10 +255,10 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testStopException() throws DeviceException {
 		memory.setFail();
-		memory.stop();
+		assertThrows(DeviceException.class, memory::stop);
 	}
 
 	/**
@@ -395,12 +396,12 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testOutputException() throws DeviceException {
 		memory.setAttribute("Password", "test");
 		memory.setFail();
-		memory.output(testScratchDirectoryName + "testOutput2");
-	}
+		assertThrows(DeviceException.class, () -> memory.output(testScratchDirectoryName + "testOutput2"));
+		}
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#getMemorySize()}.
@@ -422,10 +423,10 @@ public class GdhistTest {
 	 *
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetMemorySizeException() throws DeviceException {
 		memory.setFail();
-		memory.getMemorySize();
+		assertThrows(DeviceException.class, memory::getMemorySize);
 	}
 
 	/**

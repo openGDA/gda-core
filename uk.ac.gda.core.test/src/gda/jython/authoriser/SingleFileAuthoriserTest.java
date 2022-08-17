@@ -22,6 +22,7 @@ import static gda.jython.authoriser.Authoriser.DEFAULT_LEVEL_PROPERTY;
 import static gda.jython.authoriser.Authoriser.DEFAULT_STAFF_LEVEL_PROPERTY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 
@@ -61,10 +62,10 @@ public class SingleFileAuthoriserTest {
 		assertThat(sfa.getAuthorisationLevel("invalid-level"), is(1));
 	}
 
-	@Test(expected = ConfigurationException.class)
+	@Test
 	public void invalidFileIsNotIgnored() throws ConfigurationException, IOException {
-		@SuppressWarnings("unused")
-		var sfa = new SingleFileAuthoriser(TEST_DIRECTORY, "sfa_invalid_permissions");
+		assertThrows(ConfigurationException.class,
+				() -> new SingleFileAuthoriser(TEST_DIRECTORY, "sfa_invalid_permissions"));
 	}
 
 	@Test

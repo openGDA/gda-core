@@ -18,6 +18,7 @@
 
 package gda.scan;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -218,11 +219,11 @@ public class ConstantVelocityScanLineTest {
 
 	}
 
-	@SuppressWarnings("unused")
-	@Test (expected=IllegalArgumentException.class)
+	@Test
 	public void testInvalidArgsNoDetector() throws Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsNoDetector", true);
-		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1});
+		assertThrows(IllegalArgumentException.class,
+				() -> new ConstantVelocityScanLine(new Object[] { mockscn, 0., 2., 1 }));
 
 	}
 
@@ -237,20 +238,22 @@ public class ConstantVelocityScanLineTest {
 
 	}
 
-	@SuppressWarnings("unused")
-	@Test (expected=IllegalArgumentException.class)
+	@Test
 	public void testInvalidArgsMovingScannablesWithinInnerLoop() throws Exception {
-		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly", true);
-		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, 999.});
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly",
+				true);
+		assertThrows(IllegalArgumentException.class,
+				() -> new ConstantVelocityScanLine(new Object[] { mockscn, 0., 2., 1, mockeddet1, 2., mockscn, 999. }));
 
 	}
 
-	@SuppressWarnings("unused")
-	@Test (expected=IllegalArgumentException.class)
+	@Test
 	public void testInvalidArgsMovingZIEScannablesWithinInnerLoop() throws Exception {
 		Scannable mockziescn = MockFactory.createMockZieScannable("zie", 5);
-		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly", true);
-		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, mockziescn, 999.});
+		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly",
+				true);
+		assertThrows(IllegalArgumentException.class, () -> new ConstantVelocityScanLine(
+				new Object[] { mockscn, 0., 2., 1, mockeddet1, 2., mockscn, mockziescn, 999. }));
 
 	}
 

@@ -19,6 +19,7 @@
 package gda.function;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static tec.units.indriya.unit.MetricPrefix.MICRO;
@@ -80,26 +81,26 @@ public class RelativeMotionFunctionTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testMissingPrimaryScannable() throws FactoryException {
 		lengthToLengthFunction.setSecondaryScannable(umScannable);
 		lengthToLengthFunction.setCouplingFunction(mock(Function.class));
-		lengthToLengthFunction.configure();
+		assertThrows(FactoryException.class, lengthToLengthFunction::configure);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testMissingSecondaryScannable() throws FactoryException {
 		lengthToLengthFunction.setPrimaryScannable(mmScannable);
 		lengthToLengthFunction.setCouplingFunction(mock(Function.class));
-		lengthToLengthFunction.configure();
+		assertThrows(FactoryException.class, lengthToLengthFunction::configure);
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testMissingCouplingFunction() throws FactoryException {
 		lengthToLengthFunction.setPrimaryScannable(mmScannable);
 		lengthToLengthFunction.setSecondaryScannable(umScannable);
-		lengthToLengthFunction.configure();
+		assertThrows(FactoryException.class, lengthToLengthFunction::configure);
 	}
 
 	@Test

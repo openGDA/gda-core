@@ -19,6 +19,7 @@
 package uk.ac.diamond.daq.concurrent;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -37,24 +38,24 @@ public class AsyncTest {
 	@Mock
 	private Callable<String> callable;
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testWrappingNullRunnable() {
-		new Async.ThreadNamingRunnableWrapper("Thread Name", null);
+		assertThrows(NullPointerException.class, () -> new Async.ThreadNamingRunnableWrapper("Thread Name", null));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testWrappingNullCallable() {
-		new Async.ThreadNamingCallableWrapper<>("Thread Name", null);
+		assertThrows(NullPointerException.class, () -> new Async.ThreadNamingCallableWrapper<>("Thread Name", null));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testWrappingRunnableNullName() {
-		new Async.ThreadNamingRunnableWrapper(null, runnable);
+		assertThrows(NullPointerException.class, () -> new Async.ThreadNamingRunnableWrapper(null, runnable));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testWrappingCallableNullName() {
-		new Async.ThreadNamingCallableWrapper<>(null, callable);
+		assertThrows(NullPointerException.class, () -> new Async.ThreadNamingCallableWrapper<>(null, callable));
 	}
 
 	@Test
@@ -81,39 +82,39 @@ public class AsyncTest {
 		verify(callable).call();
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testExecuteNullTask() throws Exception {
-		Async.execute(null);
+		assertThrows(NullPointerException.class, () -> Async.execute(null));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testScheduleNullCallable() {
-		Async.schedule((Runnable)null, 1, SECONDS);
+		assertThrows(NullPointerException.class, () -> Async.schedule((Runnable) null, 1, SECONDS));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testScheduleNullRunnable() {
-		Async.schedule((Callable<?>)null, 1, SECONDS);
+		assertThrows(NullPointerException.class, () -> Async.schedule((Callable<?>) null, 1, SECONDS));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testScheduleNullAtFixedRate() {
-		Async.scheduleAtFixedRate(null, 1, 1, SECONDS);
+		assertThrows(NullPointerException.class, () -> Async.scheduleAtFixedRate(null, 1, 1, SECONDS));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testScheduleNullWithFixedDelay() {
-		Async.scheduleWithFixedDelay(null, 1, 1, SECONDS);
+		assertThrows(NullPointerException.class, () -> Async.scheduleWithFixedDelay(null, 1, 1, SECONDS));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testSubmitNullCallable() {
-		Async.submit((Callable<?>)null);
+		assertThrows(NullPointerException.class, () -> Async.submit((Callable<?>) null));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testSubmitNullRunnable() {
-		Async.submit((Runnable)null);
+		assertThrows(NullPointerException.class, () -> Async.submit((Runnable) null));
 	}
 
 }

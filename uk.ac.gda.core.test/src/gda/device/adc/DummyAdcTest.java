@@ -22,10 +22,12 @@ package gda.device.adc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import gda.device.DeviceException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import gda.device.DeviceException;
 
 /**
  *
@@ -196,28 +198,28 @@ public class DummyAdcTest implements DummyValueSuggester {
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetRangeExc1() throws DeviceException {
 		// check exceptions thrown with out of limits values
-		dummyAdc.getRange(minChan - 1);
+		assertThrows(DeviceException.class, () -> dummyAdc.getRange(minChan - 1));
 	}
 
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetRangeExc2() throws DeviceException {
 		// check exceptions thrown with out of limits values
-		dummyAdc.getRange(maxChan + 1);
+		assertThrows(DeviceException.class, () -> dummyAdc.getRange(maxChan + 1));
 	}
 
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetRangeExc3() throws DeviceException {
 		// check exceptions thrown with out of limits values
-		dummyAdc.getRange(-2);
+		assertThrows(DeviceException.class, () -> dummyAdc.getRange(-2));
 	}
 
 	/**
@@ -245,30 +247,23 @@ public class DummyAdcTest implements DummyValueSuggester {
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSetUniPolarExc1() throws DeviceException {
-		int channel = 0;
-		boolean unipolarMode = false;
-
 		// change polarity and check invalid channel
-		channel = 0;
-		unipolarMode = true;
-
-		dummyAdc.setUniPolar(channel, unipolarMode);
+		int channel = 0;
+		boolean unipolarMode = true;
+		assertThrows(DeviceException.class, () -> dummyAdc.setUniPolar(channel, unipolarMode));
 	}
 
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSetUniPolarExc2() throws DeviceException {
-		int channel = 0;
-		boolean unipolarMode = false;
-
 		// change polarity and check invalid channel
-		channel = -1;
-		unipolarMode = true;
-		dummyAdc.setUniPolar(channel, unipolarMode);
+		int channel = -1;
+		boolean unipolarMode = true;
+		assertThrows(DeviceException.class, () -> dummyAdc.setUniPolar(channel, unipolarMode));
 	}
 
 	/**
@@ -307,19 +302,19 @@ public class DummyAdcTest implements DummyValueSuggester {
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSetSampleCountExc1() throws DeviceException {
 		// should not accept values less than one
-		dummyAdc.setSampleCount(0);
+		assertThrows(DeviceException.class, () -> dummyAdc.setSampleCount(0));
 	}
 
 	/**
 	 * @throws DeviceException
 	 */
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSetSampleCountExc2() throws DeviceException {
 		// should not accept values less than one
-		dummyAdc.setSampleCount(-1);
+		assertThrows(DeviceException.class, () -> dummyAdc.setSampleCount(-1));
 	}
 
 	/**

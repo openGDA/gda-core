@@ -21,6 +21,7 @@ package gda.function.lookup;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.stream.IntStream;
 
@@ -97,9 +98,9 @@ public class LookupTableTest {
 		assertThat(lt.getLookupKeys(), is(IntStream.range(0, 20).mapToDouble(i -> (double)i/100).toArray()));
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void missingFileThrowsFactoryException() throws Exception {
-		lt = getFile(MISSING);
+		assertThrows(FactoryException.class, () -> lt = getFile(MISSING));
 	}
 
 	@Test
@@ -110,22 +111,22 @@ public class LookupTableTest {
 		assertThat(lt.lookupValue("0.12", "baz"), is(closeTo(11.463, DELTA)));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void lookupValueBeforeConfiguring() throws Exception {
 		lt = new LookupTable();
-		lt.lookupValue(0.12, "helloWorld");
+		assertThrows(DeviceException.class, () -> lt.lookupValue(0.12, "helloWorld"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void lookupMissingScannable() throws Exception {
 		lt = getFile(TEST_FILE);
-		lt.lookupValue(0.12, "missing");
+		assertThrows(IllegalArgumentException.class, () -> lt.lookupValue(0.12, "missing"));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void lookupMissingValue() throws Exception {
 		lt = getFile(TEST_FILE);
-		lt.lookupValue(0.5, "foo");
+		assertThrows(IllegalStateException.class, () -> lt.lookupValue(0.5, "foo"));
 	}
 
 
@@ -161,8 +162,8 @@ public class LookupTableTest {
 		assertThat(lt.lookupUnitString("foo"), is("mm"));
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void emptyFileThrowsException() throws Exception {
-		lt = getFile(EMPTY);
+		assertThrows(FactoryException.class, () -> lt = getFile(EMPTY));
 	}
 }

@@ -19,15 +19,16 @@
 package gda.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
+import org.junit.Rule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -81,7 +82,7 @@ public class ElogEntryTest {
 	 * Tests that when an invalid groupID is used then the ELog will not send.
 	 * @throws ElogException
 	 */
-	@Test(expected=ElogEntry.ElogException.class)
+	@Test
 	@Disabled // Don't flood elog
 	public void testElogEntryFailGroupID() throws ElogException {
 
@@ -94,8 +95,8 @@ public class ElogEntryTest {
 		content = "please ignore - should fail due to an invalid category";
 
 		String[] fileLocations = {(testfile1), (testfile2)};
-
-		ElogEntry.post(title, content,userID, visit, logID, groupID, fileLocations);
+		assertThrows(ElogEntry.ElogException.class,
+				() -> ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations));
 	}
 
 
@@ -103,7 +104,7 @@ public class ElogEntryTest {
 	 * Tests that when an invalid logID is entered then the ELog will not send.
 	 * @throws ElogException
 	 */
-	@Test(expected=ElogEntry.ElogException.class)
+	@Test
 	@Disabled // Don't flood elog
 	public void testElogEntryFailLogID() throws ElogException {
 
@@ -117,7 +118,8 @@ public class ElogEntryTest {
 
 		String[] fileLocations = {(testfile1), (testfile2)};
 
-		ElogEntry.post(title, content,userID, visit, logID, groupID, fileLocations);
+		assertThrows(ElogEntry.ElogException.class,
+				() -> ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations));
 	}
 
 
@@ -125,7 +127,7 @@ public class ElogEntryTest {
 	 * Tests that when an invalid userID is entered then the ELog will not send.
 	 * @throws ElogException
 	 */
-	@Test(expected=ElogEntry.ElogException.class)
+	@Test
 	@Disabled // Don't flood elog
 	public void testElogEntryFailUserID() throws ElogException {
 
@@ -139,7 +141,8 @@ public class ElogEntryTest {
 
 		String[] fileLocations = {(testfile1), (testfile2)};
 
-		ElogEntry.post(title, content,userID, visit, logID, groupID, fileLocations);
+		assertThrows(ElogEntry.ElogException.class,
+				() -> ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations));
 	}
 
 
@@ -147,7 +150,7 @@ public class ElogEntryTest {
 	 * Tests that when an invalid file names or directories are entered then the ELog will not send.
 	 * @throws ElogException
 	 */
-	@Test(expected=ElogEntry.ElogException.class)
+	@Test
 	@Disabled // Don't flood elog
 	public void testElogEntryFailImages() throws ElogException {
 
@@ -161,7 +164,8 @@ public class ElogEntryTest {
 
 		String[] fileLocations = {(testfile1), (testfile2wrong)};
 
-		ElogEntry.post(title, content,userID, visit, logID, groupID, fileLocations);
+		assertThrows(ElogEntry.ElogException.class,
+				() -> ElogEntry.post(title, content, userID, visit, logID, groupID, fileLocations));
 	}
 
 	/**

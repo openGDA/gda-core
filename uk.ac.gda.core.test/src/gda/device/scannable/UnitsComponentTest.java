@@ -24,6 +24,7 @@ import static gda.jscience.physics.units.NonSIext.MILLI_DEG_ANGLE_LOWERCASE_STRI
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static si.uom.NonSI.DEGREE_ANGLE;
 import static tec.units.indriya.AbstractUnit.ONE;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
@@ -294,10 +295,10 @@ public class UnitsComponentTest {
 		}
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testGetAcceptableUnitsVolumetricDensityGramsPerLitre() throws DeviceException {
 		final UnitsComponent<Density> uc = new UnitsComponent<>();
-		uc.setHardwareUnitString("g/L");
+		assertThrows(DeviceException.class, () -> uc.setHardwareUnitString("g/L"));
 	}
 
 	private <Q extends Quantity<Q>> void testGetAcceptableUnits(String hardwareUnitString, List<String> expectedAcceptableUnits) throws DeviceException {
@@ -363,18 +364,18 @@ public class UnitsComponentTest {
 		assertEquals(MILLI(DEGREE_ANGLE), uc.getUserUnit());
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSetHardwareThenIncompatibleUserUnit() throws DeviceException {
 		final UnitsComponent<Length> uc = new UnitsComponent<>();
 		uc.setHardwareUnitString("mm");
-		uc.setUserUnits("deg");
+		assertThrows(DeviceException.class, () -> uc.setUserUnits("deg"));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSetUserThenIncompatibleHardwareUnit() throws DeviceException {
 		final UnitsComponent<Angle> uc = new UnitsComponent<>();
 		uc.setUserUnits("deg");
-		uc.setHardwareUnitString("mm");
+		assertThrows(DeviceException.class, () -> uc.setHardwareUnitString("mm"));
 	}
 
 	@Test

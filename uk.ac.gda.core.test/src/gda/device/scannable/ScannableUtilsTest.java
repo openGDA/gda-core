@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static tec.units.indriya.quantity.Quantities.getQuantity;
@@ -643,9 +644,9 @@ public class ScannableUtilsTest {
 		assertDoubleArrayEquals(output, 2.0, 3.0);
 	}
 
-	@Test(expected = NumberFormatException.class)
+	@Test
 	public void unknownObjectToArray() {
-		assertDoubleArrayEquals(objectToArray(new Object()));
+		assertThrows(NumberFormatException.class, () -> objectToArray(new Object()));
 	}
 
 	@Test

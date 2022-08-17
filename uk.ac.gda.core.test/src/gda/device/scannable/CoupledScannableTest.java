@@ -22,6 +22,7 @@ package gda.device.scannable;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -153,21 +154,21 @@ public class CoupledScannableTest {
 		assertEquals(78.9, (double) dummyScannable2.getPosition(), FP_TOLERANCE);
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testUnequalNumbersOfScannablesAndFunctions() throws Exception {
 		final CoupledScannable coupled = new CoupledScannable();
 		coupled.setName("testCoupledScannable");
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
 		coupled.setFunctions(asList(mockFunction1));
-		coupled.configure();
+		assertThrows(FactoryException.class, coupled::configure);
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testNoFunctionsThrowsException() throws Exception {
 		coupled.setUserUnits("mm");
 		coupled.setScannables(asList(dummyScannable1, dummyScannable2));
-		coupled.configure();
+		assertThrows(FactoryException.class, coupled::configure);
 	}
 
 	@Test
@@ -202,7 +203,7 @@ public class CoupledScannableTest {
 		assertEquals(93.4, (double) dummyScannable3.getPosition(), FP_TOLERANCE);
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testThrowsExceptionIfMoveFails() throws Exception {
 		dummyScannable1.setUpperGdaLimits(120.0); // so move to 123.0 will fail
 
@@ -211,7 +212,7 @@ public class CoupledScannableTest {
 		coupled.setFunctions(asList(mockFunction1, mockFunction2));
 		coupled.configure();
 
-		coupled.moveTo(15.7);
+		assertThrows(DeviceException.class, () -> coupled.moveTo(15.7));
 	}
 
 	@Test

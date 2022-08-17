@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -264,11 +265,11 @@ public class ScannableNexusWrapperTest {
 		verifyNoInteractions(posListener);
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test
 	public void testGetNexusProvider() throws Exception {
 		// getNexusProvider should no longer be called directly. The nexus writing framework will
 		// always call getNexusProviders().
-		((INexusDevice<?>) scannable).getNexusProvider(null);
+		assertThrows(UnsupportedOperationException.class, () -> ((INexusDevice<?>) scannable).getNexusProvider(null));
 	}
 
 	@Test

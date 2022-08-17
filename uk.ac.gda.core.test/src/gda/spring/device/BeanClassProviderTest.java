@@ -20,6 +20,7 @@ package gda.spring.device;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,13 +115,13 @@ public class BeanClassProviderTest {
 		assertThat(classForMode(MODE_X), is("property_class"));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void circularReferemceThrows() throws Exception {
 		setClassAsProperty(MODE_X, redirectTo(MODE_Y));
 		setClassAsProperty(MODE_Y, redirectTo(MODE_Z));
 		setClassAsProperty(MODE_Z, redirectTo(MODE_X));
 
-		assertThat(classForMode(MODE_X), is("unreachable"));
+		assertThrows(IllegalStateException.class, () -> classForMode(MODE_X));
 	}
 
 	@Test
@@ -182,8 +183,8 @@ public class BeanClassProviderTest {
 		return mode + "-class";
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void unknownModeFails() {
-		assertThat(classForMode("unknown"), is("not_found"));
+		assertThrows(IllegalArgumentException.class, () -> classForMode("unknown"));
 	}
 }

@@ -21,6 +21,7 @@ package gda.util.converters;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
@@ -104,7 +105,7 @@ public class LookupTableQuantityConverterTest {
 		}
 	}
 
-	@Test(expected = UnsupportedConversionException.class)
+	@Test
 	public final void testModeToTargetOnly() throws Exception {
 		final LookupTableQuantityConverter<Length, Length> converter = new LookupTableQuantityConverter<>("Simple.txt",
 				false, 0, 1, LookupTableQuantityConverter.Mode.S_TO_T_ONLY);
@@ -112,7 +113,7 @@ public class LookupTableQuantityConverterTest {
 		final Quantity<Length> targetBeforeConversion = QuantityFactory.createFromObject(1.0, acceptableTargetUnits);
 
 		// Should not be able to do T→S conversion with converter that only supports S→T conversion
-		converter.toSource(targetBeforeConversion);
+		assertThrows(UnsupportedConversionException.class, () -> converter.toSource(targetBeforeConversion));
 	}
 
 	@Test
@@ -301,7 +302,7 @@ public class LookupTableQuantityConverterTest {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test(expected = InvalidUnitsException.class)
+	@Test
 	public final void testIncompatibleUnits() throws Exception {
 		final LookupTableQuantityConverter converter = new LookupTableQuantityConverter<>("mmToDeg.txt", false, 0, 1);
 		final LookupTableQuantityConverter dummyToGetUnits = new LookupTableQuantityConverter<>("DegToAngstrom.txt", false, 0, 1);
@@ -309,7 +310,7 @@ public class LookupTableQuantityConverterTest {
 		final Quantity targetBeforeConversion = QuantityFactory.createFromObject(1.0, acceptableTargetUnits);
 
 		// Should not be able to do conversion using invalid units
-		converter.toSource(targetBeforeConversion);
+		assertThrows(InvalidUnitsException.class, () -> converter.toSource(targetBeforeConversion));
 	}
 
 	@Test
@@ -341,7 +342,7 @@ public class LookupTableQuantityConverterTest {
 				.sourceMinIsTargetMax());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public final void testOutOfRangeToTarget() throws Exception {
 		final LookupTableQuantityConverter<Length, Length> converter = new LookupTableQuantityConverter<>("Simple.txt",
 				false, 0, 1, Mode.S_TO_T_ONLY, false);
@@ -349,10 +350,10 @@ public class LookupTableQuantityConverterTest {
 		final Quantity<Length> sourceQuantity = QuantityFactory.createFromObject(3.0, acceptableSourceUnits);
 
 		// IllegalArgumentException expected when converting value out of range when not allowed to extrapolate
-		converter.toTarget(sourceQuantity);
+		assertThrows(IllegalArgumentException.class, () -> converter.toTarget(sourceQuantity));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public final void testOutOfRangeToSource() throws Exception {
 		final LookupTableQuantityConverter<Length, Length> converter = new LookupTableQuantityConverter<>("Simple.txt",
 				false, 0, 1, Mode.T_TO_S_ONLY, false);
@@ -360,7 +361,7 @@ public class LookupTableQuantityConverterTest {
 		final Quantity<Length> targetQuantity = QuantityFactory.createFromObject(300.0, acceptableTargetUnits);
 
 		// IllegalArgumentException expected when converting value out of range when not allowed to extrapolate
-		converter.toSource(targetQuantity);
+		assertThrows(IllegalArgumentException.class, ()->	converter.toSource(targetQuantity));
 	}
 
 	@Test

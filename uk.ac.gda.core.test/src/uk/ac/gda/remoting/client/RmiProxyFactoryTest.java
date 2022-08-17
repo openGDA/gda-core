@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -47,10 +48,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.util.SocketUtils;
@@ -283,10 +284,10 @@ public class RmiProxyFactoryTest {
 		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test
 	public void testAddFindableThrows() throws Exception {
 		// Should throw you can't add objects
-		rmiProxyFactory.addFindable(mock(Findable.class));
+		assertThrows(UnsupportedOperationException.class, () -> rmiProxyFactory.addFindable(mock(Findable.class)));
 
 		verifyNoMoreInteractions(mockRemoteObjectProvider);
 	}

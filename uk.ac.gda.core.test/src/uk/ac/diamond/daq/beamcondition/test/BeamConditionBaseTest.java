@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.daq.beamcondition.test;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,10 +52,10 @@ public class BeamConditionBaseTest {
 		verify(condition, times(1)).beamOn();
 	}
 
-	@Test(expected = InterruptedException.class)
+	@Test
 	public void testInterruptionsAreRaised() throws Exception {
 		Thread.currentThread().interrupt();
-		condition.waitForBeam();
+		assertThrows(InterruptedException.class, condition::waitForBeam);
 	}
 
 	@Test

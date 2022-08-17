@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
@@ -86,24 +87,24 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		assertThat(adapter.requiresAsynchronousPlugins(), is(true));
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test
 	public void prepareForCollectionWithTwoArgumentsShouldThrowUnsupportedOperationException() throws Exception {
-		adapter.prepareForCollection(1, null);
+		assertThrows(UnsupportedOperationException.class, () -> adapter.prepareForCollection(1, null));
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test
 	public void getAcquireTimeShouldThrowUnsupportedOperationException() throws Exception {
-		adapter.getAcquireTime();
+		assertThrows(UnsupportedOperationException.class, adapter::getAcquireTime);
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test
 	public void getAcquirePeriodShouldThrowUnsupportedOperationException() throws Exception {
-		adapter.getAcquirePeriod();
+		assertThrows(UnsupportedOperationException.class, adapter::getAcquirePeriod);
 	}
 
-	@Test(expected=UnsupportedOperationException.class)
+	@Test
 	public void configureAcquireAndPeriodTimesShouldThrowUnsupportedOperationException() throws Exception {
-		adapter.configureAcquireAndPeriodTimes(0);
+		assertThrows(UnsupportedOperationException.class, () -> adapter.configureAcquireAndPeriodTimes(0));
 	}
 
 	@Test
@@ -121,9 +122,9 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		adapter.setGenerateCallbacks(false); // should not throw an exception
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void settingGenerateCallbacksToTrueShouldThrowException() throws Exception {
-		adapter.setGenerateCallbacks(true);
+		assertThrows(IllegalArgumentException.class, () ->	adapter.setGenerateCallbacks(true));
 	}
 
 	@Test
@@ -225,23 +226,23 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	// Test readout
 	//
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void readZeroShouldThrowIllegalArgumentException() throws Exception {
-		adapter.read(0);
+		assertThrows(IllegalArgumentException.class, () ->	adapter.read(0));
 	}
 
-	@Test(expected=NoSuchElementException.class)
+	@Test
 	public void readShouldThrowWhenBufferedDetectorReturnsNull() throws Exception {
 		when(bufferedDetector.getNumberFrames()).thenReturn(1);
 		when(bufferedDetector.readFrames(anyInt(), anyInt())).thenReturn(null);
-		adapter.read(1);
+		assertThrows(NoSuchElementException.class, () -> adapter.read(1));
 	}
 
-	@Test(expected=NoSuchElementException.class)
+	@Test
 	public void readShouldThrowWhenBufferedDetectorReturnsEmptyArray() throws Exception {
 		when(bufferedDetector.getNumberFrames()).thenReturn(1);
 		when(bufferedDetector.readFrames(anyInt(), anyInt())).thenReturn(new Object[0]);
-		adapter.read(1);
+		assertThrows(NoSuchElementException.class, () -> adapter.read(1));
 	}
 
 	@Test
@@ -255,7 +256,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		assertThat(result.size(), is(equalTo(1)));
 	}
 
-	@Test(expected=NoSuchElementException.class)
+	@Test
 	public void withTwoFramesToCollectReadShouldReturnTwoFramesThenThrowNoSuchElementException() throws Exception {
 		int numberOfFramesToCollect = 2;
 		ContinuousParameters params = new ContinuousParameters();
@@ -268,7 +269,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		for (int i = 0; i < numberOfFramesToCollect; i++) {
 			adapter.read(1);
 		}
-		adapter.read(1); // should throw
+		assertThrows(NoSuchElementException.class, () -> adapter.read(1));
 	}
 
 	@Test
@@ -341,9 +342,9 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		assertThat(appender, is(instanceOf(NXDetectorDataDoubleAppender.class)));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void creatingDataAppenderFromOtherObjectTypeShouldThrowException() throws Exception {
-		NXDetectorDataAppender appender = adapter.createDataAppenderFromObject(new Object());
+		assertThrows(IllegalArgumentException.class, () -> adapter.createDataAppenderFromObject(new Object()));
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

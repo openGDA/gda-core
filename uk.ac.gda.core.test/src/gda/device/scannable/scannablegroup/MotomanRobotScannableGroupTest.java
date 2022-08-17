@@ -18,6 +18,7 @@
 
 package gda.device.scannable.scannablegroup;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -61,21 +62,22 @@ public class MotomanRobotScannableGroupTest {
 		return scannable;
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testNotEnoughMotors() throws DeviceException, FactoryException {
 		final MotomanRobotScannableGroup smallGroup = new MotomanRobotScannableGroup();
 		smallGroup.setGroupMembers(Arrays.asList(kTheta, kPhi, sTheta, sKappa));
-		smallGroup.asynchronousMoveTo(new Double[] { 1.0, 2.0, 3.0, 4.0, 5.0 });
+		assertThrows(DeviceException.class,
+				() -> smallGroup.asynchronousMoveTo(new Double[] { 1.0, 2.0, 3.0, 4.0, 5.0 }));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testNotEnoughPositions() throws DeviceException {
-		group.asynchronousMoveTo(new Double[] { 1.0, 2.0, 3.0, 4.0 });
+		assertThrows(DeviceException.class, () -> group.asynchronousMoveTo(new Double[] { 1.0, 2.0, 3.0, 4.0 }));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testKThetaBelowLimitKPhiAboveLimit() throws DeviceException {
-		group.asynchronousMoveTo(new Double[] { 2.9, 10.1, 3.0, 4.0, 5.0 });
+		assertThrows(DeviceException.class, () -> group.asynchronousMoveTo(new Double[] { 2.9, 10.1, 3.0, 4.0, 5.0 }));
 	}
 
 	@Test

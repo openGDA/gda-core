@@ -21,6 +21,7 @@ package gda.device.scannable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -241,54 +242,54 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		verify(controller).addPoint(new Double[] { -8.9, null, null });
 	}
 
-	@Test(expected=DeviceException.class)
+	@Test
 	public void testTrajectoryScanOperationViolatedScannableLimit() throws Exception {
 		scna.setUpperGdaLimits(0.);
 		trajgroup.setOperatingContinuously(true);
-		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+		assertThrows(DeviceException.class, () -> trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 }));
 	}
 
-	@Test(expected=DeviceException.class)
+	@Test
 	public void testTrajectoryScanOperationViolatedScannableLimit2() throws Exception {
 		scnb.setUpperGdaLimits(0.);
 		trajgroup.setOperatingContinuously(true);
-		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+		assertThrows(DeviceException.class, () -> trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 }));
 	}
 
-	@Test(expected=DeviceException.class)
+	@Test
 	public void testTrajectoryScanOperationViolatesMotorLimit() throws Exception {
 		when(motora.getMaxPosition()).thenReturn(0.);
 		trajgroup.setOperatingContinuously(true);
-		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
+		assertThrows(DeviceException.class, () -> trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 }));
 	}
 
-	@Test(expected=DeviceException.class)
+	@Test
 	public void testTrajectoryScanOperationViolatedScannableLimitViaElement() throws Exception {
 		scna.setUpperGdaLimits(0.);
 
 		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
 		wrapperaa.setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
-		wrapperaa.asynchronousMoveTo(1.1);
+		assertThrows(DeviceException.class, () -> wrapperaa.asynchronousMoveTo(1.1));
 	}
 
-	@Test(expected=DeviceException.class)
+	@Test
 	public void testTrajectoryScanOperationViolatedScannableLimitViaElement2() throws Exception {
 		scnb.setUpperGdaLimits(0.);
 
 		ContinuouslyScannableViaController wrapperab = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(1);
 		wrapperab.setOperatingContinuously(true);
 		wrapperab.atLevelMoveStart();
-		wrapperab.asynchronousMoveTo(1.1);
+		assertThrows(DeviceException.class, () -> wrapperab.asynchronousMoveTo(1.1));
 	}
 
-	@Test(expected=DeviceException.class)
+	@Test
 	public void testTrajectoryScanOperationViolatesMotorLimitViaElement() throws Exception {
 		scna.setUpperGdaLimits(0.);
 
 		ContinuouslyScannableViaController wrapperaa = (ContinuouslyScannableViaController) trajgroup.getGroupMembers().get(0);
 		wrapperaa.setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
-		wrapperaa.asynchronousMoveTo(1.1);
+		assertThrows(DeviceException.class, () -> wrapperaa.asynchronousMoveTo(1.1));
 	}
 }

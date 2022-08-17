@@ -20,6 +20,7 @@ package gda.mscan.processor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,10 +70,10 @@ public class ScannableGroupElementProcessorTest {
 	/**
 	 * Roi cannot be followed by Scannable
 	 */
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
 		doReturn(RegionShape.class).when(context).getPreviousType();
-		processor.process(context, emptyList, 1);
+		assertThrows(UnsupportedOperationException.class, () -> processor.process(context, emptyList, 1));
 	}
 
 	@Test
@@ -83,11 +84,11 @@ public class ScannableGroupElementProcessorTest {
 		verify(context).addScannable(sGroup.getGroupMembers().get(1));
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void processRejectsMoreThanTwoScannableGroupMembers() throws Exception {
 		when((sGroup.getGroupMembers())).thenReturn(Arrays.asList(scannable1, scannable2, scannable1));
 		doReturn(Scannable.class).when(context).getPreviousType();
-		processor.process(context, emptyList, 0);
+		assertThrows(UnsupportedOperationException.class, () -> processor.process(context, emptyList, 0));
 	}
 
 	@Test

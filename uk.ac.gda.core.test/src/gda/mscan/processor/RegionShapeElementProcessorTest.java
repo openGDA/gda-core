@@ -20,6 +20,7 @@ package gda.mscan.processor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,18 +58,18 @@ public class RegionShapeElementProcessorTest {
 	/**
 	 * Roi cannot be first element of clause
 	 */
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void processLookUpTrapsRoiAtElementZero() throws Exception {
-		processor.process(context, emptyList, 0);
+		assertThrows(UnsupportedOperationException.class, () -> processor.process(context, emptyList, 0));
 	}
 
 	/**
 	 * Number cannot be followed by Roi
 	 */
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
 		doReturn(Number.class).when(context).getPreviousType();
-		processor.process(context, emptyList, 1);
+		assertThrows(UnsupportedOperationException.class, () -> processor.process(context, emptyList, 1));
 	}
 
 	@Test

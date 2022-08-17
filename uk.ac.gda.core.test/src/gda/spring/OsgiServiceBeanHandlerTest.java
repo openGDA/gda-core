@@ -18,6 +18,7 @@
 
 package gda.spring;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
@@ -80,11 +81,10 @@ public class OsgiServiceBeanHandlerTest {
 		verifyNoMoreInteractions(mockContext);
 	}
 
-	@Test(expected=BeanNotOfRequiredTypeException.class)
+	@Test
 	public void testBeanWithIncorrectAnnotationThrows() throws Exception {
 		WithIncorrectOsgiServiceInterface service = new WithIncorrectOsgiServiceInterface();
-
-		osgiServiceBeanHandler.processBean("test", service);
+		assertThrows(BeanNotOfRequiredTypeException.class, () -> osgiServiceBeanHandler.processBean("test", service));
 	}
 
 	@Test

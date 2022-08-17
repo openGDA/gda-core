@@ -19,6 +19,7 @@
 package gda.device.syringepump.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -78,23 +79,23 @@ public class SyringePumpTest {
 		verify(control).isBusy();
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testExceptionsNotIgnoredByInfuse() throws Exception {
 		doThrow(new DeviceException("Device is busy")).when(control).infuse(17.0);
-		pump.infuse(17);
+		assertThrows(DeviceException.class, () -> pump.infuse(17));
 	}
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testConfigureWithoutController() throws Exception {
 		pump = new SyringePump();
 		pump.setName("dummypump");
-		pump.configure();
+		assertThrows(FactoryException.class, pump::configure);
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void testConfigureWithoutName() throws Exception {
 		pump = new SyringePump();
 		pump.setController(control);
-		pump.configure();
+		assertThrows(FactoryException.class, pump::configure);
 	}
 
 	@Test
@@ -109,16 +110,16 @@ public class SyringePumpTest {
 		verify(control).setVolume(40.0);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void testErrorStateWhenVolumeGreaterThanCapacity() throws DeviceException {
 		when(control.getVolume()).thenThrow(new IllegalStateException());
-		pump.getVolume();
+		assertThrows(IllegalStateException.class, pump::getVolume);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSetVolumeGreaterThanCapacity() throws DeviceException {
 		doThrow(new IllegalArgumentException()).when(control).setVolume(110.0);
-		pump.setVolume(110);
+		assertThrows(IllegalArgumentException.class, () -> pump.setVolume(110));
 	}
 
 	@Test

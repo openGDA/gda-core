@@ -20,6 +20,7 @@ package gda.mscan.processor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -46,44 +47,44 @@ public class ReRunFromFileElementProcessorTest {
 	@Mock
 	private IPathConstructor pathConstructor;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nullFilenamesAreRejected() {
 		processor = new ReRunFromFileElementProcessor(null);
-		processor.process(null, List.of(processor), 0);
+		assertThrows(IllegalArgumentException.class, () -> processor.process(null, List.of(processor), 0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void blankFilenamesAreRejected() {
 		processor = new ReRunFromFileElementProcessor("   ");
-		processor.process(null, List.of(processor), 0);
+		assertThrows(IllegalArgumentException.class, () -> processor.process(null, List.of(processor), 0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nonZeroIndexIsRejected() {
 		processor = new ReRunFromFileElementProcessor("dummy.nxs");
-		processor.process(null, List.of(processor), 1);
+		assertThrows(IllegalArgumentException.class, () -> processor.process(null, List.of(processor), 1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyProcessorListIssRejected() {
 		processor = new ReRunFromFileElementProcessor("dummy.nxs");
-		processor.process(null, List.of(), 0);
+		assertThrows(IllegalArgumentException.class, () -> processor.process(null, List.of(), 0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void tooLongProcessorListIsRejected() {
 		processor = new ReRunFromFileElementProcessor("dummy.nxs");
-		processor.process(null, List.of(processor, processor), 0);
+		assertThrows(IllegalArgumentException.class, () -> processor.process(null, List.of(processor, processor), 0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidPathsAreRejected() {
 		when(pathConstructor.createFromDefaultProperty()).thenReturn("/the/path");
 		try(MockedStatic<InterfaceProvider> provider = Mockito.mockStatic(InterfaceProvider.class)) {
 			provider.when(InterfaceProvider::getPathConstructor).thenReturn(pathConstructor);
 
 			processor = new ReRunFromFileElementProcessor("dummy.nxs");
-			processor.process(null, List.of(processor), 0);
+			assertThrows(IllegalArgumentException.class, () -> processor.process(null, List.of(processor), 0));
 		}
 	}
 

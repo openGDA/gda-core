@@ -22,6 +22,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
@@ -142,9 +143,9 @@ public class SingleCommandRunnerTest {
 		assertThat("Wrong command was run", exec.getCommand(), is(NO_ARG_COMMAND));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void sharedStateCantBeNull() {
-		runner.setSharedState(null);
+		assertThrows(NullPointerException.class, () -> runner.setSharedState(null));
 	}
 
 	@Test

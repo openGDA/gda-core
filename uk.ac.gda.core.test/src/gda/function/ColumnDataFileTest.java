@@ -21,6 +21,7 @@ package gda.function;
 import static gda.function.lookup.AbstractColumnFile.LOOKUP_TABLE_DIRECTORY_PROPERTY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -100,17 +101,16 @@ public class ColumnDataFileTest {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyFile() throws Exception {
-		cdf = getFile(EMPTY);
-		assertThat(cdf.getNumberOfXValues(), is(0));
+		assertThrows(IllegalArgumentException.class, () -> getFile(EMPTY));
 	}
 
-	@Test(expected = FactoryException.class)
+	@Test
 	public void missingFile() throws FactoryException {
 		cdf = new ColumnDataFile();
 		cdf.setFilename(new File(TEST_FILE_DIRECTORY, MISSING).getAbsolutePath(), true);
-		cdf.configure();
+		assertThrows(FactoryException.class, cdf::configure);
 	}
 
 	@Test

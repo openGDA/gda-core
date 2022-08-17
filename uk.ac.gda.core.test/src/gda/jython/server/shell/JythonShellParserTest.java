@@ -21,6 +21,7 @@ package gda.jython.server.shell;
 import static org.jline.reader.Parser.ParseContext.ACCEPT_LINE;
 import static org.jline.reader.Parser.ParseContext.COMPLETE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,9 +33,9 @@ import java.util.function.UnaryOperator;
 
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
+import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -87,12 +88,12 @@ public class JythonShellParserTest {
 		assertEquals(command, line.line());
 	}
 
-	@Test(expected=EOFError.class)
+	@Test
 	public void testIncomplete() throws Exception {
 		incompletePython();
 
 		String command = "if abcd:";
-		parser.parse(command, 8, ACCEPT_LINE);
+		assertThrows(EOFError.class, () -> parser.parse(command, 8, ACCEPT_LINE));
 	}
 
 	@Test
@@ -117,12 +118,12 @@ public class JythonShellParserTest {
 		assertEquals(command, line.line());
 	}
 
-	@Test(expected=EOFError.class)
+	@Test
 	public void testIncompleteWhenInMiddleOfCommand() throws Exception {
 		validPython();
 
 		String command = "if abcd:\n\tprint 'abcd'";
-		parser.parse(command, 8, ACCEPT_LINE);
+		assertThrows(EOFError.class, () -> parser.parse(command, 8, ACCEPT_LINE));
 	}
 
 	@Test

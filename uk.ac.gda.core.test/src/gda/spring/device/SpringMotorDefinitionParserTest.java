@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -102,18 +103,17 @@ public class SpringMotorDefinitionParserTest {
 		assertThat(parse(), is(nullValue()));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void elementNeedsIdAttribute() {
 		initLive();
-		parse();
+		assertThrows(IllegalStateException.class, this::parse);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void idAttributeMustNotBeEmpty() {
 		initLive();
 		set("id", "");
-		parse();
-		parser.parse(element, context);
+		assertThrows(IllegalStateException.class, this::parse);
 	}
 
 	@Test
@@ -311,12 +311,12 @@ public class SpringMotorDefinitionParserTest {
 		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor").withOffset("12.3"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void missingClassForUnknownMode() throws Exception {
 		// If no class is specified and mode is not live/dummy, the controller has no class
 		init("unknown", null, null);
 		set("id", "missing_class");
-		parse();
+		assertThrows(IllegalArgumentException.class, this::parse);
 	}
 
 	@Test
@@ -332,22 +332,22 @@ public class SpringMotorDefinitionParserTest {
 		verifyRegisteredBean(1, matchesMotor("stage", "stage_motor"));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void circularClassChainsAreCaught() throws Exception {
 		initDummy();
 		set("id", "stage");
 		set("dummy-class", "#foo");
 		set("foo-class", "#bar");
 		set("bar-class", "#dummy");
-		parse();
+		assertThrows(IllegalStateException.class, this::parse);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void classNameIsRequired() throws Exception {
 		init("foo", null, null);
 		set("id", "stage");
 		set("foo-class", "");
-		parse();
+		assertThrows(IllegalArgumentException.class, this::parse);
 	}
 
 	private void set(String key, String value) {

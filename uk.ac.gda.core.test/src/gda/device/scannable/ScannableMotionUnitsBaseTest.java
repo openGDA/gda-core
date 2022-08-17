@@ -22,6 +22,7 @@ package gda.device.scannable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -223,9 +224,9 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	}
 
 	@Override
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testIsAtWithStrings() throws DeviceException {
-		super.testIsAtWithStrings();
+		assertThrows(IllegalArgumentException.class, () -> super.testIsAtWithStrings());
 	}
 
 	@Test

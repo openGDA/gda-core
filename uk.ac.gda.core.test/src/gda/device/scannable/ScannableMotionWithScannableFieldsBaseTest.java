@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -274,14 +275,14 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		verify(scn).rawAsynchronousMoveTo(new Object[] { 1., null});
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testDefaultAsynchronousMoveFieldToWithAnOutputField() throws DeviceException {
-		scn.asynchronousMoveFieldTo(2, 1.);
+		assertThrows(DeviceException.class, () -> scn.asynchronousMoveFieldTo(2, 1.));
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testDefaultAsynchronousMoveFieldToOutOfBounds() throws DeviceException {
-		scn.asynchronousMoveFieldTo(5, 1.);
+		assertThrows(DeviceException.class, () -> scn.asynchronousMoveFieldTo(5, 1.));
 	}
 
 	@Test
@@ -362,10 +363,9 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		verify(scn).setTolerances(new Double[] {2., 0.});
 	}
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSFSetToleranceDoubleSettingNonInput() throws DeviceException {
-		e1.setTolerance(2.);
-		verify(scn).setTolerances(new Double[] {2., 0.});
+		assertThrows(DeviceException.class, () -> e1.setTolerance(2.));
 	}
 
 	@Test
@@ -375,10 +375,9 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 	}
 
 
-	@Test(expected = DeviceException.class)
+	@Test
 	public void testSFSetToleranceDoubleArrayLongerThanOne() throws DeviceException {
-		i1.setTolerances(new Double[] {2., 0.});
-		verify(scn).setTolerances(new Double[] {2., 0.});
+		assertThrows(DeviceException.class, () -> i1.setTolerances(new Double[] { 2., 0. }));
 	}
 
 	@Test

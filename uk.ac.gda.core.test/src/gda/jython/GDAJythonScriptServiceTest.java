@@ -21,6 +21,7 @@ package gda.jython;
 import static org.eclipse.scanning.api.script.ScriptLanguage.GROOVY;
 import static org.eclipse.scanning.api.script.ScriptLanguage.SPEC_PASTICHE;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,20 +81,20 @@ public class GDAJythonScriptServiceTest {
 		verify(mockCommandRunner).runsource("run '" + testFilePath + "'");
 	}
 
-	@Test(expected=ScriptExecutionException.class)
+	@Test
 	public void testExecuteNoSuchFile() throws Exception {
 		ICommandRunner mockCommandRunner = Mockito.mock(ICommandRunner.class);
 		InterfaceProvider.setCommandRunnerForTesting(mockCommandRunner);
 
 		ScriptRequest scriptRequest = new ScriptRequest("/tmp/noSuchFile.py", SPEC_PASTICHE);
 
-		scriptService.execute(scriptRequest);
+		assertThrows(ScriptExecutionException.class, () -> scriptService.execute(scriptRequest));
 	}
 
-	@Test(expected=UnsupportedLanguageException.class)
+	@Test
 	public void testExecuteUnsupportedScriptLanguage() throws Exception {
 		ScriptRequest scriptRequest = new ScriptRequest("/tmp/noSuchFile.py", GROOVY);
-		scriptService.execute(scriptRequest);
+		assertThrows(UnsupportedLanguageException.class, () -> scriptService.execute(scriptRequest));
 	}
 
 }

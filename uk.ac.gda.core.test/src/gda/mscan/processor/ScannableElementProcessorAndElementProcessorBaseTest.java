@@ -89,25 +89,25 @@ public class ScannableElementProcessorAndElementProcessorBaseTest {
 		verify(context).grammar();
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void processLookUpTrapsNullPreviousType() throws Exception {
 		doReturn(null).when(context).getPreviousType();
-		processor.process(context, validClause, 0);
+		assertThrows(IllegalStateException.class, () -> processor.process(context, validClause, 0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void processLookUpTrapsIncorrectGrammarKeys() throws Exception {
 		doReturn(String.class).when(context).getPreviousType();
-		processor.process(context, validClause, 0);
+		assertThrows(IllegalArgumentException.class, () -> processor.process(context, validClause, 0));
 	}
 
 	/**
 	 * Roi cannot be followed by Scannable
 	 */
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void processLookUpTrapsIncorrectGrammar() throws Exception {
 		doReturn(RegionShape.class).when(context).getPreviousType();
-		processor.process(context, validClause, 1);
+		assertThrows(UnsupportedOperationException.class, () -> processor.process(context, validClause, 1));
 	}
 
 	@Test

@@ -21,6 +21,7 @@ package gda.device.scannable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static tec.units.indriya.AbstractUnit.ONE;
 import static tec.units.indriya.unit.MetricPrefix.MILLI;
 import static tec.units.indriya.unit.Units.METRE;
@@ -32,8 +33,8 @@ import java.util.List;
 
 import javax.measure.Quantity;
 
-import org.junit.jupiter.api.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -229,15 +230,16 @@ public class PositionConvertorFunctionsTest {
 			assertArrayEquals(null, PositionConvertorFunctions.toObjectArray(nullObject));
 		}
 
-		@Test(expected = IllegalArgumentException.class)
+		@Test
 		public void testToDoubleExceptionThrown() {
 			// Test object array of length > 1
-			PositionConvertorFunctions.toDouble(new Object[] { new PyInteger(3), new PyInteger(2), new PyInteger(1) });
+			assertThrows(IllegalArgumentException.class, () -> PositionConvertorFunctions
+					.toDouble(new Object[] { new PyInteger(3), new PyInteger(2), new PyInteger(1) }));
 		}
 
-		@Test(expected = IllegalArgumentException.class)
+		@Test
 		public void testToQuantityWithStringsUnParsableString() {
-			PositionConvertorFunctions.toQuantity("closed", METRE);
+			assertThrows(IllegalArgumentException.class, () -> PositionConvertorFunctions.toQuantity("closed", METRE));
 		}
 
 		@Test

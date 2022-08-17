@@ -22,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
 import java.util.Map;
@@ -58,9 +59,9 @@ public class SingleFileProcessingRequestTest {
 		checkRequest(pr, KEY, "/tmp/config.xml");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void baseMustBeAbsolute() {
-		pr.setRelativePathBase("relative/path");
+		assertThrows(IllegalArgumentException.class, () -> pr.setRelativePathBase("relative/path"));
 	}
 
 	@Test

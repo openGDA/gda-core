@@ -23,6 +23,7 @@ import static java.lang.Thread.State.RUNNABLE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -83,44 +84,44 @@ public class CommandThreadInfoTest {
 		assertThat(cti.toString(), is(sameInstance(fromToString)));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testEmptyBuilderFails() {
-		CommandThreadInfo.builder().build();
+		assertThrows(NullPointerException.class, CommandThreadInfo.builder()::build);
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testNullCommandCheck() {
-		CommandThreadInfo.builder().command(null);
+		assertThrows(NullPointerException.class, () -> CommandThreadInfo.builder().command(null));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testNullDateCheck() {
-		CommandThreadInfo.builder().datetime(null);
+		assertThrows(NullPointerException.class, () -> CommandThreadInfo.builder().datetime(null));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testNegativeIDCheck() {
-		CommandThreadInfo.builder().id(-1);
+		assertThrows(IllegalArgumentException.class, () -> CommandThreadInfo.builder().id(-1));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testNullThreadIdCheck() {
-		CommandThreadInfo.builder().jythonServerThreadId(null);
+		assertThrows(NullPointerException.class, () -> CommandThreadInfo.builder().jythonServerThreadId(null));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testNullNameCheck() {
-		CommandThreadInfo.builder().name(null);
+		assertThrows(NullPointerException.class, () -> CommandThreadInfo.builder().name(null));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testNegativePriorityCheck() {
-		CommandThreadInfo.builder().priority(-1);
+		assertThrows(IllegalArgumentException.class, () -> CommandThreadInfo.builder().priority(-1));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void testNullStateCheck() {
-		CommandThreadInfo.builder().state(null);
+		assertThrows(NullPointerException.class, () -> CommandThreadInfo.builder().state(null));
 	}
 
 

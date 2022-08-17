@@ -21,6 +21,7 @@ package gda.scan;
 import static gda.scan.ScanDataPointProvider.getPoint;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -91,27 +92,27 @@ public class SortedScanDataPointCacheTest {
 	}
 
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testEmptyPointsReturnEmptyValues() {
 		cache.update(null, getPoint(0, 3, asList(), asList()));
 		cache.update(null, getPoint(1, 3, asList(), asList()));
 		cache.update(null, getPoint(2, 3, asList(), asList()));
 
-		cache.getPositionsFor("scan0");
+		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("scan0"));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testGetInvalidScannable() {
 		cache.update(null, getPoint(0, 3, asList(3.0), asList(6.3)));
 		cache.update(null, getPoint(1, 3, asList(2.0), asList(6.7)));
 		cache.update(null, getPoint(2, 3, asList(4.0), asList(6.45)));
 
-		cache.getPositionsFor("non-existant detector");
+		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("non-existant detector"));
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testZeroPoints() {
-		cache.getPositionsFor("scan0");
+		assertThrows(IllegalArgumentException.class, () -> cache.getPositionsFor("scan0"));
 	}
 
 	@Test

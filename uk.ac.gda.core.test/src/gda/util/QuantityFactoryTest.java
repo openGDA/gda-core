@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static si.uom.NonSI.ANGSTROM;
 import static si.uom.NonSI.DEGREE_ANGLE;
 import static si.uom.NonSI.ELECTRON_VOLT;
@@ -549,10 +550,10 @@ public class QuantityFactoryTest {
 		assertEquals(MILLI(METRE), result.getUnit());
 	}
 
-	@Test(expected = UnconvertibleException.class)
+	@Test
 	public void testCreateFromObjectQuantityInvalidConversion() {
 		final Quantity<Length> inputQuantity = Quantities.getQuantity(0.258, METRE);
-		QuantityFactory.createFromObject(inputQuantity, RADIAN);
+		assertThrows(UnconvertibleException.class, () -> QuantityFactory.createFromObject(inputQuantity, RADIAN));
 	}
 
 	@Test
@@ -563,9 +564,10 @@ public class QuantityFactoryTest {
 		assertEquals(expected, QuantityFactory.createFromObject(inputQuantity, AbstractUnit.ONE));
 	}
 
-	@Test(expected = UnconvertibleException.class)
+	@Test
 	public void testCreateFromObjectDimensionlessInvalidConversion() {
 		final double value = 9.237;
-		QuantityFactory.createFromObject(Quantities.getQuantity(value, AbstractUnit.ONE), METRE);
+		assertThrows(UnconvertibleException.class,
+				() -> QuantityFactory.createFromObject(Quantities.getQuantity(value, AbstractUnit.ONE), METRE));
 	}
 }

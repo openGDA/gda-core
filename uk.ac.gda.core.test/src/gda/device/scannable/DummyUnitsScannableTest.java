@@ -20,13 +20,14 @@ package gda.device.scannable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.measure.quantity.Length;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.DeviceException;
-import org.junit.jupiter.api.Test;
 
 public class DummyUnitsScannableTest {
 	private static final String SCANNABLE_NAME = "dummyScannable";
@@ -62,11 +63,11 @@ public class DummyUnitsScannableTest {
 		assertEquals(0.24589, scannable.getCurrentPosition(), FP_TOLERANCE);
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testAsynchronousMoveToInvalidPosition() throws DeviceException {
 		// This test documents the current behaviour.
 		// We may want throw a more specific exception.
-		scannable.asynchronousMoveTo("In");
+		assertThrows(NullPointerException.class, () -> scannable.asynchronousMoveTo("In"));
 	}
 
 	@Test
