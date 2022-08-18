@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import gda.rcp.GDAClientActivator;
@@ -59,6 +60,8 @@ public final class ClientSWTElements {
 	public static final Point DEFAULT_SPAN = new Point(1, 1);
 	public static final int DEFAULT_MARGIN_HEIGHT = 5;
 	public static final int DEFAULT_MARGIN_WIDTH = 5;
+
+	public static final GridDataFactory STRETCH = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false);
 
 	private ClientSWTElements() {
 	}
@@ -518,5 +521,44 @@ public final class ClientSWTElements {
 	 */
 	public static final void standardMarginWidth(Layout layout) {
 		((GridLayout)layout).marginWidth = DEFAULT_MARGIN_WIDTH;
+	}
+
+	public static Composite composite(Composite parent, int columns) {
+		return composite(parent, columns, true);
+	}
+
+	public static Composite composite(Composite parent, int columns, boolean equalWidth) {
+		var composite = new Composite(parent, SWT.NONE);
+		STRETCH.applyTo(composite);
+		GridLayoutFactory.swtDefaults().numColumns(columns).equalWidth(equalWidth).applyTo(composite);
+		return composite;
+	}
+
+	public static Composite innerComposite(Composite parent, int columns, boolean equalWidth) {
+		var composite = composite(parent, columns);
+		GridLayoutFactory.fillDefaults().numColumns(columns).equalWidth(equalWidth).applyTo(composite);
+		return composite;
+	}
+
+	public static Label label(Composite parent, String text) {
+		var label = new Label(parent, SWT.NONE);
+		label.setText(text);
+		return label;
+	}
+
+	public static Text numericTextBox(Composite parent) {
+		var text = new Text(parent, SWT.BORDER);
+		STRETCH.applyTo(text);
+		text.addVerifyListener(ClientVerifyListener.verifyOnlyDoubleText);
+		return text;
+	}
+
+	public static Spinner spinner(Composite parent) {
+		var spinner = new Spinner(parent, SWT.NONE);
+		spinner.setMinimum(0);
+		spinner.setMaximum(Integer.MAX_VALUE);
+		spinner.addListener(SWT.MouseWheel, event -> event.doit = false);
+		STRETCH.applyTo(spinner);
+		return spinner;
 	}
 }
