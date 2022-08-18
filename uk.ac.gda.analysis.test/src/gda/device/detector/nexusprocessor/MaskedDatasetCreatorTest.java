@@ -23,14 +23,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IntegerDataset;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MaskedDatasetCreatorTest {
 
 	private MaskedDatasetCreator maskProc;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		maskProc = new MaskedDatasetCreator();
 	}

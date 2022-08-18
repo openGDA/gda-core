@@ -18,7 +18,7 @@
 
 package uk.ac.gda.analysis.hdf5;
 
-import static org.junit.Assume.assumeNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,8 +28,8 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.StringDataset;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.util.TestUtils;
@@ -42,9 +42,9 @@ public class Hdf5HelperTest {
 	private static final String ENTRY1_GROUP = "entry1/excalibur_summary_ad";
 	private static final String EXCALIBUR_EQUALIZATION_HELPER_TEST_12998_NXS = "ExcaliburEqualizationHelperTest/12998.nxs";
 	static String TestFileFolder;
-	@BeforeClass
+	@BeforeAll
 	static public void setUpClass() {
-		assumeNotNull(TestUtils.getGDALargeTestFilesLocation()); // Skip test if property not set
+		assumeTrue(() -> TestUtils.getGDALargeTestFilesLocation() != null, "GDALargeTestFilesLocation not set");
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation()+File.separator;
 	}
 	/**

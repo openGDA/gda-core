@@ -34,8 +34,8 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.scan.ConcurrentScan;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Class to test writing of nexus files during a scan
@@ -67,7 +67,7 @@ public class NexusScanWithFilenameTest {
 		scan.runScan();
 	}
 
-	@Before
+	@BeforeEach
 	public void beforeEachTest() {
 		Metadata metadata = new GdaMetadata();
 		GDAMetadataProvider.setInstanceForTesting(metadata);

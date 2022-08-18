@@ -19,16 +19,19 @@
 
 package gda.analysis.datavector;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.python.core.Py;
 
 import gda.analysis.datastructure.DataVector;
-import junit.framework.TestCase;
 
 /**
  * DataVectorTest Class
  */
-public class DataVectorTest extends TestCase {
+public class DataVectorTest {
 
 	DataVector dv0;
 
@@ -50,9 +53,8 @@ public class DataVectorTest extends TestCase {
 
 	DataVector dv9;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@BeforeEach
+	protected void setUp() {
 
 		// generate a set of datavectors to test with
 		double data[] = { 1.0, 2.0, 3.0 };
@@ -66,14 +68,7 @@ public class DataVectorTest extends TestCase {
 		dv4 = new DataVector(2, 2, 2, data3);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
-	/**
-	 *
-	 */
+	@Test
 	public void testAllocation() {
 		if (dv0 == null) {
 			fail("Not allocated DataVector(double[] data) properly");
@@ -97,9 +92,7 @@ public class DataVectorTest extends TestCase {
 
 	}
 
-	/**
-	 *
-	 */
+	@Test
 	public void testGetMin() {
 		assertEquals(dv0.getMin(), 1.0, 0.00001);
 		assertEquals(dv1.getMin(), 0.0, 0.00001);
@@ -108,9 +101,7 @@ public class DataVectorTest extends TestCase {
 		assertEquals(dv4.getMin(), 1.8, 0.00001);
 	}
 
-	/**
-	 *
-	 */
+	@Test
 	public void testGetMax() {
 		assertEquals(dv0.getMax(), 3.0, 0.00001);
 		assertEquals(dv1.getMax(), 0.0, 0.00001);
@@ -119,9 +110,8 @@ public class DataVectorTest extends TestCase {
 		assertEquals(dv4.getMax(), 8.8, 0.00001);
 	}
 
-	/**
-	 *
-	 */
+
+	@Test
 	public void testGetMean() {
 		assertEquals(dv0.getMean(), 2.0, 0.00001);
 		assertEquals(dv1.getMean(), 0.0, 0.00001);
@@ -130,9 +120,8 @@ public class DataVectorTest extends TestCase {
 		assertEquals(dv4.getMean(), 5.3, 0.00001);
 	}
 
-	/**
-	 *
-	 */
+
+	@Test
 	public void testGetRMS() {
 		assertEquals(dv0.getRMS(), 2.160246899, 0.00001);
 		assertEquals(dv1.getRMS(), 0.0, 0.00001);
@@ -141,9 +130,8 @@ public class DataVectorTest extends TestCase {
 		assertEquals(dv4.getRMS(), 5.77408013, 0.00001);
 	}
 
-	/**
-	 *
-	 */
+
+	@Test
 	public void testGetSubset() {
 		// first check basic subsetting
 		dv5 = dv0.getSubset(0, 1);

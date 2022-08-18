@@ -25,8 +25,8 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import gda.util.TestUtils;
 import uk.ac.diamond.scisoft.analysis.io.CBFLoader;
@@ -50,7 +50,7 @@ public class RawOutputTest {
 	 * @throws Exception
 	 *             if the directory is not created
 	 */
-	@BeforeClass
+	@BeforeAll
 	static public void setUpClass() throws Exception {
 		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
 		assumeNotNull(TestFileFolder); // Skip test if property not set

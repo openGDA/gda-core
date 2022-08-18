@@ -32,9 +32,9 @@ import java.util.LinkedList;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IntegerDataset;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
@@ -65,7 +65,7 @@ import uk.ac.gda.util.io.FileUtils;
 /**
  * Class to test writing of nexus files during a scan
  */
-@Ignore("DAQ-368 Test temporarily ignored, due to unavailablility of a required network filesystem")
+@Disabled("DAQ-368 Test temporarily ignored, due to unavailablility of a required network filesystem")
 // TODO: Will likely have test failures due to change in expected order of NexusTreeNodes if ever reinstated
 public class ScanToNexusTest {
 
@@ -118,7 +118,7 @@ public class ScanToNexusTest {
 		scan.getDataWriter().completeCollection();
 	}
 
-	@Before
+	@BeforeEach
 	public void beforeEachTest() {
 		// clear metadata
 		Metadata metadata = new GdaMetadata();

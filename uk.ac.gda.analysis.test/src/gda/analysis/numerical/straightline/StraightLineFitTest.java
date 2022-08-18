@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StraightLineFitTest {
 

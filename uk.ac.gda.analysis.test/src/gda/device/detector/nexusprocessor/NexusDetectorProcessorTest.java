@@ -27,8 +27,8 @@ import java.util.Vector;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.Slice;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -57,7 +57,7 @@ public class NexusDetectorProcessorTest {
 	private NXDetectorData detector_data;
 	private DatasetProcessor dsp;
 
-	@Before
+	@BeforeEach
 	public void oneTimeSetUp() throws Exception {
 		detector_data = new NXDetectorData();
 		detector_data.getDetTree(DETNAME);

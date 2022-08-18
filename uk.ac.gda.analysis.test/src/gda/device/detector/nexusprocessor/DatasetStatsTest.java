@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import gda.device.detector.GDANexusDetectorData;
 
@@ -33,7 +33,7 @@ public class DatasetStatsTest {
 
 	private DatasetStats stat;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		stat = new DatasetStats();
 		stat.setEnabledStats(Arrays.asList(DatasetStats.Statistic.SUM));
