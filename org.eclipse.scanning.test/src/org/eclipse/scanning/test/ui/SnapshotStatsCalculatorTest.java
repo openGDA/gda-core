@@ -25,8 +25,8 @@ import static org.junit.Assert.assertFalse;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.scanning.device.ui.device.SnapshotStatsCalculator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SnapshotStatsCalculatorTest {
 
@@ -34,7 +34,7 @@ public class SnapshotStatsCalculatorTest {
 	private SnapshotStatsCalculator stats;
 	private static final double DELTA = 1e-8;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		data = create2DArray(3,3);
 		stats = new SnapshotStatsCalculator();

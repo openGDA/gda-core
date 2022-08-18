@@ -43,7 +43,7 @@ import org.eclipse.scanning.device.NexusMetadataDevice;
 import org.eclipse.scanning.device.ScalarField;
 import org.eclipse.scanning.device.ScannableComponentField;
 import org.eclipse.scanning.device.ScannableField;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gda.TestHelpers;
 import gda.device.Scannable;

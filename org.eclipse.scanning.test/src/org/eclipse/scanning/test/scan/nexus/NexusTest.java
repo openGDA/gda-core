@@ -74,7 +74,7 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
@@ -126,7 +126,7 @@ public abstract class NexusTest {
 		output.deleteOnExit();
 	}
 
-	@After
+	@AfterEach
 	public void deleteFile() {
 		try {
 			output.delete();

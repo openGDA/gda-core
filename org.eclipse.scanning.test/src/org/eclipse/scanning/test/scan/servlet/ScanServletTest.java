@@ -28,7 +28,7 @@ import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Note: if the test methods in this class time out ensure that LD_LIBRARY_PATH is set to

@@ -33,8 +33,8 @@ import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.device.Services;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 
@@ -49,7 +49,7 @@ public abstract class AbstractNexusMetadataDeviceTest<N extends NXobject> {
 
 	private INexusDevice<N> nexusDevice;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		scannableDeviceService = new MockScannableConnector(null);
 		new Services().setScannableDeviceService(scannableDeviceService);

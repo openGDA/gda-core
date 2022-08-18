@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import org.eclipse.scanning.api.malcolm.MalcolmVersion;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MalcolmVersionTest {
 

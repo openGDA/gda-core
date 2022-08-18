@@ -62,15 +62,15 @@ import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class SerializationTest {
 
 	private IMarshallerService service;
 
-	@Before
+	@BeforeEach
 	public void create() throws Exception {
 		// Non-OSGi for test - do not copy!
 
@@ -477,7 +477,7 @@ public class SerializationTest {
         if (!ret.getDeviceValue().equals(sent.getDeviceValue())) throw new Exception("Cannot deserialize "+DeviceRequest.class.getName());
 	}
 
-	@Test @Ignore
+	@Test @Disabled
 	public void testSerializeDeviceRequestWithDoubleList() throws Exception {
 		List<Double> value = Arrays.asList(1.234, 2.345);
 
@@ -491,7 +491,7 @@ public class SerializationTest {
         if (!ret.getDeviceValue().equals(sent.getDeviceValue())) throw new Exception("Cannot deserialize "+DeviceRequest.class.getName());
 	}
 
-	@Test @Ignore
+	@Test @Disabled
 	public void testSerializeDeviceRequestWithArrayList() throws Exception {
 		ArrayList<Double> value = new ArrayList<>();
 		value.add(1.234);
@@ -507,7 +507,7 @@ public class SerializationTest {
         if (!ret.getDeviceValue().equals(sent.getDeviceValue())) throw new Exception("Cannot deserialize "+DeviceRequest.class.getName());
 	}
 
-	@Test @Ignore
+	@Test @Disabled
 	public void testSerializeDeviceRequestWithHashMap() throws Exception {
 		Map<String, Double> value = new HashMap<String, Double>();
 		value.put("x_gap", 1.234);

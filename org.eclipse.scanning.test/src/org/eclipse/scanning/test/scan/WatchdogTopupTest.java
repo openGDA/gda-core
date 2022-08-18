@@ -45,17 +45,17 @@ import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class WatchdogTopupTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog<TopupWatchdogModel> dog;
 	private static MockTopupScannable topup;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createWatchdogs() throws ScanningException {
 		final IScannable<Number>   topups  = connector.getScannable("topup");
 		topup   = (MockTopupScannable)topups;
@@ -73,7 +73,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
 		dog.activate();
 	}
 
-	@After
+	@AfterEach
 	public void disconnect() throws Exception {
 		assertNotNull(topup);
 		topup.disconnect();
@@ -145,7 +145,7 @@ public class WatchdogTopupTest extends AbstractWatchdogTest {
         topupInScan(3, 0.05);
 	}
 
-	@Ignore("Needs to work and does but takes a long time so not part of main tests.")
+	@Disabled("Needs to work and does but takes a long time so not part of main tests.")
 	@Test
 	public void topupIn5DScan() throws Exception {
         topupInScan(5);

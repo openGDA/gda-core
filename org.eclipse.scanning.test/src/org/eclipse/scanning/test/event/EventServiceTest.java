@@ -35,9 +35,9 @@ import org.eclipse.scanning.example.file.MockFilePathService;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
@@ -46,7 +46,7 @@ public class EventServiceTest extends BrokerTest {
 	private IEventService eventService;
 	private static final String QUEUE_NAME = "org.eclipse.scanning.test.event.queue".concat(ScanningTestUtils.JVM_UNIQUE_ID);
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		final ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
@@ -55,7 +55,7 @@ public class EventServiceTest extends BrokerTest {
 		eventService  = new EventServiceImpl(activemqConnectorService);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		eventService.disposeJobQueue();
 	}

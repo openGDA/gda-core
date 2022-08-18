@@ -31,9 +31,9 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MappingScanTest extends BrokerTest{
 
@@ -42,7 +42,7 @@ public class MappingScanTest extends BrokerTest{
 	private ISubscriber<IScanListener> subscriber;
 	private IPointGeneratorService gservice;
 
-	@Before
+	@BeforeEach
 	public void createServices() {
 		ServiceTestHelper.setupServices();
 
@@ -55,7 +55,7 @@ public class MappingScanTest extends BrokerTest{
 		subscriber = eservice.createSubscriber(uri, EventConstants.SCAN_TOPIC); // Do not copy this leave as null!
 	}
 
-	@After
+	@AfterEach
 	public void disconnect() throws Exception {
 		publisher.disconnect();
 		subscriber.disconnect();

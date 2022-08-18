@@ -43,14 +43,14 @@ import org.eclipse.scanning.api.scan.ScanInformation;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ScanInformationTest {
 
 	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setPointGeneratorService(pointGeneratorService);

@@ -48,9 +48,9 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LinearScanTest extends BrokerTest{
 
@@ -62,7 +62,7 @@ public class LinearScanTest extends BrokerTest{
 	private ISubscriber<EventListener> subscriber;
 	private File tmp;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -78,7 +78,7 @@ public class LinearScanTest extends BrokerTest{
 		tmp.deleteOnExit();
 	}
 
-	@After
+	@AfterEach
 	public void clean() throws Exception {
         this.publisher.disconnect();
         this.subscriber.disconnect();

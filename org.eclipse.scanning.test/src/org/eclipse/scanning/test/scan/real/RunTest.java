@@ -19,10 +19,10 @@ import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
+import org.junit.jupiter.api.Test;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
 public class RunTest extends BrokerTest{
@@ -30,7 +30,7 @@ public class RunTest extends BrokerTest{
 	private IEventService            eservice;
 	private IPublisher<TestScanBean> publisher;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();
 		activemqConnectorService.setJsonMarshaller(new MarshallerService(new PointsModelMarshaller()));
@@ -42,7 +42,7 @@ public class RunTest extends BrokerTest{
 
 	}
 
-	@After
+	@AfterEach
 	public void after() throws EventException {
 		publisher.disconnect();
 	}

@@ -35,18 +35,18 @@ import org.eclipse.scanning.api.scan.IScanService;
 import org.eclipse.scanning.api.scan.event.IRunListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("DAQ-2088 Fails due to: 'array lengths differed, expected.length=14 actual.length=2'")
+@Disabled("DAQ-2088 Fails due to: 'array lengths differed, expected.length=14 actual.length=2'")
 public class LegacyDeviceSupportScanTest {
 
 	private IScanService scanService;
 	private IPointGeneratorService pointGeneratorService;
 	private INexusFileFactory fileFactory;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		ServiceTestHelper.setupServices();
 		fileFactory = ServiceTestHelper.getNexusFileFactory();

@@ -18,8 +18,8 @@ import org.eclipse.scanning.api.scan.IParserResult;
 import org.eclipse.scanning.api.scan.IParserService;
 import org.eclipse.scanning.command.ParserServiceImpl;
 import org.eclipse.scanning.test.util.DoubleUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ParserTest {
 
@@ -27,7 +27,7 @@ public class ParserTest {
 
 	private IParserService parserService;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		parserService = new ParserServiceImpl();
 		// TODO also have a Plugin test that uses OSGi-DS

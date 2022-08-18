@@ -66,8 +66,8 @@ import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.util.WaitingAnswer;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -126,7 +126,7 @@ public abstract class AbstractJobQueueTest {
 	private long mockProcessTime = DEFAULT_MOCK_PROCESS_TIME_MS;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		uri = new URI("http://fakeUri"); // Not used as we mock the connection layer
 
@@ -178,7 +178,7 @@ public abstract class AbstractJobQueueTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (jobQueue.isActive()) {
 			jobQueue.stop();

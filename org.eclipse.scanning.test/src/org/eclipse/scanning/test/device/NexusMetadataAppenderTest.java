@@ -58,8 +58,8 @@ import org.eclipse.scanning.example.detector.MandelbrotDetector;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class NexusMetadataAppenderTest {
 
@@ -81,7 +81,7 @@ public class NexusMetadataAppenderTest {
 
 	private MandelbrotDetector detector;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		nexusDeviceService = new NexusDeviceService();
 		new ServiceHolder().setNexusDeviceService(nexusDeviceService);

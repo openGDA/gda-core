@@ -31,11 +31,9 @@ import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class RemoteRunnableServiceTest extends BrokerTest {
 
@@ -43,7 +41,7 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 	private static IEventService eservice;
 	private static AbstractResponderServlet<?> dservlet, pservlet;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -67,7 +65,7 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 		pservlet.connect();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void cleanup() throws EventException {
 		dservlet.disconnect();
 		pservlet.disconnect();
@@ -75,12 +73,12 @@ public class RemoteRunnableServiceTest extends BrokerTest {
 
 	private         IRunnableDeviceService    rservice;
 
-	@Before
+	@BeforeEach
 	public void createService() throws EventException {
 		rservice = eservice.createRemoteService(uri, IRunnableDeviceService.class);
 	}
 
-	@After
+	@AfterEach
 	public void disposeService() throws EventException {
 		((IConnection)rservice).disconnect();
 	}

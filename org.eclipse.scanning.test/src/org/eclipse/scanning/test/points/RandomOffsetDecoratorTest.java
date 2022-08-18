@@ -21,9 +21,9 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.MapPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.points.RandomOffsetDecorator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class RandomOffsetDecoratorTest {
@@ -55,14 +55,14 @@ public class RandomOffsetDecoratorTest {
 	private MockIterator mockIterator;
 	private RandomOffsetDecorator randomOffsetDecorator;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		mockIterator = new MockIterator();
 		randomOffsetDecorator = new RandomOffsetDecorator(mockIterator, STD_DEV);
 		randomOffsetDecorator.setRandomSeed(RANDOM_SEED);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		randomOffsetDecorator = null;
 		mockIterator = null;

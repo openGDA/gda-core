@@ -14,7 +14,7 @@ package org.eclipse.scanning.test.event;
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Class to test that we can run
@@ -24,7 +24,7 @@ import org.junit.Before;
  */
 public class PauseTest extends AbstractPauseTest {
 
-	@Before
+	@BeforeEach
 	public void createServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		eservice = ServiceTestHelper.getEventService();

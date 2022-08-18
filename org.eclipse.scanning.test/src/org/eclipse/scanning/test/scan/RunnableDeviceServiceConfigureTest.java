@@ -31,15 +31,15 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RunnableDeviceServiceConfigureTest {
 
 	private IScanService sservice;
 	private IPointGeneratorService gservice;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		gservice  = new PointGeneratorService();
 		sservice  = new RunnableDeviceServiceImpl(new MockScannableConnector());

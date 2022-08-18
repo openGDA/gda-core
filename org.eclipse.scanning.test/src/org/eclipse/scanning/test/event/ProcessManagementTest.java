@@ -30,10 +30,10 @@ import org.eclipse.scanning.api.event.queue.QueueCommandBean;
 import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -70,7 +70,7 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -96,7 +96,7 @@ public class ProcessManagementTest extends AbstractJobQueueTest {
 	}
 
 	@Override
-	@After
+	@AfterEach
 	public void tearDown() {
 		waitingAnswer.resume();
 	}

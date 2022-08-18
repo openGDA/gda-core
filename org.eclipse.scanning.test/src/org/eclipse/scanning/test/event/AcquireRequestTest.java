@@ -55,16 +55,16 @@ import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.server.servlet.AcquireServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AcquireRequestTest extends BrokerTest {
 
 	private IRequester<AcquireRequest> requester;
 	private AcquireServlet acquireServlet;
 
-	@Before
+	@BeforeEach
 	public void createServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -77,7 +77,7 @@ public class AcquireRequestTest extends BrokerTest {
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws Exception {
 		requester.disconnect();
 		acquireServlet.disconnect();

@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.eclipse.scanning.test.command;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 // TODO Remove this test along with the rest of the original mscan based code
 
-@Ignore("DAQ-2832 These tests all relate to the original mscan implementation which is end of life and will be removed soon and also really rely on pi.exec "
+@Disabled("DAQ-2832 These tests all relate to the original mscan implementation which is end of life and will be removed soon and also really rely on pi.exec "
 		+ "completing the command within a timeout (which cannot be guaranteed) for scan requests functionality which is tested elsewhere")
 public class ScanRequestTest extends AbstractScanCommandsTest {
 
@@ -30,7 +30,7 @@ public class ScanRequestTest extends AbstractScanCommandsTest {
 		runAndCheck("sr", false, 30);
 	}
 
-	@Ignore("DAQ-2088 Test fails due to Exception not thrown")
+	@Disabled("DAQ-2088 Test fails due to Exception not thrown")
 	@Test(expected=Exception.class)
 	public void testGridScanWrongAxis() throws Exception {
 		pi.exec("sr = scan_request(grid(axes=('x', 'y'), start=(0, 0), stop=(10, 10), count=(2, 2), snake=True), det=detector('mandelbrot', 0.001))");

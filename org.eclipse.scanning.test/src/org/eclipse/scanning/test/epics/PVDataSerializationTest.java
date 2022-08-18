@@ -74,10 +74,10 @@ import org.epics.pvdata.pv.PVUnionArray;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvdata.pv.Union;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Tests for serialisation into EPICS V4 structures for transmission over PVAccess
@@ -94,14 +94,14 @@ public class PVDataSerializationTest {
 
 	private PVDataCreate pvDataCreate = PVDataFactory.getPVDataCreate();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setValidatorService(new ValidatorService());
 		serviceHolder.setPointGeneratorService(pgService);
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		connectorService = new MalcolmEpicsV4Connection();
 		fieldCreate = FieldFactory.getFieldCreate();
@@ -364,7 +364,7 @@ public class PVDataSerializationTest {
 		assertEquals(expectedCompGenPVStructure.getSubField("excluders"), pvStructure.getSubField("excluders"));
 	}
 
-	@Ignore // TODO: Allow Java Generator construction without calling CompoundGenerator.prepare,
+	@Disabled // TODO: Allow Java Generator construction without calling CompoundGenerator.prepare,
 	// to allow "empty" scans to be described
 	@Test
 	public void testPointROI() throws Exception {

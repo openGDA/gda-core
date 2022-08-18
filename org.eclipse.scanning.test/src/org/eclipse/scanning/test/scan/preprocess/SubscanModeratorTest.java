@@ -43,14 +43,14 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.ServiceHolder;
 import org.eclipse.scanning.sequencer.SubscanModerator;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class SubscanModeratorTest {
 
 	protected static IPointGeneratorService gservice;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setServices() throws Exception {
 		gservice = new PointGeneratorService();
 		new ServiceHolder().setGeneratorService(gservice);

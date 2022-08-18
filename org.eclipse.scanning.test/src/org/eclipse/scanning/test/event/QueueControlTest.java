@@ -39,7 +39,7 @@ import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JobQueueProxy;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 

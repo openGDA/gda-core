@@ -50,10 +50,10 @@ import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class SynchronizedModifiableIdQueueTest {
 
@@ -67,7 +67,7 @@ public class SynchronizedModifiableIdQueueTest {
 
 	private List<StatusBean> beanCopies;
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() throws Exception {
 		File storeFile = File.createTempFile(SynchronizedModifiableIdQueueTest.class.getSimpleName(), ".mvs");
 		storeFile.deleteOnExit();
@@ -78,7 +78,7 @@ public class SynchronizedModifiableIdQueueTest {
 		eventConnectorService = activeMqConnectorService;
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		createQueue();
 		List<String> beanNames = Arrays.asList("one", "two", "three", "four", "five");
@@ -100,7 +100,7 @@ public class SynchronizedModifiableIdQueueTest {
 		return bean;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		queue.clear();
 		queue.close();

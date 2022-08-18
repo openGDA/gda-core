@@ -49,9 +49,9 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -128,7 +128,7 @@ public class QueueManagementTest extends BrokerTest {
 		this.startConsumerThread = startConsumerThread;
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		ServiceTestHelper.setupServices();
 
@@ -147,7 +147,7 @@ public class QueueManagementTest extends BrokerTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (processFactory != null) {
 			processFactory.releaseInitialProcess();

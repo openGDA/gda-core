@@ -21,7 +21,7 @@ import org.eclipse.scanning.api.points.GeneratorException;
 import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Actually tests any scalar scan

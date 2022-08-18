@@ -38,12 +38,12 @@ import org.eclipse.scanning.event.EventTimingsHelper;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("Flaky new-scanning test")
+@Disabled("Flaky new-scanning test")
 public class SubmitterTest extends BrokerTest {
 
 	private IEventService eventService;
@@ -52,7 +52,7 @@ public class SubmitterTest extends BrokerTest {
 	private IJobQueue<StatusBean> jobQueue;
 	private IJmsQueueReader<StatusBean> jmsQueueReader;
 
-	@Before
+	@BeforeEach
 	public void start() throws Exception {
 		ServiceTestHelper.setupServices();
 		eventService = ServiceTestHelper.getEventService();
@@ -73,7 +73,7 @@ public class SubmitterTest extends BrokerTest {
 		EventTimingsHelper.setConnectionRetryInterval(200); // Normally 2000
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws Exception {
 		EventTimingsHelper.setConnectionRetryInterval(2000); // Normally 2000
 		submitter.disconnect();

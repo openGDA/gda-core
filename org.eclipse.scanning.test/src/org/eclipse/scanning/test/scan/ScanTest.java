@@ -64,9 +64,9 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class ScanTest extends BrokerTest {
 
@@ -75,7 +75,7 @@ public class ScanTest extends BrokerTest {
 	protected IPointGeneratorService pointGenService;
 	protected IEventService eventService;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -198,7 +198,7 @@ public class ScanTest extends BrokerTest {
 		checkRun(scanner);
 	}
 
-	@Ignore("DAQ-2088 This now regularly fails on  Jenkins with 'Cannot to do readout' from MockWritableDetector#run")
+	@Disabled("DAQ-2088 This now regularly fails on  Jenkins with 'Cannot to do readout' from MockWritableDetector#run")
 	@Test
 	public void testAbortSimpleScan() throws Exception {
 		MockDetectorModel dmodel = new MockDetectorModel();

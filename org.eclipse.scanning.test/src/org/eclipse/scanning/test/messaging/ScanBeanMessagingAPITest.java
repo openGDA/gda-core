@@ -49,9 +49,9 @@ import org.eclipse.scanning.server.servlet.ScanServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Class to test the API changes for ScanRequest messaging.
@@ -73,14 +73,14 @@ public class ScanBeanMessagingAPITest extends BrokerTest {
 	private ScanServlet scanServlet;
 	private DeviceServlet dservlet;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		ServiceTestHelper.setupServices();
 		dservice = ServiceTestHelper.getRunnableDeviceService();
 		eservice = ServiceTestHelper.getEventService();
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws EventException {
 		if (scanServlet != null) {
 			scanServlet.getJobQueue().clearQueue();

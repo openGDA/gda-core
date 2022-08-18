@@ -46,8 +46,8 @@ import org.eclipse.scanning.malcolm.core.AbstractMalcolmDevice;
 import org.eclipse.scanning.server.application.Activator;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractAcquisitionTest {
 
@@ -64,7 +64,7 @@ public abstract class AbstractAcquisitionTest {
 	protected List<IPosition>            positions;
 	protected IRunListener               runListener;
 
-	@Before
+	@BeforeEach
 	public void beforeTest() throws Exception {
 		positions = new ArrayList<>(20);
 
@@ -73,7 +73,7 @@ public abstract class AbstractAcquisitionTest {
 		detector.getModel().setExposureTime(0.08);
 	}
 
-	@After
+	@AfterEach
 	public void afterTest() throws Exception {
 		positions.clear();
 		detector.removeRunListener(runListener);

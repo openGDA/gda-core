@@ -41,6 +41,7 @@ import org.eclipse.scanning.api.event.queue.QueueStatusBeanEvent;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.event.JobQueueProxy;
 import org.eclipse.scanning.test.ScanningTestUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -65,6 +66,7 @@ public class ConsumerProxyControlTest extends QueueControlTest {
 
 	@SuppressWarnings("unchecked")
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		// set up the mock queue status topic subscriber used by the consumer proxy
 		ISubscriber<IQueueStatusBeanListener> queueStatusTopicSubscriber = mock(ISubscriber.class);

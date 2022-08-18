@@ -22,23 +22,23 @@ import org.eclipse.scanning.api.event.core.IPublisher;
 import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("DAQ-2088 Tests have not been implemented")
+@Disabled("DAQ-2088 Tests have not been implemented")
 public class SubscriberTest extends BrokerTest {
 
 	private IPublisher<StatusBean> publisher;
 	private ISubscriber<?> subscriber;
 
-	@Before
+	@BeforeEach
 	public void start() throws Exception {
 		// TODO set notification and receive frequencies?
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws Exception {
 		publisher.disconnect();
 		subscriber.disconnect();

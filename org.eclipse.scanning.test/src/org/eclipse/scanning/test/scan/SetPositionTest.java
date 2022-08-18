@@ -10,9 +10,9 @@ import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.example.scannable.MockCountingPositionScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class SetPositionTest {
 
@@ -21,7 +21,7 @@ public class SetPositionTest {
 	private static CountableScannable<Number> cpsGood;
 	private static CountableScannable<Number> cpsBad;
 
-	@BeforeClass
+	@BeforeAll
 	public static void before() {
 		final MockScannableConnector msc = new MockScannableConnector(null);
 		cpsGood = new MockCountingPositionScannable("cpsGood", 10, true);
@@ -33,7 +33,7 @@ public class SetPositionTest {
 		dservice  = new RunnableDeviceServiceImpl(connector);
 	}
 
-	@After
+	@AfterEach
 	public void reset() throws Exception {
 		cpsGood.setPosition(10, null);
 		cpsBad.setPosition(10, null);

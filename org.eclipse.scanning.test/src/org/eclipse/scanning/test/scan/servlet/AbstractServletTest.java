@@ -40,13 +40,13 @@ import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractServletTest extends BrokerTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void create() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -64,7 +64,7 @@ public abstract class AbstractServletTest extends BrokerTest {
      */
 	protected abstract <T extends StatusBean> AbstractJobQueueServlet<T> createServlet() throws Exception;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		servlet = createServlet();
 		if (servlet!=null) {
@@ -73,7 +73,7 @@ public abstract class AbstractServletTest extends BrokerTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void disconnect()  throws Exception {
 		if (servlet!=null) {
 			servlet.getJobQueue().clearQueue();

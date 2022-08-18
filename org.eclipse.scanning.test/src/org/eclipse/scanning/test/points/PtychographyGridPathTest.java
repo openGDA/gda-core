@@ -31,7 +31,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisPtychographyModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PtychographyGridPathTest extends AbstractGeneratorTest {
 

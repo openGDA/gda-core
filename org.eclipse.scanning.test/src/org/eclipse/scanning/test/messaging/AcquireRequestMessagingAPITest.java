@@ -34,9 +34,9 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.AcquireServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Class to test the API changes for AcquireRequest messaging.
@@ -55,7 +55,7 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 	private IRequester<AcquireRequest> 	requester;
 	private AcquireServlet acquireServlet;
 
-	@Before
+	@BeforeEach
 	public void createServices() throws Exception {
 		ServiceTestHelper.setupServices();
 		eservice = ServiceTestHelper.getEventService();
@@ -95,7 +95,7 @@ public class AcquireRequestMessagingAPITest extends BrokerTest {
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws EventException {
 
 	if (requester!=null) requester.disconnect();

@@ -51,9 +51,9 @@ import org.eclipse.scanning.test.messaging.FileUtils;
 import org.eclipse.scanning.test.scan.nexus.DummyMalcolmDeviceTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.util.WaitingScannable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
@@ -112,7 +112,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 	private TriggeredTestTopupScannable topupScannable;
 	private WaitingScannable outerScannable;
 
-	@Before
+	@BeforeEach
 	public void startUp() throws Exception {
 		this.dir = Files.createTempDirectory(DummyMalcolmDeviceTest.class.getSimpleName()).toFile();
 		dir.deleteOnExit();
@@ -145,7 +145,7 @@ public class WatchdogInOuterScanMoveTest extends AbstractWatchdogTest {
 		return model;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (dir!=null) FileUtils.recursiveDelete(dir);
 	}

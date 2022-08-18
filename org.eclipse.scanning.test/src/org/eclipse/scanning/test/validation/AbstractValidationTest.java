@@ -36,20 +36,20 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredDetector;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmTriggeredModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractValidationTest {
 
     protected IValidatorService validator;
 
-    @BeforeClass
+    @BeforeAll
     public static void initalise() {
     	// Prevent being overwritten by classes not calling super.before()
     	ServiceTestHelper.setupServices();
     }
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		validator = ServiceTestHelper.getValidatorService();
 

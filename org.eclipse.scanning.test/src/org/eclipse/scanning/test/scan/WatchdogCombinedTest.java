@@ -34,16 +34,16 @@ import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.sequencer.watchdog.TopupWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog<ExpressionWatchdogModel> expressionWatchdog;
 	private static IDeviceWatchdog<TopupWatchdogModel> topupWatchdog;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createWatchdogs() throws Exception {
 
 		assertNotNull(connector.getScannable("beamcurrent"));
@@ -80,7 +80,7 @@ public class WatchdogCombinedTest extends AbstractWatchdogTest {
 
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		final IScannable<Number>   topups  = connector.getScannable("topup");
 		final MockTopupScannable   topup   = (MockTopupScannable)topups;

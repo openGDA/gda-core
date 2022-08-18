@@ -93,8 +93,8 @@ import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
 import org.eclipse.scanning.sequencer.nexus.SolsticeScanMetadataWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class SolsticeScanMetadataWriterTest {
@@ -238,7 +238,7 @@ public class SolsticeScanMetadataWriterTest {
 
 	private NXcollection diamondScanCollection;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		pointGenService = new PointGeneratorService();
 		new ServiceHolder().setValidatorService(new ValidatorService());

@@ -83,9 +83,9 @@ import org.epics.pvdata.pv.PVUnionArray;
 import org.epics.pvdata.pv.ScalarType;
 import org.epics.pvdata.pv.Structure;
 import org.epics.pvdata.pv.Union;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test for malcolm device that uses the real PV deserialization with <code>DummyMalcolmRecord</code> set up as
@@ -99,7 +99,7 @@ public class ExampleMalcolmDeviceTest {
 	private IMalcolmDevice malcolmDevice;
 	private IPointGeneratorService pointGenService;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
@@ -117,7 +117,7 @@ public class ExampleMalcolmDeviceTest {
 		malcolmDevice = new MalcolmDevice(epicsv4Device.getRecordName(), connectorService, service);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		malcolmDevice.dispose();
 		// Stop the device

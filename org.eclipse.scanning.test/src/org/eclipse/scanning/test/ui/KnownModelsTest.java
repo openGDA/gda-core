@@ -36,9 +36,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
@@ -46,13 +46,13 @@ public class KnownModelsTest extends ShellTest{
 
 	private static IInterfaceService interfaceService; // We really get this from OSGi services!
 
-	@BeforeClass
+	@BeforeAll
 	public static void createServices() throws Exception {
 		interfaceService = new InterfaceService(); // Just for testing! This comes from OSGi really.
 		UITestServicesSetup.createTestServices(false);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void disposeServices() throws Exception {
 		interfaceService = null;
 		UITestServicesSetup.disposeTestServices();

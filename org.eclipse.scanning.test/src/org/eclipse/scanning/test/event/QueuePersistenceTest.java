@@ -48,7 +48,7 @@ import org.eclipse.scanning.event.JobQueueImpl;
 import org.eclipse.scanning.event.queue.IPersistentModifiableIdQueue;
 import org.eclipse.scanning.event.queue.SynchronizedModifiableIdQueue;
 import org.h2.mvstore.MVStore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 

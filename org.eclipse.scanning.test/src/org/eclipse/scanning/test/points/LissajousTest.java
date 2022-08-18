@@ -23,17 +23,17 @@ import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("DAQ-2088 Tests have not been implemented")
+@Disabled("DAQ-2088 Tests have not been implemented")
 public class LissajousTest {
 
 	private IPointGenerator<TwoAxisLissajousModel> generator;
 	private IPointGeneratorService pgs;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 
 		BoundingBox box = new BoundingBox();

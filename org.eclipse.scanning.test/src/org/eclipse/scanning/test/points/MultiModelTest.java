@@ -34,15 +34,15 @@ import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class MultiModelTest {
 
 	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setValidatorService(new ValidatorService());
@@ -50,7 +50,7 @@ public class MultiModelTest {
 	}
 
 	@Test
-	@Ignore("Currently failing because Array([u'x', u'y'] != Array(['x', 'y']); pull request for SPG created since u'x' = u'x'")
+	@Disabled("Currently failing because Array([u'x', u'y'] != Array(['x', 'y']); pull request for SPG created since u'x' = u'x'")
 	public void ConsecutiveOfConcurrent() throws GeneratorException {
 		AxialArrayModel x = new AxialArrayModel("xxxxx");
 		// Bounds 2.5 -> 19

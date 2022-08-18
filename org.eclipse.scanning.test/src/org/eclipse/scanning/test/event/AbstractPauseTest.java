@@ -37,9 +37,9 @@ import org.eclipse.scanning.api.event.queue.QueueCommandBean.Command;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.BrokerTest;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractPauseTest extends BrokerTest {
 
@@ -50,7 +50,7 @@ public abstract class AbstractPauseTest extends BrokerTest {
 	protected IJobQueue<StatusBean> jobQueue;
 
 
-	@After
+	@AfterEach
 	public void dispose() throws EventException {
 		submitter.disconnect();
 		jmsQueueReader.disconnect();
@@ -113,7 +113,7 @@ public abstract class AbstractPauseTest extends BrokerTest {
 		assertTrue(jobQueue.isActive());
 	}
 
-	@Ignore("TODO Find out why this does not work, it is supposed to...")
+	@Disabled("TODO Find out why this does not work, it is supposed to...")
 	@Test
 	public void testReorderingAPausedQueue() throws Exception {
 

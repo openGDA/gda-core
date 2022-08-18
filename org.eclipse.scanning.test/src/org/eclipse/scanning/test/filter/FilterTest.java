@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.scanning.api.device.IScannableDeviceService;
 import org.eclipse.scanning.api.filter.Filter;
@@ -27,10 +28,11 @@ import org.eclipse.scanning.api.filter.IFilter;
 import org.eclipse.scanning.api.filter.IFilterService;
 import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -39,13 +41,13 @@ public class FilterTest {
 	private static IScannableDeviceService sservice;
 	private static IFilterService          fservice;
 
-	@BeforeClass
+	@BeforeAll
 	public static void getServices() {
 		fservice = IFilterService.DEFAULT;
 		sservice = new MockScannableConnector(null);
 	}
 
-	@Before
+	@BeforeEach
 	public void parseSpring() throws Exception {
 		fservice.clear();
 		Filter filter = new Filter();
@@ -144,7 +146,8 @@ public class FilterTest {
 
 	}
 
-	@Test(timeout=10000) // Must complete in 10s or less
+	@Test
+	@Timeout(value = 10000, unit = TimeUnit.MILLISECONDS)
 	public void testDuplicatesLarge() {
 
 		fservice.clear();

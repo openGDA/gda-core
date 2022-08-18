@@ -44,8 +44,8 @@ import org.eclipse.scanning.points.PySerializable;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.python.core.PyDictionary;
 import org.python.core.PyList;
 
@@ -53,7 +53,7 @@ public class CompoundTest {
 
 	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setPointGeneratorService(pointGeneratorService);

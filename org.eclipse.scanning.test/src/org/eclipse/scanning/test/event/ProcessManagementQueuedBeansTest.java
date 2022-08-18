@@ -42,10 +42,10 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.WaitingRunnable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * A test for changing the status of a queued bean, and testing that its updated in the queue.
@@ -55,7 +55,7 @@ import org.junit.Test;
  * meant writing a lot of tricky code to setup the Mockito mocks. Once the queue has been brought
  * into memory, this change can be made.
  */
-@Ignore("DAQ-2088 These tests time out and fail")
+@Disabled("DAQ-2088 These tests time out and fail")
 public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	private class InitialProcess extends AbstractLockingPausableProcess<StatusBean> {
@@ -110,7 +110,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 
 	private TestProcessCreator processFactory;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		ServiceTestHelper.setupServices();
 
@@ -126,7 +126,7 @@ public class ProcessManagementQueuedBeansTest extends BrokerTest {
 		startJobQueue();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		processFactory.releaseInitialProcess();
 

@@ -31,7 +31,7 @@ import org.eclipse.scanning.example.detector.PosDetectorModel;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ModelTest extends AbstractValidationTest {
 

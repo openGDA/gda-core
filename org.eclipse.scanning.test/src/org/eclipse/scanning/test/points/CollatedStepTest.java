@@ -33,7 +33,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialCollatedStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CollatedStepTest extends AbstractGeneratorTest {
 

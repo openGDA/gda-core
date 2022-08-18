@@ -25,15 +25,15 @@ import org.eclipse.scanning.api.points.Scalar;
 import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ArrayTest {
 
 	private IPointGenerator<AxialArrayModel> generator;
 	private IPointGeneratorService pgs;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 
 		double[] positions = new double[] {1.0, 2.0 ,3.0, 4.0, 5.0};

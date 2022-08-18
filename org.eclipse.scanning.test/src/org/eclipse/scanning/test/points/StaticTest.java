@@ -25,14 +25,14 @@ import org.eclipse.scanning.api.points.StaticPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.StaticModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StaticTest {
 
 	private IPointGeneratorService service;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		service = new PointGeneratorService();
 	}

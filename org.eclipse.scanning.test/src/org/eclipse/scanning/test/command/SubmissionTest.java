@@ -31,10 +31,10 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
 public class SubmissionTest extends AbstractJythonTest {
@@ -48,7 +48,7 @@ public class SubmissionTest extends AbstractJythonTest {
 		testLog = new ArrayBlockingQueue<>(2);
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void start() throws Exception {
 		ServiceTestHelper.setupServices();
 
@@ -89,13 +89,13 @@ public class SubmissionTest extends AbstractJythonTest {
 
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws EventException {
 		jobQueue.clearQueue();
 		jobQueue.clearRunningAndCompleted();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void disconnect() throws EventException {
 		jobQueue.disconnect();
 		jmsQueueReader.disconnect();

@@ -32,8 +32,8 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -44,7 +44,7 @@ public class JavaMessagingTests extends BrokerTest {
 	protected IRunnableDeviceService    dservice;
 	protected IEventService             eservice;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		ServiceTestHelper.setupServices();
 		dservice = ServiceTestHelper.getRunnableDeviceService();

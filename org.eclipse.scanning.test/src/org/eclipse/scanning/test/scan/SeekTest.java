@@ -35,36 +35,36 @@ import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class SeekTest extends AbstractAcquisitionTest {
 
 	private File temp;
 	private static INexusFileFactory factory;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createFactory() throws Exception {
 		factory = new NexusFileFactoryHDF5();
 		setupServices();
 	}
 
-	@Before
+	@BeforeEach
 	public void createFile() throws Exception {
 		temp = File.createTempFile("test_seek", ".nxs");
 		temp.deleteOnExit();
 	}
 
-	@After
+	@AfterEach
 	public void removeFile() throws Exception {
 		temp.delete();
 	}
 
 	@Test
-	@Ignore("DAQ-1484 This test is timing sensetive and therefore flaky")
+	@Disabled("DAQ-1484 This test is timing sensetive and therefore flaky")
 	public void seekFirst() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
@@ -169,7 +169,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	}
 
 	@Test
-	@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be fixed by DAQ-1526")
+	@Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It will be fixed by DAQ-1526")
 	public void seekFirstRestartsInCorrectLocation() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);
@@ -213,7 +213,7 @@ public class SeekTest extends AbstractAcquisitionTest {
 	}
 
 	@Test
-	@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be fixed by DAQ-1526")
+	@Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It will be fixed by DAQ-1526")
 	public void staticScannerAvailableForJython() throws Exception {
 
 		IDeviceController controller = createTestScanner(null);

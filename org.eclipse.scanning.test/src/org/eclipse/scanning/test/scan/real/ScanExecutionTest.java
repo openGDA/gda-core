@@ -39,8 +39,8 @@ import org.eclipse.scanning.api.scan.models.ScanModel;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * This class is an object which can be started by spring on the GDA server.
@@ -50,7 +50,7 @@ import org.junit.Test;
  * @author fri44821
  *
  */
-@Ignore("DAQ-2088 Invalid constructor for JUnit")
+@Disabled("DAQ-2088 Invalid constructor for JUnit")
 public class ScanExecutionTest extends BrokerTest {
 
 	private static IEventService     eventService;

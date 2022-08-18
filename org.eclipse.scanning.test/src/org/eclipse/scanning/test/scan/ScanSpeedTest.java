@@ -53,18 +53,18 @@ import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockDetectorModel;
 import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockScannable;
 import org.eclipse.scanning.test.utilities.scan.mock.AnnotatedMockWritableDetector;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
+@Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
 public class ScanSpeedTest extends BrokerTest {
 
 	private IScanService      			sservice;
 	private IScannableDeviceService     connector;
 	private IPointGeneratorService      gservice;
 
-	@Before
+	@BeforeEach
 	public void start() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();

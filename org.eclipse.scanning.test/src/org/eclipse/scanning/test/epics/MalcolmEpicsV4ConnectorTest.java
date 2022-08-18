@@ -42,9 +42,10 @@ import org.eclipse.scanning.malcolm.core.MalcolmDevice;
 import org.eclipse.scanning.malcolm.core.Services;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Class for testing the Epics V4 Connection to Malcolm.
@@ -57,7 +58,7 @@ public class MalcolmEpicsV4ConnectorTest {
 	private IEPICSv4Device epicsv4Device;
 	private MalcolmEpicsV4Connection connectorService;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		// The real service, get it from OSGi outside this test!
 		// Not required in OSGi mode (do not add this to your real code GET THE SERVICE FROM OSGi!)
@@ -66,7 +67,7 @@ public class MalcolmEpicsV4ConnectorTest {
 		new Services().setPointGeneratorService(new PointGeneratorService());
 	}
 
-	@After
+	@AfterEach
 	public void after() throws Exception {
 		// Stop the device
 		if (epicsv4Device!=null) epicsv4Device.stop();

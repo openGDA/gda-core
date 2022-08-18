@@ -39,9 +39,9 @@ import org.eclipse.scanning.server.servlet.PositionerServlet;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * These tests are designed to test the logic of getting device information from the runnable device service
@@ -60,7 +60,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 
 	private IRunnableDeviceService rservice;
 
-	@Before
+	@BeforeEach
 	public void createService() throws Exception {
 		ServiceTestHelper.setupServices();
 
@@ -144,7 +144,7 @@ public class GetDeviceInformationTest extends BrokerTest {
 		pservlet.connect();
 	}
 
-	@After
+	@AfterEach
 	public void disposeService() throws EventException {
 		((IConnection)rservice).disconnect();
 		dservlet.disconnect();

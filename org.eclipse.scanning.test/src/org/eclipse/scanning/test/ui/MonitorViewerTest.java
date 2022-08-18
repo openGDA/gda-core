@@ -26,22 +26,22 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCCombo;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.runner.RunWith;
 
-@Ignore("DAQ-2088 These tests time out and fail")
+@Disabled("DAQ-2088 These tests time out and fail")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class MonitorViewerTest extends ShellTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void createServices() throws Exception {
 		UITestServicesSetup.createTestServices(true);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void disposeServices() throws Exception {
 		UITestServicesSetup.disposeTestServices();
 	}

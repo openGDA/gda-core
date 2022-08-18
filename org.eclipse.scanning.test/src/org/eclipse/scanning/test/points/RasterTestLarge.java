@@ -27,16 +27,16 @@ import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class RasterTestLarge {
 
 
 	private IPointGeneratorService service;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		service = new PointGeneratorService();
 	}
@@ -108,7 +108,7 @@ public class RasterTestLarge {
 
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void test10millTimeInMemory() throws Exception {
 

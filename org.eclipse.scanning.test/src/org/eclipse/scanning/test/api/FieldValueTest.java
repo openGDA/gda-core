@@ -31,8 +31,8 @@ import static org.hamcrest.Matchers.nullValue;
 
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the behaviour of the {@link FieldValue} class, ensuring that fields in a class are also accessible via a
@@ -60,7 +60,7 @@ public class FieldValueTest {
 	private FieldValue fieldValueFilePathSub;
 	private FieldValue fieldValueSampleIdSub;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		fieldValueObject = new FieldValueTestObject();
 		fieldValueObjectSub = new FieldValueTestObjectSub();

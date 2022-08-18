@@ -13,7 +13,7 @@ package org.eclipse.scanning.test.event;
 
 import org.eclipse.scanning.api.event.EventConstants;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Designed to be run outside OSGi
@@ -23,7 +23,7 @@ import org.junit.Before;
  */
 public class ScanEventTest extends AbstractScanEventTest{
 
-	@Before
+	@BeforeEach
 	public void createServices() {
 		ServiceTestHelper.setupServices();
 

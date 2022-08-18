@@ -23,14 +23,14 @@ import org.eclipse.scanning.api.points.IPointGeneratorService;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PointServiceTest {
 
 	private IPointGeneratorService pservice;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		pservice = new PointGeneratorService();
 	}

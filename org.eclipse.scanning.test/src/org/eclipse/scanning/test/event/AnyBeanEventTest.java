@@ -24,9 +24,9 @@ import org.eclipse.scanning.api.event.core.ISubscriber;
 import org.eclipse.scanning.connector.activemq.ActivemqConnectorService;
 import org.eclipse.scanning.event.EventServiceImpl;
 import org.eclipse.scanning.test.BrokerTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.ac.gda.common.activemq.test.TestSessionService;
 
 public class AnyBeanEventTest extends BrokerTest {
@@ -35,7 +35,7 @@ public class AnyBeanEventTest extends BrokerTest {
 	private IPublisher<AnyBean>        publisher;
 	private ISubscriber<IBeanListener<AnyBean>> subscriber;
 
-	@Before
+	@BeforeEach
 	public void createServices() {
 
 		// We wire things together without OSGi here
@@ -52,7 +52,7 @@ public class AnyBeanEventTest extends BrokerTest {
 	}
 
 
-	@After
+	@AfterEach
 	public void dispose() throws EventException {
 		publisher.disconnect();
 		subscriber.disconnect();

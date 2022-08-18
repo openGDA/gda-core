@@ -25,14 +25,14 @@ import org.eclipse.scanning.example.classregistry.ScanningExampleClassRegistry;
 import org.eclipse.scanning.points.classregistry.ScanningAPIClassRegistry;
 import org.eclipse.scanning.points.serialization.PointsModelMarshaller;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MalcolmAttributesSerializationTest {
 
 	private IMarshallerService service;
 
-	@Before
+	@BeforeEach
 	public void create() throws Exception {
 		// Non-OSGi for test - do not copy
 

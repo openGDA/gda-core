@@ -43,14 +43,15 @@ import java.util.Set;
 import org.eclipse.scanning.api.annotation.ui.FieldDescriptor;
 import org.eclipse.scanning.api.annotation.ui.FieldUtils;
 import org.eclipse.scanning.api.annotation.ui.FieldValue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 public class FieldUtilsTest {
 	private FieldValueTestObject fieldValueObject;
 	private FieldValueTestObjectSub fieldValueObjectSub;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		fieldValueObject = new FieldValueTestObject();
 		fieldValueObjectSub = new FieldValueTestObjectSub();

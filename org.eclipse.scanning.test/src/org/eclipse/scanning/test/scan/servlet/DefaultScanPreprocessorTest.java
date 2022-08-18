@@ -33,8 +33,8 @@ import org.eclipse.scanning.api.scan.process.ProcessingException;
 import org.eclipse.scanning.server.servlet.DefaultScanConfiguration;
 import org.eclipse.scanning.server.servlet.DefaultScanPreprocessor;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -50,7 +50,7 @@ public class DefaultScanPreprocessorTest {
 	private final Map<String, Object> startPositionMapShutter = ImmutableMap.of("s1", "Open");
 	private final Map<String, Object> endPositionMapShutter = ImmutableMap.of("s1", "Closed");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		final DefaultScanConfiguration defaultScanConfig = new DefaultScanConfiguration();
 		defaultScanConfig.setPerPointMonitorNames(new HashSet<>(Arrays.asList("defpp1", "defpp2", "defpp3")));

@@ -41,9 +41,9 @@ import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 public class ScanRequestCreationTest extends AbstractJythonTest {
@@ -54,7 +54,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 		super(false);
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -688,7 +688,7 @@ public class ScanRequestCreationTest extends AbstractJythonTest {
 	}
 
 
-	@Ignore("ScanRequest<?>.equals() doesn't allow this test to work.")
+	@Disabled("ScanRequest<?>.equals() doesn't allow this test to work.")
 	@Test
 	public void testArgStyleInvariance() {
 		pi.exec("sr_full =                     "

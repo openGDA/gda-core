@@ -27,14 +27,14 @@ import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class MultiStepTest {
 
 	private static final IPointGeneratorService pointGeneratorService = new PointGeneratorService();
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setValidatorService(new ValidatorService());

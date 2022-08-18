@@ -47,10 +47,10 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -68,7 +68,7 @@ public class AnnotationManagerTest {
 
 	private static IPointGeneratorService pservice;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createGeneratorService() {
 		pservice = new PointGeneratorService();
 	}
@@ -82,7 +82,7 @@ public class AnnotationManagerTest {
 	private InjectionDevice injectionDevice;
 	private InvalidInjectionDevice invalidInjectionDevice;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		final Map<Class<?>, Object> testServices = new HashMap<>();
 		testServices.put(IPointGeneratorService.class,  new PointGeneratorService());
@@ -98,7 +98,7 @@ public class AnnotationManagerTest {
 		annotationManager.addDevices(simpleDdevice, countingDevice, extCountingDevice, injectionDevice, invalidInjectionDevice);
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		annotationManager.dispose();
 	}

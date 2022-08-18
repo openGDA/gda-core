@@ -23,7 +23,7 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.Point;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.TwoAxisSpiralModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SpiralTest extends AbstractGeneratorTest {
 

@@ -41,16 +41,16 @@ import org.eclipse.scanning.event.JmsQueueReader;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-@Ignore("Flaky new-scanning test")
+@Disabled("Flaky new-scanning test")
 public class JmsQueueReaderTest extends BrokerTest {
 
 	private IEventService eventService;
@@ -63,7 +63,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 	@Mock
 	private IJobQueue<StatusBean> mockJobQueue;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		ServiceTestHelper.setupServices();
 		eventService = ServiceTestHelper.getEventService();
@@ -74,7 +74,7 @@ public class JmsQueueReaderTest extends BrokerTest {
 		jmsQueueReader.start();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (jmsQueueReader.isRunning()) {
 			jmsQueueReader.stop();

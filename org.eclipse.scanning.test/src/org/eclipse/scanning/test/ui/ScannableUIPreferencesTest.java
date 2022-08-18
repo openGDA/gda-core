@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.eclipse.scanning.api.ui.ScannableUIPreferences;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ScannableUIPreferencesTest {
 

@@ -24,9 +24,9 @@ import org.eclipse.scanning.api.scan.event.IPositionListenable;
 import org.eclipse.scanning.api.scan.event.IPositionListener;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.example.scannable.MockScannableConnector;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test which attemps to see if the mock scannables do reasonable things when moving them.
@@ -39,7 +39,7 @@ public class RealisticishMockTest {
 	private static IScannableDeviceService cservice;
 	private static IScannable<Number>      temp;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setup() throws Exception {
 		// We wire things together without OSGi here
 		// DO NOT COPY THIS IN NON-TEST CODE!
@@ -50,7 +50,7 @@ public class RealisticishMockTest {
 		((MockScannable)temp).setMoveRate(5); // Slow tests are bad.
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDown() throws Exception {
 		((MockScannable)temp).setMoveRate(0.5);
 	}

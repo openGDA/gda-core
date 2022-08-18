@@ -45,7 +45,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisLissajousModel;
 import org.eclipse.scanning.points.CompoundGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.mutators.RandomOffsetMutator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConsecutiveTest {
 

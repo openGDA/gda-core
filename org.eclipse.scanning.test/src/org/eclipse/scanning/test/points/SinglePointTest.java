@@ -30,7 +30,7 @@ import org.eclipse.scanning.api.points.IPointGenerator;
 import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisPointSingleModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SinglePointTest extends AbstractGeneratorTest {
 

@@ -33,16 +33,16 @@ import org.eclipse.scanning.sequencer.expression.ServerExpressionService;
 import org.eclipse.scanning.sequencer.watchdog.ExpressionWatchdog;
 import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.util.WaitingScannable;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 public class WatchdogShutterTest extends AbstractWatchdogTest {
 
 	private static IDeviceWatchdog<ExpressionWatchdogModel> dog;
 	private WaitingScannable yAxis;
 
-	@BeforeClass
+	@BeforeAll
 	public static void createWatchdogs() throws Exception {
 		assertNotNull(connector.getScannable("beamcurrent"));
 		assertNotNull(connector.getScannable("portshutter"));
@@ -58,7 +58,7 @@ public class WatchdogShutterTest extends AbstractWatchdogTest {
 		dog.activate();
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		initializeWatchedScannables();
 		initializeScanAxes();

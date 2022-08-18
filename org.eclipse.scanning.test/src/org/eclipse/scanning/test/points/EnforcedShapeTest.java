@@ -46,7 +46,7 @@ import org.eclipse.scanning.api.points.models.TwoAxisGridStepModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
 import org.eclipse.scanning.points.AbstractScanPointGenerator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EnforcedShapeTest extends AbstractGeneratorTest {
 

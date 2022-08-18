@@ -112,8 +112,8 @@ import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.util.WaitingAnswer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 
@@ -124,7 +124,7 @@ public class ScanProcessTest {
 	private MockScriptService sservice;
 	private INexusFileFactory fileFactory;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		ServiceTestHelper.setupServices();
 

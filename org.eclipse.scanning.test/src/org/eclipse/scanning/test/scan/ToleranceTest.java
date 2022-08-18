@@ -12,9 +12,9 @@ import org.eclipse.scanning.api.scan.ScanningException;
 import org.eclipse.scanning.api.scan.event.IPositioner;
 import org.eclipse.scanning.example.scannable.MockScannable;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ToleranceTest {
 
@@ -22,14 +22,14 @@ public class ToleranceTest {
 	private static IRunnableDeviceService  dservice;
 	private static IScannableDeviceService connector;
 
-	@BeforeClass
+	@BeforeAll
 	public static void before() {
 		ServiceTestHelper.setupServices();
 		connector = ServiceTestHelper.getScannableDeviceService();
 		dservice  = ServiceTestHelper.getRunnableDeviceService();
 	}
 
-    @Before
+    @BeforeEach
 	public void beforeTest() throws ScanningException {
 
 		// Make a few detectors and models...

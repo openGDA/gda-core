@@ -53,8 +53,8 @@ import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.api.event.status.StatusBean;
 import org.eclipse.scanning.test.ScanningTestUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class SimpleJobQueueTest extends AbstractJobQueueTest {
@@ -84,7 +84,7 @@ public class SimpleJobQueueTest extends AbstractJobQueueTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Ignore
+	@Disabled
 	@Test
 	public void testStartPaused() throws Exception {
 		// TODO: This test is ignored as it would required Powermock to mock the creation of the

@@ -28,13 +28,13 @@ import org.eclipse.scanning.points.AbstractScanPointGenerator;
 import org.eclipse.scanning.points.PointGeneratorService;
 import org.eclipse.scanning.points.ServiceHolder;
 import org.eclipse.scanning.points.validation.ValidatorService;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractGeneratorTest {
 
 	protected static final IPointGeneratorService service = new PointGeneratorService();
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() {
 		final ServiceHolder serviceHolder = new ServiceHolder();
 		serviceHolder.setPointGeneratorService(service);

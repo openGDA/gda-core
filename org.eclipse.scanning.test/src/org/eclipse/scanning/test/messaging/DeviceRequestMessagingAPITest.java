@@ -36,9 +36,9 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.server.servlet.DeviceServlet;
 import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Class to test the API changes for DeviceRequest messaging.
@@ -58,7 +58,7 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 	private IRequester<DeviceRequest> requester;
 	private DeviceServlet dservlet;
 
-	@Before
+	@BeforeEach
 	public void createServices() throws Exception {
 		ServiceTestHelper.setupServices();
 
@@ -130,7 +130,7 @@ public class DeviceRequestMessagingAPITest extends BrokerTest {
 		requester.setTimeout(10, TimeUnit.SECONDS);
 	}
 
-	@After
+	@AfterEach
 	public void stop() throws EventException {
 		if (requester != null) requester.disconnect();
 		if (dservlet != null) dservlet.disconnect();

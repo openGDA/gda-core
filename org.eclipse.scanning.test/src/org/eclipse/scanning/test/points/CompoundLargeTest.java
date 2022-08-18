@@ -23,16 +23,16 @@ import org.eclipse.scanning.api.points.IPosition;
 import org.eclipse.scanning.api.points.models.AxialStepModel;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.points.PointGeneratorService;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("Appears to hang - or to run very slowly")
+@Disabled("Appears to hang - or to run very slowly")
 public class CompoundLargeTest {
 
 	private IPointGeneratorService service;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		service = new PointGeneratorService();
 	}

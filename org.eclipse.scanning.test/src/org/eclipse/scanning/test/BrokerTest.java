@@ -13,9 +13,9 @@ package org.eclipse.scanning.test;
 
 import java.net.URI;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Doing this works better than using vm:// uris.
@@ -45,7 +45,7 @@ public abstract class BrokerTest {
 		this.startEveryTime = startEveryTime;
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static final void startBroker() throws Exception {
 		delegate = new BrokerDelegate();
 		delegate.start();
@@ -53,7 +53,7 @@ public abstract class BrokerTest {
 		ScanningTestUtils.clearTmp();
 	}
 
-	@Before
+	@BeforeEach
 	public final void startLocalBroker() throws Exception {
 		if (startEveryTime) {
 			if (delegate!=null) delegate.stop();
@@ -63,7 +63,7 @@ public abstract class BrokerTest {
 		}
 	}
 
-	@AfterClass
+	@AfterAll
 	public static final void stopBroker() throws Exception {
 		if (delegate!=null) delegate.stop();
 	}
@@ -72,7 +72,7 @@ public abstract class BrokerTest {
 	 *  With multiple AfterClass methods, they are run alphabetically.
 	 *  Store comes after Stop so this is final thing to happen
 	 */
-	@AfterClass
+	@AfterAll
 	public static final void storeClose() {
 		ScanningTestUtils.clearMVStore();
 	}

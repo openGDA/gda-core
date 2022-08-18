@@ -30,22 +30,22 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCCombo;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ControlTreeViewerTest extends ShellTest {
 
 
-	@BeforeClass
+	@BeforeAll
 	public static void createServices() throws Exception {
 		UITestServicesSetup.createTestServices(true);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void disposeServices() throws Exception {
 		UITestServicesSetup.disposeTestServices();
 	}
@@ -160,7 +160,7 @@ public class ControlTreeViewerTest extends ShellTest {
 		assertEquals("Current",   item.cell(0, 0));
 		assertEquals("5.0    mA", item.cell(0, 1));
 	}
-	@Ignore("Cannot get the click to work...")
+	@Disabled("Cannot get the click to work...")
 	@Test
 	public void checkValuesTree4() throws Exception {
 
@@ -233,7 +233,7 @@ public class ControlTreeViewerTest extends ShellTest {
 		assertEquals("295.0    K", item.cell(0, 1));
 	}
 
-	@Ignore("Travis does not like this one, rather a shame that")
+	@Disabled("Travis does not like this one, rather a shame that")
 	@Test
 	public void addANumericScannable() throws Exception {
 
@@ -251,7 +251,7 @@ public class ControlTreeViewerTest extends ShellTest {
 
 	}
 
-	@Ignore("Travis does not like this one, rather a shame that")
+	@Disabled("Travis does not like this one, rather a shame that")
 	@Test
 	public void addAStringScannable() throws Exception {
 

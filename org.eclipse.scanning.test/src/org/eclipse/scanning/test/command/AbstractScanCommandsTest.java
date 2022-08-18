@@ -35,9 +35,9 @@ import org.eclipse.scanning.server.servlet.Services;
 import org.eclipse.scanning.test.ScanningTestUtils;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 
@@ -49,7 +49,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	protected static IJobQueue<StatusBean>       pjobQueue;
 
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() {
 		pjobQueue = null;
 		ScanPointGeneratorFactory.init();
@@ -63,7 +63,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 	protected static ValidatorService            validator;
 	protected static INexusFileFactory           fileFactory;
 
-	@BeforeClass
+	@BeforeAll
 	public static void create() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();
@@ -91,7 +91,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		servlet.connect(); // Gets called by Spring automatically
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void disconnect()  throws Exception {
 		try {
 			servlet.getJobQueue().clearQueue();
@@ -109,7 +109,7 @@ public abstract class AbstractScanCommandsTest extends AbstractJythonTest {
 		this.requireFile = requireFile;
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 
 		if (requireFile) {

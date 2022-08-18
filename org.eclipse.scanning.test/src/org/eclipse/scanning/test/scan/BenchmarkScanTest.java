@@ -46,24 +46,24 @@ import org.eclipse.scanning.test.BrokerTest;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
+@Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It performs benchmarks which should probably not be run in general.")
 public class BenchmarkScanTest extends BrokerTest {
 
 
 	private static long nexusSmall, nexusMedium, nexusSmallEvents, nexusMediumEvents;
-	@BeforeClass
+	@BeforeAll
 	public static void ensureLambdasLoaded() {
 		// This is required so that we don't benchmark lambda loading.
 		Arrays.asList(1,2,3).stream().map(x -> x+1).collect(Collectors.toList());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void checkTimes() throws Exception {
 		assertTrue(nexusSmallEvents<(nexusSmall+20));
 		assertTrue(nexusMediumEvents<(nexusMedium+20));
@@ -74,7 +74,7 @@ public class BenchmarkScanTest extends BrokerTest {
 	private IEventService               eservice;
 	private ILoaderService              lservice;
 
-	@Before
+	@BeforeEach
 	public void start() throws Exception {
 		ServiceTestHelper.setupServices();
 		ServiceTestHelper.registerTestDevices();

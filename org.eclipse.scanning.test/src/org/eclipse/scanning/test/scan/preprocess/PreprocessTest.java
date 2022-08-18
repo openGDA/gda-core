@@ -31,14 +31,14 @@ import org.eclipse.scanning.api.scan.process.IPreprocessor;
 import org.eclipse.scanning.example.detector.MandelbrotModel;
 import org.eclipse.scanning.example.preprocess.ExamplePreprocessor;
 import org.eclipse.scanning.test.utilities.scan.mock.MockDetectorModel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PreprocessTest {
 
 	protected IPreprocessor preprocessor;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		preprocessor = new ExamplePreprocessor();
 	}

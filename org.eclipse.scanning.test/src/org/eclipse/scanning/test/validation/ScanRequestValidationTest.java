@@ -31,8 +31,8 @@ import org.eclipse.scanning.example.malcolm.DummyMalcolmDevice;
 import org.eclipse.scanning.example.malcolm.DummyMalcolmModel;
 import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.ServiceTestHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ScanRequestValidationTest extends AbstractValidationTest {
 
@@ -40,7 +40,7 @@ public class ScanRequestValidationTest extends AbstractValidationTest {
 
 	private ProcessingRequest processingRequest;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		for (int i = 1; i <= 3; i++) {
 			final String name = "malcolm" + i;

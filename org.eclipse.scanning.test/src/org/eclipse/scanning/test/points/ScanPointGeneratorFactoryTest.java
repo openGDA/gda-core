@@ -29,7 +29,7 @@ import org.eclipse.scanning.jython.JythonObjectFactory;
 import org.eclipse.scanning.points.CompoundGenerator;
 import org.eclipse.scanning.points.PPointGenerator;
 import org.eclipse.scanning.points.ScanPointGeneratorFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.python.core.PyDictionary;
 import org.python.core.PyList;
 import org.python.core.PyObject;

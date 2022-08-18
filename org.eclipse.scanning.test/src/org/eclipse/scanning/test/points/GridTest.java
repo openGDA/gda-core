@@ -39,7 +39,7 @@ import org.eclipse.scanning.api.points.models.AxialArrayModel;
 import org.eclipse.scanning.api.points.models.BoundingBox;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisGridPointsModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GridTest extends AbstractGeneratorTest {
 

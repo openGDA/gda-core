@@ -59,11 +59,11 @@ import org.eclipse.scanning.sequencer.RunnableDeviceServiceImpl;
 import org.eclipse.scanning.test.ScanningTestClassRegistry;
 import org.eclipse.scanning.test.ServiceTestHelper;
 import org.eclipse.scanning.test.util.TestDetectorHelpers;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1488")
+@Disabled("DAQ-1484 This test is flakey and so is being ignored for now. It will be investigated as part of DAQ-1488")
 public class ScanFinishedTest {
 
 	protected IScanService      		  sservice;
@@ -72,7 +72,7 @@ public class ScanFinishedTest {
 	protected IEventService               eservice;
 	protected ILoaderService              lservice;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 
 		ActivemqConnectorService activemqConnectorService = new ActivemqConnectorService();

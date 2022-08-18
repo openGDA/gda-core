@@ -9,8 +9,8 @@ import org.eclipse.scanning.api.event.queue.QueueStatus;
 import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.server.servlet.AbstractJobQueueServlet;
 import org.eclipse.scanning.server.servlet.ScanServlet;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -42,7 +42,7 @@ public class StartServerTest extends AbstractServletTest {
 	}
 
 	@Test
-	@Ignore("Reinstate when queue persistence is reintroduced (DAQ-1704)")
+	@Disabled("Reinstate when queue persistence is reintroduced (DAQ-1704)")
 	public void runServletSomethingInQueue() throws Exception {
 		// We do not start it!
 		servlet = new ScanServlet(true);

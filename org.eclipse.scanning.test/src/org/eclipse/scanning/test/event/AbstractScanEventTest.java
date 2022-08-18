@@ -15,9 +15,9 @@ import static org.eclipse.scanning.api.event.status.Status.COMPLETE;
 import static org.eclipse.scanning.api.event.status.Status.PREPARING;
 import static org.eclipse.scanning.api.event.status.Status.RUNNING;
 import static org.eclipse.scanning.api.event.status.Status.SUBMITTED;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -38,8 +38,8 @@ import org.eclipse.scanning.api.event.scan.ScanBean;
 import org.eclipse.scanning.api.event.scan.ScanEvent;
 import org.eclipse.scanning.api.event.status.Status;
 import org.eclipse.scanning.test.BrokerTest;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public abstract class AbstractScanEventTest extends BrokerTest {
 
@@ -85,7 +85,7 @@ public abstract class AbstractScanEventTest extends BrokerTest {
 	protected IPublisher<ScanBean> publisher;
 	protected ISubscriber<IScanListener> subscriber;
 
-	@After
+	@AfterEach
 	public void dispose() throws EventException {
 		publisher.disconnect();
 		subscriber.disconnect();

@@ -32,7 +32,7 @@ import org.eclipse.scanning.api.points.models.BoundingLine;
 import org.eclipse.scanning.api.points.models.CompoundModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLinePointsModel;
 import org.eclipse.scanning.api.points.models.TwoAxisLineStepModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LinearTest extends AbstractGeneratorTest {
 
